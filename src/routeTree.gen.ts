@@ -30,6 +30,7 @@ import { Route as AuthenticatedGrowthIntelligenceRouteImport } from './routes/_a
 import { Route as AuthenticatedGrowthInsightsRouteImport } from './routes/_authenticated/growth.insights'
 import { Route as AuthenticatedGrowthCustomersRouteImport } from './routes/_authenticated/growth.customers'
 import { Route as AuthenticatedGrowthCrmRouteImport } from './routes/_authenticated/growth.crm'
+import { Route as ApiPublicMetaCallbackRouteImport } from './routes/api/public/meta/callback'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -145,6 +146,11 @@ const AuthenticatedGrowthCrmRoute = AuthenticatedGrowthCrmRouteImport.update({
   path: '/growth/crm',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiPublicMetaCallbackRoute = ApiPublicMetaCallbackRouteImport.update({
+  id: '/api/public/meta/callback',
+  path: '/api/public/meta/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -167,6 +173,7 @@ export interface FileRoutesByFullPath {
   '/market/crm': typeof AuthenticatedMarketCrmRoute
   '/market/leads': typeof AuthenticatedMarketLeadsRoute
   '/market/overview': typeof AuthenticatedMarketOverviewRoute
+  '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -189,6 +196,7 @@ export interface FileRoutesByTo {
   '/market/crm': typeof AuthenticatedMarketCrmRoute
   '/market/leads': typeof AuthenticatedMarketLeadsRoute
   '/market/overview': typeof AuthenticatedMarketOverviewRoute
+  '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -213,6 +221,7 @@ export interface FileRoutesById {
   '/_authenticated/market/crm': typeof AuthenticatedMarketCrmRoute
   '/_authenticated/market/leads': typeof AuthenticatedMarketLeadsRoute
   '/_authenticated/market/overview': typeof AuthenticatedMarketOverviewRoute
+  '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -237,6 +246,7 @@ export interface FileRouteTypes {
     | '/market/crm'
     | '/market/leads'
     | '/market/overview'
+    | '/api/public/meta/callback'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -259,6 +269,7 @@ export interface FileRouteTypes {
     | '/market/crm'
     | '/market/leads'
     | '/market/overview'
+    | '/api/public/meta/callback'
   id:
     | '__root__'
     | '/'
@@ -282,12 +293,14 @@ export interface FileRouteTypes {
     | '/_authenticated/market/crm'
     | '/_authenticated/market/leads'
     | '/_authenticated/market/overview'
+    | '/api/public/meta/callback'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiPublicMetaCallbackRoute: typeof ApiPublicMetaCallbackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -439,6 +452,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedGrowthCrmRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/meta/callback': {
+      id: '/api/public/meta/callback'
+      path: '/api/public/meta/callback'
+      fullPath: '/api/public/meta/callback'
+      preLoaderRoute: typeof ApiPublicMetaCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -491,6 +511,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiPublicMetaCallbackRoute: ApiPublicMetaCallbackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
