@@ -151,7 +151,7 @@ export const Route = createFileRoute("/api/public/hooks/auto-instagram-post")({
 
         try {
           // 5. Generate copy & image
-          const copy = await generateCopy(apiKey, product, (settings.tone as string) || "motivacional");
+          const copy = await generateCopy(apiKey, product, (settings?.tone as string | null) || "motivacional");
           const imageBytes = await generateImage(apiKey, copy.image_prompt);
 
           // 6. Upload to storage
