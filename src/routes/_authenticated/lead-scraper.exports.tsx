@@ -44,9 +44,14 @@ function ExportsPage() {
           },
         },
       }),
-    onSuccess: (r) => {
-      toast.success(`Exportado: ${r.rows} linhas`);
-      if (r.url) window.open(r.url, "_blank");
+    onSuccess: (r: any) => {
+      toast.success(`Exportado: ${r.count ?? r.rows ?? 0} linhas`);
+      // Download inline
+      const blob = new Blob([r.content], { type: r.format === "json" ? "application/json" : "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = `leads-${Date.now()}.${r.format}`; a.click();
+      URL.revokeObjectURL(url);
       qc.invalidateQueries({ queryKey: ["lead-exports"] });
     },
     onError: (e: any) => toast.error(e.message),
