@@ -25,10 +25,11 @@ export const updateAutoPostSettings = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => UpdateInput.parse(i))
   .handler(async ({ data, context }) => {
-    const patch = { ...data, updated_by: context.userId } as Record<string, unknown>;
+    const patch = { ...data, updated_by: context.userId };
     const { data: row, error } = await context.supabase
       .from("auto_post_settings")
-      .update(patch)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .update(patch as any)
       .eq("singleton", true)
       .select()
       .single();
