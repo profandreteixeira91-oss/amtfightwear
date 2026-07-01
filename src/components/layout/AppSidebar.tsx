@@ -13,6 +13,11 @@ import {
   Handshake,
   Gauge,
   Sparkles,
+  Radar,
+  Wand2,
+  Mail,
+  BarChart4,
+  Rocket,
 } from "lucide-react";
 
 import {
@@ -43,6 +48,14 @@ const growthItems = [
   { title: "CRM", url: "/growth/crm", icon: Handshake },
   { title: "KPIs", url: "/growth/kpis", icon: Gauge },
   { title: "Insights IA", url: "/growth/insights", icon: Sparkles },
+] as const;
+
+const marketItems = [
+  { title: "Painel MarketEngine", url: "/market/overview", icon: Rocket },
+  { title: "Lead Scraper", url: "/market/leads", icon: Radar },
+  { title: "IA Content Hub", url: "/market/content", icon: Wand2 },
+  { title: "CRM & E-mail", url: "/market/crm", icon: Mail },
+  { title: "Analytics Catálogo", url: "/market/catalog", icon: BarChart4 },
 ] as const;
 
 const accountItems = [
@@ -100,6 +113,24 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {growthItems.map((item) => (
+                <SidebarMenuItem key={item.url}>
+                  <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
+                    <Link to={item.url} className="flex items-center gap-2">
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>MarketEngine</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {marketItems.map((item) => (
                 <SidebarMenuItem key={item.url}>
                   <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
                     <Link to={item.url} className="flex items-center gap-2">
