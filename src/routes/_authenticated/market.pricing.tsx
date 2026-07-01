@@ -216,9 +216,7 @@ function PricingPage() {
           transition={{ duration: 0.25 }}
           className="mt-6 grid gap-6"
         >
-          <SectionCard
-            title="Produto AMT selecionado"
-          >
+          <SectionCard title="Produto AMT selecionado">
             <div className="flex gap-4">
               {selected.image_url && (
                 <img src={selected.image_url} alt={selected.name} className="h-24 w-24 rounded-lg object-cover ring-1 ring-border" />
@@ -227,6 +225,9 @@ function PricingPage() {
                 <div className="text-lg font-semibold">{selected.name}</div>
                 <div className="text-sm text-muted-foreground">{selected.category ?? "Sem categoria"}</div>
                 <div className="mt-2 text-2xl font-black text-primary">{brl(selected.price)}</div>
+                {selected.description && (
+                  <div className="mt-2 line-clamp-3 text-xs text-muted-foreground">{selected.description}</div>
+                )}
               </div>
             </div>
           </SectionCard>
@@ -234,16 +235,17 @@ function PricingPage() {
           {suggestionQ.isLoading ? (
             <Skeleton className="h-40 w-full" />
           ) : sug ? (
-            <SectionCard
-              title="🧠 Sugestão da IA" concorrentes analisados em ${new Date(sug.created_at).toLocaleString("pt-BR")}.`}
-            >
+            <SectionCard title="🧠 Sugestão da IA">
+              <div className="mb-4 text-xs text-muted-foreground">
+                Baseado em {sug.competitors_analyzed} concorrentes — {new Date(sug.created_at).toLocaleString("pt-BR")}
+              </div>
               <div className="grid gap-4 md:grid-cols-4">
                 <StatCard label="Preço atual AMT" value={brl(sug.current_price)} icon={Minus} />
                 <StatCard
                   label="Preço sugerido"
                   value={brl(sug.suggested_price)}
                   icon={delta >= 0 ? TrendingUp : TrendingDown}
-                  trend={`${delta >= 0 ? "+" : ""}${delta.toFixed(1)}%`}
+                  delta={delta}
                 />
                 <StatCard label="Mercado (média)" value={sug.avg_market ? brl(sug.avg_market) : "—"} icon={Sparkles} />
                 <StatCard
@@ -292,9 +294,7 @@ function PricingPage() {
             />
           )}
 
-          <SectionCard
-            title="🔎 Concorrentes analisados"
-          >
+          <SectionCard title="🔎 Concorrentes analisados">
             {researchQ.isLoading ? (
               <Skeleton className="h-40 w-full" />
             ) : !researchQ.data?.length ? (
