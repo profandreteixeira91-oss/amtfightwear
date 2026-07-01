@@ -50,15 +50,21 @@ async function generateCopy(
 ) {
   const brief =
     channel === "email"
-      ? `Retorne JSON: { "subject": string curto (<=60c), "body_html": HTML simples com <p>/<ul>, 120-180 palavras, apresentando AMT Fight Wear (kimonos trançados, faixas premium, patches), oferta B2B para ${lead.lead_type ?? "academia"} de ${lead.modality ?? "Jiu-Jitsu"}, CTA para amostra/atacado. SEMPRE inclua um <a href="${site}">${site}</a>. Assine com "Equipe AMT Fight Wear". }`
-      : `Retorne JSON: { "body": string até 380 caracteres para Direct do Instagram, tom camarada com 1 emoji 🥋, elogio ao trabalho, convite para conversar sobre linha B2B/atacado. Inclua o site ${site} no fim. }`;
+      ? `Retorne JSON: {
+  "subject": string curto (<=65c), objetivo e comercial, sem gírias, sem emoji, sem "oi" e sem "olá". Exemplos de estilo: "Proposta comercial B2B - AMT Fight Wear", "Kimonos e faixas premium para ${lead.lead_type ?? "sua academia"}".
+  "body_html": HTML simples (<p>, <ul>, <li>) em português do Brasil, 140-200 palavras, registro FORMAL e PROFISSIONAL de fabricante para revendedor/academia. Regras: (1) Abrir com "Prezados," ou "Prezado(a) responsável,"; (2) Apresentar a AMT Fight Wear como fabricante brasileira de kimonos trançados, faixas premium e patches para ${lead.modality ?? "Jiu-Jitsu/Judô"}; (3) Apresentar objetivamente a linha B2B/atacado (kimonos, faixas, patches personalizados, uniformes para equipe), com bullets curtos; (4) Oferecer envio de catálogo, tabela de preços para revenda e amostra sob consulta; (5) Encerrar com CTA discreto ("Podemos enviar catálogo e condições comerciais?") e assinatura "Atenciosamente,<br/>Equipe Comercial – AMT Fight Wear<br/><a href='${site}'>${site}</a>". PROIBIDO: comentar sobre o perfil, dizer "vi seu instagram", elogios pessoais, tom íntimo, exclamações repetidas, emojis, promessas exageradas. Não mencionar cidade nem responsável pelo nome no corpo. Tratar sempre por "vocês"/"a academia"/"a equipe". SEMPRE incluir <a href='${site}'>${site}</a>.
+}`
+      : `Retorne JSON: {
+  "body": string até 380 caracteres para Direct do Instagram, registro FORMAL e institucional (fabricante contatando revendedor). Regras: começar com "Olá, tudo bem?" e apresentar-se como Equipe Comercial da AMT Fight Wear (fabricante de kimonos trançados, faixas premium e patches). Oferecer envio de catálogo e condições de atacado/revenda para ${lead.lead_type ?? "academias"} de ${lead.modality ?? "Jiu-Jitsu/Judô"}. Encerrar com o site ${site}. PROIBIDO: emojis, gírias, "parça", "camarada", comentários sobre postagens/perfil, elogios pessoais, tom íntimo.
+}`;
 
-  const prompt = `Você é copywriter B2B da AMT Fight Wear. Escreva abordagem inicial personalizada.
-Lead: ${lead.name} (${lead.lead_type ?? "academia"} - ${lead.modality ?? "BJJ"}) — cidade: ${lead.city ?? "-"} — responsável: ${lead.responsible ?? "-"}.
-Notas: ${(lead.notes ?? "").slice(0, 400)}
-Tom: ${tone}. Nunca use "prezado". Seja direto e útil.
+  const prompt = `Você é redator comercial B2B da AMT Fight Wear (fabricante brasileira). Escreva uma abordagem comercial inicial, com POSTURA e FORMALIDADE — nunca íntima, nunca "vi seu perfil", nunca elogios pessoais.
+Lead: ${lead.name} (${lead.lead_type ?? "academia"} - ${lead.modality ?? "BJJ"}).
+Notas internas (uso apenas para contextualizar a oferta, NÃO citar no texto): ${(lead.notes ?? "").slice(0, 400)}
+Tom desejado: ${tone} — sempre respeitoso, profissional, direto e objetivo. Português do Brasil.
 ${brief}
-Responda apenas o JSON.`;
+Responda apenas o JSON, sem comentários.`;
+
 
   const res = await fetch(`${AI_GATEWAY}/chat/completions`, {
     method: "POST",
