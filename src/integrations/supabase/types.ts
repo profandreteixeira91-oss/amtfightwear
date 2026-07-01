@@ -102,6 +102,7 @@ export type Database = {
         Row: {
           categories: string[]
           created_at: string
+          daily_plan: Json
           enabled: boolean
           id: string
           last_error: string | null
@@ -116,6 +117,7 @@ export type Database = {
         Insert: {
           categories?: string[]
           created_at?: string
+          daily_plan?: Json
           enabled?: boolean
           id?: string
           last_error?: string | null
@@ -130,6 +132,7 @@ export type Database = {
         Update: {
           categories?: string[]
           created_at?: string
+          daily_plan?: Json
           enabled?: boolean
           id?: string
           last_error?: string | null
@@ -600,12 +603,14 @@ export type Database = {
       scheduled_posts: {
         Row: {
           caption: string
+          carousel_urls: string[]
           created_at: string
           error: string | null
           id: string
           ig_media_id: string | null
           ig_permalink: string | null
           image_url: string
+          post_type: string
           product_id: string | null
           published_at: string | null
           scheduled_for: string | null
@@ -616,12 +621,14 @@ export type Database = {
         }
         Insert: {
           caption: string
+          carousel_urls?: string[]
           created_at?: string
           error?: string | null
           id?: string
           ig_media_id?: string | null
           ig_permalink?: string | null
           image_url: string
+          post_type?: string
           product_id?: string | null
           published_at?: string | null
           scheduled_for?: string | null
@@ -632,12 +639,14 @@ export type Database = {
         }
         Update: {
           caption?: string
+          carousel_urls?: string[]
           created_at?: string
           error?: string | null
           id?: string
           ig_media_id?: string | null
           ig_permalink?: string | null
           image_url?: string
+          post_type?: string
           product_id?: string | null
           published_at?: string | null
           scheduled_for?: string | null
