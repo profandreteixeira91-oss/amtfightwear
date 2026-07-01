@@ -180,14 +180,17 @@ export const generateOutreach = createServerFn({ method: "POST" })
 
     const site = "https://www.amtfightwear.com.br";
     const m = (lead.modality ?? "").toLowerCase();
+    // Catálogo real AMT Fight Wear: kimonos (BJJ, Judô, Karatê), faixas e patches bordados.
+    // A AMT NÃO fabrica shorts, rashguards, camisetas, luvas, caneleiras ou qualquer item de MMA/Muay Thai/boxe.
     const line = m.includes("judô") || m.includes("judo")
       ? "kimonos de judô (gramatura pesada, trançado reforçado), faixas oficiais de judô (todas as graduações) e patches bordados para dogi"
       : m.includes("karate") || m.includes("karatê")
         ? "karategis (kata e kumite), faixas de karatê (todas as graduações) e patches bordados"
-        : m.includes("muay") || m.includes("mma") || m.includes("boxe")
-          ? "shorts de MMA/Muay Thai, rashguards, camisetas técnicas e patches personalizados para equipe"
-          : "kimonos trançados de BJJ (A0 a A5), faixas premium de BJJ (branca a preta) e patches bordados personalizados";
-    const modalityLabel = lead.modality ?? "artes marciais";
+        : "kimonos trançados de BJJ (A0 a A5), faixas premium de BJJ (branca a preta) e patches bordados personalizados";
+    const modalityLabel =
+      m.includes("judô") || m.includes("judo") ? "Judô"
+      : m.includes("karate") || m.includes("karatê") ? "Karatê"
+      : "Jiu-Jitsu";
 
     const channelBrief =
       data.channel === "email"
