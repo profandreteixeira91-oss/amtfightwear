@@ -127,7 +127,7 @@ function ContentPage() {
           )}
         </SectionCard>
 
-        <SectionCard title="Preview" icon={Sparkles} delay={0.1}>
+        <SectionCard title="Preview" delay={0.1}>
           {!result ? (
             <EmptyState title="Preencha o briefing" description="A IA vai gerar copies para Instagram, WhatsApp e E-mail." />
           ) : (

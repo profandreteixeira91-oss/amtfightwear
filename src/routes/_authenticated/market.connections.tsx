@@ -20,7 +20,7 @@ function ConnectionsPage() {
       />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <SectionCard title="Meta Business (Facebook & Instagram)" icon={Plug}>
+        <SectionCard title="Meta Business (Facebook & Instagram)">
           <div className="space-y-3 text-sm">
             <div className="flex gap-2">
               <Badge variant="outline" className="gap-1"><Facebook className="h-3 w-3" /> Facebook Pages</Badge>
