@@ -17,6 +17,7 @@ import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedLogsRouteImport } from './routes/_authenticated/logs'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedMarketPricingRouteImport } from './routes/_authenticated/market.pricing'
 import { Route as AuthenticatedMarketOverviewRouteImport } from './routes/_authenticated/market.overview'
 import { Route as AuthenticatedMarketLeadsRouteImport } from './routes/_authenticated/market.leads'
 import { Route as AuthenticatedMarketCrmRouteImport } from './routes/_authenticated/market.crm'
@@ -75,6 +76,12 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMarketPricingRoute =
+  AuthenticatedMarketPricingRouteImport.update({
+    id: '/market/pricing',
+    path: '/market/pricing',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedMarketOverviewRoute =
   AuthenticatedMarketOverviewRouteImport.update({
     id: '/market/overview',
@@ -201,6 +208,7 @@ export interface FileRoutesByFullPath {
   '/market/crm': typeof AuthenticatedMarketCrmRoute
   '/market/leads': typeof AuthenticatedMarketLeadsRoute
   '/market/overview': typeof AuthenticatedMarketOverviewRoute
+  '/market/pricing': typeof AuthenticatedMarketPricingRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/auto-outreach': typeof ApiPublicHooksAutoOutreachRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
@@ -228,6 +236,7 @@ export interface FileRoutesByTo {
   '/market/crm': typeof AuthenticatedMarketCrmRoute
   '/market/leads': typeof AuthenticatedMarketLeadsRoute
   '/market/overview': typeof AuthenticatedMarketOverviewRoute
+  '/market/pricing': typeof AuthenticatedMarketPricingRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/auto-outreach': typeof ApiPublicHooksAutoOutreachRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
@@ -257,6 +266,7 @@ export interface FileRoutesById {
   '/_authenticated/market/crm': typeof AuthenticatedMarketCrmRoute
   '/_authenticated/market/leads': typeof AuthenticatedMarketLeadsRoute
   '/_authenticated/market/overview': typeof AuthenticatedMarketOverviewRoute
+  '/_authenticated/market/pricing': typeof AuthenticatedMarketPricingRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/auto-outreach': typeof ApiPublicHooksAutoOutreachRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
@@ -286,6 +296,7 @@ export interface FileRouteTypes {
     | '/market/crm'
     | '/market/leads'
     | '/market/overview'
+    | '/market/pricing'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/auto-outreach'
     | '/api/public/hooks/publish-scheduled-posts'
@@ -313,6 +324,7 @@ export interface FileRouteTypes {
     | '/market/crm'
     | '/market/leads'
     | '/market/overview'
+    | '/market/pricing'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/auto-outreach'
     | '/api/public/hooks/publish-scheduled-posts'
@@ -341,6 +353,7 @@ export interface FileRouteTypes {
     | '/_authenticated/market/crm'
     | '/_authenticated/market/leads'
     | '/_authenticated/market/overview'
+    | '/_authenticated/market/pricing'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/auto-outreach'
     | '/api/public/hooks/publish-scheduled-posts'
@@ -415,6 +428,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/market/pricing': {
+      id: '/_authenticated/market/pricing'
+      path: '/market/pricing'
+      fullPath: '/market/pricing'
+      preLoaderRoute: typeof AuthenticatedMarketPricingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/market/overview': {
@@ -565,6 +585,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMarketCrmRoute: typeof AuthenticatedMarketCrmRoute
   AuthenticatedMarketLeadsRoute: typeof AuthenticatedMarketLeadsRoute
   AuthenticatedMarketOverviewRoute: typeof AuthenticatedMarketOverviewRoute
+  AuthenticatedMarketPricingRoute: typeof AuthenticatedMarketPricingRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -586,6 +607,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMarketCrmRoute: AuthenticatedMarketCrmRoute,
   AuthenticatedMarketLeadsRoute: AuthenticatedMarketLeadsRoute,
   AuthenticatedMarketOverviewRoute: AuthenticatedMarketOverviewRoute,
+  AuthenticatedMarketPricingRoute: AuthenticatedMarketPricingRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
