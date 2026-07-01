@@ -40,6 +40,7 @@ import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/e
 import { Route as ApiPublicSalesChatRouteImport } from './routes/api/public/sales/chat'
 import { Route as ApiPublicMetaCallbackRouteImport } from './routes/api/public/meta/callback'
 import { Route as ApiPublicHooksPublishScheduledPostsRouteImport } from './routes/api/public/hooks/publish-scheduled-posts'
+import { Route as ApiPublicHooksAutoScrapeLeadsRouteImport } from './routes/api/public/hooks/auto-scrape-leads'
 import { Route as ApiPublicHooksAutoOutreachRouteImport } from './routes/api/public/hooks/auto-outreach'
 import { Route as ApiPublicHooksAutoInstagramPostRouteImport } from './routes/api/public/hooks/auto-instagram-post'
 import { Route as AuthenticatedSalesConversationsIdRouteImport } from './routes/_authenticated/sales.conversations.$id'
@@ -214,6 +215,12 @@ const ApiPublicHooksPublishScheduledPostsRoute =
     path: '/api/public/hooks/publish-scheduled-posts',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksAutoScrapeLeadsRoute =
+  ApiPublicHooksAutoScrapeLeadsRouteImport.update({
+    id: '/api/public/hooks/auto-scrape-leads',
+    path: '/api/public/hooks/auto-scrape-leads',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksAutoOutreachRoute =
   ApiPublicHooksAutoOutreachRouteImport.update({
     id: '/api/public/hooks/auto-outreach',
@@ -263,6 +270,7 @@ export interface FileRoutesByFullPath {
   '/sales/conversations/$id': typeof AuthenticatedSalesConversationsIdRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/auto-outreach': typeof ApiPublicHooksAutoOutreachRoute
+  '/api/public/hooks/auto-scrape-leads': typeof ApiPublicHooksAutoScrapeLeadsRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
@@ -298,6 +306,7 @@ export interface FileRoutesByTo {
   '/sales/conversations/$id': typeof AuthenticatedSalesConversationsIdRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/auto-outreach': typeof ApiPublicHooksAutoOutreachRoute
+  '/api/public/hooks/auto-scrape-leads': typeof ApiPublicHooksAutoScrapeLeadsRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
@@ -335,6 +344,7 @@ export interface FileRoutesById {
   '/_authenticated/sales/conversations/$id': typeof AuthenticatedSalesConversationsIdRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/auto-outreach': typeof ApiPublicHooksAutoOutreachRoute
+  '/api/public/hooks/auto-scrape-leads': typeof ApiPublicHooksAutoScrapeLeadsRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
@@ -372,6 +382,7 @@ export interface FileRouteTypes {
     | '/sales/conversations/$id'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/auto-outreach'
+    | '/api/public/hooks/auto-scrape-leads'
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/meta/callback'
     | '/api/public/sales/chat'
@@ -407,6 +418,7 @@ export interface FileRouteTypes {
     | '/sales/conversations/$id'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/auto-outreach'
+    | '/api/public/hooks/auto-scrape-leads'
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/meta/callback'
     | '/api/public/sales/chat'
@@ -443,6 +455,7 @@ export interface FileRouteTypes {
     | '/_authenticated/sales/conversations/$id'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/auto-outreach'
+    | '/api/public/hooks/auto-scrape-leads'
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/meta/callback'
     | '/api/public/sales/chat'
@@ -456,6 +469,7 @@ export interface RootRouteChildren {
   SalesbotRoute: typeof SalesbotRoute
   ApiPublicHooksAutoInstagramPostRoute: typeof ApiPublicHooksAutoInstagramPostRoute
   ApiPublicHooksAutoOutreachRoute: typeof ApiPublicHooksAutoOutreachRoute
+  ApiPublicHooksAutoScrapeLeadsRoute: typeof ApiPublicHooksAutoScrapeLeadsRoute
   ApiPublicHooksPublishScheduledPostsRoute: typeof ApiPublicHooksPublishScheduledPostsRoute
   ApiPublicMetaCallbackRoute: typeof ApiPublicMetaCallbackRoute
   ApiPublicSalesChatRoute: typeof ApiPublicSalesChatRoute
@@ -681,6 +695,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksPublishScheduledPostsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/auto-scrape-leads': {
+      id: '/api/public/hooks/auto-scrape-leads'
+      path: '/api/public/hooks/auto-scrape-leads'
+      fullPath: '/api/public/hooks/auto-scrape-leads'
+      preLoaderRoute: typeof ApiPublicHooksAutoScrapeLeadsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/auto-outreach': {
       id: '/api/public/hooks/auto-outreach'
       path: '/api/public/hooks/auto-outreach'
@@ -783,6 +804,7 @@ const rootRouteChildren: RootRouteChildren = {
   SalesbotRoute: SalesbotRoute,
   ApiPublicHooksAutoInstagramPostRoute: ApiPublicHooksAutoInstagramPostRoute,
   ApiPublicHooksAutoOutreachRoute: ApiPublicHooksAutoOutreachRoute,
+  ApiPublicHooksAutoScrapeLeadsRoute: ApiPublicHooksAutoScrapeLeadsRoute,
   ApiPublicHooksPublishScheduledPostsRoute:
     ApiPublicHooksPublishScheduledPostsRoute,
   ApiPublicMetaCallbackRoute: ApiPublicMetaCallbackRoute,
