@@ -111,14 +111,10 @@ function ExportsPage() {
                 <TableRow key={e.id}>
                   <TableCell className="text-xs">{new Date(e.created_at!).toLocaleString("pt-BR")}</TableCell>
                   <TableCell className="uppercase">{e.format}</TableCell>
-                  <TableCell className="text-right">{e.row_count ?? 0}</TableCell>
+                  <TableCell className="text-right">{e.count ?? 0}</TableCell>
                   <TableCell className="text-right">
-                    {e.file_path && (
-                      <Button size="sm" variant="outline" onClick={async () => {
-                        const { data: signed } = await (await import("@/integrations/supabase/client")).supabase
-                          .storage.from("lead-exports").createSignedUrl(e.file_path!, 3600);
-                        if (signed?.signedUrl) window.open(signed.signedUrl, "_blank");
-                      }}>Baixar</Button>
+                    {e.file_url && (
+                      <Button size="sm" variant="outline" onClick={() => window.open(e.file_url!, "_blank")}>Baixar</Button>
                     )}
                   </TableCell>
                 </TableRow>
