@@ -525,6 +525,92 @@ export type Database = {
           },
         ]
       }
+      outreach_log: {
+        Row: {
+          body: string | null
+          channel: string
+          created_at: string
+          error: string | null
+          id: string
+          lead_id: string
+          sent_at: string
+          status: string
+          subject: string | null
+        }
+        Insert: {
+          body?: string | null
+          channel: string
+          created_at?: string
+          error?: string | null
+          id?: string
+          lead_id: string
+          sent_at?: string
+          status?: string
+          subject?: string | null
+        }
+        Update: {
+          body?: string | null
+          channel?: string
+          created_at?: string
+          error?: string | null
+          id?: string
+          lead_id?: string
+          sent_at?: string
+          status?: string
+          subject?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outreach_log_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      outreach_settings: {
+        Row: {
+          created_at: string
+          daily_email_cap: number
+          daily_instagram_cap: number
+          enabled: boolean
+          from_email: string | null
+          from_name: string
+          id: string
+          site_url: string
+          tone: string
+          updated_at: string
+          weekly_cooldown_days: number
+        }
+        Insert: {
+          created_at?: string
+          daily_email_cap?: number
+          daily_instagram_cap?: number
+          enabled?: boolean
+          from_email?: string | null
+          from_name?: string
+          id?: string
+          site_url?: string
+          tone?: string
+          updated_at?: string
+          weekly_cooldown_days?: number
+        }
+        Update: {
+          created_at?: string
+          daily_email_cap?: number
+          daily_instagram_cap?: number
+          enabled?: boolean
+          from_email?: string | null
+          from_name?: string
+          id?: string
+          site_url?: string
+          tone?: string
+          updated_at?: string
+          weekly_cooldown_days?: number
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           category: string | null

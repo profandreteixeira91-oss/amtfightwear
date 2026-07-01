@@ -20,6 +20,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { leadsService, type Lead } from "@/services/leadsService";
 import { scrapeLeads, generateOutreach } from "@/lib/leads-scraper.functions";
+import { getOutreachSettings, updateOutreachSettings, getOutreachStats, runOutreachNow } from "@/lib/outreach.functions";
+import { Switch } from "@/components/ui/switch";
 
 export const Route = createFileRoute("/_authenticated/market/leads")({
   head: () => ({ meta: [{ title: "AMT MarketEngine — Lead Scraper" }] }),
@@ -88,6 +90,8 @@ function LeadsPage() {
       />
 
       <ScraperPanel />
+
+      <AutopilotPanel />
 
       <SectionCard title="Base de leads" delay={0.1}>
         <div className="mb-3 flex items-center gap-2">
@@ -431,5 +435,179 @@ function NewLeadDialog({ onSubmit, loading }: { onSubmit: (v: Record<string, str
         </Button>
       </DialogFooter>
     </DialogContent>
+  );
+}
+
+function AutopilotPanel() {
+  const qc = useQueryClient();
+  const getFn = useServerFn(getOutreachSettings);
+  const updateFn = useServerFn(updateOutreachSettings);
+  const statsFn = useServerFn(getOutreachStats);
+  const runFn = useServerFn(runOutreachNow);
+
+  const { data: settings } = useQuery({ queryKey: ["outreach-settings"], queryFn: () => getFn() });
+  const { data: stats } = useQuery({ queryKey: ["outreach-stats"], queryFn: () => statsFn(), refetchInterval: 30_000 });
+
+  const patch = useMutation({
+    mutationFn: (data: Record<string, unknown>) => updateFn({ data }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["outreach-settings"] });
+      toast.success("Piloto atualizado");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const runNow = useMutation({
+    mutationFn: () => runFn({}),
+    onSuccess: (r) => {
+      qc.invalidateQueries({ queryKey: ["outreach-stats"] });
+      toast.success(`Piloto executado — ${r.result?.processed ?? 0} disparo(s)`);
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const s = settings as {
+    enabled: boolean;
+    daily_email_cap: number;
+    daily_instagram_cap: number;
+    weekly_cooldown_days: number;
+    tone: string;
+    site_url: string;
+    from_email: string | null;
+    from_name: string;
+  } | null;
+
+  const stats24 = stats?.last24 ?? [];
+  const sentEmails = stats24.filter((r) => r.channel === "email" && r.status === "sent").length;
+  const sentIG = stats24.filter((r) => r.channel === "instagram").length;
+
+  return (
+    <SectionCard title="🤖 Piloto Automático de Outreach B2B" delay={0.05}>
+      {!s ? (
+        <Skeleton className="h-40" />
+      ) : (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between rounded-lg border bg-muted/40 p-3">
+            <div>
+              <div className="flex items-center gap-2 font-medium">
+                <Bot className="h-4 w-4" /> Robô de disparos
+                <Badge variant={s.enabled ? "default" : "outline"}>{s.enabled ? "Ativo" : "Pausado"}</Badge>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Roda a cada hora. Gera copy personalizada com IA, respeita 1 disparo/{s.weekly_cooldown_days}d por lead e o cap diário. Sempre inclui {s.site_url}.
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button size="sm" variant="outline" className="gap-1" disabled={runNow.isPending} onClick={() => runNow.mutate()}>
+                {runNow.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                Rodar agora
+              </Button>
+              <Switch checked={s.enabled} onCheckedChange={(v) => patch.mutate({ enabled: v })} />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            <div>
+              <Label>E-mails / dia</Label>
+              <Input
+                type="number"
+                min={0}
+                max={500}
+                defaultValue={s.daily_email_cap}
+                onBlur={(e) => patch.mutate({ daily_email_cap: Number(e.target.value) })}
+              />
+              <div className="mt-1 text-xs text-muted-foreground">{sentEmails}/{s.daily_email_cap} nas últimas 24h</div>
+            </div>
+            <div>
+              <Label>Directs IG / dia</Label>
+              <Input
+                type="number"
+                min={0}
+                max={200}
+                defaultValue={s.daily_instagram_cap}
+                onBlur={(e) => patch.mutate({ daily_instagram_cap: Number(e.target.value) })}
+              />
+              <div className="mt-1 text-xs text-muted-foreground">{sentIG}/{s.daily_instagram_cap} nas últimas 24h</div>
+            </div>
+            <div>
+              <Label>Cooldown (dias)</Label>
+              <Input
+                type="number"
+                min={1}
+                max={60}
+                defaultValue={s.weekly_cooldown_days}
+                onBlur={(e) => patch.mutate({ weekly_cooldown_days: Number(e.target.value) })}
+              />
+              <div className="mt-1 text-xs text-muted-foreground">Nunca reenvia antes disso</div>
+            </div>
+            <div>
+              <Label>Tom da IA</Label>
+              <Select value={s.tone} onValueChange={(v) => patch.mutate({ tone: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="consultivo">Consultivo</SelectItem>
+                  <SelectItem value="camarada">Camarada</SelectItem>
+                  <SelectItem value="direto">Direto</SelectItem>
+                  <SelectItem value="premium">Premium</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+            <div>
+              <Label>Remetente (nome)</Label>
+              <Input defaultValue={s.from_name} onBlur={(e) => patch.mutate({ from_name: e.target.value })} />
+            </div>
+            <div>
+              <Label>Remetente (e-mail)</Label>
+              <Input
+                type="email"
+                placeholder="contato@amtfightwear.com.br"
+                defaultValue={s.from_email ?? ""}
+                onBlur={(e) => patch.mutate({ from_email: e.target.value || null })}
+              />
+            </div>
+            <div>
+              <Label>Site de destino</Label>
+              <Input defaultValue={s.site_url} onBlur={(e) => patch.mutate({ site_url: e.target.value })} />
+            </div>
+          </div>
+
+          {stats?.recent && stats.recent.length > 0 && (
+            <div>
+              <Label>Últimos disparos</Label>
+              <div className="mt-2 max-h-56 overflow-y-auto rounded border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Lead</TableHead>
+                      <TableHead>Canal</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Quando</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {stats.recent.slice(0, 15).map((r) => {
+                      const rec = r as { id: string; channel: string; status: string; sent_at: string; leads?: { name?: string; city?: string } | null };
+                      return (
+                        <TableRow key={rec.id}>
+                          <TableCell className="text-xs">{rec.leads?.name ?? "—"}</TableCell>
+                          <TableCell><Badge variant="outline">{rec.channel}</Badge></TableCell>
+                          <TableCell>
+                            <Badge variant={rec.status === "sent" ? "default" : rec.status === "failed" ? "destructive" : "secondary"}>{rec.status}</Badge>
+                          </TableCell>
+                          <TableCell className="text-xs text-muted-foreground">{new Date(rec.sent_at).toLocaleString("pt-BR")}</TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </SectionCard>
   );
 }
