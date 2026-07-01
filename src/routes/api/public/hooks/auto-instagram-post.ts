@@ -79,7 +79,9 @@ async function publishIG(igId: string, token: string, caption: string, imageUrl:
 export const Route = createFileRoute("/api/public/hooks/auto-instagram-post")({
   server: {
     handlers: {
-      POST: async () => {
+      POST: async ({ request }) => {
+        const url = new URL(request.url);
+        const force = url.searchParams.get("force") === "1" || request.headers.get("x-force") === "1";
         const apiKey = process.env.LOVABLE_API_KEY;
         if (!apiKey) return Response.json({ error: "LOVABLE_API_KEY missing" }, { status: 500 });
 
@@ -91,21 +93,23 @@ export const Route = createFileRoute("/api/public/hooks/auto-instagram-post")({
           .select("*")
           .eq("singleton", true)
           .maybeSingle();
-        if (!settings?.enabled) return Response.json({ skipped: "disabled" });
+        if (!settings?.enabled && !force) return Response.json({ skipped: "disabled" });
 
         const hourUTC = new Date().getUTCHours();
-        const hours = (settings.schedule_hours_utc as number[]) ?? [];
-        if (!hours.includes(hourUTC)) return Response.json({ skipped: "not scheduled hour", hourUTC });
+        const hours = (settings?.schedule_hours_utc as number[]) ?? [];
+        if (!force && !hours.includes(hourUTC)) return Response.json({ skipped: "not scheduled hour", hourUTC });
 
         // Dedupe: only 1 auto post per hour slot
-        const startOfHour = new Date();
-        startOfHour.setUTCMinutes(0, 0, 0);
-        const { count } = await supabaseAdmin
-          .from("scheduled_posts")
-          .select("id", { count: "exact", head: true })
-          .eq("source", "auto")
-          .gte("created_at", startOfHour.toISOString());
-        if ((count ?? 0) > 0) return Response.json({ skipped: "already posted this hour" });
+        if (!force) {
+          const startOfHour = new Date();
+          startOfHour.setUTCMinutes(0, 0, 0);
+          const { count } = await supabaseAdmin
+            .from("scheduled_posts")
+            .select("id", { count: "exact", head: true })
+            .eq("source", "auto")
+            .gte("created_at", startOfHour.toISOString());
+          if ((count ?? 0) > 0) return Response.json({ skipped: "already posted this hour" });
+        }
 
         // 2. Get IG connection
         const { data: conn } = await supabaseAdmin
