@@ -838,6 +838,8 @@ function AutopilotPanel() {
             </div>
           </div>
 
+          <IGQueueSection queue={(stats as { igQueue?: IGQueueItem[] } | undefined)?.igQueue ?? []} onChanged={() => qc.invalidateQueries({ queryKey: ["outreach-stats"] })} />
+
           {stats?.recent && stats.recent.length > 0 && (
             <div>
               <Label>Últimos disparos</Label>
@@ -859,7 +861,7 @@ function AutopilotPanel() {
                           <TableCell className="text-xs">{rec.leads?.name ?? "—"}</TableCell>
                           <TableCell><Badge variant="outline">{rec.channel}</Badge></TableCell>
                           <TableCell>
-                            <Badge variant={rec.status === "sent" ? "default" : rec.status === "failed" ? "destructive" : "secondary"}>{rec.status}</Badge>
+                            <Badge variant={rec.status === "sent" || rec.status === "sent_manual" ? "default" : rec.status === "failed" ? "destructive" : "secondary"}>{rec.status}</Badge>
                           </TableCell>
                           <TableCell className="text-xs text-muted-foreground">{new Date(rec.sent_at).toLocaleString("pt-BR")}</TableCell>
                         </TableRow>
@@ -875,3 +877,78 @@ function AutopilotPanel() {
     </SectionCard>
   );
 }
+
+type IGQueueItem = {
+  id: string;
+  body: string | null;
+  sent_at: string;
+  lead_id: string;
+  leads?: { name?: string | null; city?: string | null; notes?: string | null } | null;
+};
+
+function extractIGHandle(notes: string | null | undefined): string | null {
+  if (!notes) return null;
+  const m1 = notes.match(/instagram\.com\/([A-Za-z0-9_.]+)/i);
+  if (m1) return m1[1].replace(/\/$/, "");
+  const m2 = notes.match(/IG:\s*@?([A-Za-z0-9_.]+)/i);
+  if (m2) return m2[1];
+  const m3 = notes.match(/@([A-Za-z0-9_.]{2,})/);
+  return m3 ? m3[1] : null;
+}
+
+function IGQueueSection({ queue, onChanged }: { queue: IGQueueItem[]; onChanged: () => void }) {
+  const markFn = useServerFn(markOutreachSent);
+  const mark = useMutation({
+    mutationFn: (id: string) => markFn({ data: { id } }),
+    onSuccess: () => { toast.success("Marcado como enviado"); onChanged(); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  if (!queue.length) return null;
+
+  return (
+    <div>
+      <Label className="flex items-center gap-2">
+        <Instagram className="h-4 w-4 text-pink-500" /> Fila do Instagram Direct — envio assistido ({queue.length})
+      </Label>
+      <p className="mt-1 text-xs text-muted-foreground">
+        A Meta não permite iniciar DMs pela API. Copie a mensagem, abra o Direct do lead e cole — depois marque como enviado.
+      </p>
+      <div className="mt-2 space-y-2 max-h-80 overflow-y-auto">
+        {queue.map((item) => {
+          const handle = extractIGHandle(item.leads?.notes);
+          const body = item.body ?? "";
+          return (
+            <div key={item.id} className="rounded border bg-muted/30 p-3 text-sm">
+              <div className="flex items-center justify-between gap-2">
+                <div className="min-w-0">
+                  <div className="font-medium truncate">{item.leads?.name ?? "Lead"}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {handle ? `@${handle}` : "sem handle"} {item.leads?.city ? `• ${item.leads.city}` : ""}
+                  </div>
+                </div>
+                <div className="flex shrink-0 gap-1">
+                  <Button size="sm" variant="outline" onClick={() => { navigator.clipboard.writeText(body); toast.success("Mensagem copiada"); }}>
+                    <Copy className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button size="sm" variant="outline" disabled={!handle} onClick={() => {
+                    if (!handle) return;
+                    navigator.clipboard.writeText(body);
+                    window.open(`https://ig.me/m/${handle}`, "_blank");
+                  }}>
+                    <ExternalLink className="h-3.5 w-3.5 mr-1" /> Abrir Direct
+                  </Button>
+                  <Button size="sm" onClick={() => mark.mutate(item.id)} disabled={mark.isPending}>
+                    Enviado
+                  </Button>
+                </div>
+              </div>
+              <div className="mt-2 whitespace-pre-wrap text-xs text-foreground/80 line-clamp-4">{body}</div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
