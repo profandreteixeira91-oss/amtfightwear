@@ -18,6 +18,7 @@ type Settings = {
   site_url: string;
   from_email: string | null;
   from_name: string;
+  priority_region: string | null;
 };
 
 type Lead = {
@@ -26,9 +27,18 @@ type Lead = {
   responsible: string | null;
   email: string | null;
   city: string | null;
+  state: string | null;
   modality: string | null;
   lead_type: string | null;
   notes: string | null;
+};
+
+const REGION_UFS: Record<string, string[]> = {
+  nordeste: ["AL", "BA", "CE", "MA", "PB", "PE", "PI", "RN", "SE"],
+  sudeste: ["ES", "MG", "RJ", "SP"],
+  sul: ["PR", "RS", "SC"],
+  norte: ["AC", "AM", "AP", "PA", "RO", "RR", "TO"],
+  "centro-oeste": ["DF", "GO", "MS", "MT"],
 };
 
 async function generateCopy(
