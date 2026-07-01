@@ -17,14 +17,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { leadsService, type Lead } from "@/services/leadsService";
-import { scrapeLeads, generateOutreach } from "@/lib/leads-scraper.functions";
+import { generateOutreach } from "@/lib/leads-scraper.functions";
 import { getOutreachSettings, updateOutreachSettings, getOutreachStats, runOutreachNow, markOutreachSent } from "@/lib/outreach.functions";
 import { Switch } from "@/components/ui/switch";
-import { CitySearchCombobox, type SelectedCity } from "@/components/leads/CitySearchCombobox";
 import { LeadsMap, type LeadPoint } from "@/components/leads/LeadsMap";
-import { geocodeCity } from "@/lib/ibge";
 
 export const Route = createFileRoute("/_authenticated/market/leads")({
   head: () => ({ meta: [{ title: "AMT MarketEngine — Lead Scraper" }] }),
@@ -36,44 +33,6 @@ const TYPES = ["Professor", "Academia", "Escola/Projeto Social"] as const;
 const MODALITIES = ["BJJ", "Judô", "BJJ + Judô"] as const;
 const PAGE_SIZE = 10;
 
-// Sugestões de busca populares no Google para prospecção B2B de Jiu-Jitsu / Judô.
-// Termos curtos, do jeito que o usuário digitaria no Google.
-const SEARCH_SUGGESTIONS: Record<"google" | "instagram", string[]> = {
-  google: [
-    "academia de jiu jitsu",
-    "escola de jiu jitsu",
-    "professor de jiu jitsu faixa preta",
-    "academia de judô",
-    "escola de judô federada",
-    "professor de judô",
-    "projeto social jiu jitsu",
-    "projeto social judô",
-    "equipe de jiu jitsu competição",
-    "loja de kimono jiu jitsu",
-    "loja de kimono judô",
-    "cbjj academia filiada",
-    "federação jiu jitsu",
-    "federação judô",
-    "camp de jiu jitsu",
-    "seminário faixa preta jiu jitsu",
-    "kimono infantil jiu jitsu",
-    "faixa preta bjj professor",
-  ],
-  instagram: [
-    "academia bjj",
-    "professor faixa preta",
-    "kids jiu jitsu",
-    "judô kids",
-    "team jiu jitsu",
-    "faixa preta judô",
-    "projeto social bjj",
-    "cbjj oficial",
-    "cbj judô",
-    "campeão brasileiro bjj",
-    "equipe de competição bjj",
-    "instrutor de judô",
-  ],
-};
 
 function statusColor(s: string) {
   return s === "Convertido" ? "default" : s === "Perdido" ? "destructive" : s === "Negociando" ? "secondary" : "outline";
@@ -164,7 +123,7 @@ function LeadsPage() {
         }
       />
 
-      <ScraperPanel />
+      
 
       <MapPanel leads={leads ?? []} />
 
@@ -338,140 +297,6 @@ function Pagination({
   );
 }
 
-function ScraperPanel() {
-  const qc = useQueryClient();
-  const scrapeFn = useServerFn(scrapeLeads);
-  const [source, setSource] = useState<"google" | "instagram">("google");
-  const [query, setQuery] = useState("");
-  const [city, setCity] = useState<SelectedCity | null>(null);
-  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
-  const [geocoding, setGeocoding] = useState(false);
-  const [modality, setModality] = useState("BJJ");
-
-  async function pickCity(c: SelectedCity | null) {
-    setCity(c);
-    setCoords(null);
-    if (c) {
-      setGeocoding(true);
-      const g = await geocodeCity({ id: 0, nome: c.name, uf: c.uf, ufName: c.ufName });
-      setCoords(g);
-      setGeocoding(false);
-    }
-  }
-
-  const run = useMutation({
-    mutationFn: () =>
-      scrapeFn({
-        data: {
-          source,
-          query,
-          city: city?.name ?? null,
-          state: city?.uf ?? null,
-          lat: coords?.lat ?? null,
-          lng: coords?.lng ?? null,
-          modality,
-          limit: 8,
-        },
-      }),
-    onSuccess: (r) => {
-      qc.invalidateQueries({ queryKey: ["leads"] });
-      if (r.inserted > 0) toast.success(`${r.inserted} lead${r.inserted > 1 ? "s" : ""} adicionado${r.inserted > 1 ? "s" : ""} (${r.skipped} ignorados)`);
-      else toast.info(r.skipped ? `Todos os ${r.skipped} resultados já estavam na base` : "Nenhum lead encontrado — refine a busca");
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
-
-  return (
-    <SectionCard title="🔎 Busca automática de leads B2B">
-      <Tabs value={source} onValueChange={(v) => setSource(v as "google" | "instagram")}>
-        <TabsList>
-          <TabsTrigger value="google" className="gap-2">
-            <Search className="h-3.5 w-3.5" /> Google
-          </TabsTrigger>
-          <TabsTrigger value="instagram" className="gap-2">
-            <Instagram className="h-3.5 w-3.5" /> Instagram
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value={source} className="mt-4">
-          <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1.2fr_1fr]">
-            <div className="space-y-3">
-              <div>
-                <Label>Termo de busca</Label>
-                <Input
-                  list={`suggest-${source}`}
-                  placeholder={source === "google" ? "Ex.: academia de jiu jitsu, professor faixa preta, projeto social judô" : "Ex.: academia bjj, faixa preta, kids judo"}
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                />
-                <datalist id={`suggest-${source}`}>
-                  {SEARCH_SUGGESTIONS[source].map((s) => (
-                    <option key={s} value={s} />
-                  ))}
-                </datalist>
-                <div className="mt-1 flex flex-wrap gap-1">
-                  {SEARCH_SUGGESTIONS[source].slice(0, 6).map((s) => (
-                    <button
-                      key={s}
-                      type="button"
-                      onClick={() => setQuery(s)}
-                      className="rounded-full border bg-muted/40 px-2 py-0.5 text-[11px] text-muted-foreground transition hover:border-primary hover:text-foreground"
-                    >
-                      {s}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_140px]">
-                <div>
-                  <Label>Cidade (autocomplete IBGE)</Label>
-                  <CitySearchCombobox value={city} onChange={pickCity} />
-                  <div className="mt-1 text-[11px] text-muted-foreground">
-                    {geocoding
-                      ? "Localizando no mapa..."
-                      : city
-                        ? coords
-                          ? `📍 ${city.label} · ${coords.lat.toFixed(3)}, ${coords.lng.toFixed(3)}`
-                          : city.label
-                        : "Digite para ver sugestões — leads do Nordeste têm prioridade no piloto."}
-                  </div>
-                </div>
-                <div>
-                  <Label>Modalidade</Label>
-                  <Select value={modality} onValueChange={setModality}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {MODALITIES.map((m) => (
-                        <SelectItem key={m} value={m}>{m}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <Button className="w-full gap-2" disabled={query.length < 3 || run.isPending} onClick={() => run.mutate()}>
-                {run.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Bot className="h-4 w-4" />}
-                {run.isPending ? "Rastreando..." : `Rastrear${city ? ` em ${city.label}` : ""}`}
-              </Button>
-              <p className="text-xs text-muted-foreground">
-                A IA vasculha {source === "google" ? "resultados do Google" : "perfis do Instagram"} de academias/professores/projetos, extrai contatos e insere aqui sem duplicar. A cidade selecionada é passada ao motor de busca para melhorar a precisão.
-              </p>
-            </div>
-            <div>
-              <Label className="mb-2 flex items-center gap-1"><MapPin className="h-3 w-3" /> Prévia da região</Label>
-              <LeadsMap
-                leads={[]}
-                focus={coords ? { lat: coords.lat, lng: coords.lng, label: city?.label } : null}
-                height={280}
-              />
-            </div>
-          </div>
-        </TabsContent>
-      </Tabs>
-    </SectionCard>
-  );
-}
 
 function MapPanel({ leads }: { leads: Lead[] }) {
   const points: LeadPoint[] = useMemo(
@@ -712,6 +537,19 @@ function AutopilotPanel() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const scrapeNow = useMutation({
+    mutationFn: async () => {
+      const r = await fetch("/api/public/hooks/auto-scrape-leads", { method: "POST" });
+      if (!r.ok) throw new Error(`Falha na busca (${r.status})`);
+      return (await r.json()) as { totalInserted?: number };
+    },
+    onSuccess: (r) => {
+      qc.invalidateQueries({ queryKey: ["leads"] });
+      toast.success(`Busca concluída — ${r.totalInserted ?? 0} novo(s) lead(s)`);
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const s = settings as {
     enabled: boolean;
     daily_email_cap: number;
@@ -744,17 +582,22 @@ function AutopilotPanel() {
                 </Badge>
               </div>
               <p className="text-xs text-muted-foreground">
-                Roda a cada hora. Gera copy com IA, respeita 1 disparo/{s.weekly_cooldown_days}d por lead e cap diário. Leads da região prioritária vão primeiro. Sempre inclui {s.site_url}.
+                Busca nova lista de leads automaticamente 2× por dia (9h e 16h UTC), rotacionando cidades — prioridade Nordeste — com filtro rígido de localização para academias, equipes, escolas e projetos. Dispara e-mail/direct respeitando 1 contato/{s.weekly_cooldown_days}d por lead e cap diário. Todo contato fica registrado abaixo.
               </p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <Button size="sm" variant="outline" className="gap-1" disabled={scrapeNow.isPending} onClick={() => scrapeNow.mutate()}>
+                {scrapeNow.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+                Buscar leads agora
+              </Button>
               <Button size="sm" variant="outline" className="gap-1" disabled={runNow.isPending} onClick={() => runNow.mutate()}>
                 {runNow.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                Rodar agora
+                Disparar agora
               </Button>
               <Switch checked={s.enabled} onCheckedChange={(v) => patch.mutate({ enabled: v })} />
             </div>
           </div>
+
 
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
             <div>

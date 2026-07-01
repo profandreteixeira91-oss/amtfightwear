@@ -37,11 +37,11 @@ const CITY_POOL: Array<{ city: string; state: string; region: string }> = [
 ];
 
 const QUERY_THEMES = [
-  { modality: "BJJ", term: "academia jiu-jitsu contato whatsapp" },
-  { modality: "Judô", term: "academia judô federação contato" },
-  { modality: "BJJ", term: "professor jiu-jitsu faixa preta contato" },
-  { modality: "MMA", term: "academia MMA muay thai contato" },
-  { modality: "BJJ", term: "projeto social jiu-jitsu contato" },
+  { modality: "BJJ", term: '("academia" OR "equipe" OR "team") "jiu-jitsu"' },
+  { modality: "Judô", term: '("academia" OR "escola" OR "associação") "judô"' },
+  { modality: "BJJ", term: '"projeto social" ("jiu-jitsu" OR "bjj")' },
+  { modality: "Judô", term: '"projeto social" "judô"' },
+  { modality: "MMA", term: '("academia" OR "team") ("mma" OR "muay thai")' },
 ];
 
 type LeadDraft = {
@@ -50,6 +50,7 @@ type LeadDraft = {
   phone?: string | null;
   email?: string | null;
   city?: string | null;
+  state?: string | null;
   modality?: string | null;
   lead_type?: string | null;
   source?: string | null;
@@ -58,7 +59,14 @@ type LeadDraft = {
   website?: string | null;
 };
 
-async function firecrawlSearch(query: string, limit = 8) {
+function normalize(s: string) {
+  return s
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
+async function firecrawlSearch(query: string, limit = 10) {
   const fcKey = process.env.FIRECRAWL_API_KEY;
   if (!fcKey) throw new Error("FIRECRAWL_API_KEY ausente");
   const res = await fetch("https://api.firecrawl.dev/v2/search", {
@@ -69,6 +77,7 @@ async function firecrawlSearch(query: string, limit = 8) {
       limit,
       lang: "pt",
       country: "br",
+      location: "Brazil",
       scrapeOptions: { formats: ["markdown"] },
     }),
   });
@@ -80,16 +89,32 @@ async function firecrawlSearch(query: string, limit = 8) {
   return json.data?.web ?? json.web ?? [];
 }
 
-async function aiExtractLeads(rawText: string, defaults: { modality: string; source: string }): Promise<LeadDraft[]> {
+async function aiExtractLeads(
+  rawText: string,
+  target: { modality: string; source: string; city: string; state: string },
+): Promise<LeadDraft[]> {
   const apiKey = process.env.LOVABLE_API_KEY!;
-  const prompt = `Extraia contatos B2B (academias, professores, projetos sociais de Jiu-Jitsu/Judô/MMA) do texto abaixo. Retorne JSON { "leads": [ { name, responsible, phone, email, city, instagram, website, notes } ] }. Notas curtas, com pistas úteis. Se algum campo faltar, use null. Modalidade padrão: ${defaults.modality}.\n\nTexto:\n${rawText.slice(0, 18000)}`;
+  const prompt = `Você extrai contatos B2B (academias, equipes, escolas e projetos sociais) de Jiu-Jitsu/Judô/MMA a partir de trechos da web.
+
+REGRAS RÍGIDAS DE LOCALIZAÇÃO — DESCARTE tudo que não bater:
+- Só inclua contatos localizados fisicamente em ${target.city} - ${target.state}, Brasil.
+- Se a fonte cita outra cidade ou estado (ex.: Rio de Janeiro, São Paulo, Minas Gerais, etc.), IGNORE aquele item completamente.
+- Se não houver evidência clara da cidade/estado, IGNORE — nunca invente localização.
+- Prefira academias, equipes/team, escolas e projetos sociais. Ignore lojas de e-commerce, blogs, portais de notícia e agregadores.
+
+Retorne JSON: { "leads": [ { "name", "responsible", "phone", "email", "city", "state", "instagram", "website", "notes" } ] }.
+- Campos ausentes = null. "city" deve ser "${target.city}" e "state" deve ser "${target.state}".
+- Notas curtas com pistas úteis (bairro, tipo de projeto, faixa do responsável).
+
+Texto:
+${rawText.slice(0, 18000)}`;
   const res = await fetch(`${AI_GATEWAY}/chat/completions`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
     body: JSON.stringify({
       model: "google/gemini-3-flash-preview",
       messages: [
-        { role: "system", content: "Você extrai contatos comerciais estruturados. Responda apenas JSON válido." },
+        { role: "system", content: "Você extrai contatos comerciais estruturados. Responda apenas JSON válido. Descarte agressivamente qualquer contato fora da cidade/estado solicitado." },
         { role: "user", content: prompt },
       ],
       response_format: { type: "json_object" },
@@ -98,13 +123,26 @@ async function aiExtractLeads(rawText: string, defaults: { modality: string; sou
   if (!res.ok) throw new Error(`AI ${res.status}: ${(await res.text()).slice(0, 200)}`);
   const j = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
   const parsed = JSON.parse(j.choices?.[0]?.message?.content ?? "{}") as { leads?: LeadDraft[] };
-  return (parsed.leads ?? []).map((l) => ({
-    ...l,
-    modality: l.modality ?? defaults.modality,
-    source: defaults.source,
-    lead_type: l.lead_type ?? "Academia",
-  }));
+  const cityN = normalize(target.city);
+  const stateN = target.state.toLowerCase();
+  return (parsed.leads ?? [])
+    .filter((l) => {
+      if (!l.name) return false;
+      const c = normalize(l.city ?? "");
+      const st = (l.state ?? "").toLowerCase();
+      // Aceita quando cidade bate OU estado bate (evita falso descarte por variação do nome)
+      return c.includes(cityN) || cityN.includes(c) || st === stateN;
+    })
+    .map((l) => ({
+      ...l,
+      city: target.city,
+      state: target.state,
+      modality: l.modality ?? target.modality,
+      source: target.source,
+      lead_type: l.lead_type ?? "Academia",
+    }));
 }
+
 
 function dayOfYear(d = new Date()) {
   const start = Date.UTC(d.getUTCFullYear(), 0, 0);
@@ -163,19 +201,31 @@ export const Route = createFileRoute("/api/public/hooks/auto-scrape-leads")({
 
           for (const t of targets) {
             try {
-              const q = `${t.theme.term} ${t.city} ${t.state}`;
-              const web = await firecrawlSearch(q, 8);
+              const q = `${t.theme.term} "${t.city}" ${t.state} Brasil -site:amtfightwear.com.br`;
+              const web = await firecrawlSearch(q, 10);
               if (!web.length) {
                 results.push({ target: `${t.city}/${t.state}`, inserted: 0, note: "no results" });
                 continue;
               }
-              const bundle = web
+              const cityN = normalize(t.city);
+              const stateN = t.state.toLowerCase();
+              // Pré-filtra páginas cujo conteúdo NÃO menciona a cidade nem o estado — remove ruído antes da IA.
+              const relevant = web.filter((r) => {
+                const blob = normalize(`${r.title ?? ""} ${r.description ?? ""} ${r.markdown ?? ""}`);
+                return blob.includes(cityN) || blob.includes(` ${stateN} `) || blob.includes(`/${stateN}/`) || blob.includes(`-${stateN}`);
+              });
+              if (!relevant.length) {
+                results.push({ target: `${t.city}/${t.state}`, inserted: 0, note: "no local matches" });
+                continue;
+              }
+              const bundle = relevant
                 .map(
                   (r, i) =>
                     `[${i + 1}] ${r.title ?? ""}\nURL: ${r.url ?? ""}\n${r.description ?? ""}\n${(r.markdown ?? "").slice(0, 2500)}`,
                 )
                 .join("\n\n---\n\n");
-              const drafts = await aiExtractLeads(bundle, { modality: t.theme.modality, source: "Auto-Scrape" });
+              const drafts = await aiExtractLeads(bundle, { modality: t.theme.modality, source: "Auto-Scrape", city: t.city, state: t.state });
+
 
               const rows = drafts
                 .filter((d) => {
