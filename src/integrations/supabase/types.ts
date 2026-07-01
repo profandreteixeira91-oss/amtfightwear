@@ -307,6 +307,84 @@ export type Database = {
         }
         Relationships: []
       }
+      meta_connections: {
+        Row: {
+          created_at: string
+          facebook_user_id: string | null
+          facebook_user_name: string | null
+          id: string
+          instagram_business_account_id: string | null
+          instagram_username: string | null
+          last_sync_at: string | null
+          page_access_token: string
+          page_id: string
+          page_name: string
+          page_picture_url: string | null
+          scopes: string | null
+          status: string
+          token_expires_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          facebook_user_id?: string | null
+          facebook_user_name?: string | null
+          id?: string
+          instagram_business_account_id?: string | null
+          instagram_username?: string | null
+          last_sync_at?: string | null
+          page_access_token: string
+          page_id: string
+          page_name: string
+          page_picture_url?: string | null
+          scopes?: string | null
+          status?: string
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          facebook_user_id?: string | null
+          facebook_user_name?: string | null
+          id?: string
+          instagram_business_account_id?: string | null
+          instagram_username?: string | null
+          last_sync_at?: string | null
+          page_access_token?: string
+          page_id?: string
+          page_name?: string
+          page_picture_url?: string | null
+          scopes?: string | null
+          status?: string
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      meta_oauth_states: {
+        Row: {
+          created_at: string
+          expires_at: string
+          state: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          state: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          state?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           created_at: string
