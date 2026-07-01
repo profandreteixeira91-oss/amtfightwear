@@ -17,14 +17,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { leadsService, type Lead } from "@/services/leadsService";
-import { scrapeLeads, generateOutreach } from "@/lib/leads-scraper.functions";
+import { generateOutreach } from "@/lib/leads-scraper.functions";
 import { getOutreachSettings, updateOutreachSettings, getOutreachStats, runOutreachNow, markOutreachSent } from "@/lib/outreach.functions";
 import { Switch } from "@/components/ui/switch";
-import { CitySearchCombobox, type SelectedCity } from "@/components/leads/CitySearchCombobox";
 import { LeadsMap, type LeadPoint } from "@/components/leads/LeadsMap";
-import { geocodeCity } from "@/lib/ibge";
 
 export const Route = createFileRoute("/_authenticated/market/leads")({
   head: () => ({ meta: [{ title: "AMT MarketEngine — Lead Scraper" }] }),
@@ -36,44 +33,6 @@ const TYPES = ["Professor", "Academia", "Escola/Projeto Social"] as const;
 const MODALITIES = ["BJJ", "Judô", "BJJ + Judô"] as const;
 const PAGE_SIZE = 10;
 
-// Sugestões de busca populares no Google para prospecção B2B de Jiu-Jitsu / Judô.
-// Termos curtos, do jeito que o usuário digitaria no Google.
-const SEARCH_SUGGESTIONS: Record<"google" | "instagram", string[]> = {
-  google: [
-    "academia de jiu jitsu",
-    "escola de jiu jitsu",
-    "professor de jiu jitsu faixa preta",
-    "academia de judô",
-    "escola de judô federada",
-    "professor de judô",
-    "projeto social jiu jitsu",
-    "projeto social judô",
-    "equipe de jiu jitsu competição",
-    "loja de kimono jiu jitsu",
-    "loja de kimono judô",
-    "cbjj academia filiada",
-    "federação jiu jitsu",
-    "federação judô",
-    "camp de jiu jitsu",
-    "seminário faixa preta jiu jitsu",
-    "kimono infantil jiu jitsu",
-    "faixa preta bjj professor",
-  ],
-  instagram: [
-    "academia bjj",
-    "professor faixa preta",
-    "kids jiu jitsu",
-    "judô kids",
-    "team jiu jitsu",
-    "faixa preta judô",
-    "projeto social bjj",
-    "cbjj oficial",
-    "cbj judô",
-    "campeão brasileiro bjj",
-    "equipe de competição bjj",
-    "instrutor de judô",
-  ],
-};
 
 function statusColor(s: string) {
   return s === "Convertido" ? "default" : s === "Perdido" ? "destructive" : s === "Negociando" ? "secondary" : "outline";
