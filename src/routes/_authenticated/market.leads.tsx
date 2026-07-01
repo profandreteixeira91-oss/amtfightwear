@@ -201,11 +201,36 @@ function ScraperPanel() {
   const scrapeFn = useServerFn(scrapeLeads);
   const [source, setSource] = useState<"google" | "instagram">("google");
   const [query, setQuery] = useState("");
-  const [city, setCity] = useState("");
+  const [city, setCity] = useState<SelectedCity | null>(null);
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [geocoding, setGeocoding] = useState(false);
   const [modality, setModality] = useState("BJJ");
 
+  async function pickCity(c: SelectedCity | null) {
+    setCity(c);
+    setCoords(null);
+    if (c) {
+      setGeocoding(true);
+      const g = await geocodeCity({ id: 0, nome: c.name, uf: c.uf, ufName: c.ufName });
+      setCoords(g);
+      setGeocoding(false);
+    }
+  }
+
   const run = useMutation({
-    mutationFn: () => scrapeFn({ data: { source, query, city: city || null, modality, limit: 8 } }),
+    mutationFn: () =>
+      scrapeFn({
+        data: {
+          source,
+          query,
+          city: city?.name ?? null,
+          state: city?.uf ?? null,
+          lat: coords?.lat ?? null,
+          lng: coords?.lng ?? null,
+          modality,
+          limit: 8,
+        },
+      }),
     onSuccess: (r) => {
       qc.invalidateQueries({ queryKey: ["leads"] });
       if (r.inserted > 0) toast.success(`${r.inserted} lead${r.inserted > 1 ? "s" : ""} adicionado${r.inserted > 1 ? "s" : ""} (${r.skipped} ignorados)`);
@@ -226,46 +251,99 @@ function ScraperPanel() {
           </TabsTrigger>
         </TabsList>
         <TabsContent value={source} className="mt-4">
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_180px_140px_auto]">
-            <div>
-              <Label>Termo de busca</Label>
-              <Input
-                placeholder={source === "google" ? "Ex.: academia jiu-jitsu, professor faixa preta, projeto social judô" : "Ex.: academia bjj, faixa preta, kids judo"}
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-            </div>
-            <div>
-              <Label>Cidade / região</Label>
-              <Input placeholder="Ex.: São Paulo SP" value={city} onChange={(e) => setCity(e.target.value)} />
-            </div>
-            <div>
-              <Label>Modalidade</Label>
-              <Select value={modality} onValueChange={setModality}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {MODALITIES.map((m) => (
-                    <SelectItem key={m} value={m}>
-                      {m}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex items-end">
+          <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1.2fr_1fr]">
+            <div className="space-y-3">
+              <div>
+                <Label>Termo de busca</Label>
+                <Input
+                  placeholder={source === "google" ? "Ex.: academia jiu-jitsu, professor faixa preta, projeto social judô" : "Ex.: academia bjj, faixa preta, kids judo"}
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                />
+              </div>
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_140px]">
+                <div>
+                  <Label>Cidade (autocomplete IBGE)</Label>
+                  <CitySearchCombobox value={city} onChange={pickCity} />
+                  <div className="mt-1 text-[11px] text-muted-foreground">
+                    {geocoding
+                      ? "Localizando no mapa..."
+                      : city
+                        ? coords
+                          ? `📍 ${city.label} · ${coords.lat.toFixed(3)}, ${coords.lng.toFixed(3)}`
+                          : city.label
+                        : "Digite para ver sugestões — leads do Nordeste têm prioridade no piloto."}
+                  </div>
+                </div>
+                <div>
+                  <Label>Modalidade</Label>
+                  <Select value={modality} onValueChange={setModality}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {MODALITIES.map((m) => (
+                        <SelectItem key={m} value={m}>{m}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
               <Button className="w-full gap-2" disabled={query.length < 3 || run.isPending} onClick={() => run.mutate()}>
                 {run.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Bot className="h-4 w-4" />}
-                {run.isPending ? "Rastreando..." : "Rastrear"}
+                {run.isPending ? "Rastreando..." : `Rastrear${city ? ` em ${city.label}` : ""}`}
               </Button>
+              <p className="text-xs text-muted-foreground">
+                A IA vasculha {source === "google" ? "resultados do Google" : "perfis do Instagram"} de academias/professores/projetos, extrai contatos e insere aqui sem duplicar. A cidade selecionada é passada ao motor de busca para melhorar a precisão.
+              </p>
+            </div>
+            <div>
+              <Label className="mb-2 flex items-center gap-1"><MapPin className="h-3 w-3" /> Prévia da região</Label>
+              <LeadsMap
+                leads={[]}
+                focus={coords ? { lat: coords.lat, lng: coords.lng, label: city?.label } : null}
+                height={280}
+              />
             </div>
           </div>
-          <p className="mt-2 text-xs text-muted-foreground">
-            A IA vasculha {source === "google" ? "resultados do Google" : "perfis do Instagram"} de academias/professores, extrai contatos e insere aqui automaticamente (sem duplicar).
-          </p>
         </TabsContent>
       </Tabs>
+    </SectionCard>
+  );
+}
+
+function MapPanel({ leads }: { leads: Lead[] }) {
+  const points: LeadPoint[] = useMemo(
+    () =>
+      leads
+        .filter((l) => l.lat != null && l.lng != null)
+        .map((l) => ({
+          id: l.id,
+          name: l.name,
+          city: l.city,
+          state: l.state,
+          lat: Number(l.lat),
+          lng: Number(l.lng),
+          status: l.status,
+        })),
+    [leads],
+  );
+
+  return (
+    <SectionCard title="🗺️ Mapa de leads" delay={0.08}>
+      {points.length === 0 ? (
+        <EmptyState
+          title="Nenhum lead geolocalizado ainda"
+          description="Use a busca automática acima com uma cidade selecionada — os novos leads aparecerão no mapa com localização."
+        />
+      ) : (
+        <>
+          <div className="mb-2 text-xs text-muted-foreground">
+            {points.length} de {leads.length} leads com coordenadas.
+          </div>
+          <LeadsMap leads={points} height={420} />
+        </>
+      )}
     </SectionCard>
   );
 }
