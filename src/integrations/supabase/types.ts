@@ -831,6 +831,7 @@ export type Database = {
           status: string
           stock: number
           updated_at: string
+          wc_product_id: number | null
         }
         Insert: {
           category?: string | null
@@ -846,6 +847,7 @@ export type Database = {
           status?: string
           stock?: number
           updated_at?: string
+          wc_product_id?: number | null
         }
         Update: {
           category?: string | null
@@ -861,6 +863,7 @@ export type Database = {
           status?: string
           stock?: number
           updated_at?: string
+          wc_product_id?: number | null
         }
         Relationships: []
       }
@@ -890,6 +893,247 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      sales_agent_settings: {
+        Row: {
+          business_hours_json: Json
+          cart_url_template: string
+          channel_ig_enabled: boolean
+          channel_wa_enabled: boolean
+          channel_web_enabled: boolean
+          created_at: string
+          greeting_ig: string
+          greeting_wa: string
+          greeting_web: string
+          id: string
+          offline_message: string
+          site_url: string
+          tone: string
+          updated_at: string
+        }
+        Insert: {
+          business_hours_json?: Json
+          cart_url_template?: string
+          channel_ig_enabled?: boolean
+          channel_wa_enabled?: boolean
+          channel_web_enabled?: boolean
+          created_at?: string
+          greeting_ig?: string
+          greeting_wa?: string
+          greeting_web?: string
+          id?: string
+          offline_message?: string
+          site_url?: string
+          tone?: string
+          updated_at?: string
+        }
+        Update: {
+          business_hours_json?: Json
+          cart_url_template?: string
+          channel_ig_enabled?: boolean
+          channel_wa_enabled?: boolean
+          channel_web_enabled?: boolean
+          created_at?: string
+          greeting_ig?: string
+          greeting_wa?: string
+          greeting_web?: string
+          id?: string
+          offline_message?: string
+          site_url?: string
+          tone?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sales_cart_items: {
+        Row: {
+          cart_id: string
+          created_at: string
+          id: string
+          product_id: string | null
+          product_name: string
+          quantity: number
+          size: string | null
+          unit_price: number
+          wc_product_id: number | null
+        }
+        Insert: {
+          cart_id: string
+          created_at?: string
+          id?: string
+          product_id?: string | null
+          product_name: string
+          quantity?: number
+          size?: string | null
+          unit_price?: number
+          wc_product_id?: number | null
+        }
+        Update: {
+          cart_id?: string
+          created_at?: string
+          id?: string
+          product_id?: string | null
+          product_name?: string
+          quantity?: number
+          size?: string | null
+          unit_price?: number
+          wc_product_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_cart_items_cart_id_fkey"
+            columns: ["cart_id"]
+            isOneToOne: false
+            referencedRelation: "sales_carts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_cart_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_carts: {
+        Row: {
+          checkout_url: string | null
+          conversation_id: string
+          created_at: string
+          id: string
+          status: string
+          total_estimate: number
+          updated_at: string
+        }
+        Insert: {
+          checkout_url?: string | null
+          conversation_id: string
+          created_at?: string
+          id?: string
+          status?: string
+          total_estimate?: number
+          updated_at?: string
+        }
+        Update: {
+          checkout_url?: string | null
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          status?: string
+          total_estimate?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_carts_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "sales_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_conversations: {
+        Row: {
+          channel: string
+          created_at: string
+          customer_email: string | null
+          customer_name: string | null
+          customer_phone: string | null
+          external_id: string
+          id: string
+          last_message_at: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          channel: string
+          created_at?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          external_id: string
+          id?: string
+          last_message_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          external_id?: string
+          id?: string
+          last_message_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sales_kb_articles: {
+        Row: {
+          body_md: string
+          created_at: string
+          id: string
+          is_active: boolean
+          tags: string[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body_md: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          tags?: string[]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body_md?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          tags?: string[]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sales_messages: {
+        Row: {
+          conversation_id: string
+          created_at: string
+          id: string
+          parts: Json
+          role: string
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string
+          id?: string
+          parts: Json
+          role: string
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          parts?: Json
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "sales_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       scheduled_posts: {
         Row: {
