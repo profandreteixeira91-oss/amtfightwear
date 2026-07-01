@@ -208,7 +208,7 @@ export const Route = createFileRoute("/api/public/sales/chat")({
                 const { data, error } = await q;
                 if (error) return { error: error.message, results: [] };
                 return {
-                  results: (data ?? []).map((p) => ({
+                  results: (data ?? []).map((p: any) => ({
                     id: p.id,
                     name: p.name,
                     price: p.price,
@@ -278,7 +278,7 @@ export const Route = createFileRoute("/api/public/sales/chat")({
                   .from("sales_cart_items")
                   .select("quantity, unit_price")
                   .eq("cart_id", cart.id);
-                const total = (items ?? []).reduce((a, i) => a + Number(i.quantity) * Number(i.unit_price), 0);
+                const total = (items ?? []).reduce((a: number, i: any) => a + Number(i.quantity) * Number(i.unit_price), 0);
                 await sb.from("sales_carts").update({ total_estimate: total }).eq("id", cart.id);
 
                 return { ok: true, added: prod.name, quantity, total_estimate: total };
@@ -317,12 +317,12 @@ export const Route = createFileRoute("/api/public/sales/chat")({
                   .from("sales_cart_items")
                   .select("wc_product_id, quantity, product_name")
                   .eq("cart_id", cart.id);
-                const valid = (items ?? []).filter((i) => i.wc_product_id);
+                const valid = (items ?? []).filter((i: any) => i.wc_product_id);
                 if (!valid.length) {
                   return { error: "no_wc_ids", note: "Os produtos do carrinho ainda não têm ID no e-commerce. Envie o cliente à página do produto individualmente." };
                 }
-                const ids = valid.map((i) => i.wc_product_id).join(",");
-                const qtys = valid.map((i) => i.quantity).join(",");
+                const ids = valid.map((i: any) => i.wc_product_id).join(",");
+                const qtys = valid.map((i: any) => i.quantity).join(",");
                 const url = cartTemplate.replace("{ids}", ids).replace("{qtys}", qtys);
                 await sb.from("sales_carts").update({ status: "sent", checkout_url: url }).eq("id", cart.id);
                 return { checkout_url: url, total: cart.total_estimate, item_count: valid.length, site: siteUrl };
