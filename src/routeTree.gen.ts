@@ -32,6 +32,7 @@ import { Route as AuthenticatedGrowthCustomersRouteImport } from './routes/_auth
 import { Route as AuthenticatedGrowthCrmRouteImport } from './routes/_authenticated/growth.crm'
 import { Route as ApiPublicMetaCallbackRouteImport } from './routes/api/public/meta/callback'
 import { Route as ApiPublicHooksPublishScheduledPostsRouteImport } from './routes/api/public/hooks/publish-scheduled-posts'
+import { Route as ApiPublicHooksAutoOutreachRouteImport } from './routes/api/public/hooks/auto-outreach'
 import { Route as ApiPublicHooksAutoInstagramPostRouteImport } from './routes/api/public/hooks/auto-instagram-post'
 
 const AuthRoute = AuthRouteImport.update({
@@ -159,6 +160,12 @@ const ApiPublicHooksPublishScheduledPostsRoute =
     path: '/api/public/hooks/publish-scheduled-posts',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksAutoOutreachRoute =
+  ApiPublicHooksAutoOutreachRouteImport.update({
+    id: '/api/public/hooks/auto-outreach',
+    path: '/api/public/hooks/auto-outreach',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksAutoInstagramPostRoute =
   ApiPublicHooksAutoInstagramPostRouteImport.update({
     id: '/api/public/hooks/auto-instagram-post',
@@ -188,6 +195,7 @@ export interface FileRoutesByFullPath {
   '/market/leads': typeof AuthenticatedMarketLeadsRoute
   '/market/overview': typeof AuthenticatedMarketOverviewRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
+  '/api/public/hooks/auto-outreach': typeof ApiPublicHooksAutoOutreachRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
 }
@@ -213,6 +221,7 @@ export interface FileRoutesByTo {
   '/market/leads': typeof AuthenticatedMarketLeadsRoute
   '/market/overview': typeof AuthenticatedMarketOverviewRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
+  '/api/public/hooks/auto-outreach': typeof ApiPublicHooksAutoOutreachRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
 }
@@ -240,6 +249,7 @@ export interface FileRoutesById {
   '/_authenticated/market/leads': typeof AuthenticatedMarketLeadsRoute
   '/_authenticated/market/overview': typeof AuthenticatedMarketOverviewRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
+  '/api/public/hooks/auto-outreach': typeof ApiPublicHooksAutoOutreachRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
 }
@@ -267,6 +277,7 @@ export interface FileRouteTypes {
     | '/market/leads'
     | '/market/overview'
     | '/api/public/hooks/auto-instagram-post'
+    | '/api/public/hooks/auto-outreach'
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/meta/callback'
   fileRoutesByTo: FileRoutesByTo
@@ -292,6 +303,7 @@ export interface FileRouteTypes {
     | '/market/leads'
     | '/market/overview'
     | '/api/public/hooks/auto-instagram-post'
+    | '/api/public/hooks/auto-outreach'
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/meta/callback'
   id:
@@ -318,6 +330,7 @@ export interface FileRouteTypes {
     | '/_authenticated/market/leads'
     | '/_authenticated/market/overview'
     | '/api/public/hooks/auto-instagram-post'
+    | '/api/public/hooks/auto-outreach'
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/meta/callback'
   fileRoutesById: FileRoutesById
@@ -327,6 +340,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   ApiPublicHooksAutoInstagramPostRoute: typeof ApiPublicHooksAutoInstagramPostRoute
+  ApiPublicHooksAutoOutreachRoute: typeof ApiPublicHooksAutoOutreachRoute
   ApiPublicHooksPublishScheduledPostsRoute: typeof ApiPublicHooksPublishScheduledPostsRoute
   ApiPublicMetaCallbackRoute: typeof ApiPublicMetaCallbackRoute
 }
@@ -494,6 +508,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksPublishScheduledPostsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/auto-outreach': {
+      id: '/api/public/hooks/auto-outreach'
+      path: '/api/public/hooks/auto-outreach'
+      fullPath: '/api/public/hooks/auto-outreach'
+      preLoaderRoute: typeof ApiPublicHooksAutoOutreachRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/auto-instagram-post': {
       id: '/api/public/hooks/auto-instagram-post'
       path: '/api/public/hooks/auto-instagram-post'
@@ -554,6 +575,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   ApiPublicHooksAutoInstagramPostRoute: ApiPublicHooksAutoInstagramPostRoute,
+  ApiPublicHooksAutoOutreachRoute: ApiPublicHooksAutoOutreachRoute,
   ApiPublicHooksPublishScheduledPostsRoute:
     ApiPublicHooksPublishScheduledPostsRoute,
   ApiPublicMetaCallbackRoute: ApiPublicMetaCallbackRoute,
