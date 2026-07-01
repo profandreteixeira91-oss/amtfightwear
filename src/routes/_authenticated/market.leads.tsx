@@ -398,11 +398,30 @@ function ScraperPanel() {
               <div>
                 <Label>Termo de busca</Label>
                 <Input
-                  placeholder={source === "google" ? "Ex.: academia jiu-jitsu, professor faixa preta, projeto social judô" : "Ex.: academia bjj, faixa preta, kids judo"}
+                  list={`suggest-${source}`}
+                  placeholder={source === "google" ? "Ex.: academia de jiu jitsu, professor faixa preta, projeto social judô" : "Ex.: academia bjj, faixa preta, kids judo"}
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                 />
+                <datalist id={`suggest-${source}`}>
+                  {SEARCH_SUGGESTIONS[source].map((s) => (
+                    <option key={s} value={s} />
+                  ))}
+                </datalist>
+                <div className="mt-1 flex flex-wrap gap-1">
+                  {SEARCH_SUGGESTIONS[source].slice(0, 6).map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => setQuery(s)}
+                      className="rounded-full border bg-muted/40 px-2 py-0.5 text-[11px] text-muted-foreground transition hover:border-primary hover:text-foreground"
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
               </div>
+
               <div className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_140px]">
                 <div>
                   <Label>Cidade (autocomplete IBGE)</Label>
