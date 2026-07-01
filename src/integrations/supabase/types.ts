@@ -223,6 +223,57 @@ export type Database = {
         }
         Relationships: []
       }
+      leads: {
+        Row: {
+          city: string | null
+          created_at: string
+          created_by: string | null
+          email: string | null
+          id: string
+          lead_type: string | null
+          modality: string | null
+          name: string
+          notes: string | null
+          phone: string | null
+          responsible: string | null
+          source: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          id?: string
+          lead_type?: string | null
+          modality?: string | null
+          name: string
+          notes?: string | null
+          phone?: string | null
+          responsible?: string | null
+          source?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          id?: string
+          lead_type?: string | null
+          modality?: string | null
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          responsible?: string | null
+          source?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       market_metrics: {
         Row: {
           created_at: string
