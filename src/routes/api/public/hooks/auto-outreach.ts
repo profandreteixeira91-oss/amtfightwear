@@ -41,6 +41,18 @@ const REGION_UFS: Record<string, string[]> = {
   "centro-oeste": ["DF", "GO", "MS", "MT"],
 };
 
+function productLineFor(modality: string | null): string {
+  const m = (modality ?? "").toLowerCase();
+  if (m.includes("judô") || m.includes("judo"))
+    return "kimonos de judô (gramatura pesada, trançado reforçado), faixas oficiais de judô (todas as graduações) e patches bordados para dogi";
+  if (m.includes("karate") || m.includes("karatê"))
+    return "karategis (kata e kumite), faixas de karatê (todas as graduações) e patches bordados";
+  if (m.includes("muay") || m.includes("mma") || m.includes("boxe"))
+    return "shorts de MMA/Muay Thai, rashguards, camisetas técnicas e patches personalizados para equipe";
+  // BJJ e default
+  return "kimonos trançados de BJJ (A0 a A5), faixas premium de BJJ (branca a preta) e patches bordados personalizados";
+}
+
 async function generateCopy(
   apiKey: string,
   lead: Lead,
@@ -48,21 +60,24 @@ async function generateCopy(
   tone: string,
   site: string,
 ) {
+  const line = productLineFor(lead.modality);
+  const modalityLabel = lead.modality ?? "artes marciais";
   const brief =
     channel === "email"
       ? `Retorne JSON: {
-  "subject": string curto (<=65c), objetivo e comercial, sem gírias, sem emoji, sem "oi" e sem "olá". Exemplos de estilo: "Proposta comercial B2B - AMT Fight Wear", "Kimonos e faixas premium para ${lead.lead_type ?? "sua academia"}".
-  "body_html": HTML simples (<p>, <ul>, <li>) em português do Brasil, 140-200 palavras, registro FORMAL e PROFISSIONAL de fabricante para revendedor/academia. Regras: (1) Abrir com "Prezados," ou "Prezado(a) responsável,"; (2) Apresentar a AMT Fight Wear como fabricante brasileira de kimonos trançados, faixas premium e patches para ${lead.modality ?? "Jiu-Jitsu/Judô"}; (3) Apresentar objetivamente a linha B2B/atacado (kimonos, faixas, patches personalizados, uniformes para equipe), com bullets curtos; (4) Oferecer envio de catálogo, tabela de preços para revenda e amostra sob consulta; (5) Encerrar com CTA discreto ("Podemos enviar catálogo e condições comerciais?") e assinatura "Atenciosamente,<br/>Equipe Comercial – AMT Fight Wear<br/><a href='${site}'>${site}</a>". PROIBIDO: comentar sobre o perfil, dizer "vi seu instagram", elogios pessoais, tom íntimo, exclamações repetidas, emojis, promessas exageradas. Não mencionar cidade nem responsável pelo nome no corpo. Tratar sempre por "vocês"/"a academia"/"a equipe". SEMPRE incluir <a href='${site}'>${site}</a>.
+  "subject": string curto (<=65c), objetivo e comercial, sem gírias, sem emoji, sem "oi"/"olá". Ex.: "Proposta comercial B2B - AMT Fight Wear" ou "Linha B2B - ${modalityLabel}".
+  "body_html": HTML simples (<p>,<ul>,<li>) em pt-BR, 130-180 palavras, registro FORMAL e PROFISSIONAL de fabricante para revendedor/academia. Regras OBRIGATÓRIAS: (1) Abrir com "Prezados,"; (2) Uma frase de apresentação: "Somos a AMT Fight Wear, fabricante brasileira especializada em ${line}."; (3) Bullets objetivos com a LINHA ESPECÍFICA para ${modalityLabel}: ${line}. NÃO listar produtos de outras modalidades; (4) Oferecer catálogo, tabela de preços de atacado e amostra sob consulta; (5) CTA discreto ("Podemos encaminhar o catálogo e a tabela comercial para avaliação?") + assinatura "Atenciosamente,<br/>Equipe Comercial – AMT Fight Wear<br/><a href='${site}'>${site}</a>". PROIBIDO EM QUALQUER HIPÓTESE: qualquer elogio (ao trabalho, tradição, qualidade, atletas, história, região), comentar sobre o perfil/instagram/postagens, mencionar cidade ou nome do responsável, tom íntimo, exclamações, emojis, promessas exageradas. Apresente APENAS produtos e proposta comercial — nada mais. Tratar sempre por "vocês"/"a academia". SEMPRE incluir <a href='${site}'>${site}</a>.
 }`
       : `Retorne JSON: {
-  "body": string até 500 caracteres para Direct do Instagram, registro FORMAL, INSTITUCIONAL e CORDIAL (fabricante contatando estabelecimento comercial). Regras OBRIGATÓRIAS: (1) Abrir com "Prezados," — NUNCA usar "Fala", "E aí", "Opa", "Oi", nome próprio do responsável ou saudações informais; (2) Apresentar-se em uma frase: "Somos a AMT Fight Wear, fabricante brasileira de kimonos trançados, faixas premium e patches para artes marciais."; (3) Em uma frase objetiva, comunicar a proposta: apresentação da tabela de atacado e condições comerciais para revenda/fardamento de ${lead.lead_type ?? "academias"}; (4) Encerrar com CTA discreto ("Podemos encaminhar o catálogo e a tabela comercial para avaliação?") e o site ${site}. PROIBIDO EM QUALQUER HIPÓTESE: emojis, gírias, "parça", "camarada", "topa", "trocar uma ideia", "👊", comentários sobre postagens/perfil/atletas, elogios pessoais, referências ao trabalho específico do destinatário, tom íntimo, exclamações repetidas, uso do primeiro nome do responsável.
+  "body": string até 500 caracteres para Direct do Instagram, FORMAL e INSTITUCIONAL. Regras OBRIGATÓRIAS: (1) Abrir com "Prezados," — NUNCA "Fala/E aí/Opa/Oi", nome próprio ou saudações informais; (2) Apresentar-se em uma frase: "Somos a AMT Fight Wear, fabricante brasileira especializada em ${line}."; (3) Uma frase objetiva com a proposta comercial ESPECÍFICA para ${modalityLabel}: tabela de atacado e condições para revenda/fardamento com a linha de ${line}. NÃO citar produtos de outras modalidades; (4) CTA discreto ("Podemos encaminhar o catálogo e a tabela comercial para avaliação?") e o site ${site}. PROIBIDO EM QUALQUER HIPÓTESE: qualquer elogio (ao trabalho, à academia, à tradição, à qualidade, aos atletas, à história, à região), comentar postagens/perfil, referências ao trabalho específico do destinatário, emojis (🥋, 👊, etc.), gírias, "parça/camarada/topa/trocar uma ideia", nome próprio do responsável, tom íntimo, exclamações repetidas. Apresente APENAS produtos e proposta — nada mais.
 }`;
 
 
-  const prompt = `Você é redator comercial B2B da AMT Fight Wear (fabricante brasileira). Escreva uma abordagem comercial inicial, com POSTURA e FORMALIDADE — nunca íntima, nunca "vi seu perfil", nunca elogios pessoais.
-Lead: ${lead.name} (${lead.lead_type ?? "academia"} - ${lead.modality ?? "BJJ"}).
-Notas internas (uso apenas para contextualizar a oferta, NÃO citar no texto): ${(lead.notes ?? "").slice(0, 400)}
-Tom desejado: ${tone} — sempre respeitoso, profissional, direto e objetivo. Português do Brasil.
+  const prompt = `Você é redator comercial B2B da AMT Fight Wear (fabricante brasileira). Escreva uma abordagem comercial inicial STRICTAMENTE INSTITUCIONAL: apresente APENAS produtos e proposta comercial, SEM elogios de qualquer natureza (nem ao trabalho, nem à academia, nem à tradição, nem à região, nem à qualidade do treino).
+Modalidade do lead: ${modalityLabel}. Linha de produto a ofertar (exclusiva para essa modalidade): ${line}.
+Lead: ${lead.name} (${lead.lead_type ?? "academia"}).
+Notas internas (apenas contexto, NÃO citar no texto): ${(lead.notes ?? "").slice(0, 400)}
+Tom: ${tone} — respeitoso, profissional, direto, objetivo. Português do Brasil.
 ${brief}
 Responda apenas o JSON, sem comentários.`;
 
@@ -73,7 +88,7 @@ Responda apenas o JSON, sem comentários.`;
     body: JSON.stringify({
       model: "google/gemini-3-flash-preview",
       messages: [
-        { role: "system", content: "Copywriter B2B. Retorne apenas JSON válido." },
+        { role: "system", content: "Copywriter B2B institucional. Sem elogios. Retorne apenas JSON válido." },
         { role: "user", content: prompt },
       ],
       response_format: { type: "json_object" },
@@ -87,6 +102,7 @@ Responda apenas o JSON, sem comentários.`;
     body?: string;
   };
 }
+
 
 async function sendEmail(
   supabase: SB,

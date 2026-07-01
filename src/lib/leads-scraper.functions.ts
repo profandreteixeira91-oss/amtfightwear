@@ -179,17 +179,28 @@ export const generateOutreach = createServerFn({ method: "POST" })
       .join("\n");
 
     const site = "https://www.amtfightwear.com.br";
+    const m = (lead.modality ?? "").toLowerCase();
+    const line = m.includes("judô") || m.includes("judo")
+      ? "kimonos de judô (gramatura pesada, trançado reforçado), faixas oficiais de judô (todas as graduações) e patches bordados para dogi"
+      : m.includes("karate") || m.includes("karatê")
+        ? "karategis (kata e kumite), faixas de karatê (todas as graduações) e patches bordados"
+        : m.includes("muay") || m.includes("mma") || m.includes("boxe")
+          ? "shorts de MMA/Muay Thai, rashguards, camisetas técnicas e patches personalizados para equipe"
+          : "kimonos trançados de BJJ (A0 a A5), faixas premium de BJJ (branca a preta) e patches bordados personalizados";
+    const modalityLabel = lead.modality ?? "artes marciais";
+
     const channelBrief =
       data.channel === "email"
-        ? `Formato: JSON { "subject": string curto (<=65c) objetivo e comercial, sem gírias, sem emoji, sem "oi/olá". Ex.: "Proposta comercial B2B - AMT Fight Wear". "body": HTML simples (<p>,<ul>,<li>) 140-200 palavras, FORMAL e PROFISSIONAL. Regras: abrir com "Prezados,"; apresentar a AMT Fight Wear como fabricante brasileira de kimonos trançados, faixas premium e patches; apresentar objetivamente a linha B2B/atacado com bullets; oferecer catálogo, tabela de preços e amostra sob consulta; CTA discreto e assinatura "Atenciosamente,<br/>Equipe Comercial – AMT Fight Wear<br/><a href='${site}'>${site}</a>". PROIBIDO: emojis, elogios pessoais, "vi seu perfil", tom íntimo, exclamações repetidas, usar primeiro nome do responsável. }`
+        ? `Formato: JSON { "subject": string curto (<=65c) objetivo e comercial, sem gírias, sem emoji, sem "oi/olá". Ex.: "Proposta comercial B2B - AMT Fight Wear" ou "Linha B2B - ${modalityLabel}". "body": HTML simples (<p>,<ul>,<li>) 130-180 palavras, FORMAL e PROFISSIONAL. Regras OBRIGATÓRIAS: abrir com "Prezados,"; UMA frase de apresentação: "Somos a AMT Fight Wear, fabricante brasileira especializada em ${line}."; bullets objetivos apresentando APENAS a linha de ${modalityLabel}: ${line} (NÃO listar produtos de outras modalidades); oferecer catálogo, tabela de atacado e amostra sob consulta; CTA discreto e assinatura "Atenciosamente,<br/>Equipe Comercial – AMT Fight Wear<br/><a href='${site}'>${site}</a>". PROIBIDO EM QUALQUER HIPÓTESE: qualquer elogio (ao trabalho, tradição, qualidade, atletas, história, região), comentar sobre perfil/postagens, mencionar cidade ou nome do responsável, tom íntimo, exclamações, emojis. Apresente APENAS produtos e proposta comercial — nada mais. }`
         : data.channel === "whatsapp"
-          ? `Formato: JSON { "body": string até 500 caracteres para WhatsApp comercial, FORMAL e CORDIAL. Regras OBRIGATÓRIAS: abrir com "Prezados,"; apresentar-se: "Somos a AMT Fight Wear, fabricante brasileira de kimonos trançados, faixas premium e patches para artes marciais."; comunicar a proposta (tabela de atacado / condições comerciais para revenda ou fardamento); CTA discreto ("Podemos encaminhar o catálogo e a tabela comercial para avaliação?") e o site ${site}; encerrar com "Equipe Comercial – AMT Fight Wear". PROIBIDO: emojis, gírias, "Fala/E aí/Opa", nome próprio do responsável, elogios pessoais, referências ao perfil/postagens, tom íntimo. }`
-          : `Formato: JSON { "body": string até 500 caracteres para Direct do Instagram, registro FORMAL, INSTITUCIONAL e CORDIAL. Regras OBRIGATÓRIAS: (1) Abrir com "Prezados," — NUNCA "Fala/E aí/Opa/Oi", nome próprio ou saudações informais; (2) Apresentar-se: "Somos a AMT Fight Wear, fabricante brasileira de kimonos trançados, faixas premium e patches para artes marciais."; (3) Comunicar objetivamente a proposta (tabela de atacado / condições comerciais para revenda ou fardamento de ${lead.lead_type ?? "academias"}); (4) CTA discreto ("Podemos encaminhar o catálogo e a tabela comercial para avaliação?") e o site ${site}. PROIBIDO EM QUALQUER HIPÓTESE: emojis (🥋, 👊, etc.), gírias, "parça/camarada/topa/trocar uma ideia", comentários sobre postagens/perfil/atletas/tradição/qualidade do trabalho, elogios pessoais, referências ao trabalho específico do destinatário, tom íntimo, exclamações repetidas, uso do primeiro nome. }`;
+          ? `Formato: JSON { "body": string até 500 caracteres para WhatsApp comercial, FORMAL e CORDIAL. Regras OBRIGATÓRIAS: abrir com "Prezados,"; apresentar-se: "Somos a AMT Fight Wear, fabricante brasileira especializada em ${line}."; comunicar a proposta ESPECÍFICA para ${modalityLabel} (tabela de atacado / condições para revenda ou fardamento com a linha de ${line}). NÃO citar produtos de outras modalidades; CTA discreto ("Podemos encaminhar o catálogo e a tabela comercial para avaliação?") e o site ${site}; encerrar com "Equipe Comercial – AMT Fight Wear". PROIBIDO: qualquer elogio (ao trabalho, à academia, à tradição, aos atletas), emojis, gírias, "Fala/E aí/Opa", nome próprio do responsável, comentários sobre perfil/postagens, tom íntimo. Apresente APENAS produtos e proposta. }`
+          : `Formato: JSON { "body": string até 500 caracteres para Direct do Instagram, FORMAL e INSTITUCIONAL. Regras OBRIGATÓRIAS: (1) Abrir com "Prezados," — NUNCA "Fala/E aí/Opa/Oi", nome próprio ou saudações informais; (2) Apresentar-se: "Somos a AMT Fight Wear, fabricante brasileira especializada em ${line}."; (3) Comunicar objetivamente a proposta ESPECÍFICA para ${modalityLabel}: tabela de atacado / condições para revenda ou fardamento com a linha de ${line}. NÃO citar produtos de outras modalidades; (4) CTA discreto ("Podemos encaminhar o catálogo e a tabela comercial para avaliação?") e o site ${site}. PROIBIDO EM QUALQUER HIPÓTESE: qualquer elogio (ao trabalho, à academia, à tradição, à qualidade, aos atletas, à história, à região), comentar postagens/perfil/atletas, referências ao trabalho do destinatário, emojis (🥋, 👊, etc.), gírias, "parça/camarada/topa/trocar uma ideia", nome próprio, tom íntimo, exclamações. Apresente APENAS produtos e proposta — nada mais. }`;
 
-    const prompt = `Você é redator comercial B2B da AMT Fight Wear (fabricante brasileira). Escreva uma abordagem comercial inicial, com POSTURA e FORMALIDADE — nunca íntima, nunca "vi seu perfil", nunca elogios pessoais ao destinatário. Ângulo interno (contexto, NÃO citar): ${data.angle ?? "primeira abordagem B2B com convite para tabela atacado"}.
-Lead: ${lead.name} (${lead.lead_type ?? "academia"} de ${lead.modality ?? "Jiu-Jitsu"}).
+    const prompt = `Você é redator comercial B2B da AMT Fight Wear (fabricante brasileira). Escreva uma abordagem comercial inicial STRICTAMENTE INSTITUCIONAL: apresente APENAS produtos e proposta comercial, SEM elogios de qualquer natureza. Ângulo interno (contexto, NÃO citar): ${data.angle ?? "primeira abordagem B2B com convite para tabela atacado"}.
+Modalidade do lead: ${modalityLabel}. Linha exclusiva a ofertar: ${line}.
+Lead: ${lead.name} (${lead.lead_type ?? "academia"}).
 Notas internas (apenas contexto, NÃO citar no texto): ${(lead.notes ?? "").slice(0, 400)}
-Catálogo de referência (apenas para você): ${catalog}
+Catálogo de referência (apenas para você, cite apenas se compatível com a modalidade): ${catalog}
 
 ${channelBrief}
 Responda APENAS com o JSON, sem comentários.`;
@@ -200,7 +211,7 @@ Responda APENAS com o JSON, sem comentários.`;
       body: JSON.stringify({
         model: "google/gemini-3-flash-preview",
         messages: [
-          { role: "system", content: "Copywriter B2B AMT Fight Wear. Tom sempre institucional e formal. Retorne apenas JSON válido." },
+          { role: "system", content: "Copywriter B2B AMT Fight Wear. Institucional, sem elogios. Retorne apenas JSON válido." },
           { role: "user", content: prompt },
         ],
         response_format: { type: "json_object" },
