@@ -69,7 +69,6 @@ function SalesSettingsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        icon={Settings2}
         title="Configurações do SalesBot"
         description="Tom de voz, canais ativos e template do checkout."
       />
@@ -78,7 +77,7 @@ function SalesSettingsPage() {
         <Skeleton className="h-96 w-full" />
       ) : (
         <>
-          <SectionCard title="Comportamento" description="Como o agente se apresenta ao cliente.">
+          <SectionCard title="Comportamento">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2 md:col-span-2">
                 <Label>Tom de voz</Label>
@@ -103,7 +102,7 @@ function SalesSettingsPage() {
             </div>
           </SectionCard>
 
-          <SectionCard title="Canais" description="Ative apenas os canais configurados nas Conexões e APIs.">
+          <SectionCard title="Canais">
             <div className="grid gap-3 md:grid-cols-3">
               {[
                 ["channel_web_enabled", "Web (site oficial)"],
@@ -121,7 +120,7 @@ function SalesSettingsPage() {
             </div>
           </SectionCard>
 
-          <SectionCard title="Loja e checkout" description="URLs usadas pelo agente ao montar o pedido.">
+          <SectionCard title="Loja e checkout">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label>URL do site</Label>
@@ -137,7 +136,7 @@ function SalesSettingsPage() {
             </div>
           </SectionCard>
 
-          <SectionCard title="Widget para o site" description="Cole este iframe no rodapé do amtfightwear.com.br.">
+          <SectionCard title="Widget para o site">
             <div className="space-y-3">
               <Textarea readOnly rows={4} value={embedSnippet} />
               <Button

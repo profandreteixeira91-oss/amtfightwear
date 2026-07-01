@@ -31,7 +31,6 @@ function SalesAnalyticsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        icon={BarChart3}
         title="Analytics do SalesBot"
         description="Desempenho do agente nos últimos 30 dias."
       />
@@ -51,7 +50,7 @@ function SalesAnalyticsPage() {
             <Metric icon={CheckCircle2} label="Conversão" value={`${conversion}%`} />
           </div>
 
-          <SectionCard title="Por canal" description="Volume de conversas por origem.">
+          <SectionCard title="Por canal">
             <ul className="space-y-2">
               {Object.entries(data.byChannel).map(([ch, n]) => (
                 <li key={ch} className="flex items-center justify-between text-sm">
@@ -62,7 +61,7 @@ function SalesAnalyticsPage() {
             </ul>
           </SectionCard>
 
-          <SectionCard title="Receita atribuída" description="Somatório dos carrinhos marcados como comprados.">
+          <SectionCard title="Receita atribuída">
             <div className="text-3xl font-bold">
               R$ {Number(data.revenue).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
             </div>

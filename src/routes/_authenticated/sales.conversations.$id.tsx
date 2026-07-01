@@ -32,13 +32,12 @@ function ConversationDetailPage() {
         </Button>
       </div>
       <PageHeader
-        icon={Bot}
         title={data?.conv?.customer_name || data?.conv?.external_id || "Conversa"}
         description={`${data?.conv?.channel ?? ""} · ${data?.conv?.customer_email ?? data?.conv?.customer_phone ?? "—"}`}
       />
 
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
-        <SectionCard title="Histórico" description="Mensagens trocadas com o agente.">
+        <SectionCard title="Histórico">
           {isLoading ? (
             <div className="space-y-2">
               {Array.from({ length: 6 }).map((_, i) => (
@@ -85,7 +84,7 @@ function ConversationDetailPage() {
           )}
         </SectionCard>
 
-        <SectionCard title="Carrinho" description="Estado atual do pedido montado pelo bot.">
+        <SectionCard title="Carrinho">
           {!data?.cart ? (
             <p className="text-sm text-muted-foreground">Nenhum carrinho iniciado.</p>
           ) : (

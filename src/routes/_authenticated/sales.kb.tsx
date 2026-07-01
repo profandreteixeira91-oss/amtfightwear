@@ -63,7 +63,6 @@ function KbPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        icon={BookOpen}
         title="Base de conhecimento"
         description="Políticas de frete, troca, tamanhos e pagamento consultadas pelo SalesBot."
         actions={
@@ -116,7 +115,7 @@ function KbPage() {
         }
       />
 
-      <SectionCard title="Artigos" description="O agente consulta estes artigos ao responder sobre políticas.">
+      <SectionCard title="Artigos">
         {isLoading ? (
           <div className="space-y-3">
             {Array.from({ length: 3 }).map((_, i) => (
@@ -125,7 +124,6 @@ function KbPage() {
           </div>
         ) : !data || data.length === 0 ? (
           <EmptyState
-            icon={BookOpen}
             title="Sem artigos"
             description="Cadastre políticas oficiais (frete, troca, tabela de tamanhos) para o SalesBot usar."
           />

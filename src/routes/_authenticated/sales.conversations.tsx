@@ -33,11 +33,10 @@ function SalesConversationsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        icon={MessageSquare}
         title="Conversas do SalesBot"
         description="Inbox unificado do agente de vendas: web, WhatsApp e Instagram."
       />
-      <SectionCard title="Últimas conversas" description="Atualiza a cada 20s.">
+      <SectionCard title="Últimas conversas">
         {isLoading ? (
           <div className="space-y-3">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -46,7 +45,6 @@ function SalesConversationsPage() {
           </div>
         ) : !data || data.length === 0 ? (
           <EmptyState
-            icon={MessageSquare}
             title="Nenhuma conversa ainda"
             description="Assim que o widget for embarcado no site ou os canais forem conectados, as conversas aparecerão aqui."
           />
