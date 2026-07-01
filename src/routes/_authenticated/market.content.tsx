@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { generateMarketingContent } from "@/lib/marketing.functions";
 import { createInstagramPost, listInstagramPosts, cancelInstagramPost } from "@/lib/instagram.functions";
+import { getAutoPostSettings, updateAutoPostSettings, runAutoPostNow } from "@/lib/autopost.functions";
 
 export const Route = createFileRoute("/_authenticated/market/content")({
   head: () => ({ meta: [{ title: "AMT MarketEngine — IA Content Hub" }] }),
