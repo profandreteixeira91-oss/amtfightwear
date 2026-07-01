@@ -569,17 +569,22 @@ function AutopilotPanel() {
                 </Badge>
               </div>
               <p className="text-xs text-muted-foreground">
-                Roda a cada hora. Gera copy com IA, respeita 1 disparo/{s.weekly_cooldown_days}d por lead e cap diário. Leads da região prioritária vão primeiro. Sempre inclui {s.site_url}.
+                Busca nova lista de leads automaticamente 2× por dia (9h e 16h UTC), rotacionando cidades — prioridade Nordeste — com filtro rígido de localização para academias, equipes, escolas e projetos. Dispara e-mail/direct respeitando 1 contato/{s.weekly_cooldown_days}d por lead e cap diário. Todo contato fica registrado abaixo.
               </p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <Button size="sm" variant="outline" className="gap-1" disabled={scrapeNow.isPending} onClick={() => scrapeNow.mutate()}>
+                {scrapeNow.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+                Buscar leads agora
+              </Button>
               <Button size="sm" variant="outline" className="gap-1" disabled={runNow.isPending} onClick={() => runNow.mutate()}>
                 {runNow.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                Rodar agora
+                Disparar agora
               </Button>
               <Switch checked={s.enabled} onCheckedChange={(v) => patch.mutate({ enabled: v })} />
             </div>
           </div>
+
 
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
             <div>
