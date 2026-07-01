@@ -18,6 +18,10 @@ import {
   Users,
   Target,
   Sparkles,
+  Bot,
+  RefreshCw,
+  Clock,
+  Zap,
 } from "lucide-react";
 import { toast } from "sonner";
 
