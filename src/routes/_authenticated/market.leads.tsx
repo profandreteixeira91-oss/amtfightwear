@@ -558,6 +558,7 @@ function AutopilotPanel() {
     site_url: string;
     from_email: string | null;
     from_name: string;
+    priority_region: string | null;
   } | null;
 
   const stats24 = stats?.last24 ?? [];
@@ -575,9 +576,12 @@ function AutopilotPanel() {
               <div className="flex items-center gap-2 font-medium">
                 <Bot className="h-4 w-4" /> Robô de disparos
                 <Badge variant={s.enabled ? "default" : "outline"}>{s.enabled ? "Ativo" : "Pausado"}</Badge>
+                <Badge variant="secondary" className="gap-1">
+                  <MapPin className="h-3 w-3" /> Prioridade: {s.priority_region ?? "nordeste"}
+                </Badge>
               </div>
               <p className="text-xs text-muted-foreground">
-                Roda a cada hora. Gera copy personalizada com IA, respeita 1 disparo/{s.weekly_cooldown_days}d por lead e o cap diário. Sempre inclui {s.site_url}.
+                Roda a cada hora. Gera copy com IA, respeita 1 disparo/{s.weekly_cooldown_days}d por lead e cap diário. Leads da região prioritária vão primeiro. Sempre inclui {s.site_url}.
               </p>
             </div>
             <div className="flex items-center gap-3">
