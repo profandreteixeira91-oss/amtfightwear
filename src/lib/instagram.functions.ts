@@ -4,7 +4,28 @@ import { z } from "zod";
 
 const GRAPH = "https://graph.facebook.com/v21.0";
 
-async function getActiveConnection(supabase: ReturnType<typeof getClient>) {
+type ConnRow = {
+  id: string;
+  page_access_token: string;
+  instagram_business_account_id: string | null;
+  instagram_username: string | null;
+  token_expires_at: string | null;
+};
+
+// Minimal Supabase-like shape needed here
+type SB = {
+  from: (t: string) => {
+    select: (s: string) => {
+      eq: (a: string, b: string) => {
+        order: (o: string, opt: { ascending: boolean }) => {
+          limit: (n: number) => { maybeSingle: () => Promise<{ data: ConnRow | null; error: { message: string } | null }> };
+        };
+      };
+    };
+  };
+};
+
+async function getActiveConnection(supabase: SB): Promise<ConnRow> {
   const { data, error } = await supabase
     .from("meta_connections")
     .select("id, page_access_token, instagram_business_account_id, instagram_username, token_expires_at")
@@ -17,7 +38,6 @@ async function getActiveConnection(supabase: ReturnType<typeof getClient>) {
   if (!data.instagram_business_account_id) throw new Error("Conta Instagram Business não vinculada à Página.");
   return data;
 }
-function getClient() { return null as unknown as { from: (t: string) => { select: (s: string) => { eq: (a: string, b: string) => { order: (o: string, opt: object) => { limit: (n: number) => { maybeSingle: () => Promise<{ data: { id: string; page_access_token: string; instagram_business_account_id: string; instagram_username: string; token_expires_at: string } | null; error: { message: string } | null }> } } } } } } };
 
 async function publishToInstagram(igId: string, token: string, caption: string, imageUrl: string) {
   const createRes = await fetch(`${GRAPH}/${igId}/media`, {
@@ -26,7 +46,7 @@ async function publishToInstagram(igId: string, token: string, caption: string, 
     body: JSON.stringify({ image_url: imageUrl, caption, access_token: token }),
   });
   const createJson = (await createRes.json()) as { id?: string; error?: { message: string } };
-  if (!createRes.ok || !createJson.id) throw new Error(createJson.error?.message || "Falha ao criar container");
+  if (!createRes.ok || !createJson.id) throw new Error(createJson.error?.message || "Falha ao criar container de mídia");
 
   const publishRes = await fetch(`${GRAPH}/${igId}/media_publish`, {
     method: "POST",
@@ -34,9 +54,9 @@ async function publishToInstagram(igId: string, token: string, caption: string, 
     body: JSON.stringify({ creation_id: createJson.id, access_token: token }),
   });
   const publishJson = (await publishRes.json()) as { id?: string; error?: { message: string } };
-  if (!publishRes.ok || !publishJson.id) throw new Error(publishJson.error?.message || "Falha ao publicar");
+  if (!publishRes.ok || !publishJson.id) throw new Error(publishJson.error?.message || "Falha ao publicar no Instagram");
 
-  const info = await fetch(`${GRAPH}/${publishJson.id}?fields=permalink&access_token=${token}`).then((r) => r.json()) as { permalink?: string };
+  const info = (await fetch(`${GRAPH}/${publishJson.id}?fields=permalink&access_token=${token}`).then((r) => r.json())) as { permalink?: string };
   return { ig_media_id: publishJson.id, ig_permalink: info.permalink ?? null };
 }
 
@@ -69,8 +89,8 @@ export const createInstagramPost = createServerFn({ method: "POST" })
 
     if (data.publishNow) {
       try {
-        const conn = await getActiveConnection(context.supabase as never);
-        const res = await publishToInstagram(conn.instagram_business_account_id, conn.page_access_token, data.caption, data.imageUrl);
+        const conn = await getActiveConnection(context.supabase as unknown as SB);
+        const res = await publishToInstagram(conn.instagram_business_account_id!, conn.page_access_token, data.caption, data.imageUrl);
         await context.supabase
           .from("scheduled_posts")
           .update({ status: "published", ig_media_id: res.ig_media_id, ig_permalink: res.ig_permalink, published_at: new Date().toISOString() })
