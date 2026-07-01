@@ -82,7 +82,7 @@ function ContentPage() {
       />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <SectionCard title="Briefing" icon={Wand2}>
+        <SectionCard title="Briefing">
           {isLoading ? (
             <Skeleton className="h-64" />
           ) : (products?.length ?? 0) === 0 ? (
