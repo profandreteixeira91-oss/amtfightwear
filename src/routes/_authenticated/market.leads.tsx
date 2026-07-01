@@ -537,6 +537,19 @@ function AutopilotPanel() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const scrapeNow = useMutation({
+    mutationFn: async () => {
+      const r = await fetch("/api/public/hooks/auto-scrape-leads", { method: "POST" });
+      if (!r.ok) throw new Error(`Falha na busca (${r.status})`);
+      return (await r.json()) as { totalInserted?: number };
+    },
+    onSuccess: (r) => {
+      qc.invalidateQueries({ queryKey: ["leads"] });
+      toast.success(`Busca concluída — ${r.totalInserted ?? 0} novo(s) lead(s)`);
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const s = settings as {
     enabled: boolean;
     daily_email_cap: number;
