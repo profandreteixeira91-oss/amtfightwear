@@ -91,6 +91,8 @@ function LeadsPage() {
 
       <ScraperPanel />
 
+      <AutopilotPanel />
+
       <SectionCard title="Base de leads" delay={0.1}>
         <div className="mb-3 flex items-center gap-2">
           <div className="relative max-w-sm flex-1">
