@@ -119,8 +119,8 @@ function AuthPage() {
       <div className="relative hidden overflow-hidden bg-sidebar text-sidebar-foreground lg:flex lg:flex-col lg:justify-between lg:p-12">
         <div className="pointer-events-none absolute inset-0 opacity-30 [background:radial-gradient(60%_50%_at_20%_10%,var(--color-primary)_0%,transparent_60%),radial-gradient(50%_50%_at_90%_90%,var(--color-primary)_0%,transparent_60%)]" />
         <div className="relative flex items-center gap-3">
-          <div className="grid h-11 w-11 place-items-center rounded-md bg-primary text-primary-foreground shadow-lg">
-            <Flame className="h-6 w-6" />
+          <div className="grid h-11 w-11 place-items-center overflow-hidden rounded-md bg-primary text-primary-foreground shadow-lg ring-1 ring-primary/40">
+            <img src={amtLogo} alt="AMT Fight Wear" className="h-full w-full object-cover" />
           </div>
           <div>
             <div className="text-lg font-bold tracking-tight">AMT Growth Engine</div>
