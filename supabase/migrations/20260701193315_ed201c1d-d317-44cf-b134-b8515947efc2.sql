@@ -1,0 +1,1 @@
+UPDATE public.outreach_settings SET from_email = 'amtfightwear@gmail.com', from_name = COALESCE(from_name, 'AMT Fight Wear');
