@@ -94,7 +94,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Plataforma interna de inteligência comercial e marketing da AMT Fight Wear. Dashboard, usuários, logs e configurações em um único cockpit.",
       },
       { name: "author", content: "AMT Fight Wear" },
-      { property: "og:title", content: "AMT Growth Engine" },
+      { property: "og:title", content: "AMT Growth Engine — Inteligência comercial da AMT Fight Wear" },
       {
         property: "og:description",
         content:
@@ -102,6 +102,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "AMT Growth Engine — Inteligência comercial da AMT Fight Wear" },
+      { name: "description", content: "Happy Helper Hub is a web application designed to streamline task management and collaboration for teams." },
+      { property: "og:description", content: "Happy Helper Hub is a web application designed to streamline task management and collaboration for teams." },
+      { name: "twitter:description", content: "Happy Helper Hub is a web application designed to streamline task management and collaboration for teams." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/f7e7ac95-8519-4092-8d78-7763e772188f/id-preview-2d61a82b--673d932e-eb85-41a4-9454-a94c54c26ec9.lovable.app-1782929071375.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/f7e7ac95-8519-4092-8d78-7763e772188f/id-preview-2d61a82b--673d932e-eb85-41a4-9454-a94c54c26ec9.lovable.app-1782929071375.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
