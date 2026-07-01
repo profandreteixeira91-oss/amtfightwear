@@ -115,6 +115,52 @@ function ContentHubPage() {
         }
       />
 
+      {/* ============ SELETOR DE MODO ============ */}
+      <div
+        className={`mb-4 flex flex-col gap-3 rounded-xl border p-4 transition-colors sm:flex-row sm:items-center sm:justify-between ${
+          autopilot
+            ? "border-primary/40 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent"
+            : "border-border bg-card"
+        }`}
+      >
+        <div className="flex items-center gap-3">
+          <div
+            className={`grid h-10 w-10 place-items-center rounded-lg ${
+              autopilot ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+            }`}
+          >
+            {autopilot ? <Bot className="h-5 w-5" /> : <Wand2 className="h-5 w-5" />}
+          </div>
+          <div>
+            <div className="text-sm font-semibold">
+              {autopilot ? "Piloto Automático IA" : "Modo Manual"}
+            </div>
+            <div className="text-xs text-muted-foreground">
+              {autopilot
+                ? "A Agência IA planeja, gera e agenda posts sozinha 24/7."
+                : "Você define cada briefing e a IA gera o conteúdo sob demanda."}
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className={`text-xs font-medium ${!autopilot ? "text-foreground" : "text-muted-foreground"}`}>
+            Manual
+          </span>
+          <Switch checked={autopilot} onCheckedChange={setAutopilot} />
+          <span className={`text-xs font-medium ${autopilot ? "text-primary" : "text-muted-foreground"}`}>
+            Piloto Automático
+          </span>
+          {autopilot && (
+            <Badge className="ml-2 gap-1 bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">
+              <Zap className="h-3 w-3" /> Ativo
+            </Badge>
+          )}
+        </div>
+      </div>
+
+      {autopilot ? (
+        <AutopilotPanel products={products ?? []} />
+      ) : (
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)]">
         {/* ============ COLUNA ESQUERDA — CONFIGURAÇÃO ============ */}
         <SectionCard title="Configuração da campanha">
