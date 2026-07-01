@@ -2,8 +2,6 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
-const GATEWAY = "https://connector-gateway.lovable.dev";
-
 type LeadDraft = {
   name: string;
   responsible?: string | null;
@@ -19,17 +17,14 @@ type LeadDraft = {
 };
 
 async function firecrawlSearch(query: string, limit = 10) {
-  const lovableKey = process.env.LOVABLE_API_KEY;
   const fcKey = process.env.FIRECRAWL_API_KEY;
-  if (!lovableKey) throw new Error("LOVABLE_API_KEY ausente");
   if (!fcKey) throw new Error("Conecte o Firecrawl em Connections para habilitar a busca automática.");
 
-  const res = await fetch(`${GATEWAY}/firecrawl/v2/search`, {
+  const res = await fetch(`https://api.firecrawl.dev/v2/search`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${lovableKey}`,
-      "X-Connection-Api-Key": fcKey,
+      Authorization: `Bearer ${fcKey}`,
     },
     body: JSON.stringify({
       query,
@@ -42,8 +37,9 @@ async function firecrawlSearch(query: string, limit = 10) {
   if (!res.ok) throw new Error(`Firecrawl ${res.status}: ${(await res.text()).slice(0, 240)}`);
   const json = (await res.json()) as {
     data?: { web?: Array<{ url?: string; title?: string; description?: string; markdown?: string }> };
+    web?: Array<{ url?: string; title?: string; description?: string; markdown?: string }>;
   };
-  return json.data?.web ?? [];
+  return json.data?.web ?? json.web ?? [];
 }
 
 async function aiExtractLeads(rawText: string, defaults: { modality: string; source: string }): Promise<LeadDraft[]> {
