@@ -18,6 +18,7 @@ import {
   Mail,
   BarChart4,
   Rocket,
+  Plug,
 } from "lucide-react";
 
 import {
