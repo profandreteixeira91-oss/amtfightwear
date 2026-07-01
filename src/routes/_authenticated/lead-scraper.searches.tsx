@@ -53,7 +53,7 @@ function SearchesPage() {
                   <TableCell>{r.city ?? "—"}</TableCell>
                   <TableCell>{r.state ?? "—"}</TableCell>
                   <TableCell>{r.theme ?? "—"}</TableCell>
-                  <TableCell className="text-xs">{r.source ?? "google"}</TableCell>
+                  <TableCell className="text-xs">{r.query ?? "google"}</TableCell>
                   <TableCell><Badge variant={r.status === "done" ? "default" : r.status === "error" ? "destructive" : "secondary"}>{r.status}</Badge></TableCell>
                   <TableCell className="text-right">{r.found ?? 0}</TableCell>
                   <TableCell className="text-right">{r.inserted ?? 0}</TableCell>
