@@ -37,7 +37,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { growthService, type Product } from "@/services/growthService";
-import { formatBRL } from "@/lib/format";
+import { brl as formatBRL } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/market/content")({
   head: () => ({ meta: [{ title: "IA Marketing Hub — AMT MarketEngine" }] }),
