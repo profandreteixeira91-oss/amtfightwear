@@ -1,4 +1,4 @@
-import type { ReactNode } from "lucide-react";
+import type { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
