@@ -30,20 +30,18 @@ function LogsPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Data</TableHead>
-                <TableHead>Ação</TableHead>
-                <TableHead>Alvo</TableHead>
+                <TableHead>Tipo</TableHead>
+                <TableHead>Mensagem</TableHead>
                 <TableHead>Detalhes</TableHead>
-                <TableHead>Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {data.map((l) => (
                 <TableRow key={l.id}>
                   <TableCell className="text-xs">{new Date(l.created_at!).toLocaleString("pt-BR")}</TableCell>
-                  <TableCell>{l.action}</TableCell>
-                  <TableCell className="text-xs">{l.target ?? "—"}</TableCell>
+                  <TableCell><Badge variant="secondary">{l.kind}</Badge></TableCell>
+                  <TableCell className="text-sm">{l.message ?? "—"}</TableCell>
                   <TableCell className="max-w-md truncate text-xs text-muted-foreground">{JSON.stringify(l.metadata ?? {})}</TableCell>
-                  <TableCell><Badge variant={l.level === "error" ? "destructive" : "secondary"}>{l.level ?? "info"}</Badge></TableCell>
                 </TableRow>
               ))}
             </TableBody>
