@@ -47,7 +47,10 @@ type SignUpValues = z.infer<typeof signUpSchema>;
 
 function AuthPage() {
   const navigate = useNavigate();
-  const { redirect } = useSearch({ from: "/auth" });
+  const rawRedirect = useSearch({ from: "/auth" }).redirect;
+  // Only allow same-origin relative paths (prevents open-redirect phishing)
+  const redirect =
+    rawRedirect && /^\/(?!\/)/.test(rawRedirect) ? rawRedirect : undefined;
   const [checking, setChecking] = useState(true);
   const [googleLoading, setGoogleLoading] = useState(false);
 
