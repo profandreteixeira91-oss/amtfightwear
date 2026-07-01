@@ -20,7 +20,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { leadsService, type Lead } from "@/services/leadsService";
 import { scrapeLeads, generateOutreach } from "@/lib/leads-scraper.functions";
-import { getOutreachSettings, updateOutreachSettings, getOutreachStats, runOutreachNow } from "@/lib/outreach.functions";
+import { getOutreachSettings, updateOutreachSettings, getOutreachStats, runOutreachNow, markOutreachSent } from "@/lib/outreach.functions";
 import { Switch } from "@/components/ui/switch";
 import { CitySearchCombobox, type SelectedCity } from "@/components/leads/CitySearchCombobox";
 import { LeadsMap, type LeadPoint } from "@/components/leads/LeadsMap";
