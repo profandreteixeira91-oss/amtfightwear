@@ -585,3 +585,262 @@ Equipe AMT Fight Wear`,
     },
   };
 }
+
+/* -------------------- PILOTO AUTOMÁTICO -------------------- */
+
+const AI_FOCUSES = [
+  { id: "kanji", label: "Faixas Premium Kanji" },
+  { id: "training", label: "Atacado Faixas Training" },
+  { id: "trancado", label: "Kimono Trançado Adulto" },
+  { id: "infantil", label: "Kimono Trançadinho Infantil" },
+  { id: "autismo", label: "Faixa Ponteira Autismo" },
+  { id: "patches", label: "Patches de Sublimação" },
+] as const;
+
+const AI_TIME_SLOTS = ["08:30", "12:15", "19:45"];
+
+const AI_THEMES = [
+  "A importância da faixa de alta qualidade na graduação",
+  "Como escolher o kimono ideal para competição de Jiu-Jitsu",
+  "Faixa Kanji personalizada: identidade da sua academia",
+  "Atacado inteligente: economize equipando toda a turma AMT",
+  "Kimono Trançadinho Infantil: durabilidade para o pequeno atleta",
+  "Ponteira Autismo — quando o tatame vira causa",
+  "Bordado profissional: o detalhe que separa amador do atleta",
+  "Patches AMT: personalize o uniforme oficial da sua equipe",
+] as const;
+
+function nextSlot(baseDate: Date, index: number): Date {
+  const d = new Date(baseDate);
+  d.setDate(d.getDate() + Math.floor(index / AI_TIME_SLOTS.length));
+  const [h, m] = AI_TIME_SLOTS[index % AI_TIME_SLOTS.length].split(":").map(Number);
+  d.setHours(h, m, 0, 0);
+  return d;
+}
+
+function AutopilotPanel({ products }: { products: Product[] }) {
+  const [postsPerWeek, setPostsPerWeek] = useState(5);
+  const [primeTime, setPrimeTime] = useState(AI_TIME_SLOTS.join(", "));
+  const [focuses, setFocuses] = useState<Record<string, boolean>>({
+    kanji: true,
+    training: true,
+    trancado: true,
+    infantil: false,
+    autismo: true,
+    patches: false,
+  });
+  const [seed, setSeed] = useState(0);
+  const [regenerating, setRegenerating] = useState<string | null>(null);
+
+  const scheduled = useMemo(() => {
+    const now = new Date();
+    const pool = products.filter((p) => p.image_url).slice(0, 40);
+    return Array.from({ length: 5 }).map((_, i) => {
+      const themeIdx = (i + seed) % AI_THEMES.length;
+      const prod = pool.length ? pool[(i * 3 + seed) % pool.length] : null;
+      return {
+        id: `plan-${seed}-${i}`,
+        theme: AI_THEMES[themeIdx],
+        when: nextSlot(now, i + 1),
+        product: prod,
+      };
+    });
+  }, [products, seed]);
+
+  const forceRegenerate = (id?: string) => {
+    if (id) setRegenerating(id);
+    setTimeout(() => {
+      setSeed((s) => s + 1);
+      setRegenerating(null);
+      toast.success("Nova estratégia gerada pela IA.", {
+        icon: <Sparkles className="h-4 w-4" />,
+      });
+    }, 900);
+  };
+
+  const activeFocusCount = Object.values(focuses).filter(Boolean).length;
+
+  return (
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
+      <div className="space-y-4">
+        <SectionCard title="Frequência & Mix de Conteúdo">
+          <div className="space-y-5">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="mb-2 block text-xs">Posts por semana</Label>
+                <Input
+                  type="number"
+                  min={1}
+                  max={21}
+                  value={postsPerWeek}
+                  onChange={(e) => setPostsPerWeek(Number(e.target.value) || 1)}
+                />
+              </div>
+              <div>
+                <Label className="mb-2 block text-xs">Horários nobres</Label>
+                <Input
+                  value={primeTime}
+                  onChange={(e) => setPrimeTime(e.target.value)}
+                  placeholder="08:30, 12:15, 19:45"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label className="mb-2 flex items-center justify-between text-xs">
+                <span>Focos de produto (a IA alterna)</span>
+                <Badge variant="secondary" className="text-[10px]">
+                  {activeFocusCount} ativos
+                </Badge>
+              </Label>
+              <div className="space-y-2">
+                {AI_FOCUSES.map((f) => (
+                  <label
+                    key={f.id}
+                    className="flex cursor-pointer items-center gap-2 rounded-md border border-border/60 p-2 text-sm transition hover:bg-muted/40"
+                  >
+                    <Checkbox
+                      checked={!!focuses[f.id]}
+                      onCheckedChange={(v) =>
+                        setFocuses((s) => ({ ...s, [f.id]: !!v }))
+                      }
+                    />
+                    <span>{f.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <Button
+              variant="outline"
+              className="w-full gap-2"
+              onClick={() => forceRegenerate()}
+              disabled={regenerating !== null}
+            >
+              <RefreshCw className={`h-4 w-4 ${regenerating ? "animate-spin" : ""}`} />
+              Forçar Geração de Novo Tema
+            </Button>
+          </div>
+        </SectionCard>
+
+        <SectionCard title="Status da Agência IA">
+          <div className="space-y-2 text-xs">
+            <StatusRow label="Piloto Automático" value="Ligado" tone="ok" />
+            <StatusRow label="Meta semanal" value={`${postsPerWeek} posts`} />
+            <StatusRow
+              label="Próximo disparo"
+              value={
+                scheduled[0]?.when.toLocaleString("pt-BR", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                }) ?? "—"
+              }
+            />
+            <StatusRow label="Modelo criativo" value="AMT-Gen v3" />
+          </div>
+        </SectionCard>
+      </div>
+
+      <SectionCard title="Linha do Tempo — Agenda Autônoma da IA">
+        <div className="relative pl-6">
+          <div className="absolute left-2 top-2 bottom-2 w-px bg-gradient-to-b from-primary/60 via-border to-transparent" />
+          <div className="space-y-4">
+            <AnimatePresence mode="popLayout">
+              {scheduled.map((item, i) => (
+                <motion.div
+                  key={item.id}
+                  layout
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 10 }}
+                  transition={{ delay: i * 0.05 }}
+                  className="relative"
+                >
+                  <div className="absolute -left-[18px] top-3 grid h-4 w-4 place-items-center rounded-full border-2 border-primary bg-background">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  </div>
+                  <div className="flex gap-3 rounded-lg border border-border/60 bg-card p-3 transition hover:border-primary/40">
+                    <div className="h-20 w-20 shrink-0 overflow-hidden rounded-md bg-muted">
+                      {item.product?.image_url ? (
+                        <img
+                          src={item.product.image_url}
+                          alt=""
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="grid h-full w-full place-items-center text-[10px] text-muted-foreground">
+                          IA gerando…
+                        </div>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <div className="text-[10px] font-medium uppercase tracking-widest text-primary">
+                            Post #{i + 1} · IA
+                          </div>
+                          <div className="mt-0.5 truncate text-sm font-semibold">
+                            {item.theme}
+                          </div>
+                          {item.product && (
+                            <div className="mt-0.5 truncate text-[11px] text-muted-foreground">
+                              Produto: {item.product.name}
+                            </div>
+                          )}
+                        </div>
+                        <Badge
+                          variant="outline"
+                          className="shrink-0 gap-1 border-amber-500/40 bg-amber-500/10 text-amber-500"
+                        >
+                          <Clock className="h-3 w-3" /> Aguardando disparo autônomo
+                        </Badge>
+                      </div>
+
+                      <div className="mt-2 flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                          <CalendarClock className="h-3.5 w-3.5" />
+                          {item.when.toLocaleString("pt-BR", {
+                            weekday: "short",
+                            day: "2-digit",
+                            month: "2-digit",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-7 gap-1.5 text-xs"
+                          disabled={regenerating === item.id}
+                          onClick={() => forceRegenerate(item.id)}
+                        >
+                          <RefreshCw
+                            className={`h-3 w-3 ${regenerating === item.id ? "animate-spin" : ""}`}
+                          />
+                          Novo tema
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        </div>
+      </SectionCard>
+    </div>
+  );
+}
+
+function StatusRow({ label, value, tone }: { label: string; value: string; tone?: "ok" }) {
+  return (
+    <div className="flex items-center justify-between rounded-md border border-border/50 bg-muted/30 px-3 py-2">
+      <span className="text-muted-foreground">{label}</span>
+      <span className={`font-medium ${tone === "ok" ? "text-emerald-500" : "text-foreground"}`}>
+        {value}
+      </span>
+    </div>
+  );
+}
