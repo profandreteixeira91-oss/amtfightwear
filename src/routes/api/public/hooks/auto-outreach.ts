@@ -252,8 +252,8 @@ export const Route = createFileRoute("/api/public/hooks/auto-outreach")({
         for (const lead of emailTargets) {
           try {
             const copy = await generateCopy(apiKey, lead, "email", settings.tone, site);
-            const subject = copy.subject || `Parceria AMT Fight Wear × ${lead.name}`;
-            const html = copy.body_html || `<p>Olá ${lead.responsible ?? lead.name},</p>`;
+            const subject = copy.subject || `Proposta comercial B2B – AMT Fight Wear`;
+            const html = copy.body_html || `<p>Prezados,</p><p>Somos a AMT Fight Wear, fabricante brasileira de kimonos trançados, faixas premium e patches. Gostaríamos de encaminhar nosso catálogo e tabela comercial para revenda.</p><p>Atenciosamente,<br/>Equipe Comercial – AMT Fight Wear<br/><a href="${site}">${site}</a></p>`;
             const r = await sendEmail(supabase, request, lead, subject, html, from);
             results.push({ id: lead.id, channel: "email", ok: r.ok, error: r.error });
             // Espaça 1-2s para evitar rajada
