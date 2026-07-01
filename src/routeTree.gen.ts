@@ -30,6 +30,13 @@ import { Route as AuthenticatedMarketCrmRouteImport } from './routes/_authentica
 import { Route as AuthenticatedMarketContentRouteImport } from './routes/_authenticated/market.content'
 import { Route as AuthenticatedMarketConnectionsRouteImport } from './routes/_authenticated/market.connections'
 import { Route as AuthenticatedMarketCatalogRouteImport } from './routes/_authenticated/market.catalog'
+import { Route as AuthenticatedLeadScraperSettingsRouteImport } from './routes/_authenticated/lead-scraper.settings'
+import { Route as AuthenticatedLeadScraperSearchesRouteImport } from './routes/_authenticated/lead-scraper.searches'
+import { Route as AuthenticatedLeadScraperMapRouteImport } from './routes/_authenticated/lead-scraper.map'
+import { Route as AuthenticatedLeadScraperLogsRouteImport } from './routes/_authenticated/lead-scraper.logs'
+import { Route as AuthenticatedLeadScraperExportsRouteImport } from './routes/_authenticated/lead-scraper.exports'
+import { Route as AuthenticatedLeadScraperEnrichmentRouteImport } from './routes/_authenticated/lead-scraper.enrichment'
+import { Route as AuthenticatedLeadScraperAutomationsRouteImport } from './routes/_authenticated/lead-scraper.automations'
 import { Route as AuthenticatedGrowthProductsRouteImport } from './routes/_authenticated/growth.products'
 import { Route as AuthenticatedGrowthMarketRouteImport } from './routes/_authenticated/growth.market'
 import { Route as AuthenticatedGrowthKpisRouteImport } from './routes/_authenticated/growth.kpis'
@@ -160,6 +167,48 @@ const AuthenticatedMarketCatalogRoute =
     path: '/market/catalog',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedLeadScraperSettingsRoute =
+  AuthenticatedLeadScraperSettingsRouteImport.update({
+    id: '/lead-scraper/settings',
+    path: '/lead-scraper/settings',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedLeadScraperSearchesRoute =
+  AuthenticatedLeadScraperSearchesRouteImport.update({
+    id: '/lead-scraper/searches',
+    path: '/lead-scraper/searches',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedLeadScraperMapRoute =
+  AuthenticatedLeadScraperMapRouteImport.update({
+    id: '/lead-scraper/map',
+    path: '/lead-scraper/map',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedLeadScraperLogsRoute =
+  AuthenticatedLeadScraperLogsRouteImport.update({
+    id: '/lead-scraper/logs',
+    path: '/lead-scraper/logs',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedLeadScraperExportsRoute =
+  AuthenticatedLeadScraperExportsRouteImport.update({
+    id: '/lead-scraper/exports',
+    path: '/lead-scraper/exports',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedLeadScraperEnrichmentRoute =
+  AuthenticatedLeadScraperEnrichmentRouteImport.update({
+    id: '/lead-scraper/enrichment',
+    path: '/lead-scraper/enrichment',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedLeadScraperAutomationsRoute =
+  AuthenticatedLeadScraperAutomationsRouteImport.update({
+    id: '/lead-scraper/automations',
+    path: '/lead-scraper/automations',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedGrowthProductsRoute =
   AuthenticatedGrowthProductsRouteImport.update({
     id: '/growth/products',
@@ -263,6 +312,13 @@ export interface FileRoutesByFullPath {
   '/growth/kpis': typeof AuthenticatedGrowthKpisRoute
   '/growth/market': typeof AuthenticatedGrowthMarketRoute
   '/growth/products': typeof AuthenticatedGrowthProductsRoute
+  '/lead-scraper/automations': typeof AuthenticatedLeadScraperAutomationsRoute
+  '/lead-scraper/enrichment': typeof AuthenticatedLeadScraperEnrichmentRoute
+  '/lead-scraper/exports': typeof AuthenticatedLeadScraperExportsRoute
+  '/lead-scraper/logs': typeof AuthenticatedLeadScraperLogsRoute
+  '/lead-scraper/map': typeof AuthenticatedLeadScraperMapRoute
+  '/lead-scraper/searches': typeof AuthenticatedLeadScraperSearchesRoute
+  '/lead-scraper/settings': typeof AuthenticatedLeadScraperSettingsRoute
   '/market/catalog': typeof AuthenticatedMarketCatalogRoute
   '/market/connections': typeof AuthenticatedMarketConnectionsRoute
   '/market/content': typeof AuthenticatedMarketContentRoute
@@ -300,6 +356,13 @@ export interface FileRoutesByTo {
   '/growth/kpis': typeof AuthenticatedGrowthKpisRoute
   '/growth/market': typeof AuthenticatedGrowthMarketRoute
   '/growth/products': typeof AuthenticatedGrowthProductsRoute
+  '/lead-scraper/automations': typeof AuthenticatedLeadScraperAutomationsRoute
+  '/lead-scraper/enrichment': typeof AuthenticatedLeadScraperEnrichmentRoute
+  '/lead-scraper/exports': typeof AuthenticatedLeadScraperExportsRoute
+  '/lead-scraper/logs': typeof AuthenticatedLeadScraperLogsRoute
+  '/lead-scraper/map': typeof AuthenticatedLeadScraperMapRoute
+  '/lead-scraper/searches': typeof AuthenticatedLeadScraperSearchesRoute
+  '/lead-scraper/settings': typeof AuthenticatedLeadScraperSettingsRoute
   '/market/catalog': typeof AuthenticatedMarketCatalogRoute
   '/market/connections': typeof AuthenticatedMarketConnectionsRoute
   '/market/content': typeof AuthenticatedMarketContentRoute
@@ -339,6 +402,13 @@ export interface FileRoutesById {
   '/_authenticated/growth/kpis': typeof AuthenticatedGrowthKpisRoute
   '/_authenticated/growth/market': typeof AuthenticatedGrowthMarketRoute
   '/_authenticated/growth/products': typeof AuthenticatedGrowthProductsRoute
+  '/_authenticated/lead-scraper/automations': typeof AuthenticatedLeadScraperAutomationsRoute
+  '/_authenticated/lead-scraper/enrichment': typeof AuthenticatedLeadScraperEnrichmentRoute
+  '/_authenticated/lead-scraper/exports': typeof AuthenticatedLeadScraperExportsRoute
+  '/_authenticated/lead-scraper/logs': typeof AuthenticatedLeadScraperLogsRoute
+  '/_authenticated/lead-scraper/map': typeof AuthenticatedLeadScraperMapRoute
+  '/_authenticated/lead-scraper/searches': typeof AuthenticatedLeadScraperSearchesRoute
+  '/_authenticated/lead-scraper/settings': typeof AuthenticatedLeadScraperSettingsRoute
   '/_authenticated/market/catalog': typeof AuthenticatedMarketCatalogRoute
   '/_authenticated/market/connections': typeof AuthenticatedMarketConnectionsRoute
   '/_authenticated/market/content': typeof AuthenticatedMarketContentRoute
@@ -378,6 +448,13 @@ export interface FileRouteTypes {
     | '/growth/kpis'
     | '/growth/market'
     | '/growth/products'
+    | '/lead-scraper/automations'
+    | '/lead-scraper/enrichment'
+    | '/lead-scraper/exports'
+    | '/lead-scraper/logs'
+    | '/lead-scraper/map'
+    | '/lead-scraper/searches'
+    | '/lead-scraper/settings'
     | '/market/catalog'
     | '/market/connections'
     | '/market/content'
@@ -415,6 +492,13 @@ export interface FileRouteTypes {
     | '/growth/kpis'
     | '/growth/market'
     | '/growth/products'
+    | '/lead-scraper/automations'
+    | '/lead-scraper/enrichment'
+    | '/lead-scraper/exports'
+    | '/lead-scraper/logs'
+    | '/lead-scraper/map'
+    | '/lead-scraper/searches'
+    | '/lead-scraper/settings'
     | '/market/catalog'
     | '/market/connections'
     | '/market/content'
@@ -453,6 +537,13 @@ export interface FileRouteTypes {
     | '/_authenticated/growth/kpis'
     | '/_authenticated/growth/market'
     | '/_authenticated/growth/products'
+    | '/_authenticated/lead-scraper/automations'
+    | '/_authenticated/lead-scraper/enrichment'
+    | '/_authenticated/lead-scraper/exports'
+    | '/_authenticated/lead-scraper/logs'
+    | '/_authenticated/lead-scraper/map'
+    | '/_authenticated/lead-scraper/searches'
+    | '/_authenticated/lead-scraper/settings'
     | '/_authenticated/market/catalog'
     | '/_authenticated/market/connections'
     | '/_authenticated/market/content'
@@ -638,6 +729,55 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMarketCatalogRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/lead-scraper/settings': {
+      id: '/_authenticated/lead-scraper/settings'
+      path: '/lead-scraper/settings'
+      fullPath: '/lead-scraper/settings'
+      preLoaderRoute: typeof AuthenticatedLeadScraperSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/lead-scraper/searches': {
+      id: '/_authenticated/lead-scraper/searches'
+      path: '/lead-scraper/searches'
+      fullPath: '/lead-scraper/searches'
+      preLoaderRoute: typeof AuthenticatedLeadScraperSearchesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/lead-scraper/map': {
+      id: '/_authenticated/lead-scraper/map'
+      path: '/lead-scraper/map'
+      fullPath: '/lead-scraper/map'
+      preLoaderRoute: typeof AuthenticatedLeadScraperMapRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/lead-scraper/logs': {
+      id: '/_authenticated/lead-scraper/logs'
+      path: '/lead-scraper/logs'
+      fullPath: '/lead-scraper/logs'
+      preLoaderRoute: typeof AuthenticatedLeadScraperLogsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/lead-scraper/exports': {
+      id: '/_authenticated/lead-scraper/exports'
+      path: '/lead-scraper/exports'
+      fullPath: '/lead-scraper/exports'
+      preLoaderRoute: typeof AuthenticatedLeadScraperExportsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/lead-scraper/enrichment': {
+      id: '/_authenticated/lead-scraper/enrichment'
+      path: '/lead-scraper/enrichment'
+      fullPath: '/lead-scraper/enrichment'
+      preLoaderRoute: typeof AuthenticatedLeadScraperEnrichmentRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/lead-scraper/automations': {
+      id: '/_authenticated/lead-scraper/automations'
+      path: '/lead-scraper/automations'
+      fullPath: '/lead-scraper/automations'
+      preLoaderRoute: typeof AuthenticatedLeadScraperAutomationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/growth/products': {
       id: '/_authenticated/growth/products'
       path: '/growth/products'
@@ -774,6 +914,13 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedGrowthKpisRoute: typeof AuthenticatedGrowthKpisRoute
   AuthenticatedGrowthMarketRoute: typeof AuthenticatedGrowthMarketRoute
   AuthenticatedGrowthProductsRoute: typeof AuthenticatedGrowthProductsRoute
+  AuthenticatedLeadScraperAutomationsRoute: typeof AuthenticatedLeadScraperAutomationsRoute
+  AuthenticatedLeadScraperEnrichmentRoute: typeof AuthenticatedLeadScraperEnrichmentRoute
+  AuthenticatedLeadScraperExportsRoute: typeof AuthenticatedLeadScraperExportsRoute
+  AuthenticatedLeadScraperLogsRoute: typeof AuthenticatedLeadScraperLogsRoute
+  AuthenticatedLeadScraperMapRoute: typeof AuthenticatedLeadScraperMapRoute
+  AuthenticatedLeadScraperSearchesRoute: typeof AuthenticatedLeadScraperSearchesRoute
+  AuthenticatedLeadScraperSettingsRoute: typeof AuthenticatedLeadScraperSettingsRoute
   AuthenticatedMarketCatalogRoute: typeof AuthenticatedMarketCatalogRoute
   AuthenticatedMarketConnectionsRoute: typeof AuthenticatedMarketConnectionsRoute
   AuthenticatedMarketContentRoute: typeof AuthenticatedMarketContentRoute
@@ -801,6 +948,15 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedGrowthKpisRoute: AuthenticatedGrowthKpisRoute,
   AuthenticatedGrowthMarketRoute: AuthenticatedGrowthMarketRoute,
   AuthenticatedGrowthProductsRoute: AuthenticatedGrowthProductsRoute,
+  AuthenticatedLeadScraperAutomationsRoute:
+    AuthenticatedLeadScraperAutomationsRoute,
+  AuthenticatedLeadScraperEnrichmentRoute:
+    AuthenticatedLeadScraperEnrichmentRoute,
+  AuthenticatedLeadScraperExportsRoute: AuthenticatedLeadScraperExportsRoute,
+  AuthenticatedLeadScraperLogsRoute: AuthenticatedLeadScraperLogsRoute,
+  AuthenticatedLeadScraperMapRoute: AuthenticatedLeadScraperMapRoute,
+  AuthenticatedLeadScraperSearchesRoute: AuthenticatedLeadScraperSearchesRoute,
+  AuthenticatedLeadScraperSettingsRoute: AuthenticatedLeadScraperSettingsRoute,
   AuthenticatedMarketCatalogRoute: AuthenticatedMarketCatalogRoute,
   AuthenticatedMarketConnectionsRoute: AuthenticatedMarketConnectionsRoute,
   AuthenticatedMarketContentRoute: AuthenticatedMarketContentRoute,
