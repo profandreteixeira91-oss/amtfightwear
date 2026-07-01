@@ -130,7 +130,7 @@ export const Route = createFileRoute("/api/public/hooks/auto-instagram-post")({
         const excludeIds = (recent ?? []).map((r) => r.product_id).filter(Boolean) as string[];
 
         let productQuery = supabaseAdmin.from("products").select("id,name,category,price,image_url,description");
-        const cats = (settings.categories as string[]) ?? [];
+        const cats = (settings?.categories as string[] | null) ?? [];
         if (cats.length) productQuery = productQuery.in("category", cats);
         if (excludeIds.length) productQuery = productQuery.not("id", "in", `(${excludeIds.join(",")})`);
         const { data: products } = await productQuery.limit(200);
