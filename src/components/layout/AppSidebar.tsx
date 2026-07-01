@@ -6,7 +6,6 @@ import {
   User,
   Users,
   ScrollText,
-  Flame,
   Brain,
   Package,
   UserSquare2,
@@ -24,6 +23,12 @@ import {
   Bot,
   BookOpen,
   MessageSquare,
+  Search,
+  Map,
+  Download,
+  Zap,
+  Wrench,
+  ListChecks,
 } from "lucide-react";
 
 import {
@@ -58,12 +63,23 @@ const growthItems = [
 
 const marketItems = [
   { title: "Painel MarketEngine", url: "/market/overview", icon: Rocket },
-  { title: "Lead Scraper", url: "/market/leads", icon: Radar },
   { title: "IA Content Hub", url: "/market/content", icon: Wand2 },
   { title: "CRM & E-mail", url: "/market/crm", icon: Mail },
   { title: "Analytics Catálogo", url: "/market/catalog", icon: BarChart4 },
   { title: "Pesquisa de Mercado", url: "/market/pricing", icon: DollarSign },
   { title: "Conexões e APIs", url: "/market/connections", icon: Plug },
+] as const;
+
+const scraperItems = [
+  { title: "Dashboard", url: "/lead-scraper", icon: LayoutDashboard },
+  { title: "Pesquisas", url: "/lead-scraper/searches", icon: Search },
+  { title: "Leads", url: "/market/leads", icon: Radar },
+  { title: "Enriquecimento", url: "/lead-scraper/enrichment", icon: Sparkles },
+  { title: "Mapa", url: "/lead-scraper/map", icon: Map },
+  { title: "Exportações", url: "/lead-scraper/exports", icon: Download },
+  { title: "Automações", url: "/lead-scraper/automations", icon: Zap },
+  { title: "Configurações", url: "/lead-scraper/settings", icon: Wrench },
+  { title: "Logs", url: "/lead-scraper/logs", icon: ListChecks },
 ] as const;
 
 const salesItems = [
@@ -158,6 +174,25 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Lead Scraper IA</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {scraperItems.map((item) => (
+                <SidebarMenuItem key={item.url}>
+                  <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
+                    <Link to={item.url} className="flex items-center gap-2">
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
 
         <SidebarGroup>
           <SidebarGroupLabel>SalesBot IA</SidebarGroupLabel>
