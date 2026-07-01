@@ -178,26 +178,21 @@ export const generateOutreach = createServerFn({ method: "POST" })
       .map((p) => `- ${p.name} (${p.category}) R$${Number(p.price ?? 0).toFixed(2)}`)
       .join("\n");
 
+    const site = "https://www.amtfightwear.com.br";
     const channelBrief =
       data.channel === "email"
-        ? `Formato: JSON { "subject": string curto (<=60c), "body": texto em HTML simples com <p> e <ul>, 120-180 palavras, com PS e call-to-action para amostra/atacado }`
+        ? `Formato: JSON { "subject": string curto (<=65c) objetivo e comercial, sem gírias, sem emoji, sem "oi/olá". Ex.: "Proposta comercial B2B - AMT Fight Wear". "body": HTML simples (<p>,<ul>,<li>) 140-200 palavras, FORMAL e PROFISSIONAL. Regras: abrir com "Prezados,"; apresentar a AMT Fight Wear como fabricante brasileira de kimonos trançados, faixas premium e patches; apresentar objetivamente a linha B2B/atacado com bullets; oferecer catálogo, tabela de preços e amostra sob consulta; CTA discreto e assinatura "Atenciosamente,<br/>Equipe Comercial – AMT Fight Wear<br/><a href='${site}'>${site}</a>". PROIBIDO: emojis, elogios pessoais, "vi seu perfil", tom íntimo, exclamações repetidas, usar primeiro nome do responsável. }`
         : data.channel === "whatsapp"
-          ? `Formato: JSON { "body": string com no máximo 500 caracteres, tom próximo, com 1-2 emojis do universo de artes marciais 🥋, CTA para tabela de atacado. Sem markdown }`
-          : `Formato: JSON { "body": string para Direct do Instagram, no máximo 400 caracteres, tom camarada, elogio real ao perfil, 1 emoji, CTA para conversar sobre linha B2B }`;
+          ? `Formato: JSON { "body": string até 500 caracteres para WhatsApp comercial, FORMAL e CORDIAL. Regras OBRIGATÓRIAS: abrir com "Prezados,"; apresentar-se: "Somos a AMT Fight Wear, fabricante brasileira de kimonos trançados, faixas premium e patches para artes marciais."; comunicar a proposta (tabela de atacado / condições comerciais para revenda ou fardamento); CTA discreto ("Podemos encaminhar o catálogo e a tabela comercial para avaliação?") e o site ${site}; encerrar com "Equipe Comercial – AMT Fight Wear". PROIBIDO: emojis, gírias, "Fala/E aí/Opa", nome próprio do responsável, elogios pessoais, referências ao perfil/postagens, tom íntimo. }`
+          : `Formato: JSON { "body": string até 500 caracteres para Direct do Instagram, registro FORMAL, INSTITUCIONAL e CORDIAL. Regras OBRIGATÓRIAS: (1) Abrir com "Prezados," — NUNCA "Fala/E aí/Opa/Oi", nome próprio ou saudações informais; (2) Apresentar-se: "Somos a AMT Fight Wear, fabricante brasileira de kimonos trançados, faixas premium e patches para artes marciais."; (3) Comunicar objetivamente a proposta (tabela de atacado / condições comerciais para revenda ou fardamento de ${lead.lead_type ?? "academias"}); (4) CTA discreto ("Podemos encaminhar o catálogo e a tabela comercial para avaliação?") e o site ${site}. PROIBIDO EM QUALQUER HIPÓTESE: emojis (🥋, 👊, etc.), gírias, "parça/camarada/topa/trocar uma ideia", comentários sobre postagens/perfil/atletas/tradição/qualidade do trabalho, elogios pessoais, referências ao trabalho específico do destinatário, tom íntimo, exclamações repetidas, uso do primeiro nome. }`;
 
-    const prompt = `Você é copywriter B2B da AMT Fight Wear (kimonos trançados, faixas premium, patches). Escreva uma abordagem para o lead abaixo focada em ${
-      lead.lead_type ?? "academia"
-    } de ${lead.modality ?? "Jiu-Jitsu"}. Ângulo: ${data.angle ?? "primeira abordagem B2B com convite para tabela atacado"}.
-Lead:
-Nome: ${lead.name}
-Responsável: ${lead.responsible ?? "(desconhecido)"}
-Cidade: ${lead.city ?? ""}
-Notas: ${lead.notes ?? ""}
+    const prompt = `Você é redator comercial B2B da AMT Fight Wear (fabricante brasileira). Escreva uma abordagem comercial inicial, com POSTURA e FORMALIDADE — nunca íntima, nunca "vi seu perfil", nunca elogios pessoais ao destinatário. Ângulo interno (contexto, NÃO citar): ${data.angle ?? "primeira abordagem B2B com convite para tabela atacado"}.
+Lead: ${lead.name} (${lead.lead_type ?? "academia"} de ${lead.modality ?? "Jiu-Jitsu"}).
+Notas internas (apenas contexto, NÃO citar no texto): ${(lead.notes ?? "").slice(0, 400)}
+Catálogo de referência (apenas para você): ${catalog}
 
-Catálogo de referência:
-${catalog}
-
-${channelBrief}. Responda apenas com o JSON.`;
+${channelBrief}
+Responda APENAS com o JSON, sem comentários.`;
 
     const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -205,7 +200,7 @@ ${channelBrief}. Responda apenas com o JSON.`;
       body: JSON.stringify({
         model: "google/gemini-3-flash-preview",
         messages: [
-          { role: "system", content: "Copywriter B2B AMT Fight Wear. Retorne apenas JSON." },
+          { role: "system", content: "Copywriter B2B AMT Fight Wear. Tom sempre institucional e formal. Retorne apenas JSON válido." },
           { role: "user", content: prompt },
         ],
         response_format: { type: "json_object" },
