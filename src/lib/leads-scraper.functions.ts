@@ -180,14 +180,17 @@ export const generateOutreach = createServerFn({ method: "POST" })
 
     const site = "https://www.amtfightwear.com.br";
     const m = (lead.modality ?? "").toLowerCase();
+    // Catálogo real AMT Fight Wear: kimonos (BJJ, Judô, Karatê), faixas e patches bordados.
+    // A AMT NÃO fabrica shorts, rashguards, camisetas, luvas, caneleiras ou qualquer item de MMA/Muay Thai/boxe.
     const line = m.includes("judô") || m.includes("judo")
       ? "kimonos de judô (gramatura pesada, trançado reforçado), faixas oficiais de judô (todas as graduações) e patches bordados para dogi"
       : m.includes("karate") || m.includes("karatê")
         ? "karategis (kata e kumite), faixas de karatê (todas as graduações) e patches bordados"
-        : m.includes("muay") || m.includes("mma") || m.includes("boxe")
-          ? "shorts de MMA/Muay Thai, rashguards, camisetas técnicas e patches personalizados para equipe"
-          : "kimonos trançados de BJJ (A0 a A5), faixas premium de BJJ (branca a preta) e patches bordados personalizados";
-    const modalityLabel = lead.modality ?? "artes marciais";
+        : "kimonos trançados de BJJ (A0 a A5), faixas premium de BJJ (branca a preta) e patches bordados personalizados";
+    const modalityLabel =
+      m.includes("judô") || m.includes("judo") ? "Judô"
+      : m.includes("karate") || m.includes("karatê") ? "Karatê"
+      : "Jiu-Jitsu";
 
     const channelBrief =
       data.channel === "email"
@@ -197,10 +200,19 @@ export const generateOutreach = createServerFn({ method: "POST" })
           : `Formato: JSON { "body": string até 500 caracteres para Direct do Instagram, FORMAL e INSTITUCIONAL. Regras OBRIGATÓRIAS: (1) Abrir com "Prezados," — NUNCA "Fala/E aí/Opa/Oi", nome próprio ou saudações informais; (2) Apresentar-se: "Somos a AMT Fight Wear, fabricante brasileira especializada em ${line}."; (3) Comunicar objetivamente a proposta ESPECÍFICA para ${modalityLabel}: tabela de atacado / condições para revenda ou fardamento com a linha de ${line}. NÃO citar produtos de outras modalidades; (4) CTA discreto ("Podemos encaminhar o catálogo e a tabela comercial para avaliação?") e o site ${site}. PROIBIDO EM QUALQUER HIPÓTESE: qualquer elogio (ao trabalho, à academia, à tradição, à qualidade, aos atletas, à história, à região), comentar postagens/perfil/atletas, referências ao trabalho do destinatário, emojis (🥋, 👊, etc.), gírias, "parça/camarada/topa/trocar uma ideia", nome próprio, tom íntimo, exclamações. Apresente APENAS produtos e proposta — nada mais. }`;
 
     const prompt = `Você é redator comercial B2B da AMT Fight Wear (fabricante brasileira). Escreva uma abordagem comercial inicial STRICTAMENTE INSTITUCIONAL: apresente APENAS produtos e proposta comercial, SEM elogios de qualquer natureza. Ângulo interno (contexto, NÃO citar): ${data.angle ?? "primeira abordagem B2B com convite para tabela atacado"}.
+
+CATÁLOGO OFICIAL AMT FIGHT WEAR (ÚNICO PERMITIDO):
+- Kimonos de Jiu-Jitsu (trançados, A0 a A5)
+- Kimonos de Judô (gramatura pesada, trançado reforçado)
+- Karategis (kata e kumite)
+- Faixas oficiais (BJJ, Judô, Karatê — todas as graduações)
+- Patches bordados personalizados
+PROIBIDO CITAR/OFERECER (a AMT NÃO fabrica): shorts, bermudas, rashguards, camisetas, moletons, luvas, caneleiras, protetores bucais, sacos de pancada, equipamentos de MMA, Muay Thai, boxe, kickboxing, wrestling ou qualquer artigo têxtil/equipamento fora do catálogo acima. Se o lead for de MMA/Muay Thai/Boxe, ofereça APENAS patches bordados personalizados para equipe/fardamento.
+
 Modalidade do lead: ${modalityLabel}. Linha exclusiva a ofertar: ${line}.
 Lead: ${lead.name} (${lead.lead_type ?? "academia"}).
 Notas internas (apenas contexto, NÃO citar no texto): ${(lead.notes ?? "").slice(0, 400)}
-Catálogo de referência (apenas para você, cite apenas se compatível com a modalidade): ${catalog}
+Catálogo real do site (use apenas estes itens): ${catalog}
 
 ${channelBrief}
 Responda APENAS com o JSON, sem comentários.`;

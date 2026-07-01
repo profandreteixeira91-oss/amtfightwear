@@ -43,12 +43,15 @@ const REGION_UFS: Record<string, string[]> = {
 
 function productLineFor(modality: string | null): string {
   const m = (modality ?? "").toLowerCase();
+  // Catálogo real AMT Fight Wear: kimonos (BJJ, Judô, Karatê), faixas e patches bordados.
+  // A AMT NÃO fabrica shorts, rashguards, camisetas, luvas ou qualquer item de MMA/Muay Thai/boxe.
   if (m.includes("judô") || m.includes("judo"))
     return "kimonos de judô (gramatura pesada, trançado reforçado), faixas oficiais de judô (todas as graduações) e patches bordados para dogi";
   if (m.includes("karate") || m.includes("karatê"))
     return "karategis (kata e kumite), faixas de karatê (todas as graduações) e patches bordados";
-  if (m.includes("muay") || m.includes("mma") || m.includes("boxe"))
-    return "shorts de MMA/Muay Thai, rashguards, camisetas técnicas e patches personalizados para equipe";
+  if (m.includes("muay") || m.includes("mma") || m.includes("boxe") || m.includes("kickbox"))
+    // Para equipes de MMA/Muay Thai/Boxe, ofertar SOMENTE patches bordados (único item do catálogo aplicável).
+    return "patches bordados personalizados para fardamento de equipe (bordado de alta durabilidade)";
   // BJJ e default
   return "kimonos trançados de BJJ (A0 a A5), faixas premium de BJJ (branca a preta) e patches bordados personalizados";
 }
@@ -74,6 +77,15 @@ async function generateCopy(
 
 
   const prompt = `Você é redator comercial B2B da AMT Fight Wear (fabricante brasileira). Escreva uma abordagem comercial inicial STRICTAMENTE INSTITUCIONAL: apresente APENAS produtos e proposta comercial, SEM elogios de qualquer natureza (nem ao trabalho, nem à academia, nem à tradição, nem à região, nem à qualidade do treino).
+
+CATÁLOGO OFICIAL AMT FIGHT WEAR (ÚNICO PERMITIDO — restrito ao site amtfightwear.com.br):
+- Kimonos de Jiu-Jitsu (trançados, A0 a A5)
+- Kimonos de Judô (gramatura pesada, trançado reforçado)
+- Karategis (kata e kumite)
+- Faixas oficiais (BJJ, Judô, Karatê — todas as graduações)
+- Patches bordados personalizados
+PROIBIDO CITAR OU OFERTAR (a AMT NÃO fabrica): shorts, bermudas, rashguards, camisetas, moletons, luvas, caneleiras, protetores bucais, sacos de pancada, equipamentos de MMA, Muay Thai, boxe, kickboxing, wrestling, ou qualquer artigo têxtil/equipamento fora do catálogo acima. Se o lead for de MMA/Muay Thai/Boxe/Kickboxing, ofereça EXCLUSIVAMENTE patches bordados personalizados para fardamento de equipe — nada mais.
+
 Modalidade do lead: ${modalityLabel}. Linha de produto a ofertar (exclusiva para essa modalidade): ${line}.
 Lead: ${lead.name} (${lead.lead_type ?? "academia"}).
 Notas internas (apenas contexto, NÃO citar no texto): ${(lead.notes ?? "").slice(0, 400)}
