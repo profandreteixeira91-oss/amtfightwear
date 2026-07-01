@@ -17,6 +17,13 @@ import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedLogsRouteImport } from './routes/_authenticated/logs'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedGrowthProductsRouteImport } from './routes/_authenticated/growth.products'
+import { Route as AuthenticatedGrowthMarketRouteImport } from './routes/_authenticated/growth.market'
+import { Route as AuthenticatedGrowthKpisRouteImport } from './routes/_authenticated/growth.kpis'
+import { Route as AuthenticatedGrowthIntelligenceRouteImport } from './routes/_authenticated/growth.intelligence'
+import { Route as AuthenticatedGrowthInsightsRouteImport } from './routes/_authenticated/growth.insights'
+import { Route as AuthenticatedGrowthCustomersRouteImport } from './routes/_authenticated/growth.customers'
+import { Route as AuthenticatedGrowthCrmRouteImport } from './routes/_authenticated/growth.crm'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -57,6 +64,46 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedGrowthProductsRoute =
+  AuthenticatedGrowthProductsRouteImport.update({
+    id: '/growth/products',
+    path: '/growth/products',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedGrowthMarketRoute =
+  AuthenticatedGrowthMarketRouteImport.update({
+    id: '/growth/market',
+    path: '/growth/market',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedGrowthKpisRoute = AuthenticatedGrowthKpisRouteImport.update({
+  id: '/growth/kpis',
+  path: '/growth/kpis',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedGrowthIntelligenceRoute =
+  AuthenticatedGrowthIntelligenceRouteImport.update({
+    id: '/growth/intelligence',
+    path: '/growth/intelligence',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedGrowthInsightsRoute =
+  AuthenticatedGrowthInsightsRouteImport.update({
+    id: '/growth/insights',
+    path: '/growth/insights',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedGrowthCustomersRoute =
+  AuthenticatedGrowthCustomersRouteImport.update({
+    id: '/growth/customers',
+    path: '/growth/customers',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedGrowthCrmRoute = AuthenticatedGrowthCrmRouteImport.update({
+  id: '/growth/crm',
+  path: '/growth/crm',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -66,6 +113,13 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AuthenticatedProfileRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/users': typeof AuthenticatedUsersRoute
+  '/growth/crm': typeof AuthenticatedGrowthCrmRoute
+  '/growth/customers': typeof AuthenticatedGrowthCustomersRoute
+  '/growth/insights': typeof AuthenticatedGrowthInsightsRoute
+  '/growth/intelligence': typeof AuthenticatedGrowthIntelligenceRoute
+  '/growth/kpis': typeof AuthenticatedGrowthKpisRoute
+  '/growth/market': typeof AuthenticatedGrowthMarketRoute
+  '/growth/products': typeof AuthenticatedGrowthProductsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -75,6 +129,13 @@ export interface FileRoutesByTo {
   '/profile': typeof AuthenticatedProfileRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/users': typeof AuthenticatedUsersRoute
+  '/growth/crm': typeof AuthenticatedGrowthCrmRoute
+  '/growth/customers': typeof AuthenticatedGrowthCustomersRoute
+  '/growth/insights': typeof AuthenticatedGrowthInsightsRoute
+  '/growth/intelligence': typeof AuthenticatedGrowthIntelligenceRoute
+  '/growth/kpis': typeof AuthenticatedGrowthKpisRoute
+  '/growth/market': typeof AuthenticatedGrowthMarketRoute
+  '/growth/products': typeof AuthenticatedGrowthProductsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -86,6 +147,13 @@ export interface FileRoutesById {
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/users': typeof AuthenticatedUsersRoute
+  '/_authenticated/growth/crm': typeof AuthenticatedGrowthCrmRoute
+  '/_authenticated/growth/customers': typeof AuthenticatedGrowthCustomersRoute
+  '/_authenticated/growth/insights': typeof AuthenticatedGrowthInsightsRoute
+  '/_authenticated/growth/intelligence': typeof AuthenticatedGrowthIntelligenceRoute
+  '/_authenticated/growth/kpis': typeof AuthenticatedGrowthKpisRoute
+  '/_authenticated/growth/market': typeof AuthenticatedGrowthMarketRoute
+  '/_authenticated/growth/products': typeof AuthenticatedGrowthProductsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -97,6 +165,13 @@ export interface FileRouteTypes {
     | '/profile'
     | '/settings'
     | '/users'
+    | '/growth/crm'
+    | '/growth/customers'
+    | '/growth/insights'
+    | '/growth/intelligence'
+    | '/growth/kpis'
+    | '/growth/market'
+    | '/growth/products'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -106,6 +181,13 @@ export interface FileRouteTypes {
     | '/profile'
     | '/settings'
     | '/users'
+    | '/growth/crm'
+    | '/growth/customers'
+    | '/growth/insights'
+    | '/growth/intelligence'
+    | '/growth/kpis'
+    | '/growth/market'
+    | '/growth/products'
   id:
     | '__root__'
     | '/'
@@ -116,6 +198,13 @@ export interface FileRouteTypes {
     | '/_authenticated/profile'
     | '/_authenticated/settings'
     | '/_authenticated/users'
+    | '/_authenticated/growth/crm'
+    | '/_authenticated/growth/customers'
+    | '/_authenticated/growth/insights'
+    | '/_authenticated/growth/intelligence'
+    | '/_authenticated/growth/kpis'
+    | '/_authenticated/growth/market'
+    | '/_authenticated/growth/products'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -182,6 +271,55 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/growth/products': {
+      id: '/_authenticated/growth/products'
+      path: '/growth/products'
+      fullPath: '/growth/products'
+      preLoaderRoute: typeof AuthenticatedGrowthProductsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/growth/market': {
+      id: '/_authenticated/growth/market'
+      path: '/growth/market'
+      fullPath: '/growth/market'
+      preLoaderRoute: typeof AuthenticatedGrowthMarketRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/growth/kpis': {
+      id: '/_authenticated/growth/kpis'
+      path: '/growth/kpis'
+      fullPath: '/growth/kpis'
+      preLoaderRoute: typeof AuthenticatedGrowthKpisRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/growth/intelligence': {
+      id: '/_authenticated/growth/intelligence'
+      path: '/growth/intelligence'
+      fullPath: '/growth/intelligence'
+      preLoaderRoute: typeof AuthenticatedGrowthIntelligenceRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/growth/insights': {
+      id: '/_authenticated/growth/insights'
+      path: '/growth/insights'
+      fullPath: '/growth/insights'
+      preLoaderRoute: typeof AuthenticatedGrowthInsightsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/growth/customers': {
+      id: '/_authenticated/growth/customers'
+      path: '/growth/customers'
+      fullPath: '/growth/customers'
+      preLoaderRoute: typeof AuthenticatedGrowthCustomersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/growth/crm': {
+      id: '/_authenticated/growth/crm'
+      path: '/growth/crm'
+      fullPath: '/growth/crm'
+      preLoaderRoute: typeof AuthenticatedGrowthCrmRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -191,6 +329,13 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedUsersRoute: typeof AuthenticatedUsersRoute
+  AuthenticatedGrowthCrmRoute: typeof AuthenticatedGrowthCrmRoute
+  AuthenticatedGrowthCustomersRoute: typeof AuthenticatedGrowthCustomersRoute
+  AuthenticatedGrowthInsightsRoute: typeof AuthenticatedGrowthInsightsRoute
+  AuthenticatedGrowthIntelligenceRoute: typeof AuthenticatedGrowthIntelligenceRoute
+  AuthenticatedGrowthKpisRoute: typeof AuthenticatedGrowthKpisRoute
+  AuthenticatedGrowthMarketRoute: typeof AuthenticatedGrowthMarketRoute
+  AuthenticatedGrowthProductsRoute: typeof AuthenticatedGrowthProductsRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -199,6 +344,13 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedUsersRoute: AuthenticatedUsersRoute,
+  AuthenticatedGrowthCrmRoute: AuthenticatedGrowthCrmRoute,
+  AuthenticatedGrowthCustomersRoute: AuthenticatedGrowthCustomersRoute,
+  AuthenticatedGrowthInsightsRoute: AuthenticatedGrowthInsightsRoute,
+  AuthenticatedGrowthIntelligenceRoute: AuthenticatedGrowthIntelligenceRoute,
+  AuthenticatedGrowthKpisRoute: AuthenticatedGrowthKpisRoute,
+  AuthenticatedGrowthMarketRoute: AuthenticatedGrowthMarketRoute,
+  AuthenticatedGrowthProductsRoute: AuthenticatedGrowthProductsRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
