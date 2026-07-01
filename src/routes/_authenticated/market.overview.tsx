@@ -9,6 +9,7 @@ import { EmptyState } from "@/components/common/EmptyState";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { brl } from "@/lib/format";
+import { SocialInsights } from "@/components/market/SocialInsights";
 
 export const Route = createFileRoute("/_authenticated/market/overview")({
   head: () => ({ meta: [{ title: "AMT MarketEngine — Painel Geral" }] }),
@@ -82,6 +83,8 @@ function OverviewPage() {
           </ol>
         </SectionCard>
       </div>
+
+      <SocialInsights />
     </>
   );
 }
