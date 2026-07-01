@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion } from "framer-motion";
 import { Flame, Loader2 } from "lucide-react";
+import amtLogo from "@/assets/amt-logo.jpg";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
