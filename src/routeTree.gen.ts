@@ -17,6 +17,7 @@ import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedLogsRouteImport } from './routes/_authenticated/logs'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedMarketOverviewRouteImport } from './routes/_authenticated/market.overview'
 import { Route as AuthenticatedGrowthProductsRouteImport } from './routes/_authenticated/growth.products'
 import { Route as AuthenticatedGrowthMarketRouteImport } from './routes/_authenticated/growth.market'
 import { Route as AuthenticatedGrowthKpisRouteImport } from './routes/_authenticated/growth.kpis'
@@ -64,6 +65,12 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMarketOverviewRoute =
+  AuthenticatedMarketOverviewRouteImport.update({
+    id: '/market/overview',
+    path: '/market/overview',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedGrowthProductsRoute =
   AuthenticatedGrowthProductsRouteImport.update({
     id: '/growth/products',
@@ -120,6 +127,7 @@ export interface FileRoutesByFullPath {
   '/growth/kpis': typeof AuthenticatedGrowthKpisRoute
   '/growth/market': typeof AuthenticatedGrowthMarketRoute
   '/growth/products': typeof AuthenticatedGrowthProductsRoute
+  '/market/overview': typeof AuthenticatedMarketOverviewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -136,6 +144,7 @@ export interface FileRoutesByTo {
   '/growth/kpis': typeof AuthenticatedGrowthKpisRoute
   '/growth/market': typeof AuthenticatedGrowthMarketRoute
   '/growth/products': typeof AuthenticatedGrowthProductsRoute
+  '/market/overview': typeof AuthenticatedMarketOverviewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -154,6 +163,7 @@ export interface FileRoutesById {
   '/_authenticated/growth/kpis': typeof AuthenticatedGrowthKpisRoute
   '/_authenticated/growth/market': typeof AuthenticatedGrowthMarketRoute
   '/_authenticated/growth/products': typeof AuthenticatedGrowthProductsRoute
+  '/_authenticated/market/overview': typeof AuthenticatedMarketOverviewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -172,6 +182,7 @@ export interface FileRouteTypes {
     | '/growth/kpis'
     | '/growth/market'
     | '/growth/products'
+    | '/market/overview'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -188,6 +199,7 @@ export interface FileRouteTypes {
     | '/growth/kpis'
     | '/growth/market'
     | '/growth/products'
+    | '/market/overview'
   id:
     | '__root__'
     | '/'
@@ -205,6 +217,7 @@ export interface FileRouteTypes {
     | '/_authenticated/growth/kpis'
     | '/_authenticated/growth/market'
     | '/_authenticated/growth/products'
+    | '/_authenticated/market/overview'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -269,6 +282,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/market/overview': {
+      id: '/_authenticated/market/overview'
+      path: '/market/overview'
+      fullPath: '/market/overview'
+      preLoaderRoute: typeof AuthenticatedMarketOverviewRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/growth/products': {
@@ -336,6 +356,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedGrowthKpisRoute: typeof AuthenticatedGrowthKpisRoute
   AuthenticatedGrowthMarketRoute: typeof AuthenticatedGrowthMarketRoute
   AuthenticatedGrowthProductsRoute: typeof AuthenticatedGrowthProductsRoute
+  AuthenticatedMarketOverviewRoute: typeof AuthenticatedMarketOverviewRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -351,6 +372,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedGrowthKpisRoute: AuthenticatedGrowthKpisRoute,
   AuthenticatedGrowthMarketRoute: AuthenticatedGrowthMarketRoute,
   AuthenticatedGrowthProductsRoute: AuthenticatedGrowthProductsRoute,
+  AuthenticatedMarketOverviewRoute: AuthenticatedMarketOverviewRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
