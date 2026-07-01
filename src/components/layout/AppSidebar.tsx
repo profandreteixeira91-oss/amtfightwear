@@ -6,6 +6,13 @@ import {
   Users,
   ScrollText,
   Flame,
+  Brain,
+  Package,
+  UserSquare2,
+  Globe2,
+  Handshake,
+  Gauge,
+  Sparkles,
 } from "lucide-react";
 
 import {
@@ -26,6 +33,16 @@ const mainItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Usuários", url: "/users", icon: Users },
   { title: "Logs", url: "/logs", icon: ScrollText },
+] as const;
+
+const growthItems = [
+  { title: "Inteligência Comercial", url: "/growth/intelligence", icon: Brain },
+  { title: "Produtos", url: "/growth/products", icon: Package },
+  { title: "Clientes", url: "/growth/customers", icon: UserSquare2 },
+  { title: "Mercado", url: "/growth/market", icon: Globe2 },
+  { title: "CRM", url: "/growth/crm", icon: Handshake },
+  { title: "KPIs", url: "/growth/kpis", icon: Gauge },
+  { title: "Insights IA", url: "/growth/insights", icon: Sparkles },
 ] as const;
 
 const accountItems = [
