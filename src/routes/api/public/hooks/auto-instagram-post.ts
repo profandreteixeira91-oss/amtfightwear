@@ -110,7 +110,7 @@ export const Route = createFileRoute("/api/public/hooks/auto-instagram-post")({
         // 2. Get IG connection
         const { data: conn } = await supabaseAdmin
           .from("meta_connections")
-          .select("page_access_token, instagram_business_account_id, updated_by, id")
+          .select("id, page_access_token, instagram_business_account_id, user_id")
           .eq("status", "active")
           .order("created_at", { ascending: false })
           .limit(1)
