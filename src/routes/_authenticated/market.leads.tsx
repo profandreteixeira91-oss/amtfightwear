@@ -539,10 +539,12 @@ function OutreachDialog({ lead, channel, onClose }: { lead: Lead; channel: "emai
       const phone = lead.phone.replace(/\D/g, "");
       window.open(`https://wa.me/${phone.startsWith("55") ? phone : "55" + phone}?text=${encodeURIComponent(body)}`, "_blank");
     } else if (channel === "direct") {
-      const igMatch = /IG:\s*@?([\w.]+)/i.exec(lead.notes ?? "");
-      const handle = igMatch?.[1];
-      navigator.clipboard.writeText(body).then(() => toast.success("Mensagem copiada — cole no Direct"));
-      if (handle) window.open(`https://instagram.com/${handle}`, "_blank");
+      const handle = extractIGHandle(lead.notes);
+      if (!handle) {
+        toast.error("Handle do Instagram não encontrado nas notas do lead");
+        return;
+      }
+      openInstagramDirect(handle, body);
     }
   }
 
