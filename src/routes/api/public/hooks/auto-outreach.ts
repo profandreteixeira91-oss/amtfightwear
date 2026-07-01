@@ -18,6 +18,7 @@ type Settings = {
   site_url: string;
   from_email: string | null;
   from_name: string;
+  priority_region: string | null;
 };
 
 type Lead = {
@@ -26,9 +27,18 @@ type Lead = {
   responsible: string | null;
   email: string | null;
   city: string | null;
+  state: string | null;
   modality: string | null;
   lead_type: string | null;
   notes: string | null;
+};
+
+const REGION_UFS: Record<string, string[]> = {
+  nordeste: ["AL", "BA", "CE", "MA", "PB", "PE", "PI", "RN", "SE"],
+  sudeste: ["ES", "MG", "RJ", "SP"],
+  sul: ["PR", "RS", "SC"],
+  norte: ["AC", "AM", "AP", "PA", "RO", "RR", "TO"],
+  "centro-oeste": ["DF", "GO", "MS", "MT"],
 };
 
 async function generateCopy(
@@ -198,9 +208,9 @@ export const Route = createFileRoute("/api/public/hooks/auto-outreach")({
         // Leads ativos (não convertidos/rejeitados)
         const { data: leads } = await supabase
           .from("leads")
-          .select("id,name,responsible,email,city,modality,lead_type,notes,notes")
+          .select("id,name,responsible,email,city,state,modality,lead_type,notes")
           .in("status", ["Novo", "Em contato", "Qualificado"])
-          .limit(200);
+          .limit(400);
 
         if (!leads || !leads.length) return Response.json({ skipped: "no leads" });
 
@@ -214,7 +224,15 @@ export const Route = createFileRoute("/api/public/hooks/auto-outreach")({
           .gte("sent_at", cutoff);
         const blocked = new Set((recentLogs ?? []).map((r) => r.lead_id));
 
-        const eligible = (leads as Lead[]).filter((l) => !blocked.has(l.id));
+        // Ordena por prioridade regional: leads da região preferida primeiro
+        const priorityUfs = new Set(REGION_UFS[settings.priority_region ?? "nordeste"] ?? []);
+        const eligible = (leads as Lead[])
+          .filter((l) => !blocked.has(l.id))
+          .sort((a, b) => {
+            const ap = a.state && priorityUfs.has(a.state) ? 0 : 1;
+            const bp = b.state && priorityUfs.has(b.state) ? 0 : 1;
+            return ap - bp;
+          });
 
         const emailTargets = eligible.filter((l) => l.email).slice(0, emailBatch);
         // Instagram = leads que têm menção "IG:" nas notas

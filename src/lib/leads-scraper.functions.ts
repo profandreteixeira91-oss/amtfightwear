@@ -74,6 +74,9 @@ const ScrapeInput = z.object({
   source: z.enum(["google", "instagram"]),
   query: z.string().min(3).max(200),
   city: z.string().max(80).optional().nullable(),
+  state: z.string().max(4).optional().nullable(),
+  lat: z.number().optional().nullable(),
+  lng: z.number().optional().nullable(),
   modality: z.string().max(40).default("BJJ"),
   limit: z.number().int().min(3).max(15).default(8),
 });
@@ -82,7 +85,8 @@ export const scrapeLeads = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => ScrapeInput.parse(i))
   .handler(async ({ data, context }) => {
-    const term = data.city ? `${data.query} ${data.city}` : data.query;
+    const location = data.city && data.state ? `${data.city} ${data.state}` : (data.city ?? "");
+    const term = location ? `${data.query} ${location}` : data.query;
     const q =
       data.source === "google"
         ? `academia OR professor "jiu-jitsu" OR "judô" ${term} contato email whatsapp`
@@ -103,7 +107,7 @@ export const scrapeLeads = createServerFn({ method: "POST" })
       source: data.source === "google" ? "Google" : "Instagram",
     });
 
-    // Dedupe against existing leads (by email or instagram or name+city)
+    // Dedupe against existing leads (by email or name+city)
     const { data: existing } = await context.supabase.from("leads").select("name, email, notes, city");
     const seen = new Set(
       (existing ?? []).map((r) =>
@@ -113,7 +117,7 @@ export const scrapeLeads = createServerFn({ method: "POST" })
 
     let skipped = 0;
     const toInsert = drafts.filter((d) => {
-      const key = `${(d.email ?? "").toLowerCase()}|${(d.name ?? "").toLowerCase()}|${(d.city ?? "").toLowerCase()}`;
+      const key = `${(d.email ?? "").toLowerCase()}|${(d.name ?? "").toLowerCase()}|${(d.city ?? data.city ?? "").toLowerCase()}`;
       if (!d.name || seen.has(key)) {
         skipped++;
         return false;
@@ -130,6 +134,9 @@ export const scrapeLeads = createServerFn({ method: "POST" })
       phone: d.phone ?? null,
       email: d.email ?? null,
       city: d.city ?? data.city ?? null,
+      state: data.state ?? null,
+      lat: data.lat ?? null,
+      lng: data.lng ?? null,
       modality: d.modality ?? data.modality,
       lead_type: d.lead_type ?? "Academia",
       source: d.source ?? "Scraper",

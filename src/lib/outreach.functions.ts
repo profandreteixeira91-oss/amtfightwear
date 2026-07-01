@@ -24,6 +24,7 @@ const UpdateInput = z.object({
   site_url: z.string().url().optional(),
   from_email: z.string().email().nullable().optional(),
   from_name: z.string().max(80).optional(),
+  priority_region: z.enum(["nordeste", "sudeste", "sul", "norte", "centro-oeste", "nenhuma"]).optional(),
 });
 
 export const updateOutreachSettings = createServerFn({ method: "POST" })

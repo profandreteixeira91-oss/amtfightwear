@@ -365,13 +365,16 @@ export type Database = {
           created_by: string | null
           email: string | null
           id: string
+          lat: number | null
           lead_type: string | null
+          lng: number | null
           modality: string | null
           name: string
           notes: string | null
           phone: string | null
           responsible: string | null
           source: string | null
+          state: string | null
           status: string
           updated_at: string
         }
@@ -381,13 +384,16 @@ export type Database = {
           created_by?: string | null
           email?: string | null
           id?: string
+          lat?: number | null
           lead_type?: string | null
+          lng?: number | null
           modality?: string | null
           name: string
           notes?: string | null
           phone?: string | null
           responsible?: string | null
           source?: string | null
+          state?: string | null
           status?: string
           updated_at?: string
         }
@@ -397,13 +403,16 @@ export type Database = {
           created_by?: string | null
           email?: string | null
           id?: string
+          lat?: number | null
           lead_type?: string | null
+          lng?: number | null
           modality?: string | null
           name?: string
           notes?: string | null
           phone?: string | null
           responsible?: string | null
           source?: string | null
+          state?: string | null
           status?: string
           updated_at?: string
         }
@@ -665,6 +674,7 @@ export type Database = {
           from_email: string | null
           from_name: string
           id: string
+          priority_region: string
           site_url: string
           tone: string
           updated_at: string
@@ -678,6 +688,7 @@ export type Database = {
           from_email?: string | null
           from_name?: string
           id?: string
+          priority_region?: string
           site_url?: string
           tone?: string
           updated_at?: string
@@ -691,6 +702,7 @@ export type Database = {
           from_email?: string | null
           from_name?: string
           id?: string
+          priority_region?: string
           site_url?: string
           tone?: string
           updated_at?: string
