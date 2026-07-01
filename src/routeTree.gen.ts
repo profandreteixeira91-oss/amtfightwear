@@ -18,6 +18,10 @@ import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedLogsRouteImport } from './routes/_authenticated/logs'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedSalesSettingsRouteImport } from './routes/_authenticated/sales.settings'
+import { Route as AuthenticatedSalesKbRouteImport } from './routes/_authenticated/sales.kb'
+import { Route as AuthenticatedSalesConversationsRouteImport } from './routes/_authenticated/sales.conversations'
+import { Route as AuthenticatedSalesAnalyticsRouteImport } from './routes/_authenticated/sales.analytics'
 import { Route as AuthenticatedMarketPricingRouteImport } from './routes/_authenticated/market.pricing'
 import { Route as AuthenticatedMarketOverviewRouteImport } from './routes/_authenticated/market.overview'
 import { Route as AuthenticatedMarketLeadsRouteImport } from './routes/_authenticated/market.leads'
@@ -38,6 +42,7 @@ import { Route as ApiPublicMetaCallbackRouteImport } from './routes/api/public/m
 import { Route as ApiPublicHooksPublishScheduledPostsRouteImport } from './routes/api/public/hooks/publish-scheduled-posts'
 import { Route as ApiPublicHooksAutoOutreachRouteImport } from './routes/api/public/hooks/auto-outreach'
 import { Route as ApiPublicHooksAutoInstagramPostRouteImport } from './routes/api/public/hooks/auto-instagram-post'
+import { Route as AuthenticatedSalesConversationsIdRouteImport } from './routes/_authenticated/sales.conversations.$id'
 
 const SalesbotRoute = SalesbotRouteImport.update({
   id: '/salesbot',
@@ -83,6 +88,29 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSalesSettingsRoute =
+  AuthenticatedSalesSettingsRouteImport.update({
+    id: '/sales/settings',
+    path: '/sales/settings',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedSalesKbRoute = AuthenticatedSalesKbRouteImport.update({
+  id: '/sales/kb',
+  path: '/sales/kb',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSalesConversationsRoute =
+  AuthenticatedSalesConversationsRouteImport.update({
+    id: '/sales/conversations',
+    path: '/sales/conversations',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedSalesAnalyticsRoute =
+  AuthenticatedSalesAnalyticsRouteImport.update({
+    id: '/sales/analytics',
+    path: '/sales/analytics',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedMarketPricingRoute =
   AuthenticatedMarketPricingRouteImport.update({
     id: '/market/pricing',
@@ -198,6 +226,12 @@ const ApiPublicHooksAutoInstagramPostRoute =
     path: '/api/public/hooks/auto-instagram-post',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AuthenticatedSalesConversationsIdRoute =
+  AuthenticatedSalesConversationsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedSalesConversationsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -222,6 +256,11 @@ export interface FileRoutesByFullPath {
   '/market/leads': typeof AuthenticatedMarketLeadsRoute
   '/market/overview': typeof AuthenticatedMarketOverviewRoute
   '/market/pricing': typeof AuthenticatedMarketPricingRoute
+  '/sales/analytics': typeof AuthenticatedSalesAnalyticsRoute
+  '/sales/conversations': typeof AuthenticatedSalesConversationsRouteWithChildren
+  '/sales/kb': typeof AuthenticatedSalesKbRoute
+  '/sales/settings': typeof AuthenticatedSalesSettingsRoute
+  '/sales/conversations/$id': typeof AuthenticatedSalesConversationsIdRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/auto-outreach': typeof ApiPublicHooksAutoOutreachRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
@@ -252,6 +291,11 @@ export interface FileRoutesByTo {
   '/market/leads': typeof AuthenticatedMarketLeadsRoute
   '/market/overview': typeof AuthenticatedMarketOverviewRoute
   '/market/pricing': typeof AuthenticatedMarketPricingRoute
+  '/sales/analytics': typeof AuthenticatedSalesAnalyticsRoute
+  '/sales/conversations': typeof AuthenticatedSalesConversationsRouteWithChildren
+  '/sales/kb': typeof AuthenticatedSalesKbRoute
+  '/sales/settings': typeof AuthenticatedSalesSettingsRoute
+  '/sales/conversations/$id': typeof AuthenticatedSalesConversationsIdRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/auto-outreach': typeof ApiPublicHooksAutoOutreachRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
@@ -284,6 +328,11 @@ export interface FileRoutesById {
   '/_authenticated/market/leads': typeof AuthenticatedMarketLeadsRoute
   '/_authenticated/market/overview': typeof AuthenticatedMarketOverviewRoute
   '/_authenticated/market/pricing': typeof AuthenticatedMarketPricingRoute
+  '/_authenticated/sales/analytics': typeof AuthenticatedSalesAnalyticsRoute
+  '/_authenticated/sales/conversations': typeof AuthenticatedSalesConversationsRouteWithChildren
+  '/_authenticated/sales/kb': typeof AuthenticatedSalesKbRoute
+  '/_authenticated/sales/settings': typeof AuthenticatedSalesSettingsRoute
+  '/_authenticated/sales/conversations/$id': typeof AuthenticatedSalesConversationsIdRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/auto-outreach': typeof ApiPublicHooksAutoOutreachRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
@@ -316,6 +365,11 @@ export interface FileRouteTypes {
     | '/market/leads'
     | '/market/overview'
     | '/market/pricing'
+    | '/sales/analytics'
+    | '/sales/conversations'
+    | '/sales/kb'
+    | '/sales/settings'
+    | '/sales/conversations/$id'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/auto-outreach'
     | '/api/public/hooks/publish-scheduled-posts'
@@ -346,6 +400,11 @@ export interface FileRouteTypes {
     | '/market/leads'
     | '/market/overview'
     | '/market/pricing'
+    | '/sales/analytics'
+    | '/sales/conversations'
+    | '/sales/kb'
+    | '/sales/settings'
+    | '/sales/conversations/$id'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/auto-outreach'
     | '/api/public/hooks/publish-scheduled-posts'
@@ -377,6 +436,11 @@ export interface FileRouteTypes {
     | '/_authenticated/market/leads'
     | '/_authenticated/market/overview'
     | '/_authenticated/market/pricing'
+    | '/_authenticated/sales/analytics'
+    | '/_authenticated/sales/conversations'
+    | '/_authenticated/sales/kb'
+    | '/_authenticated/sales/settings'
+    | '/_authenticated/sales/conversations/$id'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/auto-outreach'
     | '/api/public/hooks/publish-scheduled-posts'
@@ -461,6 +525,34 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/sales/settings': {
+      id: '/_authenticated/sales/settings'
+      path: '/sales/settings'
+      fullPath: '/sales/settings'
+      preLoaderRoute: typeof AuthenticatedSalesSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/sales/kb': {
+      id: '/_authenticated/sales/kb'
+      path: '/sales/kb'
+      fullPath: '/sales/kb'
+      preLoaderRoute: typeof AuthenticatedSalesKbRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/sales/conversations': {
+      id: '/_authenticated/sales/conversations'
+      path: '/sales/conversations'
+      fullPath: '/sales/conversations'
+      preLoaderRoute: typeof AuthenticatedSalesConversationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/sales/analytics': {
+      id: '/_authenticated/sales/analytics'
+      path: '/sales/analytics'
+      fullPath: '/sales/analytics'
+      preLoaderRoute: typeof AuthenticatedSalesAnalyticsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/market/pricing': {
@@ -603,8 +695,30 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksAutoInstagramPostRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/sales/conversations/$id': {
+      id: '/_authenticated/sales/conversations/$id'
+      path: '/$id'
+      fullPath: '/sales/conversations/$id'
+      preLoaderRoute: typeof AuthenticatedSalesConversationsIdRouteImport
+      parentRoute: typeof AuthenticatedSalesConversationsRoute
+    }
   }
 }
+
+interface AuthenticatedSalesConversationsRouteChildren {
+  AuthenticatedSalesConversationsIdRoute: typeof AuthenticatedSalesConversationsIdRoute
+}
+
+const AuthenticatedSalesConversationsRouteChildren: AuthenticatedSalesConversationsRouteChildren =
+  {
+    AuthenticatedSalesConversationsIdRoute:
+      AuthenticatedSalesConversationsIdRoute,
+  }
+
+const AuthenticatedSalesConversationsRouteWithChildren =
+  AuthenticatedSalesConversationsRoute._addFileChildren(
+    AuthenticatedSalesConversationsRouteChildren,
+  )
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
@@ -626,6 +740,10 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMarketLeadsRoute: typeof AuthenticatedMarketLeadsRoute
   AuthenticatedMarketOverviewRoute: typeof AuthenticatedMarketOverviewRoute
   AuthenticatedMarketPricingRoute: typeof AuthenticatedMarketPricingRoute
+  AuthenticatedSalesAnalyticsRoute: typeof AuthenticatedSalesAnalyticsRoute
+  AuthenticatedSalesConversationsRoute: typeof AuthenticatedSalesConversationsRouteWithChildren
+  AuthenticatedSalesKbRoute: typeof AuthenticatedSalesKbRoute
+  AuthenticatedSalesSettingsRoute: typeof AuthenticatedSalesSettingsRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -648,6 +766,11 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMarketLeadsRoute: AuthenticatedMarketLeadsRoute,
   AuthenticatedMarketOverviewRoute: AuthenticatedMarketOverviewRoute,
   AuthenticatedMarketPricingRoute: AuthenticatedMarketPricingRoute,
+  AuthenticatedSalesAnalyticsRoute: AuthenticatedSalesAnalyticsRoute,
+  AuthenticatedSalesConversationsRoute:
+    AuthenticatedSalesConversationsRouteWithChildren,
+  AuthenticatedSalesKbRoute: AuthenticatedSalesKbRoute,
+  AuthenticatedSalesSettingsRoute: AuthenticatedSalesSettingsRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
