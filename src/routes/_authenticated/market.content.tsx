@@ -69,6 +69,7 @@ function ContentHubPage() {
     staleTime: 60_000,
   });
 
+  const [autopilot, setAutopilot] = useState(false);
   const [productId, setProductId] = useState<string>("");
   const [objective, setObjective] = useState<Objective>("atacado");
   const [extra, setExtra] = useState("");
