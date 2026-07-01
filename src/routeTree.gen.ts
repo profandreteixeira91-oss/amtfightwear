@@ -21,6 +21,7 @@ import { Route as AuthenticatedMarketOverviewRouteImport } from './routes/_authe
 import { Route as AuthenticatedMarketLeadsRouteImport } from './routes/_authenticated/market.leads'
 import { Route as AuthenticatedMarketCrmRouteImport } from './routes/_authenticated/market.crm'
 import { Route as AuthenticatedMarketContentRouteImport } from './routes/_authenticated/market.content'
+import { Route as AuthenticatedMarketCatalogRouteImport } from './routes/_authenticated/market.catalog'
 import { Route as AuthenticatedGrowthProductsRouteImport } from './routes/_authenticated/growth.products'
 import { Route as AuthenticatedGrowthMarketRouteImport } from './routes/_authenticated/growth.market'
 import { Route as AuthenticatedGrowthKpisRouteImport } from './routes/_authenticated/growth.kpis'
@@ -91,6 +92,12 @@ const AuthenticatedMarketContentRoute =
     path: '/market/content',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedMarketCatalogRoute =
+  AuthenticatedMarketCatalogRouteImport.update({
+    id: '/market/catalog',
+    path: '/market/catalog',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedGrowthProductsRoute =
   AuthenticatedGrowthProductsRouteImport.update({
     id: '/growth/products',
@@ -147,6 +154,7 @@ export interface FileRoutesByFullPath {
   '/growth/kpis': typeof AuthenticatedGrowthKpisRoute
   '/growth/market': typeof AuthenticatedGrowthMarketRoute
   '/growth/products': typeof AuthenticatedGrowthProductsRoute
+  '/market/catalog': typeof AuthenticatedMarketCatalogRoute
   '/market/content': typeof AuthenticatedMarketContentRoute
   '/market/crm': typeof AuthenticatedMarketCrmRoute
   '/market/leads': typeof AuthenticatedMarketLeadsRoute
@@ -167,6 +175,7 @@ export interface FileRoutesByTo {
   '/growth/kpis': typeof AuthenticatedGrowthKpisRoute
   '/growth/market': typeof AuthenticatedGrowthMarketRoute
   '/growth/products': typeof AuthenticatedGrowthProductsRoute
+  '/market/catalog': typeof AuthenticatedMarketCatalogRoute
   '/market/content': typeof AuthenticatedMarketContentRoute
   '/market/crm': typeof AuthenticatedMarketCrmRoute
   '/market/leads': typeof AuthenticatedMarketLeadsRoute
@@ -189,6 +198,7 @@ export interface FileRoutesById {
   '/_authenticated/growth/kpis': typeof AuthenticatedGrowthKpisRoute
   '/_authenticated/growth/market': typeof AuthenticatedGrowthMarketRoute
   '/_authenticated/growth/products': typeof AuthenticatedGrowthProductsRoute
+  '/_authenticated/market/catalog': typeof AuthenticatedMarketCatalogRoute
   '/_authenticated/market/content': typeof AuthenticatedMarketContentRoute
   '/_authenticated/market/crm': typeof AuthenticatedMarketCrmRoute
   '/_authenticated/market/leads': typeof AuthenticatedMarketLeadsRoute
@@ -211,6 +221,7 @@ export interface FileRouteTypes {
     | '/growth/kpis'
     | '/growth/market'
     | '/growth/products'
+    | '/market/catalog'
     | '/market/content'
     | '/market/crm'
     | '/market/leads'
@@ -231,6 +242,7 @@ export interface FileRouteTypes {
     | '/growth/kpis'
     | '/growth/market'
     | '/growth/products'
+    | '/market/catalog'
     | '/market/content'
     | '/market/crm'
     | '/market/leads'
@@ -252,6 +264,7 @@ export interface FileRouteTypes {
     | '/_authenticated/growth/kpis'
     | '/_authenticated/growth/market'
     | '/_authenticated/growth/products'
+    | '/_authenticated/market/catalog'
     | '/_authenticated/market/content'
     | '/_authenticated/market/crm'
     | '/_authenticated/market/leads'
@@ -350,6 +363,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMarketContentRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/market/catalog': {
+      id: '/_authenticated/market/catalog'
+      path: '/market/catalog'
+      fullPath: '/market/catalog'
+      preLoaderRoute: typeof AuthenticatedMarketCatalogRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/growth/products': {
       id: '/_authenticated/growth/products'
       path: '/growth/products'
@@ -415,6 +435,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedGrowthKpisRoute: typeof AuthenticatedGrowthKpisRoute
   AuthenticatedGrowthMarketRoute: typeof AuthenticatedGrowthMarketRoute
   AuthenticatedGrowthProductsRoute: typeof AuthenticatedGrowthProductsRoute
+  AuthenticatedMarketCatalogRoute: typeof AuthenticatedMarketCatalogRoute
   AuthenticatedMarketContentRoute: typeof AuthenticatedMarketContentRoute
   AuthenticatedMarketCrmRoute: typeof AuthenticatedMarketCrmRoute
   AuthenticatedMarketLeadsRoute: typeof AuthenticatedMarketLeadsRoute
@@ -434,6 +455,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedGrowthKpisRoute: AuthenticatedGrowthKpisRoute,
   AuthenticatedGrowthMarketRoute: AuthenticatedGrowthMarketRoute,
   AuthenticatedGrowthProductsRoute: AuthenticatedGrowthProductsRoute,
+  AuthenticatedMarketCatalogRoute: AuthenticatedMarketCatalogRoute,
   AuthenticatedMarketContentRoute: AuthenticatedMarketContentRoute,
   AuthenticatedMarketCrmRoute: AuthenticatedMarketCrmRoute,
   AuthenticatedMarketLeadsRoute: AuthenticatedMarketLeadsRoute,
