@@ -94,6 +94,8 @@ function LeadsPage() {
 
       <ScraperPanel />
 
+      <MapPanel leads={leads ?? []} />
+
       <AutopilotPanel />
 
       <SectionCard title="Base de leads" delay={0.1}>
