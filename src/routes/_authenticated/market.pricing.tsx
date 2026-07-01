@@ -177,7 +177,7 @@ function PricingPage() {
         description="A IA pesquisa preços de concorrentes no Google (sites próprios e marketplaces), compara descrições e sugere um preço competitivo para cada produto da AMT."
       />
 
-      <SectionCard title="1. Selecione um produto AMT" description="Escolha um item do catálogo para rodar a pesquisa.">
+      <SectionCard title="1. Selecione um produto AMT">
         {productsQ.isLoading ? (
           <Skeleton className="h-10 w-full max-w-md" />
         ) : !productsQ.data?.length ? (
@@ -218,7 +218,6 @@ function PricingPage() {
         >
           <SectionCard
             title="Produto AMT selecionado"
-            description={selected.description ?? "Sem descrição — a IA usará apenas o nome/categoria."}
           >
             <div className="flex gap-4">
               {selected.image_url && (
@@ -236,20 +235,19 @@ function PricingPage() {
             <Skeleton className="h-40 w-full" />
           ) : sug ? (
             <SectionCard
-              title="🧠 Sugestão da IA"
-              description={`Baseado em ${sug.competitors_analyzed} concorrentes analisados em ${new Date(sug.created_at).toLocaleString("pt-BR")}.`}
+              title="🧠 Sugestão da IA" concorrentes analisados em ${new Date(sug.created_at).toLocaleString("pt-BR")}.`}
             >
               <div className="grid gap-4 md:grid-cols-4">
-                <StatCard title="Preço atual AMT" value={brl(sug.current_price)} icon={Minus} />
+                <StatCard label="Preço atual AMT" value={brl(sug.current_price)} icon={Minus} />
                 <StatCard
-                  title="Preço sugerido"
+                  label="Preço sugerido"
                   value={brl(sug.suggested_price)}
                   icon={delta >= 0 ? TrendingUp : TrendingDown}
                   trend={`${delta >= 0 ? "+" : ""}${delta.toFixed(1)}%`}
                 />
-                <StatCard title="Mercado (média)" value={sug.avg_market ? brl(sug.avg_market) : "—"} icon={Sparkles} />
+                <StatCard label="Mercado (média)" value={sug.avg_market ? brl(sug.avg_market) : "—"} icon={Sparkles} />
                 <StatCard
-                  title="Faixa mercado"
+                  label="Faixa mercado"
                   value={`${sug.min_market ? brl(sug.min_market) : "—"} → ${sug.max_market ? brl(sug.max_market) : "—"}`}
                   icon={Store}
                 />
@@ -296,7 +294,6 @@ function PricingPage() {
 
           <SectionCard
             title="🔎 Concorrentes analisados"
-            description="Ordenados pela similaridade com o produto AMT (0 a 1)."
           >
             {researchQ.isLoading ? (
               <Skeleton className="h-40 w-full" />

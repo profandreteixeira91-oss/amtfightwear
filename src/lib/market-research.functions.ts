@@ -184,17 +184,17 @@ export const runPriceResearch = createServerFn({ method: "POST" })
       if (rErr) throw rErr;
     }
 
-    let suggestion = null as null | {
+    let suggestion: {
       id: string;
       suggested_price: number;
       min_market: number | null;
       avg_market: number | null;
       max_market: number | null;
-      position: string;
-      reasoning: string;
-      description_gap: string;
+      position: string | null;
+      reasoning: string | null;
+      description_gap: string | null;
       competitors_analyzed: number;
-    };
+    } | null = null;
     if (ai.suggestion) {
       const { data: sug, error: sErr } = await context.supabase
         .from("price_suggestions")
