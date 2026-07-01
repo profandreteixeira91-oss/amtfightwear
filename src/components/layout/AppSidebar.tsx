@@ -18,6 +18,7 @@ import {
   Mail,
   BarChart4,
   Rocket,
+  Plug,
 } from "lucide-react";
 
 import {
@@ -56,6 +57,7 @@ const marketItems = [
   { title: "IA Content Hub", url: "/market/content", icon: Wand2 },
   { title: "CRM & E-mail", url: "/market/crm", icon: Mail },
   { title: "Analytics Catálogo", url: "/market/catalog", icon: BarChart4 },
+  { title: "Conexões e APIs", url: "/market/connections", icon: Plug },
 ] as const;
 
 const accountItems = [
