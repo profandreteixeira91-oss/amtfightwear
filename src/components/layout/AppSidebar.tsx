@@ -75,8 +75,8 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border">
         <Link to="/dashboard" className="flex items-center gap-3 px-2 py-2">
-          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-primary text-primary-foreground shadow-sm">
-            <Flame className="h-5 w-5" />
+          <div className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-md bg-primary text-primary-foreground shadow-sm ring-1 ring-primary/30">
+            <img src={amtLogo} alt="AMT Fight Wear" className="h-full w-full object-cover" />
           </div>
           {!collapsed && (
             <div className="min-w-0 leading-tight">
