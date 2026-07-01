@@ -87,7 +87,7 @@ export function SocialInsights() {
 
       <SectionCard
         title="Últimas publicações do Instagram"
-        actions={instagram && <Badge variant="secondary" className="gap-1"><Users className="h-3 w-3" /> @{instagram.username}</Badge>}
+        action={instagram && <Badge variant="secondary" className="gap-1"><Users className="h-3 w-3" /> @{instagram.username}</Badge>}
       >
         {media.length === 0 ? (
           <EmptyState title="Sem publicações" description="Ainda não há posts na conta conectada." />
