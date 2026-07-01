@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { motion } from "framer-motion";
-import { Plus, Trash2, Search, Sparkles, Mail, MessageCircle, Instagram, Loader2, Copy, ExternalLink, Bot } from "lucide-react";
+import { Plus, Trash2, Search, Sparkles, Mail, MessageCircle, Instagram, Loader2, Copy, ExternalLink, Bot, MapPin } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/common/PageHeader";
 import { SectionCard } from "@/components/common/SectionCard";
@@ -22,6 +22,9 @@ import { leadsService, type Lead } from "@/services/leadsService";
 import { scrapeLeads, generateOutreach } from "@/lib/leads-scraper.functions";
 import { getOutreachSettings, updateOutreachSettings, getOutreachStats, runOutreachNow } from "@/lib/outreach.functions";
 import { Switch } from "@/components/ui/switch";
+import { CitySearchCombobox, type SelectedCity } from "@/components/leads/CitySearchCombobox";
+import { LeadsMap, type LeadPoint } from "@/components/leads/LeadsMap";
+import { geocodeCity } from "@/lib/ibge";
 
 export const Route = createFileRoute("/_authenticated/market/leads")({
   head: () => ({ meta: [{ title: "AMT MarketEngine — Lead Scraper" }] }),
