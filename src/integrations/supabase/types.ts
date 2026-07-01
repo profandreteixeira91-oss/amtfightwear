@@ -358,63 +358,233 @@ export type Database = {
         }
         Relationships: []
       }
+      lead_enrichments: {
+        Row: {
+          created_at: string
+          field: string
+          id: string
+          lead_id: string
+          new_value: string | null
+          old_value: string | null
+          source: string | null
+        }
+        Insert: {
+          created_at?: string
+          field: string
+          id?: string
+          lead_id: string
+          new_value?: string | null
+          old_value?: string | null
+          source?: string | null
+        }
+        Update: {
+          created_at?: string
+          field?: string
+          id?: string
+          lead_id?: string
+          new_value?: string | null
+          old_value?: string | null
+          source?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_enrichments_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_exports: {
+        Row: {
+          count: number | null
+          created_at: string
+          file_url: string | null
+          filters: Json | null
+          format: string
+          id: string
+          status: string | null
+          user_id: string | null
+        }
+        Insert: {
+          count?: number | null
+          created_at?: string
+          file_url?: string | null
+          filters?: Json | null
+          format: string
+          id?: string
+          status?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          count?: number | null
+          created_at?: string
+          file_url?: string | null
+          filters?: Json | null
+          format?: string
+          id?: string
+          status?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      lead_history: {
+        Row: {
+          action: string
+          actor_id: string | null
+          changes: Json | null
+          created_at: string
+          id: string
+          lead_id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          changes?: Json | null
+          created_at?: string
+          id?: string
+          lead_id: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          changes?: Json | null
+          created_at?: string
+          id?: string
+          lead_id?: string
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
+          address: string | null
+          ai_approach: string | null
+          ai_best_hour: string | null
+          ai_score: number | null
+          ai_summary: string | null
+          business_hours: Json | null
+          category: string | null
           city: string | null
+          cnpj: string | null
           created_at: string
           created_by: string | null
+          data_source: string | null
+          description: string | null
           email: string | null
+          enriched_at: string | null
+          enrichment_status: string | null
+          facebook: string | null
           id: string
           lat: number | null
           lead_type: string | null
+          legal_name: string | null
+          linkedin: string | null
           lng: number | null
           modality: string | null
           name: string
           notes: string | null
+          owner_id: string | null
           phone: string | null
+          rating: number | null
           responsible: string | null
+          reviews_count: number | null
           source: string | null
           state: string | null
           status: string
+          tags: string[] | null
+          technologies: string[] | null
+          trade_name: string | null
           updated_at: string
+          website: string | null
+          whatsapp: string | null
+          zip: string | null
         }
         Insert: {
+          address?: string | null
+          ai_approach?: string | null
+          ai_best_hour?: string | null
+          ai_score?: number | null
+          ai_summary?: string | null
+          business_hours?: Json | null
+          category?: string | null
           city?: string | null
+          cnpj?: string | null
           created_at?: string
           created_by?: string | null
+          data_source?: string | null
+          description?: string | null
           email?: string | null
+          enriched_at?: string | null
+          enrichment_status?: string | null
+          facebook?: string | null
           id?: string
           lat?: number | null
           lead_type?: string | null
+          legal_name?: string | null
+          linkedin?: string | null
           lng?: number | null
           modality?: string | null
           name: string
           notes?: string | null
+          owner_id?: string | null
           phone?: string | null
+          rating?: number | null
           responsible?: string | null
+          reviews_count?: number | null
           source?: string | null
           state?: string | null
           status?: string
+          tags?: string[] | null
+          technologies?: string[] | null
+          trade_name?: string | null
           updated_at?: string
+          website?: string | null
+          whatsapp?: string | null
+          zip?: string | null
         }
         Update: {
+          address?: string | null
+          ai_approach?: string | null
+          ai_best_hour?: string | null
+          ai_score?: number | null
+          ai_summary?: string | null
+          business_hours?: Json | null
+          category?: string | null
           city?: string | null
+          cnpj?: string | null
           created_at?: string
           created_by?: string | null
+          data_source?: string | null
+          description?: string | null
           email?: string | null
+          enriched_at?: string | null
+          enrichment_status?: string | null
+          facebook?: string | null
           id?: string
           lat?: number | null
           lead_type?: string | null
+          legal_name?: string | null
+          linkedin?: string | null
           lng?: number | null
           modality?: string | null
           name?: string
           notes?: string | null
+          owner_id?: string | null
           phone?: string | null
+          rating?: number | null
           responsible?: string | null
+          reviews_count?: number | null
           source?: string | null
           state?: string | null
           status?: string
+          tags?: string[] | null
+          technologies?: string[] | null
+          trade_name?: string | null
           updated_at?: string
+          website?: string | null
+          whatsapp?: string | null
+          zip?: string | null
         }
         Relationships: []
       }
@@ -1202,6 +1372,171 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      scrape_runs: {
+        Row: {
+          city: string | null
+          created_at: string
+          duration_ms: number | null
+          error: string | null
+          found: number | null
+          id: string
+          inserted: number | null
+          query: string | null
+          state: string | null
+          status: string
+          theme: string | null
+          triggered_by: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          duration_ms?: number | null
+          error?: string | null
+          found?: number | null
+          id?: string
+          inserted?: number | null
+          query?: string | null
+          state?: string | null
+          status?: string
+          theme?: string | null
+          triggered_by?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          duration_ms?: number | null
+          error?: string | null
+          found?: number | null
+          id?: string
+          inserted?: number | null
+          query?: string | null
+          state?: string | null
+          status?: string
+          theme?: string | null
+          triggered_by?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      scraper_automations: {
+        Row: {
+          active: boolean | null
+          created_at: string
+          id: string
+          kind: string
+          last_run_at: string | null
+          name: string
+          params: Json | null
+          schedule_cron: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string
+          id?: string
+          kind: string
+          last_run_at?: string | null
+          name: string
+          params?: Json | null
+          schedule_cron: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string
+          id?: string
+          kind?: string
+          last_run_at?: string | null
+          name?: string
+          params?: Json | null
+          schedule_cron?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      scraper_logs: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          message: string | null
+          metadata: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: string
+          message?: string | null
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          message?: string | null
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      scraper_settings: {
+        Row: {
+          auto_enrich: boolean | null
+          auto_score: boolean | null
+          created_at: string
+          credits_available: number | null
+          credits_used: number | null
+          interval_ms: number | null
+          max_concurrency: number | null
+          max_results_per_search: number | null
+          timeout_ms: number | null
+          updated_at: string
+          user_id: string
+          webhook_secret: string | null
+          webhook_url: string | null
+        }
+        Insert: {
+          auto_enrich?: boolean | null
+          auto_score?: boolean | null
+          created_at?: string
+          credits_available?: number | null
+          credits_used?: number | null
+          interval_ms?: number | null
+          max_concurrency?: number | null
+          max_results_per_search?: number | null
+          timeout_ms?: number | null
+          updated_at?: string
+          user_id: string
+          webhook_secret?: string | null
+          webhook_url?: string | null
+        }
+        Update: {
+          auto_enrich?: boolean | null
+          auto_score?: boolean | null
+          created_at?: string
+          credits_available?: number | null
+          credits_used?: number | null
+          interval_ms?: number | null
+          max_concurrency?: number | null
+          max_results_per_search?: number | null
+          timeout_ms?: number | null
+          updated_at?: string
+          user_id?: string
+          webhook_secret?: string | null
+          webhook_url?: string | null
+        }
+        Relationships: []
       }
       suppressed_emails: {
         Row: {

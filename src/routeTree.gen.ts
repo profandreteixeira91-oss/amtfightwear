@@ -18,6 +18,7 @@ import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedLogsRouteImport } from './routes/_authenticated/logs'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedLeadScraperIndexRouteImport } from './routes/_authenticated/lead-scraper.index'
 import { Route as AuthenticatedSalesSettingsRouteImport } from './routes/_authenticated/sales.settings'
 import { Route as AuthenticatedSalesKbRouteImport } from './routes/_authenticated/sales.kb'
 import { Route as AuthenticatedSalesConversationsRouteImport } from './routes/_authenticated/sales.conversations'
@@ -89,6 +90,12 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedLeadScraperIndexRoute =
+  AuthenticatedLeadScraperIndexRouteImport.update({
+    id: '/lead-scraper/',
+    path: '/lead-scraper/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSalesSettingsRoute =
   AuthenticatedSalesSettingsRouteImport.update({
     id: '/sales/settings',
@@ -267,6 +274,7 @@ export interface FileRoutesByFullPath {
   '/sales/conversations': typeof AuthenticatedSalesConversationsRouteWithChildren
   '/sales/kb': typeof AuthenticatedSalesKbRoute
   '/sales/settings': typeof AuthenticatedSalesSettingsRoute
+  '/lead-scraper/': typeof AuthenticatedLeadScraperIndexRoute
   '/sales/conversations/$id': typeof AuthenticatedSalesConversationsIdRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/auto-outreach': typeof ApiPublicHooksAutoOutreachRoute
@@ -303,6 +311,7 @@ export interface FileRoutesByTo {
   '/sales/conversations': typeof AuthenticatedSalesConversationsRouteWithChildren
   '/sales/kb': typeof AuthenticatedSalesKbRoute
   '/sales/settings': typeof AuthenticatedSalesSettingsRoute
+  '/lead-scraper': typeof AuthenticatedLeadScraperIndexRoute
   '/sales/conversations/$id': typeof AuthenticatedSalesConversationsIdRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/auto-outreach': typeof ApiPublicHooksAutoOutreachRoute
@@ -341,6 +350,7 @@ export interface FileRoutesById {
   '/_authenticated/sales/conversations': typeof AuthenticatedSalesConversationsRouteWithChildren
   '/_authenticated/sales/kb': typeof AuthenticatedSalesKbRoute
   '/_authenticated/sales/settings': typeof AuthenticatedSalesSettingsRoute
+  '/_authenticated/lead-scraper/': typeof AuthenticatedLeadScraperIndexRoute
   '/_authenticated/sales/conversations/$id': typeof AuthenticatedSalesConversationsIdRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/auto-outreach': typeof ApiPublicHooksAutoOutreachRoute
@@ -379,6 +389,7 @@ export interface FileRouteTypes {
     | '/sales/conversations'
     | '/sales/kb'
     | '/sales/settings'
+    | '/lead-scraper/'
     | '/sales/conversations/$id'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/auto-outreach'
@@ -415,6 +426,7 @@ export interface FileRouteTypes {
     | '/sales/conversations'
     | '/sales/kb'
     | '/sales/settings'
+    | '/lead-scraper'
     | '/sales/conversations/$id'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/auto-outreach'
@@ -452,6 +464,7 @@ export interface FileRouteTypes {
     | '/_authenticated/sales/conversations'
     | '/_authenticated/sales/kb'
     | '/_authenticated/sales/settings'
+    | '/_authenticated/lead-scraper/'
     | '/_authenticated/sales/conversations/$id'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/auto-outreach'
@@ -539,6 +552,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/lead-scraper/': {
+      id: '/_authenticated/lead-scraper/'
+      path: '/lead-scraper'
+      fullPath: '/lead-scraper/'
+      preLoaderRoute: typeof AuthenticatedLeadScraperIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/sales/settings': {
@@ -765,6 +785,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSalesConversationsRoute: typeof AuthenticatedSalesConversationsRouteWithChildren
   AuthenticatedSalesKbRoute: typeof AuthenticatedSalesKbRoute
   AuthenticatedSalesSettingsRoute: typeof AuthenticatedSalesSettingsRoute
+  AuthenticatedLeadScraperIndexRoute: typeof AuthenticatedLeadScraperIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -792,6 +813,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedSalesConversationsRouteWithChildren,
   AuthenticatedSalesKbRoute: AuthenticatedSalesKbRoute,
   AuthenticatedSalesSettingsRoute: AuthenticatedSalesSettingsRoute,
+  AuthenticatedLeadScraperIndexRoute: AuthenticatedLeadScraperIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
