@@ -201,19 +201,31 @@ export const Route = createFileRoute("/api/public/hooks/auto-scrape-leads")({
 
           for (const t of targets) {
             try {
-              const q = `${t.theme.term} ${t.city} ${t.state}`;
-              const web = await firecrawlSearch(q, 8);
+              const q = `${t.theme.term} "${t.city}" ${t.state} Brasil -site:amtfightwear.com.br`;
+              const web = await firecrawlSearch(q, 10);
               if (!web.length) {
                 results.push({ target: `${t.city}/${t.state}`, inserted: 0, note: "no results" });
                 continue;
               }
-              const bundle = web
+              const cityN = normalize(t.city);
+              const stateN = t.state.toLowerCase();
+              // Pré-filtra páginas cujo conteúdo NÃO menciona a cidade nem o estado — remove ruído antes da IA.
+              const relevant = web.filter((r) => {
+                const blob = normalize(`${r.title ?? ""} ${r.description ?? ""} ${r.markdown ?? ""}`);
+                return blob.includes(cityN) || blob.includes(` ${stateN} `) || blob.includes(`/${stateN}/`) || blob.includes(`-${stateN}`);
+              });
+              if (!relevant.length) {
+                results.push({ target: `${t.city}/${t.state}`, inserted: 0, note: "no local matches" });
+                continue;
+              }
+              const bundle = relevant
                 .map(
                   (r, i) =>
                     `[${i + 1}] ${r.title ?? ""}\nURL: ${r.url ?? ""}\n${r.description ?? ""}\n${(r.markdown ?? "").slice(0, 2500)}`,
                 )
                 .join("\n\n---\n\n");
-              const drafts = await aiExtractLeads(bundle, { modality: t.theme.modality, source: "Auto-Scrape" });
+              const drafts = await aiExtractLeads(bundle, { modality: t.theme.modality, source: "Auto-Scrape", city: t.city, state: t.state });
+
 
               const rows = drafts
                 .filter((d) => {
