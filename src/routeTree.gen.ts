@@ -31,6 +31,7 @@ import { Route as AuthenticatedGrowthInsightsRouteImport } from './routes/_authe
 import { Route as AuthenticatedGrowthCustomersRouteImport } from './routes/_authenticated/growth.customers'
 import { Route as AuthenticatedGrowthCrmRouteImport } from './routes/_authenticated/growth.crm'
 import { Route as ApiPublicMetaCallbackRouteImport } from './routes/api/public/meta/callback'
+import { Route as ApiPublicHooksPublishScheduledPostsRouteImport } from './routes/api/public/hooks/publish-scheduled-posts'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -151,6 +152,12 @@ const ApiPublicMetaCallbackRoute = ApiPublicMetaCallbackRouteImport.update({
   path: '/api/public/meta/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksPublishScheduledPostsRoute =
+  ApiPublicHooksPublishScheduledPostsRouteImport.update({
+    id: '/api/public/hooks/publish-scheduled-posts',
+    path: '/api/public/hooks/publish-scheduled-posts',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -173,6 +180,7 @@ export interface FileRoutesByFullPath {
   '/market/crm': typeof AuthenticatedMarketCrmRoute
   '/market/leads': typeof AuthenticatedMarketLeadsRoute
   '/market/overview': typeof AuthenticatedMarketOverviewRoute
+  '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
 }
 export interface FileRoutesByTo {
@@ -196,6 +204,7 @@ export interface FileRoutesByTo {
   '/market/crm': typeof AuthenticatedMarketCrmRoute
   '/market/leads': typeof AuthenticatedMarketLeadsRoute
   '/market/overview': typeof AuthenticatedMarketOverviewRoute
+  '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
 }
 export interface FileRoutesById {
@@ -221,6 +230,7 @@ export interface FileRoutesById {
   '/_authenticated/market/crm': typeof AuthenticatedMarketCrmRoute
   '/_authenticated/market/leads': typeof AuthenticatedMarketLeadsRoute
   '/_authenticated/market/overview': typeof AuthenticatedMarketOverviewRoute
+  '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
 }
 export interface FileRouteTypes {
@@ -246,6 +256,7 @@ export interface FileRouteTypes {
     | '/market/crm'
     | '/market/leads'
     | '/market/overview'
+    | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/meta/callback'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -269,6 +280,7 @@ export interface FileRouteTypes {
     | '/market/crm'
     | '/market/leads'
     | '/market/overview'
+    | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/meta/callback'
   id:
     | '__root__'
@@ -293,6 +305,7 @@ export interface FileRouteTypes {
     | '/_authenticated/market/crm'
     | '/_authenticated/market/leads'
     | '/_authenticated/market/overview'
+    | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/meta/callback'
   fileRoutesById: FileRoutesById
 }
@@ -300,6 +313,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiPublicHooksPublishScheduledPostsRoute: typeof ApiPublicHooksPublishScheduledPostsRoute
   ApiPublicMetaCallbackRoute: typeof ApiPublicMetaCallbackRoute
 }
 
@@ -459,6 +473,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicMetaCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/publish-scheduled-posts': {
+      id: '/api/public/hooks/publish-scheduled-posts'
+      path: '/api/public/hooks/publish-scheduled-posts'
+      fullPath: '/api/public/hooks/publish-scheduled-posts'
+      preLoaderRoute: typeof ApiPublicHooksPublishScheduledPostsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -511,6 +532,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiPublicHooksPublishScheduledPostsRoute:
+    ApiPublicHooksPublishScheduledPostsRoute,
   ApiPublicMetaCallbackRoute: ApiPublicMetaCallbackRoute,
 }
 export const routeTree = rootRouteImport
