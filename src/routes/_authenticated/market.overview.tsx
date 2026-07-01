@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { motion } from "framer-motion";
-import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Rocket, TrendingUp, Users, DollarSign, Target } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Rocket, Package, Users, Handshake, Radar } from "lucide-react";
 import { PageHeader } from "@/components/common/PageHeader";
 import { StatCard } from "@/components/common/StatCard";
 import { SectionCard } from "@/components/common/SectionCard";
+import { EmptyState } from "@/components/common/EmptyState";
 import { Badge } from "@/components/ui/badge";
-import { REVENUE_SERIES, FUNNEL } from "@/lib/marketMock";
+import { Skeleton } from "@/components/ui/skeleton";
 import { brl } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/market/overview")({
@@ -14,87 +15,71 @@ export const Route = createFileRoute("/_authenticated/market/overview")({
   component: OverviewPage,
 });
 
+async function fetchOverview() {
+  const [{ count: leads }, { count: deals }, { count: products }, { data: dealRows }] =
+    await Promise.all([
+      supabase.from("leads").select("*", { count: "exact", head: true }),
+      supabase.from("crm_deals").select("*", { count: "exact", head: true }),
+      supabase.from("products").select("*", { count: "exact", head: true }),
+      supabase.from("crm_deals").select("value,stage"),
+    ]);
+  const pipeline = (dealRows ?? []).reduce((sum, d: { value: number | null }) => sum + Number(d.value ?? 0), 0);
+  const closed = (dealRows ?? [])
+    .filter((d: { stage: string }) => /fechad|conver/i.test(d.stage))
+    .reduce((s, d: { value: number | null }) => s + Number(d.value ?? 0), 0);
+  return { leads: leads ?? 0, deals: deals ?? 0, products: products ?? 0, pipeline, closed };
+}
+
 function OverviewPage() {
-  const revenue = REVENUE_SERIES.reduce((a, r) => a + r.revenue, 0);
-  const ads = REVENUE_SERIES.reduce((a, r) => a + r.ads, 0);
-  const roas = revenue / ads;
+  const { data, isLoading } = useQuery({
+    queryKey: ["market", "overview"],
+    queryFn: fetchOverview,
+    refetchInterval: 30_000,
+  });
 
   return (
     <>
       <PageHeader
         eyebrow="MarketEngine"
         title="Painel Geral"
-        description="Motor de vendas AMT Fight Wear para o mercado de Jiu-Jitsu e Judô."
+        description="Visão consolidada do motor de vendas AMT Fight Wear com dados reais."
         actions={<Badge variant="secondary" className="gap-1"><Rocket className="h-3 w-3" /> Ao vivo</Badge>}
       />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Receita 30d" value={brl(revenue)} icon={DollarSign} delta={12.4} />
-        <StatCard label="Investimento em Ads" value={brl(ads)} icon={Target} delta={-3.1} />
-        <StatCard label="ROAS" value={`${roas.toFixed(2)}x`} icon={TrendingUp} delta={8.7} />
-        <StatCard label="Academias no funil" value="342" icon={Users} delta={22.3} />
+        {isLoading ? (
+          Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-28" />)
+        ) : (
+          <>
+            <StatCard label="Leads cadastrados" value={String(data?.leads ?? 0)} icon={Radar} />
+            <StatCard label="Negócios no CRM" value={String(data?.deals ?? 0)} icon={Handshake} />
+            <StatCard label="Pipeline aberto" value={brl(data?.pipeline ?? 0)} icon={Users} />
+            <StatCard label="Produtos no catálogo" value={String(data?.products ?? 0)} icon={Package} />
+          </>
+        )}
       </div>
 
-      <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <SectionCard title="Receita vs. Tráfego Pago (simulado)" className="lg:col-span-2">
-          <div className="h-[280px] w-full">
-            <ResponsiveContainer>
-              <AreaChart data={REVENUE_SERIES}>
-                <defs>
-                  <linearGradient id="rev" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.5} />
-                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                <XAxis dataKey="day" fontSize={11} />
-                <YAxis fontSize={11} />
-                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
-                <Area type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" fill="url(#rev)" />
-                <Area type="monotone" dataKey="ads" stroke="hsl(var(--muted-foreground))" fill="transparent" />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
+      <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <SectionCard title="Receita fechada">
+          {isLoading ? (
+            <Skeleton className="h-24" />
+          ) : (data?.closed ?? 0) > 0 ? (
+            <div className="py-6 text-center">
+              <div className="text-4xl font-bold text-primary">{brl(data?.closed ?? 0)}</div>
+              <div className="mt-1 text-xs text-muted-foreground">Somatório dos negócios em estágio "Fechado/Convertido"</div>
+            </div>
+          ) : (
+            <EmptyState title="Nenhum negócio fechado ainda" description="Cadastre negócios no CRM e mova para o estágio 'Fechado' para acompanhar." />
+          )}
         </SectionCard>
 
-        <SectionCard title="Funil Alunos & Academias" delay={0.1}>
-          <div className="space-y-3">
-            {FUNNEL.map((f, i) => {
-              const pct = (f.value / FUNNEL[0].value) * 100;
-              return (
-                <motion.div
-                  key={f.stage}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.08 }}
-                >
-                  <div className="mb-1 flex justify-between text-xs">
-                    <span className="text-muted-foreground">{f.stage}</span>
-                    <span className="font-semibold">{f.value.toLocaleString("pt-BR")}</span>
-                  </div>
-                  <div className="h-2 overflow-hidden rounded-full bg-muted">
-                    <div className="h-full bg-primary" style={{ width: `${pct}%` }} />
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        </SectionCard>
-      </div>
-
-      <div className="mt-6">
-        <SectionCard title="Distribuição de investimento diário em Ads">
-          <div className="h-[220px] w-full">
-            <ResponsiveContainer>
-              <BarChart data={REVENUE_SERIES}>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                <XAxis dataKey="day" fontSize={11} />
-                <YAxis fontSize={11} />
-                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
-                <Bar dataKey="ads" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+        <SectionCard title="Como começar" delay={0.1}>
+          <ol className="space-y-3 text-sm">
+            <li className="flex gap-3"><span className="grid h-6 w-6 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary">1</span> Cadastre leads em <b>Lead Scraper</b>.</li>
+            <li className="flex gap-3"><span className="grid h-6 w-6 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary">2</span> Crie negociações no <b>CRM & E-mail</b>.</li>
+            <li className="flex gap-3"><span className="grid h-6 w-6 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary">3</span> Gere copies com IA no <b>IA Content Hub</b>.</li>
+            <li className="flex gap-3"><span className="grid h-6 w-6 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary">4</span> Acompanhe o desempenho aqui.</li>
+          </ol>
         </SectionCard>
       </div>
     </>
