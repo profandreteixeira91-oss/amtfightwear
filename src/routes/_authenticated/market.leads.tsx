@@ -539,10 +539,12 @@ function OutreachDialog({ lead, channel, onClose }: { lead: Lead; channel: "emai
       const phone = lead.phone.replace(/\D/g, "");
       window.open(`https://wa.me/${phone.startsWith("55") ? phone : "55" + phone}?text=${encodeURIComponent(body)}`, "_blank");
     } else if (channel === "direct") {
-      const igMatch = /IG:\s*@?([\w.]+)/i.exec(lead.notes ?? "");
-      const handle = igMatch?.[1];
-      navigator.clipboard.writeText(body).then(() => toast.success("Mensagem copiada — cole no Direct"));
-      if (handle) window.open(`https://instagram.com/${handle}`, "_blank");
+      const handle = extractIGHandle(lead.notes);
+      if (!handle) {
+        toast.error("Handle do Instagram não encontrado nas notas do lead");
+        return;
+      }
+      openInstagramDirect(handle, body);
     }
   }
 
@@ -896,6 +898,53 @@ function extractIGHandle(notes: string | null | undefined): string | null {
   return m3 ? m3[1] : null;
 }
 
+/**
+ * Abre o Instagram Direct do lead da forma mais direta possível.
+ * Não existe URL pública oficial que abra a thread de DM de um usuário pessoal
+ * pela API/web (Meta bloqueia isso), então:
+ *  - Mobile: tenta o deep link do app (`instagram://user?username=`) que abre o
+ *    perfil dentro do app — 1 toque em "Mensagem" e o texto (já copiado) é colado.
+ *    Fallback para `https://ig.me/m/{handle}` que funciona para contas Business.
+ *  - Desktop: abre `https://www.instagram.com/direct/new/?username=` que exibe
+ *    o modal de composição de nova mensagem já com o usuário selecionado
+ *    (quando o usuário está logado). Fallback: abre o perfil.
+ * Em qualquer caso, o texto é copiado para o clipboard antes de abrir.
+ */
+function openInstagramDirect(handle: string, body: string) {
+  const clean = handle.replace(/^@/, "").replace(/\/$/, "");
+  try { navigator.clipboard.writeText(body); } catch { /* ignore */ }
+
+  const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(ua);
+
+  if (isMobile) {
+    // Deep link do app: abre o perfil já dentro do Instagram.
+    // Se o app não estiver instalado, o fallback abre o web em ~800ms.
+    const start = Date.now();
+    const fallback = setTimeout(() => {
+      if (Date.now() - start < 2500 && document.visibilityState === "visible") {
+        window.open(`https://ig.me/m/${clean}`, "_blank");
+      }
+    }, 800);
+    window.location.href = `instagram://user?username=${clean}`;
+    window.addEventListener("pagehide", () => clearTimeout(fallback), { once: true });
+    toast.success("Mensagem copiada — toque em 'Mensagem' no perfil e cole");
+    return;
+  }
+
+  // Desktop: composer nativo do Instagram web (funciona se o usuário estiver logado).
+  const composer = window.open(
+    `https://www.instagram.com/direct/new/?username=${encodeURIComponent(clean)}`,
+    "_blank",
+    "noopener",
+  );
+  if (!composer) {
+    // Popup bloqueado — cai para o perfil.
+    window.location.href = `https://www.instagram.com/${clean}/`;
+  }
+  toast.success("Mensagem copiada — cole no campo de nova mensagem do Instagram");
+}
+
 function IGQueueSection({ queue, onChanged }: { queue: IGQueueItem[]; onChanged: () => void }) {
   const markFn = useServerFn(markOutreachSent);
   const mark = useMutation({
@@ -933,8 +982,7 @@ function IGQueueSection({ queue, onChanged }: { queue: IGQueueItem[]; onChanged:
                   </Button>
                   <Button size="sm" variant="outline" disabled={!handle} onClick={() => {
                     if (!handle) return;
-                    navigator.clipboard.writeText(body);
-                    window.open(`https://ig.me/m/${handle}`, "_blank");
+                    openInstagramDirect(handle, body);
                   }}>
                     <ExternalLink className="h-3.5 w-3.5 mr-1" /> Abrir Direct
                   </Button>
