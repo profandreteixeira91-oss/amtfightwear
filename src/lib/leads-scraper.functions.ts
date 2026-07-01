@@ -200,10 +200,19 @@ export const generateOutreach = createServerFn({ method: "POST" })
           : `Formato: JSON { "body": string até 500 caracteres para Direct do Instagram, FORMAL e INSTITUCIONAL. Regras OBRIGATÓRIAS: (1) Abrir com "Prezados," — NUNCA "Fala/E aí/Opa/Oi", nome próprio ou saudações informais; (2) Apresentar-se: "Somos a AMT Fight Wear, fabricante brasileira especializada em ${line}."; (3) Comunicar objetivamente a proposta ESPECÍFICA para ${modalityLabel}: tabela de atacado / condições para revenda ou fardamento com a linha de ${line}. NÃO citar produtos de outras modalidades; (4) CTA discreto ("Podemos encaminhar o catálogo e a tabela comercial para avaliação?") e o site ${site}. PROIBIDO EM QUALQUER HIPÓTESE: qualquer elogio (ao trabalho, à academia, à tradição, à qualidade, aos atletas, à história, à região), comentar postagens/perfil/atletas, referências ao trabalho do destinatário, emojis (🥋, 👊, etc.), gírias, "parça/camarada/topa/trocar uma ideia", nome próprio, tom íntimo, exclamações. Apresente APENAS produtos e proposta — nada mais. }`;
 
     const prompt = `Você é redator comercial B2B da AMT Fight Wear (fabricante brasileira). Escreva uma abordagem comercial inicial STRICTAMENTE INSTITUCIONAL: apresente APENAS produtos e proposta comercial, SEM elogios de qualquer natureza. Ângulo interno (contexto, NÃO citar): ${data.angle ?? "primeira abordagem B2B com convite para tabela atacado"}.
+
+CATÁLOGO OFICIAL AMT FIGHT WEAR (ÚNICO PERMITIDO):
+- Kimonos de Jiu-Jitsu (trançados, A0 a A5)
+- Kimonos de Judô (gramatura pesada, trançado reforçado)
+- Karategis (kata e kumite)
+- Faixas oficiais (BJJ, Judô, Karatê — todas as graduações)
+- Patches bordados personalizados
+PROIBIDO CITAR/OFERECER (a AMT NÃO fabrica): shorts, bermudas, rashguards, camisetas, moletons, luvas, caneleiras, protetores bucais, sacos de pancada, equipamentos de MMA, Muay Thai, boxe, kickboxing, wrestling ou qualquer artigo têxtil/equipamento fora do catálogo acima. Se o lead for de MMA/Muay Thai/Boxe, ofereça APENAS patches bordados personalizados para equipe/fardamento.
+
 Modalidade do lead: ${modalityLabel}. Linha exclusiva a ofertar: ${line}.
 Lead: ${lead.name} (${lead.lead_type ?? "academia"}).
 Notas internas (apenas contexto, NÃO citar no texto): ${(lead.notes ?? "").slice(0, 400)}
-Catálogo de referência (apenas para você, cite apenas se compatível com a modalidade): ${catalog}
+Catálogo real do site (use apenas estes itens): ${catalog}
 
 ${channelBrief}
 Responda APENAS com o JSON, sem comentários.`;
