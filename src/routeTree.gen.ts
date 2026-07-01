@@ -17,7 +17,6 @@ import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedLogsRouteImport } from './routes/_authenticated/logs'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
-import { Route as ApiPublicSeedProductsRouteImport } from './routes/api/public/seed-products'
 import { Route as AuthenticatedMarketOverviewRouteImport } from './routes/_authenticated/market.overview'
 import { Route as AuthenticatedMarketLeadsRouteImport } from './routes/_authenticated/market.leads'
 import { Route as AuthenticatedMarketCrmRouteImport } from './routes/_authenticated/market.crm'
@@ -69,11 +68,6 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const ApiPublicSeedProductsRoute = ApiPublicSeedProductsRouteImport.update({
-  id: '/api/public/seed-products',
-  path: '/api/public/seed-products',
-  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedMarketOverviewRoute =
   AuthenticatedMarketOverviewRouteImport.update({
@@ -165,7 +159,6 @@ export interface FileRoutesByFullPath {
   '/market/crm': typeof AuthenticatedMarketCrmRoute
   '/market/leads': typeof AuthenticatedMarketLeadsRoute
   '/market/overview': typeof AuthenticatedMarketOverviewRoute
-  '/api/public/seed-products': typeof ApiPublicSeedProductsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -187,7 +180,6 @@ export interface FileRoutesByTo {
   '/market/crm': typeof AuthenticatedMarketCrmRoute
   '/market/leads': typeof AuthenticatedMarketLeadsRoute
   '/market/overview': typeof AuthenticatedMarketOverviewRoute
-  '/api/public/seed-products': typeof ApiPublicSeedProductsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -211,7 +203,6 @@ export interface FileRoutesById {
   '/_authenticated/market/crm': typeof AuthenticatedMarketCrmRoute
   '/_authenticated/market/leads': typeof AuthenticatedMarketLeadsRoute
   '/_authenticated/market/overview': typeof AuthenticatedMarketOverviewRoute
-  '/api/public/seed-products': typeof ApiPublicSeedProductsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -235,7 +226,6 @@ export interface FileRouteTypes {
     | '/market/crm'
     | '/market/leads'
     | '/market/overview'
-    | '/api/public/seed-products'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -257,7 +247,6 @@ export interface FileRouteTypes {
     | '/market/crm'
     | '/market/leads'
     | '/market/overview'
-    | '/api/public/seed-products'
   id:
     | '__root__'
     | '/'
@@ -280,14 +269,12 @@ export interface FileRouteTypes {
     | '/_authenticated/market/crm'
     | '/_authenticated/market/leads'
     | '/_authenticated/market/overview'
-    | '/api/public/seed-products'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
-  ApiPublicSeedProductsRoute: typeof ApiPublicSeedProductsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -347,13 +334,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/api/public/seed-products': {
-      id: '/api/public/seed-products'
-      path: '/api/public/seed-products'
-      fullPath: '/api/public/seed-products'
-      preLoaderRoute: typeof ApiPublicSeedProductsRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/market/overview': {
       id: '/_authenticated/market/overview'
@@ -489,7 +469,6 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
-  ApiPublicSeedProductsRoute: ApiPublicSeedProductsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
