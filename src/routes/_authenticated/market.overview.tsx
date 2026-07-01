@@ -83,6 +83,8 @@ function OverviewPage() {
           </ol>
         </SectionCard>
       </div>
+
+      <SocialInsights />
     </>
   );
 }
