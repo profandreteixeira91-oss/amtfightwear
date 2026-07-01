@@ -50,6 +50,14 @@ const growthItems = [
   { title: "Insights IA", url: "/growth/insights", icon: Sparkles },
 ] as const;
 
+const marketItems = [
+  { title: "Painel MarketEngine", url: "/market/overview", icon: Rocket },
+  { title: "Lead Scraper", url: "/market/leads", icon: Radar },
+  { title: "IA Content Hub", url: "/market/content", icon: Wand2 },
+  { title: "CRM & E-mail", url: "/market/crm", icon: Mail },
+  { title: "Analytics Catálogo", url: "/market/catalog", icon: BarChart4 },
+] as const;
+
 const accountItems = [
   { title: "Perfil", url: "/profile", icon: User },
   { title: "Configurações", url: "/settings", icon: Settings },
