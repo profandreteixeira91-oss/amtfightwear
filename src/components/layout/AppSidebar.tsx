@@ -1,4 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
+import amtLogo from "@/assets/amt-logo.jpg";
 import {
   LayoutDashboard,
   Settings,
