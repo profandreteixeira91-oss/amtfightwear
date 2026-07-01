@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { motion } from "framer-motion";
-import { Plus, Trash2, Search, Sparkles, Mail, MessageCircle, Instagram, Loader2, Copy, ExternalLink, Bot, MapPin } from "lucide-react";
+import { Plus, Trash2, Search, Sparkles, Mail, MessageCircle, Instagram, Loader2, Copy, ExternalLink, Bot, MapPin, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/common/PageHeader";
 import { SectionCard } from "@/components/common/SectionCard";
