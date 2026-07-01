@@ -39,10 +39,13 @@ export const updateAutoPostSettings = createServerFn({ method: "POST" })
 
 export const runAutoPostNow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async () => {
-    const url = "https://project--673d932e-eb85-41a4-9454-a94c54c26ec9.lovable.app/api/public/hooks/auto-instagram-post?force=1";
+  .inputValidator((i: unknown) => z.object({ type: z.enum(["post", "carousel", "story", "reel"]).optional() }).parse(i ?? {}))
+  .handler(async ({ data }) => {
+    const base = "https://project--673d932e-eb85-41a4-9454-a94c54c26ec9.lovable.app/api/public/hooks/auto-instagram-post";
+    const url = data.type ? `${base}?force=1&type=${data.type}` : `${base}?force=1`;
     const res = await fetch(url, { method: "POST", headers: { "x-force": "1" } });
     const text = await res.text();
     if (!res.ok) throw new Error(text || `HTTP ${res.status}`);
     try { return JSON.parse(text); } catch { return { raw: text }; }
   });
+
