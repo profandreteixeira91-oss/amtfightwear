@@ -641,7 +641,7 @@ function AutopilotPanel() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
             <div>
               <Label>Remetente (nome)</Label>
               <Input defaultValue={s.from_name} onBlur={(e) => patch.mutate({ from_name: e.target.value })} />
@@ -658,6 +658,22 @@ function AutopilotPanel() {
             <div>
               <Label>Site de destino</Label>
               <Input defaultValue={s.site_url} onBlur={(e) => patch.mutate({ site_url: e.target.value })} />
+            </div>
+            <div>
+              <Label>Região prioritária</Label>
+              <Select
+                value={s.priority_region ?? "nordeste"}
+                onValueChange={(v) => patch.mutate({ priority_region: v })}
+              >
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="nordeste">Nordeste</SelectItem>
+                  <SelectItem value="sudeste">Sudeste</SelectItem>
+                  <SelectItem value="sul">Sul</SelectItem>
+                  <SelectItem value="norte">Norte</SelectItem>
+                  <SelectItem value="centro-oeste">Centro-Oeste</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
