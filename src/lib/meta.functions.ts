@@ -6,11 +6,7 @@ const REDIRECT_URI = "https://marketing.amtfightwear.com.br/api/public/meta/call
 const SCOPES = [
   "pages_show_list",
   "pages_read_engagement",
-  "pages_manage_posts",
-  "pages_manage_metadata",
   "instagram_basic",
-  "instagram_manage_insights",
-  "instagram_content_publish",
   "business_management",
 ].join(",");
 
