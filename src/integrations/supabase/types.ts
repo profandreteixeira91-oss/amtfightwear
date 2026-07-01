@@ -47,6 +47,36 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_insights: {
+        Row: {
+          created_at: string
+          data: Json
+          id: string
+          kind: string
+          severity: string
+          summary: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          data?: Json
+          id?: string
+          kind: string
+          severity?: string
+          summary?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          id?: string
+          kind?: string
+          severity?: string
+          summary?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
       app_settings: {
         Row: {
           key: string
@@ -65,6 +95,298 @@ export type Database = {
           updated_at?: string
           updated_by?: string | null
           value?: Json
+        }
+        Relationships: []
+      }
+      crm_deals: {
+        Row: {
+          created_at: string
+          customer_id: string | null
+          expected_close_at: string | null
+          id: string
+          notes: string | null
+          owner_id: string | null
+          probability: number
+          stage: string
+          title: string
+          updated_at: string
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          customer_id?: string | null
+          expected_close_at?: string | null
+          id?: string
+          notes?: string | null
+          owner_id?: string | null
+          probability?: number
+          stage?: string
+          title: string
+          updated_at?: string
+          value?: number
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string | null
+          expected_close_at?: string | null
+          id?: string
+          notes?: string | null
+          owner_id?: string | null
+          probability?: number
+          stage?: string
+          title?: string
+          updated_at?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_deals_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customers: {
+        Row: {
+          city: string | null
+          created_at: string
+          email: string | null
+          full_name: string
+          id: string
+          last_order_at: string | null
+          orders_count: number
+          phone: string | null
+          segment: string
+          state: string | null
+          total_spent: number
+          updated_at: string
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          full_name: string
+          id?: string
+          last_order_at?: string | null
+          orders_count?: number
+          phone?: string | null
+          segment?: string
+          state?: string | null
+          total_spent?: number
+          updated_at?: string
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+          last_order_at?: string | null
+          orders_count?: number
+          phone?: string | null
+          segment?: string
+          state?: string | null
+          total_spent?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      kpi_snapshots: {
+        Row: {
+          created_at: string
+          id: string
+          metadata: Json
+          name: string
+          reference_date: string
+          target: number | null
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metadata?: Json
+          name: string
+          reference_date?: string
+          target?: number | null
+          value?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metadata?: Json
+          name?: string
+          reference_date?: string
+          target?: number | null
+          value?: number
+        }
+        Relationships: []
+      }
+      market_metrics: {
+        Row: {
+          created_at: string
+          id: string
+          metadata: Json
+          metric: string
+          period_end: string | null
+          period_start: string | null
+          source: string
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metadata?: Json
+          metric: string
+          period_end?: string | null
+          period_start?: string | null
+          source: string
+          value?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metadata?: Json
+          metric?: string
+          period_end?: string | null
+          period_start?: string | null
+          source?: string
+          value?: number
+        }
+        Relationships: []
+      }
+      order_items: {
+        Row: {
+          created_at: string
+          id: string
+          order_id: string
+          product_id: string | null
+          quantity: number
+          subtotal: number
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          order_id: string
+          product_id?: string | null
+          quantity?: number
+          subtotal?: number
+          unit_price?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          order_id?: string
+          product_id?: string | null
+          quantity?: number
+          subtotal?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          channel: string
+          created_at: string
+          customer_id: string | null
+          discount: number
+          id: string
+          order_number: string | null
+          placed_at: string
+          status: string
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          channel?: string
+          created_at?: string
+          customer_id?: string | null
+          discount?: number
+          id?: string
+          order_number?: string | null
+          placed_at?: string
+          status?: string
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          customer_id?: string | null
+          discount?: number
+          id?: string
+          order_number?: string | null
+          placed_at?: string
+          status?: string
+          total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          category: string | null
+          cost: number
+          created_at: string
+          id: string
+          image_url: string | null
+          name: string
+          price: number
+          sku: string | null
+          status: string
+          stock: number
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          cost?: number
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          name: string
+          price?: number
+          sku?: string | null
+          status?: string
+          stock?: number
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          cost?: number
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          name?: string
+          price?: number
+          sku?: string | null
+          status?: string
+          stock?: number
+          updated_at?: string
         }
         Relationships: []
       }
