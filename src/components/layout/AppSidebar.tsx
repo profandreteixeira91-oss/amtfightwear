@@ -13,6 +13,11 @@ import {
   Handshake,
   Gauge,
   Sparkles,
+  Radar,
+  Wand2,
+  Mail,
+  BarChart4,
+  Rocket,
 } from "lucide-react";
 
 import {
