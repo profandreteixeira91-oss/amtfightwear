@@ -208,9 +208,9 @@ export const Route = createFileRoute("/api/public/hooks/auto-outreach")({
         // Leads ativos (não convertidos/rejeitados)
         const { data: leads } = await supabase
           .from("leads")
-          .select("id,name,responsible,email,city,modality,lead_type,notes,notes")
+          .select("id,name,responsible,email,city,state,modality,lead_type,notes")
           .in("status", ["Novo", "Em contato", "Qualificado"])
-          .limit(200);
+          .limit(400);
 
         if (!leads || !leads.length) return Response.json({ skipped: "no leads" });
 
@@ -224,7 +224,15 @@ export const Route = createFileRoute("/api/public/hooks/auto-outreach")({
           .gte("sent_at", cutoff);
         const blocked = new Set((recentLogs ?? []).map((r) => r.lead_id));
 
-        const eligible = (leads as Lead[]).filter((l) => !blocked.has(l.id));
+        // Ordena por prioridade regional: leads da região preferida primeiro
+        const priorityUfs = new Set(REGION_UFS[settings.priority_region ?? "nordeste"] ?? []);
+        const eligible = (leads as Lead[])
+          .filter((l) => !blocked.has(l.id))
+          .sort((a, b) => {
+            const ap = a.state && priorityUfs.has(a.state) ? 0 : 1;
+            const bp = b.state && priorityUfs.has(b.state) ? 0 : 1;
+            return ap - bp;
+          });
 
         const emailTargets = eligible.filter((l) => l.email).slice(0, emailBatch);
         // Instagram = leads que têm menção "IG:" nas notas
