@@ -43,12 +43,15 @@ const REGION_UFS: Record<string, string[]> = {
 
 function productLineFor(modality: string | null): string {
   const m = (modality ?? "").toLowerCase();
+  // Catálogo real AMT Fight Wear: kimonos (BJJ, Judô, Karatê), faixas e patches bordados.
+  // A AMT NÃO fabrica shorts, rashguards, camisetas, luvas ou qualquer item de MMA/Muay Thai/boxe.
   if (m.includes("judô") || m.includes("judo"))
     return "kimonos de judô (gramatura pesada, trançado reforçado), faixas oficiais de judô (todas as graduações) e patches bordados para dogi";
   if (m.includes("karate") || m.includes("karatê"))
     return "karategis (kata e kumite), faixas de karatê (todas as graduações) e patches bordados";
-  if (m.includes("muay") || m.includes("mma") || m.includes("boxe"))
-    return "shorts de MMA/Muay Thai, rashguards, camisetas técnicas e patches personalizados para equipe";
+  if (m.includes("muay") || m.includes("mma") || m.includes("boxe") || m.includes("kickbox"))
+    // Para equipes de MMA/Muay Thai/Boxe, ofertar SOMENTE patches bordados (único item do catálogo aplicável).
+    return "patches bordados personalizados para fardamento de equipe (bordado de alta durabilidade)";
   // BJJ e default
   return "kimonos trançados de BJJ (A0 a A5), faixas premium de BJJ (branca a preta) e patches bordados personalizados";
 }
