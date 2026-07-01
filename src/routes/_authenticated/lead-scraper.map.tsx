@@ -5,7 +5,7 @@ import { PageHeader } from "@/components/common/PageHeader";
 import { SectionCard } from "@/components/common/SectionCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
-import { LeadsMap } from "@/components/common/LeadsMap";
+import { LeadsMap } from "@/components/leads/LeadsMap";
 
 export const Route = createFileRoute("/_authenticated/lead-scraper/map")({
   head: () => ({ meta: [{ title: "Mapa — Lead Scraper IA" }] }),
