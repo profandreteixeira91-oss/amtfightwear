@@ -34,9 +34,54 @@ export const Route = createFileRoute("/_authenticated/market/leads")({
 const STATUS = ["Novo", "Contactado", "Negociando", "Convertido", "Perdido"] as const;
 const TYPES = ["Professor", "Academia", "Escola/Projeto Social"] as const;
 const MODALITIES = ["BJJ", "Judô", "BJJ + Judô"] as const;
+const PAGE_SIZE = 10;
+
+// Sugestões de busca populares no Google para prospecção B2B de Jiu-Jitsu / Judô.
+// Termos curtos, do jeito que o usuário digitaria no Google.
+const SEARCH_SUGGESTIONS: Record<"google" | "instagram", string[]> = {
+  google: [
+    "academia de jiu jitsu",
+    "escola de jiu jitsu",
+    "professor de jiu jitsu faixa preta",
+    "academia de judô",
+    "escola de judô federada",
+    "professor de judô",
+    "projeto social jiu jitsu",
+    "projeto social judô",
+    "equipe de jiu jitsu competição",
+    "loja de kimono jiu jitsu",
+    "loja de kimono judô",
+    "cbjj academia filiada",
+    "federação jiu jitsu",
+    "federação judô",
+    "camp de jiu jitsu",
+    "seminário faixa preta jiu jitsu",
+    "kimono infantil jiu jitsu",
+    "faixa preta bjj professor",
+  ],
+  instagram: [
+    "academia bjj",
+    "professor faixa preta",
+    "kids jiu jitsu",
+    "judô kids",
+    "team jiu jitsu",
+    "faixa preta judô",
+    "projeto social bjj",
+    "cbjj oficial",
+    "cbj judô",
+    "campeão brasileiro bjj",
+    "equipe de competição bjj",
+    "instrutor de judô",
+  ],
+};
 
 function statusColor(s: string) {
   return s === "Convertido" ? "default" : s === "Perdido" ? "destructive" : s === "Negociando" ? "secondary" : "outline";
+}
+
+function formatDateTime(iso: string) {
+  const d = new Date(iso);
+  return d.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" });
 }
 
 function LeadsPage() {
