@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { motion } from "framer-motion";
-import { Plus, Trash2, Search, Sparkles, Mail, MessageCircle, Instagram, Loader2, Copy, ExternalLink, Bot, MapPin } from "lucide-react";
+import { Plus, Trash2, Search, Sparkles, Mail, MessageCircle, Instagram, Loader2, Copy, ExternalLink, Bot, MapPin, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/common/PageHeader";
 import { SectionCard } from "@/components/common/SectionCard";
@@ -34,14 +34,60 @@ export const Route = createFileRoute("/_authenticated/market/leads")({
 const STATUS = ["Novo", "Contactado", "Negociando", "Convertido", "Perdido"] as const;
 const TYPES = ["Professor", "Academia", "Escola/Projeto Social"] as const;
 const MODALITIES = ["BJJ", "Judô", "BJJ + Judô"] as const;
+const PAGE_SIZE = 10;
+
+// Sugestões de busca populares no Google para prospecção B2B de Jiu-Jitsu / Judô.
+// Termos curtos, do jeito que o usuário digitaria no Google.
+const SEARCH_SUGGESTIONS: Record<"google" | "instagram", string[]> = {
+  google: [
+    "academia de jiu jitsu",
+    "escola de jiu jitsu",
+    "professor de jiu jitsu faixa preta",
+    "academia de judô",
+    "escola de judô federada",
+    "professor de judô",
+    "projeto social jiu jitsu",
+    "projeto social judô",
+    "equipe de jiu jitsu competição",
+    "loja de kimono jiu jitsu",
+    "loja de kimono judô",
+    "cbjj academia filiada",
+    "federação jiu jitsu",
+    "federação judô",
+    "camp de jiu jitsu",
+    "seminário faixa preta jiu jitsu",
+    "kimono infantil jiu jitsu",
+    "faixa preta bjj professor",
+  ],
+  instagram: [
+    "academia bjj",
+    "professor faixa preta",
+    "kids jiu jitsu",
+    "judô kids",
+    "team jiu jitsu",
+    "faixa preta judô",
+    "projeto social bjj",
+    "cbjj oficial",
+    "cbj judô",
+    "campeão brasileiro bjj",
+    "equipe de competição bjj",
+    "instrutor de judô",
+  ],
+};
 
 function statusColor(s: string) {
   return s === "Convertido" ? "default" : s === "Perdido" ? "destructive" : s === "Negociando" ? "secondary" : "outline";
 }
 
+function formatDateTime(iso: string) {
+  const d = new Date(iso);
+  return d.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" });
+}
+
 function LeadsPage() {
   const qc = useQueryClient();
   const [q, setQ] = useState("");
+  const [page, setPage] = useState(1);
   const [openNew, setOpenNew] = useState(false);
   const [outreach, setOutreach] = useState<{ lead: Lead; channel: "email" | "whatsapp" | "direct" } | null>(null);
 
@@ -70,9 +116,35 @@ function LeadsPage() {
     },
   });
 
-  const filtered = (leads ?? []).filter((l) =>
-    q ? `${l.name} ${l.responsible ?? ""} ${l.city ?? ""} ${l.email ?? ""}`.toLowerCase().includes(q.toLowerCase()) : true,
+  // Ordena por data de criação decrescente (mais recente primeiro) — o service já retorna assim,
+  // mas garantimos aqui caso o cache seja mesclado.
+  const sorted = useMemo(
+    () =>
+      [...(leads ?? [])].sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      ),
+    [leads],
   );
+
+  const filtered = useMemo(
+    () =>
+      sorted.filter((l) =>
+        q
+          ? `${l.name} ${l.responsible ?? ""} ${l.city ?? ""} ${l.email ?? ""}`.toLowerCase().includes(q.toLowerCase())
+          : true,
+      ),
+    [sorted, q],
+  );
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const paged = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  // Reset para a página 1 quando a busca muda
+  function onSearch(v: string) {
+    setQ(v);
+    setPage(1);
+  }
 
   return (
     <>
@@ -102,7 +174,12 @@ function LeadsPage() {
         <div className="mb-3 flex items-center gap-2">
           <div className="relative max-w-sm flex-1">
             <Search className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar por nome, cidade, e-mail..." className="pl-8" />
+            <Input
+              value={q}
+              onChange={(e) => onSearch(e.target.value)}
+              placeholder="Buscar por nome, cidade, e-mail..."
+              className="pl-8"
+            />
           </div>
           <div className="text-xs text-muted-foreground">
             {filtered.length} de {leads?.length ?? 0}
@@ -121,78 +198,143 @@ function LeadsPage() {
             description="Use a busca automática acima ou cadastre um lead manualmente."
           />
         ) : (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nome / Academia</TableHead>
-                  <TableHead>Contato</TableHead>
-                  <TableHead>Cidade</TableHead>
-                  <TableHead>Origem</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Ações IA</TableHead>
-                  <TableHead />
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filtered.map((l: Lead, i) => (
-                  <motion.tr key={l.id} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.02 }} className="border-b">
-                    <TableCell className="font-medium">
-                      <div>{l.name}</div>
-                      <div className="text-xs text-muted-foreground">{l.responsible ?? "—"}</div>
-                    </TableCell>
-                    <TableCell className="text-xs">
-                      <div>{l.email ?? "—"}</div>
-                      <div className="text-muted-foreground">{l.phone ?? ""}</div>
-                    </TableCell>
-                    <TableCell className="text-sm">{l.city ?? "—"}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{l.source ?? "Manual"}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Select value={l.status} onValueChange={(v) => patchStatus.mutate({ id: l.id, status: v })}>
-                        <SelectTrigger className="h-8 w-[140px]">
-                          <SelectValue>
-                            <Badge variant={statusColor(l.status) as never}>{l.status}</Badge>
-                          </SelectValue>
-                        </SelectTrigger>
-                        <SelectContent>
-                          {STATUS.map((s) => (
-                            <SelectItem key={s} value={s}>
-                              {s}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex justify-end gap-1">
-                        <Button size="icon" variant="ghost" title="Gerar e-mail IA" disabled={!l.email} onClick={() => setOutreach({ lead: l, channel: "email" })}>
-                          <Mail className="h-4 w-4" />
+          <>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nome / Academia</TableHead>
+                    <TableHead>Contato</TableHead>
+                    <TableHead>Cidade</TableHead>
+                    <TableHead>Origem</TableHead>
+                    <TableHead>Cadastrado em</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Ações IA</TableHead>
+                    <TableHead />
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {paged.map((l: Lead, i) => (
+                    <motion.tr key={l.id} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.02 }} className="border-b">
+                      <TableCell className="font-medium">
+                        <div>{l.name}</div>
+                        <div className="text-xs text-muted-foreground">{l.responsible ?? "—"}</div>
+                      </TableCell>
+                      <TableCell className="text-xs">
+                        <div>{l.email ?? "—"}</div>
+                        <div className="text-muted-foreground">{l.phone ?? ""}</div>
+                      </TableCell>
+                      <TableCell className="text-sm">{l.city ?? "—"}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{l.source ?? "Manual"}</Badge>
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
+                        {formatDateTime(l.created_at)}
+                      </TableCell>
+                      <TableCell>
+                        <Select value={l.status} onValueChange={(v) => patchStatus.mutate({ id: l.id, status: v })}>
+                          <SelectTrigger className="h-8 w-[140px]">
+                            <SelectValue>
+                              <Badge variant={statusColor(l.status) as never}>{l.status}</Badge>
+                            </SelectValue>
+                          </SelectTrigger>
+                          <SelectContent>
+                            {STATUS.map((s) => (
+                              <SelectItem key={s} value={s}>
+                                {s}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex justify-end gap-1">
+                          <Button size="icon" variant="ghost" title="Gerar e-mail IA" disabled={!l.email} onClick={() => setOutreach({ lead: l, channel: "email" })}>
+                            <Mail className="h-4 w-4" />
+                          </Button>
+                          <Button size="icon" variant="ghost" title="Gerar WhatsApp IA" disabled={!l.phone} onClick={() => setOutreach({ lead: l, channel: "whatsapp" })}>
+                            <MessageCircle className="h-4 w-4 text-emerald-500" />
+                          </Button>
+                          <Button size="icon" variant="ghost" title="Gerar Direct IA" onClick={() => setOutreach({ lead: l, channel: "direct" })}>
+                            <Instagram className="h-4 w-4 text-pink-500" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Button size="icon" variant="ghost" onClick={() => remove.mutate(l.id)}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
-                        <Button size="icon" variant="ghost" title="Gerar WhatsApp IA" disabled={!l.phone} onClick={() => setOutreach({ lead: l, channel: "whatsapp" })}>
-                          <MessageCircle className="h-4 w-4 text-emerald-500" />
-                        </Button>
-                        <Button size="icon" variant="ghost" title="Gerar Direct IA" onClick={() => setOutreach({ lead: l, channel: "direct" })}>
-                          <Instagram className="h-4 w-4 text-pink-500" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Button size="icon" variant="ghost" onClick={() => remove.mutate(l.id)}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </TableCell>
-                  </motion.tr>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                      </TableCell>
+                    </motion.tr>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            <Pagination page={currentPage} totalPages={totalPages} onChange={setPage} total={filtered.length} />
+          </>
         )}
       </SectionCard>
 
       {outreach && <OutreachDialog lead={outreach.lead} channel={outreach.channel} onClose={() => setOutreach(null)} />}
     </>
+  );
+}
+
+function Pagination({
+  page,
+  totalPages,
+  total,
+  onChange,
+}: {
+  page: number;
+  totalPages: number;
+  total: number;
+  onChange: (p: number) => void;
+}) {
+  if (totalPages <= 1) return null;
+  const from = (page - 1) * PAGE_SIZE + 1;
+  const to = Math.min(page * PAGE_SIZE, total);
+  // Janela de páginas: até 5 números centrados na página atual
+  const windowSize = 5;
+  const start = Math.max(1, Math.min(page - Math.floor(windowSize / 2), totalPages - windowSize + 1));
+  const end = Math.min(totalPages, start + windowSize - 1);
+  const pages: number[] = [];
+  for (let i = start; i <= end; i++) pages.push(i);
+
+  return (
+    <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+      <div>
+        Mostrando <span className="font-medium text-foreground">{from}</span>–
+        <span className="font-medium text-foreground">{to}</span> de{" "}
+        <span className="font-medium text-foreground">{total}</span>
+      </div>
+      <div className="flex items-center gap-1">
+        <Button size="icon" variant="outline" className="h-8 w-8" disabled={page === 1} onClick={() => onChange(1)} title="Primeira página">
+          <ChevronsLeft className="h-4 w-4" />
+        </Button>
+        <Button size="icon" variant="outline" className="h-8 w-8" disabled={page === 1} onClick={() => onChange(page - 1)} title="Anterior">
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+        {pages.map((p) => (
+          <Button
+            key={p}
+            size="sm"
+            variant={p === page ? "default" : "outline"}
+            className="h-8 min-w-8 px-2"
+            onClick={() => onChange(p)}
+          >
+            {p}
+          </Button>
+        ))}
+        <Button size="icon" variant="outline" className="h-8 w-8" disabled={page === totalPages} onClick={() => onChange(page + 1)} title="Próxima">
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+        <Button size="icon" variant="outline" className="h-8 w-8" disabled={page === totalPages} onClick={() => onChange(totalPages)} title="Última página">
+          <ChevronsRight className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
   );
 }
 
@@ -256,11 +398,30 @@ function ScraperPanel() {
               <div>
                 <Label>Termo de busca</Label>
                 <Input
-                  placeholder={source === "google" ? "Ex.: academia jiu-jitsu, professor faixa preta, projeto social judô" : "Ex.: academia bjj, faixa preta, kids judo"}
+                  list={`suggest-${source}`}
+                  placeholder={source === "google" ? "Ex.: academia de jiu jitsu, professor faixa preta, projeto social judô" : "Ex.: academia bjj, faixa preta, kids judo"}
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                 />
+                <datalist id={`suggest-${source}`}>
+                  {SEARCH_SUGGESTIONS[source].map((s) => (
+                    <option key={s} value={s} />
+                  ))}
+                </datalist>
+                <div className="mt-1 flex flex-wrap gap-1">
+                  {SEARCH_SUGGESTIONS[source].slice(0, 6).map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => setQuery(s)}
+                      className="rounded-full border bg-muted/40 px-2 py-0.5 text-[11px] text-muted-foreground transition hover:border-primary hover:text-foreground"
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
               </div>
+
               <div className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_140px]">
                 <div>
                   <Label>Cidade (autocomplete IBGE)</Label>
