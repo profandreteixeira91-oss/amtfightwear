@@ -7,6 +7,9 @@ export type Lead = {
   phone: string | null;
   email: string | null;
   city: string | null;
+  state: string | null;
+  lat: number | null;
+  lng: number | null;
   modality: string | null;
   lead_type: string | null;
   status: string;
