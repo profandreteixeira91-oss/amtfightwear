@@ -123,7 +123,7 @@ function LeadsPage() {
         }
       />
 
-      <ScraperPanel />
+      
 
       <MapPanel leads={leads ?? []} />
 
