@@ -347,6 +347,7 @@ function ContentHubPage() {
           </AnimatePresence>
         </SectionCard>
       </div>
+      )}
     </>
   );
 }
