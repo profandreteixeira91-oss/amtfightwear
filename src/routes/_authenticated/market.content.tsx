@@ -308,16 +308,16 @@ function AutoPilotPanel() {
   });
 
   const upd = useMutation({
-    mutationFn: (patch: { enabled?: boolean; schedule_hours_utc?: number[]; tone?: string }) => updateFn({ data: patch }),
+    mutationFn: (patch: { enabled?: boolean; tone?: string }) => updateFn({ data: patch }),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["auto-post-settings"] }); toast.success("Configuração salva"); },
     onError: (e: Error) => toast.error(e.message),
   });
 
   const runNow = useMutation({
-    mutationFn: () => runFn(),
+    mutationFn: (type?: "post" | "carousel" | "story" | "reel") => runFn({ data: type ? { type } : {} }),
     onSuccess: (r: unknown) => {
-      const res = r as { ok?: boolean; skipped?: string; error?: string; theme?: string };
-      if (res.ok) toast.success(`Publicado: ${res.theme ?? "post"}`);
+      const res = r as { ok?: boolean; skipped?: string; error?: string; theme?: string; type?: string };
+      if (res.ok) toast.success(`Publicado (${res.type ?? "post"}): ${res.theme ?? ""}`);
       else if (res.skipped) toast.info(`Ignorado: ${res.skipped}`);
       else if (res.error) toast.error(res.error);
       qc.invalidateQueries({ queryKey: ["ig-posts"] });
@@ -326,13 +326,20 @@ function AutoPilotPanel() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const [hoursInput, setHoursInput] = useState("");
-  const currentHours = (settings?.schedule_hours_utc as number[] | undefined) ?? [];
+  type PlanSlot = { hour_utc: number; type: "post" | "carousel" | "story" | "reel"; label?: string };
+  const plan = ((settings as unknown as { daily_plan?: PlanSlot[] } | null)?.daily_plan) ?? [];
+  const sortedPlan = [...plan].sort((a, b) => {
+    const ah = (a.hour_utc - 3 + 24) % 24;
+    const bh = (b.hour_utc - 3 + 24) % 24;
+    return ah - bh;
+  });
 
-  const displayHoursBR = currentHours.map((h) => {
-    const brHour = (h - 3 + 24) % 24;
-    return `${String(brHour).padStart(2, "0")}:00`;
-  }).join(", ");
+  const TYPE_META: Record<PlanSlot["type"], { label: string; emoji: string; className: string }> = {
+    post: { label: "Post", emoji: "📸", className: "bg-blue-500/15 text-blue-500 border-blue-500/30" },
+    carousel: { label: "Carrossel", emoji: "🎞️", className: "bg-purple-500/15 text-purple-500 border-purple-500/30" },
+    story: { label: "Story", emoji: "⚡", className: "bg-amber-500/15 text-amber-500 border-amber-500/30" },
+    reel: { label: "Reels", emoji: "🎬", className: "bg-pink-500/15 text-pink-500 border-pink-500/30" },
+  };
 
   return (
     <SectionCard title="🤖 Piloto Automático de Instagram" delay={0.05}>
@@ -346,7 +353,7 @@ function AutoPilotPanel() {
               <div>
                 <div className="font-semibold">Postagens 100% automáticas</div>
                 <div className="text-sm text-muted-foreground">
-                  A IA escolhe o produto, cria a legenda + imagem e publica sozinha nos horários definidos.
+                  A IA usa o <strong>produto real</strong> do catálogo AMT como base, aplica o <strong>logotipo</strong> e insere <strong>texto publicitário</strong> na imagem. Publica sozinha no plano diário abaixo.
                 </div>
               </div>
             </div>
@@ -357,48 +364,54 @@ function AutoPilotPanel() {
             />
           </div>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <div className="md:col-span-2">
-              <Label>Horários de publicação (horário de Brasília)</Label>
-              <div className="mt-1 flex gap-2">
-                <Input
-                  placeholder={displayHoursBR || "Ex.: 11:00, 19:00"}
-                  value={hoursInput}
-                  onChange={(e) => setHoursInput(e.target.value)}
-                />
-                <Button
-                  variant="outline"
-                  disabled={!hoursInput.trim() || upd.isPending}
-                  onClick={() => {
-                    const parts = hoursInput.split(/[,;\s]+/).filter(Boolean);
-                    const brHours = parts.map((p) => parseInt(p.split(":")[0], 10)).filter((n) => !Number.isNaN(n) && n >= 0 && n <= 23);
-                    if (!brHours.length) return toast.error("Formato inválido");
-                    const utc = Array.from(new Set(brHours.map((h) => (h + 3) % 24))).sort((a, b) => a - b);
-                    upd.mutate({ schedule_hours_utc: utc });
-                    setHoursInput("");
-                  }}
-                >
-                  Salvar
-                </Button>
-              </div>
-              <div className="mt-1 text-xs text-muted-foreground">
-                Atuais: <span className="font-medium">{displayHoursBR || "nenhum"}</span> — recomendado 2+ horários (ex.: 11:00 e 19:00).
-              </div>
+          <div>
+            <Label>📅 Plano diário de conteúdo (horários de Brasília)</Label>
+            <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-5">
+              {sortedPlan.length === 0 && (
+                <div className="col-span-full text-sm text-muted-foreground">Nenhum slot configurado.</div>
+              )}
+              {sortedPlan.map((slot) => {
+                const meta = TYPE_META[slot.type];
+                const brHour = (slot.hour_utc - 3 + 24) % 24;
+                return (
+                  <Card key={`${slot.hour_utc}-${slot.type}`} className={`border p-3 ${meta.className}`}>
+                    <div className="flex items-center justify-between">
+                      <span className="text-2xl">{meta.emoji}</span>
+                      <Badge variant="outline" className="text-xs">{String(brHour).padStart(2, "0")}:00</Badge>
+                    </div>
+                    <div className="mt-2 font-semibold">{meta.label}</div>
+                    <div className="text-[11px] text-muted-foreground line-clamp-2 min-h-[28px]">{slot.label ?? ""}</div>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="mt-2 w-full gap-1 text-xs"
+                      disabled={runNow.isPending}
+                      onClick={() => runNow.mutate(slot.type)}
+                    >
+                      {runNow.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Play className="h-3 w-3" />}
+                      Rodar agora
+                    </Button>
+                  </Card>
+                );
+              })}
             </div>
+            <div className="mt-2 text-xs text-muted-foreground">
+              Total: <strong>1 post + 1 carrossel + 2 stories + 1 reels por dia</strong>, distribuídos nos melhores horários do Instagram para o público de artes marciais.
+            </div>
+          </div>
 
-            <div>
-              <Label>Tom da IA</Label>
-              <Select value={settings?.tone ?? "motivacional"} onValueChange={(v) => upd.mutate({ tone: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="motivacional">Motivacional</SelectItem>
-                  <SelectItem value="tecnico">Técnico / Especialista</SelectItem>
-                  <SelectItem value="promocional">Promocional / Oferta</SelectItem>
-                  <SelectItem value="storytelling">Storytelling</SelectItem>
-                  <SelectItem value="atacado">Atacado B2B</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          <div>
+            <Label>Tom da IA</Label>
+            <Select value={settings?.tone ?? "motivacional"} onValueChange={(v) => upd.mutate({ tone: v })}>
+              <SelectTrigger className="max-w-xs"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="motivacional">Motivacional</SelectItem>
+                <SelectItem value="tecnico">Técnico / Especialista</SelectItem>
+                <SelectItem value="promocional">Promocional / Oferta</SelectItem>
+                <SelectItem value="storytelling">Storytelling</SelectItem>
+                <SelectItem value="atacado">Atacado B2B</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="flex items-center justify-between rounded-lg bg-muted/40 p-3 text-xs">
@@ -406,9 +419,9 @@ function AutoPilotPanel() {
               <div>Última execução: <span className="font-medium">{settings?.last_run_at ? new Date(settings.last_run_at).toLocaleString("pt-BR") : "nunca"}</span></div>
               <div>Status: <span className={settings?.last_status === "published" ? "text-emerald-500" : settings?.last_status === "failed" ? "text-destructive" : "text-muted-foreground"}>{settings?.last_status ?? "—"}</span> {settings?.last_error && <span className="text-destructive">— {settings.last_error}</span>}</div>
             </div>
-            <Button size="sm" variant="secondary" className="gap-2" disabled={runNow.isPending} onClick={() => runNow.mutate()}>
+            <Button size="sm" variant="secondary" className="gap-2" disabled={runNow.isPending} onClick={() => runNow.mutate(undefined)}>
               {runNow.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Play className="h-3 w-3" />}
-              Rodar agora
+              Rodar slot atual
             </Button>
           </div>
         </div>
@@ -416,3 +429,4 @@ function AutoPilotPanel() {
     </SectionCard>
   );
 }
+
