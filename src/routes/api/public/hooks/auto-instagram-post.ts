@@ -138,7 +138,7 @@ export const Route = createFileRoute("/api/public/hooks/auto-instagram-post")({
         const product = pool[Math.floor(Math.random() * pool.length)] as Product;
 
         // 4. Create draft row
-        const userId = conn.updated_by ?? (await supabaseAdmin.from("auto_post_settings").select("updated_by").eq("singleton", true).maybeSingle()).data?.updated_by;
+        const userId = conn.user_id ?? (await supabaseAdmin.from("auto_post_settings").select("updated_by").eq("singleton", true).maybeSingle()).data?.updated_by;
         const { data: draft, error: draftErr } = await supabaseAdmin
           .from("scheduled_posts")
           .insert({ user_id: userId, caption: "(gerando...)", image_url: product.image_url ?? "pending", product_id: product.id, status: "publishing", source: "auto" })
