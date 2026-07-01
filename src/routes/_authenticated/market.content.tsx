@@ -140,7 +140,10 @@ function ContentPage() {
         description="Gere copies com IA, publique ou agende posts direto no Instagram da AMT."
       />
 
+      <AutoPilotPanel />
+
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+
         <SectionCard title="Briefing">
           {isLoading ? (
             <Skeleton className="h-64" />
