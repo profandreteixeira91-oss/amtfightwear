@@ -98,6 +98,51 @@ export type Database = {
         }
         Relationships: []
       }
+      auto_post_settings: {
+        Row: {
+          categories: string[]
+          created_at: string
+          enabled: boolean
+          id: string
+          last_error: string | null
+          last_run_at: string | null
+          last_status: string | null
+          schedule_hours_utc: number[]
+          singleton: boolean
+          tone: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          categories?: string[]
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          last_error?: string | null
+          last_run_at?: string | null
+          last_status?: string | null
+          schedule_hours_utc?: number[]
+          singleton?: boolean
+          tone?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          categories?: string[]
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          last_error?: string | null
+          last_run_at?: string | null
+          last_status?: string | null
+          schedule_hours_utc?: number[]
+          singleton?: boolean
+          tone?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       crm_deals: {
         Row: {
           created_at: string
@@ -564,6 +609,7 @@ export type Database = {
           product_id: string | null
           published_at: string | null
           scheduled_for: string | null
+          source: string
           status: string
           updated_at: string
           user_id: string
@@ -579,6 +625,7 @@ export type Database = {
           product_id?: string | null
           published_at?: string | null
           scheduled_for?: string | null
+          source?: string
           status?: string
           updated_at?: string
           user_id: string
@@ -594,6 +641,7 @@ export type Database = {
           product_id?: string | null
           published_at?: string | null
           scheduled_for?: string | null
+          source?: string
           status?: string
           updated_at?: string
           user_id?: string

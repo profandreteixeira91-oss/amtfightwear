@@ -3,7 +3,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { motion } from "framer-motion";
-import { Wand2, Instagram, MessageCircle, Mail, Sparkles, Loader2, Send, Clock, ExternalLink, XCircle, CheckCircle2, AlertCircle } from "lucide-react";
+import { Wand2, Instagram, MessageCircle, Mail, Sparkles, Loader2, Send, Clock, ExternalLink, XCircle, CheckCircle2, AlertCircle, Bot, Play } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/common/PageHeader";
 import { SectionCard } from "@/components/common/SectionCard";
@@ -20,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { generateMarketingContent } from "@/lib/marketing.functions";
 import { createInstagramPost, listInstagramPosts, cancelInstagramPost } from "@/lib/instagram.functions";
+import { getAutoPostSettings, updateAutoPostSettings, runAutoPostNow } from "@/lib/autopost.functions";
 
 export const Route = createFileRoute("/_authenticated/market/content")({
   head: () => ({ meta: [{ title: "AMT MarketEngine — IA Content Hub" }] }),
@@ -138,7 +140,10 @@ function ContentPage() {
         description="Gere copies com IA, publique ou agende posts direto no Instagram da AMT."
       />
 
+      <AutoPilotPanel />
+
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+
         <SectionCard title="Briefing">
           {isLoading ? (
             <Skeleton className="h-64" />
@@ -287,5 +292,127 @@ function ContentPage() {
         )}
       </SectionCard>
     </>
+  );
+}
+
+function AutoPilotPanel() {
+  const getFn = useServerFn(getAutoPostSettings);
+  const updateFn = useServerFn(updateAutoPostSettings);
+  const runFn = useServerFn(runAutoPostNow);
+  const qc = useQueryClient();
+
+  const { data: settings, isLoading } = useQuery({
+    queryKey: ["auto-post-settings"],
+    queryFn: () => getFn(),
+    refetchInterval: 30000,
+  });
+
+  const upd = useMutation({
+    mutationFn: (patch: { enabled?: boolean; schedule_hours_utc?: number[]; tone?: string }) => updateFn({ data: patch }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["auto-post-settings"] }); toast.success("Configuração salva"); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const runNow = useMutation({
+    mutationFn: () => runFn(),
+    onSuccess: (r: unknown) => {
+      const res = r as { ok?: boolean; skipped?: string; error?: string; theme?: string };
+      if (res.ok) toast.success(`Publicado: ${res.theme ?? "post"}`);
+      else if (res.skipped) toast.info(`Ignorado: ${res.skipped}`);
+      else if (res.error) toast.error(res.error);
+      qc.invalidateQueries({ queryKey: ["ig-posts"] });
+      qc.invalidateQueries({ queryKey: ["auto-post-settings"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const [hoursInput, setHoursInput] = useState("");
+  const currentHours = (settings?.schedule_hours_utc as number[] | undefined) ?? [];
+
+  const displayHoursBR = currentHours.map((h) => {
+    const brHour = (h - 3 + 24) % 24;
+    return `${String(brHour).padStart(2, "0")}:00`;
+  }).join(", ");
+
+  return (
+    <SectionCard title="🤖 Piloto Automático de Instagram" delay={0.05}>
+      {isLoading ? (
+        <Skeleton className="h-40" />
+      ) : (
+        <div className="space-y-4">
+          <div className="flex items-start justify-between gap-4 rounded-lg border p-4">
+            <div className="flex items-start gap-3">
+              <Bot className="mt-0.5 h-5 w-5 text-primary" />
+              <div>
+                <div className="font-semibold">Postagens 100% automáticas</div>
+                <div className="text-sm text-muted-foreground">
+                  A IA escolhe o produto, cria a legenda + imagem e publica sozinha nos horários definidos.
+                </div>
+              </div>
+            </div>
+            <Switch
+              checked={!!settings?.enabled}
+              onCheckedChange={(v) => upd.mutate({ enabled: v })}
+              disabled={upd.isPending}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div className="md:col-span-2">
+              <Label>Horários de publicação (horário de Brasília)</Label>
+              <div className="mt-1 flex gap-2">
+                <Input
+                  placeholder={displayHoursBR || "Ex.: 11:00, 19:00"}
+                  value={hoursInput}
+                  onChange={(e) => setHoursInput(e.target.value)}
+                />
+                <Button
+                  variant="outline"
+                  disabled={!hoursInput.trim() || upd.isPending}
+                  onClick={() => {
+                    const parts = hoursInput.split(/[,;\s]+/).filter(Boolean);
+                    const brHours = parts.map((p) => parseInt(p.split(":")[0], 10)).filter((n) => !Number.isNaN(n) && n >= 0 && n <= 23);
+                    if (!brHours.length) return toast.error("Formato inválido");
+                    const utc = Array.from(new Set(brHours.map((h) => (h + 3) % 24))).sort((a, b) => a - b);
+                    upd.mutate({ schedule_hours_utc: utc });
+                    setHoursInput("");
+                  }}
+                >
+                  Salvar
+                </Button>
+              </div>
+              <div className="mt-1 text-xs text-muted-foreground">
+                Atuais: <span className="font-medium">{displayHoursBR || "nenhum"}</span> — recomendado 2+ horários (ex.: 11:00 e 19:00).
+              </div>
+            </div>
+
+            <div>
+              <Label>Tom da IA</Label>
+              <Select value={settings?.tone ?? "motivacional"} onValueChange={(v) => upd.mutate({ tone: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="motivacional">Motivacional</SelectItem>
+                  <SelectItem value="tecnico">Técnico / Especialista</SelectItem>
+                  <SelectItem value="promocional">Promocional / Oferta</SelectItem>
+                  <SelectItem value="storytelling">Storytelling</SelectItem>
+                  <SelectItem value="atacado">Atacado B2B</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between rounded-lg bg-muted/40 p-3 text-xs">
+            <div>
+              <div>Última execução: <span className="font-medium">{settings?.last_run_at ? new Date(settings.last_run_at).toLocaleString("pt-BR") : "nunca"}</span></div>
+              <div>Status: <span className={settings?.last_status === "published" ? "text-emerald-500" : settings?.last_status === "failed" ? "text-destructive" : "text-muted-foreground"}>{settings?.last_status ?? "—"}</span> {settings?.last_error && <span className="text-destructive">— {settings.last_error}</span>}</div>
+            </div>
+            <Button size="sm" variant="secondary" className="gap-2" disabled={runNow.isPending} onClick={() => runNow.mutate()}>
+              {runNow.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Play className="h-3 w-3" />}
+              Rodar agora
+            </Button>
+          </div>
+        </div>
+      )}
+    </SectionCard>
   );
 }

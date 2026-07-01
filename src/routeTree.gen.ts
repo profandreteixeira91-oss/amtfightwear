@@ -32,6 +32,7 @@ import { Route as AuthenticatedGrowthCustomersRouteImport } from './routes/_auth
 import { Route as AuthenticatedGrowthCrmRouteImport } from './routes/_authenticated/growth.crm'
 import { Route as ApiPublicMetaCallbackRouteImport } from './routes/api/public/meta/callback'
 import { Route as ApiPublicHooksPublishScheduledPostsRouteImport } from './routes/api/public/hooks/publish-scheduled-posts'
+import { Route as ApiPublicHooksAutoInstagramPostRouteImport } from './routes/api/public/hooks/auto-instagram-post'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -158,6 +159,12 @@ const ApiPublicHooksPublishScheduledPostsRoute =
     path: '/api/public/hooks/publish-scheduled-posts',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksAutoInstagramPostRoute =
+  ApiPublicHooksAutoInstagramPostRouteImport.update({
+    id: '/api/public/hooks/auto-instagram-post',
+    path: '/api/public/hooks/auto-instagram-post',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -180,6 +187,7 @@ export interface FileRoutesByFullPath {
   '/market/crm': typeof AuthenticatedMarketCrmRoute
   '/market/leads': typeof AuthenticatedMarketLeadsRoute
   '/market/overview': typeof AuthenticatedMarketOverviewRoute
+  '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
 }
@@ -204,6 +212,7 @@ export interface FileRoutesByTo {
   '/market/crm': typeof AuthenticatedMarketCrmRoute
   '/market/leads': typeof AuthenticatedMarketLeadsRoute
   '/market/overview': typeof AuthenticatedMarketOverviewRoute
+  '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
 }
@@ -230,6 +239,7 @@ export interface FileRoutesById {
   '/_authenticated/market/crm': typeof AuthenticatedMarketCrmRoute
   '/_authenticated/market/leads': typeof AuthenticatedMarketLeadsRoute
   '/_authenticated/market/overview': typeof AuthenticatedMarketOverviewRoute
+  '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
 }
@@ -256,6 +266,7 @@ export interface FileRouteTypes {
     | '/market/crm'
     | '/market/leads'
     | '/market/overview'
+    | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/meta/callback'
   fileRoutesByTo: FileRoutesByTo
@@ -280,6 +291,7 @@ export interface FileRouteTypes {
     | '/market/crm'
     | '/market/leads'
     | '/market/overview'
+    | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/meta/callback'
   id:
@@ -305,6 +317,7 @@ export interface FileRouteTypes {
     | '/_authenticated/market/crm'
     | '/_authenticated/market/leads'
     | '/_authenticated/market/overview'
+    | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/meta/callback'
   fileRoutesById: FileRoutesById
@@ -313,6 +326,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiPublicHooksAutoInstagramPostRoute: typeof ApiPublicHooksAutoInstagramPostRoute
   ApiPublicHooksPublishScheduledPostsRoute: typeof ApiPublicHooksPublishScheduledPostsRoute
   ApiPublicMetaCallbackRoute: typeof ApiPublicMetaCallbackRoute
 }
@@ -480,6 +494,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksPublishScheduledPostsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/auto-instagram-post': {
+      id: '/api/public/hooks/auto-instagram-post'
+      path: '/api/public/hooks/auto-instagram-post'
+      fullPath: '/api/public/hooks/auto-instagram-post'
+      preLoaderRoute: typeof ApiPublicHooksAutoInstagramPostRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -532,6 +553,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiPublicHooksAutoInstagramPostRoute: ApiPublicHooksAutoInstagramPostRoute,
   ApiPublicHooksPublishScheduledPostsRoute:
     ApiPublicHooksPublishScheduledPostsRoute,
   ApiPublicMetaCallbackRoute: ApiPublicMetaCallbackRoute,
