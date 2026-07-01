@@ -49,7 +49,7 @@ export const getOutreachStats = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const since24 = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     const since7 = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
-    const [{ data: last24 }, { data: last7 }, { data: recent }] = await Promise.all([
+    const [{ data: last24 }, { data: last7 }, { data: recent }, { data: igQueue }] = await Promise.all([
       context.supabase.from("outreach_log").select("channel,status").gte("sent_at", since24),
       context.supabase.from("outreach_log").select("channel,status").gte("sent_at", since7),
       context.supabase
@@ -57,19 +57,37 @@ export const getOutreachStats = createServerFn({ method: "GET" })
         .select("id,channel,status,subject,sent_at,error,lead_id,leads(name,city)")
         .order("sent_at", { ascending: false })
         .limit(30),
+      context.supabase
+        .from("outreach_log")
+        .select("id,body,sent_at,lead_id,leads(name,city,notes)")
+        .eq("channel", "instagram")
+        .eq("status", "queued")
+        .order("sent_at", { ascending: false })
+        .limit(50),
     ]);
-    return { last24: last24 ?? [], last7: last7 ?? [], recent: recent ?? [] };
+    return { last24: last24 ?? [], last7: last7 ?? [], recent: recent ?? [], igQueue: igQueue ?? [] };
+  });
+
+export const markOutreachSent = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("outreach_log")
+      .update({ status: "sent_manual" })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });
 
 export const runOutreachNow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async () => {
     const url = `${process.env.SUPABASE_URL?.replace(".supabase.co", ".lovable.app") ?? ""}`;
-    // Chama o próprio endpoint público via URL derivada seria frágil; usa fetch relativo pela origem do request seria melhor, mas server fn não expõe request.
-    // Solução simples: usa hostname do projeto via env se disponível.
     const base = process.env.PROJECT_PUBLISHED_URL || process.env.PUBLIC_APP_URL || url;
     const target = base ? `${base}/api/public/hooks/auto-outreach?force=1` : "/api/public/hooks/auto-outreach?force=1";
     const res = await fetch(target, { method: "POST" });
     const json = await res.json().catch(() => ({}));
     return { ok: res.ok, status: res.status, result: json };
   });
+
