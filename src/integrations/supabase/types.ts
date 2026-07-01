@@ -353,11 +353,13 @@ export type Database = {
           category: string | null
           cost: number
           created_at: string
+          description: string | null
           id: string
           image_url: string | null
           name: string
           price: number
           sku: string | null
+          source_url: string | null
           status: string
           stock: number
           updated_at: string
@@ -366,11 +368,13 @@ export type Database = {
           category?: string | null
           cost?: number
           created_at?: string
+          description?: string | null
           id?: string
           image_url?: string | null
           name: string
           price?: number
           sku?: string | null
+          source_url?: string | null
           status?: string
           stock?: number
           updated_at?: string
@@ -379,11 +383,13 @@ export type Database = {
           category?: string | null
           cost?: number
           created_at?: string
+          description?: string | null
           id?: string
           image_url?: string | null
           name?: string
           price?: number
           sku?: string | null
+          source_url?: string | null
           status?: string
           stock?: number
           updated_at?: string
