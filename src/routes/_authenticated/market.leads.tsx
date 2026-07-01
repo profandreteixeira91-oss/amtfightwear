@@ -20,6 +20,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { leadsService, type Lead } from "@/services/leadsService";
 import { scrapeLeads, generateOutreach } from "@/lib/leads-scraper.functions";
+import { getOutreachSettings, updateOutreachSettings, getOutreachStats, runOutreachNow } from "@/lib/outreach.functions";
+import { Switch } from "@/components/ui/switch";
 
 export const Route = createFileRoute("/_authenticated/market/leads")({
   head: () => ({ meta: [{ title: "AMT MarketEngine — Lead Scraper" }] }),
