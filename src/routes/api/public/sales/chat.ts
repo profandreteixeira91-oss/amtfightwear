@@ -27,7 +27,8 @@ const BodySchema = z.object({
   customer_phone: z.string().max(40).optional(),
 });
 
-type SB = ReturnType<typeof createClient>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SB = any;
 
 function getServiceClient(): SB {
   return createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {

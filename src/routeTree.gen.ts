@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SalesbotRouteImport } from './routes/salesbot'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
@@ -32,11 +33,17 @@ import { Route as AuthenticatedGrowthInsightsRouteImport } from './routes/_authe
 import { Route as AuthenticatedGrowthCustomersRouteImport } from './routes/_authenticated/growth.customers'
 import { Route as AuthenticatedGrowthCrmRouteImport } from './routes/_authenticated/growth.crm'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
+import { Route as ApiPublicSalesChatRouteImport } from './routes/api/public/sales/chat'
 import { Route as ApiPublicMetaCallbackRouteImport } from './routes/api/public/meta/callback'
 import { Route as ApiPublicHooksPublishScheduledPostsRouteImport } from './routes/api/public/hooks/publish-scheduled-posts'
 import { Route as ApiPublicHooksAutoOutreachRouteImport } from './routes/api/public/hooks/auto-outreach'
 import { Route as ApiPublicHooksAutoInstagramPostRouteImport } from './routes/api/public/hooks/auto-instagram-post'
 
+const SalesbotRoute = SalesbotRouteImport.update({
+  id: '/salesbot',
+  path: '/salesbot',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -163,6 +170,11 @@ const LovableEmailQueueProcessRoute =
     path: '/lovable/email/queue/process',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicSalesChatRoute = ApiPublicSalesChatRouteImport.update({
+  id: '/api/public/sales/chat',
+  path: '/api/public/sales/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicMetaCallbackRoute = ApiPublicMetaCallbackRouteImport.update({
   id: '/api/public/meta/callback',
   path: '/api/public/meta/callback',
@@ -190,6 +202,7 @@ const ApiPublicHooksAutoInstagramPostRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/salesbot': typeof SalesbotRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/logs': typeof AuthenticatedLogsRoute
   '/profile': typeof AuthenticatedProfileRoute
@@ -213,11 +226,13 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/auto-outreach': typeof ApiPublicHooksAutoOutreachRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
+  '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/salesbot': typeof SalesbotRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/logs': typeof AuthenticatedLogsRoute
   '/profile': typeof AuthenticatedProfileRoute
@@ -241,6 +256,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/auto-outreach': typeof ApiPublicHooksAutoOutreachRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
+  '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesById {
@@ -248,6 +264,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/salesbot': typeof SalesbotRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/logs': typeof AuthenticatedLogsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
@@ -271,6 +288,7 @@ export interface FileRoutesById {
   '/api/public/hooks/auto-outreach': typeof ApiPublicHooksAutoOutreachRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
+  '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRouteTypes {
@@ -278,6 +296,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/salesbot'
     | '/dashboard'
     | '/logs'
     | '/profile'
@@ -301,11 +320,13 @@ export interface FileRouteTypes {
     | '/api/public/hooks/auto-outreach'
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/meta/callback'
+    | '/api/public/sales/chat'
     | '/lovable/email/queue/process'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/salesbot'
     | '/dashboard'
     | '/logs'
     | '/profile'
@@ -329,12 +350,14 @@ export interface FileRouteTypes {
     | '/api/public/hooks/auto-outreach'
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/meta/callback'
+    | '/api/public/sales/chat'
     | '/lovable/email/queue/process'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/salesbot'
     | '/_authenticated/dashboard'
     | '/_authenticated/logs'
     | '/_authenticated/profile'
@@ -358,6 +381,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/auto-outreach'
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/meta/callback'
+    | '/api/public/sales/chat'
     | '/lovable/email/queue/process'
   fileRoutesById: FileRoutesById
 }
@@ -365,15 +389,24 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  SalesbotRoute: typeof SalesbotRoute
   ApiPublicHooksAutoInstagramPostRoute: typeof ApiPublicHooksAutoInstagramPostRoute
   ApiPublicHooksAutoOutreachRoute: typeof ApiPublicHooksAutoOutreachRoute
   ApiPublicHooksPublishScheduledPostsRoute: typeof ApiPublicHooksPublishScheduledPostsRoute
   ApiPublicMetaCallbackRoute: typeof ApiPublicMetaCallbackRoute
+  ApiPublicSalesChatRoute: typeof ApiPublicSalesChatRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/salesbot': {
+      id: '/salesbot'
+      path: '/salesbot'
+      fullPath: '/salesbot'
+      preLoaderRoute: typeof SalesbotRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -535,6 +568,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/sales/chat': {
+      id: '/api/public/sales/chat'
+      path: '/api/public/sales/chat'
+      fullPath: '/api/public/sales/chat'
+      preLoaderRoute: typeof ApiPublicSalesChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/meta/callback': {
       id: '/api/public/meta/callback'
       path: '/api/public/meta/callback'
@@ -617,11 +657,13 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  SalesbotRoute: SalesbotRoute,
   ApiPublicHooksAutoInstagramPostRoute: ApiPublicHooksAutoInstagramPostRoute,
   ApiPublicHooksAutoOutreachRoute: ApiPublicHooksAutoOutreachRoute,
   ApiPublicHooksPublishScheduledPostsRoute:
     ApiPublicHooksPublishScheduledPostsRoute,
   ApiPublicMetaCallbackRoute: ApiPublicMetaCallbackRoute,
+  ApiPublicSalesChatRoute: ApiPublicSalesChatRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }
 export const routeTree = rootRouteImport
