@@ -20,6 +20,7 @@ import {
   BarChart4,
   Rocket,
   Plug,
+  DollarSign,
 } from "lucide-react";
 
 import {
@@ -58,6 +59,7 @@ const marketItems = [
   { title: "IA Content Hub", url: "/market/content", icon: Wand2 },
   { title: "CRM & E-mail", url: "/market/crm", icon: Mail },
   { title: "Analytics Catálogo", url: "/market/catalog", icon: BarChart4 },
+  { title: "Pesquisa de Mercado", url: "/market/pricing", icon: DollarSign },
   { title: "Conexões e APIs", url: "/market/connections", icon: Plug },
 ] as const;
 
