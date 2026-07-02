@@ -235,7 +235,7 @@ export const syncIgInbox = createServerFn({ method: "POST" })
         participants?: { data?: IgParticipant[] };
       }> = [];
       while (nextConv && convs.length < maxConvs) {
-        const page = await graphGetAbs<IgPaged<{ id: string; updated_time?: string; participants?: { data?: IgParticipant[] } }>>(nextConv);
+        const page: IgPaged<{ id: string; updated_time?: string; participants?: { data?: IgParticipant[] } }> = await graphGetAbs(nextConv);
         convs.push(...(page.data ?? []));
         nextConv = page.paging?.next ?? null;
       }
@@ -265,7 +265,7 @@ export const syncIgInbox = createServerFn({ method: "POST" })
         let nextMsg: string | null =
           `${GRAPH}/${conv.id}/messages?fields=id,from,to,message,created_time,attachments&limit=50&access_token=${token}`;
         while (nextMsg && msgs.length < maxMsgs) {
-          const page = await graphGetAbs<IgPaged<IgMessageRaw>>(nextMsg);
+          const page: IgPaged<IgMessageRaw> = await graphGetAbs(nextMsg);
           const batch = page.data ?? [];
           // Alguns campos vêm apenas quando pedidos por ID; refetch se necessário
           const enriched: IgMessageRaw[] = [];
