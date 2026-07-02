@@ -308,16 +308,13 @@ export const syncIgInbox = createServerFn({ method: "POST" })
         if (convRow && msgs.length) {
           const rows = msgs.map((m) => {
             const att = m.attachments?.data ?? [];
-            const first = att[0];
-            const url = first?.image_data?.url ?? first?.video_data?.url ?? first?.file_url ?? null;
             return {
               user_id: context.userId,
               conversation_id: convRow.id,
               mid: m.id,
               direction: m.from?.id === businessIgsid ? "out" : "in",
               text: m.message ?? null,
-              attachment_url: url,
-              attachment_type: first?.mime_type ?? (url ? "unknown" : null),
+              attachments: att.length ? att : null,
               sent_at: m.created_time ?? new Date().toISOString(),
             };
           });
