@@ -474,6 +474,53 @@ export const runMartialArtsSweep = createServerFn({ method: "POST" })
     }
   });
 
+// ============= DAILY MA AUTOPILOT SETTINGS =============
+
+const dailyMaInput = z.object({
+  daily_ma_sweep_enabled: z.boolean(),
+  daily_ma_presets: z.array(z.string()).max(8).default([]),
+  daily_ma_states: z.array(z.string().length(2)).max(27).default([]),
+  daily_ma_cities: z.array(z.string().max(120)).max(20).default([]),
+  daily_ma_per_preset: z.number().int().min(3).max(30).default(8),
+});
+
+export const getDailyMaSettings = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const supa = context.supabase as unknown as {
+      from: (t: string) => { select: (c: string) => { eq: (k: string, v: string) => { maybeSingle: () => Promise<{ data: JsonRow | null }> } } };
+    };
+    const { data } = await supa.from("prospect_settings")
+      .select("daily_ma_sweep_enabled, daily_ma_presets, daily_ma_states, daily_ma_cities, daily_ma_per_preset, daily_ma_last_run_at")
+      .eq("owner_id", context.userId).maybeSingle();
+    return {
+      daily_ma_sweep_enabled: (data?.daily_ma_sweep_enabled as boolean) ?? false,
+      daily_ma_presets: (data?.daily_ma_presets as string[]) ?? [],
+      daily_ma_states: (data?.daily_ma_states as string[]) ?? [],
+      daily_ma_cities: (data?.daily_ma_cities as string[]) ?? [],
+      daily_ma_per_preset: (data?.daily_ma_per_preset as number) ?? 8,
+      daily_ma_last_run_at: (data?.daily_ma_last_run_at as string | null) ?? null,
+    };
+  });
+
+export const saveDailyMaSettings = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => dailyMaInput.parse(i))
+  .handler(async ({ data, context }) => {
+    const supa = context.supabase as unknown as {
+      from: (t: string) => { upsert: (v: unknown, o?: unknown) => Promise<{ error: { message: string } | null }> };
+    };
+    const { error } = await supa.from("prospect_settings").upsert(
+      { owner_id: context.userId, ...data },
+      { onConflict: "owner_id" },
+    );
+    if (error) throw new Error(error.message);
+    await auditLog(context.supabase, context.userId, "sweep", "daily_config",
+      `Piloto diário BJJ/Judô ${data.daily_ma_sweep_enabled ? "ativado" : "desativado"}`,
+      { ...data });
+    return { ok: true };
+  });
+
 /** Enriquece 1 lead sob demanda. */
 export const enrichLead = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
