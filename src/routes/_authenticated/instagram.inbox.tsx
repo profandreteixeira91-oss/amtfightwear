@@ -39,6 +39,7 @@ function IgInbox() {
   const updateFn = useServerFn(updateConversation);
   const promoteFn = useServerFn(promoteConversationToLead);
   const aiFn = useServerFn(aiConversationTools);
+  const syncFn = useServerFn(syncIgInbox);
 
   const [filterStatus, setFilterStatus] = useState<string>("");
   const [search, setSearch] = useState("");
