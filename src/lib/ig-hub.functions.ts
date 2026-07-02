@@ -93,7 +93,7 @@ export const syncIgProfile = createServerFn({ method: "POST" })
             followers_count: profile.followers_count ?? 0,
             follows_count: profile.follows_count ?? 0,
             media_count: profile.media_count ?? 0,
-            account_type: profile.account_type ?? null,
+            account_type: null,
             status: "connected",
             last_synced_at: new Date().toISOString(),
           },
