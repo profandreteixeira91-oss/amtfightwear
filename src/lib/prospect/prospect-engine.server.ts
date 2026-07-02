@@ -138,43 +138,69 @@ export async function discoverCompanies(input: {
   state?: string | null;
   keywords?: string | null;
   limit: number;
+  /** Se fornecido, ignora `segment`+`keywords` e roda cada query da lista. */
+  queries?: string[];
+  /** Permite resultados do Instagram (útil para professores / projetos sociais). */
+  allowInstagram?: boolean;
 }): Promise<DiscoveredCompany[]> {
-  const parts = [
-    input.segment,
-    input.city ? `em ${input.city}` : null,
-    input.state ? input.state : null,
-    input.keywords ?? null,
-    "contato",
-  ].filter(Boolean).join(" ");
+  const buildDefault = () => {
+    const parts = [
+      input.segment,
+      input.city ? `em ${input.city}` : null,
+      input.state ? input.state : null,
+      input.keywords ?? null,
+      "contato",
+    ].filter(Boolean).join(" ");
+    const base = input.allowInstagram
+      ? parts
+      : `${parts} -site:instagram.com -site:facebook.com -site:linkedin.com`;
+    return [base];
+  };
 
-  const query = `${parts} -site:instagram.com -site:facebook.com -site:linkedin.com`;
-  const results = await firecrawlSearch(query, Math.min(input.limit * 2, 20));
+  const queries = (input.queries && input.queries.length ? input.queries : buildDefault())
+    .slice(0, 12);
 
+  const perQuery = Math.max(3, Math.ceil((input.limit * 2) / queries.length));
   const seen = new Set<string>();
   const companies: DiscoveredCompany[] = [];
 
-  for (const r of results) {
-    if (!r.url || !r.title) continue;
-    const domain = safeDomain(r.url);
-    if (!domain || seen.has(domain)) continue;
-    if (isNoiseDomain(domain)) continue;
-    seen.add(domain);
-
-    const name = cleanCompanyName(r.title);
-    if (!name) continue;
-
-    companies.push({
-      name,
-      normalized_name: normalizeName(name),
-      website: `https://${domain}`,
-      source_url: r.url,
-      description: r.description ?? null,
-      city: input.city ?? null,
-      state: input.state ?? null,
-      category: input.segment,
-    });
-
+  for (const q of queries) {
     if (companies.length >= input.limit) break;
+    let results: FcSearchResult[] = [];
+    try {
+      results = await firecrawlSearch(q, Math.min(perQuery, 20));
+    } catch { continue; }
+
+    for (const r of results) {
+      if (!r.url || !r.title) continue;
+      const domain = safeDomain(r.url);
+      if (!domain) continue;
+      if (isNoiseDomain(domain, { allowInstagram: input.allowInstagram })) continue;
+
+      // Dedupe: por domínio, ou por URL completa quando for perfil do Instagram
+      const isIg = /instagram\.com$/i.test(domain);
+      const dedupeKey = isIg ? r.url.replace(/[?#].*$/, "").toLowerCase() : domain;
+      if (seen.has(dedupeKey)) continue;
+      seen.add(dedupeKey);
+
+      const name = cleanCompanyName(r.title);
+      if (!name) continue;
+
+      const website = isIg ? null : `https://${domain}`;
+
+      companies.push({
+        name,
+        normalized_name: normalizeName(name),
+        website,
+        source_url: r.url,
+        description: r.description ?? null,
+        city: input.city ?? null,
+        state: input.state ?? null,
+        category: input.segment,
+      });
+
+      if (companies.length >= input.limit) break;
+    }
   }
   return companies;
 }
@@ -182,7 +208,8 @@ export async function discoverCompanies(input: {
 function safeDomain(u: string): string | null {
   try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return null; }
 }
-function isNoiseDomain(d: string): boolean {
+function isNoiseDomain(d: string, opts?: { allowInstagram?: boolean }): boolean {
+  if (opts?.allowInstagram && /^instagram\.com$/i.test(d)) return false;
   return /(google|bing|yahoo|wikipedia|youtube|facebook|instagram|linkedin|twitter|tiktok|glassdoor|reclameaqui|jusbrasil|yelp|tripadvisor|guiamais|apontador|solucoesindustriais|econodata|econofinder)\./i.test(d);
 }
 function cleanCompanyName(title: string): string {
@@ -192,6 +219,110 @@ function cleanCompanyName(title: string): string {
     .trim()
     .slice(0, 120);
 }
+
+// ============= Queries especializadas para Judô / Jiu-Jitsu =============
+
+/**
+ * Gera queries multi-ângulo para localizar prospects do universo BJJ / Judô.
+ * Cada preset produz variações (Google dorks) para maximizar cobertura.
+ */
+export function buildMartialArtsQueries(
+  preset: string,
+  opts: { city?: string | null; state?: string | null } = {},
+): { queries: string[]; allowInstagram: boolean; category: string } {
+  const loc = [opts.city, opts.state].filter(Boolean).join(" ");
+  const locSuffix = loc ? ` "${loc}"` : "";
+  const igLoc = loc ? ` ${loc}` : "";
+
+  const map: Record<string, { q: string[]; ig: boolean; cat: string }> = {
+    academias_bjj: {
+      cat: "Academia de Jiu-Jitsu",
+      ig: true,
+      q: [
+        `"academia de jiu-jitsu"${locSuffix} contato`,
+        `"academia" "jiu-jitsu" BJJ${locSuffix} whatsapp email`,
+        `"gracie" OR "alliance" OR "checkmat" OR "atos"${locSuffix} academia`,
+        `site:instagram.com "jiu jitsu" "academia"${igLoc}`,
+      ],
+    },
+    academias_judo: {
+      cat: "Academia de Judô",
+      ig: true,
+      q: [
+        `"academia de judô" OR "academia de judo"${locSuffix} contato`,
+        `"judô" "dojô" OR "dojo"${locSuffix} matrículas`,
+        `"clube de judô"${locSuffix}`,
+        `site:instagram.com "judô" "academia"${igLoc}`,
+      ],
+    },
+    escolas_bjj: {
+      cat: "Escola de Jiu-Jitsu",
+      ig: true,
+      q: [
+        `"escola de jiu-jitsu"${locSuffix}`,
+        `"jiu-jitsu infantil" OR "kids jiu-jitsu"${locSuffix} matrícula`,
+        `site:instagram.com "escola de jiu-jitsu"${igLoc}`,
+      ],
+    },
+    escolas_judo: {
+      cat: "Escola de Judô",
+      ig: true,
+      q: [
+        `"escola de judô" OR "escola de judo"${locSuffix}`,
+        `"judô infantil" OR "judô kids"${locSuffix} matrícula`,
+        `site:instagram.com "escola de judô"${igLoc}`,
+      ],
+    },
+    professores_bjj: {
+      cat: "Professor de Jiu-Jitsu",
+      ig: true,
+      q: [
+        `"professor de jiu-jitsu" OR "faixa preta" BJJ${locSuffix}`,
+        `"mestre" "jiu-jitsu"${locSuffix} instrutor`,
+        `site:instagram.com "faixa preta" "jiu jitsu"${igLoc}`,
+        `site:instagram.com "professor" "bjj"${igLoc}`,
+      ],
+    },
+    professores_judo: {
+      cat: "Professor de Judô",
+      ig: true,
+      q: [
+        `"sensei" "judô"${locSuffix}`,
+        `"professor de judô" OR "professor de judo"${locSuffix} faixa preta`,
+        `site:instagram.com "sensei" "judô"${igLoc}`,
+      ],
+    },
+    projetos_sociais: {
+      cat: "Projeto Social de Artes Marciais",
+      ig: true,
+      q: [
+        `"projeto social" "jiu-jitsu"${locSuffix}`,
+        `"projeto social" "judô" OR "judo"${locSuffix}`,
+        `"ONG" "jiu-jitsu" OR "judô"${locSuffix}`,
+        `"instituto" "jiu-jitsu" OR "judô"${locSuffix}`,
+        `site:org.br "jiu-jitsu" OR "judô"${locSuffix}`,
+        `site:instagram.com "projeto social" "jiu jitsu"${igLoc}`,
+      ],
+    },
+    federacoes: {
+      cat: "Federação de Artes Marciais",
+      ig: false,
+      q: [
+        `"federação" "jiu-jitsu"${locSuffix}`,
+        `"federação" "judô" OR "judo"${locSuffix}`,
+        `"confederação brasileira" "jiu-jitsu" OR "judô"`,
+        `site:org.br "federação" "jiu-jitsu" OR "judô"`,
+      ],
+    },
+  };
+
+  const entry = map[preset];
+  if (!entry) {
+    return { queries: [`"${preset}"${locSuffix} contato`], allowInstagram: false, category: preset };
+  }
+  return { queries: entry.q, allowInstagram: entry.ig, category: entry.cat };
+}
+
 
 // ============= Enriquecimento (prioridade email → whatsapp → instagram) =============
 

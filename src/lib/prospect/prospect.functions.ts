@@ -359,6 +359,121 @@ export const runSearch = createServerFn({ method: "POST" })
     }
   });
 
+// ============= MARTIAL ARTS SWEEP =============
+
+const sweepInput = z.object({
+  presets: z.array(z.string()).min(1).max(8),
+  cities: z.array(z.string().max(120)).max(20).default([]),
+  states: z.array(z.string().length(2)).max(27).default([]),
+  per_preset: z.number().int().min(3).max(30).default(10),
+  save: z.boolean().default(true),
+});
+
+/**
+ * Varredura em lote focada em judô/jiu-jitsu.
+ * Combina cada preset (academias/escolas/professores/projetos sociais)
+ * com cada localidade selecionada, rodando queries multi-ângulo.
+ */
+export const runMartialArtsSweep = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => sweepInput.parse(i))
+  .handler(async ({ data, context }) => {
+    const { discoverCompanies, buildMartialArtsQueries } = await import("./prospect-engine.server");
+    const supa = context.supabase as unknown as {
+      from: (t: string) => {
+        insert: (v: unknown) => { select: (c: string) => { single: () => Promise<{ data: { id: string } | null }> } } & Promise<{ data: unknown[] | null; error: unknown }>;
+        update: (v: unknown) => { eq: (k: string, v: string) => Promise<unknown> };
+      };
+    };
+
+    // Localidades: cidades OU UFs; se nada, roda sem localidade (Brasil todo).
+    const locations: Array<{ city: string | null; state: string | null }> = [];
+    for (const c of data.cities) locations.push({ city: c, state: null });
+    for (const s of data.states) locations.push({ city: null, state: s });
+    if (locations.length === 0) locations.push({ city: null, state: null });
+
+    const sweepName = `Sweep BJJ/Judô ${new Date().toLocaleString("pt-BR")}`;
+    let searchId: string | null = null;
+    if (data.save) {
+      const { data: srow } = await supa.from("prospect_searches").insert({
+        owner_id: context.userId,
+        name: sweepName,
+        segment: data.presets.join(", "),
+        city: data.cities.join(", ") || null,
+        state: data.states.join(", ") || null,
+        country: "BR",
+        keywords: null,
+        target_count: data.per_preset * data.presets.length * locations.length,
+        status: "running",
+      }).select("id").single();
+      searchId = srow?.id ?? null;
+    }
+
+    let inserted = 0;
+    let queriesRun = 0;
+    const globalSeen = new Set<string>();
+
+    try {
+      for (const preset of data.presets) {
+        for (const loc of locations) {
+          const { queries, allowInstagram, category } = buildMartialArtsQueries(preset, loc);
+          queriesRun += queries.length;
+
+          const companies = await discoverCompanies({
+            segment: category,
+            city: loc.city,
+            state: loc.state,
+            queries,
+            allowInstagram,
+            limit: data.per_preset,
+          });
+
+          for (const c of companies) {
+            const dedupeKey = c.website ?? c.source_url;
+            if (globalSeen.has(dedupeKey)) continue;
+            globalSeen.add(dedupeKey);
+
+            const { data: row } = await supa.from("prospect_companies").insert({
+              owner_id: context.userId,
+              name: c.name, normalized_name: c.normalized_name,
+              category: c.category, segment: preset,
+              city: c.city, state: c.state, country: "BR",
+              website: c.website, description: c.description, source_url: c.source_url,
+              origin: "search_martial_arts",
+              pipeline_stage: "captado",
+            }).select("id").single();
+
+            if (row?.id) {
+              inserted++;
+              await supa.from("prospect_enrichment_jobs" as string).insert({
+                owner_id: context.userId, company_id: row.id, status: "pending",
+              });
+              await logEvent(context.supabase, context.userId, row.id,
+                "lead_created", `Lead capturado (${category})`,
+                { preset, city: loc.city, state: loc.state });
+            }
+          }
+        }
+      }
+
+      if (searchId) {
+        await supa.from("prospect_searches").update({
+          status: "success", results_count: inserted, last_run_at: new Date().toISOString(),
+        }).eq("id", searchId);
+      }
+      await auditLog(context.supabase, context.userId, "sweep", "run",
+        `Varredura BJJ/Judô: ${inserted} leads em ${queriesRun} queries`,
+        { presets: data.presets, cities: data.cities, states: data.states });
+
+      return { ok: true, inserted, queriesRun, searchId };
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (searchId) await supa.from("prospect_searches").update({ status: "failed" }).eq("id", searchId);
+      await auditLog(context.supabase, context.userId, "sweep", "error", msg);
+      throw new Error(msg);
+    }
+  });
+
 /** Enriquece 1 lead sob demanda. */
 export const enrichLead = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
