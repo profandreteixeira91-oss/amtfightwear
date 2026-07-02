@@ -124,10 +124,16 @@ function IgInbox() {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-      <PageHeader
-        title="Inbox Instagram"
-        description="Central de conversas. Responder dentro da janela de 7 dias da Meta é obrigatório."
-      />
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <PageHeader
+          title="Inbox Instagram"
+          description="Central de conversas. Responder dentro da janela de 7 dias da Meta é obrigatório."
+        />
+        <Button size="sm" variant="outline" onClick={() => mSync.mutate()} disabled={mSync.isPending}>
+          <RefreshCw className={`mr-1 h-3 w-3 ${mSync.isPending ? "animate-spin" : ""}`} />
+          {mSync.isPending ? "Sincronizando…" : "Sincronizar Inbox"}
+        </Button>
+      </div>
 
       <div className="grid gap-4 lg:grid-cols-[300px_1fr_320px] min-h-[70vh]">
         {/* LIST */}
