@@ -157,7 +157,7 @@ export const Route = createFileRoute("/api/public/hooks/ig-sync")({
                     from_username: c.from?.username ?? null,
                     text: c.text ?? null,
                     parent_id: c.parent_id ?? null,
-                  })), { onConflict: "comment_id" });
+                  })), { onConflict: "user_id,comment_id" });
                   commentCount += comments.length;
                 }
               }
