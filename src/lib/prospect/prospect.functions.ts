@@ -8,6 +8,11 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import { normalizeName, computeLeadScore, DEFAULT_SCORE_WEIGHTS } from "@/features/prospect/utils";
 
+// Tipo JSON-serializável aceito pelo TanStack Start.
+type Json = string | number | boolean | null | Json[] | { [k: string]: Json };
+type JsonRow = { [k: string]: Json };
+
+
 // ============= Helpers =============
 
 async function logEvent(
