@@ -212,7 +212,7 @@ function LeadsPage() {
                             {email && <Badge variant="secondary" className="gap-1"><Mail className="h-3 w-3" />e-mail</Badge>}
                             {wa && <Badge variant="secondary" className="gap-1"><MessageCircle className="h-3 w-3" />whatsapp</Badge>}
                             {ig && <Badge variant="secondary" className="gap-1"><Instagram className="h-3 w-3" />instagram</Badge>}
-                            {r.website && <Badge variant="secondary" className="gap-1"><Globe className="h-3 w-3" />site</Badge>}
+                            {r.website ? <Badge variant="secondary" className="gap-1"><Globe className="h-3 w-3" />site</Badge> : null}
                           </div>
                         </div>
                       </div>
