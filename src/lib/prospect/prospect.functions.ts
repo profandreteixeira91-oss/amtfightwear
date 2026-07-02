@@ -210,7 +210,7 @@ export const getLead = createServerFn({ method: "GET" })
     const supa = context.supabase as unknown as {
       from: (t: string) => {
         select: (c: string) => {
-          eq: (k: string, v: string) => { single: () => Promise<{ data: unknown; error: unknown }>; order: (c: string, o?: unknown) => Promise<{ data: unknown[] | null }> };
+          eq: (k: string, v: string) => { single: () => Promise<{ data: Record<string, unknown> | null; error: unknown }>; order: (c: string, o?: unknown) => Promise<{ data: Record<string, unknown>[] | null }> };
         };
       };
     };
@@ -221,9 +221,9 @@ export const getLead = createServerFn({ method: "GET" })
       supa.from("prospect_timeline").select("*").eq("company_id", data.id).order("created_at", { ascending: false }),
     ]);
     return {
-      company,
-      contacts: contacts.data ?? [],
-      timeline: timeline.data ?? [],
+      company: company as Record<string, unknown>,
+      contacts: (contacts.data ?? []) as Record<string, unknown>[],
+      timeline: (timeline.data ?? []) as Record<string, unknown>[],
     };
   });
 
