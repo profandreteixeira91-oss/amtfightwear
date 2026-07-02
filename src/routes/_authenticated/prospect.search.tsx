@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { Radar, Loader2, Swords, MapPin, X } from "lucide-react";
+import { Radar, Loader2, Swords, MapPin, X, CalendarClock } from "lucide-react";
 import { PageHeader } from "@/components/common/PageHeader";
 import { SectionCard } from "@/components/common/SectionCard";
 import { Button } from "@/components/ui/button";
@@ -12,9 +12,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { runSearch, runMartialArtsSweep } from "@/lib/prospect/prospect.functions";
+import {
+  runSearch, runMartialArtsSweep, getDailyMaSettings, saveDailyMaSettings,
+} from "@/lib/prospect/prospect.functions";
 import { BR_STATES, SEGMENT_PRESETS, MARTIAL_ARTS_PRESETS } from "@/features/prospect/types";
 
 export const Route = createFileRoute("/_authenticated/prospect/search")({
