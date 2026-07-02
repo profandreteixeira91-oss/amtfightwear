@@ -107,6 +107,16 @@ function IgInbox() {
     },
     onError: (e: Error) => toast.error(e.message),
   });
+  const mSync = useMutation({
+    mutationFn: () => syncFn({ data: {} }),
+    onSuccess: (r) => {
+      toast.success(`Sincronizado: ${r.conversations} conversas · ${r.messages} mensagens`);
+      qc.invalidateQueries({ queryKey: ["ig-conversations"] });
+      if (selected) qc.invalidateQueries({ queryKey: ["ig-conversation", selected] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
 
   const inWindow = detail?.conversation?.window_expires_at
     ? new Date(detail.conversation.window_expires_at) > new Date()
