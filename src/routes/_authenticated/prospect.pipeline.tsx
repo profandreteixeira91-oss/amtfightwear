@@ -57,7 +57,7 @@ function PipelinePage() {
     onSuccess: () => toast.success("Lead movido"),
   });
 
-  const rows = (data?.rows ?? []) as LeadCard[];
+  const rows = (data?.rows ?? []) as unknown as LeadCard[];
   const grouped = useMemo(() => {
     const map = new Map<string, LeadCard[]>();
     for (const s of PIPELINE_STAGES) map.set(s.id, []);
