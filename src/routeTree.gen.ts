@@ -26,7 +26,12 @@ import { Route as AuthenticatedSalesSettingsRouteImport } from './routes/_authen
 import { Route as AuthenticatedSalesKbRouteImport } from './routes/_authenticated/sales.kb'
 import { Route as AuthenticatedSalesConversationsRouteImport } from './routes/_authenticated/sales.conversations'
 import { Route as AuthenticatedSalesAnalyticsRouteImport } from './routes/_authenticated/sales.analytics'
+import { Route as AuthenticatedProspectSettingsRouteImport } from './routes/_authenticated/prospect.settings'
+import { Route as AuthenticatedProspectSearchRouteImport } from './routes/_authenticated/prospect.search'
+import { Route as AuthenticatedProspectPipelineRouteImport } from './routes/_authenticated/prospect.pipeline'
+import { Route as AuthenticatedProspectLogsRouteImport } from './routes/_authenticated/prospect.logs'
 import { Route as AuthenticatedProspectLeadsRouteImport } from './routes/_authenticated/prospect.leads'
+import { Route as AuthenticatedProspectIdRouteImport } from './routes/_authenticated/prospect.$id'
 import { Route as AuthenticatedMarketPricingRouteImport } from './routes/_authenticated/market.pricing'
 import { Route as AuthenticatedMarketOverviewRouteImport } from './routes/_authenticated/market.overview'
 import { Route as AuthenticatedMarketCrmRouteImport } from './routes/_authenticated/market.crm'
@@ -144,12 +149,41 @@ const AuthenticatedSalesAnalyticsRoute =
     path: '/sales/analytics',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedProspectSettingsRoute =
+  AuthenticatedProspectSettingsRouteImport.update({
+    id: '/prospect/settings',
+    path: '/prospect/settings',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedProspectSearchRoute =
+  AuthenticatedProspectSearchRouteImport.update({
+    id: '/prospect/search',
+    path: '/prospect/search',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedProspectPipelineRoute =
+  AuthenticatedProspectPipelineRouteImport.update({
+    id: '/prospect/pipeline',
+    path: '/prospect/pipeline',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedProspectLogsRoute =
+  AuthenticatedProspectLogsRouteImport.update({
+    id: '/prospect/logs',
+    path: '/prospect/logs',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedProspectLeadsRoute =
   AuthenticatedProspectLeadsRouteImport.update({
     id: '/prospect/leads',
     path: '/prospect/leads',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedProspectIdRoute = AuthenticatedProspectIdRouteImport.update({
+  id: '/prospect/$id',
+  path: '/prospect/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedMarketPricingRoute =
   AuthenticatedMarketPricingRouteImport.update({
     id: '/market/pricing',
@@ -344,7 +378,12 @@ export interface FileRoutesByFullPath {
   '/market/crm': typeof AuthenticatedMarketCrmRoute
   '/market/overview': typeof AuthenticatedMarketOverviewRoute
   '/market/pricing': typeof AuthenticatedMarketPricingRoute
+  '/prospect/$id': typeof AuthenticatedProspectIdRoute
   '/prospect/leads': typeof AuthenticatedProspectLeadsRoute
+  '/prospect/logs': typeof AuthenticatedProspectLogsRoute
+  '/prospect/pipeline': typeof AuthenticatedProspectPipelineRoute
+  '/prospect/search': typeof AuthenticatedProspectSearchRoute
+  '/prospect/settings': typeof AuthenticatedProspectSettingsRoute
   '/sales/analytics': typeof AuthenticatedSalesAnalyticsRoute
   '/sales/conversations': typeof AuthenticatedSalesConversationsRouteWithChildren
   '/sales/kb': typeof AuthenticatedSalesKbRoute
@@ -391,7 +430,12 @@ export interface FileRoutesByTo {
   '/market/crm': typeof AuthenticatedMarketCrmRoute
   '/market/overview': typeof AuthenticatedMarketOverviewRoute
   '/market/pricing': typeof AuthenticatedMarketPricingRoute
+  '/prospect/$id': typeof AuthenticatedProspectIdRoute
   '/prospect/leads': typeof AuthenticatedProspectLeadsRoute
+  '/prospect/logs': typeof AuthenticatedProspectLogsRoute
+  '/prospect/pipeline': typeof AuthenticatedProspectPipelineRoute
+  '/prospect/search': typeof AuthenticatedProspectSearchRoute
+  '/prospect/settings': typeof AuthenticatedProspectSettingsRoute
   '/sales/analytics': typeof AuthenticatedSalesAnalyticsRoute
   '/sales/conversations': typeof AuthenticatedSalesConversationsRouteWithChildren
   '/sales/kb': typeof AuthenticatedSalesKbRoute
@@ -440,7 +484,12 @@ export interface FileRoutesById {
   '/_authenticated/market/crm': typeof AuthenticatedMarketCrmRoute
   '/_authenticated/market/overview': typeof AuthenticatedMarketOverviewRoute
   '/_authenticated/market/pricing': typeof AuthenticatedMarketPricingRoute
+  '/_authenticated/prospect/$id': typeof AuthenticatedProspectIdRoute
   '/_authenticated/prospect/leads': typeof AuthenticatedProspectLeadsRoute
+  '/_authenticated/prospect/logs': typeof AuthenticatedProspectLogsRoute
+  '/_authenticated/prospect/pipeline': typeof AuthenticatedProspectPipelineRoute
+  '/_authenticated/prospect/search': typeof AuthenticatedProspectSearchRoute
+  '/_authenticated/prospect/settings': typeof AuthenticatedProspectSettingsRoute
   '/_authenticated/sales/analytics': typeof AuthenticatedSalesAnalyticsRoute
   '/_authenticated/sales/conversations': typeof AuthenticatedSalesConversationsRouteWithChildren
   '/_authenticated/sales/kb': typeof AuthenticatedSalesKbRoute
@@ -489,7 +538,12 @@ export interface FileRouteTypes {
     | '/market/crm'
     | '/market/overview'
     | '/market/pricing'
+    | '/prospect/$id'
     | '/prospect/leads'
+    | '/prospect/logs'
+    | '/prospect/pipeline'
+    | '/prospect/search'
+    | '/prospect/settings'
     | '/sales/analytics'
     | '/sales/conversations'
     | '/sales/kb'
@@ -536,7 +590,12 @@ export interface FileRouteTypes {
     | '/market/crm'
     | '/market/overview'
     | '/market/pricing'
+    | '/prospect/$id'
     | '/prospect/leads'
+    | '/prospect/logs'
+    | '/prospect/pipeline'
+    | '/prospect/search'
+    | '/prospect/settings'
     | '/sales/analytics'
     | '/sales/conversations'
     | '/sales/kb'
@@ -584,7 +643,12 @@ export interface FileRouteTypes {
     | '/_authenticated/market/crm'
     | '/_authenticated/market/overview'
     | '/_authenticated/market/pricing'
+    | '/_authenticated/prospect/$id'
     | '/_authenticated/prospect/leads'
+    | '/_authenticated/prospect/logs'
+    | '/_authenticated/prospect/pipeline'
+    | '/_authenticated/prospect/search'
+    | '/_authenticated/prospect/settings'
     | '/_authenticated/sales/analytics'
     | '/_authenticated/sales/conversations'
     | '/_authenticated/sales/kb'
@@ -738,11 +802,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSalesAnalyticsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/prospect/settings': {
+      id: '/_authenticated/prospect/settings'
+      path: '/prospect/settings'
+      fullPath: '/prospect/settings'
+      preLoaderRoute: typeof AuthenticatedProspectSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/prospect/search': {
+      id: '/_authenticated/prospect/search'
+      path: '/prospect/search'
+      fullPath: '/prospect/search'
+      preLoaderRoute: typeof AuthenticatedProspectSearchRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/prospect/pipeline': {
+      id: '/_authenticated/prospect/pipeline'
+      path: '/prospect/pipeline'
+      fullPath: '/prospect/pipeline'
+      preLoaderRoute: typeof AuthenticatedProspectPipelineRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/prospect/logs': {
+      id: '/_authenticated/prospect/logs'
+      path: '/prospect/logs'
+      fullPath: '/prospect/logs'
+      preLoaderRoute: typeof AuthenticatedProspectLogsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/prospect/leads': {
       id: '/_authenticated/prospect/leads'
       path: '/prospect/leads'
       fullPath: '/prospect/leads'
       preLoaderRoute: typeof AuthenticatedProspectLeadsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/prospect/$id': {
+      id: '/_authenticated/prospect/$id'
+      path: '/prospect/$id'
+      fullPath: '/prospect/$id'
+      preLoaderRoute: typeof AuthenticatedProspectIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/market/pricing': {
@@ -985,7 +1084,12 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMarketCrmRoute: typeof AuthenticatedMarketCrmRoute
   AuthenticatedMarketOverviewRoute: typeof AuthenticatedMarketOverviewRoute
   AuthenticatedMarketPricingRoute: typeof AuthenticatedMarketPricingRoute
+  AuthenticatedProspectIdRoute: typeof AuthenticatedProspectIdRoute
   AuthenticatedProspectLeadsRoute: typeof AuthenticatedProspectLeadsRoute
+  AuthenticatedProspectLogsRoute: typeof AuthenticatedProspectLogsRoute
+  AuthenticatedProspectPipelineRoute: typeof AuthenticatedProspectPipelineRoute
+  AuthenticatedProspectSearchRoute: typeof AuthenticatedProspectSearchRoute
+  AuthenticatedProspectSettingsRoute: typeof AuthenticatedProspectSettingsRoute
   AuthenticatedSalesAnalyticsRoute: typeof AuthenticatedSalesAnalyticsRoute
   AuthenticatedSalesConversationsRoute: typeof AuthenticatedSalesConversationsRouteWithChildren
   AuthenticatedSalesKbRoute: typeof AuthenticatedSalesKbRoute
@@ -1020,7 +1124,12 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMarketCrmRoute: AuthenticatedMarketCrmRoute,
   AuthenticatedMarketOverviewRoute: AuthenticatedMarketOverviewRoute,
   AuthenticatedMarketPricingRoute: AuthenticatedMarketPricingRoute,
+  AuthenticatedProspectIdRoute: AuthenticatedProspectIdRoute,
   AuthenticatedProspectLeadsRoute: AuthenticatedProspectLeadsRoute,
+  AuthenticatedProspectLogsRoute: AuthenticatedProspectLogsRoute,
+  AuthenticatedProspectPipelineRoute: AuthenticatedProspectPipelineRoute,
+  AuthenticatedProspectSearchRoute: AuthenticatedProspectSearchRoute,
+  AuthenticatedProspectSettingsRoute: AuthenticatedProspectSettingsRoute,
   AuthenticatedSalesAnalyticsRoute: AuthenticatedSalesAnalyticsRoute,
   AuthenticatedSalesConversationsRoute:
     AuthenticatedSalesConversationsRouteWithChildren,
