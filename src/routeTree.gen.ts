@@ -21,6 +21,7 @@ import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedLogsRouteImport } from './routes/_authenticated/logs'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedProspectIndexRouteImport } from './routes/_authenticated/prospect.index'
 import { Route as AuthenticatedSalesSettingsRouteImport } from './routes/_authenticated/sales.settings'
 import { Route as AuthenticatedSalesKbRouteImport } from './routes/_authenticated/sales.kb'
 import { Route as AuthenticatedSalesConversationsRouteImport } from './routes/_authenticated/sales.conversations'
@@ -113,6 +114,12 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedProspectIndexRoute =
+  AuthenticatedProspectIndexRouteImport.update({
+    id: '/prospect/',
+    path: '/prospect/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSalesSettingsRoute =
   AuthenticatedSalesSettingsRouteImport.update({
     id: '/sales/settings',
@@ -334,6 +341,7 @@ export interface FileRoutesByFullPath {
   '/sales/conversations': typeof AuthenticatedSalesConversationsRouteWithChildren
   '/sales/kb': typeof AuthenticatedSalesKbRoute
   '/sales/settings': typeof AuthenticatedSalesSettingsRoute
+  '/prospect/': typeof AuthenticatedProspectIndexRoute
   '/sales/conversations/$id': typeof AuthenticatedSalesConversationsIdRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
@@ -379,6 +387,7 @@ export interface FileRoutesByTo {
   '/sales/conversations': typeof AuthenticatedSalesConversationsRouteWithChildren
   '/sales/kb': typeof AuthenticatedSalesKbRoute
   '/sales/settings': typeof AuthenticatedSalesSettingsRoute
+  '/prospect': typeof AuthenticatedProspectIndexRoute
   '/sales/conversations/$id': typeof AuthenticatedSalesConversationsIdRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
@@ -426,6 +435,7 @@ export interface FileRoutesById {
   '/_authenticated/sales/conversations': typeof AuthenticatedSalesConversationsRouteWithChildren
   '/_authenticated/sales/kb': typeof AuthenticatedSalesKbRoute
   '/_authenticated/sales/settings': typeof AuthenticatedSalesSettingsRoute
+  '/_authenticated/prospect/': typeof AuthenticatedProspectIndexRoute
   '/_authenticated/sales/conversations/$id': typeof AuthenticatedSalesConversationsIdRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
@@ -473,6 +483,7 @@ export interface FileRouteTypes {
     | '/sales/conversations'
     | '/sales/kb'
     | '/sales/settings'
+    | '/prospect/'
     | '/sales/conversations/$id'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/ig-sync'
@@ -518,6 +529,7 @@ export interface FileRouteTypes {
     | '/sales/conversations'
     | '/sales/kb'
     | '/sales/settings'
+    | '/prospect'
     | '/sales/conversations/$id'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/ig-sync'
@@ -564,6 +576,7 @@ export interface FileRouteTypes {
     | '/_authenticated/sales/conversations'
     | '/_authenticated/sales/kb'
     | '/_authenticated/sales/settings'
+    | '/_authenticated/prospect/'
     | '/_authenticated/sales/conversations/$id'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/ig-sync'
@@ -675,6 +688,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/prospect/': {
+      id: '/_authenticated/prospect/'
+      path: '/prospect'
+      fullPath: '/prospect/'
+      preLoaderRoute: typeof AuthenticatedProspectIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/sales/settings': {
@@ -949,6 +969,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSalesConversationsRoute: typeof AuthenticatedSalesConversationsRouteWithChildren
   AuthenticatedSalesKbRoute: typeof AuthenticatedSalesKbRoute
   AuthenticatedSalesSettingsRoute: typeof AuthenticatedSalesSettingsRoute
+  AuthenticatedProspectIndexRoute: typeof AuthenticatedProspectIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -983,6 +1004,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedSalesConversationsRouteWithChildren,
   AuthenticatedSalesKbRoute: AuthenticatedSalesKbRoute,
   AuthenticatedSalesSettingsRoute: AuthenticatedSalesSettingsRoute,
+  AuthenticatedProspectIndexRoute: AuthenticatedProspectIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

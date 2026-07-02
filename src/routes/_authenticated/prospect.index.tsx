@@ -16,7 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { getDashboardStats } from "@/lib/prospect/prospect.functions";
 import { fmtDateTime } from "@/features/prospect/utils";
 
-export const Route = createFileRoute("/_authenticated/prospect")({
+export const Route = createFileRoute("/_authenticated/prospect/")({
   head: () => ({
     meta: [
       { title: "Prospect Engine — AMT Growth Engine" },
