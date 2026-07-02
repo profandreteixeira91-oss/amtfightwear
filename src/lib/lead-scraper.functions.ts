@@ -418,7 +418,8 @@ export const updatePipelineStage = createServerFn({ method: "POST" })
     if (data.stage === "resposta_recebida") patch.last_response_at = new Date().toISOString();
     const { error } = await context.supabase
       .from("leads")
-      .update(patch)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .update(patch as any)
       .eq("id", data.leadId);
     if (error) throw new Error(error.message);
     return { ok: true };
