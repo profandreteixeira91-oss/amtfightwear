@@ -13,9 +13,15 @@ export const Route = createFileRoute("/api/public/hooks/ig-webhook")({
         const mode = url.searchParams.get("hub.mode");
         const token = url.searchParams.get("hub.verify_token");
         const challenge = url.searchParams.get("hub.challenge");
-        const verifyToken = process.env.META_APP_SECRET ?? "";
-        if (mode === "subscribe" && token && verifyToken && token === verifyToken.slice(0, 32)) {
-          return new Response(challenge ?? "", { status: 200 });
+        const verifyToken =
+          process.env.META_VERIFY_TOKEN ||
+          process.env.META_WEBHOOK_VERIFY_TOKEN ||
+          (process.env.META_APP_SECRET ?? "").slice(0, 32);
+        if (mode === "subscribe" && token && verifyToken && token === verifyToken) {
+          return new Response(challenge ?? "", {
+            status: 200,
+            headers: { "Content-Type": "text/plain" },
+          });
         }
         return new Response("forbidden", { status: 403 });
       },
