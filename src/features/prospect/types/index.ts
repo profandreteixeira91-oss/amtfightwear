@@ -95,11 +95,32 @@ export interface TimelineEvent {
 }
 
 export const SEGMENT_PRESETS = [
+  "Academias de Jiu-Jitsu", "Academias de Judô", "Escolas de Jiu-Jitsu",
+  "Escolas de Judô", "Professores de Jiu-Jitsu", "Projetos Sociais Jiu-Jitsu",
+  "Projetos Sociais Judô", "Dojôs / Artes marciais",
   "Restaurantes", "Hotéis", "Academias", "Clínicas", "Farmácias",
   "Escritórios", "Advogados", "Contabilidades", "Lojas", "Supermercados",
-  "Indústrias", "Prestadores de Serviço", "Dojôs / Artes marciais",
+  "Indústrias", "Prestadores de Serviço",
   "Salões de beleza", "Autoescolas", "Escolas", "Igrejas", "Petshops",
 ] as const;
+
+/**
+ * Presets do "Modo Artes Marciais" — foco em judô e jiu-jitsu.
+ * Cada item vira 1 grupo de queries no varredor `runMartialArtsSweep`.
+ */
+export const MARTIAL_ARTS_PRESETS = [
+  { key: "academias_bjj", label: "Academias de Jiu-Jitsu", icon: "🥋" },
+  { key: "academias_judo", label: "Academias de Judô", icon: "🥋" },
+  { key: "escolas_bjj", label: "Escolas de Jiu-Jitsu", icon: "🏫" },
+  { key: "escolas_judo", label: "Escolas de Judô", icon: "🏫" },
+  { key: "professores_bjj", label: "Professores / Faixas-Pretas BJJ", icon: "🎓" },
+  { key: "professores_judo", label: "Professores / Sensei Judô", icon: "🎓" },
+  { key: "projetos_sociais", label: "Projetos Sociais (BJJ e Judô)", icon: "🤝" },
+  { key: "federacoes", label: "Federações e Confederações", icon: "🏆" },
+] as const;
+
+export type MartialArtsPresetKey = typeof MARTIAL_ARTS_PRESETS[number]["key"];
+
 
 export const BR_STATES = [
   "AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB",
