@@ -51,6 +51,8 @@ import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/e
 import { Route as ApiPublicSalesChatRouteImport } from './routes/api/public/sales/chat'
 import { Route as ApiPublicMetaCallbackRouteImport } from './routes/api/public/meta/callback'
 import { Route as ApiPublicHooksPublishScheduledPostsRouteImport } from './routes/api/public/hooks/publish-scheduled-posts'
+import { Route as ApiPublicHooksIgWebhookRouteImport } from './routes/api/public/hooks/ig-webhook'
+import { Route as ApiPublicHooksIgSyncRouteImport } from './routes/api/public/hooks/ig-sync'
 import { Route as ApiPublicHooksAutoScrapeLeadsRouteImport } from './routes/api/public/hooks/auto-scrape-leads'
 import { Route as ApiPublicHooksAutoOutreachRouteImport } from './routes/api/public/hooks/auto-outreach'
 import { Route as ApiPublicHooksAutoInstagramPostRouteImport } from './routes/api/public/hooks/auto-instagram-post'
@@ -293,6 +295,16 @@ const ApiPublicHooksPublishScheduledPostsRoute =
     path: '/api/public/hooks/publish-scheduled-posts',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksIgWebhookRoute = ApiPublicHooksIgWebhookRouteImport.update({
+  id: '/api/public/hooks/ig-webhook',
+  path: '/api/public/hooks/ig-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicHooksIgSyncRoute = ApiPublicHooksIgSyncRouteImport.update({
+  id: '/api/public/hooks/ig-sync',
+  path: '/api/public/hooks/ig-sync',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHooksAutoScrapeLeadsRoute =
   ApiPublicHooksAutoScrapeLeadsRouteImport.update({
     id: '/api/public/hooks/auto-scrape-leads',
@@ -367,6 +379,8 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/auto-outreach': typeof ApiPublicHooksAutoOutreachRoute
   '/api/public/hooks/auto-scrape-leads': typeof ApiPublicHooksAutoScrapeLeadsRoute
+  '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
+  '/api/public/hooks/ig-webhook': typeof ApiPublicHooksIgWebhookRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
@@ -415,6 +429,8 @@ export interface FileRoutesByTo {
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/auto-outreach': typeof ApiPublicHooksAutoOutreachRoute
   '/api/public/hooks/auto-scrape-leads': typeof ApiPublicHooksAutoScrapeLeadsRoute
+  '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
+  '/api/public/hooks/ig-webhook': typeof ApiPublicHooksIgWebhookRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
@@ -465,6 +481,8 @@ export interface FileRoutesById {
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/auto-outreach': typeof ApiPublicHooksAutoOutreachRoute
   '/api/public/hooks/auto-scrape-leads': typeof ApiPublicHooksAutoScrapeLeadsRoute
+  '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
+  '/api/public/hooks/ig-webhook': typeof ApiPublicHooksIgWebhookRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
@@ -515,6 +533,8 @@ export interface FileRouteTypes {
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/auto-outreach'
     | '/api/public/hooks/auto-scrape-leads'
+    | '/api/public/hooks/ig-sync'
+    | '/api/public/hooks/ig-webhook'
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/meta/callback'
     | '/api/public/sales/chat'
@@ -563,6 +583,8 @@ export interface FileRouteTypes {
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/auto-outreach'
     | '/api/public/hooks/auto-scrape-leads'
+    | '/api/public/hooks/ig-sync'
+    | '/api/public/hooks/ig-webhook'
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/meta/callback'
     | '/api/public/sales/chat'
@@ -612,6 +634,8 @@ export interface FileRouteTypes {
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/auto-outreach'
     | '/api/public/hooks/auto-scrape-leads'
+    | '/api/public/hooks/ig-sync'
+    | '/api/public/hooks/ig-webhook'
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/meta/callback'
     | '/api/public/sales/chat'
@@ -627,6 +651,8 @@ export interface RootRouteChildren {
   ApiPublicHooksAutoInstagramPostRoute: typeof ApiPublicHooksAutoInstagramPostRoute
   ApiPublicHooksAutoOutreachRoute: typeof ApiPublicHooksAutoOutreachRoute
   ApiPublicHooksAutoScrapeLeadsRoute: typeof ApiPublicHooksAutoScrapeLeadsRoute
+  ApiPublicHooksIgSyncRoute: typeof ApiPublicHooksIgSyncRoute
+  ApiPublicHooksIgWebhookRoute: typeof ApiPublicHooksIgWebhookRoute
   ApiPublicHooksPublishScheduledPostsRoute: typeof ApiPublicHooksPublishScheduledPostsRoute
   ApiPublicMetaCallbackRoute: typeof ApiPublicMetaCallbackRoute
   ApiPublicSalesChatRoute: typeof ApiPublicSalesChatRoute
@@ -929,6 +955,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksPublishScheduledPostsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/ig-webhook': {
+      id: '/api/public/hooks/ig-webhook'
+      path: '/api/public/hooks/ig-webhook'
+      fullPath: '/api/public/hooks/ig-webhook'
+      preLoaderRoute: typeof ApiPublicHooksIgWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/ig-sync': {
+      id: '/api/public/hooks/ig-sync'
+      path: '/api/public/hooks/ig-sync'
+      fullPath: '/api/public/hooks/ig-sync'
+      preLoaderRoute: typeof ApiPublicHooksIgSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/auto-scrape-leads': {
       id: '/api/public/hooks/auto-scrape-leads'
       path: '/api/public/hooks/auto-scrape-leads'
@@ -1073,6 +1113,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksAutoInstagramPostRoute: ApiPublicHooksAutoInstagramPostRoute,
   ApiPublicHooksAutoOutreachRoute: ApiPublicHooksAutoOutreachRoute,
   ApiPublicHooksAutoScrapeLeadsRoute: ApiPublicHooksAutoScrapeLeadsRoute,
+  ApiPublicHooksIgSyncRoute: ApiPublicHooksIgSyncRoute,
+  ApiPublicHooksIgWebhookRoute: ApiPublicHooksIgWebhookRoute,
   ApiPublicHooksPublishScheduledPostsRoute:
     ApiPublicHooksPublishScheduledPostsRoute,
   ApiPublicMetaCallbackRoute: ApiPublicMetaCallbackRoute,
