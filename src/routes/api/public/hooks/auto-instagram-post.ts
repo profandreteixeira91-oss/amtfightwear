@@ -281,6 +281,25 @@ async function igContainer(
   return r.id;
 }
 
+// Poll container status until FINISHED. Obrigatório para STORIES / CAROUSEL / REELS.
+async function waitForContainer(token: string, containerId: string, maxMs = 60_000): Promise<void> {
+  const started = Date.now();
+  let delay = 1500;
+  while (Date.now() - started < maxMs) {
+    const r = (await fetch(
+      `${GRAPH}/${containerId}?fields=status_code,status&access_token=${token}`,
+    ).then((r) => r.json())) as { status_code?: string; status?: string; error?: { message: string } };
+    if (r.error) throw new Error(`Container status: ${r.error.message}`);
+    if (r.status_code === "FINISHED") return;
+    if (r.status_code === "ERROR" || r.status_code === "EXPIRED") {
+      throw new Error(`Container ${r.status_code}: ${r.status ?? ""}`);
+    }
+    await new Promise((res) => setTimeout(res, delay));
+    delay = Math.min(delay + 500, 4000);
+  }
+  throw new Error("Container timeout waiting for FINISHED");
+}
+
 async function igPublish(igId: string, token: string, creationId: string) {
   const r = (await fetch(`${GRAPH}/${igId}/media_publish`, {
     method: "POST",
@@ -304,6 +323,7 @@ async function publishSingle(
   const params: Record<string, string | boolean> = { image_url: imageUrl, caption };
   if (mediaType) params.media_type = mediaType;
   const cid = await igContainer(igId, token, params);
+  if (mediaType === "STORIES") await waitForContainer(token, cid);
   return igPublish(igId, token, cid);
 }
 
@@ -318,11 +338,13 @@ async function publishCarousel(
     const cid = await igContainer(igId, token, { image_url: url, is_carousel_item: true });
     childIds.push(cid);
   }
+  for (const cid of childIds) await waitForContainer(token, cid);
   const parent = await igContainer(igId, token, {
     media_type: "CAROUSEL",
     children: childIds.join(","),
     caption,
   });
+  await waitForContainer(token, parent);
   return igPublish(igId, token, parent);
 }
 
