@@ -41,16 +41,18 @@ function DashboardPage() {
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Pesquisas" value={t?.searches ?? 0} icon={Search} loading={isLoading} index={0} />
-        <StatCard label="Leads" value={t?.leads ?? 0} icon={Users} loading={isLoading} index={1} />
-        <StatCard label="Empresas" value={t?.companies ?? 0} icon={Building2} loading={isLoading} index={2} />
-        <StatCard label="Enriquecidos" value={t?.enriched ?? 0} hint={`${data?.enrichmentRate ?? 0}% de taxa`} icon={Sparkles} loading={isLoading} index={3} />
-        <StatCard label="E-mails" value={t?.emails ?? 0} icon={Mail} loading={isLoading} index={4} />
-        <StatCard label="Telefones" value={t?.phones ?? 0} icon={Phone} loading={isLoading} index={5} />
-        <StatCard label="Sites" value={t?.sites ?? 0} icon={Globe} loading={isLoading} index={6} />
-        <StatCard label="Redes sociais" value={t?.socials ?? 0} icon={Instagram} loading={isLoading} index={7} />
-        <StatCard label="Exportações" value={t?.exports ?? 0} icon={Download} loading={isLoading} index={8} />
-        <StatCard label="Taxa de enriquecimento" value={`${data?.enrichmentRate ?? 0}%`} icon={TrendingUp} loading={isLoading} index={9} />
+        <StatCard label="Leads hoje" value={t?.leadsToday ?? 0} icon={Users} loading={isLoading} index={0} />
+        <StatCard label="Total de leads" value={t?.leads ?? 0} icon={Building2} loading={isLoading} index={1} />
+        <StatCard label="Enriquecidos" value={t?.enriched ?? 0} hint={`${data?.enrichmentRate ?? 0}% de taxa`} icon={Sparkles} loading={isLoading} index={2} />
+        <StatCard label="Pesquisas" value={t?.searches ?? 0} icon={Search} loading={isLoading} index={3} />
+        <StatCard label="E-mails encontrados" value={t?.emails ?? 0} icon={Mail} loading={isLoading} index={4} />
+        <StatCard label="Instagrams" value={t?.instagrams ?? 0} icon={Instagram} loading={isLoading} index={5} />
+        <StatCard label="Telefones" value={t?.phones ?? 0} icon={Phone} loading={isLoading} index={6} />
+        <StatCard label="Sites" value={t?.sites ?? 0} icon={Globe} loading={isLoading} index={7} />
+        <StatCard label="Enviados 24h" value={data?.outreachTotals?.sent24h ?? 0} icon={Mail} loading={isLoading} index={8} />
+        <StatCard label="Enviados 7d" value={data?.outreachTotals?.sent7d ?? 0} icon={Mail} loading={isLoading} index={9} />
+        <StatCard label="Respostas" value={t?.responses ?? 0} hint={`${data?.responseRate ?? 0}% de taxa`} icon={TrendingUp} loading={isLoading} index={10} />
+        <StatCard label="Conversões" value={t?.customers ?? 0} hint={`${data?.conversionRate ?? 0}% de taxa`} icon={Building2} loading={isLoading} index={11} />
       </div>
 
       <div className="mt-6 grid gap-4 lg:grid-cols-2">

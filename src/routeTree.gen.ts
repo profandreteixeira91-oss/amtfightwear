@@ -31,7 +31,10 @@ import { Route as AuthenticatedMarketContentRouteImport } from './routes/_authen
 import { Route as AuthenticatedMarketConnectionsRouteImport } from './routes/_authenticated/market.connections'
 import { Route as AuthenticatedMarketCatalogRouteImport } from './routes/_authenticated/market.catalog'
 import { Route as AuthenticatedLeadScraperSettingsRouteImport } from './routes/_authenticated/lead-scraper.settings'
+import { Route as AuthenticatedLeadScraperSequencesRouteImport } from './routes/_authenticated/lead-scraper.sequences'
 import { Route as AuthenticatedLeadScraperSearchesRouteImport } from './routes/_authenticated/lead-scraper.searches'
+import { Route as AuthenticatedLeadScraperProspeccaoRouteImport } from './routes/_authenticated/lead-scraper.prospeccao'
+import { Route as AuthenticatedLeadScraperPipelineRouteImport } from './routes/_authenticated/lead-scraper.pipeline'
 import { Route as AuthenticatedLeadScraperMapRouteImport } from './routes/_authenticated/lead-scraper.map'
 import { Route as AuthenticatedLeadScraperLogsRouteImport } from './routes/_authenticated/lead-scraper.logs'
 import { Route as AuthenticatedLeadScraperExportsRouteImport } from './routes/_authenticated/lead-scraper.exports'
@@ -51,6 +54,7 @@ import { Route as ApiPublicHooksPublishScheduledPostsRouteImport } from './route
 import { Route as ApiPublicHooksAutoScrapeLeadsRouteImport } from './routes/api/public/hooks/auto-scrape-leads'
 import { Route as ApiPublicHooksAutoOutreachRouteImport } from './routes/api/public/hooks/auto-outreach'
 import { Route as ApiPublicHooksAutoInstagramPostRouteImport } from './routes/api/public/hooks/auto-instagram-post'
+import { Route as ApiPublicHooksAutoFollowupRouteImport } from './routes/api/public/hooks/auto-followup'
 import { Route as AuthenticatedSalesConversationsIdRouteImport } from './routes/_authenticated/sales.conversations.$id'
 
 const SalesbotRoute = SalesbotRouteImport.update({
@@ -173,10 +177,28 @@ const AuthenticatedLeadScraperSettingsRoute =
     path: '/lead-scraper/settings',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedLeadScraperSequencesRoute =
+  AuthenticatedLeadScraperSequencesRouteImport.update({
+    id: '/lead-scraper/sequences',
+    path: '/lead-scraper/sequences',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedLeadScraperSearchesRoute =
   AuthenticatedLeadScraperSearchesRouteImport.update({
     id: '/lead-scraper/searches',
     path: '/lead-scraper/searches',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedLeadScraperProspeccaoRoute =
+  AuthenticatedLeadScraperProspeccaoRouteImport.update({
+    id: '/lead-scraper/prospeccao',
+    path: '/lead-scraper/prospeccao',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedLeadScraperPipelineRoute =
+  AuthenticatedLeadScraperPipelineRouteImport.update({
+    id: '/lead-scraper/pipeline',
+    path: '/lead-scraper/pipeline',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedLeadScraperMapRoute =
@@ -289,6 +311,12 @@ const ApiPublicHooksAutoInstagramPostRoute =
     path: '/api/public/hooks/auto-instagram-post',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksAutoFollowupRoute =
+  ApiPublicHooksAutoFollowupRouteImport.update({
+    id: '/api/public/hooks/auto-followup',
+    path: '/api/public/hooks/auto-followup',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedSalesConversationsIdRoute =
   AuthenticatedSalesConversationsIdRouteImport.update({
     id: '/$id',
@@ -317,7 +345,10 @@ export interface FileRoutesByFullPath {
   '/lead-scraper/exports': typeof AuthenticatedLeadScraperExportsRoute
   '/lead-scraper/logs': typeof AuthenticatedLeadScraperLogsRoute
   '/lead-scraper/map': typeof AuthenticatedLeadScraperMapRoute
+  '/lead-scraper/pipeline': typeof AuthenticatedLeadScraperPipelineRoute
+  '/lead-scraper/prospeccao': typeof AuthenticatedLeadScraperProspeccaoRoute
   '/lead-scraper/searches': typeof AuthenticatedLeadScraperSearchesRoute
+  '/lead-scraper/sequences': typeof AuthenticatedLeadScraperSequencesRoute
   '/lead-scraper/settings': typeof AuthenticatedLeadScraperSettingsRoute
   '/market/catalog': typeof AuthenticatedMarketCatalogRoute
   '/market/connections': typeof AuthenticatedMarketConnectionsRoute
@@ -332,6 +363,7 @@ export interface FileRoutesByFullPath {
   '/sales/settings': typeof AuthenticatedSalesSettingsRoute
   '/lead-scraper/': typeof AuthenticatedLeadScraperIndexRoute
   '/sales/conversations/$id': typeof AuthenticatedSalesConversationsIdRoute
+  '/api/public/hooks/auto-followup': typeof ApiPublicHooksAutoFollowupRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/auto-outreach': typeof ApiPublicHooksAutoOutreachRoute
   '/api/public/hooks/auto-scrape-leads': typeof ApiPublicHooksAutoScrapeLeadsRoute
@@ -361,7 +393,10 @@ export interface FileRoutesByTo {
   '/lead-scraper/exports': typeof AuthenticatedLeadScraperExportsRoute
   '/lead-scraper/logs': typeof AuthenticatedLeadScraperLogsRoute
   '/lead-scraper/map': typeof AuthenticatedLeadScraperMapRoute
+  '/lead-scraper/pipeline': typeof AuthenticatedLeadScraperPipelineRoute
+  '/lead-scraper/prospeccao': typeof AuthenticatedLeadScraperProspeccaoRoute
   '/lead-scraper/searches': typeof AuthenticatedLeadScraperSearchesRoute
+  '/lead-scraper/sequences': typeof AuthenticatedLeadScraperSequencesRoute
   '/lead-scraper/settings': typeof AuthenticatedLeadScraperSettingsRoute
   '/market/catalog': typeof AuthenticatedMarketCatalogRoute
   '/market/connections': typeof AuthenticatedMarketConnectionsRoute
@@ -376,6 +411,7 @@ export interface FileRoutesByTo {
   '/sales/settings': typeof AuthenticatedSalesSettingsRoute
   '/lead-scraper': typeof AuthenticatedLeadScraperIndexRoute
   '/sales/conversations/$id': typeof AuthenticatedSalesConversationsIdRoute
+  '/api/public/hooks/auto-followup': typeof ApiPublicHooksAutoFollowupRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/auto-outreach': typeof ApiPublicHooksAutoOutreachRoute
   '/api/public/hooks/auto-scrape-leads': typeof ApiPublicHooksAutoScrapeLeadsRoute
@@ -407,7 +443,10 @@ export interface FileRoutesById {
   '/_authenticated/lead-scraper/exports': typeof AuthenticatedLeadScraperExportsRoute
   '/_authenticated/lead-scraper/logs': typeof AuthenticatedLeadScraperLogsRoute
   '/_authenticated/lead-scraper/map': typeof AuthenticatedLeadScraperMapRoute
+  '/_authenticated/lead-scraper/pipeline': typeof AuthenticatedLeadScraperPipelineRoute
+  '/_authenticated/lead-scraper/prospeccao': typeof AuthenticatedLeadScraperProspeccaoRoute
   '/_authenticated/lead-scraper/searches': typeof AuthenticatedLeadScraperSearchesRoute
+  '/_authenticated/lead-scraper/sequences': typeof AuthenticatedLeadScraperSequencesRoute
   '/_authenticated/lead-scraper/settings': typeof AuthenticatedLeadScraperSettingsRoute
   '/_authenticated/market/catalog': typeof AuthenticatedMarketCatalogRoute
   '/_authenticated/market/connections': typeof AuthenticatedMarketConnectionsRoute
@@ -422,6 +461,7 @@ export interface FileRoutesById {
   '/_authenticated/sales/settings': typeof AuthenticatedSalesSettingsRoute
   '/_authenticated/lead-scraper/': typeof AuthenticatedLeadScraperIndexRoute
   '/_authenticated/sales/conversations/$id': typeof AuthenticatedSalesConversationsIdRoute
+  '/api/public/hooks/auto-followup': typeof ApiPublicHooksAutoFollowupRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/auto-outreach': typeof ApiPublicHooksAutoOutreachRoute
   '/api/public/hooks/auto-scrape-leads': typeof ApiPublicHooksAutoScrapeLeadsRoute
@@ -453,7 +493,10 @@ export interface FileRouteTypes {
     | '/lead-scraper/exports'
     | '/lead-scraper/logs'
     | '/lead-scraper/map'
+    | '/lead-scraper/pipeline'
+    | '/lead-scraper/prospeccao'
     | '/lead-scraper/searches'
+    | '/lead-scraper/sequences'
     | '/lead-scraper/settings'
     | '/market/catalog'
     | '/market/connections'
@@ -468,6 +511,7 @@ export interface FileRouteTypes {
     | '/sales/settings'
     | '/lead-scraper/'
     | '/sales/conversations/$id'
+    | '/api/public/hooks/auto-followup'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/auto-outreach'
     | '/api/public/hooks/auto-scrape-leads'
@@ -497,7 +541,10 @@ export interface FileRouteTypes {
     | '/lead-scraper/exports'
     | '/lead-scraper/logs'
     | '/lead-scraper/map'
+    | '/lead-scraper/pipeline'
+    | '/lead-scraper/prospeccao'
     | '/lead-scraper/searches'
+    | '/lead-scraper/sequences'
     | '/lead-scraper/settings'
     | '/market/catalog'
     | '/market/connections'
@@ -512,6 +559,7 @@ export interface FileRouteTypes {
     | '/sales/settings'
     | '/lead-scraper'
     | '/sales/conversations/$id'
+    | '/api/public/hooks/auto-followup'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/auto-outreach'
     | '/api/public/hooks/auto-scrape-leads'
@@ -542,7 +590,10 @@ export interface FileRouteTypes {
     | '/_authenticated/lead-scraper/exports'
     | '/_authenticated/lead-scraper/logs'
     | '/_authenticated/lead-scraper/map'
+    | '/_authenticated/lead-scraper/pipeline'
+    | '/_authenticated/lead-scraper/prospeccao'
     | '/_authenticated/lead-scraper/searches'
+    | '/_authenticated/lead-scraper/sequences'
     | '/_authenticated/lead-scraper/settings'
     | '/_authenticated/market/catalog'
     | '/_authenticated/market/connections'
@@ -557,6 +608,7 @@ export interface FileRouteTypes {
     | '/_authenticated/sales/settings'
     | '/_authenticated/lead-scraper/'
     | '/_authenticated/sales/conversations/$id'
+    | '/api/public/hooks/auto-followup'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/auto-outreach'
     | '/api/public/hooks/auto-scrape-leads'
@@ -571,6 +623,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   SalesbotRoute: typeof SalesbotRoute
+  ApiPublicHooksAutoFollowupRoute: typeof ApiPublicHooksAutoFollowupRoute
   ApiPublicHooksAutoInstagramPostRoute: typeof ApiPublicHooksAutoInstagramPostRoute
   ApiPublicHooksAutoOutreachRoute: typeof ApiPublicHooksAutoOutreachRoute
   ApiPublicHooksAutoScrapeLeadsRoute: typeof ApiPublicHooksAutoScrapeLeadsRoute
@@ -736,11 +789,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLeadScraperSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/lead-scraper/sequences': {
+      id: '/_authenticated/lead-scraper/sequences'
+      path: '/lead-scraper/sequences'
+      fullPath: '/lead-scraper/sequences'
+      preLoaderRoute: typeof AuthenticatedLeadScraperSequencesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/lead-scraper/searches': {
       id: '/_authenticated/lead-scraper/searches'
       path: '/lead-scraper/searches'
       fullPath: '/lead-scraper/searches'
       preLoaderRoute: typeof AuthenticatedLeadScraperSearchesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/lead-scraper/prospeccao': {
+      id: '/_authenticated/lead-scraper/prospeccao'
+      path: '/lead-scraper/prospeccao'
+      fullPath: '/lead-scraper/prospeccao'
+      preLoaderRoute: typeof AuthenticatedLeadScraperProspeccaoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/lead-scraper/pipeline': {
+      id: '/_authenticated/lead-scraper/pipeline'
+      path: '/lead-scraper/pipeline'
+      fullPath: '/lead-scraper/pipeline'
+      preLoaderRoute: typeof AuthenticatedLeadScraperPipelineRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/lead-scraper/map': {
@@ -876,6 +950,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksAutoInstagramPostRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/auto-followup': {
+      id: '/api/public/hooks/auto-followup'
+      path: '/api/public/hooks/auto-followup'
+      fullPath: '/api/public/hooks/auto-followup'
+      preLoaderRoute: typeof ApiPublicHooksAutoFollowupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/sales/conversations/$id': {
       id: '/_authenticated/sales/conversations/$id'
       path: '/$id'
@@ -919,7 +1000,10 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedLeadScraperExportsRoute: typeof AuthenticatedLeadScraperExportsRoute
   AuthenticatedLeadScraperLogsRoute: typeof AuthenticatedLeadScraperLogsRoute
   AuthenticatedLeadScraperMapRoute: typeof AuthenticatedLeadScraperMapRoute
+  AuthenticatedLeadScraperPipelineRoute: typeof AuthenticatedLeadScraperPipelineRoute
+  AuthenticatedLeadScraperProspeccaoRoute: typeof AuthenticatedLeadScraperProspeccaoRoute
   AuthenticatedLeadScraperSearchesRoute: typeof AuthenticatedLeadScraperSearchesRoute
+  AuthenticatedLeadScraperSequencesRoute: typeof AuthenticatedLeadScraperSequencesRoute
   AuthenticatedLeadScraperSettingsRoute: typeof AuthenticatedLeadScraperSettingsRoute
   AuthenticatedMarketCatalogRoute: typeof AuthenticatedMarketCatalogRoute
   AuthenticatedMarketConnectionsRoute: typeof AuthenticatedMarketConnectionsRoute
@@ -955,7 +1039,12 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedLeadScraperExportsRoute: AuthenticatedLeadScraperExportsRoute,
   AuthenticatedLeadScraperLogsRoute: AuthenticatedLeadScraperLogsRoute,
   AuthenticatedLeadScraperMapRoute: AuthenticatedLeadScraperMapRoute,
+  AuthenticatedLeadScraperPipelineRoute: AuthenticatedLeadScraperPipelineRoute,
+  AuthenticatedLeadScraperProspeccaoRoute:
+    AuthenticatedLeadScraperProspeccaoRoute,
   AuthenticatedLeadScraperSearchesRoute: AuthenticatedLeadScraperSearchesRoute,
+  AuthenticatedLeadScraperSequencesRoute:
+    AuthenticatedLeadScraperSequencesRoute,
   AuthenticatedLeadScraperSettingsRoute: AuthenticatedLeadScraperSettingsRoute,
   AuthenticatedMarketCatalogRoute: AuthenticatedMarketCatalogRoute,
   AuthenticatedMarketConnectionsRoute: AuthenticatedMarketConnectionsRoute,
@@ -980,6 +1069,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   SalesbotRoute: SalesbotRoute,
+  ApiPublicHooksAutoFollowupRoute: ApiPublicHooksAutoFollowupRoute,
   ApiPublicHooksAutoInstagramPostRoute: ApiPublicHooksAutoInstagramPostRoute,
   ApiPublicHooksAutoOutreachRoute: ApiPublicHooksAutoOutreachRoute,
   ApiPublicHooksAutoScrapeLeadsRoute: ApiPublicHooksAutoScrapeLeadsRoute,

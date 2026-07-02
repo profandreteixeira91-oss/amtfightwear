@@ -188,15 +188,21 @@ export const Route = createFileRoute("/api/public/hooks/auto-scrape-leads")({
           const results: Array<Record<string, unknown>> = [];
           let totalInserted = 0;
 
-          // Dedupe cache
+          // Dedupe cache (name+city, website, instagram_handle)
           const { data: existing } = await supabaseAdmin
             .from("leads")
-            .select("name, email, city");
-          const seen = new Set(
+            .select("name, email, city, website, instagram_handle");
+          const seenKey = new Set(
             (existing ?? []).map(
               (r) =>
                 `${(r.email ?? "").toLowerCase()}|${(r.name ?? "").toLowerCase()}|${(r.city ?? "").toLowerCase()}`.trim(),
             ),
+          );
+          const seenSite = new Set(
+            (existing ?? []).map((r) => (r.website ?? "").toLowerCase()).filter(Boolean),
+          );
+          const seenIg = new Set(
+            (existing ?? []).map((r) => (r.instagram_handle ?? "").toLowerCase()).filter(Boolean),
           );
 
           for (const t of targets) {
@@ -209,7 +215,6 @@ export const Route = createFileRoute("/api/public/hooks/auto-scrape-leads")({
               }
               const cityN = normalize(t.city);
               const stateN = t.state.toLowerCase();
-              // Pré-filtra páginas cujo conteúdo NÃO menciona a cidade nem o estado — remove ruído antes da IA.
               const relevant = web.filter((r) => {
                 const blob = normalize(`${r.title ?? ""} ${r.description ?? ""} ${r.markdown ?? ""}`);
                 return blob.includes(cityN) || blob.includes(` ${stateN} `) || blob.includes(`/${stateN}/`) || blob.includes(`-${stateN}`);
@@ -230,25 +235,38 @@ export const Route = createFileRoute("/api/public/hooks/auto-scrape-leads")({
               const rows = drafts
                 .filter((d) => {
                   const key = `${(d.email ?? "").toLowerCase()}|${(d.name ?? "").toLowerCase()}|${(d.city ?? t.city).toLowerCase()}`;
-                  if (!d.name || seen.has(key)) return false;
-                  seen.add(key);
+                  const site = (d.website ?? "").toLowerCase();
+                  const igM = (d.instagram ?? "").match(/instagram\.com\/([A-Za-z0-9_.]+)/i);
+                  const ig = (igM ? igM[1] : (d.instagram ?? "").replace(/^@/, "").split(/[/?#]/)[0] || "").toLowerCase();
+                  if (!d.name || seenKey.has(key)) return false;
+                  if (site && seenSite.has(site)) return false;
+                  if (ig && seenIg.has(ig)) return false;
+                  seenKey.add(key);
+                  if (site) seenSite.add(site);
+                  if (ig) seenIg.add(ig);
                   return true;
                 })
-                .map((d) => ({
-                  name: d.name,
-                  responsible: d.responsible ?? null,
-                  phone: d.phone ?? null,
-                  email: d.email ?? null,
-                  city: d.city ?? t.city,
-                  state: t.state,
-                  modality: d.modality ?? t.theme.modality,
-                  lead_type: d.lead_type ?? "Academia",
-                  source: "Auto-Scrape",
-                  status: "Novo",
-                  notes: [d.notes, d.instagram ? `IG: ${d.instagram}` : null, d.website ? `Site: ${d.website}` : null]
-                    .filter(Boolean)
-                    .join(" · "),
-                }));
+                .map((d) => {
+                  const igMatch = (d.instagram ?? "").match(/instagram\.com\/([A-Za-z0-9_.]+)/i);
+                  const igHandle = igMatch ? igMatch[1] : (d.instagram ?? "").replace(/^@/, "").split(/[/?#]/)[0] || null;
+                  return {
+                    name: d.name,
+                    responsible: d.responsible ?? null,
+                    phone: d.phone ?? null,
+                    email: d.email ?? null,
+                    website: d.website ?? null,
+                    instagram_handle: igHandle && /^[A-Za-z0-9_.]{1,30}$/.test(igHandle) ? igHandle : null,
+                    instagram_url: igHandle && /^[A-Za-z0-9_.]{1,30}$/.test(igHandle) ? `https://instagram.com/${igHandle}` : null,
+                    city: d.city ?? t.city,
+                    state: t.state,
+                    modality: d.modality ?? t.theme.modality,
+                    lead_type: d.lead_type ?? "Academia",
+                    source: "Auto-Scrape",
+                    status: "Novo",
+                    pipeline_stage: "novo",
+                    notes: [d.notes].filter(Boolean).join(" · "),
+                  };
+                });
 
               if (rows.length) {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
