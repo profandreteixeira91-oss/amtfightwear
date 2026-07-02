@@ -94,8 +94,7 @@ export const Route = createFileRoute("/api/public/hooks/auto-followup")({
               channel: "email",
               status: "queued",
               subject,
-              body,
-              source: `sequence:${seq.id}:step:${stepIdx}`,
+              body: `${body}\n\n[sequence:${seq.id}:step:${stepIdx}]`,
             });
 
             await supabaseAdmin
