@@ -8,6 +8,7 @@ const GRAPH = "https://graph.facebook.com/v21.0";
 
 type MetaConn = {
   id: string;
+  page_id: string;
   page_access_token: string;
   instagram_business_account_id: string | null;
   instagram_username: string | null;
@@ -17,7 +18,7 @@ type MetaConn = {
 async function getActiveConnection(supabase: any): Promise<MetaConn | null> {
   const { data } = await supabase
     .from("meta_connections")
-    .select("id, page_access_token, instagram_business_account_id, instagram_username, token_expires_at")
+    .select("id, page_id, page_access_token, instagram_business_account_id, instagram_username, token_expires_at")
     .eq("status", "active")
     .order("created_at", { ascending: false })
     .limit(1)
@@ -213,7 +214,7 @@ export const syncIgInbox = createServerFn({ method: "POST" })
     const t0 = Date.now();
     const conn = await getActiveConnection(context.supabase as any);
     if (!conn?.instagram_business_account_id) throw new Error("Conta Instagram não conectada.");
-    const igbId = conn.instagram_business_account_id;
+    const pageId = conn.page_id;
     const token = conn.page_access_token;
     const maxConvs = data.maxConversations ?? 500;
     const maxMsgs = data.messagesPerConversation ?? 500;
@@ -229,7 +230,7 @@ export const syncIgInbox = createServerFn({ method: "POST" })
     try {
       // 1) Paginar TODAS as conversas
       let nextConv: string | null =
-        `${GRAPH}/${igbId}/conversations?platform=instagram&fields=id,updated_time,participants&limit=50&access_token=${token}`;
+        `${GRAPH}/${pageId}/conversations?platform=instagram&fields=id,updated_time,participants&limit=50&access_token=${token}`;
       const convs: Array<{
         id: string; updated_time?: string;
         participants?: { data?: IgParticipant[] };
