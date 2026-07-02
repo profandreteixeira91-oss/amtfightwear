@@ -214,7 +214,7 @@ export const syncIgInbox = createServerFn({ method: "POST" })
     const t0 = Date.now();
     const conn = await getActiveConnection(context.supabase as any);
     if (!conn?.instagram_business_account_id) throw new Error("Conta Instagram não conectada.");
-    const igbId = conn.instagram_business_account_id;
+    const pageId = conn.page_id;
     const token = conn.page_access_token;
     const maxConvs = data.maxConversations ?? 500;
     const maxMsgs = data.messagesPerConversation ?? 500;
