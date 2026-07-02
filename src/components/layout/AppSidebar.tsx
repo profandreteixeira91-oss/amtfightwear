@@ -188,7 +188,7 @@ export function AppSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Lead Scraper IA</SidebarGroupLabel>
+          <SidebarGroupLabel>Prospect Engine</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {scraperItems.map((item) => (
