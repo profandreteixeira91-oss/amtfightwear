@@ -21,12 +21,12 @@ export const Route = createFileRoute("/api/public/hooks/ig-sync")({
           const t0 = Date.now();
           try {
             const profRes = await fetch(
-              `${GRAPH}/${conn.instagram_business_account_id}?fields=id,username,name,biography,website,profile_picture_url,followers_count,follows_count,media_count,account_type&access_token=${conn.page_access_token}`,
+              `${GRAPH}/${conn.instagram_business_account_id}?fields=id,username,name,biography,website,profile_picture_url,followers_count,follows_count,media_count&access_token=${conn.page_access_token}`,
             );
             const profile = (await profRes.json()) as {
               id?: string; username?: string; name?: string; biography?: string; website?: string;
               profile_picture_url?: string; followers_count?: number; follows_count?: number;
-              media_count?: number; account_type?: string; error?: { message: string };
+              media_count?: number; error?: { message: string };
             };
             if (!profRes.ok || !profile.id) throw new Error(profile.error?.message || "profile fetch failed");
 
@@ -42,7 +42,7 @@ export const Route = createFileRoute("/api/public/hooks/ig-sync")({
               followers_count: profile.followers_count ?? 0,
               follows_count: profile.follows_count ?? 0,
               media_count: profile.media_count ?? 0,
-              account_type: profile.account_type ?? null,
+              account_type: null,
               status: "connected",
               last_synced_at: new Date().toISOString(),
             }, { onConflict: "user_id,ig_user_id" }).select("id").single();
