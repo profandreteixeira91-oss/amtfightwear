@@ -281,6 +281,25 @@ async function igContainer(
   return r.id;
 }
 
+// Poll container status until FINISHED. Obrigatório para STORIES / CAROUSEL / REELS.
+async function waitForContainer(token: string, containerId: string, maxMs = 60_000): Promise<void> {
+  const started = Date.now();
+  let delay = 1500;
+  while (Date.now() - started < maxMs) {
+    const r = (await fetch(
+      `${GRAPH}/${containerId}?fields=status_code,status&access_token=${token}`,
+    ).then((r) => r.json())) as { status_code?: string; status?: string; error?: { message: string } };
+    if (r.error) throw new Error(`Container status: ${r.error.message}`);
+    if (r.status_code === "FINISHED") return;
+    if (r.status_code === "ERROR" || r.status_code === "EXPIRED") {
+      throw new Error(`Container ${r.status_code}: ${r.status ?? ""}`);
+    }
+    await new Promise((res) => setTimeout(res, delay));
+    delay = Math.min(delay + 500, 4000);
+  }
+  throw new Error("Container timeout waiting for FINISHED");
+}
+
 async function igPublish(igId: string, token: string, creationId: string) {
   const r = (await fetch(`${GRAPH}/${igId}/media_publish`, {
     method: "POST",
@@ -304,6 +323,7 @@ async function publishSingle(
   const params: Record<string, string | boolean> = { image_url: imageUrl, caption };
   if (mediaType) params.media_type = mediaType;
   const cid = await igContainer(igId, token, params);
+  if (mediaType === "STORIES") await waitForContainer(token, cid);
   return igPublish(igId, token, cid);
 }
 
@@ -318,11 +338,13 @@ async function publishCarousel(
     const cid = await igContainer(igId, token, { image_url: url, is_carousel_item: true });
     childIds.push(cid);
   }
+  for (const cid of childIds) await waitForContainer(token, cid);
   const parent = await igContainer(igId, token, {
     media_type: "CAROUSEL",
     children: childIds.join(","),
     caption,
   });
+  await waitForContainer(token, parent);
   return igPublish(igId, token, parent);
 }
 
@@ -481,11 +503,15 @@ export const Route = createFileRoute("/api/public/hooks/auto-instagram-post")({
           );
           const logoUrl = await getLogoSignedUrl(supabase);
 
+          // REEL sem vídeo não é publicável pela Graph API (exige video_url).
+          // Para não travar o piloto automático, publicamos como post de feed 4:5 (vertical, cinematográfico).
+          const effectiveType: PostType = postType === "reel" ? "post" : postType;
+
           const aspect: "1:1" | "9:16" | "4:5" =
-            postType === "story" || postType === "reel" ? "9:16" : "1:1";
+            effectiveType === "story" ? "9:16" : postType === "reel" ? "4:5" : "1:1";
 
           const slides =
-            postType === "carousel" ? copy.slides.slice(0, 7) : copy.slides.slice(0, 1);
+            effectiveType === "carousel" ? copy.slides.slice(0, 7) : copy.slides.slice(0, 1);
 
           const uploadedUrls: string[] = [];
           for (let i = 0; i < slides.length; i++) {
@@ -509,9 +535,9 @@ export const Route = createFileRoute("/api/public/hooks/auto-instagram-post")({
 
           // 7. Publish
           let result: { ig_media_id: string; ig_permalink: string | null };
-          if (postType === "carousel" && uploadedUrls.length > 1) {
+          if (effectiveType === "carousel" && uploadedUrls.length > 1) {
             result = await publishCarousel(conn.instagram_business_account_id, conn.page_access_token, uploadedUrls, copy.caption);
-          } else if (postType === "story") {
+          } else if (effectiveType === "story") {
             result = await publishSingle(conn.instagram_business_account_id, conn.page_access_token, uploadedUrls[0], copy.caption, "STORIES");
           } else {
             result = await publishSingle(conn.instagram_business_account_id, conn.page_access_token, uploadedUrls[0], copy.caption);
