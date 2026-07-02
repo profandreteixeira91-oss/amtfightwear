@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { Radar, Loader2, Swords, MapPin, X } from "lucide-react";
+import { Radar, Loader2, Swords, MapPin, X, CalendarClock } from "lucide-react";
 import { PageHeader } from "@/components/common/PageHeader";
 import { SectionCard } from "@/components/common/SectionCard";
 import { Button } from "@/components/ui/button";
@@ -12,9 +12,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { runSearch, runMartialArtsSweep } from "@/lib/prospect/prospect.functions";
+import {
+  runSearch, runMartialArtsSweep, getDailyMaSettings, saveDailyMaSettings,
+} from "@/lib/prospect/prospect.functions";
 import { BR_STATES, SEGMENT_PRESETS, MARTIAL_ARTS_PRESETS } from "@/features/prospect/types";
 
 export const Route = createFileRoute("/_authenticated/prospect/search")({
@@ -205,6 +208,13 @@ function MartialArtsSweepPanel({ onDone }: { onDone: () => void }) {
           </div>
         </SectionCard>
 
+        <DailyMaPilotCard
+          presets={presets}
+          cities={cities}
+          states={states}
+          perPreset={perPreset}
+        />
+
         <div className="flex justify-end">
           <Button onClick={() => runMut.mutate()} disabled={!canSubmit} size="lg">
             {runMut.isPending
@@ -370,5 +380,113 @@ function GuidedSearchPanel({ onDone }: { onDone: () => void }) {
         </SectionCard>
       </motion.div>
     </div>
+  );
+}
+
+// ============= Piloto Diário (Modo Artes Marciais) =============
+
+function DailyMaPilotCard({
+  presets, cities, states, perPreset,
+}: { presets: string[]; cities: string[]; states: string[]; perPreset: number }) {
+  const qc = useQueryClient();
+  const getFn = useServerFn(getDailyMaSettings);
+  const saveFn = useServerFn(saveDailyMaSettings);
+
+  const settings = useQuery({
+    queryKey: ["prospect", "daily-ma-settings"],
+    queryFn: () => getFn(),
+  });
+
+  const [enabled, setEnabled] = useState(false);
+  const [useCurrent, setUseCurrent] = useState(true);
+
+  useEffect(() => {
+    if (settings.data) setEnabled(settings.data.daily_ma_sweep_enabled);
+  }, [settings.data]);
+
+  const save = useMutation({
+    mutationFn: (payload: {
+      daily_ma_sweep_enabled: boolean;
+      daily_ma_presets: string[];
+      daily_ma_states: string[];
+      daily_ma_cities: string[];
+      daily_ma_per_preset: number;
+    }) => saveFn({ data: payload }),
+    onSuccess: () => {
+      toast.success("Piloto diário atualizado");
+      qc.invalidateQueries({ queryKey: ["prospect", "daily-ma-settings"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Falha ao salvar"),
+  });
+
+  const persisted = settings.data;
+  const displayPresets = useCurrent ? presets : persisted?.daily_ma_presets ?? [];
+  const displayCities = useCurrent ? cities : persisted?.daily_ma_cities ?? [];
+  const displayStates = useCurrent ? states : persisted?.daily_ma_states ?? [];
+  const displayPer = useCurrent ? perPreset : persisted?.daily_ma_per_preset ?? 8;
+
+  return (
+    <SectionCard
+      title="Piloto Diário BJJ/Judô"
+      description="Automatiza uma varredura por dia usando essa mesma configuração. Executa às 09:00 (horário de Brasília)."
+    >
+      <div className="space-y-4">
+        <div className="flex items-center justify-between rounded-lg border p-3">
+          <div className="flex items-center gap-3">
+            <CalendarClock className="h-5 w-5 text-primary" />
+            <div>
+              <div className="text-sm font-semibold">Buscar leads automaticamente 1x ao dia</div>
+              <div className="text-xs text-muted-foreground">
+                {persisted?.daily_ma_last_run_at
+                  ? `Última execução: ${new Date(persisted.daily_ma_last_run_at).toLocaleString("pt-BR")}`
+                  : "Ainda não executado"}
+              </div>
+            </div>
+          </div>
+          <Switch checked={enabled} onCheckedChange={setEnabled} />
+        </div>
+
+        <div className="grid gap-2 rounded-lg border p-3 text-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">Configuração usada pelo cron</span>
+            <div className="flex gap-1 text-xs">
+              <button
+                onClick={() => setUseCurrent(true)}
+                className={`rounded px-2 py-0.5 ${useCurrent ? "bg-primary/10 text-primary" : "text-muted-foreground"}`}
+              >Atual (tela)</button>
+              <button
+                onClick={() => setUseCurrent(false)}
+                className={`rounded px-2 py-0.5 ${!useCurrent ? "bg-primary/10 text-primary" : "text-muted-foreground"}`}
+              >Salva</button>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+            <div><strong className="text-foreground">{displayPresets.length}</strong> nichos</div>
+            <div><strong className="text-foreground">{displayPer}</strong> leads / combinação</div>
+            <div><strong className="text-foreground">{displayCities.length}</strong> cidades</div>
+            <div><strong className="text-foreground">{displayStates.length}</strong> UFs</div>
+          </div>
+        </div>
+
+        <div className="flex justify-end">
+          <Button
+            size="sm"
+            onClick={() =>
+              save.mutate({
+                daily_ma_sweep_enabled: enabled,
+                daily_ma_presets: useCurrent ? presets : persisted?.daily_ma_presets ?? [],
+                daily_ma_cities: useCurrent ? cities : persisted?.daily_ma_cities ?? [],
+                daily_ma_states: useCurrent ? states : persisted?.daily_ma_states ?? [],
+                daily_ma_per_preset: useCurrent ? perPreset : persisted?.daily_ma_per_preset ?? 8,
+              })
+            }
+            disabled={save.isPending || (enabled && useCurrent && presets.length === 0)}
+          >
+            {save.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {useCurrent ? "Salvar configuração atual" : "Salvar apenas o status"}
+          </Button>
+        </div>
+      </div>
+    </SectionCard>
   );
 }

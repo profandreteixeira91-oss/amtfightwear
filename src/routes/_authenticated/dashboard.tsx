@@ -1,14 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import {
-  Activity,
-  ArrowUpRight,
-  BarChart3,
-  ShoppingBag,
-  Sparkles,
-  Users,
-} from "lucide-react";
+import { Activity, BarChart3, MessageCircle, Users } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/common/PageHeader";
 import { logsService } from "@/services/logsService";
 import { profileService } from "@/services/profileService";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -27,20 +21,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   component: DashboardPage,
 });
 
-type Kpi = {
-  label: string;
-  value: string;
-  delta: string;
-  positive: boolean;
-  icon: typeof BarChart3;
-};
-
-const kpis: Kpi[] = [
-  { label: "Receita (30d)", value: "R$ 128.940", delta: "+12,4%", positive: true, icon: BarChart3 },
-  { label: "Pedidos", value: "1.284", delta: "+8,1%", positive: true, icon: ShoppingBag },
-  { label: "Clientes ativos", value: "312", delta: "+3,2%", positive: true, icon: Users },
-  { label: "Ticket médio", value: "R$ 189,00", delta: "-1,1%", positive: false, icon: Activity },
-];
+type KpiIcon = typeof BarChart3;
 
 function DashboardPage() {
   const logsQuery = useQuery({
@@ -53,18 +34,38 @@ function DashboardPage() {
     queryFn: () => profileService.listAll(),
   });
 
+  const kpisQuery = useQuery({
+    queryKey: ["dashboard", "kpis"],
+    queryFn: async () => {
+      const dayAgo = new Date(Date.now() - 86_400_000).toISOString();
+      const [leads, leadsNew, convs, posts] = await Promise.all([
+        supabase.from("prospect_companies").select("id", { count: "exact", head: true }),
+        supabase.from("prospect_companies").select("id", { count: "exact", head: true }).gte("created_at", dayAgo),
+        supabase.from("ig_conversations").select("id", { count: "exact", head: true }),
+        supabase.from("scheduled_posts").select("id", { count: "exact", head: true }).eq("status", "published"),
+      ]);
+      return {
+        leads: leads.count ?? 0,
+        leadsNew: leadsNew.count ?? 0,
+        convs: convs.count ?? 0,
+        posts: posts.count ?? 0,
+      };
+    },
+  });
+
+  const kpis: Array<{ label: string; value: number; hint: string; icon: KpiIcon }> = [
+    { label: "Leads captados", value: kpisQuery.data?.leads ?? 0, hint: `+${kpisQuery.data?.leadsNew ?? 0} nas últimas 24h`, icon: BarChart3 },
+    { label: "Conversas Instagram", value: kpisQuery.data?.convs ?? 0, hint: "Inbox sincronizada", icon: MessageCircle },
+    { label: "Posts publicados", value: kpisQuery.data?.posts ?? 0, hint: "Via piloto automático", icon: Activity },
+    { label: "Usuários com acesso", value: usersQuery.data?.length ?? 0, hint: "Time da AMT", icon: Users },
+  ];
+
   return (
     <>
       <PageHeader
         eyebrow="Visão geral"
         title="Dashboard"
-        description="Panorama da operação da AMT Fight Wear. Módulos de IA chegam em breve."
-        actions={
-          <Badge variant="secondary" className="gap-1">
-            <Sparkles className="h-3 w-3" />
-            IA em breve
-          </Badge>
-        }
+        description="Panorama operacional da AMT Fight Wear em tempo real."
       />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -85,15 +86,14 @@ function DashboardPage() {
                     <kpi.icon className="h-4 w-4" />
                   </div>
                 </div>
-                <div className="mt-3 text-2xl font-bold tracking-tight">{kpi.value}</div>
-                <div
-                  className={`mt-1 inline-flex items-center gap-1 text-xs font-semibold ${
-                    kpi.positive ? "text-emerald-500" : "text-destructive"
-                  }`}
-                >
-                  <ArrowUpRight className={`h-3 w-3 ${kpi.positive ? "" : "rotate-90"}`} />
-                  {kpi.delta}
-                </div>
+                {kpisQuery.isLoading ? (
+                  <Skeleton className="mt-3 h-8 w-24" />
+                ) : (
+                  <div className="mt-3 text-2xl font-bold tracking-tight">
+                    {kpi.value.toLocaleString("pt-BR")}
+                  </div>
+                )}
+                <div className="mt-1 text-xs text-muted-foreground">{kpi.hint}</div>
               </CardContent>
             </Card>
           </motion.div>
@@ -164,16 +164,6 @@ function DashboardPage() {
                 <div className="text-xs text-muted-foreground">usuário(s) com acesso</div>
               </>
             )}
-            <div className="mt-6 space-y-2 text-sm">
-              <div className="flex items-center justify-between rounded-md border p-3">
-                <span className="text-muted-foreground">Integrações</span>
-                <Badge variant="secondary">Em breve</Badge>
-              </div>
-              <div className="flex items-center justify-between rounded-md border p-3">
-                <span className="text-muted-foreground">Módulo IA</span>
-                <Badge variant="secondary">Em breve</Badge>
-              </div>
-            </div>
           </CardContent>
         </Card>
       </div>
