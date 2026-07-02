@@ -206,12 +206,25 @@ function IgInbox() {
                 </div>
               </div>
               <div className="flex-1 overflow-y-auto p-3 space-y-2">
-                {detail.messages.map((m) => (
-                  <div key={m.id} className={`max-w-[75%] rounded-lg px-3 py-2 text-sm ${m.direction === "out" ? "ml-auto bg-primary text-primary-foreground" : "bg-muted"}`}>
-                    <div>{m.text ?? <i className="opacity-60">(anexo)</i>}</div>
-                    <div className="mt-0.5 text-[10px] opacity-70">{new Date(m.sent_at).toLocaleString("pt-BR")}</div>
-                  </div>
-                ))}
+                {detail.messages.map((m) => {
+                  const atts = Array.isArray(m.attachments) ? (m.attachments as Array<{ mime_type?: string; image_data?: { url?: string }; video_data?: { url?: string }; file_url?: string }>) : [];
+                  return (
+                    <div key={m.id} className={`max-w-[75%] rounded-lg px-3 py-2 text-sm ${m.direction === "out" ? "ml-auto bg-primary text-primary-foreground" : "bg-muted"}`}>
+                      {atts.map((a, i) => {
+                        const img = a.image_data?.url;
+                        const vid = a.video_data?.url;
+                        const file = a.file_url;
+                        if (img) return <img key={i} src={img} alt="" className="mb-1 max-h-64 rounded" />;
+                        if (vid) return <video key={i} src={vid} controls className="mb-1 max-h-64 rounded" />;
+                        if (file) return <a key={i} href={file} target="_blank" rel="noreferrer" className="underline text-xs block mb-1">Anexo</a>;
+                        return <div key={i} className="text-xs opacity-70 mb-1">[{a.mime_type ?? "anexo"}]</div>;
+                      })}
+                      {m.text && <div className="whitespace-pre-wrap">{m.text}</div>}
+                      {!m.text && !atts.length && <i className="opacity-60">(vazio)</i>}
+                      <div className="mt-0.5 text-[10px] opacity-70">{new Date(m.sent_at).toLocaleString("pt-BR")}</div>
+                    </div>
+                  );
+                })}
               </div>
               <div className="border-t p-3 space-y-2">
                 {!inWindow && (
