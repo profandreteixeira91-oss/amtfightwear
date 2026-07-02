@@ -26,6 +26,7 @@ import { Route as AuthenticatedSalesSettingsRouteImport } from './routes/_authen
 import { Route as AuthenticatedSalesKbRouteImport } from './routes/_authenticated/sales.kb'
 import { Route as AuthenticatedSalesConversationsRouteImport } from './routes/_authenticated/sales.conversations'
 import { Route as AuthenticatedSalesAnalyticsRouteImport } from './routes/_authenticated/sales.analytics'
+import { Route as AuthenticatedProspectLeadsRouteImport } from './routes/_authenticated/prospect.leads'
 import { Route as AuthenticatedMarketPricingRouteImport } from './routes/_authenticated/market.pricing'
 import { Route as AuthenticatedMarketOverviewRouteImport } from './routes/_authenticated/market.overview'
 import { Route as AuthenticatedMarketCrmRouteImport } from './routes/_authenticated/market.crm'
@@ -141,6 +142,12 @@ const AuthenticatedSalesAnalyticsRoute =
   AuthenticatedSalesAnalyticsRouteImport.update({
     id: '/sales/analytics',
     path: '/sales/analytics',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedProspectLeadsRoute =
+  AuthenticatedProspectLeadsRouteImport.update({
+    id: '/prospect/leads',
+    path: '/prospect/leads',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedMarketPricingRoute =
@@ -337,6 +344,7 @@ export interface FileRoutesByFullPath {
   '/market/crm': typeof AuthenticatedMarketCrmRoute
   '/market/overview': typeof AuthenticatedMarketOverviewRoute
   '/market/pricing': typeof AuthenticatedMarketPricingRoute
+  '/prospect/leads': typeof AuthenticatedProspectLeadsRoute
   '/sales/analytics': typeof AuthenticatedSalesAnalyticsRoute
   '/sales/conversations': typeof AuthenticatedSalesConversationsRouteWithChildren
   '/sales/kb': typeof AuthenticatedSalesKbRoute
@@ -383,6 +391,7 @@ export interface FileRoutesByTo {
   '/market/crm': typeof AuthenticatedMarketCrmRoute
   '/market/overview': typeof AuthenticatedMarketOverviewRoute
   '/market/pricing': typeof AuthenticatedMarketPricingRoute
+  '/prospect/leads': typeof AuthenticatedProspectLeadsRoute
   '/sales/analytics': typeof AuthenticatedSalesAnalyticsRoute
   '/sales/conversations': typeof AuthenticatedSalesConversationsRouteWithChildren
   '/sales/kb': typeof AuthenticatedSalesKbRoute
@@ -431,6 +440,7 @@ export interface FileRoutesById {
   '/_authenticated/market/crm': typeof AuthenticatedMarketCrmRoute
   '/_authenticated/market/overview': typeof AuthenticatedMarketOverviewRoute
   '/_authenticated/market/pricing': typeof AuthenticatedMarketPricingRoute
+  '/_authenticated/prospect/leads': typeof AuthenticatedProspectLeadsRoute
   '/_authenticated/sales/analytics': typeof AuthenticatedSalesAnalyticsRoute
   '/_authenticated/sales/conversations': typeof AuthenticatedSalesConversationsRouteWithChildren
   '/_authenticated/sales/kb': typeof AuthenticatedSalesKbRoute
@@ -479,6 +489,7 @@ export interface FileRouteTypes {
     | '/market/crm'
     | '/market/overview'
     | '/market/pricing'
+    | '/prospect/leads'
     | '/sales/analytics'
     | '/sales/conversations'
     | '/sales/kb'
@@ -525,6 +536,7 @@ export interface FileRouteTypes {
     | '/market/crm'
     | '/market/overview'
     | '/market/pricing'
+    | '/prospect/leads'
     | '/sales/analytics'
     | '/sales/conversations'
     | '/sales/kb'
@@ -572,6 +584,7 @@ export interface FileRouteTypes {
     | '/_authenticated/market/crm'
     | '/_authenticated/market/overview'
     | '/_authenticated/market/pricing'
+    | '/_authenticated/prospect/leads'
     | '/_authenticated/sales/analytics'
     | '/_authenticated/sales/conversations'
     | '/_authenticated/sales/kb'
@@ -723,6 +736,13 @@ declare module '@tanstack/react-router' {
       path: '/sales/analytics'
       fullPath: '/sales/analytics'
       preLoaderRoute: typeof AuthenticatedSalesAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/prospect/leads': {
+      id: '/_authenticated/prospect/leads'
+      path: '/prospect/leads'
+      fullPath: '/prospect/leads'
+      preLoaderRoute: typeof AuthenticatedProspectLeadsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/market/pricing': {
@@ -965,6 +985,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMarketCrmRoute: typeof AuthenticatedMarketCrmRoute
   AuthenticatedMarketOverviewRoute: typeof AuthenticatedMarketOverviewRoute
   AuthenticatedMarketPricingRoute: typeof AuthenticatedMarketPricingRoute
+  AuthenticatedProspectLeadsRoute: typeof AuthenticatedProspectLeadsRoute
   AuthenticatedSalesAnalyticsRoute: typeof AuthenticatedSalesAnalyticsRoute
   AuthenticatedSalesConversationsRoute: typeof AuthenticatedSalesConversationsRouteWithChildren
   AuthenticatedSalesKbRoute: typeof AuthenticatedSalesKbRoute
@@ -999,6 +1020,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMarketCrmRoute: AuthenticatedMarketCrmRoute,
   AuthenticatedMarketOverviewRoute: AuthenticatedMarketOverviewRoute,
   AuthenticatedMarketPricingRoute: AuthenticatedMarketPricingRoute,
+  AuthenticatedProspectLeadsRoute: AuthenticatedProspectLeadsRoute,
   AuthenticatedSalesAnalyticsRoute: AuthenticatedSalesAnalyticsRoute,
   AuthenticatedSalesConversationsRoute:
     AuthenticatedSalesConversationsRouteWithChildren,
