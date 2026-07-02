@@ -16,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   listConversations, getConversation, sendMessage,
   updateConversation, promoteConversationToLead, aiConversationTools,
+  syncIgInbox,
 } from "@/lib/ig-hub.functions";
 
 export const Route = createFileRoute("/_authenticated/instagram/inbox")({
