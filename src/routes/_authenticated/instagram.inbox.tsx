@@ -16,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   listConversations, getConversation, sendMessage,
   updateConversation, promoteConversationToLead, aiConversationTools,
+  syncIgInbox,
 } from "@/lib/ig-hub.functions";
 
 export const Route = createFileRoute("/_authenticated/instagram/inbox")({
@@ -38,6 +39,7 @@ function IgInbox() {
   const updateFn = useServerFn(updateConversation);
   const promoteFn = useServerFn(promoteConversationToLead);
   const aiFn = useServerFn(aiConversationTools);
+  const syncFn = useServerFn(syncIgInbox);
 
   const [filterStatus, setFilterStatus] = useState<string>("");
   const [search, setSearch] = useState("");
@@ -105,6 +107,16 @@ function IgInbox() {
     },
     onError: (e: Error) => toast.error(e.message),
   });
+  const mSync = useMutation({
+    mutationFn: () => syncFn({ data: {} }),
+    onSuccess: (r) => {
+      toast.success(`Sincronizado: ${r.conversations} conversas · ${r.messages} mensagens`);
+      qc.invalidateQueries({ queryKey: ["ig-conversations"] });
+      if (selected) qc.invalidateQueries({ queryKey: ["ig-conversation", selected] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
 
   const inWindow = detail?.conversation?.window_expires_at
     ? new Date(detail.conversation.window_expires_at) > new Date()
@@ -112,10 +124,16 @@ function IgInbox() {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-      <PageHeader
-        title="Inbox Instagram"
-        description="Central de conversas. Responder dentro da janela de 7 dias da Meta é obrigatório."
-      />
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <PageHeader
+          title="Inbox Instagram"
+          description="Central de conversas. Responder dentro da janela de 7 dias da Meta é obrigatório."
+        />
+        <Button size="sm" variant="outline" onClick={() => mSync.mutate()} disabled={mSync.isPending}>
+          <RefreshCw className={`mr-1 h-3 w-3 ${mSync.isPending ? "animate-spin" : ""}`} />
+          {mSync.isPending ? "Sincronizando…" : "Sincronizar Inbox"}
+        </Button>
+      </div>
 
       <div className="grid gap-4 lg:grid-cols-[300px_1fr_320px] min-h-[70vh]">
         {/* LIST */}
@@ -188,12 +206,25 @@ function IgInbox() {
                 </div>
               </div>
               <div className="flex-1 overflow-y-auto p-3 space-y-2">
-                {detail.messages.map((m) => (
-                  <div key={m.id} className={`max-w-[75%] rounded-lg px-3 py-2 text-sm ${m.direction === "out" ? "ml-auto bg-primary text-primary-foreground" : "bg-muted"}`}>
-                    <div>{m.text ?? <i className="opacity-60">(anexo)</i>}</div>
-                    <div className="mt-0.5 text-[10px] opacity-70">{new Date(m.sent_at).toLocaleString("pt-BR")}</div>
-                  </div>
-                ))}
+                {detail.messages.map((m) => {
+                  const atts = Array.isArray(m.attachments) ? (m.attachments as Array<{ mime_type?: string; image_data?: { url?: string }; video_data?: { url?: string }; file_url?: string }>) : [];
+                  return (
+                    <div key={m.id} className={`max-w-[75%] rounded-lg px-3 py-2 text-sm ${m.direction === "out" ? "ml-auto bg-primary text-primary-foreground" : "bg-muted"}`}>
+                      {atts.map((a, i) => {
+                        const img = a.image_data?.url;
+                        const vid = a.video_data?.url;
+                        const file = a.file_url;
+                        if (img) return <img key={i} src={img} alt="" className="mb-1 max-h-64 rounded" />;
+                        if (vid) return <video key={i} src={vid} controls className="mb-1 max-h-64 rounded" />;
+                        if (file) return <a key={i} href={file} target="_blank" rel="noreferrer" className="underline text-xs block mb-1">Anexo</a>;
+                        return <div key={i} className="text-xs opacity-70 mb-1">[{a.mime_type ?? "anexo"}]</div>;
+                      })}
+                      {m.text && <div className="whitespace-pre-wrap">{m.text}</div>}
+                      {!m.text && !atts.length && <i className="opacity-60">(vazio)</i>}
+                      <div className="mt-0.5 text-[10px] opacity-70">{new Date(m.sent_at).toLocaleString("pt-BR")}</div>
+                    </div>
+                  );
+                })}
               </div>
               <div className="border-t p-3 space-y-2">
                 {!inWindow && (

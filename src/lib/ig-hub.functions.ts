@@ -179,6 +179,171 @@ export const syncIgMedia = createServerFn({ method: "POST" })
     }
   });
 
+// ============= FULL INBOX SYNC =============
+// Puxa TODAS as conversas + TODAS as mensagens do perfil, paginando os cursores
+// da Graph API — como se fosse a Inbox nativa do Instagram.
+
+async function graphGetAbs<T>(url: string): Promise<T> {
+  const res = await fetch(url);
+  const j = await res.json();
+  if (!res.ok) throw new Error((j as { error?: { message: string } })?.error?.message || `Graph API error: ${res.status}`);
+  return j as T;
+}
+
+type IgParticipant = { id: string; username?: string; name?: string };
+type IgMessageRaw = {
+  id: string;
+  from?: { id: string; username?: string };
+  to?: { data?: Array<{ id: string; username?: string }> };
+  message?: string;
+  created_time?: string;
+  attachments?: { data?: Array<{ id?: string; mime_type?: string; name?: string; image_data?: { url?: string }; video_data?: { url?: string }; file_url?: string }> };
+};
+type IgPaged<T> = { data?: T[]; paging?: { cursors?: { after?: string }; next?: string } };
+
+export const syncIgInbox = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({
+      maxConversations: z.number().min(1).max(2000).optional(),
+      messagesPerConversation: z.number().min(1).max(2000).optional(),
+    }).parse(i ?? {}),
+  )
+  .handler(async ({ data, context }) => {
+    const t0 = Date.now();
+    const conn = await getActiveConnection(context.supabase as any);
+    if (!conn?.instagram_business_account_id) throw new Error("Conta Instagram não conectada.");
+    const igbId = conn.instagram_business_account_id;
+    const token = conn.page_access_token;
+    const maxConvs = data.maxConversations ?? 500;
+    const maxMsgs = data.messagesPerConversation ?? 500;
+
+    const { data: acc } = await context.supabase
+      .from("ig_accounts").select("id, ig_user_id").eq("user_id", context.userId).limit(1).maybeSingle();
+    const businessIgsid = acc?.ig_user_id as string | undefined;
+
+    let convCount = 0;
+    let msgTotal = 0;
+    let firstError: string | null = null;
+
+    try {
+      // 1) Paginar TODAS as conversas
+      let nextConv: string | null =
+        `${GRAPH}/${igbId}/conversations?platform=instagram&fields=id,updated_time,participants&limit=50&access_token=${token}`;
+      const convs: Array<{
+        id: string; updated_time?: string;
+        participants?: { data?: IgParticipant[] };
+      }> = [];
+      while (nextConv && convs.length < maxConvs) {
+        const page: IgPaged<{ id: string; updated_time?: string; participants?: { data?: IgParticipant[] } }> = await graphGetAbs(nextConv);
+        convs.push(...(page.data ?? []));
+        nextConv = page.paging?.next ?? null;
+      }
+
+      // 2) Para cada conversa, paginar TODAS as mensagens
+      for (const conv of convs.slice(0, maxConvs)) {
+        const other = (conv.participants?.data ?? []).find((p) => p.id !== businessIgsid) ?? conv.participants?.data?.[0];
+        if (!other) continue;
+        const updated = conv.updated_time ?? new Date().toISOString();
+        const windowExpires = new Date(new Date(updated).getTime() + 7 * 86400000).toISOString();
+
+        // Enriquecer participante (avatar/nome) — best-effort
+        let avatarUrl: string | null = null;
+        let username: string | null = other.username ?? null;
+        let name: string | null = other.name ?? null;
+        try {
+          const p = await graphGetAbs<{ username?: string; name?: string; profile_pic?: string }>(
+            `${GRAPH}/${other.id}?fields=username,name,profile_pic&access_token=${token}`,
+          );
+          username = p.username ?? username;
+          name = p.name ?? name;
+          avatarUrl = p.profile_pic ?? null;
+        } catch { /* ignore */ }
+
+        // Paginar mensagens da conversa
+        const msgs: IgMessageRaw[] = [];
+        let nextMsg: string | null =
+          `${GRAPH}/${conv.id}/messages?fields=id,from,to,message,created_time,attachments&limit=50&access_token=${token}`;
+        while (nextMsg && msgs.length < maxMsgs) {
+          const page: IgPaged<IgMessageRaw> = await graphGetAbs(nextMsg);
+          const batch = page.data ?? [];
+          // Alguns campos vêm apenas quando pedidos por ID; refetch se necessário
+          const enriched: IgMessageRaw[] = [];
+          for (const m of batch) {
+            if (m.message !== undefined || m.attachments) { enriched.push(m); continue; }
+            try {
+              const full = await graphGetAbs<IgMessageRaw>(
+                `${GRAPH}/${m.id}?fields=id,from,to,message,created_time,attachments&access_token=${token}`,
+              );
+              enriched.push({ ...m, ...full });
+            } catch { enriched.push(m); }
+          }
+          msgs.push(...enriched);
+          nextMsg = page.paging?.next ?? null;
+        }
+
+        const sortedByDate = [...msgs].sort((a, b) =>
+          new Date(a.created_time ?? 0).getTime() - new Date(b.created_time ?? 0).getTime(),
+        );
+        const lastMsg = sortedByDate[sortedByDate.length - 1];
+        const lastPreview = lastMsg?.message?.slice(0, 120) ?? (lastMsg?.attachments?.data?.length ? "[anexo]" : null);
+
+        const { data: convRow } = await (context.supabase as any)
+          .from("ig_conversations")
+          .upsert({
+            user_id: context.userId,
+            ig_account_id: acc?.id ?? null,
+            channel: "instagram",
+            participant_igsid: other.id,
+            participant_username: username,
+            participant_name: name,
+            participant_avatar_url: avatarUrl,
+            last_message_at: lastMsg?.created_time ?? updated,
+            last_message_preview: lastPreview,
+            window_expires_at: windowExpires,
+          }, { onConflict: "user_id,channel,participant_igsid" })
+          .select("id")
+          .single();
+
+        if (convRow && msgs.length) {
+          const rows = msgs.map((m) => {
+            const att = m.attachments?.data ?? [];
+            return {
+              user_id: context.userId,
+              conversation_id: convRow.id,
+              mid: m.id,
+              direction: m.from?.id === businessIgsid ? "out" : "in",
+              text: m.message ?? null,
+              attachments: att.length ? att : null,
+              sent_at: m.created_time ?? new Date().toISOString(),
+            };
+          });
+          // upsert em lotes de 200
+          for (let i = 0; i < rows.length; i += 200) {
+            await (context.supabase as any).from("ig_messages")
+              .upsert(rows.slice(i, i + 200), { onConflict: "conversation_id,mid" });
+          }
+          msgTotal += rows.length;
+        }
+        convCount++;
+      }
+    } catch (e) {
+      firstError = e instanceof Error ? e.message : String(e);
+    }
+
+    await (context.supabase as any).from("ig_sync_log").insert({
+      user_id: context.userId, ig_account_id: acc?.id ?? null,
+      sync_type: "inbox_full",
+      status: firstError ? "error" : "success",
+      items_count: convCount + msgTotal,
+      duration_ms: Date.now() - t0,
+      error: firstError,
+    });
+
+    if (firstError && convCount === 0) throw new Error(firstError);
+    return { conversations: convCount, messages: msgTotal, error: firstError };
+  });
+
 // ============= CONVERSATIONS =============
 
 export const listConversations = createServerFn({ method: "GET" })
