@@ -19,7 +19,7 @@ export const Route = createFileRoute("/_authenticated/market/overview")({
 async function fetchOverview() {
   const [{ count: leads }, { count: deals }, { count: products }, { data: dealRows }] =
     await Promise.all([
-      supabase.from("leads").select("*", { count: "exact", head: true }),
+      supabase.from("prospect_companies").select("*", { count: "exact", head: true }),
       supabase.from("crm_deals").select("*", { count: "exact", head: true }),
       supabase.from("products").select("*", { count: "exact", head: true }),
       supabase.from("crm_deals").select("value,stage"),
@@ -76,7 +76,7 @@ function OverviewPage() {
 
         <SectionCard title="Como começar" delay={0.1}>
           <ol className="space-y-3 text-sm">
-            <li className="flex gap-3"><span className="grid h-6 w-6 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary">1</span> Cadastre leads em <b>Lead Scraper</b>.</li>
+            <li className="flex gap-3"><span className="grid h-6 w-6 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary">1</span> Capte empresas em <b>Prospect Engine</b>.</li>
             <li className="flex gap-3"><span className="grid h-6 w-6 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary">2</span> Crie negociações no <b>CRM & E-mail</b>.</li>
             <li className="flex gap-3"><span className="grid h-6 w-6 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary">3</span> Gere copies com IA no <b>IA Content Hub</b>.</li>
             <li className="flex gap-3"><span className="grid h-6 w-6 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary">4</span> Acompanhe o desempenho aqui.</li>
