@@ -72,8 +72,11 @@ const marketItems = [
 
 const scraperItems = [
   { title: "Dashboard", url: "/lead-scraper", icon: LayoutDashboard },
+  { title: "Prospecção", url: "/lead-scraper/prospeccao", icon: Radar },
+  { title: "Pipeline", url: "/lead-scraper/pipeline", icon: Handshake },
+  { title: "Sequências", url: "/lead-scraper/sequences", icon: Mail },
   { title: "Pesquisas", url: "/lead-scraper/searches", icon: Search },
-  { title: "Leads", url: "/market/leads", icon: Radar },
+  { title: "Leads", url: "/market/leads", icon: Users },
   { title: "Enriquecimento", url: "/lead-scraper/enrichment", icon: Sparkles },
   { title: "Mapa", url: "/lead-scraper/map", icon: Map },
   { title: "Exportações", url: "/lead-scraper/exports", icon: Download },
