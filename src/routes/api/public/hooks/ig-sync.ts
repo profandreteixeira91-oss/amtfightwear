@@ -30,7 +30,7 @@ export const Route = createFileRoute("/api/public/hooks/ig-sync")({
             };
             if (!profRes.ok || !profile.id) throw new Error(profile.error?.message || "profile fetch failed");
 
-            const { data: acc } = await supabaseAdmin.from("ig_accounts").upsert({
+            const { data: acc } = await (supabaseAdmin as any).from("ig_accounts").upsert({
               user_id: conn.user_id,
               connection_id: conn.id,
               ig_user_id: profile.id,
@@ -54,7 +54,7 @@ export const Route = createFileRoute("/api/public/hooks/ig-sync")({
             const mJson = (await mRes.json()) as { data?: Array<{ id: string;[k: string]: unknown }> };
             const items = mJson.data ?? [];
             if (items.length) {
-              await supabaseAdmin.from("ig_media_cache").upsert(items.map((m) => ({
+              await (supabaseAdmin as any).from("ig_media_cache").upsert(items.map((m) => ({
                 user_id: conn.user_id,
                 ig_account_id: acc?.id ?? null,
                 media_id: m.id,
@@ -70,14 +70,14 @@ export const Route = createFileRoute("/api/public/hooks/ig-sync")({
               })), { onConflict: "user_id,media_id" });
             }
 
-            await supabaseAdmin.from("ig_sync_log").insert({
+            await (supabaseAdmin as any).from("ig_sync_log").insert({
               user_id: conn.user_id, ig_account_id: acc?.id ?? null,
               sync_type: "full", status: "success", items_count: 1 + items.length, duration_ms: Date.now() - t0,
             });
             results.push({ user: conn.user_id, ok: true });
           } catch (e) {
             const msg = e instanceof Error ? e.message : String(e);
-            await supabaseAdmin.from("ig_sync_log").insert({
+            await (supabaseAdmin as any).from("ig_sync_log").insert({
               user_id: conn.user_id, sync_type: "full", status: "error", error: msg, duration_ms: Date.now() - t0,
             });
             results.push({ user: conn.user_id, ok: false, error: msg });

@@ -55,7 +55,7 @@ export const getIgAccount = createServerFn({ method: "GET" })
       .order("last_synced_at", { ascending: false, nullsFirst: false })
       .limit(1)
       .maybeSingle();
-    const conn = await getActiveConnection(context.supabase);
+    const conn = await getActiveConnection(context.supabase as any);
     return { account, hasConnection: !!conn, connection: conn ? { id: conn.id, username: conn.instagram_username, expiresAt: conn.token_expires_at } : null };
   });
 
@@ -63,7 +63,7 @@ export const syncIgProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const t0 = Date.now();
-    const conn = await getActiveConnection(context.supabase);
+    const conn = await getActiveConnection(context.supabase as any);
     if (!conn || !conn.instagram_business_account_id) {
       throw new Error("Nenhuma conta Instagram Business conectada. Vá em Conexões e APIs.");
     }
@@ -103,7 +103,7 @@ export const syncIgProfile = createServerFn({ method: "POST" })
         .single();
       if (error) throw new Error(error.message);
 
-      await context.supabase.from("ig_sync_log").insert({
+      await (context.supabase as any).from("ig_sync_log").insert({
         user_id: context.userId,
         ig_account_id: upserted.id,
         sync_type: "profile",
@@ -115,7 +115,7 @@ export const syncIgProfile = createServerFn({ method: "POST" })
       return upserted;
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      await context.supabase.from("ig_sync_log").insert({
+      await (context.supabase as any).from("ig_sync_log").insert({
         user_id: context.userId,
         sync_type: "profile",
         status: "error",
@@ -130,7 +130,7 @@ export const syncIgMedia = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const t0 = Date.now();
-    const conn = await getActiveConnection(context.supabase);
+    const conn = await getActiveConnection(context.supabase as any);
     if (!conn?.instagram_business_account_id) throw new Error("Conta Instagram não conectada.");
     const { data: acc } = await context.supabase
       .from("ig_accounts").select("id").eq("user_id", context.userId).limit(1).maybeSingle();
@@ -147,7 +147,7 @@ export const syncIgMedia = createServerFn({ method: "POST" })
       );
       const items = resp.data ?? [];
       if (items.length) {
-        await context.supabase.from("ig_media_cache").upsert(
+        await (context.supabase as any).from("ig_media_cache").upsert(
           items.map((m) => ({
             user_id: context.userId,
             ig_account_id: acc?.id ?? null,
@@ -165,14 +165,14 @@ export const syncIgMedia = createServerFn({ method: "POST" })
           { onConflict: "user_id,media_id" },
         );
       }
-      await context.supabase.from("ig_sync_log").insert({
+      await (context.supabase as any).from("ig_sync_log").insert({
         user_id: context.userId, ig_account_id: acc?.id ?? null,
         sync_type: "media", status: "success", items_count: items.length, duration_ms: Date.now() - t0,
       });
       return { count: items.length };
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      await context.supabase.from("ig_sync_log").insert({
+      await (context.supabase as any).from("ig_sync_log").insert({
         user_id: context.userId, sync_type: "media", status: "error", error: msg, duration_ms: Date.now() - t0,
       });
       throw e;
@@ -230,7 +230,7 @@ export const getConversation = createServerFn({ method: "GET" })
 
     // reset unread
     if (conv.unread_count > 0) {
-      await context.supabase.from("ig_conversations").update({ unread_count: 0 }).eq("id", data.id);
+      await (context.supabase as any).from("ig_conversations").update({ unread_count: 0 }).eq("id", data.id);
     }
 
     return { conversation: conv, messages: messages ?? [], events: events ?? [], lead };
@@ -251,7 +251,7 @@ export const sendMessage = createServerFn({ method: "POST" })
       throw new Error("Janela de 7 dias da Meta expirou. Use o botão 'Abrir Direct manualmente' para responder.");
     }
 
-    const conn = await getActiveConnection(context.supabase);
+    const conn = await getActiveConnection(context.supabase as any);
     if (!conn?.instagram_business_account_id) throw new Error("Conta Instagram não conectada.");
 
     const resp = await graphPost<{ message_id?: string }>(
@@ -260,7 +260,7 @@ export const sendMessage = createServerFn({ method: "POST" })
       { recipient: { id: conv.participant_igsid }, message: { text: data.text } },
     );
 
-    await context.supabase.from("ig_messages").insert({
+    await (context.supabase as any).from("ig_messages").insert({
       user_id: context.userId,
       conversation_id: conv.id,
       mid: resp.message_id ?? null,
@@ -268,12 +268,12 @@ export const sendMessage = createServerFn({ method: "POST" })
       text: data.text,
       sent_at: new Date().toISOString(),
     });
-    await context.supabase.from("ig_conversations").update({
+    await (context.supabase as any).from("ig_conversations").update({
       last_message_at: new Date().toISOString(),
       last_message_preview: data.text.slice(0, 120),
       status: conv.status === "novo_lead" ? "em_atendimento" : conv.status,
     }).eq("id", conv.id);
-    await context.supabase.from("ig_events").insert({
+    await (context.supabase as any).from("ig_events").insert({
       user_id: context.userId, conversation_id: conv.id, lead_id: conv.lead_id,
       event_type: "message_sent", payload: { text: data.text.slice(0, 200) }, actor_id: context.userId,
     });
@@ -303,7 +303,7 @@ export const updateConversation = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
 
     if (data.status) {
-      await context.supabase.from("ig_events").insert({
+      await (context.supabase as any).from("ig_events").insert({
         user_id: context.userId, conversation_id: data.id, lead_id: row.lead_id,
         event_type: "status_changed", payload: { status: data.status }, actor_id: context.userId,
       });
@@ -320,7 +320,7 @@ export const promoteConversationToLead = createServerFn({ method: "POST" })
     if (!conv) throw new Error("Conversa não encontrada.");
     if (conv.lead_id) return { lead_id: conv.lead_id, created: false };
 
-    const { data: lead, error } = await context.supabase.from("leads").insert({
+    const { data: lead, error } = await (context.supabase as any).from("leads").insert({
       user_id: context.userId,
       name: conv.participant_name ?? conv.participant_username ?? "Contato Instagram",
       instagram_handle: conv.participant_username ?? null,
@@ -332,8 +332,8 @@ export const promoteConversationToLead = createServerFn({ method: "POST" })
     }).select().single();
     if (error) throw new Error(error.message);
 
-    await context.supabase.from("ig_conversations").update({ lead_id: lead.id }).eq("id", conv.id);
-    await context.supabase.from("ig_events").insert({
+    await (context.supabase as any).from("ig_conversations").update({ lead_id: lead.id }).eq("id", conv.id);
+    await (context.supabase as any).from("ig_events").insert({
       user_id: context.userId, conversation_id: conv.id, lead_id: lead.id,
       event_type: "lead_created", actor_id: context.userId,
     });
@@ -346,10 +346,10 @@ export const getDashboardKpis = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const [accs, convs, msgs, leads] = await Promise.all([
-      context.supabase.from("ig_accounts").select("id, status, followers_count").eq("user_id", context.userId),
-      context.supabase.from("ig_conversations").select("id, status, unread_count, created_at, last_message_at").eq("user_id", context.userId),
-      context.supabase.from("ig_messages").select("id, direction, sent_at").eq("user_id", context.userId).gte("sent_at", new Date(Date.now() - 7 * 86400000).toISOString()),
-      context.supabase.from("leads").select("id, status, created_at").eq("user_id", context.userId).eq("source", "Instagram Direct"),
+      (context.supabase as any).from("ig_accounts").select("id, status, followers_count").eq("user_id", context.userId),
+      (context.supabase as any).from("ig_conversations").select("id, status, unread_count, created_at, last_message_at").eq("user_id", context.userId),
+      (context.supabase as any).from("ig_messages").select("id, direction, sent_at").eq("user_id", context.userId).gte("sent_at", new Date(Date.now() - 7 * 86400000).toISOString()),
+      (context.supabase as any).from("leads").select("id, status, created_at").eq("user_id", context.userId).eq("source", "Instagram Direct"),
     ]);
 
     const conversations = convs.data ?? [];
@@ -405,13 +405,13 @@ export const upsertAutomation = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => AutomationInput.parse(i))
   .handler(async ({ data, context }) => {
     if (data.id) {
-      const { data: row, error } = await context.supabase.from("ig_automations")
+      const { data: row, error } = await (context.supabase as any).from("ig_automations")
         .update({ name: data.name, trigger: data.trigger, conditions: data.conditions, actions: data.actions, enabled: data.enabled })
         .eq("id", data.id).eq("user_id", context.userId).select().single();
       if (error) throw new Error(error.message);
       return row;
     }
-    const { data: row, error } = await context.supabase.from("ig_automations").insert({
+    const { data: row, error } = await (context.supabase as any).from("ig_automations").insert({
       user_id: context.userId,
       name: data.name, trigger: data.trigger, conditions: data.conditions, actions: data.actions, enabled: data.enabled,
     }).select().single();
@@ -423,7 +423,7 @@ export const deleteAutomation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase.from("ig_automations").delete().eq("id", data.id).eq("user_id", context.userId);
+    const { error } = await (context.supabase as any).from("ig_automations").delete().eq("id", data.id).eq("user_id", context.userId);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -434,9 +434,9 @@ export const getIgAdminInfo = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const [syncLogs, webhookLogs, connections] = await Promise.all([
-      context.supabase.from("ig_sync_log").select("*").order("created_at", { ascending: false }).limit(50),
-      context.supabase.from("ig_webhook_log").select("*").order("received_at", { ascending: false }).limit(50),
-      context.supabase.from("meta_connections").select("id, instagram_username, status, token_expires_at, created_at").order("created_at", { ascending: false }),
+      (context.supabase as any).from("ig_sync_log").select("*").order("created_at", { ascending: false }).limit(50),
+      (context.supabase as any).from("ig_webhook_log").select("*").order("received_at", { ascending: false }).limit(50),
+      (context.supabase as any).from("meta_connections").select("id, instagram_username, status, token_expires_at, created_at").order("created_at", { ascending: false }),
     ]);
     return {
       syncLogs: syncLogs.data ?? [],
@@ -500,7 +500,7 @@ export const aiConversationTools = createServerFn({ method: "POST" })
       if (!Number.isNaN(num)) patch.ai_priority = Math.min(100, Math.max(0, num));
     }
     if (Object.keys(patch).length) {
-      await context.supabase.from("ig_conversations").update(patch).eq("id", conv.id);
+      await (context.supabase as any).from("ig_conversations").update(patch).eq("id", conv.id);
     }
     return { result: content };
   });
