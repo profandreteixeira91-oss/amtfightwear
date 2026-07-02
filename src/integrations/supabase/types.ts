@@ -304,6 +304,90 @@ export type Database = {
         }
         Relationships: []
       }
+      email_sequence_runs: {
+        Row: {
+          created_at: string
+          current_step: number
+          id: string
+          last_step_sent_at: string | null
+          lead_id: string
+          next_send_at: string | null
+          sequence_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_step?: number
+          id?: string
+          last_step_sent_at?: string | null
+          lead_id: string
+          next_send_at?: string | null
+          sequence_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_step?: number
+          id?: string
+          last_step_sent_at?: string | null
+          lead_id?: string
+          next_send_at?: string | null
+          sequence_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_sequence_runs_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_sequence_runs_sequence_id_fkey"
+            columns: ["sequence_id"]
+            isOneToOne: false
+            referencedRelation: "email_sequences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_sequences: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          steps: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          steps?: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          steps?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       email_unsubscribe_tokens: {
         Row: {
           created_at: string
@@ -461,6 +545,8 @@ export type Database = {
           address: string | null
           ai_approach: string | null
           ai_best_hour: string | null
+          ai_opportunities: string | null
+          ai_recommended_channel: string | null
           ai_score: number | null
           ai_summary: string | null
           business_hours: Json | null
@@ -476,6 +562,15 @@ export type Database = {
           enrichment_status: string | null
           facebook: string | null
           id: string
+          instagram_avatar_url: string | null
+          instagram_bio: string | null
+          instagram_followers: number | null
+          instagram_handle: string | null
+          instagram_is_business: boolean | null
+          instagram_url: string | null
+          instagram_verified: boolean | null
+          last_contact_at: string | null
+          last_response_at: string | null
           lat: number | null
           lead_type: string | null
           legal_name: string | null
@@ -486,6 +581,8 @@ export type Database = {
           notes: string | null
           owner_id: string | null
           phone: string | null
+          pipeline_stage: string
+          quality_flag: string | null
           rating: number | null
           responsible: string | null
           reviews_count: number | null
@@ -497,6 +594,7 @@ export type Database = {
           trade_name: string | null
           updated_at: string
           website: string | null
+          website_title: string | null
           whatsapp: string | null
           zip: string | null
         }
@@ -504,6 +602,8 @@ export type Database = {
           address?: string | null
           ai_approach?: string | null
           ai_best_hour?: string | null
+          ai_opportunities?: string | null
+          ai_recommended_channel?: string | null
           ai_score?: number | null
           ai_summary?: string | null
           business_hours?: Json | null
@@ -519,6 +619,15 @@ export type Database = {
           enrichment_status?: string | null
           facebook?: string | null
           id?: string
+          instagram_avatar_url?: string | null
+          instagram_bio?: string | null
+          instagram_followers?: number | null
+          instagram_handle?: string | null
+          instagram_is_business?: boolean | null
+          instagram_url?: string | null
+          instagram_verified?: boolean | null
+          last_contact_at?: string | null
+          last_response_at?: string | null
           lat?: number | null
           lead_type?: string | null
           legal_name?: string | null
@@ -529,6 +638,8 @@ export type Database = {
           notes?: string | null
           owner_id?: string | null
           phone?: string | null
+          pipeline_stage?: string
+          quality_flag?: string | null
           rating?: number | null
           responsible?: string | null
           reviews_count?: number | null
@@ -540,6 +651,7 @@ export type Database = {
           trade_name?: string | null
           updated_at?: string
           website?: string | null
+          website_title?: string | null
           whatsapp?: string | null
           zip?: string | null
         }
@@ -547,6 +659,8 @@ export type Database = {
           address?: string | null
           ai_approach?: string | null
           ai_best_hour?: string | null
+          ai_opportunities?: string | null
+          ai_recommended_channel?: string | null
           ai_score?: number | null
           ai_summary?: string | null
           business_hours?: Json | null
@@ -562,6 +676,15 @@ export type Database = {
           enrichment_status?: string | null
           facebook?: string | null
           id?: string
+          instagram_avatar_url?: string | null
+          instagram_bio?: string | null
+          instagram_followers?: number | null
+          instagram_handle?: string | null
+          instagram_is_business?: boolean | null
+          instagram_url?: string | null
+          instagram_verified?: boolean | null
+          last_contact_at?: string | null
+          last_response_at?: string | null
           lat?: number | null
           lead_type?: string | null
           legal_name?: string | null
@@ -572,6 +695,8 @@ export type Database = {
           notes?: string | null
           owner_id?: string | null
           phone?: string | null
+          pipeline_stage?: string
+          quality_flag?: string | null
           rating?: number | null
           responsible?: string | null
           reviews_count?: number | null
@@ -583,6 +708,7 @@ export type Database = {
           trade_name?: string | null
           updated_at?: string
           website?: string | null
+          website_title?: string | null
           whatsapp?: string | null
           zip?: string | null
         }
