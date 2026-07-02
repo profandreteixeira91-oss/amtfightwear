@@ -234,21 +234,27 @@ export const Route = createFileRoute("/api/public/hooks/auto-scrape-leads")({
                   seen.add(key);
                   return true;
                 })
-                .map((d) => ({
-                  name: d.name,
-                  responsible: d.responsible ?? null,
-                  phone: d.phone ?? null,
-                  email: d.email ?? null,
-                  city: d.city ?? t.city,
-                  state: t.state,
-                  modality: d.modality ?? t.theme.modality,
-                  lead_type: d.lead_type ?? "Academia",
-                  source: "Auto-Scrape",
-                  status: "Novo",
-                  notes: [d.notes, d.instagram ? `IG: ${d.instagram}` : null, d.website ? `Site: ${d.website}` : null]
-                    .filter(Boolean)
-                    .join(" · "),
-                }));
+                .map((d) => {
+                  const igMatch = (d.instagram ?? "").match(/instagram\.com\/([A-Za-z0-9_.]+)/i);
+                  const igHandle = igMatch ? igMatch[1] : (d.instagram ?? "").replace(/^@/, "").split(/[/?#]/)[0] || null;
+                  return {
+                    name: d.name,
+                    responsible: d.responsible ?? null,
+                    phone: d.phone ?? null,
+                    email: d.email ?? null,
+                    website: d.website ?? null,
+                    instagram_handle: igHandle && /^[A-Za-z0-9_.]{1,30}$/.test(igHandle) ? igHandle : null,
+                    instagram_url: igHandle && /^[A-Za-z0-9_.]{1,30}$/.test(igHandle) ? `https://instagram.com/${igHandle}` : null,
+                    city: d.city ?? t.city,
+                    state: t.state,
+                    modality: d.modality ?? t.theme.modality,
+                    lead_type: d.lead_type ?? "Academia",
+                    source: "Auto-Scrape",
+                    status: "Novo",
+                    pipeline_stage: "novo",
+                    notes: [d.notes].filter(Boolean).join(" · "),
+                  };
+                });
 
               if (rows.length) {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
