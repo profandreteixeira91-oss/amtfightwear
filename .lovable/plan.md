@@ -1,118 +1,147 @@
-# Módulo de Captação de Leads — Versão Avançada
 
-Vou transformar o Lead Scraper atual em uma central completa de prospecção, mantendo o que já funciona (busca automática por nicho, geolocalização, autopilot de outreach, enriquecimento Firecrawl) e adicionando as camadas que faltam: qualificação Instagram, pipeline visual, sequências de follow-up, dashboard avançado e Central de Prospecção.
+# Instagram Hub — Central de Relacionamento e Prospecção
 
-## O que já existe (será reaproveitado)
-- Tabelas `leads`, `outreach_log`, `outreach_settings`, `lead_enrichments`, `lead_history`, `lead_exports`
-- Hooks automáticos: `auto-scrape-leads`, `auto-outreach`
-- Enriquecimento via Firecrawl + Gemini
-- Rotas `lead-scraper.*` (dashboard, enriquecimento, score, mapa, exports)
-- Priorização regional (Nordeste)
-- Restrição de catálogo (kimonos, faixas, patches)
+Vou construir um módulo modular, escalável e preparado para múltiplos canais (WhatsApp/Messenger/Telegram no futuro) reutilizando a conexão Meta já existente (`meta_connections`, tokens de longa duração, OAuth funcional). Foco em usar apenas o que a **Instagram Graph API oficial** entrega para contas Business/Creator.
 
-## O que vou adicionar
+---
 
-### 1. Banco de dados (migração)
-Novas colunas em `leads`:
-- `instagram_handle`, `instagram_url`, `instagram_bio`, `instagram_followers`, `instagram_verified`, `instagram_is_business`
-- `whatsapp`, `website_title`, `cnpj`, `business_hours`, `category`
-- `pipeline_stage` (enum: novo, enriquecido, contato_iniciado, resposta_recebida, reuniao, proposta, cliente, perdido)
-- `ai_summary`, `ai_opportunities`, `ai_recommended_approach`
-- `lead_score` (já pode existir — se sim, apenas garantir)
-- `last_contact_at`, `last_response_at`
+## 1. Escopo real das APIs oficiais (transparência)
 
-Nova tabela `email_sequences`:
-- template steps (dia 0, 3, 7, 15), subject, body
-- gerenciada por usuário
+O que a API oficial **entrega**:
+- Perfil da conta conectada (username, nome, bio, foto, seguidores, nº de posts, categoria).
+- Publicações, comentários e insights da conta conectada.
+- **DMs**: apenas mensagens iniciadas pelo usuário nos últimos 7 dias (janela de mensageria da Meta), via Instagram Messaging API.
+- Webhooks em tempo real para mensagens, comentários e menções.
 
-Nova tabela `email_sequence_runs`:
-- lead_id, sequence_id, current_step, next_send_at, status (running/paused/completed/cancelled_by_reply)
+O que a API **NÃO entrega** (e será tratado como "assistido manual"):
+- Enviar DM para quem nunca falou com você (prospecção fria continua via link `ig.me`).
+- Ler perfil público de terceiros com métricas privadas.
 
-### 2. Enriquecimento aprimorado (`src/lib/leads-scraper.functions.ts`)
-- Ao localizar site, extrair handle Instagram do HTML/links
-- Buscar perfil Instagram público (via scrape do bio/seguidores quando possível)
-- Extrair WhatsApp (regex `wa.me/`, `api.whatsapp.com`, telefones formatados)
-- Extrair CNPJ, horários, categoria
-- **Não salvar lead sem tentar localizar e-mail + Instagram** — se ambos ausentes após enriquecimento, marcar como `low_quality` (mantém no banco mas não entra no funil ativo)
-- Recalcular Lead Score com pesos: email 30, instagram 25, telefone 15, website 10, whatsapp 10, bio/seguidores 10
+O painel deixará isso explícito para o usuário.
 
-### 3. Análise IA por lead
-Server function `analyzeLeadWithAI`:
-- Recebe lead enriquecido
-- Gemini gera: resumo (2 linhas), oportunidades detectadas, abordagem sugerida, canal recomendado (email/instagram/whatsapp)
-- Salva em `ai_summary`, `ai_opportunities`, `ai_recommended_approach`
+---
 
-### 4. Pipeline / Kanban
-Nova rota `lead-scraper.pipeline.tsx`:
-- Colunas kanban por `pipeline_stage`
-- Drag & drop entre estágios
-- Card mostra empresa, cidade, score, canais disponíveis
+## 2. Banco de dados (nova migração)
 
-### 5. Central de Prospecção
-Nova rota `lead-scraper.prospeccao.tsx`:
-- Tabela avançada: Foto/Avatar (via Instagram profile pic), Empresa, IG, Email, Tel, Cidade, Segmento, Status, Último contato, Lead Score
-- Filtros rápidos (com/sem email, com/sem IG, por estágio, por score mínimo)
-- Ordenação e paginação
-- Ação: "Abrir perfil IG" → `https://instagram.com/{handle}` em nova aba
-- Ação: "Iniciar sequência" (dispara `email_sequence_run`)
+Novas tabelas:
+- `ig_accounts` — cache do perfil conectado (username, nome, bio, avatar, followers, media_count, category, last_synced_at, connection_id).
+- `ig_conversations` — thread por lead (participant_igsid, participant_username, avatar, status, assignee_id, tags[], last_message_at, unread_count).
+- `ig_messages` — mensagens (conversation_id, direction in/out, text, attachments jsonb, sent_at, mid, is_echo).
+- `ig_comments` — comentários em posts (media_id, from_username, text, parent_id, replied).
+- `ig_media_cache` — publicações sincronizadas (media_id, caption, media_type, permalink, thumbnail, timestamp, like_count, comments_count).
+- `ig_events` — timeline de eventos por lead (tipo, payload, created_at) para o CRM.
+- `ig_automations` — regras (trigger, conditions jsonb, actions jsonb, enabled).
+- `ig_webhook_log` — auditoria de webhooks recebidos (verificação, deduplicação por mid).
+- `ig_sync_log` — histórico de sincronizações (tipo, status, contagem, erro).
 
-### 6. Sequências de Follow-up
-Nova rota `lead-scraper.sequences.tsx`:
-- CRUD de sequências (nome + steps dia 0/3/7/15 com subject e body, com placeholders {empresa}, {cidade}, {segmento})
-- Ao iniciar sequência para um lead, cria `email_sequence_run` com `next_send_at = now()`
-- Hook cron `auto-followup.ts` (a cada hora):
-  - Busca runs com `next_send_at <= now()` e `status=running`
-  - Envia próximo step via email queue existente
-  - Atualiza `current_step` e `next_send_at`
-  - Se lead recebeu resposta (`last_response_at > run.created_at`), cancela automaticamente
-- Cron: `0 * * * *`
+Extensões em tabelas existentes:
+- `leads`: adicionar `ig_conversation_id` para linkar conversa ↔ lead automaticamente.
 
-### 7. Dashboard avançado (atualizar `lead-scraper.dashboard.tsx`)
-Novos KPIs:
-- Leads encontrados hoje
-- Leads enriquecidos
-- E-mails encontrados / Instagram encontrados
-- Taxa de enriquecimento (%)
-- E-mails enviados (24h/7d)
-- Taxa de resposta
-- Conversões (lead → cliente)
-- Distribuição por estágio (gráfico)
+Todas com RLS por `user_id`, GRANTs para `authenticated` e `service_role`, updated_at trigger. Habilitar realtime em `ig_conversations`, `ig_messages`, `ig_events`.
 
-### 8. Busca contínua aprimorada
-- `auto-scrape-leads` já roda diariamente com rotação geográfica; vou aumentar cobertura para 3 execuções/dia (manhã/tarde/noite) rotacionando segmentos: academias → escolas → equipes/projetos
-- Deduplicação por `website` OR `instagram_handle` OR `phone` normalizado
-- Se lead já existe, apenas re-enriquece campos vazios
+---
 
-### 9. UI/UX
-- Sidebar: novo item "Prospecção" e "Pipeline" e "Sequências" dentro do grupo Lead Scraper
-- Componentes shadcn + framer motion (mantendo padrão existente)
-- Avatares circulares, badges de canal disponível (📧 IG ☎ WA)
-- Modo escuro já herdado
+## 3. Backend — funções e rotas
 
-## Arquivos afetados
+### `src/lib/instagram.functions.ts` (server functions autenticadas)
+- `getIgAccount()` — retorna conta conectada + estatísticas.
+- `syncIgProfile()` / `syncIgMedia()` / `syncIgInsights()` — sincronização manual sob demanda.
+- `listConversations(filters)` / `getConversation(id)` / `getMessages(convId)`.
+- `sendMessage(convId, text)` — usa Instagram Messaging API (respeita janela de 7 dias; retorna erro amigável se fora dela).
+- `updateConversation(id, {status, assignee, tags})`.
+- `promoteConversationToLead(convId)` — cria/liga registro em `leads`.
+- `listAutomations()` / `upsertAutomation()` / `toggleAutomation()`.
+- `getDashboardKpis()` — contas conectadas, conversas ativas, novos leads, tempo médio resposta, pendentes, conversões.
+- `searchIg(query)` — busca em conversas/leads por @, nome, empresa, cidade, telefone, e-mail, tag, segmento.
+- `aiConversationTools(convId, action)` — resumir, sugerir resposta, classificar intenção, próximos passos, gerar tarefa, priorizar (usa Gemini via Lovable AI).
 
-**Migração SQL (1)**
-- Novas colunas em `leads`, novas tabelas `email_sequences` e `email_sequence_runs` + GRANTs + RLS
+### Rotas públicas (`src/routes/api/public/hooks/`)
+- `ig-webhook.ts` — `GET` para verificação (`hub.challenge` + `META_APP_SECRET`); `POST` valida HMAC-SHA256 (`X-Hub-Signature-256`) com raw body, dedup por `mid`, persiste mensagens/comentários/menções, cria conversation se novo IGSID, dispara automações.
+- `ig-sync.ts` — cron horário: sincroniza perfil, mídias, insights de todas as contas conectadas; grava em `ig_sync_log`.
 
-**Backend / server functions**
-- `src/lib/leads-scraper.functions.ts` — enriquecimento IG, WhatsApp, AI analysis, atualização de pipeline
-- `src/lib/email-sequences.functions.ts` (novo) — CRUD sequências, iniciar/pausar run
-- `src/routes/api/public/hooks/auto-followup.ts` (novo) — cron de disparo de follow-up
-- `src/routes/api/public/hooks/auto-scrape-leads.ts` — 3 execuções/dia + dedup melhorada
-- Cron SQL: agendar `auto-followup` e ajustar frequência do scrape
+### Cron
+- `pg_cron` a cada hora chamando `ig-sync`.
+- `pg_cron` a cada 15 min processando fila de automações pendentes.
 
-**Frontend**
-- `src/routes/_authenticated/lead-scraper.prospeccao.tsx` (novo) — Central de Prospecção
-- `src/routes/_authenticated/lead-scraper.pipeline.tsx` (novo) — Kanban
-- `src/routes/_authenticated/lead-scraper.sequences.tsx` (novo) — Sequências
-- `src/routes/_authenticated/lead-scraper.dashboard.tsx` — KPIs expandidos
-- `src/routes/_authenticated/lead-scraper.enrichment.tsx` — mostrar campos IG/WA/AI
-- `src/components/AppSidebar.tsx` — novos itens de menu
+---
 
-## Considerações
-- **Instagram**: sem API oficial para dados de perfil de terceiros; farei melhor esforço via scrape da página pública (Firecrawl) para bio/verificação; seguidores nem sempre disponíveis — campos ficam opcionais
-- **Dedupe**: usar índice único parcial em `website` e `instagram_handle` (não em phone porque formato varia)
-- **Sequências**: reutilizam a infraestrutura de email queue já configurada (aguardando DNS propagar)
-- **Follow-up cancelamento por resposta**: precisamos capturar respostas — por ora, marcaremos manualmente via botão "Marcar como respondido" na Central; futuramente via webhook IMAP
+## 4. Frontend — nova área "Instagram Hub"
 
-Confirma para eu executar?
+Rotas em `src/routes/_authenticated/instagram.*`:
+
+1. **`instagram.dashboard.tsx`** — KPIs (contas, conversas ativas, novos leads, tempo médio resposta, mensagens respondidas/pendentes, conversões, clientes originados). Gráficos com Recharts.
+
+2. **`instagram.account.tsx`** — Conexão: card do perfil (avatar, @, nome, bio, link bio, categoria, seguidores, nº posts, status, última sync). Botões: Conectar, Reconectar, Sincronizar agora, Ver logs.
+
+3. **`instagram.inbox.tsx`** — Central de conversas (layout 3 colunas):
+   - Lista com filtros (status, responsável, tags, busca).
+   - Thread central com mensagens, campo de resposta (bloqueado se fora da janela 7d com aviso), botões IA (resumir/sugerir).
+   - Painel lateral do lead: foto, nome, @, link do perfil, cidade, empresa, telefone, e-mail, tags, notas, etapa do funil, timeline, tarefas.
+
+4. **`instagram.crm.tsx`** — Kanban dos leads originados do IG por etapa do funil (drag & drop, reutiliza `pipeline_stage` da tabela `leads`).
+
+5. **`instagram.comments.tsx`** — Comentários e menções em publicações, com resposta rápida.
+
+6. **`instagram.automations.tsx`** — Builder visual de regras:
+   - Triggers: `new_conversation`, `new_comment`, `keyword_match`, `mention`.
+   - Ações: criar lead, atribuir responsável, mover no funil, criar tarefa, enviar resposta automática, notificar, aplicar tag.
+
+7. **`instagram.admin.tsx`** — Painel admin: conexões, logs de webhook, logs de sync, consumo de API (contagem por hora), erros, botão reconectar.
+
+Sidebar: novo grupo "Instagram Hub" com esses 7 itens, ícone `Instagram` (lucide).
+
+---
+
+## 5. IA integrada
+
+Reutiliza Lovable AI Gateway (`google/gemini-2.5-flash`). Endpoints no `aiConversationTools`:
+- **Resumo** da conversa em 3 bullets.
+- **Sugestão de resposta** institucional (segue guia de marca já memorizado).
+- **Classificação de intenção** (dúvida, orçamento, reclamação, elogio, spam).
+- **Score do lead** (0–100) e canal recomendado.
+- **Próximos passos** + geração automática de tarefas.
+- **Priorização** da inbox por probabilidade de conversão.
+
+---
+
+## 6. Segurança
+
+- Webhook: verificação HMAC obrigatória com `META_APP_SECRET`, rejeição 401 sem assinatura válida, dedup por `mid` para evitar replay.
+- Tokens: já criptografados via `meta_connections`; renovação automática (long-lived 60d) e alerta no dashboard 7 dias antes de expirar.
+- RLS estrito: cada usuário só vê suas próprias conversas/leads.
+- Logs de auditoria em `ig_webhook_log` e `activity_logs`.
+- Validação Zod em todas as inputs de server functions.
+- `/api/public/hooks/*` sem PII em respostas.
+
+---
+
+## 7. Arquitetura modular (preparada para outros canais)
+
+Camada de abstração `src/lib/channels/` com interface `ChannelAdapter`:
+```
+interface ChannelAdapter {
+  channel: 'instagram' | 'whatsapp' | 'messenger' | 'telegram';
+  sendMessage(convId, text): Promise<Result>;
+  fetchConversations(): Promise<Conversation[]>;
+  handleWebhook(payload): Promise<void>;
+}
+```
+Instagram é o primeiro adapter. Tabelas de conversation/message ganham coluna `channel` para reaproveitamento futuro sem migração destrutiva.
+
+---
+
+## 8. Entrega em ordem
+
+1. Migração SQL (tabelas + RLS + realtime + trigger).
+2. Backend: adapter, functions, webhook, sync cron.
+3. Frontend: sidebar + 7 rotas com skeleton loading e Framer Motion.
+4. IA tools + automações.
+5. Painel admin + logs.
+
+---
+
+## Observações técnicas ao usuário
+
+- **Janela de 7 dias**: a Meta só permite enviar DM para quem enviou mensagem nesse prazo. Fora disso, botão "Abrir Direct manualmente" (já existente) continua sendo o caminho.
+- **Webhook**: precisa registrar a URL `https://marketing.amtfightwear.com.br/api/public/hooks/ig-webhook` no App Meta e assinar os campos `messages`, `comments`, `mentions`. Instruções aparecerão na tela Admin.
+- **Insights de seguidores/posts**: só disponíveis para contas Business/Creator vinculadas a uma Facebook Page (já é o caso da conexão atual).

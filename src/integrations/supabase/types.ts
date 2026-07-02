@@ -412,6 +412,490 @@ export type Database = {
         }
         Relationships: []
       }
+      ig_accounts: {
+        Row: {
+          account_type: string | null
+          biography: string | null
+          category: string | null
+          connection_id: string | null
+          created_at: string
+          followers_count: number | null
+          follows_count: number | null
+          id: string
+          ig_user_id: string
+          last_synced_at: string | null
+          media_count: number | null
+          name: string | null
+          profile_picture_url: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          username: string | null
+          website: string | null
+        }
+        Insert: {
+          account_type?: string | null
+          biography?: string | null
+          category?: string | null
+          connection_id?: string | null
+          created_at?: string
+          followers_count?: number | null
+          follows_count?: number | null
+          id?: string
+          ig_user_id: string
+          last_synced_at?: string | null
+          media_count?: number | null
+          name?: string | null
+          profile_picture_url?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          username?: string | null
+          website?: string | null
+        }
+        Update: {
+          account_type?: string | null
+          biography?: string | null
+          category?: string | null
+          connection_id?: string | null
+          created_at?: string
+          followers_count?: number | null
+          follows_count?: number | null
+          id?: string
+          ig_user_id?: string
+          last_synced_at?: string | null
+          media_count?: number | null
+          name?: string | null
+          profile_picture_url?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ig_accounts_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "meta_connections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ig_automations: {
+        Row: {
+          actions: Json | null
+          conditions: Json | null
+          created_at: string
+          enabled: boolean
+          id: string
+          last_run_at: string | null
+          name: string
+          runs_count: number
+          trigger: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          actions?: Json | null
+          conditions?: Json | null
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          last_run_at?: string | null
+          name: string
+          runs_count?: number
+          trigger: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          actions?: Json | null
+          conditions?: Json | null
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          last_run_at?: string | null
+          name?: string
+          runs_count?: number
+          trigger?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ig_comments: {
+        Row: {
+          comment_id: string
+          created_at: string
+          from_id: string | null
+          from_username: string | null
+          id: string
+          ig_account_id: string | null
+          media_id: string | null
+          parent_id: string | null
+          replied: boolean | null
+          text: string | null
+          user_id: string
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string
+          from_id?: string | null
+          from_username?: string | null
+          id?: string
+          ig_account_id?: string | null
+          media_id?: string | null
+          parent_id?: string | null
+          replied?: boolean | null
+          text?: string | null
+          user_id: string
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string
+          from_id?: string | null
+          from_username?: string | null
+          id?: string
+          ig_account_id?: string | null
+          media_id?: string | null
+          parent_id?: string | null
+          replied?: boolean | null
+          text?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ig_comments_ig_account_id_fkey"
+            columns: ["ig_account_id"]
+            isOneToOne: false
+            referencedRelation: "ig_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ig_conversations: {
+        Row: {
+          ai_intent: string | null
+          ai_priority: number | null
+          ai_summary: string | null
+          assignee_id: string | null
+          channel: string
+          created_at: string
+          id: string
+          ig_account_id: string | null
+          last_message_at: string | null
+          last_message_preview: string | null
+          lead_id: string | null
+          notes: string | null
+          participant_avatar_url: string | null
+          participant_igsid: string
+          participant_name: string | null
+          participant_username: string | null
+          status: string
+          tags: string[] | null
+          unread_count: number
+          updated_at: string
+          user_id: string
+          window_expires_at: string | null
+        }
+        Insert: {
+          ai_intent?: string | null
+          ai_priority?: number | null
+          ai_summary?: string | null
+          assignee_id?: string | null
+          channel?: string
+          created_at?: string
+          id?: string
+          ig_account_id?: string | null
+          last_message_at?: string | null
+          last_message_preview?: string | null
+          lead_id?: string | null
+          notes?: string | null
+          participant_avatar_url?: string | null
+          participant_igsid: string
+          participant_name?: string | null
+          participant_username?: string | null
+          status?: string
+          tags?: string[] | null
+          unread_count?: number
+          updated_at?: string
+          user_id: string
+          window_expires_at?: string | null
+        }
+        Update: {
+          ai_intent?: string | null
+          ai_priority?: number | null
+          ai_summary?: string | null
+          assignee_id?: string | null
+          channel?: string
+          created_at?: string
+          id?: string
+          ig_account_id?: string | null
+          last_message_at?: string | null
+          last_message_preview?: string | null
+          lead_id?: string | null
+          notes?: string | null
+          participant_avatar_url?: string | null
+          participant_igsid?: string
+          participant_name?: string | null
+          participant_username?: string | null
+          status?: string
+          tags?: string[] | null
+          unread_count?: number
+          updated_at?: string
+          user_id?: string
+          window_expires_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ig_conversations_ig_account_id_fkey"
+            columns: ["ig_account_id"]
+            isOneToOne: false
+            referencedRelation: "ig_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ig_conversations_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ig_events: {
+        Row: {
+          actor_id: string | null
+          conversation_id: string | null
+          created_at: string
+          event_type: string
+          id: string
+          lead_id: string | null
+          payload: Json | null
+          user_id: string
+        }
+        Insert: {
+          actor_id?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          event_type: string
+          id?: string
+          lead_id?: string | null
+          payload?: Json | null
+          user_id: string
+        }
+        Update: {
+          actor_id?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          lead_id?: string | null
+          payload?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ig_events_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "ig_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ig_events_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ig_media_cache: {
+        Row: {
+          caption: string | null
+          comments_count: number | null
+          id: string
+          ig_account_id: string | null
+          like_count: number | null
+          media_id: string
+          media_type: string | null
+          media_url: string | null
+          permalink: string | null
+          synced_at: string
+          thumbnail_url: string | null
+          timestamp: string | null
+          user_id: string
+        }
+        Insert: {
+          caption?: string | null
+          comments_count?: number | null
+          id?: string
+          ig_account_id?: string | null
+          like_count?: number | null
+          media_id: string
+          media_type?: string | null
+          media_url?: string | null
+          permalink?: string | null
+          synced_at?: string
+          thumbnail_url?: string | null
+          timestamp?: string | null
+          user_id: string
+        }
+        Update: {
+          caption?: string | null
+          comments_count?: number | null
+          id?: string
+          ig_account_id?: string | null
+          like_count?: number | null
+          media_id?: string
+          media_type?: string | null
+          media_url?: string | null
+          permalink?: string | null
+          synced_at?: string
+          thumbnail_url?: string | null
+          timestamp?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ig_media_cache_ig_account_id_fkey"
+            columns: ["ig_account_id"]
+            isOneToOne: false
+            referencedRelation: "ig_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ig_messages: {
+        Row: {
+          attachments: Json | null
+          conversation_id: string
+          created_at: string
+          direction: string
+          id: string
+          is_echo: boolean | null
+          mid: string | null
+          sent_at: string
+          text: string | null
+          user_id: string
+        }
+        Insert: {
+          attachments?: Json | null
+          conversation_id: string
+          created_at?: string
+          direction: string
+          id?: string
+          is_echo?: boolean | null
+          mid?: string | null
+          sent_at?: string
+          text?: string | null
+          user_id: string
+        }
+        Update: {
+          attachments?: Json | null
+          conversation_id?: string
+          created_at?: string
+          direction?: string
+          id?: string
+          is_echo?: boolean | null
+          mid?: string | null
+          sent_at?: string
+          text?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ig_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "ig_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ig_sync_log: {
+        Row: {
+          created_at: string
+          duration_ms: number | null
+          error: string | null
+          id: string
+          ig_account_id: string | null
+          items_count: number | null
+          status: string
+          sync_type: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          duration_ms?: number | null
+          error?: string | null
+          id?: string
+          ig_account_id?: string | null
+          items_count?: number | null
+          status: string
+          sync_type: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          duration_ms?: number | null
+          error?: string | null
+          id?: string
+          ig_account_id?: string | null
+          items_count?: number | null
+          status?: string
+          sync_type?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ig_sync_log_ig_account_id_fkey"
+            columns: ["ig_account_id"]
+            isOneToOne: false
+            referencedRelation: "ig_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ig_webhook_log: {
+        Row: {
+          entry_id: string | null
+          error: string | null
+          event_type: string | null
+          id: string
+          object: string | null
+          payload: Json | null
+          processed: boolean | null
+          received_at: string
+          signature_valid: boolean | null
+        }
+        Insert: {
+          entry_id?: string | null
+          error?: string | null
+          event_type?: string | null
+          id?: string
+          object?: string | null
+          payload?: Json | null
+          processed?: boolean | null
+          received_at?: string
+          signature_valid?: boolean | null
+        }
+        Update: {
+          entry_id?: string | null
+          error?: string | null
+          event_type?: string | null
+          id?: string
+          object?: string | null
+          payload?: Json | null
+          processed?: boolean | null
+          received_at?: string
+          signature_valid?: boolean | null
+        }
+        Relationships: []
+      }
       kpi_snapshots: {
         Row: {
           created_at: string
@@ -562,6 +1046,7 @@ export type Database = {
           enrichment_status: string | null
           facebook: string | null
           id: string
+          ig_conversation_id: string | null
           instagram_avatar_url: string | null
           instagram_bio: string | null
           instagram_followers: number | null
@@ -619,6 +1104,7 @@ export type Database = {
           enrichment_status?: string | null
           facebook?: string | null
           id?: string
+          ig_conversation_id?: string | null
           instagram_avatar_url?: string | null
           instagram_bio?: string | null
           instagram_followers?: number | null
@@ -676,6 +1162,7 @@ export type Database = {
           enrichment_status?: string | null
           facebook?: string | null
           id?: string
+          ig_conversation_id?: string | null
           instagram_avatar_url?: string | null
           instagram_bio?: string | null
           instagram_followers?: number | null
@@ -712,7 +1199,15 @@ export type Database = {
           whatsapp?: string | null
           zip?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "leads_ig_conversation_id_fkey"
+            columns: ["ig_conversation_id"]
+            isOneToOne: false
+            referencedRelation: "ig_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       market_metrics: {
         Row: {
