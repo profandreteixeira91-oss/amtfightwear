@@ -503,11 +503,15 @@ export const Route = createFileRoute("/api/public/hooks/auto-instagram-post")({
           );
           const logoUrl = await getLogoSignedUrl(supabase);
 
+          // REEL sem vídeo não é publicável pela Graph API (exige video_url).
+          // Para não travar o piloto automático, publicamos como post de feed 4:5 (vertical, cinematográfico).
+          const effectiveType: PostType = postType === "reel" ? "post" : postType;
+
           const aspect: "1:1" | "9:16" | "4:5" =
-            postType === "story" || postType === "reel" ? "9:16" : "1:1";
+            effectiveType === "story" ? "9:16" : postType === "reel" ? "4:5" : "1:1";
 
           const slides =
-            postType === "carousel" ? copy.slides.slice(0, 7) : copy.slides.slice(0, 1);
+            effectiveType === "carousel" ? copy.slides.slice(0, 7) : copy.slides.slice(0, 1);
 
           const uploadedUrls: string[] = [];
           for (let i = 0; i < slides.length; i++) {
@@ -531,9 +535,9 @@ export const Route = createFileRoute("/api/public/hooks/auto-instagram-post")({
 
           // 7. Publish
           let result: { ig_media_id: string; ig_permalink: string | null };
-          if (postType === "carousel" && uploadedUrls.length > 1) {
+          if (effectiveType === "carousel" && uploadedUrls.length > 1) {
             result = await publishCarousel(conn.instagram_business_account_id, conn.page_access_token, uploadedUrls, copy.caption);
-          } else if (postType === "story") {
+          } else if (effectiveType === "story") {
             result = await publishSingle(conn.instagram_business_account_id, conn.page_access_token, uploadedUrls[0], copy.caption, "STORIES");
           } else {
             result = await publishSingle(conn.instagram_business_account_id, conn.page_access_token, uploadedUrls[0], copy.caption);
