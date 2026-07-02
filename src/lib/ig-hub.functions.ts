@@ -298,7 +298,7 @@ export const updateConversation = createServerFn({ method: "POST" })
     if (data.assignee_id !== undefined) patch.assignee_id = data.assignee_id;
     if (data.tags !== undefined) patch.tags = data.tags;
     if (data.notes !== undefined) patch.notes = data.notes;
-    const { data: row, error } = await context.supabase
+    const { data: row, error } = await (context.supabase as any)
       .from("ig_conversations").update(patch).eq("id", data.id).eq("user_id", context.userId).select().single();
     if (error) throw new Error(error.message);
 
