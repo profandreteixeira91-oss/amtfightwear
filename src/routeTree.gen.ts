@@ -40,6 +40,13 @@ import { Route as AuthenticatedLeadScraperLogsRouteImport } from './routes/_auth
 import { Route as AuthenticatedLeadScraperExportsRouteImport } from './routes/_authenticated/lead-scraper.exports'
 import { Route as AuthenticatedLeadScraperEnrichmentRouteImport } from './routes/_authenticated/lead-scraper.enrichment'
 import { Route as AuthenticatedLeadScraperAutomationsRouteImport } from './routes/_authenticated/lead-scraper.automations'
+import { Route as AuthenticatedInstagramInboxRouteImport } from './routes/_authenticated/instagram.inbox'
+import { Route as AuthenticatedInstagramDashboardRouteImport } from './routes/_authenticated/instagram.dashboard'
+import { Route as AuthenticatedInstagramCrmRouteImport } from './routes/_authenticated/instagram.crm'
+import { Route as AuthenticatedInstagramCommentsRouteImport } from './routes/_authenticated/instagram.comments'
+import { Route as AuthenticatedInstagramAutomationsRouteImport } from './routes/_authenticated/instagram.automations'
+import { Route as AuthenticatedInstagramAdminRouteImport } from './routes/_authenticated/instagram.admin'
+import { Route as AuthenticatedInstagramAccountRouteImport } from './routes/_authenticated/instagram.account'
 import { Route as AuthenticatedGrowthProductsRouteImport } from './routes/_authenticated/growth.products'
 import { Route as AuthenticatedGrowthMarketRouteImport } from './routes/_authenticated/growth.market'
 import { Route as AuthenticatedGrowthKpisRouteImport } from './routes/_authenticated/growth.kpis'
@@ -51,6 +58,8 @@ import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/e
 import { Route as ApiPublicSalesChatRouteImport } from './routes/api/public/sales/chat'
 import { Route as ApiPublicMetaCallbackRouteImport } from './routes/api/public/meta/callback'
 import { Route as ApiPublicHooksPublishScheduledPostsRouteImport } from './routes/api/public/hooks/publish-scheduled-posts'
+import { Route as ApiPublicHooksIgWebhookRouteImport } from './routes/api/public/hooks/ig-webhook'
+import { Route as ApiPublicHooksIgSyncRouteImport } from './routes/api/public/hooks/ig-sync'
 import { Route as ApiPublicHooksAutoScrapeLeadsRouteImport } from './routes/api/public/hooks/auto-scrape-leads'
 import { Route as ApiPublicHooksAutoOutreachRouteImport } from './routes/api/public/hooks/auto-outreach'
 import { Route as ApiPublicHooksAutoInstagramPostRouteImport } from './routes/api/public/hooks/auto-instagram-post'
@@ -231,6 +240,48 @@ const AuthenticatedLeadScraperAutomationsRoute =
     path: '/lead-scraper/automations',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedInstagramInboxRoute =
+  AuthenticatedInstagramInboxRouteImport.update({
+    id: '/instagram/inbox',
+    path: '/instagram/inbox',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedInstagramDashboardRoute =
+  AuthenticatedInstagramDashboardRouteImport.update({
+    id: '/instagram/dashboard',
+    path: '/instagram/dashboard',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedInstagramCrmRoute =
+  AuthenticatedInstagramCrmRouteImport.update({
+    id: '/instagram/crm',
+    path: '/instagram/crm',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedInstagramCommentsRoute =
+  AuthenticatedInstagramCommentsRouteImport.update({
+    id: '/instagram/comments',
+    path: '/instagram/comments',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedInstagramAutomationsRoute =
+  AuthenticatedInstagramAutomationsRouteImport.update({
+    id: '/instagram/automations',
+    path: '/instagram/automations',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedInstagramAdminRoute =
+  AuthenticatedInstagramAdminRouteImport.update({
+    id: '/instagram/admin',
+    path: '/instagram/admin',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedInstagramAccountRoute =
+  AuthenticatedInstagramAccountRouteImport.update({
+    id: '/instagram/account',
+    path: '/instagram/account',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedGrowthProductsRoute =
   AuthenticatedGrowthProductsRouteImport.update({
     id: '/growth/products',
@@ -293,6 +344,16 @@ const ApiPublicHooksPublishScheduledPostsRoute =
     path: '/api/public/hooks/publish-scheduled-posts',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksIgWebhookRoute = ApiPublicHooksIgWebhookRouteImport.update({
+  id: '/api/public/hooks/ig-webhook',
+  path: '/api/public/hooks/ig-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicHooksIgSyncRoute = ApiPublicHooksIgSyncRouteImport.update({
+  id: '/api/public/hooks/ig-sync',
+  path: '/api/public/hooks/ig-sync',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHooksAutoScrapeLeadsRoute =
   ApiPublicHooksAutoScrapeLeadsRouteImport.update({
     id: '/api/public/hooks/auto-scrape-leads',
@@ -340,6 +401,13 @@ export interface FileRoutesByFullPath {
   '/growth/kpis': typeof AuthenticatedGrowthKpisRoute
   '/growth/market': typeof AuthenticatedGrowthMarketRoute
   '/growth/products': typeof AuthenticatedGrowthProductsRoute
+  '/instagram/account': typeof AuthenticatedInstagramAccountRoute
+  '/instagram/admin': typeof AuthenticatedInstagramAdminRoute
+  '/instagram/automations': typeof AuthenticatedInstagramAutomationsRoute
+  '/instagram/comments': typeof AuthenticatedInstagramCommentsRoute
+  '/instagram/crm': typeof AuthenticatedInstagramCrmRoute
+  '/instagram/dashboard': typeof AuthenticatedInstagramDashboardRoute
+  '/instagram/inbox': typeof AuthenticatedInstagramInboxRoute
   '/lead-scraper/automations': typeof AuthenticatedLeadScraperAutomationsRoute
   '/lead-scraper/enrichment': typeof AuthenticatedLeadScraperEnrichmentRoute
   '/lead-scraper/exports': typeof AuthenticatedLeadScraperExportsRoute
@@ -367,6 +435,8 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/auto-outreach': typeof ApiPublicHooksAutoOutreachRoute
   '/api/public/hooks/auto-scrape-leads': typeof ApiPublicHooksAutoScrapeLeadsRoute
+  '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
+  '/api/public/hooks/ig-webhook': typeof ApiPublicHooksIgWebhookRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
@@ -388,6 +458,13 @@ export interface FileRoutesByTo {
   '/growth/kpis': typeof AuthenticatedGrowthKpisRoute
   '/growth/market': typeof AuthenticatedGrowthMarketRoute
   '/growth/products': typeof AuthenticatedGrowthProductsRoute
+  '/instagram/account': typeof AuthenticatedInstagramAccountRoute
+  '/instagram/admin': typeof AuthenticatedInstagramAdminRoute
+  '/instagram/automations': typeof AuthenticatedInstagramAutomationsRoute
+  '/instagram/comments': typeof AuthenticatedInstagramCommentsRoute
+  '/instagram/crm': typeof AuthenticatedInstagramCrmRoute
+  '/instagram/dashboard': typeof AuthenticatedInstagramDashboardRoute
+  '/instagram/inbox': typeof AuthenticatedInstagramInboxRoute
   '/lead-scraper/automations': typeof AuthenticatedLeadScraperAutomationsRoute
   '/lead-scraper/enrichment': typeof AuthenticatedLeadScraperEnrichmentRoute
   '/lead-scraper/exports': typeof AuthenticatedLeadScraperExportsRoute
@@ -415,6 +492,8 @@ export interface FileRoutesByTo {
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/auto-outreach': typeof ApiPublicHooksAutoOutreachRoute
   '/api/public/hooks/auto-scrape-leads': typeof ApiPublicHooksAutoScrapeLeadsRoute
+  '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
+  '/api/public/hooks/ig-webhook': typeof ApiPublicHooksIgWebhookRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
@@ -438,6 +517,13 @@ export interface FileRoutesById {
   '/_authenticated/growth/kpis': typeof AuthenticatedGrowthKpisRoute
   '/_authenticated/growth/market': typeof AuthenticatedGrowthMarketRoute
   '/_authenticated/growth/products': typeof AuthenticatedGrowthProductsRoute
+  '/_authenticated/instagram/account': typeof AuthenticatedInstagramAccountRoute
+  '/_authenticated/instagram/admin': typeof AuthenticatedInstagramAdminRoute
+  '/_authenticated/instagram/automations': typeof AuthenticatedInstagramAutomationsRoute
+  '/_authenticated/instagram/comments': typeof AuthenticatedInstagramCommentsRoute
+  '/_authenticated/instagram/crm': typeof AuthenticatedInstagramCrmRoute
+  '/_authenticated/instagram/dashboard': typeof AuthenticatedInstagramDashboardRoute
+  '/_authenticated/instagram/inbox': typeof AuthenticatedInstagramInboxRoute
   '/_authenticated/lead-scraper/automations': typeof AuthenticatedLeadScraperAutomationsRoute
   '/_authenticated/lead-scraper/enrichment': typeof AuthenticatedLeadScraperEnrichmentRoute
   '/_authenticated/lead-scraper/exports': typeof AuthenticatedLeadScraperExportsRoute
@@ -465,6 +551,8 @@ export interface FileRoutesById {
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/auto-outreach': typeof ApiPublicHooksAutoOutreachRoute
   '/api/public/hooks/auto-scrape-leads': typeof ApiPublicHooksAutoScrapeLeadsRoute
+  '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
+  '/api/public/hooks/ig-webhook': typeof ApiPublicHooksIgWebhookRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
@@ -488,6 +576,13 @@ export interface FileRouteTypes {
     | '/growth/kpis'
     | '/growth/market'
     | '/growth/products'
+    | '/instagram/account'
+    | '/instagram/admin'
+    | '/instagram/automations'
+    | '/instagram/comments'
+    | '/instagram/crm'
+    | '/instagram/dashboard'
+    | '/instagram/inbox'
     | '/lead-scraper/automations'
     | '/lead-scraper/enrichment'
     | '/lead-scraper/exports'
@@ -515,6 +610,8 @@ export interface FileRouteTypes {
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/auto-outreach'
     | '/api/public/hooks/auto-scrape-leads'
+    | '/api/public/hooks/ig-sync'
+    | '/api/public/hooks/ig-webhook'
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/meta/callback'
     | '/api/public/sales/chat'
@@ -536,6 +633,13 @@ export interface FileRouteTypes {
     | '/growth/kpis'
     | '/growth/market'
     | '/growth/products'
+    | '/instagram/account'
+    | '/instagram/admin'
+    | '/instagram/automations'
+    | '/instagram/comments'
+    | '/instagram/crm'
+    | '/instagram/dashboard'
+    | '/instagram/inbox'
     | '/lead-scraper/automations'
     | '/lead-scraper/enrichment'
     | '/lead-scraper/exports'
@@ -563,6 +667,8 @@ export interface FileRouteTypes {
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/auto-outreach'
     | '/api/public/hooks/auto-scrape-leads'
+    | '/api/public/hooks/ig-sync'
+    | '/api/public/hooks/ig-webhook'
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/meta/callback'
     | '/api/public/sales/chat'
@@ -585,6 +691,13 @@ export interface FileRouteTypes {
     | '/_authenticated/growth/kpis'
     | '/_authenticated/growth/market'
     | '/_authenticated/growth/products'
+    | '/_authenticated/instagram/account'
+    | '/_authenticated/instagram/admin'
+    | '/_authenticated/instagram/automations'
+    | '/_authenticated/instagram/comments'
+    | '/_authenticated/instagram/crm'
+    | '/_authenticated/instagram/dashboard'
+    | '/_authenticated/instagram/inbox'
     | '/_authenticated/lead-scraper/automations'
     | '/_authenticated/lead-scraper/enrichment'
     | '/_authenticated/lead-scraper/exports'
@@ -612,6 +725,8 @@ export interface FileRouteTypes {
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/auto-outreach'
     | '/api/public/hooks/auto-scrape-leads'
+    | '/api/public/hooks/ig-sync'
+    | '/api/public/hooks/ig-webhook'
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/meta/callback'
     | '/api/public/sales/chat'
@@ -627,6 +742,8 @@ export interface RootRouteChildren {
   ApiPublicHooksAutoInstagramPostRoute: typeof ApiPublicHooksAutoInstagramPostRoute
   ApiPublicHooksAutoOutreachRoute: typeof ApiPublicHooksAutoOutreachRoute
   ApiPublicHooksAutoScrapeLeadsRoute: typeof ApiPublicHooksAutoScrapeLeadsRoute
+  ApiPublicHooksIgSyncRoute: typeof ApiPublicHooksIgSyncRoute
+  ApiPublicHooksIgWebhookRoute: typeof ApiPublicHooksIgWebhookRoute
   ApiPublicHooksPublishScheduledPostsRoute: typeof ApiPublicHooksPublishScheduledPostsRoute
   ApiPublicMetaCallbackRoute: typeof ApiPublicMetaCallbackRoute
   ApiPublicSalesChatRoute: typeof ApiPublicSalesChatRoute
@@ -852,6 +969,55 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLeadScraperAutomationsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/instagram/inbox': {
+      id: '/_authenticated/instagram/inbox'
+      path: '/instagram/inbox'
+      fullPath: '/instagram/inbox'
+      preLoaderRoute: typeof AuthenticatedInstagramInboxRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/instagram/dashboard': {
+      id: '/_authenticated/instagram/dashboard'
+      path: '/instagram/dashboard'
+      fullPath: '/instagram/dashboard'
+      preLoaderRoute: typeof AuthenticatedInstagramDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/instagram/crm': {
+      id: '/_authenticated/instagram/crm'
+      path: '/instagram/crm'
+      fullPath: '/instagram/crm'
+      preLoaderRoute: typeof AuthenticatedInstagramCrmRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/instagram/comments': {
+      id: '/_authenticated/instagram/comments'
+      path: '/instagram/comments'
+      fullPath: '/instagram/comments'
+      preLoaderRoute: typeof AuthenticatedInstagramCommentsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/instagram/automations': {
+      id: '/_authenticated/instagram/automations'
+      path: '/instagram/automations'
+      fullPath: '/instagram/automations'
+      preLoaderRoute: typeof AuthenticatedInstagramAutomationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/instagram/admin': {
+      id: '/_authenticated/instagram/admin'
+      path: '/instagram/admin'
+      fullPath: '/instagram/admin'
+      preLoaderRoute: typeof AuthenticatedInstagramAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/instagram/account': {
+      id: '/_authenticated/instagram/account'
+      path: '/instagram/account'
+      fullPath: '/instagram/account'
+      preLoaderRoute: typeof AuthenticatedInstagramAccountRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/growth/products': {
       id: '/_authenticated/growth/products'
       path: '/growth/products'
@@ -929,6 +1095,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksPublishScheduledPostsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/ig-webhook': {
+      id: '/api/public/hooks/ig-webhook'
+      path: '/api/public/hooks/ig-webhook'
+      fullPath: '/api/public/hooks/ig-webhook'
+      preLoaderRoute: typeof ApiPublicHooksIgWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/ig-sync': {
+      id: '/api/public/hooks/ig-sync'
+      path: '/api/public/hooks/ig-sync'
+      fullPath: '/api/public/hooks/ig-sync'
+      preLoaderRoute: typeof ApiPublicHooksIgSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/auto-scrape-leads': {
       id: '/api/public/hooks/auto-scrape-leads'
       path: '/api/public/hooks/auto-scrape-leads'
@@ -995,6 +1175,13 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedGrowthKpisRoute: typeof AuthenticatedGrowthKpisRoute
   AuthenticatedGrowthMarketRoute: typeof AuthenticatedGrowthMarketRoute
   AuthenticatedGrowthProductsRoute: typeof AuthenticatedGrowthProductsRoute
+  AuthenticatedInstagramAccountRoute: typeof AuthenticatedInstagramAccountRoute
+  AuthenticatedInstagramAdminRoute: typeof AuthenticatedInstagramAdminRoute
+  AuthenticatedInstagramAutomationsRoute: typeof AuthenticatedInstagramAutomationsRoute
+  AuthenticatedInstagramCommentsRoute: typeof AuthenticatedInstagramCommentsRoute
+  AuthenticatedInstagramCrmRoute: typeof AuthenticatedInstagramCrmRoute
+  AuthenticatedInstagramDashboardRoute: typeof AuthenticatedInstagramDashboardRoute
+  AuthenticatedInstagramInboxRoute: typeof AuthenticatedInstagramInboxRoute
   AuthenticatedLeadScraperAutomationsRoute: typeof AuthenticatedLeadScraperAutomationsRoute
   AuthenticatedLeadScraperEnrichmentRoute: typeof AuthenticatedLeadScraperEnrichmentRoute
   AuthenticatedLeadScraperExportsRoute: typeof AuthenticatedLeadScraperExportsRoute
@@ -1032,6 +1219,14 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedGrowthKpisRoute: AuthenticatedGrowthKpisRoute,
   AuthenticatedGrowthMarketRoute: AuthenticatedGrowthMarketRoute,
   AuthenticatedGrowthProductsRoute: AuthenticatedGrowthProductsRoute,
+  AuthenticatedInstagramAccountRoute: AuthenticatedInstagramAccountRoute,
+  AuthenticatedInstagramAdminRoute: AuthenticatedInstagramAdminRoute,
+  AuthenticatedInstagramAutomationsRoute:
+    AuthenticatedInstagramAutomationsRoute,
+  AuthenticatedInstagramCommentsRoute: AuthenticatedInstagramCommentsRoute,
+  AuthenticatedInstagramCrmRoute: AuthenticatedInstagramCrmRoute,
+  AuthenticatedInstagramDashboardRoute: AuthenticatedInstagramDashboardRoute,
+  AuthenticatedInstagramInboxRoute: AuthenticatedInstagramInboxRoute,
   AuthenticatedLeadScraperAutomationsRoute:
     AuthenticatedLeadScraperAutomationsRoute,
   AuthenticatedLeadScraperEnrichmentRoute:
@@ -1073,6 +1268,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksAutoInstagramPostRoute: ApiPublicHooksAutoInstagramPostRoute,
   ApiPublicHooksAutoOutreachRoute: ApiPublicHooksAutoOutreachRoute,
   ApiPublicHooksAutoScrapeLeadsRoute: ApiPublicHooksAutoScrapeLeadsRoute,
+  ApiPublicHooksIgSyncRoute: ApiPublicHooksIgSyncRoute,
+  ApiPublicHooksIgWebhookRoute: ApiPublicHooksIgWebhookRoute,
   ApiPublicHooksPublishScheduledPostsRoute:
     ApiPublicHooksPublishScheduledPostsRoute,
   ApiPublicMetaCallbackRoute: ApiPublicMetaCallbackRoute,
@@ -1082,13 +1279,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
