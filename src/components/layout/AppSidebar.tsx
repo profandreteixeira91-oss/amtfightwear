@@ -76,18 +76,12 @@ const marketItems = [
 ] as const;
 
 const scraperItems = [
-  { title: "Dashboard", url: "/lead-scraper", icon: LayoutDashboard },
-  { title: "Prospecção", url: "/lead-scraper/prospeccao", icon: Radar },
-  { title: "Pipeline", url: "/lead-scraper/pipeline", icon: Handshake },
-  { title: "Sequências", url: "/lead-scraper/sequences", icon: Mail },
-  { title: "Pesquisas", url: "/lead-scraper/searches", icon: Search },
-  { title: "Leads", url: "/market/leads", icon: Users },
-  { title: "Enriquecimento", url: "/lead-scraper/enrichment", icon: Sparkles },
-  { title: "Mapa", url: "/lead-scraper/map", icon: Map },
-  { title: "Exportações", url: "/lead-scraper/exports", icon: Download },
-  { title: "Automações", url: "/lead-scraper/automations", icon: Zap },
-  { title: "Configurações", url: "/lead-scraper/settings", icon: Wrench },
-  { title: "Logs", url: "/lead-scraper/logs", icon: ListChecks },
+  { title: "Dashboard", url: "/prospect", icon: LayoutDashboard },
+  { title: "Leads", url: "/prospect/leads", icon: Users },
+  { title: "Pipeline", url: "/prospect/pipeline", icon: Handshake },
+  { title: "Nova Busca", url: "/prospect/search", icon: Radar },
+  { title: "Configurações", url: "/prospect/settings", icon: Wrench },
+  { title: "Logs", url: "/prospect/logs", icon: ListChecks },
 ] as const;
 
 const salesItems = [
