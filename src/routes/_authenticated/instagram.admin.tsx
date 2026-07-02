@@ -52,7 +52,7 @@ function IgAdmin() {
           <div className="text-sm text-muted-foreground">Nenhuma conexão ativa.</div>
         ) : (
           <div className="divide-y">
-            {(data?.connections ?? []).map((c) => (
+            {(data?.connections ?? []).map((c: any) => (
               <div key={c.id} className="flex items-center gap-3 py-3 text-sm">
                 <Shield className="h-4 w-4 text-primary" />
                 <div className="flex-1">
@@ -76,7 +76,7 @@ function IgAdmin() {
           <div className="text-sm text-muted-foreground">Sem registros ainda.</div>
         ) : (
           <div className="divide-y text-xs">
-            {(data?.syncLogs ?? []).map((l) => (
+            {(data?.syncLogs ?? []).map((l: any) => (
               <div key={l.id} className="flex items-center gap-2 py-2">
                 {l.status === "success" ? <CheckCircle2 className="h-3 w-3 text-emerald-500" /> : <XCircle className="h-3 w-3 text-destructive" />}
                 <span className="text-muted-foreground w-40">{new Date(l.created_at).toLocaleString("pt-BR")}</span>
@@ -97,7 +97,7 @@ function IgAdmin() {
           <div className="text-sm text-muted-foreground">Nenhum webhook recebido ainda.</div>
         ) : (
           <div className="divide-y text-xs">
-            {(data?.webhookLogs ?? []).map((l) => (
+            {(data?.webhookLogs ?? []).map((l: any) => (
               <div key={l.id} className="flex items-center gap-2 py-2">
                 {l.signature_valid ? <CheckCircle2 className="h-3 w-3 text-emerald-500" /> : <XCircle className="h-3 w-3 text-destructive" />}
                 <span className="text-muted-foreground w-40">{new Date(l.received_at).toLocaleString("pt-BR")}</span>

@@ -113,7 +113,7 @@ function IgAutomations() {
                     {" · "}Ações: {(a.actions as { type: string }[]).map((x) => x.type).join(", ")}
                   </div>
                 </div>
-                <Button size="sm" variant="ghost" onClick={() => mToggle.mutate({ ...a, enabled: !a.enabled })}>
+                <Button size="sm" variant="ghost" onClick={() => mToggle.mutate({ ...a, enabled: !a.enabled } as any)}>
                   {a.enabled ? "Desativar" : "Ativar"}
                 </Button>
                 <Button size="sm" variant="ghost" onClick={() => mDel.mutate(a.id)}>
