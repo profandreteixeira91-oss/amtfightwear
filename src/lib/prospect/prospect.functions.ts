@@ -339,7 +339,7 @@ export const runSearch = createServerFn({ method: "POST" })
           });
           await logEvent(context.supabase, context.userId, row.id, "lead_created", `Lead capturado via busca: ${data.name}`);
         }
-        void existing;
+        
       }
 
       if (searchId) {
