@@ -84,12 +84,6 @@ const scraperItems = [
   { title: "Logs", url: "/prospect/logs", icon: ListChecks },
 ] as const;
 
-const salesItems = [
-  { title: "Conversas", url: "/sales/conversations", icon: MessageSquare },
-  { title: "Base de Conhecimento", url: "/sales/kb", icon: BookOpen },
-  { title: "Analytics", url: "/sales/analytics", icon: Gauge },
-  { title: "Configurações SalesBot", url: "/sales/settings", icon: Bot },
-] as const;
 
 const instagramItems = [
   { title: "Dashboard", url: "/instagram/dashboard", icon: LineChart },
