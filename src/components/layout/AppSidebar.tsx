@@ -29,6 +29,11 @@ import {
   Zap,
   Wrench,
   ListChecks,
+  Instagram,
+  Inbox,
+  MessageCircle,
+  Shield,
+  LineChart,
 } from "lucide-react";
 
 import {
@@ -90,6 +95,16 @@ const salesItems = [
   { title: "Base de Conhecimento", url: "/sales/kb", icon: BookOpen },
   { title: "Analytics", url: "/sales/analytics", icon: Gauge },
   { title: "Configurações SalesBot", url: "/sales/settings", icon: Bot },
+] as const;
+
+const instagramItems = [
+  { title: "Dashboard", url: "/instagram/dashboard", icon: LineChart },
+  { title: "Conta Conectada", url: "/instagram/account", icon: Instagram },
+  { title: "Inbox", url: "/instagram/inbox", icon: Inbox },
+  { title: "CRM Instagram", url: "/instagram/crm", icon: Handshake },
+  { title: "Comentários", url: "/instagram/comments", icon: MessageCircle },
+  { title: "Automações", url: "/instagram/automations", icon: Zap },
+  { title: "Administração", url: "/instagram/admin", icon: Shield },
 ] as const;
 
 const accountItems = [
