@@ -1688,6 +1688,12 @@ export type Database = {
         Row: {
           autopilot_enabled: boolean
           created_at: string
+          daily_ma_cities: string[]
+          daily_ma_last_run_at: string | null
+          daily_ma_per_preset: number
+          daily_ma_presets: string[]
+          daily_ma_states: string[]
+          daily_ma_sweep_enabled: boolean
           email_subject_template: string | null
           email_template: string | null
           enrichment_interval_min: number
@@ -1702,6 +1708,12 @@ export type Database = {
         Insert: {
           autopilot_enabled?: boolean
           created_at?: string
+          daily_ma_cities?: string[]
+          daily_ma_last_run_at?: string | null
+          daily_ma_per_preset?: number
+          daily_ma_presets?: string[]
+          daily_ma_states?: string[]
+          daily_ma_sweep_enabled?: boolean
           email_subject_template?: string | null
           email_template?: string | null
           enrichment_interval_min?: number
@@ -1716,6 +1728,12 @@ export type Database = {
         Update: {
           autopilot_enabled?: boolean
           created_at?: string
+          daily_ma_cities?: string[]
+          daily_ma_last_run_at?: string | null
+          daily_ma_per_preset?: number
+          daily_ma_presets?: string[]
+          daily_ma_states?: string[]
+          daily_ma_sweep_enabled?: boolean
           email_subject_template?: string | null
           email_template?: string | null
           enrichment_interval_min?: number
