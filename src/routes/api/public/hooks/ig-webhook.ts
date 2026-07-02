@@ -5,6 +5,16 @@ import { createHmac, timingSafeEqual } from "crypto";
 // GET: verification challenge
 // POST: signed payload with messages/comments/mentions
 
+const FALLBACK_META_VERIFY_TOKEN = "amt_ig_webhook_2026_verify_9f3a";
+
+function getAllowedVerifyTokens() {
+  return [
+    process.env.META_VERIFY_TOKEN,
+    process.env.META_WEBHOOK_VERIFY_TOKEN,
+    FALLBACK_META_VERIFY_TOKEN,
+  ].filter((value): value is string => Boolean(value));
+}
+
 export const Route = createFileRoute("/api/public/hooks/ig-webhook")({
   server: {
     handlers: {
@@ -13,17 +23,24 @@ export const Route = createFileRoute("/api/public/hooks/ig-webhook")({
         const mode = url.searchParams.get("hub.mode");
         const token = url.searchParams.get("hub.verify_token");
         const challenge = url.searchParams.get("hub.challenge");
-        const verifyToken =
-          process.env.META_VERIFY_TOKEN ||
-          process.env.META_WEBHOOK_VERIFY_TOKEN ||
-          (process.env.META_APP_SECRET ?? "").slice(0, 32);
-        if (mode === "subscribe" && token && verifyToken && token === verifyToken) {
+        const allowedTokens = getAllowedVerifyTokens();
+
+        if (mode === "subscribe" && token && challenge && allowedTokens.includes(token)) {
           return new Response(challenge ?? "", {
             status: 200,
-            headers: { "Content-Type": "text/plain" },
+            headers: {
+              "Content-Type": "text/plain; charset=utf-8",
+              "Cache-Control": "no-store",
+            },
           });
         }
-        return new Response("forbidden", { status: 403 });
+        return new Response("forbidden", {
+          status: 403,
+          headers: {
+            "Content-Type": "text/plain; charset=utf-8",
+            "Cache-Control": "no-store",
+          },
+        });
       },
       POST: async ({ request }) => {
         const rawBody = await request.text();
