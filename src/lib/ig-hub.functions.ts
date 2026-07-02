@@ -221,10 +221,10 @@ export const getConversation = createServerFn({ method: "GET" })
     const { data: events } = await context.supabase
       .from("ig_events").select("*").eq("conversation_id", data.id).order("created_at", { ascending: false }).limit(50);
 
-    let lead = null;
+    let lead: { id: string; name: string; city: string | null; phone: string | null } | null = null;
     if (conv.lead_id) {
-      const { data: l } = await context.supabase
-        .from("leads").select("*").eq("id", conv.lead_id).maybeSingle();
+      const { data: l } = await (context.supabase as any)
+        .from("prospect_companies").select("id, name, city, phone").eq("id", conv.lead_id).maybeSingle();
       lead = l;
     }
 
@@ -320,17 +320,22 @@ export const promoteConversationToLead = createServerFn({ method: "POST" })
     if (!conv) throw new Error("Conversa não encontrada.");
     if (conv.lead_id) return { lead_id: conv.lead_id, created: false };
 
-    const { data: lead, error } = await (context.supabase as any).from("leads").insert({
-      user_id: context.userId,
+    const { data: lead, error } = await (context.supabase as any).from("prospect_companies").insert({
+      owner_id: context.userId,
       name: conv.participant_name ?? conv.participant_username ?? "Contato Instagram",
-      instagram_handle: conv.participant_username ?? null,
-      instagram_url: conv.participant_username ? `https://instagram.com/${conv.participant_username}` : null,
-      source: "Instagram Direct",
-      status: "Novo",
+      normalized_name: (conv.participant_username ?? conv.participant_name ?? "contato").toLowerCase().trim(),
+      origin: "Instagram Direct",
+      status: "ativo",
       pipeline_stage: "novo",
-      ig_conversation_id: conv.id,
-    }).select().single();
+      tags: ["instagram"],
+    }).select("id").single();
     if (error) throw new Error(error.message);
+    if (conv.participant_username) {
+      await (context.supabase as any).from("prospect_contacts").insert({
+        owner_id: context.userId, company_id: lead.id,
+        channel: "instagram", value: conv.participant_username, is_primary: true, source: "ig_direct",
+      });
+    }
 
     await (context.supabase as any).from("ig_conversations").update({ lead_id: lead.id }).eq("id", conv.id);
     await (context.supabase as any).from("ig_events").insert({
@@ -349,7 +354,7 @@ export const getDashboardKpis = createServerFn({ method: "GET" })
       (context.supabase as any).from("ig_accounts").select("id, status, followers_count").eq("user_id", context.userId),
       (context.supabase as any).from("ig_conversations").select("id, status, unread_count, created_at, last_message_at").eq("user_id", context.userId),
       (context.supabase as any).from("ig_messages").select("id, direction, sent_at").eq("user_id", context.userId).gte("sent_at", new Date(Date.now() - 7 * 86400000).toISOString()),
-      (context.supabase as any).from("leads").select("id, status, created_at").eq("user_id", context.userId).eq("source", "Instagram Direct"),
+      (context.supabase as any).from("prospect_companies").select("id, status, created_at").eq("owner_id", context.userId).eq("origin", "Instagram Direct"),
     ]);
 
     const conversations = (convs.data ?? []) as Array<{ status: string; unread_count: number; created_at: string }>;

@@ -235,7 +235,6 @@ function IgInbox() {
                 <div><b>@</b> {detail.conversation.participant_username ?? "—"}</div>
                 <div><b>Nome:</b> {detail.conversation.participant_name ?? "—"}</div>
                 {detail.lead?.city && <div><b>Cidade:</b> {detail.lead.city}</div>}
-                {detail.lead?.email && <div><b>E-mail:</b> {detail.lead.email}</div>}
                 {detail.lead?.phone && <div><b>Tel:</b> {detail.lead.phone}</div>}
               </div>
               <div className="space-y-2 pt-2">
