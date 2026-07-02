@@ -320,13 +320,7 @@ export const runSearch = createServerFn({ method: "POST" })
       });
 
       for (const c of companies) {
-        const { data: existing } = await (context.supabase as unknown as {
-          from: (t: string) => { select: (c: string) => { eq: (k: string, v: string) => { eq: (k: string, v: string) => { eq: (k: string, v: string | null) => { maybeSingle: () => Promise<{ data: { id: string } | null }> } } } } };
-        })
-          .from("prospect_companies").select("id")
-          .eq("owner_id", context.userId)
-          .eq("normalized_name", c.normalized_name)
-          .eq("city", c.city ?? "");
+
 
         const { data: row } = await supa.from("prospect_companies").insert({
           owner_id: context.userId,
