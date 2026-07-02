@@ -21,7 +21,7 @@ async function logEvent(
   companyId: string,
   event_type: string,
   title: string,
-  payload: Record<string, unknown> = {},
+  payload: JsonRow = {},
 ) {
   await (supabase as { from: (t: string) => { insert: (v: unknown) => Promise<unknown> } })
     .from("prospect_timeline")
@@ -34,7 +34,7 @@ async function auditLog(
   source: string,
   action: string,
   message?: string,
-  metadata: Record<string, unknown> = {},
+  metadata: JsonRow = {},
 ) {
   await (supabase as { from: (t: string) => { insert: (v: unknown) => Promise<unknown> } })
     .from("prospect_logs")
@@ -49,8 +49,8 @@ export const getDashboardStats = createServerFn({ method: "GET" })
     const supa = context.supabase as unknown as {
       from: (t: string) => {
         select: (c: string) => {
-          eq: (k: string, v: string) => Promise<{ data: unknown[] | null }>;
-        } & Promise<{ data: unknown[] | null }>;
+          eq: (k: string, v: string) => Promise<{ data: JsonRow[] | null }>;
+        } & Promise<{ data: JsonRow[] | null }>;
       };
     };
     const now = Date.now();
@@ -186,7 +186,7 @@ export const listLeads = createServerFn({ method: "POST" })
     let contacts: Array<{ company_id: string; channel: string; value: string; is_primary: boolean }> = [];
     if (ids.length) {
       const { data: cts } = await (context.supabase as unknown as {
-        from: (t: string) => { select: (c: string) => { in: (k: string, v: unknown[]) => Promise<{ data: unknown[] | null }> } };
+        from: (t: string) => { select: (c: string) => { in: (k: string, v: unknown[]) => Promise<{ data: JsonRow[] | null }> } };
       }).from("prospect_contacts").select("company_id, channel, value, is_primary").in("company_id", ids);
       contacts = (cts ?? []) as typeof contacts;
     }
@@ -215,7 +215,7 @@ export const getLead = createServerFn({ method: "GET" })
     const supa = context.supabase as unknown as {
       from: (t: string) => {
         select: (c: string) => {
-          eq: (k: string, v: string) => { single: () => Promise<{ data: Record<string, unknown> | null; error: unknown }>; order: (c: string, o?: unknown) => Promise<{ data: Record<string, unknown>[] | null }> };
+          eq: (k: string, v: string) => { single: () => Promise<{ data: JsonRow | null; error: unknown }>; order: (c: string, o?: unknown) => Promise<{ data: JsonRow[] | null }> };
         };
       };
     };
@@ -226,9 +226,9 @@ export const getLead = createServerFn({ method: "GET" })
       supa.from("prospect_timeline").select("*").eq("company_id", data.id).order("created_at", { ascending: false }),
     ]);
     return {
-      company: company as Record<string, unknown>,
-      contacts: (contacts.data ?? []) as Record<string, unknown>[],
-      timeline: (timeline.data ?? []) as Record<string, unknown>[],
+      company: company as JsonRow,
+      contacts: (contacts.data ?? []) as JsonRow[],
+      timeline: (timeline.data ?? []) as JsonRow[],
     };
   });
 
@@ -416,7 +416,7 @@ export const enrichLead = createServerFn({ method: "POST" })
     }
 
     // Atualiza a empresa com dados extras
-    const patch: Record<string, unknown> = {
+    const patch: JsonRow = {
       enriched_at: new Date().toISOString(),
       pipeline_stage: "enriquecido",
     };
@@ -550,7 +550,7 @@ export const listSearches = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { data } = await (context.supabase as unknown as {
-      from: (t: string) => { select: (c: string) => { eq: (k: string, v: string) => { order: (k: string, o?: unknown) => Promise<{ data: unknown[] | null }> } } };
+      from: (t: string) => { select: (c: string) => { eq: (k: string, v: string) => { order: (k: string, o?: unknown) => Promise<{ data: JsonRow[] | null }> } } };
     }).from("prospect_searches").select("*").eq("owner_id", context.userId).order("created_at", { ascending: false });
     return data ?? [];
   });
@@ -559,7 +559,7 @@ export const listLogs = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { data } = await (context.supabase as unknown as {
-      from: (t: string) => { select: (c: string) => { eq: (k: string, v: string) => { order: (k: string, o?: unknown) => { limit: (n: number) => Promise<{ data: unknown[] | null }> } } } };
+      from: (t: string) => { select: (c: string) => { eq: (k: string, v: string) => { order: (k: string, o?: unknown) => { limit: (n: number) => Promise<{ data: JsonRow[] | null }> } } } };
     }).from("prospect_logs").select("*").eq("owner_id", context.userId).order("created_at", { ascending: false }).limit(500);
     return data ?? [];
   });
@@ -568,7 +568,7 @@ export const listEnrichmentQueue = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { data } = await (context.supabase as unknown as {
-      from: (t: string) => { select: (c: string) => { eq: (k: string, v: string) => { order: (k: string, o?: unknown) => { limit: (n: number) => Promise<{ data: unknown[] | null }> } } } };
+      from: (t: string) => { select: (c: string) => { eq: (k: string, v: string) => { order: (k: string, o?: unknown) => { limit: (n: number) => Promise<{ data: JsonRow[] | null }> } } } };
     }).from("prospect_enrichment_jobs")
       .select("*, prospect_companies!inner(name, city, state)")
       .eq("owner_id", context.userId)
