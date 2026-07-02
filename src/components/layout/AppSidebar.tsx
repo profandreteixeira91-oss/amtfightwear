@@ -84,12 +84,6 @@ const scraperItems = [
   { title: "Logs", url: "/prospect/logs", icon: ListChecks },
 ] as const;
 
-const salesItems = [
-  { title: "Conversas", url: "/sales/conversations", icon: MessageSquare },
-  { title: "Base de Conhecimento", url: "/sales/kb", icon: BookOpen },
-  { title: "Analytics", url: "/sales/analytics", icon: Gauge },
-  { title: "Configurações SalesBot", url: "/sales/settings", icon: Bot },
-] as const;
 
 const instagramItems = [
   { title: "Dashboard", url: "/instagram/dashboard", icon: LineChart },
@@ -205,24 +199,6 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-
-        <SidebarGroup>
-          <SidebarGroupLabel>SalesBot IA</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {salesItems.map((item) => (
-                <SidebarMenuItem key={item.url}>
-                  <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
-                    <Link to={item.url} className="flex items-center gap-2">
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
 
         <SidebarGroup>
           <SidebarGroupLabel>Instagram Hub</SidebarGroupLabel>

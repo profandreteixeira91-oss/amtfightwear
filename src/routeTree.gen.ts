@@ -10,7 +10,6 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
-import { Route as SalesbotRouteImport } from './routes/salesbot'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as DataDeletionRouteImport } from './routes/data-deletion'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -22,10 +21,6 @@ import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedLogsRouteImport } from './routes/_authenticated/logs'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedProspectIndexRouteImport } from './routes/_authenticated/prospect.index'
-import { Route as AuthenticatedSalesSettingsRouteImport } from './routes/_authenticated/sales.settings'
-import { Route as AuthenticatedSalesKbRouteImport } from './routes/_authenticated/sales.kb'
-import { Route as AuthenticatedSalesConversationsRouteImport } from './routes/_authenticated/sales.conversations'
-import { Route as AuthenticatedSalesAnalyticsRouteImport } from './routes/_authenticated/sales.analytics'
 import { Route as AuthenticatedProspectSettingsRouteImport } from './routes/_authenticated/prospect.settings'
 import { Route as AuthenticatedProspectSearchRouteImport } from './routes/_authenticated/prospect.search'
 import { Route as AuthenticatedProspectPipelineRouteImport } from './routes/_authenticated/prospect.pipeline'
@@ -59,16 +54,10 @@ import { Route as ApiPublicHooksPublishScheduledPostsRouteImport } from './route
 import { Route as ApiPublicHooksIgWebhookRouteImport } from './routes/api/public/hooks/ig-webhook'
 import { Route as ApiPublicHooksIgSyncRouteImport } from './routes/api/public/hooks/ig-sync'
 import { Route as ApiPublicHooksAutoInstagramPostRouteImport } from './routes/api/public/hooks/auto-instagram-post'
-import { Route as AuthenticatedSalesConversationsIdRouteImport } from './routes/_authenticated/sales.conversations.$id'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SalesbotRoute = SalesbotRouteImport.update({
-  id: '/salesbot',
-  path: '/salesbot',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -124,29 +113,6 @@ const AuthenticatedProspectIndexRoute =
   AuthenticatedProspectIndexRouteImport.update({
     id: '/prospect/',
     path: '/prospect/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedSalesSettingsRoute =
-  AuthenticatedSalesSettingsRouteImport.update({
-    id: '/sales/settings',
-    path: '/sales/settings',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedSalesKbRoute = AuthenticatedSalesKbRouteImport.update({
-  id: '/sales/kb',
-  path: '/sales/kb',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedSalesConversationsRoute =
-  AuthenticatedSalesConversationsRouteImport.update({
-    id: '/sales/conversations',
-    path: '/sales/conversations',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedSalesAnalyticsRoute =
-  AuthenticatedSalesAnalyticsRouteImport.update({
-    id: '/sales/analytics',
-    path: '/sales/analytics',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedProspectSettingsRoute =
@@ -339,19 +305,12 @@ const ApiPublicHooksAutoInstagramPostRoute =
     path: '/api/public/hooks/auto-instagram-post',
     getParentRoute: () => rootRouteImport,
   } as any)
-const AuthenticatedSalesConversationsIdRoute =
-  AuthenticatedSalesConversationsIdRouteImport.update({
-    id: '/$id',
-    path: '/$id',
-    getParentRoute: () => AuthenticatedSalesConversationsRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/data-deletion': typeof DataDeletionRoute
   '/privacy': typeof PrivacyRoute
-  '/salesbot': typeof SalesbotRoute
   '/terms': typeof TermsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/logs': typeof AuthenticatedLogsRoute
@@ -384,12 +343,7 @@ export interface FileRoutesByFullPath {
   '/prospect/pipeline': typeof AuthenticatedProspectPipelineRoute
   '/prospect/search': typeof AuthenticatedProspectSearchRoute
   '/prospect/settings': typeof AuthenticatedProspectSettingsRoute
-  '/sales/analytics': typeof AuthenticatedSalesAnalyticsRoute
-  '/sales/conversations': typeof AuthenticatedSalesConversationsRouteWithChildren
-  '/sales/kb': typeof AuthenticatedSalesKbRoute
-  '/sales/settings': typeof AuthenticatedSalesSettingsRoute
   '/prospect/': typeof AuthenticatedProspectIndexRoute
-  '/sales/conversations/$id': typeof AuthenticatedSalesConversationsIdRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
   '/api/public/hooks/ig-webhook': typeof ApiPublicHooksIgWebhookRoute
@@ -403,7 +357,6 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/data-deletion': typeof DataDeletionRoute
   '/privacy': typeof PrivacyRoute
-  '/salesbot': typeof SalesbotRoute
   '/terms': typeof TermsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/logs': typeof AuthenticatedLogsRoute
@@ -436,12 +389,7 @@ export interface FileRoutesByTo {
   '/prospect/pipeline': typeof AuthenticatedProspectPipelineRoute
   '/prospect/search': typeof AuthenticatedProspectSearchRoute
   '/prospect/settings': typeof AuthenticatedProspectSettingsRoute
-  '/sales/analytics': typeof AuthenticatedSalesAnalyticsRoute
-  '/sales/conversations': typeof AuthenticatedSalesConversationsRouteWithChildren
-  '/sales/kb': typeof AuthenticatedSalesKbRoute
-  '/sales/settings': typeof AuthenticatedSalesSettingsRoute
   '/prospect': typeof AuthenticatedProspectIndexRoute
-  '/sales/conversations/$id': typeof AuthenticatedSalesConversationsIdRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
   '/api/public/hooks/ig-webhook': typeof ApiPublicHooksIgWebhookRoute
@@ -457,7 +405,6 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/data-deletion': typeof DataDeletionRoute
   '/privacy': typeof PrivacyRoute
-  '/salesbot': typeof SalesbotRoute
   '/terms': typeof TermsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/logs': typeof AuthenticatedLogsRoute
@@ -490,12 +437,7 @@ export interface FileRoutesById {
   '/_authenticated/prospect/pipeline': typeof AuthenticatedProspectPipelineRoute
   '/_authenticated/prospect/search': typeof AuthenticatedProspectSearchRoute
   '/_authenticated/prospect/settings': typeof AuthenticatedProspectSettingsRoute
-  '/_authenticated/sales/analytics': typeof AuthenticatedSalesAnalyticsRoute
-  '/_authenticated/sales/conversations': typeof AuthenticatedSalesConversationsRouteWithChildren
-  '/_authenticated/sales/kb': typeof AuthenticatedSalesKbRoute
-  '/_authenticated/sales/settings': typeof AuthenticatedSalesSettingsRoute
   '/_authenticated/prospect/': typeof AuthenticatedProspectIndexRoute
-  '/_authenticated/sales/conversations/$id': typeof AuthenticatedSalesConversationsIdRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
   '/api/public/hooks/ig-webhook': typeof ApiPublicHooksIgWebhookRoute
@@ -511,7 +453,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/data-deletion'
     | '/privacy'
-    | '/salesbot'
     | '/terms'
     | '/dashboard'
     | '/logs'
@@ -544,12 +485,7 @@ export interface FileRouteTypes {
     | '/prospect/pipeline'
     | '/prospect/search'
     | '/prospect/settings'
-    | '/sales/analytics'
-    | '/sales/conversations'
-    | '/sales/kb'
-    | '/sales/settings'
     | '/prospect/'
-    | '/sales/conversations/$id'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/ig-sync'
     | '/api/public/hooks/ig-webhook'
@@ -563,7 +499,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/data-deletion'
     | '/privacy'
-    | '/salesbot'
     | '/terms'
     | '/dashboard'
     | '/logs'
@@ -596,12 +531,7 @@ export interface FileRouteTypes {
     | '/prospect/pipeline'
     | '/prospect/search'
     | '/prospect/settings'
-    | '/sales/analytics'
-    | '/sales/conversations'
-    | '/sales/kb'
-    | '/sales/settings'
     | '/prospect'
-    | '/sales/conversations/$id'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/ig-sync'
     | '/api/public/hooks/ig-webhook'
@@ -616,7 +546,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/data-deletion'
     | '/privacy'
-    | '/salesbot'
     | '/terms'
     | '/_authenticated/dashboard'
     | '/_authenticated/logs'
@@ -649,12 +578,7 @@ export interface FileRouteTypes {
     | '/_authenticated/prospect/pipeline'
     | '/_authenticated/prospect/search'
     | '/_authenticated/prospect/settings'
-    | '/_authenticated/sales/analytics'
-    | '/_authenticated/sales/conversations'
-    | '/_authenticated/sales/kb'
-    | '/_authenticated/sales/settings'
     | '/_authenticated/prospect/'
-    | '/_authenticated/sales/conversations/$id'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/ig-sync'
     | '/api/public/hooks/ig-webhook'
@@ -670,7 +594,6 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   DataDeletionRoute: typeof DataDeletionRoute
   PrivacyRoute: typeof PrivacyRoute
-  SalesbotRoute: typeof SalesbotRoute
   TermsRoute: typeof TermsRoute
   ApiPublicHooksAutoInstagramPostRoute: typeof ApiPublicHooksAutoInstagramPostRoute
   ApiPublicHooksIgSyncRoute: typeof ApiPublicHooksIgSyncRoute
@@ -688,13 +611,6 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/salesbot': {
-      id: '/salesbot'
-      path: '/salesbot'
-      fullPath: '/salesbot'
-      preLoaderRoute: typeof SalesbotRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -772,34 +688,6 @@ declare module '@tanstack/react-router' {
       path: '/prospect'
       fullPath: '/prospect/'
       preLoaderRoute: typeof AuthenticatedProspectIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/sales/settings': {
-      id: '/_authenticated/sales/settings'
-      path: '/sales/settings'
-      fullPath: '/sales/settings'
-      preLoaderRoute: typeof AuthenticatedSalesSettingsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/sales/kb': {
-      id: '/_authenticated/sales/kb'
-      path: '/sales/kb'
-      fullPath: '/sales/kb'
-      preLoaderRoute: typeof AuthenticatedSalesKbRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/sales/conversations': {
-      id: '/_authenticated/sales/conversations'
-      path: '/sales/conversations'
-      fullPath: '/sales/conversations'
-      preLoaderRoute: typeof AuthenticatedSalesConversationsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/sales/analytics': {
-      id: '/_authenticated/sales/analytics'
-      path: '/sales/analytics'
-      fullPath: '/sales/analytics'
-      preLoaderRoute: typeof AuthenticatedSalesAnalyticsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/prospect/settings': {
@@ -1033,30 +921,8 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksAutoInstagramPostRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/sales/conversations/$id': {
-      id: '/_authenticated/sales/conversations/$id'
-      path: '/$id'
-      fullPath: '/sales/conversations/$id'
-      preLoaderRoute: typeof AuthenticatedSalesConversationsIdRouteImport
-      parentRoute: typeof AuthenticatedSalesConversationsRoute
-    }
   }
 }
-
-interface AuthenticatedSalesConversationsRouteChildren {
-  AuthenticatedSalesConversationsIdRoute: typeof AuthenticatedSalesConversationsIdRoute
-}
-
-const AuthenticatedSalesConversationsRouteChildren: AuthenticatedSalesConversationsRouteChildren =
-  {
-    AuthenticatedSalesConversationsIdRoute:
-      AuthenticatedSalesConversationsIdRoute,
-  }
-
-const AuthenticatedSalesConversationsRouteWithChildren =
-  AuthenticatedSalesConversationsRoute._addFileChildren(
-    AuthenticatedSalesConversationsRouteChildren,
-  )
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
@@ -1090,10 +956,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProspectPipelineRoute: typeof AuthenticatedProspectPipelineRoute
   AuthenticatedProspectSearchRoute: typeof AuthenticatedProspectSearchRoute
   AuthenticatedProspectSettingsRoute: typeof AuthenticatedProspectSettingsRoute
-  AuthenticatedSalesAnalyticsRoute: typeof AuthenticatedSalesAnalyticsRoute
-  AuthenticatedSalesConversationsRoute: typeof AuthenticatedSalesConversationsRouteWithChildren
-  AuthenticatedSalesKbRoute: typeof AuthenticatedSalesKbRoute
-  AuthenticatedSalesSettingsRoute: typeof AuthenticatedSalesSettingsRoute
   AuthenticatedProspectIndexRoute: typeof AuthenticatedProspectIndexRoute
 }
 
@@ -1130,11 +992,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProspectPipelineRoute: AuthenticatedProspectPipelineRoute,
   AuthenticatedProspectSearchRoute: AuthenticatedProspectSearchRoute,
   AuthenticatedProspectSettingsRoute: AuthenticatedProspectSettingsRoute,
-  AuthenticatedSalesAnalyticsRoute: AuthenticatedSalesAnalyticsRoute,
-  AuthenticatedSalesConversationsRoute:
-    AuthenticatedSalesConversationsRouteWithChildren,
-  AuthenticatedSalesKbRoute: AuthenticatedSalesKbRoute,
-  AuthenticatedSalesSettingsRoute: AuthenticatedSalesSettingsRoute,
   AuthenticatedProspectIndexRoute: AuthenticatedProspectIndexRoute,
 }
 
@@ -1147,7 +1004,6 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   DataDeletionRoute: DataDeletionRoute,
   PrivacyRoute: PrivacyRoute,
-  SalesbotRoute: SalesbotRoute,
   TermsRoute: TermsRoute,
   ApiPublicHooksAutoInstagramPostRoute: ApiPublicHooksAutoInstagramPostRoute,
   ApiPublicHooksIgSyncRoute: ApiPublicHooksIgSyncRoute,
