@@ -71,11 +71,11 @@ export const syncIgProfile = createServerFn({ method: "POST" })
       const profile = await graphGet<{
         id: string; username?: string; name?: string; biography?: string; website?: string;
         profile_picture_url?: string; followers_count?: number; follows_count?: number;
-        media_count?: number; account_type?: string;
+        media_count?: number;
       }>(
         conn.instagram_business_account_id,
         conn.page_access_token,
-        { fields: "id,username,name,biography,website,profile_picture_url,followers_count,follows_count,media_count,account_type" },
+        { fields: "id,username,name,biography,website,profile_picture_url,followers_count,follows_count,media_count" },
       );
 
       const { data: upserted, error } = await context.supabase
