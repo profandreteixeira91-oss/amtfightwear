@@ -51,6 +51,7 @@ import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/e
 import { Route as ApiPublicSalesChatRouteImport } from './routes/api/public/sales/chat'
 import { Route as ApiPublicMetaCallbackRouteImport } from './routes/api/public/meta/callback'
 import { Route as ApiPublicHooksPublishScheduledPostsRouteImport } from './routes/api/public/hooks/publish-scheduled-posts'
+import { Route as ApiPublicHooksMartialArtsDailySweepRouteImport } from './routes/api/public/hooks/martial-arts-daily-sweep'
 import { Route as ApiPublicHooksIgWebhookRouteImport } from './routes/api/public/hooks/ig-webhook'
 import { Route as ApiPublicHooksIgSyncRouteImport } from './routes/api/public/hooks/ig-sync'
 import { Route as ApiPublicHooksAutoInstagramPostRouteImport } from './routes/api/public/hooks/auto-instagram-post'
@@ -289,6 +290,12 @@ const ApiPublicHooksPublishScheduledPostsRoute =
     path: '/api/public/hooks/publish-scheduled-posts',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksMartialArtsDailySweepRoute =
+  ApiPublicHooksMartialArtsDailySweepRouteImport.update({
+    id: '/api/public/hooks/martial-arts-daily-sweep',
+    path: '/api/public/hooks/martial-arts-daily-sweep',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksIgWebhookRoute = ApiPublicHooksIgWebhookRouteImport.update({
   id: '/api/public/hooks/ig-webhook',
   path: '/api/public/hooks/ig-webhook',
@@ -347,6 +354,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
   '/api/public/hooks/ig-webhook': typeof ApiPublicHooksIgWebhookRoute
+  '/api/public/hooks/martial-arts-daily-sweep': typeof ApiPublicHooksMartialArtsDailySweepRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
@@ -393,6 +401,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
   '/api/public/hooks/ig-webhook': typeof ApiPublicHooksIgWebhookRoute
+  '/api/public/hooks/martial-arts-daily-sweep': typeof ApiPublicHooksMartialArtsDailySweepRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
@@ -441,6 +450,7 @@ export interface FileRoutesById {
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
   '/api/public/hooks/ig-webhook': typeof ApiPublicHooksIgWebhookRoute
+  '/api/public/hooks/martial-arts-daily-sweep': typeof ApiPublicHooksMartialArtsDailySweepRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
@@ -489,6 +499,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/ig-sync'
     | '/api/public/hooks/ig-webhook'
+    | '/api/public/hooks/martial-arts-daily-sweep'
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/meta/callback'
     | '/api/public/sales/chat'
@@ -535,6 +546,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/ig-sync'
     | '/api/public/hooks/ig-webhook'
+    | '/api/public/hooks/martial-arts-daily-sweep'
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/meta/callback'
     | '/api/public/sales/chat'
@@ -582,6 +594,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/ig-sync'
     | '/api/public/hooks/ig-webhook'
+    | '/api/public/hooks/martial-arts-daily-sweep'
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/meta/callback'
     | '/api/public/sales/chat'
@@ -598,6 +611,7 @@ export interface RootRouteChildren {
   ApiPublicHooksAutoInstagramPostRoute: typeof ApiPublicHooksAutoInstagramPostRoute
   ApiPublicHooksIgSyncRoute: typeof ApiPublicHooksIgSyncRoute
   ApiPublicHooksIgWebhookRoute: typeof ApiPublicHooksIgWebhookRoute
+  ApiPublicHooksMartialArtsDailySweepRoute: typeof ApiPublicHooksMartialArtsDailySweepRoute
   ApiPublicHooksPublishScheduledPostsRoute: typeof ApiPublicHooksPublishScheduledPostsRoute
   ApiPublicMetaCallbackRoute: typeof ApiPublicMetaCallbackRoute
   ApiPublicSalesChatRoute: typeof ApiPublicSalesChatRoute
@@ -900,6 +914,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksPublishScheduledPostsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/martial-arts-daily-sweep': {
+      id: '/api/public/hooks/martial-arts-daily-sweep'
+      path: '/api/public/hooks/martial-arts-daily-sweep'
+      fullPath: '/api/public/hooks/martial-arts-daily-sweep'
+      preLoaderRoute: typeof ApiPublicHooksMartialArtsDailySweepRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/ig-webhook': {
       id: '/api/public/hooks/ig-webhook'
       path: '/api/public/hooks/ig-webhook'
@@ -1008,6 +1029,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksAutoInstagramPostRoute: ApiPublicHooksAutoInstagramPostRoute,
   ApiPublicHooksIgSyncRoute: ApiPublicHooksIgSyncRoute,
   ApiPublicHooksIgWebhookRoute: ApiPublicHooksIgWebhookRoute,
+  ApiPublicHooksMartialArtsDailySweepRoute:
+    ApiPublicHooksMartialArtsDailySweepRoute,
   ApiPublicHooksPublishScheduledPostsRoute:
     ApiPublicHooksPublishScheduledPostsRoute,
   ApiPublicMetaCallbackRoute: ApiPublicMetaCallbackRoute,
