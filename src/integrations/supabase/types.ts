@@ -304,90 +304,6 @@ export type Database = {
         }
         Relationships: []
       }
-      email_sequence_runs: {
-        Row: {
-          created_at: string
-          current_step: number
-          id: string
-          last_step_sent_at: string | null
-          lead_id: string
-          next_send_at: string | null
-          sequence_id: string
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          current_step?: number
-          id?: string
-          last_step_sent_at?: string | null
-          lead_id: string
-          next_send_at?: string | null
-          sequence_id: string
-          status?: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          current_step?: number
-          id?: string
-          last_step_sent_at?: string | null
-          lead_id?: string
-          next_send_at?: string | null
-          sequence_id?: string
-          status?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "email_sequence_runs_lead_id_fkey"
-            columns: ["lead_id"]
-            isOneToOne: false
-            referencedRelation: "leads"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "email_sequence_runs_sequence_id_fkey"
-            columns: ["sequence_id"]
-            isOneToOne: false
-            referencedRelation: "email_sequences"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      email_sequences: {
-        Row: {
-          created_at: string
-          created_by: string | null
-          description: string | null
-          id: string
-          is_active: boolean
-          name: string
-          steps: Json
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          created_by?: string | null
-          description?: string | null
-          id?: string
-          is_active?: boolean
-          name: string
-          steps?: Json
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          created_by?: string | null
-          description?: string | null
-          id?: string
-          is_active?: boolean
-          name?: string
-          steps?: Json
-          updated_at?: string
-        }
-        Relationships: []
-      }
       email_unsubscribe_tokens: {
         Row: {
           created_at: string
@@ -656,13 +572,6 @@ export type Database = {
             referencedRelation: "ig_accounts"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "ig_conversations_lead_id_fkey"
-            columns: ["lead_id"]
-            isOneToOne: false
-            referencedRelation: "leads"
-            referencedColumns: ["id"]
-          },
         ]
       }
       ig_events: {
@@ -702,13 +611,6 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "ig_conversations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "ig_events_lead_id_fkey"
-            columns: ["lead_id"]
-            isOneToOne: false
-            referencedRelation: "leads"
             referencedColumns: ["id"]
           },
         ]
@@ -926,289 +828,6 @@ export type Database = {
         }
         Relationships: []
       }
-      lead_enrichments: {
-        Row: {
-          created_at: string
-          field: string
-          id: string
-          lead_id: string
-          new_value: string | null
-          old_value: string | null
-          source: string | null
-        }
-        Insert: {
-          created_at?: string
-          field: string
-          id?: string
-          lead_id: string
-          new_value?: string | null
-          old_value?: string | null
-          source?: string | null
-        }
-        Update: {
-          created_at?: string
-          field?: string
-          id?: string
-          lead_id?: string
-          new_value?: string | null
-          old_value?: string | null
-          source?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "lead_enrichments_lead_id_fkey"
-            columns: ["lead_id"]
-            isOneToOne: false
-            referencedRelation: "leads"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      lead_exports: {
-        Row: {
-          count: number | null
-          created_at: string
-          file_url: string | null
-          filters: Json | null
-          format: string
-          id: string
-          status: string | null
-          user_id: string | null
-        }
-        Insert: {
-          count?: number | null
-          created_at?: string
-          file_url?: string | null
-          filters?: Json | null
-          format: string
-          id?: string
-          status?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          count?: number | null
-          created_at?: string
-          file_url?: string | null
-          filters?: Json | null
-          format?: string
-          id?: string
-          status?: string | null
-          user_id?: string | null
-        }
-        Relationships: []
-      }
-      lead_history: {
-        Row: {
-          action: string
-          actor_id: string | null
-          changes: Json | null
-          created_at: string
-          id: string
-          lead_id: string
-        }
-        Insert: {
-          action: string
-          actor_id?: string | null
-          changes?: Json | null
-          created_at?: string
-          id?: string
-          lead_id: string
-        }
-        Update: {
-          action?: string
-          actor_id?: string | null
-          changes?: Json | null
-          created_at?: string
-          id?: string
-          lead_id?: string
-        }
-        Relationships: []
-      }
-      leads: {
-        Row: {
-          address: string | null
-          ai_approach: string | null
-          ai_best_hour: string | null
-          ai_opportunities: string | null
-          ai_recommended_channel: string | null
-          ai_score: number | null
-          ai_summary: string | null
-          business_hours: Json | null
-          category: string | null
-          city: string | null
-          cnpj: string | null
-          created_at: string
-          created_by: string | null
-          data_source: string | null
-          description: string | null
-          email: string | null
-          enriched_at: string | null
-          enrichment_status: string | null
-          facebook: string | null
-          id: string
-          ig_conversation_id: string | null
-          instagram_avatar_url: string | null
-          instagram_bio: string | null
-          instagram_followers: number | null
-          instagram_handle: string | null
-          instagram_is_business: boolean | null
-          instagram_url: string | null
-          instagram_verified: boolean | null
-          last_contact_at: string | null
-          last_response_at: string | null
-          lat: number | null
-          lead_type: string | null
-          legal_name: string | null
-          linkedin: string | null
-          lng: number | null
-          modality: string | null
-          name: string
-          notes: string | null
-          owner_id: string | null
-          phone: string | null
-          pipeline_stage: string
-          quality_flag: string | null
-          rating: number | null
-          responsible: string | null
-          reviews_count: number | null
-          source: string | null
-          state: string | null
-          status: string
-          tags: string[] | null
-          technologies: string[] | null
-          trade_name: string | null
-          updated_at: string
-          website: string | null
-          website_title: string | null
-          whatsapp: string | null
-          zip: string | null
-        }
-        Insert: {
-          address?: string | null
-          ai_approach?: string | null
-          ai_best_hour?: string | null
-          ai_opportunities?: string | null
-          ai_recommended_channel?: string | null
-          ai_score?: number | null
-          ai_summary?: string | null
-          business_hours?: Json | null
-          category?: string | null
-          city?: string | null
-          cnpj?: string | null
-          created_at?: string
-          created_by?: string | null
-          data_source?: string | null
-          description?: string | null
-          email?: string | null
-          enriched_at?: string | null
-          enrichment_status?: string | null
-          facebook?: string | null
-          id?: string
-          ig_conversation_id?: string | null
-          instagram_avatar_url?: string | null
-          instagram_bio?: string | null
-          instagram_followers?: number | null
-          instagram_handle?: string | null
-          instagram_is_business?: boolean | null
-          instagram_url?: string | null
-          instagram_verified?: boolean | null
-          last_contact_at?: string | null
-          last_response_at?: string | null
-          lat?: number | null
-          lead_type?: string | null
-          legal_name?: string | null
-          linkedin?: string | null
-          lng?: number | null
-          modality?: string | null
-          name: string
-          notes?: string | null
-          owner_id?: string | null
-          phone?: string | null
-          pipeline_stage?: string
-          quality_flag?: string | null
-          rating?: number | null
-          responsible?: string | null
-          reviews_count?: number | null
-          source?: string | null
-          state?: string | null
-          status?: string
-          tags?: string[] | null
-          technologies?: string[] | null
-          trade_name?: string | null
-          updated_at?: string
-          website?: string | null
-          website_title?: string | null
-          whatsapp?: string | null
-          zip?: string | null
-        }
-        Update: {
-          address?: string | null
-          ai_approach?: string | null
-          ai_best_hour?: string | null
-          ai_opportunities?: string | null
-          ai_recommended_channel?: string | null
-          ai_score?: number | null
-          ai_summary?: string | null
-          business_hours?: Json | null
-          category?: string | null
-          city?: string | null
-          cnpj?: string | null
-          created_at?: string
-          created_by?: string | null
-          data_source?: string | null
-          description?: string | null
-          email?: string | null
-          enriched_at?: string | null
-          enrichment_status?: string | null
-          facebook?: string | null
-          id?: string
-          ig_conversation_id?: string | null
-          instagram_avatar_url?: string | null
-          instagram_bio?: string | null
-          instagram_followers?: number | null
-          instagram_handle?: string | null
-          instagram_is_business?: boolean | null
-          instagram_url?: string | null
-          instagram_verified?: boolean | null
-          last_contact_at?: string | null
-          last_response_at?: string | null
-          lat?: number | null
-          lead_type?: string | null
-          legal_name?: string | null
-          linkedin?: string | null
-          lng?: number | null
-          modality?: string | null
-          name?: string
-          notes?: string | null
-          owner_id?: string | null
-          phone?: string | null
-          pipeline_stage?: string
-          quality_flag?: string | null
-          rating?: number | null
-          responsible?: string | null
-          reviews_count?: number | null
-          source?: string | null
-          state?: string | null
-          status?: string
-          tags?: string[] | null
-          technologies?: string[] | null
-          trade_name?: string | null
-          updated_at?: string
-          website?: string | null
-          website_title?: string | null
-          whatsapp?: string | null
-          zip?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "leads_ig_conversation_id_fkey"
-            columns: ["ig_conversation_id"]
-            isOneToOne: false
-            referencedRelation: "ig_conversations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       market_metrics: {
         Row: {
           created_at: string
@@ -1412,95 +1031,6 @@ export type Database = {
           },
         ]
       }
-      outreach_log: {
-        Row: {
-          body: string | null
-          channel: string
-          created_at: string
-          error: string | null
-          id: string
-          lead_id: string
-          sent_at: string
-          status: string
-          subject: string | null
-        }
-        Insert: {
-          body?: string | null
-          channel: string
-          created_at?: string
-          error?: string | null
-          id?: string
-          lead_id: string
-          sent_at?: string
-          status?: string
-          subject?: string | null
-        }
-        Update: {
-          body?: string | null
-          channel?: string
-          created_at?: string
-          error?: string | null
-          id?: string
-          lead_id?: string
-          sent_at?: string
-          status?: string
-          subject?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "outreach_log_lead_id_fkey"
-            columns: ["lead_id"]
-            isOneToOne: false
-            referencedRelation: "leads"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      outreach_settings: {
-        Row: {
-          created_at: string
-          daily_email_cap: number
-          daily_instagram_cap: number
-          enabled: boolean
-          from_email: string | null
-          from_name: string
-          id: string
-          priority_region: string
-          site_url: string
-          tone: string
-          updated_at: string
-          weekly_cooldown_days: number
-        }
-        Insert: {
-          created_at?: string
-          daily_email_cap?: number
-          daily_instagram_cap?: number
-          enabled?: boolean
-          from_email?: string | null
-          from_name?: string
-          id?: string
-          priority_region?: string
-          site_url?: string
-          tone?: string
-          updated_at?: string
-          weekly_cooldown_days?: number
-        }
-        Update: {
-          created_at?: string
-          daily_email_cap?: number
-          daily_instagram_cap?: number
-          enabled?: boolean
-          from_email?: string | null
-          from_name?: string
-          id?: string
-          priority_region?: string
-          site_url?: string
-          tone?: string
-          updated_at?: string
-          weekly_cooldown_days?: number
-        }
-        Relationships: []
-      }
       price_research: {
         Row: {
           competitor_name: string | null
@@ -1684,6 +1214,561 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      prospect_automations: {
+        Row: {
+          actions: Json
+          active: boolean
+          conditions: Json
+          created_at: string
+          id: string
+          last_run_at: string | null
+          name: string
+          owner_id: string
+          runs_count: number
+          trigger: string
+          updated_at: string
+        }
+        Insert: {
+          actions?: Json
+          active?: boolean
+          conditions?: Json
+          created_at?: string
+          id?: string
+          last_run_at?: string | null
+          name: string
+          owner_id: string
+          runs_count?: number
+          trigger: string
+          updated_at?: string
+        }
+        Update: {
+          actions?: Json
+          active?: boolean
+          conditions?: Json
+          created_at?: string
+          id?: string
+          last_run_at?: string | null
+          name?: string
+          owner_id?: string
+          runs_count?: number
+          trigger?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      prospect_companies: {
+        Row: {
+          address: string | null
+          ai_pitch: string | null
+          ai_summary: string | null
+          best_channel:
+            | Database["public"]["Enums"]["prospect_contact_channel"]
+            | null
+          business_hours: string | null
+          category: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          description: string | null
+          enriched_at: string | null
+          id: string
+          last_contacted_at: string | null
+          lat: number | null
+          lng: number | null
+          logo_url: string | null
+          name: string
+          normalized_name: string
+          notes: string | null
+          origin: string | null
+          owner_id: string
+          phone: string | null
+          pipeline_stage: Database["public"]["Enums"]["prospect_pipeline_stage"]
+          postal_code: string | null
+          responsible_name: string | null
+          score: number
+          segment: string | null
+          source_url: string | null
+          state: string | null
+          status: Database["public"]["Enums"]["prospect_lead_status"]
+          tags: string[]
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          ai_pitch?: string | null
+          ai_summary?: string | null
+          best_channel?:
+            | Database["public"]["Enums"]["prospect_contact_channel"]
+            | null
+          business_hours?: string | null
+          category?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          description?: string | null
+          enriched_at?: string | null
+          id?: string
+          last_contacted_at?: string | null
+          lat?: number | null
+          lng?: number | null
+          logo_url?: string | null
+          name: string
+          normalized_name: string
+          notes?: string | null
+          origin?: string | null
+          owner_id: string
+          phone?: string | null
+          pipeline_stage?: Database["public"]["Enums"]["prospect_pipeline_stage"]
+          postal_code?: string | null
+          responsible_name?: string | null
+          score?: number
+          segment?: string | null
+          source_url?: string | null
+          state?: string | null
+          status?: Database["public"]["Enums"]["prospect_lead_status"]
+          tags?: string[]
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          ai_pitch?: string | null
+          ai_summary?: string | null
+          best_channel?:
+            | Database["public"]["Enums"]["prospect_contact_channel"]
+            | null
+          business_hours?: string | null
+          category?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          description?: string | null
+          enriched_at?: string | null
+          id?: string
+          last_contacted_at?: string | null
+          lat?: number | null
+          lng?: number | null
+          logo_url?: string | null
+          name?: string
+          normalized_name?: string
+          notes?: string | null
+          origin?: string | null
+          owner_id?: string
+          phone?: string | null
+          pipeline_stage?: Database["public"]["Enums"]["prospect_pipeline_stage"]
+          postal_code?: string | null
+          responsible_name?: string | null
+          score?: number
+          segment?: string | null
+          source_url?: string | null
+          state?: string | null
+          status?: Database["public"]["Enums"]["prospect_lead_status"]
+          tags?: string[]
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      prospect_contacts: {
+        Row: {
+          channel: Database["public"]["Enums"]["prospect_contact_channel"]
+          company_id: string
+          created_at: string
+          id: string
+          is_primary: boolean
+          label: string | null
+          owner_id: string
+          source: string | null
+          value: string
+          verified: boolean
+        }
+        Insert: {
+          channel: Database["public"]["Enums"]["prospect_contact_channel"]
+          company_id: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          label?: string | null
+          owner_id: string
+          source?: string | null
+          value: string
+          verified?: boolean
+        }
+        Update: {
+          channel?: Database["public"]["Enums"]["prospect_contact_channel"]
+          company_id?: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          label?: string | null
+          owner_id?: string
+          source?: string | null
+          value?: string
+          verified?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prospect_contacts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "prospect_companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prospect_enrichment_jobs: {
+        Row: {
+          attempts: number
+          company_id: string
+          created_at: string
+          error: string | null
+          fields_found: Json
+          finished_at: string | null
+          id: string
+          owner_id: string
+          started_at: string | null
+          status: Database["public"]["Enums"]["prospect_job_status"]
+        }
+        Insert: {
+          attempts?: number
+          company_id: string
+          created_at?: string
+          error?: string | null
+          fields_found?: Json
+          finished_at?: string | null
+          id?: string
+          owner_id: string
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["prospect_job_status"]
+        }
+        Update: {
+          attempts?: number
+          company_id?: string
+          created_at?: string
+          error?: string | null
+          fields_found?: Json
+          finished_at?: string | null
+          id?: string
+          owner_id?: string
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["prospect_job_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prospect_enrichment_jobs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "prospect_companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prospect_exports: {
+        Row: {
+          columns: string[]
+          created_at: string
+          file_url: string | null
+          filters: Json
+          format: string
+          id: string
+          owner_id: string
+          rows_count: number
+          status: string
+        }
+        Insert: {
+          columns?: string[]
+          created_at?: string
+          file_url?: string | null
+          filters?: Json
+          format: string
+          id?: string
+          owner_id: string
+          rows_count?: number
+          status?: string
+        }
+        Update: {
+          columns?: string[]
+          created_at?: string
+          file_url?: string | null
+          filters?: Json
+          format?: string
+          id?: string
+          owner_id?: string
+          rows_count?: number
+          status?: string
+        }
+        Relationships: []
+      }
+      prospect_logs: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          level: string
+          message: string | null
+          metadata: Json
+          owner_id: string
+          source: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          level?: string
+          message?: string | null
+          metadata?: Json
+          owner_id: string
+          source: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          level?: string
+          message?: string | null
+          metadata?: Json
+          owner_id?: string
+          source?: string
+        }
+        Relationships: []
+      }
+      prospect_searches: {
+        Row: {
+          category: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          filters: Json
+          id: string
+          keywords: string | null
+          last_run_at: string | null
+          name: string
+          owner_id: string
+          results_count: number
+          scheduled_cron: string | null
+          segment: string | null
+          state: string | null
+          status: string
+          target_count: number
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          filters?: Json
+          id?: string
+          keywords?: string | null
+          last_run_at?: string | null
+          name: string
+          owner_id: string
+          results_count?: number
+          scheduled_cron?: string | null
+          segment?: string | null
+          state?: string | null
+          status?: string
+          target_count?: number
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          filters?: Json
+          id?: string
+          keywords?: string | null
+          last_run_at?: string | null
+          name?: string
+          owner_id?: string
+          results_count?: number
+          scheduled_cron?: string | null
+          segment?: string | null
+          state?: string | null
+          status?: string
+          target_count?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      prospect_sequence_runs: {
+        Row: {
+          cancelled_reason: string | null
+          company_id: string
+          completed_at: string | null
+          created_at: string
+          current_step: number
+          id: string
+          next_run_at: string | null
+          owner_id: string
+          sequence_id: string
+          status: string
+        }
+        Insert: {
+          cancelled_reason?: string | null
+          company_id: string
+          completed_at?: string | null
+          created_at?: string
+          current_step?: number
+          id?: string
+          next_run_at?: string | null
+          owner_id: string
+          sequence_id: string
+          status?: string
+        }
+        Update: {
+          cancelled_reason?: string | null
+          company_id?: string
+          completed_at?: string | null
+          created_at?: string
+          current_step?: number
+          id?: string
+          next_run_at?: string | null
+          owner_id?: string
+          sequence_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prospect_sequence_runs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "prospect_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prospect_sequence_runs_sequence_id_fkey"
+            columns: ["sequence_id"]
+            isOneToOne: false
+            referencedRelation: "prospect_sequences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prospect_sequences: {
+        Row: {
+          active: boolean
+          cancel_on_reply: boolean
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          owner_id: string
+          steps: Json
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          cancel_on_reply?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          owner_id: string
+          steps?: Json
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          cancel_on_reply?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          owner_id?: string
+          steps?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      prospect_settings: {
+        Row: {
+          autopilot_enabled: boolean
+          created_at: string
+          email_subject_template: string | null
+          email_template: string | null
+          enrichment_interval_min: number
+          owner_id: string
+          priority_regions: string[]
+          required_fields: string[]
+          score_weights: Json
+          search_interval_min: number
+          updated_at: string
+          whatsapp_template: string | null
+        }
+        Insert: {
+          autopilot_enabled?: boolean
+          created_at?: string
+          email_subject_template?: string | null
+          email_template?: string | null
+          enrichment_interval_min?: number
+          owner_id: string
+          priority_regions?: string[]
+          required_fields?: string[]
+          score_weights?: Json
+          search_interval_min?: number
+          updated_at?: string
+          whatsapp_template?: string | null
+        }
+        Update: {
+          autopilot_enabled?: boolean
+          created_at?: string
+          email_subject_template?: string | null
+          email_template?: string | null
+          enrichment_interval_min?: number
+          owner_id?: string
+          priority_regions?: string[]
+          required_fields?: string[]
+          score_weights?: Json
+          search_interval_min?: number
+          updated_at?: string
+          whatsapp_template?: string | null
+        }
+        Relationships: []
+      }
+      prospect_timeline: {
+        Row: {
+          company_id: string
+          created_at: string
+          description: string | null
+          event_type: string
+          id: string
+          owner_id: string
+          payload: Json
+          title: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          description?: string | null
+          event_type: string
+          id?: string
+          owner_id: string
+          payload?: Json
+          title: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          description?: string | null
+          event_type?: string
+          id?: string
+          owner_id?: string
+          payload?: Json
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prospect_timeline_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "prospect_companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sales_agent_settings: {
         Row: {
@@ -1994,171 +2079,6 @@ export type Database = {
           },
         ]
       }
-      scrape_runs: {
-        Row: {
-          city: string | null
-          created_at: string
-          duration_ms: number | null
-          error: string | null
-          found: number | null
-          id: string
-          inserted: number | null
-          query: string | null
-          state: string | null
-          status: string
-          theme: string | null
-          triggered_by: string | null
-          updated_at: string
-          user_id: string | null
-        }
-        Insert: {
-          city?: string | null
-          created_at?: string
-          duration_ms?: number | null
-          error?: string | null
-          found?: number | null
-          id?: string
-          inserted?: number | null
-          query?: string | null
-          state?: string | null
-          status?: string
-          theme?: string | null
-          triggered_by?: string | null
-          updated_at?: string
-          user_id?: string | null
-        }
-        Update: {
-          city?: string | null
-          created_at?: string
-          duration_ms?: number | null
-          error?: string | null
-          found?: number | null
-          id?: string
-          inserted?: number | null
-          query?: string | null
-          state?: string | null
-          status?: string
-          theme?: string | null
-          triggered_by?: string | null
-          updated_at?: string
-          user_id?: string | null
-        }
-        Relationships: []
-      }
-      scraper_automations: {
-        Row: {
-          active: boolean | null
-          created_at: string
-          id: string
-          kind: string
-          last_run_at: string | null
-          name: string
-          params: Json | null
-          schedule_cron: string
-          updated_at: string
-          user_id: string | null
-        }
-        Insert: {
-          active?: boolean | null
-          created_at?: string
-          id?: string
-          kind: string
-          last_run_at?: string | null
-          name: string
-          params?: Json | null
-          schedule_cron: string
-          updated_at?: string
-          user_id?: string | null
-        }
-        Update: {
-          active?: boolean | null
-          created_at?: string
-          id?: string
-          kind?: string
-          last_run_at?: string | null
-          name?: string
-          params?: Json | null
-          schedule_cron?: string
-          updated_at?: string
-          user_id?: string | null
-        }
-        Relationships: []
-      }
-      scraper_logs: {
-        Row: {
-          created_at: string
-          id: string
-          kind: string
-          message: string | null
-          metadata: Json | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          kind: string
-          message?: string | null
-          metadata?: Json | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          kind?: string
-          message?: string | null
-          metadata?: Json | null
-          user_id?: string | null
-        }
-        Relationships: []
-      }
-      scraper_settings: {
-        Row: {
-          auto_enrich: boolean | null
-          auto_score: boolean | null
-          created_at: string
-          credits_available: number | null
-          credits_used: number | null
-          interval_ms: number | null
-          max_concurrency: number | null
-          max_results_per_search: number | null
-          timeout_ms: number | null
-          updated_at: string
-          user_id: string
-          webhook_secret: string | null
-          webhook_url: string | null
-        }
-        Insert: {
-          auto_enrich?: boolean | null
-          auto_score?: boolean | null
-          created_at?: string
-          credits_available?: number | null
-          credits_used?: number | null
-          interval_ms?: number | null
-          max_concurrency?: number | null
-          max_results_per_search?: number | null
-          timeout_ms?: number | null
-          updated_at?: string
-          user_id: string
-          webhook_secret?: string | null
-          webhook_url?: string | null
-        }
-        Update: {
-          auto_enrich?: boolean | null
-          auto_score?: boolean | null
-          created_at?: string
-          credits_available?: number | null
-          credits_used?: number | null
-          interval_ms?: number | null
-          max_concurrency?: number | null
-          max_results_per_search?: number | null
-          timeout_ms?: number | null
-          updated_at?: string
-          user_id?: string
-          webhook_secret?: string | null
-          webhook_url?: string | null
-        }
-        Relationships: []
-      }
       suppressed_emails: {
         Row: {
           created_at: string
@@ -2216,7 +2136,36 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      prospect_contact_channel:
+        | "email"
+        | "whatsapp"
+        | "instagram"
+        | "phone"
+        | "website"
+      prospect_job_status:
+        | "pending"
+        | "running"
+        | "success"
+        | "failed"
+        | "not_found"
+      prospect_lead_status:
+        | "ativo"
+        | "qualificado"
+        | "desqualificado"
+        | "em_contato"
+        | "convertido"
+        | "arquivado"
+      prospect_pipeline_stage:
+        | "novo"
+        | "captado"
+        | "enriquecido"
+        | "contato_iniciado"
+        | "resposta_recebida"
+        | "reuniao"
+        | "proposta"
+        | "negociacao"
+        | "cliente"
+        | "perdido"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2343,6 +2292,41 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      prospect_contact_channel: [
+        "email",
+        "whatsapp",
+        "instagram",
+        "phone",
+        "website",
+      ],
+      prospect_job_status: [
+        "pending",
+        "running",
+        "success",
+        "failed",
+        "not_found",
+      ],
+      prospect_lead_status: [
+        "ativo",
+        "qualificado",
+        "desqualificado",
+        "em_contato",
+        "convertido",
+        "arquivado",
+      ],
+      prospect_pipeline_stage: [
+        "novo",
+        "captado",
+        "enriquecido",
+        "contato_iniciado",
+        "resposta_recebida",
+        "reuniao",
+        "proposta",
+        "negociacao",
+        "cliente",
+        "perdido",
+      ],
+    },
   },
 } as const
