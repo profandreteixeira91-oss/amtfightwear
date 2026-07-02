@@ -230,7 +230,7 @@ export const syncIgInbox = createServerFn({ method: "POST" })
     try {
       // 1) Paginar TODAS as conversas
       let nextConv: string | null =
-        `${GRAPH}/${igbId}/conversations?platform=instagram&fields=id,updated_time,participants&limit=50&access_token=${token}`;
+        `${GRAPH}/${pageId}/conversations?platform=instagram&fields=id,updated_time,participants&limit=50&access_token=${token}`;
       const convs: Array<{
         id: string; updated_time?: string;
         participants?: { data?: IgParticipant[] };
