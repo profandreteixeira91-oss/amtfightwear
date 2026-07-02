@@ -352,14 +352,15 @@ export const getDashboardKpis = createServerFn({ method: "GET" })
       (context.supabase as any).from("leads").select("id, status, created_at").eq("user_id", context.userId).eq("source", "Instagram Direct"),
     ]);
 
-    const conversations = convs.data ?? [];
-    const messages = msgs.data ?? [];
-    const igLeads = leads.data ?? [];
+    const conversations = (convs.data ?? []) as Array<{ status: string; unread_count: number; created_at: string }>;
+    const messages = (msgs.data ?? []) as Array<{ direction: string; sent_at: string }>;
+    const igLeads = (leads.data ?? []) as Array<{ status: string; created_at: string }>;
+    const accounts = (accs.data ?? []) as Array<{ followers_count: number }>;
     const now = Date.now();
 
     return {
-      accounts: (accs.data ?? []).length,
-      totalFollowers: (accs.data ?? []).reduce((s, a) => s + (a.followers_count ?? 0), 0),
+      accounts: accounts.length,
+      totalFollowers: accounts.reduce((s, a) => s + (a.followers_count ?? 0), 0),
       activeConversations: conversations.filter((c) => c.status === "em_atendimento" || c.status === "aguardando").length,
       newLeadsToday: conversations.filter((c) => new Date(c.created_at).getTime() > now - 86400000).length,
       pending: conversations.filter((c) => c.unread_count > 0).length,
