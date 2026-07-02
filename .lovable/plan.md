@@ -1,102 +1,118 @@
-## Lead Scraper IA — Plano de Expansão
+# Módulo de Captação de Leads — Versão Avançada
 
-Vou **manter intacta** a busca automática atual (rotação diária Nordeste + segmentação por modalidade, cron 2x/dia, fila de outreach com cooldown de 7 dias, Direct assistido, e-mail e WhatsApp). O plano abaixo **complementa** o módulo, adicionando os submenus, enriquecimento, mapa, exportações, automações e configurações pedidos, seguindo o padrão visual do sistema (shadcn + Framer Motion + React Query).
+Vou transformar o Lead Scraper atual em uma central completa de prospecção, mantendo o que já funciona (busca automática por nicho, geolocalização, autopilot de outreach, enriquecimento Firecrawl) e adicionando as camadas que faltam: qualificação Instagram, pipeline visual, sequências de follow-up, dashboard avançado e Central de Prospecção.
 
----
+## O que já existe (será reaproveitado)
+- Tabelas `leads`, `outreach_log`, `outreach_settings`, `lead_enrichments`, `lead_history`, `lead_exports`
+- Hooks automáticos: `auto-scrape-leads`, `auto-outreach`
+- Enriquecimento via Firecrawl + Gemini
+- Rotas `lead-scraper.*` (dashboard, enriquecimento, score, mapa, exports)
+- Priorização regional (Nordeste)
+- Restrição de catálogo (kimonos, faixas, patches)
 
-### 1. Navegação (Sidebar)
+## O que vou adicionar
 
-Novo grupo **Lead Scraper IA** substituindo o item único atual, com submenus:
-- Dashboard · Pesquisas · Leads · Enriquecimento · Mapa · Exportações · Automações · Configurações
-- (Sem "Nova Pesquisa" manual — mantemos 100% automático, conforme decisão anterior; a rota "Pesquisas" mostra o histórico das rodadas do autopilot e permite disparar uma rodada extra.)
+### 1. Banco de dados (migração)
+Novas colunas em `leads`:
+- `instagram_handle`, `instagram_url`, `instagram_bio`, `instagram_followers`, `instagram_verified`, `instagram_is_business`
+- `whatsapp`, `website_title`, `cnpj`, `business_hours`, `category`
+- `pipeline_stage` (enum: novo, enriquecido, contato_iniciado, resposta_recebida, reuniao, proposta, cliente, perdido)
+- `ai_summary`, `ai_opportunities`, `ai_recommended_approach`
+- `lead_score` (já pode existir — se sim, apenas garantir)
+- `last_contact_at`, `last_response_at`
 
-### 2. Banco de dados (nova migração)
+Nova tabela `email_sequences`:
+- template steps (dia 0, 3, 7, 15), subject, body
+- gerenciada por usuário
 
-Ampliar `leads` com colunas públicas: `legal_name`, `trade_name`, `cnpj`, `category`, `description`, `whatsapp`, `website`, `facebook`, `linkedin`, `address`, `zip`, `rating`, `reviews_count`, `business_hours jsonb`, `ai_score int`, `ai_summary`, `ai_approach`, `tags text[]`, `owner_id uuid`, `status` (novo/qualificado/contatado/descartado), `enrichment_status`, `enriched_at`, `data_source`.
+Nova tabela `email_sequence_runs`:
+- lead_id, sequence_id, current_step, next_send_at, status (running/paused/completed/cancelled_by_reply)
 
-Novas tabelas (todas com RLS por `user_id`/`owner_id`, GRANT authenticated + service_role, triggers `updated_at` e auditoria):
-- `scrape_runs` — histórico de rodadas (cidade, UF, tema, encontrados, duração, status, erro).
-- `lead_enrichments` — log por lead (campo, valor antigo/novo, fonte, timestamp).
-- `lead_history` — auditoria de alterações.
-- `lead_exports` — arquivos gerados (formato, filtros, url, count).
-- `scraper_automations` — cron rules (nome, schedule cron, tipo: pesquisa/enriquecimento/webhook, params jsonb, ativo).
-- `scraper_settings` — 1 linha por user (limites, timeout, intervalo, concorrência, créditos).
-- `scraper_logs` — logs operacionais.
+### 2. Enriquecimento aprimorado (`src/lib/leads-scraper.functions.ts`)
+- Ao localizar site, extrair handle Instagram do HTML/links
+- Buscar perfil Instagram público (via scrape do bio/seguidores quando possível)
+- Extrair WhatsApp (regex `wa.me/`, `api.whatsapp.com`, telefones formatados)
+- Extrair CNPJ, horários, categoria
+- **Não salvar lead sem tentar localizar e-mail + Instagram** — se ambos ausentes após enriquecimento, marcar como `low_quality` (mantém no banco mas não entra no funil ativo)
+- Recalcular Lead Score com pesos: email 30, instagram 25, telefone 15, website 10, whatsapp 10, bio/seguidores 10
 
-Índices em `leads(city, state, ai_score, status, created_at)` e `leads(lat,lng)` para o mapa.
+### 3. Análise IA por lead
+Server function `analyzeLeadWithAI`:
+- Recebe lead enriquecido
+- Gemini gera: resumo (2 linhas), oportunidades detectadas, abordagem sugerida, canal recomendado (email/instagram/whatsapp)
+- Salva em `ai_summary`, `ai_opportunities`, `ai_recommended_approach`
 
-### 3. Dashboard (`/lead-scraper`)
+### 4. Pipeline / Kanban
+Nova rota `lead-scraper.pipeline.tsx`:
+- Colunas kanban por `pipeline_stage`
+- Drag & drop entre estágios
+- Card mostra empresa, cidade, score, canais disponíveis
 
-KPIs (React Query + skeletons): total pesquisas, leads, empresas, enriquecidos, emails, telefones, sites, redes sociais, taxa de enriquecimento, créditos usados.
-Gráficos (Recharts): leads/dia (30d), por segmento, por cidade (top 10), por estado (mapa de calor UF), evolução mensal, origem dos dados. Tabela "Últimas pesquisas" ligada a `scrape_runs`.
+### 5. Central de Prospecção
+Nova rota `lead-scraper.prospeccao.tsx`:
+- Tabela avançada: Foto/Avatar (via Instagram profile pic), Empresa, IG, Email, Tel, Cidade, Segmento, Status, Último contato, Lead Score
+- Filtros rápidos (com/sem email, com/sem IG, por estágio, por score mínimo)
+- Ordenação e paginação
+- Ação: "Abrir perfil IG" → `https://instagram.com/{handle}` em nova aba
+- Ação: "Iniciar sequência" (dispara `email_sequence_run`)
 
-### 4. Leads (gerenciamento)
+### 6. Sequências de Follow-up
+Nova rota `lead-scraper.sequences.tsx`:
+- CRUD de sequências (nome + steps dia 0/3/7/15 com subject e body, com placeholders {empresa}, {cidade}, {segmento})
+- Ao iniciar sequência para um lead, cria `email_sequence_run` com `next_send_at = now()`
+- Hook cron `auto-followup.ts` (a cada hora):
+  - Busca runs com `next_send_at <= now()` e `status=running`
+  - Envia próximo step via email queue existente
+  - Atualiza `current_step` e `next_send_at`
+  - Se lead recebeu resposta (`last_response_at > run.created_at`), cancela automaticamente
+- Cron: `0 * * * *`
 
-Reescrever `market.leads.tsx` como página completa:
-- DataTable server-side (paginação, ordenação, busca instantânea).
-- Filtros avançados em Drawer: cidade, UF, segmento, categoria, nota, status, responsável, tags, origem, período, score IA, possui email/tel/site/redes, enriquecido.
-- Três visualizações: **Tabela**, **Cartões**, **Mapa** (toggle).
-- Ações em massa: excluir, duplicar, mover para CRM (`crm_deals`), adicionar tags, alterar responsável, enriquecer, exportar seleção.
-- Drawer de detalhes com: dados públicos, score IA, resumo IA, abordagem sugerida, mensagens geradas (email/WA/Direct/LinkedIn), histórico e ações rápidas (abrir Direct — já implementado, WhatsApp, copiar email).
+### 7. Dashboard avançado (atualizar `lead-scraper.dashboard.tsx`)
+Novos KPIs:
+- Leads encontrados hoje
+- Leads enriquecidos
+- E-mails encontrados / Instagram encontrados
+- Taxa de enriquecimento (%)
+- E-mails enviados (24h/7d)
+- Taxa de resposta
+- Conversões (lead → cliente)
+- Distribuição por estágio (gráfico)
 
-### 5. Enriquecimento (`/lead-scraper/enrichment`)
+### 8. Busca contínua aprimorada
+- `auto-scrape-leads` já roda diariamente com rotação geográfica; vou aumentar cobertura para 3 execuções/dia (manhã/tarde/noite) rotacionando segmentos: academias → escolas → equipes/projetos
+- Deduplicação por `website` OR `instagram_handle` OR `phone` normalizado
+- Se lead já existe, apenas re-enriquece campos vazios
 
-Server function `enrichLead` (Firecrawl + Gemini):
-- Scrape do site → extrai emails/telefones públicos, redes sociais, tecnologias (via headers/HTML).
-- Valida domínio (DNS/MX via fetch).
-- Atualiza `leads` e registra em `lead_enrichments`.
-- Fila em lote com progresso (Realtime channel).
-Página mostra: leads pendentes, em processamento, concluídos, botões "Enriquecer selecionados" e "Enriquecer todos os novos".
+### 9. UI/UX
+- Sidebar: novo item "Prospecção" e "Pipeline" e "Sequências" dentro do grupo Lead Scraper
+- Componentes shadcn + framer motion (mantendo padrão existente)
+- Avatares circulares, badges de canal disponível (📧 IG ☎ WA)
+- Modo escuro já herdado
 
-### 6. IA (integrada no enriquecimento e no autopilot atual)
+## Arquivos afetados
 
-Nova função `scoreLead` (Gemini Flash) — retorna `{score, potential, segment, summary, approach, best_contact_hour, duplicates:[]}` e grava no lead. Executada logo após scrape + enrichment. A geração de mensagens (email/WA/Direct/LinkedIn) reaproveita o `generateOutreach` atual, apenas expondo o botão "LinkedIn" adicional.
+**Migração SQL (1)**
+- Novas colunas em `leads`, novas tabelas `email_sequences` e `email_sequence_runs` + GRANTs + RLS
 
-### 7. Mapa (`/lead-scraper/map`)
+**Backend / server functions**
+- `src/lib/leads-scraper.functions.ts` — enriquecimento IG, WhatsApp, AI analysis, atualização de pipeline
+- `src/lib/email-sequences.functions.ts` (novo) — CRUD sequências, iniciar/pausar run
+- `src/routes/api/public/hooks/auto-followup.ts` (novo) — cron de disparo de follow-up
+- `src/routes/api/public/hooks/auto-scrape-leads.ts` — 3 execuções/dia + dedup melhorada
+- Cron SQL: agendar `auto-followup` e ajustar frequência do scrape
 
-Leaflet (já instalado): marcadores com cluster (`leaflet.markercluster`), popup com dados rápidos + link para o drawer, filtros laterais (UF/segmento/score), busca por região (bbox), botão "Buscar nesta área" que enfileira uma rodada de scrape para o centro do mapa.
+**Frontend**
+- `src/routes/_authenticated/lead-scraper.prospeccao.tsx` (novo) — Central de Prospecção
+- `src/routes/_authenticated/lead-scraper.pipeline.tsx` (novo) — Kanban
+- `src/routes/_authenticated/lead-scraper.sequences.tsx` (novo) — Sequências
+- `src/routes/_authenticated/lead-scraper.dashboard.tsx` — KPIs expandidos
+- `src/routes/_authenticated/lead-scraper.enrichment.tsx` — mostrar campos IG/WA/AI
+- `src/components/AppSidebar.tsx` — novos itens de menu
 
-### 8. Exportações (`/lead-scraper/exports`)
+## Considerações
+- **Instagram**: sem API oficial para dados de perfil de terceiros; farei melhor esforço via scrape da página pública (Firecrawl) para bio/verificação; seguidores nem sempre disponíveis — campos ficam opcionais
+- **Dedupe**: usar índice único parcial em `website` e `instagram_handle` (não em phone porque formato varia)
+- **Sequências**: reutilizam a infraestrutura de email queue já configurada (aguardando DNS propagar)
+- **Follow-up cancelamento por resposta**: precisamos capturar respostas — por ora, marcaremos manualmente via botão "Marcar como respondido" na Central; futuramente via webhook IMAP
 
-Server fn `exportLeads({format, filters})` gerando CSV/Excel (SheetJS)/PDF (pdf-lib)/JSON, salvando no bucket `lead-exports` (novo) e registrando em `lead_exports`. Botão "Copiar" copia JSON/CSV filtrado para clipboard.
-
-### 9. Automações (`/lead-scraper/automations`)
-
-CRUD sobre `scraper_automations`. Ao salvar, cria/atualiza `cron.schedule` via migração dinâmica (função SQL `upsert_scraper_cron`) chamando os hooks públicos:
-- `/api/public/hooks/auto-scrape-leads` (existente, preservado).
-- `/api/public/hooks/auto-enrich-leads` (novo).
-- `/api/public/hooks/auto-outreach` (existente).
-- `/api/public/hooks/scraper-webhook` (novo — dispara webhook configurado).
-
-### 10. Configurações (`/lead-scraper/settings`)
-
-Formulário sobre `scraper_settings`: limite por pesquisa, timeout, intervalo entre consultas, concorrência máxima, créditos, integrações (Firecrawl status — já conectado), API Keys (readonly mask), webhooks (URL + secret), permissões (por role), link para Logs.
-
-### 11. Logs (`/lead-scraper/settings` → aba Logs)
-
-Tabela de `scraper_logs` + `scrape_runs` com filtros por período/usuário/tipo/status.
-
-### 12. Performance & UX
-
-- Todas as listas com paginação server-side + `useInfiniteQuery` opcional para scroll.
-- Skeletons em cada card/tabela.
-- Retry automático (React Query `retry: 2`) nas server fns idempotentes.
-- Realtime (`supabase.channel`) para progresso de rodadas e enriquecimento.
-- Dark/Light já suportados pelo tema global.
-
-### 13. Segurança & LGPD
-
-- Apenas dados públicos; nenhum bypass de captcha/rate-limit.
-- RLS por `user_id`/`owner_id` em todas as tabelas novas.
-- Campo `data_source` obrigatório em cada lead + timestamp de coleta.
-- Página Configurações inclui aviso LGPD e botão "Excluir lead permanentemente" (hard delete + registro em `lead_history`).
-
----
-
-### O que NÃO muda
-
-- Rotina de busca automática (`auto-scrape-leads` cron 2x/dia, foco Nordeste, filtro rígido de cidade/UF, segmentação por modalidade).
-- Prompts formais de outreach ("Prezados, …").
-- Fluxo do Direct assistido (desktop `/direct/new`, mobile deep link) e cooldown de 7 dias.
-
-Posso prosseguir com a implementação seguindo este plano?
+Confirma para eu executar?
