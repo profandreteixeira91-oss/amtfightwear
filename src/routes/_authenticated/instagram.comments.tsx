@@ -23,7 +23,7 @@ function IgComments() {
         title="Comentários e Menções"
         description="Comentários recebidos nas publicações — recebidos em tempo real via webhook oficial."
       />
-      <SectionCard>
+      <SectionCard title="">
         {isLoading ? (
           <div className="space-y-2">{[1, 2, 3].map((i) => <Skeleton key={i} className="h-12 w-full" />)}</div>
         ) : (data ?? []).length === 0 ? (

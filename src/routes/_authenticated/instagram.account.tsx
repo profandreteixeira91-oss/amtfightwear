@@ -53,7 +53,7 @@ function IgAccount() {
       {isLoading ? (
         <Skeleton className="h-64 w-full" />
       ) : !data?.hasConnection ? (
-        <SectionCard>
+        <SectionCard title="">
           <div className="flex items-start gap-3 text-sm">
             <AlertCircle className="mt-0.5 h-5 w-5 text-destructive" />
             <div>
@@ -65,7 +65,7 @@ function IgAccount() {
           </div>
         </SectionCard>
       ) : (
-        <SectionCard>
+        <SectionCard title="">
           <div className="flex flex-col gap-6 md:flex-row">
             <div className="flex flex-col items-center gap-3">
               {acc?.profile_picture_url ? (
