@@ -208,6 +208,13 @@ function MartialArtsSweepPanel({ onDone }: { onDone: () => void }) {
           </div>
         </SectionCard>
 
+        <DailyMaPilotCard
+          presets={presets}
+          cities={cities}
+          states={states}
+          perPreset={perPreset}
+        />
+
         <div className="flex justify-end">
           <Button onClick={() => runMut.mutate()} disabled={!canSubmit} size="lg">
             {runMut.isPending
