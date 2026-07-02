@@ -256,7 +256,7 @@ export const updateLead = createServerFn({ method: "POST" })
 
     if (data.patch.pipeline_stage && before.data?.pipeline_stage !== data.patch.pipeline_stage) {
       await logEvent(context.supabase, context.userId, data.id, "pipeline_changed",
-        `Movido para "${data.patch.pipeline_stage}"`, { from: before.data?.pipeline_stage, to: data.patch.pipeline_stage });
+        `Movido para "${data.patch.pipeline_stage}"`, { from: before.data?.pipeline_stage ?? null, to: data.patch.pipeline_stage });
     }
     return { ok: true };
   });
