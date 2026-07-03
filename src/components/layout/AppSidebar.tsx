@@ -78,6 +78,7 @@ const marketItems = [
 const scraperItems = [
   { title: "Dashboard", url: "/prospect", icon: LayoutDashboard },
   { title: "Leads", url: "/prospect/leads", icon: Users },
+  { title: "Potenciais Clientes", url: "/prospect/qualified", icon: Sparkles },
   { title: "Pipeline", url: "/prospect/pipeline", icon: Handshake },
   { title: "Nova Busca", url: "/prospect/search", icon: Radar },
   { title: "Configurações", url: "/prospect/settings", icon: Wrench },
