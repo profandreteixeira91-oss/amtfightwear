@@ -140,6 +140,7 @@ const listInput = z.object({
   hasEmail: z.boolean().optional(),
   hasWhatsapp: z.boolean().optional(),
   hasInstagram: z.boolean().optional(),
+  onlyEnriched: z.boolean().optional(),
   limit: z.number().int().min(1).max(200).default(50),
   offset: z.number().int().min(0).default(0),
   orderBy: z.enum(["created_at","score","name","last_contacted_at"]).default("created_at"),
