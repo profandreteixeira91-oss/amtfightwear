@@ -4,8 +4,9 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import {
-  Search, Mail, Instagram, Star, ExternalLink, Copy, Sparkles, MessageCircle, Globe,
+  Search, Mail, Instagram, Star, ExternalLink, Copy, Sparkles, MessageCircle, Globe, Send, Loader2, Image as ImageIcon,
 } from "lucide-react";
+import { sendTransactionalEmail } from "@/lib/email/send";
 import { PageHeader } from "@/components/common/PageHeader";
 import { ErrorState } from "@/components/common/ErrorState";
 import { Button } from "@/components/ui/button";
@@ -55,23 +56,61 @@ function normalizeIgHandle(v: string | null | undefined): string | null {
   return cleaned || null;
 }
 
+const OUTREACH_IMAGE_URL =
+  "https://api.freelovable.com.br/storage/v1/object/public/anexos/13e5c537-39e1-420f-bbbb-f3ae7eded199.png";
+
 function defaultEmailSubject(name: string) {
-  return `AMT Fight Wear — parceria com ${name}`;
+  return `Parceria B2B | Kimonos, Faixas e Patches Personalizados — ${name}`;
 }
 
-function defaultEmailBody(name: string, pitch: string | null | undefined) {
+function defaultEmailBody(_name: string, pitch: string | null | undefined) {
   if (pitch && pitch.trim()) return pitch.trim();
-  return `Olá, equipe ${name},\n\nSou da AMT Fight Wear — fabricamos kimonos, faixas e patches personalizados para academias e projetos de artes marciais. Gostaríamos de apresentar condições exclusivas para a ${name}.\n\nPodemos agendar uma conversa de 15 minutos esta semana?\n\nAbraço,\nEquipe AMT Fight Wear`;
+  return `Meu nome é Equipe Comercial e faço parte da AMT Fight Wear.
+
+Gostaria de apresentar uma oportunidade de parceria para academias, equipes esportivas e revendedores que buscam produtos personalizados com alta qualidade.
+
+A AMT Fight Wear fabrica:
+
+• Kimonos personalizados para Jiu-Jitsu e Judô;
+• Faixas de graduação;
+• Patches bordados personalizados;
+• Uniformes e roupas esportivas sob medida.
+
+Nossos diferenciais incluem:
+
+- Produção personalizada com a identidade visual da sua academia;
+- Materiais de alta qualidade e excelente acabamento;
+- Atendimento especializado durante todo o processo;
+- Condições comerciais exclusivas para parceiros B2B;
+- Produção para pequenas e grandes quantidades.
+
+Nosso objetivo é ajudar nossos parceiros a oferecer produtos de alto padrão aos seus alunos, fortalecendo sua marca e gerando novas oportunidades de receita.
+
+Caso tenha interesse, ficaremos felizes em apresentar nosso catálogo, esclarecer dúvidas e elaborar uma proposta personalizada.
+
+Agradeço pela atenção e fico à disposição.`;
 }
 
 function defaultDmBody(name: string) {
-  return `Olá, ${name}! Aqui é da AMT Fight Wear 🥋 — trabalhamos com kimonos, faixas e patches personalizados para academias e professores. Podemos te enviar nosso catálogo com condições exclusivas?`;
+  return `Olá, ${name}! Tudo bem? 👋
+
+Vi o perfil de vocês e acredito que existe uma excelente oportunidade de parceria.
+
+A AMT Fight Wear é especializada na fabricação de kimonos personalizados, faixas de graduação, patches bordados e roupas esportivas, atendendo academias, equipes, eventos e marcas em todo o Brasil.
+
+Trabalhamos com produção personalizada, excelente acabamento, materiais de alta qualidade e condições especiais para parceiros B2B.
+
+Se vocês buscam um fornecedor confiável para fortalecer a marca da academia ou ampliar o portfólio de produtos, acredito que podemos construir uma parceria de longo prazo.
+
+Posso enviar nosso catálogo e apresentar as condições para parceiros?`;
 }
+
 
 function QualifiedPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
   const [draft, setDraft] = useState<OutreachDraft | null>(null);
+  const [sending, setSending] = useState(false);
 
   const fetchList = useServerFn(listLeads);
 
@@ -127,12 +166,29 @@ function QualifiedPage() {
     });
   };
 
-  const sendEmail = () => {
+  const sendEmail = async () => {
     if (!draft || draft.channel !== "email" || !draft.email) return;
-    const url = `mailto:${draft.email}?subject=${encodeURIComponent(draft.subject)}&body=${encodeURIComponent(draft.message)}`;
-    window.location.href = url;
-    toast.success("Abrindo cliente de e-mail...");
+    setSending(true);
+    try {
+      await sendTransactionalEmail({
+        templateName: "outreach-b2b",
+        recipientEmail: draft.email,
+        idempotencyKey: `outreach-b2b-${draft.lead.id}-${Date.now()}`,
+        templateData: {
+          leadName: String(draft.lead.name),
+          customMessage: draft.message,
+          imageUrl: OUTREACH_IMAGE_URL,
+        },
+      });
+      toast.success(`E-mail enviado para ${draft.email}`);
+      setDraft(null);
+    } catch (e) {
+      toast.error(`Falha ao enviar: ${e instanceof Error ? e.message : String(e)}`);
+    } finally {
+      setSending(false);
+    }
   };
+
 
   const openIgAndCopy = async () => {
     if (!draft || draft.channel !== "instagram" || !draft.igHandle) return;
@@ -335,20 +391,47 @@ function QualifiedPage() {
                 <div>
                   <label className="mb-1 block text-xs font-semibold uppercase tracking-widest text-muted-foreground">Mensagem</label>
                   <Textarea
-                    rows={draft.channel === "email" ? 10 : 6}
+                    rows={draft.channel === "email" ? 10 : 8}
                     value={draft.message}
                     onChange={(e) => setDraft({ ...draft, message: e.target.value })}
                   />
                 </div>
+                <div className="rounded-md border border-border/60 bg-muted/30 p-2">
+                  <div className="mb-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <ImageIcon className="h-3 w-3" />
+                    {draft.channel === "email" ? "Imagem anexada ao e-mail" : "Imagem sugerida para o Instagram (baixe e anexe)"}
+                  </div>
+                  <img
+                    src={OUTREACH_IMAGE_URL}
+                    alt="AMT Fight Wear — imagem de campanha"
+                    className="max-h-48 w-full rounded object-contain"
+                  />
+                  {draft.channel === "instagram" && (
+                    <a
+                      href={OUTREACH_IMAGE_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-1 inline-block text-xs text-primary underline"
+                    >
+                      Baixar imagem
+                    </a>
+                  )}
+                </div>
+                {draft.channel === "instagram" && (
+                  <p className="text-xs text-muted-foreground">
+                    A Meta não permite envio de DMs frios via API. Vamos copiar sua mensagem e abrir o chat do Instagram — cole e envie junto com a imagem baixada.
+                  </p>
+                )}
               </div>
 
               <DialogFooter className="gap-2 sm:gap-2">
-                <Button variant="ghost" onClick={copyMessage}>
+                <Button variant="ghost" onClick={copyMessage} disabled={sending}>
                   <Copy className="mr-2 h-4 w-4" /> Copiar
                 </Button>
                 {draft.channel === "email" ? (
-                  <Button onClick={sendEmail}>
-                    <Mail className="mr-2 h-4 w-4" /> Abrir e-mail
+                  <Button onClick={sendEmail} disabled={sending}>
+                    {sending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+                    {sending ? "Enviando..." : "Enviar e-mail"}
                   </Button>
                 ) : (
                   <Button onClick={openIgAndCopy}>
