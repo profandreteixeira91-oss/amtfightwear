@@ -193,9 +193,15 @@ export type Database = {
           created_at: string
           end_at: string | null
           id: string
+          last_error: string | null
+          last_sync_at: string | null
+          meta_ad_id: string | null
+          meta_adset_id: string | null
           meta_campaign_id: string | null
+          meta_creative_id: string | null
           name: string
           objective: string
+          published_at: string | null
           start_at: string | null
           status: string
           strategy: Json | null
@@ -210,9 +216,15 @@ export type Database = {
           created_at?: string
           end_at?: string | null
           id?: string
+          last_error?: string | null
+          last_sync_at?: string | null
+          meta_ad_id?: string | null
+          meta_adset_id?: string | null
           meta_campaign_id?: string | null
+          meta_creative_id?: string | null
           name: string
           objective: string
+          published_at?: string | null
           start_at?: string | null
           status?: string
           strategy?: Json | null
@@ -227,9 +239,15 @@ export type Database = {
           created_at?: string
           end_at?: string | null
           id?: string
+          last_error?: string | null
+          last_sync_at?: string | null
+          meta_ad_id?: string | null
+          meta_adset_id?: string | null
           meta_campaign_id?: string | null
+          meta_creative_id?: string | null
           name?: string
           objective?: string
+          published_at?: string | null
           start_at?: string | null
           status?: string
           strategy?: Json | null
