@@ -1,12 +1,11 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import {
   Search, Filter, Mail, MessageCircle, Instagram, Globe, Sparkles,
-  ChevronLeft, ChevronRight, Star, ExternalLink, Radar,
+  ChevronLeft, ChevronRight, Star, ExternalLink, Radar, Trash2, Wand2, Loader2,
 } from "lucide-react";
 import { PageHeader } from "@/components/common/PageHeader";
 import { ErrorState } from "@/components/common/ErrorState";
@@ -19,9 +18,19 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { listLeads, enrichLead, logContactAction } from "@/lib/prospect/prospect.functions";
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from "@/components/ui/table";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
+  listLeads, enrichLead, enrichPendingLeads, bulkDeleteLeads, bulkUpdateLeads,
+} from "@/lib/prospect/prospect.functions";
 import { PIPELINE_STAGES, BR_STATES } from "@/features/prospect/types";
-import { fmtDate, mailtoLink, whatsappLink, instagramLink, scoreToStars } from "@/features/prospect/utils";
+import { fmtDate, scoreToStars } from "@/features/prospect/utils";
 
 export const Route = createFileRoute("/_authenticated/prospect/leads")({
   head: () => ({ meta: [{ title: "Leads — Prospect Engine" }] }),
@@ -42,11 +51,15 @@ function LeadsPage() {
   const [hasWa, setHasWa] = useState(false);
   const [hasIg, setHasIg] = useState(false);
   const [page, setPage] = useState(0);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkStage, setBulkStage] = useState<string>("");
 
   const qc = useQueryClient();
   const fetchList = useServerFn(listLeads);
   const enrich = useServerFn(enrichLead);
-  const logContact = useServerFn(logContactAction);
+  const enrichPending = useServerFn(enrichPendingLeads);
+  const bulkDelete = useServerFn(bulkDeleteLeads);
+  const bulkUpdate = useServerFn(bulkUpdateLeads);
 
   const filters = { search, state, stage, minScore, hasEmail, hasWa, hasIg };
   const { data, isLoading, error, refetch } = useQuery({
@@ -78,26 +91,79 @@ function LeadsPage() {
     onError: (e) => toast.error(e instanceof Error ? e.message : "Falha ao enriquecer"),
   });
 
-  const contactMut = useMutation({
-    mutationFn: (v: { companyId: string; channel: "email" | "whatsapp" | "instagram" | "phone" }) =>
-      logContact({ data: v }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["prospect"] }),
+  const bulkEnrichMut = useMutation({
+    mutationFn: (ids?: string[]) => enrichPending({ data: { ids, limit: ids?.length ?? 20 } }),
+    onSuccess: (r) => {
+      toast.success(`Enriquecimento: ${r.ok} ✓ · ${r.notFound} parcial · ${r.failed} falha`);
+      qc.invalidateQueries({ queryKey: ["prospect"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Falha no lote"),
+  });
+
+  const bulkDeleteMut = useMutation({
+    mutationFn: (ids: string[]) => bulkDelete({ data: { ids } }),
+    onSuccess: (r) => {
+      toast.success(`${r.deleted} leads excluídos`);
+      setSelected(new Set());
+      qc.invalidateQueries({ queryKey: ["prospect"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Falha ao excluir"),
+  });
+
+  const bulkStageMut = useMutation({
+    mutationFn: (v: { ids: string[]; pipeline_stage: string }) =>
+      bulkUpdate({ data: { ids: v.ids, patch: { pipeline_stage: v.pipeline_stage } } }),
+    onSuccess: (r) => {
+      toast.success(`${r.updated} leads atualizados`);
+      setSelected(new Set());
+      setBulkStage("");
+      qc.invalidateQueries({ queryKey: ["prospect"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Falha ao atualizar"),
   });
 
   const total = data?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const rows = (data?.rows ?? []) as LeadRow[];
 
+  const allChecked = rows.length > 0 && rows.every((r) => selected.has(r.id));
+  const someChecked = rows.some((r) => selected.has(r.id));
+
+  const toggleAll = (v: boolean) => {
+    const next = new Set(selected);
+    if (v) rows.forEach((r) => next.add(r.id));
+    else rows.forEach((r) => next.delete(r.id));
+    setSelected(next);
+  };
+  const toggleOne = (id: string, v: boolean) => {
+    const next = new Set(selected);
+    if (v) next.add(id); else next.delete(id);
+    setSelected(next);
+  };
+
+  const selectedIds = useMemo(() => Array.from(selected), [selected]);
+
   return (
     <div className="mx-auto max-w-7xl">
       <PageHeader
         eyebrow="Prospect Engine"
         title="Leads"
-        description={`${total} leads na base — filtre, enriqueça e inicie contato em um clique.`}
+        description={`${total} leads na base — selecione múltiplos para excluir, editar ou enriquecer em lote.`}
         actions={
-          <Button asChild size="sm">
-            <Link to="/prospect/search"><Radar className="mr-2 h-4 w-4" />Nova busca</Link>
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => bulkEnrichMut.mutate(undefined)}
+              disabled={bulkEnrichMut.isPending}
+            >
+              {bulkEnrichMut.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
+              Enriquecer pendentes
+            </Button>
+            <Button asChild size="sm">
+              <Link to="/prospect/search"><Radar className="mr-2 h-4 w-4" />Nova busca</Link>
+            </Button>
+          </div>
         }
       />
 
@@ -161,98 +227,171 @@ function LeadsPage() {
         </CardContent>
       </Card>
 
+      {/* Barra de ações em lote */}
+      {selected.size > 0 && (
+        <div className="mb-3 flex flex-wrap items-center gap-2 rounded-md border border-primary/30 bg-primary/5 p-3">
+          <span className="text-sm font-semibold">{selected.size} selecionado(s)</span>
+          <div className="ml-auto flex flex-wrap items-center gap-2">
+            <Select value={bulkStage} onValueChange={setBulkStage}>
+              <SelectTrigger className="h-9 w-[220px]"><SelectValue placeholder="Mover para estágio..." /></SelectTrigger>
+              <SelectContent>
+                {PIPELINE_STAGES.map((s) => <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={!bulkStage || bulkStageMut.isPending}
+              onClick={() => bulkStageMut.mutate({ ids: selectedIds, pipeline_stage: bulkStage })}
+            >
+              Aplicar
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={bulkEnrichMut.isPending}
+              onClick={() => bulkEnrichMut.mutate(selectedIds)}
+            >
+              {bulkEnrichMut.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
+              Enriquecer selecionados
+            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button size="sm" variant="destructive">
+                  <Trash2 className="mr-2 h-4 w-4" />Excluir
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Excluir {selected.size} lead(s)?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Esta ação é permanente. Contatos, timeline e enriquecimentos associados também serão removidos.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => bulkDeleteMut.mutate(selectedIds)}>
+                    Excluir definitivamente
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+            <Button size="sm" variant="ghost" onClick={() => setSelected(new Set())}>Limpar</Button>
+          </div>
+        </div>
+      )}
+
       {error && <ErrorState message={String(error)} onRetry={() => refetch()} />}
 
-      <div className="grid gap-3">
-        {isLoading && Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-32" />)}
-
-        {!isLoading && rows.length === 0 && (
-          <Card><CardContent className="p-10 text-center text-sm text-muted-foreground">
-            Nenhum lead encontrado com esses filtros.
-          </CardContent></Card>
-        )}
-
-        <AnimatePresence>
-          {rows.map((r) => {
-            const stageDef = PIPELINE_STAGES.find((s) => s.id === (r.pipeline_stage as string));
-            const email = r.contacts.find((c) => c.channel === "email")?.value;
-            const wa = r.contacts.find((c) => c.channel === "whatsapp")?.value;
-            const ig = r.contacts.find((c) => c.channel === "instagram")?.value;
-            const stars = scoreToStars(Number(r.score) || 0);
-            return (
-              <motion.div key={r.id} layout initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                <Card className="transition hover:border-primary/40 hover:shadow-md">
-                  <CardContent className="p-4">
-                    <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
-                      <div className="min-w-0">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <Link to="/prospect/$id" params={{ id: r.id }} className="truncate text-base font-semibold hover:text-primary">
-                            {String(r.name)}
-                          </Link>
-                          {stageDef && (
-                            <Badge className={`${stageDef.color} text-white text-[10px]`}>{stageDef.label}</Badge>
-                          )}
-                          {r.category ? <Badge variant="outline" className="text-[10px]">{String(r.category)}</Badge> : null}
-                        </div>
-                        <div className="mt-1 text-xs text-muted-foreground">
-                          {r.city ? `${r.city} — ${r.state ?? ""}` : "Localização não informada"} · Capturado em {fmtDate(String(r.created_at))}
-                        </div>
-                        {r.ai_summary ? (
-                          <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{String(r.ai_summary)}</p>
+      <Card>
+        <CardContent className="p-0">
+          {isLoading ? (
+            <div className="space-y-2 p-4">
+              {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-12" />)}
+            </div>
+          ) : rows.length === 0 ? (
+            <div className="p-10 text-center text-sm text-muted-foreground">
+              Nenhum lead encontrado com esses filtros.
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[40px]">
+                    <Checkbox
+                      checked={allChecked ? true : someChecked ? "indeterminate" : false}
+                      onCheckedChange={(v) => toggleAll(!!v)}
+                      aria-label="Selecionar todos"
+                    />
+                  </TableHead>
+                  <TableHead>Lead</TableHead>
+                  <TableHead className="hidden md:table-cell">Localização</TableHead>
+                  <TableHead className="hidden lg:table-cell">Estágio</TableHead>
+                  <TableHead>Canais</TableHead>
+                  <TableHead className="text-right">Score</TableHead>
+                  <TableHead className="hidden lg:table-cell">Captado</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {rows.map((r) => {
+                  const stageDef = PIPELINE_STAGES.find((s) => s.id === (r.pipeline_stage as string));
+                  const email = r.contacts.find((c) => c.channel === "email")?.value;
+                  const wa = r.contacts.find((c) => c.channel === "whatsapp")?.value;
+                  const ig = r.contacts.find((c) => c.channel === "instagram")?.value;
+                  const stars = scoreToStars(Number(r.score) || 0);
+                  const isSel = selected.has(r.id);
+                  return (
+                    <TableRow key={r.id} data-state={isSel ? "selected" : undefined}>
+                      <TableCell>
+                        <Checkbox
+                          checked={isSel}
+                          onCheckedChange={(v) => toggleOne(r.id, !!v)}
+                          aria-label={`Selecionar ${String(r.name)}`}
+                        />
+                      </TableCell>
+                      <TableCell className="min-w-0">
+                        <Link to="/prospect/$id" params={{ id: r.id }} className="truncate font-semibold hover:text-primary">
+                          {String(r.name)}
+                        </Link>
+                        {r.category ? (
+                          <div className="mt-0.5 text-xs text-muted-foreground line-clamp-1">{String(r.category)}</div>
                         ) : null}
-
-                        <div className="mt-3 flex flex-wrap items-center gap-2">
-                          <div className="inline-flex items-center gap-1">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                              <Star key={i} className={`h-3.5 w-3.5 ${i < stars ? "fill-amber-400 text-amber-400" : "text-muted"}`} />
-                            ))}
-                            <span className="ml-1 text-xs font-semibold text-muted-foreground">{Number(r.score) || 0}</span>
-                          </div>
-                          <div className="flex flex-wrap gap-1">
-                            {email && <Badge variant="secondary" className="gap-1"><Mail className="h-3 w-3" />e-mail</Badge>}
-                            {wa && <Badge variant="secondary" className="gap-1"><MessageCircle className="h-3 w-3" />whatsapp</Badge>}
-                            {ig && <Badge variant="secondary" className="gap-1"><Instagram className="h-3 w-3" />instagram</Badge>}
-                            {r.website ? <Badge variant="secondary" className="gap-1"><Globe className="h-3 w-3" />site</Badge> : null}
-                          </div>
+                      </TableCell>
+                      <TableCell className="hidden text-xs text-muted-foreground md:table-cell">
+                        {r.city ? `${r.city}${r.state ? " — " + r.state : ""}` : (r.state ? String(r.state) : "—")}
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell">
+                        {stageDef ? (
+                          <Badge className={`${stageDef.color} text-white text-[10px]`}>{stageDef.label}</Badge>
+                        ) : "—"}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1">
+                          {email && <Badge variant="secondary" className="gap-1 px-1.5"><Mail className="h-3 w-3" /></Badge>}
+                          {wa && <Badge variant="secondary" className="gap-1 px-1.5"><MessageCircle className="h-3 w-3" /></Badge>}
+                          {ig && <Badge variant="secondary" className="gap-1 px-1.5"><Instagram className="h-3 w-3" /></Badge>}
+                          {r.website ? <Badge variant="secondary" className="gap-1 px-1.5"><Globe className="h-3 w-3" /></Badge> : null}
+                          {!email && !wa && !ig && !r.website && <span className="text-xs text-muted-foreground">—</span>}
                         </div>
-                      </div>
-
-                      <div className="flex flex-wrap items-start justify-end gap-2">
-                        <Button size="sm" variant="outline" onClick={() => enrichMut.mutate(r.id)} disabled={enrichMut.isPending}>
-                          <Sparkles className="mr-1 h-3.5 w-3.5" />Enriquecer
-                        </Button>
-                        {email && (
-                          <Button asChild size="sm" variant="outline"
-                            onClick={() => contactMut.mutate({ companyId: r.id, channel: "email" })}>
-                            <a href={mailtoLink(email)} target="_blank" rel="noreferrer"><Mail className="mr-1 h-3.5 w-3.5" />E-mail</a>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="inline-flex items-center gap-1">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <Star key={i} className={`h-3 w-3 ${i < stars ? "fill-amber-400 text-amber-400" : "text-muted"}`} />
+                          ))}
+                          <span className="ml-1 text-xs font-semibold text-muted-foreground">{Number(r.score) || 0}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden text-xs text-muted-foreground lg:table-cell">
+                        {fmtDate(String(r.created_at))}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="inline-flex gap-1">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            title="Enriquecer"
+                            onClick={() => enrichMut.mutate(r.id)}
+                            disabled={enrichMut.isPending}
+                          >
+                            <Sparkles className="h-4 w-4" />
                           </Button>
-                        )}
-                        {wa && (
-                          <Button asChild size="sm" variant="outline"
-                            onClick={() => contactMut.mutate({ companyId: r.id, channel: "whatsapp" })}>
-                            <a href={whatsappLink(wa)} target="_blank" rel="noreferrer"><MessageCircle className="mr-1 h-3.5 w-3.5" />WhatsApp</a>
+                          <Button asChild size="sm" variant="ghost" title="Abrir">
+                            <Link to="/prospect/$id" params={{ id: r.id }}>
+                              <ExternalLink className="h-4 w-4" />
+                            </Link>
                           </Button>
-                        )}
-                        {ig && (
-                          <Button asChild size="sm" variant="outline"
-                            onClick={() => contactMut.mutate({ companyId: r.id, channel: "instagram" })}>
-                            <a href={instagramLink(ig)} target="_blank" rel="noreferrer"><Instagram className="mr-1 h-3.5 w-3.5" />DM</a>
-                          </Button>
-                        )}
-                        <Button asChild size="sm">
-                          <Link to="/prospect/$id" params={{ id: r.id }}>
-                            Abrir<ExternalLink className="ml-1 h-3.5 w-3.5" />
-                          </Link>
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            );
-          })}
-        </AnimatePresence>
-      </div>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
 
       {totalPages > 1 && (
         <div className="mt-4 flex items-center justify-center gap-2">

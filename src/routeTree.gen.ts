@@ -54,6 +54,7 @@ import { Route as ApiPublicHooksPublishScheduledPostsRouteImport } from './route
 import { Route as ApiPublicHooksMartialArtsDailySweepRouteImport } from './routes/api/public/hooks/martial-arts-daily-sweep'
 import { Route as ApiPublicHooksIgWebhookRouteImport } from './routes/api/public/hooks/ig-webhook'
 import { Route as ApiPublicHooksIgSyncRouteImport } from './routes/api/public/hooks/ig-sync'
+import { Route as ApiPublicHooksEnrichPendingLeadsRouteImport } from './routes/api/public/hooks/enrich-pending-leads'
 import { Route as ApiPublicHooksAutoInstagramPostRouteImport } from './routes/api/public/hooks/auto-instagram-post'
 
 const TermsRoute = TermsRouteImport.update({
@@ -306,6 +307,12 @@ const ApiPublicHooksIgSyncRoute = ApiPublicHooksIgSyncRouteImport.update({
   path: '/api/public/hooks/ig-sync',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksEnrichPendingLeadsRoute =
+  ApiPublicHooksEnrichPendingLeadsRouteImport.update({
+    id: '/api/public/hooks/enrich-pending-leads',
+    path: '/api/public/hooks/enrich-pending-leads',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksAutoInstagramPostRoute =
   ApiPublicHooksAutoInstagramPostRouteImport.update({
     id: '/api/public/hooks/auto-instagram-post',
@@ -352,6 +359,7 @@ export interface FileRoutesByFullPath {
   '/prospect/settings': typeof AuthenticatedProspectSettingsRoute
   '/prospect/': typeof AuthenticatedProspectIndexRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
+  '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
   '/api/public/hooks/ig-webhook': typeof ApiPublicHooksIgWebhookRoute
   '/api/public/hooks/martial-arts-daily-sweep': typeof ApiPublicHooksMartialArtsDailySweepRoute
@@ -399,6 +407,7 @@ export interface FileRoutesByTo {
   '/prospect/settings': typeof AuthenticatedProspectSettingsRoute
   '/prospect': typeof AuthenticatedProspectIndexRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
+  '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
   '/api/public/hooks/ig-webhook': typeof ApiPublicHooksIgWebhookRoute
   '/api/public/hooks/martial-arts-daily-sweep': typeof ApiPublicHooksMartialArtsDailySweepRoute
@@ -448,6 +457,7 @@ export interface FileRoutesById {
   '/_authenticated/prospect/settings': typeof AuthenticatedProspectSettingsRoute
   '/_authenticated/prospect/': typeof AuthenticatedProspectIndexRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
+  '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
   '/api/public/hooks/ig-webhook': typeof ApiPublicHooksIgWebhookRoute
   '/api/public/hooks/martial-arts-daily-sweep': typeof ApiPublicHooksMartialArtsDailySweepRoute
@@ -497,6 +507,7 @@ export interface FileRouteTypes {
     | '/prospect/settings'
     | '/prospect/'
     | '/api/public/hooks/auto-instagram-post'
+    | '/api/public/hooks/enrich-pending-leads'
     | '/api/public/hooks/ig-sync'
     | '/api/public/hooks/ig-webhook'
     | '/api/public/hooks/martial-arts-daily-sweep'
@@ -544,6 +555,7 @@ export interface FileRouteTypes {
     | '/prospect/settings'
     | '/prospect'
     | '/api/public/hooks/auto-instagram-post'
+    | '/api/public/hooks/enrich-pending-leads'
     | '/api/public/hooks/ig-sync'
     | '/api/public/hooks/ig-webhook'
     | '/api/public/hooks/martial-arts-daily-sweep'
@@ -592,6 +604,7 @@ export interface FileRouteTypes {
     | '/_authenticated/prospect/settings'
     | '/_authenticated/prospect/'
     | '/api/public/hooks/auto-instagram-post'
+    | '/api/public/hooks/enrich-pending-leads'
     | '/api/public/hooks/ig-sync'
     | '/api/public/hooks/ig-webhook'
     | '/api/public/hooks/martial-arts-daily-sweep'
@@ -609,6 +622,7 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
   ApiPublicHooksAutoInstagramPostRoute: typeof ApiPublicHooksAutoInstagramPostRoute
+  ApiPublicHooksEnrichPendingLeadsRoute: typeof ApiPublicHooksEnrichPendingLeadsRoute
   ApiPublicHooksIgSyncRoute: typeof ApiPublicHooksIgSyncRoute
   ApiPublicHooksIgWebhookRoute: typeof ApiPublicHooksIgWebhookRoute
   ApiPublicHooksMartialArtsDailySweepRoute: typeof ApiPublicHooksMartialArtsDailySweepRoute
@@ -935,6 +949,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksIgSyncRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/enrich-pending-leads': {
+      id: '/api/public/hooks/enrich-pending-leads'
+      path: '/api/public/hooks/enrich-pending-leads'
+      fullPath: '/api/public/hooks/enrich-pending-leads'
+      preLoaderRoute: typeof ApiPublicHooksEnrichPendingLeadsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/auto-instagram-post': {
       id: '/api/public/hooks/auto-instagram-post'
       path: '/api/public/hooks/auto-instagram-post'
@@ -1027,6 +1048,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,
   ApiPublicHooksAutoInstagramPostRoute: ApiPublicHooksAutoInstagramPostRoute,
+  ApiPublicHooksEnrichPendingLeadsRoute: ApiPublicHooksEnrichPendingLeadsRoute,
   ApiPublicHooksIgSyncRoute: ApiPublicHooksIgSyncRoute,
   ApiPublicHooksIgWebhookRoute: ApiPublicHooksIgWebhookRoute,
   ApiPublicHooksMartialArtsDailySweepRoute:
