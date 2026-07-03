@@ -453,7 +453,7 @@ export async function fallbackContactSearch(companyName: string, city?: string |
 
 // ============= Enriquecimento reutilizável (helper compartilhado) =============
 
-import { computeLeadScore, DEFAULT_SCORE_WEIGHTS } from "@/features/prospect/utils";
+// (computeLeadScore/DEFAULT_SCORE_WEIGHTS já importados no topo)
 
 /**
  * Motor de enriquecimento reutilizável. Usa o cliente Supabase fornecido
