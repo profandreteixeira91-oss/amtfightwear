@@ -79,7 +79,6 @@ function ScalePage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        icon={Trophy}
         title="Escala IA & Aprendizado de Vencedores"
         description="A IA escala automaticamente campanhas com ROAS ≥ 3x, pausa perdedoras e aprende com os criativos vencedores para gerar novas variações."
         actions={
