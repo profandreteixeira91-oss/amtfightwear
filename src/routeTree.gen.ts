@@ -66,6 +66,7 @@ import { Route as ApiPublicHooksIgWebhookRouteImport } from './routes/api/public
 import { Route as ApiPublicHooksIgSyncRouteImport } from './routes/api/public/hooks/ig-sync'
 import { Route as ApiPublicHooksEnrichPendingLeadsRouteImport } from './routes/api/public/hooks/enrich-pending-leads'
 import { Route as ApiPublicHooksAutoInstagramPostRouteImport } from './routes/api/public/hooks/auto-instagram-post'
+import { Route as AuthenticatedAdsCampaignsIdRouteImport } from './routes/_authenticated/ads.campaigns.$id'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -385,6 +386,12 @@ const ApiPublicHooksAutoInstagramPostRoute =
     path: '/api/public/hooks/auto-instagram-post',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AuthenticatedAdsCampaignsIdRoute =
+  AuthenticatedAdsCampaignsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedAdsCampaignsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -399,7 +406,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedSettingsRoute
   '/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
-  '/ads/campaigns': typeof AuthenticatedAdsCampaignsRoute
+  '/ads/campaigns': typeof AuthenticatedAdsCampaignsRouteWithChildren
   '/ads/connections': typeof AuthenticatedAdsConnectionsRoute
   '/ads/copies': typeof AuthenticatedAdsCopiesRoute
   '/ads/creatives': typeof AuthenticatedAdsCreativesRoute
@@ -433,6 +440,7 @@ export interface FileRoutesByFullPath {
   '/prospect/search': typeof AuthenticatedProspectSearchRoute
   '/prospect/settings': typeof AuthenticatedProspectSettingsRoute
   '/prospect/': typeof AuthenticatedProspectIndexRoute
+  '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
@@ -457,7 +465,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsRoute
   '/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
-  '/ads/campaigns': typeof AuthenticatedAdsCampaignsRoute
+  '/ads/campaigns': typeof AuthenticatedAdsCampaignsRouteWithChildren
   '/ads/connections': typeof AuthenticatedAdsConnectionsRoute
   '/ads/copies': typeof AuthenticatedAdsCopiesRoute
   '/ads/creatives': typeof AuthenticatedAdsCreativesRoute
@@ -491,6 +499,7 @@ export interface FileRoutesByTo {
   '/prospect/search': typeof AuthenticatedProspectSearchRoute
   '/prospect/settings': typeof AuthenticatedProspectSettingsRoute
   '/prospect': typeof AuthenticatedProspectIndexRoute
+  '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
@@ -517,7 +526,7 @@ export interface FileRoutesById {
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
-  '/_authenticated/ads/campaigns': typeof AuthenticatedAdsCampaignsRoute
+  '/_authenticated/ads/campaigns': typeof AuthenticatedAdsCampaignsRouteWithChildren
   '/_authenticated/ads/connections': typeof AuthenticatedAdsConnectionsRoute
   '/_authenticated/ads/copies': typeof AuthenticatedAdsCopiesRoute
   '/_authenticated/ads/creatives': typeof AuthenticatedAdsCreativesRoute
@@ -551,6 +560,7 @@ export interface FileRoutesById {
   '/_authenticated/prospect/search': typeof AuthenticatedProspectSearchRoute
   '/_authenticated/prospect/settings': typeof AuthenticatedProspectSettingsRoute
   '/_authenticated/prospect/': typeof AuthenticatedProspectIndexRoute
+  '/_authenticated/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
@@ -611,6 +621,7 @@ export interface FileRouteTypes {
     | '/prospect/search'
     | '/prospect/settings'
     | '/prospect/'
+    | '/ads/campaigns/$id'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/enrich-pending-leads'
     | '/api/public/hooks/ig-sync'
@@ -669,6 +680,7 @@ export interface FileRouteTypes {
     | '/prospect/search'
     | '/prospect/settings'
     | '/prospect'
+    | '/ads/campaigns/$id'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/enrich-pending-leads'
     | '/api/public/hooks/ig-sync'
@@ -728,6 +740,7 @@ export interface FileRouteTypes {
     | '/_authenticated/prospect/search'
     | '/_authenticated/prospect/settings'
     | '/_authenticated/prospect/'
+    | '/_authenticated/ads/campaigns/$id'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/enrich-pending-leads'
     | '/api/public/hooks/ig-sync'
@@ -1161,11 +1174,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksAutoInstagramPostRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/ads/campaigns/$id': {
+      id: '/_authenticated/ads/campaigns/$id'
+      path: '/$id'
+      fullPath: '/ads/campaigns/$id'
+      preLoaderRoute: typeof AuthenticatedAdsCampaignsIdRouteImport
+      parentRoute: typeof AuthenticatedAdsCampaignsRoute
+    }
   }
 }
 
+interface AuthenticatedAdsCampaignsRouteChildren {
+  AuthenticatedAdsCampaignsIdRoute: typeof AuthenticatedAdsCampaignsIdRoute
+}
+
+const AuthenticatedAdsCampaignsRouteChildren: AuthenticatedAdsCampaignsRouteChildren =
+  {
+    AuthenticatedAdsCampaignsIdRoute: AuthenticatedAdsCampaignsIdRoute,
+  }
+
+const AuthenticatedAdsCampaignsRouteWithChildren =
+  AuthenticatedAdsCampaignsRoute._addFileChildren(
+    AuthenticatedAdsCampaignsRouteChildren,
+  )
+
 interface AuthenticatedAdsRouteChildren {
-  AuthenticatedAdsCampaignsRoute: typeof AuthenticatedAdsCampaignsRoute
+  AuthenticatedAdsCampaignsRoute: typeof AuthenticatedAdsCampaignsRouteWithChildren
   AuthenticatedAdsConnectionsRoute: typeof AuthenticatedAdsConnectionsRoute
   AuthenticatedAdsCopiesRoute: typeof AuthenticatedAdsCopiesRoute
   AuthenticatedAdsCreativesRoute: typeof AuthenticatedAdsCreativesRoute
@@ -1174,7 +1208,7 @@ interface AuthenticatedAdsRouteChildren {
 }
 
 const AuthenticatedAdsRouteChildren: AuthenticatedAdsRouteChildren = {
-  AuthenticatedAdsCampaignsRoute: AuthenticatedAdsCampaignsRoute,
+  AuthenticatedAdsCampaignsRoute: AuthenticatedAdsCampaignsRouteWithChildren,
   AuthenticatedAdsConnectionsRoute: AuthenticatedAdsConnectionsRoute,
   AuthenticatedAdsCopiesRoute: AuthenticatedAdsCopiesRoute,
   AuthenticatedAdsCreativesRoute: AuthenticatedAdsCreativesRoute,
