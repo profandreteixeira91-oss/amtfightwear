@@ -50,6 +50,7 @@ import { Route as AuthenticatedGrowthIntelligenceRouteImport } from './routes/_a
 import { Route as AuthenticatedGrowthInsightsRouteImport } from './routes/_authenticated/growth.insights'
 import { Route as AuthenticatedGrowthCustomersRouteImport } from './routes/_authenticated/growth.customers'
 import { Route as AuthenticatedGrowthCrmRouteImport } from './routes/_authenticated/growth.crm'
+import { Route as AuthenticatedAdsScaleRouteImport } from './routes/_authenticated/ads.scale'
 import { Route as AuthenticatedAdsOptimizationRouteImport } from './routes/_authenticated/ads.optimization'
 import { Route as AuthenticatedAdsNewRouteImport } from './routes/_authenticated/ads.new'
 import { Route as AuthenticatedAdsDashboardRouteImport } from './routes/_authenticated/ads.dashboard'
@@ -300,6 +301,11 @@ const AuthenticatedGrowthCrmRoute = AuthenticatedGrowthCrmRouteImport.update({
   path: '/growth/crm',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdsScaleRoute = AuthenticatedAdsScaleRouteImport.update({
+  id: '/scale',
+  path: '/scale',
+  getParentRoute: () => AuthenticatedAdsRoute,
+} as any)
 const AuthenticatedAdsOptimizationRoute =
   AuthenticatedAdsOptimizationRouteImport.update({
     id: '/optimization',
@@ -441,6 +447,7 @@ export interface FileRoutesByFullPath {
   '/ads/dashboard': typeof AuthenticatedAdsDashboardRoute
   '/ads/new': typeof AuthenticatedAdsNewRoute
   '/ads/optimization': typeof AuthenticatedAdsOptimizationRoute
+  '/ads/scale': typeof AuthenticatedAdsScaleRoute
   '/growth/crm': typeof AuthenticatedGrowthCrmRoute
   '/growth/customers': typeof AuthenticatedGrowthCustomersRoute
   '/growth/insights': typeof AuthenticatedGrowthInsightsRoute
@@ -504,6 +511,7 @@ export interface FileRoutesByTo {
   '/ads/dashboard': typeof AuthenticatedAdsDashboardRoute
   '/ads/new': typeof AuthenticatedAdsNewRoute
   '/ads/optimization': typeof AuthenticatedAdsOptimizationRoute
+  '/ads/scale': typeof AuthenticatedAdsScaleRoute
   '/growth/crm': typeof AuthenticatedGrowthCrmRoute
   '/growth/customers': typeof AuthenticatedGrowthCustomersRoute
   '/growth/insights': typeof AuthenticatedGrowthInsightsRoute
@@ -569,6 +577,7 @@ export interface FileRoutesById {
   '/_authenticated/ads/dashboard': typeof AuthenticatedAdsDashboardRoute
   '/_authenticated/ads/new': typeof AuthenticatedAdsNewRoute
   '/_authenticated/ads/optimization': typeof AuthenticatedAdsOptimizationRoute
+  '/_authenticated/ads/scale': typeof AuthenticatedAdsScaleRoute
   '/_authenticated/growth/crm': typeof AuthenticatedGrowthCrmRoute
   '/_authenticated/growth/customers': typeof AuthenticatedGrowthCustomersRoute
   '/_authenticated/growth/insights': typeof AuthenticatedGrowthInsightsRoute
@@ -634,6 +643,7 @@ export interface FileRouteTypes {
     | '/ads/dashboard'
     | '/ads/new'
     | '/ads/optimization'
+    | '/ads/scale'
     | '/growth/crm'
     | '/growth/customers'
     | '/growth/insights'
@@ -697,6 +707,7 @@ export interface FileRouteTypes {
     | '/ads/dashboard'
     | '/ads/new'
     | '/ads/optimization'
+    | '/ads/scale'
     | '/growth/crm'
     | '/growth/customers'
     | '/growth/insights'
@@ -761,6 +772,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ads/dashboard'
     | '/_authenticated/ads/new'
     | '/_authenticated/ads/optimization'
+    | '/_authenticated/ads/scale'
     | '/_authenticated/growth/crm'
     | '/_authenticated/growth/customers'
     | '/_authenticated/growth/insights'
@@ -1115,6 +1127,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedGrowthCrmRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ads/scale': {
+      id: '/_authenticated/ads/scale'
+      path: '/scale'
+      fullPath: '/ads/scale'
+      preLoaderRoute: typeof AuthenticatedAdsScaleRouteImport
+      parentRoute: typeof AuthenticatedAdsRoute
+    }
     '/_authenticated/ads/optimization': {
       id: '/_authenticated/ads/optimization'
       path: '/optimization'
@@ -1288,6 +1307,7 @@ interface AuthenticatedAdsRouteChildren {
   AuthenticatedAdsDashboardRoute: typeof AuthenticatedAdsDashboardRoute
   AuthenticatedAdsNewRoute: typeof AuthenticatedAdsNewRoute
   AuthenticatedAdsOptimizationRoute: typeof AuthenticatedAdsOptimizationRoute
+  AuthenticatedAdsScaleRoute: typeof AuthenticatedAdsScaleRoute
 }
 
 const AuthenticatedAdsRouteChildren: AuthenticatedAdsRouteChildren = {
@@ -1299,6 +1319,7 @@ const AuthenticatedAdsRouteChildren: AuthenticatedAdsRouteChildren = {
   AuthenticatedAdsDashboardRoute: AuthenticatedAdsDashboardRoute,
   AuthenticatedAdsNewRoute: AuthenticatedAdsNewRoute,
   AuthenticatedAdsOptimizationRoute: AuthenticatedAdsOptimizationRoute,
+  AuthenticatedAdsScaleRoute: AuthenticatedAdsScaleRoute,
 }
 
 const AuthenticatedAdsRouteWithChildren =
