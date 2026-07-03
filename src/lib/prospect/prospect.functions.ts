@@ -527,7 +527,7 @@ export const enrichLead = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => z.object({ companyId: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { enrichCompanyCore } = await import("./prospect-engine.server");
-    return await enrichCompanyCore(context.supabase as unknown as { from: (t: string) => unknown } as never, context.userId, data.companyId);
+    return await enrichCompanyCore(context.supabase as unknown as { from: (t: string) => any }, context.userId, data.companyId);
   });
 
 /** Enriquece em lote — todos pendentes do usuário OU a lista de IDs informada. */
@@ -568,7 +568,7 @@ export const enrichPendingLeads = createServerFn({ method: "POST" })
     let ok = 0, failed = 0, notFound = 0;
     for (const id of ids) {
       try {
-        const r = await enrichCompanyCore(context.supabase as unknown as { from: (t: string) => unknown } as never, context.userId, id);
+        const r = await enrichCompanyCore(context.supabase as unknown as { from: (t: string) => any }, context.userId, id);
         if (r.foundRequired) ok++; else notFound++;
       } catch { failed++; }
     }
