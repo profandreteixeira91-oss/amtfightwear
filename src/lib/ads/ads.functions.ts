@@ -663,7 +663,7 @@ export const publishCampaignToMeta = createServerFn({ method: "POST" })
 
     const { data: account, error: aErr } = await context.supabase
       .from("ads_accounts")
-      .select("*, meta_connection:meta_connections(page_access_token,page_id,instagram_business_id)")
+      .select("*, meta_connection:meta_connections(page_access_token,page_id,instagram_business_account_id)")
       .eq("id", data.adsAccountId)
       .single();
     if (aErr || !account) throw new Error("Conta de anúncio não encontrada");
@@ -671,7 +671,7 @@ export const publishCampaignToMeta = createServerFn({ method: "POST" })
     const conn = account.meta_connection as {
       page_access_token: string;
       page_id: string | null;
-      instagram_business_id: string | null;
+      instagram_business_account_id: string | null;
     } | null;
     const token = conn?.page_access_token;
     if (!token) throw new Error("Token Meta indisponível — reconecte sua conta");
@@ -728,8 +728,8 @@ export const publishCampaignToMeta = createServerFn({ method: "POST" })
         name: `${campaign.name} — Criativo`,
         object_story_spec: {
           page_id: pageId,
-          ...(data.instagramId || conn.instagram_business_id
-            ? { instagram_actor_id: data.instagramId ?? conn.instagram_business_id }
+          ...(data.instagramId || conn.instagram_business_account_id
+            ? { instagram_actor_id: data.instagramId ?? conn.instagram_business_account_id }
             : {}),
           link_data: {
             message: copy.primary_text,
