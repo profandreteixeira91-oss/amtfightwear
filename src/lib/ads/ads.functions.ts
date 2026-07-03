@@ -970,3 +970,245 @@ export const deleteCampaign = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+// ================= FASE 3 — OTIMIZAÇÃO, ALERTAS E A/B TESTS =================
+
+import { runOptimizationForCampaigns } from "./ads-optimization";
+
+// ---------- Alerts ----------
+
+export const listAlerts = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
+      .from("ads_alerts")
+      .select("*, campaign:ads_campaigns(name)")
+      .order("created_at", { ascending: false })
+      .limit(100);
+    if (error) throw new Error(error.message);
+    return data;
+  });
+
+export const markAlertRead = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("ads_alerts")
+      .update({ read_at: new Date().toISOString() })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const markAllAlertsRead = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { error } = await context.supabase
+      .from("ads_alerts")
+      .update({ read_at: new Date().toISOString() })
+      .is("read_at", null);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const dismissAlert = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase.from("ads_alerts").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// ---------- Optimizations ----------
+
+export const listOptimizations = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
+      .from("ads_optimizations")
+      .select("*, campaign:ads_campaigns(name,status,budget_daily,meta_campaign_id)")
+      .order("created_at", { ascending: false })
+      .limit(100);
+    if (error) throw new Error(error.message);
+    return data;
+  });
+
+export const runOptimizationNow = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: campaigns } = await context.supabase
+      .from("ads_campaigns")
+      .select("id,user_id,name,status,budget_daily,meta_campaign_id")
+      .not("meta_campaign_id", "is", null);
+    const result = await runOptimizationForCampaigns(
+      context.supabase as unknown as Parameters<typeof runOptimizationForCampaigns>[0],
+      (campaigns ?? []) as Parameters<typeof runOptimizationForCampaigns>[1],
+    );
+    return result;
+  });
+
+export const applyOptimization = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { data: opt, error } = await context.supabase
+      .from("ads_optimizations")
+      .select("*, campaign:ads_campaigns(id,meta_campaign_id,ads_account_id,budget_daily)")
+      .eq("id", data.id)
+      .single();
+    if (error || !opt) throw new Error("Recomendação não encontrada");
+
+    const suggestion = (opt.suggestion ?? {}) as { action?: string; recommended_daily?: number };
+    const campaign = opt.campaign as {
+      id: string;
+      meta_campaign_id: string | null;
+      ads_account_id: string | null;
+      budget_daily: number | null;
+    } | null;
+    if (!campaign?.meta_campaign_id || !campaign.ads_account_id) {
+      throw new Error("Campanha ainda não publicada no Meta");
+    }
+
+    const { data: account } = await context.supabase
+      .from("ads_accounts")
+      .select("meta_connection:meta_connections(page_access_token)")
+      .eq("id", campaign.ads_account_id)
+      .single();
+    const token = (account as { meta_connection: { page_access_token: string } | null } | null)
+      ?.meta_connection?.page_access_token;
+    if (!token) throw new Error("Token Meta indisponível");
+
+    if (suggestion.action === "pause") {
+      await metaPost(`/${campaign.meta_campaign_id}`, token, { status: "PAUSED" });
+      await context.supabase.from("ads_campaigns").update({ status: "paused" }).eq("id", campaign.id);
+    } else if (suggestion.action === "increase_budget" && suggestion.recommended_daily) {
+      const newDaily = Number(suggestion.recommended_daily);
+      const cents = Math.max(500, Math.round(newDaily * 100));
+      const { data: campFull } = await context.supabase
+        .from("ads_campaigns")
+        .select("meta_adset_id")
+        .eq("id", campaign.id)
+        .single();
+      if (campFull?.meta_adset_id) {
+        await metaPost(`/${campFull.meta_adset_id}`, token, { daily_budget: String(cents) });
+      }
+      await context.supabase
+        .from("ads_campaigns")
+        .update({ budget_daily: newDaily })
+        .eq("id", campaign.id);
+    }
+
+    await context.supabase
+      .from("ads_optimizations")
+      .update({ status: "applied", applied_at: new Date().toISOString() })
+      .eq("id", opt.id);
+    return { ok: true, action: suggestion.action };
+  });
+
+export const dismissOptimization = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("ads_optimizations")
+      .update({ status: "dismissed" })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// ---------- A/B Tests ----------
+
+const ABTestInput = z.object({
+  campaignId: z.string().uuid(),
+  name: z.string().min(1),
+  hypothesis: z.string().nullable().optional(),
+  metric: z.enum(["roas", "ctr", "cpa", "conversions"]).default("roas"),
+  variants: z
+    .array(
+      z.object({
+        name: z.string().min(1),
+        isControl: z.boolean().default(false),
+        copyId: z.string().uuid().nullable().optional(),
+        creativeId: z.string().uuid().nullable().optional(),
+      }),
+    )
+    .min(2)
+    .max(5),
+});
+
+export const createABTest = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => ABTestInput.parse(i))
+  .handler(async ({ data, context }) => {
+    const { data: test, error } = await context.supabase
+      .from("ads_ab_tests")
+      .insert({
+        user_id: context.userId,
+        campaign_id: data.campaignId,
+        name: data.name,
+        hypothesis: data.hypothesis ?? null,
+        metric: data.metric,
+        status: "running",
+      })
+      .select()
+      .single();
+    if (error) throw new Error(error.message);
+
+    const rows = data.variants.map((v) => ({
+      user_id: context.userId,
+      test_id: test.id,
+      name: v.name,
+      is_control: v.isControl,
+      copy_id: v.copyId ?? null,
+      creative_id: v.creativeId ?? null,
+    }));
+    const { error: vErr } = await context.supabase.from("ads_ab_variants").insert(rows);
+    if (vErr) throw new Error(vErr.message);
+    return test;
+  });
+
+export const listABTests = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({ campaignId: z.string().uuid().optional() }).parse(i ?? {}),
+  )
+  .handler(async ({ data, context }) => {
+    const query = context.supabase
+      .from("ads_ab_tests")
+      .select("*, variants:ads_ab_variants(*), campaign:ads_campaigns(name)")
+      .order("created_at", { ascending: false });
+    if (data.campaignId) query.eq("campaign_id", data.campaignId);
+    const { data: rows, error } = await query;
+    if (error) throw new Error(error.message);
+    return rows;
+  });
+
+export const endABTest = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({ id: z.string().uuid(), winnerVariantId: z.string().uuid().nullable().optional() }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("ads_ab_tests")
+      .update({
+        status: "ended",
+        winner_variant_id: data.winnerVariantId ?? null,
+        ended_at: new Date().toISOString(),
+      })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const deleteABTest = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase.from("ads_ab_tests").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
