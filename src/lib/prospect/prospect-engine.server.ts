@@ -3,7 +3,7 @@
  * Usa Firecrawl (search + scrape) + Lovable AI Gateway (Gemini) para extração.
  * NUNCA importe este arquivo do cliente.
  */
-import { normalizeEmail, normalizeInstagramHandle, normalizePhone, normalizeName } from "@/features/prospect/utils";
+import { normalizeEmail, normalizeInstagramHandle, normalizePhone, normalizeName, computeLeadScore, DEFAULT_SCORE_WEIGHTS } from "@/features/prospect/utils";
 import type { ContactChannel } from "@/features/prospect/types";
 
 const FIRECRAWL = "https://api.firecrawl.dev/v2";
@@ -177,21 +177,40 @@ export async function discoverCompanies(input: {
       if (!domain) continue;
       if (isNoiseDomain(domain, { allowInstagram: input.allowInstagram })) continue;
 
-      // Dedupe: por domínio, ou por URL completa quando for perfil do Instagram
       const isIg = /instagram\.com$/i.test(domain);
-      const dedupeKey = isIg ? r.url.replace(/[?#].*$/, "").toLowerCase() : domain;
+      // Instagram: aceitar SOMENTE perfis (/{handle}), rejeitar posts/reels/stories/etc.
+      if (isIg) {
+        const handle = extractInstagramProfile(r.url);
+        if (!handle) continue;
+        const dedupeKey = `instagram:${handle}`;
+        if (seen.has(dedupeKey)) continue;
+        seen.add(dedupeKey);
+        const displayName = cleanCompanyName(r.title) || `@${handle}`;
+        companies.push({
+          name: displayName,
+          normalized_name: normalizeName(displayName),
+          website: null,
+          source_url: `https://instagram.com/${handle}`,
+          description: r.description ?? null,
+          city: input.city ?? null,
+          state: input.state ?? null,
+          category: input.segment,
+        });
+        if (companies.length >= input.limit) break;
+        continue;
+      }
+
+      const dedupeKey = domain;
       if (seen.has(dedupeKey)) continue;
       seen.add(dedupeKey);
 
       const name = cleanCompanyName(r.title);
       if (!name) continue;
 
-      const website = isIg ? null : `https://${domain}`;
-
       companies.push({
         name,
         normalized_name: normalizeName(name),
-        website,
+        website: `https://${domain}`,
         source_url: r.url,
         description: r.description ?? null,
         city: input.city ?? null,
@@ -203,6 +222,32 @@ export async function discoverCompanies(input: {
     }
   }
   return companies;
+}
+
+/** Retorna o handle do perfil quando a URL é `instagram.com/{handle}` (não post, reel, story, etc). */
+function extractInstagramProfile(url: string): string | null {
+  try {
+    const u = new URL(url);
+    if (!/instagram\.com$/i.test(u.hostname.replace(/^www\./, ""))) return null;
+    const segs = u.pathname.split("/").filter(Boolean);
+    if (segs.length === 0) return null;
+    const first = segs[0].toLowerCase();
+    // Rotas não-perfil do Instagram
+    const banned = new Set([
+      "p", "reel", "reels", "tv", "stories", "story", "explore", "accounts",
+      "directory", "about", "developer", "legal", "web", "session", "graphql",
+      "challenge", "invites", "direct", "hashtag", "locations", "emails",
+    ]);
+    if (banned.has(first)) return null;
+    // Se há mais de 1 segmento, geralmente é conteúdo (ex.: /user/reel/xyz)
+    if (segs.length > 1) {
+      const second = segs[1].toLowerCase();
+      if (banned.has(second)) return null;
+    }
+    // Handles válidos: letras, números, ponto, sublinhado, 2-30 chars
+    if (!/^[a-z0-9._]{2,30}$/i.test(first)) return null;
+    return first;
+  } catch { return null; }
 }
 
 function safeDomain(u: string): string | null {
@@ -219,6 +264,7 @@ function cleanCompanyName(title: string): string {
     .trim()
     .slice(0, 120);
 }
+
 
 // ============= Queries especializadas para Judô / Jiu-Jitsu =============
 
@@ -403,4 +449,92 @@ export async function fallbackContactSearch(companyName: string, city?: string |
   } catch { /* ignore */ }
 
   return contacts;
+}
+
+// ============= Enriquecimento reutilizável (helper compartilhado) =============
+
+// (computeLeadScore/DEFAULT_SCORE_WEIGHTS já importados no topo)
+
+/**
+ * Motor de enriquecimento reutilizável. Usa o cliente Supabase fornecido
+ * (autenticado do usuário OU admin) + owner_id. Retorna resumo do resultado.
+ */
+export async function enrichCompanyCore(
+  supa: { from: (t: string) => any },
+  ownerId: string,
+  companyId: string,
+): Promise<{ ok: boolean; score: number; contactsFound: number; foundRequired: boolean }> {
+  const { data: c, error } = await supa.from("prospect_companies").select("*").eq("id", companyId).single();
+  if (error || !c) throw new Error("Lead não encontrado");
+  const company = c as {
+    id: string; name: string; website: string | null; city: string | null;
+    phone: string | null; address: string | null; category: string | null; state: string | null;
+  };
+
+  let result: EnrichmentResult = {
+    contacts: [], address: null, phone: null, business_hours: null, responsible_name: null, ai_summary: null,
+  };
+  if (company.website) {
+    try { result = await enrichFromWebsite(company.website, company.name); } catch { /* keep empty */ }
+  }
+  const has = (ch: string) => result.contacts.some((x) => x.channel === ch);
+  if (!has("email") || !has("instagram")) {
+    try {
+      const extras = await fallbackContactSearch(company.name, company.city);
+      for (const ex of extras) {
+        if (!result.contacts.some((c2) => c2.channel === ex.channel && c2.value === ex.value)) {
+          result.contacts.push(ex);
+        }
+      }
+    } catch { /* ignore */ }
+  }
+
+  for (const ct of result.contacts) {
+    try {
+      await supa.from("prospect_contacts").upsert({
+        owner_id: ownerId, company_id: company.id,
+        channel: ct.channel, value: ct.value, source: ct.source,
+        is_primary: ct.channel === "email" || ct.channel === "whatsapp",
+      }, { onConflict: "company_id,channel,value" });
+    } catch { /* dup */ }
+  }
+
+  const patch: Record<string, unknown> = {
+    enriched_at: new Date().toISOString(),
+    pipeline_stage: "enriquecido",
+  };
+  if (result.address && !company.address) patch.address = result.address;
+  if (result.phone && !company.phone) patch.phone = result.phone;
+  if (result.business_hours) patch.business_hours = result.business_hours;
+  if (result.responsible_name) patch.responsible_name = result.responsible_name;
+  if (result.ai_summary) patch.ai_summary = result.ai_summary;
+
+  const channels = result.contacts.map((c2) => ({ channel: c2.channel as "email" | "whatsapp" | "instagram" | "phone" | "website" }));
+  const score = computeLeadScore({
+    website: company.website, phone: result.phone ?? company.phone, address: result.address ?? company.address,
+    category: company.category, city: company.city, state: company.state,
+  }, channels, DEFAULT_SCORE_WEIGHTS);
+  patch.score = score;
+
+  if (has("email")) patch.best_channel = "email";
+  else if (has("whatsapp")) patch.best_channel = "whatsapp";
+  else if (has("instagram")) patch.best_channel = "instagram";
+
+  const foundRequired = has("email") || has("whatsapp") || has("instagram");
+  patch.status = foundRequired ? "qualificado" : "ativo";
+
+  await supa.from("prospect_companies").update(patch).eq("id", company.id);
+
+  await supa.from("prospect_enrichment_jobs")
+    .update({ status: foundRequired ? "success" : "not_found", finished_at: new Date().toISOString(), fields_found: patch })
+    .eq("company_id", company.id).eq("status", "pending");
+
+  await supa.from("prospect_timeline").insert({
+    owner_id: ownerId, company_id: company.id,
+    event_type: "enriched",
+    title: foundRequired ? "Lead enriquecido com sucesso" : "Enriquecimento parcial (canais obrigatórios não encontrados)",
+    payload: { channels_found: result.contacts.map((c2) => c2.channel), score },
+  });
+
+  return { ok: true, score, contactsFound: result.contacts.length, foundRequired };
 }

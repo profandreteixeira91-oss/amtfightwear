@@ -526,92 +526,93 @@ export const enrichLead = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => z.object({ companyId: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
-    const { enrichFromWebsite, fallbackContactSearch } = await import("./prospect-engine.server");
+    const { enrichCompanyCore } = await import("./prospect-engine.server");
+    return await enrichCompanyCore(context.supabase as unknown as { from: (t: string) => any }, context.userId, data.companyId);
+  });
+
+/** Enriquece em lote — todos pendentes do usuário OU a lista de IDs informada. */
+export const enrichPendingLeads = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({
+    ids: z.array(z.string().uuid()).max(200).optional(),
+    limit: z.number().int().min(1).max(50).default(20),
+  }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { enrichCompanyCore } = await import("./prospect-engine.server");
     const supa = context.supabase as unknown as {
       from: (t: string) => {
-        select: (c: string) => { eq: (k: string, v: string) => { single: () => Promise<{ data: unknown; error: unknown }> } };
-        update: (v: unknown) => { eq: (k: string, v: string) => Promise<unknown> };
-        upsert: (v: unknown, o?: unknown) => Promise<{ error: unknown }>;
-        insert: (v: unknown) => Promise<{ error: unknown }>;
+        select: (c: string) => {
+          eq: (k: string, v: unknown) => {
+            in?: (k: string, v: unknown[]) => Promise<{ data: Array<{ company_id: string }> | null }>;
+            order: (k: string, o?: unknown) => { limit: (n: number) => Promise<{ data: Array<{ company_id: string }> | null }> };
+          };
+        };
       };
     };
 
-    const { data: c, error } = await supa.from("prospect_companies").select("*").eq("id", data.companyId).single();
-    if (error || !c) throw new Error("Lead não encontrado");
-    const company = c as {
-      id: string; name: string; website: string | null; city: string | null; owner_id: string;
-      phone: string | null; address: string | null; category: string | null; state: string | null;
-    };
-
-    let result: Awaited<ReturnType<typeof enrichFromWebsite>> = {
-      contacts: [], address: null, phone: null, business_hours: null, responsible_name: null, ai_summary: null,
-    };
-    if (company.website) {
-      result = await enrichFromWebsite(company.website, company.name);
-    }
-    // Fallback se faltar canal obrigatório
-    const has = (ch: string) => result.contacts.some((x) => x.channel === ch);
-    if (!has("email") || !has("instagram")) {
-      const extras = await fallbackContactSearch(company.name, company.city);
-      for (const ex of extras) {
-        if (!result.contacts.some((c2) => c2.channel === ex.channel && c2.value === ex.value)) {
-          result.contacts.push(ex);
-        }
-      }
+    let ids: string[] = [];
+    if (data.ids && data.ids.length) {
+      ids = data.ids.slice(0, data.limit);
+    } else {
+      const { data: rows } = await (context.supabase as unknown as {
+        from: (t: string) => { select: (c: string) => { eq: (k: string, v: unknown) => { eq: (k: string, v: unknown) => { order: (k: string, o?: unknown) => { limit: (n: number) => Promise<{ data: Array<{ company_id: string }> | null }> } } } } };
+      }).from("prospect_enrichment_jobs")
+        .select("company_id")
+        .eq("owner_id", context.userId)
+        .eq("status", "pending")
+        .order("created_at", { ascending: true })
+        .limit(data.limit);
+      ids = (rows ?? []).map((r) => r.company_id);
     }
 
-    // Persist contatos (dedupe por unique)
-    for (const ct of result.contacts) {
+    let ok = 0, failed = 0, notFound = 0;
+    for (const id of ids) {
       try {
-        await supa.from("prospect_contacts").upsert({
-          owner_id: context.userId, company_id: company.id,
-          channel: ct.channel, value: ct.value, source: ct.source,
-          is_primary: ct.channel === "email" || ct.channel === "whatsapp",
-        }, { onConflict: "company_id,channel,value" });
-      } catch { /* ignore dup */ }
+        const r = await enrichCompanyCore(context.supabase as unknown as { from: (t: string) => any }, context.userId, id);
+        if (r.foundRequired) ok++; else notFound++;
+      } catch { failed++; }
     }
-
-    // Atualiza a empresa com dados extras
-    const patch: JsonRow = {
-      enriched_at: new Date().toISOString(),
-      pipeline_stage: "enriquecido",
-    };
-    if (result.address && !company.address) patch.address = result.address;
-    if (result.phone && !company.phone) patch.phone = result.phone;
-    if (result.business_hours) patch.business_hours = result.business_hours;
-    if (result.responsible_name) patch.responsible_name = result.responsible_name;
-    if (result.ai_summary) patch.ai_summary = result.ai_summary;
-
-    // Calcular novo score
-    const channels = result.contacts.map((c2) => ({ channel: c2.channel as "email" | "whatsapp" | "instagram" | "phone" | "website" }));
-    patch.score = computeLeadScore({
-      website: company.website, phone: result.phone ?? company.phone, address: result.address ?? company.address,
-      category: company.category, city: company.city, state: company.state,
-    }, channels, DEFAULT_SCORE_WEIGHTS);
-
-    // Determinar canal prioritário
-    if (has("email")) patch.best_channel = "email";
-    else if (has("whatsapp")) patch.best_channel = "whatsapp";
-    else if (has("instagram")) patch.best_channel = "instagram";
-
-    const foundRequired = has("email") || has("whatsapp") || has("instagram");
-    patch.status = foundRequired ? "qualificado" : "ativo";
-
-    await supa.from("prospect_companies").update(patch).eq("id", company.id);
-
-    // Marca job como concluído
-    await (context.supabase as unknown as {
-      from: (t: string) => { update: (v: unknown) => { eq: (k: string, v: string) => { eq: (k: string, v: string) => Promise<unknown> } } };
-    }).from("prospect_enrichment_jobs")
-      .update({ status: foundRequired ? "success" : "not_found", finished_at: new Date().toISOString(), fields_found: patch })
-      .eq("company_id", company.id).eq("status", "pending");
-
-    await logEvent(context.supabase, context.userId, company.id, "enriched",
-      foundRequired ? "Lead enriquecido com sucesso" : "Enriquecimento parcial (canais obrigatórios não encontrados)",
-      { channels_found: result.contacts.map((c2) => c2.channel), score: patch.score });
-
-    return { ok: true, score: patch.score, contactsFound: result.contacts.length };
+    await auditLog(context.supabase, context.userId, "enrichment", "batch",
+      `Enriquecimento em lote: ${ok} sucesso · ${notFound} parcial · ${failed} falha`, { total: ids.length });
+    return { processed: ids.length, ok, notFound, failed };
   });
+
+// ============= BULK ACTIONS =============
+
+export const bulkDeleteLeads = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ ids: z.array(z.string().uuid()).min(1).max(500) }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { error } = await (context.supabase as unknown as {
+      from: (t: string) => { delete: () => { in: (k: string, v: unknown[]) => { eq: (k: string, v: string) => Promise<{ error: { message: string } | null }> } } };
+    }).from("prospect_companies").delete().in("id", data.ids).eq("owner_id", context.userId);
+    if (error) throw new Error(error.message);
+    await auditLog(context.supabase, context.userId, "lead", "bulk_delete",
+      `${data.ids.length} leads excluídos`, { count: data.ids.length });
+    return { ok: true, deleted: data.ids.length };
+  });
+
+export const bulkUpdateLeads = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({
+    ids: z.array(z.string().uuid()).min(1).max(500),
+    patch: z.object({
+      status: z.string().max(30).optional(),
+      pipeline_stage: z.string().max(30).optional(),
+      tags: z.array(z.string()).optional(),
+      responsible_name: z.string().nullable().optional(),
+    }),
+  }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { error } = await (context.supabase as unknown as {
+      from: (t: string) => { update: (v: unknown) => { in: (k: string, v: unknown[]) => { eq: (k: string, v: string) => Promise<{ error: { message: string } | null }> } } };
+    }).from("prospect_companies").update(data.patch).in("id", data.ids).eq("owner_id", context.userId);
+    if (error) throw new Error(error.message);
+    await auditLog(context.supabase, context.userId, "lead", "bulk_update",
+      `${data.ids.length} leads atualizados`, { patch: data.patch as unknown as JsonRow });
+    return { ok: true, updated: data.ids.length };
+  });
+
 
 // ============= CONTACT ACTIONS (log de e-mail/whatsapp/instagram) =============
 
