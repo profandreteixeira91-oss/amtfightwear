@@ -50,6 +50,7 @@ import { Route as AuthenticatedGrowthIntelligenceRouteImport } from './routes/_a
 import { Route as AuthenticatedGrowthInsightsRouteImport } from './routes/_authenticated/growth.insights'
 import { Route as AuthenticatedGrowthCustomersRouteImport } from './routes/_authenticated/growth.customers'
 import { Route as AuthenticatedGrowthCrmRouteImport } from './routes/_authenticated/growth.crm'
+import { Route as AuthenticatedAdsScaleRouteImport } from './routes/_authenticated/ads.scale'
 import { Route as AuthenticatedAdsOptimizationRouteImport } from './routes/_authenticated/ads.optimization'
 import { Route as AuthenticatedAdsNewRouteImport } from './routes/_authenticated/ads.new'
 import { Route as AuthenticatedAdsDashboardRouteImport } from './routes/_authenticated/ads.dashboard'
@@ -62,6 +63,7 @@ import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/e
 import { Route as ApiPublicSalesChatRouteImport } from './routes/api/public/sales/chat'
 import { Route as ApiPublicMetaCallbackRouteImport } from './routes/api/public/meta/callback'
 import { Route as ApiPublicHooksSyncAdsInsightsRouteImport } from './routes/api/public/hooks/sync-ads-insights'
+import { Route as ApiPublicHooksScaleWinnersRouteImport } from './routes/api/public/hooks/scale-winners'
 import { Route as ApiPublicHooksRunAdsOptimizationRouteImport } from './routes/api/public/hooks/run-ads-optimization'
 import { Route as ApiPublicHooksPublishScheduledPostsRouteImport } from './routes/api/public/hooks/publish-scheduled-posts'
 import { Route as ApiPublicHooksMartialArtsDailySweepRouteImport } from './routes/api/public/hooks/martial-arts-daily-sweep'
@@ -299,6 +301,11 @@ const AuthenticatedGrowthCrmRoute = AuthenticatedGrowthCrmRouteImport.update({
   path: '/growth/crm',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdsScaleRoute = AuthenticatedAdsScaleRouteImport.update({
+  id: '/scale',
+  path: '/scale',
+  getParentRoute: () => AuthenticatedAdsRoute,
+} as any)
 const AuthenticatedAdsOptimizationRoute =
   AuthenticatedAdsOptimizationRouteImport.update({
     id: '/optimization',
@@ -364,6 +371,12 @@ const ApiPublicHooksSyncAdsInsightsRoute =
   ApiPublicHooksSyncAdsInsightsRouteImport.update({
     id: '/api/public/hooks/sync-ads-insights',
     path: '/api/public/hooks/sync-ads-insights',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksScaleWinnersRoute =
+  ApiPublicHooksScaleWinnersRouteImport.update({
+    id: '/api/public/hooks/scale-winners',
+    path: '/api/public/hooks/scale-winners',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicHooksRunAdsOptimizationRoute =
@@ -434,6 +447,7 @@ export interface FileRoutesByFullPath {
   '/ads/dashboard': typeof AuthenticatedAdsDashboardRoute
   '/ads/new': typeof AuthenticatedAdsNewRoute
   '/ads/optimization': typeof AuthenticatedAdsOptimizationRoute
+  '/ads/scale': typeof AuthenticatedAdsScaleRoute
   '/growth/crm': typeof AuthenticatedGrowthCrmRoute
   '/growth/customers': typeof AuthenticatedGrowthCustomersRoute
   '/growth/insights': typeof AuthenticatedGrowthInsightsRoute
@@ -470,6 +484,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/martial-arts-daily-sweep': typeof ApiPublicHooksMartialArtsDailySweepRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/hooks/run-ads-optimization': typeof ApiPublicHooksRunAdsOptimizationRoute
+  '/api/public/hooks/scale-winners': typeof ApiPublicHooksScaleWinnersRoute
   '/api/public/hooks/sync-ads-insights': typeof ApiPublicHooksSyncAdsInsightsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
@@ -496,6 +511,7 @@ export interface FileRoutesByTo {
   '/ads/dashboard': typeof AuthenticatedAdsDashboardRoute
   '/ads/new': typeof AuthenticatedAdsNewRoute
   '/ads/optimization': typeof AuthenticatedAdsOptimizationRoute
+  '/ads/scale': typeof AuthenticatedAdsScaleRoute
   '/growth/crm': typeof AuthenticatedGrowthCrmRoute
   '/growth/customers': typeof AuthenticatedGrowthCustomersRoute
   '/growth/insights': typeof AuthenticatedGrowthInsightsRoute
@@ -532,6 +548,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/martial-arts-daily-sweep': typeof ApiPublicHooksMartialArtsDailySweepRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/hooks/run-ads-optimization': typeof ApiPublicHooksRunAdsOptimizationRoute
+  '/api/public/hooks/scale-winners': typeof ApiPublicHooksScaleWinnersRoute
   '/api/public/hooks/sync-ads-insights': typeof ApiPublicHooksSyncAdsInsightsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
@@ -560,6 +577,7 @@ export interface FileRoutesById {
   '/_authenticated/ads/dashboard': typeof AuthenticatedAdsDashboardRoute
   '/_authenticated/ads/new': typeof AuthenticatedAdsNewRoute
   '/_authenticated/ads/optimization': typeof AuthenticatedAdsOptimizationRoute
+  '/_authenticated/ads/scale': typeof AuthenticatedAdsScaleRoute
   '/_authenticated/growth/crm': typeof AuthenticatedGrowthCrmRoute
   '/_authenticated/growth/customers': typeof AuthenticatedGrowthCustomersRoute
   '/_authenticated/growth/insights': typeof AuthenticatedGrowthInsightsRoute
@@ -596,6 +614,7 @@ export interface FileRoutesById {
   '/api/public/hooks/martial-arts-daily-sweep': typeof ApiPublicHooksMartialArtsDailySweepRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/hooks/run-ads-optimization': typeof ApiPublicHooksRunAdsOptimizationRoute
+  '/api/public/hooks/scale-winners': typeof ApiPublicHooksScaleWinnersRoute
   '/api/public/hooks/sync-ads-insights': typeof ApiPublicHooksSyncAdsInsightsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
@@ -624,6 +643,7 @@ export interface FileRouteTypes {
     | '/ads/dashboard'
     | '/ads/new'
     | '/ads/optimization'
+    | '/ads/scale'
     | '/growth/crm'
     | '/growth/customers'
     | '/growth/insights'
@@ -660,6 +680,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/martial-arts-daily-sweep'
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/hooks/run-ads-optimization'
+    | '/api/public/hooks/scale-winners'
     | '/api/public/hooks/sync-ads-insights'
     | '/api/public/meta/callback'
     | '/api/public/sales/chat'
@@ -686,6 +707,7 @@ export interface FileRouteTypes {
     | '/ads/dashboard'
     | '/ads/new'
     | '/ads/optimization'
+    | '/ads/scale'
     | '/growth/crm'
     | '/growth/customers'
     | '/growth/insights'
@@ -722,6 +744,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/martial-arts-daily-sweep'
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/hooks/run-ads-optimization'
+    | '/api/public/hooks/scale-winners'
     | '/api/public/hooks/sync-ads-insights'
     | '/api/public/meta/callback'
     | '/api/public/sales/chat'
@@ -749,6 +772,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ads/dashboard'
     | '/_authenticated/ads/new'
     | '/_authenticated/ads/optimization'
+    | '/_authenticated/ads/scale'
     | '/_authenticated/growth/crm'
     | '/_authenticated/growth/customers'
     | '/_authenticated/growth/insights'
@@ -785,6 +809,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/martial-arts-daily-sweep'
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/hooks/run-ads-optimization'
+    | '/api/public/hooks/scale-winners'
     | '/api/public/hooks/sync-ads-insights'
     | '/api/public/meta/callback'
     | '/api/public/sales/chat'
@@ -806,6 +831,7 @@ export interface RootRouteChildren {
   ApiPublicHooksMartialArtsDailySweepRoute: typeof ApiPublicHooksMartialArtsDailySweepRoute
   ApiPublicHooksPublishScheduledPostsRoute: typeof ApiPublicHooksPublishScheduledPostsRoute
   ApiPublicHooksRunAdsOptimizationRoute: typeof ApiPublicHooksRunAdsOptimizationRoute
+  ApiPublicHooksScaleWinnersRoute: typeof ApiPublicHooksScaleWinnersRoute
   ApiPublicHooksSyncAdsInsightsRoute: typeof ApiPublicHooksSyncAdsInsightsRoute
   ApiPublicMetaCallbackRoute: typeof ApiPublicMetaCallbackRoute
   ApiPublicSalesChatRoute: typeof ApiPublicSalesChatRoute
@@ -1101,6 +1127,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedGrowthCrmRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ads/scale': {
+      id: '/_authenticated/ads/scale'
+      path: '/scale'
+      fullPath: '/ads/scale'
+      preLoaderRoute: typeof AuthenticatedAdsScaleRouteImport
+      parentRoute: typeof AuthenticatedAdsRoute
+    }
     '/_authenticated/ads/optimization': {
       id: '/_authenticated/ads/optimization'
       path: '/optimization'
@@ -1185,6 +1218,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksSyncAdsInsightsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/scale-winners': {
+      id: '/api/public/hooks/scale-winners'
+      path: '/api/public/hooks/scale-winners'
+      fullPath: '/api/public/hooks/scale-winners'
+      preLoaderRoute: typeof ApiPublicHooksScaleWinnersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/run-ads-optimization': {
       id: '/api/public/hooks/run-ads-optimization'
       path: '/api/public/hooks/run-ads-optimization'
@@ -1267,6 +1307,7 @@ interface AuthenticatedAdsRouteChildren {
   AuthenticatedAdsDashboardRoute: typeof AuthenticatedAdsDashboardRoute
   AuthenticatedAdsNewRoute: typeof AuthenticatedAdsNewRoute
   AuthenticatedAdsOptimizationRoute: typeof AuthenticatedAdsOptimizationRoute
+  AuthenticatedAdsScaleRoute: typeof AuthenticatedAdsScaleRoute
 }
 
 const AuthenticatedAdsRouteChildren: AuthenticatedAdsRouteChildren = {
@@ -1278,6 +1319,7 @@ const AuthenticatedAdsRouteChildren: AuthenticatedAdsRouteChildren = {
   AuthenticatedAdsDashboardRoute: AuthenticatedAdsDashboardRoute,
   AuthenticatedAdsNewRoute: AuthenticatedAdsNewRoute,
   AuthenticatedAdsOptimizationRoute: AuthenticatedAdsOptimizationRoute,
+  AuthenticatedAdsScaleRoute: AuthenticatedAdsScaleRoute,
 }
 
 const AuthenticatedAdsRouteWithChildren =
@@ -1378,6 +1420,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksPublishScheduledPostsRoute:
     ApiPublicHooksPublishScheduledPostsRoute,
   ApiPublicHooksRunAdsOptimizationRoute: ApiPublicHooksRunAdsOptimizationRoute,
+  ApiPublicHooksScaleWinnersRoute: ApiPublicHooksScaleWinnersRoute,
   ApiPublicHooksSyncAdsInsightsRoute: ApiPublicHooksSyncAdsInsightsRoute,
   ApiPublicMetaCallbackRoute: ApiPublicMetaCallbackRoute,
   ApiPublicSalesChatRoute: ApiPublicSalesChatRoute,

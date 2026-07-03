@@ -1212,3 +1212,257 @@ export const deleteABTest = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+// ============================================================
+// PHASE 4 — Auto-scale + Embeddings-based creative learning
+// ============================================================
+import { decideScale, embedText, type ScaleCampaign } from "./ads-scale";
+
+export const listScaleHistory = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({ campaignId: z.string().uuid().optional() }).parse(i ?? {}),
+  )
+  .handler(async ({ data, context }) => {
+    let q = context.supabase
+      .from("ads_scale_history")
+      .select("*, ads_campaigns(name)")
+      .eq("user_id", context.userId)
+      .order("created_at", { ascending: false })
+      .limit(100);
+    if (data.campaignId) q = q.eq("campaign_id", data.campaignId);
+    const { data: rows, error } = await q;
+    if (error) throw new Error(error.message);
+    return rows ?? [];
+  });
+
+export const listWinners = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const [creatives, copies, embeddings] = await Promise.all([
+      context.supabase
+        .from("ads_creatives")
+        .select("id,campaign_id,image_url,prompt,winner_score,created_at")
+        .eq("user_id", context.userId)
+        .eq("is_winner", true)
+        .order("winner_score", { ascending: false })
+        .limit(50),
+      context.supabase
+        .from("ads_copies")
+        .select("id,campaign_id,headline,primary_text,description,cta,winner_score,created_at")
+        .eq("user_id", context.userId)
+        .eq("is_winner", true)
+        .order("winner_score", { ascending: false })
+        .limit(50),
+      context.supabase
+        .from("ads_creative_embeddings")
+        .select("id,campaign_id,content,performance_score,roas,ctr,cpa,spend,created_at")
+        .eq("user_id", context.userId)
+        .order("performance_score", { ascending: false })
+        .limit(50),
+    ]);
+    return {
+      creatives: creatives.data ?? [],
+      copies: copies.data ?? [],
+      embeddings: embeddings.data ?? [],
+    };
+  });
+
+export const runScaleNow = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: campaigns, error } = await context.supabase
+      .from("ads_campaigns")
+      .select("id,user_id,name,status,budget_daily,meta_campaign_id,meta_adset_id,ads_account_id")
+      .eq("user_id", context.userId)
+      .eq("status", "active")
+      .not("meta_campaign_id", "is", null);
+    if (error) throw new Error(error.message);
+
+    const decisions: Array<ReturnType<typeof decideScale>> = [];
+    for (const c of (campaigns ?? []) as ScaleCampaign[]) {
+      const { data: insights } = await context.supabase
+        .from("ads_insights")
+        .select("date,spend,impressions,clicks,conversions,revenue,ctr,cpa,roas")
+        .eq("campaign_id", c.id);
+      const { data: last } = await context.supabase
+        .from("ads_scale_history")
+        .select("created_at")
+        .eq("campaign_id", c.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      const decision = decideScale(
+        c,
+        (insights ?? []) as Parameters<typeof decideScale>[1],
+        last?.created_at ?? null,
+      );
+      if (decision) decisions.push(decision);
+    }
+    return { decisions, evaluated: campaigns?.length ?? 0 };
+  });
+
+export const suggestFromWinners = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z
+      .object({
+        productName: z.string().min(1),
+        objective: z.string().min(1),
+        angle: z.string().nullable().optional(),
+      })
+      .parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const query = `${data.productName} — ${data.objective}${data.angle ? " — " + data.angle : ""}`;
+    let inspirations: Array<{ content: string; roas: number | null; performance_score: number | null }> = [];
+    try {
+      const vec = await embedText(query);
+      // RPC-style similarity search via raw filter — use in-memory ranking if no RPC
+      const { data: rows } = await context.supabase
+        .from("ads_creative_embeddings")
+        .select("content,roas,performance_score,embedding")
+        .eq("user_id", context.userId)
+        .limit(200);
+      if (rows && rows.length > 0) {
+        const parsed = rows
+          .map((r) => {
+            const emb =
+              typeof r.embedding === "string"
+                ? (JSON.parse(r.embedding as unknown as string) as number[])
+                : (r.embedding as unknown as number[]);
+            let dot = 0,
+              na = 0,
+              nb = 0;
+            for (let i = 0; i < emb.length; i++) {
+              dot += vec[i] * emb[i];
+              na += vec[i] * vec[i];
+              nb += emb[i] * emb[i];
+            }
+            const sim = dot / (Math.sqrt(na) * Math.sqrt(nb) || 1);
+            return { content: r.content as string, roas: r.roas, performance_score: r.performance_score, sim };
+          })
+          .sort((a, b) => b.sim - a.sim)
+          .slice(0, 5);
+        inspirations = parsed;
+      }
+    } catch (e) {
+      // embeddings unavailable — fall back to top winners
+      const { data: rows } = await context.supabase
+        .from("ads_creative_embeddings")
+        .select("content,roas,performance_score")
+        .eq("user_id", context.userId)
+        .order("performance_score", { ascending: false })
+        .limit(5);
+      inspirations = (rows ?? []) as typeof inspirations;
+    }
+
+    if (inspirations.length === 0) {
+      return { inspirations, suggestionJson: null as string | null, note: "Ainda não há criativos vencedores para aprender." };
+    }
+
+    // Ask AI to draft inspired copy
+    const { gateway, generateText } = await loadGateway();
+    const context_ = inspirations
+      .map((x, i) => `#${i + 1} (ROAS ${x.roas ?? "?"}x)\n${x.content}`)
+      .join("\n\n---\n\n");
+    const prompt = `Você é um copywriter sênior de Meta Ads. Baseado nestes criativos VENCEDORES anteriores, produza uma NOVA sugestão de anúncio para "${data.productName}" (objetivo: ${data.objective}${data.angle ? ", ângulo: " + data.angle : ""}).
+
+CRIATIVOS VENCEDORES:
+${context_}
+
+Retorne APENAS JSON: {"headline":"...","primary_text":"...","description":"...","cta":"...","visual_prompt":"...","rationale":"por que deve funcionar"}`;
+
+    const { text } = await generateText({
+      model: gateway("google/gemini-2.5-flash"),
+      prompt,
+    });
+    let suggestionJson: string | null = null;
+    try {
+      suggestionJson = JSON.stringify(extractJson(text));
+    } catch {
+      suggestionJson = JSON.stringify({ raw: text });
+    }
+    return { inspirations, suggestionJson, note: null as string | null };
+  });
+
+export const backfillWinnerEmbeddings = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    // Find campaigns with ROAS >= 2 that don't have an embedding yet
+    const { data: campaigns } = await context.supabase
+      .from("ads_campaigns")
+      .select("id")
+      .eq("user_id", context.userId);
+    if (!campaigns || campaigns.length === 0) return { created: 0 };
+
+    let created = 0;
+    for (const c of campaigns) {
+      const { data: insights } = await context.supabase
+        .from("ads_insights")
+        .select("spend,revenue,conversions,clicks,impressions")
+        .eq("campaign_id", c.id);
+      if (!insights || insights.length === 0) continue;
+      const spend = insights.reduce((s, i) => s + Number(i.spend ?? 0), 0);
+      const revenue = insights.reduce((s, i) => s + Number(i.revenue ?? 0), 0);
+      const roas = spend > 0 ? revenue / spend : 0;
+      if (roas < 2) continue;
+
+      const { data: exists } = await context.supabase
+        .from("ads_creative_embeddings")
+        .select("id")
+        .eq("campaign_id", c.id)
+        .limit(1)
+        .maybeSingle();
+      if (exists) continue;
+
+      const { data: copy } = await context.supabase
+        .from("ads_copies")
+        .select("id,headline,primary_text,description")
+        .eq("campaign_id", c.id)
+        .limit(1)
+        .maybeSingle();
+      const { data: creative } = await context.supabase
+        .from("ads_creatives")
+        .select("id,prompt")
+        .eq("campaign_id", c.id)
+        .limit(1)
+        .maybeSingle();
+      const content = [copy?.headline, copy?.primary_text, copy?.description, creative?.prompt]
+        .filter(Boolean)
+        .join(" \n ");
+      if (content.trim().length < 10) continue;
+
+      try {
+        const vec = await embedText(content);
+        await context.supabase.from("ads_creative_embeddings").insert({
+          user_id: context.userId,
+          campaign_id: c.id,
+          creative_id: creative?.id ?? null,
+          copy_id: copy?.id ?? null,
+          content,
+          embedding: vec as unknown as string,
+          performance_score: roas,
+          roas,
+          spend,
+          metadata: { source: "backfill" },
+        });
+        if (copy?.id) {
+          await context.supabase
+            .from("ads_copies")
+            .update({ is_winner: true, winner_score: roas })
+            .eq("id", copy.id);
+        }
+        if (creative?.id) {
+          await context.supabase
+            .from("ads_creatives")
+            .update({ is_winner: true, winner_score: roas })
+            .eq("id", creative.id);
+        }
+        created += 1;
+      } catch (e) {
+        console.error("embed backfill failed:", e);
+      }
+    }
+    return { created };
+  });
