@@ -62,6 +62,7 @@ import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/e
 import { Route as ApiPublicSalesChatRouteImport } from './routes/api/public/sales/chat'
 import { Route as ApiPublicMetaCallbackRouteImport } from './routes/api/public/meta/callback'
 import { Route as ApiPublicHooksSyncAdsInsightsRouteImport } from './routes/api/public/hooks/sync-ads-insights'
+import { Route as ApiPublicHooksScaleWinnersRouteImport } from './routes/api/public/hooks/scale-winners'
 import { Route as ApiPublicHooksRunAdsOptimizationRouteImport } from './routes/api/public/hooks/run-ads-optimization'
 import { Route as ApiPublicHooksPublishScheduledPostsRouteImport } from './routes/api/public/hooks/publish-scheduled-posts'
 import { Route as ApiPublicHooksMartialArtsDailySweepRouteImport } from './routes/api/public/hooks/martial-arts-daily-sweep'
@@ -366,6 +367,12 @@ const ApiPublicHooksSyncAdsInsightsRoute =
     path: '/api/public/hooks/sync-ads-insights',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksScaleWinnersRoute =
+  ApiPublicHooksScaleWinnersRouteImport.update({
+    id: '/api/public/hooks/scale-winners',
+    path: '/api/public/hooks/scale-winners',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksRunAdsOptimizationRoute =
   ApiPublicHooksRunAdsOptimizationRouteImport.update({
     id: '/api/public/hooks/run-ads-optimization',
@@ -470,6 +477,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/martial-arts-daily-sweep': typeof ApiPublicHooksMartialArtsDailySweepRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/hooks/run-ads-optimization': typeof ApiPublicHooksRunAdsOptimizationRoute
+  '/api/public/hooks/scale-winners': typeof ApiPublicHooksScaleWinnersRoute
   '/api/public/hooks/sync-ads-insights': typeof ApiPublicHooksSyncAdsInsightsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
@@ -532,6 +540,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/martial-arts-daily-sweep': typeof ApiPublicHooksMartialArtsDailySweepRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/hooks/run-ads-optimization': typeof ApiPublicHooksRunAdsOptimizationRoute
+  '/api/public/hooks/scale-winners': typeof ApiPublicHooksScaleWinnersRoute
   '/api/public/hooks/sync-ads-insights': typeof ApiPublicHooksSyncAdsInsightsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
@@ -596,6 +605,7 @@ export interface FileRoutesById {
   '/api/public/hooks/martial-arts-daily-sweep': typeof ApiPublicHooksMartialArtsDailySweepRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/hooks/run-ads-optimization': typeof ApiPublicHooksRunAdsOptimizationRoute
+  '/api/public/hooks/scale-winners': typeof ApiPublicHooksScaleWinnersRoute
   '/api/public/hooks/sync-ads-insights': typeof ApiPublicHooksSyncAdsInsightsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
@@ -660,6 +670,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/martial-arts-daily-sweep'
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/hooks/run-ads-optimization'
+    | '/api/public/hooks/scale-winners'
     | '/api/public/hooks/sync-ads-insights'
     | '/api/public/meta/callback'
     | '/api/public/sales/chat'
@@ -722,6 +733,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/martial-arts-daily-sweep'
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/hooks/run-ads-optimization'
+    | '/api/public/hooks/scale-winners'
     | '/api/public/hooks/sync-ads-insights'
     | '/api/public/meta/callback'
     | '/api/public/sales/chat'
@@ -785,6 +797,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/martial-arts-daily-sweep'
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/hooks/run-ads-optimization'
+    | '/api/public/hooks/scale-winners'
     | '/api/public/hooks/sync-ads-insights'
     | '/api/public/meta/callback'
     | '/api/public/sales/chat'
@@ -806,6 +819,7 @@ export interface RootRouteChildren {
   ApiPublicHooksMartialArtsDailySweepRoute: typeof ApiPublicHooksMartialArtsDailySweepRoute
   ApiPublicHooksPublishScheduledPostsRoute: typeof ApiPublicHooksPublishScheduledPostsRoute
   ApiPublicHooksRunAdsOptimizationRoute: typeof ApiPublicHooksRunAdsOptimizationRoute
+  ApiPublicHooksScaleWinnersRoute: typeof ApiPublicHooksScaleWinnersRoute
   ApiPublicHooksSyncAdsInsightsRoute: typeof ApiPublicHooksSyncAdsInsightsRoute
   ApiPublicMetaCallbackRoute: typeof ApiPublicMetaCallbackRoute
   ApiPublicSalesChatRoute: typeof ApiPublicSalesChatRoute
@@ -1185,6 +1199,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksSyncAdsInsightsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/scale-winners': {
+      id: '/api/public/hooks/scale-winners'
+      path: '/api/public/hooks/scale-winners'
+      fullPath: '/api/public/hooks/scale-winners'
+      preLoaderRoute: typeof ApiPublicHooksScaleWinnersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/run-ads-optimization': {
       id: '/api/public/hooks/run-ads-optimization'
       path: '/api/public/hooks/run-ads-optimization'
@@ -1378,6 +1399,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksPublishScheduledPostsRoute:
     ApiPublicHooksPublishScheduledPostsRoute,
   ApiPublicHooksRunAdsOptimizationRoute: ApiPublicHooksRunAdsOptimizationRoute,
+  ApiPublicHooksScaleWinnersRoute: ApiPublicHooksScaleWinnersRoute,
   ApiPublicHooksSyncAdsInsightsRoute: ApiPublicHooksSyncAdsInsightsRoute,
   ApiPublicMetaCallbackRoute: ApiPublicMetaCallbackRoute,
   ApiPublicSalesChatRoute: ApiPublicSalesChatRoute,

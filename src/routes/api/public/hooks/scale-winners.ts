@@ -114,7 +114,7 @@ async function handle() {
         ctr_at_action: decision.metrics.ctr,
         cpa_at_action: decision.metrics.cpa,
         auto_applied: true,
-        meta_response: metaResponse as Record<string, unknown> | null,
+        meta_response: (metaResponse ?? null) as never,
       });
 
       // If we scaled up a winner, embed its creative for future learning
