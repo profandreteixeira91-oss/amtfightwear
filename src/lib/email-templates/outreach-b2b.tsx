@@ -44,6 +44,8 @@ Nossos diferenciais incluem:
 
 Nosso objetivo é ajudar nossos parceiros a oferecer produtos de alto padrão aos seus alunos, fortalecendo sua marca e gerando novas oportunidades de receita.
 
+Conheça nosso site: www.amtfightwear.com.br
+
 Caso tenha interesse, ficaremos felizes em apresentar nosso catálogo, esclarecer dúvidas e elaborar uma proposta personalizada.
 
 Agradeço pela atenção e fico à disposição.`

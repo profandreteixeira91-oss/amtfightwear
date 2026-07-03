@@ -63,8 +63,7 @@ function defaultEmailSubject(name: string) {
   return `Parceria B2B | Kimonos, Faixas e Patches Personalizados — ${name}`;
 }
 
-function defaultEmailBody(_name: string, pitch: string | null | undefined) {
-  if (pitch && pitch.trim()) return pitch.trim();
+function defaultEmailBody(_name: string, _pitch?: string | null) {
   return `Meu nome é Equipe Comercial e faço parte da AMT Fight Wear.
 
 Gostaria de apresentar uma oportunidade de parceria para academias, equipes esportivas e revendedores que buscam produtos personalizados com alta qualidade.
@@ -86,6 +85,8 @@ Nossos diferenciais incluem:
 
 Nosso objetivo é ajudar nossos parceiros a oferecer produtos de alto padrão aos seus alunos, fortalecendo sua marca e gerando novas oportunidades de receita.
 
+Conheça nosso site: www.amtfightwear.com.br
+
 Caso tenha interesse, ficaremos felizes em apresentar nosso catálogo, esclarecer dúvidas e elaborar uma proposta personalizada.
 
 Agradeço pela atenção e fico à disposição.`;
@@ -102,8 +103,11 @@ Trabalhamos com produção personalizada, excelente acabamento, materiais de alt
 
 Se vocês buscam um fornecedor confiável para fortalecer a marca da academia ou ampliar o portfólio de produtos, acredito que podemos construir uma parceria de longo prazo.
 
+Conheça nosso site: www.amtfightwear.com.br
+
 Posso enviar nosso catálogo e apresentar as condições para parceiros?`;
 }
+
 
 
 function QualifiedPage() {
