@@ -450,3 +450,91 @@ export async function fallbackContactSearch(companyName: string, city?: string |
 
   return contacts;
 }
+
+// ============= Enriquecimento reutilizável (helper compartilhado) =============
+
+import { computeLeadScore, DEFAULT_SCORE_WEIGHTS } from "@/features/prospect/utils";
+
+/**
+ * Motor de enriquecimento reutilizável. Usa o cliente Supabase fornecido
+ * (autenticado do usuário OU admin) + owner_id. Retorna resumo do resultado.
+ */
+export async function enrichCompanyCore(
+  supa: { from: (t: string) => any },
+  ownerId: string,
+  companyId: string,
+): Promise<{ ok: boolean; score: number; contactsFound: number; foundRequired: boolean }> {
+  const { data: c, error } = await supa.from("prospect_companies").select("*").eq("id", companyId).single();
+  if (error || !c) throw new Error("Lead não encontrado");
+  const company = c as {
+    id: string; name: string; website: string | null; city: string | null;
+    phone: string | null; address: string | null; category: string | null; state: string | null;
+  };
+
+  let result: EnrichmentResult = {
+    contacts: [], address: null, phone: null, business_hours: null, responsible_name: null, ai_summary: null,
+  };
+  if (company.website) {
+    try { result = await enrichFromWebsite(company.website, company.name); } catch { /* keep empty */ }
+  }
+  const has = (ch: string) => result.contacts.some((x) => x.channel === ch);
+  if (!has("email") || !has("instagram")) {
+    try {
+      const extras = await fallbackContactSearch(company.name, company.city);
+      for (const ex of extras) {
+        if (!result.contacts.some((c2) => c2.channel === ex.channel && c2.value === ex.value)) {
+          result.contacts.push(ex);
+        }
+      }
+    } catch { /* ignore */ }
+  }
+
+  for (const ct of result.contacts) {
+    try {
+      await supa.from("prospect_contacts").upsert({
+        owner_id: ownerId, company_id: company.id,
+        channel: ct.channel, value: ct.value, source: ct.source,
+        is_primary: ct.channel === "email" || ct.channel === "whatsapp",
+      }, { onConflict: "company_id,channel,value" });
+    } catch { /* dup */ }
+  }
+
+  const patch: Record<string, unknown> = {
+    enriched_at: new Date().toISOString(),
+    pipeline_stage: "enriquecido",
+  };
+  if (result.address && !company.address) patch.address = result.address;
+  if (result.phone && !company.phone) patch.phone = result.phone;
+  if (result.business_hours) patch.business_hours = result.business_hours;
+  if (result.responsible_name) patch.responsible_name = result.responsible_name;
+  if (result.ai_summary) patch.ai_summary = result.ai_summary;
+
+  const channels = result.contacts.map((c2) => ({ channel: c2.channel as "email" | "whatsapp" | "instagram" | "phone" | "website" }));
+  const score = computeLeadScore({
+    website: company.website, phone: result.phone ?? company.phone, address: result.address ?? company.address,
+    category: company.category, city: company.city, state: company.state,
+  }, channels, DEFAULT_SCORE_WEIGHTS);
+  patch.score = score;
+
+  if (has("email")) patch.best_channel = "email";
+  else if (has("whatsapp")) patch.best_channel = "whatsapp";
+  else if (has("instagram")) patch.best_channel = "instagram";
+
+  const foundRequired = has("email") || has("whatsapp") || has("instagram");
+  patch.status = foundRequired ? "qualificado" : "ativo";
+
+  await supa.from("prospect_companies").update(patch).eq("id", company.id);
+
+  await supa.from("prospect_enrichment_jobs")
+    .update({ status: foundRequired ? "success" : "not_found", finished_at: new Date().toISOString(), fields_found: patch })
+    .eq("company_id", company.id).eq("status", "pending");
+
+  await supa.from("prospect_timeline").insert({
+    owner_id: ownerId, company_id: company.id,
+    event_type: "enriched",
+    title: foundRequired ? "Lead enriquecido com sucesso" : "Enriquecimento parcial (canais obrigatórios não encontrados)",
+    payload: { channels_found: result.contacts.map((c2) => c2.channel), score },
+  });
+
+  return { ok: true, score, contactsFound: result.contacts.length, foundRequired };
+}
