@@ -108,7 +108,7 @@ function AdsDashboard() {
             />
           ) : (
             <ul className="space-y-2">
-              {data!.accounts.map((a) => (
+              {data!.accounts.map((a: { id: string; name: string; currency: string | null; status: string }) => (
                 <li key={a.id} className="flex items-center justify-between rounded-md border p-2 text-sm">
                   <div>
                     <div className="font-medium">{a.name}</div>
