@@ -110,6 +110,7 @@ function QualifiedPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
   const [draft, setDraft] = useState<OutreachDraft | null>(null);
+  const [sending, setSending] = useState(false);
 
   const fetchList = useServerFn(listLeads);
 
@@ -165,12 +166,29 @@ function QualifiedPage() {
     });
   };
 
-  const sendEmail = () => {
+  const sendEmail = async () => {
     if (!draft || draft.channel !== "email" || !draft.email) return;
-    const url = `mailto:${draft.email}?subject=${encodeURIComponent(draft.subject)}&body=${encodeURIComponent(draft.message)}`;
-    window.location.href = url;
-    toast.success("Abrindo cliente de e-mail...");
+    setSending(true);
+    try {
+      await sendTransactionalEmail({
+        templateName: "outreach-b2b",
+        recipientEmail: draft.email,
+        idempotencyKey: `outreach-b2b-${draft.lead.id}-${Date.now()}`,
+        templateData: {
+          leadName: String(draft.lead.name),
+          customMessage: draft.message,
+          imageUrl: OUTREACH_IMAGE_URL,
+        },
+      });
+      toast.success(`E-mail enviado para ${draft.email}`);
+      setDraft(null);
+    } catch (e) {
+      toast.error(`Falha ao enviar: ${e instanceof Error ? e.message : String(e)}`);
+    } finally {
+      setSending(false);
+    }
   };
+
 
   const openIgAndCopy = async () => {
     if (!draft || draft.channel !== "instagram" || !draft.igHandle) return;
