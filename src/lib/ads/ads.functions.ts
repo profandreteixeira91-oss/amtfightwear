@@ -551,7 +551,7 @@ export const syncMetaAdAccounts = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     const { data: conn, error } = await context.supabase
       .from("meta_connections")
-      .select("id,user_access_token,page_access_token")
+      .select("id,page_access_token")
       .eq("status", "active")
       .order("created_at", { ascending: false })
       .limit(1)
@@ -559,7 +559,7 @@ export const syncMetaAdAccounts = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!conn) throw new Error("Conecte primeiro sua conta Meta em Conexões");
 
-    const token = conn.user_access_token ?? conn.page_access_token;
+    const token = conn.page_access_token;
     if (!token) throw new Error("Token Meta indisponível");
 
     const res = await fetch(
