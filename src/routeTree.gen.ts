@@ -54,6 +54,7 @@ import { Route as AuthenticatedAdsNewRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedAdsDashboardRouteImport } from './routes/_authenticated/ads.dashboard'
 import { Route as AuthenticatedAdsCreativesRouteImport } from './routes/_authenticated/ads.creatives'
 import { Route as AuthenticatedAdsCopiesRouteImport } from './routes/_authenticated/ads.copies'
+import { Route as AuthenticatedAdsConnectionsRouteImport } from './routes/_authenticated/ads.connections'
 import { Route as AuthenticatedAdsCampaignsRouteImport } from './routes/_authenticated/ads.campaigns'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicSalesChatRouteImport } from './routes/api/public/sales/chat'
@@ -315,6 +316,12 @@ const AuthenticatedAdsCopiesRoute = AuthenticatedAdsCopiesRouteImport.update({
   path: '/copies',
   getParentRoute: () => AuthenticatedAdsRoute,
 } as any)
+const AuthenticatedAdsConnectionsRoute =
+  AuthenticatedAdsConnectionsRouteImport.update({
+    id: '/connections',
+    path: '/connections',
+    getParentRoute: () => AuthenticatedAdsRoute,
+  } as any)
 const AuthenticatedAdsCampaignsRoute =
   AuthenticatedAdsCampaignsRouteImport.update({
     id: '/campaigns',
@@ -386,6 +393,7 @@ export interface FileRoutesByFullPath {
   '/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
   '/ads/campaigns': typeof AuthenticatedAdsCampaignsRoute
+  '/ads/connections': typeof AuthenticatedAdsConnectionsRoute
   '/ads/copies': typeof AuthenticatedAdsCopiesRoute
   '/ads/creatives': typeof AuthenticatedAdsCreativesRoute
   '/ads/dashboard': typeof AuthenticatedAdsDashboardRoute
@@ -442,6 +450,7 @@ export interface FileRoutesByTo {
   '/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
   '/ads/campaigns': typeof AuthenticatedAdsCampaignsRoute
+  '/ads/connections': typeof AuthenticatedAdsConnectionsRoute
   '/ads/copies': typeof AuthenticatedAdsCopiesRoute
   '/ads/creatives': typeof AuthenticatedAdsCreativesRoute
   '/ads/dashboard': typeof AuthenticatedAdsDashboardRoute
@@ -500,6 +509,7 @@ export interface FileRoutesById {
   '/_authenticated/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
   '/_authenticated/ads/campaigns': typeof AuthenticatedAdsCampaignsRoute
+  '/_authenticated/ads/connections': typeof AuthenticatedAdsConnectionsRoute
   '/_authenticated/ads/copies': typeof AuthenticatedAdsCopiesRoute
   '/_authenticated/ads/creatives': typeof AuthenticatedAdsCreativesRoute
   '/_authenticated/ads/dashboard': typeof AuthenticatedAdsDashboardRoute
@@ -558,6 +568,7 @@ export interface FileRouteTypes {
     | '/users'
     | '/api/generate-ad-image'
     | '/ads/campaigns'
+    | '/ads/connections'
     | '/ads/copies'
     | '/ads/creatives'
     | '/ads/dashboard'
@@ -614,6 +625,7 @@ export interface FileRouteTypes {
     | '/users'
     | '/api/generate-ad-image'
     | '/ads/campaigns'
+    | '/ads/connections'
     | '/ads/copies'
     | '/ads/creatives'
     | '/ads/dashboard'
@@ -671,6 +683,7 @@ export interface FileRouteTypes {
     | '/_authenticated/users'
     | '/api/generate-ad-image'
     | '/_authenticated/ads/campaigns'
+    | '/_authenticated/ads/connections'
     | '/_authenticated/ads/copies'
     | '/_authenticated/ads/creatives'
     | '/_authenticated/ads/dashboard'
@@ -1050,6 +1063,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdsCopiesRouteImport
       parentRoute: typeof AuthenticatedAdsRoute
     }
+    '/_authenticated/ads/connections': {
+      id: '/_authenticated/ads/connections'
+      path: '/connections'
+      fullPath: '/ads/connections'
+      preLoaderRoute: typeof AuthenticatedAdsConnectionsRouteImport
+      parentRoute: typeof AuthenticatedAdsRoute
+    }
     '/_authenticated/ads/campaigns': {
       id: '/_authenticated/ads/campaigns'
       path: '/campaigns'
@@ -1125,6 +1145,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAdsRouteChildren {
   AuthenticatedAdsCampaignsRoute: typeof AuthenticatedAdsCampaignsRoute
+  AuthenticatedAdsConnectionsRoute: typeof AuthenticatedAdsConnectionsRoute
   AuthenticatedAdsCopiesRoute: typeof AuthenticatedAdsCopiesRoute
   AuthenticatedAdsCreativesRoute: typeof AuthenticatedAdsCreativesRoute
   AuthenticatedAdsDashboardRoute: typeof AuthenticatedAdsDashboardRoute
@@ -1133,6 +1154,7 @@ interface AuthenticatedAdsRouteChildren {
 
 const AuthenticatedAdsRouteChildren: AuthenticatedAdsRouteChildren = {
   AuthenticatedAdsCampaignsRoute: AuthenticatedAdsCampaignsRoute,
+  AuthenticatedAdsConnectionsRoute: AuthenticatedAdsConnectionsRoute,
   AuthenticatedAdsCopiesRoute: AuthenticatedAdsCopiesRoute,
   AuthenticatedAdsCreativesRoute: AuthenticatedAdsCreativesRoute,
   AuthenticatedAdsDashboardRoute: AuthenticatedAdsDashboardRoute,
