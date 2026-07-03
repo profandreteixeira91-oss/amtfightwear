@@ -1377,9 +1377,9 @@ Retorne APENAS JSON: {"headline":"...","primary_text":"...","description":"...",
       model: gateway("google/gemini-2.5-flash"),
       prompt,
     });
-    let suggestion: unknown = null;
+    let suggestion: Record<string, unknown> | null = null;
     try {
-      suggestion = extractJson(text);
+      suggestion = extractJson(text) as Record<string, unknown>;
     } catch {
       suggestion = { raw: text };
     }
