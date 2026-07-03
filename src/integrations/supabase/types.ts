@@ -458,12 +458,14 @@ export type Database = {
           headline: string
           id: string
           is_favorite: boolean
+          is_winner: boolean | null
           primary_text: string
           quality_score: number | null
           tags: string[] | null
           triggers: string[] | null
           updated_at: string
           user_id: string
+          winner_score: number | null
         }
         Insert: {
           briefing_id?: string | null
@@ -477,12 +479,14 @@ export type Database = {
           headline: string
           id?: string
           is_favorite?: boolean
+          is_winner?: boolean | null
           primary_text: string
           quality_score?: number | null
           tags?: string[] | null
           triggers?: string[] | null
           updated_at?: string
           user_id: string
+          winner_score?: number | null
         }
         Update: {
           briefing_id?: string | null
@@ -496,12 +500,14 @@ export type Database = {
           headline?: string
           id?: string
           is_favorite?: boolean
+          is_winner?: boolean | null
           primary_text?: string
           quality_score?: number | null
           tags?: string[] | null
           triggers?: string[] | null
           updated_at?: string
           user_id?: string
+          winner_score?: number | null
         }
         Relationships: [
           {
@@ -520,6 +526,82 @@ export type Database = {
           },
         ]
       }
+      ads_creative_embeddings: {
+        Row: {
+          campaign_id: string | null
+          content: string
+          copy_id: string | null
+          cpa: number | null
+          created_at: string
+          creative_id: string | null
+          ctr: number | null
+          embedding: string
+          id: string
+          metadata: Json
+          performance_score: number
+          roas: number | null
+          spend: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          campaign_id?: string | null
+          content: string
+          copy_id?: string | null
+          cpa?: number | null
+          created_at?: string
+          creative_id?: string | null
+          ctr?: number | null
+          embedding: string
+          id?: string
+          metadata?: Json
+          performance_score?: number
+          roas?: number | null
+          spend?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          campaign_id?: string | null
+          content?: string
+          copy_id?: string | null
+          cpa?: number | null
+          created_at?: string
+          creative_id?: string | null
+          ctr?: number | null
+          embedding?: string
+          id?: string
+          metadata?: Json
+          performance_score?: number
+          roas?: number | null
+          spend?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ads_creative_embeddings_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "ads_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ads_creative_embeddings_copy_id_fkey"
+            columns: ["copy_id"]
+            isOneToOne: false
+            referencedRelation: "ads_copies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ads_creative_embeddings_creative_id_fkey"
+            columns: ["creative_id"]
+            isOneToOne: false
+            referencedRelation: "ads_creatives"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ads_creatives: {
         Row: {
           aspect: string | null
@@ -532,6 +614,7 @@ export type Database = {
           id: string
           image_url: string | null
           is_favorite: boolean
+          is_winner: boolean | null
           palette: string[] | null
           prompt: string | null
           score: number | null
@@ -539,6 +622,7 @@ export type Database = {
           tags: string[] | null
           updated_at: string
           user_id: string
+          winner_score: number | null
         }
         Insert: {
           aspect?: string | null
@@ -551,6 +635,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_favorite?: boolean
+          is_winner?: boolean | null
           palette?: string[] | null
           prompt?: string | null
           score?: number | null
@@ -558,6 +643,7 @@ export type Database = {
           tags?: string[] | null
           updated_at?: string
           user_id: string
+          winner_score?: number | null
         }
         Update: {
           aspect?: string | null
@@ -570,6 +656,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_favorite?: boolean
+          is_winner?: boolean | null
           palette?: string[] | null
           prompt?: string | null
           score?: number | null
@@ -577,6 +664,7 @@ export type Database = {
           tags?: string[] | null
           updated_at?: string
           user_id?: string
+          winner_score?: number | null
         }
         Relationships: [
           {
@@ -710,6 +798,65 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "ads_optimizations_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "ads_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ads_scale_history: {
+        Row: {
+          action: string
+          auto_applied: boolean
+          campaign_id: string
+          cpa_at_action: number | null
+          created_at: string
+          ctr_at_action: number | null
+          id: string
+          meta_response: Json | null
+          new_budget: number | null
+          previous_budget: number | null
+          reason: string | null
+          roas_at_action: number | null
+          scale_pct: number | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          auto_applied?: boolean
+          campaign_id: string
+          cpa_at_action?: number | null
+          created_at?: string
+          ctr_at_action?: number | null
+          id?: string
+          meta_response?: Json | null
+          new_budget?: number | null
+          previous_budget?: number | null
+          reason?: string | null
+          roas_at_action?: number | null
+          scale_pct?: number | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          auto_applied?: boolean
+          campaign_id?: string
+          cpa_at_action?: number | null
+          created_at?: string
+          ctr_at_action?: number | null
+          id?: string
+          meta_response?: Json | null
+          new_budget?: number | null
+          previous_budget?: number | null
+          reason?: string | null
+          roas_at_action?: number | null
+          scale_pct?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ads_scale_history_campaign_id_fkey"
             columns: ["campaign_id"]
             isOneToOne: false
             referencedRelation: "ads_campaigns"
