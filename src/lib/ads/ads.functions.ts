@@ -1377,13 +1377,13 @@ Retorne APENAS JSON: {"headline":"...","primary_text":"...","description":"...",
       model: gateway("google/gemini-2.5-flash"),
       prompt,
     });
-    let suggestion: Record<string, unknown> | null = null;
+    let suggestionJson: string | null = null;
     try {
-      suggestion = extractJson(text) as Record<string, unknown>;
+      suggestionJson = JSON.stringify(extractJson(text));
     } catch {
-      suggestion = { raw: text };
+      suggestionJson = JSON.stringify({ raw: text });
     }
-    return { inspirations, suggestion };
+    return { inspirations, suggestionJson, note: null as string | null };
   });
 
 export const backfillWinnerEmbeddings = createServerFn({ method: "POST" })
