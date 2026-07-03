@@ -158,6 +158,7 @@ export const listLeads = createServerFn({ method: "POST" })
           gte: (k: string, v: unknown) => unknown;
           ilike: (k: string, v: string) => unknown;
           in: (k: string, v: unknown[]) => unknown;
+          not: (k: string, op: string, v: unknown) => unknown;
           order: (k: string, o?: unknown) => unknown;
           range: (a: number, b: number) => unknown;
         };
@@ -168,6 +169,7 @@ export const listLeads = createServerFn({ method: "POST" })
       gte: (k: string, v: unknown) => typeof q;
       ilike: (k: string, v: string) => typeof q;
       in: (k: string, v: unknown[]) => typeof q;
+      not: (k: string, op: string, v: unknown) => typeof q;
       order: (k: string, o?: unknown) => typeof q;
       range: (a: number, b: number) => Promise<{ data: unknown[] | null; count: number | null }>;
     };
@@ -179,6 +181,7 @@ export const listLeads = createServerFn({ method: "POST" })
     if (data.pipeline_stage) q = q.eq("pipeline_stage", data.pipeline_stage);
     if (data.status) q = q.eq("status", data.status);
     if (typeof data.minScore === "number") q = q.gte("score", data.minScore);
+    if (data.onlyEnriched) q = q.not("enriched_at", "is", null);
     q = q.order(data.orderBy, { ascending: data.orderDir === "asc" });
     const { data: rows, count } = await q.range(data.offset, data.offset + data.limit - 1);
 
