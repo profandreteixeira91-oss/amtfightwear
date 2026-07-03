@@ -597,3 +597,376 @@ export const listAdsAccounts = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     return data;
   });
+
+// ---------- Meta Graph helpers ----------
+
+const META_API = "https://graph.facebook.com/v21.0";
+
+const OBJECTIVE_MAP: Record<string, string> = {
+  sales: "OUTCOME_SALES",
+  leads: "OUTCOME_LEADS",
+  messages: "OUTCOME_ENGAGEMENT",
+  whatsapp: "OUTCOME_ENGAGEMENT",
+  awareness: "OUTCOME_AWARENESS",
+  traffic: "OUTCOME_TRAFFIC",
+  app: "OUTCOME_APP_PROMOTION",
+  conversions: "OUTCOME_SALES",
+  catalog: "OUTCOME_SALES",
+};
+
+async function metaPost(path: string, token: string, body: Record<string, unknown>) {
+  const params = new URLSearchParams();
+  for (const [k, v] of Object.entries(body)) {
+    params.set(k, typeof v === "string" ? v : JSON.stringify(v));
+  }
+  params.set("access_token", token);
+  const res = await fetch(`${META_API}${path}`, { method: "POST", body: params });
+  const json = (await res.json()) as { id?: string; error?: { message: string } };
+  if (json.error) throw new Error(`Meta: ${json.error.message}`);
+  return json;
+}
+
+async function metaGet(path: string, token: string, query: Record<string, string> = {}) {
+  const params = new URLSearchParams({ ...query, access_token: token });
+  const res = await fetch(`${META_API}${path}?${params}`);
+  const json = (await res.json()) as { data?: unknown[]; error?: { message: string } };
+  if (json.error) throw new Error(`Meta: ${json.error.message}`);
+  return json;
+}
+
+// ---------- Publish campaign to Meta ----------
+
+const PublishInput = z.object({
+  campaignId: z.string().uuid(),
+  adsAccountId: z.string().uuid(),
+  copyId: z.string().uuid(),
+  creativeId: z.string().uuid().nullable().optional(),
+  pageId: z.string().nullable().optional(),
+  instagramId: z.string().nullable().optional(),
+  linkUrl: z.string().url(),
+  countries: z.array(z.string()).default(["BR"]),
+  ageMin: z.number().min(13).max(65).default(18),
+  ageMax: z.number().min(13).max(65).default(65),
+  activate: z.boolean().default(false),
+});
+
+export const publishCampaignToMeta = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => PublishInput.parse(i))
+  .handler(async ({ data, context }) => {
+    const { data: campaign, error: cErr } = await context.supabase
+      .from("ads_campaigns")
+      .select("*")
+      .eq("id", data.campaignId)
+      .single();
+    if (cErr || !campaign) throw new Error("Campanha não encontrada");
+
+    const { data: account, error: aErr } = await context.supabase
+      .from("ads_accounts")
+      .select("*, meta_connection:meta_connections(page_access_token,page_id,instagram_business_account_id)")
+      .eq("id", data.adsAccountId)
+      .single();
+    if (aErr || !account) throw new Error("Conta de anúncio não encontrada");
+
+    const conn = account.meta_connection as {
+      page_access_token: string;
+      page_id: string | null;
+      instagram_business_account_id: string | null;
+    } | null;
+    const token = conn?.page_access_token;
+    if (!token) throw new Error("Token Meta indisponível — reconecte sua conta");
+
+    const { data: copy } = await context.supabase
+      .from("ads_copies")
+      .select("*")
+      .eq("id", data.copyId)
+      .single();
+    if (!copy) throw new Error("Copy não encontrado");
+
+    const creative = data.creativeId
+      ? (await context.supabase.from("ads_creatives").select("*").eq("id", data.creativeId).single()).data
+      : null;
+
+    const act = account.act_id.startsWith("act_") ? account.act_id : `act_${account.act_id}`;
+    const objective = OBJECTIVE_MAP[campaign.objective] ?? "OUTCOME_TRAFFIC";
+
+    try {
+      // 1) Campaign
+      const campaignRes = await metaPost(`/${act}/campaigns`, token, {
+        name: campaign.name,
+        objective,
+        status: data.activate ? "ACTIVE" : "PAUSED",
+        special_ad_categories: [],
+      });
+
+      // 2) Ad Set
+      const dailyCents = Math.max(500, Math.round(Number(campaign.budget_daily ?? 30) * 100));
+      const targeting = {
+        geo_locations: { countries: data.countries },
+        age_min: data.ageMin,
+        age_max: data.ageMax,
+        publisher_platforms: ["facebook", "instagram"],
+        facebook_positions: ["feed", "story"],
+        instagram_positions: ["stream", "story", "reels"],
+      };
+      const adsetRes = await metaPost(`/${act}/adsets`, token, {
+        name: `${campaign.name} — Conjunto`,
+        campaign_id: campaignRes.id!,
+        daily_budget: String(dailyCents),
+        billing_event: "IMPRESSIONS",
+        optimization_goal: objective === "OUTCOME_LEADS" ? "LEAD_GENERATION" : "OFFSITE_CONVERSIONS",
+        bid_strategy: "LOWEST_COST_WITHOUT_CAP",
+        targeting,
+        status: data.activate ? "ACTIVE" : "PAUSED",
+        start_time: new Date(Date.now() + 60_000).toISOString(),
+      });
+
+      // 3) Creative
+      const pageId = data.pageId ?? conn.page_id;
+      if (!pageId) throw new Error("Página do Facebook não encontrada na conexão");
+      const creativeBody: Record<string, unknown> = {
+        name: `${campaign.name} — Criativo`,
+        object_story_spec: {
+          page_id: pageId,
+          ...(data.instagramId || conn.instagram_business_account_id
+            ? { instagram_actor_id: data.instagramId ?? conn.instagram_business_account_id }
+            : {}),
+          link_data: {
+            message: copy.primary_text,
+            link: data.linkUrl,
+            name: copy.headline,
+            description: copy.description ?? undefined,
+            call_to_action: { type: copy.cta?.replace(/\s+/g, "_").toUpperCase() ?? "LEARN_MORE" },
+            ...(creative?.image_url ? { picture: creative.image_url } : {}),
+          },
+        },
+      };
+      const creativeRes = await metaPost(`/${act}/adcreatives`, token, creativeBody);
+
+      // 4) Ad
+      const adRes = await metaPost(`/${act}/ads`, token, {
+        name: `${campaign.name} — Anúncio`,
+        adset_id: adsetRes.id!,
+        creative: { creative_id: creativeRes.id! },
+        status: data.activate ? "ACTIVE" : "PAUSED",
+      });
+
+      await context.supabase
+        .from("ads_campaigns")
+        .update({
+          meta_campaign_id: campaignRes.id,
+          meta_adset_id: adsetRes.id,
+          meta_creative_id: creativeRes.id,
+          meta_ad_id: adRes.id,
+          ads_account_id: account.id,
+          status: data.activate ? "active" : "paused",
+          published_at: new Date().toISOString(),
+          last_error: null,
+        })
+        .eq("id", campaign.id);
+
+      return { ok: true, meta_campaign_id: campaignRes.id };
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      await context.supabase
+        .from("ads_campaigns")
+        .update({ last_error: message })
+        .eq("id", campaign.id);
+      throw new Error(message);
+    }
+  });
+
+// ---------- Pause / Resume ----------
+
+async function setMetaStatus(
+  supabase: {
+    from: (t: string) => {
+      select: (c: string) => {
+        eq: (c: string, v: string) => {
+          single: () => Promise<{ data: unknown; error: unknown }>;
+        };
+      };
+    };
+  },
+  campaignId: string,
+  status: "ACTIVE" | "PAUSED",
+) {
+  const { data: campaign } = (await supabase
+    .from("ads_campaigns")
+    .select("id,meta_campaign_id,meta_adset_id,meta_ad_id,ads_account_id")
+    .eq("id", campaignId)
+    .single()) as {
+    data: {
+      id: string;
+      meta_campaign_id: string | null;
+      meta_adset_id: string | null;
+      meta_ad_id: string | null;
+      ads_account_id: string | null;
+    } | null;
+  };
+  if (!campaign?.meta_campaign_id || !campaign.ads_account_id) {
+    throw new Error("Campanha ainda não publicada no Meta");
+  }
+  const { data: account } = (await supabase
+    .from("ads_accounts")
+    .select("meta_connection:meta_connections(page_access_token)")
+    .eq("id", campaign.ads_account_id)
+    .single()) as {
+    data: { meta_connection: { page_access_token: string } | null } | null;
+  };
+  const token = account?.meta_connection?.page_access_token;
+  if (!token) throw new Error("Token Meta indisponível");
+  await metaPost(`/${campaign.meta_campaign_id}`, token, { status });
+  return campaign;
+}
+
+export const pauseCampaign = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ campaignId: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    await setMetaStatus(
+      context.supabase as unknown as Parameters<typeof setMetaStatus>[0],
+      data.campaignId,
+      "PAUSED",
+    );
+    await context.supabase.from("ads_campaigns").update({ status: "paused" }).eq("id", data.campaignId);
+    return { ok: true };
+  });
+
+export const resumeCampaign = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ campaignId: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    await setMetaStatus(
+      context.supabase as unknown as Parameters<typeof setMetaStatus>[0],
+      data.campaignId,
+      "ACTIVE",
+    );
+    await context.supabase.from("ads_campaigns").update({ status: "active" }).eq("id", data.campaignId);
+    return { ok: true };
+  });
+
+// ---------- Insights sync ----------
+
+type MetaInsight = {
+  date_start: string;
+  spend?: string;
+  impressions?: string;
+  clicks?: string;
+  ctr?: string;
+  cpm?: string;
+  cpc?: string;
+  actions?: Array<{ action_type: string; value: string }>;
+  action_values?: Array<{ action_type: string; value: string }>;
+};
+
+function parseInsights(rows: MetaInsight[]) {
+  return rows.map((r) => {
+    const conv = Number(
+      r.actions?.find((a) => a.action_type === "purchase" || a.action_type === "offsite_conversion.fb_pixel_purchase")?.value ?? 0,
+    );
+    const revenue = Number(
+      r.action_values?.find((a) => a.action_type === "purchase" || a.action_type === "offsite_conversion.fb_pixel_purchase")?.value ?? 0,
+    );
+    const spend = Number(r.spend ?? 0);
+    return {
+      date: r.date_start,
+      spend,
+      impressions: Number(r.impressions ?? 0),
+      clicks: Number(r.clicks ?? 0),
+      ctr: Number(r.ctr ?? 0),
+      cpm: Number(r.cpm ?? 0),
+      cpc: Number(r.cpc ?? 0),
+      conversions: conv,
+      revenue,
+      cpa: conv > 0 ? spend / conv : 0,
+      roas: spend > 0 ? revenue / spend : 0,
+    };
+  });
+}
+
+export async function syncCampaignInsightsInternal(
+  supabase: { from: (t: string) => unknown },
+  campaign: {
+    id: string;
+    user_id: string;
+    meta_campaign_id: string | null;
+    ads_account_id: string | null;
+  },
+  token: string,
+) {
+  if (!campaign.meta_campaign_id) return { synced: 0 };
+  const json = (await metaGet(`/${campaign.meta_campaign_id}/insights`, token, {
+    fields: "spend,impressions,clicks,ctr,cpm,cpc,actions,action_values",
+    time_increment: "1",
+    date_preset: "last_30d",
+  })) as { data?: MetaInsight[] };
+  const rows = parseInsights(json.data ?? []);
+  if (rows.length === 0) return { synced: 0 };
+  const payload = rows.map((r) => ({ ...r, campaign_id: campaign.id, user_id: campaign.user_id }));
+  const sb = supabase as unknown as {
+    from: (t: string) => {
+      upsert: (v: unknown, o: unknown) => Promise<{ error: { message: string } | null }>;
+      update: (v: unknown) => { eq: (c: string, v: string) => Promise<unknown> };
+    };
+  };
+  const { error } = await sb.from("ads_insights").upsert(payload, { onConflict: "campaign_id,date" });
+  if (error) throw new Error(error.message);
+  await sb
+    .from("ads_campaigns")
+    .update({ last_sync_at: new Date().toISOString() })
+    .eq("id", campaign.id);
+  return { synced: rows.length };
+}
+
+export const syncCampaignInsights = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ campaignId: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { data: campaign } = await context.supabase
+      .from("ads_campaigns")
+      .select("id,user_id,meta_campaign_id,ads_account_id")
+      .eq("id", data.campaignId)
+      .single();
+    if (!campaign?.meta_campaign_id) throw new Error("Campanha ainda não publicada");
+    const { data: account } = await context.supabase
+      .from("ads_accounts")
+      .select("meta_connection:meta_connections(page_access_token)")
+      .eq("id", campaign.ads_account_id!)
+      .single();
+    const token = (account as { meta_connection: { page_access_token: string } | null } | null)
+      ?.meta_connection?.page_access_token;
+    if (!token) throw new Error("Token Meta indisponível");
+    return syncCampaignInsightsInternal(context.supabase, campaign, token);
+  });
+
+export const getCampaign = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { data: campaign, error } = await context.supabase
+      .from("ads_campaigns")
+      .select("*, briefing:ads_briefings(*)")
+      .eq("id", data.id)
+      .single();
+    if (error) throw new Error(error.message);
+    const [{ data: copies }, { data: creatives }, { data: insights }] = await Promise.all([
+      context.supabase.from("ads_copies").select("*").eq("briefing_id", campaign.briefing_id!),
+      context.supabase.from("ads_creatives").select("*").eq("briefing_id", campaign.briefing_id!),
+      context.supabase
+        .from("ads_insights")
+        .select("*")
+        .eq("campaign_id", campaign.id)
+        .order("date", { ascending: true }),
+    ]);
+    return { campaign, copies: copies ?? [], creatives: creatives ?? [], insights: insights ?? [] };
+  });
+
+export const deleteCampaign = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase.from("ads_campaigns").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
