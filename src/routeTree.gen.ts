@@ -52,6 +52,7 @@ import { Route as AuthenticatedGrowthCustomersRouteImport } from './routes/_auth
 import { Route as AuthenticatedGrowthCrmRouteImport } from './routes/_authenticated/growth.crm'
 import { Route as AuthenticatedAdsNewRouteImport } from './routes/_authenticated/ads.new'
 import { Route as AuthenticatedAdsDashboardRouteImport } from './routes/_authenticated/ads.dashboard'
+import { Route as AuthenticatedAdsCopiesRouteImport } from './routes/_authenticated/ads.copies'
 import { Route as AuthenticatedAdsCampaignsRouteImport } from './routes/_authenticated/ads.campaigns'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicSalesChatRouteImport } from './routes/api/public/sales/chat'
@@ -302,6 +303,11 @@ const AuthenticatedAdsDashboardRoute =
     path: '/dashboard',
     getParentRoute: () => AuthenticatedAdsRoute,
   } as any)
+const AuthenticatedAdsCopiesRoute = AuthenticatedAdsCopiesRouteImport.update({
+  id: '/copies',
+  path: '/copies',
+  getParentRoute: () => AuthenticatedAdsRoute,
+} as any)
 const AuthenticatedAdsCampaignsRoute =
   AuthenticatedAdsCampaignsRouteImport.update({
     id: '/campaigns',
@@ -373,6 +379,7 @@ export interface FileRoutesByFullPath {
   '/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
   '/ads/campaigns': typeof AuthenticatedAdsCampaignsRoute
+  '/ads/copies': typeof AuthenticatedAdsCopiesRoute
   '/ads/dashboard': typeof AuthenticatedAdsDashboardRoute
   '/ads/new': typeof AuthenticatedAdsNewRoute
   '/growth/crm': typeof AuthenticatedGrowthCrmRoute
@@ -427,6 +434,7 @@ export interface FileRoutesByTo {
   '/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
   '/ads/campaigns': typeof AuthenticatedAdsCampaignsRoute
+  '/ads/copies': typeof AuthenticatedAdsCopiesRoute
   '/ads/dashboard': typeof AuthenticatedAdsDashboardRoute
   '/ads/new': typeof AuthenticatedAdsNewRoute
   '/growth/crm': typeof AuthenticatedGrowthCrmRoute
@@ -483,6 +491,7 @@ export interface FileRoutesById {
   '/_authenticated/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
   '/_authenticated/ads/campaigns': typeof AuthenticatedAdsCampaignsRoute
+  '/_authenticated/ads/copies': typeof AuthenticatedAdsCopiesRoute
   '/_authenticated/ads/dashboard': typeof AuthenticatedAdsDashboardRoute
   '/_authenticated/ads/new': typeof AuthenticatedAdsNewRoute
   '/_authenticated/growth/crm': typeof AuthenticatedGrowthCrmRoute
@@ -539,6 +548,7 @@ export interface FileRouteTypes {
     | '/users'
     | '/api/generate-ad-image'
     | '/ads/campaigns'
+    | '/ads/copies'
     | '/ads/dashboard'
     | '/ads/new'
     | '/growth/crm'
@@ -593,6 +603,7 @@ export interface FileRouteTypes {
     | '/users'
     | '/api/generate-ad-image'
     | '/ads/campaigns'
+    | '/ads/copies'
     | '/ads/dashboard'
     | '/ads/new'
     | '/growth/crm'
@@ -648,6 +659,7 @@ export interface FileRouteTypes {
     | '/_authenticated/users'
     | '/api/generate-ad-image'
     | '/_authenticated/ads/campaigns'
+    | '/_authenticated/ads/copies'
     | '/_authenticated/ads/dashboard'
     | '/_authenticated/ads/new'
     | '/_authenticated/growth/crm'
@@ -1011,6 +1023,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdsDashboardRouteImport
       parentRoute: typeof AuthenticatedAdsRoute
     }
+    '/_authenticated/ads/copies': {
+      id: '/_authenticated/ads/copies'
+      path: '/copies'
+      fullPath: '/ads/copies'
+      preLoaderRoute: typeof AuthenticatedAdsCopiesRouteImport
+      parentRoute: typeof AuthenticatedAdsRoute
+    }
     '/_authenticated/ads/campaigns': {
       id: '/_authenticated/ads/campaigns'
       path: '/campaigns'
@@ -1086,12 +1105,14 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAdsRouteChildren {
   AuthenticatedAdsCampaignsRoute: typeof AuthenticatedAdsCampaignsRoute
+  AuthenticatedAdsCopiesRoute: typeof AuthenticatedAdsCopiesRoute
   AuthenticatedAdsDashboardRoute: typeof AuthenticatedAdsDashboardRoute
   AuthenticatedAdsNewRoute: typeof AuthenticatedAdsNewRoute
 }
 
 const AuthenticatedAdsRouteChildren: AuthenticatedAdsRouteChildren = {
   AuthenticatedAdsCampaignsRoute: AuthenticatedAdsCampaignsRoute,
+  AuthenticatedAdsCopiesRoute: AuthenticatedAdsCopiesRoute,
   AuthenticatedAdsDashboardRoute: AuthenticatedAdsDashboardRoute,
   AuthenticatedAdsNewRoute: AuthenticatedAdsNewRoute,
 }
