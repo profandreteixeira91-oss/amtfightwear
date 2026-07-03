@@ -23,6 +23,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedProspectIndexRouteImport } from './routes/_authenticated/prospect.index'
 import { Route as AuthenticatedProspectSettingsRouteImport } from './routes/_authenticated/prospect.settings'
 import { Route as AuthenticatedProspectSearchRouteImport } from './routes/_authenticated/prospect.search'
+import { Route as AuthenticatedProspectQualifiedRouteImport } from './routes/_authenticated/prospect.qualified'
 import { Route as AuthenticatedProspectPipelineRouteImport } from './routes/_authenticated/prospect.pipeline'
 import { Route as AuthenticatedProspectLogsRouteImport } from './routes/_authenticated/prospect.logs'
 import { Route as AuthenticatedProspectLeadsRouteImport } from './routes/_authenticated/prospect.leads'
@@ -127,6 +128,12 @@ const AuthenticatedProspectSearchRoute =
   AuthenticatedProspectSearchRouteImport.update({
     id: '/prospect/search',
     path: '/prospect/search',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedProspectQualifiedRoute =
+  AuthenticatedProspectQualifiedRouteImport.update({
+    id: '/prospect/qualified',
+    path: '/prospect/qualified',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedProspectPipelineRoute =
@@ -355,6 +362,7 @@ export interface FileRoutesByFullPath {
   '/prospect/leads': typeof AuthenticatedProspectLeadsRoute
   '/prospect/logs': typeof AuthenticatedProspectLogsRoute
   '/prospect/pipeline': typeof AuthenticatedProspectPipelineRoute
+  '/prospect/qualified': typeof AuthenticatedProspectQualifiedRoute
   '/prospect/search': typeof AuthenticatedProspectSearchRoute
   '/prospect/settings': typeof AuthenticatedProspectSettingsRoute
   '/prospect/': typeof AuthenticatedProspectIndexRoute
@@ -403,6 +411,7 @@ export interface FileRoutesByTo {
   '/prospect/leads': typeof AuthenticatedProspectLeadsRoute
   '/prospect/logs': typeof AuthenticatedProspectLogsRoute
   '/prospect/pipeline': typeof AuthenticatedProspectPipelineRoute
+  '/prospect/qualified': typeof AuthenticatedProspectQualifiedRoute
   '/prospect/search': typeof AuthenticatedProspectSearchRoute
   '/prospect/settings': typeof AuthenticatedProspectSettingsRoute
   '/prospect': typeof AuthenticatedProspectIndexRoute
@@ -453,6 +462,7 @@ export interface FileRoutesById {
   '/_authenticated/prospect/leads': typeof AuthenticatedProspectLeadsRoute
   '/_authenticated/prospect/logs': typeof AuthenticatedProspectLogsRoute
   '/_authenticated/prospect/pipeline': typeof AuthenticatedProspectPipelineRoute
+  '/_authenticated/prospect/qualified': typeof AuthenticatedProspectQualifiedRoute
   '/_authenticated/prospect/search': typeof AuthenticatedProspectSearchRoute
   '/_authenticated/prospect/settings': typeof AuthenticatedProspectSettingsRoute
   '/_authenticated/prospect/': typeof AuthenticatedProspectIndexRoute
@@ -503,6 +513,7 @@ export interface FileRouteTypes {
     | '/prospect/leads'
     | '/prospect/logs'
     | '/prospect/pipeline'
+    | '/prospect/qualified'
     | '/prospect/search'
     | '/prospect/settings'
     | '/prospect/'
@@ -551,6 +562,7 @@ export interface FileRouteTypes {
     | '/prospect/leads'
     | '/prospect/logs'
     | '/prospect/pipeline'
+    | '/prospect/qualified'
     | '/prospect/search'
     | '/prospect/settings'
     | '/prospect'
@@ -600,6 +612,7 @@ export interface FileRouteTypes {
     | '/_authenticated/prospect/leads'
     | '/_authenticated/prospect/logs'
     | '/_authenticated/prospect/pipeline'
+    | '/_authenticated/prospect/qualified'
     | '/_authenticated/prospect/search'
     | '/_authenticated/prospect/settings'
     | '/_authenticated/prospect/'
@@ -730,6 +743,13 @@ declare module '@tanstack/react-router' {
       path: '/prospect/search'
       fullPath: '/prospect/search'
       preLoaderRoute: typeof AuthenticatedProspectSearchRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/prospect/qualified': {
+      id: '/_authenticated/prospect/qualified'
+      path: '/prospect/qualified'
+      fullPath: '/prospect/qualified'
+      preLoaderRoute: typeof AuthenticatedProspectQualifiedRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/prospect/pipeline': {
@@ -996,6 +1016,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProspectLeadsRoute: typeof AuthenticatedProspectLeadsRoute
   AuthenticatedProspectLogsRoute: typeof AuthenticatedProspectLogsRoute
   AuthenticatedProspectPipelineRoute: typeof AuthenticatedProspectPipelineRoute
+  AuthenticatedProspectQualifiedRoute: typeof AuthenticatedProspectQualifiedRoute
   AuthenticatedProspectSearchRoute: typeof AuthenticatedProspectSearchRoute
   AuthenticatedProspectSettingsRoute: typeof AuthenticatedProspectSettingsRoute
   AuthenticatedProspectIndexRoute: typeof AuthenticatedProspectIndexRoute
@@ -1032,6 +1053,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProspectLeadsRoute: AuthenticatedProspectLeadsRoute,
   AuthenticatedProspectLogsRoute: AuthenticatedProspectLogsRoute,
   AuthenticatedProspectPipelineRoute: AuthenticatedProspectPipelineRoute,
+  AuthenticatedProspectQualifiedRoute: AuthenticatedProspectQualifiedRoute,
   AuthenticatedProspectSearchRoute: AuthenticatedProspectSearchRoute,
   AuthenticatedProspectSettingsRoute: AuthenticatedProspectSettingsRoute,
   AuthenticatedProspectIndexRoute: AuthenticatedProspectIndexRoute,
