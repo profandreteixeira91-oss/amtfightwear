@@ -391,20 +391,47 @@ function QualifiedPage() {
                 <div>
                   <label className="mb-1 block text-xs font-semibold uppercase tracking-widest text-muted-foreground">Mensagem</label>
                   <Textarea
-                    rows={draft.channel === "email" ? 10 : 6}
+                    rows={draft.channel === "email" ? 10 : 8}
                     value={draft.message}
                     onChange={(e) => setDraft({ ...draft, message: e.target.value })}
                   />
                 </div>
+                <div className="rounded-md border border-border/60 bg-muted/30 p-2">
+                  <div className="mb-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <ImageIcon className="h-3 w-3" />
+                    {draft.channel === "email" ? "Imagem anexada ao e-mail" : "Imagem sugerida para o Instagram (baixe e anexe)"}
+                  </div>
+                  <img
+                    src={OUTREACH_IMAGE_URL}
+                    alt="AMT Fight Wear — imagem de campanha"
+                    className="max-h-48 w-full rounded object-contain"
+                  />
+                  {draft.channel === "instagram" && (
+                    <a
+                      href={OUTREACH_IMAGE_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-1 inline-block text-xs text-primary underline"
+                    >
+                      Baixar imagem
+                    </a>
+                  )}
+                </div>
+                {draft.channel === "instagram" && (
+                  <p className="text-xs text-muted-foreground">
+                    A Meta não permite envio de DMs frios via API. Vamos copiar sua mensagem e abrir o chat do Instagram — cole e envie junto com a imagem baixada.
+                  </p>
+                )}
               </div>
 
               <DialogFooter className="gap-2 sm:gap-2">
-                <Button variant="ghost" onClick={copyMessage}>
+                <Button variant="ghost" onClick={copyMessage} disabled={sending}>
                   <Copy className="mr-2 h-4 w-4" /> Copiar
                 </Button>
                 {draft.channel === "email" ? (
-                  <Button onClick={sendEmail}>
-                    <Mail className="mr-2 h-4 w-4" /> Abrir e-mail
+                  <Button onClick={sendEmail} disabled={sending}>
+                    {sending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+                    {sending ? "Enviando..." : "Enviar e-mail"}
                   </Button>
                 ) : (
                   <Button onClick={openIgAndCopy}>
