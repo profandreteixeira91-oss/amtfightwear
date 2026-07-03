@@ -68,9 +68,10 @@ function ScalePage() {
     mutationFn: () =>
       suggestFn({ data: { productName, objective, angle: angle || null } }),
     onSuccess: (r) => {
-      setSuggestion((r.suggestion ?? null) as Record<string, unknown> | null);
+      const parsed = r.suggestionJson ? (JSON.parse(r.suggestionJson) as Record<string, unknown>) : null;
+      setSuggestion(parsed);
       setInspirations(r.inspirations as Array<{ content: string; roas: number | null }>);
-      if (!r.suggestion) toast.info(r.note ?? "Sem sugestão disponível");
+      if (!parsed) toast.info(r.note ?? "Sem sugestão disponível");
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Falha"),
   });
