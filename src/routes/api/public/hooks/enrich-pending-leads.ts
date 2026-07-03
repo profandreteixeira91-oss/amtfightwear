@@ -37,7 +37,7 @@ export const Route = createFileRoute("/api/public/hooks/enrich-pending-leads")({
             total++;
             try {
               const r = await enrichCompanyCore(
-                supabaseAdmin as unknown as { from: (t: string) => unknown } as never,
+                supabaseAdmin as unknown as { from: (t: string) => any },
                 ownerId,
                 company_id,
               );
