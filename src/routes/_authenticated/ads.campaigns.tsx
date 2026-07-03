@@ -45,7 +45,7 @@ function CampaignsPage() {
                 <TableHead>Objetivo</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Orç. diário</TableHead>
-                <TableHead>Criada em</TableHead>
+                <TableHead>Publicação</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
