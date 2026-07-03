@@ -34,6 +34,7 @@ import {
   MessageCircle,
   Shield,
   LineChart,
+  TrendingUp,
 } from "lucide-react";
 
 import {
