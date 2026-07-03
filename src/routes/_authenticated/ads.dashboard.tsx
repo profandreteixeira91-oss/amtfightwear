@@ -27,8 +27,8 @@ export const Route = createFileRoute("/_authenticated/ads/dashboard")({
 });
 
 function AdsDashboard() {
-  const fetchDash = useSF(getAdsDashboard);
-  const { data, isLoading } = useRQ({
+  const fetchDash = useServerFn(getAdsDashboard);
+  const { data, isLoading } = useQuery({
     queryKey: ["ads", "dashboard"],
     queryFn: () => fetchDash(),
     refetchInterval: 60_000,
