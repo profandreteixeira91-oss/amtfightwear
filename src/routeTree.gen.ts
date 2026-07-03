@@ -15,6 +15,7 @@ import { Route as DataDeletionRouteImport } from './routes/data-deletion'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiGenerateAdImageRouteImport } from './routes/api/generate-ad-image'
 import { Route as AuthenticatedUsersRouteImport } from './routes/_authenticated/users'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
@@ -85,6 +86,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiGenerateAdImageRoute = ApiGenerateAdImageRouteImport.update({
+  id: '/api/generate-ad-image',
+  path: '/api/generate-ad-image',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedUsersRoute = AuthenticatedUsersRouteImport.update({
@@ -338,6 +344,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AuthenticatedProfileRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/users': typeof AuthenticatedUsersRoute
+  '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
   '/growth/crm': typeof AuthenticatedGrowthCrmRoute
   '/growth/customers': typeof AuthenticatedGrowthCustomersRoute
   '/growth/insights': typeof AuthenticatedGrowthInsightsRoute
@@ -387,6 +394,7 @@ export interface FileRoutesByTo {
   '/profile': typeof AuthenticatedProfileRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/users': typeof AuthenticatedUsersRoute
+  '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
   '/growth/crm': typeof AuthenticatedGrowthCrmRoute
   '/growth/customers': typeof AuthenticatedGrowthCustomersRoute
   '/growth/insights': typeof AuthenticatedGrowthInsightsRoute
@@ -438,6 +446,7 @@ export interface FileRoutesById {
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/users': typeof AuthenticatedUsersRoute
+  '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
   '/_authenticated/growth/crm': typeof AuthenticatedGrowthCrmRoute
   '/_authenticated/growth/customers': typeof AuthenticatedGrowthCustomersRoute
   '/_authenticated/growth/insights': typeof AuthenticatedGrowthInsightsRoute
@@ -489,6 +498,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/settings'
     | '/users'
+    | '/api/generate-ad-image'
     | '/growth/crm'
     | '/growth/customers'
     | '/growth/insights'
@@ -538,6 +548,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/settings'
     | '/users'
+    | '/api/generate-ad-image'
     | '/growth/crm'
     | '/growth/customers'
     | '/growth/insights'
@@ -588,6 +599,7 @@ export interface FileRouteTypes {
     | '/_authenticated/profile'
     | '/_authenticated/settings'
     | '/_authenticated/users'
+    | '/api/generate-ad-image'
     | '/_authenticated/growth/crm'
     | '/_authenticated/growth/customers'
     | '/_authenticated/growth/insights'
@@ -634,6 +646,7 @@ export interface RootRouteChildren {
   DataDeletionRoute: typeof DataDeletionRoute
   PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
+  ApiGenerateAdImageRoute: typeof ApiGenerateAdImageRoute
   ApiPublicHooksAutoInstagramPostRoute: typeof ApiPublicHooksAutoInstagramPostRoute
   ApiPublicHooksEnrichPendingLeadsRoute: typeof ApiPublicHooksEnrichPendingLeadsRoute
   ApiPublicHooksIgSyncRoute: typeof ApiPublicHooksIgSyncRoute
@@ -687,6 +700,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/generate-ad-image': {
+      id: '/api/generate-ad-image'
+      path: '/api/generate-ad-image'
+      fullPath: '/api/generate-ad-image'
+      preLoaderRoute: typeof ApiGenerateAdImageRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/users': {
@@ -1069,6 +1089,7 @@ const rootRouteChildren: RootRouteChildren = {
   DataDeletionRoute: DataDeletionRoute,
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,
+  ApiGenerateAdImageRoute: ApiGenerateAdImageRoute,
   ApiPublicHooksAutoInstagramPostRoute: ApiPublicHooksAutoInstagramPostRoute,
   ApiPublicHooksEnrichPendingLeadsRoute: ApiPublicHooksEnrichPendingLeadsRoute,
   ApiPublicHooksIgSyncRoute: ApiPublicHooksIgSyncRoute,
