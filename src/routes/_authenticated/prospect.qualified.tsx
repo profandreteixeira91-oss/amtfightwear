@@ -4,8 +4,9 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import {
-  Search, Mail, Instagram, Star, ExternalLink, Copy, Sparkles, MessageCircle, Globe,
+  Search, Mail, Instagram, Star, ExternalLink, Copy, Sparkles, MessageCircle, Globe, Send, Loader2, Image as ImageIcon,
 } from "lucide-react";
+import { sendTransactionalEmail } from "@/lib/email/send";
 import { PageHeader } from "@/components/common/PageHeader";
 import { ErrorState } from "@/components/common/ErrorState";
 import { Button } from "@/components/ui/button";
