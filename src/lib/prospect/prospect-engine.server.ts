@@ -177,21 +177,40 @@ export async function discoverCompanies(input: {
       if (!domain) continue;
       if (isNoiseDomain(domain, { allowInstagram: input.allowInstagram })) continue;
 
-      // Dedupe: por domínio, ou por URL completa quando for perfil do Instagram
       const isIg = /instagram\.com$/i.test(domain);
-      const dedupeKey = isIg ? r.url.replace(/[?#].*$/, "").toLowerCase() : domain;
+      // Instagram: aceitar SOMENTE perfis (/{handle}), rejeitar posts/reels/stories/etc.
+      if (isIg) {
+        const handle = extractInstagramProfile(r.url);
+        if (!handle) continue;
+        const dedupeKey = `instagram:${handle}`;
+        if (seen.has(dedupeKey)) continue;
+        seen.add(dedupeKey);
+        const displayName = cleanCompanyName(r.title) || `@${handle}`;
+        companies.push({
+          name: displayName,
+          normalized_name: normalizeName(displayName),
+          website: null,
+          source_url: `https://instagram.com/${handle}`,
+          description: r.description ?? null,
+          city: input.city ?? null,
+          state: input.state ?? null,
+          category: input.segment,
+        });
+        if (companies.length >= input.limit) break;
+        continue;
+      }
+
+      const dedupeKey = domain;
       if (seen.has(dedupeKey)) continue;
       seen.add(dedupeKey);
 
       const name = cleanCompanyName(r.title);
       if (!name) continue;
 
-      const website = isIg ? null : `https://${domain}`;
-
       companies.push({
         name,
         normalized_name: normalizeName(name),
-        website,
+        website: `https://${domain}`,
         source_url: r.url,
         description: r.description ?? null,
         city: input.city ?? null,
@@ -203,6 +222,32 @@ export async function discoverCompanies(input: {
     }
   }
   return companies;
+}
+
+/** Retorna o handle do perfil quando a URL é `instagram.com/{handle}` (não post, reel, story, etc). */
+function extractInstagramProfile(url: string): string | null {
+  try {
+    const u = new URL(url);
+    if (!/instagram\.com$/i.test(u.hostname.replace(/^www\./, ""))) return null;
+    const segs = u.pathname.split("/").filter(Boolean);
+    if (segs.length === 0) return null;
+    const first = segs[0].toLowerCase();
+    // Rotas não-perfil do Instagram
+    const banned = new Set([
+      "p", "reel", "reels", "tv", "stories", "story", "explore", "accounts",
+      "directory", "about", "developer", "legal", "web", "session", "graphql",
+      "challenge", "invites", "direct", "hashtag", "locations", "emails",
+    ]);
+    if (banned.has(first)) return null;
+    // Se há mais de 1 segmento, geralmente é conteúdo (ex.: /user/reel/xyz)
+    if (segs.length > 1) {
+      const second = segs[1].toLowerCase();
+      if (banned.has(second)) return null;
+    }
+    // Handles válidos: letras, números, ponto, sublinhado, 2-30 chars
+    if (!/^[a-z0-9._]{2,30}$/i.test(first)) return null;
+    return first;
+  } catch { return null; }
 }
 
 function safeDomain(u: string): string | null {
@@ -219,6 +264,7 @@ function cleanCompanyName(title: string): string {
     .trim()
     .slice(0, 120);
 }
+
 
 // ============= Queries especializadas para Judô / Jiu-Jitsu =============
 
