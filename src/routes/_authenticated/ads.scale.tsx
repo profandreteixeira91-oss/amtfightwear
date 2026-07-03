@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { TrendingUp, TrendingDown, Pause, Sparkles, RefreshCw, Wand2, Trophy } from "lucide-react";
+import { TrendingUp, TrendingDown, Pause, Sparkles, RefreshCw, Wand2 } from "lucide-react";
 import {
   listWinners,
   listScaleHistory,
