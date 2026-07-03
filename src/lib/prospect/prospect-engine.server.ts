@@ -3,7 +3,7 @@
  * Usa Firecrawl (search + scrape) + Lovable AI Gateway (Gemini) para extração.
  * NUNCA importe este arquivo do cliente.
  */
-import { normalizeEmail, normalizeInstagramHandle, normalizePhone, normalizeName } from "@/features/prospect/utils";
+import { normalizeEmail, normalizeInstagramHandle, normalizePhone, normalizeName, computeLeadScore, DEFAULT_SCORE_WEIGHTS } from "@/features/prospect/utils";
 import type { ContactChannel } from "@/features/prospect/types";
 
 const FIRECRAWL = "https://api.firecrawl.dev/v2";
