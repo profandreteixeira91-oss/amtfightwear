@@ -21,6 +21,7 @@ import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedLogsRouteImport } from './routes/_authenticated/logs'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedAdsRouteImport } from './routes/_authenticated/ads'
 import { Route as AuthenticatedProspectIndexRouteImport } from './routes/_authenticated/prospect.index'
 import { Route as AuthenticatedProspectSettingsRouteImport } from './routes/_authenticated/prospect.settings'
 import { Route as AuthenticatedProspectSearchRouteImport } from './routes/_authenticated/prospect.search'
@@ -116,6 +117,11 @@ const AuthenticatedLogsRoute = AuthenticatedLogsRouteImport.update({
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdsRoute = AuthenticatedAdsRouteImport.update({
+  id: '/ads',
+  path: '/ads',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedProspectIndexRoute =
@@ -339,6 +345,7 @@ export interface FileRoutesByFullPath {
   '/data-deletion': typeof DataDeletionRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
+  '/ads': typeof AuthenticatedAdsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/logs': typeof AuthenticatedLogsRoute
   '/profile': typeof AuthenticatedProfileRoute
@@ -389,6 +396,7 @@ export interface FileRoutesByTo {
   '/data-deletion': typeof DataDeletionRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
+  '/ads': typeof AuthenticatedAdsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/logs': typeof AuthenticatedLogsRoute
   '/profile': typeof AuthenticatedProfileRoute
@@ -441,6 +449,7 @@ export interface FileRoutesById {
   '/data-deletion': typeof DataDeletionRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
+  '/_authenticated/ads': typeof AuthenticatedAdsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/logs': typeof AuthenticatedLogsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
@@ -493,6 +502,7 @@ export interface FileRouteTypes {
     | '/data-deletion'
     | '/privacy'
     | '/terms'
+    | '/ads'
     | '/dashboard'
     | '/logs'
     | '/profile'
@@ -543,6 +553,7 @@ export interface FileRouteTypes {
     | '/data-deletion'
     | '/privacy'
     | '/terms'
+    | '/ads'
     | '/dashboard'
     | '/logs'
     | '/profile'
@@ -594,6 +605,7 @@ export interface FileRouteTypes {
     | '/data-deletion'
     | '/privacy'
     | '/terms'
+    | '/_authenticated/ads'
     | '/_authenticated/dashboard'
     | '/_authenticated/logs'
     | '/_authenticated/profile'
@@ -742,6 +754,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/ads': {
+      id: '/_authenticated/ads'
+      path: '/ads'
+      fullPath: '/ads'
+      preLoaderRoute: typeof AuthenticatedAdsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/prospect/': {
@@ -1007,6 +1026,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdsRoute: typeof AuthenticatedAdsRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedLogsRoute: typeof AuthenticatedLogsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
@@ -1043,6 +1063,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdsRoute: AuthenticatedAdsRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedLogsRoute: AuthenticatedLogsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
