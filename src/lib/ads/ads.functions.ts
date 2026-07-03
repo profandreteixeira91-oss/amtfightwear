@@ -1358,7 +1358,7 @@ export const suggestFromWinners = createServerFn({ method: "POST" })
     }
 
     if (inspirations.length === 0) {
-      return { inspirations: [], suggestion: null, note: "Ainda não há criativos vencedores para aprender." };
+      return { inspirations, suggestionJson: null as string | null, note: "Ainda não há criativos vencedores para aprender." };
     }
 
     // Ask AI to draft inspired copy
