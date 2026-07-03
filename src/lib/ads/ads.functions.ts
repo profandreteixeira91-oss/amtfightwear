@@ -55,10 +55,11 @@ async function loadGateway() {
   return { gateway: createLovableAiGateway(apiKey), generateText };
 }
 
-function extractJson(text: string): unknown {
+type JsonValue = string | number | boolean | null | JsonValue[] | { [k: string]: JsonValue };
+function extractJson(text: string): JsonValue {
   const match = text.match(/\{[\s\S]*\}/);
   if (!match) throw new Error("Resposta da IA sem JSON");
-  return JSON.parse(match[0]);
+  return JSON.parse(match[0]) as JsonValue;
 }
 
 // ---------- Briefings ----------
