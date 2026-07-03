@@ -50,6 +50,7 @@ import { Route as AuthenticatedGrowthIntelligenceRouteImport } from './routes/_a
 import { Route as AuthenticatedGrowthInsightsRouteImport } from './routes/_authenticated/growth.insights'
 import { Route as AuthenticatedGrowthCustomersRouteImport } from './routes/_authenticated/growth.customers'
 import { Route as AuthenticatedGrowthCrmRouteImport } from './routes/_authenticated/growth.crm'
+import { Route as AuthenticatedAdsNewRouteImport } from './routes/_authenticated/ads.new'
 import { Route as AuthenticatedAdsDashboardRouteImport } from './routes/_authenticated/ads.dashboard'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicSalesChatRouteImport } from './routes/api/public/sales/chat'
@@ -289,6 +290,11 @@ const AuthenticatedGrowthCrmRoute = AuthenticatedGrowthCrmRouteImport.update({
   path: '/growth/crm',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdsNewRoute = AuthenticatedAdsNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => AuthenticatedAdsRoute,
+} as any)
 const AuthenticatedAdsDashboardRoute =
   AuthenticatedAdsDashboardRouteImport.update({
     id: '/dashboard',
@@ -360,6 +366,7 @@ export interface FileRoutesByFullPath {
   '/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
   '/ads/dashboard': typeof AuthenticatedAdsDashboardRoute
+  '/ads/new': typeof AuthenticatedAdsNewRoute
   '/growth/crm': typeof AuthenticatedGrowthCrmRoute
   '/growth/customers': typeof AuthenticatedGrowthCustomersRoute
   '/growth/insights': typeof AuthenticatedGrowthInsightsRoute
@@ -412,6 +419,7 @@ export interface FileRoutesByTo {
   '/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
   '/ads/dashboard': typeof AuthenticatedAdsDashboardRoute
+  '/ads/new': typeof AuthenticatedAdsNewRoute
   '/growth/crm': typeof AuthenticatedGrowthCrmRoute
   '/growth/customers': typeof AuthenticatedGrowthCustomersRoute
   '/growth/insights': typeof AuthenticatedGrowthInsightsRoute
@@ -466,6 +474,7 @@ export interface FileRoutesById {
   '/_authenticated/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
   '/_authenticated/ads/dashboard': typeof AuthenticatedAdsDashboardRoute
+  '/_authenticated/ads/new': typeof AuthenticatedAdsNewRoute
   '/_authenticated/growth/crm': typeof AuthenticatedGrowthCrmRoute
   '/_authenticated/growth/customers': typeof AuthenticatedGrowthCustomersRoute
   '/_authenticated/growth/insights': typeof AuthenticatedGrowthInsightsRoute
@@ -520,6 +529,7 @@ export interface FileRouteTypes {
     | '/users'
     | '/api/generate-ad-image'
     | '/ads/dashboard'
+    | '/ads/new'
     | '/growth/crm'
     | '/growth/customers'
     | '/growth/insights'
@@ -572,6 +582,7 @@ export interface FileRouteTypes {
     | '/users'
     | '/api/generate-ad-image'
     | '/ads/dashboard'
+    | '/ads/new'
     | '/growth/crm'
     | '/growth/customers'
     | '/growth/insights'
@@ -625,6 +636,7 @@ export interface FileRouteTypes {
     | '/_authenticated/users'
     | '/api/generate-ad-image'
     | '/_authenticated/ads/dashboard'
+    | '/_authenticated/ads/new'
     | '/_authenticated/growth/crm'
     | '/_authenticated/growth/customers'
     | '/_authenticated/growth/insights'
@@ -972,6 +984,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedGrowthCrmRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ads/new': {
+      id: '/_authenticated/ads/new'
+      path: '/new'
+      fullPath: '/ads/new'
+      preLoaderRoute: typeof AuthenticatedAdsNewRouteImport
+      parentRoute: typeof AuthenticatedAdsRoute
+    }
     '/_authenticated/ads/dashboard': {
       id: '/_authenticated/ads/dashboard'
       path: '/dashboard'
@@ -1047,10 +1066,12 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAdsRouteChildren {
   AuthenticatedAdsDashboardRoute: typeof AuthenticatedAdsDashboardRoute
+  AuthenticatedAdsNewRoute: typeof AuthenticatedAdsNewRoute
 }
 
 const AuthenticatedAdsRouteChildren: AuthenticatedAdsRouteChildren = {
   AuthenticatedAdsDashboardRoute: AuthenticatedAdsDashboardRoute,
+  AuthenticatedAdsNewRoute: AuthenticatedAdsNewRoute,
 }
 
 const AuthenticatedAdsRouteWithChildren =
