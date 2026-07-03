@@ -47,6 +47,133 @@ export type Database = {
         }
         Relationships: []
       }
+      ads_ab_tests: {
+        Row: {
+          campaign_id: string
+          created_at: string
+          ended_at: string | null
+          hypothesis: string | null
+          id: string
+          metric: string
+          name: string
+          started_at: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          winner_variant_id: string | null
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string
+          ended_at?: string | null
+          hypothesis?: string | null
+          id?: string
+          metric?: string
+          name: string
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          winner_variant_id?: string | null
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string
+          ended_at?: string | null
+          hypothesis?: string | null
+          id?: string
+          metric?: string
+          name?: string
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          winner_variant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ads_ab_tests_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "ads_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ads_ab_variants: {
+        Row: {
+          clicks: number | null
+          conversions: number | null
+          copy_id: string | null
+          cpa: number | null
+          created_at: string
+          creative_id: string | null
+          ctr: number | null
+          id: string
+          impressions: number | null
+          is_control: boolean
+          meta_ad_id: string | null
+          meta_creative_id: string | null
+          name: string
+          revenue: number | null
+          roas: number | null
+          spend: number | null
+          test_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          clicks?: number | null
+          conversions?: number | null
+          copy_id?: string | null
+          cpa?: number | null
+          created_at?: string
+          creative_id?: string | null
+          ctr?: number | null
+          id?: string
+          impressions?: number | null
+          is_control?: boolean
+          meta_ad_id?: string | null
+          meta_creative_id?: string | null
+          name: string
+          revenue?: number | null
+          roas?: number | null
+          spend?: number | null
+          test_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          clicks?: number | null
+          conversions?: number | null
+          copy_id?: string | null
+          cpa?: number | null
+          created_at?: string
+          creative_id?: string | null
+          ctr?: number | null
+          id?: string
+          impressions?: number | null
+          is_control?: boolean
+          meta_ad_id?: string | null
+          meta_creative_id?: string | null
+          name?: string
+          revenue?: number | null
+          roas?: number | null
+          spend?: number | null
+          test_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ads_ab_variants_test_id_fkey"
+            columns: ["test_id"]
+            isOneToOne: false
+            referencedRelation: "ads_ab_tests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ads_accounts: {
         Row: {
           act_id: string
@@ -102,6 +229,53 @@ export type Database = {
             columns: ["meta_connection_id"]
             isOneToOne: false
             referencedRelation: "meta_connections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ads_alerts: {
+        Row: {
+          campaign_id: string | null
+          created_at: string
+          id: string
+          message: string | null
+          metric: Json | null
+          read_at: string | null
+          severity: string
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          campaign_id?: string | null
+          created_at?: string
+          id?: string
+          message?: string | null
+          metric?: Json | null
+          read_at?: string | null
+          severity?: string
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          campaign_id?: string | null
+          created_at?: string
+          id?: string
+          message?: string | null
+          metric?: Json | null
+          read_at?: string | null
+          severity?: string
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ads_alerts_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "ads_campaigns"
             referencedColumns: ["id"]
           },
         ]
@@ -492,6 +666,7 @@ export type Database = {
       }
       ads_optimizations: {
         Row: {
+          applied_at: string | null
           campaign_id: string | null
           created_at: string
           id: string
@@ -499,11 +674,13 @@ export type Database = {
           severity: string | null
           status: string
           suggestion: Json | null
+          title: string | null
           type: string
           updated_at: string
           user_id: string
         }
         Insert: {
+          applied_at?: string | null
           campaign_id?: string | null
           created_at?: string
           id?: string
@@ -511,11 +688,13 @@ export type Database = {
           severity?: string | null
           status?: string
           suggestion?: Json | null
+          title?: string | null
           type: string
           updated_at?: string
           user_id: string
         }
         Update: {
+          applied_at?: string | null
           campaign_id?: string | null
           created_at?: string
           id?: string
@@ -523,6 +702,7 @@ export type Database = {
           severity?: string | null
           status?: string
           suggestion?: Json | null
+          title?: string | null
           type?: string
           updated_at?: string
           user_id?: string
