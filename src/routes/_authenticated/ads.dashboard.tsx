@@ -18,7 +18,6 @@ import {
   Sparkles,
 } from "lucide-react";
 import { brl } from "@/lib/format";
-import { Link } from "@tanstack/react-router";
 import { getAdsDashboard } from "@/lib/ads/ads.functions";
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 
