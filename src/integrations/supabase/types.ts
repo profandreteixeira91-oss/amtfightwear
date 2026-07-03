@@ -47,6 +47,478 @@ export type Database = {
         }
         Relationships: []
       }
+      ads_accounts: {
+        Row: {
+          act_id: string
+          business_id: string | null
+          capabilities: Json | null
+          created_at: string
+          currency: string | null
+          id: string
+          meta_connection_id: string | null
+          name: string
+          pixel_id: string | null
+          pixel_status: string | null
+          status: string
+          timezone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          act_id: string
+          business_id?: string | null
+          capabilities?: Json | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          meta_connection_id?: string | null
+          name: string
+          pixel_id?: string | null
+          pixel_status?: string | null
+          status?: string
+          timezone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          act_id?: string
+          business_id?: string | null
+          capabilities?: Json | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          meta_connection_id?: string | null
+          name?: string
+          pixel_id?: string | null
+          pixel_status?: string | null
+          status?: string
+          timezone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ads_accounts_meta_connection_id_fkey"
+            columns: ["meta_connection_id"]
+            isOneToOne: false
+            referencedRelation: "meta_connections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ads_briefings: {
+        Row: {
+          age_range: string | null
+          audiences: Json | null
+          brand_tone: string | null
+          budget_daily: number | null
+          budget_estimate: Json | null
+          budget_total: number | null
+          competitors: string | null
+          created_at: string
+          deadline: string | null
+          gender: string | null
+          id: string
+          interests: string[] | null
+          margin: number | null
+          objective: string
+          offer: string | null
+          price: number | null
+          product_id: string | null
+          product_name: string
+          region: string | null
+          revenue_goal: number | null
+          strategy: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          age_range?: string | null
+          audiences?: Json | null
+          brand_tone?: string | null
+          budget_daily?: number | null
+          budget_estimate?: Json | null
+          budget_total?: number | null
+          competitors?: string | null
+          created_at?: string
+          deadline?: string | null
+          gender?: string | null
+          id?: string
+          interests?: string[] | null
+          margin?: number | null
+          objective: string
+          offer?: string | null
+          price?: number | null
+          product_id?: string | null
+          product_name: string
+          region?: string | null
+          revenue_goal?: number | null
+          strategy?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          age_range?: string | null
+          audiences?: Json | null
+          brand_tone?: string | null
+          budget_daily?: number | null
+          budget_estimate?: Json | null
+          budget_total?: number | null
+          competitors?: string | null
+          created_at?: string
+          deadline?: string | null
+          gender?: string | null
+          id?: string
+          interests?: string[] | null
+          margin?: number | null
+          objective?: string
+          offer?: string | null
+          price?: number | null
+          product_id?: string | null
+          product_name?: string
+          region?: string | null
+          revenue_goal?: number | null
+          strategy?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ads_campaigns: {
+        Row: {
+          ads_account_id: string | null
+          briefing_id: string | null
+          budget_daily: number | null
+          budget_total: number | null
+          created_at: string
+          end_at: string | null
+          id: string
+          meta_campaign_id: string | null
+          name: string
+          objective: string
+          start_at: string | null
+          status: string
+          strategy: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ads_account_id?: string | null
+          briefing_id?: string | null
+          budget_daily?: number | null
+          budget_total?: number | null
+          created_at?: string
+          end_at?: string | null
+          id?: string
+          meta_campaign_id?: string | null
+          name: string
+          objective: string
+          start_at?: string | null
+          status?: string
+          strategy?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ads_account_id?: string | null
+          briefing_id?: string | null
+          budget_daily?: number | null
+          budget_total?: number | null
+          created_at?: string
+          end_at?: string | null
+          id?: string
+          meta_campaign_id?: string | null
+          name?: string
+          objective?: string
+          start_at?: string | null
+          status?: string
+          strategy?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ads_campaigns_ads_account_id_fkey"
+            columns: ["ads_account_id"]
+            isOneToOne: false
+            referencedRelation: "ads_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ads_campaigns_briefing_id_fkey"
+            columns: ["briefing_id"]
+            isOneToOne: false
+            referencedRelation: "ads_briefings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ads_copies: {
+        Row: {
+          briefing_id: string | null
+          campaign_id: string | null
+          click_potential: string | null
+          conversion_potential: string | null
+          created_at: string
+          cta: string | null
+          description: string | null
+          hashtags: string[] | null
+          headline: string
+          id: string
+          is_favorite: boolean
+          primary_text: string
+          quality_score: number | null
+          tags: string[] | null
+          triggers: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          briefing_id?: string | null
+          campaign_id?: string | null
+          click_potential?: string | null
+          conversion_potential?: string | null
+          created_at?: string
+          cta?: string | null
+          description?: string | null
+          hashtags?: string[] | null
+          headline: string
+          id?: string
+          is_favorite?: boolean
+          primary_text: string
+          quality_score?: number | null
+          tags?: string[] | null
+          triggers?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          briefing_id?: string | null
+          campaign_id?: string | null
+          click_potential?: string | null
+          conversion_potential?: string | null
+          created_at?: string
+          cta?: string | null
+          description?: string | null
+          hashtags?: string[] | null
+          headline?: string
+          id?: string
+          is_favorite?: boolean
+          primary_text?: string
+          quality_score?: number | null
+          tags?: string[] | null
+          triggers?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ads_copies_briefing_id_fkey"
+            columns: ["briefing_id"]
+            isOneToOne: false
+            referencedRelation: "ads_briefings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ads_copies_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "ads_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ads_creatives: {
+        Row: {
+          aspect: string | null
+          brief: Json | null
+          briefing_id: string | null
+          campaign_id: string | null
+          copy_id: string | null
+          created_at: string
+          format: string
+          id: string
+          image_url: string | null
+          is_favorite: boolean
+          palette: string[] | null
+          prompt: string | null
+          score: number | null
+          storage_path: string | null
+          tags: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          aspect?: string | null
+          brief?: Json | null
+          briefing_id?: string | null
+          campaign_id?: string | null
+          copy_id?: string | null
+          created_at?: string
+          format: string
+          id?: string
+          image_url?: string | null
+          is_favorite?: boolean
+          palette?: string[] | null
+          prompt?: string | null
+          score?: number | null
+          storage_path?: string | null
+          tags?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          aspect?: string | null
+          brief?: Json | null
+          briefing_id?: string | null
+          campaign_id?: string | null
+          copy_id?: string | null
+          created_at?: string
+          format?: string
+          id?: string
+          image_url?: string | null
+          is_favorite?: boolean
+          palette?: string[] | null
+          prompt?: string | null
+          score?: number | null
+          storage_path?: string | null
+          tags?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ads_creatives_briefing_id_fkey"
+            columns: ["briefing_id"]
+            isOneToOne: false
+            referencedRelation: "ads_briefings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ads_creatives_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "ads_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ads_creatives_copy_id_fkey"
+            columns: ["copy_id"]
+            isOneToOne: false
+            referencedRelation: "ads_copies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ads_insights: {
+        Row: {
+          campaign_id: string | null
+          clicks: number | null
+          conversions: number | null
+          cpa: number | null
+          cpc: number | null
+          cpm: number | null
+          created_at: string
+          ctr: number | null
+          date: string
+          id: string
+          impressions: number | null
+          revenue: number | null
+          roas: number | null
+          spend: number | null
+          user_id: string
+        }
+        Insert: {
+          campaign_id?: string | null
+          clicks?: number | null
+          conversions?: number | null
+          cpa?: number | null
+          cpc?: number | null
+          cpm?: number | null
+          created_at?: string
+          ctr?: number | null
+          date: string
+          id?: string
+          impressions?: number | null
+          revenue?: number | null
+          roas?: number | null
+          spend?: number | null
+          user_id: string
+        }
+        Update: {
+          campaign_id?: string | null
+          clicks?: number | null
+          conversions?: number | null
+          cpa?: number | null
+          cpc?: number | null
+          cpm?: number | null
+          created_at?: string
+          ctr?: number | null
+          date?: string
+          id?: string
+          impressions?: number | null
+          revenue?: number | null
+          roas?: number | null
+          spend?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ads_insights_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "ads_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ads_optimizations: {
+        Row: {
+          campaign_id: string | null
+          created_at: string
+          id: string
+          reason: string | null
+          severity: string | null
+          status: string
+          suggestion: Json | null
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          campaign_id?: string | null
+          created_at?: string
+          id?: string
+          reason?: string | null
+          severity?: string | null
+          status?: string
+          suggestion?: Json | null
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          campaign_id?: string | null
+          created_at?: string
+          id?: string
+          reason?: string | null
+          severity?: string | null
+          status?: string
+          suggestion?: Json | null
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ads_optimizations_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "ads_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_insights: {
         Row: {
           created_at: string
