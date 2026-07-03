@@ -96,6 +96,15 @@ const instagramItems = [
   { title: "Administração", url: "/instagram/admin", icon: Shield },
 ] as const;
 
+const adsItems = [
+  { title: "Dashboard", url: "/ads/dashboard", icon: LayoutDashboard },
+  { title: "Nova Campanha IA", url: "/ads/new", icon: Sparkles },
+  { title: "Campanhas", url: "/ads/campaigns", icon: Rocket },
+  { title: "Criativos", url: "/ads/creatives", icon: Wand2 },
+  { title: "Copies", url: "/ads/copies", icon: MessageSquare },
+  { title: "Conexão Meta Ads", url: "/ads/connections", icon: Plug },
+] as const;
+
 const accountItems = [
   { title: "Perfil", url: "/profile", icon: User },
   { title: "Configurações", url: "/settings", icon: Settings },
@@ -218,6 +227,25 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Tráfego Pago IA</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {adsItems.map((item) => (
+                <SidebarMenuItem key={item.url}>
+                  <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
+                    <Link to={item.url} className="flex items-center gap-2">
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
 
 
         <SidebarGroup>

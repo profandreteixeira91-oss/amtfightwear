@@ -15,11 +15,13 @@ import { Route as DataDeletionRouteImport } from './routes/data-deletion'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiGenerateAdImageRouteImport } from './routes/api/generate-ad-image'
 import { Route as AuthenticatedUsersRouteImport } from './routes/_authenticated/users'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedLogsRouteImport } from './routes/_authenticated/logs'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedAdsRouteImport } from './routes/_authenticated/ads'
 import { Route as AuthenticatedProspectIndexRouteImport } from './routes/_authenticated/prospect.index'
 import { Route as AuthenticatedProspectSettingsRouteImport } from './routes/_authenticated/prospect.settings'
 import { Route as AuthenticatedProspectSearchRouteImport } from './routes/_authenticated/prospect.search'
@@ -48,6 +50,12 @@ import { Route as AuthenticatedGrowthIntelligenceRouteImport } from './routes/_a
 import { Route as AuthenticatedGrowthInsightsRouteImport } from './routes/_authenticated/growth.insights'
 import { Route as AuthenticatedGrowthCustomersRouteImport } from './routes/_authenticated/growth.customers'
 import { Route as AuthenticatedGrowthCrmRouteImport } from './routes/_authenticated/growth.crm'
+import { Route as AuthenticatedAdsNewRouteImport } from './routes/_authenticated/ads.new'
+import { Route as AuthenticatedAdsDashboardRouteImport } from './routes/_authenticated/ads.dashboard'
+import { Route as AuthenticatedAdsCreativesRouteImport } from './routes/_authenticated/ads.creatives'
+import { Route as AuthenticatedAdsCopiesRouteImport } from './routes/_authenticated/ads.copies'
+import { Route as AuthenticatedAdsConnectionsRouteImport } from './routes/_authenticated/ads.connections'
+import { Route as AuthenticatedAdsCampaignsRouteImport } from './routes/_authenticated/ads.campaigns'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicSalesChatRouteImport } from './routes/api/public/sales/chat'
 import { Route as ApiPublicMetaCallbackRouteImport } from './routes/api/public/meta/callback'
@@ -87,6 +95,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiGenerateAdImageRoute = ApiGenerateAdImageRouteImport.update({
+  id: '/api/generate-ad-image',
+  path: '/api/generate-ad-image',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedUsersRoute = AuthenticatedUsersRouteImport.update({
   id: '/users',
   path: '/users',
@@ -110,6 +123,11 @@ const AuthenticatedLogsRoute = AuthenticatedLogsRouteImport.update({
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdsRoute = AuthenticatedAdsRouteImport.update({
+  id: '/ads',
+  path: '/ads',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedProspectIndexRoute =
@@ -276,6 +294,40 @@ const AuthenticatedGrowthCrmRoute = AuthenticatedGrowthCrmRouteImport.update({
   path: '/growth/crm',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdsNewRoute = AuthenticatedAdsNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => AuthenticatedAdsRoute,
+} as any)
+const AuthenticatedAdsDashboardRoute =
+  AuthenticatedAdsDashboardRouteImport.update({
+    id: '/dashboard',
+    path: '/dashboard',
+    getParentRoute: () => AuthenticatedAdsRoute,
+  } as any)
+const AuthenticatedAdsCreativesRoute =
+  AuthenticatedAdsCreativesRouteImport.update({
+    id: '/creatives',
+    path: '/creatives',
+    getParentRoute: () => AuthenticatedAdsRoute,
+  } as any)
+const AuthenticatedAdsCopiesRoute = AuthenticatedAdsCopiesRouteImport.update({
+  id: '/copies',
+  path: '/copies',
+  getParentRoute: () => AuthenticatedAdsRoute,
+} as any)
+const AuthenticatedAdsConnectionsRoute =
+  AuthenticatedAdsConnectionsRouteImport.update({
+    id: '/connections',
+    path: '/connections',
+    getParentRoute: () => AuthenticatedAdsRoute,
+  } as any)
+const AuthenticatedAdsCampaignsRoute =
+  AuthenticatedAdsCampaignsRouteImport.update({
+    id: '/campaigns',
+    path: '/campaigns',
+    getParentRoute: () => AuthenticatedAdsRoute,
+  } as any)
 const LovableEmailQueueProcessRoute =
   LovableEmailQueueProcessRouteImport.update({
     id: '/lovable/email/queue/process',
@@ -333,11 +385,19 @@ export interface FileRoutesByFullPath {
   '/data-deletion': typeof DataDeletionRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
+  '/ads': typeof AuthenticatedAdsRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/logs': typeof AuthenticatedLogsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/users': typeof AuthenticatedUsersRoute
+  '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
+  '/ads/campaigns': typeof AuthenticatedAdsCampaignsRoute
+  '/ads/connections': typeof AuthenticatedAdsConnectionsRoute
+  '/ads/copies': typeof AuthenticatedAdsCopiesRoute
+  '/ads/creatives': typeof AuthenticatedAdsCreativesRoute
+  '/ads/dashboard': typeof AuthenticatedAdsDashboardRoute
+  '/ads/new': typeof AuthenticatedAdsNewRoute
   '/growth/crm': typeof AuthenticatedGrowthCrmRoute
   '/growth/customers': typeof AuthenticatedGrowthCustomersRoute
   '/growth/insights': typeof AuthenticatedGrowthInsightsRoute
@@ -382,11 +442,19 @@ export interface FileRoutesByTo {
   '/data-deletion': typeof DataDeletionRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
+  '/ads': typeof AuthenticatedAdsRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/logs': typeof AuthenticatedLogsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/users': typeof AuthenticatedUsersRoute
+  '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
+  '/ads/campaigns': typeof AuthenticatedAdsCampaignsRoute
+  '/ads/connections': typeof AuthenticatedAdsConnectionsRoute
+  '/ads/copies': typeof AuthenticatedAdsCopiesRoute
+  '/ads/creatives': typeof AuthenticatedAdsCreativesRoute
+  '/ads/dashboard': typeof AuthenticatedAdsDashboardRoute
+  '/ads/new': typeof AuthenticatedAdsNewRoute
   '/growth/crm': typeof AuthenticatedGrowthCrmRoute
   '/growth/customers': typeof AuthenticatedGrowthCustomersRoute
   '/growth/insights': typeof AuthenticatedGrowthInsightsRoute
@@ -433,11 +501,19 @@ export interface FileRoutesById {
   '/data-deletion': typeof DataDeletionRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
+  '/_authenticated/ads': typeof AuthenticatedAdsRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/logs': typeof AuthenticatedLogsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/users': typeof AuthenticatedUsersRoute
+  '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
+  '/_authenticated/ads/campaigns': typeof AuthenticatedAdsCampaignsRoute
+  '/_authenticated/ads/connections': typeof AuthenticatedAdsConnectionsRoute
+  '/_authenticated/ads/copies': typeof AuthenticatedAdsCopiesRoute
+  '/_authenticated/ads/creatives': typeof AuthenticatedAdsCreativesRoute
+  '/_authenticated/ads/dashboard': typeof AuthenticatedAdsDashboardRoute
+  '/_authenticated/ads/new': typeof AuthenticatedAdsNewRoute
   '/_authenticated/growth/crm': typeof AuthenticatedGrowthCrmRoute
   '/_authenticated/growth/customers': typeof AuthenticatedGrowthCustomersRoute
   '/_authenticated/growth/insights': typeof AuthenticatedGrowthInsightsRoute
@@ -484,11 +560,19 @@ export interface FileRouteTypes {
     | '/data-deletion'
     | '/privacy'
     | '/terms'
+    | '/ads'
     | '/dashboard'
     | '/logs'
     | '/profile'
     | '/settings'
     | '/users'
+    | '/api/generate-ad-image'
+    | '/ads/campaigns'
+    | '/ads/connections'
+    | '/ads/copies'
+    | '/ads/creatives'
+    | '/ads/dashboard'
+    | '/ads/new'
     | '/growth/crm'
     | '/growth/customers'
     | '/growth/insights'
@@ -533,11 +617,19 @@ export interface FileRouteTypes {
     | '/data-deletion'
     | '/privacy'
     | '/terms'
+    | '/ads'
     | '/dashboard'
     | '/logs'
     | '/profile'
     | '/settings'
     | '/users'
+    | '/api/generate-ad-image'
+    | '/ads/campaigns'
+    | '/ads/connections'
+    | '/ads/copies'
+    | '/ads/creatives'
+    | '/ads/dashboard'
+    | '/ads/new'
     | '/growth/crm'
     | '/growth/customers'
     | '/growth/insights'
@@ -583,11 +675,19 @@ export interface FileRouteTypes {
     | '/data-deletion'
     | '/privacy'
     | '/terms'
+    | '/_authenticated/ads'
     | '/_authenticated/dashboard'
     | '/_authenticated/logs'
     | '/_authenticated/profile'
     | '/_authenticated/settings'
     | '/_authenticated/users'
+    | '/api/generate-ad-image'
+    | '/_authenticated/ads/campaigns'
+    | '/_authenticated/ads/connections'
+    | '/_authenticated/ads/copies'
+    | '/_authenticated/ads/creatives'
+    | '/_authenticated/ads/dashboard'
+    | '/_authenticated/ads/new'
     | '/_authenticated/growth/crm'
     | '/_authenticated/growth/customers'
     | '/_authenticated/growth/insights'
@@ -634,6 +734,7 @@ export interface RootRouteChildren {
   DataDeletionRoute: typeof DataDeletionRoute
   PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
+  ApiGenerateAdImageRoute: typeof ApiGenerateAdImageRoute
   ApiPublicHooksAutoInstagramPostRoute: typeof ApiPublicHooksAutoInstagramPostRoute
   ApiPublicHooksEnrichPendingLeadsRoute: typeof ApiPublicHooksEnrichPendingLeadsRoute
   ApiPublicHooksIgSyncRoute: typeof ApiPublicHooksIgSyncRoute
@@ -689,6 +790,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/generate-ad-image': {
+      id: '/api/generate-ad-image'
+      path: '/api/generate-ad-image'
+      fullPath: '/api/generate-ad-image'
+      preLoaderRoute: typeof ApiGenerateAdImageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/users': {
       id: '/_authenticated/users'
       path: '/users'
@@ -722,6 +830,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/ads': {
+      id: '/_authenticated/ads'
+      path: '/ads'
+      fullPath: '/ads'
+      preLoaderRoute: typeof AuthenticatedAdsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/prospect/': {
@@ -920,6 +1035,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedGrowthCrmRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ads/new': {
+      id: '/_authenticated/ads/new'
+      path: '/new'
+      fullPath: '/ads/new'
+      preLoaderRoute: typeof AuthenticatedAdsNewRouteImport
+      parentRoute: typeof AuthenticatedAdsRoute
+    }
+    '/_authenticated/ads/dashboard': {
+      id: '/_authenticated/ads/dashboard'
+      path: '/dashboard'
+      fullPath: '/ads/dashboard'
+      preLoaderRoute: typeof AuthenticatedAdsDashboardRouteImport
+      parentRoute: typeof AuthenticatedAdsRoute
+    }
+    '/_authenticated/ads/creatives': {
+      id: '/_authenticated/ads/creatives'
+      path: '/creatives'
+      fullPath: '/ads/creatives'
+      preLoaderRoute: typeof AuthenticatedAdsCreativesRouteImport
+      parentRoute: typeof AuthenticatedAdsRoute
+    }
+    '/_authenticated/ads/copies': {
+      id: '/_authenticated/ads/copies'
+      path: '/copies'
+      fullPath: '/ads/copies'
+      preLoaderRoute: typeof AuthenticatedAdsCopiesRouteImport
+      parentRoute: typeof AuthenticatedAdsRoute
+    }
+    '/_authenticated/ads/connections': {
+      id: '/_authenticated/ads/connections'
+      path: '/connections'
+      fullPath: '/ads/connections'
+      preLoaderRoute: typeof AuthenticatedAdsConnectionsRouteImport
+      parentRoute: typeof AuthenticatedAdsRoute
+    }
+    '/_authenticated/ads/campaigns': {
+      id: '/_authenticated/ads/campaigns'
+      path: '/campaigns'
+      fullPath: '/ads/campaigns'
+      preLoaderRoute: typeof AuthenticatedAdsCampaignsRouteImport
+      parentRoute: typeof AuthenticatedAdsRoute
+    }
     '/lovable/email/queue/process': {
       id: '/lovable/email/queue/process'
       path: '/lovable/email/queue/process'
@@ -986,7 +1143,29 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedAdsRouteChildren {
+  AuthenticatedAdsCampaignsRoute: typeof AuthenticatedAdsCampaignsRoute
+  AuthenticatedAdsConnectionsRoute: typeof AuthenticatedAdsConnectionsRoute
+  AuthenticatedAdsCopiesRoute: typeof AuthenticatedAdsCopiesRoute
+  AuthenticatedAdsCreativesRoute: typeof AuthenticatedAdsCreativesRoute
+  AuthenticatedAdsDashboardRoute: typeof AuthenticatedAdsDashboardRoute
+  AuthenticatedAdsNewRoute: typeof AuthenticatedAdsNewRoute
+}
+
+const AuthenticatedAdsRouteChildren: AuthenticatedAdsRouteChildren = {
+  AuthenticatedAdsCampaignsRoute: AuthenticatedAdsCampaignsRoute,
+  AuthenticatedAdsConnectionsRoute: AuthenticatedAdsConnectionsRoute,
+  AuthenticatedAdsCopiesRoute: AuthenticatedAdsCopiesRoute,
+  AuthenticatedAdsCreativesRoute: AuthenticatedAdsCreativesRoute,
+  AuthenticatedAdsDashboardRoute: AuthenticatedAdsDashboardRoute,
+  AuthenticatedAdsNewRoute: AuthenticatedAdsNewRoute,
+}
+
+const AuthenticatedAdsRouteWithChildren =
+  AuthenticatedAdsRoute._addFileChildren(AuthenticatedAdsRouteChildren)
+
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdsRoute: typeof AuthenticatedAdsRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedLogsRoute: typeof AuthenticatedLogsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
@@ -1023,6 +1202,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdsRoute: AuthenticatedAdsRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedLogsRoute: AuthenticatedLogsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
@@ -1069,6 +1249,7 @@ const rootRouteChildren: RootRouteChildren = {
   DataDeletionRoute: DataDeletionRoute,
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,
+  ApiGenerateAdImageRoute: ApiGenerateAdImageRoute,
   ApiPublicHooksAutoInstagramPostRoute: ApiPublicHooksAutoInstagramPostRoute,
   ApiPublicHooksEnrichPendingLeadsRoute: ApiPublicHooksEnrichPendingLeadsRoute,
   ApiPublicHooksIgSyncRoute: ApiPublicHooksIgSyncRoute,
@@ -1084,13 +1265,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
