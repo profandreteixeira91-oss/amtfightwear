@@ -50,12 +50,14 @@ function CampaignsPage() {
             </TableHeader>
             <TableBody>
               {data.map((c) => (
-                <TableRow key={c.id}>
-                  <TableCell className="font-medium">{c.name}</TableCell>
+                <TableRow key={c.id} className="cursor-pointer hover:bg-muted/40">
+                  <TableCell className="font-medium">
+                    <Link to="/ads/campaigns/$id" params={{ id: c.id }} className="hover:underline">{c.name}</Link>
+                  </TableCell>
                   <TableCell>{c.objective}</TableCell>
                   <TableCell><Badge variant={c.status === "active" ? "default" : "secondary"}>{c.status}</Badge></TableCell>
                   <TableCell className="text-right">{c.budget_daily ? brl(Number(c.budget_daily)) : "—"}</TableCell>
-                  <TableCell>{new Date(c.created_at).toLocaleDateString("pt-BR")}</TableCell>
+                  <TableCell>{c.meta_campaign_id ? <Badge variant="outline" className="text-[10px]">Meta</Badge> : <Badge variant="secondary" className="text-[10px]">Rascunho</Badge>}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
