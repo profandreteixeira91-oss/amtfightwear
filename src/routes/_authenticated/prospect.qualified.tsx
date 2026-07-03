@@ -56,18 +56,55 @@ function normalizeIgHandle(v: string | null | undefined): string | null {
   return cleaned || null;
 }
 
+const OUTREACH_IMAGE_URL =
+  "https://api.freelovable.com.br/storage/v1/object/public/anexos/13e5c537-39e1-420f-bbbb-f3ae7eded199.png";
+
 function defaultEmailSubject(name: string) {
-  return `AMT Fight Wear — parceria com ${name}`;
+  return `Parceria B2B | Kimonos, Faixas e Patches Personalizados — ${name}`;
 }
 
-function defaultEmailBody(name: string, pitch: string | null | undefined) {
+function defaultEmailBody(_name: string, pitch: string | null | undefined) {
   if (pitch && pitch.trim()) return pitch.trim();
-  return `Olá, equipe ${name},\n\nSou da AMT Fight Wear — fabricamos kimonos, faixas e patches personalizados para academias e projetos de artes marciais. Gostaríamos de apresentar condições exclusivas para a ${name}.\n\nPodemos agendar uma conversa de 15 minutos esta semana?\n\nAbraço,\nEquipe AMT Fight Wear`;
+  return `Meu nome é Equipe Comercial e faço parte da AMT Fight Wear.
+
+Gostaria de apresentar uma oportunidade de parceria para academias, equipes esportivas e revendedores que buscam produtos personalizados com alta qualidade.
+
+A AMT Fight Wear fabrica:
+
+• Kimonos personalizados para Jiu-Jitsu e Judô;
+• Faixas de graduação;
+• Patches bordados personalizados;
+• Uniformes e roupas esportivas sob medida.
+
+Nossos diferenciais incluem:
+
+- Produção personalizada com a identidade visual da sua academia;
+- Materiais de alta qualidade e excelente acabamento;
+- Atendimento especializado durante todo o processo;
+- Condições comerciais exclusivas para parceiros B2B;
+- Produção para pequenas e grandes quantidades.
+
+Nosso objetivo é ajudar nossos parceiros a oferecer produtos de alto padrão aos seus alunos, fortalecendo sua marca e gerando novas oportunidades de receita.
+
+Caso tenha interesse, ficaremos felizes em apresentar nosso catálogo, esclarecer dúvidas e elaborar uma proposta personalizada.
+
+Agradeço pela atenção e fico à disposição.`;
 }
 
 function defaultDmBody(name: string) {
-  return `Olá, ${name}! Aqui é da AMT Fight Wear 🥋 — trabalhamos com kimonos, faixas e patches personalizados para academias e professores. Podemos te enviar nosso catálogo com condições exclusivas?`;
+  return `Olá, ${name}! Tudo bem? 👋
+
+Vi o perfil de vocês e acredito que existe uma excelente oportunidade de parceria.
+
+A AMT Fight Wear é especializada na fabricação de kimonos personalizados, faixas de graduação, patches bordados e roupas esportivas, atendendo academias, equipes, eventos e marcas em todo o Brasil.
+
+Trabalhamos com produção personalizada, excelente acabamento, materiais de alta qualidade e condições especiais para parceiros B2B.
+
+Se vocês buscam um fornecedor confiável para fortalecer a marca da academia ou ampliar o portfólio de produtos, acredito que podemos construir uma parceria de longo prazo.
+
+Posso enviar nosso catálogo e apresentar as condições para parceiros?`;
 }
+
 
 function QualifiedPage() {
   const [search, setSearch] = useState("");
