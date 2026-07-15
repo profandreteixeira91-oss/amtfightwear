@@ -116,6 +116,28 @@ function StoreHomePage() {
         </div>
       </section>
 
+      {/* Custom Shop CTA */}
+      <section className="mx-auto max-w-7xl px-4 pb-4">
+        <Link
+          to="/loja/custom-shop"
+          className="relative flex flex-col overflow-hidden rounded-xl border bg-foreground p-6 text-background sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div className="max-w-xl">
+            <div className="text-[11px] font-bold uppercase tracking-[0.3em] text-primary">✨ Novo · Custom Shop</div>
+            <h3 className="mt-2 text-2xl font-black leading-tight sm:text-3xl">
+              Seu kimono, rashguard ou faixa <span className="text-primary">100% personalizado</span>
+            </h3>
+            <p className="mt-2 text-sm text-background/70">
+              Escolha cores, patches, bordado e tecido. Fabricamos sob encomenda no padrão AMT.
+            </p>
+          </div>
+          <span className="mt-4 inline-flex w-fit items-center gap-2 rounded-md bg-primary px-5 py-3 text-sm font-bold text-primary-foreground sm:mt-0">
+            Customizar agora →
+          </span>
+        </Link>
+      </section>
+
+
 
       {/* Destaques */}
       {data.featured.length > 0 && (
