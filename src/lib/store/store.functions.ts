@@ -50,15 +50,39 @@ export const getCategoryWithProducts = createServerFn({ method: "GET" })
     const sb = publicClient();
     const { data: category } = await sb.from("store_categories").select("*").eq("slug", data.slug).eq("active", true).maybeSingle();
     if (!category) return { category: null, products: [] };
+
+    // Include products from this category AND all descendant categories,
+    // so a root category page shows every product under its subtree.
+    const { data: allCats } = await sb
+      .from("store_categories")
+      .select("id, parent_id")
+      .eq("active", true);
+    const childrenByParent = new Map<string, string[]>();
+    for (const c of allCats ?? []) {
+      if (!c.parent_id) continue;
+      const arr = childrenByParent.get(c.parent_id) ?? [];
+      arr.push(c.id);
+      childrenByParent.set(c.parent_id, arr);
+    }
+    const ids: string[] = [];
+    const stack: string[] = [category.id];
+    while (stack.length) {
+      const cur = stack.pop()!;
+      ids.push(cur);
+      const kids = childrenByParent.get(cur);
+      if (kids) stack.push(...kids);
+    }
+
     const { data: products } = await sb
       .from("products")
       .select("id, name, slug, price, compare_at_price, image_url, short_description")
       .eq("status", "active")
-      .eq("category_id", category.id)
+      .in("category_id", ids)
       .order("featured", { ascending: false })
       .order("created_at", { ascending: false });
     return { category, products: products ?? [] };
   });
+
 
 export const getProductBySlug = createServerFn({ method: "GET" })
   .inputValidator((i: { slug: string }) => z.object({ slug: z.string() }).parse(i))
