@@ -1,7 +1,8 @@
 import { Link } from "@tanstack/react-router";
-import { ShoppingBag, Search, User, Menu, Instagram, Truck, ShieldCheck, CreditCard } from "lucide-react";
+import { ShoppingBag, Search, User, Menu, Instagram, Truck, ShieldCheck, CreditCard, LogIn } from "lucide-react";
 import { useCart } from "@/lib/store/cart-store";
 import { useEffect, useState, type ReactNode } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import amtLogo from "@/assets/amt-logo.jpg";
 import { ProductImage } from "@/components/store/ProductImage";
 
