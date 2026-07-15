@@ -528,7 +528,7 @@ function BuilderPreview({
   modality?: string | null;
 }) {
   const isJudo = kind === "faixa" && modality === "Judô";
-  const zones = isJudo ? JUDO_FAIXA_ZONES : ZONES[kind] ?? [];
+  const zones: ZonePath[] = isJudo ? JUDO_FAIXA_ZONES : ZONES[kind] ?? [];
   const baseImg = isJudo ? faixaJudoBase : BASE_IMAGES[kind];
   const effectiveSlots = isJudo ? remapJudoSlots(slots) : slots;
 
