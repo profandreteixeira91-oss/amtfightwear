@@ -95,6 +95,14 @@ const BELT_PRESETS: Record<string, typeof JUDO_PRESETS> = {
   default: JIU_PRESETS,
 };
 
+// Kimono BJJ: presets oficiais com foto real do produto da categoria
+// "Kimonos de Jiu-Jitsu · Trançado Premium".
+const KIMONO_PRESETS: { label: string; body: string; image: string }[] = [
+  { label: "Branco",     body: "#f4f4f5", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/0942e202-4ed2-406f-a3d7-d71773d8b064/2e851916-ee1b-4a35-b246-6922e147667c.jpg" },
+  { label: "Azul Royal", body: "#1e3a8a", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/eed4853a-6aea-4e0e-957b-552ba5c8d0e5/3080bad7-e6ed-4655-944d-451c748b5c9a.jpg" },
+  { label: "Preto",      body: "#111827", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/8a9c089b-0503-4a52-a7c4-2593d3d7a489/fd7ebd36-15be-4ce2-ac5c-a56fe622127d.jpg" },
+];
+
 // Coloração (revestimento externo) — opções fixas para faixa
 const COLORING_OPTIONS: { name: string; price_delta: number }[] = [
   { name: "Oxford 100% poliéster", price_delta: 0 },
@@ -278,6 +286,8 @@ function BuilderPage() {
   const [labelChoice, setLabelChoice] = useState<"padrao" | "custom" | null>(null);
   const [coloring, setColoring] = useState<string>(COLORING_OPTIONS[0].name);
 
+  const isKimono = template.kind === "kimono";
+
   useEffect(() => {
     // Faixa: seleciona o primeiro preset por padrão para já exibir a imagem real do produto.
     const presets = BELT_PRESETS[variantKey];
@@ -289,11 +299,15 @@ function BuilderPage() {
         ponta_sup: p.tip,
         ponta_inf: p.tip,
       });
+    } else if (isKimono && KIMONO_PRESETS.length > 0) {
+      // Kimono: seleciona o primeiro preset (Branco) por padrão.
+      const p = KIMONO_PRESETS[0];
+      setZoneColors({ jaqueta: p.body, calca: p.body });
     } else {
       setZoneColors({});
     }
     setActiveZone(zones[0]?.key ?? "");
-  }, [variantKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [variantKey, isKimono]); // eslint-disable-line react-hooks/exhaustive-deps
 
 
   // Admin layout edit mode
@@ -337,6 +351,15 @@ function BuilderPage() {
       ) ?? null
     );
   }, [variantKey, zoneColors]);
+
+  const kimonoPreset = useMemo(() => {
+    if (!isKimono) return null;
+    return (
+      KIMONO_PRESETS.find(
+        (p) => zoneColors.jaqueta === p.body && zoneColors.calca === p.body,
+      ) ?? null
+    );
+  }, [isKimono, zoneColors]);
 
   const patchesTotal = useMemo(() => {
     let total = 0;
@@ -443,7 +466,7 @@ function BuilderPage() {
                 patches={patches}
                 embroideries={activeEmbroideries}
                 labelImage={isFaixa ? labelImage : null}
-                beltPresetImage={beltPreset?.image ?? null}
+                beltPresetImage={beltPreset?.image ?? kimonoPreset?.image ?? null}
                 onEmbroideryChange={(slotKey, patch) =>
                   setEmbroideries((prev) => {
                     const cur = prev[slotKey];
@@ -626,8 +649,51 @@ function BuilderPage() {
               </section>
             )}
 
+            {/* Kimono BJJ: presets oficiais com foto real do produto */}
+            {isKimono && (
+              <section>
+                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Cor do kimono</h2>
+                <div className="grid grid-cols-3 gap-2">
+                  {KIMONO_PRESETS.map((p) => {
+                    const active = zoneColors.jaqueta === p.body && zoneColors.calca === p.body;
+                    return (
+                      <button
+                        key={p.label}
+                        type="button"
+                        onClick={() =>
+                          setZoneColors((prev) => ({ ...prev, jaqueta: p.body, calca: p.body }))
+                        }
+                        className={`group flex flex-col overflow-hidden rounded-md border text-left transition ${
+                          active ? "border-primary ring-2 ring-primary/30" : "hover:border-foreground/40"
+                        }`}
+                      >
+                        <div className="relative aspect-square bg-muted">
+                          <img
+                            src={p.image}
+                            alt={p.label}
+                            loading="lazy"
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                        <div className="flex items-center gap-2 px-2 py-1.5 text-[11px] font-semibold">
+                          <span
+                            className="inline-block h-3 w-3 shrink-0 rounded-full border border-foreground/20"
+                            style={{ background: p.body }}
+                          />
+                          <span className="truncate">{p.label}</span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="mt-2 text-[10px] text-muted-foreground">
+                  Fotos reais da linha Trançado Premium — a cor selecionada é aplicada em jaqueta e calça.
+                </p>
+              </section>
+            )}
+
             {/* Zone colors (fallback quando não há preset) */}
-            {!BELT_PRESETS[variantKey] && zones.length > 0 && (
+            {!BELT_PRESETS[variantKey] && !isKimono && zones.length > 0 && (
               <section>
                 <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Cores</h2>
                 <div className="flex flex-wrap gap-2">
