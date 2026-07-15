@@ -162,6 +162,7 @@ function BuilderPage() {
                     ? { text: embroideryText.trim(), slot_key: embroiderySlot, color: embroideryColor }
                     : null
                 }
+                labelImage={isFaixa ? labelImage : null}
               />
             </div>
             <div className="mt-3 text-center text-xs text-muted-foreground">
