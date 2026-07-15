@@ -3,6 +3,7 @@ import { ShoppingBag, Search, User, Menu, Instagram, Truck, ShieldCheck, CreditC
 import { useCart } from "@/lib/store/cart-store";
 import { useEffect, useState, type ReactNode } from "react";
 import amtLogo from "@/assets/amt-logo.jpg";
+import { ProductImage } from "@/components/store/ProductImage";
 
 export function StoreShell({ children, categories }: { children: ReactNode; categories?: Array<{ slug: string; name: string; parent_id?: string | null }> }) {
   const topCategories = (categories ?? []).filter((c) => !c.parent_id);
