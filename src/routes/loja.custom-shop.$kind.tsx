@@ -610,7 +610,7 @@ function BuilderPreview({
   slots,
   slotPatches,
   patches,
-  embroidery,
+  embroideries,
   labelImage,
 }: {
   kind: string;
@@ -620,7 +620,7 @@ function BuilderPreview({
   slots: SlotRow[];
   slotPatches: Record<string, string>;
   patches: Patch[];
-  embroidery: { text: string; slot_key: string; color: string } | null;
+  embroideries: Array<{ slot_key: string; text: string | null; image: { data_url: string; filename: string } | null; color: string }>;
   labelImage?: { data_url: string; filename: string } | null;
 }) {
   const isJudo = kind === "faixa" && variantKey === "judo";
