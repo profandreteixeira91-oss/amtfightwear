@@ -148,10 +148,10 @@ function BuilderPage() {
           <Link to="/loja/custom-shop" className="hover:text-primary">Custom Shop</Link> / <span className="text-foreground">{template.name}</span>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1fr_420px]">
+        <div className="mx-auto flex max-w-3xl flex-col gap-6">
           {/* Preview */}
-          <div className="sticky top-24 h-fit rounded-xl border bg-card p-4">
-            <div className="aspect-square w-full overflow-hidden rounded-lg bg-muted">
+          <div className="rounded-xl border bg-card p-4">
+            <div className="mx-auto aspect-square w-full max-w-xl overflow-hidden rounded-lg bg-muted">
               <BuilderPreview
                 kind={template.kind}
                 zoneColors={zoneColors}
