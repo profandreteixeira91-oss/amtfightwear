@@ -972,7 +972,7 @@ function BuilderPage() {
                         labelChoice === "custom" ? "border-primary bg-primary/5 text-primary" : "hover:border-foreground/40"
                       }`}
                     >
-                      Personalizada
+                      Personalizada <span className="text-primary">+ {formatBRL(FAIXA_ETIQUETA_CUSTOM_FEE)}</span>
                       <div className="mt-1 text-[10px] font-normal text-muted-foreground">Envie sua imagem</div>
                     </button>
                   </div>
