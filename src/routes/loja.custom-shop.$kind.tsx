@@ -113,6 +113,15 @@ const COLORING_OPTIONS: { name: string; price_delta: number }[] = [
 const FAIXA_BORDADO_FEE = 10; // por bordado
 const FAIXA_ETIQUETA_CUSTOM_FEE = 2; // etiqueta com imagem enviada
 
+// Kimono: técnicas de aplicação do patch (preços serão personalizados depois)
+const KIMONO_TECHNIQUES: { id: "bordado" | "sublimado" | "dtf"; label: string; hint: string; price: number }[] = [
+  { id: "bordado",   label: "Bordado",                    hint: "Fio bordado sobre o tecido",  price: 0 },
+  { id: "sublimado", label: "Patch Reforçado Sublimado",  hint: "Patch costurado sublimado",   price: 0 },
+  { id: "dtf",       label: "DTF",                        hint: "Transfer DTF prensado",       price: 0 },
+];
+const KIMONO_BORDADO_NOME_FEE = 10;
+
+
 // Fontes de bordado disponíveis para o cliente escolher
 const EMBROIDERY_FONTS: { id: string; label: string; family: string; weight: number; style: "normal" | "italic" }[] = [
   { id: "classica", label: "Clássica", family: "Georgia, 'Times New Roman', serif", weight: 700, style: "italic" },
@@ -278,7 +287,9 @@ function BuilderPage() {
     position: { x: number; y: number } | null;
     scale: number;
     rotation: number;
+    technique?: "bordado" | "sublimado" | "dtf" | null;
   }>>({});
+
   const [activeZone, setActiveZone] = useState<string>(zones[0]?.key ?? "");
   const isFaixa = template.kind === "faixa";
   const [logoImage, setLogoImage] = useState<{ data_url: string; filename: string } | null>(null);
@@ -374,9 +385,18 @@ function BuilderPage() {
   }, [slotPatches, patches]);
 
   const embroiderySlots = useMemo(() => {
+    if (isKimono) {
+      // Kimono: 3 patches (upload de imagem + técnica) + 1 bordado de nome (texto)
+      return slots.filter((s) => s.key.startsWith("patch_") || s.key === "bordado_nome");
+    }
     const bordado = slots.filter((s) => s.key.startsWith("bordado"));
     return bordado.length > 0 ? bordado : slots;
-  }, [slots]);
+  }, [slots, isKimono]);
+
+  // Helpers p/ kimono: distingue slot de patch vs. slot de bordado de nome
+  const isKimonoPatchSlot = (key: string) => isKimono && key.startsWith("patch_");
+  const isKimonoNameSlot = (key: string) => isKimono && key === "bordado_nome";
+
   const activeEmbroideries = useMemo(
     () =>
       embroiderySlots
@@ -393,10 +413,27 @@ function BuilderPage() {
           scale: e!.scale,
           rotation: e!.rotation,
           color: e!.color,
+          technique: isKimonoPatchSlot(slot.key) ? (e!.technique ?? "bordado") : null,
         })),
-    [embroiderySlots, embroideries],
+    [embroiderySlots, embroideries, isKimono], // eslint-disable-line react-hooks/exhaustive-deps
   );
-  const embroideryFee = activeEmbroideries.length * (isFaixa ? FAIXA_BORDADO_FEE : 39);
+
+  const embroideryFee = useMemo(() => {
+    if (isFaixa) return activeEmbroideries.length * FAIXA_BORDADO_FEE;
+    if (isKimono) {
+      let total = 0;
+      for (const e of activeEmbroideries) {
+        if (e.slot_key === "bordado_nome") total += KIMONO_BORDADO_NOME_FEE;
+        else if (e.slot_key.startsWith("patch_")) {
+          const t = KIMONO_TECHNIQUES.find((x) => x.id === e.technique) ?? KIMONO_TECHNIQUES[0];
+          total += t.price;
+        }
+      }
+      return total;
+    }
+    return activeEmbroideries.length * 39;
+  }, [activeEmbroideries, isFaixa, isKimono]);
+
   const fabricDelta = selectedFabric ? Number(selectedFabric.price_delta) : 0;
   const coloringDelta = isFaixa ? (COLORING_OPTIONS.find((c) => c.name === coloring)?.price_delta ?? 0) : 0;
   const labelFee = isFaixa && labelChoice === "custom" && labelImage ? FAIXA_ETIQUETA_CUSTOM_FEE : 0;
@@ -788,12 +825,14 @@ function BuilderPage() {
             {embroiderySlots.length > 0 && (
               <section>
                 <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">
-                  {embroiderySlots.length > 1 ? "Bordados" : "Bordado de texto ou logo"}
+                  {isKimono ? "Personalização" : embroiderySlots.length > 1 ? "Bordados" : "Bordado de texto ou logo"}
                 </h2>
                 <div className="space-y-3">
                   {embroiderySlots.map((s, idx) => {
+                    const kPatch = isKimonoPatchSlot(s.key);
+                    const kName = isKimonoNameSlot(s.key);
                     const defaults = {
-                      mode: "text" as "text" | "logo",
+                      mode: (kPatch ? "logo" : "text") as "text" | "logo",
                       text: "",
                       font: DEFAULT_EMB_FONT,
                       lines: 1 as 1 | 2,
@@ -802,6 +841,7 @@ function BuilderPage() {
                       position: null as { x: number; y: number } | null,
                       scale: 1,
                       rotation: 0,
+                      technique: (kPatch ? "bordado" : null) as "bordado" | "sublimado" | "dtf" | null,
                     };
                     const entry = embroideries[s.key] ?? defaults;
                     const setEntry = (patch: Partial<typeof entry>) =>
@@ -810,11 +850,38 @@ function BuilderPage() {
                       (entry.mode === "text" && entry.text.trim()) || (entry.mode === "logo" && entry.image);
                     const pos = entry.position ?? { x: s.x_pct, y: s.y_pct };
                     const selectedFont = EMBROIDERY_FONTS.find((f) => f.id === entry.font) ?? EMBROIDERY_FONTS[0];
+                    const slotHeader = isKimono ? s.label : `Bordado ${idx + 1}`;
                     return (
                       <div key={s.key} className="rounded-md border p-3 space-y-3">
-                        <div className="text-xs font-bold uppercase text-muted-foreground">Bordado {idx + 1}</div>
+                        <div className="text-xs font-bold uppercase text-muted-foreground">{slotHeader}</div>
 
-                        {/* Mode selector */}
+                        {/* Técnica (apenas patches do kimono) */}
+                        {kPatch && (
+                          <div>
+                            <div className="mb-1 text-xs font-semibold text-muted-foreground">Técnica de aplicação</div>
+                            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                              {KIMONO_TECHNIQUES.map((t) => {
+                                const activeT = (entry.technique ?? "bordado") === t.id;
+                                return (
+                                  <button
+                                    key={t.id}
+                                    type="button"
+                                    onClick={() => setEntry({ technique: t.id })}
+                                    className={`rounded-md border px-2 py-2 text-left text-xs font-semibold transition ${
+                                      activeT ? "border-primary bg-primary/5 text-primary" : "hover:border-foreground/40"
+                                    }`}
+                                  >
+                                    {t.label}
+                                    <div className="mt-0.5 text-[10px] font-normal text-muted-foreground">{t.hint}</div>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Mode selector — só quando NÃO é kimono (kimono força o modo por slot) */}
+                        {!isKimono && (
                         <div className="grid grid-cols-2 gap-2">
                           <button
                             type="button"
@@ -836,7 +903,11 @@ function BuilderPage() {
                             Logotipo
                             <div className="mt-1 text-[10px] font-normal text-muted-foreground">Upload de imagem</div>
                           </button>
+
                         </div>
+                        )}
+
+
 
                         {entry.mode === "text" ? (
                           <>
@@ -973,25 +1044,44 @@ function BuilderPage() {
 
                         {active && (
                           <>
-                            <div>
-                              <div className="mb-1 text-xs font-semibold text-muted-foreground">Cor do bordado</div>
-                              <div className="flex flex-wrap gap-2">
-                                {PALETTE.map((c) => (
-                                  <button
-                                    key={c}
-                                    type="button"
-                                    onClick={() => setEntry({ color: c })}
-                                    className={`h-6 w-6 rounded-full border-2 ${
-                                      entry.color === c ? "border-primary scale-110" : "border-foreground/20"
-                                    }`}
-                                    style={{ background: c }}
-                                  />
-                                ))}
+                            {/* Cor do bordado — não se aplica a patches sublimado/DTF do kimono */}
+                            {!(kPatch && entry.technique && entry.technique !== "bordado") && (
+                              <div>
+                                <div className="mb-1 text-xs font-semibold text-muted-foreground">Cor do bordado</div>
+                                <div className="flex flex-wrap gap-2">
+                                  {PALETTE.map((c) => (
+                                    <button
+                                      key={c}
+                                      type="button"
+                                      onClick={() => setEntry({ color: c })}
+                                      className={`h-6 w-6 rounded-full border-2 ${
+                                        entry.color === c ? "border-primary scale-110" : "border-foreground/20"
+                                      }`}
+                                      style={{ background: c }}
+                                    />
+                                  ))}
+                                </div>
                               </div>
-                            </div>
-                            <div className="text-xs font-bold text-primary">Taxa de bordado: + {formatBRL(isFaixa ? FAIXA_BORDADO_FEE : 39)}</div>
+                            )}
+                            {isKimono ? (
+                              kName ? (
+                                <div className="text-xs font-bold text-primary">Bordado de nome: + {formatBRL(KIMONO_BORDADO_NOME_FEE)}</div>
+                              ) : (
+                                (() => {
+                                  const t = KIMONO_TECHNIQUES.find((x) => x.id === (entry.technique ?? "bordado"))!;
+                                  return (
+                                    <div className="text-xs font-bold text-primary">
+                                      Adicional ({t.label}): {t.price > 0 ? `+ ${formatBRL(t.price)}` : "a definir"}
+                                    </div>
+                                  );
+                                })()
+                              )
+                            ) : (
+                              <div className="text-xs font-bold text-primary">Taxa de bordado: + {formatBRL(isFaixa ? FAIXA_BORDADO_FEE : 39)}</div>
+                            )}
                           </>
                         )}
+
                         {/* Preview inline da fonte selecionada */}
                         {entry.mode === "text" && entry.text.trim() && (
                           <div
