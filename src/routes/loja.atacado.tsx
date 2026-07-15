@@ -216,7 +216,10 @@ function WholesalePage() {
     try {
       const items = Object.entries(qty)
         .filter(([, q]) => q > 0)
-        .map(([product_id, quantity]) => ({ product_id, quantity }));
+        .map(([k, quantity]) => {
+          const [product_id, vidRaw] = k.split("::");
+          return { product_id, variant_id: vidRaw === NO_VARIANT ? null : vidRaw, quantity };
+        });
       const res = await createOrder({
         data: {
           customer_email: form.customer_email,
