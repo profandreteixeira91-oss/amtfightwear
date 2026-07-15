@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useCart, formatBRL } from "@/lib/store/cart-store";
 import { ShoppingBag, Zap } from "lucide-react";
 import { toast } from "sonner";
+import { ShippingCalculator } from "@/components/store/ShippingCalculator";
 
 export const Route = createFileRoute("/loja/produto/$slug")({
   loader: async ({ context, params }) => {
@@ -180,6 +181,10 @@ function ProductPage() {
             {product.short_description && (
               <p className="mt-2 text-sm text-muted-foreground">{product.short_description}</p>
             )}
+
+            <ShippingCalculator
+              items={[{ product_id: product.id, variant_id: variant?.id ?? null, quantity: qty }]}
+            />
           </div>
         </div>
 

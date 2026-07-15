@@ -38,6 +38,7 @@ import {
   Store,
   ShoppingCart,
   Download as DownloadIcon,
+  Truck,
 } from "lucide-react";
 
 import {
@@ -116,6 +117,7 @@ const storeItems = [
   { title: "Painel da Loja", url: "/store", icon: Store },
   { title: "Produtos", url: "/store/products", icon: Package },
   { title: "Pedidos", url: "/store/orders", icon: ShoppingCart },
+  { title: "Envio (Melhor Envio)", url: "/store/shipping", icon: Truck },
   { title: "Importar catálogo", url: "/store/import", icon: DownloadIcon },
 ] as const;
 
