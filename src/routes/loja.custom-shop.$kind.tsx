@@ -975,16 +975,19 @@ function BuilderPreview({
         {!useProductPhoto && zones.map((z) => {
           const color = zoneColors[z.key];
           if (!color) return null; // transparent by default
+          const cx = z.x_pct + z.w_pct / 2;
+          const cy = z.y_pct + z.h_pct / 2;
           return (
-            <rect
-              key={z.key}
-              x={z.x_pct}
-              y={z.y_pct}
-              width={z.w_pct}
-              height={z.h_pct}
-              fill={color}
-              style={z.solid ? undefined : { mixBlendMode: "multiply" }}
-            />
+            <g key={z.key} transform={z.rotation_deg ? `rotate(${z.rotation_deg} ${cx} ${cy})` : undefined}>
+              <rect
+                x={z.x_pct}
+                y={z.y_pct}
+                width={z.w_pct}
+                height={z.h_pct}
+                fill={color}
+                style={z.solid ? undefined : { mixBlendMode: "multiply" }}
+              />
+            </g>
           );
         })}
 
