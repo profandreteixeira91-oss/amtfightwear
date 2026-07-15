@@ -197,6 +197,19 @@ function BuilderPage() {
 
   const selectedFabric = fabrics.find((f) => f.id === fabricId) ?? null;
 
+  const judoPreset = useMemo(() => {
+    if (variantKey !== "judo") return null;
+    return (
+      JUDO_PRESETS.find(
+        (p) =>
+          zoneColors.corpo_sup === p.body &&
+          zoneColors.corpo_inf === p.body &&
+          zoneColors.ponta_sup === p.tip &&
+          zoneColors.ponta_inf === p.tip,
+      ) ?? null
+    );
+  }, [variantKey, zoneColors]);
+
   const patchesTotal = useMemo(() => {
     let total = 0;
     for (const [, patchId] of Object.entries(slotPatches)) {
