@@ -417,15 +417,17 @@ function BuilderPage() {
                           style={{ background: c }}
                         />
                       ))}
-                      <label className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border-2 border-foreground/20 text-[10px]">
-                        <input
-                          type="color"
-                          value={zoneColors[activeZone] ?? "#000000"}
-                          onChange={(e) => setZoneColors((prev) => ({ ...prev, [activeZone]: e.target.value }))}
-                          className="h-0 w-0 opacity-0"
-                        />
-                        +
-                      </label>
+                      {variantKey !== "judo" && (
+                        <label className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border-2 border-foreground/20 text-[10px]">
+                          <input
+                            type="color"
+                            value={zoneColors[activeZone] ?? "#000000"}
+                            onChange={(e) => setZoneColors((prev) => ({ ...prev, [activeZone]: e.target.value }))}
+                            className="h-0 w-0 opacity-0"
+                          />
+                          +
+                        </label>
+                      )}
                     </div>
                   </div>
                 )}
