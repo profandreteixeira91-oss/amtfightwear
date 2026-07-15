@@ -6,6 +6,11 @@ import {
   adminUpdateStoreProduct,
   adminGetStoreProduct,
   adminSaveVariants,
+  adminCreateStoreProduct,
+  adminDeleteStoreProduct,
+  adminListStoreCategories,
+  adminUpsertStoreCategory,
+  adminDeleteStoreCategory,
 } from "@/lib/store/store.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
