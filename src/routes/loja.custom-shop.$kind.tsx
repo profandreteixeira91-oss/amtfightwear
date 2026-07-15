@@ -931,7 +931,16 @@ function BuilderPreview({
   slots: SlotRow[];
   slotPatches: Record<string, string>;
   patches: Patch[];
-  embroideries: Array<{ slot_key: string; text: string | null; image: { data_url: string; filename: string } | null; color: string }>;
+  embroideries: Array<{
+    slot_key: string;
+    mode: "text" | "logo";
+    text: string | null;
+    font: string | null;
+    lines: 1 | 2 | null;
+    image: { data_url: string; filename: string } | null;
+    position: { x: number; y: number } | null;
+    color: string;
+  }>;
   labelImage?: { data_url: string; filename: string } | null;
   judoPresetImage?: string | null;
 }) {
