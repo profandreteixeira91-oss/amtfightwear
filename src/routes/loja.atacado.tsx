@@ -53,9 +53,22 @@ type Prod = {
   category_id: string | null;
   short_description: string | null;
 };
+type Variant = {
+  id: string;
+  product_id: string;
+  size: string | null;
+  color: string | null;
+  option_label: string | null;
+  sku: string | null;
+  price: number | string | null;
+  sort_order: number;
+  active: boolean;
+};
 
 const WHOLESALE_DISCOUNT = 0.25;
 const MIN_PER_SUBCAT = 10;
+const NO_VARIANT = "__none__";
+const keyOf = (pid: string, vid: string | null) => `${pid}::${vid ?? NO_VARIANT}`;
 
 function WholesalePage() {
   const { data: catalog } = useSuspenseQuery(catalogQuery);
@@ -65,19 +78,19 @@ function WholesalePage() {
 
   const categories = catalog.categories as Cat[];
   const products = catalog.products as Prod[];
+  const variants = (catalog.variants ?? []) as Variant[];
+
+  const variantsByProduct = useMemo(() => {
+    const m = new Map<string, Variant[]>();
+    for (const v of variants) {
+      const arr = m.get(v.product_id) ?? [];
+      arr.push(v);
+      m.set(v.product_id, arr);
+    }
+    return m;
+  }, [variants]);
 
   const catById = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
-  // Root path label for each product (breadcrumb of its subcategory)
-  const catPath = (id: string | null): string => {
-    if (!id) return "Sem categoria";
-    const parts: string[] = [];
-    let cur: Cat | undefined = catById.get(id);
-    while (cur) {
-      parts.unshift(cur.name);
-      cur = cur.parent_id ? catById.get(cur.parent_id) : undefined;
-    }
-    return parts.join(" › ");
-  };
 
   // Group products by leaf subcategory (their direct category_id)
   const grouped = useMemo(() => {
@@ -95,9 +108,16 @@ function WholesalePage() {
     });
   }, [products, catById]);
 
+  // qty keyed by `${productId}::${variantId|__none__}`
   const [qty, setQty] = useState<Record<string, number>>({});
-  const setProductQty = (pid: string, q: number) =>
-    setQty((s) => ({ ...s, [pid]: Math.max(0, q) }));
+  const setLineQty = (pid: string, vid: string | null, q: number) =>
+    setQty((s) => ({ ...s, [keyOf(pid, vid)]: Math.max(0, q) }));
+  const productTotal = (pid: string) => {
+    const vs = variantsByProduct.get(pid);
+    if (!vs || vs.length === 0) return qty[keyOf(pid, null)] ?? 0;
+    return vs.reduce((a, v) => a + (qty[keyOf(pid, v.id)] ?? 0), 0);
+  };
+
 
   // Visualization controls
   const [search, setSearch] = useState("");
