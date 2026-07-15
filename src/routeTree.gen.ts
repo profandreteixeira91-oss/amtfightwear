@@ -16,6 +16,9 @@ import { Route as DataDeletionRouteImport } from './routes/data-deletion'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LojaIndexRouteImport } from './routes/loja.index'
+import { Route as LojaCheckoutRouteImport } from './routes/loja.checkout'
+import { Route as LojaCarrinhoRouteImport } from './routes/loja.carrinho'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as ApiGenerateAdImageRouteImport } from './routes/api/generate-ad-image'
 import { Route as AuthenticatedUsersRouteImport } from './routes/_authenticated/users'
@@ -26,6 +29,9 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAdsRouteImport } from './routes/_authenticated/ads'
 import { Route as AuthenticatedProspectIndexRouteImport } from './routes/_authenticated/prospect.index'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
+import { Route as LojaProdutoSlugRouteImport } from './routes/loja.produto.$slug'
+import { Route as LojaPedidoIdRouteImport } from './routes/loja.pedido.$id'
+import { Route as LojaCategoriaSlugRouteImport } from './routes/loja.categoria.$slug'
 import { Route as AuthenticatedProspectSettingsRouteImport } from './routes/_authenticated/prospect.settings'
 import { Route as AuthenticatedProspectSearchRouteImport } from './routes/_authenticated/prospect.search'
 import { Route as AuthenticatedProspectQualifiedRouteImport } from './routes/_authenticated/prospect.qualified'
@@ -112,6 +118,21 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LojaIndexRoute = LojaIndexRouteImport.update({
+  id: '/loja/',
+  path: '/loja/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaCheckoutRoute = LojaCheckoutRouteImport.update({
+  id: '/loja/checkout',
+  path: '/loja/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaCarrinhoRoute = LojaCarrinhoRouteImport.update({
+  id: '/loja/carrinho',
+  path: '/loja/carrinho',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
   id: '/email/unsubscribe',
   path: '/email/unsubscribe',
@@ -161,6 +182,21 @@ const AuthenticatedProspectIndexRoute =
 const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
   id: '/lovable/email/suppression',
   path: '/lovable/email/suppression',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaProdutoSlugRoute = LojaProdutoSlugRouteImport.update({
+  id: '/loja/produto/$slug',
+  path: '/loja/produto/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaPedidoIdRoute = LojaPedidoIdRouteImport.update({
+  id: '/loja/pedido/$id',
+  path: '/loja/pedido/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaCategoriaSlugRoute = LojaCategoriaSlugRouteImport.update({
+  id: '/loja/categoria/$slug',
+  path: '/loja/categoria/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedProspectSettingsRoute =
@@ -473,6 +509,9 @@ export interface FileRoutesByFullPath {
   '/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/loja/carrinho': typeof LojaCarrinhoRoute
+  '/loja/checkout': typeof LojaCheckoutRoute
+  '/loja/': typeof LojaIndexRoute
   '/ads/alerts': typeof AuthenticatedAdsAlertsRoute
   '/ads/campaigns': typeof AuthenticatedAdsCampaignsRouteWithChildren
   '/ads/connections': typeof AuthenticatedAdsConnectionsRoute
@@ -509,6 +548,9 @@ export interface FileRoutesByFullPath {
   '/prospect/qualified': typeof AuthenticatedProspectQualifiedRoute
   '/prospect/search': typeof AuthenticatedProspectSearchRoute
   '/prospect/settings': typeof AuthenticatedProspectSettingsRoute
+  '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
+  '/loja/pedido/$id': typeof LojaPedidoIdRoute
+  '/loja/produto/$slug': typeof LojaProdutoSlugRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/prospect/': typeof AuthenticatedProspectIndexRoute
   '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
@@ -542,6 +584,9 @@ export interface FileRoutesByTo {
   '/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/loja/carrinho': typeof LojaCarrinhoRoute
+  '/loja/checkout': typeof LojaCheckoutRoute
+  '/loja': typeof LojaIndexRoute
   '/ads/alerts': typeof AuthenticatedAdsAlertsRoute
   '/ads/campaigns': typeof AuthenticatedAdsCampaignsRouteWithChildren
   '/ads/connections': typeof AuthenticatedAdsConnectionsRoute
@@ -578,6 +623,9 @@ export interface FileRoutesByTo {
   '/prospect/qualified': typeof AuthenticatedProspectQualifiedRoute
   '/prospect/search': typeof AuthenticatedProspectSearchRoute
   '/prospect/settings': typeof AuthenticatedProspectSettingsRoute
+  '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
+  '/loja/pedido/$id': typeof LojaPedidoIdRoute
+  '/loja/produto/$slug': typeof LojaProdutoSlugRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/prospect': typeof AuthenticatedProspectIndexRoute
   '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
@@ -613,6 +661,9 @@ export interface FileRoutesById {
   '/_authenticated/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/loja/carrinho': typeof LojaCarrinhoRoute
+  '/loja/checkout': typeof LojaCheckoutRoute
+  '/loja/': typeof LojaIndexRoute
   '/_authenticated/ads/alerts': typeof AuthenticatedAdsAlertsRoute
   '/_authenticated/ads/campaigns': typeof AuthenticatedAdsCampaignsRouteWithChildren
   '/_authenticated/ads/connections': typeof AuthenticatedAdsConnectionsRoute
@@ -649,6 +700,9 @@ export interface FileRoutesById {
   '/_authenticated/prospect/qualified': typeof AuthenticatedProspectQualifiedRoute
   '/_authenticated/prospect/search': typeof AuthenticatedProspectSearchRoute
   '/_authenticated/prospect/settings': typeof AuthenticatedProspectSettingsRoute
+  '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
+  '/loja/pedido/$id': typeof LojaPedidoIdRoute
+  '/loja/produto/$slug': typeof LojaProdutoSlugRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/_authenticated/prospect/': typeof AuthenticatedProspectIndexRoute
   '/_authenticated/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
@@ -684,6 +738,9 @@ export interface FileRouteTypes {
     | '/users'
     | '/api/generate-ad-image'
     | '/email/unsubscribe'
+    | '/loja/carrinho'
+    | '/loja/checkout'
+    | '/loja/'
     | '/ads/alerts'
     | '/ads/campaigns'
     | '/ads/connections'
@@ -720,6 +777,9 @@ export interface FileRouteTypes {
     | '/prospect/qualified'
     | '/prospect/search'
     | '/prospect/settings'
+    | '/loja/categoria/$slug'
+    | '/loja/pedido/$id'
+    | '/loja/produto/$slug'
     | '/lovable/email/suppression'
     | '/prospect/'
     | '/ads/campaigns/$id'
@@ -753,6 +813,9 @@ export interface FileRouteTypes {
     | '/users'
     | '/api/generate-ad-image'
     | '/email/unsubscribe'
+    | '/loja/carrinho'
+    | '/loja/checkout'
+    | '/loja'
     | '/ads/alerts'
     | '/ads/campaigns'
     | '/ads/connections'
@@ -789,6 +852,9 @@ export interface FileRouteTypes {
     | '/prospect/qualified'
     | '/prospect/search'
     | '/prospect/settings'
+    | '/loja/categoria/$slug'
+    | '/loja/pedido/$id'
+    | '/loja/produto/$slug'
     | '/lovable/email/suppression'
     | '/prospect'
     | '/ads/campaigns/$id'
@@ -823,6 +889,9 @@ export interface FileRouteTypes {
     | '/_authenticated/users'
     | '/api/generate-ad-image'
     | '/email/unsubscribe'
+    | '/loja/carrinho'
+    | '/loja/checkout'
+    | '/loja/'
     | '/_authenticated/ads/alerts'
     | '/_authenticated/ads/campaigns'
     | '/_authenticated/ads/connections'
@@ -859,6 +928,9 @@ export interface FileRouteTypes {
     | '/_authenticated/prospect/qualified'
     | '/_authenticated/prospect/search'
     | '/_authenticated/prospect/settings'
+    | '/loja/categoria/$slug'
+    | '/loja/pedido/$id'
+    | '/loja/produto/$slug'
     | '/lovable/email/suppression'
     | '/_authenticated/prospect/'
     | '/_authenticated/ads/campaigns/$id'
@@ -888,6 +960,12 @@ export interface RootRouteChildren {
   UnsubscribeRoute: typeof UnsubscribeRoute
   ApiGenerateAdImageRoute: typeof ApiGenerateAdImageRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
+  LojaCarrinhoRoute: typeof LojaCarrinhoRoute
+  LojaCheckoutRoute: typeof LojaCheckoutRoute
+  LojaIndexRoute: typeof LojaIndexRoute
+  LojaCategoriaSlugRoute: typeof LojaCategoriaSlugRoute
+  LojaPedidoIdRoute: typeof LojaPedidoIdRoute
+  LojaProdutoSlugRoute: typeof LojaProdutoSlugRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   ApiPublicHooksAutoInstagramPostRoute: typeof ApiPublicHooksAutoInstagramPostRoute
   ApiPublicHooksEnrichPendingLeadsRoute: typeof ApiPublicHooksEnrichPendingLeadsRoute
@@ -954,6 +1032,27 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja/': {
+      id: '/loja/'
+      path: '/loja'
+      fullPath: '/loja/'
+      preLoaderRoute: typeof LojaIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja/checkout': {
+      id: '/loja/checkout'
+      path: '/loja/checkout'
+      fullPath: '/loja/checkout'
+      preLoaderRoute: typeof LojaCheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja/carrinho': {
+      id: '/loja/carrinho'
+      path: '/loja/carrinho'
+      fullPath: '/loja/carrinho'
+      preLoaderRoute: typeof LojaCarrinhoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/email/unsubscribe': {
@@ -1024,6 +1123,27 @@ declare module '@tanstack/react-router' {
       path: '/lovable/email/suppression'
       fullPath: '/lovable/email/suppression'
       preLoaderRoute: typeof LovableEmailSuppressionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja/produto/$slug': {
+      id: '/loja/produto/$slug'
+      path: '/loja/produto/$slug'
+      fullPath: '/loja/produto/$slug'
+      preLoaderRoute: typeof LojaProdutoSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja/pedido/$id': {
+      id: '/loja/pedido/$id'
+      path: '/loja/pedido/$id'
+      fullPath: '/loja/pedido/$id'
+      preLoaderRoute: typeof LojaPedidoIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja/categoria/$slug': {
+      id: '/loja/categoria/$slug'
+      path: '/loja/categoria/$slug'
+      fullPath: '/loja/categoria/$slug'
+      preLoaderRoute: typeof LojaCategoriaSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/prospect/settings': {
@@ -1515,6 +1635,12 @@ const rootRouteChildren: RootRouteChildren = {
   UnsubscribeRoute: UnsubscribeRoute,
   ApiGenerateAdImageRoute: ApiGenerateAdImageRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
+  LojaCarrinhoRoute: LojaCarrinhoRoute,
+  LojaCheckoutRoute: LojaCheckoutRoute,
+  LojaIndexRoute: LojaIndexRoute,
+  LojaCategoriaSlugRoute: LojaCategoriaSlugRoute,
+  LojaPedidoIdRoute: LojaPedidoIdRoute,
+  LojaProdutoSlugRoute: LojaProdutoSlugRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   ApiPublicHooksAutoInstagramPostRoute: ApiPublicHooksAutoInstagramPostRoute,
   ApiPublicHooksEnrichPendingLeadsRoute: ApiPublicHooksEnrichPendingLeadsRoute,
