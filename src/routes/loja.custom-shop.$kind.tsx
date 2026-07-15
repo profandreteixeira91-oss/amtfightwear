@@ -121,6 +121,15 @@ const KIMONO_TECHNIQUES: { id: "bordado" | "sublimado" | "dtf"; label: string; h
 ];
 const KIMONO_BORDADO_NOME_FEE = 10;
 
+// Tamanhos disponíveis por slot de patch do kimono.
+// `presets` são opções fixas; `allowCustom` habilita entrada livre de largura×altura em cm.
+const KIMONO_PATCH_SIZES: Record<string, { presets: string[]; allowCustom: boolean; default: string }> = {
+  patch_frente: { presets: ["9x9"], allowCustom: false, default: "9x9" },
+  patch_costas: { presets: ["19x19", "15x15"], allowCustom: true, default: "19x19" },
+  patch_calca:  { presets: ["9x9"], allowCustom: false, default: "9x9" },
+};
+
+
 
 // Fontes de bordado disponíveis para o cliente escolher
 const EMBROIDERY_FONTS: { id: string; label: string; family: string; weight: number; style: "normal" | "italic" }[] = [
@@ -288,6 +297,8 @@ function BuilderPage() {
     scale: number;
     rotation: number;
     technique?: "bordado" | "sublimado" | "dtf" | null;
+    size?: string | null;
+
   }>>({});
 
   const [activeZone, setActiveZone] = useState<string>(zones[0]?.key ?? "");
@@ -414,6 +425,8 @@ function BuilderPage() {
           rotation: e!.rotation,
           color: e!.color,
           technique: isKimonoPatchSlot(slot.key) ? (e!.technique ?? "bordado") : null,
+          size: isKimonoPatchSlot(slot.key) ? (e!.size ?? KIMONO_PATCH_SIZES[slot.key]?.default ?? null) : null,
+
         })),
     [embroiderySlots, embroideries, isKimono], // eslint-disable-line react-hooks/exhaustive-deps
   );
@@ -842,6 +855,8 @@ function BuilderPage() {
                       scale: 1,
                       rotation: 0,
                       technique: (kPatch ? "bordado" : null) as "bordado" | "sublimado" | "dtf" | null,
+                      size: (kPatch ? (KIMONO_PATCH_SIZES[s.key]?.default ?? null) : null) as string | null,
+
                     };
                     const entry = embroideries[s.key] ?? defaults;
                     const setEntry = (patch: Partial<typeof entry>) =>
@@ -879,6 +894,58 @@ function BuilderPage() {
                             </div>
                           </div>
                         )}
+
+                        {/* Tamanho do patch (apenas kimono) */}
+                        {kPatch && (() => {
+                          const cfg = KIMONO_PATCH_SIZES[s.key];
+                          if (!cfg) return null;
+                          const current = entry.size ?? cfg.default;
+                          const isCustom = !cfg.presets.includes(current);
+                          return (
+                            <div>
+                              <div className="mb-1 text-xs font-semibold text-muted-foreground">Tamanho (cm)</div>
+                              <div className="flex flex-wrap gap-2">
+                                {cfg.presets.map((sz) => (
+                                  <button
+                                    key={sz}
+                                    type="button"
+                                    onClick={() => setEntry({ size: sz })}
+                                    className={`rounded-md border px-3 py-1.5 text-xs font-semibold transition ${
+                                      current === sz ? "border-primary bg-primary/5 text-primary" : "hover:border-foreground/40"
+                                    }`}
+                                  >
+                                    {sz} cm
+                                  </button>
+                                ))}
+                                {cfg.allowCustom && (
+                                  <button
+                                    type="button"
+                                    onClick={() => setEntry({ size: isCustom ? current : "" })}
+                                    className={`rounded-md border px-3 py-1.5 text-xs font-semibold transition ${
+                                      isCustom ? "border-primary bg-primary/5 text-primary" : "hover:border-foreground/40"
+                                    }`}
+                                  >
+                                    Personalizado
+                                  </button>
+                                )}
+                              </div>
+                              {cfg.allowCustom && isCustom && (
+                                <input
+                                  type="text"
+                                  value={current}
+                                  onChange={(e) => setEntry({ size: e.target.value })}
+                                  placeholder="ex.: 12x18"
+                                  className="mt-2 w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+                                />
+                              )}
+                              {!cfg.allowCustom && (
+                                <div className="mt-1 text-[10px] text-muted-foreground">Tamanho fixo para este patch.</div>
+                              )}
+                            </div>
+                          );
+                        })()}
+
+
 
                         {/* Mode selector — só quando NÃO é kimono (kimono força o modo por slot) */}
                         {!isKimono && (
