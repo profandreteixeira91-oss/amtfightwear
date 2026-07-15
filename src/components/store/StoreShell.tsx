@@ -4,7 +4,8 @@ import { useCart } from "@/lib/store/cart-store";
 import { useEffect, useState, type ReactNode } from "react";
 import amtLogo from "@/assets/amt-logo.jpg";
 
-export function StoreShell({ children, categories }: { children: ReactNode; categories?: Array<{ slug: string; name: string }> }) {
+export function StoreShell({ children, categories }: { children: ReactNode; categories?: Array<{ slug: string; name: string; parent_id?: string | null }> }) {
+  const topCategories = (categories ?? []).filter((c) => !c.parent_id);
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   const count = useCart((s) => s.items.reduce((a, i) => a + i.quantity, 0));
@@ -62,11 +63,11 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
         </div>
 
         {/* Categories nav */}
-        {categories && categories.length > 0 && (
+        {topCategories.length > 0 && (
           <nav className="border-t bg-background">
             <div className="mx-auto flex max-w-7xl gap-6 overflow-x-auto px-4 py-2 text-sm font-medium">
               <Link to="/loja" className="whitespace-nowrap text-foreground hover:text-primary">Início</Link>
-              {categories.slice(0, 10).map((c) => (
+              {topCategories.map((c) => (
                 <Link
                   key={c.slug}
                   to="/loja/categoria/$slug"

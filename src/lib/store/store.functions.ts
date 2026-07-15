@@ -40,7 +40,7 @@ export const listStorefrontHome = createServerFn({ method: "GET" }).handler(asyn
 
 export const listStoreCategories = createServerFn({ method: "GET" }).handler(async () => {
   const sb = publicClient();
-  const { data } = await sb.from("store_categories").select("id, slug, name, image_url, description, sort_order").eq("active", true).order("sort_order");
+  const { data } = await sb.from("store_categories").select("id, slug, name, image_url, description, sort_order, parent_id").eq("active", true).order("sort_order");
   return data ?? [];
 });
 
