@@ -112,15 +112,9 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
                         </Link>
                         <div className="my-1 h-px bg-border" />
                         {subs.map((s) => (
-                          <Link
-                            key={s.slug}
-                            to="/loja/categoria/$slug"
-                            params={{ slug: s.slug }}
-                            className="block rounded px-3 py-2 text-sm text-foreground hover:bg-accent hover:text-primary"
-                          >
-                            {s.name}
-                          </Link>
+                          <SubcategoryItem key={s.slug} category={s} childrenByParent={childrenByParent} />
                         ))}
+
                       </div>
                     )}
                   </div>
