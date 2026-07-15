@@ -98,7 +98,7 @@ const BELT_PRESETS: Record<string, typeof JUDO_PRESETS> = {
 // Kimono BJJ: presets oficiais com foto real do produto da categoria
 // "Kimonos de Jiu-Jitsu · Trançado Premium".
 const KIMONO_PRESETS: { label: string; body: string; image: string }[] = [
-  { label: "Branco",     body: "#f4f4f5", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/0942e202-4ed2-406f-a3d7-d71773d8b064/2e851916-ee1b-4a35-b246-6922e147667c.jpg" },
+  { label: "Branco",     body: "#f4f4f5", image: "/__l5e/assets-v1/f3c2d598-707c-4ebf-903e-3c4536a5e351/kimono-branco-frente-costas.jpg" },
   { label: "Azul Royal", body: "#1e3a8a", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/eed4853a-6aea-4e0e-957b-552ba5c8d0e5/3080bad7-e6ed-4655-944d-451c748b5c9a.jpg" },
   { label: "Preto",      body: "#111827", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/8a9c089b-0503-4a52-a7c4-2593d3d7a489/fd7ebd36-15be-4ce2-ac5c-a56fe622127d.jpg" },
 ];
