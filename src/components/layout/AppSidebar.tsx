@@ -35,6 +35,9 @@ import {
   Shield,
   LineChart,
   TrendingUp,
+  Store,
+  ShoppingCart,
+  Download as DownloadIcon,
 } from "lucide-react";
 
 import {
