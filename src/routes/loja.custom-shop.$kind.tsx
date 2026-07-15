@@ -99,8 +99,8 @@ const BELT_PRESETS: Record<string, typeof JUDO_PRESETS> = {
 // "Kimonos de Jiu-Jitsu · Trançado Premium".
 const KIMONO_PRESETS: { label: string; body: string; image: string }[] = [
   { label: "Branco",     body: "#f4f4f5", image: "/__l5e/assets-v1/87695910-4b4d-4fdd-ad41-06347bb5177b/kimono-branco-frente-costas.jpg" },
-  { label: "Azul Royal", body: "#1e3a8a", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/eed4853a-6aea-4e0e-957b-552ba5c8d0e5/3080bad7-e6ed-4655-944d-451c748b5c9a.jpg" },
-  { label: "Preto",      body: "#111827", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/8a9c089b-0503-4a52-a7c4-2593d3d7a489/fd7ebd36-15be-4ce2-ac5c-a56fe622127d.jpg" },
+  { label: "Azul Royal", body: "#1e3a8a", image: "/__l5e/assets-v1/8d282439-7195-411a-90e9-f53ce2cf855a/kimono-azul-frente-costas.jpg" },
+  { label: "Preto",      body: "#111827", image: "/__l5e/assets-v1/caec5811-76a0-4dfa-9b44-54689ffcd8bb/kimono-preto-frente-costas.jpg" },
 ];
 
 // Coloração (revestimento externo) — opções fixas para faixa
