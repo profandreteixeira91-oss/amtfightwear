@@ -264,11 +264,7 @@ function BuilderPage() {
                 slots={shownSlots}
                 slotPatches={slotPatches}
                 patches={patches}
-                embroidery={
-                  embroideryText.trim() && embroiderySlot
-                    ? { text: embroideryText.trim(), slot_key: embroiderySlot, color: embroideryColor }
-                    : null
-                }
+                embroideries={activeEmbroideries}
                 labelImage={isFaixa ? labelImage : null}
               />
               {editMode && (
