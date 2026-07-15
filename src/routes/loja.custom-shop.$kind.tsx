@@ -5,6 +5,7 @@ import { StoreShell } from "@/components/store/StoreShell";
 import { listStoreCategories } from "@/lib/store/store.functions";
 import { getCustomTemplate, checkIsAdmin, updateCustomLayout } from "@/lib/customshop.functions";
 import { formatBRL, useCart, type CustomConfig } from "@/lib/store/cart-store";
+import { capturePreview } from "@/lib/store/preview-capture";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, Plus, Trash2, ShoppingBag, Upload, X, Settings, Save, RotateCcw } from "lucide-react";
 import kimonoBase from "@/assets/customshop-kimono.jpg";
