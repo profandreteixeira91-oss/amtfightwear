@@ -47,26 +47,26 @@ const PALETTE = [
   "#7c3aed", "#0891b2", "#374151", "#a16207", "#be123c", "#1e293b",
 ];
 
-// Judô: presets oficiais. Se houver "ponta", primeira cor = corpo, segunda = ponta.
-const JUDO_PRESETS: { label: string; body: string; tip: string }[] = [
-  { label: "Branca ponta bordô",                 body: "#ffffff", tip: "#6b1220" },
-  { label: "Branca ponta cinza",                 body: "#ffffff", tip: "#6b7280" },
-  { label: "Bordô",                              body: "#6b1220", tip: "#6b1220" },
-  { label: "Bordô ponta cinza",                  body: "#6b1220", tip: "#6b7280" },
-  { label: "Cinza",                              body: "#6b7280", tip: "#6b7280" },
-  { label: "Cinza ponta azul turquesa",          body: "#6b7280", tip: "#14b8a6" },
-  { label: "Cinza ponta azul royal",             body: "#6b7280", tip: "#1e3a8a" },
-  { label: "Azul turquesa",                      body: "#14b8a6", tip: "#14b8a6" },
-  { label: "Azul turquesa ponta azul royal",     body: "#14b8a6", tip: "#1e3a8a" },
-  { label: "Azul royal",                         body: "#1e3a8a", tip: "#1e3a8a" },
-  { label: "Azul royal ponta amarela",           body: "#1e3a8a", tip: "#eab308" },
-  { label: "Amarela",                            body: "#eab308", tip: "#eab308" },
-  { label: "Amarela ponta laranja",              body: "#eab308", tip: "#f97316" },
-  { label: "Laranja",                            body: "#f97316", tip: "#f97316" },
-  { label: "Verde",                              body: "#16a34a", tip: "#16a34a" },
-  { label: "Roxa",                               body: "#7c3aed", tip: "#7c3aed" },
-  { label: "Marrom",                             body: "#78350f", tip: "#78350f" },
-  { label: "Preta",                              body: "#0a0a0a", tip: "#0a0a0a" },
+// Judô: presets oficiais linkados às faixas da Linha Training (imagem real do produto).
+// Se houver "ponta", primeira cor = corpo, segunda = ponta.
+const JUDO_PRESETS: { label: string; body: string; tip: string; image: string }[] = [
+  { label: "Branca ponta bordô",                 body: "#ffffff", tip: "#6b1220", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/69120caf-af88-4dc6-874e-b525ad2b3d9b/a014c15e-9d3a-472b-a063-58d54a7f9a72.jpg" },
+  { label: "Branca ponta cinza",                 body: "#ffffff", tip: "#6b7280", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/68cb5728-2763-4079-b554-4a0b1067b732/769d1856-5c89-4658-9f1d-f8ab74f3cdb2.jpg" },
+  { label: "Bordô",                              body: "#6b1220", tip: "#6b1220", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/b3be3a98-13b4-489b-badd-5d024c93a9f7/e43fa4a5-63bb-4dd9-af11-8b2e7c1cb76c.jpg" },
+  { label: "Bordô ponta cinza",                  body: "#6b1220", tip: "#6b7280", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/874e4b22-3eb3-4822-b719-ebc23bff1ba5/420c7673-635d-4fe5-ba7b-6c1909a97629.jpg" },
+  { label: "Cinza",                              body: "#6b7280", tip: "#6b7280", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/eb397c55-2661-4598-add9-90cc088cea66/0784eee2-459d-45e3-ae8f-16f2261e4026.jpg" },
+  { label: "Cinza ponta azul turquesa",          body: "#6b7280", tip: "#14b8a6", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/5c5cfe7f-0f71-4d16-93c0-0664c7f8d7d1/b983e72a-1172-4fb2-82f7-0e3cda46f835.jpg" },
+  { label: "Cinza ponta azul royal",             body: "#6b7280", tip: "#1e3a8a", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/a9e419d9-f2ec-4015-9b5e-94fd72a1f99b/7f1124d5-5a81-404e-b4df-c63c7ce9763a.jpg" },
+  { label: "Azul turquesa",                      body: "#14b8a6", tip: "#14b8a6", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/09d6b4cc-f6f2-41bb-a7e2-17f6b6cb717f/6d8c0804-549a-4043-be17-98999418411c.jpg" },
+  { label: "Azul turquesa ponta azul royal",     body: "#14b8a6", tip: "#1e3a8a", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/07a76ee3-7886-4811-bae0-5f9fe37e1aec/2fa3b6f0-04da-4dc0-b1ee-8be8d9262dd2.jpg" },
+  { label: "Azul royal",                         body: "#1e3a8a", tip: "#1e3a8a", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/7cf5db4c-a018-48e9-bab7-84b0f9a3352a/88c7a0f7-428b-4ea2-8130-ec0fa379ed7e.jpg" },
+  { label: "Azul royal ponta amarela",           body: "#1e3a8a", tip: "#eab308", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/1de6e6f0-77d8-45f9-8e9c-38a1627b26b5/ade10647-e612-4e89-8079-358a896e553f.jpg" },
+  { label: "Amarela",                            body: "#eab308", tip: "#eab308", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/2f843823-91f4-4b06-933f-f4185448765d/511d3a5c-eb26-432e-a88d-2c1aa1ce32b4.jpg" },
+  { label: "Amarela ponta laranja",              body: "#eab308", tip: "#f97316", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/ccdf237d-b77e-486c-b18a-0f9dfc35a7c4/7406963c-208c-4e5b-8629-25c4ad7bc094.jpg" },
+  { label: "Laranja",                            body: "#f97316", tip: "#f97316", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/924cbef0-bf5f-4028-bfb8-b38a6e7e9ca1/59219d30-1a69-4013-8072-b15629bd4963.jpg" },
+  { label: "Verde",                              body: "#16a34a", tip: "#16a34a", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/0f74cd2e-719a-454a-b3cc-27e74abf4fe5/17fad3df-16ef-428d-a69d-e40c1517a262.jpg" },
+  { label: "Roxa",                               body: "#7c3aed", tip: "#7c3aed", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/fe7ec2be-2f17-4bb1-ba67-4662921cfce2/63b7f4bb-40d7-43d7-812d-2fd51c9ba163.jpg" },
+  { label: "Marrom",                             body: "#78350f", tip: "#78350f", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/be47182f-1cad-42a6-b09f-73503913aefc/5849e0a0-a4d0-44ac-84f5-97a1e9f31af6.jpg" },
 ];
 
 type Zone = {
