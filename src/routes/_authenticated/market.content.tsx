@@ -73,6 +73,19 @@ function ContentPage() {
   const [caption, setCaption] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [scheduleAt, setScheduleAt] = useState("");
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+
+  const suggestMut = useMutation({
+    mutationFn: async () => {
+      const r = await suggestFn({ data: { contentType, objective } });
+      return (r as { suggestions: string[] }).suggestions ?? [];
+    },
+    onSuccess: (list) => {
+      setSuggestions(list);
+      if (list.length === 0) toast.info("Sem sugestões — sincronize o Instagram para ver dados virais.");
+    },
+    onError: (e: Error) => toast.error(e.message || "Falha ao buscar sugestões"),
+  });
 
   const product = useMemo(() => products?.find((p) => p.id === productId) ?? null, [products, productId]);
   const grouped = useMemo(() => {
