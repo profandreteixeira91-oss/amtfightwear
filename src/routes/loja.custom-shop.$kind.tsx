@@ -1161,7 +1161,7 @@ function BuilderPreview({
           );
         })()}
 
-        {/* Embroideries — text (with font/lines) OR logo (with custom position) per bordado slot */}
+        {/* Embroideries — text (with font/lines) OR logo (with custom position/size/rotation) per bordado slot */}
         {embroideries.map((emb) => {
           const slot = slots.find((s) => s.key === emb.slot_key);
           if (!slot) return null;
@@ -1169,15 +1169,19 @@ function BuilderPreview({
           const h = slot.h_pct;
           const cx = emb.position?.x ?? slot.x_pct;
           const cy = emb.position?.y ?? slot.y_pct;
-          const rot = slot.rotation_deg || 0;
+          const slotRot = slot.rotation_deg || 0;
+          const userRot = emb.rotation ?? 0;
+          const scale = emb.scale ?? 1;
+          const totalRot = slotRot + userRot;
+          const transform = `translate(${cx} ${cy}) rotate(${totalRot}) scale(${scale})`;
           return (
-            <g key={emb.slot_key} transform={rot ? `rotate(${rot} ${cx} ${cy})` : undefined}>
+            <g key={emb.slot_key} transform={transform}>
               {emb.mode === "logo" && emb.image && (
                 <g style={{ filter: "drop-shadow(0 0.15px 0.2px rgba(0,0,0,0.45))" }}>
                   <image
                     href={emb.image.data_url}
-                    x={cx - w / 2}
-                    y={cy - h / 2}
+                    x={-w / 2}
+                    y={-h / 2}
                     width={w}
                     height={h}
                     preserveAspectRatio="xMidYMid meet"
@@ -1191,10 +1195,10 @@ function BuilderPreview({
                 const parts = twoLines ? splitTwoLines(emb.text) : [emb.text, ""];
                 const fontSize = Math.max(2.4, w * (twoLines ? 0.28 : 0.35));
                 const lineGap = fontSize * 1.05;
-                const yBase = cy + fontSize * 0.35;
+                const yBase = fontSize * 0.35;
                 return (
                   <text
-                    x={cx}
+                    x={0}
                     y={twoLines ? yBase - lineGap / 2 : yBase}
                     textAnchor="middle"
                     fontFamily={font.family}
@@ -1209,8 +1213,8 @@ function BuilderPreview({
                   >
                     {twoLines ? (
                       <>
-                        <tspan x={cx} dy={0}>{parts[0]}</tspan>
-                        <tspan x={cx} dy={lineGap}>{parts[1]}</tspan>
+                        <tspan x={0} dy={0}>{parts[0]}</tspan>
+                        <tspan x={0} dy={lineGap}>{parts[1]}</tspan>
                       </>
                     ) : (
                       emb.text
