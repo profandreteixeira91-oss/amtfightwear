@@ -285,7 +285,7 @@ function WholesalePage() {
         <div>
           {step === "cart" ? (
             <div className="space-y-6">
-              {/* Search + subcategory dropdown */}
+              {/* Search */}
               <div className="sticky top-[calc(var(--header-h,140px))] z-10 flex flex-wrap items-center gap-2 rounded-xl border bg-card/95 p-2 backdrop-blur">
                 <div className="flex min-w-[220px] flex-1 items-center gap-2 rounded-md border bg-background px-3">
                   <Search className="h-4 w-4 text-muted-foreground" />
@@ -302,24 +302,8 @@ function WholesalePage() {
                     </button>
                   )}
                 </div>
-                <select
-                  value={activeCatFilter ?? ""}
-                  onChange={(e) => setActiveCatFilter(e.target.value || null)}
-                  className="min-w-[200px] rounded-md border bg-background px-3 py-2 text-sm font-semibold outline-none focus:border-primary"
-                >
-                  <option value="">Todas as subcategorias ({products.length})</option>
-                  {grouped.map(([key, g]) => {
-                    const totals = catTotals.get(key);
-                    const name = g.cat?.name ?? "Sem categoria";
-                    return (
-                      <option key={key} value={key}>
-                        {name}
-                        {totals && totals.qty > 0 ? ` · ${totals.qty} un.` : ""}
-                      </option>
-                    );
-                  })}
-                </select>
               </div>
+
 
 
               {grouped
