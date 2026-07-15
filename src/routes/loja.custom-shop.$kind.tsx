@@ -203,7 +203,7 @@ function BuilderPage() {
   const [activeZone, setActiveZone] = useState<string>(zones[0]?.key ?? "");
   const isFaixa = template.kind === "faixa";
   const [logoImage, setLogoImage] = useState<{ data_url: string; filename: string } | null>(null);
-  const [labelImage, setLabelImage] = useState<{ data_url: string; filename: string } | null>(null);
+  const [labelImage, setLabelImage] = useState<{ data_url: string; filename: string; bg_color?: string } | null>(null);
   const [labelChoice, setLabelChoice] = useState<"padrao" | "custom" | null>(null);
   const [coloring, setColoring] = useState<string>(COLORING_OPTIONS[0].name);
 
