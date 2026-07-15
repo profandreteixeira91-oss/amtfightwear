@@ -131,11 +131,6 @@ function BuilderPage() {
   );
 
   const [zoneColors, setZoneColors] = useState<Record<string, string>>({});
-  useEffect(() => {
-    setZoneColors(Object.fromEntries(zones.map((z) => [z.key, z.default_hex])));
-    setActiveZone(zones[0]?.key ?? "");
-  }, [variantKey]); // eslint-disable-line react-hooks/exhaustive-deps
-
   const [slotPatches, setSlotPatches] = useState<Record<string, string>>({});
   const [fabricId, setFabricId] = useState<string | null>(fabrics[0]?.id ?? null);
   const [embroideryText, setEmbroideryText] = useState("");
@@ -145,6 +140,12 @@ function BuilderPage() {
   const isFaixa = template.kind === "faixa";
   const [logoImage, setLogoImage] = useState<{ data_url: string; filename: string } | null>(null);
   const [labelImage, setLabelImage] = useState<{ data_url: string; filename: string } | null>(null);
+
+  useEffect(() => {
+    setZoneColors(Object.fromEntries(zones.map((z) => [z.key, z.default_hex])));
+    setActiveZone(zones[0]?.key ?? "");
+  }, [variantKey]); // eslint-disable-line react-hooks/exhaustive-deps
+
 
   // Admin layout edit mode
   const [editMode, setEditMode] = useState(false);
