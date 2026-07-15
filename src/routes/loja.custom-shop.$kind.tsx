@@ -1313,9 +1313,12 @@ function BuilderPreview({
                     fontStyle={font.style}
                     fontSize={fontSize}
                     fill={emb.color}
-                    stroke="rgba(0,0,0,0.35)"
-                    strokeWidth={0.12}
+                    stroke={emb.color}
+                    strokeWidth={fontSize * 0.06}
+                    strokeLinejoin="round"
+                    strokeLinecap="round"
                     paintOrder="stroke fill"
+
                     filter="url(#emb-texture)"
                     style={{ pointerEvents: "none" }}
 
