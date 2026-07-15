@@ -1059,6 +1059,7 @@ export type Database = {
           label: string
           sort_order: number
           template_id: string
+          variant_key: string
           w_pct: number
           x_pct: number
           y_pct: number
@@ -1070,6 +1071,7 @@ export type Database = {
           label: string
           sort_order?: number
           template_id: string
+          variant_key?: string
           w_pct?: number
           x_pct: number
           y_pct: number
@@ -1081,6 +1083,7 @@ export type Database = {
           label?: string
           sort_order?: number
           template_id?: string
+          variant_key?: string
           w_pct?: number
           x_pct?: number
           y_pct?: number
@@ -1173,36 +1176,92 @@ export type Database = {
         }
         Relationships: []
       }
-      custom_shop_zones: {
+      custom_shop_variants: {
         Row: {
+          base_image_url: string | null
           created_at: string
-          default_hex: string
           id: string
           key: string
           label: string
-          mask_image_url: string | null
           sort_order: number
           template_id: string
         }
         Insert: {
+          base_image_url?: string | null
           created_at?: string
-          default_hex?: string
           id?: string
           key: string
           label: string
-          mask_image_url?: string | null
           sort_order?: number
           template_id: string
         }
         Update: {
+          base_image_url?: string | null
+          created_at?: string
+          id?: string
+          key?: string
+          label?: string
+          sort_order?: number
+          template_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_shop_variants_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "custom_shop_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      custom_shop_zones: {
+        Row: {
+          created_at: string
+          default_hex: string
+          h_pct: number
+          id: string
+          key: string
+          label: string
+          mask_image_url: string | null
+          solid: boolean
+          sort_order: number
+          template_id: string
+          variant_key: string
+          w_pct: number
+          x_pct: number
+          y_pct: number
+        }
+        Insert: {
           created_at?: string
           default_hex?: string
+          h_pct?: number
+          id?: string
+          key: string
+          label: string
+          mask_image_url?: string | null
+          solid?: boolean
+          sort_order?: number
+          template_id: string
+          variant_key?: string
+          w_pct?: number
+          x_pct?: number
+          y_pct?: number
+        }
+        Update: {
+          created_at?: string
+          default_hex?: string
+          h_pct?: number
           id?: string
           key?: string
           label?: string
           mask_image_url?: string | null
+          solid?: boolean
           sort_order?: number
           template_id?: string
+          variant_key?: string
+          w_pct?: number
+          x_pct?: number
+          y_pct?: number
         }
         Relationships: [
           {
