@@ -53,9 +53,22 @@ type Prod = {
   category_id: string | null;
   short_description: string | null;
 };
+type Variant = {
+  id: string;
+  product_id: string;
+  size: string | null;
+  color: string | null;
+  option_label: string | null;
+  sku: string | null;
+  price: number | string | null;
+  sort_order: number;
+  active: boolean;
+};
 
 const WHOLESALE_DISCOUNT = 0.25;
 const MIN_PER_SUBCAT = 10;
+const NO_VARIANT = "__none__";
+const keyOf = (pid: string, vid: string | null) => `${pid}::${vid ?? NO_VARIANT}`;
 
 function WholesalePage() {
   const { data: catalog } = useSuspenseQuery(catalogQuery);
@@ -65,19 +78,19 @@ function WholesalePage() {
 
   const categories = catalog.categories as Cat[];
   const products = catalog.products as Prod[];
+  const variants = (catalog.variants ?? []) as Variant[];
+
+  const variantsByProduct = useMemo(() => {
+    const m = new Map<string, Variant[]>();
+    for (const v of variants) {
+      const arr = m.get(v.product_id) ?? [];
+      arr.push(v);
+      m.set(v.product_id, arr);
+    }
+    return m;
+  }, [variants]);
 
   const catById = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
-  // Root path label for each product (breadcrumb of its subcategory)
-  const catPath = (id: string | null): string => {
-    if (!id) return "Sem categoria";
-    const parts: string[] = [];
-    let cur: Cat | undefined = catById.get(id);
-    while (cur) {
-      parts.unshift(cur.name);
-      cur = cur.parent_id ? catById.get(cur.parent_id) : undefined;
-    }
-    return parts.join(" › ");
-  };
 
   // Group products by leaf subcategory (their direct category_id)
   const grouped = useMemo(() => {
@@ -95,9 +108,16 @@ function WholesalePage() {
     });
   }, [products, catById]);
 
+  // qty keyed by `${productId}::${variantId|__none__}`
   const [qty, setQty] = useState<Record<string, number>>({});
-  const setProductQty = (pid: string, q: number) =>
-    setQty((s) => ({ ...s, [pid]: Math.max(0, q) }));
+  const setLineQty = (pid: string, vid: string | null, q: number) =>
+    setQty((s) => ({ ...s, [keyOf(pid, vid)]: Math.max(0, q) }));
+  const productTotal = (pid: string) => {
+    const vs = variantsByProduct.get(pid);
+    if (!vs || vs.length === 0) return qty[keyOf(pid, null)] ?? 0;
+    return vs.reduce((a, v) => a + (qty[keyOf(pid, v.id)] ?? 0), 0);
+  };
+
 
   // Visualization controls
   const [search, setSearch] = useState("");
@@ -107,23 +127,29 @@ function WholesalePage() {
   const toggleCollapse = (key: string) =>
     setCollapsed((s) => ({ ...s, [key]: !s[key] }));
 
-  // Totals per subcategory
+  // Totals per subcategory (aggregating variant-level quantities)
   const catTotals = useMemo(() => {
     const m = new Map<string, { qty: number; original: number; discounted: number }>();
     for (const p of products) {
-      const q = qty[p.id] ?? 0;
-      if (q <= 0) continue;
-      const key = p.category_id ?? "__none__";
-      const original = Number(p.price) * q;
-      const discounted = original * (1 - WHOLESALE_DISCOUNT);
-      const cur = m.get(key) ?? { qty: 0, original: 0, discounted: 0 };
-      cur.qty += q;
-      cur.original += original;
-      cur.discounted += discounted;
-      m.set(key, cur);
+      const vs = variantsByProduct.get(p.id);
+      const lines = vs && vs.length > 0
+        ? vs.map((v) => ({ q: qty[keyOf(p.id, v.id)] ?? 0, unit: Number(v.price ?? p.price) }))
+        : [{ q: qty[keyOf(p.id, null)] ?? 0, unit: Number(p.price) }];
+      for (const { q, unit } of lines) {
+        if (q <= 0) continue;
+        const key = p.category_id ?? "__none__";
+        const original = unit * q;
+        const discounted = original * (1 - WHOLESALE_DISCOUNT);
+        const cur = m.get(key) ?? { qty: 0, original: 0, discounted: 0 };
+        cur.qty += q;
+        cur.original += original;
+        cur.discounted += discounted;
+        m.set(key, cur);
+      }
     }
     return m;
-  }, [qty, products]);
+  }, [qty, products, variantsByProduct]);
+
 
   const selectedCats = [...catTotals.entries()];
   const totalQty = selectedCats.reduce((a, [, v]) => a + v.qty, 0);
@@ -190,7 +216,10 @@ function WholesalePage() {
     try {
       const items = Object.entries(qty)
         .filter(([, q]) => q > 0)
-        .map(([product_id, quantity]) => ({ product_id, quantity }));
+        .map(([k, quantity]) => {
+          const [product_id, vidRaw] = k.split("::");
+          return { product_id, variant_id: vidRaw === NO_VARIANT ? null : vidRaw, quantity };
+        });
       const res = await createOrder({
         data: {
           customer_email: form.customer_email,
@@ -359,10 +388,11 @@ function WholesalePage() {
                       {!isCollapsed && (
                         <div className="grid grid-cols-2 gap-3 p-3 sm:grid-cols-3 xl:grid-cols-4">
                           {items.map((p) => {
-                            const q = qty[p.id] ?? 0;
-                            const originalPrice = Number(p.price);
-                            const discountedPrice = originalPrice * (1 - WHOLESALE_DISCOUNT);
-                            const selected = q > 0;
+                            const vs = variantsByProduct.get(p.id) ?? [];
+                            const hasVariants = vs.length > 0;
+                            const totalForProduct = productTotal(p.id);
+                            const basePrice = Number(p.price);
+                            const selected = totalForProduct > 0;
                             return (
                               <div
                                 key={p.id}
@@ -384,50 +414,90 @@ function WholesalePage() {
                                   )}
                                   {selected && (
                                     <div className="absolute left-2 top-2 rounded bg-primary px-2 py-0.5 text-[10px] font-bold uppercase text-primary-foreground">
-                                      {q} un.
+                                      {totalForProduct} un.
                                     </div>
                                   )}
                                 </div>
                                 <div className="flex flex-1 flex-col gap-2 p-3">
                                   <div className="line-clamp-2 min-h-[2.5rem] text-sm font-medium">{p.name}</div>
                                   <div className="flex flex-wrap items-baseline gap-2 text-xs">
-                                    <span className="text-muted-foreground line-through">{formatBRL(originalPrice)}</span>
-                                    <span className="text-sm font-bold text-primary">{formatBRL(discountedPrice)}</span>
+                                    <span className="text-muted-foreground line-through">{formatBRL(basePrice)}</span>
+                                    <span className="text-sm font-bold text-primary">{formatBRL(basePrice * (1 - WHOLESALE_DISCOUNT))}</span>
                                   </div>
-                                  <div className="mt-auto flex items-center justify-between gap-1">
-                                    <button
-                                      type="button"
-                                      onClick={() => setProductQty(p.id, q - 1)}
-                                      className="grid h-8 w-8 place-items-center rounded-md border hover:bg-accent disabled:opacity-40"
-                                      disabled={q === 0}
-                                      aria-label="Diminuir"
-                                    >
-                                      <Minus className="h-3.5 w-3.5" />
-                                    </button>
-                                    <input
-                                      type="number"
-                                      min={0}
-                                      value={q}
-                                      onChange={(e) => setProductQty(p.id, Number(e.target.value) || 0)}
-                                      className="h-8 min-w-0 flex-1 rounded-md border bg-background text-center text-sm outline-none focus:border-primary"
-                                    />
-                                    <button
-                                      type="button"
-                                      onClick={() => setProductQty(p.id, q + 1)}
-                                      className="grid h-8 w-8 place-items-center rounded-md border hover:bg-accent"
-                                      aria-label="Aumentar"
-                                    >
-                                      <Plus className="h-3.5 w-3.5" />
-                                    </button>
-                                  </div>
-                                  {q > 0 && q < MIN_PER_SUBCAT && groupQty < MIN_PER_SUBCAT && (
-                                    <button
-                                      type="button"
-                                      onClick={() => setProductQty(p.id, Math.max(MIN_PER_SUBCAT - (groupQty - q), q))}
-                                      className="text-[10px] font-semibold text-primary hover:underline"
-                                    >
-                                      Completar mínimo da subcategoria
-                                    </button>
+
+                                  {hasVariants ? (
+                                    <div className="mt-1 space-y-1.5">
+                                      <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                                        Selecione os tamanhos
+                                      </div>
+                                      <div className="space-y-1">
+                                        {vs.map((v) => {
+                                          const vq = qty[keyOf(p.id, v.id)] ?? 0;
+                                          const label = v.size ?? v.option_label ?? v.color ?? "Único";
+                                          return (
+                                            <div
+                                              key={v.id}
+                                              className={`flex items-center gap-1 rounded-md border px-1.5 py-1 text-xs ${vq > 0 ? "border-primary/50 bg-primary/5" : ""}`}
+                                            >
+                                              <span className="min-w-[2.5rem] flex-1 truncate font-semibold" title={label}>
+                                                {label}
+                                              </span>
+                                              <button
+                                                type="button"
+                                                onClick={() => setLineQty(p.id, v.id, vq - 1)}
+                                                className="grid h-6 w-6 place-items-center rounded border hover:bg-accent disabled:opacity-40"
+                                                disabled={vq === 0}
+                                                aria-label={`Diminuir ${label}`}
+                                              >
+                                                <Minus className="h-3 w-3" />
+                                              </button>
+                                              <input
+                                                type="number"
+                                                min={0}
+                                                value={vq}
+                                                onChange={(e) => setLineQty(p.id, v.id, Number(e.target.value) || 0)}
+                                                className="h-6 w-10 min-w-0 rounded border bg-background text-center text-xs outline-none focus:border-primary"
+                                              />
+                                              <button
+                                                type="button"
+                                                onClick={() => setLineQty(p.id, v.id, vq + 1)}
+                                                className="grid h-6 w-6 place-items-center rounded border hover:bg-accent"
+                                                aria-label={`Aumentar ${label}`}
+                                              >
+                                                <Plus className="h-3 w-3" />
+                                              </button>
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <div className="mt-auto flex items-center justify-between gap-1">
+                                      <button
+                                        type="button"
+                                        onClick={() => setLineQty(p.id, null, (qty[keyOf(p.id, null)] ?? 0) - 1)}
+                                        className="grid h-8 w-8 place-items-center rounded-md border hover:bg-accent disabled:opacity-40"
+                                        disabled={(qty[keyOf(p.id, null)] ?? 0) === 0}
+                                        aria-label="Diminuir"
+                                      >
+                                        <Minus className="h-3.5 w-3.5" />
+                                      </button>
+                                      <input
+                                        type="number"
+                                        min={0}
+                                        value={qty[keyOf(p.id, null)] ?? 0}
+                                        onChange={(e) => setLineQty(p.id, null, Number(e.target.value) || 0)}
+                                        className="h-8 min-w-0 flex-1 rounded-md border bg-background text-center text-sm outline-none focus:border-primary"
+                                      />
+                                      <button
+                                        type="button"
+                                        onClick={() => setLineQty(p.id, null, (qty[keyOf(p.id, null)] ?? 0) + 1)}
+                                        className="grid h-8 w-8 place-items-center rounded-md border hover:bg-accent"
+                                        aria-label="Aumentar"
+                                      >
+                                        <Plus className="h-3.5 w-3.5" />
+                                      </button>
+                                    </div>
                                   )}
                                 </div>
                               </div>
