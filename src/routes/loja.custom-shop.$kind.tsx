@@ -99,6 +99,45 @@ function splitTwoLines(text: string): [string, string] {
   return [t.slice(0, idx).trim(), t.slice(idx + 1).trim()];
 }
 
+// Detecta a cor de fundo de uma imagem amostrando os 4 cantos e retornando a média.
+async function detectImageBgColor(dataUrl: string): Promise<string> {
+  if (typeof window === "undefined") return "#ffffff";
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      try {
+        const canvas = document.createElement("canvas");
+        const w = img.naturalWidth || 1;
+        const h = img.naturalHeight || 1;
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return resolve("#ffffff");
+        ctx.drawImage(img, 0, 0);
+        const pts: [number, number][] = [
+          [0, 0], [w - 1, 0], [0, h - 1], [w - 1, h - 1],
+          [Math.floor(w / 2), 0], [Math.floor(w / 2), h - 1],
+          [0, Math.floor(h / 2)], [w - 1, Math.floor(h / 2)],
+        ];
+        let r = 0, g = 0, b = 0, n = 0;
+        for (const [px, py] of pts) {
+          const d = ctx.getImageData(px, py, 1, 1).data;
+          if (d[3] < 16) continue; // pula pixels transparentes
+          r += d[0]; g += d[1]; b += d[2]; n++;
+        }
+        if (n === 0) return resolve("#ffffff");
+        const toHex = (v: number) => Math.round(v / n).toString(16).padStart(2, "0");
+        resolve(`#${toHex(r)}${toHex(g)}${toHex(b)}`);
+      } catch {
+        resolve("#ffffff");
+      }
+    };
+    img.onerror = () => reject(new Error("image load failed"));
+    img.src = dataUrl;
+  });
+}
+
 type Zone = {
   key: string;
   label: string;
@@ -203,7 +242,7 @@ function BuilderPage() {
   const [activeZone, setActiveZone] = useState<string>(zones[0]?.key ?? "");
   const isFaixa = template.kind === "faixa";
   const [logoImage, setLogoImage] = useState<{ data_url: string; filename: string } | null>(null);
-  const [labelImage, setLabelImage] = useState<{ data_url: string; filename: string } | null>(null);
+  const [labelImage, setLabelImage] = useState<{ data_url: string; filename: string; bg_color?: string } | null>(null);
   const [labelChoice, setLabelChoice] = useState<"padrao" | "custom" | null>(null);
   const [coloring, setColoring] = useState<string>(COLORING_OPTIONS[0].name);
 
@@ -868,8 +907,12 @@ function BuilderPage() {
                   {labelChoice === "custom" && (
                     <ImageUploader
                       value={labelImage}
-                      onChange={setLabelImage}
-                      hint="PNG/JPG, até 4MB — ficará pré-posicionada na ponta da faixa."
+                      onChange={async (v) => {
+                        if (!v) { setLabelImage(null); return; }
+                        const bg = await detectImageBgColor(v.data_url).catch(() => "#ffffff");
+                        setLabelImage({ ...v, bg_color: bg });
+                      }}
+                      hint="PNG/JPG, até 4MB — mantém o tamanho da etiqueta e preenche o fundo com a cor da imagem."
                     />
                   )}
                   {labelChoice === "padrao" && (
@@ -947,7 +990,7 @@ function BuilderPreview({
     position: { x: number; y: number } | null;
     color: string;
   }>;
-  labelImage?: { data_url: string; filename: string } | null;
+  labelImage?: { data_url: string; filename: string; bg_color?: string } | null;
   judoPresetImage?: string | null;
 }) {
   const isJudo = kind === "faixa" && variantKey === "judo";
@@ -1037,6 +1080,15 @@ function BuilderPreview({
               transform={target.rotation_deg ? `rotate(${target.rotation_deg} ${target.x_pct} ${target.y_pct})` : undefined}
               style={{ filter: "drop-shadow(0 0.4px 0.6px rgba(0,0,0,0.35))" }}
             >
+              {labelImage.bg_color && (
+                <rect
+                  x={target.x_pct - w / 2}
+                  y={target.y_pct - h / 2}
+                  width={w}
+                  height={h}
+                  fill={labelImage.bg_color}
+                />
+              )}
               <image
                 href={labelImage.data_url}
                 x={target.x_pct - w / 2}
