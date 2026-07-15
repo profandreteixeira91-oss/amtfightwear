@@ -543,8 +543,8 @@ function BuilderPage() {
               </section>
             )}
 
-            {/* Faixa: Logo upload */}
-            {isFaixa && (
+            {/* Faixa: Logo upload (hidden when there are per-bordado image uploads) */}
+            {isFaixa && variantKey !== "judo" && (
               <section>
                 <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Logotipo do bordado (opcional)</h2>
                 <ImageUploader
