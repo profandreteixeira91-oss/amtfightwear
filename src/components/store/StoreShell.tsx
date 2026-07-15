@@ -5,8 +5,20 @@ import { useEffect, useState, type ReactNode } from "react";
 import amtLogo from "@/assets/amt-logo.jpg";
 import { ProductImage } from "@/components/store/ProductImage";
 
-export function StoreShell({ children, categories }: { children: ReactNode; categories?: Array<{ slug: string; name: string; parent_id?: string | null }> }) {
-  const topCategories = (categories ?? []).filter((c) => !c.parent_id);
+type StoreCategory = { id?: string; slug: string; name: string; parent_id?: string | null };
+
+export function StoreShell({ children, categories }: { children: ReactNode; categories?: Array<StoreCategory> }) {
+  const cats = categories ?? [];
+  const topCategories = cats.filter((c) => !c.parent_id);
+  const childrenByParent = new Map<string, StoreCategory[]>();
+  for (const c of cats) {
+    if (c.parent_id) {
+      const arr = childrenByParent.get(c.parent_id) ?? [];
+      arr.push(c);
+      childrenByParent.set(c.parent_id, arr);
+    }
+  }
+
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   const count = useCart((s) => s.items.reduce((a, i) => a + i.quantity, 0));
