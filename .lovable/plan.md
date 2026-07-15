@@ -1,72 +1,84 @@
-## Módulo Tráfego Pago IA (AMT Marketing IA)
+## Loja Virtual AMT Fight Wear — nativa no Lovable
 
-Escopo enorme. Vou entregar em **fases**, começando pela Fase 1 (fundação + dashboard + IA estratégica + gerador de copy/criativos), que já entrega valor real. Fases seguintes só depois da sua aprovação.
+Vou construir a loja **inteira dentro do sistema** — catálogo, carrinho, checkout, pedidos e gerenciamento — sem dependência do Shopify. Melhor Envio e gateway de pagamento entram em fase futura, com a arquitetura já preparada.
 
----
-
-### Fase 1 — Fundação e Consultor IA (ENTREGA AGORA)
-
-**Nova seção no menu lateral: "Tráfego Pago IA"** com submenus:
-- Dashboard
-- Nova Campanha (fluxo em etapas com IA)
-- Campanhas
-- Criativos (biblioteca)
-- Copies (biblioteca)
-- Conexão Meta Ads
-- Relatórios
-
-**Banco de dados** (novas tabelas com RLS + GRANTs):
-- `ads_accounts` — contas de anúncio Meta conectadas (act_id, nome, moeda, pixel, status)
-- `ads_campaigns` — campanhas (objetivo, orçamento, status, meta_campaign_id, estratégia IA em JSON)
-- `ads_adsets` — conjuntos de anúncios (público, posicionamentos, orçamento)
-- `ads_creatives` — criativos gerados (tipo, imagem_url, copy, score IA)
-- `ads_copies` — biblioteca de copies (headline, primary_text, description, cta, score, tags)
-- `ads_insights` — métricas diárias por campanha (spend, impressions, clicks, ctr, cpm, cpa, roas, conversions)
-- `ads_optimizations` — sugestões da IA (tipo, motivo, ação sugerida, status)
-- `ads_briefings` — respostas do questionário estratégico
-
-**IA Estratégica (`generateAdsStrategy`)**: server function que recebe briefing (objetivo, produto, preço, público, região, tom, meta de faturamento) e devolve estratégia estruturada — funil, número de conjuntos, número de anúncios, orçamento recomendado, estimativa de alcance/CPA/ROAS.
-
-**IA de Copy (`generateAdCopy`)**: gera 3 variações completas (headline, texto principal, descrição, CTA, hashtags) com gatilhos mentais e nota de qualidade (0-10) + potencial de clique/conversão.
-
-**IA de Criativos (`generateAdCreative`)**: usa `openai/gpt-image-2` (streaming) para gerar imagens de anúncio em múltiplos formatos (feed square 1080x1080, story 1080x1920). Retorna paleta, tipografia sugerida, posição do produto.
-
-**IA de Público (`suggestAudiences`)**: sugere interesses, lookalikes, remarketing baseado no produto/objetivo.
-
-**IA de Orçamento (`estimateBudget`)**: calcula diário/mensal, CPA/ROAS esperado, projeção de conversões.
-
-**Dashboard**: KPIs (gasto hoje/mês, ROAS, CPA, CTR, CPM, CPC, conversões), gráficos diário/semanal/mensal, top 5 anúncios/públicos/criativos. Enquanto sem dados reais do Meta Ads, mostra empty states — nunca dados fictícios.
-
-**Fluxo Nova Campanha** (wizard em 6 passos):
-1. Produto + Objetivo
-2. Briefing (orçamento, período, público, tom)
-3. IA gera estratégia (usuário revisa)
-4. IA gera 3 variações de copy + 2 criativos (usuário aprova/pede refazer)
-5. IA sugere públicos + orçamento
-6. Resumo + botão "Publicar no Meta Ads" (Fase 2 conecta de fato)
-
-**Conexão Meta Ads**: reaproveita `meta_connections` existente, adiciona endpoint para listar ad accounts do usuário via Graph API (`/me/adaccounts`) e salva em `ads_accounts`. Verifica pixel, permissões, domínio verificado.
-
-**Padrão visual**: reutiliza `PageHeader`, `SectionCard`, `StatCard`, `EmptyState` — idêntico ao resto do AMT Marketing IA.
+Escopo grande. Entrego em **fases**; começo pela Fase 1 assim que aprovar.
 
 ---
 
-### Fases futuras (após aprovação da Fase 1)
+### Fase 1 — Catálogo + Storefront público (ENTREGA AGORA)
 
-- **Fase 2**: Publicação real no Meta Ads (POST `/act_xxx/campaigns`, `/adsets`, `/ads`), sincronização de insights via cron.
-- **Fase 3**: Testes A/B automáticos, IA de otimização contínua (cron 6h analisando CTR/CPM/CPA e criando `ads_optimizations`), alertas (campanha parou, pixel caiu, ROAS despencou).
-- **Fase 4**: IA de escala (duplicação automática, lookalikes, escala vertical/horizontal), aprendizado contínuo (embeddings dos criativos vencedores).
-- **Fase 5**: Relatórios PDF/Excel, links públicos compartilháveis.
-- **Fase 6**: Integrações Google Ads, TikTok Ads, LinkedIn Ads (arquitetura já modular).
+**Banco de dados** (novas tabelas + ajustes, com RLS/GRANTs):
+- `store_categories` — árvore de categorias (slug, nome, imagem, ordem, parent). Extraídas do menu do site oficial (Kimonos, Rashguards, Faixas, Camisetas, Shorts, Acessórios, etc — o que Firecrawl retornar).
+- `store_product_images` — múltiplas imagens por produto (url, ordem, alt).
+- `store_product_variants` — variações (tamanho A0..A5, cor, SKU, preço, estoque). A tabela `products` existente ganha `slug`, `short_description`, `description_html`, `category_id`, `featured`, `active`.
+- `store_reviews` (opcional, placeholder para futuro).
+
+**Importador** (`importCatalogFromAmt`): server function que:
+1. Roda Firecrawl map em `amtfightwear.com.br` → lista URLs de produto.
+2. Para cada URL, Firecrawl scrape (markdown + branding + imagens) → extrai nome, preço, descrição, imagens, categoria.
+3. IA (`google/gemini-3-flash-preview`) normaliza campos, sugere tamanhos padrão por categoria (kimono A0-A4, rashguard P-GG, faixa A0-A5).
+4. Insere/atualiza em `products`, `store_product_images`, `store_product_variants`, `store_categories`.
+
+Página de admin **Importar Catálogo** com barra de progresso.
+
+**Storefront público** (rotas públicas, SEO on, SSR):
+- `/loja` — Home da loja: hero AMT, banners de categoria, produtos em destaque, best-sellers, faixa de benefícios (frete, parcelamento, segurança).
+- `/loja/categoria/$slug` — grade de produtos com filtros (categoria, faixa de preço, tamanho, cor), ordenação, paginação.
+- `/loja/produto/$slug` — página de produto: galeria de imagens (thumbnails + zoom), seletor de tamanho/cor, quantidade, preço + parcelamento simulado, descrição, botão "Comprar" e "Adicionar ao carrinho", sugestões relacionadas.
+- `/loja/carrinho` — carrinho persistente (localStorage + sync com `sales_carts`).
+- `/loja/checkout` — dados do cliente, endereço (CEP via BrasilAPI/ViaCEP), resumo, botão finalizar (grava `order` com status `pending_payment`, sem pagamento real ainda — mostra "Aguardando gateway").
+- `/loja/pedido/$id` — status do pedido pós-checkout.
+
+**Layout** inspirado em grandes e-commerces (Netshoes, Amazon BR, Kingsports):
+- Header: logo AMT + busca + minha conta + carrinho (badge)
+- Menu horizontal com categorias em mega-menu
+- Grid de produtos 4 colunas desktop / 2 mobile, com hover em imagem secundária
+- Página de produto em 2 colunas (galeria à esquerda, compra à direita)
+- Footer completo com institucional, ajuda, contato, redes sociais, formas de pagamento
+
+Design usa os tokens do `styles.css` atual — sem cores hardcoded. Se você quiser um look específico (dark premium, clean branco/vermelho AMT, etc.), me diga e eu ajusto os tokens.
+
+**Painel administrativo** (`/_authenticated/store/*`):
+- `/store/products` — CRUD completo de produtos, variantes, estoque, imagens
+- `/store/categories` — organização de categorias
+- `/store/orders` — pedidos recebidos, mudar status (novo, pago, enviado, entregue, cancelado)
+- `/store/customers` — clientes da loja
+- `/store/dashboard` — KPIs (faturamento hoje/mês, pedidos, ticket médio, produtos mais vendidos)
+
+Nova seção no menu lateral: **"Loja Virtual"**.
+
+---
+
+### Fase 2 — Melhor Envio
+
+- Conexão OAuth com Melhor Envio (sandbox + produção)
+- Cálculo de frete no carrinho e no PDP (a partir do CEP)
+- Geração de etiqueta pós-pagamento, rastreio no `/loja/pedido/$id`
+- Painel `/store/shipping` — configurações de origem, transportadoras habilitadas
+
+### Fase 3 — Pagamento
+
+- Recomendação: **Mercado Pago** (líder no Brasil, PIX + cartão + boleto, taxas competitivas) ou **Pagar.me/Stone**. Confirmo com você antes.
+- Checkout transparente (PIX + cartão parcelado + boleto)
+- Webhook `/api/public/hooks/payment` atualiza pedido para `paid`, dispara e-mail de confirmação e etiqueta do Melhor Envio automaticamente.
+
+### Fase 4 — Growth
+
+- Cupons e promoções, brindes, kits combinados
+- E-mail transacional (confirmação, envio, entrega — usando infra de e-mail que já existe no projeto)
+- SEO por produto/categoria (JSON-LD Product, sitemap.xml, OG images dinâmicas)
+- Programa de indicação e recompra automática
 
 ---
 
 ### Detalhes técnicos (Fase 1)
 
-- Server functions em `src/lib/ads/ads.functions.ts` (autenticadas com `requireSupabaseAuth`)
-- Server route em `src/routes/api/generate-ad-image.ts` para streaming de imagens (SSE, `openai/gpt-image-2`, quality low, partial_images 1)
-- IA de texto: `google/gemini-3-flash-preview` com `Output.object` (Zod) para respostas estruturadas
-- Rotas em `src/routes/_authenticated/ads.*.tsx`
-- Migração SQL com todas as tabelas + policies `auth.uid() = user_id`
+- Server functions em `src/lib/store/store.functions.ts` (autenticadas para admin; leitura pública via server publishable client + policies `TO anon` nas tabelas `products`/`store_*` com `active = true`).
+- Importador em `src/lib/store/import.server.ts` chamando Firecrawl (já configurado).
+- Rotas públicas em `src/routes/loja.*.tsx` (SSR, com `head()` por produto/categoria e og:image = imagem principal).
+- Rotas admin em `src/routes/_authenticated/store.*.tsx`.
+- Carrinho: hook `useCart()` com Zustand + persist localStorage, sincroniza com `sales_carts` quando o usuário logar.
+- Uma migração SQL cria/ajusta todas as tabelas + policies + índices.
 
-Confirma a Fase 1? Assim que aprovar, começo a construir.
+Confirma a Fase 1? Assim que aprovar, começo pelo schema + importador rodando na sua base real.
