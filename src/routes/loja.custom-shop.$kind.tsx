@@ -428,7 +428,9 @@ function BuilderPage() {
           color: e!.color,
           technique: isKimonoPatchSlot(slot.key) ? (e!.technique ?? "bordado") : null,
           size: isKimonoPatchSlot(slot.key) ? (e!.size ?? KIMONO_PATCH_SIZES[slot.key]?.default ?? null) : null,
-          format: isKimonoPatchSlot(slot.key) ? (e!.format ?? "quadrado") : null,
+          format: isKimonoPatchSlot(slot.key)
+            ? (e!.format ?? ((e!.technique ?? "bordado") === "sublimado" ? "quadrado" : "transparente"))
+            : null,
 
 
         })),
