@@ -416,3 +416,59 @@ export const adminSaveVariants = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const adminListStoreCategories = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
+      .from("store_categories")
+      .select("id, slug, name, description, image_url, sort_order, active, parent_id")
+      .order("sort_order");
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+export const adminDeleteStoreCategory = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase.from("store_categories").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const adminCreateStoreProduct = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({
+      name: z.string().min(1),
+      slug: z.string().min(1),
+      price: z.number().min(0),
+      stock: z.number().int().min(0).default(0),
+      category_id: z.string().uuid().optional().nullable(),
+      short_description: z.string().optional().nullable(),
+      description: z.string().optional().nullable(),
+      image_url: z.string().optional().nullable(),
+      status: z.string().default("active"),
+      featured: z.boolean().default(false),
+    }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: created, error } = await context.supabase
+      .from("products")
+      .insert(data)
+      .select("id")
+      .single();
+    if (error) throw new Error(error.message);
+    return { id: created.id };
+  });
+
+export const adminDeleteStoreProduct = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase.from("products").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+
