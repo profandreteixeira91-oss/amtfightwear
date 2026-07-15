@@ -143,7 +143,7 @@ function StoreHomePage() {
 
       {data.featured.length === 0 && data.newest.length === 0 && (
         <div className="mx-auto max-w-7xl px-4 py-24 text-center">
-          <p className="text-lg text-muted-foreground">Catálogo vazio. Vá em <span className="font-semibold">Loja Virtual → Importar catálogo</span> no admin para popular os produtos.</p>
+          <p className="text-lg text-muted-foreground">Catálogo em preparação. Em breve novos produtos.</p>
         </div>
       )}
     </StoreShell>

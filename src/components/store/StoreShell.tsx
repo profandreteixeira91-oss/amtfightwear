@@ -1,7 +1,8 @@
 import { Link } from "@tanstack/react-router";
-import { ShoppingBag, Search, User, Menu, Instagram, Truck, ShieldCheck, CreditCard } from "lucide-react";
+import { ShoppingBag, Search, User, Menu, Instagram, Truck, ShieldCheck, CreditCard, LogIn } from "lucide-react";
 import { useCart } from "@/lib/store/cart-store";
 import { useEffect, useState, type ReactNode } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import amtLogo from "@/assets/amt-logo.jpg";
 import { ProductImage } from "@/components/store/ProductImage";
 
@@ -71,7 +72,13 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
   }
 
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const [isAuthed, setIsAuthed] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+    supabase.auth.getSession().then(({ data }) => setIsAuthed(!!data.session));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => setIsAuthed(!!session));
+    return () => sub.subscription.unsubscribe();
+  }, []);
   const count = useCart((s) => s.items.reduce((a, i) => a + i.quantity, 0));
 
   return (
@@ -110,10 +117,20 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
           </div>
 
           <div className="flex items-center gap-1 sm:gap-3">
-            <Link to="/auth" className="hidden sm:inline-flex items-center gap-1 text-sm hover:text-primary">
-              <User className="h-4 w-4" />
-              <span className="hidden lg:inline">Minha conta</span>
-            </Link>
+            {mounted && isAuthed ? (
+              <Link to="/auth" className="hidden sm:inline-flex items-center gap-1 text-sm hover:text-primary">
+                <User className="h-4 w-4" />
+                <span className="hidden lg:inline">Minha conta</span>
+              </Link>
+            ) : (
+              <Link
+                to="/auth"
+                className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+              >
+                <LogIn className="h-4 w-4" />
+                <span>Entrar</span>
+              </Link>
+            )}
             <Link to="/loja/carrinho" className="relative inline-flex items-center gap-1 rounded-md px-3 py-2 hover:bg-accent">
               <ShoppingBag className="h-5 w-5" />
               <span className="hidden sm:inline text-sm">Carrinho</span>
