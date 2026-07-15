@@ -99,6 +99,14 @@ function WholesalePage() {
   const setProductQty = (pid: string, q: number) =>
     setQty((s) => ({ ...s, [pid]: Math.max(0, q) }));
 
+  // Visualization controls
+  const [search, setSearch] = useState("");
+  const [activeCatFilter, setActiveCatFilter] = useState<string | null>(null);
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+  const [zoomImg, setZoomImg] = useState<{ src: string; alt: string } | null>(null);
+  const toggleCollapse = (key: string) =>
+    setCollapsed((s) => ({ ...s, [key]: !s[key] }));
+
   // Totals per subcategory
   const catTotals = useMemo(() => {
     const m = new Map<string, { qty: number; original: number; discounted: number }>();
