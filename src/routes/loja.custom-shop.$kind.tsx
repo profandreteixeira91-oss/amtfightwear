@@ -1327,10 +1327,10 @@ function BuilderPreview({
                     fontSize={fontSize}
                     fill={emb.color}
                     stroke={emb.color}
-                    strokeWidth={fontSize * 0.06}
+                    strokeWidth={fontSize * 0.02}
                     strokeLinejoin="round"
-                    strokeLinecap="round"
                     paintOrder="stroke fill"
+
 
                     filter="url(#emb-texture)"
                     style={{ pointerEvents: "none" }}
