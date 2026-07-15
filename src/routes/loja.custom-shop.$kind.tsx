@@ -1054,18 +1054,20 @@ function BuilderPreview({
           const slot = slots.find((s) => s.key === emb.slot_key);
           if (!slot) return null;
           const w = slot.w_pct;
+          const h = slot.h_pct;
           const cx = emb.position?.x ?? slot.x_pct;
           const cy = emb.position?.y ?? slot.y_pct;
+          const rot = slot.rotation_deg || 0;
           return (
-            <g key={emb.slot_key}>
+            <g key={emb.slot_key} transform={rot ? `rotate(${rot} ${cx} ${cy})` : undefined}>
               {emb.mode === "logo" && emb.image && (
                 <g style={{ filter: "drop-shadow(0 0.15px 0.2px rgba(0,0,0,0.45))" }}>
                   <image
                     href={emb.image.data_url}
                     x={cx - w / 2}
-                    y={cy - w / 2}
+                    y={cy - h / 2}
                     width={w}
-                    height={w}
+                    height={h}
                     preserveAspectRatio="xMidYMid meet"
                     opacity={0.95}
                   />
