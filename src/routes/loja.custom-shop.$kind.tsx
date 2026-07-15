@@ -98,8 +98,12 @@ const BELT_PRESETS: Record<string, typeof JUDO_PRESETS> = {
 // Coloração (revestimento externo) — opções fixas para faixa
 const COLORING_OPTIONS: { name: string; price_delta: number }[] = [
   { name: "Oxford 100% poliéster", price_delta: 0 },
-  { name: "Brim 100% algodão", price_delta: 0 },
+  { name: "Brim 100% algodão", price_delta: 25 },
 ];
+
+// Preços da faixa
+const FAIXA_BORDADO_FEE = 10; // por bordado
+const FAIXA_ETIQUETA_CUSTOM_FEE = 2; // etiqueta com imagem enviada
 
 // Fontes de bordado disponíveis para o cliente escolher
 const EMBROIDERY_FONTS: { id: string; label: string; family: string; weight: number; style: "normal" | "italic" }[] = [
