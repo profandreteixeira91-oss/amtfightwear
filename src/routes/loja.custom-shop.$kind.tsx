@@ -290,7 +290,7 @@ function BuilderPage() {
 
   useEffect(() => {
     // Faixa: seleciona o primeiro preset por padrão para já exibir a imagem real do produto.
-    const presets = BELT_PRESETS[variantKey];
+    const presets = isFaixa ? BELT_PRESETS[variantKey] : null;
     if (presets && presets.length > 0) {
       const p = presets[0];
       setZoneColors({
@@ -307,7 +307,8 @@ function BuilderPage() {
       setZoneColors({});
     }
     setActiveZone(zones[0]?.key ?? "");
-  }, [variantKey, isKimono]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [variantKey, isKimono, isFaixa]); // eslint-disable-line react-hooks/exhaustive-deps
+
 
 
   // Admin layout edit mode
