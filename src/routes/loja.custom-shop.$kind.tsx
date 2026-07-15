@@ -1139,6 +1139,22 @@ function BuilderPreview({
         className="absolute inset-0 h-full w-full"
         xmlns="http://www.w3.org/2000/svg"
       >
+        {/* Embroidery texture filter — applied to text to simulate thread/stitch */}
+        <defs>
+          <filter id="emb-texture" x="-20%" y="-20%" width="140%" height="140%">
+            <feTurbulence type="turbulence" baseFrequency="1.6" numOctaves="2" seed="7" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="0.18" result="displaced" />
+            <feGaussianBlur in="displaced" stdDeviation="0.02" result="soft" />
+            <feSpecularLighting in="noise" surfaceScale="0.6" specularConstant="0.75" specularExponent="18" lightingColor="#ffffff" result="spec">
+              <feDistantLight azimuth="45" elevation="55" />
+            </feSpecularLighting>
+            <feComposite in="spec" in2="soft" operator="in" result="specMasked" />
+            <feMerge>
+              <feMergeNode in="soft" />
+              <feMergeNode in="specMasked" />
+            </feMerge>
+          </filter>
+        </defs>
         {/* Zones (skip when using real product photo) */}
         {!useProductPhoto && zones.map((z) => {
           const color = zoneColors[z.key];
