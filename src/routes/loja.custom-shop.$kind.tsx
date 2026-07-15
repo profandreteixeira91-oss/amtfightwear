@@ -167,6 +167,7 @@ function BuilderPage() {
   const [logoImage, setLogoImage] = useState<{ data_url: string; filename: string } | null>(null);
   const [labelImage, setLabelImage] = useState<{ data_url: string; filename: string } | null>(null);
   const [labelChoice, setLabelChoice] = useState<"padrao" | "custom" | null>(null);
+  const [coloring, setColoring] = useState<string>(COLORING_OPTIONS[0].name);
 
   useEffect(() => {
     // Judô: seleciona a primeira faixa (Branca) por padrão para já exibir a imagem real do produto.
@@ -266,15 +267,13 @@ function BuilderPage() {
       template_kind: template.kind,
       template_name: template.name,
       zones: zoneColors,
-      patches: Object.entries(slotPatches).map(([slot_key, patch_id]) => {
-        const p = patches.find((pp) => pp.id === patch_id)!;
-        return { slot_key, patch_id, patch_name: p.name, image_url: p.image_url, price: Number(p.price) };
-      }),
+      patches: [],
       embroidery: null,
       embroideries: activeEmbroideries.length > 0 ? activeEmbroideries : null,
       fabric: selectedFabric
         ? { id: selectedFabric.id, name: selectedFabric.name, price_delta: Number(selectedFabric.price_delta) }
         : null,
+      coloring: isFaixa ? (COLORING_OPTIONS.find((c) => c.name === coloring) ?? null) : null,
       modality: isFaixa ? activeVariant.label : null,
       logo_image: isFaixa ? logoImage : null,
       label_image: isFaixa && labelChoice === "custom" ? labelImage : null,
