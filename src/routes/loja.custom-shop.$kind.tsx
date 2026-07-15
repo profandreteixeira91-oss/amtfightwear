@@ -5,7 +5,7 @@ import { listStoreCategories } from "@/lib/store/store.functions";
 import { getCustomTemplate } from "@/lib/customshop.functions";
 import { formatBRL, useCart, type CustomConfig } from "@/lib/store/cart-store";
 import { useMemo, useState } from "react";
-import { Check, Plus, Trash2, ShoppingBag } from "lucide-react";
+import { Check, Plus, Trash2, ShoppingBag, Upload, X } from "lucide-react";
 import kimonoBase from "@/assets/customshop-kimono.jpg";
 import rashguardBase from "@/assets/customshop-rashguard.jpg";
 import faixaBase from "@/assets/customshop-faixa.jpg";
@@ -75,6 +75,10 @@ function BuilderPage() {
   const [embroiderySlot, setEmbroiderySlot] = useState<string | null>(null);
   const [embroideryColor, setEmbroideryColor] = useState("#ffffff");
   const [activeZone, setActiveZone] = useState<string>(zones[0]?.key ?? "");
+  const isFaixa = template.kind === "faixa";
+  const [modality, setModality] = useState<string>("Jiu-Jitsu");
+  const [logoImage, setLogoImage] = useState<{ data_url: string; filename: string } | null>(null);
+  const [labelImage, setLabelImage] = useState<{ data_url: string; filename: string } | null>(null);
 
   const selectedFabric = fabrics.find((f) => f.id === fabricId) ?? null;
 
@@ -116,11 +120,14 @@ function BuilderPage() {
       fabric: selectedFabric
         ? { id: selectedFabric.id, name: selectedFabric.name, price_delta: Number(selectedFabric.price_delta) }
         : null,
+      modality: isFaixa ? modality : null,
+      logo_image: isFaixa ? logoImage : null,
+      label_image: isFaixa ? labelImage : null,
     };
     addToCart({
       product_id: crypto.randomUUID(),
       variant_id: null,
-      name: `${template.name} — Personalizado`,
+      name: `${template.name} — Personalizado${isFaixa ? ` · ${modality}` : ""}`,
       variant_label: `Custom · ${selectedFabric?.name ?? "Padrão"}`,
       slug: `custom-${template.kind}`,
       image_url: template.base_image_url ?? null,
@@ -155,6 +162,7 @@ function BuilderPage() {
                     ? { text: embroideryText.trim(), slot_key: embroiderySlot, color: embroideryColor }
                     : null
                 }
+                labelImage={isFaixa ? labelImage : null}
               />
             </div>
             <div className="mt-3 text-center text-xs text-muted-foreground">
@@ -176,10 +184,31 @@ function BuilderPage() {
               <div className="mt-1 text-xs text-muted-foreground">Produção sob encomenda · {template.production_days} dias úteis</div>
             </div>
 
-            {/* Fabric */}
+            {/* Modality (faixa) */}
+            {isFaixa && (
+              <section>
+                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Modalidade</h2>
+                <div className="grid grid-cols-2 gap-2">
+                  {["Jiu-Jitsu", "Judô"].map((m) => (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => setModality(m)}
+                      className={`rounded-md border px-3 py-2 text-sm font-semibold transition ${
+                        modality === m ? "border-primary bg-primary/5 text-primary" : "hover:border-foreground/40"
+                      }`}
+                    >
+                      {m}
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Fabric / Alma */}
             {fabrics.length > 0 && (
               <section>
-                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Tecido / gramatura</h2>
+                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">{isFaixa ? "Alma (núcleo)" : "Tecido / gramatura"}</h2>
                 <div className="grid gap-2">
                   {fabrics.map((f) => (
                     <button
@@ -369,6 +398,31 @@ function BuilderPage() {
               </section>
             )}
 
+            {/* Faixa: Logo upload */}
+            {isFaixa && (
+              <section>
+                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Logotipo do bordado (opcional)</h2>
+                <ImageUploader
+                  value={logoImage}
+                  onChange={setLogoImage}
+                  hint="Envie o logo que será bordado junto ao nome (PNG/JPG, até 4MB)."
+                />
+              </section>
+            )}
+
+            {/* Faixa: Label tip upload */}
+            {isFaixa && (
+              <section>
+                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Etiqueta da ponta (opcional)</h2>
+                <ImageUploader
+                  value={labelImage}
+                  onChange={setLabelImage}
+                  hint="Imagem que ficará pré-posicionada na ponta da faixa (PNG/JPG, até 4MB)."
+                />
+              </section>
+            )}
+
+
             {/* Summary + CTA */}
             <div className="rounded-lg border bg-card p-4">
               <div className="space-y-1 text-sm">
@@ -442,6 +496,7 @@ function BuilderPreview({
   slotPatches,
   patches,
   embroidery,
+  labelImage,
 }: {
   kind: string;
   zoneColors: Record<string, string>;
@@ -449,6 +504,7 @@ function BuilderPreview({
   slotPatches: Record<string, string>;
   patches: Patch[];
   embroidery: { text: string; slot_key: string; color: string } | null;
+  labelImage?: { data_url: string; filename: string } | null;
 }) {
   const zones = ZONES[kind] ?? [];
   const baseImg = BASE_IMAGES[kind];
@@ -528,6 +584,26 @@ function BuilderPreview({
           );
         })}
 
+        {/* Faixa label image on ponta */}
+        {labelImage && (() => {
+          const ponta = slots.find((s) => s.key === "ponta") ?? slots[0];
+          if (!ponta) return null;
+          const w = ponta.w_pct;
+          return (
+            <g style={{ filter: "drop-shadow(0 0.4px 0.6px rgba(0,0,0,0.35))" }}>
+              <image
+                href={labelImage.data_url}
+                x={ponta.x_pct - w / 2}
+                y={ponta.y_pct - w / 2}
+                width={w}
+                height={w}
+                preserveAspectRatio="xMidYMid meet"
+              />
+            </g>
+          );
+        })()}
+
+
         {/* Embroidery */}
         {embroidery && (() => {
           const slot = slots.find((s) => s.key === embroidery.slot_key);
@@ -558,4 +634,71 @@ function BuilderPreview({
     </div>
   );
 }
+
+// ============ IMAGE UPLOADER ============
+
+function ImageUploader({
+  value,
+  onChange,
+  hint,
+}: {
+  value: { data_url: string; filename: string } | null;
+  onChange: (v: { data_url: string; filename: string } | null) => void;
+  hint?: string;
+}) {
+  const [error, setError] = useState<string | null>(null);
+
+  function handleFile(file: File | null) {
+    setError(null);
+    if (!file) return;
+    if (!/^image\/(png|jpe?g|webp|svg\+xml)$/.test(file.type)) {
+      setError("Formato não suportado. Envie PNG, JPG, WEBP ou SVG.");
+      return;
+    }
+    if (file.size > 4 * 1024 * 1024) {
+      setError("Arquivo muito grande. Máximo 4MB.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      onChange({ data_url: String(reader.result), filename: file.name });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  return (
+    <div className="rounded-md border p-3">
+      {value ? (
+        <div className="flex items-center gap-3">
+          <img src={value.data_url} alt={value.filename} className="h-16 w-16 rounded border object-contain bg-muted" />
+          <div className="flex-1 truncate text-xs">
+            <div className="font-semibold truncate">{value.filename}</div>
+            <div className="text-muted-foreground">Enviado</div>
+          </div>
+          <button
+            type="button"
+            onClick={() => onChange(null)}
+            className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs text-muted-foreground hover:text-destructive"
+          >
+            <X className="h-3 w-3" /> remover
+          </button>
+        </div>
+      ) : (
+        <label className="flex cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed px-3 py-6 text-sm text-muted-foreground hover:border-primary hover:text-primary">
+          <Upload className="h-4 w-4" />
+          <span>Clique para enviar imagem</span>
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/webp,image/svg+xml"
+            className="hidden"
+            onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
+          />
+        </label>
+      )}
+      {hint && <div className="mt-2 text-[11px] text-muted-foreground">{hint}</div>}
+      {error && <div className="mt-2 text-[11px] font-semibold text-destructive">{error}</div>}
+    </div>
+  );
+}
+
 
