@@ -696,17 +696,17 @@ function BuilderPreview({
           );
         })}
 
-        {/* Label image on ponta */}
+        {/* Label image on etiqueta / ponta */}
         {labelImage && (() => {
-          const ponta = slots.find((s) => s.key === "ponta") ?? slots[0];
-          if (!ponta) return null;
-          const w = ponta.w_pct;
+          const target = slots.find((s) => s.key === "etiqueta") ?? slots.find((s) => s.key === "ponta") ?? slots[0];
+          if (!target) return null;
+          const w = target.w_pct;
           return (
             <g style={{ filter: "drop-shadow(0 0.4px 0.6px rgba(0,0,0,0.35))" }}>
               <image
                 href={labelImage.data_url}
-                x={ponta.x_pct - w / 2}
-                y={ponta.y_pct - w / 2}
+                x={target.x_pct - w / 2}
+                y={target.y_pct - w / 2}
                 width={w}
                 height={w}
                 preserveAspectRatio="xMidYMid meet"
@@ -715,32 +715,51 @@ function BuilderPreview({
           );
         })()}
 
-        {/* Embroidery */}
-        {embroidery && (() => {
-          const slot = slots.find((s) => s.key === embroidery.slot_key);
+        {/* Embroideries — text and/or image per bordado slot */}
+        {embroideries.map((emb) => {
+          const slot = slots.find((s) => s.key === emb.slot_key);
           if (!slot) return null;
-          const fontSize = Math.max(2.6, slot.w_pct * 0.35);
-          const x = slot.x_pct;
-          const y = slot.y_pct + slot.w_pct * 0.55;
+          const w = slot.w_pct;
           return (
-            <text
-              x={x}
-              y={y}
-              textAnchor="middle"
-              fontFamily="Georgia, 'Times New Roman', serif"
-              fontWeight={700}
-              fontStyle="italic"
-              fontSize={fontSize}
-              fill={embroidery.color}
-              stroke="rgba(0,0,0,0.35)"
-              strokeWidth={0.12}
-              paintOrder="stroke fill"
-              style={{ filter: "drop-shadow(0 0.15px 0.2px rgba(0,0,0,0.45))" }}
-            >
-              {embroidery.text}
-            </text>
+            <g key={emb.slot_key}>
+              {emb.image && (
+                <g style={{ filter: "drop-shadow(0 0.15px 0.2px rgba(0,0,0,0.45))" }}>
+                  <image
+                    href={emb.image.data_url}
+                    x={slot.x_pct - w / 2}
+                    y={slot.y_pct - w / 2}
+                    width={w}
+                    height={w}
+                    preserveAspectRatio="xMidYMid meet"
+                    opacity={0.95}
+                  />
+                </g>
+              )}
+              {emb.text && (() => {
+                const fontSize = Math.max(2.6, slot.w_pct * 0.35);
+                const yOffset = emb.image ? slot.w_pct * 0.75 : slot.w_pct * 0.55;
+                return (
+                  <text
+                    x={slot.x_pct}
+                    y={slot.y_pct + yOffset}
+                    textAnchor="middle"
+                    fontFamily="Georgia, 'Times New Roman', serif"
+                    fontWeight={700}
+                    fontStyle="italic"
+                    fontSize={fontSize}
+                    fill={emb.color}
+                    stroke="rgba(0,0,0,0.35)"
+                    strokeWidth={0.12}
+                    paintOrder="stroke fill"
+                    style={{ filter: "drop-shadow(0 0.15px 0.2px rgba(0,0,0,0.45))" }}
+                  >
+                    {emb.text}
+                  </text>
+                );
+              })()}
+            </g>
           );
-        })()}
+        })}
       </svg>
     </div>
   );
