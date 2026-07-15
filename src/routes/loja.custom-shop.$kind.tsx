@@ -499,6 +499,7 @@ function BuilderPreview({
   patches,
   embroidery,
   labelImage,
+  modality,
 }: {
   kind: string;
   zoneColors: Record<string, string>;
@@ -507,9 +508,12 @@ function BuilderPreview({
   patches: Patch[];
   embroidery: { text: string; slot_key: string; color: string } | null;
   labelImage?: { data_url: string; filename: string } | null;
+  modality?: string | null;
 }) {
-  const zones = ZONES[kind] ?? [];
-  const baseImg = BASE_IMAGES[kind];
+  const isJudo = kind === "faixa" && modality === "Judô";
+  const zones = isJudo ? JUDO_FAIXA_ZONES : ZONES[kind] ?? [];
+  const baseImg = isJudo ? faixaJudoBase : BASE_IMAGES[kind];
+  const effectiveSlots = isJudo ? remapJudoSlots(slots) : slots;
 
   return (
     <div className="relative h-full w-full overflow-hidden">
