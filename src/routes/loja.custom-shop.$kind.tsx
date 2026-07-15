@@ -658,13 +658,15 @@ function BuilderPage() {
               </section>
             )}
 
-            {/* Tamanho — kimono (mesmos tamanhos padrão de kimonos de jiu-jitsu) */}
-            {isKimono && (
+            {/* Tamanho — kimono e faixa (padrão jiu-jitsu do sistema) */}
+            {showSize && (
               <section>
                 <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Tamanho</h2>
-                <div className="mb-2 text-xs text-muted-foreground">Infantil: M0–M4 · Adulto: A0–A5</div>
-                <div className="grid grid-cols-5 gap-2 sm:grid-cols-6">
-                  {["M0","M1","M2","M3","M4","A0","A1","A2","A3","A4","A5"].map((sz) => (
+                <div className="mb-2 text-xs text-muted-foreground">
+                  {isFaixaKind ? "Infantil: M0–M4 · Adulto: A0–A5 (comprimento em cm)" : "Infantil: M0–M4 · Adulto: A0–A5"}
+                </div>
+                <div className={`grid gap-2 ${isFaixaKind ? "grid-cols-2 sm:grid-cols-3" : "grid-cols-5 sm:grid-cols-6"}`}>
+                  {sizeOptions.map((sz) => (
                     <button
                       key={sz}
                       type="button"
