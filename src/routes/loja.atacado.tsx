@@ -443,14 +443,6 @@ function WholesalePage() {
                             const isCollapsed = collapsed[key];
                             return (
 
-                  const totals = catTotals.get(key);
-                  const groupQty = totals?.qty ?? 0;
-                  const ok = groupQty >= MIN_PER_SUBCAT;
-                  const q = search.trim().toLowerCase();
-                  const items = q ? g.items.filter((p) => p.name.toLowerCase().includes(q)) : g.items;
-                  if (items.length === 0) return null;
-                  const isCollapsed = collapsed[key];
-                  return (
                     <section key={key} id={`cat-${key}`} className="rounded-xl border bg-card">
                       <header className="flex flex-wrap items-center justify-between gap-3 border-b p-4">
                         <button
