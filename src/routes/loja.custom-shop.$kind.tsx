@@ -488,13 +488,14 @@ function BuilderPage() {
       logo_image: isFaixa ? logoImage : null,
       label_image: isFaixa && labelChoice === "custom" ? labelImage : null,
       label_choice: isFaixa ? labelChoice : null,
+      size: isKimono ? kimonoSize : null,
       preview_image,
     };
     addToCart({
       product_id: crypto.randomUUID(),
       variant_id: null,
-      name: `${template.name} — Personalizado${variants.length > 1 ? ` · ${activeVariant.label}` : ""}`,
-      variant_label: `Custom · ${selectedFabric?.name ?? "Padrão"}`,
+      name: `${template.name} — Personalizado${variants.length > 1 ? ` · ${activeVariant.label}` : ""}${isKimono ? ` · ${kimonoSize}` : ""}`,
+      variant_label: `Custom · ${selectedFabric?.name ?? "Padrão"}${isKimono ? ` · Tamanho ${kimonoSize}` : ""}`,
       slug: `custom-${template.kind}`,
       image_url: preview_image ?? template.base_image_url ?? null,
       unit_price: unitPrice,
