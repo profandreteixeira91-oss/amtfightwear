@@ -297,3 +297,71 @@ export const adminUpdateStoreProduct = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+export const adminGetStoreProduct = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { data: product, error } = await context.supabase
+      .from("products")
+      .select("id, name, slug, short_description, description, description_html, price, compare_at_price, stock, status, featured, category_id, image_url")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    const { data: variants } = await context.supabase
+      .from("store_product_variants")
+      .select("*")
+      .eq("product_id", data.id)
+      .order("sort_order");
+    return { product, variants: variants ?? [] };
+  });
+
+const VariantSchema = z.object({
+  id: z.string().uuid().optional(),
+  size: z.string().nullable().optional(),
+  color: z.string().nullable().optional(),
+  option_label: z.string().nullable().optional(),
+  sku: z.string().nullable().optional(),
+  price: z.number().nullable().optional(),
+  compare_at_price: z.number().nullable().optional(),
+  stock: z.number().int().default(0),
+  weight_grams: z.number().nullable().optional(),
+  sort_order: z.number().int().default(0),
+  active: z.boolean().default(true),
+});
+
+export const adminSaveVariants = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({
+      product_id: z.string().uuid(),
+      variants: z.array(VariantSchema),
+      deleted_ids: z.array(z.string().uuid()).default([]),
+    }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    if (data.deleted_ids.length > 0) {
+      const { error } = await context.supabase
+        .from("store_product_variants")
+        .delete()
+        .in("id", data.deleted_ids);
+      if (error) throw new Error(error.message);
+    }
+    for (const v of data.variants) {
+      if (v.id) {
+        const { id, ...patch } = v;
+        const { error } = await context.supabase
+          .from("store_product_variants")
+          .update(patch)
+          .eq("id", id);
+        if (error) throw new Error(error.message);
+      } else {
+        const { error } = await context.supabase
+          .from("store_product_variants")
+          .insert({ ...v, product_id: data.product_id });
+        if (error) throw new Error(error.message);
+      }
+    }
+    return { ok: true };
+  });
+
