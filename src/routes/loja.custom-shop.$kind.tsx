@@ -5,7 +5,7 @@ import { listStoreCategories } from "@/lib/store/store.functions";
 import { getCustomTemplate } from "@/lib/customshop.functions";
 import { formatBRL, useCart, type CustomConfig } from "@/lib/store/cart-store";
 import { useMemo, useState } from "react";
-import { Check, Plus, Trash2, ShoppingBag } from "lucide-react";
+import { Check, Plus, Trash2, ShoppingBag, Upload, X } from "lucide-react";
 import kimonoBase from "@/assets/customshop-kimono.jpg";
 import rashguardBase from "@/assets/customshop-rashguard.jpg";
 import faixaBase from "@/assets/customshop-faixa.jpg";
