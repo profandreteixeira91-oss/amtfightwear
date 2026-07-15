@@ -425,6 +425,8 @@ function BuilderPage() {
           rotation: e!.rotation,
           color: e!.color,
           technique: isKimonoPatchSlot(slot.key) ? (e!.technique ?? "bordado") : null,
+          size: isKimonoPatchSlot(slot.key) ? (e!.size ?? KIMONO_PATCH_SIZES[slot.key]?.default ?? null) : null,
+
         })),
     [embroiderySlots, embroideries, isKimono], // eslint-disable-line react-hooks/exhaustive-deps
   );
