@@ -255,93 +255,189 @@ function WholesalePage() {
         {/* Left - catalog / checkout */}
         <div>
           {step === "cart" ? (
-            <div className="space-y-8">
-              {grouped.map(([key, g]) => {
-                const totals = catTotals.get(key);
-                const groupQty = totals?.qty ?? 0;
-                const ok = groupQty >= MIN_PER_SUBCAT;
-                return (
-                  <section key={key} className="rounded-xl border bg-card">
-                    <header className="flex flex-wrap items-center justify-between gap-3 border-b p-4">
-                      <div>
-                        <div className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Subcategoria</div>
-                        <h2 className="text-lg font-black">{g.cat?.name ?? "Sem categoria"}</h2>
-                        {g.cat && (
-                          <div className="text-xs text-muted-foreground">{catPath(g.cat.id)}</div>
-                        )}
-                      </div>
-                      <div
-                        className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-xs font-bold ${
-                          groupQty === 0
-                            ? "bg-muted text-muted-foreground"
-                            : ok
-                              ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                              : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+            <div className="space-y-6">
+              {/* Search + subcategory chips */}
+              <div className="sticky top-[calc(var(--header-h,140px))] z-10 space-y-3 rounded-xl border bg-card/95 p-3 backdrop-blur">
+                <div className="flex items-center gap-2 rounded-md border bg-background px-3">
+                  <Search className="h-4 w-4 text-muted-foreground" />
+                  <input
+                    type="text"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Buscar produto..."
+                    className="w-full bg-transparent px-1 py-2 text-sm outline-none"
+                  />
+                  {search && (
+                    <button type="button" onClick={() => setSearch("")} className="rounded p-1 hover:bg-accent" aria-label="Limpar">
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setActiveCatFilter(null)}
+                    className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
+                      activeCatFilter === null ? "border-primary bg-primary text-primary-foreground" : "hover:border-primary hover:text-primary"
+                    }`}
+                  >
+                    Todas ({products.length})
+                  </button>
+                  {grouped.map(([key, g]) => {
+                    const totals = catTotals.get(key);
+                    const active = activeCatFilter === key;
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => setActiveCatFilter(active ? null : key)}
+                        className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
+                          active ? "border-primary bg-primary text-primary-foreground" : "hover:border-primary hover:text-primary"
                         }`}
                       >
-                        {groupQty === 0 ? (
-                          <>Mínimo {MIN_PER_SUBCAT} unidades</>
-                        ) : ok ? (
-                          <>
-                            <CheckCircle2 className="h-3.5 w-3.5" /> {groupQty} unidades · OK
-                          </>
-                        ) : (
-                          <>
-                            <AlertCircle className="h-3.5 w-3.5" /> {groupQty}/{MIN_PER_SUBCAT} unidades
-                          </>
+                        {g.cat?.name ?? "Sem categoria"}
+                        {totals && totals.qty > 0 && (
+                          <span className={`ml-1.5 rounded-full px-1.5 py-0.5 text-[10px] ${active ? "bg-primary-foreground/20" : "bg-muted"}`}>
+                            {totals.qty}
+                          </span>
                         )}
-                      </div>
-                    </header>
-                    <div className="divide-y">
-                      {g.items.map((p) => {
-                        const q = qty[p.id] ?? 0;
-                        const originalPrice = Number(p.price);
-                        const discountedPrice = originalPrice * (1 - WHOLESALE_DISCOUNT);
-                        return (
-                          <div key={p.id} className="flex items-center gap-3 p-3">
-                            <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded border bg-muted">
-                              <ProductImage src={p.image_url} alt={p.name} aspect="square" />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <div className="line-clamp-2 text-sm font-medium">{p.name}</div>
-                              <div className="mt-1 flex flex-wrap items-baseline gap-2 text-xs">
-                                <span className="text-muted-foreground line-through">{formatBRL(originalPrice)}</span>
-                                <span className="font-bold text-primary">{formatBRL(discountedPrice)}</span>
-                                <span className="text-muted-foreground">/ un.</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {grouped
+                .filter(([key]) => activeCatFilter === null || activeCatFilter === key)
+                .map(([key, g]) => {
+                  const totals = catTotals.get(key);
+                  const groupQty = totals?.qty ?? 0;
+                  const ok = groupQty >= MIN_PER_SUBCAT;
+                  const q = search.trim().toLowerCase();
+                  const items = q ? g.items.filter((p) => p.name.toLowerCase().includes(q)) : g.items;
+                  if (items.length === 0) return null;
+                  const isCollapsed = collapsed[key];
+                  return (
+                    <section key={key} id={`cat-${key}`} className="rounded-xl border bg-card">
+                      <header className="flex flex-wrap items-center justify-between gap-3 border-b p-4">
+                        <button
+                          type="button"
+                          onClick={() => toggleCollapse(key)}
+                          className="flex flex-1 items-center gap-3 text-left"
+                        >
+                          <span className="grid h-7 w-7 place-items-center rounded-md border">
+                            {isCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+                          </span>
+                          <span>
+                            <span className="block text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Subcategoria</span>
+                            <span className="block text-lg font-black">{g.cat?.name ?? "Sem categoria"}</span>
+                            <span className="block text-xs text-muted-foreground">{items.length} produtos</span>
+                          </span>
+                        </button>
+                        <div
+                          className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-xs font-bold ${
+                            groupQty === 0
+                              ? "bg-muted text-muted-foreground"
+                              : ok
+                                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                                : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                          }`}
+                        >
+                          {groupQty === 0 ? (
+                            <>Mínimo {MIN_PER_SUBCAT} unidades</>
+                          ) : ok ? (
+                            <>
+                              <CheckCircle2 className="h-3.5 w-3.5" /> {groupQty} un. · OK
+                            </>
+                          ) : (
+                            <>
+                              <AlertCircle className="h-3.5 w-3.5" /> {groupQty}/{MIN_PER_SUBCAT} un.
+                            </>
+                          )}
+                        </div>
+                      </header>
+                      {!isCollapsed && (
+                        <div className="grid grid-cols-2 gap-3 p-3 sm:grid-cols-3 xl:grid-cols-4">
+                          {items.map((p) => {
+                            const q = qty[p.id] ?? 0;
+                            const originalPrice = Number(p.price);
+                            const discountedPrice = originalPrice * (1 - WHOLESALE_DISCOUNT);
+                            const selected = q > 0;
+                            return (
+                              <div
+                                key={p.id}
+                                className={`group flex flex-col overflow-hidden rounded-lg border bg-background transition ${
+                                  selected ? "border-primary ring-1 ring-primary/40" : "hover:border-primary/40 hover:shadow-md"
+                                }`}
+                              >
+                                <div className="relative">
+                                  <ProductImage src={p.image_url} alt={p.name} aspect="square" />
+                                  {p.image_url && (
+                                    <button
+                                      type="button"
+                                      onClick={() => setZoomImg({ src: p.image_url!, alt: p.name })}
+                                      className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-background/90 opacity-0 shadow-sm transition group-hover:opacity-100"
+                                      aria-label="Ampliar imagem"
+                                    >
+                                      <ZoomIn className="h-4 w-4" />
+                                    </button>
+                                  )}
+                                  {selected && (
+                                    <div className="absolute left-2 top-2 rounded bg-primary px-2 py-0.5 text-[10px] font-bold uppercase text-primary-foreground">
+                                      {q} un.
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="flex flex-1 flex-col gap-2 p-3">
+                                  <div className="line-clamp-2 min-h-[2.5rem] text-sm font-medium">{p.name}</div>
+                                  <div className="flex flex-wrap items-baseline gap-2 text-xs">
+                                    <span className="text-muted-foreground line-through">{formatBRL(originalPrice)}</span>
+                                    <span className="text-sm font-bold text-primary">{formatBRL(discountedPrice)}</span>
+                                  </div>
+                                  <div className="mt-auto flex items-center justify-between gap-1">
+                                    <button
+                                      type="button"
+                                      onClick={() => setProductQty(p.id, q - 1)}
+                                      className="grid h-8 w-8 place-items-center rounded-md border hover:bg-accent disabled:opacity-40"
+                                      disabled={q === 0}
+                                      aria-label="Diminuir"
+                                    >
+                                      <Minus className="h-3.5 w-3.5" />
+                                    </button>
+                                    <input
+                                      type="number"
+                                      min={0}
+                                      value={q}
+                                      onChange={(e) => setProductQty(p.id, Number(e.target.value) || 0)}
+                                      className="h-8 min-w-0 flex-1 rounded-md border bg-background text-center text-sm outline-none focus:border-primary"
+                                    />
+                                    <button
+                                      type="button"
+                                      onClick={() => setProductQty(p.id, q + 1)}
+                                      className="grid h-8 w-8 place-items-center rounded-md border hover:bg-accent"
+                                      aria-label="Aumentar"
+                                    >
+                                      <Plus className="h-3.5 w-3.5" />
+                                    </button>
+                                  </div>
+                                  {q > 0 && q < MIN_PER_SUBCAT && groupQty < MIN_PER_SUBCAT && (
+                                    <button
+                                      type="button"
+                                      onClick={() => setProductQty(p.id, Math.max(MIN_PER_SUBCAT - (groupQty - q), q))}
+                                      className="text-[10px] font-semibold text-primary hover:underline"
+                                    >
+                                      Completar mínimo da subcategoria
+                                    </button>
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <button
-                                type="button"
-                                onClick={() => setProductQty(p.id, q - 1)}
-                                className="grid h-8 w-8 place-items-center rounded-md border hover:bg-accent"
-                                aria-label="Diminuir"
-                              >
-                                <Minus className="h-3.5 w-3.5" />
-                              </button>
-                              <input
-                                type="number"
-                                min={0}
-                                value={q}
-                                onChange={(e) => setProductQty(p.id, Number(e.target.value) || 0)}
-                                className="h-8 w-14 rounded-md border bg-background text-center text-sm outline-none focus:border-primary"
-                              />
-                              <button
-                                type="button"
-                                onClick={() => setProductQty(p.id, q + 1)}
-                                className="grid h-8 w-8 place-items-center rounded-md border hover:bg-accent"
-                                aria-label="Aumentar"
-                              >
-                                <Plus className="h-3.5 w-3.5" />
-                              </button>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </section>
-                );
-              })}
+                            );
+                          })}
+                        </div>
+                      )}
+                    </section>
+                  );
+                })}
               {grouped.length === 0 && (
                 <div className="rounded-xl border bg-card p-12 text-center text-muted-foreground">
                   Nenhum produto disponível no momento.
