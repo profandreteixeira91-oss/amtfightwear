@@ -385,9 +385,18 @@ function BuilderPage() {
   }, [slotPatches, patches]);
 
   const embroiderySlots = useMemo(() => {
+    if (isKimono) {
+      // Kimono: 3 patches (upload de imagem + técnica) + 1 bordado de nome (texto)
+      return slots.filter((s) => s.key.startsWith("patch_") || s.key === "bordado_nome");
+    }
     const bordado = slots.filter((s) => s.key.startsWith("bordado"));
     return bordado.length > 0 ? bordado : slots;
-  }, [slots]);
+  }, [slots, isKimono]);
+
+  // Helpers p/ kimono: distingue slot de patch vs. slot de bordado de nome
+  const isKimonoPatchSlot = (key: string) => isKimono && key.startsWith("patch_");
+  const isKimonoNameSlot = (key: string) => isKimono && key === "bordado_nome";
+
   const activeEmbroideries = useMemo(
     () =>
       embroiderySlots
@@ -404,10 +413,27 @@ function BuilderPage() {
           scale: e!.scale,
           rotation: e!.rotation,
           color: e!.color,
+          technique: isKimonoPatchSlot(slot.key) ? (e!.technique ?? "bordado") : null,
         })),
-    [embroiderySlots, embroideries],
+    [embroiderySlots, embroideries, isKimono], // eslint-disable-line react-hooks/exhaustive-deps
   );
-  const embroideryFee = activeEmbroideries.length * (isFaixa ? FAIXA_BORDADO_FEE : 39);
+
+  const embroideryFee = useMemo(() => {
+    if (isFaixa) return activeEmbroideries.length * FAIXA_BORDADO_FEE;
+    if (isKimono) {
+      let total = 0;
+      for (const e of activeEmbroideries) {
+        if (e.slot_key === "bordado_nome") total += KIMONO_BORDADO_NOME_FEE;
+        else if (e.slot_key.startsWith("patch_")) {
+          const t = KIMONO_TECHNIQUES.find((x) => x.id === e.technique) ?? KIMONO_TECHNIQUES[0];
+          total += t.price;
+        }
+      }
+      return total;
+    }
+    return activeEmbroideries.length * 39;
+  }, [activeEmbroideries, isFaixa, isKimono]);
+
   const fabricDelta = selectedFabric ? Number(selectedFabric.price_delta) : 0;
   const coloringDelta = isFaixa ? (COLORING_OPTIONS.find((c) => c.name === coloring)?.price_delta ?? 0) : 0;
   const labelFee = isFaixa && labelChoice === "custom" && labelImage ? FAIXA_ETIQUETA_CUSTOM_FEE : 0;
