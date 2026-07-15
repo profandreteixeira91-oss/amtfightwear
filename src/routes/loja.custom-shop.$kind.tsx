@@ -286,6 +286,8 @@ function BuilderPage() {
   const [labelChoice, setLabelChoice] = useState<"padrao" | "custom" | null>(null);
   const [coloring, setColoring] = useState<string>(COLORING_OPTIONS[0].name);
 
+  const isKimono = template.kind === "kimono";
+
   useEffect(() => {
     // Faixa: seleciona o primeiro preset por padrão para já exibir a imagem real do produto.
     const presets = BELT_PRESETS[variantKey];
@@ -297,11 +299,15 @@ function BuilderPage() {
         ponta_sup: p.tip,
         ponta_inf: p.tip,
       });
+    } else if (isKimono && KIMONO_PRESETS.length > 0) {
+      // Kimono: seleciona o primeiro preset (Branco) por padrão.
+      const p = KIMONO_PRESETS[0];
+      setZoneColors({ jaqueta: p.body, calca: p.body });
     } else {
       setZoneColors({});
     }
     setActiveZone(zones[0]?.key ?? "");
-  }, [variantKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [variantKey, isKimono]); // eslint-disable-line react-hooks/exhaustive-deps
 
 
   // Admin layout edit mode
