@@ -75,6 +75,16 @@ const COLORING_OPTIONS: { name: string; price_delta: number }[] = [
   { name: "Brim 100% algodão", price_delta: 0 },
 ];
 
+// Fontes de bordado disponíveis para o cliente escolher
+const EMBROIDERY_FONTS: { id: string; label: string; family: string; weight: number; style: "normal" | "italic" }[] = [
+  { id: "classica", label: "Clássica", family: "Georgia, 'Times New Roman', serif", weight: 700, style: "italic" },
+  { id: "moderna", label: "Moderna", family: "'Arial Black', 'Helvetica Neue', sans-serif", weight: 900, style: "normal" },
+  { id: "manuscrita", label: "Manuscrita", family: "'Brush Script MT', 'Lucida Handwriting', cursive", weight: 400, style: "italic" },
+  { id: "tecnica", label: "Técnica", family: "'Courier New', ui-monospace, monospace", weight: 700, style: "normal" },
+  { id: "elegante", label: "Elegante", family: "'Palatino Linotype', 'Book Antiqua', Palatino, serif", weight: 700, style: "normal" },
+];
+const DEFAULT_EMB_FONT = EMBROIDERY_FONTS[0].id;
+
 type Zone = {
   key: string;
   label: string;
