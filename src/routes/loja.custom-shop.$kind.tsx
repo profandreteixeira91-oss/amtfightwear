@@ -1046,6 +1046,8 @@ function BuilderPreview({
     lines: 1 | 2 | null;
     image: { data_url: string; filename: string } | null;
     position: { x: number; y: number } | null;
+    scale?: number | null;
+    rotation?: number | null;
     color: string;
   }>;
   labelImage?: { data_url: string; filename: string; bg_color?: string } | null;
