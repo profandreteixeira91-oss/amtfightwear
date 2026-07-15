@@ -19,7 +19,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { generateMarketingContent } from "@/lib/marketing.functions";
+import { generateMarketingContent, suggestViralTopics } from "@/lib/marketing.functions";
 import { createInstagramPost, listInstagramPosts, cancelInstagramPost } from "@/lib/instagram.functions";
 import { getAutoPostSettings, updateAutoPostSettings, runAutoPostNow } from "@/lib/autopost.functions";
 
