@@ -494,8 +494,8 @@ function BuilderPage() {
             )}
           </div>
 
-          {/* Controls */}
-          <div className="space-y-6">
+          {/* Controls (left column on desktop) */}
+          <div className="order-2 space-y-6 lg:order-1">
             <div>
               <h1 className="text-3xl font-black">{template.name}</h1>
               {template.description && (
