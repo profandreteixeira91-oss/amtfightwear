@@ -317,10 +317,11 @@ function BuilderPage() {
 
   const selectedFabric = fabrics.find((f) => f.id === fabricId) ?? null;
 
-  const judoPreset = useMemo(() => {
-    if (variantKey !== "judo") return null;
+  const beltPreset = useMemo(() => {
+    const presets = BELT_PRESETS[variantKey];
+    if (!presets) return null;
     return (
-      JUDO_PRESETS.find(
+      presets.find(
         (p) =>
           zoneColors.corpo_sup === p.body &&
           zoneColors.corpo_inf === p.body &&
