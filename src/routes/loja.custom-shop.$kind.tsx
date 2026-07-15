@@ -609,7 +609,7 @@ function BuilderPreview({
 
         {/* Faixa label image on ponta */}
         {labelImage && (() => {
-          const ponta = slots.find((s) => s.key === "ponta") ?? slots[0];
+          const ponta = effectiveSlots.find((s) => s.key === "ponta") ?? effectiveSlots[0];
           if (!ponta) return null;
           const w = ponta.w_pct;
           return (
