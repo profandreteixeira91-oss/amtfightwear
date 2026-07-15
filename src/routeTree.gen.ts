@@ -16,6 +16,9 @@ import { Route as DataDeletionRouteImport } from './routes/data-deletion'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LojaIndexRouteImport } from './routes/loja.index'
+import { Route as LojaCheckoutRouteImport } from './routes/loja.checkout'
+import { Route as LojaCarrinhoRouteImport } from './routes/loja.carrinho'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as ApiGenerateAdImageRouteImport } from './routes/api/generate-ad-image'
 import { Route as AuthenticatedUsersRouteImport } from './routes/_authenticated/users'
@@ -24,8 +27,15 @@ import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedLogsRouteImport } from './routes/_authenticated/logs'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdsRouteImport } from './routes/_authenticated/ads'
+import { Route as AuthenticatedStoreIndexRouteImport } from './routes/_authenticated/store.index'
 import { Route as AuthenticatedProspectIndexRouteImport } from './routes/_authenticated/prospect.index'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
+import { Route as LojaProdutoSlugRouteImport } from './routes/loja.produto.$slug'
+import { Route as LojaPedidoIdRouteImport } from './routes/loja.pedido.$id'
+import { Route as LojaCategoriaSlugRouteImport } from './routes/loja.categoria.$slug'
+import { Route as AuthenticatedStoreProductsRouteImport } from './routes/_authenticated/store.products'
+import { Route as AuthenticatedStoreOrdersRouteImport } from './routes/_authenticated/store.orders'
+import { Route as AuthenticatedStoreImportRouteImport } from './routes/_authenticated/store.import'
 import { Route as AuthenticatedProspectSettingsRouteImport } from './routes/_authenticated/prospect.settings'
 import { Route as AuthenticatedProspectSearchRouteImport } from './routes/_authenticated/prospect.search'
 import { Route as AuthenticatedProspectQualifiedRouteImport } from './routes/_authenticated/prospect.qualified'
@@ -112,6 +122,21 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LojaIndexRoute = LojaIndexRouteImport.update({
+  id: '/loja/',
+  path: '/loja/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaCheckoutRoute = LojaCheckoutRouteImport.update({
+  id: '/loja/checkout',
+  path: '/loja/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaCarrinhoRoute = LojaCarrinhoRouteImport.update({
+  id: '/loja/carrinho',
+  path: '/loja/carrinho',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
   id: '/email/unsubscribe',
   path: '/email/unsubscribe',
@@ -152,6 +177,11 @@ const AuthenticatedAdsRoute = AuthenticatedAdsRouteImport.update({
   path: '/ads',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedStoreIndexRoute = AuthenticatedStoreIndexRouteImport.update({
+  id: '/store/',
+  path: '/store/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedProspectIndexRoute =
   AuthenticatedProspectIndexRouteImport.update({
     id: '/prospect/',
@@ -163,6 +193,39 @@ const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
   path: '/lovable/email/suppression',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LojaProdutoSlugRoute = LojaProdutoSlugRouteImport.update({
+  id: '/loja/produto/$slug',
+  path: '/loja/produto/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaPedidoIdRoute = LojaPedidoIdRouteImport.update({
+  id: '/loja/pedido/$id',
+  path: '/loja/pedido/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaCategoriaSlugRoute = LojaCategoriaSlugRouteImport.update({
+  id: '/loja/categoria/$slug',
+  path: '/loja/categoria/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedStoreProductsRoute =
+  AuthenticatedStoreProductsRouteImport.update({
+    id: '/store/products',
+    path: '/store/products',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStoreOrdersRoute =
+  AuthenticatedStoreOrdersRouteImport.update({
+    id: '/store/orders',
+    path: '/store/orders',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStoreImportRoute =
+  AuthenticatedStoreImportRouteImport.update({
+    id: '/store/import',
+    path: '/store/import',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedProspectSettingsRoute =
   AuthenticatedProspectSettingsRouteImport.update({
     id: '/prospect/settings',
@@ -473,6 +536,9 @@ export interface FileRoutesByFullPath {
   '/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/loja/carrinho': typeof LojaCarrinhoRoute
+  '/loja/checkout': typeof LojaCheckoutRoute
+  '/loja/': typeof LojaIndexRoute
   '/ads/alerts': typeof AuthenticatedAdsAlertsRoute
   '/ads/campaigns': typeof AuthenticatedAdsCampaignsRouteWithChildren
   '/ads/connections': typeof AuthenticatedAdsConnectionsRoute
@@ -509,8 +575,15 @@ export interface FileRoutesByFullPath {
   '/prospect/qualified': typeof AuthenticatedProspectQualifiedRoute
   '/prospect/search': typeof AuthenticatedProspectSearchRoute
   '/prospect/settings': typeof AuthenticatedProspectSettingsRoute
+  '/store/import': typeof AuthenticatedStoreImportRoute
+  '/store/orders': typeof AuthenticatedStoreOrdersRoute
+  '/store/products': typeof AuthenticatedStoreProductsRoute
+  '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
+  '/loja/pedido/$id': typeof LojaPedidoIdRoute
+  '/loja/produto/$slug': typeof LojaProdutoSlugRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/prospect/': typeof AuthenticatedProspectIndexRoute
+  '/store/': typeof AuthenticatedStoreIndexRoute
   '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
@@ -542,6 +615,9 @@ export interface FileRoutesByTo {
   '/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/loja/carrinho': typeof LojaCarrinhoRoute
+  '/loja/checkout': typeof LojaCheckoutRoute
+  '/loja': typeof LojaIndexRoute
   '/ads/alerts': typeof AuthenticatedAdsAlertsRoute
   '/ads/campaigns': typeof AuthenticatedAdsCampaignsRouteWithChildren
   '/ads/connections': typeof AuthenticatedAdsConnectionsRoute
@@ -578,8 +654,15 @@ export interface FileRoutesByTo {
   '/prospect/qualified': typeof AuthenticatedProspectQualifiedRoute
   '/prospect/search': typeof AuthenticatedProspectSearchRoute
   '/prospect/settings': typeof AuthenticatedProspectSettingsRoute
+  '/store/import': typeof AuthenticatedStoreImportRoute
+  '/store/orders': typeof AuthenticatedStoreOrdersRoute
+  '/store/products': typeof AuthenticatedStoreProductsRoute
+  '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
+  '/loja/pedido/$id': typeof LojaPedidoIdRoute
+  '/loja/produto/$slug': typeof LojaProdutoSlugRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/prospect': typeof AuthenticatedProspectIndexRoute
+  '/store': typeof AuthenticatedStoreIndexRoute
   '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
@@ -613,6 +696,9 @@ export interface FileRoutesById {
   '/_authenticated/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/loja/carrinho': typeof LojaCarrinhoRoute
+  '/loja/checkout': typeof LojaCheckoutRoute
+  '/loja/': typeof LojaIndexRoute
   '/_authenticated/ads/alerts': typeof AuthenticatedAdsAlertsRoute
   '/_authenticated/ads/campaigns': typeof AuthenticatedAdsCampaignsRouteWithChildren
   '/_authenticated/ads/connections': typeof AuthenticatedAdsConnectionsRoute
@@ -649,8 +735,15 @@ export interface FileRoutesById {
   '/_authenticated/prospect/qualified': typeof AuthenticatedProspectQualifiedRoute
   '/_authenticated/prospect/search': typeof AuthenticatedProspectSearchRoute
   '/_authenticated/prospect/settings': typeof AuthenticatedProspectSettingsRoute
+  '/_authenticated/store/import': typeof AuthenticatedStoreImportRoute
+  '/_authenticated/store/orders': typeof AuthenticatedStoreOrdersRoute
+  '/_authenticated/store/products': typeof AuthenticatedStoreProductsRoute
+  '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
+  '/loja/pedido/$id': typeof LojaPedidoIdRoute
+  '/loja/produto/$slug': typeof LojaProdutoSlugRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/_authenticated/prospect/': typeof AuthenticatedProspectIndexRoute
+  '/_authenticated/store/': typeof AuthenticatedStoreIndexRoute
   '/_authenticated/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
@@ -684,6 +777,9 @@ export interface FileRouteTypes {
     | '/users'
     | '/api/generate-ad-image'
     | '/email/unsubscribe'
+    | '/loja/carrinho'
+    | '/loja/checkout'
+    | '/loja/'
     | '/ads/alerts'
     | '/ads/campaigns'
     | '/ads/connections'
@@ -720,8 +816,15 @@ export interface FileRouteTypes {
     | '/prospect/qualified'
     | '/prospect/search'
     | '/prospect/settings'
+    | '/store/import'
+    | '/store/orders'
+    | '/store/products'
+    | '/loja/categoria/$slug'
+    | '/loja/pedido/$id'
+    | '/loja/produto/$slug'
     | '/lovable/email/suppression'
     | '/prospect/'
+    | '/store/'
     | '/ads/campaigns/$id'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/enrich-pending-leads'
@@ -753,6 +856,9 @@ export interface FileRouteTypes {
     | '/users'
     | '/api/generate-ad-image'
     | '/email/unsubscribe'
+    | '/loja/carrinho'
+    | '/loja/checkout'
+    | '/loja'
     | '/ads/alerts'
     | '/ads/campaigns'
     | '/ads/connections'
@@ -789,8 +895,15 @@ export interface FileRouteTypes {
     | '/prospect/qualified'
     | '/prospect/search'
     | '/prospect/settings'
+    | '/store/import'
+    | '/store/orders'
+    | '/store/products'
+    | '/loja/categoria/$slug'
+    | '/loja/pedido/$id'
+    | '/loja/produto/$slug'
     | '/lovable/email/suppression'
     | '/prospect'
+    | '/store'
     | '/ads/campaigns/$id'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/enrich-pending-leads'
@@ -823,6 +936,9 @@ export interface FileRouteTypes {
     | '/_authenticated/users'
     | '/api/generate-ad-image'
     | '/email/unsubscribe'
+    | '/loja/carrinho'
+    | '/loja/checkout'
+    | '/loja/'
     | '/_authenticated/ads/alerts'
     | '/_authenticated/ads/campaigns'
     | '/_authenticated/ads/connections'
@@ -859,8 +975,15 @@ export interface FileRouteTypes {
     | '/_authenticated/prospect/qualified'
     | '/_authenticated/prospect/search'
     | '/_authenticated/prospect/settings'
+    | '/_authenticated/store/import'
+    | '/_authenticated/store/orders'
+    | '/_authenticated/store/products'
+    | '/loja/categoria/$slug'
+    | '/loja/pedido/$id'
+    | '/loja/produto/$slug'
     | '/lovable/email/suppression'
     | '/_authenticated/prospect/'
+    | '/_authenticated/store/'
     | '/_authenticated/ads/campaigns/$id'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/enrich-pending-leads'
@@ -888,6 +1011,12 @@ export interface RootRouteChildren {
   UnsubscribeRoute: typeof UnsubscribeRoute
   ApiGenerateAdImageRoute: typeof ApiGenerateAdImageRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
+  LojaCarrinhoRoute: typeof LojaCarrinhoRoute
+  LojaCheckoutRoute: typeof LojaCheckoutRoute
+  LojaIndexRoute: typeof LojaIndexRoute
+  LojaCategoriaSlugRoute: typeof LojaCategoriaSlugRoute
+  LojaPedidoIdRoute: typeof LojaPedidoIdRoute
+  LojaProdutoSlugRoute: typeof LojaProdutoSlugRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   ApiPublicHooksAutoInstagramPostRoute: typeof ApiPublicHooksAutoInstagramPostRoute
   ApiPublicHooksEnrichPendingLeadsRoute: typeof ApiPublicHooksEnrichPendingLeadsRoute
@@ -956,6 +1085,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/loja/': {
+      id: '/loja/'
+      path: '/loja'
+      fullPath: '/loja/'
+      preLoaderRoute: typeof LojaIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja/checkout': {
+      id: '/loja/checkout'
+      path: '/loja/checkout'
+      fullPath: '/loja/checkout'
+      preLoaderRoute: typeof LojaCheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja/carrinho': {
+      id: '/loja/carrinho'
+      path: '/loja/carrinho'
+      fullPath: '/loja/carrinho'
+      preLoaderRoute: typeof LojaCarrinhoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/email/unsubscribe': {
       id: '/email/unsubscribe'
       path: '/email/unsubscribe'
@@ -1012,6 +1162,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/': {
+      id: '/_authenticated/store/'
+      path: '/store'
+      fullPath: '/store/'
+      preLoaderRoute: typeof AuthenticatedStoreIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/prospect/': {
       id: '/_authenticated/prospect/'
       path: '/prospect'
@@ -1025,6 +1182,48 @@ declare module '@tanstack/react-router' {
       fullPath: '/lovable/email/suppression'
       preLoaderRoute: typeof LovableEmailSuppressionRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/loja/produto/$slug': {
+      id: '/loja/produto/$slug'
+      path: '/loja/produto/$slug'
+      fullPath: '/loja/produto/$slug'
+      preLoaderRoute: typeof LojaProdutoSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja/pedido/$id': {
+      id: '/loja/pedido/$id'
+      path: '/loja/pedido/$id'
+      fullPath: '/loja/pedido/$id'
+      preLoaderRoute: typeof LojaPedidoIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja/categoria/$slug': {
+      id: '/loja/categoria/$slug'
+      path: '/loja/categoria/$slug'
+      fullPath: '/loja/categoria/$slug'
+      preLoaderRoute: typeof LojaCategoriaSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/store/products': {
+      id: '/_authenticated/store/products'
+      path: '/store/products'
+      fullPath: '/store/products'
+      preLoaderRoute: typeof AuthenticatedStoreProductsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/store/orders': {
+      id: '/_authenticated/store/orders'
+      path: '/store/orders'
+      fullPath: '/store/orders'
+      preLoaderRoute: typeof AuthenticatedStoreOrdersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/store/import': {
+      id: '/_authenticated/store/import'
+      path: '/store/import'
+      fullPath: '/store/import'
+      preLoaderRoute: typeof AuthenticatedStoreImportRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/prospect/settings': {
       id: '/_authenticated/prospect/settings'
@@ -1461,7 +1660,11 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProspectQualifiedRoute: typeof AuthenticatedProspectQualifiedRoute
   AuthenticatedProspectSearchRoute: typeof AuthenticatedProspectSearchRoute
   AuthenticatedProspectSettingsRoute: typeof AuthenticatedProspectSettingsRoute
+  AuthenticatedStoreImportRoute: typeof AuthenticatedStoreImportRoute
+  AuthenticatedStoreOrdersRoute: typeof AuthenticatedStoreOrdersRoute
+  AuthenticatedStoreProductsRoute: typeof AuthenticatedStoreProductsRoute
   AuthenticatedProspectIndexRoute: typeof AuthenticatedProspectIndexRoute
+  AuthenticatedStoreIndexRoute: typeof AuthenticatedStoreIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -1499,7 +1702,11 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProspectQualifiedRoute: AuthenticatedProspectQualifiedRoute,
   AuthenticatedProspectSearchRoute: AuthenticatedProspectSearchRoute,
   AuthenticatedProspectSettingsRoute: AuthenticatedProspectSettingsRoute,
+  AuthenticatedStoreImportRoute: AuthenticatedStoreImportRoute,
+  AuthenticatedStoreOrdersRoute: AuthenticatedStoreOrdersRoute,
+  AuthenticatedStoreProductsRoute: AuthenticatedStoreProductsRoute,
   AuthenticatedProspectIndexRoute: AuthenticatedProspectIndexRoute,
+  AuthenticatedStoreIndexRoute: AuthenticatedStoreIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -1515,6 +1722,12 @@ const rootRouteChildren: RootRouteChildren = {
   UnsubscribeRoute: UnsubscribeRoute,
   ApiGenerateAdImageRoute: ApiGenerateAdImageRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
+  LojaCarrinhoRoute: LojaCarrinhoRoute,
+  LojaCheckoutRoute: LojaCheckoutRoute,
+  LojaIndexRoute: LojaIndexRoute,
+  LojaCategoriaSlugRoute: LojaCategoriaSlugRoute,
+  LojaPedidoIdRoute: LojaPedidoIdRoute,
+  LojaProdutoSlugRoute: LojaProdutoSlugRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   ApiPublicHooksAutoInstagramPostRoute: ApiPublicHooksAutoInstagramPostRoute,
   ApiPublicHooksEnrichPendingLeadsRoute: ApiPublicHooksEnrichPendingLeadsRoute,
@@ -1536,13 +1749,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
