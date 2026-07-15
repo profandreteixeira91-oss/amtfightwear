@@ -888,9 +888,12 @@ function BuilderPage() {
                                     key={t.id}
                                     type="button"
                                     onClick={() => {
-                                      const nextFormat = t.id === "sublimado" && (entry.format ?? "quadrado") === "transparente"
-                                        ? "quadrado"
-                                        : (entry.format ?? "quadrado");
+                                      // Bordado e DTF: fundo removido automaticamente (transparente).
+                                      // Sublimado: cliente escolhe quadrado ou redondo; mantém o atual se já for válido.
+                                      const nextFormat: "redondo" | "quadrado" | "transparente" =
+                                        t.id === "sublimado"
+                                          ? ((entry.format === "redondo" || entry.format === "quadrado") ? entry.format : "quadrado")
+                                          : "transparente";
                                       setEntry({ technique: t.id, format: nextFormat });
                                     }}
                                     className={`rounded-md border px-2 py-2 text-left text-xs font-semibold transition ${
