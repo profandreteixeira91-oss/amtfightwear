@@ -433,21 +433,33 @@ function WholesalePage() {
                                       <div className="space-y-1">
                                         {vs.map((v) => {
                                           const vq = qty[keyOf(p.id, v.id)] ?? 0;
-                                          const label = v.size ?? v.option_label ?? v.color ?? "Único";
+                                          const raw = (v.size ?? v.option_label ?? v.color ?? "Único").replace(/^tamanho:\s*/i, "").trim();
+                                          // Split "M0 - 200cm" → code "M0", detail "200cm"
+                                          const m = raw.match(/^([A-Za-z0-9]+)\s*[-–—]\s*(.+)$/);
+                                          const code = (m?.[1] ?? raw).toUpperCase();
+                                          const detail = m?.[2] ?? "";
+                                          const fullLabel = detail ? `${code} · ${detail}` : code;
                                           return (
                                             <div
                                               key={v.id}
-                                              className={`flex items-center gap-1 rounded-md border px-1.5 py-1 text-xs ${vq > 0 ? "border-primary/50 bg-primary/5" : ""}`}
+                                              className={`flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs ${vq > 0 ? "border-primary/50 bg-primary/5" : ""}`}
+                                              title={fullLabel}
                                             >
-                                              <span className="min-w-[2.5rem] flex-1 truncate font-semibold" title={label}>
-                                                {label}
+                                              <span className="grid min-w-[2rem] shrink-0 place-items-center rounded bg-muted px-1.5 py-0.5 text-[11px] font-black tracking-wide">
+                                                {code}
                                               </span>
+                                              {detail && (
+                                                <span className="hidden flex-1 truncate text-[10px] text-muted-foreground sm:block">
+                                                  {detail}
+                                                </span>
+                                              )}
+                                              <span className="flex-1 sm:hidden" />
                                               <button
                                                 type="button"
                                                 onClick={() => setLineQty(p.id, v.id, vq - 1)}
-                                                className="grid h-6 w-6 place-items-center rounded border hover:bg-accent disabled:opacity-40"
+                                                className="grid h-6 w-6 shrink-0 place-items-center rounded border hover:bg-accent disabled:opacity-40"
                                                 disabled={vq === 0}
-                                                aria-label={`Diminuir ${label}`}
+                                                aria-label={`Diminuir ${fullLabel}`}
                                               >
                                                 <Minus className="h-3 w-3" />
                                               </button>
@@ -456,13 +468,13 @@ function WholesalePage() {
                                                 min={0}
                                                 value={vq}
                                                 onChange={(e) => setLineQty(p.id, v.id, Number(e.target.value) || 0)}
-                                                className="h-6 w-10 min-w-0 rounded border bg-background text-center text-xs outline-none focus:border-primary"
+                                                className="h-6 w-10 shrink-0 rounded border bg-background text-center text-xs outline-none focus:border-primary"
                                               />
                                               <button
                                                 type="button"
                                                 onClick={() => setLineQty(p.id, v.id, vq + 1)}
-                                                className="grid h-6 w-6 place-items-center rounded border hover:bg-accent"
-                                                aria-label={`Aumentar ${label}`}
+                                                className="grid h-6 w-6 shrink-0 place-items-center rounded border hover:bg-accent"
+                                                aria-label={`Aumentar ${fullLabel}`}
                                               >
                                                 <Plus className="h-3 w-3" />
                                               </button>
