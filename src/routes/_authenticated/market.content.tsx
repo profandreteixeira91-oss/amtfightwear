@@ -199,12 +199,44 @@ function ContentPage() {
                 )
               ) : (
                 <div>
-                  <Label>Tema / mote (opcional)</Label>
+                  <div className="flex items-center justify-between">
+                    <Label>Tema / mote (opcional)</Label>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 gap-1 text-xs"
+                      disabled={suggestMut.isPending}
+                      onClick={() => suggestMut.mutate()}
+                    >
+                      {suggestMut.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
+                      {suggestions.length ? "Atualizar sugestões" : "Sugerir a partir dos posts virais"}
+                    </Button>
+                  </div>
                   <Input
                     value={topic}
                     onChange={(e) => setTopic(e.target.value)}
                     placeholder="Ex.: disciplina no treino, primeira faixa preta, respeito ao oponente"
                   />
+                  {suggestions.length > 0 && (
+                    <div className="mt-2 space-y-1.5">
+                      <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+                        <TrendingUp className="h-3 w-3" /> Sugestões baseadas nos posts mais virais
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {suggestions.map((s) => (
+                          <button
+                            key={s}
+                            type="button"
+                            onClick={() => setTopic(s)}
+                            className="rounded-full border border-border bg-muted/40 px-2.5 py-1 text-xs hover:bg-muted transition-colors"
+                          >
+                            {s}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
