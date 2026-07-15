@@ -715,6 +715,8 @@ function BuilderPage() {
                       color: "#ffffff",
                       image: null as { data_url: string; filename: string } | null,
                       position: null as { x: number; y: number } | null,
+                      scale: 1,
+                      rotation: 0,
                     };
                     const entry = embroideries[s.key] ?? defaults;
                     const setEntry = (patch: Partial<typeof entry>) =>
