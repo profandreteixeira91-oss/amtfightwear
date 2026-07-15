@@ -411,65 +411,88 @@ function WholesalePage() {
                                     <span className="text-sm font-bold text-primary">{formatBRL(basePrice * (1 - WHOLESALE_DISCOUNT))}</span>
                                   </div>
 
-                                  {hasVariants ? (
-                                    <div className="mt-1 space-y-1.5">
-                                      <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                                        Selecione os tamanhos
-                                      </div>
-                                      <div className="space-y-1">
-                                        {vs.map((v) => {
-                                          const vq = qty[keyOf(p.id, v.id)] ?? 0;
-                                          const raw = (v.size ?? v.option_label ?? v.color ?? "Único").replace(/^tamanho:\s*/i, "").trim();
-                                          // Split "M0 - 200cm" → code "M0", detail "200cm"
-                                          const m = raw.match(/^([A-Za-z0-9]+)\s*[-–—]\s*(.+)$/);
-                                          const code = (m?.[1] ?? raw).toUpperCase();
-                                          const detail = m?.[2] ?? "";
-                                          const fullLabel = detail ? `${code} · ${detail}` : code;
-                                          return (
-                                            <div
-                                              key={v.id}
-                                              className={`flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs ${vq > 0 ? "border-primary/50 bg-primary/5" : ""}`}
-                                              title={fullLabel}
-                                            >
-                                              <span className="grid min-w-[2rem] shrink-0 place-items-center rounded bg-muted px-1.5 py-0.5 text-[11px] font-black tracking-wide">
-                                                {code}
-                                              </span>
-                                              {detail && (
-                                                <span className="hidden flex-1 truncate text-[10px] text-muted-foreground sm:block">
-                                                  {detail}
-                                                </span>
-                                              )}
-                                              <span className="flex-1 sm:hidden" />
-                                              <button
-                                                type="button"
-                                                onClick={() => setLineQty(p.id, v.id, vq - 1)}
-                                                className="grid h-6 w-6 shrink-0 place-items-center rounded border hover:bg-accent disabled:opacity-40"
-                                                disabled={vq === 0}
-                                                aria-label={`Diminuir ${fullLabel}`}
+                                  {hasVariants ? (() => {
+                                    // Show one row per already-selected size + a single empty row to add another.
+                                    const selectedIds = vs.filter((v) => (qty[keyOf(p.id, v.id)] ?? 0) > 0).map((v) => v.id);
+                                    const availableIds = vs.filter((v) => (qty[keyOf(p.id, v.id)] ?? 0) === 0).map((v) => v.id);
+                                    const rows: (string | null)[] = [...selectedIds];
+                                    if (availableIds.length > 0) rows.push(null); // trailing "add" row
+                                    const labelOf = (v: Variant) => {
+                                      const raw = (v.size ?? v.option_label ?? v.color ?? "Único").replace(/^tamanho:\s*/i, "").trim();
+                                      const m = raw.match(/^([A-Za-z0-9]+)\s*[-–—]\s*(.+)$/);
+                                      const code = (m?.[1] ?? raw).toUpperCase();
+                                      const detail = m?.[2] ?? "";
+                                      return { code, detail, full: detail ? `${code} · ${detail}` : code };
+                                    };
+                                    return (
+                                      <div className="mt-1 space-y-1.5">
+                                        <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                                          Tamanhos ({vs.length} disponíveis)
+                                        </div>
+                                        <div className="space-y-1">
+                                          {rows.map((vid, idx) => {
+                                            const v = vid ? vs.find((vv) => vv.id === vid) : null;
+                                            const vq = v ? qty[keyOf(p.id, v.id)] ?? 0 : 0;
+                                            return (
+                                              <div
+                                                key={vid ?? `add-${idx}`}
+                                                className={`flex items-center gap-1.5 rounded-md border px-1.5 py-1 text-xs ${vq > 0 ? "border-primary/50 bg-primary/5" : "border-dashed"}`}
                                               >
-                                                <Minus className="h-3 w-3" />
-                                              </button>
-                                              <input
-                                                type="number"
-                                                min={0}
-                                                value={vq}
-                                                onChange={(e) => setLineQty(p.id, v.id, Number(e.target.value) || 0)}
-                                                className="h-6 w-10 shrink-0 rounded border bg-background text-center text-xs outline-none focus:border-primary"
-                                              />
-                                              <button
-                                                type="button"
-                                                onClick={() => setLineQty(p.id, v.id, vq + 1)}
-                                                className="grid h-6 w-6 shrink-0 place-items-center rounded border hover:bg-accent"
-                                                aria-label={`Aumentar ${fullLabel}`}
-                                              >
-                                                <Plus className="h-3 w-3" />
-                                              </button>
-                                            </div>
-                                          );
-                                        })}
+                                                <select
+                                                  value={vid ?? ""}
+                                                  onChange={(e) => {
+                                                    const newId = e.target.value || null;
+                                                    if (newId === vid) return;
+                                                    // Move current qty (if any) to the new variant; keep at least 1 for a fresh pick.
+                                                    if (v) setLineQty(p.id, v.id, 0);
+                                                    if (newId) setLineQty(p.id, newId, vq > 0 ? vq : 1);
+                                                  }}
+                                                  className="min-w-0 flex-1 rounded border bg-background px-1.5 py-1 text-xs font-semibold outline-none focus:border-primary"
+                                                >
+                                                  <option value="">Selecione um tamanho…</option>
+                                                  {vs.map((opt) => {
+                                                    const { full } = labelOf(opt);
+                                                    const taken = (qty[keyOf(p.id, opt.id)] ?? 0) > 0 && opt.id !== vid;
+                                                    return (
+                                                      <option key={opt.id} value={opt.id} disabled={taken}>
+                                                        {full}{taken ? " (já adicionado)" : ""}
+                                                      </option>
+                                                    );
+                                                  })}
+                                                </select>
+                                                <button
+                                                  type="button"
+                                                  onClick={() => v && setLineQty(p.id, v.id, vq - 1)}
+                                                  className="grid h-6 w-6 shrink-0 place-items-center rounded border hover:bg-accent disabled:opacity-40"
+                                                  disabled={!v || vq === 0}
+                                                  aria-label="Diminuir"
+                                                >
+                                                  <Minus className="h-3 w-3" />
+                                                </button>
+                                                <input
+                                                  type="number"
+                                                  min={0}
+                                                  value={vq}
+                                                  disabled={!v}
+                                                  onChange={(e) => v && setLineQty(p.id, v.id, Number(e.target.value) || 0)}
+                                                  className="h-6 w-10 shrink-0 rounded border bg-background text-center text-xs outline-none focus:border-primary disabled:opacity-50"
+                                                />
+                                                <button
+                                                  type="button"
+                                                  onClick={() => v && setLineQty(p.id, v.id, vq + 1)}
+                                                  className="grid h-6 w-6 shrink-0 place-items-center rounded border hover:bg-accent disabled:opacity-40"
+                                                  disabled={!v}
+                                                  aria-label="Aumentar"
+                                                >
+                                                  <Plus className="h-3 w-3" />
+                                                </button>
+                                              </div>
+                                            );
+                                          })}
+                                        </div>
                                       </div>
-                                    </div>
-                                  ) : (
+                                    );
+                                  })() : (
                                     <div className="mt-auto flex items-center justify-between gap-1">
                                       <button
                                         type="button"
