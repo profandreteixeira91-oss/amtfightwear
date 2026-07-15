@@ -313,6 +313,7 @@ function BuilderPage() {
   const [coloring, setColoring] = useState<string>(COLORING_OPTIONS[0].name);
 
   const isKimono = template.kind === "kimono";
+  const [kimonoSize, setKimonoSize] = useState<string>("A2");
 
   useEffect(() => {
     // Faixa: seleciona o primeiro preset por padrão para já exibir a imagem real do produto.
@@ -487,13 +488,14 @@ function BuilderPage() {
       logo_image: isFaixa ? logoImage : null,
       label_image: isFaixa && labelChoice === "custom" ? labelImage : null,
       label_choice: isFaixa ? labelChoice : null,
+      size: isKimono ? kimonoSize : null,
       preview_image,
     };
     addToCart({
       product_id: crypto.randomUUID(),
       variant_id: null,
-      name: `${template.name} — Personalizado${variants.length > 1 ? ` · ${activeVariant.label}` : ""}`,
-      variant_label: `Custom · ${selectedFabric?.name ?? "Padrão"}`,
+      name: `${template.name} — Personalizado${variants.length > 1 ? ` · ${activeVariant.label}` : ""}${isKimono ? ` · ${kimonoSize}` : ""}`,
+      variant_label: `Custom · ${selectedFabric?.name ?? "Padrão"}${isKimono ? ` · Tamanho ${kimonoSize}` : ""}`,
       slug: `custom-${template.kind}`,
       image_url: preview_image ?? template.base_image_url ?? null,
       unit_price: unitPrice,
@@ -647,6 +649,29 @@ function BuilderPage() {
                 </div>
               </section>
             )}
+
+            {/* Tamanho — kimono (mesmos tamanhos padrão de kimonos de jiu-jitsu) */}
+            {isKimono && (
+              <section>
+                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Tamanho</h2>
+                <div className="mb-2 text-xs text-muted-foreground">Infantil: M0–M4 · Adulto: A0–A5</div>
+                <div className="grid grid-cols-5 gap-2 sm:grid-cols-6">
+                  {["M0","M1","M2","M3","M4","A0","A1","A2","A3","A4","A5"].map((sz) => (
+                    <button
+                      key={sz}
+                      type="button"
+                      onClick={() => setKimonoSize(sz)}
+                      className={`rounded-md border px-2 py-2 text-sm font-semibold transition ${
+                        kimonoSize === sz ? "border-primary bg-primary/5 text-primary" : "hover:border-foreground/40"
+                      }`}
+                    >
+                      {sz}
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
+
 
             {/* Coloração (revestimento) — só para faixa */}
             {isFaixa && (
