@@ -895,6 +895,58 @@ function BuilderPage() {
                           </div>
                         )}
 
+                        {/* Tamanho do patch (apenas kimono) */}
+                        {kPatch && (() => {
+                          const cfg = KIMONO_PATCH_SIZES[s.key];
+                          if (!cfg) return null;
+                          const current = entry.size ?? cfg.default;
+                          const isCustom = !cfg.presets.includes(current);
+                          return (
+                            <div>
+                              <div className="mb-1 text-xs font-semibold text-muted-foreground">Tamanho (cm)</div>
+                              <div className="flex flex-wrap gap-2">
+                                {cfg.presets.map((sz) => (
+                                  <button
+                                    key={sz}
+                                    type="button"
+                                    onClick={() => setEntry({ size: sz })}
+                                    className={`rounded-md border px-3 py-1.5 text-xs font-semibold transition ${
+                                      current === sz ? "border-primary bg-primary/5 text-primary" : "hover:border-foreground/40"
+                                    }`}
+                                  >
+                                    {sz} cm
+                                  </button>
+                                ))}
+                                {cfg.allowCustom && (
+                                  <button
+                                    type="button"
+                                    onClick={() => setEntry({ size: isCustom ? current : "" })}
+                                    className={`rounded-md border px-3 py-1.5 text-xs font-semibold transition ${
+                                      isCustom ? "border-primary bg-primary/5 text-primary" : "hover:border-foreground/40"
+                                    }`}
+                                  >
+                                    Personalizado
+                                  </button>
+                                )}
+                              </div>
+                              {cfg.allowCustom && isCustom && (
+                                <input
+                                  type="text"
+                                  value={current}
+                                  onChange={(e) => setEntry({ size: e.target.value })}
+                                  placeholder="ex.: 12x18"
+                                  className="mt-2 w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+                                />
+                              )}
+                              {!cfg.allowCustom && (
+                                <div className="mt-1 text-[10px] text-muted-foreground">Tamanho fixo para este patch.</div>
+                              )}
+                            </div>
+                          );
+                        })()}
+
+
+
                         {/* Mode selector — só quando NÃO é kimono (kimono força o modo por slot) */}
                         {!isKimono && (
                         <div className="grid grid-cols-2 gap-2">
