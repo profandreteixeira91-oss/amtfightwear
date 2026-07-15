@@ -69,6 +69,12 @@ const JUDO_PRESETS: { label: string; body: string; tip: string; image: string }[
   { label: "Marrom",                             body: "#78350f", tip: "#78350f", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/be47182f-1cad-42a6-b09f-73503913aefc/5849e0a0-a4d0-44ac-84f5-97a1e9f31af6.jpg" },
 ];
 
+// Coloração (revestimento externo) — opções fixas para faixa
+const COLORING_OPTIONS: { name: string; price_delta: number }[] = [
+  { name: "Oxford 100% poliéster", price_delta: 0 },
+  { name: "Brim 100% algodão", price_delta: 0 },
+];
+
 type Zone = {
   key: string;
   label: string;
@@ -161,6 +167,7 @@ function BuilderPage() {
   const [logoImage, setLogoImage] = useState<{ data_url: string; filename: string } | null>(null);
   const [labelImage, setLabelImage] = useState<{ data_url: string; filename: string } | null>(null);
   const [labelChoice, setLabelChoice] = useState<"padrao" | "custom" | null>(null);
+  const [coloring, setColoring] = useState<string>(COLORING_OPTIONS[0].name);
 
   useEffect(() => {
     // Judô: seleciona a primeira faixa (Branca) por padrão para já exibir a imagem real do produto.
@@ -260,15 +267,13 @@ function BuilderPage() {
       template_kind: template.kind,
       template_name: template.name,
       zones: zoneColors,
-      patches: Object.entries(slotPatches).map(([slot_key, patch_id]) => {
-        const p = patches.find((pp) => pp.id === patch_id)!;
-        return { slot_key, patch_id, patch_name: p.name, image_url: p.image_url, price: Number(p.price) };
-      }),
+      patches: [],
       embroidery: null,
       embroideries: activeEmbroideries.length > 0 ? activeEmbroideries : null,
       fabric: selectedFabric
         ? { id: selectedFabric.id, name: selectedFabric.name, price_delta: Number(selectedFabric.price_delta) }
         : null,
+      coloring: isFaixa ? (COLORING_OPTIONS.find((c) => c.name === coloring) ?? null) : null,
       modality: isFaixa ? activeVariant.label : null,
       logo_image: isFaixa ? logoImage : null,
       label_image: isFaixa && labelChoice === "custom" ? labelImage : null,
@@ -426,6 +431,30 @@ function BuilderPage() {
               </section>
             )}
 
+            {/* Coloração (revestimento) — só para faixa */}
+            {isFaixa && (
+              <section>
+                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Coloração (revestimento)</h2>
+                <div className="grid gap-2">
+                  {COLORING_OPTIONS.map((c) => (
+                    <button
+                      key={c.name}
+                      type="button"
+                      onClick={() => setColoring(c.name)}
+                      className={`flex items-center justify-between rounded-md border px-3 py-2 text-left text-sm transition ${
+                        coloring === c.name ? "border-primary bg-primary/5" : "hover:border-foreground/40"
+                      }`}
+                    >
+                      <div className="font-semibold">{c.name}</div>
+                      <div className="text-xs font-semibold">
+                        {c.price_delta === 0 ? "Incluso" : `+ ${formatBRL(c.price_delta)}`}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
+
             {/* Judô: presets oficiais de cor (corpo + ponta) */}
             {variantKey === "judo" && (
               <section>
@@ -553,58 +582,7 @@ function BuilderPage() {
               </section>
             )}
 
-            {/* Patches */}
-            {slots.length > 0 && patches.length > 0 && (
-              <section>
-                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Patches / logos</h2>
-                <div className="space-y-3">
-                  {slots.map((s) => {
-                    const chosen = slotPatches[s.key];
-                    return (
-                      <div key={s.key} className="rounded-md border p-3">
-                        <div className="flex items-center justify-between">
-                          <div className="text-sm font-semibold">{s.label}</div>
-                          {chosen && (
-                            <button
-                              type="button"
-                              onClick={() => setSlotPatches((prev) => { const n = { ...prev }; delete n[s.key]; return n; })}
-                              className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive"
-                            >
-                              <Trash2 className="h-3 w-3" /> remover
-                            </button>
-                          )}
-                        </div>
-                        <div className="mt-2 flex flex-wrap gap-2">
-                          {patches.map((p) => {
-                            const active = chosen === p.id;
-                            return (
-                              <button
-                                key={p.id}
-                                type="button"
-                                onClick={() => togglePatch(s.key, p.id)}
-                                className={`relative flex flex-col items-center gap-1 rounded-md border p-2 transition ${
-                                  active ? "border-primary bg-primary/5" : "hover:border-foreground/40"
-                                }`}
-                                title={p.name}
-                              >
-                                <img src={p.image_url} alt={p.name} className="h-12 w-12 object-contain" />
-                                <div className="text-[10px] leading-none">{p.name}</div>
-                                <div className="text-[10px] font-bold text-primary">+ {formatBRL(Number(p.price))}</div>
-                                {active && (
-                                  <span className="absolute right-1 top-1 grid h-4 w-4 place-items-center rounded-full bg-primary text-[10px] text-primary-foreground">
-                                    <Check className="h-2.5 w-2.5" />
-                                  </span>
-                                )}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </section>
-            )}
+            {/* Patches / logos: removidos do fluxo */}
 
             {/* Embroidery — one entry per bordado slot (text or image) */}
             {embroiderySlots.length > 0 && (
@@ -662,17 +640,7 @@ function BuilderPage() {
               </section>
             )}
 
-            {/* Faixa: Logo upload (hidden when there are per-bordado image uploads) */}
-            {isFaixa && variantKey !== "judo" && (
-              <section>
-                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Logotipo do bordado (opcional)</h2>
-                <ImageUploader
-                  value={logoImage}
-                  onChange={setLogoImage}
-                  hint="Envie o logo que será bordado junto ao nome (PNG/JPG, até 4MB)."
-                />
-              </section>
-            )}
+            {/* Faixa: Logo upload — removido (usar bordado abaixo) */}
 
             {/* Faixa: Etiqueta — AMT Padrão OU imagem personalizada */}
             {isFaixa && (
@@ -725,7 +693,7 @@ function BuilderPage() {
               <div className="space-y-1 text-sm">
                 <div className="flex justify-between"><span>Base ({template.name})</span><span>{formatBRL(Number(template.base_price))}</span></div>
                 {fabricDelta > 0 && <div className="flex justify-between"><span>{selectedFabric?.name}</span><span>+ {formatBRL(fabricDelta)}</span></div>}
-                {patchesTotal > 0 && <div className="flex justify-between"><span>Patches</span><span>+ {formatBRL(patchesTotal)}</span></div>}
+                {isFaixa && <div className="flex justify-between"><span>Coloração</span><span>{coloring}</span></div>}
                 {embroideryFee > 0 && <div className="flex justify-between"><span>Bordado</span><span>+ {formatBRL(embroideryFee)}</span></div>}
               </div>
               <div className="mt-3 flex justify-between border-t pt-3 text-base font-black">
@@ -997,7 +965,7 @@ function LayoutEditorOverlay({
         const next = slots.slice();
         next[drag.index] = {
           ...next[drag.index],
-          w_pct: clamp(drag.origW + dx * 2, 1, 100),
+          w_pct: clamp(drag.origW + dx * 2, 0.5, 400),
         };
         onSlotsChange(next);
       }
@@ -1014,7 +982,9 @@ function LayoutEditorOverlay({
   return (
     <div ref={containerRef} className="absolute inset-0">
       <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full">
-        {zones.map((z, i) => (
+        {zones.map((z, i) => {
+          if (z.key.startsWith("corpo") || z.key.startsWith("ponta")) return null;
+          return (
           <g key={`z-${z.key}`}>
             <rect
               x={z.x_pct}
@@ -1050,7 +1020,8 @@ function LayoutEditorOverlay({
               }}
             />
           </g>
-        ))}
+          );
+        })}
         {slots.map((s, i) => {
           const w = s.w_pct;
           const x = s.x_pct - w / 2;
@@ -1168,7 +1139,9 @@ function AdminLayoutPanel({
         <div>
           <div className="mb-1 text-[11px] font-bold uppercase text-muted-foreground">Zonas (retângulo)</div>
           <div className="space-y-2">
-            {zones.map((z, i) => (
+            {zones.map((z, i) => {
+              if (z.key.startsWith("corpo") || z.key.startsWith("ponta")) return null;
+              return (
               <div key={z.key} className="rounded border bg-background p-2 text-xs">
                 <div className="mb-1 font-semibold">{z.label}</div>
                 <div className="grid grid-cols-4 gap-1">
@@ -1202,7 +1175,8 @@ function AdminLayoutPanel({
                   Sólido (cobre a imagem)
                 </label>
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
         <div>
