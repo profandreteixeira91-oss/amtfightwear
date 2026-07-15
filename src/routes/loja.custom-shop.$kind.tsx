@@ -252,8 +252,17 @@ function BuilderPage() {
     () =>
       embroiderySlots
         .map((s) => ({ slot: s, e: embroideries[s.key] }))
-        .filter(({ e }) => e && (e.text.trim() || e.image))
-        .map(({ slot, e }) => ({ slot_key: slot.key, text: e!.text.trim() || null, image: e!.image, color: e!.color })),
+        .filter(({ e }) => e && ((e.mode === "text" && e.text.trim()) || (e.mode === "logo" && e.image)))
+        .map(({ slot, e }) => ({
+          slot_key: slot.key,
+          mode: e!.mode,
+          text: e!.mode === "text" ? e!.text.trim() || null : null,
+          font: e!.mode === "text" ? e!.font : null,
+          lines: e!.mode === "text" ? e!.lines : null,
+          image: e!.mode === "logo" ? e!.image : null,
+          position: e!.mode === "logo" ? e!.position : null,
+          color: e!.color,
+        })),
     [embroiderySlots, embroideries],
   );
   const embroideryFee = activeEmbroideries.length * 39;
