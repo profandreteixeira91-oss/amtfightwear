@@ -1001,8 +1001,14 @@ function BuilderPage() {
               <div className="space-y-1 text-sm">
                 <div className="flex justify-between"><span>Base ({template.name})</span><span>{formatBRL(Number(template.base_price))}</span></div>
                 {fabricDelta > 0 && <div className="flex justify-between"><span>{selectedFabric?.name}</span><span>+ {formatBRL(fabricDelta)}</span></div>}
-                {isFaixa && <div className="flex justify-between"><span>Coloração</span><span>{coloring}</span></div>}
-                {embroideryFee > 0 && <div className="flex justify-between"><span>Bordado</span><span>+ {formatBRL(embroideryFee)}</span></div>}
+                {isFaixa && (
+                  <div className="flex justify-between">
+                    <span>Coloração ({coloring})</span>
+                    <span>{coloringDelta === 0 ? "Incluso" : `+ ${formatBRL(coloringDelta)}`}</span>
+                  </div>
+                )}
+                {embroideryFee > 0 && <div className="flex justify-between"><span>Bordado ({activeEmbroideries.length}×)</span><span>+ {formatBRL(embroideryFee)}</span></div>}
+                {labelFee > 0 && <div className="flex justify-between"><span>Etiqueta personalizada</span><span>+ {formatBRL(labelFee)}</span></div>}
               </div>
               <div className="mt-3 flex justify-between border-t pt-3 text-base font-black">
                 <span>Total</span><span>{formatBRL(unitPrice)}</span>
