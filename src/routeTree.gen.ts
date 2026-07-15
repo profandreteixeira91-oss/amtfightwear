@@ -82,6 +82,7 @@ import { Route as ApiPublicHooksSyncAdsInsightsRouteImport } from './routes/api/
 import { Route as ApiPublicHooksScaleWinnersRouteImport } from './routes/api/public/hooks/scale-winners'
 import { Route as ApiPublicHooksRunAdsOptimizationRouteImport } from './routes/api/public/hooks/run-ads-optimization'
 import { Route as ApiPublicHooksPublishScheduledPostsRouteImport } from './routes/api/public/hooks/publish-scheduled-posts'
+import { Route as ApiPublicHooksMelhorEnvioRouteImport } from './routes/api/public/hooks/melhor-envio'
 import { Route as ApiPublicHooksMartialArtsDailySweepRouteImport } from './routes/api/public/hooks/martial-arts-daily-sweep'
 import { Route as ApiPublicHooksIgWebhookRouteImport } from './routes/api/public/hooks/ig-webhook'
 import { Route as ApiPublicHooksIgSyncRouteImport } from './routes/api/public/hooks/ig-sync'
@@ -493,6 +494,12 @@ const ApiPublicHooksPublishScheduledPostsRoute =
     path: '/api/public/hooks/publish-scheduled-posts',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksMelhorEnvioRoute =
+  ApiPublicHooksMelhorEnvioRouteImport.update({
+    id: '/api/public/hooks/melhor-envio',
+    path: '/api/public/hooks/melhor-envio',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksMartialArtsDailySweepRoute =
   ApiPublicHooksMartialArtsDailySweepRouteImport.update({
     id: '/api/public/hooks/martial-arts-daily-sweep',
@@ -598,6 +605,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
   '/api/public/hooks/ig-webhook': typeof ApiPublicHooksIgWebhookRoute
   '/api/public/hooks/martial-arts-daily-sweep': typeof ApiPublicHooksMartialArtsDailySweepRoute
+  '/api/public/hooks/melhor-envio': typeof ApiPublicHooksMelhorEnvioRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/hooks/run-ads-optimization': typeof ApiPublicHooksRunAdsOptimizationRoute
   '/api/public/hooks/scale-winners': typeof ApiPublicHooksScaleWinnersRoute
@@ -678,6 +686,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
   '/api/public/hooks/ig-webhook': typeof ApiPublicHooksIgWebhookRoute
   '/api/public/hooks/martial-arts-daily-sweep': typeof ApiPublicHooksMartialArtsDailySweepRoute
+  '/api/public/hooks/melhor-envio': typeof ApiPublicHooksMelhorEnvioRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/hooks/run-ads-optimization': typeof ApiPublicHooksRunAdsOptimizationRoute
   '/api/public/hooks/scale-winners': typeof ApiPublicHooksScaleWinnersRoute
@@ -760,6 +769,7 @@ export interface FileRoutesById {
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
   '/api/public/hooks/ig-webhook': typeof ApiPublicHooksIgWebhookRoute
   '/api/public/hooks/martial-arts-daily-sweep': typeof ApiPublicHooksMartialArtsDailySweepRoute
+  '/api/public/hooks/melhor-envio': typeof ApiPublicHooksMelhorEnvioRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/hooks/run-ads-optimization': typeof ApiPublicHooksRunAdsOptimizationRoute
   '/api/public/hooks/scale-winners': typeof ApiPublicHooksScaleWinnersRoute
@@ -842,6 +852,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/ig-sync'
     | '/api/public/hooks/ig-webhook'
     | '/api/public/hooks/martial-arts-daily-sweep'
+    | '/api/public/hooks/melhor-envio'
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/hooks/run-ads-optimization'
     | '/api/public/hooks/scale-winners'
@@ -922,6 +933,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/ig-sync'
     | '/api/public/hooks/ig-webhook'
     | '/api/public/hooks/martial-arts-daily-sweep'
+    | '/api/public/hooks/melhor-envio'
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/hooks/run-ads-optimization'
     | '/api/public/hooks/scale-winners'
@@ -1003,6 +1015,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/ig-sync'
     | '/api/public/hooks/ig-webhook'
     | '/api/public/hooks/martial-arts-daily-sweep'
+    | '/api/public/hooks/melhor-envio'
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/hooks/run-ads-optimization'
     | '/api/public/hooks/scale-winners'
@@ -1036,6 +1049,7 @@ export interface RootRouteChildren {
   ApiPublicHooksIgSyncRoute: typeof ApiPublicHooksIgSyncRoute
   ApiPublicHooksIgWebhookRoute: typeof ApiPublicHooksIgWebhookRoute
   ApiPublicHooksMartialArtsDailySweepRoute: typeof ApiPublicHooksMartialArtsDailySweepRoute
+  ApiPublicHooksMelhorEnvioRoute: typeof ApiPublicHooksMelhorEnvioRoute
   ApiPublicHooksPublishScheduledPostsRoute: typeof ApiPublicHooksPublishScheduledPostsRoute
   ApiPublicHooksRunAdsOptimizationRoute: typeof ApiPublicHooksRunAdsOptimizationRoute
   ApiPublicHooksScaleWinnersRoute: typeof ApiPublicHooksScaleWinnersRoute
@@ -1560,6 +1574,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksPublishScheduledPostsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/melhor-envio': {
+      id: '/api/public/hooks/melhor-envio'
+      path: '/api/public/hooks/melhor-envio'
+      fullPath: '/api/public/hooks/melhor-envio'
+      preLoaderRoute: typeof ApiPublicHooksMelhorEnvioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/martial-arts-daily-sweep': {
       id: '/api/public/hooks/martial-arts-daily-sweep'
       path: '/api/public/hooks/martial-arts-daily-sweep'
@@ -1757,6 +1778,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksIgWebhookRoute: ApiPublicHooksIgWebhookRoute,
   ApiPublicHooksMartialArtsDailySweepRoute:
     ApiPublicHooksMartialArtsDailySweepRoute,
+  ApiPublicHooksMelhorEnvioRoute: ApiPublicHooksMelhorEnvioRoute,
   ApiPublicHooksPublishScheduledPostsRoute:
     ApiPublicHooksPublishScheduledPostsRoute,
   ApiPublicHooksRunAdsOptimizationRoute: ApiPublicHooksRunAdsOptimizationRoute,
