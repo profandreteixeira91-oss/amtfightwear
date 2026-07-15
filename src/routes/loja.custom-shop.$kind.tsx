@@ -1139,46 +1139,59 @@ function BuilderPreview({
         className="absolute inset-0 h-full w-full"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* Embroidery texture filter — thread grain + puff relief inside letters */}
+        {/* Embroidery filter — matches product photos: solid satin fill, subtle
+            perpendicular stitch grain, darker inner edge, soft puff shadow */}
         <defs>
           <filter id="emb-texture" x="-15%" y="-15%" width="130%" height="130%">
-            {/* 1) Slightly rough edges */}
-            <feTurbulence type="fractalNoise" baseFrequency="3" numOctaves="2" seed="7" result="noise" />
-            <feDisplacementMap in="SourceGraphic" in2="noise" scale="0.25" result="rough" />
+            {/* 1) Very light edge irregularity (thread doesn't cut perfectly straight) */}
+            <feTurbulence type="fractalNoise" baseFrequency="4" numOctaves="1" seed="7" result="edgeNoise" />
+            <feDisplacementMap in="SourceGraphic" in2="edgeNoise" scale="0.12" result="base" />
 
-            {/* 2) Fiber grain aligned mostly horizontal, clipped to letter shape */}
-            <feTurbulence type="fractalNoise" baseFrequency="1.2 3.2" numOctaves="2" seed="5" result="grain" />
-            <feColorMatrix in="grain" type="matrix"
+            {/* 2) Fine satin-stitch streaks running mostly vertical (perpendicular to a
+                   horizontal-text baseline — same as SEU NOME on the belt photo). Very subtle. */}
+            <feTurbulence type="fractalNoise" baseFrequency="4 0.7" numOctaves="1" seed="4" result="stitch" />
+            <feColorMatrix in="stitch" type="matrix"
               values="0 0 0 0 0
                       0 0 0 0 0
                       0 0 0 0 0
-                      0 0 0 0.55 -0.15" result="grainDark" />
-            <feComposite in="grainDark" in2="rough" operator="in" result="grainInside" />
+                      0 0 0 0.22 -0.08" result="stitchAlpha" />
+            <feComposite in="stitchAlpha" in2="base" operator="in" result="stitchInside" />
 
-            {/* 3) Puff / bump lighting for 3D volume */}
-            <feGaussianBlur in="rough" stdDeviation="0.18" result="bump" />
-            <feSpecularLighting in="bump" surfaceScale="2" specularConstant="1.1" specularExponent="22" lightingColor="#ffffff" result="spec">
-              <feDistantLight azimuth="225" elevation="55" />
+            {/* 3) Darker inner edge to sell the satin outline (erode + subtract) */}
+            <feMorphology in="base" operator="erode" radius="0.18" result="eroded" />
+            <feComposite in="base" in2="eroded" operator="out" result="edgeBand" />
+            <feColorMatrix in="edgeBand" type="matrix"
+              values="0 0 0 0 0
+                      0 0 0 0 0
+                      0 0 0 0 0
+                      0 0 0 0.45 0" result="edgeDark" />
+
+            {/* 4) Soft top-left highlight for puff volume */}
+            <feGaussianBlur in="base" stdDeviation="0.25" result="bump" />
+            <feSpecularLighting in="bump" surfaceScale="1.4" specularConstant="0.9" specularExponent="28" lightingColor="#ffffff" result="spec">
+              <feDistantLight azimuth="135" elevation="65" />
             </feSpecularLighting>
-            <feComposite in="spec" in2="rough" operator="in" result="specMasked" />
+            <feComposite in="spec" in2="base" operator="in" result="specMasked" />
 
-            {/* 4) Soft drop shadow */}
-            <feGaussianBlur in="rough" stdDeviation="0.25" result="shBlur" />
-            <feOffset in="shBlur" dx="0.15" dy="0.35" result="shOff" />
+            {/* 5) Drop shadow — main cue that the letter is raised */}
+            <feGaussianBlur in="base" stdDeviation="0.3" result="shBlur" />
+            <feOffset in="shBlur" dx="0.25" dy="0.45" result="shOff" />
             <feColorMatrix in="shOff" type="matrix"
               values="0 0 0 0 0
                       0 0 0 0 0
                       0 0 0 0 0
-                      0 0 0 0.55 0" result="shadow" />
+                      0 0 0 0.7 0" result="shadow" />
 
             <feMerge>
               <feMergeNode in="shadow" />
-              <feMergeNode in="rough" />
-              <feMergeNode in="grainInside" />
+              <feMergeNode in="base" />
+              <feMergeNode in="stitchInside" />
+              <feMergeNode in="edgeDark" />
               <feMergeNode in="specMasked" />
             </feMerge>
           </filter>
         </defs>
+
 
 
         {/* Zones (skip when using real product photo) */}
@@ -1314,10 +1327,10 @@ function BuilderPreview({
                     fontSize={fontSize}
                     fill={emb.color}
                     stroke={emb.color}
-                    strokeWidth={fontSize * 0.06}
+                    strokeWidth={fontSize * 0.02}
                     strokeLinejoin="round"
-                    strokeLinecap="round"
                     paintOrder="stroke fill"
+
 
                     filter="url(#emb-texture)"
                     style={{ pointerEvents: "none" }}
