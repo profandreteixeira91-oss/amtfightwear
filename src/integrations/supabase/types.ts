@@ -3371,6 +3371,48 @@ export type Database = {
           },
         ]
       }
+      store_shipping_settings: {
+        Row: {
+          created_at: string
+          default_height_cm: number
+          default_insurance_value: number
+          default_length_cm: number
+          default_weight_kg: number
+          default_width_cm: number
+          env: string
+          id: string
+          origin_zip: string
+          singleton: boolean
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          default_height_cm?: number
+          default_insurance_value?: number
+          default_length_cm?: number
+          default_weight_kg?: number
+          default_width_cm?: number
+          env?: string
+          id?: string
+          origin_zip?: string
+          singleton?: boolean
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          default_height_cm?: number
+          default_insurance_value?: number
+          default_length_cm?: number
+          default_weight_kg?: number
+          default_width_cm?: number
+          env?: string
+          id?: string
+          origin_zip?: string
+          singleton?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       suppressed_emails: {
         Row: {
           created_at: string
