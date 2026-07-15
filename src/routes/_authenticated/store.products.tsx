@@ -1,16 +1,24 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
-import { adminListStoreProducts, adminUpdateStoreProduct } from "@/lib/store/store.functions";
+import { useEffect, useMemo, useState } from "react";
+import {
+  adminListStoreProducts,
+  adminUpdateStoreProduct,
+  adminGetStoreProduct,
+  adminSaveVariants,
+} from "@/lib/store/store.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { formatBRL } from "@/lib/store/cart-store";
-import { ExternalLink, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Save } from "lucide-react";
+import { ExternalLink, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Save, Pencil, Trash2, Plus } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/store/products")({
   component: AdminProductsPage,
