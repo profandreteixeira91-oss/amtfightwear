@@ -313,6 +313,7 @@ function BuilderPage() {
   const [coloring, setColoring] = useState<string>(COLORING_OPTIONS[0].name);
 
   const isKimono = template.kind === "kimono";
+  const [kimonoSize, setKimonoSize] = useState<string>("A2");
 
   useEffect(() => {
     // Faixa: seleciona o primeiro preset por padrão para já exibir a imagem real do produto.
