@@ -518,7 +518,7 @@ function BuilderPage() {
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
           {/* Preview (right column on desktop, first on mobile) */}
           <div className="order-1 rounded-xl border bg-card p-4 lg:order-2 lg:sticky lg:top-4 lg:self-start">
-            <div className="relative mx-auto aspect-square w-full max-w-xl overflow-hidden rounded-lg bg-muted">
+            <div ref={previewRef} className="relative mx-auto aspect-square w-full max-w-xl overflow-hidden rounded-lg bg-muted">
               <BuilderPreview
                 kind={template.kind}
                 variantKey={variantKey}
