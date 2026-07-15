@@ -1102,7 +1102,12 @@ function BuilderPage() {
                         ) : (
                           <ImageUploader
                             value={entry.image}
-                            onChange={(img) => setEntry({ image: img })}
+                            onChange={async (img) => {
+                              if (!img) { setEntry({ image: null }); return; }
+                              // Sempre detecta a cor de fundo — usada quando técnica sublimado é aplicada.
+                              const bg = await detectImageBgColor(img.data_url).catch(() => "#ffffff");
+                              setEntry({ image: { ...img, bg_color: bg } });
+                            }}
                             hint="Envie um logotipo (PNG/JPG, até 4MB) — será simulado como bordado."
                           />
                         )}
