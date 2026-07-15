@@ -582,58 +582,7 @@ function BuilderPage() {
               </section>
             )}
 
-            {/* Patches */}
-            {slots.length > 0 && patches.length > 0 && (
-              <section>
-                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Patches / logos</h2>
-                <div className="space-y-3">
-                  {slots.map((s) => {
-                    const chosen = slotPatches[s.key];
-                    return (
-                      <div key={s.key} className="rounded-md border p-3">
-                        <div className="flex items-center justify-between">
-                          <div className="text-sm font-semibold">{s.label}</div>
-                          {chosen && (
-                            <button
-                              type="button"
-                              onClick={() => setSlotPatches((prev) => { const n = { ...prev }; delete n[s.key]; return n; })}
-                              className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive"
-                            >
-                              <Trash2 className="h-3 w-3" /> remover
-                            </button>
-                          )}
-                        </div>
-                        <div className="mt-2 flex flex-wrap gap-2">
-                          {patches.map((p) => {
-                            const active = chosen === p.id;
-                            return (
-                              <button
-                                key={p.id}
-                                type="button"
-                                onClick={() => togglePatch(s.key, p.id)}
-                                className={`relative flex flex-col items-center gap-1 rounded-md border p-2 transition ${
-                                  active ? "border-primary bg-primary/5" : "hover:border-foreground/40"
-                                }`}
-                                title={p.name}
-                              >
-                                <img src={p.image_url} alt={p.name} className="h-12 w-12 object-contain" />
-                                <div className="text-[10px] leading-none">{p.name}</div>
-                                <div className="text-[10px] font-bold text-primary">+ {formatBRL(Number(p.price))}</div>
-                                {active && (
-                                  <span className="absolute right-1 top-1 grid h-4 w-4 place-items-center rounded-full bg-primary text-[10px] text-primary-foreground">
-                                    <Check className="h-2.5 w-2.5" />
-                                  </span>
-                                )}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </section>
-            )}
+            {/* Patches / logos: removidos do fluxo */}
 
             {/* Embroidery — one entry per bordado slot (text or image) */}
             {embroiderySlots.length > 0 && (
@@ -691,17 +640,7 @@ function BuilderPage() {
               </section>
             )}
 
-            {/* Faixa: Logo upload (hidden when there are per-bordado image uploads) */}
-            {isFaixa && variantKey !== "judo" && (
-              <section>
-                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Logotipo do bordado (opcional)</h2>
-                <ImageUploader
-                  value={logoImage}
-                  onChange={setLogoImage}
-                  hint="Envie o logo que será bordado junto ao nome (PNG/JPG, até 4MB)."
-                />
-              </section>
-            )}
+            {/* Faixa: Logo upload — removido (usar bordado abaixo) */}
 
             {/* Faixa: Etiqueta — AMT Padrão OU imagem personalizada */}
             {isFaixa && (
