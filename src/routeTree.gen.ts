@@ -37,6 +37,7 @@ import { Route as AuthenticatedStoreShippingRouteImport } from './routes/_authen
 import { Route as AuthenticatedStoreProductsRouteImport } from './routes/_authenticated/store.products'
 import { Route as AuthenticatedStoreOrdersRouteImport } from './routes/_authenticated/store.orders'
 import { Route as AuthenticatedStoreImportRouteImport } from './routes/_authenticated/store.import'
+import { Route as AuthenticatedStoreImagensRouteImport } from './routes/_authenticated/store.imagens'
 import { Route as AuthenticatedProspectSettingsRouteImport } from './routes/_authenticated/prospect.settings'
 import { Route as AuthenticatedProspectSearchRouteImport } from './routes/_authenticated/prospect.search'
 import { Route as AuthenticatedProspectQualifiedRouteImport } from './routes/_authenticated/prospect.qualified'
@@ -232,6 +233,12 @@ const AuthenticatedStoreImportRoute =
   AuthenticatedStoreImportRouteImport.update({
     id: '/store/import',
     path: '/store/import',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStoreImagensRoute =
+  AuthenticatedStoreImagensRouteImport.update({
+    id: '/store/imagens',
+    path: '/store/imagens',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedProspectSettingsRoute =
@@ -589,6 +596,7 @@ export interface FileRoutesByFullPath {
   '/prospect/qualified': typeof AuthenticatedProspectQualifiedRoute
   '/prospect/search': typeof AuthenticatedProspectSearchRoute
   '/prospect/settings': typeof AuthenticatedProspectSettingsRoute
+  '/store/imagens': typeof AuthenticatedStoreImagensRoute
   '/store/import': typeof AuthenticatedStoreImportRoute
   '/store/orders': typeof AuthenticatedStoreOrdersRoute
   '/store/products': typeof AuthenticatedStoreProductsRoute
@@ -670,6 +678,7 @@ export interface FileRoutesByTo {
   '/prospect/qualified': typeof AuthenticatedProspectQualifiedRoute
   '/prospect/search': typeof AuthenticatedProspectSearchRoute
   '/prospect/settings': typeof AuthenticatedProspectSettingsRoute
+  '/store/imagens': typeof AuthenticatedStoreImagensRoute
   '/store/import': typeof AuthenticatedStoreImportRoute
   '/store/orders': typeof AuthenticatedStoreOrdersRoute
   '/store/products': typeof AuthenticatedStoreProductsRoute
@@ -753,6 +762,7 @@ export interface FileRoutesById {
   '/_authenticated/prospect/qualified': typeof AuthenticatedProspectQualifiedRoute
   '/_authenticated/prospect/search': typeof AuthenticatedProspectSearchRoute
   '/_authenticated/prospect/settings': typeof AuthenticatedProspectSettingsRoute
+  '/_authenticated/store/imagens': typeof AuthenticatedStoreImagensRoute
   '/_authenticated/store/import': typeof AuthenticatedStoreImportRoute
   '/_authenticated/store/orders': typeof AuthenticatedStoreOrdersRoute
   '/_authenticated/store/products': typeof AuthenticatedStoreProductsRoute
@@ -836,6 +846,7 @@ export interface FileRouteTypes {
     | '/prospect/qualified'
     | '/prospect/search'
     | '/prospect/settings'
+    | '/store/imagens'
     | '/store/import'
     | '/store/orders'
     | '/store/products'
@@ -917,6 +928,7 @@ export interface FileRouteTypes {
     | '/prospect/qualified'
     | '/prospect/search'
     | '/prospect/settings'
+    | '/store/imagens'
     | '/store/import'
     | '/store/orders'
     | '/store/products'
@@ -999,6 +1011,7 @@ export interface FileRouteTypes {
     | '/_authenticated/prospect/qualified'
     | '/_authenticated/prospect/search'
     | '/_authenticated/prospect/settings'
+    | '/_authenticated/store/imagens'
     | '/_authenticated/store/import'
     | '/_authenticated/store/orders'
     | '/_authenticated/store/products'
@@ -1257,6 +1270,13 @@ declare module '@tanstack/react-router' {
       path: '/store/import'
       fullPath: '/store/import'
       preLoaderRoute: typeof AuthenticatedStoreImportRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/store/imagens': {
+      id: '/_authenticated/store/imagens'
+      path: '/store/imagens'
+      fullPath: '/store/imagens'
+      preLoaderRoute: typeof AuthenticatedStoreImagensRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/prospect/settings': {
@@ -1701,6 +1721,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProspectQualifiedRoute: typeof AuthenticatedProspectQualifiedRoute
   AuthenticatedProspectSearchRoute: typeof AuthenticatedProspectSearchRoute
   AuthenticatedProspectSettingsRoute: typeof AuthenticatedProspectSettingsRoute
+  AuthenticatedStoreImagensRoute: typeof AuthenticatedStoreImagensRoute
   AuthenticatedStoreImportRoute: typeof AuthenticatedStoreImportRoute
   AuthenticatedStoreOrdersRoute: typeof AuthenticatedStoreOrdersRoute
   AuthenticatedStoreProductsRoute: typeof AuthenticatedStoreProductsRoute
@@ -1744,6 +1765,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProspectQualifiedRoute: AuthenticatedProspectQualifiedRoute,
   AuthenticatedProspectSearchRoute: AuthenticatedProspectSearchRoute,
   AuthenticatedProspectSettingsRoute: AuthenticatedProspectSettingsRoute,
+  AuthenticatedStoreImagensRoute: AuthenticatedStoreImagensRoute,
   AuthenticatedStoreImportRoute: AuthenticatedStoreImportRoute,
   AuthenticatedStoreOrdersRoute: AuthenticatedStoreOrdersRoute,
   AuthenticatedStoreProductsRoute: AuthenticatedStoreProductsRoute,

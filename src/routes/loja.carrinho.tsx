@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell } from "@/components/store/StoreShell";
+import { ProductImage } from "@/components/store/ProductImage";
 import { listStoreCategories } from "@/lib/store/store.functions";
 import { useCart, formatBRL } from "@/lib/store/cart-store";
 import { Trash2, ArrowRight } from "lucide-react";
@@ -43,9 +44,7 @@ function CartPage() {
             <div className="space-y-3">
               {items.map((i) => (
                 <div key={`${i.product_id}-${i.variant_id ?? ""}`} className="flex gap-4 rounded-lg border bg-card p-3">
-                  <div className="h-24 w-24 shrink-0 overflow-hidden rounded bg-muted">
-                    {i.image_url && <img src={i.image_url} alt={i.name} className="h-full w-full object-cover" />}
-                  </div>
+                  <ProductImage src={i.image_url} alt={i.name} aspect="square" className="h-24 w-24 shrink-0 rounded" />
                   <div className="flex flex-1 flex-col">
                     <Link to="/loja/produto/$slug" params={{ slug: i.slug }} className="font-semibold hover:text-primary">{i.name}</Link>
                     {i.variant_label && <div className="text-xs text-muted-foreground">{i.variant_label}</div>}
