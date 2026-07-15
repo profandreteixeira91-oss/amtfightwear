@@ -27,6 +27,7 @@ function CheckoutPage() {
   const createOrder = useServerFn(createStoreOrder);
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [shipping, setShipping] = useState<ShippingOption | null>(null);
   const [form, setForm] = useState({
     customer_name: "", customer_email: "", customer_phone: "", customer_document: "",
     zip: "", street: "", number: "", complement: "", neighborhood: "", city: "", state: "",
@@ -34,6 +35,8 @@ function CheckoutPage() {
   useEffect(() => setMounted(true), []);
 
   const subtotal = items.reduce((a, i) => a + i.quantity * i.unit_price, 0);
+  const shippingCost = shipping?.price ?? 0;
+  const total = subtotal + shippingCost;
 
   const handleZip = async (zip: string) => {
     setForm((f) => ({ ...f, zip }));
