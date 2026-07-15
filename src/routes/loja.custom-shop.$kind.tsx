@@ -1437,6 +1437,20 @@ function AdminLayoutPanel({
                     </label>
                   ))}
                 </div>
+                <label className="mt-1 flex flex-col text-[10px] text-muted-foreground">
+                  ROT°
+                  <input
+                    type="number"
+                    step={1}
+                    value={z.rotation_deg}
+                    onChange={(e) => {
+                      const next = zones.slice();
+                      next[i] = { ...z, rotation_deg: Number(e.target.value) };
+                      onZonesChange(next);
+                    }}
+                    className="w-full rounded border bg-background px-1 py-0.5 text-xs text-foreground"
+                  />
+                </label>
                 <label className="mt-1 flex items-center gap-1 text-[10px]">
                   <input
                     type="checkbox"
