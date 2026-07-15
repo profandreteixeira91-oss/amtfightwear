@@ -440,6 +440,16 @@ function BuilderPage() {
                         <X className="h-3 w-3 text-foreground/70" />
                       </button>
                       {PALETTE.map((c) => (
+                        <button
+                          key={c}
+                          type="button"
+                          aria-label={c}
+                          onClick={() => setZoneColors((prev) => ({ ...prev, [activeZone]: c }))}
+                          className={`h-7 w-7 rounded-full border-2 transition ${
+                            zoneColors[activeZone] === c ? "border-primary scale-110" : "border-foreground/20"
+                          }`}
+                          style={{ background: c }}
+                        />
                       ))}
                       {variantKey !== "judo" && (
                         <label className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border-2 border-foreground/20 text-[10px]">
