@@ -121,6 +121,15 @@ const KIMONO_TECHNIQUES: { id: "bordado" | "sublimado" | "dtf"; label: string; h
 ];
 const KIMONO_BORDADO_NOME_FEE = 10;
 
+// Tamanhos disponíveis por slot de patch do kimono.
+// `presets` são opções fixas; `allowCustom` habilita entrada livre de largura×altura em cm.
+const KIMONO_PATCH_SIZES: Record<string, { presets: string[]; allowCustom: boolean; default: string }> = {
+  patch_frente: { presets: ["9x9"], allowCustom: false, default: "9x9" },
+  patch_costas: { presets: ["19x19", "15x15"], allowCustom: true, default: "19x19" },
+  patch_calca:  { presets: ["9x9"], allowCustom: false, default: "9x9" },
+};
+
+
 
 // Fontes de bordado disponíveis para o cliente escolher
 const EMBROIDERY_FONTS: { id: string; label: string; family: string; weight: number; style: "normal" | "italic" }[] = [
