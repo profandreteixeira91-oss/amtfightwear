@@ -165,12 +165,14 @@ export function ProductCard({ product }: { product: { id: string; name: string; 
       params={{ slug: product.slug ?? product.id }}
       className="group flex flex-col overflow-hidden rounded-lg border bg-card transition-shadow hover:shadow-lg"
     >
-      <div className="relative aspect-square overflow-hidden bg-muted">
-        {product.image_url ? (
-          <img src={product.image_url} alt={product.name} className="h-full w-full object-cover transition-transform group-hover:scale-105" loading="lazy" />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">Sem imagem</div>
-        )}
+      <div className="relative">
+        <ProductImage
+          src={product.image_url}
+          alt={product.name}
+          aspect="square"
+          imgClassName="transition-transform group-hover:scale-105"
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
+        />
         {hasDiscount && (
           <div className="absolute left-2 top-2 rounded bg-primary px-2 py-1 text-[10px] font-bold uppercase text-primary-foreground">
             -{Math.round(((compareAt! - price) / compareAt!) * 100)}%
