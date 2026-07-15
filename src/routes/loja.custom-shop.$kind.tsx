@@ -996,7 +996,7 @@ function BuilderPreview({
   patches,
   embroideries,
   labelImage,
-  judoPresetImage,
+  beltPresetImage,
 }: {
   kind: string;
   variantKey: string;
@@ -1016,12 +1016,12 @@ function BuilderPreview({
     color: string;
   }>;
   labelImage?: { data_url: string; filename: string; bg_color?: string } | null;
-  judoPresetImage?: string | null;
+  beltPresetImage?: string | null;
 }) {
   const isJudo = kind === "faixa" && variantKey === "judo";
-  const baseImg = judoPresetImage || (isJudo ? faixaJudoBase : BASE_IMAGES[kind]);
-  // Quando temos a foto real do produto (preset judô selecionado), não tinta zonas.
-  const useProductPhoto = Boolean(judoPresetImage);
+  const baseImg = beltPresetImage || (isJudo ? faixaJudoBase : BASE_IMAGES[kind]);
+  // Quando temos a foto real do produto (preset selecionado), não tinta zonas.
+  const useProductPhoto = Boolean(beltPresetImage);
 
   return (
     <div className="relative h-full w-full overflow-hidden">
