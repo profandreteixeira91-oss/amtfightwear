@@ -85,6 +85,20 @@ const EMBROIDERY_FONTS: { id: string; label: string; family: string; weight: num
 ];
 const DEFAULT_EMB_FONT = EMBROIDERY_FONTS[0].id;
 
+function splitTwoLines(text: string): [string, string] {
+  const t = text.trim();
+  if (!t) return ["", ""];
+  const mid = Math.floor(t.length / 2);
+  // procura o espaço mais próximo do meio
+  let idx = -1;
+  for (let d = 0; d < t.length; d++) {
+    if (t[mid + d] === " ") { idx = mid + d; break; }
+    if (t[mid - d] === " ") { idx = mid - d; break; }
+  }
+  if (idx <= 0) return [t, ""];
+  return [t.slice(0, idx).trim(), t.slice(idx + 1).trim()];
+}
+
 type Zone = {
   key: string;
   label: string;
