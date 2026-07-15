@@ -26,19 +26,35 @@ function publicClient() {
 
 export const listWholesaleCatalog = createServerFn({ method: "GET" }).handler(async () => {
   const sb = publicClient();
+  // Fetch variants in pages to bypass the PostgREST 1000-row default cap.
+  const PAGE = 1000;
+  const fetchAllVariants = async () => {
+    const out: Array<{ id: string; product_id: string; size: string | null; color: string | null; option_label: string | null; sku: string | null; price: number | null; sort_order: number; active: boolean }> = [];
+    for (let from = 0; ; from += PAGE) {
+      const { data, error } = await sb.from("store_product_variants")
+        .select("id, product_id, size, color, option_label, sku, price, sort_order, active")
+        .eq("active", true)
+        .order("product_id")
+        .order("sort_order")
+        .range(from, from + PAGE - 1);
+      if (error) throw error;
+      const rows = data ?? [];
+      out.push(...rows);
+      if (rows.length < PAGE) break;
+    }
+    return out;
+  };
   const [cats, prods, variants] = await Promise.all([
     sb.from("store_categories").select("id, slug, name, parent_id").eq("active", true).order("sort_order"),
     sb.from("products")
       .select("id, name, slug, price, compare_at_price, image_url, category_id, stock, short_description")
       .eq("status", "active")
       .order("name"),
-    sb.from("store_product_variants")
-      .select("id, product_id, size, color, option_label, sku, price, sort_order, active")
-      .eq("active", true)
-      .order("sort_order"),
+    fetchAllVariants(),
   ]);
-  return { categories: cats.data ?? [], products: prods.data ?? [], variants: variants.data ?? [] };
+  return { categories: cats.data ?? [], products: prods.data ?? [], variants };
 });
+
 
 const WholesaleItemSchema = z.object({
   product_id: z.string().uuid(),
