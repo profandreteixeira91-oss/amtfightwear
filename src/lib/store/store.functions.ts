@@ -26,18 +26,23 @@ function publicClient() {
 
 export const listWholesaleCatalog = createServerFn({ method: "GET" }).handler(async () => {
   const sb = publicClient();
-  const [cats, prods] = await Promise.all([
+  const [cats, prods, variants] = await Promise.all([
     sb.from("store_categories").select("id, slug, name, parent_id").eq("active", true).order("sort_order"),
     sb.from("products")
       .select("id, name, slug, price, compare_at_price, image_url, category_id, stock, short_description")
       .eq("status", "active")
       .order("name"),
+    sb.from("store_product_variants")
+      .select("id, product_id, size, color, option_label, sku, price, sort_order, active")
+      .eq("active", true)
+      .order("sort_order"),
   ]);
-  return { categories: cats.data ?? [], products: prods.data ?? [] };
+  return { categories: cats.data ?? [], products: prods.data ?? [], variants: variants.data ?? [] };
 });
 
 const WholesaleItemSchema = z.object({
   product_id: z.string().uuid(),
+  variant_id: z.string().uuid().optional().nullable(),
   quantity: z.number().int().min(1),
 });
 
