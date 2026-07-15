@@ -791,8 +791,8 @@ function BuilderPreview({
         className="absolute inset-0 h-full w-full"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* Zones */}
-        {zones.map((z) => {
+        {/* Zones (skip when using real product photo) */}
+        {!useProductPhoto && zones.map((z) => {
           const color = zoneColors[z.key];
           if (!color) return null; // transparent by default
           return (
@@ -808,8 +808,8 @@ function BuilderPreview({
           );
         })}
 
-        {/* Contrast pass */}
-        {baseImg && (
+        {/* Contrast pass (only for tinted mockup) */}
+        {baseImg && !useProductPhoto && (
           <image
             href={baseImg}
             x={0}
