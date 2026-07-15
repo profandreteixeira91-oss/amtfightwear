@@ -677,7 +677,7 @@ function BuilderPage() {
                   {embroiderySlots.length > 1 ? "Bordados" : "Bordado de texto ou logo"}
                 </h2>
                 <div className="space-y-3">
-                  {embroiderySlots.map((s) => {
+                  {embroiderySlots.map((s, idx) => {
                     const defaults = {
                       mode: "text" as "text" | "logo",
                       text: "",
@@ -696,7 +696,7 @@ function BuilderPage() {
                     const selectedFont = EMBROIDERY_FONTS.find((f) => f.id === entry.font) ?? EMBROIDERY_FONTS[0];
                     return (
                       <div key={s.key} className="rounded-md border p-3 space-y-3">
-                        <div className="text-xs font-bold uppercase text-muted-foreground">{s.label}</div>
+                        <div className="text-xs font-bold uppercase text-muted-foreground">Bordado {idx + 1}</div>
 
                         {/* Mode selector */}
                         <div className="grid grid-cols-2 gap-2">
