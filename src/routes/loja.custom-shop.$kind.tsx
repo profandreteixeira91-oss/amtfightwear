@@ -1605,19 +1605,45 @@ function BuilderPreview({
           const transform = `translate(${cx} ${cy}) rotate(${totalRot}) scale(${scale})`;
           return (
             <g key={emb.slot_key} transform={transform}>
-              {emb.mode === "logo" && emb.image && (
-                <g style={{ filter: "drop-shadow(0 0.15px 0.2px rgba(0,0,0,0.45))" }}>
-                  <image
-                    href={emb.image.data_url}
-                    x={-w / 2}
-                    y={-h / 2}
-                    width={w}
-                    height={h}
-                    preserveAspectRatio="xMidYMid meet"
-                    opacity={0.95}
-                  />
-                </g>
-              )}
+              {emb.mode === "logo" && emb.image && (() => {
+                // Sublimado: aplica o formato escolhido (quadrado/redondo) com fundo preenchido pela cor da imagem.
+                // Bordado/DTF (transparente): renderiza a arte sem fundo, apenas com o PNG do upload.
+                const fmt = emb.format ?? "transparente";
+                const bg = emb.image.bg_color ?? "#ffffff";
+                const isRound = fmt === "redondo";
+                const isSquare = fmt === "quadrado";
+                const clipId = `emb-clip-${emb.slot_key}`;
+                return (
+                  <g style={{ filter: "drop-shadow(0 0.15px 0.2px rgba(0,0,0,0.45))" }}>
+                    {(isRound || isSquare) && (
+                      <>
+                        <defs>
+                          {isRound && (
+                            <clipPath id={clipId}>
+                              <circle cx={0} cy={0} r={Math.min(w, h) / 2} />
+                            </clipPath>
+                          )}
+                        </defs>
+                        {isRound ? (
+                          <circle cx={0} cy={0} r={Math.min(w, h) / 2} fill={bg} />
+                        ) : (
+                          <rect x={-w / 2} y={-h / 2} width={w} height={h} fill={bg} />
+                        )}
+                      </>
+                    )}
+                    <image
+                      href={emb.image.data_url}
+                      x={-w / 2}
+                      y={-h / 2}
+                      width={w}
+                      height={h}
+                      preserveAspectRatio="xMidYMid meet"
+                      opacity={0.95}
+                      clipPath={isRound ? `url(#${clipId})` : undefined}
+                    />
+                  </g>
+                );
+              })()}
               {emb.mode === "text" && emb.text && (() => {
                 const font = EMBROIDERY_FONTS.find((f) => f.id === emb.font) ?? EMBROIDERY_FONTS[0];
                 const twoLines = emb.lines === 2;
