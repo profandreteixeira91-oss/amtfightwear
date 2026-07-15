@@ -584,6 +584,26 @@ function BuilderPreview({
           );
         })}
 
+        {/* Faixa label image on ponta */}
+        {labelImage && (() => {
+          const ponta = slots.find((s) => s.key === "ponta") ?? slots[0];
+          if (!ponta) return null;
+          const w = ponta.w_pct;
+          return (
+            <g style={{ filter: "drop-shadow(0 0.4px 0.6px rgba(0,0,0,0.35))" }}>
+              <image
+                href={labelImage.data_url}
+                x={ponta.x_pct - w / 2}
+                y={ponta.y_pct - w / 2}
+                width={w}
+                height={w}
+                preserveAspectRatio="xMidYMid meet"
+              />
+            </g>
+          );
+        })()}
+
+
         {/* Embroidery */}
         {embroidery && (() => {
           const slot = slots.find((s) => s.key === embroidery.slot_key);
