@@ -496,6 +496,7 @@ function BuilderPreview({
   slotPatches,
   patches,
   embroidery,
+  labelImage,
 }: {
   kind: string;
   zoneColors: Record<string, string>;
@@ -503,6 +504,7 @@ function BuilderPreview({
   slotPatches: Record<string, string>;
   patches: Patch[];
   embroidery: { text: string; slot_key: string; color: string } | null;
+  labelImage?: { data_url: string; filename: string } | null;
 }) {
   const zones = ZONES[kind] ?? [];
   const baseImg = BASE_IMAGES[kind];
