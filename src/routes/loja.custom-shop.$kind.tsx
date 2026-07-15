@@ -1063,7 +1063,7 @@ function BuilderPreview({
   beltPresetImage?: string | null;
   onEmbroideryChange?: (
     slotKey: string,
-    patch: { position?: { x: number; y: number }; scale?: number },
+    patch: { position?: { x: number; y: number }; scale?: number; rotation?: number },
   ) => void;
 }) {
   const isJudo = kind === "faixa" && variantKey === "judo";
@@ -1074,6 +1074,7 @@ function BuilderPreview({
   const [embDrag, setEmbDrag] = useState<
     | { kind: "move"; slotKey: string; startX: number; startY: number; origX: number; origY: number }
     | { kind: "resize"; slotKey: string; startDist: number; origScale: number; cx: number; cy: number }
+    | { kind: "rotate"; slotKey: string; cx: number; cy: number; startAngle: number; origRotation: number }
     | null
   >(null);
 
@@ -1102,6 +1103,13 @@ function BuilderPreview({
         const ratio = embDrag.startDist > 0 ? dist / embDrag.startDist : 1;
         const nextScale = Math.min(3, Math.max(0.3, embDrag.origScale * ratio));
         onEmbroideryChange(embDrag.slotKey, { scale: nextScale });
+      } else if (embDrag.kind === "rotate") {
+        const angle = Math.atan2(p.y - embDrag.cy, p.x - embDrag.cx) * (180 / Math.PI);
+        let next = embDrag.origRotation + (angle - embDrag.startAngle);
+        // Normalize to [-180, 180]
+        while (next > 180) next -= 360;
+        while (next < -180) next += 360;
+        onEmbroideryChange(embDrag.slotKey, { rotation: next });
       }
     };
     const onUp = () => setEmbDrag(null);
@@ -1131,6 +1139,22 @@ function BuilderPreview({
         className="absolute inset-0 h-full w-full"
         xmlns="http://www.w3.org/2000/svg"
       >
+        {/* Embroidery texture filter — applied to text to simulate thread/stitch */}
+        <defs>
+          <filter id="emb-texture" x="-20%" y="-20%" width="140%" height="140%">
+            <feTurbulence type="turbulence" baseFrequency="1.6" numOctaves="2" seed="7" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="0.18" result="displaced" />
+            <feGaussianBlur in="displaced" stdDeviation="0.02" result="soft" />
+            <feSpecularLighting in="noise" surfaceScale="0.6" specularConstant="0.75" specularExponent="18" lightingColor="#ffffff" result="spec">
+              <feDistantLight azimuth="45" elevation="55" />
+            </feSpecularLighting>
+            <feComposite in="spec" in2="soft" operator="in" result="specMasked" />
+            <feMerge>
+              <feMergeNode in="soft" />
+              <feMergeNode in="specMasked" />
+            </feMerge>
+          </filter>
+        </defs>
         {/* Zones (skip when using real product photo) */}
         {!useProductPhoto && zones.map((z) => {
           const color = zoneColors[z.key];
@@ -1266,6 +1290,7 @@ function BuilderPreview({
                     stroke="rgba(0,0,0,0.35)"
                     strokeWidth={0.12}
                     paintOrder="stroke fill"
+                    filter="url(#emb-texture)"
                     style={{ filter: "drop-shadow(0 0.15px 0.2px rgba(0,0,0,0.45))" }}
                   >
                     {twoLines ? (
@@ -1340,6 +1365,38 @@ function BuilderPreview({
                     origScale: scale,
                     cx,
                     cy,
+                  });
+                }}
+              />
+              {/* Rotate handle (above top-center) */}
+              <line
+                x1={cx}
+                y1={cy - half}
+                x2={cx}
+                y2={cy - half - 2.2}
+                stroke="rgba(59,130,246,0.9)"
+                strokeWidth={0.2}
+                style={{ pointerEvents: "none" }}
+              />
+              <circle
+                cx={cx}
+                cy={cy - half - 2.6}
+                r={1.2}
+                fill="#10b981"
+                stroke="#fff"
+                strokeWidth={0.25}
+                style={{ cursor: "grab", pointerEvents: "auto", touchAction: "none" }}
+                onPointerDown={(e) => {
+                  (e.target as Element).setPointerCapture?.(e.pointerId);
+                  const p = svgPoint(e);
+                  const startAngle = Math.atan2(p.y - cy, p.x - cx) * (180 / Math.PI);
+                  setEmbDrag({
+                    kind: "rotate",
+                    slotKey: emb.slot_key,
+                    cx,
+                    cy,
+                    startAngle,
+                    origRotation: emb.rotation ?? 0,
                   });
                 }}
               />
@@ -1750,8 +1807,18 @@ function ImageUploader({
   hint?: string;
 }) {
   const [error, setError] = useState<string | null>(null);
+  const [processing, setProcessing] = useState(false);
 
-  function handleFile(file: File | null) {
+  function fileToDataUrl(file: Blob): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(String(r.result));
+      r.onerror = () => reject(r.error);
+      r.readAsDataURL(file);
+    });
+  }
+
+  async function handleFile(file: File | null) {
     setError(null);
     if (!file) return;
     if (!/^image\/(png|jpe?g|webp|svg\+xml)$/.test(file.type)) {
@@ -1762,11 +1829,26 @@ function ImageUploader({
       setError("Arquivo muito grande. Máximo 4MB.");
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      onChange({ data_url: String(reader.result), filename: file.name });
-    };
-    reader.readAsDataURL(file);
+    // SVG não precisa remoção de fundo.
+    if (file.type === "image/svg+xml") {
+      const data_url = await fileToDataUrl(file);
+      onChange({ data_url, filename: file.name });
+      return;
+    }
+    setProcessing(true);
+    try {
+      const { removeBackground } = await import("@imgly/background-removal");
+      const blob = await removeBackground(file, { output: { format: "image/png" } });
+      const data_url = await fileToDataUrl(blob);
+      onChange({ data_url, filename: file.name.replace(/\.[^.]+$/, "") + ".png" });
+    } catch (err) {
+      console.error("Background removal failed, using original:", err);
+      const data_url = await fileToDataUrl(file);
+      onChange({ data_url, filename: file.name });
+      setError("Não foi possível remover o fundo automaticamente. Imagem original mantida.");
+    } finally {
+      setProcessing(false);
+    }
   }
 
   return (
@@ -1776,7 +1858,7 @@ function ImageUploader({
           <img src={value.data_url} alt={value.filename} className="h-16 w-16 rounded border object-contain bg-muted" />
           <div className="flex-1 truncate text-xs">
             <div className="font-semibold truncate">{value.filename}</div>
-            <div className="text-muted-foreground">Enviado</div>
+            <div className="text-muted-foreground">Enviado — fundo removido</div>
           </div>
           <button
             type="button"
@@ -1787,13 +1869,20 @@ function ImageUploader({
           </button>
         </div>
       ) : (
-        <label className="flex cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed px-3 py-6 text-sm text-muted-foreground hover:border-primary hover:text-primary">
+        <label
+          className={`flex items-center justify-center gap-2 rounded-md border border-dashed px-3 py-6 text-sm ${
+            processing
+              ? "cursor-wait text-muted-foreground opacity-70"
+              : "cursor-pointer text-muted-foreground hover:border-primary hover:text-primary"
+          }`}
+        >
           <Upload className="h-4 w-4" />
-          <span>Clique para enviar imagem</span>
+          <span>{processing ? "Removendo fundo..." : "Clique para enviar imagem"}</span>
           <input
             type="file"
             accept="image/png,image/jpeg,image/webp,image/svg+xml"
             className="hidden"
+            disabled={processing}
             onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
           />
         </label>
