@@ -69,6 +69,31 @@ const JUDO_PRESETS: { label: string; body: string; tip: string; image: string }[
   { label: "Marrom",                             body: "#78350f", tip: "#78350f", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/be47182f-1cad-42a6-b09f-73503913aefc/5849e0a0-a4d0-44ac-84f5-97a1e9f31af6.jpg" },
 ];
 
+// Jiu-Jitsu: presets oficiais linkados às faixas da Linha Training (imagem real do produto).
+const JIU_PRESETS: { label: string; body: string; tip: string; image: string }[] = [
+  { label: "Branca",              body: "#ffffff", tip: "#ffffff", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/fe31ee70-d5cc-4022-b99c-7f7d2e4f3ea4/354733f2-0a88-4a70-acfb-e8fdb2dab3b9.jpg" },
+  { label: "Cinza",               body: "#6b7280", tip: "#6b7280", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/ff90dba4-77b9-42f8-9696-57882c776653/4feaeeea-8788-4637-8c54-6b1dd2822228.jpg" },
+  { label: "Cinza ponta branca",  body: "#6b7280", tip: "#ffffff", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/f9ed7fd5-8b40-4da1-928b-5bb8a4b619c1/40f1f314-e312-4ea9-9dbf-069908857d17.jpg" },
+  { label: "Cinza ponta preta",   body: "#6b7280", tip: "#111827", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/d24b926e-9584-4286-85a2-43ce51bc4f2f/356a1776-cf4e-4165-955b-4e5f83944365.png" },
+  { label: "Amarela",             body: "#eab308", tip: "#eab308", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/f28d29c0-238e-40ab-9723-68c992ba45f0/b0cb6a93-6511-4483-89c4-0e00cb807ef6.jpg" },
+  { label: "Amarela ponta branca",body: "#eab308", tip: "#ffffff", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/c6e847c2-fc5a-41b4-850f-89eea2f6448d/5b211584-83c5-4b0e-95a5-dee3897b0ebd.jpg" },
+  { label: "Amarela ponta preta", body: "#eab308", tip: "#111827", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/a252ae1e-0bcd-475e-b527-3127b4ac8093/8be53b67-2533-4b8c-a648-7ca53a94dc45.jpg" },
+  { label: "Laranja",             body: "#f97316", tip: "#f97316", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/35ad7813-c883-46d7-92a0-ac083f72b59c/67dcd53a-4670-4df0-868e-1510e15fa5de.jpg" },
+  { label: "Laranja ponta branca",body: "#f97316", tip: "#ffffff", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/1d43ca9d-80ae-4f10-b7a1-228b5ffa7834/3043f17e-ce04-486f-9795-f2fa297f14b4.jpg" },
+  { label: "Laranja ponta preta", body: "#f97316", tip: "#111827", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/a5c6416b-b106-4329-9d24-50442ccc73f5/09858131-d583-41c8-8e53-369a5c40d91a.jpg" },
+  { label: "Verde",               body: "#16a34a", tip: "#16a34a", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/cdea1715-21ed-4b57-a5d5-95966bc058a7/c9b298f5-4972-48ab-b372-a2d291af8861.jpg" },
+  { label: "Verde ponta branca",  body: "#16a34a", tip: "#ffffff", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/ce8da71a-9f92-470b-bfac-6888d4b09ad7/7483a956-6339-49c9-8dce-e5d34511e183.jpg" },
+  { label: "Verde ponta preta",   body: "#16a34a", tip: "#111827", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/c732b588-c318-42c5-9bfc-2b9850eeed2a/41e4132c-5f3a-498e-80a8-e34d990f2bf4.jpg" },
+  { label: "Azul",                body: "#1e3a8a", tip: "#1e3a8a", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/6709cf8e-8ac2-4fa6-95bb-24a98dd6f841/9631f4ae-ca37-457e-9279-308f346caf96.jpg" },
+  { label: "Roxa",                body: "#7c3aed", tip: "#7c3aed", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/9ec57bad-9e43-43a6-b358-b3db4e4b9391/ba61158a-3876-43ed-b91c-3a95c18c832e.jpg" },
+  { label: "Marrom",              body: "#78350f", tip: "#78350f", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/9e761276-f024-4d11-955f-1d47f579ddf3/97e81548-d137-498a-ad22-96afcab98958.jpg" },
+];
+
+const BELT_PRESETS: Record<string, typeof JUDO_PRESETS> = {
+  judo: JUDO_PRESETS,
+  default: JIU_PRESETS,
+};
+
 // Coloração (revestimento externo) — opções fixas para faixa
 const COLORING_OPTIONS: { name: string; price_delta: number }[] = [
   { name: "Oxford 100% poliéster", price_delta: 0 },
