@@ -195,19 +195,23 @@ function AdminProductsPage() {
         </div>
       </div>
 
-      {selected.size > 0 && (
-        <Card className="border-primary/40 bg-primary/5">
-          <CardContent className="p-4">
-            <div className="flex flex-wrap items-end gap-3">
-              <div className="text-sm font-semibold">{selected.size} selecionado(s)</div>
-              <div className="flex flex-col gap-1">
-                <label className="text-xs text-muted-foreground">Novo preço (R$)</label>
-                <Input value={bulkPrice} onChange={(e) => setBulkPrice(e.target.value)} placeholder="ex: 199,90" className="w-32" />
+      <Card className="border-primary/40 bg-primary/5">
+        <CardContent className="p-4">
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="text-sm font-semibold min-w-[9rem]">
+              Edição em massa
+              <div className="text-xs font-normal text-muted-foreground">
+                {selected.size} selecionado(s)
               </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-xs text-muted-foreground">Ajuste % (ex: 10 ou -5)</label>
-                <Input value={bulkPricePct} onChange={(e) => setBulkPricePct(e.target.value)} placeholder="%" className="w-24" />
-              </div>
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-muted-foreground">Novo preço (R$)</label>
+              <Input value={bulkPrice} onChange={(e) => setBulkPrice(e.target.value)} placeholder="ex: 199,90" className="w-32" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-muted-foreground">Ajuste % (ex: 10 ou -5)</label>
+              <Input value={bulkPricePct} onChange={(e) => setBulkPricePct(e.target.value)} placeholder="%" className="w-24" />
+            </div>
               <div className="flex flex-col gap-1">
                 <label className="text-xs text-muted-foreground">Novo estoque</label>
                 <Input value={bulkStock} onChange={(e) => setBulkStock(e.target.value)} placeholder="ex: 10" className="w-24" />
