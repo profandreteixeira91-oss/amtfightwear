@@ -388,10 +388,11 @@ function WholesalePage() {
                       {!isCollapsed && (
                         <div className="grid grid-cols-2 gap-3 p-3 sm:grid-cols-3 xl:grid-cols-4">
                           {items.map((p) => {
-                            const q = qty[p.id] ?? 0;
-                            const originalPrice = Number(p.price);
-                            const discountedPrice = originalPrice * (1 - WHOLESALE_DISCOUNT);
-                            const selected = q > 0;
+                            const vs = variantsByProduct.get(p.id) ?? [];
+                            const hasVariants = vs.length > 0;
+                            const totalForProduct = productTotal(p.id);
+                            const basePrice = Number(p.price);
+                            const selected = totalForProduct > 0;
                             return (
                               <div
                                 key={p.id}
@@ -413,50 +414,90 @@ function WholesalePage() {
                                   )}
                                   {selected && (
                                     <div className="absolute left-2 top-2 rounded bg-primary px-2 py-0.5 text-[10px] font-bold uppercase text-primary-foreground">
-                                      {q} un.
+                                      {totalForProduct} un.
                                     </div>
                                   )}
                                 </div>
                                 <div className="flex flex-1 flex-col gap-2 p-3">
                                   <div className="line-clamp-2 min-h-[2.5rem] text-sm font-medium">{p.name}</div>
                                   <div className="flex flex-wrap items-baseline gap-2 text-xs">
-                                    <span className="text-muted-foreground line-through">{formatBRL(originalPrice)}</span>
-                                    <span className="text-sm font-bold text-primary">{formatBRL(discountedPrice)}</span>
+                                    <span className="text-muted-foreground line-through">{formatBRL(basePrice)}</span>
+                                    <span className="text-sm font-bold text-primary">{formatBRL(basePrice * (1 - WHOLESALE_DISCOUNT))}</span>
                                   </div>
-                                  <div className="mt-auto flex items-center justify-between gap-1">
-                                    <button
-                                      type="button"
-                                      onClick={() => setProductQty(p.id, q - 1)}
-                                      className="grid h-8 w-8 place-items-center rounded-md border hover:bg-accent disabled:opacity-40"
-                                      disabled={q === 0}
-                                      aria-label="Diminuir"
-                                    >
-                                      <Minus className="h-3.5 w-3.5" />
-                                    </button>
-                                    <input
-                                      type="number"
-                                      min={0}
-                                      value={q}
-                                      onChange={(e) => setProductQty(p.id, Number(e.target.value) || 0)}
-                                      className="h-8 min-w-0 flex-1 rounded-md border bg-background text-center text-sm outline-none focus:border-primary"
-                                    />
-                                    <button
-                                      type="button"
-                                      onClick={() => setProductQty(p.id, q + 1)}
-                                      className="grid h-8 w-8 place-items-center rounded-md border hover:bg-accent"
-                                      aria-label="Aumentar"
-                                    >
-                                      <Plus className="h-3.5 w-3.5" />
-                                    </button>
-                                  </div>
-                                  {q > 0 && q < MIN_PER_SUBCAT && groupQty < MIN_PER_SUBCAT && (
-                                    <button
-                                      type="button"
-                                      onClick={() => setProductQty(p.id, Math.max(MIN_PER_SUBCAT - (groupQty - q), q))}
-                                      className="text-[10px] font-semibold text-primary hover:underline"
-                                    >
-                                      Completar mínimo da subcategoria
-                                    </button>
+
+                                  {hasVariants ? (
+                                    <div className="mt-1 space-y-1.5">
+                                      <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                                        Selecione os tamanhos
+                                      </div>
+                                      <div className="space-y-1">
+                                        {vs.map((v) => {
+                                          const vq = qty[keyOf(p.id, v.id)] ?? 0;
+                                          const label = v.size ?? v.option_label ?? v.color ?? "Único";
+                                          return (
+                                            <div
+                                              key={v.id}
+                                              className={`flex items-center gap-1 rounded-md border px-1.5 py-1 text-xs ${vq > 0 ? "border-primary/50 bg-primary/5" : ""}`}
+                                            >
+                                              <span className="min-w-[2.5rem] flex-1 truncate font-semibold" title={label}>
+                                                {label}
+                                              </span>
+                                              <button
+                                                type="button"
+                                                onClick={() => setLineQty(p.id, v.id, vq - 1)}
+                                                className="grid h-6 w-6 place-items-center rounded border hover:bg-accent disabled:opacity-40"
+                                                disabled={vq === 0}
+                                                aria-label={`Diminuir ${label}`}
+                                              >
+                                                <Minus className="h-3 w-3" />
+                                              </button>
+                                              <input
+                                                type="number"
+                                                min={0}
+                                                value={vq}
+                                                onChange={(e) => setLineQty(p.id, v.id, Number(e.target.value) || 0)}
+                                                className="h-6 w-10 min-w-0 rounded border bg-background text-center text-xs outline-none focus:border-primary"
+                                              />
+                                              <button
+                                                type="button"
+                                                onClick={() => setLineQty(p.id, v.id, vq + 1)}
+                                                className="grid h-6 w-6 place-items-center rounded border hover:bg-accent"
+                                                aria-label={`Aumentar ${label}`}
+                                              >
+                                                <Plus className="h-3 w-3" />
+                                              </button>
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <div className="mt-auto flex items-center justify-between gap-1">
+                                      <button
+                                        type="button"
+                                        onClick={() => setLineQty(p.id, null, (qty[keyOf(p.id, null)] ?? 0) - 1)}
+                                        className="grid h-8 w-8 place-items-center rounded-md border hover:bg-accent disabled:opacity-40"
+                                        disabled={(qty[keyOf(p.id, null)] ?? 0) === 0}
+                                        aria-label="Diminuir"
+                                      >
+                                        <Minus className="h-3.5 w-3.5" />
+                                      </button>
+                                      <input
+                                        type="number"
+                                        min={0}
+                                        value={qty[keyOf(p.id, null)] ?? 0}
+                                        onChange={(e) => setLineQty(p.id, null, Number(e.target.value) || 0)}
+                                        className="h-8 min-w-0 flex-1 rounded-md border bg-background text-center text-sm outline-none focus:border-primary"
+                                      />
+                                      <button
+                                        type="button"
+                                        onClick={() => setLineQty(p.id, null, (qty[keyOf(p.id, null)] ?? 0) + 1)}
+                                        className="grid h-8 w-8 place-items-center rounded-md border hover:bg-accent"
+                                        aria-label="Aumentar"
+                                      >
+                                        <Plus className="h-3.5 w-3.5" />
+                                      </button>
+                                    </div>
                                   )}
                                 </div>
                               </div>
