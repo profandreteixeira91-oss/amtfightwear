@@ -28,11 +28,13 @@ import { Route as AuthenticatedLogsRouteImport } from './routes/_authenticated/l
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdsRouteImport } from './routes/_authenticated/ads'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as LojaCustomShopIndexRouteImport } from './routes/loja.custom-shop.index'
 import { Route as AuthenticatedStoreIndexRouteImport } from './routes/_authenticated/store.index'
 import { Route as AuthenticatedProspectIndexRouteImport } from './routes/_authenticated/prospect.index'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as LojaProdutoSlugRouteImport } from './routes/loja.produto.$slug'
 import { Route as LojaPedidoIdRouteImport } from './routes/loja.pedido.$id'
+import { Route as LojaCustomShopKindRouteImport } from './routes/loja.custom-shop.$kind'
 import { Route as LojaCategoriaSlugRouteImport } from './routes/loja.categoria.$slug'
 import { Route as AuthenticatedStoreShippingRouteImport } from './routes/_authenticated/store.shipping'
 import { Route as AuthenticatedStoreProductsRouteImport } from './routes/_authenticated/store.products'
@@ -185,6 +187,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const LojaCustomShopIndexRoute = LojaCustomShopIndexRouteImport.update({
+  id: '/loja/custom-shop/',
+  path: '/loja/custom-shop/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedStoreIndexRoute = AuthenticatedStoreIndexRouteImport.update({
   id: '/store/',
   path: '/store/',
@@ -209,6 +216,11 @@ const LojaProdutoSlugRoute = LojaProdutoSlugRouteImport.update({
 const LojaPedidoIdRoute = LojaPedidoIdRouteImport.update({
   id: '/loja/pedido/$id',
   path: '/loja/pedido/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaCustomShopKindRoute = LojaCustomShopKindRouteImport.update({
+  id: '/loja/custom-shop/$kind',
+  path: '/loja/custom-shop/$kind',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LojaCategoriaSlugRoute = LojaCategoriaSlugRouteImport.update({
@@ -601,11 +613,13 @@ export interface FileRoutesByFullPath {
   '/store/products': typeof AuthenticatedStoreProductsRoute
   '/store/shipping': typeof AuthenticatedStoreShippingRoute
   '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
+  '/loja/custom-shop/$kind': typeof LojaCustomShopKindRoute
   '/loja/pedido/$id': typeof LojaPedidoIdRoute
   '/loja/produto/$slug': typeof LojaProdutoSlugRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/prospect/': typeof AuthenticatedProspectIndexRoute
   '/store/': typeof AuthenticatedStoreIndexRoute
+  '/loja/custom-shop/': typeof LojaCustomShopIndexRoute
   '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
@@ -683,11 +697,13 @@ export interface FileRoutesByTo {
   '/store/products': typeof AuthenticatedStoreProductsRoute
   '/store/shipping': typeof AuthenticatedStoreShippingRoute
   '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
+  '/loja/custom-shop/$kind': typeof LojaCustomShopKindRoute
   '/loja/pedido/$id': typeof LojaPedidoIdRoute
   '/loja/produto/$slug': typeof LojaProdutoSlugRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/prospect': typeof AuthenticatedProspectIndexRoute
   '/store': typeof AuthenticatedStoreIndexRoute
+  '/loja/custom-shop': typeof LojaCustomShopIndexRoute
   '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
@@ -767,11 +783,13 @@ export interface FileRoutesById {
   '/_authenticated/store/products': typeof AuthenticatedStoreProductsRoute
   '/_authenticated/store/shipping': typeof AuthenticatedStoreShippingRoute
   '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
+  '/loja/custom-shop/$kind': typeof LojaCustomShopKindRoute
   '/loja/pedido/$id': typeof LojaPedidoIdRoute
   '/loja/produto/$slug': typeof LojaProdutoSlugRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/_authenticated/prospect/': typeof AuthenticatedProspectIndexRoute
   '/_authenticated/store/': typeof AuthenticatedStoreIndexRoute
+  '/loja/custom-shop/': typeof LojaCustomShopIndexRoute
   '/_authenticated/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
@@ -851,11 +869,13 @@ export interface FileRouteTypes {
     | '/store/products'
     | '/store/shipping'
     | '/loja/categoria/$slug'
+    | '/loja/custom-shop/$kind'
     | '/loja/pedido/$id'
     | '/loja/produto/$slug'
     | '/lovable/email/suppression'
     | '/prospect/'
     | '/store/'
+    | '/loja/custom-shop/'
     | '/ads/campaigns/$id'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/enrich-pending-leads'
@@ -933,11 +953,13 @@ export interface FileRouteTypes {
     | '/store/products'
     | '/store/shipping'
     | '/loja/categoria/$slug'
+    | '/loja/custom-shop/$kind'
     | '/loja/pedido/$id'
     | '/loja/produto/$slug'
     | '/lovable/email/suppression'
     | '/prospect'
     | '/store'
+    | '/loja/custom-shop'
     | '/ads/campaigns/$id'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/enrich-pending-leads'
@@ -1016,11 +1038,13 @@ export interface FileRouteTypes {
     | '/_authenticated/store/products'
     | '/_authenticated/store/shipping'
     | '/loja/categoria/$slug'
+    | '/loja/custom-shop/$kind'
     | '/loja/pedido/$id'
     | '/loja/produto/$slug'
     | '/lovable/email/suppression'
     | '/_authenticated/prospect/'
     | '/_authenticated/store/'
+    | '/loja/custom-shop/'
     | '/_authenticated/ads/campaigns/$id'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/enrich-pending-leads'
@@ -1053,9 +1077,11 @@ export interface RootRouteChildren {
   LojaCheckoutRoute: typeof LojaCheckoutRoute
   LojaIndexRoute: typeof LojaIndexRoute
   LojaCategoriaSlugRoute: typeof LojaCategoriaSlugRoute
+  LojaCustomShopKindRoute: typeof LojaCustomShopKindRoute
   LojaPedidoIdRoute: typeof LojaPedidoIdRoute
   LojaProdutoSlugRoute: typeof LojaProdutoSlugRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
+  LojaCustomShopIndexRoute: typeof LojaCustomShopIndexRoute
   ApiPublicHooksAutoInstagramPostRoute: typeof ApiPublicHooksAutoInstagramPostRoute
   ApiPublicHooksEnrichPendingLeadsRoute: typeof ApiPublicHooksEnrichPendingLeadsRoute
   ApiPublicHooksIgSyncRoute: typeof ApiPublicHooksIgSyncRoute
@@ -1208,6 +1234,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/loja/custom-shop/': {
+      id: '/loja/custom-shop/'
+      path: '/loja/custom-shop'
+      fullPath: '/loja/custom-shop/'
+      preLoaderRoute: typeof LojaCustomShopIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/store/': {
       id: '/_authenticated/store/'
       path: '/store'
@@ -1241,6 +1274,13 @@ declare module '@tanstack/react-router' {
       path: '/loja/pedido/$id'
       fullPath: '/loja/pedido/$id'
       preLoaderRoute: typeof LojaPedidoIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja/custom-shop/$kind': {
+      id: '/loja/custom-shop/$kind'
+      path: '/loja/custom-shop/$kind'
+      fullPath: '/loja/custom-shop/$kind'
+      preLoaderRoute: typeof LojaCustomShopKindRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/loja/categoria/$slug': {
@@ -1790,9 +1830,11 @@ const rootRouteChildren: RootRouteChildren = {
   LojaCheckoutRoute: LojaCheckoutRoute,
   LojaIndexRoute: LojaIndexRoute,
   LojaCategoriaSlugRoute: LojaCategoriaSlugRoute,
+  LojaCustomShopKindRoute: LojaCustomShopKindRoute,
   LojaPedidoIdRoute: LojaPedidoIdRoute,
   LojaProdutoSlugRoute: LojaProdutoSlugRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
+  LojaCustomShopIndexRoute: LojaCustomShopIndexRoute,
   ApiPublicHooksAutoInstagramPostRoute: ApiPublicHooksAutoInstagramPostRoute,
   ApiPublicHooksEnrichPendingLeadsRoute: ApiPublicHooksEnrichPendingLeadsRoute,
   ApiPublicHooksIgSyncRoute: ApiPublicHooksIgSyncRoute,
