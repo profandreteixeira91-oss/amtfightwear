@@ -59,7 +59,6 @@ import { Route as AuthenticatedInstagramCommentsRouteImport } from './routes/_au
 import { Route as AuthenticatedInstagramAutomationsRouteImport } from './routes/_authenticated/instagram.automations'
 import { Route as AuthenticatedInstagramAdminRouteImport } from './routes/_authenticated/instagram.admin'
 import { Route as AuthenticatedInstagramAccountRouteImport } from './routes/_authenticated/instagram.account'
-import { Route as AuthenticatedGrowthProductsRouteImport } from './routes/_authenticated/growth.products'
 import { Route as AuthenticatedGrowthMarketRouteImport } from './routes/_authenticated/growth.market'
 import { Route as AuthenticatedGrowthKpisRouteImport } from './routes/_authenticated/growth.kpis'
 import { Route as AuthenticatedGrowthIntelligenceRouteImport } from './routes/_authenticated/growth.intelligence'
@@ -365,12 +364,6 @@ const AuthenticatedInstagramAccountRoute =
     path: '/instagram/account',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedGrowthProductsRoute =
-  AuthenticatedGrowthProductsRouteImport.update({
-    id: '/growth/products',
-    path: '/growth/products',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedGrowthMarketRoute =
   AuthenticatedGrowthMarketRouteImport.update({
     id: '/growth/market',
@@ -582,7 +575,6 @@ export interface FileRoutesByFullPath {
   '/growth/intelligence': typeof AuthenticatedGrowthIntelligenceRoute
   '/growth/kpis': typeof AuthenticatedGrowthKpisRoute
   '/growth/market': typeof AuthenticatedGrowthMarketRoute
-  '/growth/products': typeof AuthenticatedGrowthProductsRoute
   '/instagram/account': typeof AuthenticatedInstagramAccountRoute
   '/instagram/admin': typeof AuthenticatedInstagramAdminRoute
   '/instagram/automations': typeof AuthenticatedInstagramAutomationsRoute
@@ -665,7 +657,6 @@ export interface FileRoutesByTo {
   '/growth/intelligence': typeof AuthenticatedGrowthIntelligenceRoute
   '/growth/kpis': typeof AuthenticatedGrowthKpisRoute
   '/growth/market': typeof AuthenticatedGrowthMarketRoute
-  '/growth/products': typeof AuthenticatedGrowthProductsRoute
   '/instagram/account': typeof AuthenticatedInstagramAccountRoute
   '/instagram/admin': typeof AuthenticatedInstagramAdminRoute
   '/instagram/automations': typeof AuthenticatedInstagramAutomationsRoute
@@ -750,7 +741,6 @@ export interface FileRoutesById {
   '/_authenticated/growth/intelligence': typeof AuthenticatedGrowthIntelligenceRoute
   '/_authenticated/growth/kpis': typeof AuthenticatedGrowthKpisRoute
   '/_authenticated/growth/market': typeof AuthenticatedGrowthMarketRoute
-  '/_authenticated/growth/products': typeof AuthenticatedGrowthProductsRoute
   '/_authenticated/instagram/account': typeof AuthenticatedInstagramAccountRoute
   '/_authenticated/instagram/admin': typeof AuthenticatedInstagramAdminRoute
   '/_authenticated/instagram/automations': typeof AuthenticatedInstagramAutomationsRoute
@@ -835,7 +825,6 @@ export interface FileRouteTypes {
     | '/growth/intelligence'
     | '/growth/kpis'
     | '/growth/market'
-    | '/growth/products'
     | '/instagram/account'
     | '/instagram/admin'
     | '/instagram/automations'
@@ -918,7 +907,6 @@ export interface FileRouteTypes {
     | '/growth/intelligence'
     | '/growth/kpis'
     | '/growth/market'
-    | '/growth/products'
     | '/instagram/account'
     | '/instagram/admin'
     | '/instagram/automations'
@@ -1002,7 +990,6 @@ export interface FileRouteTypes {
     | '/_authenticated/growth/intelligence'
     | '/_authenticated/growth/kpis'
     | '/_authenticated/growth/market'
-    | '/_authenticated/growth/products'
     | '/_authenticated/instagram/account'
     | '/_authenticated/instagram/admin'
     | '/_authenticated/instagram/automations'
@@ -1438,13 +1425,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedInstagramAccountRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/growth/products': {
-      id: '/_authenticated/growth/products'
-      path: '/growth/products'
-      fullPath: '/growth/products'
-      preLoaderRoute: typeof AuthenticatedGrowthProductsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/growth/market': {
       id: '/_authenticated/growth/market'
       path: '/growth/market'
@@ -1720,7 +1700,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedGrowthIntelligenceRoute: typeof AuthenticatedGrowthIntelligenceRoute
   AuthenticatedGrowthKpisRoute: typeof AuthenticatedGrowthKpisRoute
   AuthenticatedGrowthMarketRoute: typeof AuthenticatedGrowthMarketRoute
-  AuthenticatedGrowthProductsRoute: typeof AuthenticatedGrowthProductsRoute
   AuthenticatedInstagramAccountRoute: typeof AuthenticatedInstagramAccountRoute
   AuthenticatedInstagramAdminRoute: typeof AuthenticatedInstagramAdminRoute
   AuthenticatedInstagramAutomationsRoute: typeof AuthenticatedInstagramAutomationsRoute
@@ -1764,7 +1743,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedGrowthIntelligenceRoute: AuthenticatedGrowthIntelligenceRoute,
   AuthenticatedGrowthKpisRoute: AuthenticatedGrowthKpisRoute,
   AuthenticatedGrowthMarketRoute: AuthenticatedGrowthMarketRoute,
-  AuthenticatedGrowthProductsRoute: AuthenticatedGrowthProductsRoute,
   AuthenticatedInstagramAccountRoute: AuthenticatedInstagramAccountRoute,
   AuthenticatedInstagramAdminRoute: AuthenticatedInstagramAdminRoute,
   AuthenticatedInstagramAutomationsRoute:
