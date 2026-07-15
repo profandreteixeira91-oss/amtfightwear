@@ -1,6 +1,16 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+export type CustomConfig = {
+  template_id: string;
+  template_kind: string;
+  template_name: string;
+  zones: Record<string, string>; // zone_key -> hex
+  patches: Array<{ slot_key: string; patch_id: string; patch_name: string; image_url: string; price: number }>;
+  embroidery?: { text: string; slot_key: string; color: string } | null;
+  fabric?: { id: string; name: string; price_delta: number } | null;
+};
+
 export type CartItem = {
   product_id: string;
   variant_id?: string | null;
@@ -10,7 +20,11 @@ export type CartItem = {
   image_url?: string | null;
   unit_price: number;
   quantity: number;
+  type?: "product" | "custom";
+  custom_config?: CustomConfig | null;
+  production_days?: number | null;
 };
+
 
 type CartState = {
   items: CartItem[];
