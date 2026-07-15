@@ -1304,7 +1304,8 @@ function BuilderPreview({
                     strokeWidth={0.12}
                     paintOrder="stroke fill"
                     filter="url(#emb-texture)"
-                    style={{ filter: "drop-shadow(0 0.15px 0.2px rgba(0,0,0,0.45))" }}
+                    style={{ pointerEvents: "none" }}
+
                   >
                     {twoLines ? (
                       <>
