@@ -1020,7 +1020,8 @@ function LayoutEditorOverlay({
               }}
             />
           </g>
-        ))}
+          );
+        })}
         {slots.map((s, i) => {
           const w = s.w_pct;
           const x = s.x_pct - w / 2;
