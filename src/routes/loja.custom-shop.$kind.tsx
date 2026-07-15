@@ -822,9 +822,9 @@ function BuilderPage() {
 
                         {active && (
                           <div className="space-y-2">
-                            <div className="text-xs font-semibold text-muted-foreground">Posição do bordado</div>
+                            <div className="text-xs font-semibold text-muted-foreground">Posição, tamanho e rotação</div>
                             <div className="flex items-center gap-2 text-[11px]">
-                              <span className="w-6 text-muted-foreground">X</span>
+                              <span className="w-10 text-muted-foreground">X</span>
                               <input
                                 type="range"
                                 min={0}
@@ -834,10 +834,10 @@ function BuilderPage() {
                                 onChange={(e) => setEntry({ position: { x: Number(e.target.value), y: pos.y } })}
                                 className="flex-1"
                               />
-                              <span className="w-8 text-right tabular-nums">{Math.round(pos.x)}%</span>
+                              <span className="w-10 text-right tabular-nums">{Math.round(pos.x)}%</span>
                             </div>
                             <div className="flex items-center gap-2 text-[11px]">
-                              <span className="w-6 text-muted-foreground">Y</span>
+                              <span className="w-10 text-muted-foreground">Y</span>
                               <input
                                 type="range"
                                 min={0}
@@ -847,17 +847,44 @@ function BuilderPage() {
                                 onChange={(e) => setEntry({ position: { x: pos.x, y: Number(e.target.value) } })}
                                 className="flex-1"
                               />
-                              <span className="w-8 text-right tabular-nums">{Math.round(pos.y)}%</span>
+                              <span className="w-10 text-right tabular-nums">{Math.round(pos.y)}%</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-[11px]">
+                              <span className="w-10 text-muted-foreground">Tam.</span>
+                              <input
+                                type="range"
+                                min={0.3}
+                                max={3}
+                                step={0.05}
+                                value={entry.scale}
+                                onChange={(e) => setEntry({ scale: Number(e.target.value) })}
+                                className="flex-1"
+                              />
+                              <span className="w-10 text-right tabular-nums">{Math.round(entry.scale * 100)}%</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-[11px]">
+                              <span className="w-10 text-muted-foreground">Rot.</span>
+                              <input
+                                type="range"
+                                min={-180}
+                                max={180}
+                                step={1}
+                                value={entry.rotation}
+                                onChange={(e) => setEntry({ rotation: Number(e.target.value) })}
+                                className="flex-1"
+                              />
+                              <span className="w-10 text-right tabular-nums">{Math.round(entry.rotation)}°</span>
                             </div>
                             <button
                               type="button"
-                              onClick={() => setEntry({ position: null })}
+                              onClick={() => setEntry({ position: null, scale: 1, rotation: 0 })}
                               className="text-[10px] text-muted-foreground underline hover:text-primary"
                             >
-                              Restaurar posição padrão
+                              Restaurar padrão
                             </button>
                           </div>
                         )}
+
 
                         {active && (
                           <>
