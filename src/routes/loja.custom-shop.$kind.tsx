@@ -5,6 +5,7 @@ import { StoreShell } from "@/components/store/StoreShell";
 import { listStoreCategories } from "@/lib/store/store.functions";
 import { getCustomTemplate, checkIsAdmin, updateCustomLayout } from "@/lib/customshop.functions";
 import { formatBRL, useCart, type CustomConfig } from "@/lib/store/cart-store";
+import { capturePreview } from "@/lib/store/preview-capture";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, Plus, Trash2, ShoppingBag, Upload, X, Settings, Save, RotateCcw } from "lucide-react";
 import kimonoBase from "@/assets/customshop-kimono.jpg";
@@ -221,6 +222,7 @@ function BuilderPage() {
   const { data: categories } = useSuspenseQuery(catsQuery);
   const navigate = useNavigate();
   const addToCart = useCart((s) => s.add);
+  const previewRef = useRef<HTMLDivElement | null>(null);
   const queryClient = useQueryClient();
 
   // Admin detection
@@ -467,7 +469,8 @@ function BuilderPage() {
     });
   }
 
-  function handleAddToCart() {
+  async function handleAddToCart() {
+    const preview_image = await capturePreview(previewRef.current, 1000);
     const config: CustomConfig = {
       template_id: template.id,
       template_kind: template.kind,
@@ -484,6 +487,7 @@ function BuilderPage() {
       logo_image: isFaixa ? logoImage : null,
       label_image: isFaixa && labelChoice === "custom" ? labelImage : null,
       label_choice: isFaixa ? labelChoice : null,
+      preview_image,
     };
     addToCart({
       product_id: crypto.randomUUID(),
@@ -491,7 +495,7 @@ function BuilderPage() {
       name: `${template.name} — Personalizado${variants.length > 1 ? ` · ${activeVariant.label}` : ""}`,
       variant_label: `Custom · ${selectedFabric?.name ?? "Padrão"}`,
       slug: `custom-${template.kind}`,
-      image_url: template.base_image_url ?? null,
+      image_url: preview_image ?? template.base_image_url ?? null,
       unit_price: unitPrice,
       quantity: 1,
       type: "custom",
@@ -514,7 +518,7 @@ function BuilderPage() {
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
           {/* Preview (right column on desktop, first on mobile) */}
           <div className="order-1 rounded-xl border bg-card p-4 lg:order-2 lg:sticky lg:top-4 lg:self-start">
-            <div className="relative mx-auto aspect-square w-full max-w-xl overflow-hidden rounded-lg bg-muted">
+            <div ref={previewRef} className="relative mx-auto aspect-square w-full max-w-xl overflow-hidden rounded-lg bg-muted">
               <BuilderPreview
                 kind={template.kind}
                 variantKey={variantKey}
