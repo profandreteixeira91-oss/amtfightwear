@@ -951,7 +951,7 @@ function BuilderPreview({
     position: { x: number; y: number } | null;
     color: string;
   }>;
-  labelImage?: { data_url: string; filename: string } | null;
+  labelImage?: { data_url: string; filename: string; bg_color?: string } | null;
   judoPresetImage?: string | null;
 }) {
   const isJudo = kind === "faixa" && variantKey === "judo";
