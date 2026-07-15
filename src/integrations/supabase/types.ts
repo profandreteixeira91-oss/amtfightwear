@@ -1013,6 +1013,207 @@ export type Database = {
           },
         ]
       }
+      custom_shop_fabrics: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          price_delta: number
+          sort_order: number
+          template_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          price_delta?: number
+          sort_order?: number
+          template_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          price_delta?: number
+          sort_order?: number
+          template_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_shop_fabrics_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "custom_shop_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      custom_shop_patch_slots: {
+        Row: {
+          created_at: string
+          id: string
+          key: string
+          label: string
+          sort_order: number
+          template_id: string
+          w_pct: number
+          x_pct: number
+          y_pct: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          key: string
+          label: string
+          sort_order?: number
+          template_id: string
+          w_pct?: number
+          x_pct: number
+          y_pct: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          key?: string
+          label?: string
+          sort_order?: number
+          template_id?: string
+          w_pct?: number
+          x_pct?: number
+          y_pct?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_shop_patch_slots_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "custom_shop_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      custom_shop_patches: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          image_url: string
+          name: string
+          price: number
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          image_url: string
+          name: string
+          price?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          image_url?: string
+          name?: string
+          price?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      custom_shop_templates: {
+        Row: {
+          active: boolean
+          base_image_url: string | null
+          base_price: number
+          created_at: string
+          description: string | null
+          id: string
+          kind: string
+          name: string
+          preview_ratio: number
+          production_days: number
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          base_image_url?: string | null
+          base_price?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          kind: string
+          name: string
+          preview_ratio?: number
+          production_days?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          base_image_url?: string | null
+          base_price?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          kind?: string
+          name?: string
+          preview_ratio?: number
+          production_days?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      custom_shop_zones: {
+        Row: {
+          created_at: string
+          default_hex: string
+          id: string
+          key: string
+          label: string
+          mask_image_url: string | null
+          sort_order: number
+          template_id: string
+        }
+        Insert: {
+          created_at?: string
+          default_hex?: string
+          id?: string
+          key: string
+          label: string
+          mask_image_url?: string | null
+          sort_order?: number
+          template_id: string
+        }
+        Update: {
+          created_at?: string
+          default_hex?: string
+          id?: string
+          key?: string
+          label?: string
+          mask_image_url?: string | null
+          sort_order?: number
+          template_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_shop_zones_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "custom_shop_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customers: {
         Row: {
           city: string | null
@@ -3126,11 +3327,13 @@ export type Database = {
       store_order_items: {
         Row: {
           created_at: string
+          custom_config: Json | null
           id: string
           image_url: string | null
           order_id: string
           product_id: string | null
           product_name: string
+          production_days: number | null
           quantity: number
           sku: string | null
           total_price: number
@@ -3140,11 +3343,13 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          custom_config?: Json | null
           id?: string
           image_url?: string | null
           order_id: string
           product_id?: string | null
           product_name: string
+          production_days?: number | null
           quantity: number
           sku?: string | null
           total_price: number
@@ -3154,11 +3359,13 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          custom_config?: Json | null
           id?: string
           image_url?: string | null
           order_id?: string
           product_id?: string | null
           product_name?: string
+          production_days?: number | null
           quantity?: number
           sku?: string | null
           total_price?: number
@@ -3201,6 +3408,7 @@ export type Database = {
           customer_phone: string | null
           discount: number
           id: string
+          max_production_days: number | null
           metadata: Json
           notes: string | null
           order_number: string
@@ -3228,6 +3436,7 @@ export type Database = {
           customer_phone?: string | null
           discount?: number
           id?: string
+          max_production_days?: number | null
           metadata?: Json
           notes?: string | null
           order_number?: string
@@ -3255,6 +3464,7 @@ export type Database = {
           customer_phone?: string | null
           discount?: number
           id?: string
+          max_production_days?: number | null
           metadata?: Json
           notes?: string | null
           order_number?: string
