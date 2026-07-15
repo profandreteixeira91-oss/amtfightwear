@@ -370,9 +370,11 @@ function BuilderPage() {
         })),
     [embroiderySlots, embroideries],
   );
-  const embroideryFee = activeEmbroideries.length * 39;
+  const embroideryFee = activeEmbroideries.length * (isFaixa ? FAIXA_BORDADO_FEE : 39);
   const fabricDelta = selectedFabric ? Number(selectedFabric.price_delta) : 0;
-  const unitPrice = Number(template.base_price) + fabricDelta + patchesTotal + embroideryFee;
+  const coloringDelta = isFaixa ? (COLORING_OPTIONS.find((c) => c.name === coloring)?.price_delta ?? 0) : 0;
+  const labelFee = isFaixa && labelChoice === "custom" && labelImage ? FAIXA_ETIQUETA_CUSTOM_FEE : 0;
+  const unitPrice = Number(template.base_price) + fabricDelta + coloringDelta + patchesTotal + embroideryFee + labelFee;
 
   function togglePatch(slotKey: string, patchId: string) {
     setSlotPatches((prev) => {
