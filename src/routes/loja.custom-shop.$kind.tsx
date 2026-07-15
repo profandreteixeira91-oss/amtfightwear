@@ -920,7 +920,7 @@ function BuilderPage() {
                                 ))}
                               </div>
                             </div>
-                            <div className="text-xs font-bold text-primary">Taxa de bordado: + {formatBRL(39)}</div>
+                            <div className="text-xs font-bold text-primary">Taxa de bordado: + {formatBRL(isFaixa ? FAIXA_BORDADO_FEE : 39)}</div>
                           </>
                         )}
                         {/* Preview inline da fonte selecionada */}
