@@ -6,6 +6,8 @@ import { useCart, formatBRL } from "@/lib/store/cart-store";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
+import { ShippingCalculator } from "@/components/store/ShippingCalculator";
+import type { ShippingOption } from "@/lib/store/shipping.functions";
 
 export const Route = createFileRoute("/loja/checkout")({
   loader: async ({ context }) => {
