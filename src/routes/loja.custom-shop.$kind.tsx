@@ -161,7 +161,15 @@ function BuilderPage() {
   const [zoneColors, setZoneColors] = useState<Record<string, string>>({});
   const [slotPatches, setSlotPatches] = useState<Record<string, string>>({});
   const [fabricId, setFabricId] = useState<string | null>(fabrics[0]?.id ?? null);
-  const [embroideries, setEmbroideries] = useState<Record<string, { text: string; color: string; image: { data_url: string; filename: string } | null }>>({});
+  const [embroideries, setEmbroideries] = useState<Record<string, {
+    mode: "text" | "logo";
+    text: string;
+    font: string;
+    lines: 1 | 2;
+    color: string;
+    image: { data_url: string; filename: string } | null;
+    position: { x: number; y: number } | null;
+  }>>({});
   const [activeZone, setActiveZone] = useState<string>(zones[0]?.key ?? "");
   const isFaixa = template.kind === "faixa";
   const [logoImage, setLogoImage] = useState<{ data_url: string; filename: string } | null>(null);
