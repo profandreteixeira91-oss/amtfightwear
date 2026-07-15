@@ -112,6 +112,13 @@ const adsItems = [
  { title: "Conexão Meta Ads", url: "/ads/connections", icon: Plug },
 ] as const;
 
+const storeItems = [
+  { title: "Painel da Loja", url: "/store", icon: Store },
+  { title: "Produtos", url: "/store/products", icon: Package },
+  { title: "Pedidos", url: "/store/orders", icon: ShoppingCart },
+  { title: "Importar catálogo", url: "/store/import", icon: DownloadIcon },
+] as const;
+
 const accountItems = [
   { title: "Perfil", url: "/profile", icon: User },
   { title: "Configurações", url: "/settings", icon: Settings },
