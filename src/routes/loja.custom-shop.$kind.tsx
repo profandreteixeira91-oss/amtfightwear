@@ -1044,25 +1044,44 @@ function BuilderPage() {
 
                         {active && (
                           <>
-                            <div>
-                              <div className="mb-1 text-xs font-semibold text-muted-foreground">Cor do bordado</div>
-                              <div className="flex flex-wrap gap-2">
-                                {PALETTE.map((c) => (
-                                  <button
-                                    key={c}
-                                    type="button"
-                                    onClick={() => setEntry({ color: c })}
-                                    className={`h-6 w-6 rounded-full border-2 ${
-                                      entry.color === c ? "border-primary scale-110" : "border-foreground/20"
-                                    }`}
-                                    style={{ background: c }}
-                                  />
-                                ))}
+                            {/* Cor do bordado — não se aplica a patches sublimado/DTF do kimono */}
+                            {!(kPatch && entry.technique && entry.technique !== "bordado") && (
+                              <div>
+                                <div className="mb-1 text-xs font-semibold text-muted-foreground">Cor do bordado</div>
+                                <div className="flex flex-wrap gap-2">
+                                  {PALETTE.map((c) => (
+                                    <button
+                                      key={c}
+                                      type="button"
+                                      onClick={() => setEntry({ color: c })}
+                                      className={`h-6 w-6 rounded-full border-2 ${
+                                        entry.color === c ? "border-primary scale-110" : "border-foreground/20"
+                                      }`}
+                                      style={{ background: c }}
+                                    />
+                                  ))}
+                                </div>
                               </div>
-                            </div>
-                            <div className="text-xs font-bold text-primary">Taxa de bordado: + {formatBRL(isFaixa ? FAIXA_BORDADO_FEE : 39)}</div>
+                            )}
+                            {isKimono ? (
+                              kName ? (
+                                <div className="text-xs font-bold text-primary">Bordado de nome: + {formatBRL(KIMONO_BORDADO_NOME_FEE)}</div>
+                              ) : (
+                                (() => {
+                                  const t = KIMONO_TECHNIQUES.find((x) => x.id === (entry.technique ?? "bordado"))!;
+                                  return (
+                                    <div className="text-xs font-bold text-primary">
+                                      Adicional ({t.label}): {t.price > 0 ? `+ ${formatBRL(t.price)}` : "a definir"}
+                                    </div>
+                                  );
+                                })()
+                              )
+                            ) : (
+                              <div className="text-xs font-bold text-primary">Taxa de bordado: + {formatBRL(isFaixa ? FAIXA_BORDADO_FEE : 39)}</div>
+                            )}
                           </>
                         )}
+
                         {/* Preview inline da fonte selecionada */}
                         {entry.mode === "text" && entry.text.trim() && (
                           <div
