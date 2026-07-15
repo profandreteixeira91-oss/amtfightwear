@@ -133,9 +133,7 @@ function BuilderPage() {
   const [zoneColors, setZoneColors] = useState<Record<string, string>>({});
   const [slotPatches, setSlotPatches] = useState<Record<string, string>>({});
   const [fabricId, setFabricId] = useState<string | null>(fabrics[0]?.id ?? null);
-  const [embroideryText, setEmbroideryText] = useState("");
-  const [embroiderySlot, setEmbroiderySlot] = useState<string | null>(null);
-  const [embroideryColor, setEmbroideryColor] = useState("#ffffff");
+  const [embroideries, setEmbroideries] = useState<Record<string, { text: string; color: string; image: { data_url: string; filename: string } | null }>>({});
   const [activeZone, setActiveZone] = useState<string>(zones[0]?.key ?? "");
   const isFaixa = template.kind === "faixa";
   const [logoImage, setLogoImage] = useState<{ data_url: string; filename: string } | null>(null);
@@ -184,7 +182,19 @@ function BuilderPage() {
     return total;
   }, [slotPatches, patches]);
 
-  const embroideryFee = embroideryText.trim() ? 39 : 0;
+  const embroiderySlots = useMemo(() => {
+    const bordado = slots.filter((s) => s.key.startsWith("bordado"));
+    return bordado.length > 0 ? bordado : slots;
+  }, [slots]);
+  const activeEmbroideries = useMemo(
+    () =>
+      embroiderySlots
+        .map((s) => ({ slot: s, e: embroideries[s.key] }))
+        .filter(({ e }) => e && (e.text.trim() || e.image))
+        .map(({ slot, e }) => ({ slot_key: slot.key, text: e!.text.trim() || null, image: e!.image, color: e!.color })),
+    [embroiderySlots, embroideries],
+  );
+  const embroideryFee = activeEmbroideries.length * 39;
   const fabricDelta = selectedFabric ? Number(selectedFabric.price_delta) : 0;
   const unitPrice = Number(template.base_price) + fabricDelta + patchesTotal + embroideryFee;
 
@@ -207,9 +217,8 @@ function BuilderPage() {
         const p = patches.find((pp) => pp.id === patch_id)!;
         return { slot_key, patch_id, patch_name: p.name, image_url: p.image_url, price: Number(p.price) };
       }),
-      embroidery: embroideryText.trim() && embroiderySlot
-        ? { text: embroideryText.trim(), slot_key: embroiderySlot, color: embroideryColor }
-        : null,
+      embroidery: null,
+      embroideries: activeEmbroideries.length > 0 ? activeEmbroideries : null,
       fabric: selectedFabric
         ? { id: selectedFabric.id, name: selectedFabric.name, price_delta: Number(selectedFabric.price_delta) }
         : null,
@@ -255,11 +264,7 @@ function BuilderPage() {
                 slots={shownSlots}
                 slotPatches={slotPatches}
                 patches={patches}
-                embroidery={
-                  embroideryText.trim() && embroiderySlot
-                    ? { text: embroideryText.trim(), slot_key: embroiderySlot, color: embroideryColor }
-                    : null
-                }
+                embroideries={activeEmbroideries}
                 labelImage={isFaixa ? labelImage : null}
               />
               {editMode && (
@@ -412,15 +417,17 @@ function BuilderPage() {
                           style={{ background: c }}
                         />
                       ))}
-                      <label className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border-2 border-foreground/20 text-[10px]">
-                        <input
-                          type="color"
-                          value={zoneColors[activeZone] ?? "#000000"}
-                          onChange={(e) => setZoneColors((prev) => ({ ...prev, [activeZone]: e.target.value }))}
-                          className="h-0 w-0 opacity-0"
-                        />
-                        +
-                      </label>
+                      {variantKey !== "judo" && (
+                        <label className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border-2 border-foreground/20 text-[10px]">
+                          <input
+                            type="color"
+                            value={zoneColors[activeZone] ?? "#000000"}
+                            onChange={(e) => setZoneColors((prev) => ({ ...prev, [activeZone]: e.target.value }))}
+                            className="h-0 w-0 opacity-0"
+                          />
+                          +
+                        </label>
+                      )}
                     </div>
                   </div>
                 )}
@@ -480,66 +487,64 @@ function BuilderPage() {
               </section>
             )}
 
-            {/* Embroidery */}
-            {slots.length > 0 && (
+            {/* Embroidery — one entry per bordado slot (text or image) */}
+            {embroiderySlots.length > 0 && (
               <section>
-                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Bordado de texto</h2>
-                <div className="rounded-md border p-3 space-y-3">
-                  <input
-                    type="text"
-                    maxLength={20}
-                    value={embroideryText}
-                    onChange={(e) => {
-                      setEmbroideryText(e.target.value);
-                      if (e.target.value && !embroiderySlot) setEmbroiderySlot(slots[0].key);
-                    }}
-                    placeholder="Seu nome ou apelido (opcional, até 20 caracteres)"
-                    className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
-                  />
-                  {embroideryText.trim() && (
-                    <>
-                      <div>
-                        <div className="mb-1 text-xs font-semibold text-muted-foreground">Posição</div>
-                        <div className="flex flex-wrap gap-2">
-                          {slots.map((s) => (
-                            <button
-                              key={s.key}
-                              type="button"
-                              onClick={() => setEmbroiderySlot(s.key)}
-                              className={`rounded-full border px-3 py-1 text-xs ${
-                                embroiderySlot === s.key ? "border-primary bg-primary/5" : "hover:border-foreground/40"
-                              }`}
-                            >
-                              {s.label}
-                            </button>
-                          ))}
-                        </div>
+                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">
+                  {embroiderySlots.length > 1 ? "Bordados" : "Bordado de texto ou logo"}
+                </h2>
+                <div className="space-y-3">
+                  {embroiderySlots.map((s) => {
+                    const entry = embroideries[s.key] ?? { text: "", color: "#ffffff", image: null };
+                    const setEntry = (patch: Partial<typeof entry>) =>
+                      setEmbroideries((prev) => ({ ...prev, [s.key]: { ...(prev[s.key] ?? { text: "", color: "#ffffff", image: null }), ...patch } }));
+                    const active = entry.text.trim() || entry.image;
+                    return (
+                      <div key={s.key} className="rounded-md border p-3 space-y-3">
+                        <div className="text-xs font-bold uppercase text-muted-foreground">{s.label}</div>
+                        <input
+                          type="text"
+                          maxLength={20}
+                          value={entry.text}
+                          onChange={(e) => setEntry({ text: e.target.value })}
+                          placeholder="Texto do bordado (até 20 caracteres)"
+                          className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+                        />
+                        <ImageUploader
+                          value={entry.image}
+                          onChange={(img) => setEntry({ image: img })}
+                          hint="Ou envie um logo para simular bordado (PNG/JPG, até 4MB)."
+                        />
+                        {active && (
+                          <>
+                            <div>
+                              <div className="mb-1 text-xs font-semibold text-muted-foreground">Cor do bordado</div>
+                              <div className="flex flex-wrap gap-2">
+                                {PALETTE.map((c) => (
+                                  <button
+                                    key={c}
+                                    type="button"
+                                    onClick={() => setEntry({ color: c })}
+                                    className={`h-6 w-6 rounded-full border-2 ${
+                                      entry.color === c ? "border-primary scale-110" : "border-foreground/20"
+                                    }`}
+                                    style={{ background: c }}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                            <div className="text-xs font-bold text-primary">Taxa de bordado: + {formatBRL(39)}</div>
+                          </>
+                        )}
                       </div>
-                      <div>
-                        <div className="mb-1 text-xs font-semibold text-muted-foreground">Cor do bordado</div>
-                        <div className="flex flex-wrap gap-2">
-                          {PALETTE.map((c) => (
-                            <button
-                              key={c}
-                              type="button"
-                              onClick={() => setEmbroideryColor(c)}
-                              className={`h-6 w-6 rounded-full border-2 ${
-                                embroideryColor === c ? "border-primary scale-110" : "border-foreground/20"
-                              }`}
-                              style={{ background: c }}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                      <div className="text-xs font-bold text-primary">Taxa de bordado: + {formatBRL(39)}</div>
-                    </>
-                  )}
+                    );
+                  })}
                 </div>
               </section>
             )}
 
-            {/* Faixa: Logo upload */}
-            {isFaixa && (
+            {/* Faixa: Logo upload (hidden when there are per-bordado image uploads) */}
+            {isFaixa && variantKey !== "judo" && (
               <section>
                 <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Logotipo do bordado (opcional)</h2>
                 <ImageUploader
@@ -607,7 +612,7 @@ function BuilderPreview({
   slots,
   slotPatches,
   patches,
-  embroidery,
+  embroideries,
   labelImage,
 }: {
   kind: string;
@@ -617,7 +622,7 @@ function BuilderPreview({
   slots: SlotRow[];
   slotPatches: Record<string, string>;
   patches: Patch[];
-  embroidery: { text: string; slot_key: string; color: string } | null;
+  embroideries: Array<{ slot_key: string; text: string | null; image: { data_url: string; filename: string } | null; color: string }>;
   labelImage?: { data_url: string; filename: string } | null;
 }) {
   const isJudo = kind === "faixa" && variantKey === "judo";
@@ -693,17 +698,17 @@ function BuilderPreview({
           );
         })}
 
-        {/* Label image on ponta */}
+        {/* Label image on etiqueta / ponta */}
         {labelImage && (() => {
-          const ponta = slots.find((s) => s.key === "ponta") ?? slots[0];
-          if (!ponta) return null;
-          const w = ponta.w_pct;
+          const target = slots.find((s) => s.key === "etiqueta") ?? slots.find((s) => s.key === "ponta") ?? slots[0];
+          if (!target) return null;
+          const w = target.w_pct;
           return (
             <g style={{ filter: "drop-shadow(0 0.4px 0.6px rgba(0,0,0,0.35))" }}>
               <image
                 href={labelImage.data_url}
-                x={ponta.x_pct - w / 2}
-                y={ponta.y_pct - w / 2}
+                x={target.x_pct - w / 2}
+                y={target.y_pct - w / 2}
                 width={w}
                 height={w}
                 preserveAspectRatio="xMidYMid meet"
@@ -712,32 +717,51 @@ function BuilderPreview({
           );
         })()}
 
-        {/* Embroidery */}
-        {embroidery && (() => {
-          const slot = slots.find((s) => s.key === embroidery.slot_key);
+        {/* Embroideries — text and/or image per bordado slot */}
+        {embroideries.map((emb) => {
+          const slot = slots.find((s) => s.key === emb.slot_key);
           if (!slot) return null;
-          const fontSize = Math.max(2.6, slot.w_pct * 0.35);
-          const x = slot.x_pct;
-          const y = slot.y_pct + slot.w_pct * 0.55;
+          const w = slot.w_pct;
           return (
-            <text
-              x={x}
-              y={y}
-              textAnchor="middle"
-              fontFamily="Georgia, 'Times New Roman', serif"
-              fontWeight={700}
-              fontStyle="italic"
-              fontSize={fontSize}
-              fill={embroidery.color}
-              stroke="rgba(0,0,0,0.35)"
-              strokeWidth={0.12}
-              paintOrder="stroke fill"
-              style={{ filter: "drop-shadow(0 0.15px 0.2px rgba(0,0,0,0.45))" }}
-            >
-              {embroidery.text}
-            </text>
+            <g key={emb.slot_key}>
+              {emb.image && (
+                <g style={{ filter: "drop-shadow(0 0.15px 0.2px rgba(0,0,0,0.45))" }}>
+                  <image
+                    href={emb.image.data_url}
+                    x={slot.x_pct - w / 2}
+                    y={slot.y_pct - w / 2}
+                    width={w}
+                    height={w}
+                    preserveAspectRatio="xMidYMid meet"
+                    opacity={0.95}
+                  />
+                </g>
+              )}
+              {emb.text && (() => {
+                const fontSize = Math.max(2.6, slot.w_pct * 0.35);
+                const yOffset = emb.image ? slot.w_pct * 0.75 : slot.w_pct * 0.55;
+                return (
+                  <text
+                    x={slot.x_pct}
+                    y={slot.y_pct + yOffset}
+                    textAnchor="middle"
+                    fontFamily="Georgia, 'Times New Roman', serif"
+                    fontWeight={700}
+                    fontStyle="italic"
+                    fontSize={fontSize}
+                    fill={emb.color}
+                    stroke="rgba(0,0,0,0.35)"
+                    strokeWidth={0.12}
+                    paintOrder="stroke fill"
+                    style={{ filter: "drop-shadow(0 0.15px 0.2px rgba(0,0,0,0.45))" }}
+                  >
+                    {emb.text}
+                  </text>
+                );
+              })()}
+            </g>
           );
-        })()}
+        })}
       </svg>
     </div>
   );
