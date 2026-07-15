@@ -75,6 +75,10 @@ function BuilderPage() {
   const [embroiderySlot, setEmbroiderySlot] = useState<string | null>(null);
   const [embroideryColor, setEmbroideryColor] = useState("#ffffff");
   const [activeZone, setActiveZone] = useState<string>(zones[0]?.key ?? "");
+  const isFaixa = template.kind === "faixa";
+  const [modality, setModality] = useState<string>("Jiu-Jitsu");
+  const [logoImage, setLogoImage] = useState<{ data_url: string; filename: string } | null>(null);
+  const [labelImage, setLabelImage] = useState<{ data_url: string; filename: string } | null>(null);
 
   const selectedFabric = fabrics.find((f) => f.id === fabricId) ?? null;
 
