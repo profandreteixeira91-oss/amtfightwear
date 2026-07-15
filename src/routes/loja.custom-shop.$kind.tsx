@@ -1807,8 +1807,18 @@ function ImageUploader({
   hint?: string;
 }) {
   const [error, setError] = useState<string | null>(null);
+  const [processing, setProcessing] = useState(false);
 
-  function handleFile(file: File | null) {
+  function fileToDataUrl(file: Blob): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(String(r.result));
+      r.onerror = () => reject(r.error);
+      r.readAsDataURL(file);
+    });
+  }
+
+  async function handleFile(file: File | null) {
     setError(null);
     if (!file) return;
     if (!/^image\/(png|jpe?g|webp|svg\+xml)$/.test(file.type)) {
@@ -1819,11 +1829,26 @@ function ImageUploader({
       setError("Arquivo muito grande. Máximo 4MB.");
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      onChange({ data_url: String(reader.result), filename: file.name });
-    };
-    reader.readAsDataURL(file);
+    // SVG não precisa remoção de fundo.
+    if (file.type === "image/svg+xml") {
+      const data_url = await fileToDataUrl(file);
+      onChange({ data_url, filename: file.name });
+      return;
+    }
+    setProcessing(true);
+    try {
+      const { removeBackground } = await import("@imgly/background-removal");
+      const blob = await removeBackground(file, { output: { format: "image/png" } });
+      const data_url = await fileToDataUrl(blob);
+      onChange({ data_url, filename: file.name.replace(/\.[^.]+$/, "") + ".png" });
+    } catch (err) {
+      console.error("Background removal failed, using original:", err);
+      const data_url = await fileToDataUrl(file);
+      onChange({ data_url, filename: file.name });
+      setError("Não foi possível remover o fundo automaticamente. Imagem original mantida.");
+    } finally {
+      setProcessing(false);
+    }
   }
 
   return (
@@ -1833,7 +1858,7 @@ function ImageUploader({
           <img src={value.data_url} alt={value.filename} className="h-16 w-16 rounded border object-contain bg-muted" />
           <div className="flex-1 truncate text-xs">
             <div className="font-semibold truncate">{value.filename}</div>
-            <div className="text-muted-foreground">Enviado</div>
+            <div className="text-muted-foreground">Enviado — fundo removido</div>
           </div>
           <button
             type="button"
@@ -1844,13 +1869,20 @@ function ImageUploader({
           </button>
         </div>
       ) : (
-        <label className="flex cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed px-3 py-6 text-sm text-muted-foreground hover:border-primary hover:text-primary">
+        <label
+          className={`flex items-center justify-center gap-2 rounded-md border border-dashed px-3 py-6 text-sm ${
+            processing
+              ? "cursor-wait text-muted-foreground opacity-70"
+              : "cursor-pointer text-muted-foreground hover:border-primary hover:text-primary"
+          }`}
+        >
           <Upload className="h-4 w-4" />
-          <span>Clique para enviar imagem</span>
+          <span>{processing ? "Removendo fundo..." : "Clique para enviar imagem"}</span>
           <input
             type="file"
             accept="image/png,image/jpeg,image/webp,image/svg+xml"
             className="hidden"
+            disabled={processing}
             onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
           />
         </label>
