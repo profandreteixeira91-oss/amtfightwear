@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { motion } from "framer-motion";
-import { Wand2, Instagram, MessageCircle, Mail, Sparkles, Loader2, Send, Clock, ExternalLink, XCircle, CheckCircle2, AlertCircle, Bot, Play } from "lucide-react";
+import { Wand2, Instagram, MessageCircle, Mail, Sparkles, Loader2, Send, Clock, ExternalLink, XCircle, CheckCircle2, AlertCircle, Bot, Play, TrendingUp, RefreshCw } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/common/PageHeader";
@@ -19,7 +19,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { generateMarketingContent } from "@/lib/marketing.functions";
+import { generateMarketingContent, suggestViralTopics } from "@/lib/marketing.functions";
 import { createInstagramPost, listInstagramPosts, cancelInstagramPost } from "@/lib/instagram.functions";
 import { getAutoPostSettings, updateAutoPostSettings, runAutoPostNow } from "@/lib/autopost.functions";
 
@@ -48,6 +48,7 @@ const STATUS_STYLE: Record<string, { label: string; icon: typeof CheckCircle2; c
 
 function ContentPage() {
   const generate = useServerFn(generateMarketingContent);
+  const suggestFn = useServerFn(suggestViralTopics);
   const publishFn = useServerFn(createInstagramPost);
   const listFn = useServerFn(listInstagramPosts);
   const cancelFn = useServerFn(cancelInstagramPost);
@@ -72,6 +73,19 @@ function ContentPage() {
   const [caption, setCaption] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [scheduleAt, setScheduleAt] = useState("");
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+
+  const suggestMut = useMutation({
+    mutationFn: async () => {
+      const r = await suggestFn({ data: { contentType, objective } });
+      return (r as { suggestions: string[] }).suggestions ?? [];
+    },
+    onSuccess: (list) => {
+      setSuggestions(list);
+      if (list.length === 0) toast.info("Sem sugestões — sincronize o Instagram para ver dados virais.");
+    },
+    onError: (e: Error) => toast.error(e.message || "Falha ao buscar sugestões"),
+  });
 
   const product = useMemo(() => products?.find((p) => p.id === productId) ?? null, [products, productId]);
   const grouped = useMemo(() => {
@@ -198,12 +212,44 @@ function ContentPage() {
                 )
               ) : (
                 <div>
-                  <Label>Tema / mote (opcional)</Label>
+                  <div className="flex items-center justify-between">
+                    <Label>Tema / mote (opcional)</Label>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 gap-1 text-xs"
+                      disabled={suggestMut.isPending}
+                      onClick={() => suggestMut.mutate()}
+                    >
+                      {suggestMut.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
+                      {suggestions.length ? "Atualizar sugestões" : "Sugerir a partir dos posts virais"}
+                    </Button>
+                  </div>
                   <Input
                     value={topic}
                     onChange={(e) => setTopic(e.target.value)}
                     placeholder="Ex.: disciplina no treino, primeira faixa preta, respeito ao oponente"
                   />
+                  {suggestions.length > 0 && (
+                    <div className="mt-2 space-y-1.5">
+                      <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+                        <TrendingUp className="h-3 w-3" /> Sugestões baseadas nos posts mais virais
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {suggestions.map((s) => (
+                          <button
+                            key={s}
+                            type="button"
+                            onClick={() => setTopic(s)}
+                            className="rounded-full border border-border bg-muted/40 px-2.5 py-1 text-xs hover:bg-muted transition-colors"
+                          >
+                            {s}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 

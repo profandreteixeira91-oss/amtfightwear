@@ -109,3 +109,105 @@ Retorne SOMENTE um JSON válido, sem markdown, com estas chaves:
       return fallback;
     }
   });
+
+// =====================================================================
+// Sugestões de tema / mote baseadas em posts mais virais do Instagram
+// =====================================================================
+
+const SuggestInput = z.object({
+  contentType: z.enum(CONTENT_TYPES).default("motivational"),
+  objective: z.enum(["atacado", "varejo"]).default("varejo"),
+});
+
+export const suggestViralTopics = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => SuggestInput.parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: viral } = await context.supabase
+      .from("ig_media_cache")
+      .select("caption, like_count, comments_count")
+      .not("caption", "is", null)
+      .order("like_count", { ascending: false })
+      .limit(25);
+
+    const { data: recent } = await context.supabase
+      .from("scheduled_posts")
+      .select("theme")
+      .eq("status", "published")
+      .not("theme", "is", null)
+      .order("published_at", { ascending: false })
+      .limit(15);
+
+    const viralSnippets = (viral ?? [])
+      .map((v, i) => {
+        const cap = (v.caption ?? "").replace(/\s+/g, " ").slice(0, 220);
+        return `#${i + 1} [♥${v.like_count ?? 0} 💬${v.comments_count ?? 0}] ${cap}`;
+      })
+      .join("\n");
+
+    const recentThemes = (recent ?? [])
+      .map((r) => r.theme)
+      .filter(Boolean)
+      .join(" | ");
+
+    const apiKey = process.env.LOVABLE_API_KEY;
+    if (!apiKey) throw new Error("LOVABLE_API_KEY não configurada");
+
+    const { generateText } = await import("ai");
+    const { createLovableAiGateway } = await import("./ai-gateway.server");
+    const gateway = createLovableAiGateway(apiKey);
+
+    const audience =
+      data.objective === "atacado"
+        ? "professores e donos de academia (atacado)"
+        : "alunos e praticantes (varejo)";
+
+    const typeHint: Record<ContentType, string> = {
+      product: "divulgação de produto",
+      category: "divulgação de linha/coleção",
+      motivational: "motivacional / mentalidade de tatame",
+      educational: "educativo / dica técnica / história do BJJ e Judô",
+      athlete: "atleta ou membro da comunidade em destaque",
+      event: "evento, competição ou lançamento",
+      behind: "bastidores da marca e produção",
+      brand_story: "história e valores da AMT Fight Wear",
+      engagement: "engajamento — pergunta ou enquete",
+    };
+
+    const prompt = `Você é estrategista de conteúdo da AMT Fight Wear (BJJ/Judô).
+Analise os posts abaixo do Instagram (ordenados por curtidas) para identificar padrões que viralizam com ${audience}.
+Retorne 6 sugestões CURTAS de TEMA / MOTE para uma nova postagem do tipo: ${typeHint[data.contentType]}.
+
+POSTS VIRAIS RECENTES:
+${viralSnippets || "(sem histórico ainda — use conhecimento do nicho BJJ/Judô premium)"}
+
+TEMAS RECENTES JÁ POSTADOS (evite repetir literalmente): ${recentThemes || "nenhum"}
+
+Regras:
+- 3 a 8 palavras cada, português BR, sem hashtags, sem aspas, sem emojis.
+- Concreto e acionável (ex: "primeira faixa preta na família", "respeito ao oponente após luta").
+- Coerente com o tipo pedido e diverso entre si.
+
+Retorne SOMENTE JSON: {"suggestions":["tema 1","tema 2","tema 3","tema 4","tema 5","tema 6"]}`;
+
+    const { text } = await generateText({
+      model: gateway("google/gemini-3.5-flash"),
+      prompt,
+    });
+
+    const match = text.match(/\{[\s\S]*\}/);
+    if (!match) return { suggestions: [] as string[] };
+    try {
+      const parsed = JSON.parse(match[0]) as { suggestions?: unknown };
+      const arr = Array.isArray(parsed.suggestions) ? parsed.suggestions : [];
+      return {
+        suggestions: arr
+          .filter((s): s is string => typeof s === "string")
+          .map((s) => s.trim())
+          .filter((s) => s.length > 0)
+          .slice(0, 6),
+      };
+    } catch {
+      return { suggestions: [] as string[] };
+    }
+  });
