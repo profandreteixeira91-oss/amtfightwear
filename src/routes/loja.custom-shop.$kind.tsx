@@ -292,7 +292,7 @@ function BuilderPage() {
     font: string;
     lines: 1 | 2;
     color: string;
-    image: { data_url: string; filename: string } | null;
+    image: { data_url: string; filename: string; bg_color?: string } | null;
     position: { x: number; y: number } | null;
     scale: number;
     rotation: number;
@@ -856,7 +856,7 @@ function BuilderPage() {
                       font: DEFAULT_EMB_FONT,
                       lines: 1 as 1 | 2,
                       color: "#ffffff",
-                      image: null as { data_url: string; filename: string } | null,
+                      image: null as { data_url: string; filename: string; bg_color?: string } | null,
                       position: null as { x: number; y: number } | null,
                       scale: 1,
                       rotation: 0,
@@ -1355,11 +1355,13 @@ function BuilderPreview({
     text: string | null;
     font: string | null;
     lines: 1 | 2 | null;
-    image: { data_url: string; filename: string } | null;
+    image: { data_url: string; filename: string; bg_color?: string } | null;
     position: { x: number; y: number } | null;
     scale?: number | null;
     rotation?: number | null;
     color: string;
+    format?: "redondo" | "quadrado" | "transparente" | null;
+    technique?: "bordado" | "sublimado" | "dtf" | null;
   }>;
   labelImage?: { data_url: string; filename: string; bg_color?: string } | null;
   beltPresetImage?: string | null;
