@@ -168,6 +168,7 @@ function BuilderPage() {
           w_pct: Number(z.w_pct),
           h_pct: Number(z.h_pct),
           solid: Boolean(z.solid),
+          rotation_deg: Number(z.rotation_deg ?? 0),
         })),
     [allZones, variantKey],
   );
@@ -181,6 +182,8 @@ function BuilderPage() {
           x_pct: Number(s.x_pct),
           y_pct: Number(s.y_pct),
           w_pct: Number(s.w_pct),
+          h_pct: Number(s.h_pct ?? s.w_pct),
+          rotation_deg: Number(s.rotation_deg ?? 0),
         })),
     [allSlots, variantKey],
   );
