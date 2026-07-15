@@ -1419,6 +1419,8 @@ function BuilderPreview({
   // Quando temos a foto real do produto (preset selecionado), não tinta zonas.
   const useProductPhoto = Boolean(beltPresetImage);
   const svgRef = useRef<SVGSVGElement | null>(null);
+  const [baseLoaded, setBaseLoaded] = useState(false);
+  useEffect(() => { setBaseLoaded(false); }, [baseImg]);
   const [embDrag, setEmbDrag] = useState<
     | { kind: "move"; slotKey: string; startX: number; startY: number; origX: number; origY: number }
     | { kind: "resize"; slotKey: string; startDist: number; origScale: number; cx: number; cy: number }
