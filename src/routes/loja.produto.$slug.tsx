@@ -95,11 +95,14 @@ function ProductPage() {
         <div className="grid gap-8 lg:grid-cols-2">
           {/* Gallery */}
           <div>
-            <div className="aspect-square overflow-hidden rounded-lg border bg-muted">
-              {images[activeImage] && (
-                <img src={images[activeImage].url} alt={images[activeImage].alt ?? product.name} className="h-full w-full object-cover" />
-              )}
-            </div>
+            <ProductImage
+              src={images[activeImage]?.url}
+              alt={images[activeImage]?.alt ?? product.name}
+              aspect="square"
+              className="rounded-lg border"
+              priority
+              sizes="(max-width: 1024px) 100vw, 50vw"
+            />
             {images.length > 1 && (
               <div className="mt-3 flex gap-2 overflow-x-auto">
                 {images.map((img, i) => (
@@ -108,7 +111,7 @@ function ProductPage() {
                     onClick={() => setActiveImage(i)}
                     className={`h-20 w-20 shrink-0 overflow-hidden rounded border-2 ${i === activeImage ? "border-primary" : "border-transparent"}`}
                   >
-                    <img src={img.url} alt="" className="h-full w-full object-cover" />
+                    <ProductImage src={img.url} alt="" aspect="square" />
                   </button>
                 ))}
               </div>
