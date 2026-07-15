@@ -9,6 +9,7 @@ import { Check, Plus, Trash2, ShoppingBag, Upload, X } from "lucide-react";
 import kimonoBase from "@/assets/customshop-kimono.jpg";
 import rashguardBase from "@/assets/customshop-rashguard.jpg";
 import faixaBase from "@/assets/customshop-faixa.jpg";
+import faixaJudoBase from "@/assets/customshop-faixa-judo.png";
 
 
 const catsQuery = queryOptions({
@@ -163,6 +164,7 @@ function BuilderPage() {
                     : null
                 }
                 labelImage={isFaixa ? labelImage : null}
+                modality={isFaixa ? modality : null}
               />
             </div>
             <div className="mt-3 text-center text-xs text-muted-foreground">
@@ -489,6 +491,23 @@ const BASE_IMAGES: Record<string, string> = {
   faixa: faixaBase,
 };
 
+// Judo faixa — two horizontal belts stacked (padded square 1280x1280 base).
+const JUDO_FAIXA_ZONES: ZonePath[] = [
+  // corpo — bodies of both belts (top belt without its right tip; bottom belt without its left tip)
+  { key: "corpo", d: "M 0 30.7 L 78 30.7 L 78 45.5 L 0 45.5 Z M 15 52.6 L 100 52.6 L 100 69.4 L 15 69.4 Z" },
+  // ponta — the two rounded tips (top-right + bottom-left)
+  { key: "ponta", d: "M 78 30.7 L 84 30.7 L 84 45.5 L 78 45.5 Z M 7 52.6 L 15 52.6 L 15 69.4 L 7 69.4 Z" },
+];
+
+// Judo has two belts — put the labeled tip on the top-right belt end.
+function remapJudoSlots(slots: Slot[]): Slot[] {
+  return slots.map((s) =>
+    s.key === "ponta" ? { ...s, x_pct: 81, y_pct: 38, w_pct: 12 } : s,
+  );
+}
+
+
+
 function BuilderPreview({
   kind,
   zoneColors,
@@ -497,6 +516,7 @@ function BuilderPreview({
   patches,
   embroidery,
   labelImage,
+  modality,
 }: {
   kind: string;
   zoneColors: Record<string, string>;
@@ -505,9 +525,12 @@ function BuilderPreview({
   patches: Patch[];
   embroidery: { text: string; slot_key: string; color: string } | null;
   labelImage?: { data_url: string; filename: string } | null;
+  modality?: string | null;
 }) {
-  const zones = ZONES[kind] ?? [];
-  const baseImg = BASE_IMAGES[kind];
+  const isJudo = kind === "faixa" && modality === "Judô";
+  const zones: ZonePath[] = isJudo ? JUDO_FAIXA_ZONES : ZONES[kind] ?? [];
+  const baseImg = isJudo ? faixaJudoBase : BASE_IMAGES[kind];
+  const effectiveSlots = isJudo ? remapJudoSlots(slots) : slots;
 
   return (
     <div className="relative h-full w-full overflow-hidden">
@@ -562,7 +585,7 @@ function BuilderPreview({
         )}
 
         {/* Patches */}
-        {slots.map((s) => {
+        {effectiveSlots.map((s) => {
           const patchId = slotPatches[s.key];
           if (!patchId) return null;
           const p = patches.find((pp) => pp.id === patchId);
@@ -586,7 +609,7 @@ function BuilderPreview({
 
         {/* Faixa label image on ponta */}
         {labelImage && (() => {
-          const ponta = slots.find((s) => s.key === "ponta") ?? slots[0];
+          const ponta = effectiveSlots.find((s) => s.key === "ponta") ?? effectiveSlots[0];
           if (!ponta) return null;
           const w = ponta.w_pct;
           return (
@@ -606,7 +629,7 @@ function BuilderPreview({
 
         {/* Embroidery */}
         {embroidery && (() => {
-          const slot = slots.find((s) => s.key === embroidery.slot_key);
+          const slot = effectiveSlots.find((s) => s.key === embroidery.slot_key);
           if (!slot) return null;
           const fontSize = Math.max(2.6, slot.w_pct * 0.35);
           const x = slot.x_pct;
