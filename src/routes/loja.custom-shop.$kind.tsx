@@ -1112,8 +1112,10 @@ function BuilderPreview({
 type DragState =
   | { kind: "zone-move"; index: number; startX: number; startY: number; origX: number; origY: number }
   | { kind: "zone-resize"; index: number; startX: number; startY: number; origW: number; origH: number }
+  | { kind: "zone-rotate"; index: number; cx: number; cy: number; startAngle: number; origRot: number }
   | { kind: "slot-move"; index: number; startX: number; startY: number; origX: number; origY: number }
-  | { kind: "slot-resize"; index: number; startX: number; startY: number; origW: number }
+  | { kind: "slot-resize"; index: number; startX: number; startY: number; origW: number; origH: number }
+  | { kind: "slot-rotate"; index: number; cx: number; cy: number; startAngle: number; origRot: number }
   | null;
 
 function LayoutEditorOverlay({
@@ -1149,39 +1151,41 @@ function LayoutEditorOverlay({
         const dx = p.x - drag.startX;
         const dy = p.y - drag.startY;
         const next = zones.slice();
-        next[drag.index] = {
-          ...next[drag.index],
-          x_pct: clamp(drag.origX + dx, -50, 150),
-          y_pct: clamp(drag.origY + dy, -50, 150),
-        };
+        next[drag.index] = { ...next[drag.index], x_pct: clamp(drag.origX + dx, -50, 150), y_pct: clamp(drag.origY + dy, -50, 150) };
         onZonesChange(next);
       } else if (drag.kind === "zone-resize") {
         const dx = p.x - drag.startX;
         const dy = p.y - drag.startY;
         const next = zones.slice();
-        next[drag.index] = {
-          ...next[drag.index],
-          w_pct: clamp(drag.origW + dx, 1, 200),
-          h_pct: clamp(drag.origH + dy, 1, 200),
-        };
+        next[drag.index] = { ...next[drag.index], w_pct: clamp(drag.origW + dx, 1, 200), h_pct: clamp(drag.origH + dy, 1, 200) };
+        onZonesChange(next);
+      } else if (drag.kind === "zone-rotate") {
+        const ang = (Math.atan2(p.y - drag.cy, p.x - drag.cx) * 180) / Math.PI;
+        const delta = ang - drag.startAngle;
+        const next = zones.slice();
+        next[drag.index] = { ...next[drag.index], rotation_deg: normDeg(drag.origRot + delta) };
         onZonesChange(next);
       } else if (drag.kind === "slot-move") {
         const dx = p.x - drag.startX;
         const dy = p.y - drag.startY;
         const next = slots.slice();
-        next[drag.index] = {
-          ...next[drag.index],
-          x_pct: clamp(drag.origX + dx, -50, 150),
-          y_pct: clamp(drag.origY + dy, -50, 150),
-        };
+        next[drag.index] = { ...next[drag.index], x_pct: clamp(drag.origX + dx, -50, 150), y_pct: clamp(drag.origY + dy, -50, 150) };
         onSlotsChange(next);
       } else if (drag.kind === "slot-resize") {
         const dx = p.x - drag.startX;
+        const dy = p.y - drag.startY;
         const next = slots.slice();
         next[drag.index] = {
           ...next[drag.index],
           w_pct: clamp(drag.origW + dx * 2, 0.5, 400),
+          h_pct: clamp(drag.origH + dy * 2, 0.5, 400),
         };
+        onSlotsChange(next);
+      } else if (drag.kind === "slot-rotate") {
+        const ang = (Math.atan2(p.y - drag.cy, p.x - drag.cx) * 180) / Math.PI;
+        const delta = ang - drag.startAngle;
+        const next = slots.slice();
+        next[drag.index] = { ...next[drag.index], rotation_deg: normDeg(drag.origRot + delta) };
         onSlotsChange(next);
       }
     }
@@ -1199,8 +1203,10 @@ function LayoutEditorOverlay({
       <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full">
         {zones.map((z, i) => {
           if (z.key.startsWith("corpo") || z.key.startsWith("ponta")) return null;
+          const cx = z.x_pct + z.w_pct / 2;
+          const cy = z.y_pct + z.h_pct / 2;
           return (
-          <g key={`z-${z.key}`}>
+          <g key={`z-${z.key}`} transform={`rotate(${z.rotation_deg || 0} ${cx} ${cy})`}>
             <rect
               x={z.x_pct}
               y={z.y_pct}
@@ -1220,6 +1226,7 @@ function LayoutEditorOverlay({
             <text x={z.x_pct + 0.6} y={z.y_pct + 2.4} fontSize={1.8} fill="#1e3a8a" fontWeight={700} style={{ pointerEvents: "none" }}>
               {z.label}
             </text>
+            {/* resize handle */}
             <rect
               x={z.x_pct + z.w_pct - 1.5}
               y={z.y_pct + z.h_pct - 1.5}
@@ -1234,20 +1241,41 @@ function LayoutEditorOverlay({
                 setDrag({ kind: "zone-resize", index: i, startX: p.x, startY: p.y, origW: z.w_pct, origH: z.h_pct });
               }}
             />
+            {/* rotation handle */}
+            <line x1={cx} y1={z.y_pct} x2={cx} y2={z.y_pct - 3} stroke="#3b82f6" strokeWidth={0.25} />
+            <circle
+              cx={cx}
+              cy={z.y_pct - 3}
+              r={1.1}
+              fill="#fff"
+              stroke="#3b82f6"
+              strokeWidth={0.3}
+              style={{ cursor: "grab", pointerEvents: "auto" }}
+              onPointerDown={(e) => {
+                e.stopPropagation();
+                (e.target as Element).setPointerCapture?.(e.pointerId);
+                const p = toPct(e);
+                const startAngle = (Math.atan2(p.y - cy, p.x - cx) * 180) / Math.PI;
+                setDrag({ kind: "zone-rotate", index: i, cx, cy, startAngle, origRot: z.rotation_deg || 0 });
+              }}
+            />
           </g>
           );
         })}
         {slots.map((s, i) => {
           const w = s.w_pct;
+          const h = s.h_pct;
           const x = s.x_pct - w / 2;
-          const y = s.y_pct - w / 2;
+          const y = s.y_pct - h / 2;
+          const cx = s.x_pct;
+          const cy = s.y_pct;
           return (
-            <g key={`s-${s.key}`}>
+            <g key={`s-${s.key}`} transform={`rotate(${s.rotation_deg || 0} ${cx} ${cy})`}>
               <rect
                 x={x}
                 y={y}
                 width={w}
-                height={w}
+                height={h}
                 fill="rgba(244,63,94,0.15)"
                 stroke="#f43f5e"
                 strokeWidth={0.3}
@@ -1264,7 +1292,7 @@ function LayoutEditorOverlay({
               </text>
               <rect
                 x={x + w - 1.2}
-                y={y + w - 1.2}
+                y={y + h - 1.2}
                 width={1.2}
                 height={1.2}
                 fill="#f43f5e"
@@ -1273,7 +1301,25 @@ function LayoutEditorOverlay({
                   e.stopPropagation();
                   (e.target as Element).setPointerCapture?.(e.pointerId);
                   const p = toPct(e);
-                  setDrag({ kind: "slot-resize", index: i, startX: p.x, startY: p.y, origW: s.w_pct });
+                  setDrag({ kind: "slot-resize", index: i, startX: p.x, startY: p.y, origW: s.w_pct, origH: s.h_pct });
+                }}
+              />
+              {/* rotation handle */}
+              <line x1={cx} y1={y} x2={cx} y2={y - 2.4} stroke="#f43f5e" strokeWidth={0.25} />
+              <circle
+                cx={cx}
+                cy={y - 2.4}
+                r={1}
+                fill="#fff"
+                stroke="#f43f5e"
+                strokeWidth={0.3}
+                style={{ cursor: "grab", pointerEvents: "auto" }}
+                onPointerDown={(e) => {
+                  e.stopPropagation();
+                  (e.target as Element).setPointerCapture?.(e.pointerId);
+                  const p = toPct(e);
+                  const startAngle = (Math.atan2(p.y - cy, p.x - cx) * 180) / Math.PI;
+                  setDrag({ kind: "slot-rotate", index: i, cx, cy, startAngle, origRot: s.rotation_deg || 0 });
                 }}
               />
             </g>
@@ -1282,6 +1328,13 @@ function LayoutEditorOverlay({
       </svg>
     </div>
   );
+}
+
+function normDeg(d: number): number {
+  let x = d % 360;
+  if (x > 180) x -= 360;
+  if (x < -180) x += 360;
+  return x;
 }
 
 function clamp(v: number, min: number, max: number) {
