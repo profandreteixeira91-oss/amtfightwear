@@ -619,26 +619,158 @@ function BuilderPage() {
                 </h2>
                 <div className="space-y-3">
                   {embroiderySlots.map((s) => {
-                    const entry = embroideries[s.key] ?? { text: "", color: "#ffffff", image: null };
+                    const defaults = {
+                      mode: "text" as "text" | "logo",
+                      text: "",
+                      font: DEFAULT_EMB_FONT,
+                      lines: 1 as 1 | 2,
+                      color: "#ffffff",
+                      image: null as { data_url: string; filename: string } | null,
+                      position: null as { x: number; y: number } | null,
+                    };
+                    const entry = embroideries[s.key] ?? defaults;
                     const setEntry = (patch: Partial<typeof entry>) =>
-                      setEmbroideries((prev) => ({ ...prev, [s.key]: { ...(prev[s.key] ?? { text: "", color: "#ffffff", image: null }), ...patch } }));
-                    const active = entry.text.trim() || entry.image;
+                      setEmbroideries((prev) => ({ ...prev, [s.key]: { ...(prev[s.key] ?? defaults), ...patch } }));
+                    const active =
+                      (entry.mode === "text" && entry.text.trim()) || (entry.mode === "logo" && entry.image);
+                    const pos = entry.position ?? { x: s.x_pct, y: s.y_pct };
+                    const selectedFont = EMBROIDERY_FONTS.find((f) => f.id === entry.font) ?? EMBROIDERY_FONTS[0];
                     return (
                       <div key={s.key} className="rounded-md border p-3 space-y-3">
                         <div className="text-xs font-bold uppercase text-muted-foreground">{s.label}</div>
-                        <input
-                          type="text"
-                          maxLength={20}
-                          value={entry.text}
-                          onChange={(e) => setEntry({ text: e.target.value })}
-                          placeholder="Texto do bordado (até 20 caracteres)"
-                          className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
-                        />
-                        <ImageUploader
-                          value={entry.image}
-                          onChange={(img) => setEntry({ image: img })}
-                          hint="Ou envie um logo para simular bordado (PNG/JPG, até 4MB)."
-                        />
+
+                        {/* Mode selector */}
+                        <div className="grid grid-cols-2 gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setEntry({ mode: "text", image: null })}
+                            className={`rounded-md border px-3 py-2 text-xs font-semibold transition ${
+                              entry.mode === "text" ? "border-primary bg-primary/5 text-primary" : "hover:border-foreground/40"
+                            }`}
+                          >
+                            Bordado de nome
+                            <div className="mt-1 text-[10px] font-normal text-muted-foreground">Texto com fonte</div>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setEntry({ mode: "logo", text: "" })}
+                            className={`rounded-md border px-3 py-2 text-xs font-semibold transition ${
+                              entry.mode === "logo" ? "border-primary bg-primary/5 text-primary" : "hover:border-foreground/40"
+                            }`}
+                          >
+                            Logotipo
+                            <div className="mt-1 text-[10px] font-normal text-muted-foreground">Upload de imagem</div>
+                          </button>
+                        </div>
+
+                        {entry.mode === "text" ? (
+                          <>
+                            <input
+                              type="text"
+                              maxLength={entry.lines === 2 ? 40 : 20}
+                              value={entry.text}
+                              onChange={(e) => setEntry({ text: e.target.value })}
+                              placeholder={entry.lines === 2 ? "Texto (use espaço para quebrar em 2 linhas)" : "Texto do bordado (até 20 caracteres)"}
+                              className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+                            />
+
+                            <div>
+                              <div className="mb-1 text-xs font-semibold text-muted-foreground">Fonte</div>
+                              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                                {EMBROIDERY_FONTS.map((f) => (
+                                  <button
+                                    key={f.id}
+                                    type="button"
+                                    onClick={() => setEntry({ font: f.id })}
+                                    className={`rounded-md border px-2 py-2 text-center text-sm transition ${
+                                      entry.font === f.id ? "border-primary bg-primary/5 text-primary" : "hover:border-foreground/40"
+                                    }`}
+                                    style={{ fontFamily: f.family, fontWeight: f.weight, fontStyle: f.style }}
+                                  >
+                                    {f.label}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+
+                            <div>
+                              <div className="mb-1 text-xs font-semibold text-muted-foreground">Linhas</div>
+                              <div className="grid grid-cols-2 gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => setEntry({ lines: 1 })}
+                                  className={`rounded-md border px-3 py-2 text-xs font-semibold transition ${
+                                    entry.lines === 1 ? "border-primary bg-primary/5 text-primary" : "hover:border-foreground/40"
+                                  }`}
+                                >
+                                  1 linha
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setEntry({ lines: 2 })}
+                                  className={`rounded-md border px-3 py-2 text-xs font-semibold transition ${
+                                    entry.lines === 2 ? "border-primary bg-primary/5 text-primary" : "hover:border-foreground/40"
+                                  }`}
+                                >
+                                  2 linhas
+                                </button>
+                              </div>
+                              {entry.lines === 2 && (
+                                <div className="mt-1 text-[10px] text-muted-foreground">
+                                  A quebra ocorre no primeiro espaço após o meio do texto.
+                                </div>
+                              )}
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <ImageUploader
+                              value={entry.image}
+                              onChange={(img) => setEntry({ image: img })}
+                              hint="Envie um logotipo (PNG/JPG, até 4MB) — será simulado como bordado."
+                            />
+
+                            {entry.image && (
+                              <div className="space-y-2">
+                                <div className="text-xs font-semibold text-muted-foreground">Posição do logotipo</div>
+                                <div className="flex items-center gap-2 text-[11px]">
+                                  <span className="w-6 text-muted-foreground">X</span>
+                                  <input
+                                    type="range"
+                                    min={0}
+                                    max={100}
+                                    step={1}
+                                    value={pos.x}
+                                    onChange={(e) => setEntry({ position: { x: Number(e.target.value), y: pos.y } })}
+                                    className="flex-1"
+                                  />
+                                  <span className="w-8 text-right tabular-nums">{Math.round(pos.x)}%</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-[11px]">
+                                  <span className="w-6 text-muted-foreground">Y</span>
+                                  <input
+                                    type="range"
+                                    min={0}
+                                    max={100}
+                                    step={1}
+                                    value={pos.y}
+                                    onChange={(e) => setEntry({ position: { x: pos.x, y: Number(e.target.value) } })}
+                                    className="flex-1"
+                                  />
+                                  <span className="w-8 text-right tabular-nums">{Math.round(pos.y)}%</span>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => setEntry({ position: null })}
+                                  className="text-[10px] text-muted-foreground underline hover:text-primary"
+                                >
+                                  Restaurar posição padrão
+                                </button>
+                              </div>
+                            )}
+                          </>
+                        )}
+
                         {active && (
                           <>
                             <div>
@@ -659,6 +791,20 @@ function BuilderPage() {
                             </div>
                             <div className="text-xs font-bold text-primary">Taxa de bordado: + {formatBRL(39)}</div>
                           </>
+                        )}
+                        {/* Preview inline da fonte selecionada */}
+                        {entry.mode === "text" && entry.text.trim() && (
+                          <div
+                            className="rounded-md border bg-muted/30 px-3 py-2 text-center text-lg"
+                            style={{
+                              fontFamily: selectedFont.family,
+                              fontWeight: selectedFont.weight,
+                              fontStyle: selectedFont.style,
+                              color: entry.color,
+                            }}
+                          >
+                            {entry.lines === 2 ? splitTwoLines(entry.text).map((ln, i) => <div key={i}>{ln}</div>) : entry.text}
+                          </div>
                         )}
                       </div>
                     );
