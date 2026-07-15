@@ -108,6 +108,7 @@ type Zone = {
   w_pct: number;
   h_pct: number;
   solid: boolean;
+  rotation_deg: number;
 };
 type SlotRow = {
   key: string;
@@ -115,6 +116,8 @@ type SlotRow = {
   x_pct: number;
   y_pct: number;
   w_pct: number;
+  h_pct: number;
+  rotation_deg: number;
 };
 
 function BuilderPage() {
