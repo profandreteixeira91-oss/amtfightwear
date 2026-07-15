@@ -75,14 +75,19 @@ export const migrateProductImagesBatch = createServerFn({ method: "POST" })
     // trying common extensions.
     async function fetchImage(originalUrl: string): Promise<{ buf: ArrayBuffer; contentType: string; ext: string }> {
       const attempts: string[] = [originalUrl];
+      // Tiendanube: /tmp/ paths return 403 — the same file without /tmp/ works.
+      if (originalUrl.includes("/tmp/")) {
+        attempts.push(originalUrl.replace("/tmp/", "/"));
+      }
       const m = originalUrl.match(/^(.*?)-\d+-\d+\.(webp|jpe?g|png|gif|avif)(\?.*)?$/i);
       if (m) {
-        const base = m[1];
+        const base = m[1].replace("/tmp/", "/");
         for (const ext of ["png", "jpg", "jpeg", "webp"]) {
           const candidate = `${base}.${ext}`;
           if (!attempts.includes(candidate)) attempts.push(candidate);
         }
       }
+
       let lastErr = "";
       for (const u of attempts) {
         const r = await fetch(u, {
