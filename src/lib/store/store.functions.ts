@@ -64,10 +64,13 @@ export const createWholesaleOrder = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const productIds = [...new Set(data.items.map((i) => i.product_id))];
-    const { data: products } = await supabaseAdmin
-      .from("products")
-      .select("id, name, price, image_url, category_id")
-      .in("id", productIds);
+    const variantIds = [...new Set(data.items.map((i) => i.variant_id).filter((v): v is string => !!v))];
+    const [{ data: products }, { data: variants }] = await Promise.all([
+      supabaseAdmin.from("products").select("id, name, price, image_url, category_id").in("id", productIds),
+      variantIds.length
+        ? supabaseAdmin.from("store_product_variants").select("id, product_id, size, color, option_label, sku, price").in("id", variantIds)
+        : Promise.resolve({ data: [] as Array<{ id: string; product_id: string; size: string | null; color: string | null; option_label: string | null; sku: string | null; price: number | null }> }),
+    ]);
     if (!products || products.length !== productIds.length) {
       throw new Error("Um ou mais produtos não foram encontrados");
     }
@@ -96,17 +99,21 @@ export const createWholesaleOrder = createServerFn({ method: "POST" })
     const orderItems: Array<Record<string, unknown>> = [];
     for (const it of data.items) {
       const p = products.find((pp) => pp.id === it.product_id)!;
-      const originalPrice = Number(p.price);
+      const v = it.variant_id ? variants?.find((vv) => vv.id === it.variant_id) ?? null : null;
+      const originalPrice = Number(v?.price ?? p.price);
       const unit_price = Number((originalPrice * (1 - WHOLESALE_DISCOUNT)).toFixed(2));
       const total_price = unit_price * it.quantity;
       subtotal += total_price;
       subtotalOriginal += originalPrice * it.quantity;
+      const sizeLabel = v ? [v.size, v.color, v.option_label].filter(Boolean).join(" / ") : null;
       orderItems.push({
         product_id: p.id,
-        variant_id: null,
+        variant_id: v?.id ?? null,
         product_name: p.name,
-        variant_label: "Atacado (25% off · etiqueta personalizada grátis)",
-        sku: null,
+        variant_label: sizeLabel
+          ? `${sizeLabel} · Atacado (25% off · etiqueta grátis)`
+          : "Atacado (25% off · etiqueta personalizada grátis)",
+        sku: v?.sku ?? null,
         image_url: p.image_url,
         quantity: it.quantity,
         unit_price,
@@ -116,10 +123,12 @@ export const createWholesaleOrder = createServerFn({ method: "POST" })
           discount_percent: 25,
           original_unit_price: originalPrice,
           category_id: p.category_id,
+          size: v?.size ?? null,
         },
         production_days: 10,
       });
     }
+
 
     const discount = Number((subtotalOriginal - subtotal).toFixed(2));
     const total = subtotal;
