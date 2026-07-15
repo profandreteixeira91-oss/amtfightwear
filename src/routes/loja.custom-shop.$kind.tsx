@@ -120,11 +120,14 @@ function BuilderPage() {
       fabric: selectedFabric
         ? { id: selectedFabric.id, name: selectedFabric.name, price_delta: Number(selectedFabric.price_delta) }
         : null,
+      modality: isFaixa ? modality : null,
+      logo_image: isFaixa ? logoImage : null,
+      label_image: isFaixa ? labelImage : null,
     };
     addToCart({
       product_id: crypto.randomUUID(),
       variant_id: null,
-      name: `${template.name} — Personalizado`,
+      name: `${template.name} — Personalizado${isFaixa ? ` · ${modality}` : ""}`,
       variant_label: `Custom · ${selectedFabric?.name ?? "Padrão"}`,
       slug: `custom-${template.kind}`,
       image_url: template.base_image_url ?? null,
