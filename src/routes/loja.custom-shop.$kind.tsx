@@ -905,6 +905,9 @@ function BuilderPage() {
                           </button>
 
                         </div>
+                        )}
+
+
 
                         {entry.mode === "text" ? (
                           <>
