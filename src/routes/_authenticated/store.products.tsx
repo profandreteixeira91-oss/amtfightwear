@@ -44,6 +44,7 @@ function AdminProductsPage() {
   const [bulkPrice, setBulkPrice] = useState("");
   const [bulkStock, setBulkStock] = useState("");
   const [bulkPricePct, setBulkPricePct] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
