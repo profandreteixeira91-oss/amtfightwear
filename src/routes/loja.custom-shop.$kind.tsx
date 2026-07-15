@@ -402,8 +402,48 @@ function BuilderPage() {
               </section>
             )}
 
-            {/* Zone colors */}
-            {zones.length > 0 && (
+            {/* Judô: presets oficiais de cor (corpo + ponta) */}
+            {variantKey === "judo" && (
+              <section>
+                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Cores da faixa</h2>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  {JUDO_PRESETS.map((p) => {
+                    const active =
+                      zoneColors.corpo_sup === p.body &&
+                      zoneColors.corpo_inf === p.body &&
+                      zoneColors.ponta_sup === p.tip &&
+                      zoneColors.ponta_inf === p.tip;
+                    return (
+                      <button
+                        key={p.label}
+                        type="button"
+                        onClick={() =>
+                          setZoneColors((prev) => ({
+                            ...prev,
+                            corpo_sup: p.body,
+                            corpo_inf: p.body,
+                            ponta_sup: p.tip,
+                            ponta_inf: p.tip,
+                          }))
+                        }
+                        className={`flex items-center gap-2 rounded-md border px-2 py-2 text-left text-[11px] font-semibold transition ${
+                          active ? "border-primary bg-primary/5 text-primary" : "hover:border-foreground/40"
+                        }`}
+                      >
+                        <span className="flex h-6 w-10 shrink-0 overflow-hidden rounded border border-foreground/20">
+                          <span className="h-full flex-1" style={{ background: p.body }} />
+                          <span className="h-full w-3" style={{ background: p.tip }} />
+                        </span>
+                        <span className="leading-tight">{p.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
+
+            {/* Zone colors (não-judô) */}
+            {variantKey !== "judo" && zones.length > 0 && (
               <section>
                 <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Cores</h2>
                 <div className="flex flex-wrap gap-2">
@@ -474,17 +514,15 @@ function BuilderPage() {
                           style={{ background: c }}
                         />
                       ))}
-                      {variantKey !== "judo" && (
-                        <label className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border-2 border-foreground/20 text-[10px]">
-                          <input
-                            type="color"
-                            value={zoneColors[activeZone] ?? "#000000"}
-                            onChange={(e) => setZoneColors((prev) => ({ ...prev, [activeZone]: e.target.value }))}
-                            className="h-0 w-0 opacity-0"
-                          />
-                          +
-                        </label>
-                      )}
+                      <label className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border-2 border-foreground/20 text-[10px]">
+                        <input
+                          type="color"
+                          value={zoneColors[activeZone] ?? "#000000"}
+                          onChange={(e) => setZoneColors((prev) => ({ ...prev, [activeZone]: e.target.value }))}
+                          className="h-0 w-0 opacity-0"
+                        />
+                        +
+                      </label>
                     </div>
                   </div>
                 )}
