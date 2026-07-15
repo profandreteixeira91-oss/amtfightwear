@@ -469,7 +469,8 @@ function BuilderPage() {
     });
   }
 
-  function handleAddToCart() {
+  async function handleAddToCart() {
+    const preview_image = await capturePreview(previewRef.current, 1000);
     const config: CustomConfig = {
       template_id: template.id,
       template_kind: template.kind,
@@ -486,6 +487,7 @@ function BuilderPage() {
       logo_image: isFaixa ? logoImage : null,
       label_image: isFaixa && labelChoice === "custom" ? labelImage : null,
       label_choice: isFaixa ? labelChoice : null,
+      preview_image,
     };
     addToCart({
       product_id: crypto.randomUUID(),
@@ -493,7 +495,7 @@ function BuilderPage() {
       name: `${template.name} — Personalizado${variants.length > 1 ? ` · ${activeVariant.label}` : ""}`,
       variant_label: `Custom · ${selectedFabric?.name ?? "Padrão"}`,
       slug: `custom-${template.kind}`,
-      image_url: template.base_image_url ?? null,
+      image_url: preview_image ?? template.base_image_url ?? null,
       unit_price: unitPrice,
       quantity: 1,
       type: "custom",
