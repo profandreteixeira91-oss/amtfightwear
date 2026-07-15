@@ -28,6 +28,7 @@ import { Route as AuthenticatedLogsRouteImport } from './routes/_authenticated/l
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdsRouteImport } from './routes/_authenticated/ads'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as LojaCustomShopIndexRouteImport } from './routes/loja.custom-shop.index'
 import { Route as AuthenticatedStoreIndexRouteImport } from './routes/_authenticated/store.index'
 import { Route as AuthenticatedProspectIndexRouteImport } from './routes/_authenticated/prospect.index'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
@@ -184,6 +185,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const LojaCustomShopIndexRoute = LojaCustomShopIndexRouteImport.update({
+  id: '/loja/custom-shop/',
+  path: '/loja/custom-shop/',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedStoreIndexRoute = AuthenticatedStoreIndexRouteImport.update({
   id: '/store/',
@@ -606,6 +612,7 @@ export interface FileRoutesByFullPath {
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/prospect/': typeof AuthenticatedProspectIndexRoute
   '/store/': typeof AuthenticatedStoreIndexRoute
+  '/loja/custom-shop/': typeof LojaCustomShopIndexRoute
   '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
@@ -688,6 +695,7 @@ export interface FileRoutesByTo {
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/prospect': typeof AuthenticatedProspectIndexRoute
   '/store': typeof AuthenticatedStoreIndexRoute
+  '/loja/custom-shop': typeof LojaCustomShopIndexRoute
   '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
@@ -772,6 +780,7 @@ export interface FileRoutesById {
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/_authenticated/prospect/': typeof AuthenticatedProspectIndexRoute
   '/_authenticated/store/': typeof AuthenticatedStoreIndexRoute
+  '/loja/custom-shop/': typeof LojaCustomShopIndexRoute
   '/_authenticated/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
@@ -856,6 +865,7 @@ export interface FileRouteTypes {
     | '/lovable/email/suppression'
     | '/prospect/'
     | '/store/'
+    | '/loja/custom-shop/'
     | '/ads/campaigns/$id'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/enrich-pending-leads'
@@ -938,6 +948,7 @@ export interface FileRouteTypes {
     | '/lovable/email/suppression'
     | '/prospect'
     | '/store'
+    | '/loja/custom-shop'
     | '/ads/campaigns/$id'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/enrich-pending-leads'
@@ -1021,6 +1032,7 @@ export interface FileRouteTypes {
     | '/lovable/email/suppression'
     | '/_authenticated/prospect/'
     | '/_authenticated/store/'
+    | '/loja/custom-shop/'
     | '/_authenticated/ads/campaigns/$id'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/enrich-pending-leads'
@@ -1056,6 +1068,7 @@ export interface RootRouteChildren {
   LojaPedidoIdRoute: typeof LojaPedidoIdRoute
   LojaProdutoSlugRoute: typeof LojaProdutoSlugRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
+  LojaCustomShopIndexRoute: typeof LojaCustomShopIndexRoute
   ApiPublicHooksAutoInstagramPostRoute: typeof ApiPublicHooksAutoInstagramPostRoute
   ApiPublicHooksEnrichPendingLeadsRoute: typeof ApiPublicHooksEnrichPendingLeadsRoute
   ApiPublicHooksIgSyncRoute: typeof ApiPublicHooksIgSyncRoute
@@ -1207,6 +1220,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/loja/custom-shop/': {
+      id: '/loja/custom-shop/'
+      path: '/loja/custom-shop'
+      fullPath: '/loja/custom-shop/'
+      preLoaderRoute: typeof LojaCustomShopIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/store/': {
       id: '/_authenticated/store/'
@@ -1793,6 +1813,7 @@ const rootRouteChildren: RootRouteChildren = {
   LojaPedidoIdRoute: LojaPedidoIdRoute,
   LojaProdutoSlugRoute: LojaProdutoSlugRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
+  LojaCustomShopIndexRoute: LojaCustomShopIndexRoute,
   ApiPublicHooksAutoInstagramPostRoute: ApiPublicHooksAutoInstagramPostRoute,
   ApiPublicHooksEnrichPendingLeadsRoute: ApiPublicHooksEnrichPendingLeadsRoute,
   ApiPublicHooksIgSyncRoute: ApiPublicHooksIgSyncRoute,

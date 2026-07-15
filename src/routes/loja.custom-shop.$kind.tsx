@@ -1,0 +1,522 @@
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
+import { StoreShell } from "@/components/store/StoreShell";
+import { listStoreCategories } from "@/lib/store/store.functions";
+import { getCustomTemplate } from "@/lib/customshop.functions";
+import { formatBRL, useCart, type CustomConfig } from "@/lib/store/cart-store";
+import { useMemo, useState } from "react";
+import { Check, Plus, Trash2, ShoppingBag } from "lucide-react";
+
+const catsQuery = queryOptions({
+  queryKey: ["store", "categories"],
+  queryFn: () => listStoreCategories(),
+});
+
+const templateQuery = (kind: string) =>
+  queryOptions({
+    queryKey: ["custom-shop", "template", kind],
+    queryFn: () => getCustomTemplate({ data: { kind } }),
+  });
+
+export const Route = createFileRoute("/loja/custom-shop/$kind")({
+  loader: async ({ context, params }) => {
+    await Promise.all([
+      context.queryClient.ensureQueryData(templateQuery(params.kind)),
+      context.queryClient.ensureQueryData(catsQuery),
+    ]);
+  },
+  head: ({ params }) => ({
+    meta: [
+      { title: `Customizar ${params.kind} — Custom Shop AMT` },
+      { name: "description", content: "Monte seu produto AMT sob medida: cores, patches, bordado e tecido." },
+      { property: "og:title", content: `Customizar ${params.kind} — AMT Fight Wear` },
+    ],
+  }),
+  component: BuilderPage,
+  errorComponent: ({ error }) => <div className="p-8 text-center text-destructive">Erro: {error.message}</div>,
+  notFoundComponent: () => <div className="p-8 text-center">Modelo não encontrado</div>,
+});
+
+const PALETTE = [
+  "#0a0a0a", "#ffffff", "#e11d48", "#1d4ed8", "#059669", "#f59e0b",
+  "#7c3aed", "#0891b2", "#374151", "#a16207", "#be123c", "#1e293b",
+];
+
+function BuilderPage() {
+  const { kind } = Route.useParams();
+  const { data } = useSuspenseQuery(templateQuery(kind));
+  const { data: categories } = useSuspenseQuery(catsQuery);
+  const navigate = useNavigate();
+  const addToCart = useCart((s) => s.add);
+
+  if (!data) {
+    return (
+      <StoreShell categories={categories}>
+        <div className="mx-auto max-w-3xl px-4 py-16 text-center">
+          <h1 className="text-2xl font-bold">Modelo não encontrado</h1>
+          <Link to="/loja/custom-shop" className="mt-4 inline-block text-primary hover:underline">← Voltar ao Custom Shop</Link>
+        </div>
+      </StoreShell>
+    );
+  }
+
+  const { template, zones, slots, fabrics, patches } = data;
+
+  const [zoneColors, setZoneColors] = useState<Record<string, string>>(() =>
+    Object.fromEntries(zones.map((z) => [z.key, z.default_hex])),
+  );
+  const [slotPatches, setSlotPatches] = useState<Record<string, string>>({}); // slot_key -> patch_id
+  const [fabricId, setFabricId] = useState<string | null>(fabrics[0]?.id ?? null);
+  const [embroideryText, setEmbroideryText] = useState("");
+  const [embroiderySlot, setEmbroiderySlot] = useState<string | null>(null);
+  const [embroideryColor, setEmbroideryColor] = useState("#ffffff");
+  const [activeZone, setActiveZone] = useState<string>(zones[0]?.key ?? "");
+
+  const selectedFabric = fabrics.find((f) => f.id === fabricId) ?? null;
+
+  const patchesTotal = useMemo(() => {
+    let total = 0;
+    for (const [, patchId] of Object.entries(slotPatches)) {
+      const p = patches.find((pp) => pp.id === patchId);
+      if (p) total += Number(p.price);
+    }
+    return total;
+  }, [slotPatches, patches]);
+
+  const embroideryFee = embroideryText.trim() ? 39 : 0;
+  const fabricDelta = selectedFabric ? Number(selectedFabric.price_delta) : 0;
+  const unitPrice = Number(template.base_price) + fabricDelta + patchesTotal + embroideryFee;
+
+  function togglePatch(slotKey: string, patchId: string) {
+    setSlotPatches((prev) => {
+      const next = { ...prev };
+      if (next[slotKey] === patchId) delete next[slotKey];
+      else next[slotKey] = patchId;
+      return next;
+    });
+  }
+
+  function handleAddToCart() {
+    const config: CustomConfig = {
+      template_id: template.id,
+      template_kind: template.kind,
+      template_name: template.name,
+      zones: zoneColors,
+      patches: Object.entries(slotPatches).map(([slot_key, patch_id]) => {
+        const p = patches.find((pp) => pp.id === patch_id)!;
+        return { slot_key, patch_id, patch_name: p.name, image_url: p.image_url, price: Number(p.price) };
+      }),
+      embroidery: embroideryText.trim() && embroiderySlot
+        ? { text: embroideryText.trim(), slot_key: embroiderySlot, color: embroideryColor }
+        : null,
+      fabric: selectedFabric
+        ? { id: selectedFabric.id, name: selectedFabric.name, price_delta: Number(selectedFabric.price_delta) }
+        : null,
+    };
+    addToCart({
+      product_id: crypto.randomUUID(),
+      variant_id: null,
+      name: `${template.name} — Personalizado`,
+      variant_label: `Custom · ${selectedFabric?.name ?? "Padrão"}`,
+      slug: `custom-${template.kind}`,
+      image_url: template.base_image_url ?? null,
+      unit_price: unitPrice,
+      quantity: 1,
+      type: "custom",
+      custom_config: config,
+      production_days: template.production_days,
+    });
+    navigate({ to: "/loja/carrinho" });
+  }
+
+  return (
+    <StoreShell categories={categories}>
+      <div className="mx-auto max-w-7xl px-4 py-6">
+        <div className="mb-4 text-xs text-muted-foreground">
+          <Link to="/loja/custom-shop" className="hover:text-primary">Custom Shop</Link> / <span className="text-foreground">{template.name}</span>
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-[1fr_420px]">
+          {/* Preview */}
+          <div className="sticky top-24 h-fit rounded-xl border bg-card p-4">
+            <div className="aspect-square w-full overflow-hidden rounded-lg bg-muted">
+              <BuilderPreview
+                kind={template.kind}
+                zoneColors={zoneColors}
+                slots={slots}
+                slotPatches={slotPatches}
+                patches={patches}
+                embroidery={
+                  embroideryText.trim() && embroiderySlot
+                    ? { text: embroideryText.trim(), slot_key: embroiderySlot, color: embroideryColor }
+                    : null
+                }
+              />
+            </div>
+            <div className="mt-3 text-center text-xs text-muted-foreground">
+              Pré-visualização ilustrativa 2D. Produto final pode variar em tonalidade.
+            </div>
+          </div>
+
+          {/* Controls */}
+          <div className="space-y-6">
+            <div>
+              <h1 className="text-3xl font-black">{template.name}</h1>
+              {template.description && (
+                <p className="mt-1 text-sm text-muted-foreground">{template.description}</p>
+              )}
+              <div className="mt-3 flex items-baseline gap-3">
+                <div className="text-3xl font-black">{formatBRL(unitPrice)}</div>
+                <div className="text-sm text-muted-foreground">10x de {formatBRL(unitPrice / 10)}</div>
+              </div>
+              <div className="mt-1 text-xs text-muted-foreground">Produção sob encomenda · {template.production_days} dias úteis</div>
+            </div>
+
+            {/* Fabric */}
+            {fabrics.length > 0 && (
+              <section>
+                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Tecido / gramatura</h2>
+                <div className="grid gap-2">
+                  {fabrics.map((f) => (
+                    <button
+                      key={f.id}
+                      type="button"
+                      onClick={() => setFabricId(f.id)}
+                      className={`flex items-center justify-between rounded-md border px-3 py-2 text-left text-sm transition ${
+                        fabricId === f.id ? "border-primary bg-primary/5" : "hover:border-foreground/40"
+                      }`}
+                    >
+                      <div>
+                        <div className="font-semibold">{f.name}</div>
+                        {f.description && <div className="text-xs text-muted-foreground">{f.description}</div>}
+                      </div>
+                      <div className="text-xs font-semibold">
+                        {Number(f.price_delta) === 0 ? "Incluso" : `+ ${formatBRL(Number(f.price_delta))}`}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Zone colors */}
+            {zones.length > 0 && (
+              <section>
+                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Cores</h2>
+                <div className="flex flex-wrap gap-2">
+                  {zones.map((z) => (
+                    <button
+                      key={z.key}
+                      type="button"
+                      onClick={() => setActiveZone(z.key)}
+                      className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition ${
+                        activeZone === z.key ? "border-primary bg-primary/5" : "hover:border-foreground/40"
+                      }`}
+                    >
+                      <span
+                        className="inline-block h-4 w-4 rounded-full border border-foreground/20"
+                        style={{ background: zoneColors[z.key] }}
+                      />
+                      {z.label}
+                    </button>
+                  ))}
+                </div>
+                {activeZone && (
+                  <div className="mt-3 rounded-md border bg-muted/30 p-3">
+                    <div className="text-xs font-semibold text-muted-foreground">
+                      Cor de <strong className="text-foreground">{zones.find((z) => z.key === activeZone)?.label}</strong>
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {PALETTE.map((c) => (
+                        <button
+                          key={c}
+                          type="button"
+                          aria-label={c}
+                          onClick={() => setZoneColors((prev) => ({ ...prev, [activeZone]: c }))}
+                          className={`h-7 w-7 rounded-full border-2 transition ${
+                            zoneColors[activeZone] === c ? "border-primary scale-110" : "border-foreground/20"
+                          }`}
+                          style={{ background: c }}
+                        />
+                      ))}
+                      <label className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border-2 border-foreground/20 text-[10px]">
+                        <input
+                          type="color"
+                          value={zoneColors[activeZone] ?? "#000000"}
+                          onChange={(e) => setZoneColors((prev) => ({ ...prev, [activeZone]: e.target.value }))}
+                          className="h-0 w-0 opacity-0"
+                        />
+                        +
+                      </label>
+                    </div>
+                  </div>
+                )}
+              </section>
+            )}
+
+            {/* Patches */}
+            {slots.length > 0 && patches.length > 0 && (
+              <section>
+                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Patches / logos</h2>
+                <div className="space-y-3">
+                  {slots.map((s) => {
+                    const chosen = slotPatches[s.key];
+                    return (
+                      <div key={s.key} className="rounded-md border p-3">
+                        <div className="flex items-center justify-between">
+                          <div className="text-sm font-semibold">{s.label}</div>
+                          {chosen && (
+                            <button
+                              type="button"
+                              onClick={() => setSlotPatches((prev) => { const n = { ...prev }; delete n[s.key]; return n; })}
+                              className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive"
+                            >
+                              <Trash2 className="h-3 w-3" /> remover
+                            </button>
+                          )}
+                        </div>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {patches.map((p) => {
+                            const active = chosen === p.id;
+                            return (
+                              <button
+                                key={p.id}
+                                type="button"
+                                onClick={() => togglePatch(s.key, p.id)}
+                                className={`relative flex flex-col items-center gap-1 rounded-md border p-2 transition ${
+                                  active ? "border-primary bg-primary/5" : "hover:border-foreground/40"
+                                }`}
+                                title={p.name}
+                              >
+                                <img src={p.image_url} alt={p.name} className="h-12 w-12 object-contain" />
+                                <div className="text-[10px] leading-none">{p.name}</div>
+                                <div className="text-[10px] font-bold text-primary">+ {formatBRL(Number(p.price))}</div>
+                                {active && (
+                                  <span className="absolute right-1 top-1 grid h-4 w-4 place-items-center rounded-full bg-primary text-[10px] text-primary-foreground">
+                                    <Check className="h-2.5 w-2.5" />
+                                  </span>
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
+
+            {/* Embroidery */}
+            {slots.length > 0 && (
+              <section>
+                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Bordado de texto</h2>
+                <div className="rounded-md border p-3 space-y-3">
+                  <input
+                    type="text"
+                    maxLength={20}
+                    value={embroideryText}
+                    onChange={(e) => {
+                      setEmbroideryText(e.target.value);
+                      if (e.target.value && !embroiderySlot) setEmbroiderySlot(slots[0].key);
+                    }}
+                    placeholder="Seu nome ou apelido (opcional, até 20 caracteres)"
+                    className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+                  />
+                  {embroideryText.trim() && (
+                    <>
+                      <div>
+                        <div className="mb-1 text-xs font-semibold text-muted-foreground">Posição</div>
+                        <div className="flex flex-wrap gap-2">
+                          {slots.map((s) => (
+                            <button
+                              key={s.key}
+                              type="button"
+                              onClick={() => setEmbroiderySlot(s.key)}
+                              className={`rounded-full border px-3 py-1 text-xs ${
+                                embroiderySlot === s.key ? "border-primary bg-primary/5" : "hover:border-foreground/40"
+                              }`}
+                            >
+                              {s.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="mb-1 text-xs font-semibold text-muted-foreground">Cor do bordado</div>
+                        <div className="flex flex-wrap gap-2">
+                          {PALETTE.map((c) => (
+                            <button
+                              key={c}
+                              type="button"
+                              onClick={() => setEmbroideryColor(c)}
+                              className={`h-6 w-6 rounded-full border-2 ${
+                                embroideryColor === c ? "border-primary scale-110" : "border-foreground/20"
+                              }`}
+                              style={{ background: c }}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      <div className="text-xs font-bold text-primary">Taxa de bordado: + {formatBRL(39)}</div>
+                    </>
+                  )}
+                </div>
+              </section>
+            )}
+
+            {/* Summary + CTA */}
+            <div className="rounded-lg border bg-card p-4">
+              <div className="space-y-1 text-sm">
+                <div className="flex justify-between"><span>Base ({template.name})</span><span>{formatBRL(Number(template.base_price))}</span></div>
+                {fabricDelta > 0 && <div className="flex justify-between"><span>{selectedFabric?.name}</span><span>+ {formatBRL(fabricDelta)}</span></div>}
+                {patchesTotal > 0 && <div className="flex justify-between"><span>Patches</span><span>+ {formatBRL(patchesTotal)}</span></div>}
+                {embroideryFee > 0 && <div className="flex justify-between"><span>Bordado</span><span>+ {formatBRL(embroideryFee)}</span></div>}
+              </div>
+              <div className="mt-3 flex justify-between border-t pt-3 text-base font-black">
+                <span>Total</span><span>{formatBRL(unitPrice)}</span>
+              </div>
+              <div className="mt-1 text-xs text-muted-foreground">Produção sob encomenda em {template.production_days} dias úteis</div>
+              <button
+                type="button"
+                onClick={handleAddToCart}
+                className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 font-bold text-primary-foreground hover:opacity-90"
+              >
+                <Plus className="h-4 w-4" /> Adicionar ao carrinho <ShoppingBag className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </StoreShell>
+  );
+}
+
+// ============ 2D LAYERED PREVIEW ============
+
+type Slot = { key: string; label: string; x_pct: number; y_pct: number; w_pct: number };
+type Patch = { id: string; name: string; image_url: string };
+
+function BuilderPreview({
+  kind,
+  zoneColors,
+  slots,
+  slotPatches,
+  patches,
+  embroidery,
+}: {
+  kind: string;
+  zoneColors: Record<string, string>;
+  slots: Slot[];
+  slotPatches: Record<string, string>;
+  patches: Patch[];
+  embroidery: { text: string; slot_key: string; color: string } | null;
+}) {
+  const c = (k: string, fallback = "#e5e7eb") => zoneColors[k] ?? fallback;
+
+  return (
+    <svg viewBox="0 0 400 400" className="h-full w-full" xmlns="http://www.w3.org/2000/svg">
+      <rect width="400" height="400" fill="hsl(var(--muted))" />
+      {kind === "kimono" && <KimonoSilhouette c={c} />}
+      {kind === "rashguard" && <RashguardSilhouette c={c} />}
+      {kind === "faixa" && <FaixaSilhouette c={c} />}
+
+      {/* Patches */}
+      {slots.map((s) => {
+        const patchId = slotPatches[s.key];
+        if (!patchId) return null;
+        const p = patches.find((pp) => pp.id === patchId);
+        if (!p) return null;
+        const w = (s.w_pct / 100) * 400;
+        const x = (s.x_pct / 100) * 400 - w / 2;
+        const y = (s.y_pct / 100) * 400 - w / 2;
+        return (
+          <image
+            key={s.key}
+            href={p.image_url}
+            x={x}
+            y={y}
+            width={w}
+            height={w}
+            preserveAspectRatio="xMidYMid meet"
+          />
+        );
+      })}
+
+      {/* Embroidery */}
+      {embroidery && (() => {
+        const slot = slots.find((s) => s.key === embroidery.slot_key);
+        if (!slot) return null;
+        const x = (slot.x_pct / 100) * 400;
+        const y = (slot.y_pct / 100) * 400 + 30;
+        return (
+          <text
+            x={x}
+            y={y}
+            textAnchor="middle"
+            fontFamily="Georgia, serif"
+            fontWeight="700"
+            fontStyle="italic"
+            fontSize="18"
+            fill={embroidery.color}
+            stroke="rgba(0,0,0,0.25)"
+            strokeWidth="0.4"
+          >
+            {embroidery.text}
+          </text>
+        );
+      })()}
+    </svg>
+  );
+}
+
+function KimonoSilhouette({ c }: { c: (k: string, fallback?: string) => string }) {
+  return (
+    <g>
+      {/* Calça */}
+      <path d="M 130 250 L 270 250 L 285 390 L 220 390 L 200 290 L 180 390 L 115 390 Z" fill={c("calca")} stroke="rgba(0,0,0,0.35)" strokeWidth="1.5" />
+      {/* Jaqueta corpo */}
+      <path d="M 90 100 L 150 70 L 200 90 L 250 70 L 310 100 L 300 260 L 100 260 Z" fill={c("jaqueta")} stroke="rgba(0,0,0,0.35)" strokeWidth="1.5" />
+      {/* Mangas */}
+      <path d="M 90 100 L 55 200 L 90 215 L 115 130 Z" fill={c("jaqueta")} stroke="rgba(0,0,0,0.35)" strokeWidth="1.5" />
+      <path d="M 310 100 L 345 200 L 310 215 L 285 130 Z" fill={c("jaqueta")} stroke="rgba(0,0,0,0.35)" strokeWidth="1.5" />
+      {/* Punho */}
+      <rect x="55" y="195" width="45" height="14" fill={c("punho")} stroke="rgba(0,0,0,0.35)" strokeWidth="1" />
+      <rect x="300" y="195" width="45" height="14" fill={c("punho")} stroke="rgba(0,0,0,0.35)" strokeWidth="1" />
+      {/* Gola V */}
+      <path d="M 150 70 L 200 200 L 250 70 L 230 65 L 200 155 L 170 65 Z" fill={c("gola")} stroke="rgba(0,0,0,0.4)" strokeWidth="1" />
+    </g>
+  );
+}
+
+function RashguardSilhouette({ c }: { c: (k: string, fallback?: string) => string }) {
+  return (
+    <g>
+      {/* Base torso */}
+      <path d="M 130 80 L 180 65 L 220 65 L 270 80 L 275 360 L 125 360 Z" fill={c("base")} stroke="rgba(0,0,0,0.35)" strokeWidth="1.5" />
+      {/* Mangas */}
+      <path d="M 130 80 L 70 350 L 115 360 L 145 100 Z" fill={c("manga")} stroke="rgba(0,0,0,0.35)" strokeWidth="1.5" />
+      <path d="M 270 80 L 330 350 L 285 360 L 255 100 Z" fill={c("manga")} stroke="rgba(0,0,0,0.35)" strokeWidth="1.5" />
+      {/* Colarinho */}
+      <path d="M 180 65 L 200 90 L 220 65 Z" fill={c("costas", "#111")} opacity="0.6" />
+      {/* Costura lateral (hint) */}
+      <path d="M 145 100 L 135 355" stroke={c("costas", "#000")} strokeWidth="2" opacity="0.4" />
+      <path d="M 255 100 L 265 355" stroke={c("costas", "#000")} strokeWidth="2" opacity="0.4" />
+    </g>
+  );
+}
+
+function FaixaSilhouette({ c }: { c: (k: string, fallback?: string) => string }) {
+  return (
+    <g>
+      {/* Faixa corpo */}
+      <rect x="20" y="170" width="360" height="60" fill={c("corpo")} stroke="rgba(0,0,0,0.35)" strokeWidth="1.5" />
+      {/* Ponta */}
+      <rect x="290" y="170" width="90" height="60" fill={c("ponta")} stroke="rgba(0,0,0,0.35)" strokeWidth="1.5" />
+      {/* Costura da ponta */}
+      <line x1="290" y1="170" x2="290" y2="230" stroke="rgba(0,0,0,0.5)" strokeWidth="1.5" strokeDasharray="4 3" />
+      {/* Detalhe amarração */}
+      <path d="M 20 200 Q 10 200 10 210 Q 10 220 20 220" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="1.5" />
+    </g>
+  );
+}
