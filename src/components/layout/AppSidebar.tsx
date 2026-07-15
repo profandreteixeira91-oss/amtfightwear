@@ -64,7 +64,6 @@ const mainItems = [
 
 const growthItems = [
   { title: "Inteligência Comercial", url: "/growth/intelligence", icon: Brain },
-  { title: "Produtos", url: "/growth/products", icon: Package },
   { title: "Clientes", url: "/growth/customers", icon: UserSquare2 },
   { title: "Mercado", url: "/growth/market", icon: Globe2 },
   { title: "CRM", url: "/growth/crm", icon: Handshake },
