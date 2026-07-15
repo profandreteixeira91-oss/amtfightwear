@@ -74,12 +74,15 @@ const layoutInput = z.object({
     w_pct: z.number().min(0).max(200),
     h_pct: z.number().min(0).max(200),
     solid: z.boolean().optional(),
+    rotation_deg: z.number().min(-360).max(360).optional(),
   })),
   slots: z.array(z.object({
     key: z.string().min(1),
     x_pct: numPct,
     y_pct: numPct,
-    w_pct: z.number().min(0).max(200),
+    w_pct: z.number().min(0).max(400),
+    h_pct: z.number().min(0).max(400).optional(),
+    rotation_deg: z.number().min(-360).max(360).optional(),
   })),
 });
 
