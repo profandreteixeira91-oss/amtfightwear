@@ -72,7 +72,13 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
   }
 
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const [isAuthed, setIsAuthed] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+    supabase.auth.getSession().then(({ data }) => setIsAuthed(!!data.session));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => setIsAuthed(!!session));
+    return () => sub.subscription.unsubscribe();
+  }, []);
   const count = useCart((s) => s.items.reduce((a, i) => a + i.quantity, 0));
 
   return (
