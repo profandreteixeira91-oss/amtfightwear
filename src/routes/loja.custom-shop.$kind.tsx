@@ -1041,6 +1041,15 @@ function BuilderPreview({
               transform={target.rotation_deg ? `rotate(${target.rotation_deg} ${target.x_pct} ${target.y_pct})` : undefined}
               style={{ filter: "drop-shadow(0 0.4px 0.6px rgba(0,0,0,0.35))" }}
             >
+              {labelImage.bg_color && (
+                <rect
+                  x={target.x_pct - w / 2}
+                  y={target.y_pct - h / 2}
+                  width={w}
+                  height={h}
+                  fill={labelImage.bg_color}
+                />
+              )}
               <image
                 href={labelImage.data_url}
                 x={target.x_pct - w / 2}
