@@ -297,6 +297,8 @@ function BuilderPage() {
     scale: number;
     rotation: number;
     technique?: "bordado" | "sublimado" | "dtf" | null;
+    size?: string | null;
+
   }>>({});
 
   const [activeZone, setActiveZone] = useState<string>(zones[0]?.key ?? "");
