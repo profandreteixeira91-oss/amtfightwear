@@ -589,15 +589,49 @@ function BuilderPage() {
               </section>
             )}
 
-            {/* Faixa: Label tip upload */}
+            {/* Faixa: Etiqueta — AMT Padrão OU imagem personalizada */}
             {isFaixa && (
               <section>
-                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Etiqueta da ponta (opcional)</h2>
-                <ImageUploader
-                  value={labelImage}
-                  onChange={setLabelImage}
-                  hint="Imagem que ficará pré-posicionada na ponta da faixa (PNG/JPG, até 4MB)."
-                />
+                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Etiqueta (opcional)</h2>
+                <div className="rounded-md border p-3 space-y-3">
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLabelChoice(labelChoice === "padrao" ? null : "padrao");
+                        setLabelImage(null);
+                      }}
+                      className={`rounded-md border px-3 py-2 text-xs font-semibold transition ${
+                        labelChoice === "padrao" ? "border-primary bg-primary/5 text-primary" : "hover:border-foreground/40"
+                      }`}
+                    >
+                      Etiqueta AMT Padrão
+                      <div className="mt-1 text-[10px] font-normal text-muted-foreground">Modelo oficial (em breve)</div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setLabelChoice(labelChoice === "custom" ? null : "custom")}
+                      className={`rounded-md border px-3 py-2 text-xs font-semibold transition ${
+                        labelChoice === "custom" ? "border-primary bg-primary/5 text-primary" : "hover:border-foreground/40"
+                      }`}
+                    >
+                      Personalizada
+                      <div className="mt-1 text-[10px] font-normal text-muted-foreground">Envie sua imagem</div>
+                    </button>
+                  </div>
+                  {labelChoice === "custom" && (
+                    <ImageUploader
+                      value={labelImage}
+                      onChange={setLabelImage}
+                      hint="PNG/JPG, até 4MB — ficará pré-posicionada na ponta da faixa."
+                    />
+                  )}
+                  {labelChoice === "padrao" && (
+                    <div className="rounded-md bg-muted/40 p-2 text-[11px] text-muted-foreground">
+                      Etiqueta AMT Padrão selecionada. A arte oficial será aplicada na produção.
+                    </div>
+                  )}
+                </div>
               </section>
             )}
 
