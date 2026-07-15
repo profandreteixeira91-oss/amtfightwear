@@ -217,9 +217,8 @@ function BuilderPage() {
         const p = patches.find((pp) => pp.id === patch_id)!;
         return { slot_key, patch_id, patch_name: p.name, image_url: p.image_url, price: Number(p.price) };
       }),
-      embroidery: embroideryText.trim() && embroiderySlot
-        ? { text: embroideryText.trim(), slot_key: embroiderySlot, color: embroideryColor }
-        : null,
+      embroidery: null,
+      embroideries: activeEmbroideries.length > 0 ? activeEmbroideries : null,
       fabric: selectedFabric
         ? { id: selectedFabric.id, name: selectedFabric.name, price_delta: Number(selectedFabric.price_delta) }
         : null,
