@@ -397,6 +397,31 @@ function BuilderPage() {
               </section>
             )}
 
+            {/* Faixa: Logo upload */}
+            {isFaixa && (
+              <section>
+                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Logotipo do bordado (opcional)</h2>
+                <ImageUploader
+                  value={logoImage}
+                  onChange={setLogoImage}
+                  hint="Envie o logo que será bordado junto ao nome (PNG/JPG, até 4MB)."
+                />
+              </section>
+            )}
+
+            {/* Faixa: Label tip upload */}
+            {isFaixa && (
+              <section>
+                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Etiqueta da ponta (opcional)</h2>
+                <ImageUploader
+                  value={labelImage}
+                  onChange={setLabelImage}
+                  hint="Imagem que ficará pré-posicionada na ponta da faixa (PNG/JPG, até 4MB)."
+                />
+              </section>
+            )}
+
+
             {/* Summary + CTA */}
             <div className="rounded-lg border bg-card p-4">
               <div className="space-y-1 text-sm">
