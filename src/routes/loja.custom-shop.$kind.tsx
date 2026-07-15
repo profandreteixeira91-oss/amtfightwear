@@ -492,19 +492,22 @@ const BASE_IMAGES: Record<string, string> = {
 };
 
 // Judo faixa — two horizontal belts stacked (padded square 1280x1280 base).
+// Measured against the actual photo: top belt y≈30.9-45.7%, x≈0-85.5% (tip on right);
+// bottom belt y≈51.5-68.7%, x≈7-100% (tip on left).
 const JUDO_FAIXA_ZONES: ZonePath[] = [
-  // corpo — bodies of both belts (top belt without its right tip; bottom belt without its left tip)
-  { key: "corpo", d: "M 0 30.7 L 78 30.7 L 78 45.5 L 0 45.5 Z M 15 52.6 L 100 52.6 L 100 69.4 L 15 69.4 Z" },
-  // ponta — the two rounded tips (top-right + bottom-left)
-  { key: "ponta", d: "M 78 30.7 L 84 30.7 L 84 45.5 L 78 45.5 Z M 7 52.6 L 15 52.6 L 15 69.4 L 7 69.4 Z" },
+  // corpo — main bodies of both belts (excluding the rounded tips)
+  { key: "corpo", d: "M 0 30.9 L 82 30.9 L 82 45.7 L 0 45.7 Z M 10 51.5 L 100 51.5 L 100 68.7 L 10 68.7 Z" },
+  // ponta — the two rounded ends (top-right + bottom-left)
+  { key: "ponta", d: "M 82 30.9 L 85.5 30.9 L 85.5 45.7 L 82 45.7 Z M 7 51.5 L 10 51.5 L 10 68.7 L 7 68.7 Z" },
 ];
 
-// Judo has two belts — put the labeled tip on the top-right belt end.
+// Judo has two belts — center label/patch/embroidery near the top-right tip of the top belt.
 function remapJudoSlots(slots: Slot[]): Slot[] {
   return slots.map((s) =>
-    s.key === "ponta" ? { ...s, x_pct: 81, y_pct: 38, w_pct: 12 } : s,
+    s.key === "ponta" ? { ...s, x_pct: 73, y_pct: 38.3, w_pct: 10 } : s,
   );
 }
+
 
 
 
