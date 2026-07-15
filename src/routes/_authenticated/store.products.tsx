@@ -325,6 +325,9 @@ function AdminProductsPage() {
                                 Salvar
                               </Button>
                             )}
+                            <Button size="sm" variant="outline" onClick={() => setEditingId(p.id)}>
+                              <Pencil className="h-3 w-3 mr-1" /> Editar
+                            </Button>
                             {p.slug && (
                               <a href={`/loja/produto/${p.slug}`} target="_blank" rel="noreferrer" className="inline-flex items-center text-primary hover:underline">
                                 <ExternalLink className="h-3 w-3" />
