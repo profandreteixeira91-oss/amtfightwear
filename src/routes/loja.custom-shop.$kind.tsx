@@ -9,6 +9,7 @@ import { Check, Plus, Trash2, ShoppingBag, Upload, X } from "lucide-react";
 import kimonoBase from "@/assets/customshop-kimono.jpg";
 import rashguardBase from "@/assets/customshop-rashguard.jpg";
 import faixaBase from "@/assets/customshop-faixa.jpg";
+import faixaJudoBase from "@/assets/customshop-faixa-judo.png";
 
 
 const catsQuery = queryOptions({
