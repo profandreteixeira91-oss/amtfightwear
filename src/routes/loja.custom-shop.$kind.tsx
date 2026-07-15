@@ -757,6 +757,7 @@ function BuilderPreview({
   patches,
   embroideries,
   labelImage,
+  judoPresetImage,
 }: {
   kind: string;
   variantKey: string;
@@ -767,9 +768,12 @@ function BuilderPreview({
   patches: Patch[];
   embroideries: Array<{ slot_key: string; text: string | null; image: { data_url: string; filename: string } | null; color: string }>;
   labelImage?: { data_url: string; filename: string } | null;
+  judoPresetImage?: string | null;
 }) {
   const isJudo = kind === "faixa" && variantKey === "judo";
-  const baseImg = isJudo ? faixaJudoBase : BASE_IMAGES[kind];
+  const baseImg = judoPresetImage || (isJudo ? faixaJudoBase : BASE_IMAGES[kind]);
+  // Quando temos a foto real do produto (preset judô selecionado), não tinta zonas.
+  const useProductPhoto = Boolean(judoPresetImage);
 
   return (
     <div className="relative h-full w-full overflow-hidden">
