@@ -69,6 +69,12 @@ const JUDO_PRESETS: { label: string; body: string; tip: string; image: string }[
   { label: "Marrom",                             body: "#78350f", tip: "#78350f", image: "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/be47182f-1cad-42a6-b09f-73503913aefc/5849e0a0-a4d0-44ac-84f5-97a1e9f31af6.jpg" },
 ];
 
+// Coloração (revestimento externo) — opções fixas para faixa
+const COLORING_OPTIONS: { name: string; price_delta: number }[] = [
+  { name: "Oxford 100% poliéster", price_delta: 0 },
+  { name: "Brim 100% algodão", price_delta: 0 },
+];
+
 type Zone = {
   key: string;
   label: string;
