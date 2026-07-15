@@ -353,9 +353,266 @@ function AdminProductsPage() {
           )}
         </CardContent>
       </Card>
+
+      {editingId && (
+        <ProductEditDialog
+          productId={editingId}
+          onClose={() => setEditingId(null)}
+          onSaved={() => { setEditingId(null); refetch(); }}
+        />
+      )}
     </div>
   );
 }
+
+type VariantDraft = {
+  id?: string;
+  size: string | null;
+  color: string | null;
+  option_label: string | null;
+  sku: string | null;
+  price: number | null;
+  compare_at_price: number | null;
+  stock: number;
+  weight_grams: number | null;
+  sort_order: number;
+  active: boolean;
+};
+
+function ProductEditDialog({ productId, onClose, onSaved }: { productId: string; onClose: () => void; onSaved: () => void }) {
+  const getProduct = useServerFn(adminGetStoreProduct);
+  const updateProduct = useServerFn(adminUpdateStoreProduct);
+  const saveVariants = useServerFn(adminSaveVariants);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin", "store", "product", productId],
+    queryFn: () => getProduct({ data: { id: productId } }),
+  });
+
+  const [name, setName] = useState("");
+  const [slug, setSlug] = useState("");
+  const [shortDesc, setShortDesc] = useState("");
+  const [description, setDescription] = useState("");
+  const [price, setPrice] = useState("");
+  const [compareAt, setCompareAt] = useState("");
+  const [stock, setStock] = useState("");
+  const [variants, setVariants] = useState<VariantDraft[]>([]);
+  const [deletedIds, setDeletedIds] = useState<string[]>([]);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!data?.product) return;
+    const p = data.product;
+    setName(p.name ?? "");
+    setSlug(p.slug ?? "");
+    setShortDesc(p.short_description ?? "");
+    setDescription(p.description ?? "");
+    setPrice(String(p.price ?? ""));
+    setCompareAt(p.compare_at_price != null ? String(p.compare_at_price) : "");
+    setStock(String(p.stock ?? 0));
+    setVariants(
+      (data.variants ?? []).map((v) => ({
+        id: v.id,
+        size: v.size,
+        color: v.color,
+        option_label: v.option_label,
+        sku: v.sku,
+        price: v.price,
+        compare_at_price: v.compare_at_price,
+        stock: v.stock,
+        weight_grams: v.weight_grams,
+        sort_order: v.sort_order,
+        active: v.active,
+      })),
+    );
+    setDeletedIds([]);
+  }, [data]);
+
+  const updateVariant = (i: number, patch: Partial<VariantDraft>) => {
+    setVariants((prev) => prev.map((v, idx) => (idx === i ? { ...v, ...patch } : v)));
+  };
+
+  const addVariant = () => {
+    setVariants((prev) => [
+      ...prev,
+      { size: null, color: null, option_label: null, sku: null, price: null, compare_at_price: null, stock: 0, weight_grams: null, sort_order: prev.length, active: true },
+    ]);
+  };
+
+  const removeVariant = (i: number) => {
+    setVariants((prev) => {
+      const v = prev[i];
+      if (v.id) setDeletedIds((d) => [...d, v.id!]);
+      return prev.filter((_, idx) => idx !== i);
+    });
+  };
+
+  const parseNum = (s: string): number | null => {
+    const t = s.trim();
+    if (!t) return null;
+    const n = Number(t.replace(",", "."));
+    return Number.isFinite(n) ? n : null;
+  };
+
+  const handleSave = async () => {
+    const priceNum = parseNum(price);
+    const stockNum = Number(stock);
+    if (priceNum === null || priceNum < 0) return toast.error("Preço inválido");
+    if (!Number.isInteger(stockNum) || stockNum < 0) return toast.error("Estoque inválido");
+    if (!name.trim()) return toast.error("Nome obrigatório");
+
+    setSaving(true);
+    try {
+      const patch: Record<string, unknown> = {
+        name: name.trim(),
+        slug: slug.trim(),
+        short_description: shortDesc || null,
+        description: description || null,
+        price: priceNum,
+        compare_at_price: parseNum(compareAt),
+        stock: stockNum,
+      };
+      await updateProduct({ data: { id: productId, patch } });
+
+      const cleanedVariants = variants.map((v, idx) => ({
+        id: v.id,
+        size: v.size?.trim() || null,
+        color: v.color?.trim() || null,
+        option_label: v.option_label?.trim() || null,
+        sku: v.sku?.trim() || null,
+        price: v.price,
+        compare_at_price: v.compare_at_price,
+        stock: Number.isInteger(v.stock) ? v.stock : 0,
+        weight_grams: v.weight_grams,
+        sort_order: idx,
+        active: v.active,
+      }));
+      await saveVariants({ data: { product_id: productId, variants: cleanedVariants, deleted_ids: deletedIds } });
+
+      toast.success("Produto atualizado");
+      onSaved();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro ao salvar");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Dialog open onOpenChange={(o) => { if (!o) onClose(); }}>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Editar produto</DialogTitle>
+        </DialogHeader>
+
+        {isLoading || !data?.product ? (
+          <div className="text-sm text-muted-foreground py-6">Carregando...</div>
+        ) : (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="col-span-2">
+                <Label>Nome</Label>
+                <Input value={name} onChange={(e) => setName(e.target.value)} />
+              </div>
+              <div className="col-span-2">
+                <Label>Slug</Label>
+                <Input value={slug} onChange={(e) => setSlug(e.target.value)} />
+              </div>
+              <div>
+                <Label>Preço (R$)</Label>
+                <Input value={price} onChange={(e) => setPrice(e.target.value)} />
+              </div>
+              <div>
+                <Label>Preço "de" (R$)</Label>
+                <Input value={compareAt} onChange={(e) => setCompareAt(e.target.value)} placeholder="opcional" />
+              </div>
+              <div>
+                <Label>Estoque</Label>
+                <Input value={stock} onChange={(e) => setStock(e.target.value)} />
+              </div>
+            </div>
+
+            <div>
+              <Label>Descrição curta</Label>
+              <Textarea value={shortDesc} onChange={(e) => setShortDesc(e.target.value)} rows={2} />
+            </div>
+            <div>
+              <Label>Descrição completa</Label>
+              <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={6} />
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <Label className="text-base">Variações ({variants.length})</Label>
+                <Button size="sm" variant="outline" onClick={addVariant}>
+                  <Plus className="h-3 w-3 mr-1" /> Adicionar variação
+                </Button>
+              </div>
+              {variants.length === 0 ? (
+                <p className="text-xs text-muted-foreground">Nenhuma variação cadastrada.</p>
+              ) : (
+                <div className="space-y-2">
+                  {variants.map((v, i) => (
+                    <div key={v.id ?? `new-${i}`} className="grid grid-cols-12 gap-2 items-end border rounded p-2 bg-muted/30">
+                      <div className="col-span-2">
+                        <Label className="text-xs">Tamanho</Label>
+                        <Input className="h-8" value={v.size ?? ""} onChange={(e) => updateVariant(i, { size: e.target.value })} />
+                      </div>
+                      <div className="col-span-2">
+                        <Label className="text-xs">Cor</Label>
+                        <Input className="h-8" value={v.color ?? ""} onChange={(e) => updateVariant(i, { color: e.target.value })} />
+                      </div>
+                      <div className="col-span-2">
+                        <Label className="text-xs">SKU</Label>
+                        <Input className="h-8" value={v.sku ?? ""} onChange={(e) => updateVariant(i, { sku: e.target.value })} />
+                      </div>
+                      <div className="col-span-2">
+                        <Label className="text-xs">Preço</Label>
+                        <Input
+                          className="h-8"
+                          value={v.price != null ? String(v.price) : ""}
+                          onChange={(e) => updateVariant(i, { price: parseNum(e.target.value) })}
+                          placeholder="herda"
+                        />
+                      </div>
+                      <div className="col-span-2">
+                        <Label className="text-xs">Estoque</Label>
+                        <Input
+                          className="h-8"
+                          value={String(v.stock)}
+                          onChange={(e) => {
+                            const n = Number(e.target.value);
+                            updateVariant(i, { stock: Number.isFinite(n) ? n : 0 });
+                          }}
+                        />
+                      </div>
+                      <div className="col-span-1 flex items-center justify-center pb-1">
+                        <Switch checked={v.active} onCheckedChange={(a) => updateVariant(i, { active: a })} />
+                      </div>
+                      <div className="col-span-1 flex items-center justify-end pb-1">
+                        <Button size="icon" variant="ghost" onClick={() => removeVariant(i)}>
+                          <Trash2 className="h-3 w-3 text-destructive" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        <DialogFooter>
+          <Button variant="ghost" onClick={onClose} disabled={saving}>Cancelar</Button>
+          <Button onClick={handleSave} disabled={saving || isLoading}>
+            <Save className="h-3 w-3 mr-1" /> {saving ? "Salvando..." : "Salvar tudo"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 
 function Pagination({ page, totalPages, onChange }: { page: number; totalPages: number; onChange: (p: number) => void }) {
   const pages = useMemo(() => {
