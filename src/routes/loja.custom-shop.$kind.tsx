@@ -6,6 +6,10 @@ import { getCustomTemplate } from "@/lib/customshop.functions";
 import { formatBRL, useCart, type CustomConfig } from "@/lib/store/cart-store";
 import { useMemo, useState } from "react";
 import { Check, Plus, Trash2, ShoppingBag } from "lucide-react";
+import kimonoBase from "@/assets/customshop-kimono.jpg";
+import rashguardBase from "@/assets/customshop-rashguard.jpg";
+import faixaBase from "@/assets/customshop-faixa.jpg";
+
 
 const catsQuery = queryOptions({
   queryKey: ["store", "categories"],
@@ -396,6 +400,40 @@ function BuilderPage() {
 
 type Slot = { key: string; label: string; x_pct: number; y_pct: number; w_pct: number };
 type Patch = { id: string; name: string; image_url: string };
+type ZonePath = { key: string; d: string; solid?: boolean };
+
+// Zone paths mapped to the actual product photos (viewBox 0 0 100 100).
+// Each path traces the region on the base photo that should be tinted with the
+// zone color. Zones marked `solid: true` fully replace the base pixels (used
+// for dark defaults like the faixa's ponta, where multiply can't lighten).
+const ZONES: Record<string, ZonePath[]> = {
+  kimono: [
+    // Jaqueta: sleeves band + torso (cuffs will be overlaid on top as punho)
+    { key: "jaqueta", d: "M 0 10 L 100 10 L 100 26 L 72 26 L 72 60 L 28 60 L 28 26 L 0 26 Z" },
+    // Punho: outer cuff caps at sleeve ends
+    { key: "punho", d: "M 0 10 L 8 10 L 8 26 L 0 26 Z M 92 10 L 100 10 L 100 26 L 92 26 Z" },
+    // Gola: V-shape lapel down the center of the jacket
+    { key: "gola", d: "M 42 8 L 50 60 L 58 8 L 54 8 L 50 48 L 46 8 Z" },
+    // Calça: pants block below with a subtle leg-split at the center
+    { key: "calca", d: "M 27 62 L 73 62 L 74 96 L 60 96 L 55 70 L 50 96 L 45 96 L 46 70 L 40 96 L 26 96 Z" },
+  ],
+  rashguard: [
+    { key: "base", d: "M 34 22 L 66 22 L 68 87 L 32 87 Z" },
+    { key: "manga", d: "M 8 27 L 34 22 L 38 62 L 14 68 Z M 66 22 L 92 27 L 86 68 L 62 62 Z" },
+    // Costas: subtle collar band + side seams accent
+    { key: "costas", d: "M 44 22 L 56 22 L 56 26 L 44 26 Z M 33 22 L 35 87 L 34 87 L 32 22 Z M 65 22 L 67 22 L 68 87 L 66 87 Z" },
+  ],
+  faixa: [
+    { key: "corpo", d: "M 2 44 L 71 44 L 71 57 L 2 57 Z" },
+    { key: "ponta", d: "M 71 44 L 98 44 L 98 57 L 71 57 Z", solid: true },
+  ],
+};
+
+const BASE_IMAGES: Record<string, string> = {
+  kimono: kimonoBase,
+  rashguard: rashguardBase,
+  faixa: faixaBase,
+};
 
 function BuilderPreview({
   kind,
@@ -412,111 +450,112 @@ function BuilderPreview({
   patches: Patch[];
   embroidery: { text: string; slot_key: string; color: string } | null;
 }) {
-  const c = (k: string, fallback = "#e5e7eb") => zoneColors[k] ?? fallback;
+  const zones = ZONES[kind] ?? [];
+  const baseImg = BASE_IMAGES[kind];
 
   return (
-    <svg viewBox="0 0 400 400" className="h-full w-full" xmlns="http://www.w3.org/2000/svg">
-      <rect width="400" height="400" fill="hsl(var(--muted))" />
-      {kind === "kimono" && <KimonoSilhouette c={c} />}
-      {kind === "rashguard" && <RashguardSilhouette c={c} />}
-      {kind === "faixa" && <FaixaSilhouette c={c} />}
+    <div className="relative h-full w-full overflow-hidden">
+      {baseImg && (
+        <img
+          src={baseImg}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover"
+          draggable={false}
+        />
+      )}
+      <svg
+        viewBox="0 0 100 100"
+        preserveAspectRatio="xMidYMid slice"
+        className="absolute inset-0 h-full w-full"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        {/* Tint layers — photo tint via multiply for light-base zones; solid for dark-base zones */}
+        {zones.map((z) => {
+          const color = zoneColors[z.key];
+          if (!color) return null;
+          if (z.solid) {
+            return (
+              <path key={z.key} d={z.d} fill={color}>
+                {/* subtle inner shadow via filter would be nice, kept minimal for perf */}
+              </path>
+            );
+          }
+          return (
+            <path
+              key={z.key}
+              d={z.d}
+              fill={color}
+              style={{ mixBlendMode: "multiply" }}
+            />
+          );
+        })}
 
-      {/* Patches */}
-      {slots.map((s) => {
-        const patchId = slotPatches[s.key];
-        if (!patchId) return null;
-        const p = patches.find((pp) => pp.id === patchId);
-        if (!p) return null;
-        const w = (s.w_pct / 100) * 400;
-        const x = (s.x_pct / 100) * 400 - w / 2;
-        const y = (s.y_pct / 100) * 400 - w / 2;
-        return (
+        {/* Contrast pass: gently re-emphasize fabric shadows on top of the tint.
+            Uses the base photo again with 'multiply' at low opacity so folds/creases stay visible. */}
+        {baseImg && (
           <image
-            key={s.key}
-            href={p.image_url}
-            x={x}
-            y={y}
-            width={w}
-            height={w}
-            preserveAspectRatio="xMidYMid meet"
+            href={baseImg}
+            x={0}
+            y={0}
+            width={100}
+            height={100}
+            preserveAspectRatio="xMidYMid slice"
+            opacity={0.35}
+            style={{ mixBlendMode: "multiply" }}
           />
-        );
-      })}
+        )}
 
-      {/* Embroidery */}
-      {embroidery && (() => {
-        const slot = slots.find((s) => s.key === embroidery.slot_key);
-        if (!slot) return null;
-        const x = (slot.x_pct / 100) * 400;
-        const y = (slot.y_pct / 100) * 400 + 30;
-        return (
-          <text
-            x={x}
-            y={y}
-            textAnchor="middle"
-            fontFamily="Georgia, serif"
-            fontWeight="700"
-            fontStyle="italic"
-            fontSize="18"
-            fill={embroidery.color}
-            stroke="rgba(0,0,0,0.25)"
-            strokeWidth="0.4"
-          >
-            {embroidery.text}
-          </text>
-        );
-      })()}
-    </svg>
+        {/* Patches */}
+        {slots.map((s) => {
+          const patchId = slotPatches[s.key];
+          if (!patchId) return null;
+          const p = patches.find((pp) => pp.id === patchId);
+          if (!p) return null;
+          const w = s.w_pct;
+          const x = s.x_pct - w / 2;
+          const y = s.y_pct - w / 2;
+          return (
+            <g key={s.key} style={{ filter: "drop-shadow(0 0.4px 0.6px rgba(0,0,0,0.35))" }}>
+              <image
+                href={p.image_url}
+                x={x}
+                y={y}
+                width={w}
+                height={w}
+                preserveAspectRatio="xMidYMid meet"
+              />
+            </g>
+          );
+        })}
+
+        {/* Embroidery */}
+        {embroidery && (() => {
+          const slot = slots.find((s) => s.key === embroidery.slot_key);
+          if (!slot) return null;
+          const fontSize = Math.max(2.6, slot.w_pct * 0.35);
+          const x = slot.x_pct;
+          const y = slot.y_pct + slot.w_pct * 0.55;
+          return (
+            <text
+              x={x}
+              y={y}
+              textAnchor="middle"
+              fontFamily="Georgia, 'Times New Roman', serif"
+              fontWeight={700}
+              fontStyle="italic"
+              fontSize={fontSize}
+              fill={embroidery.color}
+              stroke="rgba(0,0,0,0.35)"
+              strokeWidth={0.12}
+              paintOrder="stroke fill"
+              style={{ filter: "drop-shadow(0 0.15px 0.2px rgba(0,0,0,0.45))" }}
+            >
+              {embroidery.text}
+            </text>
+          );
+        })()}
+      </svg>
+    </div>
   );
 }
 
-function KimonoSilhouette({ c }: { c: (k: string, fallback?: string) => string }) {
-  return (
-    <g>
-      {/* Calça */}
-      <path d="M 130 250 L 270 250 L 285 390 L 220 390 L 200 290 L 180 390 L 115 390 Z" fill={c("calca")} stroke="rgba(0,0,0,0.35)" strokeWidth="1.5" />
-      {/* Jaqueta corpo */}
-      <path d="M 90 100 L 150 70 L 200 90 L 250 70 L 310 100 L 300 260 L 100 260 Z" fill={c("jaqueta")} stroke="rgba(0,0,0,0.35)" strokeWidth="1.5" />
-      {/* Mangas */}
-      <path d="M 90 100 L 55 200 L 90 215 L 115 130 Z" fill={c("jaqueta")} stroke="rgba(0,0,0,0.35)" strokeWidth="1.5" />
-      <path d="M 310 100 L 345 200 L 310 215 L 285 130 Z" fill={c("jaqueta")} stroke="rgba(0,0,0,0.35)" strokeWidth="1.5" />
-      {/* Punho */}
-      <rect x="55" y="195" width="45" height="14" fill={c("punho")} stroke="rgba(0,0,0,0.35)" strokeWidth="1" />
-      <rect x="300" y="195" width="45" height="14" fill={c("punho")} stroke="rgba(0,0,0,0.35)" strokeWidth="1" />
-      {/* Gola V */}
-      <path d="M 150 70 L 200 200 L 250 70 L 230 65 L 200 155 L 170 65 Z" fill={c("gola")} stroke="rgba(0,0,0,0.4)" strokeWidth="1" />
-    </g>
-  );
-}
-
-function RashguardSilhouette({ c }: { c: (k: string, fallback?: string) => string }) {
-  return (
-    <g>
-      {/* Base torso */}
-      <path d="M 130 80 L 180 65 L 220 65 L 270 80 L 275 360 L 125 360 Z" fill={c("base")} stroke="rgba(0,0,0,0.35)" strokeWidth="1.5" />
-      {/* Mangas */}
-      <path d="M 130 80 L 70 350 L 115 360 L 145 100 Z" fill={c("manga")} stroke="rgba(0,0,0,0.35)" strokeWidth="1.5" />
-      <path d="M 270 80 L 330 350 L 285 360 L 255 100 Z" fill={c("manga")} stroke="rgba(0,0,0,0.35)" strokeWidth="1.5" />
-      {/* Colarinho */}
-      <path d="M 180 65 L 200 90 L 220 65 Z" fill={c("costas", "#111")} opacity="0.6" />
-      {/* Costura lateral (hint) */}
-      <path d="M 145 100 L 135 355" stroke={c("costas", "#000")} strokeWidth="2" opacity="0.4" />
-      <path d="M 255 100 L 265 355" stroke={c("costas", "#000")} strokeWidth="2" opacity="0.4" />
-    </g>
-  );
-}
-
-function FaixaSilhouette({ c }: { c: (k: string, fallback?: string) => string }) {
-  return (
-    <g>
-      {/* Faixa corpo */}
-      <rect x="20" y="170" width="360" height="60" fill={c("corpo")} stroke="rgba(0,0,0,0.35)" strokeWidth="1.5" />
-      {/* Ponta */}
-      <rect x="290" y="170" width="90" height="60" fill={c("ponta")} stroke="rgba(0,0,0,0.35)" strokeWidth="1.5" />
-      {/* Costura da ponta */}
-      <line x1="290" y1="170" x2="290" y2="230" stroke="rgba(0,0,0,0.5)" strokeWidth="1.5" strokeDasharray="4 3" />
-      {/* Detalhe amarração */}
-      <path d="M 20 200 Q 10 200 10 210 Q 10 220 20 220" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="1.5" />
-    </g>
-  );
-}
