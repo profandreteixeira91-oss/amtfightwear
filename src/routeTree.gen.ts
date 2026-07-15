@@ -19,6 +19,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as LojaIndexRouteImport } from './routes/loja.index'
 import { Route as LojaCheckoutRouteImport } from './routes/loja.checkout'
 import { Route as LojaCarrinhoRouteImport } from './routes/loja.carrinho'
+import { Route as LojaAtacadoRouteImport } from './routes/loja.atacado'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as ApiGenerateAdImageRouteImport } from './routes/api/generate-ad-image'
 import { Route as AuthenticatedUsersRouteImport } from './routes/_authenticated/users'
@@ -140,6 +141,11 @@ const LojaCheckoutRoute = LojaCheckoutRouteImport.update({
 const LojaCarrinhoRoute = LojaCarrinhoRouteImport.update({
   id: '/loja/carrinho',
   path: '/loja/carrinho',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaAtacadoRoute = LojaAtacadoRouteImport.update({
+  id: '/loja/atacado',
+  path: '/loja/atacado',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
@@ -569,6 +575,7 @@ export interface FileRoutesByFullPath {
   '/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
   '/loja/checkout': typeof LojaCheckoutRoute
   '/loja/': typeof LojaIndexRoute
@@ -653,6 +660,7 @@ export interface FileRoutesByTo {
   '/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
   '/loja/checkout': typeof LojaCheckoutRoute
   '/loja': typeof LojaIndexRoute
@@ -739,6 +747,7 @@ export interface FileRoutesById {
   '/_authenticated/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
   '/loja/checkout': typeof LojaCheckoutRoute
   '/loja/': typeof LojaIndexRoute
@@ -825,6 +834,7 @@ export interface FileRouteTypes {
     | '/users'
     | '/api/generate-ad-image'
     | '/email/unsubscribe'
+    | '/loja/atacado'
     | '/loja/carrinho'
     | '/loja/checkout'
     | '/loja/'
@@ -909,6 +919,7 @@ export interface FileRouteTypes {
     | '/users'
     | '/api/generate-ad-image'
     | '/email/unsubscribe'
+    | '/loja/atacado'
     | '/loja/carrinho'
     | '/loja/checkout'
     | '/loja'
@@ -994,6 +1005,7 @@ export interface FileRouteTypes {
     | '/_authenticated/users'
     | '/api/generate-ad-image'
     | '/email/unsubscribe'
+    | '/loja/atacado'
     | '/loja/carrinho'
     | '/loja/checkout'
     | '/loja/'
@@ -1073,6 +1085,7 @@ export interface RootRouteChildren {
   UnsubscribeRoute: typeof UnsubscribeRoute
   ApiGenerateAdImageRoute: typeof ApiGenerateAdImageRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
+  LojaAtacadoRoute: typeof LojaAtacadoRoute
   LojaCarrinhoRoute: typeof LojaCarrinhoRoute
   LojaCheckoutRoute: typeof LojaCheckoutRoute
   LojaIndexRoute: typeof LojaIndexRoute
@@ -1169,6 +1182,13 @@ declare module '@tanstack/react-router' {
       path: '/loja/carrinho'
       fullPath: '/loja/carrinho'
       preLoaderRoute: typeof LojaCarrinhoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja/atacado': {
+      id: '/loja/atacado'
+      path: '/loja/atacado'
+      fullPath: '/loja/atacado'
+      preLoaderRoute: typeof LojaAtacadoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/email/unsubscribe': {
@@ -1826,6 +1846,7 @@ const rootRouteChildren: RootRouteChildren = {
   UnsubscribeRoute: UnsubscribeRoute,
   ApiGenerateAdImageRoute: ApiGenerateAdImageRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
+  LojaAtacadoRoute: LojaAtacadoRoute,
   LojaCarrinhoRoute: LojaCarrinhoRoute,
   LojaCheckoutRoute: LojaCheckoutRoute,
   LojaIndexRoute: LojaIndexRoute,
