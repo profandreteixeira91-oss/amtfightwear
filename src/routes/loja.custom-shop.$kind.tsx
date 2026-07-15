@@ -982,7 +982,9 @@ function LayoutEditorOverlay({
   return (
     <div ref={containerRef} className="absolute inset-0">
       <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full">
-        {zones.map((z, i) => (
+        {zones.map((z, i) => {
+          if (z.key.startsWith("corpo") || z.key.startsWith("ponta")) return null;
+          return (
           <g key={`z-${z.key}`}>
             <rect
               x={z.x_pct}
