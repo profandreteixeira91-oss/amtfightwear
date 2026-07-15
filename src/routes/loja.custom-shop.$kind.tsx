@@ -138,9 +138,11 @@ function BuilderPage() {
   const isFaixa = template.kind === "faixa";
   const [logoImage, setLogoImage] = useState<{ data_url: string; filename: string } | null>(null);
   const [labelImage, setLabelImage] = useState<{ data_url: string; filename: string } | null>(null);
+  const [labelChoice, setLabelChoice] = useState<"padrao" | "custom" | null>(null);
 
   useEffect(() => {
-    setZoneColors(Object.fromEntries(zones.map((z) => [z.key, z.default_hex])));
+    // Default: all zones transparent (no color) — user picks colors explicitly
+    setZoneColors({});
     setActiveZone(zones[0]?.key ?? "");
   }, [variantKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
