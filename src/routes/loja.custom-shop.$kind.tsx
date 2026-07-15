@@ -352,6 +352,15 @@ function BuilderPage() {
     );
   }, [variantKey, zoneColors]);
 
+  const kimonoPreset = useMemo(() => {
+    if (!isKimono) return null;
+    return (
+      KIMONO_PRESETS.find(
+        (p) => zoneColors.jaqueta === p.body && zoneColors.calca === p.body,
+      ) ?? null
+    );
+  }, [isKimono, zoneColors]);
+
   const patchesTotal = useMemo(() => {
     let total = 0;
     for (const [, patchId] of Object.entries(slotPatches)) {
