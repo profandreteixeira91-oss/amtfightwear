@@ -48,6 +48,7 @@ const STATUS_STYLE: Record<string, { label: string; icon: typeof CheckCircle2; c
 
 function ContentPage() {
   const generate = useServerFn(generateMarketingContent);
+  const suggestFn = useServerFn(suggestViralTopics);
   const publishFn = useServerFn(createInstagramPost);
   const listFn = useServerFn(listInstagramPosts);
   const cancelFn = useServerFn(cancelInstagramPost);
