@@ -696,7 +696,7 @@ function BuilderPage() {
             )}
 
             {/* Zone colors (fallback quando não há preset) */}
-            {!BELT_PRESETS[variantKey] && !isKimono && zones.length > 0 && (
+            {!(isFaixa && BELT_PRESETS[variantKey]) && !isKimono && zones.length > 0 && (
               <section>
                 <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Cores</h2>
                 <div className="flex flex-wrap gap-2">
