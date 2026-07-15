@@ -676,3 +676,299 @@ function Pagination({ page, totalPages, onChange }: { page: number; totalPages: 
     </div>
   );
 }
+
+function slugify(s: string) {
+  return s
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+}
+
+function ProductCreateDialog({ onClose, onCreated }: { onClose: () => void; onCreated: (id: string) => void }) {
+  const create = useServerFn(adminCreateStoreProduct);
+  const listCats = useServerFn(adminListStoreCategories);
+  const { data: cats } = useQuery({ queryKey: ["admin", "store", "categories"], queryFn: () => listCats({}) });
+
+  const [name, setName] = useState("");
+  const [slug, setSlug] = useState("");
+  const [slugTouched, setSlugTouched] = useState(false);
+  const [price, setPrice] = useState("");
+  const [stock, setStock] = useState("0");
+  const [categoryId, setCategoryId] = useState<string>("");
+  const [shortDesc, setShortDesc] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const handleName = (v: string) => {
+    setName(v);
+    if (!slugTouched) setSlug(slugify(v));
+  };
+
+  const handleSave = async () => {
+    if (!name.trim()) return toast.error("Nome obrigatório");
+    const s = slug.trim() || slugify(name);
+    const p = Number(price.replace(",", "."));
+    if (!Number.isFinite(p) || p < 0) return toast.error("Preço inválido");
+    const st = Number(stock);
+    if (!Number.isInteger(st) || st < 0) return toast.error("Estoque inválido");
+    setSaving(true);
+    try {
+      const { id } = await create({
+        data: {
+          name: name.trim(),
+          slug: s,
+          price: p,
+          stock: st,
+          category_id: categoryId || null,
+          short_description: shortDesc || null,
+          image_url: imageUrl || null,
+          status: "active",
+          featured: false,
+        },
+      });
+      toast.success("Produto criado");
+      onCreated(id);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro ao criar");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Dialog open onOpenChange={(o) => { if (!o) onClose(); }}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Adicionar produto</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-3">
+          <div>
+            <Label>Nome *</Label>
+            <Input value={name} onChange={(e) => handleName(e.target.value)} />
+          </div>
+          <div>
+            <Label>Slug *</Label>
+            <Input
+              value={slug}
+              onChange={(e) => { setSlug(e.target.value); setSlugTouched(true); }}
+              placeholder="ex: kimono-branco"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Preço (R$) *</Label>
+              <Input value={price} onChange={(e) => setPrice(e.target.value)} placeholder="199,90" />
+            </div>
+            <div>
+              <Label>Estoque</Label>
+              <Input value={stock} onChange={(e) => setStock(e.target.value)} />
+            </div>
+          </div>
+          <div>
+            <Label>Categoria</Label>
+            <select
+              className="w-full h-9 rounded-md border bg-background px-2 text-sm"
+              value={categoryId}
+              onChange={(e) => setCategoryId(e.target.value)}
+            >
+              <option value="">— sem categoria —</option>
+              {(cats ?? []).map((c) => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <Label>URL da imagem</Label>
+            <Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://..." />
+          </div>
+          <div>
+            <Label>Descrição curta</Label>
+            <Textarea value={shortDesc} onChange={(e) => setShortDesc(e.target.value)} rows={2} />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="ghost" onClick={onClose} disabled={saving}>Cancelar</Button>
+          <Button onClick={handleSave} disabled={saving}>
+            <Plus className="h-3 w-3 mr-1" /> {saving ? "Criando..." : "Criar produto"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+type CatDraft = {
+  id?: string;
+  slug: string;
+  name: string;
+  description: string;
+  image_url: string;
+  sort_order: number;
+  active: boolean;
+};
+
+function emptyCatDraft(): CatDraft {
+  return { slug: "", name: "", description: "", image_url: "", sort_order: 0, active: true };
+}
+
+function CategoriesDialog({ onClose }: { onClose: () => void }) {
+  const listCats = useServerFn(adminListStoreCategories);
+  const upsert = useServerFn(adminUpsertStoreCategory);
+  const del = useServerFn(adminDeleteStoreCategory);
+  const { data, refetch, isLoading } = useQuery({
+    queryKey: ["admin", "store", "categories"],
+    queryFn: () => listCats({}),
+  });
+
+  const [draft, setDraft] = useState<CatDraft>(emptyCatDraft());
+  const [saving, setSaving] = useState(false);
+  const editing = !!draft.id;
+
+  const startEdit = (c: NonNullable<typeof data>[number]) => {
+    setDraft({
+      id: c.id,
+      slug: c.slug,
+      name: c.name,
+      description: c.description ?? "",
+      image_url: c.image_url ?? "",
+      sort_order: c.sort_order ?? 0,
+      active: c.active,
+    });
+  };
+
+  const handleName = (v: string) => {
+    setDraft((d) => ({ ...d, name: v, slug: d.id ? d.slug : (d.slug || slugify(v)) }));
+  };
+
+  const save = async () => {
+    if (!draft.name.trim()) return toast.error("Nome obrigatório");
+    const s = draft.slug.trim() || slugify(draft.name);
+    setSaving(true);
+    try {
+      await upsert({
+        data: {
+          id: draft.id,
+          slug: s,
+          name: draft.name.trim(),
+          description: draft.description || null,
+          image_url: draft.image_url || null,
+          sort_order: Number(draft.sort_order) || 0,
+          active: draft.active,
+        },
+      });
+      toast.success(editing ? "Categoria atualizada" : "Categoria criada");
+      setDraft(emptyCatDraft());
+      refetch();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro ao salvar");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const remove = async (id: string) => {
+    if (!confirm("Excluir categoria? Produtos vinculados ficarão sem categoria.")) return;
+    try {
+      await del({ data: { id } });
+      toast.success("Categoria excluída");
+      if (draft.id === id) setDraft(emptyCatDraft());
+      refetch();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro ao excluir");
+    }
+  };
+
+  return (
+    <Dialog open onOpenChange={(o) => { if (!o) onClose(); }}>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Categorias</DialogTitle>
+        </DialogHeader>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-3 border-r md:pr-4">
+            <div className="font-semibold text-sm">
+              {editing ? "Editar categoria" : "Nova categoria"}
+            </div>
+            <div>
+              <Label>Nome *</Label>
+              <Input value={draft.name} onChange={(e) => handleName(e.target.value)} />
+            </div>
+            <div>
+              <Label>Slug *</Label>
+              <Input value={draft.slug} onChange={(e) => setDraft((d) => ({ ...d, slug: e.target.value }))} />
+            </div>
+            <div>
+              <Label>Descrição</Label>
+              <Textarea value={draft.description} onChange={(e) => setDraft((d) => ({ ...d, description: e.target.value }))} rows={2} />
+            </div>
+            <div>
+              <Label>URL da imagem</Label>
+              <Input value={draft.image_url} onChange={(e) => setDraft((d) => ({ ...d, image_url: e.target.value }))} placeholder="https://..." />
+            </div>
+            <div className="grid grid-cols-2 gap-3 items-end">
+              <div>
+                <Label>Ordem</Label>
+                <Input
+                  type="number"
+                  value={String(draft.sort_order)}
+                  onChange={(e) => setDraft((d) => ({ ...d, sort_order: Number(e.target.value) || 0 }))}
+                />
+              </div>
+              <div className="flex items-center gap-2 pb-2">
+                <Switch checked={draft.active} onCheckedChange={(v) => setDraft((d) => ({ ...d, active: v }))} />
+                <span className="text-sm">Ativa</span>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={save} disabled={saving} className="flex-1">
+                <Save className="h-3 w-3 mr-1" />
+                {saving ? "Salvando..." : editing ? "Salvar alterações" : "Criar categoria"}
+              </Button>
+              {editing && (
+                <Button variant="ghost" onClick={() => setDraft(emptyCatDraft())}>Cancelar</Button>
+              )}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="font-semibold text-sm">Categorias existentes</div>
+            {isLoading ? (
+              <div className="text-sm text-muted-foreground">Carregando...</div>
+            ) : (data ?? []).length === 0 ? (
+              <div className="text-sm text-muted-foreground">Nenhuma categoria ainda.</div>
+            ) : (
+              <div className="space-y-1 max-h-[420px] overflow-y-auto">
+                {(data ?? []).map((c) => (
+                  <div key={c.id} className="flex items-center gap-2 border rounded p-2 text-sm">
+                    {c.image_url && <img src={c.image_url} alt="" className="h-8 w-8 rounded object-cover" />}
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium truncate">{c.name}</div>
+                      <div className="text-xs text-muted-foreground truncate">
+                        /{c.slug} · ordem {c.sort_order} {!c.active && "· inativa"}
+                      </div>
+                    </div>
+                    <Button size="icon" variant="ghost" onClick={() => startEdit(c)}>
+                      <Pencil className="h-3 w-3" />
+                    </Button>
+                    <Button size="icon" variant="ghost" onClick={() => remove(c.id)}>
+                      <Trash2 className="h-3 w-3 text-destructive" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button variant="ghost" onClick={onClose}>Fechar</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
