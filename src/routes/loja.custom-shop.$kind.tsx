@@ -825,12 +825,14 @@ function BuilderPage() {
             {embroiderySlots.length > 0 && (
               <section>
                 <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">
-                  {embroiderySlots.length > 1 ? "Bordados" : "Bordado de texto ou logo"}
+                  {isKimono ? "Personalização" : embroiderySlots.length > 1 ? "Bordados" : "Bordado de texto ou logo"}
                 </h2>
                 <div className="space-y-3">
                   {embroiderySlots.map((s, idx) => {
+                    const kPatch = isKimonoPatchSlot(s.key);
+                    const kName = isKimonoNameSlot(s.key);
                     const defaults = {
-                      mode: "text" as "text" | "logo",
+                      mode: (kPatch ? "logo" : "text") as "text" | "logo",
                       text: "",
                       font: DEFAULT_EMB_FONT,
                       lines: 1 as 1 | 2,
@@ -839,6 +841,7 @@ function BuilderPage() {
                       position: null as { x: number; y: number } | null,
                       scale: 1,
                       rotation: 0,
+                      technique: (kPatch ? "bordado" : null) as "bordado" | "sublimado" | "dtf" | null,
                     };
                     const entry = embroideries[s.key] ?? defaults;
                     const setEntry = (patch: Partial<typeof entry>) =>
@@ -847,11 +850,38 @@ function BuilderPage() {
                       (entry.mode === "text" && entry.text.trim()) || (entry.mode === "logo" && entry.image);
                     const pos = entry.position ?? { x: s.x_pct, y: s.y_pct };
                     const selectedFont = EMBROIDERY_FONTS.find((f) => f.id === entry.font) ?? EMBROIDERY_FONTS[0];
+                    const slotHeader = isKimono ? s.label : `Bordado ${idx + 1}`;
                     return (
                       <div key={s.key} className="rounded-md border p-3 space-y-3">
-                        <div className="text-xs font-bold uppercase text-muted-foreground">Bordado {idx + 1}</div>
+                        <div className="text-xs font-bold uppercase text-muted-foreground">{slotHeader}</div>
 
-                        {/* Mode selector */}
+                        {/* Técnica (apenas patches do kimono) */}
+                        {kPatch && (
+                          <div>
+                            <div className="mb-1 text-xs font-semibold text-muted-foreground">Técnica de aplicação</div>
+                            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                              {KIMONO_TECHNIQUES.map((t) => {
+                                const activeT = (entry.technique ?? "bordado") === t.id;
+                                return (
+                                  <button
+                                    key={t.id}
+                                    type="button"
+                                    onClick={() => setEntry({ technique: t.id })}
+                                    className={`rounded-md border px-2 py-2 text-left text-xs font-semibold transition ${
+                                      activeT ? "border-primary bg-primary/5 text-primary" : "hover:border-foreground/40"
+                                    }`}
+                                  >
+                                    {t.label}
+                                    <div className="mt-0.5 text-[10px] font-normal text-muted-foreground">{t.hint}</div>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Mode selector — só quando NÃO é kimono (kimono força o modo por slot) */}
+                        {!isKimono && (
                         <div className="grid grid-cols-2 gap-2">
                           <button
                             type="button"
@@ -873,6 +903,7 @@ function BuilderPage() {
                             Logotipo
                             <div className="mt-1 text-[10px] font-normal text-muted-foreground">Upload de imagem</div>
                           </button>
+
                         </div>
 
                         {entry.mode === "text" ? (
