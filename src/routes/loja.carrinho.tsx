@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell } from "@/components/store/StoreShell";
+import { ProductImage } from "@/components/store/ProductImage";
 import { listStoreCategories } from "@/lib/store/store.functions";
 import { useCart, formatBRL } from "@/lib/store/cart-store";
 import { Trash2, ArrowRight } from "lucide-react";
