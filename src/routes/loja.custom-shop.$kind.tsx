@@ -1283,6 +1283,70 @@ function BuilderPreview({
             </g>
           );
         })}
+
+        {/* Interactive handles for embroideries — drag to move, corner to resize */}
+        {onEmbroideryChange && embroideries.map((emb) => {
+          const slot = slots.find((s) => s.key === emb.slot_key);
+          if (!slot) return null;
+          const scale = emb.scale ?? 1;
+          const w = slot.w_pct * scale;
+          const h = slot.h_pct * scale;
+          const cx = emb.position?.x ?? slot.x_pct;
+          const cy = emb.position?.y ?? slot.y_pct;
+          const rot = (slot.rotation_deg || 0) + (emb.rotation ?? 0);
+          const half = Math.max(w, h) / 2;
+          return (
+            <g key={`handle-${emb.slot_key}`} transform={`rotate(${rot} ${cx} ${cy})`}>
+              {/* Move area */}
+              <rect
+                x={cx - w / 2}
+                y={cy - h / 2}
+                width={w}
+                height={h}
+                fill="transparent"
+                stroke="rgba(59,130,246,0.9)"
+                strokeWidth={0.25}
+                strokeDasharray="0.8 0.6"
+                style={{ cursor: "move", pointerEvents: "auto", touchAction: "none" }}
+                onPointerDown={(e) => {
+                  (e.target as Element).setPointerCapture?.(e.pointerId);
+                  const p = svgPoint(e);
+                  setEmbDrag({
+                    kind: "move",
+                    slotKey: emb.slot_key,
+                    startX: p.x,
+                    startY: p.y,
+                    origX: cx,
+                    origY: cy,
+                  });
+                }}
+              />
+              {/* Resize handle (bottom-right corner) */}
+              <circle
+                cx={cx + half}
+                cy={cy + half}
+                r={1.2}
+                fill="#3b82f6"
+                stroke="#fff"
+                strokeWidth={0.25}
+                style={{ cursor: "nwse-resize", pointerEvents: "auto", touchAction: "none" }}
+                onPointerDown={(e) => {
+                  (e.target as Element).setPointerCapture?.(e.pointerId);
+                  const p = svgPoint(e);
+                  const startDist = Math.hypot(p.x - cx, p.y - cy);
+                  setEmbDrag({
+                    kind: "resize",
+                    slotKey: emb.slot_key,
+                    startDist,
+                    origScale: scale,
+                    cx,
+                    cy,
+                  });
+                }}
+              />
+            </g>
+          );
+        })}
       </svg>
     </div>
   );
