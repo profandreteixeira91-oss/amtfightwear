@@ -164,6 +164,7 @@ function BuilderPage() {
                     : null
                 }
                 labelImage={isFaixa ? labelImage : null}
+                modality={isFaixa ? modality : null}
               />
             </div>
             <div className="mt-3 text-center text-xs text-muted-foreground">
