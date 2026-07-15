@@ -1039,6 +1039,7 @@ function BuilderPreview({
   embroideries,
   labelImage,
   beltPresetImage,
+  onEmbroideryChange,
 }: {
   kind: string;
   variantKey: string;
@@ -1061,11 +1062,58 @@ function BuilderPreview({
   }>;
   labelImage?: { data_url: string; filename: string; bg_color?: string } | null;
   beltPresetImage?: string | null;
+  onEmbroideryChange?: (
+    slotKey: string,
+    patch: { position?: { x: number; y: number }; scale?: number },
+  ) => void;
 }) {
   const isJudo = kind === "faixa" && variantKey === "judo";
   const baseImg = beltPresetImage || (isJudo ? faixaJudoBase : BASE_IMAGES[kind]);
   // Quando temos a foto real do produto (preset selecionado), não tinta zonas.
   const useProductPhoto = Boolean(beltPresetImage);
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  const [embDrag, setEmbDrag] = useState<
+    | { kind: "move"; slotKey: string; startX: number; startY: number; origX: number; origY: number }
+    | { kind: "resize"; slotKey: string; startDist: number; origScale: number; cx: number; cy: number }
+    | null
+  >(null);
+
+  function svgPoint(e: PointerEvent | React.PointerEvent) {
+    const svg = svgRef.current;
+    if (!svg) return { x: 0, y: 0 };
+    const rect = svg.getBoundingClientRect();
+    return {
+      x: ((e.clientX - rect.left) / rect.width) * 100,
+      y: ((e.clientY - rect.top) / rect.height) * 100,
+    };
+  }
+
+  useEffect(() => {
+    if (!embDrag || !onEmbroideryChange) return;
+    const onMove = (e: PointerEvent) => {
+      const p = svgPoint(e);
+      if (embDrag.kind === "move") {
+        const dx = p.x - embDrag.startX;
+        const dy = p.y - embDrag.startY;
+        const nx = Math.min(100, Math.max(0, embDrag.origX + dx));
+        const ny = Math.min(100, Math.max(0, embDrag.origY + dy));
+        onEmbroideryChange(embDrag.slotKey, { position: { x: nx, y: ny } });
+      } else if (embDrag.kind === "resize") {
+        const dist = Math.hypot(p.x - embDrag.cx, p.y - embDrag.cy);
+        const ratio = embDrag.startDist > 0 ? dist / embDrag.startDist : 1;
+        const nextScale = Math.min(3, Math.max(0.3, embDrag.origScale * ratio));
+        onEmbroideryChange(embDrag.slotKey, { scale: nextScale });
+      }
+    };
+    const onUp = () => setEmbDrag(null);
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+    };
+  }, [embDrag, onEmbroideryChange]);
+
 
   return (
     <div className="relative h-full w-full overflow-hidden">
