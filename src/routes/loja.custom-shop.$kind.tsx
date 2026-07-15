@@ -313,7 +313,15 @@ function BuilderPage() {
   const [coloring, setColoring] = useState<string>(COLORING_OPTIONS[0].name);
 
   const isKimono = template.kind === "kimono";
-  const [kimonoSize, setKimonoSize] = useState<string>("A2");
+  const KIMONO_SIZES = ["M0","M1","M2","M3","M4","A0","A1","A2","A3","A4","A5"];
+  const FAIXA_SIZES = [
+    "M0 · 200cm","M1 · 215cm","M2 · 225cm","M3 · 240cm","M4 · 245cm",
+    "A0 · 255cm","A1 · 270cm","A2 · 280cm","A3 · 290cm","A4 · 310cm","A5 · 330cm",
+  ];
+  const isFaixaKind = template.kind === "faixa";
+  const [kimonoSize, setKimonoSize] = useState<string>(isFaixaKind ? "A2 · 280cm" : "A2");
+  const showSize = isKimono || isFaixaKind;
+  const sizeOptions = isFaixaKind ? FAIXA_SIZES : KIMONO_SIZES;
 
   useEffect(() => {
     // Faixa: seleciona o primeiro preset por padrão para já exibir a imagem real do produto.
