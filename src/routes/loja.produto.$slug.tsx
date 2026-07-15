@@ -181,6 +181,10 @@ function ProductPage() {
             {product.short_description && (
               <p className="mt-2 text-sm text-muted-foreground">{product.short_description}</p>
             )}
+
+            <ShippingCalculator
+              items={[{ product_id: product.id, variant_id: variant?.id ?? null, quantity: qty }]}
+            />
           </div>
         </div>
 
