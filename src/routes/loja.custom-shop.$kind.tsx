@@ -693,7 +693,7 @@ function BuilderPage() {
               <div className="space-y-1 text-sm">
                 <div className="flex justify-between"><span>Base ({template.name})</span><span>{formatBRL(Number(template.base_price))}</span></div>
                 {fabricDelta > 0 && <div className="flex justify-between"><span>{selectedFabric?.name}</span><span>+ {formatBRL(fabricDelta)}</span></div>}
-                {patchesTotal > 0 && <div className="flex justify-between"><span>Patches</span><span>+ {formatBRL(patchesTotal)}</span></div>}
+                {isFaixa && <div className="flex justify-between"><span>Coloração</span><span>{coloring}</span></div>}
                 {embroideryFee > 0 && <div className="flex justify-between"><span>Bordado</span><span>+ {formatBRL(embroideryFee)}</span></div>}
               </div>
               <div className="mt-3 flex justify-between border-t pt-3 text-base font-black">
@@ -965,7 +965,7 @@ function LayoutEditorOverlay({
         const next = slots.slice();
         next[drag.index] = {
           ...next[drag.index],
-          w_pct: clamp(drag.origW + dx * 2, 1, 100),
+          w_pct: clamp(drag.origW + dx * 2, 0.5, 400),
         };
         onSlotsChange(next);
       }
