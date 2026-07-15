@@ -782,52 +782,50 @@ function BuilderPage() {
                             </div>
                           </>
                         ) : (
-                          <>
-                            <ImageUploader
-                              value={entry.image}
-                              onChange={(img) => setEntry({ image: img })}
-                              hint="Envie um logotipo (PNG/JPG, até 4MB) — será simulado como bordado."
-                            />
+                          <ImageUploader
+                            value={entry.image}
+                            onChange={(img) => setEntry({ image: img })}
+                            hint="Envie um logotipo (PNG/JPG, até 4MB) — será simulado como bordado."
+                          />
+                        )}
 
-                            {entry.image && (
-                              <div className="space-y-2">
-                                <div className="text-xs font-semibold text-muted-foreground">Posição do logotipo</div>
-                                <div className="flex items-center gap-2 text-[11px]">
-                                  <span className="w-6 text-muted-foreground">X</span>
-                                  <input
-                                    type="range"
-                                    min={0}
-                                    max={100}
-                                    step={1}
-                                    value={pos.x}
-                                    onChange={(e) => setEntry({ position: { x: Number(e.target.value), y: pos.y } })}
-                                    className="flex-1"
-                                  />
-                                  <span className="w-8 text-right tabular-nums">{Math.round(pos.x)}%</span>
-                                </div>
-                                <div className="flex items-center gap-2 text-[11px]">
-                                  <span className="w-6 text-muted-foreground">Y</span>
-                                  <input
-                                    type="range"
-                                    min={0}
-                                    max={100}
-                                    step={1}
-                                    value={pos.y}
-                                    onChange={(e) => setEntry({ position: { x: pos.x, y: Number(e.target.value) } })}
-                                    className="flex-1"
-                                  />
-                                  <span className="w-8 text-right tabular-nums">{Math.round(pos.y)}%</span>
-                                </div>
-                                <button
-                                  type="button"
-                                  onClick={() => setEntry({ position: null })}
-                                  className="text-[10px] text-muted-foreground underline hover:text-primary"
-                                >
-                                  Restaurar posição padrão
-                                </button>
-                              </div>
-                            )}
-                          </>
+                        {active && (
+                          <div className="space-y-2">
+                            <div className="text-xs font-semibold text-muted-foreground">Posição do bordado</div>
+                            <div className="flex items-center gap-2 text-[11px]">
+                              <span className="w-6 text-muted-foreground">X</span>
+                              <input
+                                type="range"
+                                min={0}
+                                max={100}
+                                step={1}
+                                value={pos.x}
+                                onChange={(e) => setEntry({ position: { x: Number(e.target.value), y: pos.y } })}
+                                className="flex-1"
+                              />
+                              <span className="w-8 text-right tabular-nums">{Math.round(pos.x)}%</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-[11px]">
+                              <span className="w-6 text-muted-foreground">Y</span>
+                              <input
+                                type="range"
+                                min={0}
+                                max={100}
+                                step={1}
+                                value={pos.y}
+                                onChange={(e) => setEntry({ position: { x: pos.x, y: Number(e.target.value) } })}
+                                className="flex-1"
+                              />
+                              <span className="w-8 text-right tabular-nums">{Math.round(pos.y)}%</span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setEntry({ position: null })}
+                              className="text-[10px] text-muted-foreground underline hover:text-primary"
+                            >
+                              Restaurar posição padrão
+                            </button>
+                          </div>
                         )}
 
                         {active && (
