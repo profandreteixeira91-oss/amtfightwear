@@ -399,8 +399,8 @@ function BuilderPage() {
 
   const embroiderySlots = useMemo(() => {
     if (isKimono) {
-      // Kimono: 3 patches (upload de imagem + técnica) + 1 bordado de nome (texto)
-      return slots.filter((s) => s.key.startsWith("patch_") || s.key === "bordado_nome");
+      // Kimono: apenas os 3 patches (upload de imagem + técnica). Sem bordado de nome.
+      return slots.filter((s) => s.key.startsWith("patch_"));
     }
     const bordado = slots.filter((s) => s.key.startsWith("bordado"));
     return bordado.length > 0 ? bordado : slots;
