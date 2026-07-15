@@ -1038,19 +1038,21 @@ function BuilderPreview({
           );
         })()}
 
-        {/* Embroideries — text and/or image per bordado slot */}
+        {/* Embroideries — text (with font/lines) OR logo (with custom position) per bordado slot */}
         {embroideries.map((emb) => {
           const slot = slots.find((s) => s.key === emb.slot_key);
           if (!slot) return null;
           const w = slot.w_pct;
+          const cx = emb.position?.x ?? slot.x_pct;
+          const cy = emb.position?.y ?? slot.y_pct;
           return (
             <g key={emb.slot_key}>
-              {emb.image && (
+              {emb.mode === "logo" && emb.image && (
                 <g style={{ filter: "drop-shadow(0 0.15px 0.2px rgba(0,0,0,0.45))" }}>
                   <image
                     href={emb.image.data_url}
-                    x={slot.x_pct - w / 2}
-                    y={slot.y_pct - w / 2}
+                    x={cx - w / 2}
+                    y={cy - w / 2}
                     width={w}
                     height={w}
                     preserveAspectRatio="xMidYMid meet"
@@ -1058,17 +1060,21 @@ function BuilderPreview({
                   />
                 </g>
               )}
-              {emb.text && (() => {
-                const fontSize = Math.max(2.6, slot.w_pct * 0.35);
-                const yOffset = emb.image ? slot.w_pct * 0.75 : slot.w_pct * 0.55;
+              {emb.mode === "text" && emb.text && (() => {
+                const font = EMBROIDERY_FONTS.find((f) => f.id === emb.font) ?? EMBROIDERY_FONTS[0];
+                const twoLines = emb.lines === 2;
+                const parts = twoLines ? splitTwoLines(emb.text) : [emb.text, ""];
+                const fontSize = Math.max(2.4, w * (twoLines ? 0.28 : 0.35));
+                const lineGap = fontSize * 1.05;
+                const yBase = cy + fontSize * 0.35;
                 return (
                   <text
-                    x={slot.x_pct}
-                    y={slot.y_pct + yOffset}
+                    x={cx}
+                    y={twoLines ? yBase - lineGap / 2 : yBase}
                     textAnchor="middle"
-                    fontFamily="Georgia, 'Times New Roman', serif"
-                    fontWeight={700}
-                    fontStyle="italic"
+                    fontFamily={font.family}
+                    fontWeight={font.weight}
+                    fontStyle={font.style}
                     fontSize={fontSize}
                     fill={emb.color}
                     stroke="rgba(0,0,0,0.35)"
@@ -1076,7 +1082,14 @@ function BuilderPreview({
                     paintOrder="stroke fill"
                     style={{ filter: "drop-shadow(0 0.15px 0.2px rgba(0,0,0,0.45))" }}
                   >
-                    {emb.text}
+                    {twoLines ? (
+                      <>
+                        <tspan x={cx} dy={0}>{parts[0]}</tspan>
+                        <tspan x={cx} dy={lineGap}>{parts[1]}</tspan>
+                      </>
+                    ) : (
+                      emb.text
+                    )}
                   </text>
                 );
               })()}
