@@ -287,7 +287,9 @@ function BuilderPage() {
     position: { x: number; y: number } | null;
     scale: number;
     rotation: number;
+    technique?: "bordado" | "sublimado" | "dtf" | null;
   }>>({});
+
   const [activeZone, setActiveZone] = useState<string>(zones[0]?.key ?? "");
   const isFaixa = template.kind === "faixa";
   const [logoImage, setLogoImage] = useState<{ data_url: string; filename: string } | null>(null);
