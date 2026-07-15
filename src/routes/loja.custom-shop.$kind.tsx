@@ -1,16 +1,16 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
+import { useSuspenseQuery, useQuery, useMutation, useQueryClient, queryOptions } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { StoreShell } from "@/components/store/StoreShell";
 import { listStoreCategories } from "@/lib/store/store.functions";
-import { getCustomTemplate } from "@/lib/customshop.functions";
+import { getCustomTemplate, checkIsAdmin, updateCustomLayout } from "@/lib/customshop.functions";
 import { formatBRL, useCart, type CustomConfig } from "@/lib/store/cart-store";
-import { useMemo, useState } from "react";
-import { Check, Plus, Trash2, ShoppingBag, Upload, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Check, Plus, Trash2, ShoppingBag, Upload, X, Settings, Save, RotateCcw } from "lucide-react";
 import kimonoBase from "@/assets/customshop-kimono.jpg";
 import rashguardBase from "@/assets/customshop-rashguard.jpg";
 import faixaBase from "@/assets/customshop-faixa.jpg";
 import faixaJudoBase from "@/assets/customshop-faixa-judo.png";
-
 
 const catsQuery = queryOptions({
   queryKey: ["store", "categories"],
@@ -47,12 +47,41 @@ const PALETTE = [
   "#7c3aed", "#0891b2", "#374151", "#a16207", "#be123c", "#1e293b",
 ];
 
+type Zone = {
+  key: string;
+  label: string;
+  default_hex: string;
+  x_pct: number;
+  y_pct: number;
+  w_pct: number;
+  h_pct: number;
+  solid: boolean;
+};
+type SlotRow = {
+  key: string;
+  label: string;
+  x_pct: number;
+  y_pct: number;
+  w_pct: number;
+};
+
 function BuilderPage() {
   const { kind } = Route.useParams();
   const { data } = useSuspenseQuery(templateQuery(kind));
   const { data: categories } = useSuspenseQuery(catsQuery);
   const navigate = useNavigate();
   const addToCart = useCart((s) => s.add);
+  const queryClient = useQueryClient();
+
+  // Admin detection
+  const checkIsAdminFn = useServerFn(checkIsAdmin);
+  const adminQ = useQuery({
+    queryKey: ["admin", "is-admin"],
+    queryFn: () => checkIsAdminFn(),
+    staleTime: 5 * 60_000,
+    retry: false,
+  });
+  const isAdmin = adminQ.data?.isAdmin === true;
 
   if (!data) {
     return (
@@ -65,21 +94,83 @@ function BuilderPage() {
     );
   }
 
-  const { template, zones, slots, fabrics, patches } = data;
+  const { template, variants: allVariants, zones: allZones, slots: allSlots, fabrics, patches } = data;
+  const variants = allVariants.length > 0 ? allVariants : [{ id: "", template_id: template.id, key: "default", label: template.name, base_image_url: null, sort_order: 0, created_at: "" }];
 
-  const [zoneColors, setZoneColors] = useState<Record<string, string>>(() =>
-    Object.fromEntries(zones.map((z) => [z.key, z.default_hex])),
+  const [variantKey, setVariantKey] = useState<string>(variants[0].key);
+  const activeVariant = variants.find((v) => v.key === variantKey) ?? variants[0];
+
+  const zones: Zone[] = useMemo(
+    () =>
+      (allZones as any[])
+        .filter((z) => z.variant_key === variantKey)
+        .map((z) => ({
+          key: z.key,
+          label: z.label,
+          default_hex: z.default_hex,
+          x_pct: Number(z.x_pct),
+          y_pct: Number(z.y_pct),
+          w_pct: Number(z.w_pct),
+          h_pct: Number(z.h_pct),
+          solid: Boolean(z.solid),
+        })),
+    [allZones, variantKey],
   );
-  const [slotPatches, setSlotPatches] = useState<Record<string, string>>({}); // slot_key -> patch_id
+  const slots: SlotRow[] = useMemo(
+    () =>
+      (allSlots as any[])
+        .filter((s) => s.variant_key === variantKey)
+        .map((s) => ({
+          key: s.key,
+          label: s.label,
+          x_pct: Number(s.x_pct),
+          y_pct: Number(s.y_pct),
+          w_pct: Number(s.w_pct),
+        })),
+    [allSlots, variantKey],
+  );
+
+  const [zoneColors, setZoneColors] = useState<Record<string, string>>({});
+  useEffect(() => {
+    setZoneColors(Object.fromEntries(zones.map((z) => [z.key, z.default_hex])));
+    setActiveZone(zones[0]?.key ?? "");
+  }, [variantKey]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const [slotPatches, setSlotPatches] = useState<Record<string, string>>({});
   const [fabricId, setFabricId] = useState<string | null>(fabrics[0]?.id ?? null);
   const [embroideryText, setEmbroideryText] = useState("");
   const [embroiderySlot, setEmbroiderySlot] = useState<string | null>(null);
   const [embroideryColor, setEmbroideryColor] = useState("#ffffff");
   const [activeZone, setActiveZone] = useState<string>(zones[0]?.key ?? "");
   const isFaixa = template.kind === "faixa";
-  const [modality, setModality] = useState<string>("Jiu-Jitsu");
   const [logoImage, setLogoImage] = useState<{ data_url: string; filename: string } | null>(null);
   const [labelImage, setLabelImage] = useState<{ data_url: string; filename: string } | null>(null);
+
+  // Admin layout edit mode
+  const [editMode, setEditMode] = useState(false);
+  const [draftZones, setDraftZones] = useState<Zone[]>(zones);
+  const [draftSlots, setDraftSlots] = useState<SlotRow[]>(slots);
+  useEffect(() => {
+    setDraftZones(zones);
+    setDraftSlots(slots);
+  }, [variantKey, allZones, allSlots]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const updateLayoutFn = useServerFn(updateCustomLayout);
+  const saveMutation = useMutation({
+    mutationFn: async () =>
+      updateLayoutFn({
+        data: {
+          template_id: template.id,
+          variant_key: variantKey,
+          zones: draftZones.map((z) => ({ key: z.key, x_pct: z.x_pct, y_pct: z.y_pct, w_pct: z.w_pct, h_pct: z.h_pct, solid: z.solid })),
+          slots: draftSlots.map((s) => ({ key: s.key, x_pct: s.x_pct, y_pct: s.y_pct, w_pct: s.w_pct })),
+        },
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["custom-shop", "template", kind] });
+      setEditMode(false);
+    },
+  });
 
   const selectedFabric = fabrics.find((f) => f.id === fabricId) ?? null;
 
@@ -121,14 +212,14 @@ function BuilderPage() {
       fabric: selectedFabric
         ? { id: selectedFabric.id, name: selectedFabric.name, price_delta: Number(selectedFabric.price_delta) }
         : null,
-      modality: isFaixa ? modality : null,
+      modality: isFaixa ? activeVariant.label : null,
       logo_image: isFaixa ? logoImage : null,
       label_image: isFaixa ? labelImage : null,
     };
     addToCart({
       product_id: crypto.randomUUID(),
       variant_id: null,
-      name: `${template.name} — Personalizado${isFaixa ? ` · ${modality}` : ""}`,
+      name: `${template.name} — Personalizado${variants.length > 1 ? ` · ${activeVariant.label}` : ""}`,
       variant_label: `Custom · ${selectedFabric?.name ?? "Padrão"}`,
       slug: `custom-${template.kind}`,
       image_url: template.base_image_url ?? null,
@@ -141,6 +232,9 @@ function BuilderPage() {
     navigate({ to: "/loja/carrinho" });
   }
 
+  const shownZones = editMode ? draftZones : zones;
+  const shownSlots = editMode ? draftSlots : slots;
+
   return (
     <StoreShell categories={categories}>
       <div className="mx-auto max-w-7xl px-4 py-6">
@@ -151,11 +245,13 @@ function BuilderPage() {
         <div className="mx-auto flex max-w-3xl flex-col gap-6">
           {/* Preview */}
           <div className="rounded-xl border bg-card p-4">
-            <div className="mx-auto aspect-square w-full max-w-xl overflow-hidden rounded-lg bg-muted">
+            <div className="relative mx-auto aspect-square w-full max-w-xl overflow-hidden rounded-lg bg-muted">
               <BuilderPreview
                 kind={template.kind}
+                variantKey={variantKey}
+                zones={shownZones}
                 zoneColors={zoneColors}
-                slots={slots}
+                slots={shownSlots}
                 slotPatches={slotPatches}
                 patches={patches}
                 embroidery={
@@ -164,12 +260,53 @@ function BuilderPage() {
                     : null
                 }
                 labelImage={isFaixa ? labelImage : null}
-                modality={isFaixa ? modality : null}
               />
+              {editMode && (
+                <LayoutEditorOverlay
+                  zones={draftZones}
+                  slots={draftSlots}
+                  onZonesChange={setDraftZones}
+                  onSlotsChange={setDraftSlots}
+                />
+              )}
+              {isAdmin && !editMode && (
+                <button
+                  type="button"
+                  onClick={() => setEditMode(true)}
+                  className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-md bg-background/90 px-2 py-1 text-xs font-semibold shadow hover:bg-background"
+                  title="Editar layout do pré-visualizador"
+                >
+                  <Settings className="h-3.5 w-3.5" /> Editar layout
+                </button>
+              )}
             </div>
             <div className="mt-3 text-center text-xs text-muted-foreground">
               Pré-visualização ilustrativa 2D. Produto final pode variar em tonalidade.
             </div>
+
+            {editMode && (
+              <AdminLayoutPanel
+                variants={variants}
+                variantKey={variantKey}
+                onVariantChange={setVariantKey}
+                zones={draftZones}
+                slots={draftSlots}
+                onZonesChange={setDraftZones}
+                onSlotsChange={setDraftSlots}
+                onReset={() => {
+                  setDraftZones(zones);
+                  setDraftSlots(slots);
+                }}
+                onCancel={() => {
+                  setDraftZones(zones);
+                  setDraftSlots(slots);
+                  setEditMode(false);
+                }}
+                onSave={() => saveMutation.mutate()}
+                saving={saveMutation.isPending}
+                error={saveMutation.error ? String((saveMutation.error as Error).message ?? saveMutation.error) : null}
+              />
+            )}
           </div>
 
           {/* Controls */}
@@ -186,21 +323,21 @@ function BuilderPage() {
               <div className="mt-1 text-xs text-muted-foreground">Produção sob encomenda · {template.production_days} dias úteis</div>
             </div>
 
-            {/* Modality (faixa) */}
-            {isFaixa && (
+            {/* Variant selector (Modalidade for faixa, generic for others with >1 variant) */}
+            {variants.length > 1 && (
               <section>
-                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Modalidade</h2>
+                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">{isFaixa ? "Modalidade" : "Variante"}</h2>
                 <div className="grid grid-cols-2 gap-2">
-                  {["Jiu-Jitsu", "Judô"].map((m) => (
+                  {variants.map((v) => (
                     <button
-                      key={m}
+                      key={v.key}
                       type="button"
-                      onClick={() => setModality(m)}
+                      onClick={() => setVariantKey(v.key)}
                       className={`rounded-md border px-3 py-2 text-sm font-semibold transition ${
-                        modality === m ? "border-primary bg-primary/5 text-primary" : "hover:border-foreground/40"
+                        variantKey === v.key ? "border-primary bg-primary/5 text-primary" : "hover:border-foreground/40"
                       }`}
                     >
-                      {m}
+                      {v.label}
                     </button>
                   ))}
                 </div>
@@ -424,7 +561,6 @@ function BuilderPage() {
               </section>
             )}
 
-
             {/* Summary + CTA */}
             <div className="rounded-lg border bg-card p-4">
               <div className="space-y-1 text-sm">
@@ -454,86 +590,37 @@ function BuilderPage() {
 
 // ============ 2D LAYERED PREVIEW ============
 
-type Slot = { key: string; label: string; x_pct: number; y_pct: number; w_pct: number };
-type Patch = { id: string; name: string; image_url: string };
-type ZonePath = { key: string; d: string; solid?: boolean };
-
-// Zone paths mapped to the actual product photos (viewBox 0 0 100 100).
-// Each path traces the region on the base photo that should be tinted with the
-// zone color. Zones marked `solid: true` fully replace the base pixels (used
-// for dark defaults like the faixa's ponta, where multiply can't lighten).
-const ZONES: Record<string, ZonePath[]> = {
-  kimono: [
-    // Jaqueta: sleeves band + torso (cuffs will be overlaid on top as punho)
-    { key: "jaqueta", d: "M 0 10 L 100 10 L 100 26 L 72 26 L 72 60 L 28 60 L 28 26 L 0 26 Z" },
-    // Punho: outer cuff caps at sleeve ends
-    { key: "punho", d: "M 0 10 L 8 10 L 8 26 L 0 26 Z M 92 10 L 100 10 L 100 26 L 92 26 Z" },
-    // Gola: V-shape lapel down the center of the jacket
-    { key: "gola", d: "M 42 8 L 50 60 L 58 8 L 54 8 L 50 48 L 46 8 Z" },
-    // Calça: pants block below with a subtle leg-split at the center
-    { key: "calca", d: "M 27 62 L 73 62 L 74 96 L 60 96 L 55 70 L 50 96 L 45 96 L 46 70 L 40 96 L 26 96 Z" },
-  ],
-  rashguard: [
-    { key: "base", d: "M 34 22 L 66 22 L 68 87 L 32 87 Z" },
-    { key: "manga", d: "M 8 27 L 34 22 L 38 62 L 14 68 Z M 66 22 L 92 27 L 86 68 L 62 62 Z" },
-    // Costas: subtle collar band + side seams accent
-    { key: "costas", d: "M 44 22 L 56 22 L 56 26 L 44 26 Z M 33 22 L 35 87 L 34 87 L 32 22 Z M 65 22 L 67 22 L 68 87 L 66 87 Z" },
-  ],
-  faixa: [
-    { key: "corpo", d: "M 2 44 L 71 44 L 71 57 L 2 57 Z" },
-    { key: "ponta", d: "M 71 44 L 98 44 L 98 57 L 71 57 Z", solid: true },
-  ],
-};
-
 const BASE_IMAGES: Record<string, string> = {
   kimono: kimonoBase,
   rashguard: rashguardBase,
   faixa: faixaBase,
 };
 
-// Judo faixa — two horizontal belts stacked (padded square 1280x1280 base).
-// Measured against the actual photo: top belt y≈30.9-45.7%, x≈0-85.5% (tip on right);
-// bottom belt y≈51.5-68.7%, x≈7-100% (tip on left).
-const JUDO_FAIXA_ZONES: ZonePath[] = [
-  // corpo — main bodies of both belts (excluding the rounded tips)
-  { key: "corpo", d: "M 0 30.9 L 82 30.9 L 82 45.7 L 0 45.7 Z M 10 51.5 L 100 51.5 L 100 68.7 L 10 68.7 Z" },
-  // ponta — the two rounded ends (top-right + bottom-left)
-  { key: "ponta", d: "M 82 30.9 L 85.5 30.9 L 85.5 45.7 L 82 45.7 Z M 7 51.5 L 10 51.5 L 10 68.7 L 7 68.7 Z" },
-];
-
-// Judo has two belts — center label/patch/embroidery near the top-right tip of the top belt.
-function remapJudoSlots(slots: Slot[]): Slot[] {
-  return slots.map((s) =>
-    s.key === "ponta" ? { ...s, x_pct: 73, y_pct: 38.3, w_pct: 10 } : s,
-  );
-}
-
-
-
+type Patch = { id: string; name: string; image_url: string };
 
 function BuilderPreview({
   kind,
+  variantKey,
+  zones,
   zoneColors,
   slots,
   slotPatches,
   patches,
   embroidery,
   labelImage,
-  modality,
 }: {
   kind: string;
+  variantKey: string;
+  zones: Zone[];
   zoneColors: Record<string, string>;
-  slots: Slot[];
+  slots: SlotRow[];
   slotPatches: Record<string, string>;
   patches: Patch[];
   embroidery: { text: string; slot_key: string; color: string } | null;
   labelImage?: { data_url: string; filename: string } | null;
-  modality?: string | null;
 }) {
-  const isJudo = kind === "faixa" && modality === "Judô";
-  const zones: ZonePath[] = isJudo ? JUDO_FAIXA_ZONES : ZONES[kind] ?? [];
+  const isJudo = kind === "faixa" && variantKey === "judo";
   const baseImg = isJudo ? faixaJudoBase : BASE_IMAGES[kind];
-  const effectiveSlots = isJudo ? remapJudoSlots(slots) : slots;
 
   return (
     <div className="relative h-full w-full overflow-hidden">
@@ -551,29 +638,24 @@ function BuilderPreview({
         className="absolute inset-0 h-full w-full"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* Tint layers — photo tint via multiply for light-base zones; solid for dark-base zones */}
+        {/* Zones */}
         {zones.map((z) => {
-          const color = zoneColors[z.key];
+          const color = zoneColors[z.key] ?? z.default_hex;
           if (!color) return null;
-          if (z.solid) {
-            return (
-              <path key={z.key} d={z.d} fill={color}>
-                {/* subtle inner shadow via filter would be nice, kept minimal for perf */}
-              </path>
-            );
-          }
           return (
-            <path
+            <rect
               key={z.key}
-              d={z.d}
+              x={z.x_pct}
+              y={z.y_pct}
+              width={z.w_pct}
+              height={z.h_pct}
               fill={color}
-              style={{ mixBlendMode: "multiply" }}
+              style={z.solid ? undefined : { mixBlendMode: "multiply" }}
             />
           );
         })}
 
-        {/* Contrast pass: gently re-emphasize fabric shadows on top of the tint.
-            Uses the base photo again with 'multiply' at low opacity so folds/creases stay visible. */}
+        {/* Contrast pass */}
         {baseImg && (
           <image
             href={baseImg}
@@ -588,7 +670,7 @@ function BuilderPreview({
         )}
 
         {/* Patches */}
-        {effectiveSlots.map((s) => {
+        {slots.map((s) => {
           const patchId = slotPatches[s.key];
           if (!patchId) return null;
           const p = patches.find((pp) => pp.id === patchId);
@@ -610,9 +692,9 @@ function BuilderPreview({
           );
         })}
 
-        {/* Faixa label image on ponta */}
+        {/* Label image on ponta */}
         {labelImage && (() => {
-          const ponta = effectiveSlots.find((s) => s.key === "ponta") ?? effectiveSlots[0];
+          const ponta = slots.find((s) => s.key === "ponta") ?? slots[0];
           if (!ponta) return null;
           const w = ponta.w_pct;
           return (
@@ -629,10 +711,9 @@ function BuilderPreview({
           );
         })()}
 
-
         {/* Embroidery */}
         {embroidery && (() => {
-          const slot = effectiveSlots.find((s) => s.key === embroidery.slot_key);
+          const slot = slots.find((s) => s.key === embroidery.slot_key);
           if (!slot) return null;
           const fontSize = Math.max(2.6, slot.w_pct * 0.35);
           const x = slot.x_pct;
@@ -657,6 +738,320 @@ function BuilderPreview({
           );
         })()}
       </svg>
+    </div>
+  );
+}
+
+// ============ ADMIN LAYOUT EDITOR OVERLAY ============
+
+type DragState =
+  | { kind: "zone-move"; index: number; startX: number; startY: number; origX: number; origY: number }
+  | { kind: "zone-resize"; index: number; startX: number; startY: number; origW: number; origH: number }
+  | { kind: "slot-move"; index: number; startX: number; startY: number; origX: number; origY: number }
+  | { kind: "slot-resize"; index: number; startX: number; startY: number; origW: number }
+  | null;
+
+function LayoutEditorOverlay({
+  zones,
+  slots,
+  onZonesChange,
+  onSlotsChange,
+}: {
+  zones: Zone[];
+  slots: SlotRow[];
+  onZonesChange: (z: Zone[]) => void;
+  onSlotsChange: (s: SlotRow[]) => void;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [drag, setDrag] = useState<DragState>(null);
+
+  function toPct(e: React.PointerEvent | PointerEvent) {
+    const el = containerRef.current;
+    if (!el) return { x: 0, y: 0 };
+    const rect = el.getBoundingClientRect();
+    return {
+      x: ((e.clientX - rect.left) / rect.width) * 100,
+      y: ((e.clientY - rect.top) / rect.height) * 100,
+    };
+  }
+
+  useEffect(() => {
+    if (!drag) return;
+    function onMove(e: PointerEvent) {
+      const p = toPct(e);
+      if (!drag) return;
+      if (drag.kind === "zone-move") {
+        const dx = p.x - drag.startX;
+        const dy = p.y - drag.startY;
+        const next = zones.slice();
+        next[drag.index] = {
+          ...next[drag.index],
+          x_pct: clamp(drag.origX + dx, -50, 150),
+          y_pct: clamp(drag.origY + dy, -50, 150),
+        };
+        onZonesChange(next);
+      } else if (drag.kind === "zone-resize") {
+        const dx = p.x - drag.startX;
+        const dy = p.y - drag.startY;
+        const next = zones.slice();
+        next[drag.index] = {
+          ...next[drag.index],
+          w_pct: clamp(drag.origW + dx, 1, 200),
+          h_pct: clamp(drag.origH + dy, 1, 200),
+        };
+        onZonesChange(next);
+      } else if (drag.kind === "slot-move") {
+        const dx = p.x - drag.startX;
+        const dy = p.y - drag.startY;
+        const next = slots.slice();
+        next[drag.index] = {
+          ...next[drag.index],
+          x_pct: clamp(drag.origX + dx, -50, 150),
+          y_pct: clamp(drag.origY + dy, -50, 150),
+        };
+        onSlotsChange(next);
+      } else if (drag.kind === "slot-resize") {
+        const dx = p.x - drag.startX;
+        const next = slots.slice();
+        next[drag.index] = {
+          ...next[drag.index],
+          w_pct: clamp(drag.origW + dx * 2, 1, 100),
+        };
+        onSlotsChange(next);
+      }
+    }
+    function onUp() { setDrag(null); }
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+    };
+  }, [drag, zones, slots, onZonesChange, onSlotsChange]);
+
+  return (
+    <div ref={containerRef} className="absolute inset-0">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full">
+        {zones.map((z, i) => (
+          <g key={`z-${z.key}`}>
+            <rect
+              x={z.x_pct}
+              y={z.y_pct}
+              width={z.w_pct}
+              height={z.h_pct}
+              fill="rgba(59,130,246,0.15)"
+              stroke="#3b82f6"
+              strokeWidth={0.3}
+              strokeDasharray="1 1"
+              style={{ cursor: "move", pointerEvents: "auto" }}
+              onPointerDown={(e) => {
+                (e.target as Element).setPointerCapture?.(e.pointerId);
+                const p = toPct(e);
+                setDrag({ kind: "zone-move", index: i, startX: p.x, startY: p.y, origX: z.x_pct, origY: z.y_pct });
+              }}
+            />
+            <text x={z.x_pct + 0.6} y={z.y_pct + 2.4} fontSize={1.8} fill="#1e3a8a" fontWeight={700} style={{ pointerEvents: "none" }}>
+              {z.label}
+            </text>
+            <rect
+              x={z.x_pct + z.w_pct - 1.5}
+              y={z.y_pct + z.h_pct - 1.5}
+              width={1.5}
+              height={1.5}
+              fill="#3b82f6"
+              style={{ cursor: "nwse-resize", pointerEvents: "auto" }}
+              onPointerDown={(e) => {
+                e.stopPropagation();
+                (e.target as Element).setPointerCapture?.(e.pointerId);
+                const p = toPct(e);
+                setDrag({ kind: "zone-resize", index: i, startX: p.x, startY: p.y, origW: z.w_pct, origH: z.h_pct });
+              }}
+            />
+          </g>
+        ))}
+        {slots.map((s, i) => {
+          const w = s.w_pct;
+          const x = s.x_pct - w / 2;
+          const y = s.y_pct - w / 2;
+          return (
+            <g key={`s-${s.key}`}>
+              <rect
+                x={x}
+                y={y}
+                width={w}
+                height={w}
+                fill="rgba(244,63,94,0.15)"
+                stroke="#f43f5e"
+                strokeWidth={0.3}
+                strokeDasharray="0.6 0.6"
+                style={{ cursor: "move", pointerEvents: "auto" }}
+                onPointerDown={(e) => {
+                  (e.target as Element).setPointerCapture?.(e.pointerId);
+                  const p = toPct(e);
+                  setDrag({ kind: "slot-move", index: i, startX: p.x, startY: p.y, origX: s.x_pct, origY: s.y_pct });
+                }}
+              />
+              <text x={x + 0.4} y={y + 2} fontSize={1.6} fill="#9f1239" fontWeight={700} style={{ pointerEvents: "none" }}>
+                {s.label}
+              </text>
+              <rect
+                x={x + w - 1.2}
+                y={y + w - 1.2}
+                width={1.2}
+                height={1.2}
+                fill="#f43f5e"
+                style={{ cursor: "nwse-resize", pointerEvents: "auto" }}
+                onPointerDown={(e) => {
+                  e.stopPropagation();
+                  (e.target as Element).setPointerCapture?.(e.pointerId);
+                  const p = toPct(e);
+                  setDrag({ kind: "slot-resize", index: i, startX: p.x, startY: p.y, origW: s.w_pct });
+                }}
+              />
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
+
+function clamp(v: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, v));
+}
+
+function AdminLayoutPanel({
+  variants,
+  variantKey,
+  onVariantChange,
+  zones,
+  slots,
+  onZonesChange,
+  onSlotsChange,
+  onReset,
+  onCancel,
+  onSave,
+  saving,
+  error,
+}: {
+  variants: { key: string; label: string }[];
+  variantKey: string;
+  onVariantChange: (k: string) => void;
+  zones: Zone[];
+  slots: SlotRow[];
+  onZonesChange: (z: Zone[]) => void;
+  onSlotsChange: (s: SlotRow[]) => void;
+  onReset: () => void;
+  onCancel: () => void;
+  onSave: () => void;
+  saving: boolean;
+  error: string | null;
+}) {
+  return (
+    <div className="mt-4 rounded-md border-2 border-primary/40 bg-primary/5 p-3">
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <span className="text-xs font-bold uppercase tracking-widest text-primary">Editor de layout</span>
+        {variants.length > 1 && (
+          <select
+            value={variantKey}
+            onChange={(e) => onVariantChange(e.target.value)}
+            className="rounded border bg-background px-2 py-1 text-xs"
+          >
+            {variants.map((v) => (
+              <option key={v.key} value={v.key}>{v.label}</option>
+            ))}
+          </select>
+        )}
+        <div className="ml-auto flex gap-2">
+          <button type="button" onClick={onReset} className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs hover:bg-background">
+            <RotateCcw className="h-3 w-3" /> Reverter
+          </button>
+          <button type="button" onClick={onCancel} className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs hover:bg-background">
+            <X className="h-3 w-3" /> Cancelar
+          </button>
+          <button
+            type="button"
+            onClick={onSave}
+            disabled={saving}
+            className="inline-flex items-center gap-1 rounded-md bg-primary px-3 py-1 text-xs font-bold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+          >
+            <Save className="h-3 w-3" /> {saving ? "Salvando…" : "Salvar"}
+          </button>
+        </div>
+      </div>
+
+      {error && <div className="mb-2 rounded border border-destructive/40 bg-destructive/10 px-2 py-1 text-xs text-destructive">{error}</div>}
+
+      <div className="grid gap-3 md:grid-cols-2">
+        <div>
+          <div className="mb-1 text-[11px] font-bold uppercase text-muted-foreground">Zonas (retângulo)</div>
+          <div className="space-y-2">
+            {zones.map((z, i) => (
+              <div key={z.key} className="rounded border bg-background p-2 text-xs">
+                <div className="mb-1 font-semibold">{z.label}</div>
+                <div className="grid grid-cols-4 gap-1">
+                  {(["x_pct", "y_pct", "w_pct", "h_pct"] as const).map((f) => (
+                    <label key={f} className="flex flex-col text-[10px] text-muted-foreground">
+                      {f.replace("_pct", "").toUpperCase()}
+                      <input
+                        type="number"
+                        step={0.1}
+                        value={z[f]}
+                        onChange={(e) => {
+                          const next = zones.slice();
+                          next[i] = { ...z, [f]: Number(e.target.value) };
+                          onZonesChange(next);
+                        }}
+                        className="w-full rounded border bg-background px-1 py-0.5 text-xs text-foreground"
+                      />
+                    </label>
+                  ))}
+                </div>
+                <label className="mt-1 flex items-center gap-1 text-[10px]">
+                  <input
+                    type="checkbox"
+                    checked={z.solid}
+                    onChange={(e) => {
+                      const next = zones.slice();
+                      next[i] = { ...z, solid: e.target.checked };
+                      onZonesChange(next);
+                    }}
+                  />
+                  Sólido (cobre a imagem)
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div>
+          <div className="mb-1 text-[11px] font-bold uppercase text-muted-foreground">Slots (patch/bordado/etiqueta)</div>
+          <div className="space-y-2">
+            {slots.map((s, i) => (
+              <div key={s.key} className="rounded border bg-background p-2 text-xs">
+                <div className="mb-1 font-semibold">{s.label}</div>
+                <div className="grid grid-cols-3 gap-1">
+                  {(["x_pct", "y_pct", "w_pct"] as const).map((f) => (
+                    <label key={f} className="flex flex-col text-[10px] text-muted-foreground">
+                      {f.replace("_pct", "").toUpperCase()}
+                      <input
+                        type="number"
+                        step={0.1}
+                        value={s[f]}
+                        onChange={(e) => {
+                          const next = slots.slice();
+                          next[i] = { ...s, [f]: Number(e.target.value) };
+                          onSlotsChange(next);
+                        }}
+                        className="w-full rounded border bg-background px-1 py-0.5 text-xs text-foreground"
+                      />
+                    </label>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -726,5 +1121,3 @@ function ImageUploader({
     </div>
   );
 }
-
-
