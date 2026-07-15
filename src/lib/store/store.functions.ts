@@ -24,6 +24,136 @@ function publicClient() {
 
 // ============ PUBLIC READS ============
 
+export const listWholesaleCatalog = createServerFn({ method: "GET" }).handler(async () => {
+  const sb = publicClient();
+  const [cats, prods] = await Promise.all([
+    sb.from("store_categories").select("id, slug, name, parent_id").eq("active", true).order("sort_order"),
+    sb.from("products")
+      .select("id, name, slug, price, compare_at_price, image_url, category_id, stock, short_description")
+      .eq("status", "active")
+      .order("name"),
+  ]);
+  return { categories: cats.data ?? [], products: prods.data ?? [] };
+});
+
+const WholesaleItemSchema = z.object({
+  product_id: z.string().uuid(),
+  quantity: z.number().int().min(1),
+});
+
+export const createWholesaleOrder = createServerFn({ method: "POST" })
+  .inputValidator((i: unknown) =>
+    z.object({
+      customer_email: z.string().email(),
+      customer_name: z.string().min(2),
+      customer_phone: z.string().optional().nullable(),
+      customer_document: z.string().optional().nullable(),
+      shipping_address: AddressSchema,
+      items: z.array(WholesaleItemSchema).min(1),
+      label_logo: z.object({ data_url: z.string(), filename: z.string() }).optional().nullable(),
+      notes: z.string().optional().nullable(),
+      user_id: z.string().uuid().optional().nullable(),
+    }).parse(i),
+  )
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const productIds = [...new Set(data.items.map((i) => i.product_id))];
+    const { data: products } = await supabaseAdmin
+      .from("products")
+      .select("id, name, price, image_url, category_id")
+      .in("id", productIds);
+    if (!products || products.length !== productIds.length) {
+      throw new Error("Um ou mais produtos não foram encontrados");
+    }
+
+    // Group quantities by leaf category (subcategoria)
+    const qtyByCategory = new Map<string, number>();
+    for (const it of data.items) {
+      const p = products.find((pp) => pp.id === it.product_id)!;
+      const cat = p.category_id ?? "__no_category__";
+      qtyByCategory.set(cat, (qtyByCategory.get(cat) ?? 0) + it.quantity);
+    }
+    // Validate min 10 per subcategory
+    const violations: string[] = [];
+    for (const [cat, qty] of qtyByCategory) {
+      if (qty < 10) violations.push(`${cat}:${qty}`);
+    }
+    if (violations.length > 0) {
+      throw new Error(
+        `Atacado exige no mínimo 10 unidades por subcategoria. Categorias abaixo do mínimo: ${violations.join(", ")}`,
+      );
+    }
+
+    const WHOLESALE_DISCOUNT = 0.25;
+    let subtotalOriginal = 0;
+    let subtotal = 0;
+    const orderItems: Array<Record<string, unknown>> = [];
+    for (const it of data.items) {
+      const p = products.find((pp) => pp.id === it.product_id)!;
+      const originalPrice = Number(p.price);
+      const unit_price = Number((originalPrice * (1 - WHOLESALE_DISCOUNT)).toFixed(2));
+      const total_price = unit_price * it.quantity;
+      subtotal += total_price;
+      subtotalOriginal += originalPrice * it.quantity;
+      orderItems.push({
+        product_id: p.id,
+        variant_id: null,
+        product_name: p.name,
+        variant_label: "Atacado (25% off · etiqueta personalizada grátis)",
+        sku: null,
+        image_url: p.image_url,
+        quantity: it.quantity,
+        unit_price,
+        total_price,
+        custom_config: {
+          wholesale: true,
+          discount_percent: 25,
+          original_unit_price: originalPrice,
+          category_id: p.category_id,
+        },
+        production_days: 10,
+      });
+    }
+
+    const discount = Number((subtotalOriginal - subtotal).toFixed(2));
+    const total = subtotal;
+
+    const { data: order, error } = await supabaseAdmin
+      .from("store_orders")
+      .insert({
+        user_id: data.user_id ?? null,
+        customer_email: data.customer_email,
+        customer_name: data.customer_name,
+        customer_phone: data.customer_phone,
+        customer_document: data.customer_document,
+        shipping_address: data.shipping_address,
+        subtotal,
+        shipping_cost: 0,
+        discount,
+        total,
+        notes: data.notes,
+        status: "pending_payment",
+        payment_status: "pending",
+        max_production_days: 10,
+        metadata: {
+          wholesale: true,
+          discount_percent: 25,
+          label_logo: data.label_logo ?? null,
+          subtotal_original: subtotalOriginal,
+        },
+      })
+      .select()
+      .single();
+    if (error || !order) throw new Error(error?.message ?? "Erro ao criar pedido");
+
+    const insertPayload = orderItems.map((oi) => ({ ...oi, order_id: order.id })) as never;
+    const { error: itemsErr } = await supabaseAdmin.from("store_order_items").insert(insertPayload);
+    if (itemsErr) throw new Error(itemsErr.message);
+
+    return { id: order.id, order_number: order.order_number, total: order.total, discount };
+  });
+
 export const listStorefrontHome = createServerFn({ method: "GET" }).handler(async () => {
   const sb = publicClient();
   const [categories, featured, newest] = await Promise.all([
