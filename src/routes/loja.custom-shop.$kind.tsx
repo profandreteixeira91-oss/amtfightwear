@@ -416,17 +416,30 @@ function BuilderPage() {
                       Cor de <strong className="text-foreground">{zones.find((z) => z.key === activeZone)?.label}</strong>
                     </div>
                     <div className="mt-2 flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        aria-label="Sem cor (transparente)"
+                        title="Sem cor"
+                        onClick={() =>
+                          setZoneColors((prev) => {
+                            const n = { ...prev };
+                            delete n[activeZone];
+                            return n;
+                          })
+                        }
+                        className={`flex h-7 w-7 items-center justify-center rounded-full border-2 transition ${
+                          !zoneColors[activeZone] ? "border-primary scale-110" : "border-foreground/20"
+                        }`}
+                        style={{
+                          backgroundImage:
+                            "linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)",
+                          backgroundSize: "8px 8px",
+                          backgroundPosition: "0 0, 0 4px, 4px -4px, -4px 0",
+                        }}
+                      >
+                        <X className="h-3 w-3 text-foreground/70" />
+                      </button>
                       {PALETTE.map((c) => (
-                        <button
-                          key={c}
-                          type="button"
-                          aria-label={c}
-                          onClick={() => setZoneColors((prev) => ({ ...prev, [activeZone]: c }))}
-                          className={`h-7 w-7 rounded-full border-2 transition ${
-                            zoneColors[activeZone] === c ? "border-primary scale-110" : "border-foreground/20"
-                          }`}
-                          style={{ background: c }}
-                        />
                       ))}
                       {variantKey !== "judo" && (
                         <label className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border-2 border-foreground/20 text-[10px]">
