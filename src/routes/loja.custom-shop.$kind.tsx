@@ -585,7 +585,7 @@ function BuilderPreview({
         )}
 
         {/* Patches */}
-        {slots.map((s) => {
+        {effectiveSlots.map((s) => {
           const patchId = slotPatches[s.key];
           if (!patchId) return null;
           const p = patches.find((pp) => pp.id === patchId);
