@@ -7,6 +7,7 @@ import { useCart, formatBRL } from "@/lib/store/cart-store";
 import { ShoppingBag, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { ShippingCalculator } from "@/components/store/ShippingCalculator";
+import { ProductImage } from "@/components/store/ProductImage";
 
 export const Route = createFileRoute("/loja/produto/$slug")({
   loader: async ({ context, params }) => {
