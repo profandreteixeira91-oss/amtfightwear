@@ -374,6 +374,21 @@ function AdminProductsPage() {
           onSaved={() => { setEditingId(null); refetch(); }}
         />
       )}
+
+      {creatingProduct && (
+        <ProductCreateDialog
+          onClose={() => setCreatingProduct(false)}
+          onCreated={(id) => {
+            setCreatingProduct(false);
+            refetch();
+            setEditingId(id);
+          }}
+        />
+      )}
+
+      {managingCategories && (
+        <CategoriesDialog onClose={() => setManagingCategories(false)} />
+      )}
     </div>
   );
 }
