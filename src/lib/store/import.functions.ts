@@ -79,7 +79,7 @@ async function runImport(jobId: string) {
     const { data: cur } = await supabaseAdmin.from("store_import_jobs").select("log").eq("id", jobId).maybeSingle();
     const arr = (cur?.log as unknown[] | null) ?? [];
     arr.push({ t: new Date().toISOString(), msg, ...extra });
-    await supabaseAdmin.from("store_import_jobs").update({ log: arr.slice(-200) }).eq("id", jobId);
+    await supabaseAdmin.from("store_import_jobs").update({ log: arr.slice(-200) as never }).eq("id", jobId);
   };
 
   await appendLog("Iniciando mapeamento do site amtfightwear.com.br");
