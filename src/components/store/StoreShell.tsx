@@ -150,6 +150,10 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
               <Link to="/loja" className="whitespace-nowrap px-3 py-3 text-foreground hover:text-primary">
                 Início
               </Link>
+              <Link to="/loja/custom-shop" className="whitespace-nowrap px-3 py-3 font-bold text-primary hover:opacity-80">
+                ✨ Custom Shop
+              </Link>
+
               {topCategories.map((c) => {
                 const subs = c.id ? childrenByParent.get(c.id) ?? [] : [];
                 return (
