@@ -298,6 +298,8 @@ function BuilderPage() {
     rotation: number;
     technique?: "bordado" | "sublimado" | "dtf" | null;
     size?: string | null;
+    format?: "redondo" | "quadrado" | "transparente" | null;
+
 
   }>>({});
 
