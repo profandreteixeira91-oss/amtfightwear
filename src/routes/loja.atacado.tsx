@@ -92,6 +92,27 @@ function WholesalePage() {
 
   const catById = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
 
+  // Resolve the root (top-level) ancestor for any category id
+  const rootOf = useMemo(() => {
+    const m = new Map<string, Cat>();
+    const resolve = (id: string): Cat | null => {
+      const seen = new Set<string>();
+      let cur = catById.get(id) ?? null;
+      while (cur && cur.parent_id && !seen.has(cur.id)) {
+        seen.add(cur.id);
+        const parent = catById.get(cur.parent_id);
+        if (!parent) break;
+        cur = parent;
+      }
+      return cur;
+    };
+    for (const c of categories) {
+      const r = resolve(c.id);
+      if (r) m.set(c.id, r);
+    }
+    return m;
+  }, [categories, catById]);
+
   // Group products by leaf subcategory (their direct category_id)
   const grouped = useMemo(() => {
     const m = new Map<string, { cat: Cat | null; items: Prod[] }>();
@@ -108,6 +129,27 @@ function WholesalePage() {
     });
   }, [products, catById]);
 
+  // Group subcategories by their root (top-level) category
+  const rootGroups = useMemo(() => {
+    const m = new Map<string, { root: Cat | null; subs: typeof grouped; totalProducts: number }>();
+    for (const [key, g] of grouped) {
+      const rid = g.cat ? (rootOf.get(g.cat.id)?.id ?? g.cat.id) : "__none__";
+      const cur = m.get(rid) ?? {
+        root: g.cat ? rootOf.get(g.cat.id) ?? g.cat : null,
+        subs: [] as typeof grouped,
+        totalProducts: 0,
+      };
+      cur.subs.push([key, g]);
+      cur.totalProducts += g.items.length;
+      m.set(rid, cur);
+    }
+    return Array.from(m.entries()).sort((a, b) => {
+      const an = a[1].root?.name ?? "zz";
+      const bn = b[1].root?.name ?? "zz";
+      return an.localeCompare(bn);
+    });
+  }, [grouped, rootOf]);
+
   // qty keyed by `${productId}::${variantId|__none__}`
   const [qty, setQty] = useState<Record<string, number>>({});
   const setLineQty = (pid: string, vid: string | null, q: number) =>
@@ -121,11 +163,13 @@ function WholesalePage() {
 
   // Visualization controls
   const [search, setSearch] = useState("");
+  const [activeRoot, setActiveRoot] = useState<string | null>(null);
   const [activeCatFilter, setActiveCatFilter] = useState<string | null>(null);
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const [zoomImg, setZoomImg] = useState<{ src: string; alt: string } | null>(null);
   const toggleCollapse = (key: string) =>
     setCollapsed((s) => ({ ...s, [key]: !s[key] }));
+
 
   // Totals per subcategory (aggregating variant-level quantities)
   const catTotals = useMemo(() => {
@@ -285,38 +329,120 @@ function WholesalePage() {
         <div>
           {step === "cart" ? (
             <div className="space-y-6">
-              {/* Search */}
-              <div className="sticky top-[calc(var(--header-h,140px))] z-10 flex flex-wrap items-center gap-2 rounded-xl border bg-card/95 p-2 backdrop-blur">
-                <div className="flex min-w-[220px] flex-1 items-center gap-2 rounded-md border bg-background px-3">
-                  <Search className="h-4 w-4 text-muted-foreground" />
-                  <input
-                    type="text"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Buscar produto..."
-                    className="w-full bg-transparent px-1 py-2 text-sm outline-none"
-                  />
-                  {search && (
-                    <button type="button" onClick={() => setSearch("")} className="rounded p-1 hover:bg-accent" aria-label="Limpar">
-                      <X className="h-3.5 w-3.5" />
-                    </button>
+              {activeRoot === null ? (
+                <div>
+                  <div className="mb-4">
+                    <h2 className="text-lg font-black">Escolha uma categoria</h2>
+                    <p className="text-sm text-muted-foreground">Selecione a categoria para ver os produtos e subcategorias disponíveis.</p>
+                  </div>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    {rootGroups.map(([rid, rg]) => {
+                      const rootQty = rg.subs.reduce((a, [k]) => a + (catTotals.get(k)?.qty ?? 0), 0);
+                      return (
+                        <button
+                          key={rid}
+                          type="button"
+                          onClick={() => { setActiveRoot(rid); setActiveCatFilter(null); }}
+                          className="group flex items-center justify-between gap-3 rounded-xl border bg-card p-4 text-left transition hover:border-primary hover:shadow-md"
+                        >
+                          <span>
+                            <span className="block text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Categoria</span>
+                            <span className="block text-base font-black">{rg.root?.name ?? "Sem categoria"}</span>
+                            <span className="block text-xs text-muted-foreground">
+                              {rg.subs.length} subcategoria{rg.subs.length === 1 ? "" : "s"} · {rg.totalProducts} produtos
+                            </span>
+                          </span>
+                          <span className="flex items-center gap-2">
+                            {rootQty > 0 && (
+                              <span className="rounded bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">{rootQty} un.</span>
+                            )}
+                            <ChevronDown className="h-5 w-5 -rotate-90 text-muted-foreground transition group-hover:text-primary" />
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {rootGroups.length === 0 && (
+                    <div className="rounded-xl border bg-card p-12 text-center text-muted-foreground">
+                      Nenhum produto disponível no momento.
+                    </div>
                   )}
                 </div>
-              </div>
+              ) : (
+                <>
+                  {(() => {
+                    const rg = rootGroups.find(([rid]) => rid === activeRoot)?.[1];
+                    if (!rg) return null;
+                    return (
+                      <>
+                        {/* Header: back + search + subcategory chips */}
+                        <div className="sticky top-[calc(var(--header-h,140px))] z-10 space-y-2 rounded-xl border bg-card/95 p-2 backdrop-blur">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => { setActiveRoot(null); setActiveCatFilter(null); }}
+                              className="rounded-md border px-3 py-2 text-xs font-semibold hover:bg-accent"
+                            >
+                              ← Categorias
+                            </button>
+                            <div className="flex flex-1 items-center gap-2 rounded-md border bg-background px-3">
+                              <Search className="h-4 w-4 text-muted-foreground" />
+                              <input
+                                type="text"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                placeholder={`Buscar em ${rg.root?.name ?? "categoria"}...`}
+                                className="w-full bg-transparent px-1 py-2 text-sm outline-none"
+                              />
+                              {search && (
+                                <button type="button" onClick={() => setSearch("")} className="rounded p-1 hover:bg-accent" aria-label="Limpar">
+                                  <X className="h-3.5 w-3.5" />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => setActiveCatFilter(null)}
+                              className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
+                                activeCatFilter === null ? "border-primary bg-primary text-primary-foreground" : "hover:border-primary/50"
+                              }`}
+                            >
+                              Todas ({rg.subs.length})
+                            </button>
+                            {rg.subs.map(([key, g]) => {
+                              const qty = catTotals.get(key)?.qty ?? 0;
+                              const active = activeCatFilter === key;
+                              return (
+                                <button
+                                  key={key}
+                                  type="button"
+                                  onClick={() => setActiveCatFilter(active ? null : key)}
+                                  className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
+                                    active ? "border-primary bg-primary text-primary-foreground" : "hover:border-primary/50"
+                                  }`}
+                                >
+                                  {g.cat?.name ?? "Sem categoria"}
+                                  {qty > 0 && <span className={`ml-1.5 rounded px-1 ${active ? "bg-primary-foreground/20" : "bg-muted"}`}>{qty}</span>}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
 
+                        {rg.subs
+                          .filter(([key]) => activeCatFilter === null || activeCatFilter === key)
+                          .map(([key, g]) => {
+                            const totals = catTotals.get(key);
+                            const groupQty = totals?.qty ?? 0;
+                            const ok = groupQty >= MIN_PER_SUBCAT;
+                            const q = search.trim().toLowerCase();
+                            const items = q ? g.items.filter((p) => p.name.toLowerCase().includes(q)) : g.items;
+                            if (items.length === 0) return null;
+                            const isCollapsed = collapsed[key];
+                            return (
 
-
-              {grouped
-                .filter(([key]) => activeCatFilter === null || activeCatFilter === key)
-                .map(([key, g]) => {
-                  const totals = catTotals.get(key);
-                  const groupQty = totals?.qty ?? 0;
-                  const ok = groupQty >= MIN_PER_SUBCAT;
-                  const q = search.trim().toLowerCase();
-                  const items = q ? g.items.filter((p) => p.name.toLowerCase().includes(q)) : g.items;
-                  if (items.length === 0) return null;
-                  const isCollapsed = collapsed[key];
-                  return (
                     <section key={key} id={`cat-${key}`} className="rounded-xl border bg-card">
                       <header className="flex flex-wrap items-center justify-between gap-3 border-b p-4">
                         <button
@@ -512,13 +638,14 @@ function WholesalePage() {
                       )}
                     </section>
                   );
-                })}
-              {grouped.length === 0 && (
-                <div className="rounded-xl border bg-card p-12 text-center text-muted-foreground">
-                  Nenhum produto disponível no momento.
-                </div>
+                          })}
+                      </>
+                    );
+                  })()}
+                </>
               )}
             </div>
+
           ) : (
             <form onSubmit={submit} className="space-y-4">
               <div className="rounded-xl border bg-card p-5">
