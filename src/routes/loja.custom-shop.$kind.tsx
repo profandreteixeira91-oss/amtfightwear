@@ -290,7 +290,7 @@ function BuilderPage() {
 
   useEffect(() => {
     // Faixa: seleciona o primeiro preset por padrão para já exibir a imagem real do produto.
-    const presets = BELT_PRESETS[variantKey];
+    const presets = isFaixa ? BELT_PRESETS[variantKey] : null;
     if (presets && presets.length > 0) {
       const p = presets[0];
       setZoneColors({
@@ -307,7 +307,8 @@ function BuilderPage() {
       setZoneColors({});
     }
     setActiveZone(zones[0]?.key ?? "");
-  }, [variantKey, isKimono]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [variantKey, isKimono, isFaixa]); // eslint-disable-line react-hooks/exhaustive-deps
+
 
 
   // Admin layout edit mode
@@ -339,6 +340,7 @@ function BuilderPage() {
   const selectedFabric = fabrics.find((f) => f.id === fabricId) ?? null;
 
   const beltPreset = useMemo(() => {
+    if (!isFaixa) return null;
     const presets = BELT_PRESETS[variantKey];
     if (!presets) return null;
     return (
@@ -350,7 +352,8 @@ function BuilderPage() {
           zoneColors.ponta_inf === p.tip,
       ) ?? null
     );
-  }, [variantKey, zoneColors]);
+  }, [isFaixa, variantKey, zoneColors]);
+
 
   const kimonoPreset = useMemo(() => {
     if (!isKimono) return null;
@@ -610,7 +613,7 @@ function BuilderPage() {
             )}
 
             {/* Faixa: presets oficiais de cor (corpo + ponta) — Judô e Jiu-Jitsu */}
-            {BELT_PRESETS[variantKey] && (
+            {isFaixa && BELT_PRESETS[variantKey] && (
               <section>
                 <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Cores da faixa</h2>
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -693,7 +696,7 @@ function BuilderPage() {
             )}
 
             {/* Zone colors (fallback quando não há preset) */}
-            {!BELT_PRESETS[variantKey] && !isKimono && zones.length > 0 && (
+            {!(isFaixa && BELT_PRESETS[variantKey]) && !isKimono && zones.length > 0 && (
               <section>
                 <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Cores</h2>
                 <div className="flex flex-wrap gap-2">
