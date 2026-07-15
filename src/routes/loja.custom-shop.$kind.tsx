@@ -855,6 +855,8 @@ function BuilderPage() {
                       scale: 1,
                       rotation: 0,
                       technique: (kPatch ? "bordado" : null) as "bordado" | "sublimado" | "dtf" | null,
+                      size: (kPatch ? (KIMONO_PATCH_SIZES[s.key]?.default ?? null) : null) as string | null,
+
                     };
                     const entry = embroideries[s.key] ?? defaults;
                     const setEntry = (patch: Partial<typeof entry>) =>
