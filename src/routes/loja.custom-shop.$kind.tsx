@@ -1139,7 +1139,9 @@ function AdminLayoutPanel({
         <div>
           <div className="mb-1 text-[11px] font-bold uppercase text-muted-foreground">Zonas (retângulo)</div>
           <div className="space-y-2">
-            {zones.map((z, i) => (
+            {zones.map((z, i) => {
+              if (z.key.startsWith("corpo") || z.key.startsWith("ponta")) return null;
+              return (
               <div key={z.key} className="rounded border bg-background p-2 text-xs">
                 <div className="mb-1 font-semibold">{z.label}</div>
                 <div className="grid grid-cols-4 gap-1">
@@ -1173,7 +1175,8 @@ function AdminLayoutPanel({
                   Sólido (cobre a imagem)
                 </label>
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
         <div>
