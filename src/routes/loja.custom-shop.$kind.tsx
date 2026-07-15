@@ -485,60 +485,58 @@ function BuilderPage() {
               </section>
             )}
 
-            {/* Embroidery */}
-            {slots.length > 0 && (
+            {/* Embroidery — one entry per bordado slot (text or image) */}
+            {embroiderySlots.length > 0 && (
               <section>
-                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Bordado de texto</h2>
-                <div className="rounded-md border p-3 space-y-3">
-                  <input
-                    type="text"
-                    maxLength={20}
-                    value={embroideryText}
-                    onChange={(e) => {
-                      setEmbroideryText(e.target.value);
-                      if (e.target.value && !embroiderySlot) setEmbroiderySlot(slots[0].key);
-                    }}
-                    placeholder="Seu nome ou apelido (opcional, até 20 caracteres)"
-                    className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
-                  />
-                  {embroideryText.trim() && (
-                    <>
-                      <div>
-                        <div className="mb-1 text-xs font-semibold text-muted-foreground">Posição</div>
-                        <div className="flex flex-wrap gap-2">
-                          {slots.map((s) => (
-                            <button
-                              key={s.key}
-                              type="button"
-                              onClick={() => setEmbroiderySlot(s.key)}
-                              className={`rounded-full border px-3 py-1 text-xs ${
-                                embroiderySlot === s.key ? "border-primary bg-primary/5" : "hover:border-foreground/40"
-                              }`}
-                            >
-                              {s.label}
-                            </button>
-                          ))}
-                        </div>
+                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">
+                  {embroiderySlots.length > 1 ? "Bordados" : "Bordado de texto ou logo"}
+                </h2>
+                <div className="space-y-3">
+                  {embroiderySlots.map((s) => {
+                    const entry = embroideries[s.key] ?? { text: "", color: "#ffffff", image: null };
+                    const setEntry = (patch: Partial<typeof entry>) =>
+                      setEmbroideries((prev) => ({ ...prev, [s.key]: { ...(prev[s.key] ?? { text: "", color: "#ffffff", image: null }), ...patch } }));
+                    const active = entry.text.trim() || entry.image;
+                    return (
+                      <div key={s.key} className="rounded-md border p-3 space-y-3">
+                        <div className="text-xs font-bold uppercase text-muted-foreground">{s.label}</div>
+                        <input
+                          type="text"
+                          maxLength={20}
+                          value={entry.text}
+                          onChange={(e) => setEntry({ text: e.target.value })}
+                          placeholder="Texto do bordado (até 20 caracteres)"
+                          className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+                        />
+                        <ImageUploader
+                          value={entry.image}
+                          onChange={(img) => setEntry({ image: img })}
+                          hint="Ou envie um logo para simular bordado (PNG/JPG, até 4MB)."
+                        />
+                        {active && (
+                          <>
+                            <div>
+                              <div className="mb-1 text-xs font-semibold text-muted-foreground">Cor do bordado</div>
+                              <div className="flex flex-wrap gap-2">
+                                {PALETTE.map((c) => (
+                                  <button
+                                    key={c}
+                                    type="button"
+                                    onClick={() => setEntry({ color: c })}
+                                    className={`h-6 w-6 rounded-full border-2 ${
+                                      entry.color === c ? "border-primary scale-110" : "border-foreground/20"
+                                    }`}
+                                    style={{ background: c }}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                            <div className="text-xs font-bold text-primary">Taxa de bordado: + {formatBRL(39)}</div>
+                          </>
+                        )}
                       </div>
-                      <div>
-                        <div className="mb-1 text-xs font-semibold text-muted-foreground">Cor do bordado</div>
-                        <div className="flex flex-wrap gap-2">
-                          {PALETTE.map((c) => (
-                            <button
-                              key={c}
-                              type="button"
-                              onClick={() => setEmbroideryColor(c)}
-                              className={`h-6 w-6 rounded-full border-2 ${
-                                embroideryColor === c ? "border-primary scale-110" : "border-foreground/20"
-                              }`}
-                              style={{ background: c }}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                      <div className="text-xs font-bold text-primary">Taxa de bordado: + {formatBRL(39)}</div>
-                    </>
-                  )}
+                    );
+                  })}
                 </div>
               </section>
             )}
