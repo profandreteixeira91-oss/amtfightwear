@@ -92,6 +92,27 @@ function WholesalePage() {
 
   const catById = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
 
+  // Resolve the root (top-level) ancestor for any category id
+  const rootOf = useMemo(() => {
+    const m = new Map<string, Cat>();
+    const resolve = (id: string): Cat | null => {
+      const seen = new Set<string>();
+      let cur = catById.get(id) ?? null;
+      while (cur && cur.parent_id && !seen.has(cur.id)) {
+        seen.add(cur.id);
+        const parent = catById.get(cur.parent_id);
+        if (!parent) break;
+        cur = parent;
+      }
+      return cur;
+    };
+    for (const c of categories) {
+      const r = resolve(c.id);
+      if (r) m.set(c.id, r);
+    }
+    return m;
+  }, [categories, catById]);
+
   // Group products by leaf subcategory (their direct category_id)
   const grouped = useMemo(() => {
     const m = new Map<string, { cat: Cat | null; items: Prod[] }>();
@@ -108,6 +129,27 @@ function WholesalePage() {
     });
   }, [products, catById]);
 
+  // Group subcategories by their root (top-level) category
+  const rootGroups = useMemo(() => {
+    const m = new Map<string, { root: Cat | null; subs: typeof grouped; totalProducts: number }>();
+    for (const [key, g] of grouped) {
+      const rid = g.cat ? (rootOf.get(g.cat.id)?.id ?? g.cat.id) : "__none__";
+      const cur = m.get(rid) ?? {
+        root: g.cat ? rootOf.get(g.cat.id) ?? g.cat : null,
+        subs: [] as typeof grouped,
+        totalProducts: 0,
+      };
+      cur.subs.push([key, g]);
+      cur.totalProducts += g.items.length;
+      m.set(rid, cur);
+    }
+    return Array.from(m.entries()).sort((a, b) => {
+      const an = a[1].root?.name ?? "zz";
+      const bn = b[1].root?.name ?? "zz";
+      return an.localeCompare(bn);
+    });
+  }, [grouped, rootOf]);
+
   // qty keyed by `${productId}::${variantId|__none__}`
   const [qty, setQty] = useState<Record<string, number>>({});
   const setLineQty = (pid: string, vid: string | null, q: number) =>
@@ -121,11 +163,13 @@ function WholesalePage() {
 
   // Visualization controls
   const [search, setSearch] = useState("");
+  const [activeRoot, setActiveRoot] = useState<string | null>(null);
   const [activeCatFilter, setActiveCatFilter] = useState<string | null>(null);
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const [zoomImg, setZoomImg] = useState<{ src: string; alt: string } | null>(null);
   const toggleCollapse = (key: string) =>
     setCollapsed((s) => ({ ...s, [key]: !s[key] }));
+
 
   // Totals per subcategory (aggregating variant-level quantities)
   const catTotals = useMemo(() => {
