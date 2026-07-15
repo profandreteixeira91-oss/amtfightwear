@@ -99,6 +99,45 @@ function splitTwoLines(text: string): [string, string] {
   return [t.slice(0, idx).trim(), t.slice(idx + 1).trim()];
 }
 
+// Detecta a cor de fundo de uma imagem amostrando os 4 cantos e retornando a média.
+async function detectImageBgColor(dataUrl: string): Promise<string> {
+  if (typeof window === "undefined") return "#ffffff";
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      try {
+        const canvas = document.createElement("canvas");
+        const w = img.naturalWidth || 1;
+        const h = img.naturalHeight || 1;
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return resolve("#ffffff");
+        ctx.drawImage(img, 0, 0);
+        const pts: [number, number][] = [
+          [0, 0], [w - 1, 0], [0, h - 1], [w - 1, h - 1],
+          [Math.floor(w / 2), 0], [Math.floor(w / 2), h - 1],
+          [0, Math.floor(h / 2)], [w - 1, Math.floor(h / 2)],
+        ];
+        let r = 0, g = 0, b = 0, n = 0;
+        for (const [px, py] of pts) {
+          const d = ctx.getImageData(px, py, 1, 1).data;
+          if (d[3] < 16) continue; // pula pixels transparentes
+          r += d[0]; g += d[1]; b += d[2]; n++;
+        }
+        if (n === 0) return resolve("#ffffff");
+        const toHex = (v: number) => Math.round(v / n).toString(16).padStart(2, "0");
+        resolve(`#${toHex(r)}${toHex(g)}${toHex(b)}`);
+      } catch {
+        resolve("#ffffff");
+      }
+    };
+    img.onerror = () => reject(new Error("image load failed"));
+    img.src = dataUrl;
+  });
+}
+
 type Zone = {
   key: string;
   label: string;
