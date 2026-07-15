@@ -115,7 +115,8 @@ export const updateCustomLayout = createServerFn({ method: "POST" })
           w_pct: z.w_pct,
           h_pct: z.h_pct,
           ...(z.solid !== undefined ? { solid: z.solid } : {}),
-        })
+          ...(z.rotation_deg !== undefined ? { rotation_deg: z.rotation_deg } : {}),
+        } as any)
         .eq("template_id", data.template_id)
         .eq("variant_key", data.variant_key)
         .eq("key", z.key);
@@ -128,7 +129,9 @@ export const updateCustomLayout = createServerFn({ method: "POST" })
           x_pct: s.x_pct,
           y_pct: s.y_pct,
           w_pct: s.w_pct,
-        })
+          ...(s.h_pct !== undefined ? { h_pct: s.h_pct } : {}),
+          ...(s.rotation_deg !== undefined ? { rotation_deg: s.rotation_deg } : {}),
+        } as any)
         .eq("template_id", data.template_id)
         .eq("variant_key", data.variant_key)
         .eq("key", s.key);
