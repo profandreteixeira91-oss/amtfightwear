@@ -182,7 +182,19 @@ function BuilderPage() {
     return total;
   }, [slotPatches, patches]);
 
-  const embroideryFee = embroideryText.trim() ? 39 : 0;
+  const embroiderySlots = useMemo(() => {
+    const bordado = slots.filter((s) => s.key.startsWith("bordado"));
+    return bordado.length > 0 ? bordado : slots;
+  }, [slots]);
+  const activeEmbroideries = useMemo(
+    () =>
+      embroiderySlots
+        .map((s) => ({ slot: s, e: embroideries[s.key] }))
+        .filter(({ e }) => e && (e.text.trim() || e.image))
+        .map(({ slot, e }) => ({ slot_key: slot.key, text: e!.text.trim() || null, image: e!.image, color: e!.color })),
+    [embroiderySlots, embroideries],
+  );
+  const embroideryFee = activeEmbroideries.length * 39;
   const fabricDelta = selectedFabric ? Number(selectedFabric.price_delta) : 0;
   const unitPrice = Number(template.base_price) + fabricDelta + patchesTotal + embroideryFee;
 
