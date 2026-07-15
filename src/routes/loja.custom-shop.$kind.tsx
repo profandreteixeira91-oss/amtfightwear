@@ -568,12 +568,12 @@ function BuilderPage() {
               </section>
             )}
 
-            {/* Judô: presets oficiais de cor (corpo + ponta) */}
-            {variantKey === "judo" && (
+            {/* Faixa: presets oficiais de cor (corpo + ponta) — Judô e Jiu-Jitsu */}
+            {BELT_PRESETS[variantKey] && (
               <section>
                 <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Cores da faixa</h2>
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                  {JUDO_PRESETS.map((p) => {
+                  {BELT_PRESETS[variantKey].map((p) => {
                     const active =
                       zoneColors.corpo_sup === p.body &&
                       zoneColors.corpo_inf === p.body &&
@@ -608,8 +608,8 @@ function BuilderPage() {
               </section>
             )}
 
-            {/* Zone colors (não-judô) */}
-            {variantKey !== "judo" && zones.length > 0 && (
+            {/* Zone colors (fallback quando não há preset) */}
+            {!BELT_PRESETS[variantKey] && zones.length > 0 && (
               <section>
                 <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Cores</h2>
                 <div className="flex flex-wrap gap-2">
