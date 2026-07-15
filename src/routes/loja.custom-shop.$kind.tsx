@@ -649,8 +649,51 @@ function BuilderPage() {
               </section>
             )}
 
+            {/* Kimono BJJ: presets oficiais com foto real do produto */}
+            {isKimono && (
+              <section>
+                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Cor do kimono</h2>
+                <div className="grid grid-cols-3 gap-2">
+                  {KIMONO_PRESETS.map((p) => {
+                    const active = zoneColors.jaqueta === p.body && zoneColors.calca === p.body;
+                    return (
+                      <button
+                        key={p.label}
+                        type="button"
+                        onClick={() =>
+                          setZoneColors((prev) => ({ ...prev, jaqueta: p.body, calca: p.body }))
+                        }
+                        className={`group flex flex-col overflow-hidden rounded-md border text-left transition ${
+                          active ? "border-primary ring-2 ring-primary/30" : "hover:border-foreground/40"
+                        }`}
+                      >
+                        <div className="relative aspect-square bg-muted">
+                          <img
+                            src={p.image}
+                            alt={p.label}
+                            loading="lazy"
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                        <div className="flex items-center gap-2 px-2 py-1.5 text-[11px] font-semibold">
+                          <span
+                            className="inline-block h-3 w-3 shrink-0 rounded-full border border-foreground/20"
+                            style={{ background: p.body }}
+                          />
+                          <span className="truncate">{p.label}</span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="mt-2 text-[10px] text-muted-foreground">
+                  Fotos reais da linha Trançado Premium — a cor selecionada é aplicada em jaqueta e calça.
+                </p>
+              </section>
+            )}
+
             {/* Zone colors (fallback quando não há preset) */}
-            {!BELT_PRESETS[variantKey] && zones.length > 0 && (
+            {!BELT_PRESETS[variantKey] && !isKimono && zones.length > 0 && (
               <section>
                 <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Cores</h2>
                 <div className="flex flex-wrap gap-2">
