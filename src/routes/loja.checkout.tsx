@@ -148,6 +148,17 @@ function CheckoutPage() {
             </section>
 
             <section className="rounded-lg border bg-card p-5">
+              <h2 className="mb-3 font-bold">Frete</h2>
+              <ShippingCalculator
+                items={items.map((i) => ({ product_id: i.product_id, variant_id: i.variant_id ?? null, quantity: i.quantity }))}
+                initialZip={form.zip}
+                selectedId={shipping?.id ?? null}
+                onSelect={setShipping}
+                compact
+              />
+            </section>
+
+            <section className="rounded-lg border bg-card p-5">
               <h2 className="mb-3 font-bold">Pagamento</h2>
               <div className="rounded-md bg-muted p-4 text-sm text-muted-foreground">
                 🚧 Integração de pagamento chega na <strong className="text-foreground">Fase 3</strong> (Mercado Pago / Pagar.me). Por enquanto, o pedido é registrado como <strong>Aguardando pagamento</strong> e você recebe as instruções por e-mail.
@@ -164,9 +175,17 @@ function CheckoutPage() {
                   <span className="font-semibold">{formatBRL(i.unit_price * i.quantity)}</span>
                 </div>
               ))}
-              <div className="my-3 border-t pt-3 flex justify-between text-base font-black">
-                <span>Total</span>
+              <div className="mt-3 border-t pt-2 flex justify-between text-sm">
+                <span className="text-muted-foreground">Subtotal</span>
                 <span>{formatBRL(subtotal)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Frete {shipping ? `(${shipping.company} ${shipping.name})` : ""}</span>
+                <span>{shipping ? formatBRL(shippingCost) : "—"}</span>
+              </div>
+              <div className="mt-2 border-t pt-2 flex justify-between text-base font-black">
+                <span>Total</span>
+                <span>{formatBRL(total)}</span>
               </div>
             </div>
             <button disabled={loading} type="submit" className="mt-4 inline-flex w-full items-center justify-center rounded-md bg-primary px-4 py-3 font-bold text-primary-foreground hover:opacity-90 disabled:opacity-50">
