@@ -401,34 +401,22 @@ function WholesalePage() {
                               )}
                             </div>
                           </div>
-                          <div className="flex flex-wrap gap-1.5">
-                            <button
-                              type="button"
-                              onClick={() => setActiveCatFilter(null)}
-                              className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
-                                activeCatFilter === null ? "border-primary bg-primary text-primary-foreground" : "hover:border-primary/50"
-                              }`}
-                            >
-                              Todas ({rg.subs.length})
-                            </button>
+                          <select
+                            value={activeCatFilter ?? ""}
+                            onChange={(e) => setActiveCatFilter(e.target.value || null)}
+                            className="w-full rounded-md border bg-background px-3 py-2 text-sm font-semibold outline-none focus:border-primary"
+                          >
+                            <option value="">Todas as subcategorias ({rg.subs.length})</option>
                             {rg.subs.map(([key, g]) => {
                               const qty = catTotals.get(key)?.qty ?? 0;
-                              const active = activeCatFilter === key;
                               return (
-                                <button
-                                  key={key}
-                                  type="button"
-                                  onClick={() => setActiveCatFilter(active ? null : key)}
-                                  className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
-                                    active ? "border-primary bg-primary text-primary-foreground" : "hover:border-primary/50"
-                                  }`}
-                                >
-                                  {g.cat?.name ?? "Sem categoria"}
-                                  {qty > 0 && <span className={`ml-1.5 rounded px-1 ${active ? "bg-primary-foreground/20" : "bg-muted"}`}>{qty}</span>}
-                                </button>
+                                <option key={key} value={key}>
+                                  {g.cat?.name ?? "Sem categoria"}{qty > 0 ? ` · ${qty} un.` : ""}
+                                </option>
                               );
                             })}
-                          </div>
+                          </select>
+
                         </div>
 
                         {rg.subs
