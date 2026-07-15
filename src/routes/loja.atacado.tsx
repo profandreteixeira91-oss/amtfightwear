@@ -11,7 +11,7 @@ import { formatBRL } from "@/lib/store/cart-store";
 import { ProductImage } from "@/components/store/ProductImage";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Minus, Plus, Upload, X, CheckCircle2, AlertCircle, Package } from "lucide-react";
+import { Minus, Plus, Upload, X, CheckCircle2, AlertCircle, Package, Search, ChevronDown, ChevronUp, ZoomIn } from "lucide-react";
 
 const catalogQuery = queryOptions({
   queryKey: ["store", "wholesale-catalog"],
