@@ -612,3 +612,70 @@ function BuilderPreview({
   );
 }
 
+// ============ IMAGE UPLOADER ============
+
+function ImageUploader({
+  value,
+  onChange,
+  hint,
+}: {
+  value: { data_url: string; filename: string } | null;
+  onChange: (v: { data_url: string; filename: string } | null) => void;
+  hint?: string;
+}) {
+  const [error, setError] = useState<string | null>(null);
+
+  function handleFile(file: File | null) {
+    setError(null);
+    if (!file) return;
+    if (!/^image\/(png|jpe?g|webp|svg\+xml)$/.test(file.type)) {
+      setError("Formato não suportado. Envie PNG, JPG, WEBP ou SVG.");
+      return;
+    }
+    if (file.size > 4 * 1024 * 1024) {
+      setError("Arquivo muito grande. Máximo 4MB.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      onChange({ data_url: String(reader.result), filename: file.name });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  return (
+    <div className="rounded-md border p-3">
+      {value ? (
+        <div className="flex items-center gap-3">
+          <img src={value.data_url} alt={value.filename} className="h-16 w-16 rounded border object-contain bg-muted" />
+          <div className="flex-1 truncate text-xs">
+            <div className="font-semibold truncate">{value.filename}</div>
+            <div className="text-muted-foreground">Enviado</div>
+          </div>
+          <button
+            type="button"
+            onClick={() => onChange(null)}
+            className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs text-muted-foreground hover:text-destructive"
+          >
+            <X className="h-3 w-3" /> remover
+          </button>
+        </div>
+      ) : (
+        <label className="flex cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed px-3 py-6 text-sm text-muted-foreground hover:border-primary hover:text-primary">
+          <Upload className="h-4 w-4" />
+          <span>Clique para enviar imagem</span>
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/webp,image/svg+xml"
+            className="hidden"
+            onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
+          />
+        </label>
+      )}
+      {hint && <div className="mt-2 text-[11px] text-muted-foreground">{hint}</div>}
+      {error && <div className="mt-2 text-[11px] font-semibold text-destructive">{error}</div>}
+    </div>
+  );
+}
+
+
