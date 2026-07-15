@@ -292,7 +292,7 @@ function BuilderPage() {
     font: string;
     lines: 1 | 2;
     color: string;
-    image: { data_url: string; filename: string } | null;
+    image: { data_url: string; filename: string; bg_color?: string } | null;
     position: { x: number; y: number } | null;
     scale: number;
     rotation: number;
@@ -856,7 +856,7 @@ function BuilderPage() {
                       font: DEFAULT_EMB_FONT,
                       lines: 1 as 1 | 2,
                       color: "#ffffff",
-                      image: null as { data_url: string; filename: string } | null,
+                      image: null as { data_url: string; filename: string; bg_color?: string } | null,
                       position: null as { x: number; y: number } | null,
                       scale: 1,
                       rotation: 0,
@@ -1102,7 +1102,12 @@ function BuilderPage() {
                         ) : (
                           <ImageUploader
                             value={entry.image}
-                            onChange={(img) => setEntry({ image: img })}
+                            onChange={async (img) => {
+                              if (!img) { setEntry({ image: null }); return; }
+                              // Sempre detecta a cor de fundo — usada quando técnica sublimado é aplicada.
+                              const bg = await detectImageBgColor(img.data_url).catch(() => "#ffffff");
+                              setEntry({ image: { ...img, bg_color: bg } });
+                            }}
                             hint="Envie um logotipo (PNG/JPG, até 4MB) — será simulado como bordado."
                           />
                         )}
@@ -1355,11 +1360,13 @@ function BuilderPreview({
     text: string | null;
     font: string | null;
     lines: 1 | 2 | null;
-    image: { data_url: string; filename: string } | null;
+    image: { data_url: string; filename: string; bg_color?: string } | null;
     position: { x: number; y: number } | null;
     scale?: number | null;
     rotation?: number | null;
     color: string;
+    format?: "redondo" | "quadrado" | "transparente" | null;
+    technique?: "bordado" | "sublimado" | "dtf" | null;
   }>;
   labelImage?: { data_url: string; filename: string; bg_color?: string } | null;
   beltPresetImage?: string | null;
@@ -1598,19 +1605,45 @@ function BuilderPreview({
           const transform = `translate(${cx} ${cy}) rotate(${totalRot}) scale(${scale})`;
           return (
             <g key={emb.slot_key} transform={transform}>
-              {emb.mode === "logo" && emb.image && (
-                <g style={{ filter: "drop-shadow(0 0.15px 0.2px rgba(0,0,0,0.45))" }}>
-                  <image
-                    href={emb.image.data_url}
-                    x={-w / 2}
-                    y={-h / 2}
-                    width={w}
-                    height={h}
-                    preserveAspectRatio="xMidYMid meet"
-                    opacity={0.95}
-                  />
-                </g>
-              )}
+              {emb.mode === "logo" && emb.image && (() => {
+                // Sublimado: aplica o formato escolhido (quadrado/redondo) com fundo preenchido pela cor da imagem.
+                // Bordado/DTF (transparente): renderiza a arte sem fundo, apenas com o PNG do upload.
+                const fmt = emb.format ?? "transparente";
+                const bg = emb.image.bg_color ?? "#ffffff";
+                const isRound = fmt === "redondo";
+                const isSquare = fmt === "quadrado";
+                const clipId = `emb-clip-${emb.slot_key}`;
+                return (
+                  <g style={{ filter: "drop-shadow(0 0.15px 0.2px rgba(0,0,0,0.45))" }}>
+                    {(isRound || isSquare) && (
+                      <>
+                        <defs>
+                          {isRound && (
+                            <clipPath id={clipId}>
+                              <circle cx={0} cy={0} r={Math.min(w, h) / 2} />
+                            </clipPath>
+                          )}
+                        </defs>
+                        {isRound ? (
+                          <circle cx={0} cy={0} r={Math.min(w, h) / 2} fill={bg} />
+                        ) : (
+                          <rect x={-w / 2} y={-h / 2} width={w} height={h} fill={bg} />
+                        )}
+                      </>
+                    )}
+                    <image
+                      href={emb.image.data_url}
+                      x={-w / 2}
+                      y={-h / 2}
+                      width={w}
+                      height={h}
+                      preserveAspectRatio="xMidYMid meet"
+                      opacity={0.95}
+                      clipPath={isRound ? `url(#${clipId})` : undefined}
+                    />
+                  </g>
+                );
+              })()}
               {emb.mode === "text" && emb.text && (() => {
                 const font = EMBROIDERY_FONTS.find((f) => f.id === emb.font) ?? EMBROIDERY_FONTS[0];
                 const twoLines = emb.lines === 2;
