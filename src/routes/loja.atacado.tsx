@@ -127,23 +127,29 @@ function WholesalePage() {
   const toggleCollapse = (key: string) =>
     setCollapsed((s) => ({ ...s, [key]: !s[key] }));
 
-  // Totals per subcategory
+  // Totals per subcategory (aggregating variant-level quantities)
   const catTotals = useMemo(() => {
     const m = new Map<string, { qty: number; original: number; discounted: number }>();
     for (const p of products) {
-      const q = qty[p.id] ?? 0;
-      if (q <= 0) continue;
-      const key = p.category_id ?? "__none__";
-      const original = Number(p.price) * q;
-      const discounted = original * (1 - WHOLESALE_DISCOUNT);
-      const cur = m.get(key) ?? { qty: 0, original: 0, discounted: 0 };
-      cur.qty += q;
-      cur.original += original;
-      cur.discounted += discounted;
-      m.set(key, cur);
+      const vs = variantsByProduct.get(p.id);
+      const lines = vs && vs.length > 0
+        ? vs.map((v) => ({ q: qty[keyOf(p.id, v.id)] ?? 0, unit: Number(v.price ?? p.price) }))
+        : [{ q: qty[keyOf(p.id, null)] ?? 0, unit: Number(p.price) }];
+      for (const { q, unit } of lines) {
+        if (q <= 0) continue;
+        const key = p.category_id ?? "__none__";
+        const original = unit * q;
+        const discounted = original * (1 - WHOLESALE_DISCOUNT);
+        const cur = m.get(key) ?? { qty: 0, original: 0, discounted: 0 };
+        cur.qty += q;
+        cur.original += original;
+        cur.discounted += discounted;
+        m.set(key, cur);
+      }
     }
     return m;
-  }, [qty, products]);
+  }, [qty, products, variantsByProduct]);
+
 
   const selectedCats = [...catTotals.entries()];
   const totalQty = selectedCats.reduce((a, [, v]) => a + v.qty, 0);
