@@ -1054,9 +1054,11 @@ export type Database = {
       custom_shop_patch_slots: {
         Row: {
           created_at: string
+          h_pct: number | null
           id: string
           key: string
           label: string
+          rotation_deg: number
           sort_order: number
           template_id: string
           variant_key: string
@@ -1066,9 +1068,11 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          h_pct?: number | null
           id?: string
           key: string
           label: string
+          rotation_deg?: number
           sort_order?: number
           template_id: string
           variant_key?: string
@@ -1078,9 +1082,11 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          h_pct?: number | null
           id?: string
           key?: string
           label?: string
+          rotation_deg?: number
           sort_order?: number
           template_id?: string
           variant_key?: string
@@ -1223,6 +1229,7 @@ export type Database = {
           key: string
           label: string
           mask_image_url: string | null
+          rotation_deg: number
           solid: boolean
           sort_order: number
           template_id: string
@@ -1239,6 +1246,7 @@ export type Database = {
           key: string
           label: string
           mask_image_url?: string | null
+          rotation_deg?: number
           solid?: boolean
           sort_order?: number
           template_id: string
@@ -1255,6 +1263,7 @@ export type Database = {
           key?: string
           label?: string
           mask_image_url?: string | null
+          rotation_deg?: number
           solid?: boolean
           sort_order?: number
           template_id?: string
