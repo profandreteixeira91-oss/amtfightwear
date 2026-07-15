@@ -98,8 +98,12 @@ const BELT_PRESETS: Record<string, typeof JUDO_PRESETS> = {
 // Coloração (revestimento externo) — opções fixas para faixa
 const COLORING_OPTIONS: { name: string; price_delta: number }[] = [
   { name: "Oxford 100% poliéster", price_delta: 0 },
-  { name: "Brim 100% algodão", price_delta: 0 },
+  { name: "Brim 100% algodão", price_delta: 25 },
 ];
+
+// Preços da faixa
+const FAIXA_BORDADO_FEE = 10; // por bordado
+const FAIXA_ETIQUETA_CUSTOM_FEE = 2; // etiqueta com imagem enviada
 
 // Fontes de bordado disponíveis para o cliente escolher
 const EMBROIDERY_FONTS: { id: string; label: string; family: string; weight: number; style: "normal" | "italic" }[] = [
@@ -366,9 +370,11 @@ function BuilderPage() {
         })),
     [embroiderySlots, embroideries],
   );
-  const embroideryFee = activeEmbroideries.length * 39;
+  const embroideryFee = activeEmbroideries.length * (isFaixa ? FAIXA_BORDADO_FEE : 39);
   const fabricDelta = selectedFabric ? Number(selectedFabric.price_delta) : 0;
-  const unitPrice = Number(template.base_price) + fabricDelta + patchesTotal + embroideryFee;
+  const coloringDelta = isFaixa ? (COLORING_OPTIONS.find((c) => c.name === coloring)?.price_delta ?? 0) : 0;
+  const labelFee = isFaixa && labelChoice === "custom" && labelImage ? FAIXA_ETIQUETA_CUSTOM_FEE : 0;
+  const unitPrice = Number(template.base_price) + fabricDelta + coloringDelta + patchesTotal + embroideryFee + labelFee;
 
   function togglePatch(slotKey: string, patchId: string) {
     setSlotPatches((prev) => {
@@ -914,7 +920,7 @@ function BuilderPage() {
                                 ))}
                               </div>
                             </div>
-                            <div className="text-xs font-bold text-primary">Taxa de bordado: + {formatBRL(39)}</div>
+                            <div className="text-xs font-bold text-primary">Taxa de bordado: + {formatBRL(isFaixa ? FAIXA_BORDADO_FEE : 39)}</div>
                           </>
                         )}
                         {/* Preview inline da fonte selecionada */}
@@ -966,7 +972,7 @@ function BuilderPage() {
                         labelChoice === "custom" ? "border-primary bg-primary/5 text-primary" : "hover:border-foreground/40"
                       }`}
                     >
-                      Personalizada
+                      Personalizada <span className="text-primary">+ {formatBRL(FAIXA_ETIQUETA_CUSTOM_FEE)}</span>
                       <div className="mt-1 text-[10px] font-normal text-muted-foreground">Envie sua imagem</div>
                     </button>
                   </div>
@@ -995,8 +1001,14 @@ function BuilderPage() {
               <div className="space-y-1 text-sm">
                 <div className="flex justify-between"><span>Base ({template.name})</span><span>{formatBRL(Number(template.base_price))}</span></div>
                 {fabricDelta > 0 && <div className="flex justify-between"><span>{selectedFabric?.name}</span><span>+ {formatBRL(fabricDelta)}</span></div>}
-                {isFaixa && <div className="flex justify-between"><span>Coloração</span><span>{coloring}</span></div>}
-                {embroideryFee > 0 && <div className="flex justify-between"><span>Bordado</span><span>+ {formatBRL(embroideryFee)}</span></div>}
+                {isFaixa && (
+                  <div className="flex justify-between">
+                    <span>Coloração ({coloring})</span>
+                    <span>{coloringDelta === 0 ? "Incluso" : `+ ${formatBRL(coloringDelta)}`}</span>
+                  </div>
+                )}
+                {embroideryFee > 0 && <div className="flex justify-between"><span>Bordado ({activeEmbroideries.length}×)</span><span>+ {formatBRL(embroideryFee)}</span></div>}
+                {labelFee > 0 && <div className="flex justify-between"><span>Etiqueta personalizada</span><span>+ {formatBRL(labelFee)}</span></div>}
               </div>
               <div className="mt-3 flex justify-between border-t pt-3 text-base font-black">
                 <span>Total</span><span>{formatBRL(unitPrice)}</span>
