@@ -247,9 +247,10 @@ export const createStoreOrder = createServerFn({ method: "POST" })
 
     if (error || !order) throw new Error(error?.message ?? "Erro ao criar pedido");
 
+    const insertPayload = orderItems.map((oi) => ({ ...oi, order_id: order.id })) as never;
     const { error: itemsErr } = await supabaseAdmin
       .from("store_order_items")
-      .insert(orderItems.map((oi) => ({ ...oi, order_id: order.id })));
+      .insert(insertPayload);
     if (itemsErr) throw new Error(itemsErr.message);
 
     return { id: order.id, order_number: order.order_number, total: order.total };
