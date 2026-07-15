@@ -22,7 +22,7 @@ export type CustomConfig = {
   coloring?: { name: string; price_delta: number } | null;
   modality?: string | null;
   logo_image?: { data_url: string; filename: string } | null;
-  label_image?: { data_url: string; filename: string } | null;
+  label_image?: { data_url: string; filename: string; bg_color?: string } | null;
   label_choice?: "padrao" | "custom" | null;
 };
 
