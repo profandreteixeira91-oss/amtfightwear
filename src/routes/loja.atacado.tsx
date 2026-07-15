@@ -638,13 +638,14 @@ function WholesalePage() {
                       )}
                     </section>
                   );
-                })}
-              {grouped.length === 0 && (
-                <div className="rounded-xl border bg-card p-12 text-center text-muted-foreground">
-                  Nenhum produto disponível no momento.
-                </div>
+                          })}
+                      </>
+                    );
+                  })()}
+                </>
               )}
             </div>
+
           ) : (
             <form onSubmit={submit} className="space-y-4">
               <div className="rounded-xl border bg-card p-5">
