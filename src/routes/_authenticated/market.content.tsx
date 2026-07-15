@@ -154,45 +154,89 @@ function ContentPage() {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
 
-        <SectionCard title="Briefing">
+        <SectionCard title="Briefing" description="Escolha o tipo de conteúdo — nem toda postagem precisa ser sobre produto.">
           {isLoading ? (
             <Skeleton className="h-64" />
-          ) : (products?.length ?? 0) === 0 ? (
-            <EmptyState title="Nenhum produto disponível" description="Importe o catálogo antes de gerar conteúdo." />
           ) : (
             <div className="space-y-4">
               <div>
-                <Label>Produto em destaque</Label>
-                <Select value={productId} onValueChange={(v) => { setProductId(v); const p = products?.find(x => x.id === v); if (p?.image_url) setImageUrl(p.image_url); }}>
-                  <SelectTrigger><SelectValue placeholder="Selecione um produto" /></SelectTrigger>
-                  <SelectContent className="max-h-80">
-                    {grouped.map(([cat, items]) => (
-                      <div key={cat}>
-                        <div className="px-2 py-1 text-[10px] font-semibold uppercase text-muted-foreground">{cat}</div>
-                        {items.map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
-                      </div>
-                    ))}
+                <Label>Tipo de conteúdo</Label>
+                <Select value={contentType} onValueChange={(v) => setContentType(v as typeof contentType)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="product">🛒 Produto — divulgar item específico</SelectItem>
+                    <SelectItem value="category">📦 Categoria / coleção</SelectItem>
+                    <SelectItem value="motivational">🔥 Motivacional — mentalidade de tatame</SelectItem>
+                    <SelectItem value="educational">🎓 Educativo — dica técnica, história, glossário</SelectItem>
+                    <SelectItem value="athlete">🥋 Atleta / comunidade em destaque</SelectItem>
+                    <SelectItem value="event">📅 Evento / competição / lançamento</SelectItem>
+                    <SelectItem value="behind">🎬 Bastidores / processo AMT</SelectItem>
+                    <SelectItem value="brand_story">🏆 História da marca</SelectItem>
+                    <SelectItem value="engagement">💬 Engajamento — pergunta / enquete</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {(contentType === "product" || contentType === "category") ? (
+                (products?.length ?? 0) === 0 ? (
+                  <EmptyState title="Nenhum produto disponível" description="Importe o catálogo para postagens de produto." />
+                ) : (
+                  <div>
+                    <Label>Produto {productRequired ? "*" : "(opcional)"}</Label>
+                    <Select value={productId} onValueChange={(v) => { setProductId(v); const p = products?.find(x => x.id === v); if (p?.image_url) setImageUrl(p.image_url); }}>
+                      <SelectTrigger><SelectValue placeholder="Selecione um produto" /></SelectTrigger>
+                      <SelectContent className="max-h-80">
+                        {grouped.map(([cat, items]) => (
+                          <div key={cat}>
+                            <div className="px-2 py-1 text-[10px] font-semibold uppercase text-muted-foreground">{cat}</div>
+                            {items.map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                          </div>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )
+              ) : (
+                <div>
+                  <Label>Tema / mote (opcional)</Label>
+                  <Input
+                    value={topic}
+                    onChange={(e) => setTopic(e.target.value)}
+                    placeholder="Ex.: disciplina no treino, primeira faixa preta, respeito ao oponente"
+                  />
+                </div>
+              )}
+
+              <div>
+                <Label>Público / objetivo comercial</Label>
+                <Select value={objective} onValueChange={(v) => setObjective(v as "atacado" | "varejo")}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="varejo">Aluno / praticante (varejo)</SelectItem>
+                    <SelectItem value="atacado">Professor / academia (atacado)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <Label>Objetivo</Label>
-                <Select value={objective} onValueChange={(v) => setObjective(v as "atacado" | "varejo")}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="atacado">Atacado para Professores / Academias</SelectItem>
-                    <SelectItem value="varejo">Venda Direta para Aluno</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label>Call to action desejado (opcional)</Label>
+                <Input
+                  value={callToAction}
+                  onChange={(e) => setCallToAction(e.target.value)}
+                  placeholder="Ex.: marca um amigo, comenta sua faixa, visita o site, chama no WhatsApp"
+                />
               </div>
 
               <div>
                 <Label>Instruções extras (opcional)</Label>
-                <Textarea rows={3} value={extra} onChange={(e) => setExtra(e.target.value)} placeholder="Ex.: foco em graduação, mencionar frete grátis..." />
+                <Textarea rows={3} value={extra} onChange={(e) => setExtra(e.target.value)} placeholder="Ex.: foco em graduação, mencionar frete grátis, tom mais direto..." />
               </div>
 
-              <Button className="w-full gap-2" disabled={!productId || mut.isPending} onClick={() => mut.mutate()}>
+              <Button
+                className="w-full gap-2"
+                disabled={mut.isPending || (productRequired && !productId)}
+                onClick={() => mut.mutate()}
+              >
                 {mut.isPending ? <><Loader2 className="h-4 w-4 animate-spin" /> Gerando com IA...</> : <><Sparkles className="h-4 w-4" /> Gerar copies</>}
               </Button>
             </div>
