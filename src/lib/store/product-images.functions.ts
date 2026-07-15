@@ -70,22 +70,49 @@ export const migrateProductImagesBatch = createServerFn({ method: "POST" })
     let ok = 0;
     let failed = 0;
 
+    // Try fetching the URL. If Tiendanube's resized variant (e.g. "-1024-0.webp")
+    // returns 403, fall back to the original by stripping the size suffix and
+    // trying common extensions.
+    async function fetchImage(originalUrl: string): Promise<{ buf: ArrayBuffer; contentType: string; ext: string }> {
+      const attempts: string[] = [originalUrl];
+      const m = originalUrl.match(/^(.*?)-\d+-\d+\.(webp|jpe?g|png|gif|avif)(\?.*)?$/i);
+      if (m) {
+        const base = m[1];
+        for (const ext of ["png", "jpg", "jpeg", "webp"]) {
+          const candidate = `${base}.${ext}`;
+          if (!attempts.includes(candidate)) attempts.push(candidate);
+        }
+      }
+      let lastErr = "";
+      for (const u of attempts) {
+        const r = await fetch(u, {
+          headers: {
+            "User-Agent": "Mozilla/5.0 (compatible; LovableImageMigrator/1.0)",
+            "Accept": "image/webp,image/avif,image/*,*/*;q=0.8",
+          },
+        });
+        if (r.ok) {
+          const ct = r.headers.get("content-type") ?? "image/jpeg";
+          return { buf: await r.arrayBuffer(), contentType: ct, ext: extFromContentType(ct, u) };
+        }
+        lastErr = `fetch ${r.status}`;
+      }
+      throw new Error(lastErr || "fetch failed");
+    }
+
     for (const row of rows) {
       try {
         if (!row.url || !/^https?:\/\//i.test(row.url)) {
           throw new Error("URL inválida");
         }
-        const res = await fetch(row.url);
-        if (!res.ok) throw new Error(`fetch ${res.status}`);
-        const contentType = res.headers.get("content-type") ?? "image/jpeg";
-        const ext = extFromContentType(contentType, row.url);
-        const buf = await res.arrayBuffer();
+        const { buf, contentType, ext } = await fetchImage(row.url);
         const path = `${row.product_id}/${row.id}.${ext}`;
 
         const { error: upErr } = await supabaseAdmin.storage
           .from(BUCKET)
           .upload(path, buf, { contentType, upsert: true });
         if (upErr) throw new Error(upErr.message);
+
 
         const { data: pub } = supabaseAdmin.storage.from(BUCKET).getPublicUrl(path);
         const newUrl = pub.publicUrl;
