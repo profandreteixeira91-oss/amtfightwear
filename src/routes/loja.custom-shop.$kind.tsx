@@ -113,6 +113,15 @@ const COLORING_OPTIONS: { name: string; price_delta: number }[] = [
 const FAIXA_BORDADO_FEE = 10; // por bordado
 const FAIXA_ETIQUETA_CUSTOM_FEE = 2; // etiqueta com imagem enviada
 
+// Kimono: técnicas de aplicação do patch (preços serão personalizados depois)
+const KIMONO_TECHNIQUES: { id: "bordado" | "sublimado" | "dtf"; label: string; hint: string; price: number }[] = [
+  { id: "bordado",   label: "Bordado",                    hint: "Fio bordado sobre o tecido",  price: 0 },
+  { id: "sublimado", label: "Patch Reforçado Sublimado",  hint: "Patch costurado sublimado",   price: 0 },
+  { id: "dtf",       label: "DTF",                        hint: "Transfer DTF prensado",       price: 0 },
+];
+const KIMONO_BORDADO_NOME_FEE = 10;
+
+
 // Fontes de bordado disponíveis para o cliente escolher
 const EMBROIDERY_FONTS: { id: string; label: string; family: string; weight: number; style: "normal" | "italic" }[] = [
   { id: "classica", label: "Clássica", family: "Georgia, 'Times New Roman', serif", weight: 700, style: "italic" },
