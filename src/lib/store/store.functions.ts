@@ -205,7 +205,7 @@ export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => z.object({ id: z.string().uuid(), status: z.string(), payment_status: z.string().optional() }).parse(i))
   .handler(async ({ data, context }) => {
-    const patch: Record<string, unknown> = { status: data.status };
+    const patch: { status: string; payment_status?: string } = { status: data.status };
     if (data.payment_status) patch.payment_status = data.payment_status;
     const { error } = await context.supabase.from("store_orders").update(patch).eq("id", data.id);
     if (error) throw new Error(error.message);
