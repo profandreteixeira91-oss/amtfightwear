@@ -340,6 +340,7 @@ function BuilderPage() {
   const selectedFabric = fabrics.find((f) => f.id === fabricId) ?? null;
 
   const beltPreset = useMemo(() => {
+    if (!isFaixa) return null;
     const presets = BELT_PRESETS[variantKey];
     if (!presets) return null;
     return (
@@ -351,7 +352,8 @@ function BuilderPage() {
           zoneColors.ponta_inf === p.tip,
       ) ?? null
     );
-  }, [variantKey, zoneColors]);
+  }, [isFaixa, variantKey, zoneColors]);
+
 
   const kimonoPreset = useMemo(() => {
     if (!isKimono) return null;
