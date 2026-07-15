@@ -263,6 +263,8 @@ function BuilderPage() {
     color: string;
     image: { data_url: string; filename: string } | null;
     position: { x: number; y: number } | null;
+    scale: number;
+    rotation: number;
   }>>({});
   const [activeZone, setActiveZone] = useState<string>(zones[0]?.key ?? "");
   const isFaixa = template.kind === "faixa";
@@ -356,7 +358,9 @@ function BuilderPage() {
           font: e!.mode === "text" ? e!.font : null,
           lines: e!.mode === "text" ? e!.lines : null,
           image: e!.mode === "logo" ? e!.image : null,
-          position: e!.mode === "logo" ? e!.position : null,
+          position: e!.position,
+          scale: e!.scale,
+          rotation: e!.rotation,
           color: e!.color,
         })),
     [embroiderySlots, embroideries],
@@ -713,6 +717,8 @@ function BuilderPage() {
                       color: "#ffffff",
                       image: null as { data_url: string; filename: string } | null,
                       position: null as { x: number; y: number } | null,
+                      scale: 1,
+                      rotation: 0,
                     };
                     const entry = embroideries[s.key] ?? defaults;
                     const setEntry = (patch: Partial<typeof entry>) =>
@@ -818,9 +824,9 @@ function BuilderPage() {
 
                         {active && (
                           <div className="space-y-2">
-                            <div className="text-xs font-semibold text-muted-foreground">Posição do bordado</div>
+                            <div className="text-xs font-semibold text-muted-foreground">Posição, tamanho e rotação</div>
                             <div className="flex items-center gap-2 text-[11px]">
-                              <span className="w-6 text-muted-foreground">X</span>
+                              <span className="w-10 text-muted-foreground">X</span>
                               <input
                                 type="range"
                                 min={0}
@@ -830,10 +836,10 @@ function BuilderPage() {
                                 onChange={(e) => setEntry({ position: { x: Number(e.target.value), y: pos.y } })}
                                 className="flex-1"
                               />
-                              <span className="w-8 text-right tabular-nums">{Math.round(pos.x)}%</span>
+                              <span className="w-10 text-right tabular-nums">{Math.round(pos.x)}%</span>
                             </div>
                             <div className="flex items-center gap-2 text-[11px]">
-                              <span className="w-6 text-muted-foreground">Y</span>
+                              <span className="w-10 text-muted-foreground">Y</span>
                               <input
                                 type="range"
                                 min={0}
@@ -843,17 +849,44 @@ function BuilderPage() {
                                 onChange={(e) => setEntry({ position: { x: pos.x, y: Number(e.target.value) } })}
                                 className="flex-1"
                               />
-                              <span className="w-8 text-right tabular-nums">{Math.round(pos.y)}%</span>
+                              <span className="w-10 text-right tabular-nums">{Math.round(pos.y)}%</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-[11px]">
+                              <span className="w-10 text-muted-foreground">Tam.</span>
+                              <input
+                                type="range"
+                                min={0.3}
+                                max={3}
+                                step={0.05}
+                                value={entry.scale}
+                                onChange={(e) => setEntry({ scale: Number(e.target.value) })}
+                                className="flex-1"
+                              />
+                              <span className="w-10 text-right tabular-nums">{Math.round(entry.scale * 100)}%</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-[11px]">
+                              <span className="w-10 text-muted-foreground">Rot.</span>
+                              <input
+                                type="range"
+                                min={-180}
+                                max={180}
+                                step={1}
+                                value={entry.rotation}
+                                onChange={(e) => setEntry({ rotation: Number(e.target.value) })}
+                                className="flex-1"
+                              />
+                              <span className="w-10 text-right tabular-nums">{Math.round(entry.rotation)}°</span>
                             </div>
                             <button
                               type="button"
-                              onClick={() => setEntry({ position: null })}
+                              onClick={() => setEntry({ position: null, scale: 1, rotation: 0 })}
                               className="text-[10px] text-muted-foreground underline hover:text-primary"
                             >
-                              Restaurar posição padrão
+                              Restaurar padrão
                             </button>
                           </div>
                         )}
+
 
                         {active && (
                           <>
@@ -1013,6 +1046,8 @@ function BuilderPreview({
     lines: 1 | 2 | null;
     image: { data_url: string; filename: string } | null;
     position: { x: number; y: number } | null;
+    scale?: number | null;
+    rotation?: number | null;
     color: string;
   }>;
   labelImage?: { data_url: string; filename: string; bg_color?: string } | null;
@@ -1126,7 +1161,7 @@ function BuilderPreview({
           );
         })()}
 
-        {/* Embroideries — text (with font/lines) OR logo (with custom position) per bordado slot */}
+        {/* Embroideries — text (with font/lines) OR logo (with custom position/size/rotation) per bordado slot */}
         {embroideries.map((emb) => {
           const slot = slots.find((s) => s.key === emb.slot_key);
           if (!slot) return null;
@@ -1134,15 +1169,19 @@ function BuilderPreview({
           const h = slot.h_pct;
           const cx = emb.position?.x ?? slot.x_pct;
           const cy = emb.position?.y ?? slot.y_pct;
-          const rot = slot.rotation_deg || 0;
+          const slotRot = slot.rotation_deg || 0;
+          const userRot = emb.rotation ?? 0;
+          const scale = emb.scale ?? 1;
+          const totalRot = slotRot + userRot;
+          const transform = `translate(${cx} ${cy}) rotate(${totalRot}) scale(${scale})`;
           return (
-            <g key={emb.slot_key} transform={rot ? `rotate(${rot} ${cx} ${cy})` : undefined}>
+            <g key={emb.slot_key} transform={transform}>
               {emb.mode === "logo" && emb.image && (
                 <g style={{ filter: "drop-shadow(0 0.15px 0.2px rgba(0,0,0,0.45))" }}>
                   <image
                     href={emb.image.data_url}
-                    x={cx - w / 2}
-                    y={cy - h / 2}
+                    x={-w / 2}
+                    y={-h / 2}
                     width={w}
                     height={h}
                     preserveAspectRatio="xMidYMid meet"
@@ -1156,10 +1195,10 @@ function BuilderPreview({
                 const parts = twoLines ? splitTwoLines(emb.text) : [emb.text, ""];
                 const fontSize = Math.max(2.4, w * (twoLines ? 0.28 : 0.35));
                 const lineGap = fontSize * 1.05;
-                const yBase = cy + fontSize * 0.35;
+                const yBase = fontSize * 0.35;
                 return (
                   <text
-                    x={cx}
+                    x={0}
                     y={twoLines ? yBase - lineGap / 2 : yBase}
                     textAnchor="middle"
                     fontFamily={font.family}
@@ -1174,8 +1213,8 @@ function BuilderPreview({
                   >
                     {twoLines ? (
                       <>
-                        <tspan x={cx} dy={0}>{parts[0]}</tspan>
-                        <tspan x={cx} dy={lineGap}>{parts[1]}</tspan>
+                        <tspan x={0} dy={0}>{parts[0]}</tspan>
+                        <tspan x={0} dy={lineGap}>{parts[1]}</tspan>
                       </>
                     ) : (
                       emb.text
