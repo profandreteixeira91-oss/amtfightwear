@@ -648,8 +648,8 @@ function BuilderPreview({
       >
         {/* Zones */}
         {zones.map((z) => {
-          const color = zoneColors[z.key] ?? z.default_hex;
-          if (!color) return null;
+          const color = zoneColors[z.key];
+          if (!color) return null; // transparent by default
           return (
             <rect
               key={z.key}
