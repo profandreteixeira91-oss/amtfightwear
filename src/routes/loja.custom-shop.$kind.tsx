@@ -491,6 +491,23 @@ const BASE_IMAGES: Record<string, string> = {
   faixa: faixaBase,
 };
 
+// Judo faixa — two horizontal belts stacked (padded square 1280x1280 base).
+const JUDO_FAIXA_ZONES: ZonePath[] = [
+  // corpo — bodies of both belts (top belt without its right tip; bottom belt without its left tip)
+  { key: "corpo", d: "M 0 30.7 L 78 30.7 L 78 45.5 L 0 45.5 Z M 15 52.6 L 100 52.6 L 100 69.4 L 15 69.4 Z" },
+  // ponta — the two rounded tips (top-right + bottom-left)
+  { key: "ponta", d: "M 78 30.7 L 84 30.7 L 84 45.5 L 78 45.5 Z M 7 52.6 L 15 52.6 L 15 69.4 L 7 69.4 Z" },
+];
+
+// Judo has two belts — put the labeled tip on the top-right belt end.
+function remapJudoSlots(slots: Slot[]): Slot[] {
+  return slots.map((s) =>
+    s.key === "ponta" ? { ...s, x_pct: 81, y_pct: 38, w_pct: 12 } : s,
+  );
+}
+
+
+
 function BuilderPreview({
   kind,
   zoneColors,
