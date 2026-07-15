@@ -1475,12 +1475,12 @@ function AdminLayoutPanel({
               <div key={s.key} className="rounded border bg-background p-2 text-xs">
                 <div className="mb-1 font-semibold">{s.label}</div>
                 <div className="grid grid-cols-3 gap-1">
-                  {(["x_pct", "y_pct", "w_pct"] as const).map((f) => (
+                  {(["x_pct", "y_pct", "w_pct", "h_pct", "rotation_deg"] as const).map((f) => (
                     <label key={f} className="flex flex-col text-[10px] text-muted-foreground">
-                      {f.replace("_pct", "").toUpperCase()}
+                      {f === "rotation_deg" ? "ROT°" : f.replace("_pct", "").toUpperCase()}
                       <input
                         type="number"
-                        step={0.1}
+                        step={f === "rotation_deg" ? 1 : 0.1}
                         value={s[f]}
                         onChange={(e) => {
                           const next = slots.slice();
