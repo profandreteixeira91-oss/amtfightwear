@@ -395,7 +395,16 @@ function BuilderPage() {
                     >
                       <span
                         className="inline-block h-4 w-4 rounded-full border border-foreground/20"
-                        style={{ background: zoneColors[z.key] }}
+                        style={
+                          zoneColors[z.key]
+                            ? { background: zoneColors[z.key] }
+                            : {
+                                backgroundImage:
+                                  "linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)",
+                                backgroundSize: "6px 6px",
+                                backgroundPosition: "0 0, 0 3px, 3px -3px, -3px 0",
+                              }
+                        }
                       />
                       {z.label}
                     </button>
