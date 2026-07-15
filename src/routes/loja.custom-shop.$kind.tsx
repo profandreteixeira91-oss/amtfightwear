@@ -439,6 +439,13 @@ function BuilderPage() {
                 embroideries={activeEmbroideries}
                 labelImage={isFaixa ? labelImage : null}
                 beltPresetImage={beltPreset?.image ?? null}
+                onEmbroideryChange={(slotKey, patch) =>
+                  setEmbroideries((prev) => {
+                    const cur = prev[slotKey];
+                    if (!cur) return prev;
+                    return { ...prev, [slotKey]: { ...cur, ...patch } };
+                  })
+                }
               />
               {editMode && (
                 <LayoutEditorOverlay
