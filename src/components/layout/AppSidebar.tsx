@@ -38,6 +38,7 @@ import {
   Store,
   ShoppingCart,
   Download as DownloadIcon,
+  Truck,
 } from "lucide-react";
 
 import {
