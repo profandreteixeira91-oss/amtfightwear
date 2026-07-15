@@ -272,9 +272,10 @@ function BuilderPage() {
   const [coloring, setColoring] = useState<string>(COLORING_OPTIONS[0].name);
 
   useEffect(() => {
-    // Judô: seleciona a primeira faixa (Branca) por padrão para já exibir a imagem real do produto.
-    if (variantKey === "judo") {
-      const p = JUDO_PRESETS[0];
+    // Faixa: seleciona o primeiro preset por padrão para já exibir a imagem real do produto.
+    const presets = BELT_PRESETS[variantKey];
+    if (presets && presets.length > 0) {
+      const p = presets[0];
       setZoneColors({
         corpo_sup: p.body,
         corpo_inf: p.body,
