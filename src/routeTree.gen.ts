@@ -34,6 +34,7 @@ import { Route as AuthenticatedProspectIndexRouteImport } from './routes/_authen
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as LojaProdutoSlugRouteImport } from './routes/loja.produto.$slug'
 import { Route as LojaPedidoIdRouteImport } from './routes/loja.pedido.$id'
+import { Route as LojaCustomShopKindRouteImport } from './routes/loja.custom-shop.$kind'
 import { Route as LojaCategoriaSlugRouteImport } from './routes/loja.categoria.$slug'
 import { Route as AuthenticatedStoreShippingRouteImport } from './routes/_authenticated/store.shipping'
 import { Route as AuthenticatedStoreProductsRouteImport } from './routes/_authenticated/store.products'
@@ -215,6 +216,11 @@ const LojaProdutoSlugRoute = LojaProdutoSlugRouteImport.update({
 const LojaPedidoIdRoute = LojaPedidoIdRouteImport.update({
   id: '/loja/pedido/$id',
   path: '/loja/pedido/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaCustomShopKindRoute = LojaCustomShopKindRouteImport.update({
+  id: '/loja/custom-shop/$kind',
+  path: '/loja/custom-shop/$kind',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LojaCategoriaSlugRoute = LojaCategoriaSlugRouteImport.update({
@@ -607,6 +613,7 @@ export interface FileRoutesByFullPath {
   '/store/products': typeof AuthenticatedStoreProductsRoute
   '/store/shipping': typeof AuthenticatedStoreShippingRoute
   '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
+  '/loja/custom-shop/$kind': typeof LojaCustomShopKindRoute
   '/loja/pedido/$id': typeof LojaPedidoIdRoute
   '/loja/produto/$slug': typeof LojaProdutoSlugRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
@@ -690,6 +697,7 @@ export interface FileRoutesByTo {
   '/store/products': typeof AuthenticatedStoreProductsRoute
   '/store/shipping': typeof AuthenticatedStoreShippingRoute
   '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
+  '/loja/custom-shop/$kind': typeof LojaCustomShopKindRoute
   '/loja/pedido/$id': typeof LojaPedidoIdRoute
   '/loja/produto/$slug': typeof LojaProdutoSlugRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
@@ -775,6 +783,7 @@ export interface FileRoutesById {
   '/_authenticated/store/products': typeof AuthenticatedStoreProductsRoute
   '/_authenticated/store/shipping': typeof AuthenticatedStoreShippingRoute
   '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
+  '/loja/custom-shop/$kind': typeof LojaCustomShopKindRoute
   '/loja/pedido/$id': typeof LojaPedidoIdRoute
   '/loja/produto/$slug': typeof LojaProdutoSlugRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
@@ -860,6 +869,7 @@ export interface FileRouteTypes {
     | '/store/products'
     | '/store/shipping'
     | '/loja/categoria/$slug'
+    | '/loja/custom-shop/$kind'
     | '/loja/pedido/$id'
     | '/loja/produto/$slug'
     | '/lovable/email/suppression'
@@ -943,6 +953,7 @@ export interface FileRouteTypes {
     | '/store/products'
     | '/store/shipping'
     | '/loja/categoria/$slug'
+    | '/loja/custom-shop/$kind'
     | '/loja/pedido/$id'
     | '/loja/produto/$slug'
     | '/lovable/email/suppression'
@@ -1027,6 +1038,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/products'
     | '/_authenticated/store/shipping'
     | '/loja/categoria/$slug'
+    | '/loja/custom-shop/$kind'
     | '/loja/pedido/$id'
     | '/loja/produto/$slug'
     | '/lovable/email/suppression'
@@ -1065,6 +1077,7 @@ export interface RootRouteChildren {
   LojaCheckoutRoute: typeof LojaCheckoutRoute
   LojaIndexRoute: typeof LojaIndexRoute
   LojaCategoriaSlugRoute: typeof LojaCategoriaSlugRoute
+  LojaCustomShopKindRoute: typeof LojaCustomShopKindRoute
   LojaPedidoIdRoute: typeof LojaPedidoIdRoute
   LojaProdutoSlugRoute: typeof LojaProdutoSlugRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
@@ -1261,6 +1274,13 @@ declare module '@tanstack/react-router' {
       path: '/loja/pedido/$id'
       fullPath: '/loja/pedido/$id'
       preLoaderRoute: typeof LojaPedidoIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja/custom-shop/$kind': {
+      id: '/loja/custom-shop/$kind'
+      path: '/loja/custom-shop/$kind'
+      fullPath: '/loja/custom-shop/$kind'
+      preLoaderRoute: typeof LojaCustomShopKindRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/loja/categoria/$slug': {
@@ -1810,6 +1830,7 @@ const rootRouteChildren: RootRouteChildren = {
   LojaCheckoutRoute: LojaCheckoutRoute,
   LojaIndexRoute: LojaIndexRoute,
   LojaCategoriaSlugRoute: LojaCategoriaSlugRoute,
+  LojaCustomShopKindRoute: LojaCustomShopKindRoute,
   LojaPedidoIdRoute: LojaPedidoIdRoute,
   LojaProdutoSlugRoute: LojaProdutoSlugRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,

@@ -42,12 +42,27 @@ function CartPage() {
         ) : (
           <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
             <div className="space-y-3">
-              {items.map((i) => (
-                <div key={`${i.product_id}-${i.variant_id ?? ""}`} className="flex gap-4 rounded-lg border bg-card p-3">
+              {items.map((i, idx) => (
+                <div key={`${i.product_id}-${i.variant_id ?? ""}-${idx}`} className="flex gap-4 rounded-lg border bg-card p-3">
                   <ProductImage src={i.image_url} alt={i.name} aspect="square" className="h-24 w-24 shrink-0 rounded" />
                   <div className="flex flex-1 flex-col">
-                    <Link to="/loja/produto/$slug" params={{ slug: i.slug }} className="font-semibold hover:text-primary">{i.name}</Link>
+                    {i.type === "custom" ? (
+                      <div className="font-semibold">{i.name}</div>
+                    ) : (
+                      <Link to="/loja/produto/$slug" params={{ slug: i.slug }} className="font-semibold hover:text-primary">{i.name}</Link>
+                    )}
                     {i.variant_label && <div className="text-xs text-muted-foreground">{i.variant_label}</div>}
+                    {i.type === "custom" && (
+                      <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px]">
+                        <span className="rounded bg-primary/10 px-2 py-0.5 font-semibold text-primary">Custom Shop</span>
+                        {i.production_days && (
+                          <span className="text-muted-foreground">Produção em {i.production_days} dias</span>
+                        )}
+                        {i.custom_config?.fabric?.name && (
+                          <span className="text-muted-foreground">· {i.custom_config.fabric.name}</span>
+                        )}
+                      </div>
+                    )}
                     <div className="mt-1 text-sm font-bold">{formatBRL(i.unit_price)}</div>
                     <div className="mt-auto flex items-center justify-between">
                       <div className="flex items-center rounded-md border">
@@ -64,6 +79,7 @@ function CartPage() {
                 </div>
               ))}
             </div>
+
 
             <div className="h-fit rounded-lg border bg-card p-5">
               <h2 className="mb-3 text-lg font-bold">Resumo</h2>
