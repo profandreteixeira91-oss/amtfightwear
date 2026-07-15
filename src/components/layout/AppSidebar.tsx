@@ -118,6 +118,7 @@ const storeItems = [
   { title: "Produtos", url: "/store/products", icon: Package },
   { title: "Pedidos", url: "/store/orders", icon: ShoppingCart },
   { title: "Envio (Melhor Envio)", url: "/store/shipping", icon: Truck },
+  { title: "Imagens dos produtos", url: "/store/imagens", icon: ImageIcon },
   { title: "Importar catálogo", url: "/store/import", icon: DownloadIcon },
 ] as const;
 
