@@ -222,6 +222,7 @@ function BuilderPage() {
   const { data: categories } = useSuspenseQuery(catsQuery);
   const navigate = useNavigate();
   const addToCart = useCart((s) => s.add);
+  const previewRef = useRef<HTMLDivElement | null>(null);
   const queryClient = useQueryClient();
 
   // Admin detection
