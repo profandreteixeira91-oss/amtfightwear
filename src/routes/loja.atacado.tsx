@@ -285,9 +285,9 @@ function WholesalePage() {
         <div>
           {step === "cart" ? (
             <div className="space-y-6">
-              {/* Search + subcategory chips */}
-              <div className="sticky top-[calc(var(--header-h,140px))] z-10 space-y-3 rounded-xl border bg-card/95 p-3 backdrop-blur">
-                <div className="flex items-center gap-2 rounded-md border bg-background px-3">
+              {/* Search + subcategory dropdown */}
+              <div className="sticky top-[calc(var(--header-h,140px))] z-10 flex flex-wrap items-center gap-2 rounded-xl border bg-card/95 p-2 backdrop-blur">
+                <div className="flex min-w-[220px] flex-1 items-center gap-2 rounded-md border bg-background px-3">
                   <Search className="h-4 w-4 text-muted-foreground" />
                   <input
                     type="text"
@@ -302,39 +302,25 @@ function WholesalePage() {
                     </button>
                   )}
                 </div>
-                <div className="flex flex-wrap gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => setActiveCatFilter(null)}
-                    className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
-                      activeCatFilter === null ? "border-primary bg-primary text-primary-foreground" : "hover:border-primary hover:text-primary"
-                    }`}
-                  >
-                    Todas ({products.length})
-                  </button>
+                <select
+                  value={activeCatFilter ?? ""}
+                  onChange={(e) => setActiveCatFilter(e.target.value || null)}
+                  className="min-w-[200px] rounded-md border bg-background px-3 py-2 text-sm font-semibold outline-none focus:border-primary"
+                >
+                  <option value="">Todas as subcategorias ({products.length})</option>
                   {grouped.map(([key, g]) => {
                     const totals = catTotals.get(key);
-                    const active = activeCatFilter === key;
+                    const name = g.cat?.name ?? "Sem categoria";
                     return (
-                      <button
-                        key={key}
-                        type="button"
-                        onClick={() => setActiveCatFilter(active ? null : key)}
-                        className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
-                          active ? "border-primary bg-primary text-primary-foreground" : "hover:border-primary hover:text-primary"
-                        }`}
-                      >
-                        {g.cat?.name ?? "Sem categoria"}
-                        {totals && totals.qty > 0 && (
-                          <span className={`ml-1.5 rounded-full px-1.5 py-0.5 text-[10px] ${active ? "bg-primary-foreground/20" : "bg-muted"}`}>
-                            {totals.qty}
-                          </span>
-                        )}
-                      </button>
+                      <option key={key} value={key}>
+                        {name}
+                        {totals && totals.qty > 0 ? ` · ${totals.qty} un.` : ""}
+                      </option>
                     );
                   })}
-                </div>
+                </select>
               </div>
+
 
               {grouped
                 .filter(([key]) => activeCatFilter === null || activeCatFilter === key)
