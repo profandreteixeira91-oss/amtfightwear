@@ -860,7 +860,7 @@ function BuilderPage() {
                       rotation: 0,
                       technique: (kPatch ? "bordado" : null) as "bordado" | "sublimado" | "dtf" | null,
                       size: (kPatch ? (KIMONO_PATCH_SIZES[s.key]?.default ?? null) : null) as string | null,
-                      format: (kPatch ? "quadrado" : null) as "redondo" | "quadrado" | "transparente" | null,
+                      format: (kPatch ? "transparente" : null) as "redondo" | "quadrado" | "transparente" | null,
 
 
                     };
