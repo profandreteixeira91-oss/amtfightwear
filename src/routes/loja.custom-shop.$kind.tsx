@@ -163,8 +163,18 @@ function BuilderPage() {
   const [labelChoice, setLabelChoice] = useState<"padrao" | "custom" | null>(null);
 
   useEffect(() => {
-    // Default: all zones transparent (no color) — user picks colors explicitly
-    setZoneColors({});
+    // Judô: seleciona a primeira faixa (Branca) por padrão para já exibir a imagem real do produto.
+    if (variantKey === "judo") {
+      const p = JUDO_PRESETS[0];
+      setZoneColors({
+        corpo_sup: p.body,
+        corpo_inf: p.body,
+        ponta_sup: p.tip,
+        ponta_inf: p.tip,
+      });
+    } else {
+      setZoneColors({});
+    }
     setActiveZone(zones[0]?.key ?? "");
   }, [variantKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
