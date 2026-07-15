@@ -207,6 +207,12 @@ function AdminProductsPage() {
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             className="w-64"
           />
+          <Button onClick={() => setCreatingProduct(true)}>
+            <Plus className="h-4 w-4 mr-1" /> Adicionar produto
+          </Button>
+          <Button variant="outline" onClick={() => setManagingCategories(true)}>
+            <Plus className="h-4 w-4 mr-1" /> Categorias
+          </Button>
           <Link to="/store/import"><Button variant="outline">Importar catálogo</Button></Link>
         </div>
       </div>
