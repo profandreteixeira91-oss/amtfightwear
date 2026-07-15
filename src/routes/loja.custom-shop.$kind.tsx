@@ -887,7 +887,12 @@ function BuilderPage() {
                                   <button
                                     key={t.id}
                                     type="button"
-                                    onClick={() => setEntry({ technique: t.id })}
+                                    onClick={() => {
+                                      const nextFormat = t.id === "sublimado" && (entry.format ?? "quadrado") === "transparente"
+                                        ? "quadrado"
+                                        : (entry.format ?? "quadrado");
+                                      setEntry({ technique: t.id, format: nextFormat });
+                                    }}
                                     className={`rounded-md border px-2 py-2 text-left text-xs font-semibold transition ${
                                       activeT ? "border-primary bg-primary/5 text-primary" : "hover:border-foreground/40"
                                     }`}
