@@ -602,6 +602,29 @@ function WholesalePage() {
           </div>
         </aside>
       </div>
+      {zoomImg && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setZoomImg(null)}
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/85 p-4 backdrop-blur-sm"
+        >
+          <button
+            type="button"
+            onClick={() => setZoomImg(null)}
+            className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full bg-background text-foreground shadow-lg hover:bg-accent"
+            aria-label="Fechar"
+          >
+            <X className="h-5 w-5" />
+          </button>
+          <img
+            src={zoomImg.src}
+            alt={zoomImg.alt}
+            onClick={(e) => e.stopPropagation()}
+            className="max-h-[90vh] max-w-[90vw] rounded-lg object-contain shadow-2xl"
+          />
+        </div>
+      )}
     </StoreShell>
   );
 }
