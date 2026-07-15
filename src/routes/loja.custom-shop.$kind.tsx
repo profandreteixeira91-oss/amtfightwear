@@ -240,8 +240,8 @@ function BuilderPage() {
         data: {
           template_id: template.id,
           variant_key: variantKey,
-          zones: draftZones.map((z) => ({ key: z.key, x_pct: z.x_pct, y_pct: z.y_pct, w_pct: z.w_pct, h_pct: z.h_pct, solid: z.solid })),
-          slots: draftSlots.map((s) => ({ key: s.key, x_pct: s.x_pct, y_pct: s.y_pct, w_pct: s.w_pct })),
+          zones: draftZones.map((z) => ({ key: z.key, x_pct: z.x_pct, y_pct: z.y_pct, w_pct: z.w_pct, h_pct: z.h_pct, solid: z.solid, rotation_deg: z.rotation_deg })),
+          slots: draftSlots.map((s) => ({ key: s.key, x_pct: s.x_pct, y_pct: s.y_pct, w_pct: s.w_pct, h_pct: s.h_pct, rotation_deg: s.rotation_deg })),
         },
       }),
     onSuccess: () => {
