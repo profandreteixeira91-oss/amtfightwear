@@ -868,8 +868,12 @@ function BuilderPage() {
                   {labelChoice === "custom" && (
                     <ImageUploader
                       value={labelImage}
-                      onChange={setLabelImage}
-                      hint="PNG/JPG, até 4MB — ficará pré-posicionada na ponta da faixa."
+                      onChange={async (v) => {
+                        if (!v) { setLabelImage(null); return; }
+                        const bg = await detectImageBgColor(v.data_url).catch(() => "#ffffff");
+                        setLabelImage({ ...v, bg_color: bg });
+                      }}
+                      hint="PNG/JPG, até 4MB — mantém o tamanho da etiqueta e preenche o fundo com a cor da imagem."
                     />
                   )}
                   {labelChoice === "padrao" && (
