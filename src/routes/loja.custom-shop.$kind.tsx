@@ -1139,22 +1139,35 @@ function BuilderPreview({
         className="absolute inset-0 h-full w-full"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* Embroidery texture filter — applied to text to simulate thread/stitch */}
+        {/* Embroidery texture filter — simulates thread/stitch relief */}
         <defs>
           <filter id="emb-texture" x="-20%" y="-20%" width="140%" height="140%">
-            <feTurbulence type="turbulence" baseFrequency="1.6" numOctaves="2" seed="7" result="noise" />
-            <feDisplacementMap in="SourceGraphic" in2="noise" scale="0.18" result="displaced" />
-            <feGaussianBlur in="displaced" stdDeviation="0.02" result="soft" />
-            <feSpecularLighting in="noise" surfaceScale="0.6" specularConstant="0.75" specularExponent="18" lightingColor="#ffffff" result="spec">
-              <feDistantLight azimuth="45" elevation="55" />
+            {/* Irregular thread edges */}
+            <feTurbulence type="fractalNoise" baseFrequency="4" numOctaves="2" seed="7" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="0.35" result="displaced" />
+            {/* Diagonal stitch stripes */}
+            <feTurbulence type="turbulence" baseFrequency="0.08 6" numOctaves="1" seed="3" result="stitches" />
+            <feColorMatrix in="stitches" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1.6 -0.4" result="stitchMask" />
+            {/* Bumpy relief lighting */}
+            <feGaussianBlur in="displaced" stdDeviation="0.08" result="soft" />
+            <feSpecularLighting in="noise" surfaceScale="1.4" specularConstant="1.1" specularExponent="22" lightingColor="#ffffff" result="spec">
+              <feDistantLight azimuth="135" elevation="60" />
             </feSpecularLighting>
-            <feComposite in="spec" in2="soft" operator="in" result="specMasked" />
+            <feComposite in="spec" in2="SourceGraphic" operator="in" result="specMasked" />
+            {/* Subtle inner shadow for depth */}
+            <feGaussianBlur in="SourceGraphic" stdDeviation="0.15" result="shadowBlur" />
+            <feOffset in="shadowBlur" dx="0.1" dy="0.15" result="shadowOff" />
+            <feComposite in="shadowOff" in2="SourceGraphic" operator="out" result="innerShadow" />
+            <feColorMatrix in="innerShadow" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.5 0" result="innerShadowDark" />
             <feMerge>
               <feMergeNode in="soft" />
+              <feMergeNode in="stitchMask" />
               <feMergeNode in="specMasked" />
+              <feMergeNode in="innerShadowDark" />
             </feMerge>
           </filter>
         </defs>
+
         {/* Zones (skip when using real product photo) */}
         {!useProductPhoto && zones.map((z) => {
           const color = zoneColors[z.key];
@@ -1291,7 +1304,8 @@ function BuilderPreview({
                     strokeWidth={0.12}
                     paintOrder="stroke fill"
                     filter="url(#emb-texture)"
-                    style={{ filter: "drop-shadow(0 0.15px 0.2px rgba(0,0,0,0.45))" }}
+                    style={{ pointerEvents: "none" }}
+
                   >
                     {twoLines ? (
                       <>
