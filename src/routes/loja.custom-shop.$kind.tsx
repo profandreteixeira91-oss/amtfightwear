@@ -1126,6 +1126,7 @@ function BuilderPreview({
         />
       )}
       <svg
+        ref={svgRef}
         viewBox="0 0 100 100"
         preserveAspectRatio="xMidYMid slice"
         className="absolute inset-0 h-full w-full"
