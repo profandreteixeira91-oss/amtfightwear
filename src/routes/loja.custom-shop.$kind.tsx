@@ -466,7 +466,7 @@ function BuilderPage() {
                 patches={patches}
                 embroideries={activeEmbroideries}
                 labelImage={isFaixa ? labelImage : null}
-                beltPresetImage={beltPreset?.image ?? null}
+                beltPresetImage={beltPreset?.image ?? kimonoPreset?.image ?? null}
                 onEmbroideryChange={(slotKey, patch) =>
                   setEmbroideries((prev) => {
                     const cur = prev[slotKey];
