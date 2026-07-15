@@ -1419,8 +1419,8 @@ function BuilderPreview({
   // Quando temos a foto real do produto (preset selecionado), não tinta zonas.
   const useProductPhoto = Boolean(beltPresetImage);
   const svgRef = useRef<SVGSVGElement | null>(null);
-  const [baseLoaded, setBaseLoaded] = useState(false);
-  useEffect(() => { setBaseLoaded(false); }, [baseImg]);
+  const [firstLoaded, setFirstLoaded] = useState(false);
+
   const [embDrag, setEmbDrag] = useState<
     | { kind: "move"; slotKey: string; startX: number; startY: number; origX: number; origY: number }
     | { kind: "resize"; slotKey: string; startDist: number; origScale: number; cx: number; cy: number }
@@ -1478,13 +1478,13 @@ function BuilderPreview({
         <img
           src={baseImg}
           alt=""
-          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${baseLoaded ? "opacity-100" : "opacity-0"}`}
+          className="absolute inset-0 h-full w-full object-cover"
           draggable={false}
-          onLoad={() => setBaseLoaded(true)}
-          onError={() => setBaseLoaded(true)}
+          onLoad={() => setFirstLoaded(true)}
+          onError={() => setFirstLoaded(true)}
         />
       )}
-      {baseImg && !baseLoaded && (
+      {baseImg && !firstLoaded && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-muted/40">
           <div className="h-1.5 w-2/3 max-w-[220px] overflow-hidden rounded-full bg-muted">
             <div className="h-full w-1/3 animate-[loading-slide_1.2s_ease-in-out_infinite] rounded-full bg-primary" />
