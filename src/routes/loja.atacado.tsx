@@ -545,9 +545,10 @@ function WholesalePage() {
                                                     if (v) setLineQty(p.id, v.id, 0);
                                                     if (newId) setLineQty(p.id, newId, vq > 0 ? vq : 1);
                                                   }}
-                                                  className="min-w-0 flex-1 rounded border bg-background px-1.5 py-1 text-xs font-semibold outline-none focus:border-primary"
+                                                  className="min-w-0 flex-1 rounded border bg-background px-2 py-1.5 text-sm font-semibold text-foreground outline-none focus:border-primary"
                                                 >
-                                                  <option value="">Selecione um tamanho…</option>
+                                                  <option value="">Tamanho</option>
+
                                                   {vs.map((opt) => {
                                                     const { full } = labelOf(opt);
                                                     const taken = (qty[keyOf(p.id, opt.id)] ?? 0) > 0 && opt.id !== vid;
