@@ -195,30 +195,38 @@ function AdminProductsPage() {
         </div>
       </div>
 
-      {selected.size > 0 && (
-        <Card className="border-primary/40 bg-primary/5">
-          <CardContent className="p-4">
-            <div className="flex flex-wrap items-end gap-3">
-              <div className="text-sm font-semibold">{selected.size} selecionado(s)</div>
-              <div className="flex flex-col gap-1">
-                <label className="text-xs text-muted-foreground">Novo preço (R$)</label>
-                <Input value={bulkPrice} onChange={(e) => setBulkPrice(e.target.value)} placeholder="ex: 199,90" className="w-32" />
+      <Card className="border-primary/40 bg-primary/5">
+        <CardContent className="p-4">
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="text-sm font-semibold min-w-[9rem]">
+              Edição em massa
+              <div className="text-xs font-normal text-muted-foreground">
+                {selected.size} selecionado(s)
               </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-xs text-muted-foreground">Ajuste % (ex: 10 ou -5)</label>
-                <Input value={bulkPricePct} onChange={(e) => setBulkPricePct(e.target.value)} placeholder="%" className="w-24" />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-xs text-muted-foreground">Novo estoque</label>
-                <Input value={bulkStock} onChange={(e) => setBulkStock(e.target.value)} placeholder="ex: 10" className="w-24" />
-              </div>
-              <Button onClick={applyBulk} disabled={saving}>Aplicar em massa</Button>
-              <Button variant="ghost" onClick={() => setSelected(new Set())}>Limpar seleção</Button>
             </div>
-            <p className="mt-2 text-xs text-muted-foreground">Preço absoluto tem prioridade sobre ajuste %.</p>
-          </CardContent>
-        </Card>
-      )}
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-muted-foreground">Novo preço (R$)</label>
+              <Input value={bulkPrice} onChange={(e) => setBulkPrice(e.target.value)} placeholder="ex: 199,90" className="w-32" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-muted-foreground">Ajuste % (ex: 10 ou -5)</label>
+              <Input value={bulkPricePct} onChange={(e) => setBulkPricePct(e.target.value)} placeholder="%" className="w-24" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-muted-foreground">Novo estoque</label>
+              <Input value={bulkStock} onChange={(e) => setBulkStock(e.target.value)} placeholder="ex: 10" className="w-24" />
+            </div>
+            <Button onClick={applyBulk} disabled={saving || selected.size === 0}>Aplicar em massa</Button>
+            <Button variant="outline" onClick={() => setSelected(new Set(filtered.map((p) => p.id)))} disabled={filtered.length === 0}>
+              Selecionar todos filtrados ({filtered.length})
+            </Button>
+            {selected.size > 0 && (
+              <Button variant="ghost" onClick={() => setSelected(new Set())}>Limpar seleção</Button>
+            )}
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">Selecione produtos na tabela abaixo (ou use "Selecionar todos filtrados") e informe novo preço, ajuste % ou estoque. Preço absoluto tem prioridade sobre ajuste %.</p>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader className="flex-row items-center justify-between">
