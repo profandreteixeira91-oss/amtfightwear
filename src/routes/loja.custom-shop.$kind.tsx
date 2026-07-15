@@ -138,9 +138,11 @@ function BuilderPage() {
   const isFaixa = template.kind === "faixa";
   const [logoImage, setLogoImage] = useState<{ data_url: string; filename: string } | null>(null);
   const [labelImage, setLabelImage] = useState<{ data_url: string; filename: string } | null>(null);
+  const [labelChoice, setLabelChoice] = useState<"padrao" | "custom" | null>(null);
 
   useEffect(() => {
-    setZoneColors(Object.fromEntries(zones.map((z) => [z.key, z.default_hex])));
+    // Default: all zones transparent (no color) — user picks colors explicitly
+    setZoneColors({});
     setActiveZone(zones[0]?.key ?? "");
   }, [variantKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -224,7 +226,8 @@ function BuilderPage() {
         : null,
       modality: isFaixa ? activeVariant.label : null,
       logo_image: isFaixa ? logoImage : null,
-      label_image: isFaixa ? labelImage : null,
+      label_image: isFaixa && labelChoice === "custom" ? labelImage : null,
+      label_choice: isFaixa ? labelChoice : null,
     };
     addToCart({
       product_id: crypto.randomUUID(),
@@ -393,7 +396,16 @@ function BuilderPage() {
                     >
                       <span
                         className="inline-block h-4 w-4 rounded-full border border-foreground/20"
-                        style={{ background: zoneColors[z.key] }}
+                        style={
+                          zoneColors[z.key]
+                            ? { background: zoneColors[z.key] }
+                            : {
+                                backgroundImage:
+                                  "linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)",
+                                backgroundSize: "6px 6px",
+                                backgroundPosition: "0 0, 0 3px, 3px -3px, -3px 0",
+                              }
+                        }
                       />
                       {z.label}
                     </button>
@@ -405,6 +417,29 @@ function BuilderPage() {
                       Cor de <strong className="text-foreground">{zones.find((z) => z.key === activeZone)?.label}</strong>
                     </div>
                     <div className="mt-2 flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        aria-label="Sem cor (transparente)"
+                        title="Sem cor"
+                        onClick={() =>
+                          setZoneColors((prev) => {
+                            const n = { ...prev };
+                            delete n[activeZone];
+                            return n;
+                          })
+                        }
+                        className={`flex h-7 w-7 items-center justify-center rounded-full border-2 transition ${
+                          !zoneColors[activeZone] ? "border-primary scale-110" : "border-foreground/20"
+                        }`}
+                        style={{
+                          backgroundImage:
+                            "linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)",
+                          backgroundSize: "8px 8px",
+                          backgroundPosition: "0 0, 0 4px, 4px -4px, -4px 0",
+                        }}
+                      >
+                        <X className="h-3 w-3 text-foreground/70" />
+                      </button>
                       {PALETTE.map((c) => (
                         <button
                           key={c}
@@ -555,15 +590,49 @@ function BuilderPage() {
               </section>
             )}
 
-            {/* Faixa: Label tip upload */}
+            {/* Faixa: Etiqueta — AMT Padrão OU imagem personalizada */}
             {isFaixa && (
               <section>
-                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Etiqueta da ponta (opcional)</h2>
-                <ImageUploader
-                  value={labelImage}
-                  onChange={setLabelImage}
-                  hint="Imagem que ficará pré-posicionada na ponta da faixa (PNG/JPG, até 4MB)."
-                />
+                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Etiqueta (opcional)</h2>
+                <div className="rounded-md border p-3 space-y-3">
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLabelChoice(labelChoice === "padrao" ? null : "padrao");
+                        setLabelImage(null);
+                      }}
+                      className={`rounded-md border px-3 py-2 text-xs font-semibold transition ${
+                        labelChoice === "padrao" ? "border-primary bg-primary/5 text-primary" : "hover:border-foreground/40"
+                      }`}
+                    >
+                      Etiqueta AMT Padrão
+                      <div className="mt-1 text-[10px] font-normal text-muted-foreground">Modelo oficial (em breve)</div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setLabelChoice(labelChoice === "custom" ? null : "custom")}
+                      className={`rounded-md border px-3 py-2 text-xs font-semibold transition ${
+                        labelChoice === "custom" ? "border-primary bg-primary/5 text-primary" : "hover:border-foreground/40"
+                      }`}
+                    >
+                      Personalizada
+                      <div className="mt-1 text-[10px] font-normal text-muted-foreground">Envie sua imagem</div>
+                    </button>
+                  </div>
+                  {labelChoice === "custom" && (
+                    <ImageUploader
+                      value={labelImage}
+                      onChange={setLabelImage}
+                      hint="PNG/JPG, até 4MB — ficará pré-posicionada na ponta da faixa."
+                    />
+                  )}
+                  {labelChoice === "padrao" && (
+                    <div className="rounded-md bg-muted/40 p-2 text-[11px] text-muted-foreground">
+                      Etiqueta AMT Padrão selecionada. A arte oficial será aplicada na produção.
+                    </div>
+                  )}
+                </div>
               </section>
             )}
 
@@ -646,8 +715,8 @@ function BuilderPreview({
       >
         {/* Zones */}
         {zones.map((z) => {
-          const color = zoneColors[z.key] ?? z.default_hex;
-          if (!color) return null;
+          const color = zoneColors[z.key];
+          if (!color) return null; // transparent by default
           return (
             <rect
               key={z.key}

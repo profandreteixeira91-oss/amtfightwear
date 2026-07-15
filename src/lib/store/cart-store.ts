@@ -13,6 +13,7 @@ export type CustomConfig = {
   modality?: string | null;
   logo_image?: { data_url: string; filename: string } | null;
   label_image?: { data_url: string; filename: string } | null;
+  label_choice?: "padrao" | "custom" | null;
 };
 
 export type CartItem = {
