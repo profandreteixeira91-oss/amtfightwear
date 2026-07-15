@@ -226,7 +226,8 @@ function BuilderPage() {
         : null,
       modality: isFaixa ? activeVariant.label : null,
       logo_image: isFaixa ? logoImage : null,
-      label_image: isFaixa ? labelImage : null,
+      label_image: isFaixa && labelChoice === "custom" ? labelImage : null,
+      label_choice: isFaixa ? labelChoice : null,
     };
     addToCart({
       product_id: crypto.randomUUID(),
