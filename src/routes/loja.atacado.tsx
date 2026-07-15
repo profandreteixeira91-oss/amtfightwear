@@ -419,7 +419,7 @@ function WholesalePage() {
                                     if (availableIds.length > 0) rows.push(null); // trailing "add" row
                                     const labelOf = (v: Variant) => {
                                       const raw = (v.size ?? v.option_label ?? v.color ?? "Único").replace(/^tamanho:\s*/i, "").trim();
-                                      const m = raw.match(/^([A-Za-z0-9]+)\s*[-–—]\s*(.+)$/);
+                                      const m = raw.match(/^([A-Za-z0-9/]+)\s*[-–—]\s*(.+)$/);
                                       const code = (m?.[1] ?? raw).toUpperCase();
                                       const detail = m?.[2] ?? "";
                                       return { code, detail, full: detail ? `${code} · ${detail}` : code };
