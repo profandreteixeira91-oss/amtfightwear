@@ -1031,14 +1031,18 @@ function BuilderPreview({
           const target = slots.find((s) => s.key === "etiqueta") ?? slots.find((s) => s.key === "ponta") ?? slots[0];
           if (!target) return null;
           const w = target.w_pct;
+          const h = target.h_pct;
           return (
-            <g style={{ filter: "drop-shadow(0 0.4px 0.6px rgba(0,0,0,0.35))" }}>
+            <g
+              transform={target.rotation_deg ? `rotate(${target.rotation_deg} ${target.x_pct} ${target.y_pct})` : undefined}
+              style={{ filter: "drop-shadow(0 0.4px 0.6px rgba(0,0,0,0.35))" }}
+            >
               <image
                 href={labelImage.data_url}
                 x={target.x_pct - w / 2}
-                y={target.y_pct - w / 2}
+                y={target.y_pct - h / 2}
                 width={w}
-                height={w}
+                height={h}
                 preserveAspectRatio="xMidYMid meet"
               />
             </g>
