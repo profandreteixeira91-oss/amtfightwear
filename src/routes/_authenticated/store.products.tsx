@@ -50,11 +50,15 @@ function AdminProductsPage() {
   const [bulkStock, setBulkStock] = useState("");
   const [bulkPricePct, setBulkPricePct] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [creatingProduct, setCreatingProduct] = useState(false);
+  const [managingCategories, setManagingCategories] = useState(false);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     const rows = data ?? [];
     if (!q) return rows;
+    return rows.filter((p) => p.name.toLowerCase().includes(q) || (p.slug ?? "").toLowerCase().includes(q));
+  }, [data, search]);
     return rows.filter((p) => p.name.toLowerCase().includes(q) || (p.slug ?? "").toLowerCase().includes(q));
   }, [data, search]);
 
