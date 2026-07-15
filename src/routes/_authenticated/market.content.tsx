@@ -61,7 +61,12 @@ function ContentPage() {
   });
 
   const [productId, setProductId] = useState<string>("");
-  const [objective, setObjective] = useState<"atacado" | "varejo">("atacado");
+  const [objective, setObjective] = useState<"atacado" | "varejo">("varejo");
+  const [contentType, setContentType] = useState<
+    "product" | "category" | "motivational" | "educational" | "athlete" | "event" | "behind" | "brand_story" | "engagement"
+  >("product");
+  const [topic, setTopic] = useState("");
+  const [callToAction, setCallToAction] = useState("");
   const [extra, setExtra] = useState("");
   const [result, setResult] = useState<Generated | null>(null);
   const [caption, setCaption] = useState("");
@@ -80,15 +85,20 @@ function ContentPage() {
     return Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b));
   }, [products]);
 
+  const productRequired = contentType === "product" || contentType === "category";
+
   const mut = useMutation({
     mutationFn: async () => {
-      if (!product) throw new Error("Selecione um produto");
+      if (productRequired && !product) throw new Error("Selecione um produto para este tipo de conteúdo");
       return await generate({
         data: {
-          productName: product.name,
-          productCategory: product.category,
-          productPrice: Number(product.price),
+          productName: product?.name ?? null,
+          productCategory: product?.category ?? null,
+          productPrice: product ? Number(product.price) : null,
           objective,
+          contentType,
+          topic: topic || null,
+          callToAction: callToAction || null,
           extraInstructions: extra || null,
         },
       });
