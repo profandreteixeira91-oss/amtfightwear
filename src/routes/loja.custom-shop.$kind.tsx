@@ -439,6 +439,13 @@ function BuilderPage() {
                 embroideries={activeEmbroideries}
                 labelImage={isFaixa ? labelImage : null}
                 beltPresetImage={beltPreset?.image ?? null}
+                onEmbroideryChange={(slotKey, patch) =>
+                  setEmbroideries((prev) => {
+                    const cur = prev[slotKey];
+                    if (!cur) return prev;
+                    return { ...prev, [slotKey]: { ...cur, ...patch } };
+                  })
+                }
               />
               {editMode && (
                 <LayoutEditorOverlay
@@ -1032,6 +1039,7 @@ function BuilderPreview({
   embroideries,
   labelImage,
   beltPresetImage,
+  onEmbroideryChange,
 }: {
   kind: string;
   variantKey: string;
@@ -1054,11 +1062,58 @@ function BuilderPreview({
   }>;
   labelImage?: { data_url: string; filename: string; bg_color?: string } | null;
   beltPresetImage?: string | null;
+  onEmbroideryChange?: (
+    slotKey: string,
+    patch: { position?: { x: number; y: number }; scale?: number },
+  ) => void;
 }) {
   const isJudo = kind === "faixa" && variantKey === "judo";
   const baseImg = beltPresetImage || (isJudo ? faixaJudoBase : BASE_IMAGES[kind]);
   // Quando temos a foto real do produto (preset selecionado), não tinta zonas.
   const useProductPhoto = Boolean(beltPresetImage);
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  const [embDrag, setEmbDrag] = useState<
+    | { kind: "move"; slotKey: string; startX: number; startY: number; origX: number; origY: number }
+    | { kind: "resize"; slotKey: string; startDist: number; origScale: number; cx: number; cy: number }
+    | null
+  >(null);
+
+  function svgPoint(e: PointerEvent | React.PointerEvent) {
+    const svg = svgRef.current;
+    if (!svg) return { x: 0, y: 0 };
+    const rect = svg.getBoundingClientRect();
+    return {
+      x: ((e.clientX - rect.left) / rect.width) * 100,
+      y: ((e.clientY - rect.top) / rect.height) * 100,
+    };
+  }
+
+  useEffect(() => {
+    if (!embDrag || !onEmbroideryChange) return;
+    const onMove = (e: PointerEvent) => {
+      const p = svgPoint(e);
+      if (embDrag.kind === "move") {
+        const dx = p.x - embDrag.startX;
+        const dy = p.y - embDrag.startY;
+        const nx = Math.min(100, Math.max(0, embDrag.origX + dx));
+        const ny = Math.min(100, Math.max(0, embDrag.origY + dy));
+        onEmbroideryChange(embDrag.slotKey, { position: { x: nx, y: ny } });
+      } else if (embDrag.kind === "resize") {
+        const dist = Math.hypot(p.x - embDrag.cx, p.y - embDrag.cy);
+        const ratio = embDrag.startDist > 0 ? dist / embDrag.startDist : 1;
+        const nextScale = Math.min(3, Math.max(0.3, embDrag.origScale * ratio));
+        onEmbroideryChange(embDrag.slotKey, { scale: nextScale });
+      }
+    };
+    const onUp = () => setEmbDrag(null);
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+    };
+  }, [embDrag, onEmbroideryChange]);
+
 
   return (
     <div className="relative h-full w-full overflow-hidden">
@@ -1071,6 +1126,7 @@ function BuilderPreview({
         />
       )}
       <svg
+        ref={svgRef}
         viewBox="0 0 100 100"
         preserveAspectRatio="xMidYMid slice"
         className="absolute inset-0 h-full w-full"
@@ -1224,6 +1280,70 @@ function BuilderPreview({
                   </text>
                 );
               })()}
+            </g>
+          );
+        })}
+
+        {/* Interactive handles for embroideries — drag to move, corner to resize */}
+        {onEmbroideryChange && embroideries.map((emb) => {
+          const slot = slots.find((s) => s.key === emb.slot_key);
+          if (!slot) return null;
+          const scale = emb.scale ?? 1;
+          const w = slot.w_pct * scale;
+          const h = slot.h_pct * scale;
+          const cx = emb.position?.x ?? slot.x_pct;
+          const cy = emb.position?.y ?? slot.y_pct;
+          const rot = (slot.rotation_deg || 0) + (emb.rotation ?? 0);
+          const half = Math.max(w, h) / 2;
+          return (
+            <g key={`handle-${emb.slot_key}`} transform={`rotate(${rot} ${cx} ${cy})`}>
+              {/* Move area */}
+              <rect
+                x={cx - w / 2}
+                y={cy - h / 2}
+                width={w}
+                height={h}
+                fill="transparent"
+                stroke="rgba(59,130,246,0.9)"
+                strokeWidth={0.25}
+                strokeDasharray="0.8 0.6"
+                style={{ cursor: "move", pointerEvents: "auto", touchAction: "none" }}
+                onPointerDown={(e) => {
+                  (e.target as Element).setPointerCapture?.(e.pointerId);
+                  const p = svgPoint(e);
+                  setEmbDrag({
+                    kind: "move",
+                    slotKey: emb.slot_key,
+                    startX: p.x,
+                    startY: p.y,
+                    origX: cx,
+                    origY: cy,
+                  });
+                }}
+              />
+              {/* Resize handle (bottom-right corner) */}
+              <circle
+                cx={cx + half}
+                cy={cy + half}
+                r={1.2}
+                fill="#3b82f6"
+                stroke="#fff"
+                strokeWidth={0.25}
+                style={{ cursor: "nwse-resize", pointerEvents: "auto", touchAction: "none" }}
+                onPointerDown={(e) => {
+                  (e.target as Element).setPointerCapture?.(e.pointerId);
+                  const p = svgPoint(e);
+                  const startDist = Math.hypot(p.x - cx, p.y - cy);
+                  setEmbDrag({
+                    kind: "resize",
+                    slotKey: emb.slot_key,
+                    startDist,
+                    origScale: scale,
+                    cx,
+                    cy,
+                  });
+                }}
+              />
             </g>
           );
         })}
