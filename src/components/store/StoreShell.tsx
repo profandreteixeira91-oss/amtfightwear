@@ -4,7 +4,8 @@ import { useCart } from "@/lib/store/cart-store";
 import { useEffect, useState, type ReactNode } from "react";
 import amtLogo from "@/assets/amt-logo.jpg";
 
-export function StoreShell({ children, categories }: { children: ReactNode; categories?: Array<{ slug: string; name: string }> }) {
+export function StoreShell({ children, categories }: { children: ReactNode; categories?: Array<{ slug: string; name: string; parent_id?: string | null }> }) {
+  const topCategories = (categories ?? []).filter((c) => !c.parent_id);
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   const count = useCart((s) => s.items.reduce((a, i) => a + i.quantity, 0));
