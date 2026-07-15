@@ -64,27 +64,58 @@ function StoreHomePage() {
         </div>
       </section>
 
-      {/* Categorias */}
-      {categories.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 py-12">
-          <h2 className="mb-6 text-2xl font-black">Categorias</h2>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-            {categories.slice(0, 12).map((c) => (
-              <Link
-                key={c.slug}
-                to="/loja/categoria/$slug"
-                params={{ slug: c.slug }}
-                className="group flex flex-col items-center gap-2 rounded-lg border bg-card p-4 hover:border-primary"
-              >
-                <div className="aspect-square w-full overflow-hidden rounded-md bg-muted">
-                  {c.image_url && <img src={c.image_url} alt={c.name} className="h-full w-full object-cover transition-transform group-hover:scale-105" />}
-                </div>
-                <div className="text-center text-sm font-semibold">{c.name}</div>
-              </Link>
-            ))}
+      {/* CTA Marketing */}
+      <section className="mx-auto max-w-7xl px-4 py-12">
+        <div className="grid gap-4 md:grid-cols-3">
+          <div className="relative overflow-hidden rounded-xl bg-primary p-6 text-primary-foreground md:col-span-2">
+            <div className="relative z-10 max-w-md">
+              <div className="text-[11px] font-bold uppercase tracking-[0.25em] opacity-80">Cupom de boas-vindas</div>
+              <h3 className="mt-2 text-3xl font-black leading-tight sm:text-4xl">
+                10% OFF na sua primeira compra
+              </h3>
+              <p className="mt-2 text-sm opacity-90">
+                Use o cupom <span className="rounded bg-primary-foreground/15 px-2 py-0.5 font-mono font-bold tracking-wider">AMT10</span> no checkout. Válido em todo o site.
+              </p>
+              <a href="#destaques" className="mt-5 inline-flex items-center rounded-md bg-primary-foreground px-5 py-2.5 text-sm font-bold text-primary hover:opacity-90">
+                Aproveitar agora
+              </a>
+            </div>
+            <div aria-hidden className="pointer-events-none absolute -right-10 -top-10 h-56 w-56 rounded-full bg-primary-foreground/10 blur-2xl" />
+            <div aria-hidden className="pointer-events-none absolute -bottom-16 -right-4 h-64 w-64 rounded-full bg-primary-foreground/5" />
           </div>
-        </section>
-      )}
+
+          <div className="flex flex-col justify-between rounded-xl border bg-card p-6">
+            <div>
+              <div className="text-[11px] font-bold uppercase tracking-[0.25em] text-primary">Frete grátis</div>
+              <h3 className="mt-2 text-2xl font-black leading-tight">
+                Acima de <span className="text-primary">R$ 399</span> para todo Brasil
+              </h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Envio rápido pelo Melhor Envio, com rastreamento e embalagem reforçada.
+              </p>
+            </div>
+            <a href="#destaques" className="mt-4 inline-flex w-fit items-center rounded-md border border-foreground/20 px-4 py-2 text-sm font-semibold hover:border-primary hover:text-primary">
+              Comprar destaques
+            </a>
+          </div>
+        </div>
+
+        <div className="mt-4 grid gap-4 sm:grid-cols-3">
+          <div className="rounded-lg border bg-card p-5">
+            <div className="text-xs font-bold uppercase tracking-widest text-primary">10x sem juros</div>
+            <div className="mt-1 text-sm text-muted-foreground">Parcele no cartão ou pague no PIX com desconto.</div>
+          </div>
+          <div className="rounded-lg border bg-card p-5">
+            <div className="text-xs font-bold uppercase tracking-widest text-primary">Troca fácil</div>
+            <div className="mt-1 text-sm text-muted-foreground">7 dias para trocar tamanho sem burocracia.</div>
+          </div>
+          <div className="rounded-lg border bg-card p-5">
+            <div className="text-xs font-bold uppercase tracking-widest text-primary">Qualidade AMT</div>
+            <div className="mt-1 text-sm text-muted-foreground">Produtos testados por atletas profissionais.</div>
+          </div>
+        </div>
+      </section>
+
 
       {/* Destaques */}
       {data.featured.length > 0 && (
