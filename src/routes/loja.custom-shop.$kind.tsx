@@ -428,7 +428,9 @@ function BuilderPage() {
           color: e!.color,
           technique: isKimonoPatchSlot(slot.key) ? (e!.technique ?? "bordado") : null,
           size: isKimonoPatchSlot(slot.key) ? (e!.size ?? KIMONO_PATCH_SIZES[slot.key]?.default ?? null) : null,
-          format: isKimonoPatchSlot(slot.key) ? (e!.format ?? "quadrado") : null,
+          format: isKimonoPatchSlot(slot.key)
+            ? (e!.format ?? ((e!.technique ?? "bordado") === "sublimado" ? "quadrado" : "transparente"))
+            : null,
 
 
         })),
@@ -860,7 +862,7 @@ function BuilderPage() {
                       rotation: 0,
                       technique: (kPatch ? "bordado" : null) as "bordado" | "sublimado" | "dtf" | null,
                       size: (kPatch ? (KIMONO_PATCH_SIZES[s.key]?.default ?? null) : null) as string | null,
-                      format: (kPatch ? "quadrado" : null) as "redondo" | "quadrado" | "transparente" | null,
+                      format: (kPatch ? "transparente" : null) as "redondo" | "quadrado" | "transparente" | null,
 
 
                     };
@@ -888,9 +890,12 @@ function BuilderPage() {
                                     key={t.id}
                                     type="button"
                                     onClick={() => {
-                                      const nextFormat = t.id === "sublimado" && (entry.format ?? "quadrado") === "transparente"
-                                        ? "quadrado"
-                                        : (entry.format ?? "quadrado");
+                                      // Bordado e DTF: fundo removido automaticamente (transparente).
+                                      // Sublimado: cliente escolhe quadrado ou redondo; mantém o atual se já for válido.
+                                      const nextFormat: "redondo" | "quadrado" | "transparente" =
+                                        t.id === "sublimado"
+                                          ? ((entry.format === "redondo" || entry.format === "quadrado") ? entry.format : "quadrado")
+                                          : "transparente";
                                       setEntry({ technique: t.id, format: nextFormat });
                                     }}
                                     className={`rounded-md border px-2 py-2 text-left text-xs font-semibold transition ${
@@ -959,28 +964,38 @@ function BuilderPage() {
                         {/* Formato do patch (apenas kimono) */}
                         {kPatch && (() => {
                           const tech = entry.technique ?? "bordado";
-                          const transparentAllowed = tech === "bordado" || tech === "dtf";
-                          const currentFormat = entry.format ?? "quadrado";
-                          const options: { id: "redondo" | "quadrado" | "transparente"; label: string; hint: string; disabled?: boolean }[] = [
-                            { id: "quadrado",     label: "Quadrado",     hint: "Mantém o fundo da imagem" },
-                            { id: "redondo",      label: "Redondo",      hint: "Recorte circular" },
-                            { id: "transparente", label: "Transparente", hint: "Somente Bordado ou DTF", disabled: !transparentAllowed },
+                          // Bordado / DTF → fundo removido automaticamente (transparente).
+                          if (tech !== "sublimado") {
+                            return (
+                              <div>
+                                <div className="mb-1 text-xs font-semibold text-muted-foreground">Formato</div>
+                                <div className="rounded-md border border-dashed px-3 py-2 text-[11px] text-muted-foreground">
+                                  Fundo removido automaticamente — o patch fica com recorte no contorno da arte.
+                                </div>
+                              </div>
+                            );
+                          }
+                          // Sublimado → cliente escolhe quadrado ou redondo; fundo preenchido com a cor da imagem enviada.
+                          const currentFormat: "redondo" | "quadrado" =
+                            entry.format === "redondo" ? "redondo" : "quadrado";
+                          const options: { id: "redondo" | "quadrado"; label: string; hint: string }[] = [
+                            { id: "quadrado", label: "Quadrado", hint: "Fundo preenchido com a cor da imagem" },
+                            { id: "redondo",  label: "Redondo",  hint: "Fundo preenchido com a cor da imagem" },
                           ];
                           return (
                             <div>
                               <div className="mb-1 text-xs font-semibold text-muted-foreground">Formato</div>
-                              <div className="grid grid-cols-3 gap-2">
+                              <div className="grid grid-cols-2 gap-2">
                                 {options.map((o) => {
                                   const activeO = currentFormat === o.id;
                                   return (
                                     <button
                                       key={o.id}
                                       type="button"
-                                      disabled={o.disabled}
                                       onClick={() => setEntry({ format: o.id })}
                                       className={`rounded-md border px-2 py-2 text-center text-[11px] font-semibold transition ${
                                         activeO ? "border-primary bg-primary/5 text-primary" : "hover:border-foreground/40"
-                                      } ${o.disabled ? "opacity-40 cursor-not-allowed hover:border-inherit" : ""}`}
+                                      }`}
                                     >
                                       {o.label}
                                       <div className="mt-0.5 text-[9px] font-normal text-muted-foreground">{o.hint}</div>
