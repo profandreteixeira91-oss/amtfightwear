@@ -1063,7 +1063,7 @@ function BuilderPreview({
   beltPresetImage?: string | null;
   onEmbroideryChange?: (
     slotKey: string,
-    patch: { position?: { x: number; y: number }; scale?: number },
+    patch: { position?: { x: number; y: number }; scale?: number; rotation?: number },
   ) => void;
 }) {
   const isJudo = kind === "faixa" && variantKey === "judo";
@@ -1074,6 +1074,7 @@ function BuilderPreview({
   const [embDrag, setEmbDrag] = useState<
     | { kind: "move"; slotKey: string; startX: number; startY: number; origX: number; origY: number }
     | { kind: "resize"; slotKey: string; startDist: number; origScale: number; cx: number; cy: number }
+    | { kind: "rotate"; slotKey: string; cx: number; cy: number; startAngle: number; origRotation: number }
     | null
   >(null);
 
@@ -1102,6 +1103,13 @@ function BuilderPreview({
         const ratio = embDrag.startDist > 0 ? dist / embDrag.startDist : 1;
         const nextScale = Math.min(3, Math.max(0.3, embDrag.origScale * ratio));
         onEmbroideryChange(embDrag.slotKey, { scale: nextScale });
+      } else if (embDrag.kind === "rotate") {
+        const angle = Math.atan2(p.y - embDrag.cy, p.x - embDrag.cx) * (180 / Math.PI);
+        let next = embDrag.origRotation + (angle - embDrag.startAngle);
+        // Normalize to [-180, 180]
+        while (next > 180) next -= 360;
+        while (next < -180) next += 360;
+        onEmbroideryChange(embDrag.slotKey, { rotation: next });
       }
     };
     const onUp = () => setEmbDrag(null);
