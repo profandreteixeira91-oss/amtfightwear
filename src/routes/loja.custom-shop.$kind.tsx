@@ -1368,6 +1368,38 @@ function BuilderPreview({
                   });
                 }}
               />
+              {/* Rotate handle (above top-center) */}
+              <line
+                x1={cx}
+                y1={cy - half}
+                x2={cx}
+                y2={cy - half - 2.2}
+                stroke="rgba(59,130,246,0.9)"
+                strokeWidth={0.2}
+                style={{ pointerEvents: "none" }}
+              />
+              <circle
+                cx={cx}
+                cy={cy - half - 2.6}
+                r={1.2}
+                fill="#10b981"
+                stroke="#fff"
+                strokeWidth={0.25}
+                style={{ cursor: "grab", pointerEvents: "auto", touchAction: "none" }}
+                onPointerDown={(e) => {
+                  (e.target as Element).setPointerCapture?.(e.pointerId);
+                  const p = svgPoint(e);
+                  const startAngle = Math.atan2(p.y - cy, p.x - cx) * (180 / Math.PI);
+                  setEmbDrag({
+                    kind: "rotate",
+                    slotKey: emb.slot_key,
+                    cx,
+                    cy,
+                    startAngle,
+                    origRotation: emb.rotation ?? 0,
+                  });
+                }}
+              />
             </g>
           );
         })}
