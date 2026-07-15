@@ -7,6 +7,57 @@ import { ProductImage } from "@/components/store/ProductImage";
 
 type StoreCategory = { id?: string; slug: string; name: string; parent_id?: string | null };
 
+function SubcategoryItem({
+  category,
+  childrenByParent,
+}: {
+  category: StoreCategory;
+  childrenByParent: Map<string, StoreCategory[]>;
+}) {
+  const kids = category.id ? childrenByParent.get(category.id) ?? [] : [];
+  if (kids.length === 0) {
+    return (
+      <Link
+        to="/loja/categoria/$slug"
+        params={{ slug: category.slug }}
+        className="block rounded px-3 py-2 text-sm text-foreground hover:bg-accent hover:text-primary"
+      >
+        {category.name}
+      </Link>
+    );
+  }
+  return (
+    <div className="group/sub relative">
+      <Link
+        to="/loja/categoria/$slug"
+        params={{ slug: category.slug }}
+        className="flex items-center justify-between gap-2 rounded px-3 py-2 text-sm text-foreground hover:bg-accent hover:text-primary group-hover/sub:bg-accent"
+      >
+        <span>{category.name}</span>
+        <svg className="h-3 w-3 opacity-60" viewBox="0 0 20 20" fill="currentColor" aria-hidden>
+          <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01-.02-1.06L11.06 10 7.19 6.29a.75.75 0 111.04-1.08l4.39 4.25a.75.75 0 010 1.08l-4.39 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
+        </svg>
+      </Link>
+      <div
+        className="invisible absolute left-full top-0 z-50 ml-1 min-w-[220px] -translate-x-1 rounded-md border bg-popover p-2 opacity-0 shadow-lg transition-all duration-150 group-hover/sub:visible group-hover/sub:translate-x-0 group-hover/sub:opacity-100 focus-within:visible focus-within:translate-x-0 focus-within:opacity-100"
+        role="menu"
+      >
+        <Link
+          to="/loja/categoria/$slug"
+          params={{ slug: category.slug }}
+          className="block rounded px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:bg-accent hover:text-foreground"
+        >
+          Ver tudo em {category.name}
+        </Link>
+        <div className="my-1 h-px bg-border" />
+        {kids.map((k) => (
+          <SubcategoryItem key={k.slug} category={k} childrenByParent={childrenByParent} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function StoreShell({ children, categories }: { children: ReactNode; categories?: Array<StoreCategory> }) {
   const cats = categories ?? [];
   const topCategories = cats.filter((c) => !c.parent_id);
@@ -112,15 +163,9 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
                         </Link>
                         <div className="my-1 h-px bg-border" />
                         {subs.map((s) => (
-                          <Link
-                            key={s.slug}
-                            to="/loja/categoria/$slug"
-                            params={{ slug: s.slug }}
-                            className="block rounded px-3 py-2 text-sm text-foreground hover:bg-accent hover:text-primary"
-                          >
-                            {s.name}
-                          </Link>
+                          <SubcategoryItem key={s.slug} category={s} childrenByParent={childrenByParent} />
                         ))}
+
                       </div>
                     )}
                   </div>
