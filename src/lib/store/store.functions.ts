@@ -121,11 +121,23 @@ const AddressSchema = z.object({
   state: z.string().min(2).max(2),
 });
 
-const CheckoutItemSchema = z.object({
-  product_id: z.string().uuid(),
-  variant_id: z.string().uuid().optional().nullable(),
-  quantity: z.number().int().min(1),
-});
+const CheckoutItemSchema = z.union([
+  z.object({
+    type: z.literal("product").optional(),
+    product_id: z.string().uuid(),
+    variant_id: z.string().uuid().optional().nullable(),
+    quantity: z.number().int().min(1),
+  }),
+  z.object({
+    type: z.literal("custom"),
+    name: z.string(),
+    quantity: z.number().int().min(1),
+    unit_price: z.number(),
+    image_url: z.string().nullable().optional(),
+    production_days: z.number().int().nullable().optional(),
+    custom_config: z.record(z.string(), z.any()),
+  }),
+]);
 
 export const createStoreOrder = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) =>
@@ -143,25 +155,42 @@ export const createStoreOrder = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    // Fetch products/variants to compute prices server-side
-    const productIds = [...new Set(data.items.map((i) => i.product_id))];
-    const { data: products } = await supabaseAdmin.from("products").select("id, name, price, image_url").in("id", productIds);
-    const variantIds = data.items.map((i) => i.variant_id).filter(Boolean) as string[];
+    const productItems = data.items.filter((i) => !("type" in i) || i.type !== "custom") as Array<{
+      type?: "product";
+      product_id: string;
+      variant_id?: string | null;
+      quantity: number;
+    }>;
+    const customItems = data.items.filter((i) => "type" in i && i.type === "custom") as Array<{
+      type: "custom";
+      name: string;
+      quantity: number;
+      unit_price: number;
+      image_url?: string | null;
+      production_days?: number | null;
+      custom_config: Record<string, unknown>;
+    }>;
+
+    const productIds = [...new Set(productItems.map((i) => i.product_id))];
+    const { data: products } = productIds.length
+      ? await supabaseAdmin.from("products").select("id, name, price, image_url").in("id", productIds)
+      : { data: [] };
+    const variantIds = productItems.map((i) => i.variant_id).filter(Boolean) as string[];
     const { data: variants } = variantIds.length
       ? await supabaseAdmin.from("store_product_variants").select("*").in("id", variantIds)
       : { data: [] };
 
-    if (!products || products.length === 0) throw new Error("Produtos inválidos");
-
     let subtotal = 0;
-    const orderItems = data.items.map((it) => {
-      const p = products.find((pp) => pp.id === it.product_id);
+    const orderItems: Array<Record<string, unknown>> = [];
+
+    for (const it of productItems) {
+      const p = products?.find((pp) => pp.id === it.product_id);
       if (!p) throw new Error(`Produto ${it.product_id} não encontrado`);
       const v = it.variant_id ? variants?.find((vv) => vv.id === it.variant_id) : null;
       const unit_price = Number(v?.price ?? p.price);
       const total_price = unit_price * it.quantity;
       subtotal += total_price;
-      return {
+      orderItems.push({
         product_id: p.id,
         variant_id: v?.id ?? null,
         product_name: p.name,
@@ -171,10 +200,30 @@ export const createStoreOrder = createServerFn({ method: "POST" })
         quantity: it.quantity,
         unit_price,
         total_price,
-      };
-    });
+      });
+    }
 
-    const shipping_cost = 0; // Fase 2: Melhor Envio
+    for (const ci of customItems) {
+      const total_price = ci.unit_price * ci.quantity;
+      subtotal += total_price;
+      orderItems.push({
+        product_id: null,
+        variant_id: null,
+        product_name: ci.name,
+        variant_label: "Personalizado",
+        sku: null,
+        image_url: ci.image_url ?? null,
+        quantity: ci.quantity,
+        unit_price: ci.unit_price,
+        total_price,
+        custom_config: ci.custom_config,
+        production_days: ci.production_days ?? null,
+      });
+    }
+
+    if (orderItems.length === 0) throw new Error("Nenhum item válido");
+
+    const shipping_cost = 0;
     const total = subtotal + shipping_cost;
 
     const { data: order, error } = await supabaseAdmin
@@ -205,6 +254,7 @@ export const createStoreOrder = createServerFn({ method: "POST" })
 
     return { id: order.id, order_number: order.order_number, total: order.total };
   });
+
 
 export const getStoreOrder = createServerFn({ method: "GET" })
   .inputValidator((i: { id: string }) => z.object({ id: z.string().uuid() }).parse(i))
