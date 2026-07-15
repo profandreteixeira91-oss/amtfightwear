@@ -629,7 +629,7 @@ function BuilderPreview({
 
         {/* Embroidery */}
         {embroidery && (() => {
-          const slot = slots.find((s) => s.key === embroidery.slot_key);
+          const slot = effectiveSlots.find((s) => s.key === embroidery.slot_key);
           if (!slot) return null;
           const fontSize = Math.max(2.6, slot.w_pct * 0.35);
           const x = slot.x_pct;
