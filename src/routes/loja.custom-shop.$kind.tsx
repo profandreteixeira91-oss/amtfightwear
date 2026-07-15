@@ -431,6 +431,30 @@ function BuilderPage() {
               </section>
             )}
 
+            {/* Coloração (revestimento) — só para faixa */}
+            {isFaixa && (
+              <section>
+                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Coloração (revestimento)</h2>
+                <div className="grid gap-2">
+                  {COLORING_OPTIONS.map((c) => (
+                    <button
+                      key={c.name}
+                      type="button"
+                      onClick={() => setColoring(c.name)}
+                      className={`flex items-center justify-between rounded-md border px-3 py-2 text-left text-sm transition ${
+                        coloring === c.name ? "border-primary bg-primary/5" : "hover:border-foreground/40"
+                      }`}
+                    >
+                      <div className="font-semibold">{c.name}</div>
+                      <div className="text-xs font-semibold">
+                        {c.price_delta === 0 ? "Incluso" : `+ ${formatBRL(c.price_delta)}`}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
+
             {/* Judô: presets oficiais de cor (corpo + ponta) */}
             {variantKey === "judo" && (
               <section>
