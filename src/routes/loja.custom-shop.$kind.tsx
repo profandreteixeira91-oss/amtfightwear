@@ -183,10 +183,31 @@ function BuilderPage() {
               <div className="mt-1 text-xs text-muted-foreground">Produção sob encomenda · {template.production_days} dias úteis</div>
             </div>
 
-            {/* Fabric */}
+            {/* Modality (faixa) */}
+            {isFaixa && (
+              <section>
+                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Modalidade</h2>
+                <div className="grid grid-cols-2 gap-2">
+                  {["Jiu-Jitsu", "Judô"].map((m) => (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => setModality(m)}
+                      className={`rounded-md border px-3 py-2 text-sm font-semibold transition ${
+                        modality === m ? "border-primary bg-primary/5 text-primary" : "hover:border-foreground/40"
+                      }`}
+                    >
+                      {m}
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Fabric / Alma */}
             {fabrics.length > 0 && (
               <section>
-                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Tecido / gramatura</h2>
+                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">{isFaixa ? "Alma (núcleo)" : "Tecido / gramatura"}</h2>
                 <div className="grid gap-2">
                   {fabrics.map((f) => (
                     <button
