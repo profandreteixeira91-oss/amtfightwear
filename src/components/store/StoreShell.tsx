@@ -5,8 +5,20 @@ import { useEffect, useState, type ReactNode } from "react";
 import amtLogo from "@/assets/amt-logo.jpg";
 import { ProductImage } from "@/components/store/ProductImage";
 
-export function StoreShell({ children, categories }: { children: ReactNode; categories?: Array<{ slug: string; name: string; parent_id?: string | null }> }) {
-  const topCategories = (categories ?? []).filter((c) => !c.parent_id);
+type StoreCategory = { id?: string; slug: string; name: string; parent_id?: string | null };
+
+export function StoreShell({ children, categories }: { children: ReactNode; categories?: Array<StoreCategory> }) {
+  const cats = categories ?? [];
+  const topCategories = cats.filter((c) => !c.parent_id);
+  const childrenByParent = new Map<string, StoreCategory[]>();
+  for (const c of cats) {
+    if (c.parent_id) {
+      const arr = childrenByParent.get(c.parent_id) ?? [];
+      arr.push(c);
+      childrenByParent.set(c.parent_id, arr);
+    }
+  }
+
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   const count = useCart((s) => s.items.reduce((a, i) => a + i.quantity, 0));
@@ -66,21 +78,58 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
         {/* Categories nav */}
         {topCategories.length > 0 && (
           <nav className="border-t bg-background">
-            <div className="mx-auto flex max-w-7xl gap-6 overflow-x-auto px-4 py-2 text-sm font-medium">
-              <Link to="/loja" className="whitespace-nowrap text-foreground hover:text-primary">Início</Link>
-              {topCategories.map((c) => (
-                <Link
-                  key={c.slug}
-                  to="/loja/categoria/$slug"
-                  params={{ slug: c.slug }}
-                  className="whitespace-nowrap text-foreground hover:text-primary"
-                >
-                  {c.name}
-                </Link>
-              ))}
+            <div className="mx-auto flex max-w-7xl items-stretch gap-1 overflow-visible px-4 text-sm font-medium">
+              <Link to="/loja" className="whitespace-nowrap px-3 py-3 text-foreground hover:text-primary">
+                Início
+              </Link>
+              {topCategories.map((c) => {
+                const subs = c.id ? childrenByParent.get(c.id) ?? [] : [];
+                return (
+                  <div key={c.slug} className="group relative">
+                    <Link
+                      to="/loja/categoria/$slug"
+                      params={{ slug: c.slug }}
+                      className="inline-flex h-full items-center whitespace-nowrap px-3 py-3 text-foreground hover:text-primary group-hover:text-primary"
+                    >
+                      {c.name}
+                      {subs.length > 0 && (
+                        <svg className="ml-1 h-3 w-3 opacity-60" viewBox="0 0 20 20" fill="currentColor" aria-hidden>
+                          <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                    </Link>
+                    {subs.length > 0 && (
+                      <div
+                        className="invisible absolute left-0 top-full z-50 min-w-[220px] translate-y-1 rounded-md border bg-popover p-2 opacity-0 shadow-lg transition-all duration-150 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 focus-within:visible focus-within:translate-y-0 focus-within:opacity-100"
+                        role="menu"
+                      >
+                        <Link
+                          to="/loja/categoria/$slug"
+                          params={{ slug: c.slug }}
+                          className="block rounded px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:bg-accent hover:text-foreground"
+                        >
+                          Ver tudo em {c.name}
+                        </Link>
+                        <div className="my-1 h-px bg-border" />
+                        {subs.map((s) => (
+                          <Link
+                            key={s.slug}
+                            to="/loja/categoria/$slug"
+                            params={{ slug: s.slug }}
+                            className="block rounded px-3 py-2 text-sm text-foreground hover:bg-accent hover:text-primary"
+                          >
+                            {s.name}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </nav>
         )}
+
       </header>
 
       <main className="flex-1">{children}</main>
