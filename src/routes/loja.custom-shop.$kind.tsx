@@ -1012,18 +1012,16 @@ function BuilderPreview({
           const p = patches.find((pp) => pp.id === patchId);
           if (!p) return null;
           const w = s.w_pct;
+          const h = s.h_pct;
           const x = s.x_pct - w / 2;
-          const y = s.y_pct - w / 2;
+          const y = s.y_pct - h / 2;
           return (
-            <g key={s.key} style={{ filter: "drop-shadow(0 0.4px 0.6px rgba(0,0,0,0.35))" }}>
-              <image
-                href={p.image_url}
-                x={x}
-                y={y}
-                width={w}
-                height={w}
-                preserveAspectRatio="xMidYMid meet"
-              />
+            <g
+              key={s.key}
+              transform={s.rotation_deg ? `rotate(${s.rotation_deg} ${s.x_pct} ${s.y_pct})` : undefined}
+              style={{ filter: "drop-shadow(0 0.4px 0.6px rgba(0,0,0,0.35))" }}
+            >
+              <image href={p.image_url} x={x} y={y} width={w} height={h} preserveAspectRatio="xMidYMid meet" />
             </g>
           );
         })}
