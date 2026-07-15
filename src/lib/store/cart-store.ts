@@ -8,6 +8,7 @@ export type CustomConfig = {
   zones: Record<string, string>; // zone_key -> hex
   patches: Array<{ slot_key: string; patch_id: string; patch_name: string; image_url: string; price: number }>;
   embroidery?: { text: string; slot_key: string; color: string } | null;
+  embroideries?: Array<{ slot_key: string; text: string | null; image: { data_url: string; filename: string } | null; color: string }> | null;
   fabric?: { id: string; name: string; price_delta: number } | null;
   modality?: string | null;
   logo_image?: { data_url: string; filename: string } | null;
