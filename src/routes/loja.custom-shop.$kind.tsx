@@ -613,7 +613,7 @@ function BuilderPage() {
             )}
 
             {/* Faixa: presets oficiais de cor (corpo + ponta) — Judô e Jiu-Jitsu */}
-            {BELT_PRESETS[variantKey] && (
+            {isFaixa && BELT_PRESETS[variantKey] && (
               <section>
                 <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Cores da faixa</h2>
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
