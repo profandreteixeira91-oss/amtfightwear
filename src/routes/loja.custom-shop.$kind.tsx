@@ -432,7 +432,7 @@ function BuilderPage() {
                 patches={patches}
                 embroideries={activeEmbroideries}
                 labelImage={isFaixa ? labelImage : null}
-                judoPresetImage={judoPreset?.image ?? null}
+                beltPresetImage={beltPreset?.image ?? null}
               />
               {editMode && (
                 <LayoutEditorOverlay
