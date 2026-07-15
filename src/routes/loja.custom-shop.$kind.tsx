@@ -304,6 +304,7 @@ function BuilderPage() {
                 patches={patches}
                 embroideries={activeEmbroideries}
                 labelImage={isFaixa ? labelImage : null}
+                judoPresetImage={judoPreset?.image ?? null}
               />
               {editMode && (
                 <LayoutEditorOverlay
