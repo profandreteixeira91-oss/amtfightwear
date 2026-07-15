@@ -1139,34 +1139,47 @@ function BuilderPreview({
         className="absolute inset-0 h-full w-full"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* Embroidery texture filter — simulates thread/stitch relief */}
+        {/* Embroidery texture filter — thread grain + puff relief inside letters */}
         <defs>
-          <filter id="emb-texture" x="-20%" y="-20%" width="140%" height="140%">
-            {/* Irregular thread edges */}
-            <feTurbulence type="fractalNoise" baseFrequency="4" numOctaves="2" seed="7" result="noise" />
-            <feDisplacementMap in="SourceGraphic" in2="noise" scale="0.35" result="displaced" />
-            {/* Diagonal stitch stripes */}
-            <feTurbulence type="turbulence" baseFrequency="0.08 6" numOctaves="1" seed="3" result="stitches" />
-            <feColorMatrix in="stitches" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1.6 -0.4" result="stitchMask" />
-            {/* Bumpy relief lighting */}
-            <feGaussianBlur in="displaced" stdDeviation="0.08" result="soft" />
-            <feSpecularLighting in="noise" surfaceScale="1.4" specularConstant="1.1" specularExponent="22" lightingColor="#ffffff" result="spec">
-              <feDistantLight azimuth="135" elevation="60" />
+          <filter id="emb-texture" x="-15%" y="-15%" width="130%" height="130%">
+            {/* 1) Slightly rough edges */}
+            <feTurbulence type="fractalNoise" baseFrequency="3" numOctaves="2" seed="7" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="0.25" result="rough" />
+
+            {/* 2) Fiber grain aligned mostly horizontal, clipped to letter shape */}
+            <feTurbulence type="fractalNoise" baseFrequency="1.2 3.2" numOctaves="2" seed="5" result="grain" />
+            <feColorMatrix in="grain" type="matrix"
+              values="0 0 0 0 0
+                      0 0 0 0 0
+                      0 0 0 0 0
+                      0 0 0 0.55 -0.15" result="grainDark" />
+            <feComposite in="grainDark" in2="rough" operator="in" result="grainInside" />
+
+            {/* 3) Puff / bump lighting for 3D volume */}
+            <feGaussianBlur in="rough" stdDeviation="0.18" result="bump" />
+            <feSpecularLighting in="bump" surfaceScale="2" specularConstant="1.1" specularExponent="22" lightingColor="#ffffff" result="spec">
+              <feDistantLight azimuth="225" elevation="55" />
             </feSpecularLighting>
-            <feComposite in="spec" in2="SourceGraphic" operator="in" result="specMasked" />
-            {/* Subtle inner shadow for depth */}
-            <feGaussianBlur in="SourceGraphic" stdDeviation="0.15" result="shadowBlur" />
-            <feOffset in="shadowBlur" dx="0.1" dy="0.15" result="shadowOff" />
-            <feComposite in="shadowOff" in2="SourceGraphic" operator="out" result="innerShadow" />
-            <feColorMatrix in="innerShadow" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.5 0" result="innerShadowDark" />
+            <feComposite in="spec" in2="rough" operator="in" result="specMasked" />
+
+            {/* 4) Soft drop shadow */}
+            <feGaussianBlur in="rough" stdDeviation="0.25" result="shBlur" />
+            <feOffset in="shBlur" dx="0.15" dy="0.35" result="shOff" />
+            <feColorMatrix in="shOff" type="matrix"
+              values="0 0 0 0 0
+                      0 0 0 0 0
+                      0 0 0 0 0
+                      0 0 0 0.55 0" result="shadow" />
+
             <feMerge>
-              <feMergeNode in="soft" />
-              <feMergeNode in="stitchMask" />
+              <feMergeNode in="shadow" />
+              <feMergeNode in="rough" />
+              <feMergeNode in="grainInside" />
               <feMergeNode in="specMasked" />
-              <feMergeNode in="innerShadowDark" />
             </feMerge>
           </filter>
         </defs>
+
 
         {/* Zones (skip when using real product photo) */}
         {!useProductPhoto && zones.map((z) => {
