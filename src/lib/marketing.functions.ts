@@ -22,6 +22,8 @@ const GenerateInput = z.object({
   productName: z.string().optional().nullable(),
   productCategory: z.string().optional().nullable(),
   productPrice: z.number().optional().nullable(),
+  productDescription: z.string().optional().nullable(),
+  productShortDescription: z.string().optional().nullable(),
   objective: z.enum(["atacado", "varejo"]).default("varejo"),
   contentType: z.enum(CONTENT_TYPES).default("product"),
   topic: z.string().optional().nullable(),       // tema livre (ex: "disciplina", "primeira faixa preta")
@@ -72,13 +74,35 @@ export const generateMarketingContent = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { audience, typeBrief } = buildBrief(data);
 
-    const prompt = `Você é copywriter da AMT Fight Wear, marca brasileira premium de Jiu-Jitsu e Judô.
+    // Bloco de FATOS: única fonte de verdade sobre o produto/marca.
+    // A IA está proibida de inventar linhas, tecnologias, atletas, campeonatos
+    // ou depoimentos que não estejam listados aqui.
+    const desc = (data.productDescription ?? data.productShortDescription ?? "").trim();
+    const factsBlock = data.productName
+      ? `FATOS VERIFICADOS SOBRE O PRODUTO (única fonte permitida — copie/parafraseie apenas destes campos):
+- Nome: ${data.productName}
+- Categoria: ${data.productCategory ?? "não informada"}
+- Preço: ${data.productPrice ? `R$ ${data.productPrice.toFixed(2)}` : "não informado"}
+- Descrição do site www.amtfightwear.com.br: ${desc || "(sem descrição cadastrada — NÃO invente características técnicas, tecidos, gramaturas, linhas ou modelos)"}`
+      : `FATOS VERIFICADOS: nenhum produto específico selecionado. Fale apenas da marca AMT Fight Wear em termos gerais (kimonos, faixas, patches, roupas esportivas personalizadas). NÃO cite nomes de produtos, linhas, coleções, tecidos ou tecnologias específicas.`;
+
+    const prompt = `Você é copywriter da AMT Fight Wear (site oficial: www.amtfightwear.com.br), marca brasileira premium de Jiu-Jitsu e Judô.
 Público-alvo: ${audience}.
 ${typeBrief}
 ${data.callToAction ? `CTA desejado: ${data.callToAction}.` : ""}
 Instruções extras do time: ${data.extraInstructions?.trim() || "nenhuma"}.
 
-Regras:
+${factsBlock}
+
+REGRAS ANTI-ALUCINAÇÃO (obrigatórias):
+- PROIBIDO inventar nomes de linhas, coleções, versões ou modelos (ex: "linha Training/Pro/Premium", "edição limitada X") se não estiverem nos FATOS acima.
+- PROIBIDO inventar especificações técnicas: gramatura de tecido, tipo de costura, compressão, materiais, certificações, prêmios.
+- PROIBIDO citar nomes de atletas, campeões, faixas-pretas, academias parceiras ou depoimentos ("o atleta X migrou para...", "o professor Y usa...") — a AMT NÃO forneceu essa lista. Use apenas termos genéricos ("praticantes", "atletas", "quem treina").
+- PROIBIDO inventar eventos, seminários, competições, datas ou promoções que não estejam nas instruções extras do time.
+- Se não houver descrição do produto acima, mantenha a copy no nível de marca (qualidade, produção personalizada, atendimento B2B) SEM detalhes técnicos inventados.
+- Se precisar de um dado que não está nos FATOS, escreva a copy sem esse dado — nunca preencha com suposição.
+
+REGRAS DE FORMA:
 - Português BR, tom AMT (autoridade próxima, respeito ao tatame, sem clichê barato).
 - Se o foco NÃO for produto, NÃO force menção a preço/oferta.
 - Instagram: 3-6 linhas, 1-2 emojis pertinentes, 5-10 hashtags no final.

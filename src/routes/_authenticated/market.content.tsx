@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { motion } from "framer-motion";
-import { Wand2, Instagram, MessageCircle, Mail, Sparkles, Loader2, Send, Clock, TrendingUp, RefreshCw, Image as ImageIcon, Upload } from "lucide-react";
+import { Wand2, Instagram, MessageCircle, Mail, Sparkles, Loader2, Send, Clock, TrendingUp, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/common/PageHeader";
 import { SectionCard } from "@/components/common/SectionCard";
@@ -19,9 +19,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { generateMarketingContent, suggestViralTopics, autoBriefFromViral } from "@/lib/marketing.functions";
-import { createInstagramPost, listInstagramPosts, uploadContentImage } from "@/lib/instagram.functions";
+import { createInstagramPost, listInstagramPosts } from "@/lib/instagram.functions";
 import { PostCalendar, type CalendarPost } from "@/components/marketing/PostCalendar";
-import { streamImage } from "@/lib/streamImage";
 
 
 export const Route = createFileRoute("/_authenticated/market/content")({
@@ -30,49 +29,24 @@ export const Route = createFileRoute("/_authenticated/market/content")({
 });
 
 
-type Product = { id: string; name: string; category: string | null; price: number; image_url: string | null };
+type Product = {
+  id: string;
+  name: string;
+  category: string | null;
+  price: number;
+  image_url: string | null;
+  description: string | null;
+  short_description: string | null;
+};
 type Generated = { instagram: string; whatsapp: string; email_subject: string; email_body: string };
 
 async function fetchProducts(): Promise<Product[]> {
-  const { data, error } = await supabase.from("products").select("id,name,category,price,image_url").limit(500);
+  const { data, error } = await supabase
+    .from("products")
+    .select("id,name,category,price,image_url,description,short_description")
+    .limit(500);
   if (error) throw error;
   return (data ?? []) as Product[];
-}
-
-type ImageBriefingProduct = { name: string; category: string | null } | null;
-function buildImagePrompt(args: {
-  product: ImageBriefingProduct;
-  contentType: string;
-  topic: string;
-  objective: "atacado" | "varejo";
-  instagram: string;
-}): string {
-  const { product, contentType, topic, objective, instagram } = args;
-  const firstLine = instagram.split("\n").find((l) => l.trim().length > 0)?.slice(0, 120) ?? "";
-  const productBlock = product
-    ? `Produto em destaque: ${product.name}${product.category ? ` (${product.category})` : ""}. Fotografia comercial premium, iluminação de estúdio, produto nítido em primeiro plano.`
-    : "Cena editorial de artes marciais (Jiu-Jitsu / Judô): dojo, tatame, atleta de kimono, mood cinematográfico. SEM produto fictício.";
-  const angleMap: Record<string, string> = {
-    product: "foto de produto premium, fundo neutro com textura sutil",
-    category: "linha de produtos em composição editorial",
-    motivational: "atleta em silhueta dramática, dojo à noite, contraste forte",
-    educational: "detalhe técnico de jiu-jitsu, mão ajustando faixa, mood instrucional",
-    athlete: "atleta em treino, foco em expressão e postura, ambiente de dojo",
-    event: "cena de competição / arena, energia coletiva, luzes de tatame",
-    behind: "bastidores da marca AMT: costura de kimono, tecidos, processo artesanal",
-    brand_story: "identidade AMT Fight Wear: preto, dourado suave, tipografia forte, mood premium",
-    engagement: "composição com espaço para pergunta/enquete, mood conversacional",
-  };
-  const angle = angleMap[contentType] ?? "cena editorial de artes marciais";
-  const audience = objective === "atacado" ? "público: professores/academias" : "público: praticantes/alunos";
-  return [
-    `AMT Fight Wear — creative para Instagram. ${angle}.`,
-    productBlock,
-    topic ? `Tema: ${topic}.` : "",
-    firstLine ? `Mote da copy: "${firstLine}".` : "",
-    audience + ".",
-    "Paleta: preto, dourado suave, textura de tatame. Sem texto na imagem (a legenda vai fora). Alta resolução, publish-ready.",
-  ].filter(Boolean).join(" ");
 }
 
 
@@ -106,13 +80,6 @@ function ContentPage() {
   const [scheduleAt, setScheduleAt] = useState("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
 
-  // ---- Geração de imagem com IA ----
-  const uploadImageFn = useServerFn(uploadContentImage);
-  const [imagePrompt, setImagePrompt] = useState("");
-  const [imageAspect, setImageAspect] = useState<"1:1" | "4:3" | "3:4" | "9:16" | "16:9">("1:1");
-  const [genImage, setGenImage] = useState<{ src: string; final: boolean } | null>(null);
-  const [imageBusy, setImageBusy] = useState(false);
-  const [uploadBusy, setUploadBusy] = useState(false);
 
 
   const suggestMut = useMutation({
@@ -149,6 +116,8 @@ function ContentPage() {
           productName: product?.name ?? null,
           productCategory: product?.category ?? null,
           productPrice: product ? Number(product.price) : null,
+          productDescription: product?.description ?? null,
+          productShortDescription: product?.short_description ?? null,
           objective,
           contentType,
           topic: topic || null,
@@ -162,14 +131,6 @@ function ContentPage() {
       setResult(gen);
       setCaption(gen.instagram);
       if (product?.image_url) setImageUrl(product.image_url);
-      // Auto-preenche o prompt da imagem com base no briefing
-      setImagePrompt(buildImagePrompt({
-        product,
-        contentType,
-        topic,
-        objective,
-        instagram: gen.instagram,
-      }));
       toast.success("Conteúdo gerado pela IA");
     },
     onError: (e: Error) => toast.error(e.message || "Falha ao gerar conteúdo"),
@@ -224,43 +185,6 @@ function ContentPage() {
     onError: (e: Error) => toast.error(e.message || "Falha ao gerar briefing"),
   });
 
-  // ---- Geração de imagem com IA ----
-  async function handleGenerateImage() {
-    let prompt = imagePrompt.trim();
-    if (!prompt) {
-      prompt = buildImagePrompt({ product, contentType, topic, objective, instagram: caption });
-      setImagePrompt(prompt);
-    }
-    setGenImage({ src: "", final: false });
-    setImageBusy(true);
-    try {
-      await streamImage(
-        "/api/generate-ad-image",
-        { prompt, aspectRatio: imageAspect },
-        (src, final) => setGenImage({ src, final }),
-      );
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Erro ao gerar imagem");
-      setGenImage(null);
-    } finally {
-      setImageBusy(false);
-    }
-  }
-
-  async function handleUseGeneratedImage() {
-    if (!genImage?.src || !genImage.final) return;
-    setUploadBusy(true);
-    try {
-      const res = await uploadImageFn({ data: { base64: genImage.src, ext: "png" } });
-      const { url } = res as { url: string; path: string };
-      setImageUrl(url);
-      toast.success("Imagem aplicada ao post");
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Falha no upload");
-    } finally {
-      setUploadBusy(false);
-    }
-  }
 
 
 
@@ -445,64 +369,10 @@ function ContentPage() {
                   </Card>
                 </motion.div>
 
-                <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-3">
-                  <div className="flex items-center gap-1.5 text-sm font-semibold">
-                    <ImageIcon className="h-4 w-4 text-primary" /> Gerar imagem com IA
-                  </div>
-
-                  <div className="grid grid-cols-[1fr_auto] gap-2">
-                    <Textarea
-                      rows={3}
-                      value={imagePrompt}
-                      onChange={(e) => setImagePrompt(e.target.value)}
-                      placeholder="Descreva a arte que quer gerar (auto-preenchido a partir do briefing)..."
-                      className="text-xs"
-                    />
-                    <Select value={imageAspect} onValueChange={(v) => setImageAspect(v as typeof imageAspect)}>
-                      <SelectTrigger className="w-24 self-start"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="1:1">1:1 feed</SelectItem>
-                        <SelectItem value="4:3">4:3</SelectItem>
-                        <SelectItem value="3:4">3:4 retrato</SelectItem>
-                        <SelectItem value="9:16">9:16 story</SelectItem>
-                        <SelectItem value="16:9">16:9</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2">
-                    <Button size="sm" className="gap-1.5" disabled={imageBusy} onClick={handleGenerateImage}>
-                      {imageBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
-                      {genImage ? "Regenerar" : "Gerar imagem"}
-                    </Button>
-                    {genImage?.final && (
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        className="gap-1.5"
-                        disabled={uploadBusy}
-                        onClick={handleUseGeneratedImage}
-                      >
-                        {uploadBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />}
-                        Usar essa imagem no post
-                      </Button>
-                    )}
-                  </div>
-
-                  {genImage?.src && (
-                    <div className="overflow-hidden rounded-md border border-border bg-muted">
-                      <img
-                        src={genImage.src}
-                        alt="Prévia gerada por IA"
-                        className={`w-full transition-[filter] duration-300 ${genImage.final ? "" : "blur-2xl"}`}
-                      />
-                    </div>
-                  )}
-                </div>
 
                 <div className="space-y-2">
                   <Label>URL da imagem (pública)</Label>
-                  <Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://... ou use o gerador acima" />
+                  <Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://... (cole a URL pública da imagem)" />
                 </div>
 
 
