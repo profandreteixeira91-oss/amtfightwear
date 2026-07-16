@@ -4,10 +4,10 @@ import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 // Google Generative Language API. Também aceita ids OpenAI e faz fallback.
 function mapModel(id: string): string {
   let m = id.startsWith("google/") ? id.slice("google/".length) : id;
-  if (m.startsWith("openai/")) m = "gemini-2.5-flash"; // fallback: sem OpenAI aqui
+  if (m.startsWith("openai/")) m = "gemini-flash-latest"; // fallback: sem OpenAI aqui
   const table: Record<string, string> = {
-    "gemini-3.5-flash": "gemini-2.5-flash",
-    "gemini-3-flash-preview": "gemini-2.5-flash",
+    "gemini-3.5-flash": "gemini-flash-latest",
+    "gemini-3-flash-preview": "gemini-flash-latest",
     "gemini-3.1-flash-lite": "gemini-2.5-flash-lite",
     "gemini-3.1-pro-preview": "gemini-2.5-pro",
     "gemini-3.1-flash-image": "gemini-2.5-flash-image-preview",

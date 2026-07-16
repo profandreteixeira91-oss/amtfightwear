@@ -161,7 +161,7 @@ Responda APENAS com JSON válido, sem markdown, sem comentários:
 }`;
 
   const res = await fetch(
-    `${GEMINI_API}/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
+    `${GEMINI_API}/gemini-flash-latest:generateContent?key=${encodeURIComponent(apiKey)}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
