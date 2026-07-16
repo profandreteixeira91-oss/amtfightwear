@@ -9,7 +9,7 @@ import {
 } from "@/lib/store/store.functions";
 import { formatBRL, useCart } from "@/lib/store/cart-store";
 import { ProductImage } from "@/components/store/ProductImage";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Minus, Plus, Upload, X, CheckCircle2, AlertCircle, Package, Search, ChevronDown, ChevronUp, ZoomIn, ShoppingBag, ArrowRight } from "lucide-react";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
@@ -219,13 +219,7 @@ function WholesalePage() {
 
   const [step, setStep] = useState<"cart" | "checkout">("cart");
   const [sheetOpen, setSheetOpen] = useState(false);
-  const prevTotalQtyRef = useRef(0);
-  useEffect(() => {
-    if (totalQty > prevTotalQtyRef.current) {
-      setSheetOpen(true);
-    }
-    prevTotalQtyRef.current = totalQty;
-  }, [totalQty]);
+  // Resumo abre apenas via clique explícito em "Adicionar ao carrinho" (não em mudanças de quantidade).
   // Force-close when jumping to checkout step so the user sees the form summary.
   useEffect(() => {
     if (step === "checkout") setSheetOpen(false);
