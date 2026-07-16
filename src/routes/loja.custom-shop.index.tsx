@@ -116,48 +116,81 @@ function CustomShopIndex() {
         </div>
 
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-          {templates.map((t) => (
-            <Link
-              key={t.id}
-              to="/loja/custom-shop/$kind"
-              params={{ kind: t.kind }}
-              className="group flex flex-col overflow-hidden rounded-lg border bg-card transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg"
-            >
-              <div className="relative aspect-square overflow-hidden bg-muted">
-                {t.base_image_url ? (
-                  <img
-                    src={t.base_image_url}
-                    alt={t.name}
-                    loading="lazy"
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                ) : (
-                  <div className="grid h-full w-full place-items-center text-4xl">🥋</div>
-                )}
-                <div className="absolute left-2 top-2 rounded-full bg-primary px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-primary-foreground">
-                  Customizável
-                </div>
-              </div>
-              <div className="flex flex-1 flex-col p-3">
-                <h3 className="truncate text-sm font-black">{t.name}</h3>
-                {t.description && (
-                  <p className="mt-0.5 line-clamp-2 text-[11px] text-muted-foreground">{t.description}</p>
-                )}
-                <div className="mt-3 flex items-end justify-between gap-2">
-                  <div className="min-w-0">
-                    <div className="text-[10px] text-muted-foreground">a partir de</div>
-                    <div className="text-base font-black leading-tight">{formatBRL(Number(t.base_price))}</div>
-                    <div className="mt-0.5 flex items-center gap-1 text-[10px] text-muted-foreground">
-                      <Ruler className="h-3 w-3" /> {t.production_days} dias
+          {templates.map((t) => {
+            const comingSoon = t.kind.toLowerCase().includes("rashguard");
+            const inner = (
+              <>
+                <div className="relative aspect-square overflow-hidden bg-muted">
+                  {t.base_image_url ? (
+                    <img
+                      src={t.base_image_url}
+                      alt={t.name}
+                      loading="lazy"
+                      className={`h-full w-full object-cover transition-transform duration-500 ${comingSoon ? "opacity-60 grayscale" : "group-hover:scale-105"}`}
+                    />
+                  ) : (
+                    <div className="grid h-full w-full place-items-center text-4xl">🥋</div>
+                  )}
+                  {comingSoon ? (
+                    <div className="absolute left-2 top-2 rounded-full bg-foreground px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-background">
+                      Em breve
                     </div>
-                  </div>
-                  <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-primary px-2 py-1.5 text-xs font-bold text-primary-foreground group-hover:opacity-90">
-                    Criar <ArrowRight className="h-3 w-3" />
-                  </span>
+                  ) : (
+                    <div className="absolute left-2 top-2 rounded-full bg-primary px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-primary-foreground">
+                      Customizável
+                    </div>
+                  )}
                 </div>
-              </div>
-            </Link>
-          ))}
+                <div className="flex flex-1 flex-col p-3">
+                  <h3 className="truncate text-sm font-black">{t.name}</h3>
+                  {t.description && (
+                    <p className="mt-0.5 line-clamp-2 text-[11px] text-muted-foreground">{t.description}</p>
+                  )}
+                  <div className="mt-3 flex items-end justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="text-[10px] text-muted-foreground">a partir de</div>
+                      <div className="text-base font-black leading-tight">{formatBRL(Number(t.base_price))}</div>
+                      <div className="mt-0.5 flex items-center gap-1 text-[10px] text-muted-foreground">
+                        <Ruler className="h-3 w-3" /> {t.production_days} dias
+                      </div>
+                    </div>
+                    {comingSoon ? (
+                      <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-muted px-2 py-1.5 text-xs font-bold text-muted-foreground">
+                        Em breve
+                      </span>
+                    ) : (
+                      <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-primary px-2 py-1.5 text-xs font-bold text-primary-foreground group-hover:opacity-90">
+                        Criar <ArrowRight className="h-3 w-3" />
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </>
+            );
+
+            if (comingSoon) {
+              return (
+                <div
+                  key={t.id}
+                  aria-disabled
+                  className="group flex flex-col overflow-hidden rounded-lg border bg-card opacity-80 cursor-not-allowed"
+                >
+                  {inner}
+                </div>
+              );
+            }
+
+            return (
+              <Link
+                key={t.id}
+                to="/loja/custom-shop/$kind"
+                params={{ kind: t.kind }}
+                className="group flex flex-col overflow-hidden rounded-lg border bg-card transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg"
+              >
+                {inner}
+              </Link>
+            );
+          })}
         </div>
 
         {templates.length === 0 && (
