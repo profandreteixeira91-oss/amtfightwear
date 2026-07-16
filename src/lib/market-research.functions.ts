@@ -57,7 +57,7 @@ function classifySource(url: string): string {
 }
 
 async function aiAnalyze(product: Product, results: Array<{ url?: string; title?: string; description?: string; markdown?: string }>) {
-  const lovableKey = process.env.LOVABLE_API_KEY!;
+  const geminiKey = process.env.GEMINI_API_KEY!;
   const shortResults = results.slice(0, 10).map((r) => ({
     url: r.url,
     title: r.title,
@@ -93,34 +93,32 @@ Tarefa:
    - Diferença máxima de ±25% em relação ao preço atual, exceto se o mercado estiver muito descolado.
 5. Analise gaps de descrição: o que os concorrentes destacam que a AMT deveria adicionar na descrição para justificar preço.
 
-Retorne JSON:
+Retorne SOMENTE JSON válido:
 {
   "competitors": [ { ... } ],
   "market": { "min": number|null, "avg": number|null, "max": number|null, "count": number },
   "suggestion": {
     "suggested_price": number,
     "position": "abaixo do mercado" | "na média" | "acima do mercado" | "premium" | "econômico",
-    "reasoning": string (2-4 frases),
-    "description_gap": string (o que falta na descrição da AMT)
+    "reasoning": string,
+    "description_gap": string
   }
 }`;
 
-  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${encodeURIComponent(geminiKey)}`;
+  const res = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${lovableKey}` },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: "google/gemini-3-flash-preview",
-      messages: [
-        { role: "system", content: "Você é um analista de precificação sênior. Responda SOMENTE JSON válido." },
-        { role: "user", content: prompt },
-      ],
-      response_format: { type: "json_object" },
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig: { responseMimeType: "application/json" },
     }),
   });
   if (!res.ok) throw new Error(`IA ${res.status}: ${(await res.text()).slice(0, 200)}`);
-  const j = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
-  const content = j.choices?.[0]?.message?.content ?? "{}";
+  const j = (await res.json()) as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> };
+  const content = j.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("") ?? "{}";
   return JSON.parse(content) as {
+
     competitors?: Array<Partial<Competitor>>;
     market?: { min: number | null; avg: number | null; max: number | null; count: number };
     suggestion?: {
