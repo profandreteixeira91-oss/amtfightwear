@@ -85,12 +85,63 @@ function OrderPage() {
           <div className="rounded-lg border bg-card p-4">
             <div className="text-xs font-bold uppercase text-muted-foreground">Status pagamento</div>
             <div className="mt-1 font-semibold">{order.payment_status}</div>
+            {order.payment_method && (
+              <div className="mt-1 text-xs text-muted-foreground">
+                Método: {order.payment_method === "PIX" ? "PIX" : order.payment_method === "CREDIT_CARD" ? `Cartão${order.installments && order.installments > 1 ? ` ${order.installments}x` : ""}` : order.payment_method === "BOLETO" ? "Boleto" : order.payment_method}
+              </div>
+            )}
           </div>
           <div className="rounded-lg border bg-card p-4">
             <div className="text-xs font-bold uppercase text-muted-foreground">Status pedido</div>
             <div className="mt-1 font-semibold">{order.status}</div>
           </div>
         </div>
+
+        {order.payment_method === "PIX" && order.payment_status !== "paid" && order.asaas_pix_qr_code && (
+          <div className="mt-6 rounded-lg border bg-card p-6 text-center">
+            <h2 className="mb-3 text-lg font-bold">Pague com PIX</h2>
+            <img src={order.asaas_pix_qr_code} alt="QR Code PIX" className="mx-auto h-56 w-56 rounded-md border" />
+            {order.asaas_pix_copy_paste && (
+              <div className="mt-4">
+                <div className="text-xs font-semibold text-muted-foreground">Copia e Cola</div>
+                <textarea readOnly value={order.asaas_pix_copy_paste} className="mt-1 w-full rounded-md border bg-background p-2 text-xs" rows={3} />
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className="mt-2"
+                  onClick={() => {
+                    navigator.clipboard.writeText(order.asaas_pix_copy_paste as string);
+                  }}
+                >
+                  Copiar código PIX
+                </Button>
+              </div>
+            )}
+            <p className="mt-3 text-xs text-muted-foreground">O pedido será atualizado automaticamente após a confirmação do pagamento.</p>
+          </div>
+        )}
+
+        {order.payment_method === "BOLETO" && order.payment_status !== "paid" && order.asaas_boleto_url && (
+          <div className="mt-6 rounded-lg border bg-card p-6 text-center">
+            <h2 className="mb-3 text-lg font-bold">Boleto gerado</h2>
+            <a
+              href={order.asaas_boleto_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-md bg-primary px-6 py-3 font-bold text-primary-foreground hover:opacity-90"
+            >
+              Baixar boleto
+            </a>
+            {order.asaas_invoice_url && (
+              <div className="mt-2">
+                <a href={order.asaas_invoice_url} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">
+                  Ver fatura completa
+                </a>
+              </div>
+            )}
+          </div>
+        )}
+
 
         <div className="mt-8 text-center">
           <Link to="/loja" className="text-sm font-semibold text-primary hover:underline">Continuar comprando →</Link>
