@@ -12,7 +12,13 @@ export async function streamImage(
     body: JSON.stringify(body),
   });
   if (!res.ok || !res.body) {
-    throw new Error(`Falha ao gerar imagem: ${res.status}`);
+    const detail = await res.text().catch(() => "");
+    let msg = detail;
+    try {
+      const j = JSON.parse(detail);
+      msg = j?.error?.message ?? j?.message ?? detail;
+    } catch { /* keep raw */ }
+    throw new Error(`Falha ao gerar imagem (${res.status}): ${msg || "sem detalhes"}`);
   }
 
   let sawCompleted = false;
