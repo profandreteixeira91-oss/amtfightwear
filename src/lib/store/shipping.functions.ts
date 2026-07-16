@@ -176,3 +176,356 @@ export const calculateShipping = createServerFn({ method: "POST" })
 
     return { options };
   });
+
+/* --------------------- Melhor Envio: operações admin --------------------- */
+
+async function meFetch(path: string, init: RequestInit = {}, env = "production") {
+  const token = process.env.MELHOR_ENVIO_TOKEN;
+  const userAgent = process.env.MELHOR_ENVIO_USER_AGENT ?? "AMT Fight Wear (contato@amtfightwear.com.br)";
+  if (!token) throw new Error("MELHOR_ENVIO_TOKEN não configurado");
+  const url = `${baseUrl(env)}${path}`;
+  const res = await fetch(url, {
+    ...init,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      "User-Agent": userAgent,
+      ...(init.headers ?? {}),
+    },
+  });
+  const text = await res.text();
+  let json: unknown = null;
+  try {
+    json = text ? JSON.parse(text) : null;
+  } catch {
+    json = text;
+  }
+  if (!res.ok) {
+    const msg = typeof json === "object" && json && "message" in json ? String((json as { message?: unknown }).message) : text.slice(0, 400);
+    throw new Error(`Melhor Envio [${res.status}]: ${msg}`);
+  }
+  return json;
+}
+
+async function loadEnv(supabaseAdmin: {
+  from: (t: string) => {
+    select: (c: string) => {
+      eq: (col: string, v: unknown) => { maybeSingle: () => Promise<{ data: { env?: string } | null }> };
+    };
+  };
+}) {
+  const { data } = await supabaseAdmin.from("store_shipping_settings").select("env").eq("singleton", true).maybeSingle();
+  return String(data?.env ?? "production");
+}
+
+export const adminMelhorEnvioBalance = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async () => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const env = await loadEnv(supabaseAdmin);
+    const me = await meFetch("/me", { method: "GET" }, env);
+    const balance = await meFetch("/me/balance", { method: "GET" }, env);
+    return { me, balance };
+  });
+
+const OrderIdInput = z.object({ order_id: z.string().uuid() });
+
+/**
+ * Cota o envio para um pedido existente usando o CEP salvo em shipping_address.
+ */
+export const adminMelhorEnvioQuoteOrder = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: z.infer<typeof OrderIdInput>) => OrderIdInput.parse(i))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const env = await loadEnv(supabaseAdmin);
+    const { data: order } = await supabaseAdmin.from("store_orders").select("*").eq("id", data.order_id).maybeSingle();
+    if (!order) throw new Error("Pedido não encontrado");
+    const { data: settings } = await supabaseAdmin.from("store_shipping_settings").select("*").eq("singleton", true).maybeSingle();
+    if (!settings) throw new Error("Configuração de envio ausente");
+
+    const { data: items } = await supabaseAdmin.from("store_order_items").select("*").eq("order_id", data.order_id);
+    if (!items || items.length === 0) throw new Error("Pedido sem itens");
+
+    const productIds = Array.from(new Set(items.map((i) => i.product_id).filter((x): x is string => !!x)));
+    const productMap = new Map<string, { price: number | null; weight_grams: number | null }>();
+    if (productIds.length > 0) {
+      const { data: products } = await supabaseAdmin.from("products").select("id, price, weight_grams").in("id", productIds);
+      for (const p of products ?? []) productMap.set(p.id, { price: p.price ? Number(p.price) : null, weight_grams: p.weight_grams ?? null });
+    }
+
+    const shipping = order.shipping_address as Record<string, unknown>;
+    const toZip = onlyDigits(String(shipping.zip ?? shipping.postal_code ?? shipping.cep ?? ""));
+    if (!toZip) throw new Error("Pedido sem CEP de destino");
+
+    const meProducts = items.map((it, idx) => {
+      const prod = it.product_id ? productMap.get(it.product_id) : null;
+      const weightKg = prod?.weight_grams ? Number(prod.weight_grams) / 1000 : Number(settings.default_weight_kg);
+      return {
+        id: `${idx}`,
+        width: Number(settings.default_width_cm),
+        height: Number(settings.default_height_cm),
+        length: Number(settings.default_length_cm),
+        weight: weightKg > 0 ? weightKg : Number(settings.default_weight_kg),
+        insurance_value: Number(it.unit_price) * it.quantity,
+        quantity: it.quantity,
+      };
+    });
+
+    const raw = (await meFetch(
+      "/me/shipment/calculate",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          from: { postal_code: onlyDigits(String(settings.origin_zip)) },
+          to: { postal_code: toZip },
+          products: meProducts,
+        }),
+      },
+      env,
+    )) as Array<{
+      id: number;
+      name: string;
+      price?: string | number;
+      custom_price?: string | number;
+      delivery_time?: number;
+      company?: { name?: string; picture?: string };
+      error?: string;
+    }>;
+
+    return raw.map((r) => ({
+      id: r.id,
+      name: r.name,
+      company: r.company?.name ?? "",
+      picture: r.company?.picture ?? null,
+      price: r.error ? 0 : Number(r.custom_price ?? r.price ?? 0),
+      delivery_time: r.delivery_time ?? null,
+      error: r.error ?? null,
+    }));
+  });
+
+const AddToCartInput = z.object({
+  order_id: z.string().uuid(),
+  service_id: z.number().int().positive(),
+  service_name: z.string().optional(),
+  agency_id: z.number().int().optional(),
+});
+
+/**
+ * Adiciona o pedido ao carrinho do Melhor Envio (POST /me/cart).
+ * Retorna o cart_id, salvo no pedido para permitir checkout/geração de etiqueta.
+ */
+export const adminMelhorEnvioAddToCart = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: z.infer<typeof AddToCartInput>) => AddToCartInput.parse(i))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const env = await loadEnv(supabaseAdmin);
+    const { data: order } = await supabaseAdmin.from("store_orders").select("*").eq("id", data.order_id).maybeSingle();
+    if (!order) throw new Error("Pedido não encontrado");
+    const { data: settings } = await supabaseAdmin.from("store_shipping_settings").select("*").eq("singleton", true).maybeSingle();
+    if (!settings) throw new Error("Configuração de envio ausente");
+    const { data: items } = await supabaseAdmin.from("store_order_items").select("*").eq("order_id", data.order_id);
+    if (!items || items.length === 0) throw new Error("Pedido sem itens");
+
+    const productIds = Array.from(new Set(items.map((i) => i.product_id).filter((x): x is string => !!x)));
+    const productMap = new Map<string, { weight_grams: number | null }>();
+    if (productIds.length > 0) {
+      const { data: products } = await supabaseAdmin.from("products").select("id, weight_grams").in("id", productIds);
+      for (const p of products ?? []) productMap.set(p.id, { weight_grams: p.weight_grams ?? null });
+    }
+
+    const shipping = order.shipping_address as Record<string, string | undefined>;
+    const totalWeight = items.reduce((sum, it) => {
+      const prod = it.product_id ? productMap.get(it.product_id) : null;
+      const w = prod?.weight_grams ? Number(prod.weight_grams) / 1000 : Number(settings.default_weight_kg);
+      return sum + (w > 0 ? w : Number(settings.default_weight_kg)) * it.quantity;
+    }, 0);
+    const insurance = items.reduce((s, it) => s + Number(it.unit_price) * it.quantity, 0);
+
+    const meBody: Record<string, unknown> = {
+      service: data.service_id,
+      agency: data.agency_id,
+      from: {
+        name: "AMT Fight Wear",
+        phone: "82999999999",
+        email: "contato@amtfightwear.com.br",
+        document: "00000000000",
+        address: shipping.origin_address ?? "Rua Principal",
+        complement: "",
+        number: "1",
+        district: "Centro",
+        city: "Arapiraca",
+        country_id: "BR",
+        postal_code: onlyDigits(String(settings.origin_zip)),
+        state_abbr: "AL",
+      },
+      to: {
+        name: order.customer_name,
+        phone: order.customer_phone ?? "",
+        email: order.customer_email,
+        document: order.customer_document ?? "",
+        address: shipping.address ?? shipping.street ?? "",
+        complement: shipping.complement ?? "",
+        number: shipping.number ?? "S/N",
+        district: shipping.district ?? shipping.neighborhood ?? "",
+        city: shipping.city ?? "",
+        country_id: "BR",
+        postal_code: onlyDigits(String(shipping.zip ?? shipping.postal_code ?? shipping.cep ?? "")),
+        state_abbr: shipping.state ?? shipping.uf ?? "",
+      },
+      products: items.map((it) => ({
+        name: it.product_name.slice(0, 60),
+        quantity: it.quantity,
+        unitary_value: Number(it.unit_price),
+      })),
+      volumes: [
+        {
+          height: Number(settings.default_height_cm),
+          width: Number(settings.default_width_cm),
+          length: Number(settings.default_length_cm),
+          weight: Math.max(0.1, Number(totalWeight.toFixed(3))),
+        },
+      ],
+      options: {
+        insurance_value: Number(insurance.toFixed(2)),
+        receipt: false,
+        own_hand: false,
+        reverse: false,
+        non_commercial: true,
+        invoice: { key: "" },
+        platform: "AMT Growth Engine",
+        tags: [{ tag: order.order_number, url: null }],
+      },
+    };
+
+    const cartResp = (await meFetch("/me/cart", { method: "POST", body: JSON.stringify(meBody) }, env)) as {
+      id?: string;
+      protocol?: string;
+    };
+    if (!cartResp?.id) throw new Error("Resposta inesperada ao criar item no carrinho");
+
+    await supabaseAdmin
+      .from("store_orders")
+      .update({
+        melhor_envio_cart_id: cartResp.id,
+        melhor_envio_service_id: data.service_id,
+        melhor_envio_service_name: data.service_name ?? null,
+        melhor_envio_status: "in_cart",
+        melhor_envio_protocol: cartResp.protocol ?? null,
+        shipping_method: data.service_name ?? String(data.service_id),
+      })
+      .eq("id", data.order_id);
+
+    return { cart_id: cartResp.id, protocol: cartResp.protocol ?? null };
+  });
+
+const CartIdsInput = z.object({ order_ids: z.array(z.string().uuid()).min(1) });
+
+/**
+ * Faz checkout dos itens no carrinho do Melhor Envio (paga com saldo da conta).
+ */
+export const adminMelhorEnvioCheckout = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: z.infer<typeof CartIdsInput>) => CartIdsInput.parse(i))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const env = await loadEnv(supabaseAdmin);
+    const { data: orders } = await supabaseAdmin
+      .from("store_orders")
+      .select("id, melhor_envio_cart_id")
+      .in("id", data.order_ids);
+    const cartIds = (orders ?? []).map((o) => o.melhor_envio_cart_id).filter((x): x is string => !!x);
+    if (cartIds.length === 0) throw new Error("Pedidos selecionados não têm item no carrinho do Melhor Envio");
+
+    const resp = (await meFetch(
+      "/me/shipment/checkout",
+      { method: "POST", body: JSON.stringify({ orders: cartIds }) },
+      env,
+    )) as { purchase?: { id?: string; orders?: Array<{ id: string; protocol?: string }> } } | Record<string, unknown>;
+
+    for (const o of orders ?? []) {
+      if (!o.melhor_envio_cart_id) continue;
+      await supabaseAdmin
+        .from("store_orders")
+        .update({ melhor_envio_status: "paid", melhor_envio_order_id: o.melhor_envio_cart_id })
+        .eq("id", o.id);
+    }
+    return { ok: true, response: resp };
+  });
+
+/**
+ * Gera as etiquetas (imprimir).
+ */
+export const adminMelhorEnvioGenerate = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: z.infer<typeof CartIdsInput>) => CartIdsInput.parse(i))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const env = await loadEnv(supabaseAdmin);
+    const { data: orders } = await supabaseAdmin
+      .from("store_orders")
+      .select("id, melhor_envio_cart_id, melhor_envio_order_id")
+      .in("id", data.order_ids);
+    const meIds = (orders ?? []).map((o) => o.melhor_envio_order_id ?? o.melhor_envio_cart_id).filter((x): x is string => !!x);
+    if (meIds.length === 0) throw new Error("Pedidos sem envio no Melhor Envio");
+
+    await meFetch("/me/shipment/generate", { method: "POST", body: JSON.stringify({ orders: meIds }) }, env);
+    const printResp = (await meFetch(
+      "/me/shipment/print",
+      { method: "POST", body: JSON.stringify({ mode: "public", orders: meIds }) },
+      env,
+    )) as { url?: string };
+
+    for (const o of orders ?? []) {
+      await supabaseAdmin
+        .from("store_orders")
+        .update({ melhor_envio_label_url: printResp?.url ?? null, melhor_envio_status: "generated", status: "preparing" })
+        .eq("id", o.id);
+    }
+    return { url: printResp?.url ?? null };
+  });
+
+/**
+ * Consulta o rastreio dos pedidos no Melhor Envio e atualiza a base local.
+ */
+export const adminMelhorEnvioSyncTracking = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: z.infer<typeof CartIdsInput>) => CartIdsInput.parse(i))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const env = await loadEnv(supabaseAdmin);
+    const { data: orders } = await supabaseAdmin
+      .from("store_orders")
+      .select("id, melhor_envio_cart_id, melhor_envio_order_id")
+      .in("id", data.order_ids);
+    const meIds = (orders ?? []).map((o) => o.melhor_envio_order_id ?? o.melhor_envio_cart_id).filter((x): x is string => !!x);
+    if (meIds.length === 0) return { updated: 0 };
+
+    const resp = (await meFetch(
+      "/me/shipment/tracking",
+      { method: "POST", body: JSON.stringify({ orders: meIds }) },
+      env,
+    )) as Record<string, { status?: string; tracking?: string; melhorenvio_tracking?: string }>;
+
+    let updated = 0;
+    for (const o of orders ?? []) {
+      const meId = o.melhor_envio_order_id ?? o.melhor_envio_cart_id;
+      if (!meId) continue;
+      const row = resp?.[meId];
+      if (!row) continue;
+      const tracking = row.tracking ?? row.melhorenvio_tracking ?? null;
+      const patch: Record<string, unknown> = {
+        melhor_envio_status: row.status ?? null,
+        melhor_envio_data: row,
+        melhor_envio_synced_at: new Date().toISOString(),
+      };
+      if (tracking) patch.shipping_tracking = tracking;
+      if (row.status === "posted") patch.status = "shipped";
+      if (row.status === "delivered") patch.status = "delivered";
+      await supabaseAdmin.from("store_orders").update(patch).eq("id", o.id);
+      updated += 1;
+    }
+    return { updated };
+  });
