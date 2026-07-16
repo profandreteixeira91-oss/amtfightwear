@@ -176,3 +176,44 @@ export const deleteInstagramPost = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+// Upload de imagem gerada por IA (data URL base64) para o bucket ig-media.
+// Retorna URL assinada de 6h — pública o suficiente para o Instagram Graph consumir.
+export const uploadContentImage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({
+      base64: z.string().min(100),
+      ext: z.enum(["png", "jpg", "jpeg"]).optional(),
+    }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Aceita data URL completa ou só base64
+    const raw = data.base64.includes(",") ? data.base64.split(",")[1] : data.base64;
+    const bin = atob(raw);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+
+    const ext = data.ext ?? "png";
+    const path = `content/${context.userId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+
+    const up = await supabaseAdmin.storage
+      .from("ig-media")
+      .upload(path, bytes, {
+        contentType: ext === "png" ? "image/png" : "image/jpeg",
+        upsert: true,
+      });
+    if (up.error) throw new Error(`Upload falhou: ${up.error.message}`);
+
+    const signed = await supabaseAdmin.storage
+      .from("ig-media")
+      .createSignedUrl(path, 60 * 60 * 6);
+    if (signed.error || !signed.data?.signedUrl) {
+      throw new Error(signed.error?.message || "Falha ao gerar URL assinada");
+    }
+
+    return { url: signed.data.signedUrl, path };
+  });
+
