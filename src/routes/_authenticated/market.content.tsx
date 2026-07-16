@@ -142,10 +142,29 @@ function ContentPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const cancelMut = useMutation({
-    mutationFn: (id: string) => cancelFn({ data: { id } }),
-    onSuccess: () => { toast.success("Agendamento cancelado"); qc.invalidateQueries({ queryKey: ["ig-posts"] }); },
-    onError: (e: Error) => toast.error(e.message),
+  const autoBriefMut = useMutation({
+    mutationFn: async () => await autoBriefFn({ data: { objective } }),
+    onSuccess: (r) => {
+      const b = r as {
+        contentType: typeof contentType;
+        productId: string | null;
+        topic: string | null;
+        callToAction: string | null;
+        extraInstructions: string | null;
+        rationale: string | null;
+      };
+      setContentType(b.contentType);
+      if (b.productId) {
+        setProductId(b.productId);
+        const p = products?.find((x) => x.id === b.productId);
+        if (p?.image_url) setImageUrl(p.image_url);
+      }
+      if (b.topic) setTopic(b.topic);
+      if (b.callToAction) setCallToAction(b.callToAction);
+      if (b.extraInstructions) setExtra(b.extraInstructions);
+      toast.success(b.rationale ? `Briefing sugerido: ${b.rationale}` : "Briefing sugerido pela IA");
+    },
+    onError: (e: Error) => toast.error(e.message || "Falha ao gerar briefing"),
   });
 
   return (
@@ -153,10 +172,10 @@ function ContentPage() {
       <PageHeader
         eyebrow="MarketEngine"
         title="IA Content Hub"
-        description="Gere copies com IA, publique ou agende posts direto no Instagram da AMT."
+        description="Gere copies com IA e agende posts no calendário estilo Meta Business."
       />
 
-      <AutoPilotPanel />
+
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
 
