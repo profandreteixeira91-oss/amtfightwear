@@ -226,10 +226,20 @@ function WholesalePage() {
     }
     prevTotalQtyRef.current = totalQty;
   }, [totalQty]);
-  // Force-open when jumping to checkout step so the user sees the form summary.
+  // Force-close when jumping to checkout step so the user sees the form summary.
   useEffect(() => {
     if (step === "checkout") setSheetOpen(false);
   }, [step]);
+  // Hijack the global header cart button: on this page it opens the wholesale summary
+  // instead of the (unused) generic cart drawer.
+  const globalCartOpen = useCart((s) => s.isOpen);
+  const closeGlobalCart = useCart((s) => s.close);
+  useEffect(() => {
+    if (globalCartOpen) {
+      closeGlobalCart();
+      setSheetOpen(true);
+    }
+  }, [globalCartOpen, closeGlobalCart]);
   const [form, setForm] = useState({
     customer_name: "",
     customer_email: "",
