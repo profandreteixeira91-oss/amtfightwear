@@ -43,6 +43,33 @@ export const Route = createFileRoute("/loja/custom-shop/$kind")({
   notFoundComponent: () => <div className="p-8 text-center">Modelo não encontrado</div>,
 });
 
+function CollapsibleSection({
+  title,
+  defaultOpen = true,
+  children,
+}: {
+  title: string;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <section>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="mb-2 flex w-full items-center justify-between gap-2 rounded text-left text-sm font-bold uppercase tracking-widest text-primary hover:opacity-80"
+        aria-expanded={open}
+      >
+        <span>{title}</span>
+        <ChevronDown className={`h-4 w-4 shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && <div>{children}</div>}
+    </section>
+  );
+}
+
+
 const PALETTE = [
   "#0a0a0a", "#ffffff", "#e11d48", "#1d4ed8", "#059669", "#f59e0b",
   "#7c3aed", "#0891b2", "#374151", "#a16207", "#be123c", "#1e293b",
