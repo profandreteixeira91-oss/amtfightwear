@@ -218,6 +218,18 @@ function WholesalePage() {
   };
 
   const [step, setStep] = useState<"cart" | "checkout">("cart");
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const prevTotalQtyRef = useRef(0);
+  useEffect(() => {
+    if (totalQty > prevTotalQtyRef.current) {
+      setSheetOpen(true);
+    }
+    prevTotalQtyRef.current = totalQty;
+  }, [totalQty]);
+  // Force-open when jumping to checkout step so the user sees the form summary.
+  useEffect(() => {
+    if (step === "checkout") setSheetOpen(false);
+  }, [step]);
   const [form, setForm] = useState({
     customer_name: "",
     customer_email: "",
