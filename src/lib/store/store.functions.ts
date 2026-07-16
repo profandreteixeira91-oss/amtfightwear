@@ -140,16 +140,34 @@ export const createWholesaleOrder = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
+    // Read admin-controlled wholesale settings.
+    const { data: settingsRow } = await supabaseAdmin
+      .from("app_settings")
+      .select("value")
+      .eq("key", "wholesale_settings")
+      .maybeSingle();
+    const settings = normalizeWholesaleSettings(settingsRow?.value);
+    if (!settings.enabled) throw new Error("Vendas no atacado estão desativadas no momento.");
+    const MIN_QTY = settings.min_qty_per_subcategory;
+    const DEFAULT_PCT = settings.default_discount_percent;
+
     const productIds = [...new Set(data.items.map((i) => i.product_id))];
     const variantIds = [...new Set(data.items.map((i) => i.variant_id).filter((v): v is string => !!v))];
     const [{ data: products }, { data: variants }] = await Promise.all([
-      supabaseAdmin.from("products").select("id, name, price, image_url, category_id").in("id", productIds),
+      supabaseAdmin
+        .from("products")
+        .select("id, name, price, image_url, category_id, wholesale_enabled, wholesale_discount_percent")
+        .in("id", productIds),
       variantIds.length
         ? supabaseAdmin.from("store_product_variants").select("id, product_id, size, color, option_label, sku, price").in("id", variantIds)
         : Promise.resolve({ data: [] as Array<{ id: string; product_id: string; size: string | null; color: string | null; option_label: string | null; sku: string | null; price: number | null }> }),
     ]);
     if (!products || products.length !== productIds.length) {
       throw new Error("Um ou mais produtos não foram encontrados");
+    }
+    const disabled = products.filter((p) => !p.wholesale_enabled);
+    if (disabled.length > 0) {
+      throw new Error(`Produtos fora do atacado no pedido: ${disabled.map((p) => p.name).join(", ")}`);
     }
 
     // Group quantities by leaf category (subcategoria)
@@ -159,18 +177,17 @@ export const createWholesaleOrder = createServerFn({ method: "POST" })
       const cat = p.category_id ?? "__no_category__";
       qtyByCategory.set(cat, (qtyByCategory.get(cat) ?? 0) + it.quantity);
     }
-    // Validate min 10 per subcategory
+    // Validate min qty per subcategory (from settings)
     const violations: string[] = [];
     for (const [cat, qty] of qtyByCategory) {
-      if (qty < 10) violations.push(`${cat}:${qty}`);
+      if (qty < MIN_QTY) violations.push(`${cat}:${qty}`);
     }
     if (violations.length > 0) {
       throw new Error(
-        `Atacado exige no mínimo 10 unidades por subcategoria. Categorias abaixo do mínimo: ${violations.join(", ")}`,
+        `Atacado exige no mínimo ${MIN_QTY} unidades por subcategoria. Categorias abaixo do mínimo: ${violations.join(", ")}`,
       );
     }
 
-    const WHOLESALE_DISCOUNT = 0.25;
     let subtotalOriginal = 0;
     let subtotal = 0;
     const orderItems: Array<Record<string, unknown>> = [];
@@ -178,18 +195,19 @@ export const createWholesaleOrder = createServerFn({ method: "POST" })
       const p = products.find((pp) => pp.id === it.product_id)!;
       const v = it.variant_id ? variants?.find((vv) => vv.id === it.variant_id) ?? null : null;
       const originalPrice = Number(v?.price ?? p.price);
-      const unit_price = Number((originalPrice * (1 - WHOLESALE_DISCOUNT)).toFixed(2));
+      const productPct = p.wholesale_discount_percent != null ? Number(p.wholesale_discount_percent) : DEFAULT_PCT;
+      const pct = Math.max(0, Math.min(90, productPct));
+      const unit_price = Number((originalPrice * (1 - pct / 100)).toFixed(2));
       const total_price = unit_price * it.quantity;
       subtotal += total_price;
       subtotalOriginal += originalPrice * it.quantity;
       const sizeLabel = v ? [v.size, v.color, v.option_label].filter(Boolean).join(" / ") : null;
+      const tag = `Atacado (${pct}% off · etiqueta personalizada grátis)`;
       orderItems.push({
         product_id: p.id,
         variant_id: v?.id ?? null,
         product_name: p.name,
-        variant_label: sizeLabel
-          ? `${sizeLabel} · Atacado (25% off · etiqueta grátis)`
-          : "Atacado (25% off · etiqueta personalizada grátis)",
+        variant_label: sizeLabel ? `${sizeLabel} · ${tag}` : tag,
         sku: v?.sku ?? null,
         image_url: p.image_url,
         quantity: it.quantity,
@@ -197,7 +215,7 @@ export const createWholesaleOrder = createServerFn({ method: "POST" })
         total_price,
         custom_config: {
           wholesale: true,
-          discount_percent: 25,
+          discount_percent: pct,
           original_unit_price: originalPrice,
           category_id: p.category_id,
           size: v?.size ?? null,
@@ -229,7 +247,8 @@ export const createWholesaleOrder = createServerFn({ method: "POST" })
         max_production_days: 10,
         metadata: {
           wholesale: true,
-          discount_percent: 25,
+          default_discount_percent: DEFAULT_PCT,
+          min_qty_per_subcategory: MIN_QTY,
           label_logo: data.label_logo ?? null,
           subtotal_original: subtotalOriginal,
         },
@@ -244,6 +263,7 @@ export const createWholesaleOrder = createServerFn({ method: "POST" })
 
     return { id: order.id, order_number: order.order_number, total: order.total, discount };
   });
+
 
 export const listStorefrontHome = createServerFn({ method: "GET" }).handler(async () => {
   const sb = publicClient();
