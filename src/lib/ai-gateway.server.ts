@@ -66,7 +66,7 @@ export async function openrouterChat(opts: {
   if (!key) throw new Error("OPENROUTER_API_KEY não configurada");
 
   const model = mapModel(opts.model ?? DEFAULT_TEXT_MODEL);
-  // Cascata: modelo pedido → deepseek free (fallback).
+  // Cascata: modelo pedido → deepseek-chat-v3 (fallback).
   const models = Array.from(new Set([model, DEFAULT_TEXT_MODEL]));
   const transient = new Set([429, 500, 502, 503, 504]);
   let lastErr = "";
