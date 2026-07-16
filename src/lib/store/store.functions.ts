@@ -639,6 +639,8 @@ export const adminUpdateStoreProduct = createServerFn({ method: "POST" })
         featured: z.boolean().optional(),
         category_id: z.string().uuid().optional().nullable(),
         image_url: z.string().optional().nullable(),
+        wholesale_enabled: z.boolean().optional(),
+        wholesale_discount_percent: z.number().min(0).max(90).nullable().optional(),
       }),
     }).parse(i),
   )
