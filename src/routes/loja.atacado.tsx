@@ -806,7 +806,7 @@ function WholesalePage() {
                 <span className="line-through">{formatBRL(subtotalOriginal)}</span>
               </div>
               <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
-                <span>Desconto atacado (25%)</span>
+                <span>Desconto atacado</span>
                 <span>− {formatBRL(savings)}</span>
               </div>
               <div className="mt-1 flex items-baseline justify-between border-t pt-2 text-base font-black">
