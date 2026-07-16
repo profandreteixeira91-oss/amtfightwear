@@ -93,6 +93,24 @@ function AuthPage() {
     toast.success("Conta criada", { description: "Confirme seu e-mail para continuar." });
   });
 
+  const onForgotPassword = async () => {
+    const email = signInForm.getValues("email").trim();
+    if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+      toast.error("Informe seu e-mail", {
+        description: "Digite o e-mail da conta no campo acima e clique novamente.",
+      });
+      return;
+    }
+    const { error } = await authService.resetPassword(email);
+    if (error) {
+      toast.error("Não foi possível enviar o e-mail", { description: error.message });
+      return;
+    }
+    toast.success("E-mail enviado", {
+      description: "Verifique sua caixa de entrada para redefinir a senha.",
+    });
+  };
+
   const onGoogle = async () => {
     setGoogleLoading(true);
     try {
@@ -194,7 +212,16 @@ function AuthPage() {
                       )}
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="signin-password">Senha</Label>
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="signin-password">Senha</Label>
+                        <button
+                          type="button"
+                          onClick={onForgotPassword}
+                          className="text-xs font-medium text-primary hover:underline"
+                        >
+                          Esqueci minha senha
+                        </button>
+                      </div>
                       <Input
                         id="signin-password"
                         type="password"
