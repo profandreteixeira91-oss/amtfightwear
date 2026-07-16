@@ -112,7 +112,7 @@ Retorne SOMENTE JSON válido:
       Authorization: `Bearer ${lovableKey}`,
     },
     body: JSON.stringify({
-      model: "gemini-2.5-flash",
+      model: "gemini-2.5-pro",
       messages: [{ role: "user", content: prompt }],
       response_format: { type: "json_object" },
     }),
