@@ -125,10 +125,19 @@ function ContentPage() {
       setResult(gen);
       setCaption(gen.instagram);
       if (product?.image_url) setImageUrl(product.image_url);
+      // Auto-preenche o prompt da imagem com base no briefing
+      setImagePrompt(buildImagePrompt({
+        product,
+        contentType,
+        topic,
+        objective,
+        instagram: gen.instagram,
+      }));
       toast.success("Conteúdo gerado pela IA");
     },
     onError: (e: Error) => toast.error(e.message || "Falha ao gerar conteúdo"),
   });
+
 
   const publishMut = useMutation({
     mutationFn: async (mode: "now" | "schedule") => {
