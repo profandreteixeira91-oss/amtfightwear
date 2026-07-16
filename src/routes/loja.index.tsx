@@ -193,7 +193,55 @@ function StoreHomePage() {
         </section>
       )}
 
-      {data.featured.length === 0 && data.newest.length === 0 && (
+      {/* Faixas de Jiu-Jitsu (rotação diária) */}
+      {data.bjjBelts.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 py-12">
+          <div className="mb-6 flex items-end justify-between gap-4">
+            <div>
+              <h2 className="text-2xl font-black">Faixas de Jiu-Jitsu</h2>
+              <p className="mt-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Seleção do dia · atualizada diariamente</p>
+            </div>
+            <Link to="/loja/categoria/$slug" params={{ slug: "faixas-de-jiu-jitsu" }} className="text-sm font-bold uppercase tracking-widest text-primary hover:underline">
+              Ver tudo →
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            {data.bjjBelts.map((p) => <ProductCard key={p.id} product={p} />)}
+          </div>
+        </section>
+      )}
+
+      {/* Faixas de Judô */}
+      {data.judoBelts.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 py-12">
+          <div className="mb-6 flex items-end justify-between gap-4">
+            <h2 className="text-2xl font-black">Faixas de Judô</h2>
+            <Link to="/loja/categoria/$slug" params={{ slug: "faixas-de-judo" }} className="text-sm font-bold uppercase tracking-widest text-primary hover:underline">
+              Ver tudo →
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            {data.judoBelts.map((p) => <ProductCard key={p.id} product={p} />)}
+          </div>
+        </section>
+      )}
+
+      {/* Kimonos */}
+      {data.kimonos.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 py-12">
+          <div className="mb-6 flex items-end justify-between gap-4">
+            <h2 className="text-2xl font-black">Kimonos</h2>
+            <Link to="/loja/categoria/$slug" params={{ slug: "kimonos-de-jiu-jitsu" }} className="text-sm font-bold uppercase tracking-widest text-primary hover:underline">
+              Ver tudo →
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            {data.kimonos.map((p) => <ProductCard key={p.id} product={p} />)}
+          </div>
+        </section>
+      )}
+
+      {data.featured.length === 0 && data.newest.length === 0 && data.bjjBelts.length === 0 && data.judoBelts.length === 0 && data.kimonos.length === 0 && (
         <div className="mx-auto max-w-7xl px-4 py-24 text-center">
           <p className="text-lg text-muted-foreground">Catálogo em preparação. Em breve novos produtos.</p>
         </div>
