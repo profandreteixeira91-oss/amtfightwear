@@ -160,26 +160,31 @@ Responda APENAS com JSON válido, sem markdown, sem comentários:
   "slides": [ ${Array.from({ length: nSlides }, () => `{ "headline": "...", "subline": "..." }`).join(", ")} ]
 }`;
 
-  const res = await fetch(`${AI_GATEWAY}/chat/completions`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "Lovable-API-Key": apiKey },
-    body: JSON.stringify({
-      model: "google/gemini-3-flash-preview",
-      messages: [{ role: "user", content: prompt }],
-    }),
-  });
-  if (!res.ok) throw new Error(`AI copy failed: ${res.status} ${await res.text()}`);
-  const json = (await res.json()) as { choices: Array<{ message: { content: string } }> };
-  const text = json.choices[0].message.content ?? "";
+  const res = await fetch(
+    `${GEMINI_API}/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: { responseMimeType: "application/json" },
+      }),
+    },
+  );
+  if (!res.ok) throw new Error(`Gemini copy failed: ${res.status} ${await res.text()}`);
+  const json = (await res.json()) as {
+    candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+  };
+  const text = json.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("") ?? "";
   const match = text.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error("AI copy: no JSON in response");
+  if (!match) throw new Error("Gemini copy: no JSON in response");
   const parsed = JSON.parse(match[0]) as {
     theme: string;
     art_prompt_extra?: string;
     caption: string;
     slides: Array<{ headline: string; subline?: string }>;
   };
-  if (!parsed.slides?.length) throw new Error("AI copy: empty slides");
+  if (!parsed.slides?.length) throw new Error("Gemini copy: empty slides");
   return parsed;
 }
 
