@@ -273,6 +273,7 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
           </div>
         </div>
       </footer>
+      <CartSheet />
     </div>
   );
 }
