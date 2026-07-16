@@ -276,6 +276,7 @@ function AdminProductsPage() {
                     <th className="p-2 text-left w-24">Estoque</th>
                     <th className="p-2 text-center w-20">Ativo</th>
                     <th className="p-2 text-center w-24">Destaque</th>
+                    <th className="p-2 text-center w-40">Atacado / Desc.</th>
                     <th className="p-2 w-24"></th>
                   </tr>
                 </thead>
