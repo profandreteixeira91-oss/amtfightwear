@@ -537,7 +537,7 @@ function WholesalePage() {
                                   <div className="line-clamp-2 min-h-[2.5rem] text-sm font-medium">{p.name}</div>
                                   <div className="flex flex-wrap items-baseline gap-2 text-xs">
                                     <span className="text-muted-foreground line-through">{formatBRL(basePrice)}</span>
-                                    <span className="text-sm font-bold text-primary">{formatBRL(basePrice * (1 - WHOLESALE_DISCOUNT))}</span>
+                                    <span className="text-sm font-bold text-primary">{formatBRL(basePrice * (1 - productPct(p) / 100))}</span>
                                   </div>
 
                                   {hasVariants ? (() => {
