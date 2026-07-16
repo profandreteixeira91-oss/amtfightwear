@@ -186,17 +186,75 @@ export const createWholesaleOrder = createServerFn({ method: "POST" })
 
 export const listStorefrontHome = createServerFn({ method: "GET" }).handler(async () => {
   const sb = publicClient();
-  const [categories, featured, newest] = await Promise.all([
+
+  // 1) Fetch categories to resolve root -> descendant IDs.
+  const { data: allCats } = await sb
+    .from("store_categories")
+    .select("id, slug, name, parent_id")
+    .eq("active", true);
+  const cats = allCats ?? [];
+  const descendantIds = (rootSlug: string): string[] => {
+    const root = cats.find((c) => c.slug === rootSlug);
+    if (!root) return [];
+    const ids = new Set<string>([root.id]);
+    let added = true;
+    while (added) {
+      added = false;
+      for (const c of cats) {
+        if (c.parent_id && ids.has(c.parent_id) && !ids.has(c.id)) {
+          ids.add(c.id);
+          added = true;
+        }
+      }
+    }
+    return Array.from(ids);
+  };
+  const bjjBeltIds = descendantIds("faixas-de-jiu-jitsu");
+  const judoBeltIds = descendantIds("faixas-de-judo");
+  const kimonoIds = descendantIds("kimonos-de-jiu-jitsu");
+
+  const productSel = "id, name, slug, price, compare_at_price, image_url, category_id";
+
+  const [categories, featured, newest, bjjBelts, judoBelts, kimonos] = await Promise.all([
     sb.from("store_categories").select("id, slug, name, image_url, sort_order").eq("active", true).order("sort_order").limit(12),
-    sb.from("products").select("id, name, slug, price, compare_at_price, image_url, category_id").eq("status", "active").eq("featured", true).limit(8),
-    sb.from("products").select("id, name, slug, price, compare_at_price, image_url, category_id").eq("status", "active").order("created_at", { ascending: false }).limit(8),
+    sb.from("products").select(productSel).eq("status", "active").eq("featured", true).limit(12),
+    sb.from("products").select(productSel).eq("status", "active").order("created_at", { ascending: false }).limit(12),
+    bjjBeltIds.length
+      ? sb.from("products").select(productSel).eq("status", "active").in("category_id", bjjBeltIds).limit(60)
+      : Promise.resolve({ data: [] as never[] }),
+    judoBeltIds.length
+      ? sb.from("products").select(productSel).eq("status", "active").in("category_id", judoBeltIds).limit(60)
+      : Promise.resolve({ data: [] as never[] }),
+    kimonoIds.length
+      ? sb.from("products").select(productSel).eq("status", "active").in("category_id", kimonoIds).limit(24)
+      : Promise.resolve({ data: [] as never[] }),
   ]);
+
+  // Daily-seeded shuffle for BJJ belts so the picks rotate once per day.
+  const today = new Date();
+  const seed = today.getUTCFullYear() * 10000 + (today.getUTCMonth() + 1) * 100 + today.getUTCDate();
+  const shuffle = <T,>(arr: T[], s: number): T[] => {
+    const out = arr.slice();
+    let state = s || 1;
+    for (let i = out.length - 1; i > 0; i--) {
+      state = (state * 1664525 + 1013904223) >>> 0;
+      const j = state % (i + 1);
+      [out[i], out[j]] = [out[j], out[i]];
+    }
+    return out;
+  };
+  const bjjBeltsDaily = shuffle(bjjBelts.data ?? [], seed).slice(0, 12);
+
   return {
     categories: categories.data ?? [],
     featured: featured.data ?? [],
     newest: newest.data ?? [],
+    bjjBelts: bjjBeltsDaily,
+    judoBelts: (judoBelts.data ?? []).slice(0, 12),
+    kimonos: (kimonos.data ?? []).slice(0, 12),
   };
 });
+
 
 export const listStoreCategories = createServerFn({ method: "GET" }).handler(async () => {
   const sb = publicClient();
