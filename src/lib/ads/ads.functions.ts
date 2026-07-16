@@ -156,7 +156,7 @@ Devolva SOMENTE JSON no formato:
 }`;
 
     const { text } = await generateText({
-      model: gateway("google/gemini-3-flash-preview"),
+      model: gateway("google/gemini-flash-latest"),
       prompt,
     });
     const strategy = extractJson(text);
@@ -196,7 +196,7 @@ Devolva SOMENTE JSON:
   "exclusions": ["públicos a excluir para evitar conflito"]
 }`;
     const { text } = await generateText({
-      model: gateway("google/gemini-3-flash-preview"),
+      model: gateway("google/gemini-flash-latest"),
       prompt,
     });
     const audiences = extractJson(text);
@@ -240,7 +240,7 @@ Devolva SOMENTE JSON:
   "notes": "explicação curta em português"
 }`;
     const { text } = await generateText({
-      model: gateway("google/gemini-3-flash-preview"),
+      model: gateway("google/gemini-flash-latest"),
       prompt,
     });
     const budget = extractJson(text);
@@ -300,7 +300,7 @@ Devolva SOMENTE JSON:
 Notas de qualidade sinceras (0-10).`;
 
     const { text } = await generateText({
-      model: gateway("google/gemini-3-flash-preview"),
+      model: gateway("google/gemini-flash-latest"),
       prompt,
     });
     const parsed = extractJson(text) as { variants: Array<Record<string, unknown>> };

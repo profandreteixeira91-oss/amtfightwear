@@ -346,7 +346,7 @@ export const Route = createFileRoute("/api/public/sales/chat")({
           const systemPrompt = buildSystemPrompt(settings, kbRows ?? []);
 
           const result = streamText({
-            model: gateway("google/gemini-3-flash-preview"),
+            model: gateway("google/gemini-flash-latest"),
             system: systemPrompt,
             messages: history,
             tools,
