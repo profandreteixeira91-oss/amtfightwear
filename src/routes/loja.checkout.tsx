@@ -2,12 +2,16 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell } from "@/components/store/StoreShell";
 import { listStoreCategories, createStoreOrder } from "@/lib/store/store.functions";
+import { getMyCustomerProfile, saveMyCustomerProfile } from "@/lib/store/customer-profile.functions";
 import { useCart, formatBRL } from "@/lib/store/cart-store";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { ShippingCalculator } from "@/components/store/ShippingCalculator";
 import type { ShippingOption } from "@/lib/store/shipping.functions";
+import { supabase } from "@/integrations/supabase/client";
+import { authService } from "@/services/authService";
+import { LogIn } from "lucide-react";
 
 export const Route = createFileRoute("/loja/checkout")({
   loader: async ({ context }) => {
@@ -25,14 +29,54 @@ function CheckoutPage() {
   const clear = useCart((s) => s.clear);
   const navigate = useNavigate();
   const createOrder = useServerFn(createStoreOrder);
+  const loadProfile = useServerFn(getMyCustomerProfile);
+  const saveProfile = useServerFn(saveMyCustomerProfile);
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [shipping, setShipping] = useState<ShippingOption | null>(null);
+  const [signedIn, setSignedIn] = useState<boolean | null>(null);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [form, setForm] = useState({
     customer_name: "", customer_email: "", customer_phone: "", customer_document: "",
     zip: "", street: "", number: "", complement: "", neighborhood: "", city: "", state: "",
   });
-  useEffect(() => setMounted(true), []);
+
+  useEffect(() => {
+    setMounted(true);
+    supabase.auth.getSession().then(({ data }) => {
+      const authed = !!data.session;
+      setSignedIn(authed);
+      if (!authed) return;
+      loadProfile().then((p) => {
+        if (!p) return;
+        setForm((f) => ({
+          customer_name: p.full_name ?? f.customer_name,
+          customer_email: p.email ?? f.customer_email,
+          customer_phone: p.phone ?? f.customer_phone,
+          customer_document: p.document ?? f.customer_document,
+          zip: p.zip ?? f.zip,
+          street: p.street ?? f.street,
+          number: p.number ?? f.number,
+          complement: p.complement ?? f.complement,
+          neighborhood: p.neighborhood ?? f.neighborhood,
+          city: p.city ?? f.city,
+          state: p.state ?? f.state,
+        }));
+      }).catch(() => { /* ignore */ });
+    });
+  }, [loadProfile]);
+
+  const onGoogleLogin = async () => {
+    setGoogleLoading(true);
+    try {
+      const result = await authService.signInWithGoogle();
+      if (result.error) toast.error("Falha ao entrar com Google", { description: String(result.error) });
+    } catch (e) {
+      toast.error("Falha ao entrar com Google", { description: e instanceof Error ? e.message : String(e) });
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
 
   const subtotal = items.reduce((a, i) => a + i.quantity * i.unit_price, 0);
   const shippingCost = shipping?.price ?? 0;
@@ -80,6 +124,25 @@ function CheckoutPage() {
           })),
         },
       });
+      // Salva/atualiza os dados fiscais no perfil do cliente logado
+      if (signedIn) {
+        try {
+          await saveProfile({
+            data: {
+              full_name: form.customer_name || null,
+              phone: form.customer_phone || null,
+              document: form.customer_document || null,
+              zip: form.zip || null,
+              street: form.street || null,
+              number: form.number || null,
+              complement: form.complement || null,
+              neighborhood: form.neighborhood || null,
+              city: form.city || null,
+              state: form.state ? form.state.toUpperCase() : null,
+            },
+          });
+        } catch { /* não bloqueia o pedido */ }
+      }
       clear();
       toast.success(`Pedido ${res.order_number} criado!`);
       navigate({ to: "/loja/pedido/$id", params: { id: res.id } });
@@ -107,6 +170,24 @@ function CheckoutPage() {
     <StoreShell categories={categories}>
       <form onSubmit={handleSubmit} className="mx-auto max-w-6xl px-4 py-8">
         <h1 className="mb-6 text-3xl font-black">Finalizar compra</h1>
+
+        {signedIn === false && (
+          <div className="mb-6 flex flex-col items-start justify-between gap-3 rounded-lg border bg-card p-4 sm:flex-row sm:items-center">
+            <div className="text-sm">
+              <div className="font-semibold">Já tem conta AMT?</div>
+              <div className="text-muted-foreground">Entre com Google para preencher seus dados automaticamente e agilizar próximas compras.</div>
+            </div>
+            <button
+              type="button"
+              onClick={onGoogleLogin}
+              disabled={googleLoading}
+              className="inline-flex items-center gap-2 rounded-md border-2 border-primary bg-background px-4 py-2 text-sm font-bold text-primary hover:bg-primary/5 disabled:opacity-50"
+            >
+              <LogIn className="h-4 w-4" />
+              {googleLoading ? "Abrindo..." : "Entrar com Google"}
+            </button>
+          </div>
+        )}
 
         <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
           <div className="space-y-6">
