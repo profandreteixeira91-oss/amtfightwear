@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   listLeads, enrichLead, enrichPendingLeads, bulkDeleteLeads, bulkUpdateLeads,
+  logContactAction,
 } from "@/lib/prospect/prospect.functions";
 import { PIPELINE_STAGES, BR_STATES } from "@/features/prospect/types";
 import { fmtDate, scoreToStars } from "@/features/prospect/utils";
