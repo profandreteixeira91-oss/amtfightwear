@@ -51,21 +51,26 @@ export async function firecrawlScrape(url: string): Promise<{ markdown: string; 
 // ============= AI helpers =============
 
 export async function aiExtract<T = unknown>(prompt: string, system?: string): Promise<T | null> {
-  const key = process.env.GEMINI_API_KEY;
+  const key = process.env.LOVABLE_API_KEY;
   if (!key) return null;
-  const url = `${GEMINI_API}/gemini-flash-latest:generateContent?key=${encodeURIComponent(key)}`;
-  const fullPrompt = system ? `${system}\n\n${prompt}` : prompt;
-  const res = await fetch(url, {
+  const messages: Array<{ role: "system" | "user"; content: string }> = [];
+  if (system) messages.push({ role: "system", content: system });
+  messages.push({ role: "user", content: prompt });
+  const res = await fetch(`${LOVABLE_AI}/chat/completions`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${key}`,
+    },
     body: JSON.stringify({
-      contents: [{ role: "user", parts: [{ text: fullPrompt }] }],
-      generationConfig: { responseMimeType: "application/json" },
+      model: "google/gemini-2.5-flash",
+      messages,
+      response_format: { type: "json_object" },
     }),
   });
   if (!res.ok) return null;
-  const json = (await res.json()) as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> };
-  const content = json.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("");
+  const json = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
+  const content = json.choices?.[0]?.message?.content;
   if (!content) return null;
   try { return JSON.parse(content) as T; } catch { return null; }
 }
