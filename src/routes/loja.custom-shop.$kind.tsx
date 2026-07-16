@@ -1276,9 +1276,10 @@ function BuilderPage() {
                               ) : (
                                 (() => {
                                   const t = KIMONO_TECHNIQUES.find((x) => x.id === (entry.technique ?? "bordado"))!;
+                                  const price = kimonoPatchPrice(s.key, t.id, entry.size);
                                   return (
                                     <div className="text-xs font-bold text-primary">
-                                      Adicional ({t.label}): {t.price > 0 ? `+ ${formatBRL(t.price)}` : "a definir"}
+                                      Adicional ({t.label}): {price > 0 ? `+ ${formatBRL(price)}` : "a definir"}
                                     </div>
                                   );
                                 })()
