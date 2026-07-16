@@ -73,6 +73,8 @@ function FaixaCalc() {
   // Seleção por tamanho (modelo)
   const [colorBySize, setColorBySize] = useState<Record<string, ColoracaoKey>>({});
   const [almaBySize, setAlmaBySize] = useState<Record<string, AlmaKey>>({});
+  // Margem por tamanho (override do padrão)
+  const [marginBySize, setMarginBySize] = useState<Record<string, number>>({});
 
   const listFn = useServerFn(listSizePresets);
   const { data: presets } = useQuery({
