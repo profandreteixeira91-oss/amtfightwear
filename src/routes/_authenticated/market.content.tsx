@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { motion } from "framer-motion";
-import { Wand2, Instagram, MessageCircle, Mail, Sparkles, Loader2, Send, Clock, TrendingUp, RefreshCw, Image as ImageIcon, Upload } from "lucide-react";
+import { Wand2, Instagram, MessageCircle, Mail, Sparkles, Loader2, Send, Clock, TrendingUp, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/common/PageHeader";
 import { SectionCard } from "@/components/common/SectionCard";
@@ -19,9 +19,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { generateMarketingContent, suggestViralTopics, autoBriefFromViral } from "@/lib/marketing.functions";
-import { createInstagramPost, listInstagramPosts, uploadContentImage } from "@/lib/instagram.functions";
+import { createInstagramPost, listInstagramPosts } from "@/lib/instagram.functions";
 import { PostCalendar, type CalendarPost } from "@/components/marketing/PostCalendar";
-import { streamImage } from "@/lib/streamImage";
 
 
 export const Route = createFileRoute("/_authenticated/market/content")({
