@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Save, Loader2 } from "lucide-react";
+import { Save, Loader2, Upload, X, Instagram } from "lucide-react";
 import { PageHeader } from "@/components/common/PageHeader";
 import { SectionCard } from "@/components/common/SectionCard";
 import { Button } from "@/components/ui/button";
@@ -13,9 +13,23 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { getSettings, upsertSettings } from "@/lib/prospect/prospect.functions";
+import { getSettings, upsertSettings, uploadOutreachImage } from "@/lib/prospect/prospect.functions";
 import { DEFAULT_SCORE_WEIGHTS } from "@/features/prospect/utils";
 import { BR_STATES } from "@/features/prospect/types";
+
+const DEFAULT_INSTAGRAM_TEMPLATE = `Olá, {{name}}! Tudo bem? 👋
+
+Vi o perfil de vocês e acredito que existe uma excelente oportunidade de parceria.
+
+A AMT Fight Wear é especializada na fabricação de kimonos personalizados, faixas de graduação, patches bordados e roupas esportivas, atendendo academias, equipes, eventos e marcas em todo o Brasil.
+
+Trabalhamos com produção personalizada, excelente acabamento, materiais de alta qualidade e condições especiais para parceiros B2B.
+
+Se vocês buscam um fornecedor confiável para fortalecer a marca da academia ou ampliar o portfólio de produtos, acredito que podemos construir uma parceria de longo prazo.
+
+Conheça nosso site: www.amtfightwear.com.br
+
+Posso enviar nosso catálogo e apresentar as condições para parceiros?`;
 
 export const Route = createFileRoute("/_authenticated/prospect/settings")({
   head: () => ({ meta: [{ title: "Configurações — Prospect Engine" }] }),
@@ -28,6 +42,8 @@ type Settings = {
   email_template?: string | null;
   email_subject_template?: string | null;
   whatsapp_template?: string | null;
+  instagram_template?: string | null;
+  instagram_media_url?: string | null;
   autopilot_enabled?: boolean;
   priority_regions?: string[];
   search_interval_min?: number;
@@ -37,7 +53,10 @@ type Settings = {
 function SettingsPage() {
   const getFn = useServerFn(getSettings);
   const saveFn = useServerFn(upsertSettings);
+  const uploadFn = useServerFn(uploadOutreachImage);
   const { data, isLoading } = useQuery({ queryKey: ["prospect", "settings"], queryFn: () => getFn() });
+  const fileRef = useRef<HTMLInputElement | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const [state, setState] = useState<Settings>({
     required_fields: ["email", "whatsapp"],
