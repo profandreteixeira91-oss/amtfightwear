@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 const GRAPH = "https://graph.facebook.com/v21.0";
-const LOVABLE_AI = "https://generativelanguage.googleapis.com/v1beta/openai";
+const GEMINI_API = "https://generativelanguage.googleapis.com/v1beta/openai";
 const LOGO_PATH = "brand/amt-logo.jpg";
 
 async function fetchAsInlineData(
@@ -160,7 +160,7 @@ Responda APENAS com JSON válido, sem markdown, sem comentários:
   "slides": [ ${Array.from({ length: nSlides }, () => `{ "headline": "...", "subline": "..." }`).join(", ")} ]
 }`;
 
-  const res = await fetch(`${LOVABLE_AI}/chat/completions`, {
+  const res = await fetch(`${GEMINI_API}/chat/completions`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -272,7 +272,7 @@ HARD RULES:
   });
   content.push({ type: "text", text: promptText });
 
-  const res = await fetch(`${LOVABLE_AI}/chat/completions`, {
+  const res = await fetch(`${GEMINI_API}/chat/completions`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

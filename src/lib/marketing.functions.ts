@@ -73,7 +73,7 @@ async function geminiGenerateText(prompt: string): Promise<string> {
   });
   if (!res.ok) {
     const t = await res.text().catch(() => "");
-    throw new Error(`Lovable AI ${res.status}: ${t.slice(0, 300)}`);
+    throw new Error(`Gemini ${res.status}: ${t.slice(0, 300)}`);
   }
   const json = (await res.json()) as {
     choices?: Array<{ message?: { content?: string } }>;
