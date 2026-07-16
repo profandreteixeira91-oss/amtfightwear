@@ -3,6 +3,8 @@ import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
 import { listStorefrontHome, listStoreCategories } from "@/lib/store/store.functions";
 import { Link } from "@tanstack/react-router";
+import heroBanner from "@/assets/loja-hero-banner.jpg";
+import amtLogo from "@/assets/amt-logo.jpg";
 
 const homeQuery = queryOptions({
   queryKey: ["store", "home"],
