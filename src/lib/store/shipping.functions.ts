@@ -218,9 +218,13 @@ export const adminMelhorEnvioBalance = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async () => {
     const env = await loadMeEnv();
-    const me = (await meFetch("/me", { method: "GET" }, env)) as Record<string, unknown> | null;
-    const balance = (await meFetch("/me/balance", { method: "GET" }, env)) as Record<string, unknown> | null;
-    return { me: (me ?? {}) as Record<string, unknown>, balance: (balance ?? {}) as Record<string, unknown> };
+    const me = (await meFetch("/me", { method: "GET" }, env)) as { id?: number; name?: string; email?: string; firstname?: string; lastname?: string } | null;
+    const balance = (await meFetch("/me/balance", { method: "GET" }, env)) as { balance?: number } | null;
+    return {
+      name: me?.name ?? [me?.firstname, me?.lastname].filter(Boolean).join(" ") ?? null,
+      email: me?.email ?? null,
+      balance: Number(balance?.balance ?? 0),
+    };
   });
 
 const OrderIdInput = z.object({ order_id: z.string().uuid() });
