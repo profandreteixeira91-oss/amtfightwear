@@ -445,10 +445,66 @@ function ContentPage() {
                   </Card>
                 </motion.div>
 
+                <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-3">
+                  <div className="flex items-center gap-1.5 text-sm font-semibold">
+                    <ImageIcon className="h-4 w-4 text-primary" /> Gerar imagem com IA
+                  </div>
+
+                  <div className="grid grid-cols-[1fr_auto] gap-2">
+                    <Textarea
+                      rows={3}
+                      value={imagePrompt}
+                      onChange={(e) => setImagePrompt(e.target.value)}
+                      placeholder="Descreva a arte que quer gerar (auto-preenchido a partir do briefing)..."
+                      className="text-xs"
+                    />
+                    <Select value={imageAspect} onValueChange={(v) => setImageAspect(v as typeof imageAspect)}>
+                      <SelectTrigger className="w-24 self-start"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1:1">1:1 feed</SelectItem>
+                        <SelectItem value="4:3">4:3</SelectItem>
+                        <SelectItem value="3:4">3:4 retrato</SelectItem>
+                        <SelectItem value="9:16">9:16 story</SelectItem>
+                        <SelectItem value="16:9">16:9</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    <Button size="sm" className="gap-1.5" disabled={imageBusy} onClick={handleGenerateImage}>
+                      {imageBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                      {genImage ? "Regenerar" : "Gerar imagem"}
+                    </Button>
+                    {genImage?.final && (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className="gap-1.5"
+                        disabled={uploadBusy}
+                        onClick={handleUseGeneratedImage}
+                      >
+                        {uploadBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />}
+                        Usar essa imagem no post
+                      </Button>
+                    )}
+                  </div>
+
+                  {genImage?.src && (
+                    <div className="overflow-hidden rounded-md border border-border bg-muted">
+                      <img
+                        src={genImage.src}
+                        alt="Prévia gerada por IA"
+                        className={`w-full transition-[filter] duration-300 ${genImage.final ? "" : "blur-2xl"}`}
+                      />
+                    </div>
+                  )}
+                </div>
+
                 <div className="space-y-2">
                   <Label>URL da imagem (pública)</Label>
-                  <Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://..." />
+                  <Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://... ou use o gerador acima" />
                 </div>
+
 
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_auto]">
                   <Input type="datetime-local" value={scheduleAt} onChange={(e) => setScheduleAt(e.target.value)} />
