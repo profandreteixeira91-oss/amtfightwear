@@ -82,7 +82,7 @@ function ProductPage() {
     <StoreShell categories={categories}>
       <div className="mx-auto max-w-7xl px-4 py-8">
         <nav className="mb-6 text-xs text-muted-foreground">
-          <Link to="/loja" className="hover:text-primary">Início</Link>
+          <Link to="/" className="hover:text-primary">Início</Link>
           <span className="mx-2">/</span>
           {data.category && (
             <>
