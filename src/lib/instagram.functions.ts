@@ -141,7 +141,12 @@ export const rescheduleInstagramPost = createServerFn({ method: "POST" })
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
-    const patch: Record<string, unknown> = {};
+    const patch: {
+      caption?: string;
+      image_url?: string;
+      scheduled_for?: string | null;
+      status?: string;
+    } = {};
     if (data.caption !== undefined) patch.caption = data.caption;
     if (data.imageUrl !== undefined) patch.image_url = data.imageUrl;
     if (data.scheduledFor !== undefined) {
