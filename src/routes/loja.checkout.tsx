@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell } from "@/components/store/StoreShell";
 import { listStoreCategories, createStoreOrder } from "@/lib/store/store.functions";
+import { createAsaasPayment } from "@/lib/store/payment.functions";
 import { getMyCustomerProfile, saveMyCustomerProfile } from "@/lib/store/customer-profile.functions";
 import { useCart, formatBRL } from "@/lib/store/cart-store";
 import { useEffect, useState } from "react";
@@ -29,6 +30,7 @@ function CheckoutPage() {
   const clear = useCart((s) => s.clear);
   const navigate = useNavigate();
   const createOrder = useServerFn(createStoreOrder);
+  const createPayment = useServerFn(createAsaasPayment);
   const loadProfile = useServerFn(getMyCustomerProfile);
   const saveProfile = useServerFn(saveMyCustomerProfile);
   const [mounted, setMounted] = useState(false);
@@ -36,6 +38,9 @@ function CheckoutPage() {
   const [shipping, setShipping] = useState<ShippingOption | null>(null);
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"PIX" | "CREDIT_CARD" | "BOLETO">("PIX");
+  const [installments, setInstallments] = useState(1);
+  const [card, setCard] = useState({ holderName: "", number: "", expiryMonth: "", expiryYear: "", ccv: "" });
   const [form, setForm] = useState({
     customer_name: "", customer_email: "", customer_phone: "", customer_document: "",
     zip: "", street: "", number: "", complement: "", neighborhood: "", city: "", state: "",
@@ -105,6 +110,12 @@ function CheckoutPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (items.length === 0) return toast.error("Carrinho vazio");
+    if (!shipping) return toast.error("Selecione uma opção de frete");
+    if (paymentMethod === "CREDIT_CARD") {
+      if (!card.holderName || !card.number || !card.expiryMonth || !card.expiryYear || !card.ccv) {
+        return toast.error("Preencha os dados do cartão");
+      }
+    }
     setLoading(true);
     try {
       const res = await createOrder({
@@ -117,6 +128,8 @@ function CheckoutPage() {
             zip: form.zip, street: form.street, number: form.number, complement: form.complement,
             neighborhood: form.neighborhood, city: form.city, state: form.state,
           },
+          shipping_cost: shipping.price,
+          shipping_method: `${shipping.company} ${shipping.name}`,
           items: items.map((i) => ({
             product_id: i.product_id,
             variant_id: i.variant_id ?? undefined,
@@ -124,7 +137,8 @@ function CheckoutPage() {
           })),
         },
       });
-      // Salva/atualiza os dados fiscais no perfil do cliente logado
+
+      // Salva perfil fiscal
       if (signedIn) {
         try {
           await saveProfile({
@@ -143,6 +157,24 @@ function CheckoutPage() {
           });
         } catch { /* não bloqueia o pedido */ }
       }
+
+      // Cria cobrança no Asaas
+      try {
+        await createPayment({
+          data: {
+            order_id: res.id,
+            method: paymentMethod,
+            installments: paymentMethod === "CREDIT_CARD" ? installments : undefined,
+            card: paymentMethod === "CREDIT_CARD" ? card : undefined,
+          },
+        });
+      } catch (payErr) {
+        toast.error(payErr instanceof Error ? payErr.message : "Erro no pagamento");
+        // Ainda navega para o pedido para permitir retry
+        navigate({ to: "/loja/pedido/$id", params: { id: res.id } });
+        return;
+      }
+
       clear();
       toast.success(`Pedido ${res.order_number} criado!`);
       navigate({ to: "/loja/pedido/$id", params: { id: res.id } });
@@ -152,6 +184,7 @@ function CheckoutPage() {
       setLoading(false);
     }
   };
+
 
   if (!mounted) return <StoreShell categories={categories}><div className="p-16" /></StoreShell>;
 
@@ -241,10 +274,55 @@ function CheckoutPage() {
 
             <section className="rounded-lg border bg-card p-5">
               <h2 className="mb-3 font-bold">Pagamento</h2>
-              <div className="rounded-md bg-muted p-4 text-sm text-muted-foreground">
-                🚧 Integração de pagamento chega na <strong className="text-foreground">Fase 3</strong> (Mercado Pago / Pagar.me). Por enquanto, o pedido é registrado como <strong>Aguardando pagamento</strong> e você recebe as instruções por e-mail.
+              <div className="grid gap-2 sm:grid-cols-3">
+                {(["PIX", "CREDIT_CARD", "BOLETO"] as const).map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => setPaymentMethod(m)}
+                    className={`rounded-md border-2 px-3 py-2 text-sm font-bold transition ${paymentMethod === m ? "border-primary bg-primary/10 text-primary" : "border-input hover:border-primary/50"}`}
+                  >
+                    {m === "PIX" ? "PIX" : m === "CREDIT_CARD" ? "Cartão de crédito" : "Boleto"}
+                  </button>
+                ))}
               </div>
+
+              {paymentMethod === "PIX" && (
+                <p className="mt-3 text-xs text-muted-foreground">Após confirmar, você verá o QR Code e o código Copia e Cola. O pedido é liberado automaticamente após a confirmação do pagamento.</p>
+              )}
+              {paymentMethod === "BOLETO" && (
+                <p className="mt-3 text-xs text-muted-foreground">O boleto será gerado com vencimento em 3 dias úteis. O pedido é liberado após a compensação bancária.</p>
+              )}
+
+              {paymentMethod === "CREDIT_CARD" && (
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <div className="sm:col-span-2">
+                    <Field label="Nome impresso no cartão" value={card.holderName} onChange={(v) => setCard((c) => ({ ...c, holderName: v.toUpperCase() }))} required />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <Field label="Número do cartão" value={card.number} onChange={(v) => setCard((c) => ({ ...c, number: v }))} required />
+                  </div>
+                  <Field label="Mês (MM)" value={card.expiryMonth} onChange={(v) => setCard((c) => ({ ...c, expiryMonth: v.replace(/\D/g, "").slice(0, 2) }))} maxLength={2} required />
+                  <Field label="Ano (AAAA)" value={card.expiryYear} onChange={(v) => setCard((c) => ({ ...c, expiryYear: v.replace(/\D/g, "").slice(0, 4) }))} maxLength={4} required />
+                  <Field label="CVV" value={card.ccv} onChange={(v) => setCard((c) => ({ ...c, ccv: v.replace(/\D/g, "").slice(0, 4) }))} maxLength={4} required />
+                  <label className="block">
+                    <span className="text-xs font-semibold text-muted-foreground">Parcelas *</span>
+                    <select
+                      value={installments}
+                      onChange={(e) => setInstallments(Number(e.target.value))}
+                      className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+                    >
+                      {Array.from({ length: 12 }, (_, i) => i + 1).map((n) => (
+                        <option key={n} value={n}>
+                          {n}x de {formatBRL(total / n)}{n === 1 ? " à vista" : ""}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+              )}
             </section>
+
           </div>
 
           <aside className="h-fit rounded-lg border bg-card p-5">
