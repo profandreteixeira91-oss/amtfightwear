@@ -288,34 +288,36 @@ export function ProductCard({ product }: { product: { id: string; name: string; 
     <Link
       to="/loja/produto/$slug"
       params={{ slug: product.slug ?? product.id }}
-      className="group flex flex-col overflow-hidden rounded-lg border bg-card transition-shadow hover:shadow-lg"
+      className="group flex flex-col overflow-hidden rounded-md border border-border bg-card transition-all duration-200 hover:border-foreground hover:shadow-[0_8px_24px_-12px_rgba(0,0,0,0.18)]"
     >
-      <div className="relative">
+      <div className="relative overflow-hidden border-b border-border bg-muted">
         <ProductImage
           src={product.image_url}
           alt={product.name}
           aspect="square"
-          imgClassName="transition-transform group-hover:scale-105"
+          imgClassName="transition-transform duration-500 group-hover:scale-[1.04]"
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
         />
         {hasDiscount && (
-          <div className="absolute left-2 top-2 rounded bg-primary px-2 py-1 text-[10px] font-bold uppercase text-primary-foreground">
-            -{Math.round(((compareAt! - price) / compareAt!) * 100)}%
+          <div className="absolute left-0 top-3 bg-primary px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-primary-foreground shadow-sm">
+            −{Math.round(((compareAt! - price) / compareAt!) * 100)}%
           </div>
         )}
       </div>
-      <div className="flex flex-1 flex-col gap-1 p-3">
-        <h3 className="line-clamp-2 text-sm font-medium text-foreground">{product.name}</h3>
+      <div className="flex flex-1 flex-col gap-1 p-4">
+        <h3 className="line-clamp-2 min-h-[2.5rem] text-sm font-semibold uppercase tracking-tight text-foreground group-hover:text-primary">
+          {product.name}
+        </h3>
         <div className="mt-auto pt-2">
           {hasDiscount && (
             <div className="text-xs text-muted-foreground line-through">
               {compareAt!.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
             </div>
           )}
-          <div className="text-lg font-bold text-foreground">
+          <div className="text-lg font-black tracking-tight text-foreground">
             {price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
           </div>
-          <div className="text-[11px] text-muted-foreground">ou 10x de {installments}</div>
+          <div className="text-[11px] text-muted-foreground">ou 10x de <span className="font-semibold text-foreground">{installments}</span></div>
         </div>
       </div>
     </Link>
