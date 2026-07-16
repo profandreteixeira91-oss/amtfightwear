@@ -61,6 +61,7 @@ function LeadsPage() {
   const enrichPending = useServerFn(enrichPendingLeads);
   const bulkDelete = useServerFn(bulkDeleteLeads);
   const bulkUpdate = useServerFn(bulkUpdateLeads);
+  const logContact = useServerFn(logContactAction);
 
   const filters = { search, state, stage, minScore, hasEmail, hasWa, hasIg };
   const { data, isLoading, error, refetch } = useQuery({
