@@ -233,7 +233,7 @@ export const adminMelhorEnvioQuoteOrder = createServerFn({ method: "POST" })
   .inputValidator((i: z.infer<typeof OrderIdInput>) => OrderIdInput.parse(i))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const env = await loadEnv(supabaseAdmin);
+    const env = await loadMeEnv();
     const { data: order } = await supabaseAdmin.from("store_orders").select("*").eq("id", data.order_id).maybeSingle();
     if (!order) throw new Error("Pedido não encontrado");
     const { data: settings } = await supabaseAdmin.from("store_shipping_settings").select("*").eq("singleton", true).maybeSingle();
@@ -315,7 +315,7 @@ export const adminMelhorEnvioAddToCart = createServerFn({ method: "POST" })
   .inputValidator((i: z.infer<typeof AddToCartInput>) => AddToCartInput.parse(i))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const env = await loadEnv(supabaseAdmin);
+    const env = await loadMeEnv();
     const { data: order } = await supabaseAdmin.from("store_orders").select("*").eq("id", data.order_id).maybeSingle();
     if (!order) throw new Error("Pedido não encontrado");
     const { data: settings } = await supabaseAdmin.from("store_shipping_settings").select("*").eq("singleton", true).maybeSingle();
@@ -425,7 +425,7 @@ export const adminMelhorEnvioCheckout = createServerFn({ method: "POST" })
   .inputValidator((i: z.infer<typeof CartIdsInput>) => CartIdsInput.parse(i))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const env = await loadEnv(supabaseAdmin);
+    const env = await loadMeEnv();
     const { data: orders } = await supabaseAdmin
       .from("store_orders")
       .select("id, melhor_envio_cart_id")
@@ -457,7 +457,7 @@ export const adminMelhorEnvioGenerate = createServerFn({ method: "POST" })
   .inputValidator((i: z.infer<typeof CartIdsInput>) => CartIdsInput.parse(i))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const env = await loadEnv(supabaseAdmin);
+    const env = await loadMeEnv();
     const { data: orders } = await supabaseAdmin
       .from("store_orders")
       .select("id, melhor_envio_cart_id, melhor_envio_order_id")
@@ -489,7 +489,7 @@ export const adminMelhorEnvioSyncTracking = createServerFn({ method: "POST" })
   .inputValidator((i: z.infer<typeof CartIdsInput>) => CartIdsInput.parse(i))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const env = await loadEnv(supabaseAdmin);
+    const env = await loadMeEnv();
     const { data: orders } = await supabaseAdmin
       .from("store_orders")
       .select("id, melhor_envio_cart_id, melhor_envio_order_id")
