@@ -120,13 +120,13 @@ function CustomShopIndex() {
             const comingSoon = t.kind.toLowerCase().includes("rashguard");
             const inner = (
               <>
-                <div className="relative aspect-square overflow-hidden bg-muted">
+                <div className="relative aspect-[4/5] overflow-hidden bg-muted">
                   {t.base_image_url ? (
                     <img
                       src={t.base_image_url}
                       alt={t.name}
                       loading="lazy"
-                      className={`h-full w-full object-cover transition-transform duration-500 ${comingSoon ? "opacity-60 grayscale" : "group-hover:scale-105"}`}
+                      className={`h-full w-full object-contain transition-transform duration-500 ${comingSoon ? "opacity-60 grayscale" : "group-hover:scale-105"}`}
                     />
                   ) : (
                     <div className="grid h-full w-full place-items-center text-4xl">🥋</div>
