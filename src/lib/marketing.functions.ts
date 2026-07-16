@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { openrouterChat } from "./ai-gateway.server";
 
 export const CONTENT_TYPES = [
   "product",       // divulgação de produto
@@ -56,7 +57,6 @@ function buildBrief(data: z.infer<typeof GenerateInput>) {
   };
 }
 
-import { openrouterChat } from "./ai-gateway.server";
 
 async function geminiGenerateText(prompt: string): Promise<string> {
   return openrouterChat({
