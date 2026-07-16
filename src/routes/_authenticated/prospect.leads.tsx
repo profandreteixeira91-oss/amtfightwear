@@ -361,8 +361,14 @@ function LeadsPage() {
                   const ig = r.contacts.find((c) => c.channel === "instagram")?.value;
                   const stars = scoreToStars(Number(r.score) || 0);
                   const isSel = selected.has(r.id);
+                  const isFocused = focus === r.id;
                   return (
-                    <TableRow key={r.id} data-state={isSel ? "selected" : undefined}>
+                    <TableRow
+                      key={r.id}
+                      ref={isFocused ? focusedRowRef : undefined}
+                      data-state={isSel ? "selected" : undefined}
+                      className={isFocused ? "bg-primary/10 ring-2 ring-primary/60 ring-inset animate-pulse" : undefined}
+                    >
                       <TableCell>
                         <Checkbox
                           checked={isSel}
