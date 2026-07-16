@@ -274,10 +274,55 @@ function CheckoutPage() {
 
             <section className="rounded-lg border bg-card p-5">
               <h2 className="mb-3 font-bold">Pagamento</h2>
-              <div className="rounded-md bg-muted p-4 text-sm text-muted-foreground">
-                🚧 Integração de pagamento chega na <strong className="text-foreground">Fase 3</strong> (Mercado Pago / Pagar.me). Por enquanto, o pedido é registrado como <strong>Aguardando pagamento</strong> e você recebe as instruções por e-mail.
+              <div className="grid gap-2 sm:grid-cols-3">
+                {(["PIX", "CREDIT_CARD", "BOLETO"] as const).map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => setPaymentMethod(m)}
+                    className={`rounded-md border-2 px-3 py-2 text-sm font-bold transition ${paymentMethod === m ? "border-primary bg-primary/10 text-primary" : "border-input hover:border-primary/50"}`}
+                  >
+                    {m === "PIX" ? "PIX" : m === "CREDIT_CARD" ? "Cartão de crédito" : "Boleto"}
+                  </button>
+                ))}
               </div>
+
+              {paymentMethod === "PIX" && (
+                <p className="mt-3 text-xs text-muted-foreground">Após confirmar, você verá o QR Code e o código Copia e Cola. O pedido é liberado automaticamente após a confirmação do pagamento.</p>
+              )}
+              {paymentMethod === "BOLETO" && (
+                <p className="mt-3 text-xs text-muted-foreground">O boleto será gerado com vencimento em 3 dias úteis. O pedido é liberado após a compensação bancária.</p>
+              )}
+
+              {paymentMethod === "CREDIT_CARD" && (
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <div className="sm:col-span-2">
+                    <Field label="Nome impresso no cartão" value={card.holderName} onChange={(v) => setCard((c) => ({ ...c, holderName: v.toUpperCase() }))} required />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <Field label="Número do cartão" value={card.number} onChange={(v) => setCard((c) => ({ ...c, number: v }))} required />
+                  </div>
+                  <Field label="Mês (MM)" value={card.expiryMonth} onChange={(v) => setCard((c) => ({ ...c, expiryMonth: v.replace(/\D/g, "").slice(0, 2) }))} maxLength={2} required />
+                  <Field label="Ano (AAAA)" value={card.expiryYear} onChange={(v) => setCard((c) => ({ ...c, expiryYear: v.replace(/\D/g, "").slice(0, 4) }))} maxLength={4} required />
+                  <Field label="CVV" value={card.ccv} onChange={(v) => setCard((c) => ({ ...c, ccv: v.replace(/\D/g, "").slice(0, 4) }))} maxLength={4} required />
+                  <label className="block">
+                    <span className="text-xs font-semibold text-muted-foreground">Parcelas *</span>
+                    <select
+                      value={installments}
+                      onChange={(e) => setInstallments(Number(e.target.value))}
+                      className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+                    >
+                      {Array.from({ length: 12 }, (_, i) => i + 1).map((n) => (
+                        <option key={n} value={n}>
+                          {n}x de {formatBRL(total / n)}{n === 1 ? " à vista" : ""}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+              )}
             </section>
+
           </div>
 
           <aside className="h-fit rounded-lg border bg-card p-5">
