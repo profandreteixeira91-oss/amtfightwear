@@ -255,8 +255,30 @@ function AdminProductsPage() {
               Selecionar todos filtrados ({filtered.length})
             </Button>
             {selected.size > 0 && (
-              <Button variant="ghost" onClick={() => setSelected(new Set())}>Limpar seleção</Button>
+              <>
+                <Button
+                  variant="destructive"
+                  onClick={async () => {
+                    if (!confirm(`Excluir ${selected.size} produto(s) selecionado(s)? Esta ação não pode ser desfeita.`)) return;
+                    setSaving(true);
+                    let ok = 0, fail = 0;
+                    for (const id of Array.from(selected)) {
+                      try { await deleteProduct({ data: { id } }); ok++; }
+                      catch { fail++; }
+                    }
+                    setSaving(false);
+                    setSelected(new Set());
+                    toast.success(`${ok} excluído(s)${fail ? `, ${fail} falha(s)` : ""}`);
+                    refresh();
+                  }}
+                  disabled={saving}
+                >
+                  <Trash2 className="h-3 w-3 mr-1" /> Excluir selecionados
+                </Button>
+                <Button variant="ghost" onClick={() => setSelected(new Set())}>Limpar seleção</Button>
+              </>
             )}
+
           </div>
           <p className="mt-2 text-xs text-muted-foreground">Selecione produtos na tabela abaixo (ou use "Selecionar todos filtrados") e informe novo preço, ajuste % ou estoque. Preço absoluto tem prioridade sobre ajuste %.</p>
         </CardContent>
