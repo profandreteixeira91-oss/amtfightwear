@@ -443,8 +443,8 @@ export const Route = createFileRoute("/api/public/hooks/auto-instagram-post")({
         const force = url.searchParams.get("force") === "1" || request.headers.get("x-force") === "1";
         const forcedType = url.searchParams.get("type") as PostType | null;
         const forcedAngle = url.searchParams.get("angle") as ContentAngle | null;
-        const apiKey = process.env.GEMINI_API_KEY;
-        if (!apiKey) return Response.json({ error: "GEMINI_API_KEY missing" }, { status: 500 });
+        const apiKey = process.env.LOVABLE_API_KEY;
+        if (!apiKey) return Response.json({ error: "LOVABLE_API_KEY missing" }, { status: 500 });
 
         const supabase = await getAdmin();
 
