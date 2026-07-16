@@ -145,18 +145,50 @@ function FaixaCalc() {
           <Row label="Materiais por metro" value={brl(materialsPerM)} />
           <Row label="Custo total por metro" value={brl(totalPerM)} bold />
           <Separator />
-          <div className="flex items-center gap-3 pt-2">
-            <Label className="w-56">Comprimento da faixa (m)</Label>
-            <Input
-              type="number"
-              step={0.1}
-              value={beltLength}
-              onChange={(e) => setBeltLength(Number(e.target.value) || 0)}
-              className="max-w-[140px]"
-            />
+          <div className="pt-2">
+            <div className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              Custo por tamanho — categoria "faixa" da tabela de medidas
+            </div>
+            {currentSizes.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Nenhum tamanho cadastrado para a categoria "faixa". Cadastre em Tabela de tamanhos.
+              </p>
+            ) : (
+              <div className="overflow-hidden rounded-md border">
+                <table className="w-full text-sm">
+                  <thead className="bg-muted/50 text-xs uppercase tracking-widest text-muted-foreground">
+                    <tr>
+                      <th className="px-3 py-2 text-left">Tamanho</th>
+                      <th className="px-3 py-2 text-left">Comprimento (m)</th>
+                      <th className="px-3 py-2 text-right">Custo unitário</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {currentSizes.map((s) => {
+                      const len = getLen(s);
+                      return (
+                        <tr key={s} className="border-t">
+                          <td className="px-3 py-2 font-semibold">{s}</td>
+                          <td className="px-3 py-2">
+                            <Input
+                              type="number"
+                              step={0.05}
+                              value={len}
+                              onChange={(e) =>
+                                setLengths((prev) => ({ ...prev, [s]: Number(e.target.value) || 0 }))
+                              }
+                              className="max-w-[120px]"
+                            />
+                          </td>
+                          <td className="px-3 py-2 text-right font-bold">{brl(totalPerM * len)}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
-          <Row label={`Custo por faixa (${beltLength || 0} m)`} value={brl(totalPerBelt)} bold highlight />
-        </CardContent>
       </Card>
     </div>
   );
