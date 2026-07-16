@@ -94,6 +94,61 @@ function StoreHomePage() {
         </div>
       </section>
 
+      {/* Destaques Kimonos & Faixas — logo abaixo do banner */}
+      {(() => {
+        const pick = [
+          ...data.kimonos.slice(0, 2),
+          ...data.bjjBelts.slice(0, 1),
+          ...data.judoBelts.slice(0, 1),
+        ].slice(0, 4);
+        if (pick.length === 0) return null;
+        return (
+          <section className="mx-auto max-w-7xl px-4 pt-10">
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              {pick.map((p) => (
+                <Link
+                  key={p.id}
+                  to="/loja/produto/$slug"
+                  params={{ slug: p.slug }}
+                  className="group relative flex h-56 items-stretch overflow-hidden rounded-2xl border border-border bg-muted/40 transition hover:border-foreground hover:shadow-[0_8px_24px_-12px_rgba(0,0,0,0.18)]"
+                >
+                  {/* Text */}
+                  <div className="relative z-10 flex w-1/2 flex-col justify-between p-5">
+                    <div>
+                      <h3 className="text-base font-black uppercase leading-tight tracking-tight text-foreground line-clamp-3">
+                        {p.name}
+                      </h3>
+                    </div>
+                    <div>
+                      <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">A partir de</div>
+                      <div className="text-xl font-black leading-none text-emerald-600">
+                        {Number(p.price).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                      </div>
+                      <div className="mt-2 text-xs font-black uppercase tracking-[0.2em] text-primary group-hover:underline">
+                        Comprar →
+                      </div>
+                    </div>
+                  </div>
+                  {/* Product image "breaking out" of the card */}
+                  <div className="pointer-events-none absolute inset-y-0 right-0 w-3/5">
+                    {p.image_url ? (
+                      <img
+                        src={p.image_url}
+                        alt={p.name}
+                        className="h-full w-full object-contain object-right transition-transform duration-300 group-hover:scale-[1.03]"
+                      />
+                    ) : (
+                      <div className="h-full w-full bg-muted" />
+                    )}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        );
+      })()}
+
+
       {/* CTA Marketing */}
       <section className="mx-auto max-w-7xl px-4 py-12">
         <div className="grid gap-4 md:grid-cols-3">
