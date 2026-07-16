@@ -80,13 +80,6 @@ function ContentPage() {
   const [scheduleAt, setScheduleAt] = useState("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
 
-  // ---- Geração de imagem com IA ----
-  const uploadImageFn = useServerFn(uploadContentImage);
-  const [imagePrompt, setImagePrompt] = useState("");
-  const [imageAspect, setImageAspect] = useState<"1:1" | "4:3" | "3:4" | "9:16" | "16:9">("1:1");
-  const [genImage, setGenImage] = useState<{ src: string; final: boolean } | null>(null);
-  const [imageBusy, setImageBusy] = useState(false);
-  const [uploadBusy, setUploadBusy] = useState(false);
 
 
   const suggestMut = useMutation({
