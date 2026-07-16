@@ -208,6 +208,99 @@ function SettingsPage() {
             </div>
           </div>
         </SectionCard>
+
+        <SectionCard
+          title={<span className="inline-flex items-center gap-2"><Instagram className="h-4 w-4" /> Mensagem de Instagram (DM)</span> as unknown as string}
+          description="Texto padrão + imagem enviada junto no primeiro contato. Use {{name}}, {{city}} e {{category}} como variáveis."
+        >
+          <div className="grid gap-3">
+            <div className="grid gap-1.5">
+              <Label>Texto da mensagem</Label>
+              <Textarea
+                rows={14}
+                value={state.instagram_template ?? ""}
+                placeholder={DEFAULT_INSTAGRAM_TEMPLATE}
+                onChange={(e) => setState((s) => ({ ...s, instagram_template: e.target.value }))}
+              />
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] text-muted-foreground">
+                  {(state.instagram_template ?? "").length} caracteres
+                </span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setState((s) => ({ ...s, instagram_template: DEFAULT_INSTAGRAM_TEMPLATE }))}
+                >
+                  Restaurar padrão
+                </Button>
+              </div>
+            </div>
+
+            <div className="grid gap-1.5">
+              <Label>Imagem anexada à mensagem</Label>
+              <div className="flex flex-wrap items-start gap-3">
+                {state.instagram_media_url ? (
+                  <div className="relative">
+                    <img
+                      src={state.instagram_media_url}
+                      alt="Prévia da imagem anexada"
+                      className="h-32 w-32 rounded-md border border-border object-cover"
+                    />
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="destructive"
+                      className="absolute -right-2 -top-2 h-6 w-6"
+                      onClick={() => setState((s) => ({ ...s, instagram_media_url: null }))}
+                      title="Remover imagem"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="grid h-32 w-32 place-items-center rounded-md border border-dashed border-border text-xs text-muted-foreground">
+                    Sem imagem
+                  </div>
+                )}
+                <div className="flex-1 space-y-2">
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    className="hidden"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) void onPickImage(f);
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={uploading}
+                    onClick={() => fileRef.current?.click()}
+                  >
+                    {uploading ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Upload className="mr-2 h-4 w-4" />
+                    )}
+                    {state.instagram_media_url ? "Trocar imagem" : "Enviar imagem"}
+                  </Button>
+                  <Input
+                    placeholder="ou cole uma URL pública da imagem"
+                    value={state.instagram_media_url ?? ""}
+                    onChange={(e) => setState((s) => ({ ...s, instagram_media_url: e.target.value || null }))}
+                  />
+                  <p className="text-[11px] text-muted-foreground">
+                    Recomendado: PNG ou JPG, até 5&nbsp;MB, formato 1:1 ou 4:5 para melhor exibição no Instagram.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </SectionCard>
       </div>
     </div>
   );
