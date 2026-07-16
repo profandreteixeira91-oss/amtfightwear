@@ -165,12 +165,6 @@ Responda APENAS com JSON válido, sem markdown, sem comentários:
     messages: [{ role: "user", content: prompt }],
     json: true,
   });
-  const resOk = true;
-  if (!resOk) throw new Error(`AI copy failed`);
-  const json = (await res.json()) as {
-    choices?: Array<{ message?: { content?: string } }>;
-  };
-  const text = json.choices?.[0]?.message?.content ?? "";
   const match = text.match(/\{[\s\S]*\}/);
   if (!match) throw new Error("Gemini copy: no JSON in response");
   const parsed = JSON.parse(match[0]) as {
