@@ -218,3 +218,134 @@ Retorne SOMENTE JSON: {"suggestions":["tema 1","tema 2","tema 3","tema 4","tema 
       return { suggestions: [] as string[] };
     }
   });
+
+// =====================================================================
+// Auto-briefing: gera briefing COMPLETO baseado nos posts virais + catálogo
+// =====================================================================
+
+const AutoBriefInput = z.object({
+  objective: z.enum(["atacado", "varejo"]).default("varejo"),
+});
+
+export const autoBriefFromViral = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => AutoBriefInput.parse(input ?? {}))
+  .handler(async ({ data, context }) => {
+    // 1. Posts virais recentes (por engajamento)
+    const { data: viral } = await context.supabase
+      .from("ig_media_cache")
+      .select("caption, like_count, comments_count, media_type")
+      .not("caption", "is", null)
+      .order("like_count", { ascending: false })
+      .limit(20);
+
+    // 2. Temas já postados (evitar repetir)
+    const { data: recent } = await context.supabase
+      .from("scheduled_posts")
+      .select("theme, caption")
+      .in("status", ["published", "scheduled"])
+      .order("created_at", { ascending: false })
+      .limit(20);
+
+    // 3. Catálogo (produtos disponíveis para sugerir)
+    const { data: products } = await context.supabase
+      .from("products")
+      .select("id, name, category, price")
+      .limit(200);
+
+    const viralSnippets = (viral ?? [])
+      .map((v, i) => {
+        const cap = (v.caption ?? "").replace(/\s+/g, " ").slice(0, 200);
+        return `#${i + 1} [♥${v.like_count ?? 0} 💬${v.comments_count ?? 0} ${v.media_type ?? ""}] ${cap}`;
+      })
+      .join("\n");
+
+    const recentThemes = (recent ?? [])
+      .map((r) => r.theme)
+      .filter(Boolean)
+      .join(" | ");
+
+    const catalog = (products ?? [])
+      .map((p) => `${p.id} | ${p.name} | ${p.category ?? "—"} | R$ ${Number(p.price ?? 0).toFixed(2)}`)
+      .join("\n");
+
+    const audience =
+      data.objective === "atacado"
+        ? "professores e donos de academias (atacado)"
+        : "alunos e praticantes (varejo)";
+
+    const prompt = `Você é estrategista sênior de conteúdo da AMT Fight Wear (BJJ/Judô premium).
+Analise os posts mais VIRAIS do Instagram da marca e proponha o PRÓXIMO briefing ideal para ${audience}.
+
+POSTS VIRAIS (mais curtidos primeiro):
+${viralSnippets || "(sem histórico — use conhecimento do nicho)"}
+
+TEMAS RECÉM POSTADOS (evite repetir literalmente):
+${recentThemes || "nenhum"}
+
+CATÁLOGO DISPONÍVEL (id | nome | categoria | preço) — só cite productId real dessa lista:
+${catalog.slice(0, 6000) || "(vazio)"}
+
+Escolha:
+1. contentType — um destes: product, category, motivational, educational, athlete, event, behind, brand_story, engagement. Baseie-se em quais formatos performaram melhor.
+2. productId — SOMENTE se contentType = product ou category. Escolha um produto do catálogo que combine com o padrão viral. Se não aplicável, deixe null.
+3. topic — tema/mote curto (3-8 palavras). Se contentType = product/category, pode ser null.
+4. callToAction — CTA específico e coerente com o tipo (ex: "marca um amigo faixa branca", "chama no WhatsApp para atacado", "comenta sua faixa", "salva pra treinar depois").
+5. extraInstructions — 1-2 frases orientando a IA de copy (gancho, ângulo, prova social a mencionar).
+6. rationale — 1 frase explicando POR QUE esse briefing tende a viralizar agora.
+
+Regras:
+- Português BR.
+- Diverso do que foi postado recentemente.
+- Realista para o público de artes marciais.
+
+Retorne SOMENTE JSON:
+{"contentType":"...","productId":null,"topic":"...","callToAction":"...","extraInstructions":"...","rationale":"..."}`;
+
+    const text = await geminiGenerateText(prompt);
+    const match = text.match(/\{[\s\S]*\}/);
+    if (!match) {
+      return {
+        contentType: "motivational" as ContentType,
+        productId: null as string | null,
+        topic: null as string | null,
+        callToAction: null as string | null,
+        extraInstructions: null as string | null,
+        rationale: "Fallback: sem dados suficientes.",
+      };
+    }
+    try {
+      const parsed = JSON.parse(match[0]) as {
+        contentType?: string;
+        productId?: string | null;
+        topic?: string | null;
+        callToAction?: string | null;
+        extraInstructions?: string | null;
+        rationale?: string | null;
+      };
+      const ct = (CONTENT_TYPES as readonly string[]).includes(parsed.contentType ?? "")
+        ? (parsed.contentType as ContentType)
+        : ("motivational" as ContentType);
+      // Só aceita productId se realmente existe no catálogo
+      const validId = parsed.productId && (products ?? []).some((p) => p.id === parsed.productId)
+        ? parsed.productId
+        : null;
+      return {
+        contentType: ct,
+        productId: validId,
+        topic: parsed.topic?.trim() || null,
+        callToAction: parsed.callToAction?.trim() || null,
+        extraInstructions: parsed.extraInstructions?.trim() || null,
+        rationale: parsed.rationale?.trim() || null,
+      };
+    } catch {
+      return {
+        contentType: "motivational" as ContentType,
+        productId: null as string | null,
+        topic: null as string | null,
+        callToAction: null as string | null,
+        extraInstructions: null as string | null,
+        rationale: null as string | null,
+      };
+    }
+  });
