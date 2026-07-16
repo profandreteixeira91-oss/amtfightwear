@@ -83,9 +83,8 @@ function FaixaCalc() {
     () => (presets ?? []).find((p) => p.category_key.toLowerCase() === "faixa"),
     [presets],
   );
-  const [lengths, setLengths] = useState<Record<string, number>>({});
   const currentSizes = faixaPreset?.sizes ?? [];
-  const getLen = (s: string) => lengths[s] ?? DEFAULT_LENGTHS[s.toUpperCase()] ?? 2.5;
+  const getLen = (s: string) => parseLengthMeters(s);
 
   // Custos por metro
   const brimCostPerM = useMemo(() => costPerMeter(brim), [brim]);
