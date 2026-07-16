@@ -1,10 +1,10 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import {
-  Search, Mail, Instagram, Star, ExternalLink, Copy, Sparkles, MessageCircle, Globe, Send, Loader2, Image as ImageIcon,
+  Search, Mail, Instagram, Star, ExternalLink, Copy, Sparkles, MessageCircle, Globe, Send, Loader2, Image as ImageIcon, Trash2,
 } from "lucide-react";
 import { sendTransactionalEmail } from "@/lib/email/send";
 import { PageHeader } from "@/components/common/PageHeader";
@@ -21,7 +21,15 @@ import {
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
-import { listLeads } from "@/lib/prospect/prospect.functions";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { listLeads, bulkUpdateLeads, bulkDeleteLeads } from "@/lib/prospect/prospect.functions";
 import { PIPELINE_STAGES } from "@/features/prospect/types";
 import { scoreToStars } from "@/features/prospect/utils";
 
@@ -117,6 +125,9 @@ function QualifiedPage() {
   const [sending, setSending] = useState(false);
 
   const fetchList = useServerFn(listLeads);
+  const bulkUpdate = useServerFn(bulkUpdateLeads);
+  const bulkDelete = useServerFn(bulkDeleteLeads);
+  const qc = useQueryClient();
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["prospect", "qualified", search, page],
@@ -131,6 +142,25 @@ function QualifiedPage() {
           orderDir: "desc",
         },
       }),
+  });
+
+  const stageMut = useMutation({
+    mutationFn: (v: { id: string; pipeline_stage: string }) =>
+      bulkUpdate({ data: { ids: [v.id], patch: { pipeline_stage: v.pipeline_stage } } }),
+    onSuccess: () => {
+      toast.success("Estágio atualizado");
+      qc.invalidateQueries({ queryKey: ["prospect"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Falha ao atualizar"),
+  });
+
+  const deleteMut = useMutation({
+    mutationFn: (id: string) => bulkDelete({ data: { ids: [id] } }),
+    onSuccess: () => {
+      toast.success("Lead excluído");
+      qc.invalidateQueries({ queryKey: ["prospect"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Falha ao excluir"),
   });
 
   const total = data?.total ?? 0;
@@ -291,9 +321,26 @@ function QualifiedPage() {
                         {r.city ? `${r.city}${r.state ? " — " + r.state : ""}` : (r.state ? String(r.state) : "—")}
                       </TableCell>
                       <TableCell className="hidden lg:table-cell">
-                        {stageDef ? (
-                          <Badge className={`${stageDef.color} text-white text-[10px]`}>{stageDef.label}</Badge>
-                        ) : "—"}
+                        <Select
+                          value={(r.pipeline_stage as string) || ""}
+                          onValueChange={(v) => stageMut.mutate({ id: r.id, pipeline_stage: v })}
+                        >
+                          <SelectTrigger className="h-8 w-[170px]">
+                            <SelectValue placeholder="—">
+                              {stageDef ? (
+                                <span className="inline-flex items-center gap-1.5">
+                                  <span className={`h-2 w-2 rounded-full ${stageDef.color}`} />
+                                  <span className="text-xs">{stageDef.label}</span>
+                                </span>
+                              ) : "—"}
+                            </SelectValue>
+                          </SelectTrigger>
+                          <SelectContent>
+                            {PIPELINE_STAGES.map((s) => (
+                              <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-wrap gap-1">
@@ -337,6 +384,27 @@ function QualifiedPage() {
                               <ExternalLink className="h-4 w-4" />
                             </Link>
                           </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button size="sm" variant="ghost" title="Excluir lead" className="text-destructive hover:text-destructive">
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Excluir lead?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Esta ação removerá <strong>{String(r.name)}</strong> permanentemente do Prospect Engine.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => deleteMut.mutate(r.id)}>
+                                  Excluir
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </div>
                       </TableCell>
                     </TableRow>
