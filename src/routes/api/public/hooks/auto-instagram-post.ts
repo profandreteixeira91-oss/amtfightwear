@@ -177,7 +177,15 @@ Responda APENAS com JSON válido, sem markdown, sem comentários:
   return parsed;
 }
 
-// ---------- AI: image ----------
+// ---------- AI: image (OpenAI gpt-image-1 via /v1/images/edits) ----------
+async function fetchAsBlob(url: string): Promise<Blob> {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`Falha ao baixar imagem de referência: ${r.status}`);
+  const mime = r.headers.get("content-type")?.split(";")[0] || "image/png";
+  const buf = await r.arrayBuffer();
+  return new Blob([buf], { type: mime });
+}
+
 async function generateAdImage(
   apiKey: string,
   args: {
@@ -225,7 +233,7 @@ CONTENT ANGLE: ${angle}. ${productRule}
 ${artExtra ? "SCENE INTENT: " + artExtra : ""}
 
 ${productBlock}
-INPUT IMAGE #2 — AMT LOGO: place small (~10-12% width) in a top corner, monochrome white or muted gold. Never distorted, never recolored rainbow.
+INPUT IMAGE ${productImageUrl ? "#2" : "#1"} — AMT LOGO: place small (~10-12% width) in a top corner, monochrome white or muted gold. Never distorted, never recolored rainbow.
 
 TEXT OVERLAY (must be spelled EXACTLY, no extra words, no misspellings, no lorem ipsum, no gibberish, no watermarks besides AMT logo):
   HEADLINE: "${headline}"
@@ -238,56 +246,40 @@ HARD RULES:
 - NEVER dominate the composition with a single belt color (white/blue/purple/brown/black belt). Rotate, prefer neutral/black moods.
 - High resolution, sharp, publish-ready.`;
 
+  // gpt-image-1 sizes: 1024x1024, 1024x1536, 1536x1024.
+  const size =
+    aspect === "9:16" || aspect === "4:5" ? "1024x1536" : "1024x1024";
 
+  const form = new FormData();
+  form.append("model", "gpt-image-1");
+  form.append("prompt", promptText);
+  form.append("size", size);
+  form.append("n", "1");
 
-
-  // OpenAI-compat multimodal content: text + image_url parts (data URLs).
-  const content: Array<
-    | { type: "text"; text: string }
-    | { type: "image_url"; image_url: { url: string } }
-  > = [];
   if (productImageUrl) {
-    const p = await fetchAsInlineData(productImageUrl);
-    content.push({
-      type: "image_url",
-      image_url: { url: `data:${p.inline_data.mime_type};base64,${p.inline_data.data}` },
-    });
+    const productBlob = await fetchAsBlob(productImageUrl);
+    form.append("image[]", productBlob, "product.png");
   }
-  const logoPart = await fetchAsInlineData(logoUrl);
-  content.push({
-    type: "image_url",
-    image_url: { url: `data:${logoPart.inline_data.mime_type};base64,${logoPart.inline_data.data}` },
-  });
-  content.push({ type: "text", text: promptText });
+  const logoBlob = await fetchAsBlob(logoUrl);
+  form.append("image[]", logoBlob, "logo.png");
 
-  const res = await fetch(`${GEMINI_API}/chat/completions`, {
+  const res = await fetch("https://api.openai.com/v1/images/edits", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: "gemini-2.5-flash-image-preview",
-      messages: [{ role: "user", content }],
-      modalities: ["image", "text"],
-    }),
+    headers: { Authorization: `Bearer ${apiKey}` },
+    body: form,
   });
-  if (!res.ok) throw new Error(`AI image failed: ${res.status} ${await res.text()}`);
+  if (!res.ok) throw new Error(`OpenAI image failed: ${res.status} ${await res.text()}`);
   const json = (await res.json()) as {
-    choices?: Array<{
-      message?: {
-        images?: Array<{ image_url?: { url?: string } }>;
-      };
-    }>;
+    data?: Array<{ b64_json?: string }>;
   };
-  const imgUrl = json.choices?.[0]?.message?.images?.[0]?.image_url?.url ?? "";
-  const b64 = imgUrl.includes(",") ? imgUrl.split(",")[1] : "";
-  if (!b64) throw new Error("AI image: empty response");
+  const b64 = json.data?.[0]?.b64_json ?? "";
+  if (!b64) throw new Error("OpenAI image: empty response");
   const bin = atob(b64);
   const bytes = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
   return bytes;
 }
+
 
 // ---------- IG publishing ----------
 type SB = Awaited<ReturnType<typeof getAdmin>>;
