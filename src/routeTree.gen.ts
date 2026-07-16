@@ -28,7 +28,6 @@ import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedLogsRouteImport } from './routes/_authenticated/logs'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdsRouteImport } from './routes/_authenticated/ads'
-import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as LojaCustomShopIndexRouteImport } from './routes/loja.custom-shop.index'
 import { Route as AuthenticatedStoreIndexRouteImport } from './routes/_authenticated/store.index'
 import { Route as AuthenticatedProspectIndexRouteImport } from './routes/_authenticated/prospect.index'
@@ -187,11 +186,6 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
 const AuthenticatedAdsRoute = AuthenticatedAdsRouteImport.update({
   id: '/ads',
   path: '/ads',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const LojaCustomShopIndexRoute = LojaCustomShopIndexRouteImport.update({
@@ -573,7 +567,6 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
-  '/admin': typeof AuthenticatedAdminRoute
   '/ads': typeof AuthenticatedAdsRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/logs': typeof AuthenticatedLogsRoute
@@ -659,7 +652,6 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
-  '/admin': typeof AuthenticatedAdminRoute
   '/ads': typeof AuthenticatedAdsRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/logs': typeof AuthenticatedLogsRoute
@@ -747,7 +739,6 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
-  '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/ads': typeof AuthenticatedAdsRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/logs': typeof AuthenticatedLogsRoute
@@ -835,7 +826,6 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/unsubscribe'
-    | '/admin'
     | '/ads'
     | '/dashboard'
     | '/logs'
@@ -921,7 +911,6 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/unsubscribe'
-    | '/admin'
     | '/ads'
     | '/dashboard'
     | '/logs'
@@ -1008,7 +997,6 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/unsubscribe'
-    | '/_authenticated/admin'
     | '/_authenticated/ads'
     | '/_authenticated/dashboard'
     | '/_authenticated/logs'
@@ -1258,13 +1246,6 @@ declare module '@tanstack/react-router' {
       path: '/ads'
       fullPath: '/ads'
       preLoaderRoute: typeof AuthenticatedAdsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/admin': {
-      id: '/_authenticated/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/loja/custom-shop/': {
@@ -1767,7 +1748,6 @@ const AuthenticatedAdsRouteWithChildren =
   AuthenticatedAdsRoute._addFileChildren(AuthenticatedAdsRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedAdsRoute: typeof AuthenticatedAdsRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedLogsRoute: typeof AuthenticatedLogsRoute
@@ -1811,7 +1791,6 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedAdsRoute: AuthenticatedAdsRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedLogsRoute: AuthenticatedLogsRoute,
