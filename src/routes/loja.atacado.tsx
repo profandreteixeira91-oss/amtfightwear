@@ -9,9 +9,10 @@ import {
 } from "@/lib/store/store.functions";
 import { formatBRL } from "@/lib/store/cart-store";
 import { ProductImage } from "@/components/store/ProductImage";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Minus, Plus, Upload, X, CheckCircle2, AlertCircle, Package, Search, ChevronDown, ChevronUp, ZoomIn } from "lucide-react";
+import { Minus, Plus, Upload, X, CheckCircle2, AlertCircle, Package, Search, ChevronDown, ChevronUp, ZoomIn, ShoppingBag, ArrowRight } from "lucide-react";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 
 const catalogQuery = queryOptions({
   queryKey: ["store", "wholesale-catalog"],
@@ -217,6 +218,18 @@ function WholesalePage() {
   };
 
   const [step, setStep] = useState<"cart" | "checkout">("cart");
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const prevTotalQtyRef = useRef(0);
+  useEffect(() => {
+    if (totalQty > prevTotalQtyRef.current) {
+      setSheetOpen(true);
+    }
+    prevTotalQtyRef.current = totalQty;
+  }, [totalQty]);
+  // Force-open when jumping to checkout step so the user sees the form summary.
+  useEffect(() => {
+    if (step === "checkout") setSheetOpen(false);
+  }, [step]);
   const [form, setForm] = useState({
     customer_name: "",
     customer_email: "",
@@ -324,7 +337,23 @@ function WholesalePage() {
         </div>
       </section>
 
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 py-8 lg:grid-cols-[1fr_360px]">
+      <div className="mx-auto max-w-7xl px-4 py-8">
+        <div className="mb-4 flex items-center justify-end">
+          <button
+            type="button"
+            onClick={() => setSheetOpen(true)}
+            className="relative inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-bold text-primary-foreground hover:opacity-90"
+          >
+            <ShoppingBag className="h-4 w-4" /> Ver pedido
+            {totalQty > 0 && (
+              <span className="ml-1 grid h-6 min-w-[24px] place-items-center rounded-full bg-primary-foreground px-1.5 text-xs font-bold text-primary">
+                {totalQty}
+              </span>
+            )}
+          </button>
+        </div>
+        <div className="grid grid-cols-1 gap-6">
+
         {/* Left - catalog / checkout */}
         <div>
           {step === "cart" ? (
@@ -619,6 +648,15 @@ function WholesalePage() {
                                       </button>
                                     </div>
                                   )}
+                                  {totalForProduct > 0 && (
+                                    <button
+                                      type="button"
+                                      onClick={() => setSheetOpen(true)}
+                                      className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-primary px-3 py-2 text-xs font-bold text-primary-foreground hover:opacity-90"
+                                    >
+                                      <ShoppingBag className="h-3.5 w-3.5" /> Adicionar ao carrinho
+                                    </button>
+                                  )}
                                 </div>
                               </div>
                             );
@@ -683,11 +721,22 @@ function WholesalePage() {
           )}
         </div>
 
-        {/* Right - summary */}
-        <aside className="lg:sticky lg:top-24 lg:self-start">
-          <div className="space-y-3 rounded-xl border bg-card p-5">
-            <h3 className="text-lg font-black">Resumo do atacado</h3>
+        </div>
+      </div>
 
+      {/* Slide-right cart drawer */}
+      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+        <SheetContent side="right" className="flex w-full flex-col gap-0 overflow-y-auto p-0 sm:max-w-md">
+          <div className="flex items-center justify-between border-b px-5 py-4">
+            <h3 className="flex items-center gap-2 text-base font-black">
+              <ShoppingBag className="h-5 w-5" /> Resumo do atacado
+              {totalQty > 0 && (
+                <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">{totalQty}</span>
+              )}
+            </h3>
+          </div>
+
+          <div className="flex-1 space-y-3 px-5 py-4">
             {/* Label logo */}
             <div className="rounded-lg border border-dashed p-3">
               <div className="text-[11px] font-bold uppercase tracking-widest text-primary">Etiqueta personalizada · Grátis</div>
@@ -771,28 +820,28 @@ function WholesalePage() {
                 <span>É necessário ter no mínimo {MIN_PER_SUBCAT} unidades por subcategoria para prosseguir.</span>
               </div>
             )}
-
-            {step === "cart" ? (
-              <button
-                type="button"
-                disabled={!canProceed}
-                onClick={() => setStep("checkout")}
-                className="w-full rounded-md bg-primary px-4 py-3 text-sm font-bold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                Revisar e finalizar →
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setStep("cart")}
-                className="w-full rounded-md border px-4 py-2 text-sm font-semibold hover:bg-accent"
-              >
-                Editar pedido
-              </button>
-            )}
           </div>
-        </aside>
-      </div>
+
+          <div className="border-t bg-card px-5 py-4">
+            <button
+              type="button"
+              disabled={!canProceed}
+              onClick={() => { setStep("checkout"); setSheetOpen(false); }}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 text-sm font-bold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Finalizar compra <ArrowRight className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setSheetOpen(false)}
+              className="mt-2 block w-full text-center text-sm text-muted-foreground hover:text-primary"
+            >
+              Continuar comprando
+            </button>
+          </div>
+        </SheetContent>
+      </Sheet>
+
       {zoomImg && (
         <div
           role="dialog"
