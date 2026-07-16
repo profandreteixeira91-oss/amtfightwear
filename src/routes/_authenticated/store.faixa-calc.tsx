@@ -1,15 +1,25 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Calculator } from "lucide-react";
 import { brl } from "@/lib/format";
+import { listSizePresets, type SizePreset } from "@/lib/store/sizes.functions";
 
 export const Route = createFileRoute("/_authenticated/store/faixa-calc")({
   component: FaixaCalc,
 });
+
+// Comprimentos padrão de faixa (metros) — editáveis pelo usuário.
+const DEFAULT_LENGTHS: Record<string, number> = {
+  M0: 2.0, M1: 2.2, M2: 2.4, M3: 2.6, M4: 2.8, M5: 3.0,
+  A0: 2.2, A1: 2.4, A2: 2.6, A3: 2.8, A4: 3.0, A5: 3.2,
+  PP: 2.0, P: 2.2, M: 2.4, G: 2.6, GG: 2.8,
+};
 
 type MaterialInput = {
   pricePerMeter: number; // R$/m
@@ -35,8 +45,19 @@ function FaixaCalc() {
   const [freightAlma, setFreightAlma] = useState<number>(0);
   const [batchMeters, setBatchMeters] = useState<number>(100); // metros de faixa produzidos por rateio
 
-  // Length of belt to calculate final unit
-  const [beltLength, setBeltLength] = useState<number>(3.0); // metros por faixa
+  // Comprimentos por tamanho (m) — vindos da tabela de medidas (categoria "faixa")
+  const listFn = useServerFn(listSizePresets);
+  const { data: presets } = useQuery({
+    queryKey: ["size-presets"],
+    queryFn: () => listFn(),
+  });
+  const faixaPreset = useMemo<SizePreset | undefined>(
+    () => (presets ?? []).find((p) => p.category_key.toLowerCase() === "faixa"),
+    [presets],
+  );
+  const [lengths, setLengths] = useState<Record<string, number>>({});
+  const currentSizes = faixaPreset?.sizes ?? [];
+  const getLen = (s: string) => lengths[s] ?? DEFAULT_LENGTHS[s.toUpperCase()] ?? 2.5;
 
   const brimCostPerM = useMemo(() => costPerMeter(brim), [brim]);
   const oxfordCostPerM = useMemo(() => costPerMeter(oxford), [oxford]);
@@ -50,7 +71,6 @@ function FaixaCalc() {
 
   const materialsPerM = brimCostPerM + oxfordCostPerM + almaCostPerM;
   const totalPerM = materialsPerM + freightPerM;
-  const totalPerBelt = totalPerM * (beltLength || 0);
 
   return (
     <div className="p-6 space-y-6">
@@ -125,17 +145,50 @@ function FaixaCalc() {
           <Row label="Materiais por metro" value={brl(materialsPerM)} />
           <Row label="Custo total por metro" value={brl(totalPerM)} bold />
           <Separator />
-          <div className="flex items-center gap-3 pt-2">
-            <Label className="w-56">Comprimento da faixa (m)</Label>
-            <Input
-              type="number"
-              step={0.1}
-              value={beltLength}
-              onChange={(e) => setBeltLength(Number(e.target.value) || 0)}
-              className="max-w-[140px]"
-            />
+          <div className="pt-2">
+            <div className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              Custo por tamanho — categoria "faixa" da tabela de medidas
+            </div>
+            {currentSizes.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Nenhum tamanho cadastrado para a categoria "faixa". Cadastre em Tabela de tamanhos.
+              </p>
+            ) : (
+              <div className="overflow-hidden rounded-md border">
+                <table className="w-full text-sm">
+                  <thead className="bg-muted/50 text-xs uppercase tracking-widest text-muted-foreground">
+                    <tr>
+                      <th className="px-3 py-2 text-left">Tamanho</th>
+                      <th className="px-3 py-2 text-left">Comprimento (m)</th>
+                      <th className="px-3 py-2 text-right">Custo unitário</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {currentSizes.map((s) => {
+                      const len = getLen(s);
+                      return (
+                        <tr key={s} className="border-t">
+                          <td className="px-3 py-2 font-semibold">{s}</td>
+                          <td className="px-3 py-2">
+                            <Input
+                              type="number"
+                              step={0.05}
+                              value={len}
+                              onChange={(e) =>
+                                setLengths((prev) => ({ ...prev, [s]: Number(e.target.value) || 0 }))
+                              }
+                              className="max-w-[120px]"
+                            />
+                          </td>
+                          <td className="px-3 py-2 text-right font-bold">{brl(totalPerM * len)}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
-          <Row label={`Custo por faixa (${beltLength || 0} m)`} value={brl(totalPerBelt)} bold highlight />
         </CardContent>
       </Card>
     </div>
