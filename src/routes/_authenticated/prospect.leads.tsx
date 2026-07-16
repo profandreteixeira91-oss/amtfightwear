@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   listLeads, enrichLead, enrichPendingLeads, bulkDeleteLeads, bulkUpdateLeads,
+  logContactAction,
 } from "@/lib/prospect/prospect.functions";
 import { PIPELINE_STAGES, BR_STATES } from "@/features/prospect/types";
 import { fmtDate, scoreToStars } from "@/features/prospect/utils";
@@ -60,6 +61,7 @@ function LeadsPage() {
   const enrichPending = useServerFn(enrichPendingLeads);
   const bulkDelete = useServerFn(bulkDeleteLeads);
   const bulkUpdate = useServerFn(bulkUpdateLeads);
+  const logContact = useServerFn(logContactAction);
 
   const filters = { search, state, stage, minScore, hasEmail, hasWa, hasIg };
   const { data, isLoading, error, refetch } = useQuery({
@@ -120,6 +122,30 @@ function LeadsPage() {
       qc.invalidateQueries({ queryKey: ["prospect"] });
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Falha ao atualizar"),
+  });
+
+  const rowStageMut = useMutation({
+    mutationFn: (v: { id: string; pipeline_stage: string }) =>
+      bulkUpdate({ data: { ids: [v.id], patch: { pipeline_stage: v.pipeline_stage } } }),
+    onSuccess: () => {
+      toast.success("Estágio atualizado");
+      qc.invalidateQueries({ queryKey: ["prospect"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Falha ao atualizar"),
+  });
+
+  const rowDeleteMut = useMutation({
+    mutationFn: (id: string) => bulkDelete({ data: { ids: [id] } }),
+    onSuccess: () => {
+      toast.success("Lead excluído");
+      qc.invalidateQueries({ queryKey: ["prospect"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Falha ao excluir"),
+  });
+
+  const openIgMut = useMutation({
+    mutationFn: (id: string) => logContact({ data: { companyId: id, channel: "instagram" } }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["prospect"] }),
   });
 
   const total = data?.total ?? 0;
@@ -342,9 +368,26 @@ function LeadsPage() {
                         {r.city ? `${r.city}${r.state ? " — " + r.state : ""}` : (r.state ? String(r.state) : "—")}
                       </TableCell>
                       <TableCell className="hidden lg:table-cell">
-                        {stageDef ? (
-                          <Badge className={`${stageDef.color} text-white text-[10px]`}>{stageDef.label}</Badge>
-                        ) : "—"}
+                        <Select
+                          value={(r.pipeline_stage as string) || ""}
+                          onValueChange={(v) => rowStageMut.mutate({ id: r.id, pipeline_stage: v })}
+                        >
+                          <SelectTrigger className="h-8 w-[170px]">
+                            <SelectValue placeholder="—">
+                              {stageDef ? (
+                                <span className="inline-flex items-center gap-1.5">
+                                  <span className={`h-2 w-2 rounded-full ${stageDef.color}`} />
+                                  <span className="text-xs">{stageDef.label}</span>
+                                </span>
+                              ) : "—"}
+                            </SelectValue>
+                          </SelectTrigger>
+                          <SelectContent>
+                            {PIPELINE_STAGES.map((s) => (
+                              <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-wrap gap-1">
@@ -368,6 +411,23 @@ function LeadsPage() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="inline-flex gap-1">
+                          {ig && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              title="Abrir Instagram e marcar contato iniciado"
+                              onClick={() => {
+                                const raw = String(ig).trim();
+                                const url = /^https?:\/\//i.test(raw)
+                                  ? raw
+                                  : `https://instagram.com/${raw.replace(/^@/, "")}`;
+                                window.open(url, "_blank", "noopener,noreferrer");
+                                openIgMut.mutate(r.id);
+                              }}
+                            >
+                              <Instagram className="h-4 w-4" />
+                            </Button>
+                          )}
                           <Button
                             size="sm"
                             variant="ghost"
@@ -382,6 +442,27 @@ function LeadsPage() {
                               <ExternalLink className="h-4 w-4" />
                             </Link>
                           </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button size="sm" variant="ghost" title="Excluir">
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Excluir lead?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  {String(r.name)} — esta ação é permanente e remove contatos e timeline associados.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => rowDeleteMut.mutate(r.id)}>
+                                  Excluir
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </div>
                       </TableCell>
                     </TableRow>
