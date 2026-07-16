@@ -3781,6 +3781,36 @@ export type Database = {
         }
         Relationships: []
       }
+      store_size_presets: {
+        Row: {
+          category_key: string
+          category_label: string
+          created_at: string
+          id: string
+          sizes: Json
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          category_key: string
+          category_label: string
+          created_at?: string
+          id?: string
+          sizes?: Json
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          category_key?: string
+          category_label?: string
+          created_at?: string
+          id?: string
+          sizes?: Json
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       suppressed_emails: {
         Row: {
           created_at: string
