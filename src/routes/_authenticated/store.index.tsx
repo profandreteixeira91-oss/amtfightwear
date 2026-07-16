@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Store, Package, ShoppingCart, Download, ExternalLink } from "lucide-react";
+import { Store, Package, ShoppingCart, Download, ExternalLink, Ruler } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/store/")({
   component: StoreDashboard,
@@ -22,6 +22,7 @@ function StoreDashboard() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <NavCard to="/store/products" icon={Package} title="Produtos" desc="Catálogo, preços, estoque" />
         <NavCard to="/store/orders" icon={ShoppingCart} title="Pedidos" desc="Vendas e status" />
+        <NavCard to="/store/sizes" icon={Ruler} title="Tabela de tamanhos" desc="Presets por categoria" />
         <NavCard to="/store/wholesale" icon={Store} title="Atacado" desc="Desconto, mínimo e produtos" />
         <NavCard to="/store/import" icon={Download} title="Importar catálogo" desc="Sincronizar site AMT" />
       </div>
