@@ -29,14 +29,54 @@ function CheckoutPage() {
   const clear = useCart((s) => s.clear);
   const navigate = useNavigate();
   const createOrder = useServerFn(createStoreOrder);
+  const loadProfile = useServerFn(getMyCustomerProfile);
+  const saveProfile = useServerFn(saveMyCustomerProfile);
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [shipping, setShipping] = useState<ShippingOption | null>(null);
+  const [signedIn, setSignedIn] = useState<boolean | null>(null);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [form, setForm] = useState({
     customer_name: "", customer_email: "", customer_phone: "", customer_document: "",
     zip: "", street: "", number: "", complement: "", neighborhood: "", city: "", state: "",
   });
-  useEffect(() => setMounted(true), []);
+
+  useEffect(() => {
+    setMounted(true);
+    supabase.auth.getSession().then(({ data }) => {
+      const authed = !!data.session;
+      setSignedIn(authed);
+      if (!authed) return;
+      loadProfile().then((p) => {
+        if (!p) return;
+        setForm((f) => ({
+          customer_name: p.full_name ?? f.customer_name,
+          customer_email: p.email ?? f.customer_email,
+          customer_phone: p.phone ?? f.customer_phone,
+          customer_document: p.document ?? f.customer_document,
+          zip: p.zip ?? f.zip,
+          street: p.street ?? f.street,
+          number: p.number ?? f.number,
+          complement: p.complement ?? f.complement,
+          neighborhood: p.neighborhood ?? f.neighborhood,
+          city: p.city ?? f.city,
+          state: p.state ?? f.state,
+        }));
+      }).catch(() => { /* ignore */ });
+    });
+  }, [loadProfile]);
+
+  const onGoogleLogin = async () => {
+    setGoogleLoading(true);
+    try {
+      const result = await authService.signInWithGoogle();
+      if (result.error) toast.error("Falha ao entrar com Google", { description: String(result.error) });
+    } catch (e) {
+      toast.error("Falha ao entrar com Google", { description: e instanceof Error ? e.message : String(e) });
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
 
   const subtotal = items.reduce((a, i) => a + i.quantity * i.unit_price, 0);
   const shippingCost = shipping?.price ?? 0;
