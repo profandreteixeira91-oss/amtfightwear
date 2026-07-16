@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { calculateShipping, type ShippingOption } from "@/lib/store/shipping.functions";
 import { formatBRL } from "@/lib/store/cart-store";
@@ -25,8 +25,13 @@ export function ShippingCalculator({ items, initialZip, onSelect, selectedId, co
   const [options, setOptions] = useState<ShippingOption[] | null>(null);
   const calc = useServerFn(calculateShipping);
 
-  const handle = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Mantém o CEP em sincronia quando o valor vindo do formulário pai muda
+  // (ex.: usuário digita o CEP no endereço e o ViaCEP preenche automaticamente).
+  useEffect(() => {
+    if (initialZip !== undefined) setZip(initialZip);
+  }, [initialZip]);
+
+  const handle = async () => {
     const clean = zip.replace(/\D/g, "");
     if (clean.length !== 8) {
       toast.error("Informe um CEP válido");
@@ -54,22 +59,32 @@ export function ShippingCalculator({ items, initialZip, onSelect, selectedId, co
           <Truck className="h-4 w-4 text-primary" /> Calcular frete
         </div>
       )}
-      <form onSubmit={handle} className="flex gap-2">
+      {/* Sem <form> aninhado: quando este componente é usado dentro do form de
+          checkout, um <form> aqui submetia o form externo ao clicar em "OK". */}
+      <div className="flex gap-2">
         <input
           value={zip}
           onChange={(e) => setZip(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              handle();
+            }
+          }}
           placeholder="00000-000"
           maxLength={9}
           className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-primary"
         />
         <button
-          type="submit"
+          type="button"
+          onClick={handle}
           disabled={loading}
           className="inline-flex items-center gap-1 rounded-md bg-primary px-4 py-2 text-sm font-bold text-primary-foreground hover:opacity-90 disabled:opacity-50"
         >
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "OK"}
         </button>
-      </form>
+      </div>
+
 
       {options && options.length === 0 && (
         <div className="text-xs text-muted-foreground">Nenhuma opção de envio disponível.</div>
