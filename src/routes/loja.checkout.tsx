@@ -30,6 +30,7 @@ function CheckoutPage() {
   const clear = useCart((s) => s.clear);
   const navigate = useNavigate();
   const createOrder = useServerFn(createStoreOrder);
+  const createPayment = useServerFn(createAsaasPayment);
   const loadProfile = useServerFn(getMyCustomerProfile);
   const saveProfile = useServerFn(saveMyCustomerProfile);
   const [mounted, setMounted] = useState(false);
@@ -37,6 +38,9 @@ function CheckoutPage() {
   const [shipping, setShipping] = useState<ShippingOption | null>(null);
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"PIX" | "CREDIT_CARD" | "BOLETO">("PIX");
+  const [installments, setInstallments] = useState(1);
+  const [card, setCard] = useState({ holderName: "", number: "", expiryMonth: "", expiryYear: "", ccv: "" });
   const [form, setForm] = useState({
     customer_name: "", customer_email: "", customer_phone: "", customer_document: "",
     zip: "", street: "", number: "", complement: "", neighborhood: "", city: "", state: "",
