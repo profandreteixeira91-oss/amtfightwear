@@ -160,22 +160,23 @@ Responda APENAS com JSON válido, sem markdown, sem comentários:
   "slides": [ ${Array.from({ length: nSlides }, () => `{ "headline": "...", "subline": "..." }`).join(", ")} ]
 }`;
 
-  const res = await fetch(
-    `${GEMINI_API}/gemini-flash-latest:generateContent?key=${encodeURIComponent(apiKey)}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: { responseMimeType: "application/json" },
-      }),
+  const res = await fetch(`${LOVABLE_AI}/chat/completions`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
     },
-  );
-  if (!res.ok) throw new Error(`Gemini copy failed: ${res.status} ${await res.text()}`);
+    body: JSON.stringify({
+      model: "google/gemini-2.5-flash",
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" },
+    }),
+  });
+  if (!res.ok) throw new Error(`AI copy failed: ${res.status} ${await res.text()}`);
   const json = (await res.json()) as {
-    candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+    choices?: Array<{ message?: { content?: string } }>;
   };
-  const text = json.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("") ?? "";
+  const text = json.choices?.[0]?.message?.content ?? "";
   const match = text.match(/\{[\s\S]*\}/);
   if (!match) throw new Error("Gemini copy: no JSON in response");
   const parsed = JSON.parse(match[0]) as {
