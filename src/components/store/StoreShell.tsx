@@ -131,14 +131,7 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
             </div>
           </Link>
 
-          <div className="hidden md:flex flex-1 items-center rounded-md border bg-muted/40 px-3">
-            <Search className="h-4 w-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Buscar kimono, rashguard, faixa..."
-              className="w-full bg-transparent px-2 py-2 text-sm outline-none placeholder:text-muted-foreground"
-            />
-          </div>
+          <SearchBar />
 
           <div className="flex items-center gap-1 sm:gap-3">
             {mounted && isAuthed ? (
