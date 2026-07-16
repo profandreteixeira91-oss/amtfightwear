@@ -24,16 +24,74 @@ function publicClient() {
 
 // ============ PUBLIC READS ============
 
+// ---------- Wholesale settings (shared by storefront and admin) ----------
+
+type WholesaleSettings = {
+  enabled: boolean;
+  default_discount_percent: number;
+  min_qty_per_subcategory: number;
+  conditions: string;
+};
+
+const WHOLESALE_SETTINGS_DEFAULT: WholesaleSettings = {
+  enabled: true,
+  default_discount_percent: 25,
+  min_qty_per_subcategory: 10,
+  conditions: "Mínimo de 10 unidades por subcategoria. Etiqueta personalizada grátis. Prazo de produção de até 10 dias úteis. Frete calculado no checkout.",
+};
+
+function normalizeWholesaleSettings(raw: unknown): WholesaleSettings {
+  const v = (raw ?? {}) as Partial<WholesaleSettings>;
+  return {
+    enabled: typeof v.enabled === "boolean" ? v.enabled : WHOLESALE_SETTINGS_DEFAULT.enabled,
+    default_discount_percent: Number(v.default_discount_percent ?? WHOLESALE_SETTINGS_DEFAULT.default_discount_percent),
+    min_qty_per_subcategory: Math.max(1, Math.floor(Number(v.min_qty_per_subcategory ?? WHOLESALE_SETTINGS_DEFAULT.min_qty_per_subcategory))),
+    conditions: String(v.conditions ?? WHOLESALE_SETTINGS_DEFAULT.conditions),
+  };
+}
+
+async function readWholesaleSettings(sb: ReturnType<typeof publicClient>): Promise<WholesaleSettings> {
+  const { data } = await sb.from("app_settings").select("value").eq("key", "wholesale_settings").maybeSingle();
+  return normalizeWholesaleSettings(data?.value);
+}
+
+export const getWholesaleSettings = createServerFn({ method: "GET" }).handler(async () => {
+  return readWholesaleSettings(publicClient());
+});
+
+export const adminSaveWholesaleSettings = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({
+      enabled: z.boolean(),
+      default_discount_percent: z.number().min(0).max(90),
+      min_qty_per_subcategory: z.number().int().min(1).max(1000),
+      conditions: z.string().max(2000),
+    }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("app_settings")
+      .upsert({ key: "wholesale_settings", value: data as unknown as Record<string, unknown>, updated_by: context.userId }, { onConflict: "key" });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// ---------- Wholesale catalog (public) ----------
+
 export const listWholesaleCatalog = createServerFn({ method: "GET" }).handler(async () => {
   const sb = publicClient();
+  const settings = await readWholesaleSettings(sb);
   // Fetch variants in pages to bypass the PostgREST 1000-row default cap.
   const PAGE = 1000;
-  const fetchAllVariants = async () => {
+  const fetchAllVariants = async (productIds: string[]) => {
     const out: Array<{ id: string; product_id: string; size: string | null; color: string | null; option_label: string | null; sku: string | null; price: number | null; sort_order: number; active: boolean }> = [];
+    if (productIds.length === 0) return out;
     for (let from = 0; ; from += PAGE) {
       const { data, error } = await sb.from("store_product_variants")
         .select("id, product_id, size, color, option_label, sku, price, sort_order, active")
         .eq("active", true)
+        .in("product_id", productIds)
         .order("product_id")
         .order("sort_order")
         .range(from, from + PAGE - 1);
@@ -44,16 +102,19 @@ export const listWholesaleCatalog = createServerFn({ method: "GET" }).handler(as
     }
     return out;
   };
-  const [cats, prods, variants] = await Promise.all([
+  const [cats, prodsRes] = await Promise.all([
     sb.from("store_categories").select("id, slug, name, parent_id").eq("active", true).order("sort_order"),
     sb.from("products")
-      .select("id, name, slug, price, compare_at_price, image_url, category_id, stock, short_description")
+      .select("id, name, slug, price, compare_at_price, image_url, category_id, stock, short_description, wholesale_discount_percent")
       .eq("status", "active")
+      .eq("wholesale_enabled", true)
       .order("name"),
-    fetchAllVariants(),
   ]);
-  return { categories: cats.data ?? [], products: prods.data ?? [], variants };
+  const prods = prodsRes.data ?? [];
+  const variants = await fetchAllVariants(prods.map((p) => p.id));
+  return { categories: cats.data ?? [], products: prods, variants, settings };
 });
+
 
 
 const WholesaleItemSchema = z.object({
