@@ -7,7 +7,7 @@ import { normalizeEmail, normalizeInstagramHandle, normalizePhone, normalizeName
 import type { ContactChannel } from "@/features/prospect/types";
 
 const FIRECRAWL = "https://api.firecrawl.dev/v2";
-const LOVABLE_AI = "https://generativelanguage.googleapis.com/v1beta/openai";
+const GEMINI_API = "https://generativelanguage.googleapis.com/v1beta/openai";
 
 // ============= Firecrawl helpers =============
 
@@ -56,7 +56,7 @@ export async function aiExtract<T = unknown>(prompt: string, system?: string): P
   const messages: Array<{ role: "system" | "user"; content: string }> = [];
   if (system) messages.push({ role: "system", content: system });
   messages.push({ role: "user", content: prompt });
-  const res = await fetch(`${LOVABLE_AI}/chat/completions`, {
+  const res = await fetch(`${GEMINI_API}/chat/completions`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
