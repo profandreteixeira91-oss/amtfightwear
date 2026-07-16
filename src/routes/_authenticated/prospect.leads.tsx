@@ -411,6 +411,23 @@ function LeadsPage() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="inline-flex gap-1">
+                          {ig && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              title="Abrir Instagram e marcar contato iniciado"
+                              onClick={() => {
+                                const raw = String(ig).trim();
+                                const url = /^https?:\/\//i.test(raw)
+                                  ? raw
+                                  : `https://instagram.com/${raw.replace(/^@/, "")}`;
+                                window.open(url, "_blank", "noopener,noreferrer");
+                                openIgMut.mutate(r.id);
+                              }}
+                            >
+                              <Instagram className="h-4 w-4" />
+                            </Button>
+                          )}
                           <Button
                             size="sm"
                             variant="ghost"
@@ -425,6 +442,27 @@ function LeadsPage() {
                               <ExternalLink className="h-4 w-4" />
                             </Link>
                           </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button size="sm" variant="ghost" title="Excluir">
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Excluir lead?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  {String(r.name)} — esta ação é permanente e remove contatos e timeline associados.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => rowDeleteMut.mutate(r.id)}>
+                                  Excluir
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </div>
                       </TableCell>
                     </TableRow>
