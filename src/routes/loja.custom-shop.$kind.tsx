@@ -544,7 +544,7 @@ function BuilderPage() {
       custom_config: config,
       production_days: template.production_days,
     });
-    navigate({ to: "/loja/carrinho" });
+    useCart.getState().open();
   }
 
   const shownZones = editMode ? draftZones : zones;
