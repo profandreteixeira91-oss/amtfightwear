@@ -66,7 +66,7 @@ async function geminiGenerateText(prompt: string): Promise<string> {
       Authorization: `Bearer ${key}`,
     },
     body: JSON.stringify({
-      model: "gemini-2.5-flash",
+      model: "gemini-2.5-pro",
       messages: [{ role: "user", content: prompt }],
       response_format: { type: "json_object" },
     }),

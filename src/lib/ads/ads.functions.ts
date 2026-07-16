@@ -157,7 +157,7 @@ Devolva SOMENTE JSON no formato:
 }`;
 
     const { text } = await generateText({
-      model: gateway("gemini-2.5-flash"),
+      model: gateway("gemini-2.5-pro"),
       prompt,
     });
     const strategy = extractJson(text);
@@ -197,7 +197,7 @@ Devolva SOMENTE JSON:
   "exclusions": ["públicos a excluir para evitar conflito"]
 }`;
     const { text } = await generateText({
-      model: gateway("gemini-2.5-flash"),
+      model: gateway("gemini-2.5-pro"),
       prompt,
     });
     const audiences = extractJson(text);
@@ -241,7 +241,7 @@ Devolva SOMENTE JSON:
   "notes": "explicação curta em português"
 }`;
     const { text } = await generateText({
-      model: gateway("gemini-2.5-flash"),
+      model: gateway("gemini-2.5-pro"),
       prompt,
     });
     const budget = extractJson(text);
@@ -301,7 +301,7 @@ Devolva SOMENTE JSON:
 Notas de qualidade sinceras (0-10).`;
 
     const { text } = await generateText({
-      model: gateway("gemini-2.5-flash"),
+      model: gateway("gemini-2.5-pro"),
       prompt,
     });
     const parsed = extractJson(text) as { variants: Array<Record<string, unknown>> };
@@ -1375,7 +1375,7 @@ ${context_}
 Retorne APENAS JSON: {"headline":"...","primary_text":"...","description":"...","cta":"...","visual_prompt":"...","rationale":"por que deve funcionar"}`;
 
     const { text } = await generateText({
-      model: gateway("gemini-2.5-flash"),
+      model: gateway("gemini-2.5-pro"),
       prompt,
     });
     let suggestionJson: string | null = null;
