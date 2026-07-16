@@ -671,8 +671,7 @@ function BuilderPage() {
 
             {/* Variant selector (Modalidade for faixa, generic for others with >1 variant) */}
             {variants.length > 1 && (
-              <section>
-                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">{isFaixa ? "Modalidade" : "Variante"}</h2>
+              <CollapsibleSection title={isFaixa ? "Modalidade" : "Variante"}>
                 <div className="grid grid-cols-2 gap-2">
                   {variants.map((v) => (
                     <button
