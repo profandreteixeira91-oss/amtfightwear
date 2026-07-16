@@ -56,29 +56,47 @@ function buildBrief(data: z.infer<typeof GenerateInput>) {
   };
 }
 
-async function geminiGenerateText(prompt: string): Promise<string> {
-  const key = process.env.GEMINI_API_KEY;
-  if (!key) throw new Error("GEMINI_API_KEY não configurada");
-  const res = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
+async function geminiCall(model: string, prompt: string, key: string) {
+  return fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${key}`,
     },
     body: JSON.stringify({
-      model: "gemini-2.5-pro",
+      model,
       messages: [{ role: "user", content: prompt }],
       response_format: { type: "json_object" },
     }),
   });
-  if (!res.ok) {
-    const t = await res.text().catch(() => "");
-    throw new Error(`Gemini ${res.status}: ${t.slice(0, 300)}`);
+}
+
+async function geminiGenerateText(prompt: string): Promise<string> {
+  const key = process.env.GEMINI_API_KEY;
+  if (!key) throw new Error("GEMINI_API_KEY não configurada");
+
+  // Cascata: flash (cota alta) → flash-lite se estourar 429.
+  const models = ["gemini-2.5-flash", "gemini-2.5-flash-lite"];
+  let lastErr = "";
+  let lastStatus = 0;
+  for (const model of models) {
+    const res = await geminiCall(model, prompt, key);
+    if (res.ok) {
+      const json = (await res.json()) as {
+        choices?: Array<{ message?: { content?: string } }>;
+      };
+      return json.choices?.[0]?.message?.content ?? "";
+    }
+    lastStatus = res.status;
+    lastErr = await res.text().catch(() => "");
+    if (res.status !== 429) break; // só faz fallback em rate-limit
   }
-  const json = (await res.json()) as {
-    choices?: Array<{ message?: { content?: string } }>;
-  };
-  return json.choices?.[0]?.message?.content ?? "";
+  if (lastStatus === 429) {
+    throw new Error(
+      "Gemini está com cota excedida. Aguarde alguns minutos e tente novamente, ou revise os limites da sua chave em https://ai.google.dev/gemini-api/docs/rate-limits."
+    );
+  }
+  throw new Error(`Gemini ${lastStatus}: ${lastErr.slice(0, 300)}`);
 }
 
 export const generateMarketingContent = createServerFn({ method: "POST" })
