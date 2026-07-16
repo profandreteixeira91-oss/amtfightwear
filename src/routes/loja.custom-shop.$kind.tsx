@@ -488,8 +488,7 @@ function BuilderPage() {
       for (const e of activeEmbroideries) {
         if (e.slot_key === "bordado_nome") total += KIMONO_BORDADO_NOME_FEE;
         else if (e.slot_key.startsWith("patch_")) {
-          const t = KIMONO_TECHNIQUES.find((x) => x.id === e.technique) ?? KIMONO_TECHNIQUES[0];
-          total += t.price;
+          total += kimonoPatchPrice(e.slot_key, (e.technique ?? "bordado") as "bordado" | "sublimado" | "dtf", e.size);
         }
       }
       return total;
