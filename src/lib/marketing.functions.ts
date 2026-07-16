@@ -75,8 +75,8 @@ async function geminiGenerateText(prompt: string): Promise<string> {
   const key = process.env.GEMINI_API_KEY;
   if (!key) throw new Error("GEMINI_API_KEY não configurada");
 
-  // Cascata: flash (cota alta) → flash-lite se estourar 429.
-  const models = ["gemini-2.5-flash", "gemini-2.5-flash-lite"];
+  // Cascata: flash-latest (cota alta) → flash-lite-latest se estourar 429.
+  const models = ["gemini-flash-latest", "gemini-flash-lite-latest"];
   let lastErr = "";
   let lastStatus = 0;
   for (const model of models) {
