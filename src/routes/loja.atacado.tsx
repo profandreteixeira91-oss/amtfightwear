@@ -219,13 +219,7 @@ function WholesalePage() {
 
   const [step, setStep] = useState<"cart" | "checkout">("cart");
   const [sheetOpen, setSheetOpen] = useState(false);
-  const prevTotalQtyRef = useRef(0);
-  useEffect(() => {
-    if (totalQty > prevTotalQtyRef.current) {
-      setSheetOpen(true);
-    }
-    prevTotalQtyRef.current = totalQty;
-  }, [totalQty]);
+  // Resumo abre apenas via clique explícito em "Adicionar ao carrinho" (não em mudanças de quantidade).
   // Force-close when jumping to checkout step so the user sees the form summary.
   useEffect(() => {
     if (step === "checkout") setSheetOpen(false);
