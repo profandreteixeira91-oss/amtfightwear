@@ -956,13 +956,12 @@ function BuilderPage() {
                             <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                               {KIMONO_TECHNIQUES.map((t) => {
                                 const activeT = (entry.technique ?? "bordado") === t.id;
+                                const tPrice = kimonoPatchPrice(s.key, t.id, entry.size);
                                 return (
                                   <button
                                     key={t.id}
                                     type="button"
                                     onClick={() => {
-                                      // Bordado e DTF: fundo removido automaticamente (transparente).
-                                      // Sublimado: cliente escolhe quadrado ou redondo; mantém o atual se já for válido.
                                       const nextFormat: "redondo" | "quadrado" | "transparente" =
                                         t.id === "sublimado"
                                           ? ((entry.format === "redondo" || entry.format === "quadrado") ? entry.format : "quadrado")
@@ -973,7 +972,10 @@ function BuilderPage() {
                                       activeT ? "border-primary bg-primary/5 text-primary" : "hover:border-foreground/40"
                                     }`}
                                   >
-                                    {t.label}
+                                    <div className="flex items-center justify-between gap-2">
+                                      <span>{t.label}</span>
+                                      {tPrice > 0 && <span className="text-[11px] font-bold text-primary">+ {formatBRL(tPrice)}</span>}
+                                    </div>
                                     <div className="mt-0.5 text-[10px] font-normal text-muted-foreground">{t.hint}</div>
                                   </button>
                                 );
