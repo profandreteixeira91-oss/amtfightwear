@@ -52,8 +52,15 @@ function SizesPage() {
     if (editing.sizes.length === 0) return toast.error("Adicione ao menos um tamanho");
     try {
       setSaving(true);
-      await save({ data: editing });
-      toast.success("Categoria salva");
+      const res = await save({ data: editing });
+      if (res && "syncedProducts" in res && (res as { syncedProducts: number }).syncedProducts > 0) {
+        const r = res as { syncedProducts: number; addedVariants: number; removedVariants: number };
+        toast.success(
+          `Categoria salva · ${r.syncedProducts} faixa(s) sincronizada(s) (+${r.addedVariants} / -${r.removedVariants} variantes)`,
+        );
+      } else {
+        toast.success("Categoria salva");
+      }
       setEditing(null);
       refetch();
     } catch (err) {
