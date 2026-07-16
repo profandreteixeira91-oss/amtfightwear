@@ -241,6 +241,7 @@ function FaixaCalc() {
                       <th className="px-3 py-2 text-left">Coloração</th>
                       <th className="px-3 py-2 text-left">Alma</th>
                       <th className="px-3 py-2 text-right">Custo unit.</th>
+                      <th className="px-3 py-2 text-right">Margem (%)</th>
                       <th className="px-3 py-2 text-right">Preço sugerido</th>
                     </tr>
                   </thead>
@@ -251,7 +252,8 @@ function FaixaCalc() {
                       const alm = getAlma(s);
                       const perM = colorCostPerM(cor) + almaCostPerM(alm) + freightPerM;
                       const cost = perM * len;
-                      const price = cost * marginMult;
+                      const rowMargin = marginBySize[s] ?? margin;
+                      const price = cost * (1 + (rowMargin || 0) / 100);
                       return (
                         <tr key={s} className="border-t">
                           <td className="px-3 py-2 font-semibold">{s}</td>
@@ -287,7 +289,36 @@ function FaixaCalc() {
                             </Select>
                           </td>
                           <td className="px-3 py-2 text-right font-bold">{brl(cost)}</td>
-                          <td className="px-3 py-2 text-right font-bold text-primary">{brl(price)}</td>
+                          <td className="px-3 py-2 text-right">
+                            <Input
+                              type="number"
+                              step={1}
+                              value={Number.isFinite(rowMargin) ? rowMargin : 0}
+                              onChange={(e) =>
+                                setMarginBySize((prev) => ({
+                                  ...prev,
+                                  [s]: Number(e.target.value) || 0,
+                                }))
+                              }
+                              className="ml-auto max-w-[90px] text-right"
+                            />
+                          </td>
+                          <td className="px-3 py-2 text-right">
+                            <Input
+                              type="number"
+                              step={0.01}
+                              value={Number.isFinite(price) ? Number(price.toFixed(2)) : 0}
+                              onChange={(e) => {
+                                const newPrice = Number(e.target.value) || 0;
+                                const newMargin = cost > 0 ? (newPrice / cost - 1) * 100 : 0;
+                                setMarginBySize((prev) => ({
+                                  ...prev,
+                                  [s]: Number(newMargin.toFixed(2)),
+                                }));
+                              }}
+                              className="ml-auto max-w-[120px] text-right font-bold text-primary"
+                            />
+                          </td>
                         </tr>
                       );
                     })}
