@@ -36,10 +36,19 @@ type EditState = Record<string, { price?: string; stock?: string }>;
 function AdminProductsPage() {
   const list = useServerFn(adminListStoreProducts);
   const update = useServerFn(adminUpdateStoreProduct);
+  const queryClient = useQueryClient();
   const { data, refetch, isLoading } = useQuery({
     queryKey: ["admin", "store", "products"],
     queryFn: () => list({}),
   });
+
+  // Invalida caches do storefront público para que alterações no /store
+  // (preço, estoque, status, destaque, atacado, exclusão) reflitam
+  // imediatamente em /loja, /loja/categoria, /loja/produto e /loja/atacado.
+  const refresh = () => {
+    refetch();
+    queryClient.invalidateQueries({ queryKey: ["store"] });
+  };
 
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
