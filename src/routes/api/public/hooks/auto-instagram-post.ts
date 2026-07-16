@@ -108,7 +108,7 @@ ESTRUTURA DE CARROSSEL (7 slides — siga a ordem):
 
 // ---------- AI: copy ----------
 async function generateCopy(
-  apiKey: string,
+  _apiKey: string,
   angle: ContentAngle,
   product: Product | null,
   tone: string,
