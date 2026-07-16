@@ -47,6 +47,7 @@ type LeadRow = Record<string, unknown> & { id: string; contacts: Contact[] };
 const PAGE_SIZE = 25;
 
 function LeadsPage() {
+  const { focus } = Route.useSearch();
   const [search, setSearch] = useState("");
   const [state, setState] = useState<string>("");
   const [stage, setStage] = useState<string>("");
@@ -57,6 +58,7 @@ function LeadsPage() {
   const [page, setPage] = useState(0);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkStage, setBulkStage] = useState<string>("");
+  const focusedRowRef = useRef<HTMLTableRowElement | null>(null);
 
   const qc = useQueryClient();
   const fetchList = useServerFn(listLeads);
