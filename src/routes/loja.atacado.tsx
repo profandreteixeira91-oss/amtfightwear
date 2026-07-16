@@ -9,9 +9,10 @@ import {
 } from "@/lib/store/store.functions";
 import { formatBRL } from "@/lib/store/cart-store";
 import { ProductImage } from "@/components/store/ProductImage";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Minus, Plus, Upload, X, CheckCircle2, AlertCircle, Package, Search, ChevronDown, ChevronUp, ZoomIn } from "lucide-react";
+import { Minus, Plus, Upload, X, CheckCircle2, AlertCircle, Package, Search, ChevronDown, ChevronUp, ZoomIn, ShoppingBag, ArrowRight } from "lucide-react";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 
 const catalogQuery = queryOptions({
   queryKey: ["store", "wholesale-catalog"],
