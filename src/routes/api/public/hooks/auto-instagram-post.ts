@@ -4,17 +4,6 @@ const GRAPH = "https://graph.facebook.com/v21.0";
 
 const LOGO_PATH = "brand/amt-logo.jpg";
 
-async function fetchAsInlineData(
-  url: string,
-): Promise<{ inline_data: { mime_type: string; data: string } }> {
-  const r = await fetch(url);
-  if (!r.ok) throw new Error(`Falha ao baixar imagem de referência: ${r.status}`);
-  const mime = r.headers.get("content-type")?.split(";")[0] || "image/jpeg";
-  const buf = new Uint8Array(await r.arrayBuffer());
-  let bin = "";
-  for (let i = 0; i < buf.length; i++) bin += String.fromCharCode(buf[i]);
-  return { inline_data: { mime_type: mime, data: btoa(bin) } };
-}
 
 type Product = {
   id: string;
