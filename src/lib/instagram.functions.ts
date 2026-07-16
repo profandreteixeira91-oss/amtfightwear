@@ -129,3 +129,45 @@ export const cancelInstagramPost = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+export const rescheduleInstagramPost = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({
+      id: z.string().uuid(),
+      scheduledFor: z.string().datetime().nullable(),
+      caption: z.string().min(1).max(2200).optional(),
+      imageUrl: z.string().url().optional(),
+    }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const patch: Record<string, unknown> = {};
+    if (data.caption !== undefined) patch.caption = data.caption;
+    if (data.imageUrl !== undefined) patch.image_url = data.imageUrl;
+    if (data.scheduledFor !== undefined) {
+      patch.scheduled_for = data.scheduledFor;
+      patch.status = data.scheduledFor ? "scheduled" : "draft";
+    }
+    const { data: row, error } = await context.supabase
+      .from("scheduled_posts")
+      .update(patch)
+      .eq("id", data.id)
+      .in("status", ["draft", "scheduled", "failed", "cancelled"])
+      .select()
+      .single();
+    if (error) throw new Error(error.message);
+    return row;
+  });
+
+export const deleteInstagramPost = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("scheduled_posts")
+      .delete()
+      .eq("id", data.id)
+      .in("status", ["draft", "cancelled", "failed"]);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
