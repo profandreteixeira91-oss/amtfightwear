@@ -37,22 +37,14 @@ async function fetchProducts(): Promise<Product[]> {
   return (data ?? []) as Product[];
 }
 
-const STATUS_STYLE: Record<string, { label: string; icon: typeof CheckCircle2; className: string }> = {
-  draft: { label: "Rascunho", icon: Clock, className: "bg-muted text-muted-foreground" },
-  scheduled: { label: "Agendado", icon: Clock, className: "bg-blue-500/15 text-blue-500" },
-  publishing: { label: "Publicando", icon: Loader2, className: "bg-amber-500/15 text-amber-500" },
-  published: { label: "Publicado", icon: CheckCircle2, className: "bg-emerald-500/15 text-emerald-500" },
-  failed: { label: "Falhou", icon: AlertCircle, className: "bg-destructive/15 text-destructive" },
-  cancelled: { label: "Cancelado", icon: XCircle, className: "bg-muted text-muted-foreground" },
-};
-
 function ContentPage() {
   const generate = useServerFn(generateMarketingContent);
   const suggestFn = useServerFn(suggestViralTopics);
+  const autoBriefFn = useServerFn(autoBriefFromViral);
   const publishFn = useServerFn(createInstagramPost);
   const listFn = useServerFn(listInstagramPosts);
-  const cancelFn = useServerFn(cancelInstagramPost);
   const qc = useQueryClient();
+
 
   const { data: products, isLoading } = useQuery({ queryKey: ["products", "list"], queryFn: fetchProducts });
   const { data: posts } = useQuery({
