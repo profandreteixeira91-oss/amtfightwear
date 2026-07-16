@@ -53,6 +53,7 @@ type Prod = {
   image_url: string | null;
   category_id: string | null;
   short_description: string | null;
+  wholesale_discount_percent?: number | string | null;
 };
 type Variant = {
   id: string;
@@ -66,8 +67,6 @@ type Variant = {
   active: boolean;
 };
 
-const WHOLESALE_DISCOUNT = 0.25;
-const MIN_PER_SUBCAT = 10;
 const NO_VARIANT = "__none__";
 const keyOf = (pid: string, vid: string | null) => `${pid}::${vid ?? NO_VARIANT}`;
 
