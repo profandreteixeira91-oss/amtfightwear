@@ -83,9 +83,12 @@ function CheckoutPage() {
     }
   };
 
+  const FREE_SHIPPING_THRESHOLD = 399;
   const subtotal = items.reduce((a, i) => a + i.quantity * i.unit_price, 0);
   const shippingCost = shipping?.price ?? 0;
-  const total = subtotal + shippingCost;
+  const freeShipping = subtotal >= FREE_SHIPPING_THRESHOLD;
+  const shippingDiscount = freeShipping ? shippingCost : 0;
+  const total = subtotal + shippingCost - shippingDiscount;
 
   const handleZip = async (zip: string) => {
     setForm((f) => ({ ...f, zip }));
