@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell } from "@/components/store/StoreShell";
 import { listStoreCategories, createStoreOrder } from "@/lib/store/store.functions";
+import { createAsaasPayment } from "@/lib/store/payment.functions";
 import { getMyCustomerProfile, saveMyCustomerProfile } from "@/lib/store/customer-profile.functions";
 import { useCart, formatBRL } from "@/lib/store/cart-store";
 import { useEffect, useState } from "react";
