@@ -337,7 +337,23 @@ function WholesalePage() {
         </div>
       </section>
 
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 py-8 lg:grid-cols-[1fr_360px]">
+      <div className="mx-auto max-w-7xl px-4 py-8">
+        <div className="mb-4 flex items-center justify-end">
+          <button
+            type="button"
+            onClick={() => setSheetOpen(true)}
+            className="relative inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-bold text-primary-foreground hover:opacity-90"
+          >
+            <ShoppingBag className="h-4 w-4" /> Ver pedido
+            {totalQty > 0 && (
+              <span className="ml-1 grid h-6 min-w-[24px] place-items-center rounded-full bg-primary-foreground px-1.5 text-xs font-bold text-primary">
+                {totalQty}
+              </span>
+            )}
+          </button>
+        </div>
+        <div className="grid grid-cols-1 gap-6">
+
         {/* Left - catalog / checkout */}
         <div>
           {step === "cart" ? (
