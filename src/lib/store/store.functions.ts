@@ -591,7 +591,7 @@ export const adminListStoreProducts = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data } = await context.supabase
       .from("products")
-      .select("id, name, slug, price, compare_at_price, stock, status, featured, category_id, image_url, updated_at")
+      .select("id, name, slug, price, compare_at_price, stock, status, featured, category_id, image_url, updated_at, wholesale_enabled, wholesale_discount_percent")
       .order("updated_at", { ascending: false })
       .limit(500);
     return data ?? [];
