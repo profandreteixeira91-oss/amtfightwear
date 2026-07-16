@@ -77,6 +77,18 @@ export const adminSaveWholesaleSettings = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const adminBulkSetWholesaleEnabled = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ enabled: z.boolean() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { error, count } = await context.supabase
+      .from("products")
+      .update({ wholesale_enabled: data.enabled }, { count: "exact" })
+      .neq("wholesale_enabled", data.enabled);
+    if (error) throw new Error(error.message);
+    return { ok: true, updated: count ?? 0 };
+  });
+
 // ---------- Wholesale catalog (public) ----------
 
 export const listWholesaleCatalog = createServerFn({ method: "GET" }).handler(async () => {
