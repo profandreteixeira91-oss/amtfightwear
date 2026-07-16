@@ -461,6 +461,8 @@ export const createStoreOrder = createServerFn({ method: "POST" })
       items: z.array(CheckoutItemSchema).min(1),
       user_id: z.string().uuid().optional().nullable(),
       notes: z.string().optional().nullable(),
+      shipping_cost: z.number().min(0).optional(),
+      shipping_method: z.string().optional().nullable(),
     }).parse(i),
   )
   .handler(async ({ data }) => {
