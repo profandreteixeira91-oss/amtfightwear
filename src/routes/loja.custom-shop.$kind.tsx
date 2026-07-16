@@ -114,21 +114,54 @@ const COLORING_OPTIONS: { name: string; price_delta: number }[] = [
 const FAIXA_BORDADO_FEE = 10; // por bordado
 const FAIXA_ETIQUETA_CUSTOM_FEE = 2; // etiqueta com imagem enviada
 
-// Kimono: técnicas de aplicação do patch (preços serão personalizados depois)
+// Kimono: técnicas de aplicação do patch. O preço final depende do slot + tamanho
+// (ver KIMONO_PATCH_PRICES). O campo `price` aqui é apenas fallback.
 const KIMONO_TECHNIQUES: { id: "bordado" | "sublimado" | "dtf"; label: string; hint: string; price: number }[] = [
-  { id: "bordado",   label: "Bordado",                    hint: "Fio bordado sobre o tecido",  price: 0 },
-  { id: "sublimado", label: "Patch Reforçado Sublimado",  hint: "Patch costurado sublimado",   price: 0 },
-  { id: "dtf",       label: "DTF",                        hint: "Transfer DTF prensado",       price: 0 },
+  { id: "bordado",   label: "Bordado",         hint: "Fio bordado sobre o tecido",  price: 0 },
+  { id: "sublimado", label: "Patch reforçado", hint: "Patch reforçado costurado",   price: 0 },
+  { id: "dtf",       label: "DTF",             hint: "Transfer DTF prensado",       price: 0 },
 ];
 const KIMONO_BORDADO_NOME_FEE = 10;
 
 // Tamanhos disponíveis por slot de patch do kimono.
-// `presets` são opções fixas; `allowCustom` habilita entrada livre de largura×altura em cm.
+// Frente e calça: tamanho único (preço plano por técnica). Costas: 19x19, 15x15 ou personalizado (máx 30x20cm).
 const KIMONO_PATCH_SIZES: Record<string, { presets: string[]; allowCustom: boolean; default: string }> = {
-  patch_frente: { presets: ["9x9"], allowCustom: false, default: "9x9" },
+  patch_frente: { presets: [], allowCustom: false, default: "único" },
   patch_costas: { presets: ["19x19", "15x15"], allowCustom: true, default: "19x19" },
-  patch_calca:  { presets: ["9x9"], allowCustom: false, default: "9x9" },
+  patch_calca:  { presets: [], allowCustom: false, default: "único" },
 };
+
+// Tabela de preços do patch por slot × técnica × tamanho.
+// Costas: preço varia por tamanho; personalizado usa o preço "custom" (máx 30x20cm).
+// Frente/calça: preço plano por técnica.
+const KIMONO_PATCH_PRICES: Record<string, Record<"bordado" | "sublimado" | "dtf", { "19x19"?: number; "15x15"?: number; custom?: number; flat?: number }>> = {
+  patch_costas: {
+    bordado:   { "19x19": 25, "15x15": 20, custom: 25 },
+    sublimado: { "19x19": 15, "15x15": 12, custom: 15 },
+    dtf:       { "19x19": 25, "15x15": 20, custom: 25 },
+  },
+  patch_frente: {
+    bordado:   { flat: 12 },
+    sublimado: { flat: 8 },
+    dtf:       { flat: 12 },
+  },
+  patch_calca: {
+    bordado:   { flat: 12 },
+    sublimado: { flat: 8 },
+    dtf:       { flat: 12 },
+  },
+};
+
+function kimonoPatchPrice(slotKey: string, technique: "bordado" | "sublimado" | "dtf", size: string | null | undefined): number {
+  const bySlot = KIMONO_PATCH_PRICES[slotKey];
+  if (!bySlot) return 0;
+  const byTech = bySlot[technique];
+  if (!byTech) return 0;
+  if (typeof byTech.flat === "number") return byTech.flat;
+  if (size === "19x19" && byTech["19x19"] != null) return byTech["19x19"]!;
+  if (size === "15x15" && byTech["15x15"] != null) return byTech["15x15"]!;
+  return byTech.custom ?? 0;
+}
 
 
 
