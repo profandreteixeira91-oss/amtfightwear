@@ -213,6 +213,7 @@ function AdminProductsPage() {
           <Button variant="outline" onClick={() => setManagingCategories(true)}>
             <Plus className="h-4 w-4 mr-1" /> Categorias
           </Button>
+          <Link to="/store/wholesale"><Button variant="outline">Atacado</Button></Link>
           <Link to="/store/import"><Button variant="outline">Importar catálogo</Button></Link>
         </div>
       </div>
