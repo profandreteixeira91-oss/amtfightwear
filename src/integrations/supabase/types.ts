@@ -2851,6 +2851,8 @@ export type Database = {
           email_subject_template: string | null
           email_template: string | null
           enrichment_interval_min: number
+          instagram_media_url: string | null
+          instagram_template: string | null
           owner_id: string
           priority_regions: string[]
           required_fields: string[]
@@ -2871,6 +2873,8 @@ export type Database = {
           email_subject_template?: string | null
           email_template?: string | null
           enrichment_interval_min?: number
+          instagram_media_url?: string | null
+          instagram_template?: string | null
           owner_id: string
           priority_regions?: string[]
           required_fields?: string[]
@@ -2891,6 +2895,8 @@ export type Database = {
           email_subject_template?: string | null
           email_template?: string | null
           enrichment_interval_min?: number
+          instagram_media_url?: string | null
+          instagram_template?: string | null
           owner_id?: string
           priority_regions?: string[]
           required_fields?: string[]

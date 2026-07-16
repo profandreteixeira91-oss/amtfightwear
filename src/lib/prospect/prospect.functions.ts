@@ -690,6 +690,8 @@ export const upsertSettings = createServerFn({ method: "POST" })
     email_template: z.string().nullable().optional(),
     email_subject_template: z.string().nullable().optional(),
     whatsapp_template: z.string().nullable().optional(),
+    instagram_template: z.string().nullable().optional(),
+    instagram_media_url: z.string().url().nullable().optional().or(z.literal("")),
     autopilot_enabled: z.boolean().optional(),
     priority_regions: z.array(z.string()).optional(),
     search_interval_min: z.number().int().min(5).max(1440).optional(),
