@@ -1,6 +1,6 @@
 /**
  * Prospect Engine — server-only helpers para busca e enriquecimento.
- * Usa Firecrawl (search + scrape) + Lovable AI Gateway (Gemini) para extração.
+ * Usa Firecrawl (search + scrape) + Google Gemini (via GEMINI_API_KEY) para extração.
  * NUNCA importe este arquivo do cliente.
  */
 import { normalizeEmail, normalizeInstagramHandle, normalizePhone, normalizeName, computeLeadScore, DEFAULT_SCORE_WEIGHTS } from "@/features/prospect/utils";
