@@ -160,19 +160,13 @@ Responda APENAS com JSON válido, sem markdown, sem comentários:
   "slides": [ ${Array.from({ length: nSlides }, () => `{ "headline": "...", "subline": "..." }`).join(", ")} ]
 }`;
 
-  const res = await fetch(`${GEMINI_API}/chat/completions`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: "gemini-2.5-flash",
-      messages: [{ role: "user", content: prompt }],
-      response_format: { type: "json_object" },
-    }),
+  const { openrouterChat } = await import("@/lib/ai-gateway.server");
+  const text = await openrouterChat({
+    messages: [{ role: "user", content: prompt }],
+    json: true,
   });
-  if (!res.ok) throw new Error(`AI copy failed: ${res.status} ${await res.text()}`);
+  const resOk = true;
+  if (!resOk) throw new Error(`AI copy failed`);
   const json = (await res.json()) as {
     choices?: Array<{ message?: { content?: string } }>;
   };
