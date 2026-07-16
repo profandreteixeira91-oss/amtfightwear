@@ -208,13 +208,8 @@ async function meFetch(path: string, init: RequestInit = {}, env = "production")
   return json;
 }
 
-async function loadEnv(supabaseAdmin: {
-  from: (t: string) => {
-    select: (c: string) => {
-      eq: (col: string, v: unknown) => { maybeSingle: () => Promise<{ data: { env?: string } | null }> };
-    };
-  };
-}) {
+async function loadMeEnv() {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data } = await supabaseAdmin.from("store_shipping_settings").select("env").eq("singleton", true).maybeSingle();
   return String(data?.env ?? "production");
 }
@@ -222,11 +217,10 @@ async function loadEnv(supabaseAdmin: {
 export const adminMelhorEnvioBalance = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async () => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const env = await loadEnv(supabaseAdmin);
-    const me = await meFetch("/me", { method: "GET" }, env);
-    const balance = await meFetch("/me/balance", { method: "GET" }, env);
-    return { me, balance };
+    const env = await loadMeEnv();
+    const me = (await meFetch("/me", { method: "GET" }, env)) as Record<string, unknown> | null;
+    const balance = (await meFetch("/me/balance", { method: "GET" }, env)) as Record<string, unknown> | null;
+    return { me: (me ?? {}) as Record<string, unknown>, balance: (balance ?? {}) as Record<string, unknown> };
   });
 
 const OrderIdInput = z.object({ order_id: z.string().uuid() });
