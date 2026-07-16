@@ -5,6 +5,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import amtLogo from "@/assets/amt-logo.jpg";
 import { ProductImage } from "@/components/store/ProductImage";
+import { CartSheet } from "@/components/store/CartSheet";
 
 type StoreCategory = { id?: string; slug: string; name: string; parent_id?: string | null };
 
@@ -131,7 +132,11 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
                 <span>Entrar</span>
               </Link>
             )}
-            <Link to="/loja/carrinho" className="relative inline-flex items-center gap-1 rounded-md px-3 py-2 hover:bg-accent">
+            <button
+              type="button"
+              onClick={() => useCart.getState().open()}
+              className="relative inline-flex items-center gap-1 rounded-md px-3 py-2 hover:bg-accent"
+            >
               <ShoppingBag className="h-5 w-5" />
               <span className="hidden sm:inline text-sm">Carrinho</span>
               {mounted && count > 0 && (
@@ -139,7 +144,7 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
                   {count}
                 </span>
               )}
-            </Link>
+            </button>
           </div>
         </div>
 
@@ -268,6 +273,7 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
           </div>
         </div>
       </footer>
+      <CartSheet />
     </div>
   );
 }

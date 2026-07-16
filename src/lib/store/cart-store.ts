@@ -47,6 +47,10 @@ export type CartItem = {
 
 type CartState = {
   items: CartItem[];
+  isOpen: boolean;
+  open: () => void;
+  close: () => void;
+  toggle: () => void;
   add: (item: CartItem) => void;
   remove: (product_id: string, variant_id?: string | null) => void;
   setQuantity: (product_id: string, variant_id: string | null | undefined, quantity: number) => void;
@@ -59,18 +63,23 @@ export const useCart = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
+      isOpen: false,
+      open: () => set({ isOpen: true }),
+      close: () => set({ isOpen: false }),
+      toggle: () => set((s) => ({ isOpen: !s.isOpen })),
       add: (item) =>
         set((s) => {
           const key = (i: CartItem) => `${i.product_id}::${i.variant_id ?? ""}`;
           const existing = s.items.find((i) => key(i) === key(item));
           if (existing) {
             return {
+              isOpen: true,
               items: s.items.map((i) =>
                 key(i) === key(item) ? { ...i, quantity: i.quantity + item.quantity } : i,
               ),
             };
           }
-          return { items: [...s.items, item] };
+          return { isOpen: true, items: [...s.items, item] };
         }),
       remove: (product_id, variant_id) =>
         set((s) => ({
@@ -90,7 +99,10 @@ export const useCart = create<CartState>()(
       count: () => get().items.reduce((acc, i) => acc + i.quantity, 0),
       subtotal: () => get().items.reduce((acc, i) => acc + i.quantity * i.unit_price, 0),
     }),
-    { name: "amt-cart-v1" },
+    {
+      name: "amt-cart-v1",
+      partialize: (s) => ({ items: s.items }) as unknown as CartState,
+    },
   ),
 );
 

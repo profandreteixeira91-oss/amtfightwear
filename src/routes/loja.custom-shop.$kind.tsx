@@ -544,7 +544,7 @@ function BuilderPage() {
       custom_config: config,
       production_days: template.production_days,
     });
-    navigate({ to: "/loja/carrinho" });
+    useCart.getState().open();
   }
 
   const shownZones = editMode ? draftZones : zones;
@@ -711,6 +711,15 @@ function BuilderPage() {
                     </button>
                   ))}
                 </div>
+                {kimonoSize && (
+                  <button
+                    type="button"
+                    onClick={handleAddToCart}
+                    className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 font-bold text-primary-foreground hover:opacity-90"
+                  >
+                    <Plus className="h-4 w-4" /> Adicionar ao carrinho <ShoppingBag className="h-4 w-4" />
+                  </button>
+                )}
               </section>
             )}
 
