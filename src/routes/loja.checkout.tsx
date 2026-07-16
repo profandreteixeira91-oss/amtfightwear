@@ -124,6 +124,25 @@ function CheckoutPage() {
           })),
         },
       });
+      // Salva/atualiza os dados fiscais no perfil do cliente logado
+      if (signedIn) {
+        try {
+          await saveProfile({
+            data: {
+              full_name: form.customer_name || null,
+              phone: form.customer_phone || null,
+              document: form.customer_document || null,
+              zip: form.zip || null,
+              street: form.street || null,
+              number: form.number || null,
+              complement: form.complement || null,
+              neighborhood: form.neighborhood || null,
+              city: form.city || null,
+              state: form.state ? form.state.toUpperCase() : null,
+            },
+          });
+        } catch { /* não bloqueia o pedido */ }
+      }
       clear();
       toast.success(`Pedido ${res.order_number} criado!`);
       navigate({ to: "/loja/pedido/$id", params: { id: res.id } });
