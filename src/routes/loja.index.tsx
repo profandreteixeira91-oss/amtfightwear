@@ -3,6 +3,8 @@ import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
 import { listStorefrontHome, listStoreCategories } from "@/lib/store/store.functions";
 import { Link } from "@tanstack/react-router";
+import heroBanner from "@/assets/loja-hero-banner.jpg";
+import amtLogo from "@/assets/amt-logo.jpg";
 
 const homeQuery = queryOptions({
   queryKey: ["store", "home"],
@@ -43,8 +45,36 @@ function StoreHomePage() {
     <StoreShell categories={categories}>
       {/* Hero */}
       <section className="relative overflow-hidden bg-foreground text-background">
-        <div className="mx-auto max-w-7xl px-4 py-16 sm:py-24">
+        {/* Background banner: BJJ athlete in AMT gi */}
+        <img
+          src={heroBanner}
+          alt="Atleta AMT Fight Wear em treinamento de jiu-jitsu"
+          width={1920}
+          height={912}
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover object-right opacity-90"
+        />
+        {/* Readability gradients: strong on the left where text sits */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-r from-foreground via-foreground/85 to-transparent" />
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-foreground/70 via-transparent to-transparent" />
+        {/* Red accent bar */}
+        <div aria-hidden className="pointer-events-none absolute left-0 top-0 h-full w-1 bg-primary" />
+
+        <div className="relative mx-auto max-w-7xl px-4 py-16 sm:py-24">
           <div className="max-w-2xl">
+            {/* Highlighted store logo */}
+            <div className="mb-5 flex items-center gap-3">
+              <img
+                src={amtLogo}
+                alt="AMT Fight Wear"
+                width={56}
+                height={56}
+                className="h-14 w-14 rounded-md border border-background/30 object-cover shadow-lg shadow-black/40 ring-2 ring-primary/60"
+              />
+              <div className="leading-tight">
+                <div className="text-lg font-black tracking-tight text-background">AMT</div>
+                <div className="text-[10px] font-bold uppercase tracking-[0.28em] text-primary">Fight Wear</div>
+              </div>
+            </div>
             <div className="text-xs font-bold uppercase tracking-[0.3em] text-primary">AMT Fight Wear</div>
             <h1 className="mt-3 text-4xl font-black leading-tight sm:text-6xl">
               Vestido para <span className="text-primary">vencer</span> no tatame.
