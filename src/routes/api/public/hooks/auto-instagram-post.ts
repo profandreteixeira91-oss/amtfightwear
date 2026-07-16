@@ -253,34 +253,48 @@ HARD RULES:
 
 
 
-  const parts: Array<
-    { text: string } | { inline_data: { mime_type: string; data: string } }
+  // OpenAI-compat multimodal content: text + image_url parts (data URLs).
+  const content: Array<
+    | { type: "text"; text: string }
+    | { type: "image_url"; image_url: { url: string } }
   > = [];
-  if (productImageUrl) parts.push(await fetchAsInlineData(productImageUrl));
-  parts.push(await fetchAsInlineData(logoUrl));
-  parts.push({ text: promptText });
+  if (productImageUrl) {
+    const p = await fetchAsInlineData(productImageUrl);
+    content.push({
+      type: "image_url",
+      image_url: { url: `data:${p.inline_data.mime_type};base64,${p.inline_data.data}` },
+    });
+  }
+  const logoPart = await fetchAsInlineData(logoUrl);
+  content.push({
+    type: "image_url",
+    image_url: { url: `data:${logoPart.inline_data.mime_type};base64,${logoPart.inline_data.data}` },
+  });
+  content.push({ type: "text", text: promptText });
 
-  const res = await fetch(
-    `${GEMINI_API}/gemini-2.5-flash-image-preview:generateContent?key=${encodeURIComponent(apiKey)}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ role: "user", parts }],
-        generationConfig: { responseModalities: ["TEXT", "IMAGE"] },
-      }),
+  const res = await fetch(`${LOVABLE_AI}/chat/completions`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
     },
-  );
-  if (!res.ok) throw new Error(`Gemini image failed: ${res.status} ${await res.text()}`);
+    body: JSON.stringify({
+      model: "google/gemini-2.5-flash-image-preview",
+      messages: [{ role: "user", content }],
+      modalities: ["image", "text"],
+    }),
+  });
+  if (!res.ok) throw new Error(`AI image failed: ${res.status} ${await res.text()}`);
   const json = (await res.json()) as {
-    candidates?: Array<{
-      content?: { parts?: Array<{ inlineData?: { data: string }; inline_data?: { data: string } }> };
+    choices?: Array<{
+      message?: {
+        images?: Array<{ image_url?: { url?: string } }>;
+      };
     }>;
   };
-  const imgParts = json.candidates?.[0]?.content?.parts ?? [];
-  const b64 =
-    imgParts.map((p) => p.inlineData?.data ?? p.inline_data?.data).find(Boolean) ?? "";
-  if (!b64) throw new Error("Gemini image: empty response");
+  const imgUrl = json.choices?.[0]?.message?.images?.[0]?.image_url?.url ?? "";
+  const b64 = imgUrl.includes(",") ? imgUrl.split(",")[1] : "";
+  if (!b64) throw new Error("AI image: empty response");
   const bin = atob(b64);
   const bytes = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
