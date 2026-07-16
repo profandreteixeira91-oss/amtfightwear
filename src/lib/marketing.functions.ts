@@ -56,17 +56,32 @@ function buildBrief(data: z.infer<typeof GenerateInput>) {
   };
 }
 
+async function geminiGenerateText(prompt: string): Promise<string> {
+  const key = process.env.GEMINI_API_KEY;
+  if (!key) throw new Error("GEMINI_API_KEY não configurada");
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(key)}`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig: { responseMimeType: "application/json" },
+    }),
+  });
+  if (!res.ok) {
+    const t = await res.text().catch(() => "");
+    throw new Error(`Gemini ${res.status}: ${t.slice(0, 300)}`);
+  }
+  const json = (await res.json()) as {
+    candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+  };
+  return json.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("") ?? "";
+}
+
 export const generateMarketingContent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => GenerateInput.parse(input))
   .handler(async ({ data }) => {
-    const apiKey = process.env.LOVABLE_API_KEY;
-    if (!apiKey) throw new Error("LOVABLE_API_KEY não configurada");
-
-    const { generateText } = await import("ai");
-    const { createLovableAiGateway } = await import("./ai-gateway.server");
-    const gateway = createLovableAiGateway(apiKey);
-
     const { audience, typeBrief } = buildBrief(data);
 
     const prompt = `Você é copywriter da AMT Fight Wear, marca brasileira premium de Jiu-Jitsu e Judô.
@@ -90,10 +105,8 @@ Retorne SOMENTE um JSON válido, sem markdown, com estas chaves:
   "email_body": "..."
 }`;
 
-    const { text } = await generateText({
-      model: gateway("google/gemini-3.5-flash"),
-      prompt,
-    });
+    const text = await geminiGenerateText(prompt);
+
 
     const match = text.match(/\{[\s\S]*\}/);
     const fallback = {
@@ -150,13 +163,6 @@ export const suggestViralTopics = createServerFn({ method: "POST" })
       .filter(Boolean)
       .join(" | ");
 
-    const apiKey = process.env.LOVABLE_API_KEY;
-    if (!apiKey) throw new Error("LOVABLE_API_KEY não configurada");
-
-    const { generateText } = await import("ai");
-    const { createLovableAiGateway } = await import("./ai-gateway.server");
-    const gateway = createLovableAiGateway(apiKey);
-
     const audience =
       data.objective === "atacado"
         ? "professores e donos de academia (atacado)"
@@ -190,10 +196,8 @@ Regras:
 
 Retorne SOMENTE JSON: {"suggestions":["tema 1","tema 2","tema 3","tema 4","tema 5","tema 6"]}`;
 
-    const { text } = await generateText({
-      model: gateway("google/gemini-3.5-flash"),
-      prompt,
-    });
+    const text = await geminiGenerateText(prompt);
+
 
     const match = text.match(/\{[\s\S]*\}/);
     if (!match) return { suggestions: [] as string[] };
