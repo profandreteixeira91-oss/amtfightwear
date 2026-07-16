@@ -43,6 +43,7 @@ import { Route as AuthenticatedStoreProductsRouteImport } from './routes/_authen
 import { Route as AuthenticatedStoreOrdersRouteImport } from './routes/_authenticated/store.orders'
 import { Route as AuthenticatedStoreImportRouteImport } from './routes/_authenticated/store.import'
 import { Route as AuthenticatedStoreImagensRouteImport } from './routes/_authenticated/store.imagens'
+import { Route as AuthenticatedStoreFaixaCalcRouteImport } from './routes/_authenticated/store.faixa-calc'
 import { Route as AuthenticatedProspectSettingsRouteImport } from './routes/_authenticated/prospect.settings'
 import { Route as AuthenticatedProspectSearchRouteImport } from './routes/_authenticated/prospect.search'
 import { Route as AuthenticatedProspectQualifiedRouteImport } from './routes/_authenticated/prospect.qualified'
@@ -270,6 +271,12 @@ const AuthenticatedStoreImagensRoute =
   AuthenticatedStoreImagensRouteImport.update({
     id: '/store/imagens',
     path: '/store/imagens',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStoreFaixaCalcRoute =
+  AuthenticatedStoreFaixaCalcRouteImport.update({
+    id: '/store/faixa-calc',
+    path: '/store/faixa-calc',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedProspectSettingsRoute =
@@ -626,6 +633,7 @@ export interface FileRoutesByFullPath {
   '/prospect/qualified': typeof AuthenticatedProspectQualifiedRoute
   '/prospect/search': typeof AuthenticatedProspectSearchRoute
   '/prospect/settings': typeof AuthenticatedProspectSettingsRoute
+  '/store/faixa-calc': typeof AuthenticatedStoreFaixaCalcRoute
   '/store/imagens': typeof AuthenticatedStoreImagensRoute
   '/store/import': typeof AuthenticatedStoreImportRoute
   '/store/orders': typeof AuthenticatedStoreOrdersRoute
@@ -713,6 +721,7 @@ export interface FileRoutesByTo {
   '/prospect/qualified': typeof AuthenticatedProspectQualifiedRoute
   '/prospect/search': typeof AuthenticatedProspectSearchRoute
   '/prospect/settings': typeof AuthenticatedProspectSettingsRoute
+  '/store/faixa-calc': typeof AuthenticatedStoreFaixaCalcRoute
   '/store/imagens': typeof AuthenticatedStoreImagensRoute
   '/store/import': typeof AuthenticatedStoreImportRoute
   '/store/orders': typeof AuthenticatedStoreOrdersRoute
@@ -802,6 +811,7 @@ export interface FileRoutesById {
   '/_authenticated/prospect/qualified': typeof AuthenticatedProspectQualifiedRoute
   '/_authenticated/prospect/search': typeof AuthenticatedProspectSearchRoute
   '/_authenticated/prospect/settings': typeof AuthenticatedProspectSettingsRoute
+  '/_authenticated/store/faixa-calc': typeof AuthenticatedStoreFaixaCalcRoute
   '/_authenticated/store/imagens': typeof AuthenticatedStoreImagensRoute
   '/_authenticated/store/import': typeof AuthenticatedStoreImportRoute
   '/_authenticated/store/orders': typeof AuthenticatedStoreOrdersRoute
@@ -891,6 +901,7 @@ export interface FileRouteTypes {
     | '/prospect/qualified'
     | '/prospect/search'
     | '/prospect/settings'
+    | '/store/faixa-calc'
     | '/store/imagens'
     | '/store/import'
     | '/store/orders'
@@ -978,6 +989,7 @@ export interface FileRouteTypes {
     | '/prospect/qualified'
     | '/prospect/search'
     | '/prospect/settings'
+    | '/store/faixa-calc'
     | '/store/imagens'
     | '/store/import'
     | '/store/orders'
@@ -1066,6 +1078,7 @@ export interface FileRouteTypes {
     | '/_authenticated/prospect/qualified'
     | '/_authenticated/prospect/search'
     | '/_authenticated/prospect/settings'
+    | '/_authenticated/store/faixa-calc'
     | '/_authenticated/store/imagens'
     | '/_authenticated/store/import'
     | '/_authenticated/store/orders'
@@ -1376,6 +1389,13 @@ declare module '@tanstack/react-router' {
       path: '/store/imagens'
       fullPath: '/store/imagens'
       preLoaderRoute: typeof AuthenticatedStoreImagensRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/store/faixa-calc': {
+      id: '/_authenticated/store/faixa-calc'
+      path: '/store/faixa-calc'
+      fullPath: '/store/faixa-calc'
+      preLoaderRoute: typeof AuthenticatedStoreFaixaCalcRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/prospect/settings': {
@@ -1819,6 +1839,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProspectQualifiedRoute: typeof AuthenticatedProspectQualifiedRoute
   AuthenticatedProspectSearchRoute: typeof AuthenticatedProspectSearchRoute
   AuthenticatedProspectSettingsRoute: typeof AuthenticatedProspectSettingsRoute
+  AuthenticatedStoreFaixaCalcRoute: typeof AuthenticatedStoreFaixaCalcRoute
   AuthenticatedStoreImagensRoute: typeof AuthenticatedStoreImagensRoute
   AuthenticatedStoreImportRoute: typeof AuthenticatedStoreImportRoute
   AuthenticatedStoreOrdersRoute: typeof AuthenticatedStoreOrdersRoute
@@ -1864,6 +1885,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProspectQualifiedRoute: AuthenticatedProspectQualifiedRoute,
   AuthenticatedProspectSearchRoute: AuthenticatedProspectSearchRoute,
   AuthenticatedProspectSettingsRoute: AuthenticatedProspectSettingsRoute,
+  AuthenticatedStoreFaixaCalcRoute: AuthenticatedStoreFaixaCalcRoute,
   AuthenticatedStoreImagensRoute: AuthenticatedStoreImagensRoute,
   AuthenticatedStoreImportRoute: AuthenticatedStoreImportRoute,
   AuthenticatedStoreOrdersRoute: AuthenticatedStoreOrdersRoute,
