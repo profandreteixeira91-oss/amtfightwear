@@ -24,16 +24,74 @@ function publicClient() {
 
 // ============ PUBLIC READS ============
 
+// ---------- Wholesale settings (shared by storefront and admin) ----------
+
+type WholesaleSettings = {
+  enabled: boolean;
+  default_discount_percent: number;
+  min_qty_per_subcategory: number;
+  conditions: string;
+};
+
+const WHOLESALE_SETTINGS_DEFAULT: WholesaleSettings = {
+  enabled: true,
+  default_discount_percent: 25,
+  min_qty_per_subcategory: 10,
+  conditions: "Mínimo de 10 unidades por subcategoria. Etiqueta personalizada grátis. Prazo de produção de até 10 dias úteis. Frete calculado no checkout.",
+};
+
+function normalizeWholesaleSettings(raw: unknown): WholesaleSettings {
+  const v = (raw ?? {}) as Partial<WholesaleSettings>;
+  return {
+    enabled: typeof v.enabled === "boolean" ? v.enabled : WHOLESALE_SETTINGS_DEFAULT.enabled,
+    default_discount_percent: Number(v.default_discount_percent ?? WHOLESALE_SETTINGS_DEFAULT.default_discount_percent),
+    min_qty_per_subcategory: Math.max(1, Math.floor(Number(v.min_qty_per_subcategory ?? WHOLESALE_SETTINGS_DEFAULT.min_qty_per_subcategory))),
+    conditions: String(v.conditions ?? WHOLESALE_SETTINGS_DEFAULT.conditions),
+  };
+}
+
+async function readWholesaleSettings(sb: ReturnType<typeof publicClient>): Promise<WholesaleSettings> {
+  const { data } = await sb.from("app_settings").select("value").eq("key", "wholesale_settings").maybeSingle();
+  return normalizeWholesaleSettings(data?.value);
+}
+
+export const getWholesaleSettings = createServerFn({ method: "GET" }).handler(async () => {
+  return readWholesaleSettings(publicClient());
+});
+
+export const adminSaveWholesaleSettings = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({
+      enabled: z.boolean(),
+      default_discount_percent: z.number().min(0).max(90),
+      min_qty_per_subcategory: z.number().int().min(1).max(1000),
+      conditions: z.string().max(2000),
+    }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("app_settings")
+      .upsert({ key: "wholesale_settings", value: data as never, updated_by: context.userId }, { onConflict: "key" });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// ---------- Wholesale catalog (public) ----------
+
 export const listWholesaleCatalog = createServerFn({ method: "GET" }).handler(async () => {
   const sb = publicClient();
+  const settings = await readWholesaleSettings(sb);
   // Fetch variants in pages to bypass the PostgREST 1000-row default cap.
   const PAGE = 1000;
-  const fetchAllVariants = async () => {
+  const fetchAllVariants = async (productIds: string[]) => {
     const out: Array<{ id: string; product_id: string; size: string | null; color: string | null; option_label: string | null; sku: string | null; price: number | null; sort_order: number; active: boolean }> = [];
+    if (productIds.length === 0) return out;
     for (let from = 0; ; from += PAGE) {
       const { data, error } = await sb.from("store_product_variants")
         .select("id, product_id, size, color, option_label, sku, price, sort_order, active")
         .eq("active", true)
+        .in("product_id", productIds)
         .order("product_id")
         .order("sort_order")
         .range(from, from + PAGE - 1);
@@ -44,16 +102,19 @@ export const listWholesaleCatalog = createServerFn({ method: "GET" }).handler(as
     }
     return out;
   };
-  const [cats, prods, variants] = await Promise.all([
+  const [cats, prodsRes] = await Promise.all([
     sb.from("store_categories").select("id, slug, name, parent_id").eq("active", true).order("sort_order"),
     sb.from("products")
-      .select("id, name, slug, price, compare_at_price, image_url, category_id, stock, short_description")
+      .select("id, name, slug, price, compare_at_price, image_url, category_id, stock, short_description, wholesale_discount_percent")
       .eq("status", "active")
+      .eq("wholesale_enabled", true)
       .order("name"),
-    fetchAllVariants(),
   ]);
-  return { categories: cats.data ?? [], products: prods.data ?? [], variants };
+  const prods = prodsRes.data ?? [];
+  const variants = await fetchAllVariants(prods.map((p) => p.id));
+  return { categories: cats.data ?? [], products: prods, variants, settings };
 });
+
 
 
 const WholesaleItemSchema = z.object({
@@ -79,16 +140,34 @@ export const createWholesaleOrder = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
+    // Read admin-controlled wholesale settings.
+    const { data: settingsRow } = await supabaseAdmin
+      .from("app_settings")
+      .select("value")
+      .eq("key", "wholesale_settings")
+      .maybeSingle();
+    const settings = normalizeWholesaleSettings(settingsRow?.value);
+    if (!settings.enabled) throw new Error("Vendas no atacado estão desativadas no momento.");
+    const MIN_QTY = settings.min_qty_per_subcategory;
+    const DEFAULT_PCT = settings.default_discount_percent;
+
     const productIds = [...new Set(data.items.map((i) => i.product_id))];
     const variantIds = [...new Set(data.items.map((i) => i.variant_id).filter((v): v is string => !!v))];
     const [{ data: products }, { data: variants }] = await Promise.all([
-      supabaseAdmin.from("products").select("id, name, price, image_url, category_id").in("id", productIds),
+      supabaseAdmin
+        .from("products")
+        .select("id, name, price, image_url, category_id, wholesale_enabled, wholesale_discount_percent")
+        .in("id", productIds),
       variantIds.length
         ? supabaseAdmin.from("store_product_variants").select("id, product_id, size, color, option_label, sku, price").in("id", variantIds)
         : Promise.resolve({ data: [] as Array<{ id: string; product_id: string; size: string | null; color: string | null; option_label: string | null; sku: string | null; price: number | null }> }),
     ]);
     if (!products || products.length !== productIds.length) {
       throw new Error("Um ou mais produtos não foram encontrados");
+    }
+    const disabled = products.filter((p) => !p.wholesale_enabled);
+    if (disabled.length > 0) {
+      throw new Error(`Produtos fora do atacado no pedido: ${disabled.map((p) => p.name).join(", ")}`);
     }
 
     // Group quantities by leaf category (subcategoria)
@@ -98,18 +177,17 @@ export const createWholesaleOrder = createServerFn({ method: "POST" })
       const cat = p.category_id ?? "__no_category__";
       qtyByCategory.set(cat, (qtyByCategory.get(cat) ?? 0) + it.quantity);
     }
-    // Validate min 10 per subcategory
+    // Validate min qty per subcategory (from settings)
     const violations: string[] = [];
     for (const [cat, qty] of qtyByCategory) {
-      if (qty < 10) violations.push(`${cat}:${qty}`);
+      if (qty < MIN_QTY) violations.push(`${cat}:${qty}`);
     }
     if (violations.length > 0) {
       throw new Error(
-        `Atacado exige no mínimo 10 unidades por subcategoria. Categorias abaixo do mínimo: ${violations.join(", ")}`,
+        `Atacado exige no mínimo ${MIN_QTY} unidades por subcategoria. Categorias abaixo do mínimo: ${violations.join(", ")}`,
       );
     }
 
-    const WHOLESALE_DISCOUNT = 0.25;
     let subtotalOriginal = 0;
     let subtotal = 0;
     const orderItems: Array<Record<string, unknown>> = [];
@@ -117,18 +195,19 @@ export const createWholesaleOrder = createServerFn({ method: "POST" })
       const p = products.find((pp) => pp.id === it.product_id)!;
       const v = it.variant_id ? variants?.find((vv) => vv.id === it.variant_id) ?? null : null;
       const originalPrice = Number(v?.price ?? p.price);
-      const unit_price = Number((originalPrice * (1 - WHOLESALE_DISCOUNT)).toFixed(2));
+      const productPct = p.wholesale_discount_percent != null ? Number(p.wholesale_discount_percent) : DEFAULT_PCT;
+      const pct = Math.max(0, Math.min(90, productPct));
+      const unit_price = Number((originalPrice * (1 - pct / 100)).toFixed(2));
       const total_price = unit_price * it.quantity;
       subtotal += total_price;
       subtotalOriginal += originalPrice * it.quantity;
       const sizeLabel = v ? [v.size, v.color, v.option_label].filter(Boolean).join(" / ") : null;
+      const tag = `Atacado (${pct}% off · etiqueta personalizada grátis)`;
       orderItems.push({
         product_id: p.id,
         variant_id: v?.id ?? null,
         product_name: p.name,
-        variant_label: sizeLabel
-          ? `${sizeLabel} · Atacado (25% off · etiqueta grátis)`
-          : "Atacado (25% off · etiqueta personalizada grátis)",
+        variant_label: sizeLabel ? `${sizeLabel} · ${tag}` : tag,
         sku: v?.sku ?? null,
         image_url: p.image_url,
         quantity: it.quantity,
@@ -136,7 +215,7 @@ export const createWholesaleOrder = createServerFn({ method: "POST" })
         total_price,
         custom_config: {
           wholesale: true,
-          discount_percent: 25,
+          discount_percent: pct,
           original_unit_price: originalPrice,
           category_id: p.category_id,
           size: v?.size ?? null,
@@ -168,7 +247,8 @@ export const createWholesaleOrder = createServerFn({ method: "POST" })
         max_production_days: 10,
         metadata: {
           wholesale: true,
-          discount_percent: 25,
+          default_discount_percent: DEFAULT_PCT,
+          min_qty_per_subcategory: MIN_QTY,
           label_logo: data.label_logo ?? null,
           subtotal_original: subtotalOriginal,
         },
@@ -183,6 +263,7 @@ export const createWholesaleOrder = createServerFn({ method: "POST" })
 
     return { id: order.id, order_number: order.order_number, total: order.total, discount };
   });
+
 
 export const listStorefrontHome = createServerFn({ method: "GET" }).handler(async () => {
   const sb = publicClient();
@@ -510,7 +591,7 @@ export const adminListStoreProducts = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data } = await context.supabase
       .from("products")
-      .select("id, name, slug, price, compare_at_price, stock, status, featured, category_id, image_url, updated_at")
+      .select("id, name, slug, price, compare_at_price, stock, status, featured, category_id, image_url, updated_at, wholesale_enabled, wholesale_discount_percent")
       .order("updated_at", { ascending: false })
       .limit(500);
     return data ?? [];
@@ -558,6 +639,8 @@ export const adminUpdateStoreProduct = createServerFn({ method: "POST" })
         featured: z.boolean().optional(),
         category_id: z.string().uuid().optional().nullable(),
         image_url: z.string().optional().nullable(),
+        wholesale_enabled: z.boolean().optional(),
+        wholesale_discount_percent: z.number().min(0).max(90).nullable().optional(),
       }),
     }).parse(i),
   )

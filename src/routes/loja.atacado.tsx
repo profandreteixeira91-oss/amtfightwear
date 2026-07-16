@@ -53,6 +53,7 @@ type Prod = {
   image_url: string | null;
   category_id: string | null;
   short_description: string | null;
+  wholesale_discount_percent?: number | string | null;
 };
 type Variant = {
   id: string;
@@ -66,8 +67,6 @@ type Variant = {
   active: boolean;
 };
 
-const WHOLESALE_DISCOUNT = 0.25;
-const MIN_PER_SUBCAT = 10;
 const NO_VARIANT = "__none__";
 const keyOf = (pid: string, vid: string | null) => `${pid}::${vid ?? NO_VARIANT}`;
 
@@ -80,6 +79,17 @@ function WholesalePage() {
   const categories = catalog.categories as Cat[];
   const products = catalog.products as Prod[];
   const variants = (catalog.variants ?? []) as Variant[];
+  const settings = (catalog as { settings?: { enabled: boolean; default_discount_percent: number; min_qty_per_subcategory: number; conditions: string } }).settings ?? {
+    enabled: true, default_discount_percent: 25, min_qty_per_subcategory: 10, conditions: "",
+  };
+  const DEFAULT_PCT = settings.default_discount_percent;
+  const MIN_PER_SUBCAT = settings.min_qty_per_subcategory;
+  const productPct = (p: Prod) => {
+    const v = p.wholesale_discount_percent;
+    if (v == null || v === "") return DEFAULT_PCT;
+    const n = Number(v);
+    return Number.isFinite(n) ? Math.max(0, Math.min(90, n)) : DEFAULT_PCT;
+  };
 
   const variantsByProduct = useMemo(() => {
     const m = new Map<string, Variant[]>();
@@ -176,6 +186,7 @@ function WholesalePage() {
   const catTotals = useMemo(() => {
     const m = new Map<string, { qty: number; original: number; discounted: number }>();
     for (const p of products) {
+      const pct = productPct(p) / 100;
       const vs = variantsByProduct.get(p.id);
       const lines = vs && vs.length > 0
         ? vs.map((v) => ({ q: qty[keyOf(p.id, v.id)] ?? 0, unit: Number(v.price ?? p.price) }))
@@ -184,7 +195,7 @@ function WholesalePage() {
         if (q <= 0) continue;
         const key = p.category_id ?? "__none__";
         const original = unit * q;
-        const discounted = original * (1 - WHOLESALE_DISCOUNT);
+        const discounted = original * (1 - pct);
         const cur = m.get(key) ?? { qty: 0, original: 0, discounted: 0 };
         cur.qty += q;
         cur.original += original;
@@ -193,7 +204,8 @@ function WholesalePage() {
       }
     }
     return m;
-  }, [qty, products, variantsByProduct]);
+  }, [qty, products, variantsByProduct, DEFAULT_PCT]);
+
 
 
   const selectedCats = [...catTotals.entries()];
@@ -317,21 +329,25 @@ function WholesalePage() {
         <div className="mx-auto max-w-7xl px-4 py-10 sm:py-14">
           <div className="text-xs font-bold uppercase tracking-[0.3em] text-primary">Atacado AMT</div>
           <h1 className="mt-2 text-3xl font-black leading-tight sm:text-5xl">
-            25% OFF em pedidos de atacado
+            Até {DEFAULT_PCT}% OFF em pedidos de atacado
           </h1>
           <p className="mt-3 max-w-2xl text-sm text-background/80 sm:text-base">
-            Compre no mínimo <strong>10 unidades por subcategoria</strong> e receba desconto de
-            <strong> 25% em todos os produtos</strong>. Etiqueta personalizada <strong>grátis</strong>.
-            Prazo padrão de produção: <strong>10 dias úteis</strong>.
+            Compre no mínimo <strong>{MIN_PER_SUBCAT} unidades por subcategoria</strong> e receba
+            desconto de <strong>{DEFAULT_PCT}%</strong> nos produtos habilitados. Etiqueta personalizada <strong>grátis</strong>.
           </p>
+          {settings.conditions && (
+            <p className="mt-3 max-w-2xl text-xs text-background/70 whitespace-pre-line">
+              {settings.conditions}
+            </p>
+          )}
           <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div className="rounded-lg border border-background/20 bg-background/5 p-4">
               <div className="text-xs font-bold uppercase tracking-widest text-primary">Regra</div>
-              <div className="mt-1 text-sm">Mínimo 10 por subcategoria</div>
+              <div className="mt-1 text-sm">Mínimo {MIN_PER_SUBCAT} por subcategoria</div>
             </div>
             <div className="rounded-lg border border-background/20 bg-background/5 p-4">
               <div className="text-xs font-bold uppercase tracking-widest text-primary">Desconto</div>
-              <div className="mt-1 text-sm">25% OFF no valor total</div>
+              <div className="mt-1 text-sm">Até {DEFAULT_PCT}% OFF</div>
             </div>
             <div className="rounded-lg border border-background/20 bg-background/5 p-4">
               <div className="text-xs font-bold uppercase tracking-widest text-primary">Bônus</div>
@@ -525,7 +541,7 @@ function WholesalePage() {
                                   <div className="line-clamp-2 min-h-[2.5rem] text-sm font-medium">{p.name}</div>
                                   <div className="flex flex-wrap items-baseline gap-2 text-xs">
                                     <span className="text-muted-foreground line-through">{formatBRL(basePrice)}</span>
-                                    <span className="text-sm font-bold text-primary">{formatBRL(basePrice * (1 - WHOLESALE_DISCOUNT))}</span>
+                                    <span className="text-sm font-bold text-primary">{formatBRL(basePrice * (1 - productPct(p) / 100))}</span>
                                   </div>
 
                                   {hasVariants ? (() => {
@@ -790,7 +806,7 @@ function WholesalePage() {
                 <span className="line-through">{formatBRL(subtotalOriginal)}</span>
               </div>
               <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
-                <span>Desconto atacado (25%)</span>
+                <span>Desconto atacado</span>
                 <span>− {formatBRL(savings)}</span>
               </div>
               <div className="mt-1 flex items-baseline justify-between border-t pt-2 text-base font-black">
