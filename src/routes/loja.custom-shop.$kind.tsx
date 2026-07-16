@@ -6,8 +6,8 @@ import { listStoreCategories } from "@/lib/store/store.functions";
 import { getCustomTemplate, checkIsAdmin, updateCustomLayout } from "@/lib/customshop.functions";
 import { formatBRL, useCart, type CustomConfig } from "@/lib/store/cart-store";
 import { capturePreview } from "@/lib/store/preview-capture";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Check, Plus, Trash2, ShoppingBag, Upload, X, Settings, Save, RotateCcw } from "lucide-react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Check, Plus, Trash2, ShoppingBag, Upload, X, Settings, Save, RotateCcw, ChevronDown } from "lucide-react";
 import kimonoBase from "@/assets/customshop-kimono.jpg";
 import rashguardBase from "@/assets/customshop-rashguard.jpg";
 import faixaBase from "@/assets/customshop-faixa.jpg";
@@ -42,6 +42,33 @@ export const Route = createFileRoute("/loja/custom-shop/$kind")({
   errorComponent: ({ error }) => <div className="p-8 text-center text-destructive">Erro: {error.message}</div>,
   notFoundComponent: () => <div className="p-8 text-center">Modelo não encontrado</div>,
 });
+
+function CollapsibleSection({
+  title,
+  defaultOpen = true,
+  children,
+}: {
+  title: string;
+  defaultOpen?: boolean;
+  children: ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <section>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="mb-2 flex w-full items-center justify-between gap-2 rounded text-left text-sm font-bold uppercase tracking-widest text-primary hover:opacity-80"
+        aria-expanded={open}
+      >
+        <span>{title}</span>
+        <ChevronDown className={`h-4 w-4 shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && <div>{children}</div>}
+    </section>
+  );
+}
+
 
 const PALETTE = [
   "#0a0a0a", "#ffffff", "#e11d48", "#1d4ed8", "#059669", "#f59e0b",
@@ -644,8 +671,7 @@ function BuilderPage() {
 
             {/* Variant selector (Modalidade for faixa, generic for others with >1 variant) */}
             {variants.length > 1 && (
-              <section>
-                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">{isFaixa ? "Modalidade" : "Variante"}</h2>
+              <CollapsibleSection title={isFaixa ? "Modalidade" : "Variante"}>
                 <div className="grid grid-cols-2 gap-2">
                   {variants.map((v) => (
                     <button
@@ -660,13 +686,12 @@ function BuilderPage() {
                     </button>
                   ))}
                 </div>
-              </section>
+              </CollapsibleSection>
             )}
 
             {/* Fabric / Alma */}
             {fabrics.length > 0 && (
-              <section>
-                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">{isFaixa ? "Alma (núcleo)" : "Tecido / gramatura"}</h2>
+              <CollapsibleSection title={isFaixa ? "Alma (núcleo)" : "Tecido / gramatura"}>
                 <div className="grid gap-2">
                   {fabrics.map((f) => (
                     <button
@@ -687,13 +712,12 @@ function BuilderPage() {
                     </button>
                   ))}
                 </div>
-              </section>
+              </CollapsibleSection>
             )}
 
             {/* Tamanho — kimono e faixa (padrão jiu-jitsu do sistema) */}
             {showSize && (
-              <section>
-                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Tamanho</h2>
+              <CollapsibleSection title="Tamanho">
                 <div className="mb-2 text-xs text-muted-foreground">
                   {isFaixaKind ? "Infantil: M0–M4 · Adulto: A0–A5 (comprimento em cm)" : "Infantil: M0–M4 · Adulto: A0–A5"}
                 </div>
@@ -720,14 +744,13 @@ function BuilderPage() {
                     <Plus className="h-4 w-4" /> Adicionar ao carrinho <ShoppingBag className="h-4 w-4" />
                   </button>
                 )}
-              </section>
+              </CollapsibleSection>
             )}
 
 
             {/* Coloração (revestimento) — só para faixa */}
             {isFaixa && (
-              <section>
-                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Coloração (revestimento)</h2>
+              <CollapsibleSection title="Coloração (revestimento)">
                 <div className="grid gap-2">
                   {COLORING_OPTIONS.map((c) => (
                     <button
@@ -745,13 +768,12 @@ function BuilderPage() {
                     </button>
                   ))}
                 </div>
-              </section>
+              </CollapsibleSection>
             )}
 
             {/* Faixa: presets oficiais de cor (corpo + ponta) — Judô e Jiu-Jitsu */}
             {isFaixa && BELT_PRESETS[variantKey] && (
-              <section>
-                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Cores da faixa</h2>
+              <CollapsibleSection title="Cores da faixa">
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                   {BELT_PRESETS[variantKey].map((p) => {
                     const active =
@@ -785,13 +807,12 @@ function BuilderPage() {
                     );
                   })}
                 </div>
-              </section>
+              </CollapsibleSection>
             )}
 
             {/* Kimono BJJ: presets oficiais com foto real do produto */}
             {isKimono && (
-              <section>
-                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Cor do kimono</h2>
+              <CollapsibleSection title="Cor do kimono">
                 <div className="grid grid-cols-3 gap-2">
                   {KIMONO_PRESETS.map((p) => {
                     const active = zoneColors.jaqueta === p.body && zoneColors.calca === p.body;
@@ -828,13 +849,12 @@ function BuilderPage() {
                 <p className="mt-2 text-[10px] text-muted-foreground">
                   Fotos reais da linha Trançado Premium — a cor selecionada é aplicada em jaqueta e calça.
                 </p>
-              </section>
+              </CollapsibleSection>
             )}
 
             {/* Zone colors (fallback quando não há preset) */}
             {!(isFaixa && BELT_PRESETS[variantKey]) && !isKimono && zones.length > 0 && (
-              <section>
-                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Cores</h2>
+              <CollapsibleSection title="Cores">
                 <div className="flex flex-wrap gap-2">
                   {zones.map((z) => (
                     <button
@@ -915,17 +935,14 @@ function BuilderPage() {
                     </div>
                   </div>
                 )}
-              </section>
+              </CollapsibleSection>
             )}
 
             {/* Patches / logos: removidos do fluxo */}
 
             {/* Embroidery — one entry per bordado slot (text or image) */}
             {embroiderySlots.length > 0 && (
-              <section>
-                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">
-                  {isKimono ? "Personalização" : embroiderySlots.length > 1 ? "Bordados" : "Bordado de texto ou logo"}
-                </h2>
+              <CollapsibleSection title={isKimono ? "Personalização" : embroiderySlots.length > 1 ? "Bordados" : "Bordado de texto ou logo"}>
                 <div className="space-y-3">
                   {embroiderySlots.map((s, idx) => {
                     const kPatch = isKimonoPatchSlot(s.key);
@@ -1327,15 +1344,14 @@ function BuilderPage() {
                     );
                   })}
                 </div>
-              </section>
+              </CollapsibleSection>
             )}
 
             {/* Faixa: Logo upload — removido (usar bordado abaixo) */}
 
             {/* Faixa: Etiqueta — AMT Padrão OU imagem personalizada */}
             {isFaixa && (
-              <section>
-                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Etiqueta (opcional)</h2>
+              <CollapsibleSection title="Etiqueta (opcional)">
                 <div className="rounded-md border p-3 space-y-3">
                   <div className="grid grid-cols-2 gap-2">
                     <button
@@ -1379,7 +1395,7 @@ function BuilderPage() {
                     </div>
                   )}
                 </div>
-              </section>
+              </CollapsibleSection>
             )}
 
             {/* Summary + CTA */}
