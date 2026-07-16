@@ -254,22 +254,34 @@ HARD RULES:
   contentParts.push({ type: "image_url", image_url: { url: logoUrl } });
   contentParts.push({ type: "text", text: promptText });
 
-  const res = await fetch(`${AI_GATEWAY}/chat/completions`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "Lovable-API-Key": apiKey },
-    body: JSON.stringify({
-      model: "google/gemini-3.1-flash-image",
-      modalities: ["image", "text"],
-      messages: [{ role: "user", content: contentParts }],
-    }),
-  });
-  if (!res.ok) throw new Error(`AI image failed: ${res.status} ${await res.text()}`);
+  const parts: Array<
+    { text: string } | { inline_data: { mime_type: string; data: string } }
+  > = [];
+  if (productImageUrl) parts.push(await fetchAsInlineData(productImageUrl));
+  parts.push(await fetchAsInlineData(logoUrl));
+  parts.push({ text: promptText });
+
+  const res = await fetch(
+    `${GEMINI_API}/gemini-2.5-flash-image-preview:generateContent?key=${encodeURIComponent(apiKey)}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ role: "user", parts }],
+        generationConfig: { responseModalities: ["TEXT", "IMAGE"] },
+      }),
+    },
+  );
+  if (!res.ok) throw new Error(`Gemini image failed: ${res.status} ${await res.text()}`);
   const json = (await res.json()) as {
-    choices: Array<{ message: { images?: Array<{ image_url: { url: string } }> } }>;
+    candidates?: Array<{
+      content?: { parts?: Array<{ inlineData?: { data: string }; inline_data?: { data: string } }> };
+    }>;
   };
-  const url = json.choices[0]?.message?.images?.[0]?.image_url?.url;
-  if (!url) throw new Error("AI image: empty response");
-  const b64 = url.split(",")[1] ?? url;
+  const imgParts = json.candidates?.[0]?.content?.parts ?? [];
+  const b64 =
+    imgParts.map((p) => p.inlineData?.data ?? p.inline_data?.data).find(Boolean) ?? "";
+  if (!b64) throw new Error("Gemini image: empty response");
   const bin = atob(b64);
   const bytes = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
