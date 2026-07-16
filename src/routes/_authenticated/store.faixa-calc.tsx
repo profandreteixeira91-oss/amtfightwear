@@ -45,8 +45,19 @@ function FaixaCalc() {
   const [freightAlma, setFreightAlma] = useState<number>(0);
   const [batchMeters, setBatchMeters] = useState<number>(100); // metros de faixa produzidos por rateio
 
-  // Length of belt to calculate final unit
-  const [beltLength, setBeltLength] = useState<number>(3.0); // metros por faixa
+  // Comprimentos por tamanho (m) — vindos da tabela de medidas (categoria "faixa")
+  const listFn = useServerFn(listSizePresets);
+  const { data: presets } = useQuery({
+    queryKey: ["size-presets"],
+    queryFn: () => listFn(),
+  });
+  const faixaPreset = useMemo<SizePreset | undefined>(
+    () => (presets ?? []).find((p) => p.category_key.toLowerCase() === "faixa"),
+    [presets],
+  );
+  const [lengths, setLengths] = useState<Record<string, number>>({});
+  const currentSizes = faixaPreset?.sizes ?? [];
+  const getLen = (s: string) => lengths[s] ?? DEFAULT_LENGTHS[s.toUpperCase()] ?? 2.5;
 
   const brimCostPerM = useMemo(() => costPerMeter(brim), [brim]);
   const oxfordCostPerM = useMemo(() => costPerMeter(oxford), [oxford]);
@@ -60,7 +71,6 @@ function FaixaCalc() {
 
   const materialsPerM = brimCostPerM + oxfordCostPerM + almaCostPerM;
   const totalPerM = materialsPerM + freightPerM;
-  const totalPerBelt = totalPerM * (beltLength || 0);
 
   return (
     <div className="p-6 space-y-6">
