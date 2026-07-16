@@ -2312,27 +2312,54 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          city: string | null
+          complement: string | null
           created_at: string
+          document: string | null
           email: string | null
           full_name: string | null
           id: string
+          neighborhood: string | null
+          number: string | null
+          phone: string | null
+          state: string | null
+          street: string | null
           updated_at: string
+          zip: string | null
         }
         Insert: {
           avatar_url?: string | null
+          city?: string | null
+          complement?: string | null
           created_at?: string
+          document?: string | null
           email?: string | null
           full_name?: string | null
           id: string
+          neighborhood?: string | null
+          number?: string | null
+          phone?: string | null
+          state?: string | null
+          street?: string | null
           updated_at?: string
+          zip?: string | null
         }
         Update: {
           avatar_url?: string | null
+          city?: string | null
+          complement?: string | null
           created_at?: string
+          document?: string | null
           email?: string | null
           full_name?: string | null
           id?: string
+          neighborhood?: string | null
+          number?: string | null
+          phone?: string | null
+          state?: string | null
+          street?: string | null
           updated_at?: string
+          zip?: string | null
         }
         Relationships: []
       }
