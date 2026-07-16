@@ -648,6 +648,15 @@ function WholesalePage() {
                                       </button>
                                     </div>
                                   )}
+                                  {totalForProduct > 0 && (
+                                    <button
+                                      type="button"
+                                      onClick={() => setSheetOpen(true)}
+                                      className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-primary px-3 py-2 text-xs font-bold text-primary-foreground hover:opacity-90"
+                                    >
+                                      <ShoppingBag className="h-3.5 w-3.5" /> Adicionar ao carrinho
+                                    </button>
+                                  )}
                                 </div>
                               </div>
                             );
