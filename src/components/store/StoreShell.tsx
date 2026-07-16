@@ -5,6 +5,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import amtLogo from "@/assets/amt-logo.jpg";
 import { ProductImage } from "@/components/store/ProductImage";
+import { CartSheet } from "@/components/store/CartSheet";
 
 type StoreCategory = { id?: string; slug: string; name: string; parent_id?: string | null };
 
