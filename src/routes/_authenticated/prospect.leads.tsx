@@ -124,6 +124,30 @@ function LeadsPage() {
     onError: (e) => toast.error(e instanceof Error ? e.message : "Falha ao atualizar"),
   });
 
+  const rowStageMut = useMutation({
+    mutationFn: (v: { id: string; pipeline_stage: string }) =>
+      bulkUpdate({ data: { ids: [v.id], patch: { pipeline_stage: v.pipeline_stage } } }),
+    onSuccess: () => {
+      toast.success("Estágio atualizado");
+      qc.invalidateQueries({ queryKey: ["prospect"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Falha ao atualizar"),
+  });
+
+  const rowDeleteMut = useMutation({
+    mutationFn: (id: string) => bulkDelete({ data: { ids: [id] } }),
+    onSuccess: () => {
+      toast.success("Lead excluído");
+      qc.invalidateQueries({ queryKey: ["prospect"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Falha ao excluir"),
+  });
+
+  const openIgMut = useMutation({
+    mutationFn: (id: string) => logContact({ data: { companyId: id, channel: "instagram" } }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["prospect"] }),
+  });
+
   const total = data?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const rows = (data?.rows ?? []) as LeadRow[];
