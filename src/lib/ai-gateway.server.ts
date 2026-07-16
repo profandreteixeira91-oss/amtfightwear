@@ -1,47 +1,45 @@
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 
-// Modelo padrão barato + alta qualidade via Lovable AI Gateway.
-const DEFAULT_TEXT_MODEL = "google/gemini-2.5-flash";
-const DEFAULT_IMAGE_MODEL = "google/gemini-2.5-flash-image-preview";
+// Google Gemini via endpoint OpenAI-compatível (usa GEMINI_API_KEY do Google AI Studio).
+const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai";
+const DEFAULT_TEXT_MODEL = "gemini-2.5-flash";
+const DEFAULT_IMAGE_MODEL = "gemini-2.5-flash-image-preview";
 
-// Normaliza ids antigos para modelos suportados pelo Lovable AI Gateway.
+// Normaliza ids: remove prefixo "google/" e mapeia aliases antigos.
 function mapModel(id: string): string {
+  const clean = id.replace(/^google\//, "").replace(/^openai\//, "");
   const table: Record<string, string> = {
-    // Texto
-    "google/gemini-flash-latest": DEFAULT_TEXT_MODEL,
-    "google/gemini-3.5-flash": DEFAULT_TEXT_MODEL,
-    "google/gemini-3-flash-preview": DEFAULT_TEXT_MODEL,
-    "google/gemini-3.1-flash-lite": "google/gemini-2.5-flash-lite",
-    "google/gemini-3.1-pro-preview": "google/gemini-2.5-pro",
-    // Imagem
-    "google/gemini-3.1-flash-image": DEFAULT_IMAGE_MODEL,
-    "google/gemini-3-pro-image": DEFAULT_IMAGE_MODEL,
-    "google/gemini-3.1-flash-lite-image": DEFAULT_IMAGE_MODEL,
-    "google/gemini-2.5-flash-image": DEFAULT_IMAGE_MODEL,
+    "gemini-flash-latest": DEFAULT_TEXT_MODEL,
+    "gemini-3.5-flash": DEFAULT_TEXT_MODEL,
+    "gemini-3-flash-preview": DEFAULT_TEXT_MODEL,
+    "gemini-3.1-flash-lite": "gemini-2.5-flash-lite",
+    "gemini-3.1-pro-preview": "gemini-2.5-pro",
+    "gemini-3.1-flash-image": DEFAULT_IMAGE_MODEL,
+    "gemini-3-pro-image": DEFAULT_IMAGE_MODEL,
+    "gemini-3.1-flash-lite-image": DEFAULT_IMAGE_MODEL,
+    "gemini-2.5-flash-image": DEFAULT_IMAGE_MODEL,
+    "text-embedding-3-small": "gemini-embedding-001",
   };
-  if (table[id]) return table[id];
-  // Se veio sem prefixo google/openai/, assume google.
-  if (!id.includes("/")) return `google/${id}`;
-  return id;
+  return table[clean] ?? clean;
 }
 
 /**
- * Gateway aponta para o Lovable AI Gateway (endpoint OpenAI-compat).
- * Usa LOVABLE_API_KEY (provisionada automaticamente pela plataforma).
+ * Cria um provider apontando para a API do Google Gemini (OpenAI-compat).
+ * Usa GEMINI_API_KEY (chave do Google AI Studio configurada nos secrets).
  */
 export function createLovableAiGateway(_ignored?: string) {
-  const key = process.env.LOVABLE_API_KEY;
-  if (!key) throw new Error("LOVABLE_API_KEY não configurada");
+  const key = process.env.GEMINI_API_KEY;
+  if (!key) throw new Error("GEMINI_API_KEY não configurada");
 
   const provider = createOpenAICompatible({
-    name: "lovable",
-    baseURL: "https://ai.gateway.lovable.dev/v1",
+    name: "gemini",
+    baseURL: GEMINI_BASE_URL,
     headers: { Authorization: `Bearer ${key}` },
   });
 
   return (modelId: string) => provider(mapModel(modelId));
 }
 
-export const LOVABLE_GATEWAY_URL = "https://ai.gateway.lovable.dev/v1";
+export const LOVABLE_GATEWAY_URL = GEMINI_BASE_URL;
 export const DEFAULT_TEXT_MODEL_ID = DEFAULT_TEXT_MODEL;
 export const DEFAULT_IMAGE_MODEL_ID = DEFAULT_IMAGE_MODEL;
