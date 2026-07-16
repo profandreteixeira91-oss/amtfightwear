@@ -385,6 +385,28 @@ function AdminProductsPage() {
                             <Button size="sm" variant="outline" onClick={() => setEditingId(p.id)}>
                               <Pencil className="h-3 w-3 mr-1" /> Editar
                             </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-destructive hover:text-destructive"
+                              onClick={async () => {
+                                if (!confirm(`Excluir o produto "${p.name}"? Esta ação não pode ser desfeita.`)) return;
+                                try {
+                                  setSaving(true);
+                                  await deleteProduct({ data: { id: p.id } });
+                                  toast.success("Produto excluído");
+                                  setSelected((prev) => { const n = new Set(prev); n.delete(p.id); return n; });
+                                  refresh();
+                                } catch (err) {
+                                  toast.error(err instanceof Error ? err.message : "Erro ao excluir");
+                                } finally {
+                                  setSaving(false);
+                                }
+                              }}
+                              disabled={saving}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
                             {p.slug && (
                               <a href={`/loja/produto/${p.slug}`} target="_blank" rel="noreferrer" className="inline-flex items-center text-primary hover:underline">
                                 <ExternalLink className="h-3 w-3" />
@@ -392,6 +414,7 @@ function AdminProductsPage() {
                             )}
                           </div>
                         </td>
+
                       </tr>
                     );
                   })}
