@@ -368,9 +368,26 @@ function LeadsPage() {
                         {r.city ? `${r.city}${r.state ? " — " + r.state : ""}` : (r.state ? String(r.state) : "—")}
                       </TableCell>
                       <TableCell className="hidden lg:table-cell">
-                        {stageDef ? (
-                          <Badge className={`${stageDef.color} text-white text-[10px]`}>{stageDef.label}</Badge>
-                        ) : "—"}
+                        <Select
+                          value={(r.pipeline_stage as string) || ""}
+                          onValueChange={(v) => rowStageMut.mutate({ id: r.id, pipeline_stage: v })}
+                        >
+                          <SelectTrigger className="h-8 w-[170px]">
+                            <SelectValue placeholder="—">
+                              {stageDef ? (
+                                <span className="inline-flex items-center gap-1.5">
+                                  <span className={`h-2 w-2 rounded-full ${stageDef.color}`} />
+                                  <span className="text-xs">{stageDef.label}</span>
+                                </span>
+                              ) : "—"}
+                            </SelectValue>
+                          </SelectTrigger>
+                          <SelectContent>
+                            {PIPELINE_STAGES.map((s) => (
+                              <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-wrap gap-1">
