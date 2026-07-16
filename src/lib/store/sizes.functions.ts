@@ -73,14 +73,12 @@ export const upsertSizePreset = createServerFn({ method: "POST" })
       sort_order: data.sort_order ?? 0,
     };
     if (data.id) {
-      const { error } = await context.supabase
-        .from("store_size_presets" as never)
+      const { error } = await (context.supabase.from("store_size_presets" as never) as any)
         .update(payload)
         .eq("id", data.id);
       if (error) throw new Error(error.message);
     } else {
-      const { error } = await context.supabase
-        .from("store_size_presets" as never)
+      const { error } = await (context.supabase.from("store_size_presets" as never) as any)
         .insert(payload);
       if (error) throw new Error(error.message);
     }

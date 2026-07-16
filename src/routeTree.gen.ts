@@ -37,6 +37,7 @@ import { Route as LojaPedidoIdRouteImport } from './routes/loja.pedido.$id'
 import { Route as LojaCustomShopKindRouteImport } from './routes/loja.custom-shop.$kind'
 import { Route as LojaCategoriaSlugRouteImport } from './routes/loja.categoria.$slug'
 import { Route as AuthenticatedStoreWholesaleRouteImport } from './routes/_authenticated/store.wholesale'
+import { Route as AuthenticatedStoreSizesRouteImport } from './routes/_authenticated/store.sizes'
 import { Route as AuthenticatedStoreShippingRouteImport } from './routes/_authenticated/store.shipping'
 import { Route as AuthenticatedStoreProductsRouteImport } from './routes/_authenticated/store.products'
 import { Route as AuthenticatedStoreOrdersRouteImport } from './routes/_authenticated/store.orders'
@@ -236,6 +237,11 @@ const AuthenticatedStoreWholesaleRoute =
     path: '/store/wholesale',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreSizesRoute = AuthenticatedStoreSizesRouteImport.update({
+  id: '/store/sizes',
+  path: '/store/sizes',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedStoreShippingRoute =
   AuthenticatedStoreShippingRouteImport.update({
     id: '/store/shipping',
@@ -625,6 +631,7 @@ export interface FileRoutesByFullPath {
   '/store/orders': typeof AuthenticatedStoreOrdersRoute
   '/store/products': typeof AuthenticatedStoreProductsRoute
   '/store/shipping': typeof AuthenticatedStoreShippingRoute
+  '/store/sizes': typeof AuthenticatedStoreSizesRoute
   '/store/wholesale': typeof AuthenticatedStoreWholesaleRoute
   '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
   '/loja/custom-shop/$kind': typeof LojaCustomShopKindRoute
@@ -711,6 +718,7 @@ export interface FileRoutesByTo {
   '/store/orders': typeof AuthenticatedStoreOrdersRoute
   '/store/products': typeof AuthenticatedStoreProductsRoute
   '/store/shipping': typeof AuthenticatedStoreShippingRoute
+  '/store/sizes': typeof AuthenticatedStoreSizesRoute
   '/store/wholesale': typeof AuthenticatedStoreWholesaleRoute
   '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
   '/loja/custom-shop/$kind': typeof LojaCustomShopKindRoute
@@ -799,6 +807,7 @@ export interface FileRoutesById {
   '/_authenticated/store/orders': typeof AuthenticatedStoreOrdersRoute
   '/_authenticated/store/products': typeof AuthenticatedStoreProductsRoute
   '/_authenticated/store/shipping': typeof AuthenticatedStoreShippingRoute
+  '/_authenticated/store/sizes': typeof AuthenticatedStoreSizesRoute
   '/_authenticated/store/wholesale': typeof AuthenticatedStoreWholesaleRoute
   '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
   '/loja/custom-shop/$kind': typeof LojaCustomShopKindRoute
@@ -887,6 +896,7 @@ export interface FileRouteTypes {
     | '/store/orders'
     | '/store/products'
     | '/store/shipping'
+    | '/store/sizes'
     | '/store/wholesale'
     | '/loja/categoria/$slug'
     | '/loja/custom-shop/$kind'
@@ -973,6 +983,7 @@ export interface FileRouteTypes {
     | '/store/orders'
     | '/store/products'
     | '/store/shipping'
+    | '/store/sizes'
     | '/store/wholesale'
     | '/loja/categoria/$slug'
     | '/loja/custom-shop/$kind'
@@ -1060,6 +1071,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/orders'
     | '/_authenticated/store/products'
     | '/_authenticated/store/shipping'
+    | '/_authenticated/store/sizes'
     | '/_authenticated/store/wholesale'
     | '/loja/categoria/$slug'
     | '/loja/custom-shop/$kind'
@@ -1322,6 +1334,13 @@ declare module '@tanstack/react-router' {
       path: '/store/wholesale'
       fullPath: '/store/wholesale'
       preLoaderRoute: typeof AuthenticatedStoreWholesaleRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/store/sizes': {
+      id: '/_authenticated/store/sizes'
+      path: '/store/sizes'
+      fullPath: '/store/sizes'
+      preLoaderRoute: typeof AuthenticatedStoreSizesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/store/shipping': {
@@ -1805,6 +1824,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreOrdersRoute: typeof AuthenticatedStoreOrdersRoute
   AuthenticatedStoreProductsRoute: typeof AuthenticatedStoreProductsRoute
   AuthenticatedStoreShippingRoute: typeof AuthenticatedStoreShippingRoute
+  AuthenticatedStoreSizesRoute: typeof AuthenticatedStoreSizesRoute
   AuthenticatedStoreWholesaleRoute: typeof AuthenticatedStoreWholesaleRoute
   AuthenticatedProspectIndexRoute: typeof AuthenticatedProspectIndexRoute
   AuthenticatedStoreIndexRoute: typeof AuthenticatedStoreIndexRoute
@@ -1849,6 +1869,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStoreOrdersRoute: AuthenticatedStoreOrdersRoute,
   AuthenticatedStoreProductsRoute: AuthenticatedStoreProductsRoute,
   AuthenticatedStoreShippingRoute: AuthenticatedStoreShippingRoute,
+  AuthenticatedStoreSizesRoute: AuthenticatedStoreSizesRoute,
   AuthenticatedStoreWholesaleRoute: AuthenticatedStoreWholesaleRoute,
   AuthenticatedProspectIndexRoute: AuthenticatedProspectIndexRoute,
   AuthenticatedStoreIndexRoute: AuthenticatedStoreIndexRoute,
