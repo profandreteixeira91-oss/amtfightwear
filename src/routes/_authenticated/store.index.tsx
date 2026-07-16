@@ -22,8 +22,8 @@ function StoreDashboard() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <NavCard to="/store/products" icon={Package} title="Produtos" desc="Catálogo, preços, estoque" />
         <NavCard to="/store/orders" icon={ShoppingCart} title="Pedidos" desc="Vendas e status" />
+        <NavCard to="/store/wholesale" icon={Store} title="Atacado" desc="Desconto, mínimo e produtos" />
         <NavCard to="/store/import" icon={Download} title="Importar catálogo" desc="Sincronizar site AMT" />
-        <NavCard to="/store" icon={Store} title="Painel" desc="Visão geral" />
       </div>
 
       <Card>
