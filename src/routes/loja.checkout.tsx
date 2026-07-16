@@ -110,6 +110,12 @@ function CheckoutPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (items.length === 0) return toast.error("Carrinho vazio");
+    if (!shipping) return toast.error("Selecione uma opção de frete");
+    if (paymentMethod === "CREDIT_CARD") {
+      if (!card.holderName || !card.number || !card.expiryMonth || !card.expiryYear || !card.ccv) {
+        return toast.error("Preencha os dados do cartão");
+      }
+    }
     setLoading(true);
     try {
       const res = await createOrder({
@@ -122,6 +128,8 @@ function CheckoutPage() {
             zip: form.zip, street: form.street, number: form.number, complement: form.complement,
             neighborhood: form.neighborhood, city: form.city, state: form.state,
           },
+          shipping_cost: shipping.price,
+          shipping_method: `${shipping.company} ${shipping.name}`,
           items: items.map((i) => ({
             product_id: i.product_id,
             variant_id: i.variant_id ?? undefined,
@@ -129,7 +137,8 @@ function CheckoutPage() {
           })),
         },
       });
-      // Salva/atualiza os dados fiscais no perfil do cliente logado
+
+      // Salva perfil fiscal
       if (signedIn) {
         try {
           await saveProfile({
@@ -148,6 +157,24 @@ function CheckoutPage() {
           });
         } catch { /* não bloqueia o pedido */ }
       }
+
+      // Cria cobrança no Asaas
+      try {
+        await createPayment({
+          data: {
+            order_id: res.id,
+            method: paymentMethod,
+            installments: paymentMethod === "CREDIT_CARD" ? installments : undefined,
+            card: paymentMethod === "CREDIT_CARD" ? card : undefined,
+          },
+        });
+      } catch (payErr) {
+        toast.error(payErr instanceof Error ? payErr.message : "Erro no pagamento");
+        // Ainda navega para o pedido para permitir retry
+        navigate({ to: "/loja/pedido/$id", params: { id: res.id } });
+        return;
+      }
+
       clear();
       toast.success(`Pedido ${res.order_number} criado!`);
       navigate({ to: "/loja/pedido/$id", params: { id: res.id } });
@@ -157,6 +184,7 @@ function CheckoutPage() {
       setLoading(false);
     }
   };
+
 
   if (!mounted) return <StoreShell categories={categories}><div className="p-16" /></StoreShell>;
 
