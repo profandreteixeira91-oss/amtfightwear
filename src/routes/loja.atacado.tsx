@@ -712,11 +712,22 @@ function WholesalePage() {
           )}
         </div>
 
-        {/* Right - summary */}
-        <aside className="lg:sticky lg:top-24 lg:self-start">
-          <div className="space-y-3 rounded-xl border bg-card p-5">
-            <h3 className="text-lg font-black">Resumo do atacado</h3>
+        </div>
+      </div>
 
+      {/* Slide-right cart drawer */}
+      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+        <SheetContent side="right" className="flex w-full flex-col gap-0 overflow-y-auto p-0 sm:max-w-md">
+          <div className="flex items-center justify-between border-b px-5 py-4">
+            <h3 className="flex items-center gap-2 text-base font-black">
+              <ShoppingBag className="h-5 w-5" /> Resumo do atacado
+              {totalQty > 0 && (
+                <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">{totalQty}</span>
+              )}
+            </h3>
+          </div>
+
+          <div className="flex-1 space-y-3 px-5 py-4">
             {/* Label logo */}
             <div className="rounded-lg border border-dashed p-3">
               <div className="text-[11px] font-bold uppercase tracking-widest text-primary">Etiqueta personalizada · Grátis</div>
@@ -800,28 +811,28 @@ function WholesalePage() {
                 <span>É necessário ter no mínimo {MIN_PER_SUBCAT} unidades por subcategoria para prosseguir.</span>
               </div>
             )}
-
-            {step === "cart" ? (
-              <button
-                type="button"
-                disabled={!canProceed}
-                onClick={() => setStep("checkout")}
-                className="w-full rounded-md bg-primary px-4 py-3 text-sm font-bold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                Revisar e finalizar →
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setStep("cart")}
-                className="w-full rounded-md border px-4 py-2 text-sm font-semibold hover:bg-accent"
-              >
-                Editar pedido
-              </button>
-            )}
           </div>
-        </aside>
-      </div>
+
+          <div className="border-t bg-card px-5 py-4">
+            <button
+              type="button"
+              disabled={!canProceed}
+              onClick={() => { setStep("checkout"); setSheetOpen(false); }}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 text-sm font-bold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Finalizar compra <ArrowRight className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setSheetOpen(false)}
+              className="mt-2 block w-full text-center text-sm text-muted-foreground hover:text-primary"
+            >
+              Continuar comprando
+            </button>
+          </div>
+        </SheetContent>
+      </Sheet>
+
       {zoomImg && (
         <div
           role="dialog"
