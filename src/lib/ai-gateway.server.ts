@@ -3,7 +3,7 @@ import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 // OpenRouter — API OpenAI-compatível (usa OPENROUTER_API_KEY).
 // Modelo padrão gratuito: DeepSeek Chat v3 (:free).
 const OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1";
-const DEFAULT_TEXT_MODEL = "deepseek/deepseek-chat-v3:free";
+const DEFAULT_TEXT_MODEL = "deepseek/deepseek-chat-v3";
 // OpenRouter/DeepSeek free não gera imagens — mantemos Gemini para imagem.
 const DEFAULT_IMAGE_MODEL = "gemini-2.5-flash-image-preview";
 
@@ -66,7 +66,7 @@ export async function openrouterChat(opts: {
   if (!key) throw new Error("OPENROUTER_API_KEY não configurada");
 
   const model = mapModel(opts.model ?? DEFAULT_TEXT_MODEL);
-  // Cascata: modelo pedido → deepseek free (fallback).
+  // Cascata: modelo pedido → deepseek-chat-v3 (fallback).
   const models = Array.from(new Set([model, DEFAULT_TEXT_MODEL]));
   const transient = new Set([429, 500, 502, 503, 504]);
   let lastErr = "";
