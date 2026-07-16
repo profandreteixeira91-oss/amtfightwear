@@ -6,6 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Calculator } from "lucide-react";
 import { brl } from "@/lib/format";
 import { listSizePresets, type SizePreset } from "@/lib/store/sizes.functions";
@@ -22,10 +29,13 @@ const DEFAULT_LENGTHS: Record<string, number> = {
 };
 
 type MaterialInput = {
-  pricePerMeter: number; // R$/m
-  fabricWidth: number; // m (largura do rolo)
-  usedWidth: number; // m (faixa cortada)
+  pricePerMeter: number;
+  fabricWidth: number;
+  usedWidth: number;
 };
+
+type ColoracaoKey = "brim" | "oxford";
+type AlmaKey = "lona" | "eva";
 
 function costPerMeter(m: MaterialInput) {
   if (!m.fabricWidth) return 0;
@@ -33,19 +43,34 @@ function costPerMeter(m: MaterialInput) {
 }
 
 function FaixaCalc() {
-  // Defaults from spec
+  // Coloração
   const [brim, setBrim] = useState<MaterialInput>({ pricePerMeter: 36.9, fabricWidth: 1.5, usedWidth: 0.14 });
   const [oxford, setOxford] = useState<MaterialInput>({ pricePerMeter: 5.7, fabricWidth: 1.5, usedWidth: 0.12 });
-  const [alma, setAlma] = useState<MaterialInput>({ pricePerMeter: 16.9, fabricWidth: 1.5, usedWidth: 0.08 });
-  const [almaLayers, setAlmaLayers] = useState<number>(3);
 
-  // Freight per material (total) + total meters produced from this batch (rateio)
+  // Alma - Lona de algodão
+  const [lona, setLona] = useState<MaterialInput>({ pricePerMeter: 16.9, fabricWidth: 1.5, usedWidth: 0.08 });
+  const [lonaLayers, setLonaLayers] = useState<number>(3);
+
+  // Alma - EVA
+  const [eva, setEva] = useState<MaterialInput>({ pricePerMeter: 25, fabricWidth: 1.2, usedWidth: 0.04 });
+
+  // Frete
   const [freightBrim, setFreightBrim] = useState<number>(0);
   const [freightOxford, setFreightOxford] = useState<number>(0);
   const [freightAlma, setFreightAlma] = useState<number>(0);
-  const [batchMeters, setBatchMeters] = useState<number>(100); // metros de faixa produzidos por rateio
+  const [batchMeters, setBatchMeters] = useState<number>(100);
 
-  // Comprimentos por tamanho (m) — vindos da tabela de medidas (categoria "faixa")
+  // Margem de lucro (%)
+  const [margin, setMargin] = useState<number>(100);
+
+  // Seleção padrão (global) que se aplica a novos tamanhos
+  const [defaultColor, setDefaultColor] = useState<ColoracaoKey>("brim");
+  const [defaultAlma, setDefaultAlma] = useState<AlmaKey>("lona");
+
+  // Seleção por tamanho (modelo)
+  const [colorBySize, setColorBySize] = useState<Record<string, ColoracaoKey>>({});
+  const [almaBySize, setAlmaBySize] = useState<Record<string, AlmaKey>>({});
+
   const listFn = useServerFn(listSizePresets);
   const { data: presets } = useQuery({
     queryKey: ["size-presets"],
@@ -59,18 +84,25 @@ function FaixaCalc() {
   const currentSizes = faixaPreset?.sizes ?? [];
   const getLen = (s: string) => lengths[s] ?? DEFAULT_LENGTHS[s.toUpperCase()] ?? 2.5;
 
+  // Custos por metro
   const brimCostPerM = useMemo(() => costPerMeter(brim), [brim]);
   const oxfordCostPerM = useMemo(() => costPerMeter(oxford), [oxford]);
-  const almaCostPerLayerPerM = useMemo(() => costPerMeter(alma), [alma]);
-  const almaCostPerM = almaCostPerLayerPerM * (almaLayers || 0);
+  const lonaCostPerLayerPerM = useMemo(() => costPerMeter(lona), [lona]);
+  const lonaCostPerM = lonaCostPerLayerPerM * (lonaLayers || 0);
+  const evaCostPerM = useMemo(() => costPerMeter(eva), [eva]);
 
   const freightPerM = useMemo(() => {
     if (!batchMeters) return 0;
     return (freightBrim + freightOxford + freightAlma) / batchMeters;
   }, [freightBrim, freightOxford, freightAlma, batchMeters]);
 
-  const materialsPerM = brimCostPerM + oxfordCostPerM + almaCostPerM;
-  const totalPerM = materialsPerM + freightPerM;
+  const colorCostPerM = (k: ColoracaoKey) => (k === "brim" ? brimCostPerM : oxfordCostPerM);
+  const almaCostPerM = (k: AlmaKey) => (k === "lona" ? lonaCostPerM : evaCostPerM);
+
+  const getColor = (s: string) => colorBySize[s] ?? defaultColor;
+  const getAlma = (s: string) => almaBySize[s] ?? defaultAlma;
+
+  const marginMult = 1 + (margin || 0) / 100;
 
   return (
     <div className="p-6 space-y-6">
@@ -81,91 +113,141 @@ function FaixaCalc() {
         <div>
           <h1 className="text-2xl font-black">Calculadora de custo — Faixas</h1>
           <p className="text-sm text-muted-foreground">
-            Cálculo por metro de faixa produzida, com rateio de frete.
+            Selecione a coloração e o tipo de alma para cada modelo. Inclui margem e preço sugerido.
           </p>
         </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <MaterialCard
-          title="Brim (capa externa)"
-          value={brim}
-          onChange={setBrim}
-          costPerMeter={brimCostPerM}
-        />
-        <MaterialCard
-          title="Oxford (forro)"
-          value={oxford}
-          onChange={setOxford}
-          costPerMeter={oxfordCostPerM}
-        />
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Alma (lona de algodão)</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Field label="R$ / metro" value={alma.pricePerMeter} onChange={(v) => setAlma({ ...alma, pricePerMeter: v })} step={0.01} />
-            <Field label="Largura do rolo (m)" value={alma.fabricWidth} onChange={(v) => setAlma({ ...alma, fabricWidth: v })} step={0.01} />
-            <Field label="Largura usada por camada (m)" value={alma.usedWidth} onChange={(v) => setAlma({ ...alma, usedWidth: v })} step={0.01} />
-            <Field label="Nº de camadas" value={almaLayers} onChange={setAlmaLayers} step={1} />
-            <Separator />
-            <Row label="Custo por camada / m" value={brl(almaCostPerLayerPerM)} />
-            <Row label={`Custo total (${almaLayers || 0} camadas) / m`} value={brl(almaCostPerM)} bold />
-          </CardContent>
-        </Card>
+      {/* Coloração */}
+      <div>
+        <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+          Coloração
+        </h2>
+        <div className="grid gap-4 md:grid-cols-2">
+          <MaterialCard title="Brim" value={brim} onChange={setBrim} costPerMeter={brimCostPerM} />
+          <MaterialCard title="Oxford" value={oxford} onChange={setOxford} costPerMeter={oxfordCostPerM} />
+        </div>
       </div>
 
+      {/* Alma */}
+      <div>
+        <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+          Alma
+        </h2>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Lona de algodão (X camadas)</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Field label="R$ / metro" value={lona.pricePerMeter} onChange={(v) => setLona({ ...lona, pricePerMeter: v })} />
+              <Field label="Largura do rolo (m)" value={lona.fabricWidth} onChange={(v) => setLona({ ...lona, fabricWidth: v })} />
+              <Field label="Largura usada por camada (m)" value={lona.usedWidth} onChange={(v) => setLona({ ...lona, usedWidth: v })} />
+              <Field label="Nº de camadas" value={lonaLayers} onChange={setLonaLayers} step={1} />
+              <Separator />
+              <Row label="Custo por camada / m" value={brl(lonaCostPerLayerPerM)} />
+              <Row label={`Custo total (${lonaLayers || 0} camadas) / m`} value={brl(lonaCostPerM)} bold />
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">EVA</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Field label="R$ / metro" value={eva.pricePerMeter} onChange={(v) => setEva({ ...eva, pricePerMeter: v })} />
+              <Field label="Largura do rolo (m)" value={eva.fabricWidth} onChange={(v) => setEva({ ...eva, fabricWidth: v })} />
+              <Field label="Largura usada (m)" value={eva.usedWidth} onChange={(v) => setEva({ ...eva, usedWidth: v })} />
+              <Separator />
+              <Row label="Custo por metro" value={brl(evaCostPerM)} bold />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Frete */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Frete / busca de materiais (rateio)</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-4">
-          <Field label="Frete Brim (R$)" value={freightBrim} onChange={setFreightBrim} step={0.01} />
-          <Field label="Frete Oxford (R$)" value={freightOxford} onChange={setFreightOxford} step={0.01} />
-          <Field label="Frete Alma (R$)" value={freightAlma} onChange={setFreightAlma} step={0.01} />
-          <Field
-            label="Metros de faixa produzidos com esse lote"
-            value={batchMeters}
-            onChange={setBatchMeters}
-            step={1}
-          />
+          <Field label="Frete Brim (R$)" value={freightBrim} onChange={setFreightBrim} />
+          <Field label="Frete Oxford (R$)" value={freightOxford} onChange={setFreightOxford} />
+          <Field label="Frete Alma (R$)" value={freightAlma} onChange={setFreightAlma} />
+          <Field label="Metros produzidos no lote" value={batchMeters} onChange={setBatchMeters} step={1} />
         </CardContent>
       </Card>
 
+      {/* Padrões + margem */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Resultado</CardTitle>
+          <CardTitle className="text-base">Padrão dos modelos e margem</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-4 md:grid-cols-3">
+          <div className="space-y-1">
+            <Label className="text-xs">Coloração padrão</Label>
+            <Select value={defaultColor} onValueChange={(v) => setDefaultColor(v as ColoracaoKey)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="brim">Brim</SelectItem>
+                <SelectItem value="oxford">Oxford</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">Alma padrão</Label>
+            <Select value={defaultAlma} onValueChange={(v) => setDefaultAlma(v as AlmaKey)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="lona">Lona de algodão</SelectItem>
+                <SelectItem value="eva">EVA</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <Field label="Margem de lucro (%)" value={margin} onChange={setMargin} step={1} />
+        </CardContent>
+      </Card>
+
+      {/* Resultado */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Resultado por tamanho</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           <Row label="Brim por metro" value={brl(brimCostPerM)} />
           <Row label="Oxford por metro" value={brl(oxfordCostPerM)} />
-          <Row label={`Alma por metro (${almaLayers || 0} camadas)`} value={brl(almaCostPerM)} />
+          <Row label={`Lona por metro (${lonaLayers || 0} camadas)`} value={brl(lonaCostPerM)} />
+          <Row label="EVA por metro" value={brl(evaCostPerM)} />
           <Row label="Frete rateado por metro" value={brl(freightPerM)} />
-          <Separator />
-          <Row label="Materiais por metro" value={brl(materialsPerM)} />
-          <Row label="Custo total por metro" value={brl(totalPerM)} bold />
           <Separator />
           <div className="pt-2">
             <div className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-              Custo por tamanho — categoria "faixa" da tabela de medidas
+              Custo e preço sugerido por tamanho — categoria "faixa"
             </div>
             {currentSizes.length === 0 ? (
               <p className="text-sm text-muted-foreground">
                 Nenhum tamanho cadastrado para a categoria "faixa". Cadastre em Tabela de tamanhos.
               </p>
             ) : (
-              <div className="overflow-hidden rounded-md border">
+              <div className="overflow-x-auto rounded-md border">
                 <table className="w-full text-sm">
                   <thead className="bg-muted/50 text-xs uppercase tracking-widest text-muted-foreground">
                     <tr>
                       <th className="px-3 py-2 text-left">Tamanho</th>
                       <th className="px-3 py-2 text-left">Comprimento (m)</th>
-                      <th className="px-3 py-2 text-right">Custo unitário</th>
+                      <th className="px-3 py-2 text-left">Coloração</th>
+                      <th className="px-3 py-2 text-left">Alma</th>
+                      <th className="px-3 py-2 text-right">Custo unit.</th>
+                      <th className="px-3 py-2 text-right">Preço sugerido</th>
                     </tr>
                   </thead>
                   <tbody>
                     {currentSizes.map((s) => {
                       const len = getLen(s);
+                      const cor = getColor(s);
+                      const alm = getAlma(s);
+                      const perM = colorCostPerM(cor) + almaCostPerM(alm) + freightPerM;
+                      const cost = perM * len;
+                      const price = cost * marginMult;
                       return (
                         <tr key={s} className="border-t">
                           <td className="px-3 py-2 font-semibold">{s}</td>
@@ -177,10 +259,39 @@ function FaixaCalc() {
                               onChange={(e) =>
                                 setLengths((prev) => ({ ...prev, [s]: Number(e.target.value) || 0 }))
                               }
-                              className="max-w-[120px]"
+                              className="max-w-[110px]"
                             />
                           </td>
-                          <td className="px-3 py-2 text-right font-bold">{brl(totalPerM * len)}</td>
+                          <td className="px-3 py-2">
+                            <Select
+                              value={cor}
+                              onValueChange={(v) =>
+                                setColorBySize((prev) => ({ ...prev, [s]: v as ColoracaoKey }))
+                              }
+                            >
+                              <SelectTrigger className="max-w-[140px]"><SelectValue /></SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="brim">Brim</SelectItem>
+                                <SelectItem value="oxford">Oxford</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </td>
+                          <td className="px-3 py-2">
+                            <Select
+                              value={alm}
+                              onValueChange={(v) =>
+                                setAlmaBySize((prev) => ({ ...prev, [s]: v as AlmaKey }))
+                              }
+                            >
+                              <SelectTrigger className="max-w-[160px]"><SelectValue /></SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="lona">Lona de algodão</SelectItem>
+                                <SelectItem value="eva">EVA</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </td>
+                          <td className="px-3 py-2 text-right font-bold">{brl(cost)}</td>
+                          <td className="px-3 py-2 text-right font-bold text-primary">{brl(price)}</td>
                         </tr>
                       );
                     })}
@@ -212,9 +323,9 @@ function MaterialCard({
         <CardTitle className="text-base">{title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        <Field label="R$ / metro" value={value.pricePerMeter} onChange={(v) => onChange({ ...value, pricePerMeter: v })} step={0.01} />
-        <Field label="Largura do rolo (m)" value={value.fabricWidth} onChange={(v) => onChange({ ...value, fabricWidth: v })} step={0.01} />
-        <Field label="Largura usada (m)" value={value.usedWidth} onChange={(v) => onChange({ ...value, usedWidth: v })} step={0.01} />
+        <Field label="R$ / metro" value={value.pricePerMeter} onChange={(v) => onChange({ ...value, pricePerMeter: v })} />
+        <Field label="Largura do rolo (m)" value={value.fabricWidth} onChange={(v) => onChange({ ...value, fabricWidth: v })} />
+        <Field label="Largura usada (m)" value={value.usedWidth} onChange={(v) => onChange({ ...value, usedWidth: v })} />
         <Separator />
         <Row label="Custo por metro" value={brl(cpm)} bold />
       </CardContent>
