@@ -235,7 +235,7 @@ export const createAsaasPayment = createServerFn({ method: "POST" })
       patch.payment_status = "failed";
     }
 
-    await supabaseAdmin.from("store_orders").update(patch).eq("id", order.id);
+    await supabaseAdmin.from("store_orders").update(patch as never).eq("id", order.id);
 
     return {
       ok: true,
@@ -272,6 +272,6 @@ export const syncAsaasPayment = createServerFn({ method: "POST" })
     } else if (status === "OVERDUE") {
       patch.payment_status = "overdue";
     }
-    await supabaseAdmin.from("store_orders").update(patch).eq("id", order.id);
+    await supabaseAdmin.from("store_orders").update(patch as never).eq("id", order.id);
     return { status, patch };
   });
