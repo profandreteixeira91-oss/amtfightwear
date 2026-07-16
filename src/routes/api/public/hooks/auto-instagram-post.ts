@@ -249,10 +249,8 @@ HARD RULES:
 - NEVER dominate the composition with a single belt color (white/blue/purple/brown/black belt). Rotate, prefer neutral/black moods.
 - High resolution, sharp, publish-ready.`;
 
-  const contentParts: Array<{ type: string; image_url?: { url: string }; text?: string }> = [];
-  if (productImageUrl) contentParts.push({ type: "image_url", image_url: { url: productImageUrl } });
-  contentParts.push({ type: "image_url", image_url: { url: logoUrl } });
-  contentParts.push({ type: "text", text: promptText });
+
+
 
   const parts: Array<
     { text: string } | { inline_data: { mime_type: string; data: string } }
