@@ -84,6 +84,32 @@ function SettingsPage() {
     });
   }
 
+  async function onPickImage(file: File) {
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Imagem muito grande — máximo 5 MB.");
+      return;
+    }
+    setUploading(true);
+    try {
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(String(r.result || ""));
+        r.onerror = () => reject(new Error("Falha ao ler arquivo"));
+        r.readAsDataURL(file);
+      });
+      const extRaw = (file.name.split(".").pop() ?? "png").toLowerCase();
+      const ext = (["png", "jpg", "jpeg", "webp"] as const).find((e) => e === extRaw) ?? "png";
+      const { url } = await uploadFn({ data: { base64, ext } });
+      setState((s) => ({ ...s, instagram_media_url: url }));
+      toast.success("Imagem enviada");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Falha no upload");
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  }
+
   if (isLoading) return <div className="mx-auto max-w-4xl space-y-3"><Skeleton className="h-32" /><Skeleton className="h-64" /></div>;
 
   return (
