@@ -2248,6 +2248,8 @@ export type Database = {
           updated_at: string
           wc_product_id: number | null
           weight_grams: number | null
+          wholesale_discount_percent: number | null
+          wholesale_enabled: boolean
         }
         Insert: {
           category?: string | null
@@ -2273,6 +2275,8 @@ export type Database = {
           updated_at?: string
           wc_product_id?: number | null
           weight_grams?: number | null
+          wholesale_discount_percent?: number | null
+          wholesale_enabled?: boolean
         }
         Update: {
           category?: string | null
@@ -2298,6 +2302,8 @@ export type Database = {
           updated_at?: string
           wc_product_id?: number | null
           weight_grams?: number | null
+          wholesale_discount_percent?: number | null
+          wholesale_enabled?: boolean
         }
         Relationships: [
           {
