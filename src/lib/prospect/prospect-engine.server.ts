@@ -7,7 +7,7 @@ import { normalizeEmail, normalizeInstagramHandle, normalizePhone, normalizeName
 import type { ContactChannel } from "@/features/prospect/types";
 
 const FIRECRAWL = "https://api.firecrawl.dev/v2";
-const AI_GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
+const GEMINI_API = "https://generativelanguage.googleapis.com/v1beta/models";
 
 // ============= Firecrawl helpers =============
 
