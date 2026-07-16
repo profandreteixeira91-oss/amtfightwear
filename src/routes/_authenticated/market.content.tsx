@@ -29,49 +29,24 @@ export const Route = createFileRoute("/_authenticated/market/content")({
 });
 
 
-type Product = { id: string; name: string; category: string | null; price: number; image_url: string | null };
+type Product = {
+  id: string;
+  name: string;
+  category: string | null;
+  price: number;
+  image_url: string | null;
+  description: string | null;
+  short_description: string | null;
+};
 type Generated = { instagram: string; whatsapp: string; email_subject: string; email_body: string };
 
 async function fetchProducts(): Promise<Product[]> {
-  const { data, error } = await supabase.from("products").select("id,name,category,price,image_url").limit(500);
+  const { data, error } = await supabase
+    .from("products")
+    .select("id,name,category,price,image_url,description,short_description")
+    .limit(500);
   if (error) throw error;
   return (data ?? []) as Product[];
-}
-
-type ImageBriefingProduct = { name: string; category: string | null } | null;
-function buildImagePrompt(args: {
-  product: ImageBriefingProduct;
-  contentType: string;
-  topic: string;
-  objective: "atacado" | "varejo";
-  instagram: string;
-}): string {
-  const { product, contentType, topic, objective, instagram } = args;
-  const firstLine = instagram.split("\n").find((l) => l.trim().length > 0)?.slice(0, 120) ?? "";
-  const productBlock = product
-    ? `Produto em destaque: ${product.name}${product.category ? ` (${product.category})` : ""}. Fotografia comercial premium, iluminação de estúdio, produto nítido em primeiro plano.`
-    : "Cena editorial de artes marciais (Jiu-Jitsu / Judô): dojo, tatame, atleta de kimono, mood cinematográfico. SEM produto fictício.";
-  const angleMap: Record<string, string> = {
-    product: "foto de produto premium, fundo neutro com textura sutil",
-    category: "linha de produtos em composição editorial",
-    motivational: "atleta em silhueta dramática, dojo à noite, contraste forte",
-    educational: "detalhe técnico de jiu-jitsu, mão ajustando faixa, mood instrucional",
-    athlete: "atleta em treino, foco em expressão e postura, ambiente de dojo",
-    event: "cena de competição / arena, energia coletiva, luzes de tatame",
-    behind: "bastidores da marca AMT: costura de kimono, tecidos, processo artesanal",
-    brand_story: "identidade AMT Fight Wear: preto, dourado suave, tipografia forte, mood premium",
-    engagement: "composição com espaço para pergunta/enquete, mood conversacional",
-  };
-  const angle = angleMap[contentType] ?? "cena editorial de artes marciais";
-  const audience = objective === "atacado" ? "público: professores/academias" : "público: praticantes/alunos";
-  return [
-    `AMT Fight Wear — creative para Instagram. ${angle}.`,
-    productBlock,
-    topic ? `Tema: ${topic}.` : "",
-    firstLine ? `Mote da copy: "${firstLine}".` : "",
-    audience + ".",
-    "Paleta: preto, dourado suave, textura de tatame. Sem texto na imagem (a legenda vai fora). Alta resolução, publish-ready.",
-  ].filter(Boolean).join(" ");
 }
 
 
