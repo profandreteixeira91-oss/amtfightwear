@@ -3510,6 +3510,15 @@ export type Database = {
           discount: number
           id: string
           max_production_days: number | null
+          melhor_envio_cart_id: string | null
+          melhor_envio_data: Json
+          melhor_envio_label_url: string | null
+          melhor_envio_order_id: string | null
+          melhor_envio_protocol: string | null
+          melhor_envio_service_id: number | null
+          melhor_envio_service_name: string | null
+          melhor_envio_status: string | null
+          melhor_envio_synced_at: string | null
           metadata: Json
           notes: string | null
           order_number: string
@@ -3538,6 +3547,15 @@ export type Database = {
           discount?: number
           id?: string
           max_production_days?: number | null
+          melhor_envio_cart_id?: string | null
+          melhor_envio_data?: Json
+          melhor_envio_label_url?: string | null
+          melhor_envio_order_id?: string | null
+          melhor_envio_protocol?: string | null
+          melhor_envio_service_id?: number | null
+          melhor_envio_service_name?: string | null
+          melhor_envio_status?: string | null
+          melhor_envio_synced_at?: string | null
           metadata?: Json
           notes?: string | null
           order_number?: string
@@ -3566,6 +3584,15 @@ export type Database = {
           discount?: number
           id?: string
           max_production_days?: number | null
+          melhor_envio_cart_id?: string | null
+          melhor_envio_data?: Json
+          melhor_envio_label_url?: string | null
+          melhor_envio_order_id?: string | null
+          melhor_envio_protocol?: string | null
+          melhor_envio_service_id?: number | null
+          melhor_envio_service_name?: string | null
+          melhor_envio_status?: string | null
+          melhor_envio_synced_at?: string | null
           metadata?: Json
           notes?: string | null
           order_number?: string
