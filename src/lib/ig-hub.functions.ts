@@ -648,23 +648,10 @@ export const aiConversationTools = createServerFn({ method: "POST" })
       score: `Dê um score de 0 a 100 sobre a probabilidade deste lead virar cliente da AMT. Responda apenas o número seguido de : e uma justificativa curta em uma linha.\n\n${transcript}`,
     };
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) throw new Error("GEMINI_API_KEY não configurado.");
-
-    const res = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: "gemini-2.5-flash",
-        messages: [{ role: "user", content: prompts[data.action] }],
-      }),
+    const { openrouterChat } = await import("./ai-gateway.server");
+    const content = await openrouterChat({
+      messages: [{ role: "user", content: prompts[data.action] }],
     });
-    if (!res.ok) throw new Error(`Falha na IA: ${res.status}`);
-    const j = await res.json() as { choices?: Array<{ message?: { content?: string } }> };
-    const content = j.choices?.[0]?.message?.content ?? "";
 
 
     // Persist relevant fields

@@ -57,7 +57,6 @@ function classifySource(url: string): string {
 }
 
 async function aiAnalyze(product: Product, results: Array<{ url?: string; title?: string; description?: string; markdown?: string }>) {
-  const lovableKey = process.env.GEMINI_API_KEY!;
   const shortResults = results.slice(0, 10).map((r) => ({
     url: r.url,
     title: r.title,
@@ -105,22 +104,12 @@ Retorne SOMENTE JSON válido:
   }
 }`;
 
-  const res = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${lovableKey}`,
-    },
-    body: JSON.stringify({
-      model: "gemini-2.5-pro",
-      messages: [{ role: "user", content: prompt }],
-      response_format: { type: "json_object" },
-    }),
+  const { openrouterChat } = await import("./ai-gateway.server");
+  const content = await openrouterChat({
+    messages: [{ role: "user", content: prompt }],
+    json: true,
   });
-  if (!res.ok) throw new Error(`IA ${res.status}: ${(await res.text()).slice(0, 200)}`);
-  const j = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
-  const content = j.choices?.[0]?.message?.content ?? "{}";
-  return JSON.parse(content) as {
+  return JSON.parse(content || "{}") as {
 
     competitors?: Array<Partial<Competitor>>;
     market?: { min: number | null; avg: number | null; max: number | null; count: number };

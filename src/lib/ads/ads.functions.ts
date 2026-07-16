@@ -48,8 +48,8 @@ const ObjectiveLabels: Record<string, string> = {
 // ---------- AI helpers ----------
 
 async function loadGateway() {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) throw new Error("GEMINI_API_KEY não configurada");
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) throw new Error("OPENROUTER_API_KEY não configurada");
   const { generateText } = await import("ai");
   const { createLovableAiGateway } = await import("../ai-gateway.server");
   return { gateway: createLovableAiGateway(apiKey), generateText };

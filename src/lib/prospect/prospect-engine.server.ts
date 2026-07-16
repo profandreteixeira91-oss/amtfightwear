@@ -1,13 +1,13 @@
 /**
  * Prospect Engine — server-only helpers para busca e enriquecimento.
- * Usa Firecrawl (search + scrape) + Google Gemini (via GEMINI_API_KEY) para extração.
+ * Usa Firecrawl (search + scrape) + OpenRouter (via OPENROUTER_API_KEY) para extração.
  * NUNCA importe este arquivo do cliente.
  */
 import { normalizeEmail, normalizeInstagramHandle, normalizePhone, normalizeName, computeLeadScore, DEFAULT_SCORE_WEIGHTS } from "@/features/prospect/utils";
 import type { ContactChannel } from "@/features/prospect/types";
+import { openrouterChat } from "@/lib/ai-gateway.server";
 
 const FIRECRAWL = "https://api.firecrawl.dev/v2";
-const GEMINI_API = "https://generativelanguage.googleapis.com/v1beta/openai";
 
 // ============= Firecrawl helpers =============
 
@@ -51,28 +51,17 @@ export async function firecrawlScrape(url: string): Promise<{ markdown: string; 
 // ============= AI helpers =============
 
 export async function aiExtract<T = unknown>(prompt: string, system?: string): Promise<T | null> {
-  const key = process.env.GEMINI_API_KEY;
-  if (!key) return null;
+  if (!process.env.OPENROUTER_API_KEY) return null;
   const messages: Array<{ role: "system" | "user"; content: string }> = [];
   if (system) messages.push({ role: "system", content: system });
   messages.push({ role: "user", content: prompt });
-  const res = await fetch(`${GEMINI_API}/chat/completions`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${key}`,
-    },
-    body: JSON.stringify({
-      model: "gemini-2.5-flash",
-      messages,
-      response_format: { type: "json_object" },
-    }),
-  });
-  if (!res.ok) return null;
-  const json = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
-  const content = json.choices?.[0]?.message?.content;
-  if (!content) return null;
-  try { return JSON.parse(content) as T; } catch { return null; }
+  try {
+    const content = await openrouterChat({ messages, json: true });
+    if (!content) return null;
+    try { return JSON.parse(content) as T; } catch { return null; }
+  } catch {
+    return null;
+  }
 }
 
 

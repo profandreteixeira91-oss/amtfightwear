@@ -108,7 +108,7 @@ ESTRUTURA DE CARROSSEL (7 slides — siga a ordem):
 
 // ---------- AI: copy ----------
 async function generateCopy(
-  apiKey: string,
+  _apiKey: string,
   angle: ContentAngle,
   product: Product | null,
   tone: string,
@@ -160,23 +160,11 @@ Responda APENAS com JSON válido, sem markdown, sem comentários:
   "slides": [ ${Array.from({ length: nSlides }, () => `{ "headline": "...", "subline": "..." }`).join(", ")} ]
 }`;
 
-  const res = await fetch(`${GEMINI_API}/chat/completions`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: "gemini-2.5-flash",
-      messages: [{ role: "user", content: prompt }],
-      response_format: { type: "json_object" },
-    }),
+  const { openrouterChat } = await import("@/lib/ai-gateway.server");
+  const text = await openrouterChat({
+    messages: [{ role: "user", content: prompt }],
+    json: true,
   });
-  if (!res.ok) throw new Error(`AI copy failed: ${res.status} ${await res.text()}`);
-  const json = (await res.json()) as {
-    choices?: Array<{ message?: { content?: string } }>;
-  };
-  const text = json.choices?.[0]?.message?.content ?? "";
   const match = text.match(/\{[\s\S]*\}/);
   if (!match) throw new Error("Gemini copy: no JSON in response");
   const parsed = JSON.parse(match[0]) as {
