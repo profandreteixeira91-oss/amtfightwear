@@ -514,7 +514,13 @@ export const adminMelhorEnvioSyncTracking = createServerFn({ method: "POST" })
       const row = resp?.[meId];
       if (!row) continue;
       const tracking = row.tracking ?? row.melhorenvio_tracking ?? null;
-      const patch: Record<string, unknown> = {
+      const patch: {
+        melhor_envio_status: string | null;
+        melhor_envio_data: { status?: string; tracking?: string; melhorenvio_tracking?: string };
+        melhor_envio_synced_at: string;
+        shipping_tracking?: string;
+        status?: string;
+      } = {
         melhor_envio_status: row.status ?? null,
         melhor_envio_data: row,
         melhor_envio_synced_at: new Date().toISOString(),
