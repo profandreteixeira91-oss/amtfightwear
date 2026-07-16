@@ -1,8 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 const GRAPH = "https://graph.facebook.com/v21.0";
-const AI_GATEWAY = "https://ai.gateway.lovable.dev/v1";
+const GEMINI_API = "https://generativelanguage.googleapis.com/v1beta/models";
 const LOGO_PATH = "brand/amt-logo.jpg";
+
+async function fetchAsInlineData(
+  url: string,
+): Promise<{ inline_data: { mime_type: string; data: string } }> {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`Falha ao baixar imagem de referência: ${r.status}`);
+  const mime = r.headers.get("content-type")?.split(";")[0] || "image/jpeg";
+  const buf = new Uint8Array(await r.arrayBuffer());
+  let bin = "";
+  for (let i = 0; i < buf.length; i++) bin += String.fromCharCode(buf[i]);
+  return { inline_data: { mime_type: mime, data: btoa(bin) } };
+}
 
 type Product = {
   id: string;
@@ -148,26 +160,31 @@ Responda APENAS com JSON válido, sem markdown, sem comentários:
   "slides": [ ${Array.from({ length: nSlides }, () => `{ "headline": "...", "subline": "..." }`).join(", ")} ]
 }`;
 
-  const res = await fetch(`${AI_GATEWAY}/chat/completions`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "Lovable-API-Key": apiKey },
-    body: JSON.stringify({
-      model: "google/gemini-3-flash-preview",
-      messages: [{ role: "user", content: prompt }],
-    }),
-  });
-  if (!res.ok) throw new Error(`AI copy failed: ${res.status} ${await res.text()}`);
-  const json = (await res.json()) as { choices: Array<{ message: { content: string } }> };
-  const text = json.choices[0].message.content ?? "";
+  const res = await fetch(
+    `${GEMINI_API}/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: { responseMimeType: "application/json" },
+      }),
+    },
+  );
+  if (!res.ok) throw new Error(`Gemini copy failed: ${res.status} ${await res.text()}`);
+  const json = (await res.json()) as {
+    candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+  };
+  const text = json.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("") ?? "";
   const match = text.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error("AI copy: no JSON in response");
+  if (!match) throw new Error("Gemini copy: no JSON in response");
   const parsed = JSON.parse(match[0]) as {
     theme: string;
     art_prompt_extra?: string;
     caption: string;
     slides: Array<{ headline: string; subline?: string }>;
   };
-  if (!parsed.slides?.length) throw new Error("AI copy: empty slides");
+  if (!parsed.slides?.length) throw new Error("Gemini copy: empty slides");
   return parsed;
 }
 
@@ -232,27 +249,37 @@ HARD RULES:
 - NEVER dominate the composition with a single belt color (white/blue/purple/brown/black belt). Rotate, prefer neutral/black moods.
 - High resolution, sharp, publish-ready.`;
 
-  const contentParts: Array<{ type: string; image_url?: { url: string }; text?: string }> = [];
-  if (productImageUrl) contentParts.push({ type: "image_url", image_url: { url: productImageUrl } });
-  contentParts.push({ type: "image_url", image_url: { url: logoUrl } });
-  contentParts.push({ type: "text", text: promptText });
 
-  const res = await fetch(`${AI_GATEWAY}/chat/completions`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "Lovable-API-Key": apiKey },
-    body: JSON.stringify({
-      model: "google/gemini-3.1-flash-image",
-      modalities: ["image", "text"],
-      messages: [{ role: "user", content: contentParts }],
-    }),
-  });
-  if (!res.ok) throw new Error(`AI image failed: ${res.status} ${await res.text()}`);
+
+
+  const parts: Array<
+    { text: string } | { inline_data: { mime_type: string; data: string } }
+  > = [];
+  if (productImageUrl) parts.push(await fetchAsInlineData(productImageUrl));
+  parts.push(await fetchAsInlineData(logoUrl));
+  parts.push({ text: promptText });
+
+  const res = await fetch(
+    `${GEMINI_API}/gemini-2.5-flash-image-preview:generateContent?key=${encodeURIComponent(apiKey)}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ role: "user", parts }],
+        generationConfig: { responseModalities: ["TEXT", "IMAGE"] },
+      }),
+    },
+  );
+  if (!res.ok) throw new Error(`Gemini image failed: ${res.status} ${await res.text()}`);
   const json = (await res.json()) as {
-    choices: Array<{ message: { images?: Array<{ image_url: { url: string } }> } }>;
+    candidates?: Array<{
+      content?: { parts?: Array<{ inlineData?: { data: string }; inline_data?: { data: string } }> };
+    }>;
   };
-  const url = json.choices[0]?.message?.images?.[0]?.image_url?.url;
-  if (!url) throw new Error("AI image: empty response");
-  const b64 = url.split(",")[1] ?? url;
+  const imgParts = json.candidates?.[0]?.content?.parts ?? [];
+  const b64 =
+    imgParts.map((p) => p.inlineData?.data ?? p.inline_data?.data).find(Boolean) ?? "";
+  if (!b64) throw new Error("Gemini image: empty response");
   const bin = atob(b64);
   const bytes = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
@@ -401,8 +428,8 @@ export const Route = createFileRoute("/api/public/hooks/auto-instagram-post")({
         const force = url.searchParams.get("force") === "1" || request.headers.get("x-force") === "1";
         const forcedType = url.searchParams.get("type") as PostType | null;
         const forcedAngle = url.searchParams.get("angle") as ContentAngle | null;
-        const apiKey = process.env.LOVABLE_API_KEY;
-        if (!apiKey) return Response.json({ error: "LOVABLE_API_KEY missing" }, { status: 500 });
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) return Response.json({ error: "GEMINI_API_KEY missing" }, { status: 500 });
 
         const supabase = await getAdmin();
 
