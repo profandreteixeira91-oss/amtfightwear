@@ -136,10 +136,14 @@ function WholesaleSettingsPage() {
         <CardHeader>
           <CardTitle>Produtos no atacado</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2 text-sm">
+        <CardContent className="space-y-3 text-sm">
           <p>
             <strong>{wholesaleCount}</strong> produto(s) atualmente vendidos no atacado.
           </p>
+          <div className="flex flex-wrap gap-2">
+            <BulkToggleButton mode="enable" onDone={() => refetch()} />
+            <BulkToggleButton mode="disable" onDone={() => refetch()} />
+          </div>
           <p className="text-muted-foreground">
             Habilite ou desabilite produtos individualmente pela coluna <em>Atacado / Desc.</em> em{" "}
             <Link to="/store/products" className="text-primary hover:underline">Produtos da loja</Link>.
