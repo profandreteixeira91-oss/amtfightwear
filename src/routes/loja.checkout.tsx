@@ -83,9 +83,12 @@ function CheckoutPage() {
     }
   };
 
+  const FREE_SHIPPING_THRESHOLD = 399;
   const subtotal = items.reduce((a, i) => a + i.quantity * i.unit_price, 0);
   const shippingCost = shipping?.price ?? 0;
-  const total = subtotal + shippingCost;
+  const freeShipping = subtotal >= FREE_SHIPPING_THRESHOLD;
+  const shippingDiscount = freeShipping ? shippingCost : 0;
+  const total = subtotal + shippingCost - shippingDiscount;
 
   const handleZip = async (zip: string) => {
     setForm((f) => ({ ...f, zip }));
@@ -342,6 +345,17 @@ function CheckoutPage() {
                 <span className="text-muted-foreground">Frete {shipping ? `(${shipping.company} ${shipping.name})` : ""}</span>
                 <span>{shipping ? formatBRL(shippingCost) : "—"}</span>
               </div>
+              {freeShipping && shipping && (
+                <div className="flex justify-between text-sm text-emerald-600 dark:text-emerald-400">
+                  <span>Frete grátis (acima de {formatBRL(FREE_SHIPPING_THRESHOLD)})</span>
+                  <span>−{formatBRL(shippingDiscount)}</span>
+                </div>
+              )}
+              {!freeShipping && (
+                <div className="text-xs text-muted-foreground">
+                  Faltam {formatBRL(FREE_SHIPPING_THRESHOLD - subtotal)} para ganhar frete grátis.
+                </div>
+              )}
               <div className="mt-2 border-t pt-2 flex justify-between text-base font-black">
                 <span>Total</span>
                 <span>{formatBRL(total)}</span>

@@ -537,7 +537,9 @@ export const createStoreOrder = createServerFn({ method: "POST" })
     if (orderItems.length === 0) throw new Error("Nenhum item válido");
 
     const shipping_cost = data.shipping_cost ?? 0;
-    const total = subtotal + shipping_cost;
+    const FREE_SHIPPING_THRESHOLD = 399;
+    const shipping_discount = subtotal >= FREE_SHIPPING_THRESHOLD ? shipping_cost : 0;
+    const total = subtotal + shipping_cost - shipping_discount;
 
     const { data: order, error } = await supabaseAdmin
       .from("store_orders")
@@ -551,6 +553,7 @@ export const createStoreOrder = createServerFn({ method: "POST" })
         shipping_method: data.shipping_method ?? null,
         subtotal,
         shipping_cost,
+        discount: shipping_discount,
         total,
         notes: data.notes,
         status: "pending_payment",
