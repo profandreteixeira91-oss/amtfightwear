@@ -1,37 +1,47 @@
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 
-// Mapa dos ids "google/gemini-*" (antigo padrão Lovable) para ids reais da
-// Google Generative Language API. Também aceita ids OpenAI e faz fallback.
+// Modelo padrão barato + alta qualidade via Lovable AI Gateway.
+const DEFAULT_TEXT_MODEL = "google/gemini-2.5-flash";
+const DEFAULT_IMAGE_MODEL = "google/gemini-2.5-flash-image-preview";
+
+// Normaliza ids antigos para modelos suportados pelo Lovable AI Gateway.
 function mapModel(id: string): string {
-  let m = id.startsWith("google/") ? id.slice("google/".length) : id;
-  if (m.startsWith("openai/")) m = "gemini-flash-latest"; // fallback: sem OpenAI aqui
   const table: Record<string, string> = {
-    "gemini-3.5-flash": "gemini-flash-latest",
-    "gemini-3-flash-preview": "gemini-flash-latest",
-    "gemini-3.1-flash-lite": "gemini-2.5-flash-lite",
-    "gemini-3.1-pro-preview": "gemini-2.5-pro",
-    "gemini-3.1-flash-image": "gemini-2.5-flash-image-preview",
-    "gemini-3-pro-image": "gemini-2.5-flash-image-preview",
-    "gemini-3.1-flash-lite-image": "gemini-2.5-flash-image-preview",
-    "gemini-2.5-flash-image": "gemini-2.5-flash-image-preview",
+    // Texto
+    "google/gemini-flash-latest": DEFAULT_TEXT_MODEL,
+    "google/gemini-3.5-flash": DEFAULT_TEXT_MODEL,
+    "google/gemini-3-flash-preview": DEFAULT_TEXT_MODEL,
+    "google/gemini-3.1-flash-lite": "google/gemini-2.5-flash-lite",
+    "google/gemini-3.1-pro-preview": "google/gemini-2.5-pro",
+    // Imagem
+    "google/gemini-3.1-flash-image": DEFAULT_IMAGE_MODEL,
+    "google/gemini-3-pro-image": DEFAULT_IMAGE_MODEL,
+    "google/gemini-3.1-flash-lite-image": DEFAULT_IMAGE_MODEL,
+    "google/gemini-2.5-flash-image": DEFAULT_IMAGE_MODEL,
   };
-  return table[m] ?? m;
+  if (table[id]) return table[id];
+  // Se veio sem prefixo google/openai/, assume google.
+  if (!id.includes("/")) return `google/${id}`;
+  return id;
 }
 
 /**
- * Gateway agora aponta direto para a Google Generative Language API
- * (endpoint OpenAI-compat). Ignora o argumento e usa GEMINI_API_KEY.
- * A assinatura foi mantida para não quebrar os chamadores.
+ * Gateway aponta para o Lovable AI Gateway (endpoint OpenAI-compat).
+ * Usa LOVABLE_API_KEY (provisionada automaticamente pela plataforma).
  */
 export function createLovableAiGateway(_ignored?: string) {
-  const key = process.env.GEMINI_API_KEY;
-  if (!key) throw new Error("GEMINI_API_KEY não configurada");
+  const key = process.env.LOVABLE_API_KEY;
+  if (!key) throw new Error("LOVABLE_API_KEY não configurada");
 
   const provider = createOpenAICompatible({
-    name: "gemini",
-    baseURL: "https://generativelanguage.googleapis.com/v1beta/openai",
+    name: "lovable",
+    baseURL: "https://ai.gateway.lovable.dev/v1",
     headers: { Authorization: `Bearer ${key}` },
   });
 
   return (modelId: string) => provider(mapModel(modelId));
 }
+
+export const LOVABLE_GATEWAY_URL = "https://ai.gateway.lovable.dev/v1";
+export const DEFAULT_TEXT_MODEL_ID = DEFAULT_TEXT_MODEL;
+export const DEFAULT_IMAGE_MODEL_ID = DEFAULT_IMAGE_MODEL;
