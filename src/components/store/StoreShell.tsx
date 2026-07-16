@@ -1,11 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import { ShoppingBag, Search, User, Menu, Instagram, Truck, ShieldCheck, CreditCard, LogIn } from "lucide-react";
+import { ShoppingBag, User, Menu, Instagram, Truck, ShieldCheck, CreditCard, LogIn } from "lucide-react";
 import { useCart } from "@/lib/store/cart-store";
 import { useEffect, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import amtLogo from "@/assets/amt-logo.jpg";
 import { ProductImage } from "@/components/store/ProductImage";
 import { CartSheet } from "@/components/store/CartSheet";
+import { SearchBar } from "@/components/store/SearchBar";
 
 type StoreCategory = { id?: string; slug: string; name: string; parent_id?: string | null };
 
@@ -130,14 +131,7 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
             </div>
           </Link>
 
-          <div className="hidden md:flex flex-1 items-center rounded-md border bg-muted/40 px-3">
-            <Search className="h-4 w-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Buscar kimono, rashguard, faixa..."
-              className="w-full bg-transparent px-2 py-2 text-sm outline-none placeholder:text-muted-foreground"
-            />
-          </div>
+          <SearchBar />
 
           <div className="flex items-center gap-1 sm:gap-3">
             {mounted && isAuthed ? (
