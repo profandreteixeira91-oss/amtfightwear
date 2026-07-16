@@ -7,7 +7,7 @@ import { getCustomTemplate, checkIsAdmin, updateCustomLayout } from "@/lib/custo
 import { formatBRL, useCart, type CustomConfig } from "@/lib/store/cart-store";
 import { capturePreview } from "@/lib/store/preview-capture";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Check, Plus, Trash2, ShoppingBag, Upload, X, Settings, Save, RotateCcw } from "lucide-react";
+import { Check, Plus, Trash2, ShoppingBag, Upload, X, Settings, Save, RotateCcw, ChevronDown } from "lucide-react";
 import kimonoBase from "@/assets/customshop-kimono.jpg";
 import rashguardBase from "@/assets/customshop-rashguard.jpg";
 import faixaBase from "@/assets/customshop-faixa.jpg";
