@@ -37,30 +37,74 @@ export const Route = createFileRoute("/api/generate-ad-image")({
             ? "1024x1536"
             : "1536x1024";
 
-        const upstream = await fetch("https://api.openai.com/v1/images/generations", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${key}`,
-          },
-          body: JSON.stringify({
-            model: "gpt-image-1",
-            prompt: body.prompt,
-            size,
-            n: 1,
-          }),
+        async function callOpenAI(payload: Record<string, unknown>) {
+          return fetch("https://api.openai.com/v1/images/generations", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${key}`,
+            },
+            body: JSON.stringify(payload),
+          });
+        }
+
+        // Tenta gpt-image-1 primeiro; se falhar (ex.: org não verificada, content policy),
+        // faz fallback automático para dall-e-3.
+        let upstream = await callOpenAI({
+          model: "gpt-image-1",
+          prompt: body.prompt,
+          size,
+          n: 1,
         });
 
+        let firstError = "";
         if (!upstream.ok) {
-          const text = await upstream.text().catch(() => "");
-          return new Response(text || "OpenAI upstream error", { status: upstream.status });
+          firstError = await upstream.text().catch(() => "");
+          // Mapeia tamanho para dall-e-3 (aceita 1024x1024, 1024x1792, 1792x1024)
+          const dalleSize =
+            size === "1024x1024"
+              ? "1024x1024"
+              : size === "1024x1536"
+              ? "1024x1792"
+              : "1792x1024";
+          upstream = await callOpenAI({
+            model: "dall-e-3",
+            prompt: body.prompt,
+            size: dalleSize,
+            n: 1,
+            response_format: "b64_json",
+          });
+        }
+
+        if (!upstream.ok) {
+          const second = await upstream.text().catch(() => "");
+          const parse = (s: string) => {
+            try {
+              const j = JSON.parse(s);
+              return j?.error?.message ?? j?.message ?? s;
+            } catch {
+              return s;
+            }
+          };
+          const msg = `gpt-image-1: ${parse(firstError) || "erro"} | dall-e-3: ${parse(second) || "erro"}`;
+          return new Response(msg, { status: upstream.status });
         }
 
         const json = (await upstream.json()) as {
-          data?: Array<{ b64_json?: string }>;
+          data?: Array<{ b64_json?: string; url?: string }>;
         };
 
-        const b64 = json.data?.[0]?.b64_json ?? "";
+        let b64 = json.data?.[0]?.b64_json ?? "";
+        if (!b64 && json.data?.[0]?.url) {
+          // Alguns retornos de dall-e-3 vêm como URL; converte para base64.
+          const imgRes = await fetch(json.data[0].url!);
+          if (imgRes.ok) {
+            const buf = new Uint8Array(await imgRes.arrayBuffer());
+            let bin = "";
+            for (let i = 0; i < buf.length; i++) bin += String.fromCharCode(buf[i]);
+            b64 = btoa(bin);
+          }
+        }
         if (!b64) {
           return new Response("OpenAI retornou vazio", { status: 502 });
         }
