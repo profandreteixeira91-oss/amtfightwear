@@ -116,6 +116,8 @@ function ContentPage() {
           productName: product?.name ?? null,
           productCategory: product?.category ?? null,
           productPrice: product ? Number(product.price) : null,
+          productDescription: product?.description ?? null,
+          productShortDescription: product?.short_description ?? null,
           objective,
           contentType,
           topic: topic || null,
