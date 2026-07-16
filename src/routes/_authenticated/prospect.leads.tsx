@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -35,6 +35,9 @@ import { fmtDate, scoreToStars } from "@/features/prospect/utils";
 
 export const Route = createFileRoute("/_authenticated/prospect/leads")({
   head: () => ({ meta: [{ title: "Leads — Prospect Engine" }] }),
+  validateSearch: (s: Record<string, unknown>) => ({
+    focus: typeof s.focus === "string" ? s.focus : undefined,
+  }),
   component: LeadsPage,
 });
 
@@ -44,6 +47,7 @@ type LeadRow = Record<string, unknown> & { id: string; contacts: Contact[] };
 const PAGE_SIZE = 25;
 
 function LeadsPage() {
+  const { focus } = Route.useSearch();
   const [search, setSearch] = useState("");
   const [state, setState] = useState<string>("");
   const [stage, setStage] = useState<string>("");
@@ -54,6 +58,7 @@ function LeadsPage() {
   const [page, setPage] = useState(0);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkStage, setBulkStage] = useState<string>("");
+  const focusedRowRef = useRef<HTMLTableRowElement | null>(null);
 
   const qc = useQueryClient();
   const fetchList = useServerFn(listLeads);
@@ -151,6 +156,15 @@ function LeadsPage() {
   const total = data?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const rows = (data?.rows ?? []) as LeadRow[];
+
+  useEffect(() => {
+    if (!focus) return;
+    if (!rows.some((r) => r.id === focus)) return;
+    const t = setTimeout(() => {
+      focusedRowRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 60);
+    return () => clearTimeout(t);
+  }, [focus, rows]);
 
   const allChecked = rows.length > 0 && rows.every((r) => selected.has(r.id));
   const someChecked = rows.some((r) => selected.has(r.id));
@@ -347,8 +361,14 @@ function LeadsPage() {
                   const ig = r.contacts.find((c) => c.channel === "instagram")?.value;
                   const stars = scoreToStars(Number(r.score) || 0);
                   const isSel = selected.has(r.id);
+                  const isFocused = focus === r.id;
                   return (
-                    <TableRow key={r.id} data-state={isSel ? "selected" : undefined}>
+                    <TableRow
+                      key={r.id}
+                      ref={isFocused ? focusedRowRef : undefined}
+                      data-state={isSel ? "selected" : undefined}
+                      className={isFocused ? "bg-primary/10 ring-2 ring-primary/60 ring-inset animate-pulse" : undefined}
+                    >
                       <TableCell>
                         <Checkbox
                           checked={isSel}

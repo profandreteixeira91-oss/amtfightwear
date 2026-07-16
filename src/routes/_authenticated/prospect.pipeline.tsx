@@ -152,8 +152,8 @@ function KanbanCard({ lead }: { lead: LeadCard }) {
         <Card className="border-border/60 hover:border-primary/40">
           <CardContent className="space-y-2 p-3">
             <Link
-              to="/prospect/$id"
-              params={{ id: lead.id }}
+              to="/prospect/leads"
+              search={{ focus: lead.id }}
               className="line-clamp-2 text-sm font-semibold hover:text-primary"
               onPointerDown={(e) => e.stopPropagation()}
             >
