@@ -1374,7 +1374,7 @@ ${context_}
 Retorne APENAS JSON: {"headline":"...","primary_text":"...","description":"...","cta":"...","visual_prompt":"...","rationale":"por que deve funcionar"}`;
 
     const { text } = await generateText({
-      model: gateway("google/gemini-2.5-flash"),
+      model: gateway("google/gemini-flash-latest"),
       prompt,
     });
     let suggestionJson: string | null = null;

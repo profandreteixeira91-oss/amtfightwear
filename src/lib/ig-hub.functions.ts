@@ -655,7 +655,7 @@ export const aiConversationTools = createServerFn({ method: "POST" })
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "google/gemini-flash-latest",
         messages: [{ role: "user", content: prompts[data.action] }],
       }),
     });
