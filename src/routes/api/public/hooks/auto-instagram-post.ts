@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 const GRAPH = "https://graph.facebook.com/v21.0";
-const GEMINI_API = "https://generativelanguage.googleapis.com/v1beta/models";
+const LOVABLE_AI = "https://ai.gateway.lovable.dev/v1";
 const LOGO_PATH = "brand/amt-logo.jpg";
 
 async function fetchAsInlineData(
