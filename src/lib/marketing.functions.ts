@@ -75,29 +75,44 @@ async function geminiGenerateText(prompt: string): Promise<string> {
   const key = process.env.GEMINI_API_KEY;
   if (!key) throw new Error("GEMINI_API_KEY não configurada");
 
-  // Cascata: flash-latest (cota alta) → flash-lite-latest se estourar 429.
+  // Cascata: flash-latest → flash-lite-latest. Faz fallback em 429/503/502/500.
   const models = ["gemini-flash-latest", "gemini-flash-lite-latest"];
+  const transient = new Set([429, 500, 502, 503, 504]);
   let lastErr = "";
   let lastStatus = 0;
+
   for (const model of models) {
-    const res = await geminiCall(model, prompt, key);
-    if (res.ok) {
-      const json = (await res.json()) as {
-        choices?: Array<{ message?: { content?: string } }>;
-      };
-      return json.choices?.[0]?.message?.content ?? "";
+    // até 3 tentativas por modelo com backoff em erros transitórios
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const res = await geminiCall(model, prompt, key);
+      if (res.ok) {
+        const json = (await res.json()) as {
+          choices?: Array<{ message?: { content?: string } }>;
+        };
+        return json.choices?.[0]?.message?.content ?? "";
+      }
+      lastStatus = res.status;
+      lastErr = await res.text().catch(() => "");
+      if (!transient.has(res.status)) break;
+      // backoff exponencial: 800ms, 1600ms, 3200ms
+      await new Promise((r) => setTimeout(r, 800 * Math.pow(2, attempt)));
     }
-    lastStatus = res.status;
-    lastErr = await res.text().catch(() => "");
-    if (res.status !== 429) break; // só faz fallback em rate-limit
+    if (!transient.has(lastStatus)) break;
   }
+
   if (lastStatus === 429) {
     throw new Error(
       "Gemini está com cota excedida. Aguarde alguns minutos e tente novamente, ou revise os limites da sua chave em https://ai.google.dev/gemini-api/docs/rate-limits."
     );
   }
+  if (lastStatus === 503 || lastStatus === 502 || lastStatus === 504) {
+    throw new Error(
+      "Gemini está temporariamente sobrecarregado (503). Aguarde alguns segundos e tente novamente."
+    );
+  }
   throw new Error(`Gemini ${lastStatus}: ${lastErr.slice(0, 300)}`);
 }
+
 
 export const generateMarketingContent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
