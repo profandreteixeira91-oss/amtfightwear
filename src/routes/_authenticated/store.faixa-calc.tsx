@@ -1,15 +1,25 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Calculator } from "lucide-react";
 import { brl } from "@/lib/format";
+import { listSizePresets, type SizePreset } from "@/lib/store/sizes.functions";
 
 export const Route = createFileRoute("/_authenticated/store/faixa-calc")({
   component: FaixaCalc,
 });
+
+// Comprimentos padrão de faixa (metros) — editáveis pelo usuário.
+const DEFAULT_LENGTHS: Record<string, number> = {
+  M0: 2.0, M1: 2.2, M2: 2.4, M3: 2.6, M4: 2.8, M5: 3.0,
+  A0: 2.2, A1: 2.4, A2: 2.6, A3: 2.8, A4: 3.0, A5: 3.2,
+  PP: 2.0, P: 2.2, M: 2.4, G: 2.6, GG: 2.8,
+};
 
 type MaterialInput = {
   pricePerMeter: number; // R$/m
