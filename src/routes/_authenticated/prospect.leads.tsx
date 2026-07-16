@@ -157,6 +157,15 @@ function LeadsPage() {
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const rows = (data?.rows ?? []) as LeadRow[];
 
+  useEffect(() => {
+    if (!focus) return;
+    if (!rows.some((r) => r.id === focus)) return;
+    const t = setTimeout(() => {
+      focusedRowRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 60);
+    return () => clearTimeout(t);
+  }, [focus, rows]);
+
   const allChecked = rows.length > 0 && rows.every((r) => selected.has(r.id));
   const someChecked = rows.some((r) => selected.has(r.id));
 
