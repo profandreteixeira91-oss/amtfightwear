@@ -21,12 +21,15 @@ export const Route = createFileRoute("/_authenticated/store/faixa-calc")({
   component: FaixaCalc,
 });
 
-// Comprimentos padrão de faixa (metros) — editáveis pelo usuário.
-const DEFAULT_LENGTHS: Record<string, number> = {
-  M0: 2.0, M1: 2.2, M2: 2.4, M3: 2.6, M4: 2.8, M5: 3.0,
-  A0: 2.2, A1: 2.4, A2: 2.6, A3: 2.8, A4: 3.0, A5: 3.2,
-  PP: 2.0, P: 2.2, M: 2.4, G: 2.6, GG: 2.8,
-};
+// Extrai o comprimento (em metros) a partir do nome do tamanho.
+// A nomenclatura já contém a metragem em cm — ex.: "M0-200", "A2 260cm", "P-220".
+function parseLengthMeters(sizeName: string): number {
+  const match = sizeName.match(/(\d{2,4})/);
+  if (!match) return 0;
+  const cm = Number(match[1]);
+  if (!Number.isFinite(cm) || cm <= 0) return 0;
+  return cm / 100;
+}
 
 type MaterialInput = {
   pricePerMeter: number;
@@ -80,9 +83,8 @@ function FaixaCalc() {
     () => (presets ?? []).find((p) => p.category_key.toLowerCase() === "faixa"),
     [presets],
   );
-  const [lengths, setLengths] = useState<Record<string, number>>({});
   const currentSizes = faixaPreset?.sizes ?? [];
-  const getLen = (s: string) => lengths[s] ?? DEFAULT_LENGTHS[s.toUpperCase()] ?? 2.5;
+  const getLen = (s: string) => parseLengthMeters(s);
 
   // Custos por metro
   const brimCostPerM = useMemo(() => costPerMeter(brim), [brim]);
@@ -251,16 +253,8 @@ function FaixaCalc() {
                       return (
                         <tr key={s} className="border-t">
                           <td className="px-3 py-2 font-semibold">{s}</td>
-                          <td className="px-3 py-2">
-                            <Input
-                              type="number"
-                              step={0.05}
-                              value={len}
-                              onChange={(e) =>
-                                setLengths((prev) => ({ ...prev, [s]: Number(e.target.value) || 0 }))
-                              }
-                              className="max-w-[110px]"
-                            />
+                          <td className="px-3 py-2 tabular-nums">
+                            {len > 0 ? len.toFixed(2) : "—"}
                           </td>
                           <td className="px-3 py-2">
                             <Select
