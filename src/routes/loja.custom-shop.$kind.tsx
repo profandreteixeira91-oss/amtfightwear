@@ -956,13 +956,12 @@ function BuilderPage() {
                             <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                               {KIMONO_TECHNIQUES.map((t) => {
                                 const activeT = (entry.technique ?? "bordado") === t.id;
+                                const tPrice = kimonoPatchPrice(s.key, t.id, entry.size);
                                 return (
                                   <button
                                     key={t.id}
                                     type="button"
                                     onClick={() => {
-                                      // Bordado e DTF: fundo removido automaticamente (transparente).
-                                      // Sublimado: cliente escolhe quadrado ou redondo; mantém o atual se já for válido.
                                       const nextFormat: "redondo" | "quadrado" | "transparente" =
                                         t.id === "sublimado"
                                           ? ((entry.format === "redondo" || entry.format === "quadrado") ? entry.format : "quadrado")
@@ -973,7 +972,10 @@ function BuilderPage() {
                                       activeT ? "border-primary bg-primary/5 text-primary" : "hover:border-foreground/40"
                                     }`}
                                   >
-                                    {t.label}
+                                    <div className="flex items-center justify-between gap-2">
+                                      <span>{t.label}</span>
+                                      {tPrice > 0 && <span className="text-[11px] font-bold text-primary">+ {formatBRL(tPrice)}</span>}
+                                    </div>
                                     <div className="mt-0.5 text-[10px] font-normal text-muted-foreground">{t.hint}</div>
                                   </button>
                                 );
@@ -989,33 +991,40 @@ function BuilderPage() {
                           if (cfg.presets.length === 0 && !cfg.allowCustom) return null;
                           const current = entry.size ?? cfg.default;
                           const isCustom = !cfg.presets.includes(current);
+                          const tech = (entry.technique ?? "bordado") as "bordado" | "sublimado" | "dtf";
                           return (
                             <div>
                               <div className="mb-1 text-xs font-semibold text-muted-foreground">Tamanho (cm)</div>
                               <div className="flex flex-wrap gap-2">
-                                {cfg.presets.map((sz) => (
-                                  <button
-                                    key={sz}
-                                    type="button"
-                                    onClick={() => setEntry({ size: sz })}
-                                    className={`rounded-md border px-3 py-1.5 text-xs font-semibold transition ${
-                                      current === sz ? "border-primary bg-primary/5 text-primary" : "hover:border-foreground/40"
-                                    }`}
-                                  >
-                                    {sz} cm
-                                  </button>
-                                ))}
-                                {cfg.allowCustom && (
-                                  <button
-                                    type="button"
-                                    onClick={() => setEntry({ size: isCustom ? current : "" })}
-                                    className={`rounded-md border px-3 py-1.5 text-xs font-semibold transition ${
-                                      isCustom ? "border-primary bg-primary/5 text-primary" : "hover:border-foreground/40"
-                                    }`}
-                                  >
-                                    Personalizado
-                                  </button>
-                                )}
+                                {cfg.presets.map((sz) => {
+                                  const p = kimonoPatchPrice(s.key, tech, sz);
+                                  return (
+                                    <button
+                                      key={sz}
+                                      type="button"
+                                      onClick={() => setEntry({ size: sz })}
+                                      className={`rounded-md border px-3 py-1.5 text-xs font-semibold transition ${
+                                        current === sz ? "border-primary bg-primary/5 text-primary" : "hover:border-foreground/40"
+                                      }`}
+                                    >
+                                      {sz} cm{p > 0 && <span className="ml-1 text-primary">+ {formatBRL(p)}</span>}
+                                    </button>
+                                  );
+                                })}
+                                {cfg.allowCustom && (() => {
+                                  const p = kimonoPatchPrice(s.key, tech, "custom");
+                                  return (
+                                    <button
+                                      type="button"
+                                      onClick={() => setEntry({ size: isCustom ? current : "" })}
+                                      className={`rounded-md border px-3 py-1.5 text-xs font-semibold transition ${
+                                        isCustom ? "border-primary bg-primary/5 text-primary" : "hover:border-foreground/40"
+                                      }`}
+                                    >
+                                      Personalizado{p > 0 && <span className="ml-1 text-primary">+ {formatBRL(p)}</span>}
+                                    </button>
+                                  );
+                                })()}
                               </div>
                               {cfg.allowCustom && isCustom && (
                                 <input
