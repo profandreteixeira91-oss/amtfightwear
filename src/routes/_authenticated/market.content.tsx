@@ -3,8 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { motion } from "framer-motion";
-import { Wand2, Instagram, MessageCircle, Mail, Sparkles, Loader2, Send, Clock, ExternalLink, XCircle, CheckCircle2, AlertCircle, Bot, Play, TrendingUp, RefreshCw } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
+import { Wand2, Instagram, MessageCircle, Mail, Sparkles, Loader2, Send, Clock, TrendingUp, RefreshCw, CalendarDays, List } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/common/PageHeader";
 import { SectionCard } from "@/components/common/SectionCard";
@@ -19,14 +18,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { generateMarketingContent, suggestViralTopics } from "@/lib/marketing.functions";
-import { createInstagramPost, listInstagramPosts, cancelInstagramPost } from "@/lib/instagram.functions";
-import { getAutoPostSettings, updateAutoPostSettings, runAutoPostNow } from "@/lib/autopost.functions";
+import { generateMarketingContent, suggestViralTopics, autoBriefFromViral } from "@/lib/marketing.functions";
+import { createInstagramPost, listInstagramPosts } from "@/lib/instagram.functions";
+import { PostCalendar, type CalendarPost } from "@/components/marketing/PostCalendar";
 
 export const Route = createFileRoute("/_authenticated/market/content")({
   head: () => ({ meta: [{ title: "AMT MarketEngine — IA Content Hub" }] }),
   component: ContentPage,
 });
+
 
 type Product = { id: string; name: string; category: string | null; price: number; image_url: string | null };
 type Generated = { instagram: string; whatsapp: string; email_subject: string; email_body: string };
