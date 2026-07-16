@@ -333,7 +333,7 @@ export const runSearch = createServerFn({ method: "POST" })
           city: c.city, state: c.state, country: data.country,
           website: c.website, description: c.description, source_url: c.source_url,
           origin: "search",
-          pipeline_stage: "captado",
+          pipeline_stage: "novo",
         }).select("id").single();
 
         if (row?.id) {
@@ -444,7 +444,7 @@ export const runMartialArtsSweep = createServerFn({ method: "POST" })
               city: c.city, state: c.state, country: "BR",
               website: c.website, description: c.description, source_url: c.source_url,
               origin: "search_martial_arts",
-              pipeline_stage: "captado",
+              pipeline_stage: "novo",
             }).select("id").single();
 
             if (row?.id) {

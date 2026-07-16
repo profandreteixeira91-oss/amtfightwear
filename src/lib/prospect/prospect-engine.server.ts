@@ -462,6 +462,7 @@ export async function enrichCompanyCore(
   const company = c as {
     id: string; name: string; website: string | null; city: string | null;
     phone: string | null; address: string | null; category: string | null; state: string | null;
+    pipeline_stage: string | null;
   };
 
   let result: EnrichmentResult = {
@@ -494,8 +495,13 @@ export async function enrichCompanyCore(
 
   const patch: Record<string, unknown> = {
     enriched_at: new Date().toISOString(),
-    pipeline_stage: "enriquecido",
   };
+  // Todos os leads captados/enriquecidos permanecem como "novo" no pipeline
+  // até que o usuário mova manualmente. Não sobrescreve estágios avançados.
+  const current = company.pipeline_stage ?? "novo";
+  if (["novo", "captado", "enriquecido"].includes(current)) {
+    patch.pipeline_stage = "novo";
+  }
   if (result.address && !company.address) patch.address = result.address;
   if (result.phone && !company.phone) patch.phone = result.phone;
   if (result.business_hours) patch.business_hours = result.business_hours;
