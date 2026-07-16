@@ -196,7 +196,7 @@ function PostDetailDialog({ post, onClose }: { post: CalendarPost | null; onClos
   const [caption, setCaption] = useState("");
   const [imageUrl, setImageUrl] = useState("");
 
-  useMemo(() => {
+  useEffect(() => {
     if (post) {
       setScheduleAt(toLocalInput(post.scheduled_for));
       setCaption(post.caption);
