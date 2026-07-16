@@ -48,12 +48,13 @@ const ObjectiveLabels: Record<string, string> = {
 // ---------- AI helpers ----------
 
 async function loadGateway() {
-  const apiKey = process.env.LOVABLE_API_KEY;
-  if (!apiKey) throw new Error("LOVABLE_API_KEY não configurada");
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error("GEMINI_API_KEY não configurada");
   const { generateText } = await import("ai");
   const { createLovableAiGateway } = await import("../ai-gateway.server");
   return { gateway: createLovableAiGateway(apiKey), generateText };
 }
+
 
 type JsonValue = string | number | boolean | null | JsonValue[] | { [k: string]: JsonValue };
 function extractJson(text: string): JsonValue {
