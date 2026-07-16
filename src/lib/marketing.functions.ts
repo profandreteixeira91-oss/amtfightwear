@@ -22,6 +22,8 @@ const GenerateInput = z.object({
   productName: z.string().optional().nullable(),
   productCategory: z.string().optional().nullable(),
   productPrice: z.number().optional().nullable(),
+  productDescription: z.string().optional().nullable(),
+  productShortDescription: z.string().optional().nullable(),
   objective: z.enum(["atacado", "varejo"]).default("varejo"),
   contentType: z.enum(CONTENT_TYPES).default("product"),
   topic: z.string().optional().nullable(),       // tema livre (ex: "disciplina", "primeira faixa preta")
