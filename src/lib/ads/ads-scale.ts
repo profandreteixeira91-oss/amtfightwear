@@ -121,13 +121,13 @@ export function decideScale(
 
 // ---------- Embeddings ----------
 
-const EMBED_MODEL = "openai/text-embedding-3-small";
+const EMBED_MODEL = "gemini-embedding-001";
 const EMBED_DIMS = 1536;
 
 export async function embedText(text: string): Promise<number[]> {
-  const apiKey = process.env.LOVABLE_API_KEY;
-  if (!apiKey) throw new Error("LOVABLE_API_KEY não configurada");
-  const res = await fetch("https://ai.gateway.lovable.dev/v1/embeddings", {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error("GEMINI_API_KEY não configurada");
+  const res = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/embeddings", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

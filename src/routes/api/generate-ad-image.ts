@@ -8,17 +8,17 @@ export const Route = createFileRoute("/api/generate-ad-image")({
     handlers: {
       POST: async ({ request }) => {
         const body = (await request.json()) as { prompt: string };
-        const key = process.env.LOVABLE_API_KEY;
-        if (!key) return new Response("Missing LOVABLE_API_KEY", { status: 500 });
+        const key = process.env.GEMINI_API_KEY;
+        if (!key) return new Response("Missing GEMINI_API_KEY", { status: 500 });
 
-        const upstream = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        const upstream = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${key}`,
           },
           body: JSON.stringify({
-            model: "google/gemini-2.5-flash-image-preview",
+            model: "gemini-2.5-flash-image-preview",
             messages: [{ role: "user", content: body.prompt }],
             modalities: ["image", "text"],
           }),

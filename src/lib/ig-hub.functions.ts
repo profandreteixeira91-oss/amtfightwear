@@ -648,17 +648,17 @@ export const aiConversationTools = createServerFn({ method: "POST" })
       score: `Dê um score de 0 a 100 sobre a probabilidade deste lead virar cliente da AMT. Responda apenas o número seguido de : e uma justificativa curta em uma linha.\n\n${transcript}`,
     };
 
-    const apiKey = process.env.LOVABLE_API_KEY;
-    if (!apiKey) throw new Error("LOVABLE_API_KEY não configurado.");
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) throw new Error("GEMINI_API_KEY não configurado.");
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const res = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "gemini-2.5-flash",
         messages: [{ role: "user", content: prompts[data.action] }],
       }),
     });

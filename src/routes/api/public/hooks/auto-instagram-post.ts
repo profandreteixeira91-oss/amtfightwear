@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 const GRAPH = "https://graph.facebook.com/v21.0";
-const LOVABLE_AI = "https://ai.gateway.lovable.dev/v1";
+const LOVABLE_AI = "https://generativelanguage.googleapis.com/v1beta/openai";
 const LOGO_PATH = "brand/amt-logo.jpg";
 
 async function fetchAsInlineData(
@@ -167,7 +167,7 @@ Responda APENAS com JSON válido, sem markdown, sem comentários:
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "google/gemini-2.5-flash",
+      model: "gemini-2.5-flash",
       messages: [{ role: "user", content: prompt }],
       response_format: { type: "json_object" },
     }),
@@ -279,7 +279,7 @@ HARD RULES:
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "google/gemini-2.5-flash-image-preview",
+      model: "gemini-2.5-flash-image-preview",
       messages: [{ role: "user", content }],
       modalities: ["image", "text"],
     }),
@@ -443,8 +443,8 @@ export const Route = createFileRoute("/api/public/hooks/auto-instagram-post")({
         const force = url.searchParams.get("force") === "1" || request.headers.get("x-force") === "1";
         const forcedType = url.searchParams.get("type") as PostType | null;
         const forcedAngle = url.searchParams.get("angle") as ContentAngle | null;
-        const apiKey = process.env.LOVABLE_API_KEY;
-        if (!apiKey) return Response.json({ error: "LOVABLE_API_KEY missing" }, { status: 500 });
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) return Response.json({ error: "GEMINI_API_KEY missing" }, { status: 500 });
 
         const supabase = await getAdmin();
 

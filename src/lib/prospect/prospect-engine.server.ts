@@ -7,7 +7,7 @@ import { normalizeEmail, normalizeInstagramHandle, normalizePhone, normalizeName
 import type { ContactChannel } from "@/features/prospect/types";
 
 const FIRECRAWL = "https://api.firecrawl.dev/v2";
-const LOVABLE_AI = "https://ai.gateway.lovable.dev/v1";
+const LOVABLE_AI = "https://generativelanguage.googleapis.com/v1beta/openai";
 
 // ============= Firecrawl helpers =============
 
@@ -51,7 +51,7 @@ export async function firecrawlScrape(url: string): Promise<{ markdown: string; 
 // ============= AI helpers =============
 
 export async function aiExtract<T = unknown>(prompt: string, system?: string): Promise<T | null> {
-  const key = process.env.LOVABLE_API_KEY;
+  const key = process.env.GEMINI_API_KEY;
   if (!key) return null;
   const messages: Array<{ role: "system" | "user"; content: string }> = [];
   if (system) messages.push({ role: "system", content: system });
@@ -63,7 +63,7 @@ export async function aiExtract<T = unknown>(prompt: string, system?: string): P
       Authorization: `Bearer ${key}`,
     },
     body: JSON.stringify({
-      model: "google/gemini-2.5-flash",
+      model: "gemini-2.5-flash",
       messages,
       response_format: { type: "json_object" },
     }),

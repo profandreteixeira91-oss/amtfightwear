@@ -147,7 +147,7 @@ export const Route = createFileRoute("/api/public/sales/chat")({
             });
           }
 
-          const apiKey = process.env.LOVABLE_API_KEY;
+          const apiKey = process.env.GEMINI_API_KEY;
           if (!apiKey) {
             return new Response(JSON.stringify({ error: "missing_api_key" }), {
               status: 500,
@@ -347,7 +347,7 @@ export const Route = createFileRoute("/api/public/sales/chat")({
           const systemPrompt = buildSystemPrompt(settings, kbRows ?? []);
 
           const result = streamText({
-            model: gateway("google/gemini-flash-latest"),
+            model: gateway("gemini-2.5-flash"),
             system: systemPrompt,
             messages: history,
             tools,
