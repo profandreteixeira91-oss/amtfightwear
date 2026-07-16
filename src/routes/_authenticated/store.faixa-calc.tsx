@@ -253,16 +253,8 @@ function FaixaCalc() {
                       return (
                         <tr key={s} className="border-t">
                           <td className="px-3 py-2 font-semibold">{s}</td>
-                          <td className="px-3 py-2">
-                            <Input
-                              type="number"
-                              step={0.05}
-                              value={len}
-                              onChange={(e) =>
-                                setLengths((prev) => ({ ...prev, [s]: Number(e.target.value) || 0 }))
-                              }
-                              className="max-w-[110px]"
-                            />
+                          <td className="px-3 py-2 tabular-nums">
+                            {len > 0 ? len.toFixed(2) : "—"}
                           </td>
                           <td className="px-3 py-2">
                             <Select
