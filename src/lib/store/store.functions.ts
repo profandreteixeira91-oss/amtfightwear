@@ -72,7 +72,7 @@ export const adminSaveWholesaleSettings = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("app_settings")
-      .upsert({ key: "wholesale_settings", value: data as unknown as Record<string, unknown>, updated_by: context.userId }, { onConflict: "key" });
+      .upsert({ key: "wholesale_settings", value: data as never, updated_by: context.userId }, { onConflict: "key" });
     if (error) throw new Error(error.message);
     return { ok: true };
   });
