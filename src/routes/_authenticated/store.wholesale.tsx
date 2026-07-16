@@ -154,3 +154,31 @@ function WholesaleSettingsPage() {
     </div>
   );
 }
+
+function BulkToggleButton({ mode, onDone }: { mode: "enable" | "disable"; onDone: () => void }) {
+  const bulk = useServerFn(adminBulkSetWholesaleEnabled);
+  const [busy, setBusy] = useState(false);
+  const enable = mode === "enable";
+  const label = enable ? "Habilitar todos os produtos no atacado" : "Desabilitar todos";
+  const confirmMsg = enable
+    ? "Habilitar TODOS os produtos para venda no atacado?"
+    : "Desabilitar o atacado em TODOS os produtos?";
+  const onClick = async () => {
+    if (!window.confirm(confirmMsg)) return;
+    try {
+      setBusy(true);
+      const res = await bulk({ data: { enabled: enable } });
+      toast.success(`${res.updated} produto(s) atualizado(s)`);
+      onDone();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao atualizar");
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <Button variant={enable ? "default" : "outline"} size="sm" onClick={onClick} disabled={busy}>
+      {label}
+    </Button>
+  );
+}
