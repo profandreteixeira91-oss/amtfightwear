@@ -144,7 +144,7 @@ function OrderPage() {
 
 
         <div className="mt-8 text-center">
-          <Link to="/loja" className="text-sm font-semibold text-primary hover:underline">Continuar comprando →</Link>
+          <Link to="/" className="text-sm font-semibold text-primary hover:underline">Continuar comprando →</Link>
         </div>
       </div>
     </StoreShell>

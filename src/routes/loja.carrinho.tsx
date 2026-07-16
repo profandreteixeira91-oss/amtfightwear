@@ -37,7 +37,7 @@ function CartPage() {
         {items.length === 0 ? (
           <div className="rounded-lg border border-dashed p-12 text-center">
             <p className="text-muted-foreground">Seu carrinho está vazio.</p>
-            <Link to="/loja" className="mt-4 inline-block rounded-md bg-primary px-6 py-2 font-semibold text-primary-foreground">Ir para a loja</Link>
+            <Link to="/" className="mt-4 inline-block rounded-md bg-primary px-6 py-2 font-semibold text-primary-foreground">Ir para a loja</Link>
           </div>
         ) : (
           <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
@@ -101,7 +101,7 @@ function CartPage() {
               <Link to="/loja/checkout" className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 font-bold text-primary-foreground hover:opacity-90">
                 Finalizar compra <ArrowRight className="h-4 w-4" />
               </Link>
-              <Link to="/loja" className="mt-2 block text-center text-sm text-muted-foreground hover:text-primary">Continuar comprando</Link>
+              <Link to="/" className="mt-2 block text-center text-sm text-muted-foreground hover:text-primary">Continuar comprando</Link>
             </div>
           </div>
         )}

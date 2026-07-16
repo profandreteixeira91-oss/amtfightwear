@@ -122,7 +122,7 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
           <button className="md:hidden">
             <Menu className="h-5 w-5" />
           </button>
-          <Link to="/loja" className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2">
             <img src={amtLogo} alt="AMT Fight Wear" className="h-9 w-9 rounded object-cover" />
             <div className="leading-tight">
               <div className="text-sm font-black tracking-tight">AMT</div>
@@ -174,7 +174,7 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
         {topCategories.length > 0 && (
           <nav className="border-t bg-background">
             <div className="mx-auto flex max-w-7xl items-stretch gap-1 overflow-visible px-4 text-sm font-medium">
-              <Link to="/loja" className="whitespace-nowrap px-3 py-3 text-foreground hover:text-primary">
+              <Link to="/" className="whitespace-nowrap px-3 py-3 text-foreground hover:text-primary">
                 Início
               </Link>
               <Link to="/loja/custom-shop" className="whitespace-nowrap px-3 py-3 font-bold text-primary hover:opacity-80">
@@ -267,7 +267,7 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
           <div>
             <div className="text-xs font-bold uppercase tracking-widest">Institucional</div>
             <ul className="mt-3 space-y-2 text-sm text-background/80">
-              <li><Link to="/loja">Sobre a AMT</Link></li>
+              <li><Link to="/">Sobre a AMT</Link></li>
               <li><a href="#">Blog</a></li>
               <li><Link to="/privacy">Privacidade</Link></li>
               <li><Link to="/terms">Termos</Link></li>

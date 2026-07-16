@@ -196,7 +196,7 @@ function CheckoutPage() {
       <StoreShell categories={categories}>
         <div className="mx-auto max-w-2xl p-12 text-center">
           <p className="text-muted-foreground">Adicione produtos ao carrinho para finalizar.</p>
-          <Link to="/loja" className="mt-4 inline-block rounded-md bg-primary px-6 py-2 font-semibold text-primary-foreground">Ir para a loja</Link>
+          <Link to="/" className="mt-4 inline-block rounded-md bg-primary px-6 py-2 font-semibold text-primary-foreground">Ir para a loja</Link>
         </div>
       </StoreShell>
     );
