@@ -48,12 +48,13 @@ const ObjectiveLabels: Record<string, string> = {
 // ---------- AI helpers ----------
 
 async function loadGateway() {
-  const apiKey = process.env.LOVABLE_API_KEY;
-  if (!apiKey) throw new Error("LOVABLE_API_KEY não configurada");
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error("GEMINI_API_KEY não configurada");
   const { generateText } = await import("ai");
   const { createLovableAiGateway } = await import("../ai-gateway.server");
   return { gateway: createLovableAiGateway(apiKey), generateText };
 }
+
 
 type JsonValue = string | number | boolean | null | JsonValue[] | { [k: string]: JsonValue };
 function extractJson(text: string): JsonValue {
@@ -156,7 +157,7 @@ Devolva SOMENTE JSON no formato:
 }`;
 
     const { text } = await generateText({
-      model: gateway("google/gemini-3-flash-preview"),
+      model: gateway("google/gemini-flash-latest"),
       prompt,
     });
     const strategy = extractJson(text);
@@ -196,7 +197,7 @@ Devolva SOMENTE JSON:
   "exclusions": ["públicos a excluir para evitar conflito"]
 }`;
     const { text } = await generateText({
-      model: gateway("google/gemini-3-flash-preview"),
+      model: gateway("google/gemini-flash-latest"),
       prompt,
     });
     const audiences = extractJson(text);
@@ -240,7 +241,7 @@ Devolva SOMENTE JSON:
   "notes": "explicação curta em português"
 }`;
     const { text } = await generateText({
-      model: gateway("google/gemini-3-flash-preview"),
+      model: gateway("google/gemini-flash-latest"),
       prompt,
     });
     const budget = extractJson(text);
@@ -300,7 +301,7 @@ Devolva SOMENTE JSON:
 Notas de qualidade sinceras (0-10).`;
 
     const { text } = await generateText({
-      model: gateway("google/gemini-3-flash-preview"),
+      model: gateway("google/gemini-flash-latest"),
       prompt,
     });
     const parsed = extractJson(text) as { variants: Array<Record<string, unknown>> };
