@@ -36,11 +36,13 @@ type EditState = Record<string, { price?: string; stock?: string }>;
 function AdminProductsPage() {
   const list = useServerFn(adminListStoreProducts);
   const update = useServerFn(adminUpdateStoreProduct);
+  const deleteProduct = useServerFn(adminDeleteStoreProduct);
   const queryClient = useQueryClient();
   const { data, refetch, isLoading } = useQuery({
     queryKey: ["admin", "store", "products"],
     queryFn: () => list({}),
   });
+
 
   // Invalida caches do storefront público para que alterações no /store
   // (preço, estoque, status, destaque, atacado, exclusão) reflitam
@@ -253,8 +255,30 @@ function AdminProductsPage() {
               Selecionar todos filtrados ({filtered.length})
             </Button>
             {selected.size > 0 && (
-              <Button variant="ghost" onClick={() => setSelected(new Set())}>Limpar seleção</Button>
+              <>
+                <Button
+                  variant="destructive"
+                  onClick={async () => {
+                    if (!confirm(`Excluir ${selected.size} produto(s) selecionado(s)? Esta ação não pode ser desfeita.`)) return;
+                    setSaving(true);
+                    let ok = 0, fail = 0;
+                    for (const id of Array.from(selected)) {
+                      try { await deleteProduct({ data: { id } }); ok++; }
+                      catch { fail++; }
+                    }
+                    setSaving(false);
+                    setSelected(new Set());
+                    toast.success(`${ok} excluído(s)${fail ? `, ${fail} falha(s)` : ""}`);
+                    refresh();
+                  }}
+                  disabled={saving}
+                >
+                  <Trash2 className="h-3 w-3 mr-1" /> Excluir selecionados
+                </Button>
+                <Button variant="ghost" onClick={() => setSelected(new Set())}>Limpar seleção</Button>
+              </>
             )}
+
           </div>
           <p className="mt-2 text-xs text-muted-foreground">Selecione produtos na tabela abaixo (ou use "Selecionar todos filtrados") e informe novo preço, ajuste % ou estoque. Preço absoluto tem prioridade sobre ajuste %.</p>
         </CardContent>
@@ -383,6 +407,28 @@ function AdminProductsPage() {
                             <Button size="sm" variant="outline" onClick={() => setEditingId(p.id)}>
                               <Pencil className="h-3 w-3 mr-1" /> Editar
                             </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-destructive hover:text-destructive"
+                              onClick={async () => {
+                                if (!confirm(`Excluir o produto "${p.name}"? Esta ação não pode ser desfeita.`)) return;
+                                try {
+                                  setSaving(true);
+                                  await deleteProduct({ data: { id: p.id } });
+                                  toast.success("Produto excluído");
+                                  setSelected((prev) => { const n = new Set(prev); n.delete(p.id); return n; });
+                                  refresh();
+                                } catch (err) {
+                                  toast.error(err instanceof Error ? err.message : "Erro ao excluir");
+                                } finally {
+                                  setSaving(false);
+                                }
+                              }}
+                              disabled={saving}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
                             {p.slug && (
                               <a href={`/loja/produto/${p.slug}`} target="_blank" rel="noreferrer" className="inline-flex items-center text-primary hover:underline">
                                 <ExternalLink className="h-3 w-3" />
@@ -390,6 +436,7 @@ function AdminProductsPage() {
                             )}
                           </div>
                         </td>
+
                       </tr>
                     );
                   })}
