@@ -3500,7 +3500,15 @@ export type Database = {
       }
       store_orders: {
         Row: {
+          asaas_boleto_url: string | null
+          asaas_customer_id: string | null
+          asaas_invoice_url: string | null
+          asaas_payment_id: string | null
+          asaas_pix_copy_paste: string | null
+          asaas_pix_expires_at: string | null
+          asaas_pix_qr_code: string | null
           billing_address: Json | null
+          card_last4: string | null
           created_at: string
           currency: string
           customer_document: string | null
@@ -3509,6 +3517,7 @@ export type Database = {
           customer_phone: string | null
           discount: number
           id: string
+          installments: number | null
           max_production_days: number | null
           melhor_envio_cart_id: string | null
           melhor_envio_data: Json
@@ -3524,6 +3533,7 @@ export type Database = {
           order_number: string
           payment_method: string | null
           payment_provider: string | null
+          payment_raw: Json | null
           payment_reference: string | null
           payment_status: string
           shipping_address: Json
@@ -3537,7 +3547,15 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          asaas_boleto_url?: string | null
+          asaas_customer_id?: string | null
+          asaas_invoice_url?: string | null
+          asaas_payment_id?: string | null
+          asaas_pix_copy_paste?: string | null
+          asaas_pix_expires_at?: string | null
+          asaas_pix_qr_code?: string | null
           billing_address?: Json | null
+          card_last4?: string | null
           created_at?: string
           currency?: string
           customer_document?: string | null
@@ -3546,6 +3564,7 @@ export type Database = {
           customer_phone?: string | null
           discount?: number
           id?: string
+          installments?: number | null
           max_production_days?: number | null
           melhor_envio_cart_id?: string | null
           melhor_envio_data?: Json
@@ -3561,6 +3580,7 @@ export type Database = {
           order_number?: string
           payment_method?: string | null
           payment_provider?: string | null
+          payment_raw?: Json | null
           payment_reference?: string | null
           payment_status?: string
           shipping_address?: Json
@@ -3574,7 +3594,15 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          asaas_boleto_url?: string | null
+          asaas_customer_id?: string | null
+          asaas_invoice_url?: string | null
+          asaas_payment_id?: string | null
+          asaas_pix_copy_paste?: string | null
+          asaas_pix_expires_at?: string | null
+          asaas_pix_qr_code?: string | null
           billing_address?: Json | null
+          card_last4?: string | null
           created_at?: string
           currency?: string
           customer_document?: string | null
@@ -3583,6 +3611,7 @@ export type Database = {
           customer_phone?: string | null
           discount?: number
           id?: string
+          installments?: number | null
           max_production_days?: number | null
           melhor_envio_cart_id?: string | null
           melhor_envio_data?: Json
@@ -3598,6 +3627,7 @@ export type Database = {
           order_number?: string
           payment_method?: string | null
           payment_provider?: string | null
+          payment_raw?: Json | null
           payment_reference?: string | null
           payment_status?: string
           shipping_address?: Json
