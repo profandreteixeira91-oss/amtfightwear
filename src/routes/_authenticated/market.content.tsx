@@ -184,6 +184,29 @@ function ContentPage() {
             <Skeleton className="h-64" />
           ) : (
             <div className="space-y-4">
+              <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="flex items-center gap-1.5 text-sm font-semibold">
+                      <Wand2 className="h-4 w-4 text-primary" /> Briefing automático (baseado nos posts virais)
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      A IA lê seus posts mais engajados + catálogo e propõe tipo de conteúdo, produto, CTA e ângulo.
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    className="gap-1 shrink-0"
+                    disabled={autoBriefMut.isPending}
+                    onClick={() => autoBriefMut.mutate()}
+                  >
+                    {autoBriefMut.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                    Sugerir briefing
+                  </Button>
+                </div>
+              </div>
+
               <div>
                 <Label>Tipo de conteúdo</Label>
                 <Select value={contentType} onValueChange={(v) => setContentType(v as typeof contentType)}>
