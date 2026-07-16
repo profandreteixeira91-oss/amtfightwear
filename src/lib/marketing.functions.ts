@@ -163,13 +163,6 @@ export const suggestViralTopics = createServerFn({ method: "POST" })
       .filter(Boolean)
       .join(" | ");
 
-    const apiKey = process.env.LOVABLE_API_KEY;
-    if (!apiKey) throw new Error("LOVABLE_API_KEY não configurada");
-
-    const { generateText } = await import("ai");
-    const { createLovableAiGateway } = await import("./ai-gateway.server");
-    const gateway = createLovableAiGateway(apiKey);
-
     const audience =
       data.objective === "atacado"
         ? "professores e donos de academia (atacado)"
@@ -203,10 +196,8 @@ Regras:
 
 Retorne SOMENTE JSON: {"suggestions":["tema 1","tema 2","tema 3","tema 4","tema 5","tema 6"]}`;
 
-    const { text } = await generateText({
-      model: gateway("google/gemini-3.5-flash"),
-      prompt,
-    });
+    const text = await geminiGenerateText(prompt);
+
 
     const match = text.match(/\{[\s\S]*\}/);
     if (!match) return { suggestions: [] as string[] };
