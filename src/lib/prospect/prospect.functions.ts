@@ -690,6 +690,8 @@ export const upsertSettings = createServerFn({ method: "POST" })
     email_template: z.string().nullable().optional(),
     email_subject_template: z.string().nullable().optional(),
     whatsapp_template: z.string().nullable().optional(),
+    instagram_template: z.string().nullable().optional(),
+    instagram_media_url: z.string().url().nullable().optional().or(z.literal("")),
     autopilot_enabled: z.boolean().optional(),
     priority_regions: z.array(z.string()).optional(),
     search_interval_min: z.number().int().min(5).max(1440).optional(),
@@ -736,4 +738,32 @@ export const listEnrichmentQueue = createServerFn({ method: "GET" })
       .order("created_at", { ascending: false })
       .limit(200);
     return data ?? [];
+  });
+
+// Upload da imagem que acompanha a mensagem padrão de Instagram DM.
+// Grava em product-images (bucket público) e retorna URL pública estável.
+export const uploadOutreachImage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({
+      base64: z.string().min(100),
+      ext: z.enum(["png", "jpg", "jpeg", "webp"]).optional(),
+    }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const raw = data.base64.includes(",") ? data.base64.split(",")[1] : data.base64;
+    const bin = atob(raw);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    const ext = data.ext ?? "png";
+    const contentType =
+      ext === "png" ? "image/png" : ext === "webp" ? "image/webp" : "image/jpeg";
+    const path = `prospect-outreach/${context.userId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const up = await supabaseAdmin.storage
+      .from("product-images")
+      .upload(path, bytes, { contentType, upsert: true });
+    if (up.error) throw new Error(`Upload falhou: ${up.error.message}`);
+    const pub = supabaseAdmin.storage.from("product-images").getPublicUrl(path);
+    return { url: pub.data.publicUrl, path };
   });
