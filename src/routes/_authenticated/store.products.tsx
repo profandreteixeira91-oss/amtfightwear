@@ -333,6 +333,37 @@ function AdminProductsPage() {
                             }}
                           />
                         </td>
+                        <td className="p-2">
+                          <div className="flex items-center justify-center gap-2">
+                            <Switch
+                              checked={(p as { wholesale_enabled?: boolean }).wholesale_enabled ?? false}
+                              onCheckedChange={async (v) => {
+                                try { await patchOne(p.id, { wholesale_enabled: v }); toast.success(v ? "Habilitado no atacado" : "Desabilitado do atacado"); refetch(); }
+                                catch (err) { toast.error(err instanceof Error ? err.message : "Erro"); }
+                              }}
+                            />
+                            <Input
+                              type="number"
+                              min={0}
+                              max={90}
+                              step="0.5"
+                              placeholder="padrão"
+                              defaultValue={(p as { wholesale_discount_percent?: number | null }).wholesale_discount_percent ?? ""}
+                              onBlur={async (ev) => {
+                                const raw = ev.target.value.trim();
+                                const next = raw === "" ? null : Number(raw.replace(",", "."));
+                                const current = (p as { wholesale_discount_percent?: number | null }).wholesale_discount_percent ?? null;
+                                if (next === current) return;
+                                if (next !== null && (!Number.isFinite(next) || next < 0 || next > 90)) return toast.error("Desconto 0-90%");
+                                try { await patchOne(p.id, { wholesale_discount_percent: next }); toast.success("Desconto atualizado"); refetch(); }
+                                catch (err) { toast.error(err instanceof Error ? err.message : "Erro"); }
+                              }}
+                              className="h-8 w-20 text-xs"
+                              title="Desconto de atacado deste produto (%). Vazio = usa o padrão global."
+                            />
+                            <span className="text-[10px] text-muted-foreground">%</span>
+                          </div>
+                        </td>
                         <td className="p-2 text-right">
                           <div className="flex items-center justify-end gap-2">
                             {dirty && (
