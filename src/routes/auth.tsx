@@ -212,7 +212,16 @@ function AuthPage() {
                       )}
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="signin-password">Senha</Label>
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="signin-password">Senha</Label>
+                        <button
+                          type="button"
+                          onClick={onForgotPassword}
+                          className="text-xs font-medium text-primary hover:underline"
+                        >
+                          Esqueci minha senha
+                        </button>
+                      </div>
                       <Input
                         id="signin-password"
                         type="password"
