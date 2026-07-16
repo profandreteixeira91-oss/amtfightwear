@@ -66,8 +66,9 @@ export const upsertSizePreset = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => upsertInput.parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
+    const categoryKey = data.category_key.toLowerCase();
     const payload = {
-      category_key: data.category_key.toLowerCase(),
+      category_key: categoryKey,
       category_label: data.category_label,
       sizes: data.sizes,
       sort_order: data.sort_order ?? 0,
@@ -82,7 +83,84 @@ export const upsertSizePreset = createServerFn({ method: "POST" })
         .insert(payload);
       if (error) throw new Error(error.message);
     }
-    return { ok: true };
+
+    // Se a categoria for "faixa", propagar as alterações para todos os produtos
+    // em categorias cujo slug começa com "faixas-" (BJJ + Judô). Preserva
+    // preço, estoque e SKU de variantes cujo tamanho continua no preset;
+    // adiciona os novos e remove os que saíram.
+    let syncedProducts = 0;
+    let addedVariants = 0;
+    let removedVariants = 0;
+    if (categoryKey === "faixa") {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: cats } = await supabaseAdmin
+        .from("store_categories")
+        .select("id, slug")
+        .ilike("slug", "faixas-%");
+      const catIds = (cats ?? []).map((c) => c.id);
+      if (catIds.length > 0) {
+        const { data: prods } = await supabaseAdmin
+          .from("products")
+          .select("id, price")
+          .in("category_id", catIds);
+        const products = prods ?? [];
+        const targetSizes = data.sizes;
+        for (const p of products) {
+          const { data: variants } = await supabaseAdmin
+            .from("store_product_variants")
+            .select("id, size, sort_order")
+            .eq("product_id", p.id);
+          const existing = variants ?? [];
+          const bySize = new Map<string, { id: string; sort_order: number | null }>();
+          for (const v of existing) {
+            if (v.size) bySize.set(v.size, { id: v.id, sort_order: v.sort_order });
+          }
+          const toRemove = existing.filter((v) => !v.size || !targetSizes.includes(v.size));
+          const toInsert: Array<Record<string, unknown>> = [];
+          const toUpdate: Array<{ id: string; sort_order: number }> = [];
+          targetSizes.forEach((s, idx) => {
+            const hit = bySize.get(s);
+            if (hit) {
+              if (hit.sort_order !== idx) toUpdate.push({ id: hit.id, sort_order: idx });
+            } else {
+              toInsert.push({
+                product_id: p.id,
+                size: s,
+                color: null,
+                option_label: null,
+                sku: null,
+                price: p.price ?? null,
+                compare_at_price: null,
+                stock: 0,
+                weight_grams: null,
+                sort_order: idx,
+                active: true,
+              });
+            }
+          });
+          if (toRemove.length > 0) {
+            await supabaseAdmin
+              .from("store_product_variants")
+              .delete()
+              .in("id", toRemove.map((v) => v.id));
+            removedVariants += toRemove.length;
+          }
+          if (toInsert.length > 0) {
+            await supabaseAdmin.from("store_product_variants").insert(toInsert as never);
+            addedVariants += toInsert.length;
+          }
+          for (const u of toUpdate) {
+            await supabaseAdmin
+              .from("store_product_variants")
+              .update({ sort_order: u.sort_order })
+              .eq("id", u.id);
+          }
+          syncedProducts += 1;
+        }
+      }
+    }
+
+    return { ok: true, syncedProducts, addedVariants, removedVariants };
   });
 
 export const deleteSizePreset = createServerFn({ method: "POST" })
