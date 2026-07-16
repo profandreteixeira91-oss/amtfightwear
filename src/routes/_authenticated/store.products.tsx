@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import {
   adminListStoreProducts,
@@ -36,10 +36,19 @@ type EditState = Record<string, { price?: string; stock?: string }>;
 function AdminProductsPage() {
   const list = useServerFn(adminListStoreProducts);
   const update = useServerFn(adminUpdateStoreProduct);
+  const queryClient = useQueryClient();
   const { data, refetch, isLoading } = useQuery({
     queryKey: ["admin", "store", "products"],
     queryFn: () => list({}),
   });
+
+  // Invalida caches do storefront público para que alterações no /store
+  // (preço, estoque, status, destaque, atacado, exclusão) reflitam
+  // imediatamente em /loja, /loja/categoria, /loja/produto e /loja/atacado.
+  const refresh = () => {
+    refetch();
+    queryClient.invalidateQueries({ queryKey: ["store"] });
+  };
 
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -119,7 +128,7 @@ function AdminProductsPage() {
         return n;
       });
       toast.success("Salvo");
-      refetch();
+      refresh();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erro ao salvar");
     } finally {
@@ -155,7 +164,7 @@ function AdminProductsPage() {
     setSaving(false);
     setEdits({});
     toast.success(`${ok} atualizado(s)${fail ? `, ${fail} falha(s)` : ""}`);
-    refetch();
+    refresh();
   };
 
   const applyBulk = async () => {
@@ -188,7 +197,7 @@ function AdminProductsPage() {
     setBulkPrice(""); setBulkStock(""); setBulkPricePct("");
     setSelected(new Set());
     toast.success(`${ok} atualizado(s)${fail ? `, ${fail} falha(s)` : ""}`);
-    refetch();
+    refresh();
   };
 
   const dirtyCount = Object.keys(edits).length;
@@ -319,7 +328,7 @@ function AdminProductsPage() {
                           <Switch
                             checked={p.status === "active"}
                             onCheckedChange={async (v) => {
-                              try { await patchOne(p.id, { status: v ? "active" : "inactive" }); toast.success("Atualizado"); refetch(); }
+                              try { await patchOne(p.id, { status: v ? "active" : "inactive" }); toast.success("Atualizado"); refresh(); }
                               catch (err) { toast.error(err instanceof Error ? err.message : "Erro"); }
                             }}
                           />
@@ -328,7 +337,7 @@ function AdminProductsPage() {
                           <Switch
                             checked={p.featured ?? false}
                             onCheckedChange={async (v) => {
-                              try { await patchOne(p.id, { featured: v }); toast.success("Atualizado"); refetch(); }
+                              try { await patchOne(p.id, { featured: v }); toast.success("Atualizado"); refresh(); }
                               catch (err) { toast.error(err instanceof Error ? err.message : "Erro"); }
                             }}
                           />
@@ -338,7 +347,7 @@ function AdminProductsPage() {
                             <Switch
                               checked={(p as { wholesale_enabled?: boolean }).wholesale_enabled ?? false}
                               onCheckedChange={async (v) => {
-                                try { await patchOne(p.id, { wholesale_enabled: v }); toast.success(v ? "Habilitado no atacado" : "Desabilitado do atacado"); refetch(); }
+                                try { await patchOne(p.id, { wholesale_enabled: v }); toast.success(v ? "Habilitado no atacado" : "Desabilitado do atacado"); refresh(); }
                                 catch (err) { toast.error(err instanceof Error ? err.message : "Erro"); }
                               }}
                             />
@@ -355,7 +364,7 @@ function AdminProductsPage() {
                                 const current = (p as { wholesale_discount_percent?: number | null }).wholesale_discount_percent ?? null;
                                 if (next === current) return;
                                 if (next !== null && (!Number.isFinite(next) || next < 0 || next > 90)) return toast.error("Desconto 0-90%");
-                                try { await patchOne(p.id, { wholesale_discount_percent: next }); toast.success("Desconto atualizado"); refetch(); }
+                                try { await patchOne(p.id, { wholesale_discount_percent: next }); toast.success("Desconto atualizado"); refresh(); }
                                 catch (err) { toast.error(err instanceof Error ? err.message : "Erro"); }
                               }}
                               className="h-8 w-20 text-xs"
@@ -404,7 +413,7 @@ function AdminProductsPage() {
         <ProductEditDialog
           productId={editingId}
           onClose={() => setEditingId(null)}
-          onSaved={() => { setEditingId(null); refetch(); }}
+          onSaved={() => { setEditingId(null); refresh(); }}
         />
       )}
 
@@ -413,7 +422,7 @@ function AdminProductsPage() {
           onClose={() => setCreatingProduct(false)}
           onCreated={(id) => {
             setCreatingProduct(false);
-            refetch();
+            refresh();
             setEditingId(id);
           }}
         />
