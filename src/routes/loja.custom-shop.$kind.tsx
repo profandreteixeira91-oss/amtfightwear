@@ -986,6 +986,7 @@ function BuilderPage() {
                         {kPatch && (() => {
                           const cfg = KIMONO_PATCH_SIZES[s.key];
                           if (!cfg) return null;
+                          if (cfg.presets.length === 0 && !cfg.allowCustom) return null;
                           const current = entry.size ?? cfg.default;
                           const isCustom = !cfg.presets.includes(current);
                           return (
