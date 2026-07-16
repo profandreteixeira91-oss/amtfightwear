@@ -7,7 +7,7 @@ import {
   listWholesaleCatalog,
   createWholesaleOrder,
 } from "@/lib/store/store.functions";
-import { formatBRL } from "@/lib/store/cart-store";
+import { formatBRL, useCart } from "@/lib/store/cart-store";
 import { ProductImage } from "@/components/store/ProductImage";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
