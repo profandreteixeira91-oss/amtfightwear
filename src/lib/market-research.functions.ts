@@ -57,7 +57,7 @@ function classifySource(url: string): string {
 }
 
 async function aiAnalyze(product: Product, results: Array<{ url?: string; title?: string; description?: string; markdown?: string }>) {
-  const geminiKey = process.env.GEMINI_API_KEY!;
+  const lovableKey = process.env.LOVABLE_API_KEY!;
   const shortResults = results.slice(0, 10).map((r) => ({
     url: r.url,
     title: r.title,
