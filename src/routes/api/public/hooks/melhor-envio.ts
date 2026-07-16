@@ -36,13 +36,13 @@ export const Route = createFileRoute("/api/public/hooks/melhor-envio")({
             const tracking = data?.tracking ?? data?.melhorenvio_tracking ?? null;
             const patch: {
               melhor_envio_status: string | null;
-              melhor_envio_data: unknown;
+              melhor_envio_data: Record<string, unknown>;
               melhor_envio_synced_at: string;
               shipping_tracking?: string;
               status?: string;
             } = {
               melhor_envio_status: data?.status ?? null,
-              melhor_envio_data: ev ?? {},
+              melhor_envio_data: (ev ?? {}) as Record<string, unknown>,
               melhor_envio_synced_at: new Date().toISOString(),
             };
             if (tracking) patch.shipping_tracking = tracking;
