@@ -125,6 +125,9 @@ function QualifiedPage() {
   const [sending, setSending] = useState(false);
 
   const fetchList = useServerFn(listLeads);
+  const bulkUpdate = useServerFn(bulkUpdateLeads);
+  const bulkDelete = useServerFn(bulkDeleteLeads);
+  const qc = useQueryClient();
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["prospect", "qualified", search, page],
@@ -139,6 +142,25 @@ function QualifiedPage() {
           orderDir: "desc",
         },
       }),
+  });
+
+  const stageMut = useMutation({
+    mutationFn: (v: { id: string; pipeline_stage: string }) =>
+      bulkUpdate({ data: { ids: [v.id], patch: { pipeline_stage: v.pipeline_stage } } }),
+    onSuccess: () => {
+      toast.success("Estágio atualizado");
+      qc.invalidateQueries({ queryKey: ["prospect"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Falha ao atualizar"),
+  });
+
+  const deleteMut = useMutation({
+    mutationFn: (id: string) => bulkDelete({ data: { ids: [id] } }),
+    onSuccess: () => {
+      toast.success("Lead excluído");
+      qc.invalidateQueries({ queryKey: ["prospect"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Falha ao excluir"),
   });
 
   const total = data?.total ?? 0;
