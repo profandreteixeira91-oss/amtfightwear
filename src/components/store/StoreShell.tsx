@@ -80,6 +80,28 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => setIsAuthed(!!session));
     return () => sub.subscription.unsubscribe();
   }, []);
+
+  // Força tema claro em toda a loja: remove a classe .dark do <html> enquanto o
+  // StoreShell estiver montado e observa mudanças (ex.: ThemeProvider re-aplicando
+  // por preferência do sistema) para reverter imediatamente. Restaura no unmount.
+  useEffect(() => {
+    const root = document.documentElement;
+    const hadDark = root.classList.contains("dark");
+    const prevColorScheme = root.style.colorScheme;
+    const forceLight = () => {
+      if (root.classList.contains("dark")) root.classList.remove("dark");
+      root.style.colorScheme = "light";
+    };
+    forceLight();
+    const observer = new MutationObserver(forceLight);
+    observer.observe(root, { attributes: true, attributeFilter: ["class"] });
+    return () => {
+      observer.disconnect();
+      if (hadDark) root.classList.add("dark");
+      root.style.colorScheme = prevColorScheme;
+    };
+  }, []);
+
   const count = useCart((s) => s.items.reduce((a, i) => a + i.quantity, 0));
 
   return (
