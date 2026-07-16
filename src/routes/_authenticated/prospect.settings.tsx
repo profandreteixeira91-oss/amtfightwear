@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Save, Loader2, Upload, X, Instagram } from "lucide-react";
+import { Save, Loader2, Upload, X } from "lucide-react";
 import { PageHeader } from "@/components/common/PageHeader";
 import { SectionCard } from "@/components/common/SectionCard";
 import { Button } from "@/components/ui/button";
@@ -210,7 +210,7 @@ function SettingsPage() {
         </SectionCard>
 
         <SectionCard
-          title={<span className="inline-flex items-center gap-2"><Instagram className="h-4 w-4" /> Mensagem de Instagram (DM)</span> as unknown as string}
+          title="Mensagem de Instagram (DM)"
           description="Texto padrão + imagem enviada junto no primeiro contato. Use {{name}}, {{city}} e {{category}} como variáveis."
         >
           <div className="grid gap-3">
