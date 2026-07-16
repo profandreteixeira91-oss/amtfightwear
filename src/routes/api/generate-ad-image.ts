@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-// Geração de imagem via OpenAI gpt-image-1.
-// Emite um único evento SSE `image_generation.completed` compatível com o helper streamImage.
+// Geração de imagem via Lovable AI Gateway (streaming SSE).
+// Repassa o corpo SSE upstream diretamente para o helper streamImage.
 export const Route = createFileRoute("/api/generate-ad-image")({
   server: {
     handlers: {
@@ -11,8 +11,8 @@ export const Route = createFileRoute("/api/generate-ad-image")({
           size?: string;
           aspectRatio?: "1:1" | "3:4" | "4:3" | "9:16" | "16:9";
         };
-        const key = process.env.OPENAI_API_KEY;
-        if (!key) return new Response("Missing OPENAI_API_KEY", { status: 500 });
+        const key = process.env.LOVABLE_API_KEY;
+        if (!key) return new Response("Missing LOVABLE_API_KEY", { status: 500 });
 
         // Deriva aspect ratio a partir de size, se necessário.
         let aspectRatio = body.aspectRatio;
@@ -29,55 +29,43 @@ export const Route = createFileRoute("/api/generate-ad-image")({
         }
         aspectRatio = aspectRatio ?? "1:1";
 
-        // gpt-image-1 aceita apenas: 1024x1024, 1024x1536, 1536x1024, auto.
-        const size =
+        // Instrução de proporção embutida no prompt (o modelo Gemini image
+        // respeita descrições de aspect ratio no texto).
+        const ratioHint =
           aspectRatio === "1:1"
-            ? "1024x1024"
-            : aspectRatio === "3:4" || aspectRatio === "9:16"
-            ? "1024x1536"
-            : "1536x1024";
+            ? "Square 1:1 composition."
+            : aspectRatio === "4:3"
+            ? "Landscape 4:3 composition."
+            : aspectRatio === "16:9"
+            ? "Wide 16:9 composition."
+            : aspectRatio === "3:4"
+            ? "Portrait 3:4 composition."
+            : "Vertical 9:16 composition.";
 
-        async function callOpenAI(payload: Record<string, unknown>) {
-          return fetch("https://api.openai.com/v1/images/generations", {
+        const upstream = await fetch(
+          "https://ai.gateway.lovable.dev/v1/images/generations",
+          {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${key}`,
             },
-            body: JSON.stringify(payload),
-          });
-        }
+            body: JSON.stringify({
+              model: "google/gemini-2.5-flash-image",
+              messages: [
+                {
+                  role: "user",
+                  content: `${body.prompt}\n\n${ratioHint}`,
+                },
+              ],
+              modalities: ["image", "text"],
+              stream: true,
+            }),
+          },
+        );
 
-        // Tenta gpt-image-1 primeiro; se falhar (ex.: org não verificada, content policy),
-        // faz fallback automático para dall-e-3.
-        let upstream = await callOpenAI({
-          model: "gpt-image-1",
-          prompt: body.prompt,
-          size,
-          n: 1,
-        });
-
-        let firstError = "";
-        if (!upstream.ok) {
-          firstError = await upstream.text().catch(() => "");
-          // Mapeia tamanho para dall-e-3 (aceita 1024x1024, 1024x1792, 1792x1024)
-          const dalleSize =
-            size === "1024x1024"
-              ? "1024x1024"
-              : size === "1024x1536"
-              ? "1024x1792"
-              : "1792x1024";
-          upstream = await callOpenAI({
-            model: "dall-e-3",
-            prompt: body.prompt,
-            size: dalleSize,
-            n: 1,
-            response_format: "b64_json",
-          });
-        }
-
-        if (!upstream.ok) {
-          const second = await upstream.text().catch(() => "");
+        if (!upstream.ok || !upstream.body) {
+          const text = await upstream.text().catch(() => "");
           const parse = (s: string) => {
             try {
               const j = JSON.parse(s);
@@ -86,34 +74,12 @@ export const Route = createFileRoute("/api/generate-ad-image")({
               return s;
             }
           };
-          const msg = `gpt-image-1: ${parse(firstError) || "erro"} | dall-e-3: ${parse(second) || "erro"}`;
-          return new Response(msg, { status: upstream.status });
+          return new Response(parse(text) || "Falha no gateway de IA", {
+            status: upstream.status,
+          });
         }
 
-        const json = (await upstream.json()) as {
-          data?: Array<{ b64_json?: string; url?: string }>;
-        };
-
-        let b64 = json.data?.[0]?.b64_json ?? "";
-        if (!b64 && json.data?.[0]?.url) {
-          // Alguns retornos de dall-e-3 vêm como URL; converte para base64.
-          const imgRes = await fetch(json.data[0].url!);
-          if (imgRes.ok) {
-            const buf = new Uint8Array(await imgRes.arrayBuffer());
-            let bin = "";
-            for (let i = 0; i < buf.length; i++) bin += String.fromCharCode(buf[i]);
-            b64 = btoa(bin);
-          }
-        }
-        if (!b64) {
-          return new Response("OpenAI retornou vazio", { status: 502 });
-        }
-
-        const sse =
-          `event: image_generation.completed\n` +
-          `data: ${JSON.stringify({ b64_json: b64 })}\n\n`;
-
-        return new Response(sse, {
+        return new Response(upstream.body, {
           headers: {
             "Content-Type": "text/event-stream",
             "Cache-Control": "no-cache",
