@@ -329,21 +329,25 @@ function WholesalePage() {
         <div className="mx-auto max-w-7xl px-4 py-10 sm:py-14">
           <div className="text-xs font-bold uppercase tracking-[0.3em] text-primary">Atacado AMT</div>
           <h1 className="mt-2 text-3xl font-black leading-tight sm:text-5xl">
-            25% OFF em pedidos de atacado
+            Até {DEFAULT_PCT}% OFF em pedidos de atacado
           </h1>
           <p className="mt-3 max-w-2xl text-sm text-background/80 sm:text-base">
-            Compre no mínimo <strong>10 unidades por subcategoria</strong> e receba desconto de
-            <strong> 25% em todos os produtos</strong>. Etiqueta personalizada <strong>grátis</strong>.
-            Prazo padrão de produção: <strong>10 dias úteis</strong>.
+            Compre no mínimo <strong>{MIN_PER_SUBCAT} unidades por subcategoria</strong> e receba
+            desconto de <strong>{DEFAULT_PCT}%</strong> nos produtos habilitados. Etiqueta personalizada <strong>grátis</strong>.
           </p>
+          {settings.conditions && (
+            <p className="mt-3 max-w-2xl text-xs text-background/70 whitespace-pre-line">
+              {settings.conditions}
+            </p>
+          )}
           <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div className="rounded-lg border border-background/20 bg-background/5 p-4">
               <div className="text-xs font-bold uppercase tracking-widest text-primary">Regra</div>
-              <div className="mt-1 text-sm">Mínimo 10 por subcategoria</div>
+              <div className="mt-1 text-sm">Mínimo {MIN_PER_SUBCAT} por subcategoria</div>
             </div>
             <div className="rounded-lg border border-background/20 bg-background/5 p-4">
               <div className="text-xs font-bold uppercase tracking-widest text-primary">Desconto</div>
-              <div className="mt-1 text-sm">25% OFF no valor total</div>
+              <div className="mt-1 text-sm">Até {DEFAULT_PCT}% OFF</div>
             </div>
             <div className="rounded-lg border border-background/20 bg-background/5 p-4">
               <div className="text-xs font-bold uppercase tracking-widest text-primary">Bônus</div>
