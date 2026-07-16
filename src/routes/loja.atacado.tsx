@@ -186,6 +186,7 @@ function WholesalePage() {
   const catTotals = useMemo(() => {
     const m = new Map<string, { qty: number; original: number; discounted: number }>();
     for (const p of products) {
+      const pct = productPct(p) / 100;
       const vs = variantsByProduct.get(p.id);
       const lines = vs && vs.length > 0
         ? vs.map((v) => ({ q: qty[keyOf(p.id, v.id)] ?? 0, unit: Number(v.price ?? p.price) }))
@@ -194,7 +195,7 @@ function WholesalePage() {
         if (q <= 0) continue;
         const key = p.category_id ?? "__none__";
         const original = unit * q;
-        const discounted = original * (1 - WHOLESALE_DISCOUNT);
+        const discounted = original * (1 - pct);
         const cur = m.get(key) ?? { qty: 0, original: 0, discounted: 0 };
         cur.qty += q;
         cur.original += original;
@@ -203,7 +204,8 @@ function WholesalePage() {
       }
     }
     return m;
-  }, [qty, products, variantsByProduct]);
+  }, [qty, products, variantsByProduct, DEFAULT_PCT]);
+
 
 
   const selectedCats = [...catTotals.entries()];
