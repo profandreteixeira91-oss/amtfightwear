@@ -370,7 +370,7 @@ function ContentPage() {
 
                 <div className="space-y-2">
                   <Label>URL da imagem (pública)</Label>
-                  <Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://... ou use o gerador acima" />
+                  <Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://... (cole a URL pública da imagem)" />
                 </div>
 
 
