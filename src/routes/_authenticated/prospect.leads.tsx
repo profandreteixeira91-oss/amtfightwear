@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -35,6 +35,9 @@ import { fmtDate, scoreToStars } from "@/features/prospect/utils";
 
 export const Route = createFileRoute("/_authenticated/prospect/leads")({
   head: () => ({ meta: [{ title: "Leads — Prospect Engine" }] }),
+  validateSearch: (s: Record<string, unknown>) => ({
+    focus: typeof s.focus === "string" ? s.focus : undefined,
+  }),
   component: LeadsPage,
 });
 
