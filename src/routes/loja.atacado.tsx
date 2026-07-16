@@ -79,6 +79,17 @@ function WholesalePage() {
   const categories = catalog.categories as Cat[];
   const products = catalog.products as Prod[];
   const variants = (catalog.variants ?? []) as Variant[];
+  const settings = (catalog as { settings?: { enabled: boolean; default_discount_percent: number; min_qty_per_subcategory: number; conditions: string } }).settings ?? {
+    enabled: true, default_discount_percent: 25, min_qty_per_subcategory: 10, conditions: "",
+  };
+  const DEFAULT_PCT = settings.default_discount_percent;
+  const MIN_PER_SUBCAT = settings.min_qty_per_subcategory;
+  const productPct = (p: Prod) => {
+    const v = p.wholesale_discount_percent;
+    if (v == null || v === "") return DEFAULT_PCT;
+    const n = Number(v);
+    return Number.isFinite(n) ? Math.max(0, Math.min(90, n)) : DEFAULT_PCT;
+  };
 
   const variantsByProduct = useMemo(() => {
     const m = new Map<string, Variant[]>();
