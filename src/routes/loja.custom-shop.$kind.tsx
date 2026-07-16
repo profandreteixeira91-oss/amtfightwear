@@ -686,13 +686,12 @@ function BuilderPage() {
                     </button>
                   ))}
                 </div>
-              </section>
+              </CollapsibleSection>
             )}
 
             {/* Fabric / Alma */}
             {fabrics.length > 0 && (
-              <section>
-                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">{isFaixa ? "Alma (núcleo)" : "Tecido / gramatura"}</h2>
+              <CollapsibleSection title={isFaixa ? "Alma (núcleo)" : "Tecido / gramatura"}>
                 <div className="grid gap-2">
                   {fabrics.map((f) => (
                     <button
@@ -713,13 +712,12 @@ function BuilderPage() {
                     </button>
                   ))}
                 </div>
-              </section>
+              </CollapsibleSection>
             )}
 
             {/* Tamanho — kimono e faixa (padrão jiu-jitsu do sistema) */}
             {showSize && (
-              <section>
-                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Tamanho</h2>
+              <CollapsibleSection title="Tamanho">
                 <div className="mb-2 text-xs text-muted-foreground">
                   {isFaixaKind ? "Infantil: M0–M4 · Adulto: A0–A5 (comprimento em cm)" : "Infantil: M0–M4 · Adulto: A0–A5"}
                 </div>
@@ -746,14 +744,13 @@ function BuilderPage() {
                     <Plus className="h-4 w-4" /> Adicionar ao carrinho <ShoppingBag className="h-4 w-4" />
                   </button>
                 )}
-              </section>
+              </CollapsibleSection>
             )}
 
 
             {/* Coloração (revestimento) — só para faixa */}
             {isFaixa && (
-              <section>
-                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Coloração (revestimento)</h2>
+              <CollapsibleSection title="Coloração (revestimento)">
                 <div className="grid gap-2">
                   {COLORING_OPTIONS.map((c) => (
                     <button
@@ -771,13 +768,12 @@ function BuilderPage() {
                     </button>
                   ))}
                 </div>
-              </section>
+              </CollapsibleSection>
             )}
 
             {/* Faixa: presets oficiais de cor (corpo + ponta) — Judô e Jiu-Jitsu */}
             {isFaixa && BELT_PRESETS[variantKey] && (
-              <section>
-                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Cores da faixa</h2>
+              <CollapsibleSection title="Cores da faixa">
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                   {BELT_PRESETS[variantKey].map((p) => {
                     const active =
@@ -811,13 +807,12 @@ function BuilderPage() {
                     );
                   })}
                 </div>
-              </section>
+              </CollapsibleSection>
             )}
 
             {/* Kimono BJJ: presets oficiais com foto real do produto */}
             {isKimono && (
-              <section>
-                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Cor do kimono</h2>
+              <CollapsibleSection title="Cor do kimono">
                 <div className="grid grid-cols-3 gap-2">
                   {KIMONO_PRESETS.map((p) => {
                     const active = zoneColors.jaqueta === p.body && zoneColors.calca === p.body;
@@ -854,13 +849,12 @@ function BuilderPage() {
                 <p className="mt-2 text-[10px] text-muted-foreground">
                   Fotos reais da linha Trançado Premium — a cor selecionada é aplicada em jaqueta e calça.
                 </p>
-              </section>
+              </CollapsibleSection>
             )}
 
             {/* Zone colors (fallback quando não há preset) */}
             {!(isFaixa && BELT_PRESETS[variantKey]) && !isKimono && zones.length > 0 && (
-              <section>
-                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Cores</h2>
+              <CollapsibleSection title="Cores">
                 <div className="flex flex-wrap gap-2">
                   {zones.map((z) => (
                     <button
@@ -941,17 +935,14 @@ function BuilderPage() {
                     </div>
                   </div>
                 )}
-              </section>
+              </CollapsibleSection>
             )}
 
             {/* Patches / logos: removidos do fluxo */}
 
             {/* Embroidery — one entry per bordado slot (text or image) */}
             {embroiderySlots.length > 0 && (
-              <section>
-                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">
-                  {isKimono ? "Personalização" : embroiderySlots.length > 1 ? "Bordados" : "Bordado de texto ou logo"}
-                </h2>
+              <CollapsibleSection title={isKimono ? "Personalização" : embroiderySlots.length > 1 ? "Bordados" : "Bordado de texto ou logo"}>
                 <div className="space-y-3">
                   {embroiderySlots.map((s, idx) => {
                     const kPatch = isKimonoPatchSlot(s.key);
@@ -1353,15 +1344,14 @@ function BuilderPage() {
                     );
                   })}
                 </div>
-              </section>
+              </CollapsibleSection>
             )}
 
             {/* Faixa: Logo upload — removido (usar bordado abaixo) */}
 
             {/* Faixa: Etiqueta — AMT Padrão OU imagem personalizada */}
             {isFaixa && (
-              <section>
-                <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Etiqueta (opcional)</h2>
+              <CollapsibleSection title="Etiqueta (opcional)">
                 <div className="rounded-md border p-3 space-y-3">
                   <div className="grid grid-cols-2 gap-2">
                     <button
@@ -1405,7 +1395,7 @@ function BuilderPage() {
                     </div>
                   )}
                 </div>
-              </section>
+              </CollapsibleSection>
             )}
 
             {/* Summary + CTA */}
