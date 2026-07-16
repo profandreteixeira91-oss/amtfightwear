@@ -22,6 +22,6 @@ export const authService = {
 
   resetPassword: (email: string) =>
     supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/`,
+      redirectTo: `${window.location.origin}/reset-password`,
     }),
 };
