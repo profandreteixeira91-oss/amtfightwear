@@ -189,6 +189,7 @@ function FaixaCalc() {
               </div>
             )}
           </div>
+        </CardContent>
       </Card>
     </div>
   );
