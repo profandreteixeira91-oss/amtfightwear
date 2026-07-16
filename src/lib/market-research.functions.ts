@@ -57,7 +57,7 @@ function classifySource(url: string): string {
 }
 
 async function aiAnalyze(product: Product, results: Array<{ url?: string; title?: string; description?: string; markdown?: string }>) {
-  const geminiKey = process.env.GEMINI_API_KEY!;
+  const lovableKey = process.env.LOVABLE_API_KEY!;
   const shortResults = results.slice(0, 10).map((r) => ({
     url: r.url,
     title: r.title,
@@ -105,18 +105,21 @@ Retorne SOMENTE JSON válido:
   }
 }`;
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${encodeURIComponent(geminiKey)}`;
-  const res = await fetch(url, {
+  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${lovableKey}`,
+    },
     body: JSON.stringify({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { responseMimeType: "application/json" },
+      model: "google/gemini-2.5-flash",
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" },
     }),
   });
   if (!res.ok) throw new Error(`IA ${res.status}: ${(await res.text()).slice(0, 200)}`);
-  const j = (await res.json()) as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> };
-  const content = j.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("") ?? "{}";
+  const j = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
+  const content = j.choices?.[0]?.message?.content ?? "{}";
   return JSON.parse(content) as {
 
     competitors?: Array<Partial<Competitor>>;

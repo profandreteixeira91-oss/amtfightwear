@@ -1,27 +1,28 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-// Gemini gera a imagem completa em uma única resposta (sem partial_images).
-// Emitimos um único evento SSE `image_generation.completed` para manter
+// Geração de imagem via Lovable AI Gateway (google/gemini-2.5-flash-image-preview).
+// Emite um único evento SSE `image_generation.completed` para manter
 // compatibilidade com o helper streamImage do client.
 export const Route = createFileRoute("/api/generate-ad-image")({
   server: {
     handlers: {
       POST: async ({ request }) => {
         const body = (await request.json()) as { prompt: string };
-        const key = process.env.GEMINI_API_KEY;
-        if (!key) return new Response("Missing GEMINI_API_KEY", { status: 500 });
+        const key = process.env.LOVABLE_API_KEY;
+        if (!key) return new Response("Missing LOVABLE_API_KEY", { status: 500 });
 
-        const upstream = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${encodeURIComponent(key)}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [{ role: "user", parts: [{ text: body.prompt }] }],
-              generationConfig: { responseModalities: ["TEXT", "IMAGE"] },
-            }),
+        const upstream = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${key}`,
           },
-        );
+          body: JSON.stringify({
+            model: "google/gemini-2.5-flash-image-preview",
+            messages: [{ role: "user", content: body.prompt }],
+            modalities: ["image", "text"],
+          }),
+        });
 
         if (!upstream.ok) {
           const text = await upstream.text().catch(() => "");
@@ -29,19 +30,19 @@ export const Route = createFileRoute("/api/generate-ad-image")({
         }
 
         const json = (await upstream.json()) as {
-          candidates?: Array<{
-            content?: {
-              parts?: Array<{
-                inlineData?: { data: string };
-                inline_data?: { data: string };
-              }>;
+          choices?: Array<{
+            message?: {
+              images?: Array<{ image_url?: { url?: string } }>;
+              content?: string;
             };
           }>;
         };
-        const parts = json.candidates?.[0]?.content?.parts ?? [];
-        const b64 = parts.map((p) => p.inlineData?.data ?? p.inline_data?.data).find(Boolean);
+
+        const imgUrl = json.choices?.[0]?.message?.images?.[0]?.image_url?.url ?? "";
+        // Extrai o b64 do data URL (data:image/png;base64,XXXX)
+        const b64 = imgUrl.includes(",") ? imgUrl.split(",")[1] : "";
         if (!b64) {
-          return new Response("Gemini retornou vazio", { status: 502 });
+          return new Response("IA retornou vazio", { status: 502 });
         }
 
         const sse =

@@ -648,20 +648,23 @@ export const aiConversationTools = createServerFn({ method: "POST" })
       score: `Dê um score de 0 a 100 sobre a probabilidade deste lead virar cliente da AMT. Responda apenas o número seguido de : e uma justificativa curta em uma linha.\n\n${transcript}`,
     };
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) throw new Error("GEMINI_API_KEY não configurado.");
+    const apiKey = process.env.LOVABLE_API_KEY;
+    if (!apiKey) throw new Error("LOVABLE_API_KEY não configurado.");
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${encodeURIComponent(apiKey)}`;
-    const res = await fetch(url, {
+    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
       body: JSON.stringify({
-        contents: [{ role: "user", parts: [{ text: prompts[data.action] }] }],
+        model: "google/gemini-2.5-flash",
+        messages: [{ role: "user", content: prompts[data.action] }],
       }),
     });
     if (!res.ok) throw new Error(`Falha na IA: ${res.status}`);
-    const j = await res.json() as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> };
-    const content = j.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("") ?? "";
+    const j = await res.json() as { choices?: Array<{ message?: { content?: string } }> };
+    const content = j.choices?.[0]?.message?.content ?? "";
 
 
     // Persist relevant fields

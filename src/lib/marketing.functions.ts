@@ -57,25 +57,28 @@ function buildBrief(data: z.infer<typeof GenerateInput>) {
 }
 
 async function geminiGenerateText(prompt: string): Promise<string> {
-  const key = process.env.GEMINI_API_KEY;
-  if (!key) throw new Error("GEMINI_API_KEY não configurada");
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${encodeURIComponent(key)}`;
-  const res = await fetch(url, {
+  const key = process.env.LOVABLE_API_KEY;
+  if (!key) throw new Error("LOVABLE_API_KEY não configurada");
+  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${key}`,
+    },
     body: JSON.stringify({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { responseMimeType: "application/json" },
+      model: "google/gemini-2.5-flash",
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" },
     }),
   });
   if (!res.ok) {
     const t = await res.text().catch(() => "");
-    throw new Error(`Gemini ${res.status}: ${t.slice(0, 300)}`);
+    throw new Error(`Lovable AI ${res.status}: ${t.slice(0, 300)}`);
   }
   const json = (await res.json()) as {
-    candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+    choices?: Array<{ message?: { content?: string } }>;
   };
-  return json.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("") ?? "";
+  return json.choices?.[0]?.message?.content ?? "";
 }
 
 export const generateMarketingContent = createServerFn({ method: "POST" })

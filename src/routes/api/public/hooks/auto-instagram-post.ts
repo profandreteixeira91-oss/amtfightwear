@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 const GRAPH = "https://graph.facebook.com/v21.0";
-const GEMINI_API = "https://generativelanguage.googleapis.com/v1beta/models";
+const LOVABLE_AI = "https://ai.gateway.lovable.dev/v1";
 const LOGO_PATH = "brand/amt-logo.jpg";
 
 async function fetchAsInlineData(
@@ -160,22 +160,23 @@ Responda APENAS com JSON válido, sem markdown, sem comentários:
   "slides": [ ${Array.from({ length: nSlides }, () => `{ "headline": "...", "subline": "..." }`).join(", ")} ]
 }`;
 
-  const res = await fetch(
-    `${GEMINI_API}/gemini-flash-latest:generateContent?key=${encodeURIComponent(apiKey)}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: { responseMimeType: "application/json" },
-      }),
+  const res = await fetch(`${LOVABLE_AI}/chat/completions`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
     },
-  );
-  if (!res.ok) throw new Error(`Gemini copy failed: ${res.status} ${await res.text()}`);
+    body: JSON.stringify({
+      model: "google/gemini-2.5-flash",
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" },
+    }),
+  });
+  if (!res.ok) throw new Error(`AI copy failed: ${res.status} ${await res.text()}`);
   const json = (await res.json()) as {
-    candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+    choices?: Array<{ message?: { content?: string } }>;
   };
-  const text = json.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("") ?? "";
+  const text = json.choices?.[0]?.message?.content ?? "";
   const match = text.match(/\{[\s\S]*\}/);
   if (!match) throw new Error("Gemini copy: no JSON in response");
   const parsed = JSON.parse(match[0]) as {
@@ -252,34 +253,48 @@ HARD RULES:
 
 
 
-  const parts: Array<
-    { text: string } | { inline_data: { mime_type: string; data: string } }
+  // OpenAI-compat multimodal content: text + image_url parts (data URLs).
+  const content: Array<
+    | { type: "text"; text: string }
+    | { type: "image_url"; image_url: { url: string } }
   > = [];
-  if (productImageUrl) parts.push(await fetchAsInlineData(productImageUrl));
-  parts.push(await fetchAsInlineData(logoUrl));
-  parts.push({ text: promptText });
+  if (productImageUrl) {
+    const p = await fetchAsInlineData(productImageUrl);
+    content.push({
+      type: "image_url",
+      image_url: { url: `data:${p.inline_data.mime_type};base64,${p.inline_data.data}` },
+    });
+  }
+  const logoPart = await fetchAsInlineData(logoUrl);
+  content.push({
+    type: "image_url",
+    image_url: { url: `data:${logoPart.inline_data.mime_type};base64,${logoPart.inline_data.data}` },
+  });
+  content.push({ type: "text", text: promptText });
 
-  const res = await fetch(
-    `${GEMINI_API}/gemini-2.5-flash-image-preview:generateContent?key=${encodeURIComponent(apiKey)}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ role: "user", parts }],
-        generationConfig: { responseModalities: ["TEXT", "IMAGE"] },
-      }),
+  const res = await fetch(`${LOVABLE_AI}/chat/completions`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
     },
-  );
-  if (!res.ok) throw new Error(`Gemini image failed: ${res.status} ${await res.text()}`);
+    body: JSON.stringify({
+      model: "google/gemini-2.5-flash-image-preview",
+      messages: [{ role: "user", content }],
+      modalities: ["image", "text"],
+    }),
+  });
+  if (!res.ok) throw new Error(`AI image failed: ${res.status} ${await res.text()}`);
   const json = (await res.json()) as {
-    candidates?: Array<{
-      content?: { parts?: Array<{ inlineData?: { data: string }; inline_data?: { data: string } }> };
+    choices?: Array<{
+      message?: {
+        images?: Array<{ image_url?: { url?: string } }>;
+      };
     }>;
   };
-  const imgParts = json.candidates?.[0]?.content?.parts ?? [];
-  const b64 =
-    imgParts.map((p) => p.inlineData?.data ?? p.inline_data?.data).find(Boolean) ?? "";
-  if (!b64) throw new Error("Gemini image: empty response");
+  const imgUrl = json.choices?.[0]?.message?.images?.[0]?.image_url?.url ?? "";
+  const b64 = imgUrl.includes(",") ? imgUrl.split(",")[1] : "";
+  if (!b64) throw new Error("AI image: empty response");
   const bin = atob(b64);
   const bytes = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
@@ -428,8 +443,8 @@ export const Route = createFileRoute("/api/public/hooks/auto-instagram-post")({
         const force = url.searchParams.get("force") === "1" || request.headers.get("x-force") === "1";
         const forcedType = url.searchParams.get("type") as PostType | null;
         const forcedAngle = url.searchParams.get("angle") as ContentAngle | null;
-        const apiKey = process.env.GEMINI_API_KEY;
-        if (!apiKey) return Response.json({ error: "GEMINI_API_KEY missing" }, { status: 500 });
+        const apiKey = process.env.LOVABLE_API_KEY;
+        if (!apiKey) return Response.json({ error: "LOVABLE_API_KEY missing" }, { status: 500 });
 
         const supabase = await getAdmin();
 

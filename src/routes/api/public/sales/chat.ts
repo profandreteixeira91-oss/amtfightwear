@@ -147,7 +147,7 @@ export const Route = createFileRoute("/api/public/sales/chat")({
             });
           }
 
-          const apiKey = process.env.GEMINI_API_KEY;
+          const apiKey = process.env.LOVABLE_API_KEY;
           if (!apiKey) {
             return new Response(JSON.stringify({ error: "missing_api_key" }), {
               status: 500,
