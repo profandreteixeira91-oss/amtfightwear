@@ -225,7 +225,9 @@ function PostDetailDialog({ post, onClose }: { post: CalendarPost | null; onClos
   });
 
   const cancelMut = useMutation({
-    mutationFn: () => post ? cancelFn({ data: { id: post.id } }) : Promise.resolve(),
+    mutationFn: async () => {
+      if (post) await cancelFn({ data: { id: post.id } });
+    },
     onSuccess: () => {
       toast.success("Agendamento cancelado");
       qc.invalidateQueries({ queryKey: ["ig-posts"] });
@@ -235,7 +237,9 @@ function PostDetailDialog({ post, onClose }: { post: CalendarPost | null; onClos
   });
 
   const delMut = useMutation({
-    mutationFn: () => post ? deleteFn({ data: { id: post.id } }) : Promise.resolve(),
+    mutationFn: async () => {
+      if (post) await deleteFn({ data: { id: post.id } });
+    },
     onSuccess: () => {
       toast.success("Post removido");
       qc.invalidateQueries({ queryKey: ["ig-posts"] });
