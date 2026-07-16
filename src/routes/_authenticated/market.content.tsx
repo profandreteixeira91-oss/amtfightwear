@@ -224,6 +224,46 @@ function ContentPage() {
     onError: (e: Error) => toast.error(e.message || "Falha ao gerar briefing"),
   });
 
+  // ---- Geração de imagem com IA ----
+  async function handleGenerateImage() {
+    let prompt = imagePrompt.trim();
+    if (!prompt) {
+      prompt = buildImagePrompt({ product, contentType, topic, objective, instagram: caption });
+      setImagePrompt(prompt);
+    }
+    setGenImage({ src: "", final: false });
+    setImageBusy(true);
+    try {
+      await streamImage(
+        "/api/generate-ad-image",
+        { prompt, aspectRatio: imageAspect },
+        (src, final) => setGenImage({ src, final }),
+      );
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro ao gerar imagem");
+      setGenImage(null);
+    } finally {
+      setImageBusy(false);
+    }
+  }
+
+  async function handleUseGeneratedImage() {
+    if (!genImage?.src || !genImage.final) return;
+    setUploadBusy(true);
+    try {
+      const res = await uploadImageFn({ data: { base64: genImage.src, ext: "png" } });
+      const { url } = res as { url: string; path: string };
+      setImageUrl(url);
+      toast.success("Imagem aplicada ao post");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Falha no upload");
+    } finally {
+      setUploadBusy(false);
+    }
+  }
+
+
+
   return (
     <>
       <PageHeader
