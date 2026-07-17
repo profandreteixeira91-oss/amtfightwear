@@ -1060,11 +1060,16 @@ function WholesalePage() {
             <button
               type="button"
               disabled={!canProceed}
-              onClick={() => { setStep("checkout"); setSheetOpen(false); }}
+              onClick={proceedToCheckout}
               className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 text-sm font-bold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Finalizar compra <ArrowRight className="h-4 w-4" />
+              {signedIn === false ? (<>Entrar para finalizar <ArrowRight className="h-4 w-4" /></>) : (<>Confirmar e ir ao pagamento <ArrowRight className="h-4 w-4" /></>)}
             </button>
+            {signedIn === false && (
+              <p className="mt-2 text-center text-[11px] text-muted-foreground">
+                Você precisa entrar ou criar uma conta para continuar. Seu pedido fica salvo.
+              </p>
+            )}
             <button
               type="button"
               onClick={() => setSheetOpen(false)}
