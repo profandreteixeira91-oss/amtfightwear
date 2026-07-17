@@ -605,6 +605,12 @@ function ProductEditDialog({ productId, onClose, onSaved }: { productId: string;
     setPrice(String(p.price ?? ""));
     setCompareAt(p.compare_at_price != null ? String(p.compare_at_price) : "");
     setStock(String(p.stock ?? 0));
+    setNcm((p as { ncm?: string | null }).ncm ?? "");
+    setCest((p as { cest?: string | null }).cest ?? "");
+    setOrigem((p as { origem?: string | null }).origem ?? "");
+    setCfop((p as { cfop?: string | null }).cfop ?? "");
+    setUnidade((p as { unidade?: string | null }).unidade ?? "");
+    setGtin((p as { gtin?: string | null }).gtin ?? "");
     setVariants(
       (data.variants ?? []).map((v) => ({
         id: v.id,
