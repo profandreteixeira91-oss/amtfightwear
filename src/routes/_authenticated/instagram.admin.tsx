@@ -48,8 +48,19 @@ function IgAdmin() {
               size="sm"
               onClick={async () => {
                 try {
-                  const r = await subscribeFn();
-                  toast.success("Webhook assinado com sucesso na página do Facebook.");
+                  const r: any = await subscribeFn();
+                  const igOk = r?.instagram && !r.instagram.error;
+                  const pageOk = r?.page && !r.page.error;
+                  if (igOk || pageOk) {
+                    toast.success(
+                      igOk && pageOk
+                        ? "Webhook assinado (Página + Instagram Business)."
+                        : igOk
+                        ? "Webhook assinado no Instagram Business."
+                        : "Webhook assinado na Página."
+                    );
+                  }
+                  if (r?.pageWarning) toast.warning(r.pageWarning, { duration: 10000 });
                   console.log("subscribe result", r);
                   refetch();
                 } catch (e: any) {

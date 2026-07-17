@@ -66,7 +66,9 @@ export const subscribeIgWebhook = createServerFn({ method: "POST" })
     const conn = await getActiveConnection(context.supabase as any);
     if (!conn) throw new Error("Nenhuma conexão ativa do Instagram. Conecte primeiro.");
 
-    // Campos válidos no endpoint da Página do Facebook
+    // Página do Facebook — só assina se o token tiver 'pages_messaging'.
+    // Como o fluxo do Instagram (DMs, comments, mentions) usa o endpoint do
+    // IG Business, tornamos este passo tolerante a falhas.
     const pageFields = [
       "messages",
       "messaging_postbacks",
@@ -76,13 +78,26 @@ export const subscribeIgWebhook = createServerFn({ method: "POST" })
       "message_echoes",
     ].join(",");
 
-    const pageResp = await graphPost<{ success?: boolean }>(
-      `${conn.page_id}/subscribed_apps`,
-      conn.page_access_token,
-      { subscribed_fields: pageFields },
-    );
+    let pageResp: any = null;
+    let pageWarning: string | null = null;
+    try {
+      pageResp = await graphPost<{ success?: boolean }>(
+        `${conn.page_id}/subscribed_apps`,
+        conn.page_access_token,
+        { subscribed_fields: pageFields },
+      );
+    } catch (e: any) {
+      const msg = e?.message ?? String(e);
+      pageResp = { error: msg };
+      if (/pages_messaging/i.test(msg)) {
+        pageWarning =
+          "Assinatura da Página ignorada: token sem 'pages_messaging'. As DMs, comentários e menções continuam funcionando pelo endpoint do Instagram Business abaixo. Para habilitar também no nível da Página, adicione 'pages_messaging' às permissões do app no Meta e reconecte o Instagram.";
+      } else {
+        pageWarning = `Assinatura da Página falhou: ${msg}`;
+      }
+    }
 
-    // Campos válidos no endpoint do Instagram Business
+    // Instagram Business — endpoint principal para DMs/comments/mentions.
     let igResp: any = null;
     if (conn.instagram_business_account_id) {
       const igFields = [
@@ -105,7 +120,7 @@ export const subscribeIgWebhook = createServerFn({ method: "POST" })
       }
     }
 
-    return { ok: true, page: pageResp, instagram: igResp };
+    return { ok: true, page: pageResp, pageWarning, instagram: igResp };
   });
 
 export const syncIgProfile = createServerFn({ method: "POST" })
