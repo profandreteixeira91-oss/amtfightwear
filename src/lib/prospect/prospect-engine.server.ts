@@ -550,6 +550,18 @@ export async function enrichCompanyCore(
   if (result.responsible_name) patch.responsible_name = result.responsible_name;
   if (result.ai_summary) patch.ai_summary = result.ai_summary;
 
+  // Ajusta o nome do lead com base no perfil do Instagram (quando disponível)
+  const igContact = result.contacts.find((x) => x.channel === "instagram");
+  if (igContact) {
+    try {
+      const profileName = await fetchInstagramProfileName(igContact.value);
+      if (profileName && profileName.toLowerCase() !== (company.name ?? "").toLowerCase()) {
+        patch.name = profileName;
+        patch.normalized_name = profileName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      }
+    } catch { /* ignora falha de scraping do IG */ }
+  }
+
   const channels = result.contacts.map((c2) => ({ channel: c2.channel as "email" | "whatsapp" | "instagram" | "phone" | "website" }));
   const score = computeLeadScore({
     website: company.website, phone: result.phone ?? company.phone, address: result.address ?? company.address,
