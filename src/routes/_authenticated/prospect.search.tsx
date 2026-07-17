@@ -36,11 +36,14 @@ function SearchPage() {
 
   return (
     <div className="mx-auto max-w-5xl">
-      <PageHeader
-        eyebrow="Prospect Engine"
-        title="Nova Busca"
-        description="Escolha entre a busca guiada por segmento livre ou o Modo Artes Marciais — varredura automatizada por academias, escolas, professores e projetos sociais de judô e jiu-jitsu."
-      />
+      <div className="flex items-start justify-between gap-4">
+        <PageHeader
+          eyebrow="Prospect Engine"
+          title="Nova Busca"
+          description="Escolha entre a busca guiada por segmento livre ou o Modo Artes Marciais — varredura automatizada por academias, escolas, professores e projetos sociais de judô e jiu-jitsu."
+        />
+        <PurgeAllButton />
+      </div>
 
       <Tabs defaultValue="martial" className="w-full">
         <TabsList className="mb-4">
