@@ -549,7 +549,7 @@ export const createStoreOrder = createServerFn({ method: "POST" })
     const { data: order, error } = await supabaseAdmin
       .from("store_orders")
       .insert({
-        user_id: data.user_id ?? null,
+        user_id: context.userId ?? data.user_id ?? null,
         customer_email: data.customer_email,
         customer_name: data.customer_name,
         customer_phone: data.customer_phone,
