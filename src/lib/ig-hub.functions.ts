@@ -483,11 +483,33 @@ export const sendMessage = createServerFn({ method: "POST" })
     const conn = await getActiveConnection(context.supabase as any);
     if (!conn?.instagram_business_account_id) throw new Error("Conta Instagram não conectada.");
 
-    const resp = await graphPost<{ message_id?: string }>(
-      `${conn.instagram_business_account_id}/messages`,
-      conn.page_access_token,
-      { recipient: { id: conv.participant_igsid }, message: { text: data.text } },
-    );
+    // Envia via Messenger Platform (Page endpoint) — usa pages_messaging + instagram_manage_messages.
+    // O endpoint /{ig-user-id}/messages requer a capability "Instagram messaging" (Instagram Login API),
+    // que dispara o erro (#3) "Application does not have the capability to make this API call".
+    let resp: { message_id?: string };
+    try {
+      resp = await graphPost<{ message_id?: string }>(
+        `${conn.page_id}/messages`,
+        conn.page_access_token,
+        {
+          recipient: { id: conv.participant_igsid },
+          message: { text: data.text },
+          messaging_type: "RESPONSE",
+        },
+      );
+    } catch (e: any) {
+      // Fallback: se a Page não puder enviar, tenta o endpoint do IG Business (Instagram Login API)
+      const msg = String(e?.message ?? e);
+      if (/capability|#3|#10|#200/i.test(msg)) {
+        resp = await graphPost<{ message_id?: string }>(
+          `${conn.instagram_business_account_id}/messages`,
+          conn.page_access_token,
+          { recipient: { id: conv.participant_igsid }, message: { text: data.text } },
+        );
+      } else {
+        throw e;
+      }
+    }
 
     await (context.supabase as any).from("ig_messages").insert({
       user_id: context.userId,
