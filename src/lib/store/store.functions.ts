@@ -136,6 +136,7 @@ const WholesaleItemSchema = z.object({
 });
 
 export const createWholesaleOrder = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) =>
     z.object({
       customer_email: z.string().email(),
@@ -149,8 +150,9 @@ export const createWholesaleOrder = createServerFn({ method: "POST" })
       user_id: z.string().uuid().optional().nullable(),
     }).parse(i),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
 
     // Read admin-controlled wholesale settings.
     const { data: settingsRow } = await supabaseAdmin
@@ -243,7 +245,8 @@ export const createWholesaleOrder = createServerFn({ method: "POST" })
     const { data: order, error } = await supabaseAdmin
       .from("store_orders")
       .insert({
-        user_id: data.user_id ?? null,
+        user_id: context.userId ?? data.user_id ?? null,
+
         customer_email: data.customer_email,
         customer_name: data.customer_name,
         customer_phone: data.customer_phone,
@@ -451,6 +454,7 @@ const CheckoutItemSchema = z.union([
 ]);
 
 export const createStoreOrder = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) =>
     z.object({
       customer_email: z.string().email(),
@@ -465,8 +469,9 @@ export const createStoreOrder = createServerFn({ method: "POST" })
       shipping_method: z.string().optional().nullable(),
     }).parse(i),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
 
     const productItems = data.items.filter((i) => !("type" in i) || i.type !== "custom") as Array<{
       type?: "product";
@@ -544,7 +549,7 @@ export const createStoreOrder = createServerFn({ method: "POST" })
     const { data: order, error } = await supabaseAdmin
       .from("store_orders")
       .insert({
-        user_id: data.user_id ?? null,
+        user_id: context.userId ?? data.user_id ?? null,
         customer_email: data.customer_email,
         customer_name: data.customer_name,
         customer_phone: data.customer_phone,

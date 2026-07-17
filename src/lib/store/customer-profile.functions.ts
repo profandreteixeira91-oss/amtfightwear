@@ -42,13 +42,26 @@ export const saveMyCustomerProfile = createServerFn({ method: "POST" })
 export const listMyOrders = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    // Buscar e-mail do usuário para captar também pedidos legados que ficaram sem user_id
+    const { data: profile } = await context.supabase
+      .from("profiles")
+      .select("email")
+      .eq("id", context.userId)
+      .maybeSingle();
+    const email = profile?.email ?? null;
+
+    const orFilter = email
+      ? `user_id.eq.${context.userId},customer_email.eq.${email}`
+      : `user_id.eq.${context.userId}`;
+
     const { data, error } = await context.supabase
       .from("store_orders")
       .select("id, order_number, status, payment_status, payment_method, total, currency, created_at")
-      .eq("user_id", context.userId)
+      .or(orFilter)
       .order("created_at", { ascending: false })
-      .limit(100);
+      .limit(200);
     if (error) throw new Error(error.message);
     return data ?? [];
   });
+
 
