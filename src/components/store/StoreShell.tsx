@@ -76,12 +76,24 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
 
   const [mounted, setMounted] = useState(false);
   const [isAuthed, setIsAuthed] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const accountRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     setMounted(true);
     supabase.auth.getSession().then(({ data }) => setIsAuthed(!!data.session));
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => setIsAuthed(!!session));
     return () => sub.subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (!accountOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (accountRef.current && !accountRef.current.contains(e.target as Node)) setAccountOpen(false);
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, [accountOpen]);
+
 
   // Força tema claro em toda a loja: remove a classe .dark do <html> enquanto o
   // StoreShell estiver montado e observa mudanças (ex.: ThemeProvider re-aplicando
