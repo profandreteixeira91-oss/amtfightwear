@@ -98,7 +98,7 @@ export const createMercadopagoPayment = createServerFn({ method: "POST" })
       .object({
         order_id: z.string().uuid(),
         method: z.enum(["PIX", "CREDIT_CARD", "BOLETO"]),
-        installments: z.number().int().min(1).max(12).optional(),
+        installments: z.number().int().min(1).max(10).optional(),
         card: CardSchema.optional(),
         remote_ip: z.string().optional(),
       })
@@ -172,10 +172,14 @@ export const createMercadopagoPayment = createServerFn({ method: "POST" })
         document: order.customer_document ?? "",
       });
       const brand = detectBrand(data.card.number);
+      // Regras de parcelamento sem juros: 3x ≥ R$200, 5x ≥ R$600, 10x ≥ R$1000.
+      const requested = data.installments ?? 1;
+      const maxAllowed = total >= 1000 ? 10 : total >= 600 ? 5 : total >= 200 ? 3 : 1;
+      const installments = Math.min(Math.max(1, requested), maxAllowed);
       paymentPayload = {
         ...basePayload,
         token,
-        installments: data.installments ?? 1,
+        installments,
         payment_method_id: brand,
         capture: true,
       };
@@ -204,7 +208,7 @@ export const createMercadopagoPayment = createServerFn({ method: "POST" })
       payment_method: data.method,
       payment_provider: "mercadopago",
       payment_reference: String(payment.id ?? ""),
-      installments: data.method === "CREDIT_CARD" ? data.installments ?? 1 : null,
+      installments: data.method === "CREDIT_CARD" ? (paymentPayload.installments ?? 1) : null,
       mp_payment_id: String(payment.id ?? ""),
       asaas_payment_id: null,
       asaas_invoice_url: ticketUrl,
