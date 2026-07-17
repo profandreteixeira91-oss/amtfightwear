@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_authenticated/market/connections")({
   component: ConnectionsPage,
 });
 
-const REDIRECT_URI = "https://marketing.amtfightwear.com.br/api/public/meta/callback";
+const REDIRECT_URI = "https://loja.amtfightwear.com.br/api/public/meta/callback";
 
 function ConnectionsPage() {
   const qc = useQueryClient();
