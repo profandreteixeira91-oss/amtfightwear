@@ -19,7 +19,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { generateMarketingContent, suggestViralTopics, autoBriefFromViral } from "@/lib/marketing.functions";
-import { createInstagramPost, listInstagramPosts } from "@/lib/instagram.functions";
+import { createInstagramPost, listInstagramPosts, uploadContentImage } from "@/lib/instagram.functions";
+import { Upload } from "lucide-react";
 import { PostCalendar, type CalendarPost } from "@/components/marketing/PostCalendar";
 
 
