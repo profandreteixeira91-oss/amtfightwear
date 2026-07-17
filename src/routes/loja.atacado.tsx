@@ -375,9 +375,60 @@ function WholesalePage() {
     }
   };
 
+  const proceedToCheckout = () => {
+    if (!canProceed) {
+      toast.error(`Mínimo ${MIN_PER_SUBCAT} unidades por subcategoria`);
+      return;
+    }
+    if (signedIn === null) return; // still resolving
+    if (!signedIn) {
+      toast.info("Entre ou crie sua conta para finalizar o pedido");
+      navigate({ to: "/auth", search: { redirect: "/loja/atacado?resume=1" } });
+      return;
+    }
+    setStep("checkout");
+    setSheetOpen(false);
+  };
+
+  // If the user just returned from /auth with ?resume=1, jump straight to checkout
+  // once auth state and the draft are ready.
+  useEffect(() => {
+    if (!resumeFlag) return;
+    if (signedIn !== true) return;
+    if (!canProceed) return;
+    if (step === "checkout") return;
+    setStep("checkout");
+    setSheetOpen(false);
+    // Clear the query param without adding history entry
+    navigate({ to: "/loja/atacado", search: {}, replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resumeFlag, signedIn, canProceed]);
+
+  const onGoogleLogin = async () => {
+    setGoogleLoading(true);
+    try {
+      const { authService } = await import("@/services/authService");
+      const result = await authService.signInWithGoogle();
+      if (result.error) toast.error("Falha ao entrar com Google", { description: String(result.error) });
+    } catch (e) {
+      toast.error("Falha ao entrar com Google", { description: e instanceof Error ? e.message : String(e) });
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!canProceed) return toast.error("Regra de atacado não atendida");
+    if (!signedIn) {
+      navigate({ to: "/auth", search: { redirect: "/loja/atacado?resume=1" } });
+      return;
+    }
+    if (paymentMethod === "CREDIT_CARD") {
+      if (!card.holderName || !card.number || !card.expiryMonth || !card.expiryYear || !card.ccv) {
+        return toast.error("Preencha os dados do cartão");
+      }
+    }
     setLoading(true);
     try {
       const items = Object.entries(qty)
@@ -406,6 +457,43 @@ function WholesalePage() {
           notes: form.notes || null,
         },
       });
+
+      // Save profile for next purchase (non-blocking).
+      try {
+        await saveProfile({
+          data: {
+            full_name: form.customer_name || null,
+            phone: form.customer_phone || null,
+            document: form.customer_document || null,
+            zip: form.zip || null,
+            street: form.street || null,
+            number: form.number || null,
+            complement: form.complement || null,
+            neighborhood: form.neighborhood || null,
+            city: form.city || null,
+            state: form.state ? form.state.toUpperCase() : null,
+          },
+        });
+      } catch { /* ignore */ }
+
+      // Create Asaas charge.
+      try {
+        await createPayment({
+          data: {
+            order_id: res.id,
+            method: paymentMethod,
+            installments: paymentMethod === "CREDIT_CARD" ? installments : undefined,
+            card: paymentMethod === "CREDIT_CARD" ? card : undefined,
+          },
+        });
+      } catch (payErr) {
+        toast.error(payErr instanceof Error ? payErr.message : "Erro no pagamento");
+        sessionStorage.removeItem(DRAFT_KEY);
+        navigate({ to: "/loja/pedido/$id", params: { id: res.id } });
+        return;
+      }
+
+      sessionStorage.removeItem(DRAFT_KEY);
       toast.success("Pedido de atacado criado!");
       navigate({ to: "/loja/pedido/$id", params: { id: res.id } });
     } catch (err) {
@@ -414,6 +502,7 @@ function WholesalePage() {
       setLoading(false);
     }
   };
+
 
   return (
     <StoreShell categories={cats}>
