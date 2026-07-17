@@ -664,15 +664,18 @@ export const adminApplyCategoryFiscalToProducts = createServerFn({ method: "POST
       .maybeSingle();
     if (cErr) throw new Error(cErr.message);
     if (!cat) throw new Error("Categoria não encontrada");
-    const patch: Record<string, unknown> = {};
-    for (const f of data.fields) patch[f] = (cat as Record<string, unknown>)[f] ?? null;
-    const { error, count } = await context.supabase
+    const patch: Record<string, string | null> = {};
+    for (const f of data.fields) {
+      const v = (cat as Record<string, string | null>)[f];
+      patch[f] = v ?? null;
+    }
+    const { data: updated, error } = await context.supabase
       .from("products")
-      .update(patch, { count: "exact" })
+      .update(patch)
       .eq("category_id", data.category_id)
-      .select("id", { count: "exact", head: true });
+      .select("id");
     if (error) throw new Error(error.message);
-    return { ok: true, updated: count ?? 0 };
+    return { ok: true, updated: updated?.length ?? 0 };
   });
 
 export const adminUpdateStoreProduct = createServerFn({ method: "POST" })
