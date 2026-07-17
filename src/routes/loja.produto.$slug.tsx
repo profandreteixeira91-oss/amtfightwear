@@ -64,7 +64,9 @@ function ProductPage() {
   const compareAt = product.compare_at_price;
   const compareAtNum = compareAt ? Number(compareAt) : null;
   const images = data.images.length > 0 ? data.images : product.image_url ? [{ url: product.image_url, alt: product.name }] : [];
-  const installments = (price / 10).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  const maxInstallments = price >= 1000 ? 10 : price >= 600 ? 5 : price >= 200 ? 3 : 1;
+  const installmentValue = (price / maxInstallments).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  const pixPrice = (price * 0.95).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
   const handleAddToCart = () => {
     add({
@@ -136,8 +138,20 @@ function ProductPage() {
                 <div className="text-sm text-muted-foreground line-through">{formatBRL(compareAtNum)}</div>
               )}
               <div className="text-3xl font-black text-foreground">{formatBRL(price)}</div>
-              <div className="text-sm text-muted-foreground">ou 10x de <strong>{installments}</strong> sem juros</div>
-              <div className="mt-1 text-xs text-primary font-semibold">5% de desconto no PIX</div>
+              {maxInstallments > 1 ? (
+                <div className="text-sm text-muted-foreground">ou até <strong>{maxInstallments}x</strong> de <strong>{installmentValue}</strong> sem juros</div>
+              ) : (
+                <div className="text-sm text-muted-foreground">à vista</div>
+              )}
+              <div className="mt-1 text-xs text-primary font-semibold">PIX: {pixPrice} <span className="font-normal text-muted-foreground">(5% off — somente varejo)</span></div>
+            </div>
+
+            <div className="rounded-md border bg-muted/30 p-3 text-xs text-muted-foreground space-y-1">
+              <div className="font-semibold text-foreground">Condições de pagamento</div>
+              <div>• Compras acima de R$ 200,00 — 3x sem juros</div>
+              <div>• Compras acima de R$ 600,00 — 5x sem juros</div>
+              <div>• Compras acima de R$ 1.000,00 — 10x sem juros</div>
+              <div>• 5% de desconto no PIX (varejo)</div>
             </div>
 
             {data.variants.length > 0 && (
