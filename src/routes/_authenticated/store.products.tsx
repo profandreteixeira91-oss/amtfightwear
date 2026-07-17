@@ -37,10 +37,15 @@ function AdminProductsPage() {
   const list = useServerFn(adminListStoreProducts);
   const update = useServerFn(adminUpdateStoreProduct);
   const deleteProduct = useServerFn(adminDeleteStoreProduct);
+  const listCatsTop = useServerFn(adminListStoreCategories);
   const queryClient = useQueryClient();
   const { data, refetch, isLoading } = useQuery({
     queryKey: ["admin", "store", "products"],
     queryFn: () => list({}),
+  });
+  const { data: catsAll } = useQuery({
+    queryKey: ["admin", "store", "categories"],
+    queryFn: () => listCatsTop({}),
   });
 
 
