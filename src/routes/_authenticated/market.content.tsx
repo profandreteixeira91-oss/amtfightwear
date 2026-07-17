@@ -396,8 +396,23 @@ function ContentPage() {
 
 
                 <div className="space-y-2">
-                  <Label>URL da imagem (pública)</Label>
-                  <Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://... (cole a URL pública da imagem)" />
+                  <Label>Imagem do post</Label>
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="Cole a URL pública ou envie um arquivo" className="flex-1" />
+                    <label className="inline-flex">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f); e.currentTarget.value = ""; }}
+                      />
+                      <Button type="button" variant="outline" className="gap-2 w-full sm:w-auto" disabled={uploading} asChild>
+                        <span>
+                          {uploading ? <><Loader2 className="h-4 w-4 animate-spin" /> Enviando</> : <><Upload className="h-4 w-4" /> Enviar imagem</>}
+                        </span>
+                      </Button>
+                    </label>
+                  </div>
                 </div>
 
 
