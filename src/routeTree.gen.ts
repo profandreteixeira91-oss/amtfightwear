@@ -91,13 +91,13 @@ import { Route as ApiPublicHooksSyncAdsInsightsRouteImport } from './routes/api/
 import { Route as ApiPublicHooksScaleWinnersRouteImport } from './routes/api/public/hooks/scale-winners'
 import { Route as ApiPublicHooksRunAdsOptimizationRouteImport } from './routes/api/public/hooks/run-ads-optimization'
 import { Route as ApiPublicHooksPublishScheduledPostsRouteImport } from './routes/api/public/hooks/publish-scheduled-posts'
+import { Route as ApiPublicHooksMercadopagoRouteImport } from './routes/api/public/hooks/mercadopago'
 import { Route as ApiPublicHooksMelhorEnvioRouteImport } from './routes/api/public/hooks/melhor-envio'
 import { Route as ApiPublicHooksMartialArtsDailySweepRouteImport } from './routes/api/public/hooks/martial-arts-daily-sweep'
 import { Route as ApiPublicHooksIgWebhookRouteImport } from './routes/api/public/hooks/ig-webhook'
 import { Route as ApiPublicHooksIgSyncRouteImport } from './routes/api/public/hooks/ig-sync'
 import { Route as ApiPublicHooksEnrichPendingLeadsRouteImport } from './routes/api/public/hooks/enrich-pending-leads'
 import { Route as ApiPublicHooksAutoInstagramPostRouteImport } from './routes/api/public/hooks/auto-instagram-post'
-import { Route as ApiPublicHooksAsaasRouteImport } from './routes/api/public/hooks/asaas'
 import { Route as AuthenticatedAdsCampaignsIdRouteImport } from './routes/_authenticated/ads.campaigns.$id'
 
 const UnsubscribeRoute = UnsubscribeRouteImport.update({
@@ -551,6 +551,12 @@ const ApiPublicHooksPublishScheduledPostsRoute =
     path: '/api/public/hooks/publish-scheduled-posts',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksMercadopagoRoute =
+  ApiPublicHooksMercadopagoRouteImport.update({
+    id: '/api/public/hooks/mercadopago',
+    path: '/api/public/hooks/mercadopago',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksMelhorEnvioRoute =
   ApiPublicHooksMelhorEnvioRouteImport.update({
     id: '/api/public/hooks/melhor-envio',
@@ -585,11 +591,6 @@ const ApiPublicHooksAutoInstagramPostRoute =
     path: '/api/public/hooks/auto-instagram-post',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicHooksAsaasRoute = ApiPublicHooksAsaasRouteImport.update({
-  id: '/api/public/hooks/asaas',
-  path: '/api/public/hooks/asaas',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthenticatedAdsCampaignsIdRoute =
   AuthenticatedAdsCampaignsIdRouteImport.update({
     id: '/$id',
@@ -671,13 +672,13 @@ export interface FileRoutesByFullPath {
   '/loja/conta/': typeof LojaContaIndexRoute
   '/loja/custom-shop/': typeof LojaCustomShopIndexRoute
   '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
-  '/api/public/hooks/asaas': typeof ApiPublicHooksAsaasRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
   '/api/public/hooks/ig-webhook': typeof ApiPublicHooksIgWebhookRoute
   '/api/public/hooks/martial-arts-daily-sweep': typeof ApiPublicHooksMartialArtsDailySweepRoute
   '/api/public/hooks/melhor-envio': typeof ApiPublicHooksMelhorEnvioRoute
+  '/api/public/hooks/mercadopago': typeof ApiPublicHooksMercadopagoRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/hooks/run-ads-optimization': typeof ApiPublicHooksRunAdsOptimizationRoute
   '/api/public/hooks/scale-winners': typeof ApiPublicHooksScaleWinnersRoute
@@ -762,13 +763,13 @@ export interface FileRoutesByTo {
   '/loja/conta': typeof LojaContaIndexRoute
   '/loja/custom-shop': typeof LojaCustomShopIndexRoute
   '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
-  '/api/public/hooks/asaas': typeof ApiPublicHooksAsaasRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
   '/api/public/hooks/ig-webhook': typeof ApiPublicHooksIgWebhookRoute
   '/api/public/hooks/martial-arts-daily-sweep': typeof ApiPublicHooksMartialArtsDailySweepRoute
   '/api/public/hooks/melhor-envio': typeof ApiPublicHooksMelhorEnvioRoute
+  '/api/public/hooks/mercadopago': typeof ApiPublicHooksMercadopagoRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/hooks/run-ads-optimization': typeof ApiPublicHooksRunAdsOptimizationRoute
   '/api/public/hooks/scale-winners': typeof ApiPublicHooksScaleWinnersRoute
@@ -855,13 +856,13 @@ export interface FileRoutesById {
   '/loja/conta/': typeof LojaContaIndexRoute
   '/loja/custom-shop/': typeof LojaCustomShopIndexRoute
   '/_authenticated/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
-  '/api/public/hooks/asaas': typeof ApiPublicHooksAsaasRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
   '/api/public/hooks/ig-webhook': typeof ApiPublicHooksIgWebhookRoute
   '/api/public/hooks/martial-arts-daily-sweep': typeof ApiPublicHooksMartialArtsDailySweepRoute
   '/api/public/hooks/melhor-envio': typeof ApiPublicHooksMelhorEnvioRoute
+  '/api/public/hooks/mercadopago': typeof ApiPublicHooksMercadopagoRoute
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/hooks/run-ads-optimization': typeof ApiPublicHooksRunAdsOptimizationRoute
   '/api/public/hooks/scale-winners': typeof ApiPublicHooksScaleWinnersRoute
@@ -948,13 +949,13 @@ export interface FileRouteTypes {
     | '/loja/conta/'
     | '/loja/custom-shop/'
     | '/ads/campaigns/$id'
-    | '/api/public/hooks/asaas'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/enrich-pending-leads'
     | '/api/public/hooks/ig-sync'
     | '/api/public/hooks/ig-webhook'
     | '/api/public/hooks/martial-arts-daily-sweep'
     | '/api/public/hooks/melhor-envio'
+    | '/api/public/hooks/mercadopago'
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/hooks/run-ads-optimization'
     | '/api/public/hooks/scale-winners'
@@ -1039,13 +1040,13 @@ export interface FileRouteTypes {
     | '/loja/conta'
     | '/loja/custom-shop'
     | '/ads/campaigns/$id'
-    | '/api/public/hooks/asaas'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/enrich-pending-leads'
     | '/api/public/hooks/ig-sync'
     | '/api/public/hooks/ig-webhook'
     | '/api/public/hooks/martial-arts-daily-sweep'
     | '/api/public/hooks/melhor-envio'
+    | '/api/public/hooks/mercadopago'
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/hooks/run-ads-optimization'
     | '/api/public/hooks/scale-winners'
@@ -1131,13 +1132,13 @@ export interface FileRouteTypes {
     | '/loja/conta/'
     | '/loja/custom-shop/'
     | '/_authenticated/ads/campaigns/$id'
-    | '/api/public/hooks/asaas'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/enrich-pending-leads'
     | '/api/public/hooks/ig-sync'
     | '/api/public/hooks/ig-webhook'
     | '/api/public/hooks/martial-arts-daily-sweep'
     | '/api/public/hooks/melhor-envio'
+    | '/api/public/hooks/mercadopago'
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/hooks/run-ads-optimization'
     | '/api/public/hooks/scale-winners'
@@ -1172,13 +1173,13 @@ export interface RootRouteChildren {
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   LojaContaIndexRoute: typeof LojaContaIndexRoute
   LojaCustomShopIndexRoute: typeof LojaCustomShopIndexRoute
-  ApiPublicHooksAsaasRoute: typeof ApiPublicHooksAsaasRoute
   ApiPublicHooksAutoInstagramPostRoute: typeof ApiPublicHooksAutoInstagramPostRoute
   ApiPublicHooksEnrichPendingLeadsRoute: typeof ApiPublicHooksEnrichPendingLeadsRoute
   ApiPublicHooksIgSyncRoute: typeof ApiPublicHooksIgSyncRoute
   ApiPublicHooksIgWebhookRoute: typeof ApiPublicHooksIgWebhookRoute
   ApiPublicHooksMartialArtsDailySweepRoute: typeof ApiPublicHooksMartialArtsDailySweepRoute
   ApiPublicHooksMelhorEnvioRoute: typeof ApiPublicHooksMelhorEnvioRoute
+  ApiPublicHooksMercadopagoRoute: typeof ApiPublicHooksMercadopagoRoute
   ApiPublicHooksPublishScheduledPostsRoute: typeof ApiPublicHooksPublishScheduledPostsRoute
   ApiPublicHooksRunAdsOptimizationRoute: typeof ApiPublicHooksRunAdsOptimizationRoute
   ApiPublicHooksScaleWinnersRoute: typeof ApiPublicHooksScaleWinnersRoute
@@ -1766,6 +1767,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksPublishScheduledPostsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/mercadopago': {
+      id: '/api/public/hooks/mercadopago'
+      path: '/api/public/hooks/mercadopago'
+      fullPath: '/api/public/hooks/mercadopago'
+      preLoaderRoute: typeof ApiPublicHooksMercadopagoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/melhor-envio': {
       id: '/api/public/hooks/melhor-envio'
       path: '/api/public/hooks/melhor-envio'
@@ -1806,13 +1814,6 @@ declare module '@tanstack/react-router' {
       path: '/api/public/hooks/auto-instagram-post'
       fullPath: '/api/public/hooks/auto-instagram-post'
       preLoaderRoute: typeof ApiPublicHooksAutoInstagramPostRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/asaas': {
-      id: '/api/public/hooks/asaas'
-      path: '/api/public/hooks/asaas'
-      fullPath: '/api/public/hooks/asaas'
-      preLoaderRoute: typeof ApiPublicHooksAsaasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/ads/campaigns/$id': {
@@ -1983,7 +1984,6 @@ const rootRouteChildren: RootRouteChildren = {
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   LojaContaIndexRoute: LojaContaIndexRoute,
   LojaCustomShopIndexRoute: LojaCustomShopIndexRoute,
-  ApiPublicHooksAsaasRoute: ApiPublicHooksAsaasRoute,
   ApiPublicHooksAutoInstagramPostRoute: ApiPublicHooksAutoInstagramPostRoute,
   ApiPublicHooksEnrichPendingLeadsRoute: ApiPublicHooksEnrichPendingLeadsRoute,
   ApiPublicHooksIgSyncRoute: ApiPublicHooksIgSyncRoute,
@@ -1991,6 +1991,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksMartialArtsDailySweepRoute:
     ApiPublicHooksMartialArtsDailySweepRoute,
   ApiPublicHooksMelhorEnvioRoute: ApiPublicHooksMelhorEnvioRoute,
+  ApiPublicHooksMercadopagoRoute: ApiPublicHooksMercadopagoRoute,
   ApiPublicHooksPublishScheduledPostsRoute:
     ApiPublicHooksPublishScheduledPostsRoute,
   ApiPublicHooksRunAdsOptimizationRoute: ApiPublicHooksRunAdsOptimizationRoute,
