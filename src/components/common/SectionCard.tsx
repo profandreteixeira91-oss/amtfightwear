@@ -19,15 +19,15 @@ export function SectionCard({ title, description, action, children, className, d
       transition={{ duration: 0.3, delay }}
       className={className}
     >
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+      <Card className="border-border/60 bg-card/70 shadow-sm backdrop-blur-sm transition-shadow hover:shadow-md">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 border-b border-border/50 pb-3">
           <div>
-            <CardTitle className="text-base">{title}</CardTitle>
+            <CardTitle className="text-base font-semibold tracking-tight">{title}</CardTitle>
             {description && <p className="mt-1 text-xs text-muted-foreground">{description}</p>}
           </div>
           {action}
         </CardHeader>
-        <CardContent>{children}</CardContent>
+        <CardContent className="pt-4">{children}</CardContent>
       </Card>
     </motion.div>
   );
