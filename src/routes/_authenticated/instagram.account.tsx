@@ -21,7 +21,11 @@ function IgAccount() {
   const fetchAccount = useServerFn(getIgAccount);
   const syncProfile = useServerFn(syncIgProfile);
   const syncMedia = useServerFn(syncIgMedia);
+  const fetchMetaConn = useServerFn(getMetaConnection);
+  const disconnectFn = useServerFn(disconnectMeta);
+  const authUrlFn = useServerFn(getMetaAuthUrl);
   const { data, isLoading } = useQuery({ queryKey: ["ig-account"], queryFn: () => fetchAccount() });
+  const { data: metaConn } = useQuery({ queryKey: ["meta-conn"], queryFn: () => fetchMetaConn() });
 
   const mSync = useMutation({
     mutationFn: async () => {
@@ -35,8 +39,25 @@ function IgAccount() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const mDisconnect = useMutation({
+    mutationFn: async (id: string) => disconnectFn({ data: { id } }),
+    onSuccess: () => {
+      toast.success("Conta Meta desconectada.");
+      qc.invalidateQueries({ queryKey: ["ig-account"] });
+      qc.invalidateQueries({ queryKey: ["meta-conn"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const mReconnect = useMutation({
+    mutationFn: async () => authUrlFn(),
+    onSuccess: (r: { url: string }) => {
+      window.location.href = r.url;
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const acc = data?.account;
-  const connected = !!acc && data?.hasConnection;
 
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
@@ -44,12 +65,38 @@ function IgAccount() {
         title="Conta do Instagram"
         description="Perfil oficial conectado via Meta Business. Sincronize sob demanda ou aguarde o job automático."
         actions={
-          <Button onClick={() => mSync.mutate()} disabled={mSync.isPending || !data?.hasConnection}>
-            <RefreshCw className={`mr-2 h-4 w-4 ${mSync.isPending ? "animate-spin" : ""}`} />
-            Sincronizar agora
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              onClick={() => mReconnect.mutate()}
+              disabled={mReconnect.isPending}
+            >
+              {mReconnect.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Facebook className="mr-2 h-4 w-4" />}
+              Reconectar Meta
+            </Button>
+            {metaConn && (
+              <Button
+                variant="outline"
+                className="text-destructive hover:text-destructive"
+                onClick={() => {
+                  if (confirm("Desconectar a conta Meta? As sincronizações vão parar até reconectar.")) {
+                    mDisconnect.mutate(metaConn.id);
+                  }
+                }}
+                disabled={mDisconnect.isPending}
+              >
+                <Unplug className="mr-2 h-4 w-4" />
+                Desconectar
+              </Button>
+            )}
+            <Button onClick={() => mSync.mutate()} disabled={mSync.isPending || !data?.hasConnection}>
+              <RefreshCw className={`mr-2 h-4 w-4 ${mSync.isPending ? "animate-spin" : ""}`} />
+              Sincronizar agora
+            </Button>
+          </div>
         }
       />
+
 
       {isLoading ? (
         <Skeleton className="h-64 w-full" />
