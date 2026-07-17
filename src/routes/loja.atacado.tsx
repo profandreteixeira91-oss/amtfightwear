@@ -863,6 +863,23 @@ function WholesalePage() {
 
           ) : (
             <form onSubmit={submit} className="space-y-4">
+              {signedIn === false && (
+                <div className="flex flex-col items-start justify-between gap-3 rounded-xl border bg-card p-4 sm:flex-row sm:items-center">
+                  <div className="text-sm">
+                    <div className="font-semibold">Entre para concluir seu pedido</div>
+                    <div className="text-muted-foreground">Use sua conta AMT para agilizar próximas compras.</div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={onGoogleLogin}
+                    disabled={googleLoading}
+                    className="inline-flex items-center gap-2 rounded-md border-2 border-primary bg-background px-4 py-2 text-sm font-bold text-primary hover:bg-primary/5 disabled:opacity-50"
+                  >
+                    <LogIn className="h-4 w-4" />
+                    {googleLoading ? "Abrindo..." : "Entrar com Google"}
+                  </button>
+                </div>
+              )}
               <div className="rounded-xl border bg-card p-5">
                 <h2 className="text-lg font-black">Dados do cliente</h2>
                 <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
