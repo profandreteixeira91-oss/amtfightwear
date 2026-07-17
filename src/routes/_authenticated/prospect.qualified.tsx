@@ -118,6 +118,10 @@ Posso enviar nosso catálogo e apresentar as condições para parceiros?`;
 
 
 
+function renderTemplate(tpl: string, vars: Record<string, string>) {
+  return tpl.replace(/\{\{\s*(\w+)\s*\}\}/g, (_, k) => vars[k] ?? "");
+}
+
 function QualifiedPage() {
   const [search, setSearch] = useState("");
   const [stageFilter, setStageFilter] = useState<string>("all");
@@ -128,7 +132,14 @@ function QualifiedPage() {
   const fetchList = useServerFn(listLeads);
   const bulkUpdate = useServerFn(bulkUpdateLeads);
   const bulkDelete = useServerFn(bulkDeleteLeads);
+  const fetchSettings = useServerFn(getSettings);
   const qc = useQueryClient();
+
+  const { data: settings } = useQuery({
+    queryKey: ["prospect", "settings"],
+    queryFn: () => fetchSettings(),
+    staleTime: 30_000,
+  });
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["prospect", "qualified", search, stageFilter, page],
