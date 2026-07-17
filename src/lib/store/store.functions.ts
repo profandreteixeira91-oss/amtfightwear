@@ -626,6 +626,11 @@ export const adminUpsertStoreCategory = createServerFn({ method: "POST" })
       image_url: z.string().optional().nullable(),
       sort_order: z.number().int().default(0),
       active: z.boolean().default(true),
+      ncm: z.string().optional().nullable(),
+      cest: z.string().optional().nullable(),
+      origem: z.string().optional().nullable(),
+      cfop: z.string().optional().nullable(),
+      unidade: z.string().optional().nullable(),
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -637,6 +642,37 @@ export const adminUpsertStoreCategory = createServerFn({ method: "POST" })
     const { data: created, error } = await context.supabase.from("store_categories").insert(data).select("id").single();
     if (error) throw new Error(error.message);
     return { id: created.id };
+  });
+
+/**
+ * Aplica os dados fiscais (NCM, CEST, Origem, CFOP, Unidade) de uma categoria
+ * em todos os produtos vinculados a ela. Sobrescreve o valor em cada produto.
+ */
+export const adminApplyCategoryFiscalToProducts = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({
+      category_id: z.string().uuid(),
+      fields: z.array(z.enum(["ncm", "cest", "origem", "cfop", "unidade"])).min(1),
+    }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: cat, error: cErr } = await context.supabase
+      .from("store_categories")
+      .select("ncm, cest, origem, cfop, unidade")
+      .eq("id", data.category_id)
+      .maybeSingle();
+    if (cErr) throw new Error(cErr.message);
+    if (!cat) throw new Error("Categoria não encontrada");
+    const patch: Record<string, unknown> = {};
+    for (const f of data.fields) patch[f] = (cat as Record<string, unknown>)[f] ?? null;
+    const { error, count } = await context.supabase
+      .from("products")
+      .update(patch, { count: "exact" })
+      .eq("category_id", data.category_id)
+      .select("id", { count: "exact", head: true });
+    if (error) throw new Error(error.message);
+    return { ok: true, updated: count ?? 0 };
   });
 
 export const adminUpdateStoreProduct = createServerFn({ method: "POST" })
