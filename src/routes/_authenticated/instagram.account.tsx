@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { motion } from "framer-motion";
-import { Instagram, RefreshCw, ExternalLink, CheckCircle2, AlertCircle } from "lucide-react";
+import { Instagram, RefreshCw, ExternalLink, CheckCircle2, AlertCircle, Unplug, Facebook, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/common/PageHeader";
 import { SectionCard } from "@/components/common/SectionCard";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { getIgAccount, syncIgProfile, syncIgMedia } from "@/lib/ig-hub.functions";
+import { getMetaConnection, disconnectMeta, getMetaAuthUrl } from "@/lib/meta.functions";
 
 export const Route = createFileRoute("/_authenticated/instagram/account")({
   component: IgAccount,
