@@ -243,6 +243,48 @@ function extractInstagramProfile(url: string): string | null {
   } catch { return null; }
 }
 
+/** Scrape do perfil do Instagram e extração do nome de exibição a partir do <title>/og:title. */
+export async function fetchInstagramProfileName(handle: string): Promise<string | null> {
+  try {
+    const clean = handle.trim().replace(/^@/, "").split(/[/?#]/)[0];
+    if (!/^[a-z0-9._]{2,30}$/i.test(clean)) return null;
+    const scraped = await firecrawlScrape(`https://www.instagram.com/${clean}/`);
+    if (!scraped) return null;
+    const html = scraped.html || "";
+    const md = scraped.markdown || "";
+    // Padrões comuns: "Full Name (@handle) • Instagram photos and videos"
+    const patterns = [
+      /<meta\s+property=["']og:title["']\s+content=["']([^"']+)["']/i,
+      /<title>([^<]+)<\/title>/i,
+    ];
+    let raw: string | null = null;
+    for (const re of patterns) {
+      const m = html.match(re);
+      if (m?.[1]) { raw = m[1]; break; }
+    }
+    if (!raw) {
+      const m = md.match(/^#\s*(.+)$/m);
+      if (m?.[1]) raw = m[1];
+    }
+    if (!raw) return null;
+    // Remove "(@handle)" e sufixos padrão do Instagram
+    let name = raw
+      .replace(/\s*\(@[^)]+\)\s*/g, " ")
+      .replace(/\s*[•·|]\s*Instagram.*$/i, "")
+      .replace(/\s*on Instagram.*$/i, "")
+      .replace(/\s*photos and videos.*$/i, "")
+      .replace(/\s{2,}/g, " ")
+      .trim();
+    if (!name) return null;
+    // Descarta se retornou só o handle
+    if (name.toLowerCase() === clean.toLowerCase()) return null;
+    if (name.length < 2 || name.length > 120) return null;
+    return name;
+  } catch {
+    return null;
+  }
+}
+
 function safeDomain(u: string): string | null {
   try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return null; }
 }
