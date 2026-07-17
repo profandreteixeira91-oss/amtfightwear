@@ -95,6 +95,26 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
     return () => document.removeEventListener("mousedown", onClick);
   }, [accountOpen]);
 
+  // Track store visits (anon + authed). One record per pathname change per tab.
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!pathname.startsWith("/loja") && pathname !== "/") return;
+    let sid = window.sessionStorage.getItem("amt_sid");
+    if (!sid) {
+      sid = (crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`);
+      window.sessionStorage.setItem("amt_sid", sid);
+    }
+    recordStoreVisit({
+      data: {
+        session_id: sid,
+        path: pathname,
+        referrer: document.referrer || null,
+        user_agent: navigator.userAgent.slice(0, 500),
+      },
+    }).catch(() => {});
+  }, [pathname]);
+
 
   // Força tema claro em toda a loja: remove a classe .dark do <html> enquanto o
   // StoreShell estiver montado e observa mudanças (ex.: ThemeProvider re-aplicando
