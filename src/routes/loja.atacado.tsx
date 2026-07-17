@@ -239,6 +239,16 @@ function WholesalePage() {
 
   const [step, setStep] = useState<"cart" | "checkout">("cart");
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [signedIn, setSignedIn] = useState<boolean | null>(null);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"PIX" | "CREDIT_CARD" | "BOLETO">("PIX");
+  const [installments, setInstallments] = useState(1);
+  const [card, setCard] = useState({ holderName: "", number: "", expiryMonth: "", expiryYear: "", ccv: "" });
+  const loadProfile = useServerFn(getMyCustomerProfile);
+  const saveProfile = useServerFn(saveMyCustomerProfile);
+  const createPayment = useServerFn(createAsaasPayment);
+  const search = Route.useSearch();
+  const resumeFlag = !!search.resume;
   // Resumo abre apenas via clique explícito em "Adicionar ao carrinho" (não em mudanças de quantidade).
   // Force-close when jumping to checkout step so the user sees the form summary.
   useEffect(() => {
@@ -269,6 +279,80 @@ function WholesalePage() {
     notes: "",
   });
   const [loading, setLoading] = useState(false);
+  const draftRestored = useRef(false);
+
+  // Restore draft (qty, labelLogo, form) from sessionStorage on mount.
+  useEffect(() => {
+    if (draftRestored.current) return;
+    draftRestored.current = true;
+    try {
+      const raw = sessionStorage.getItem(DRAFT_KEY);
+      if (raw) {
+        const d = JSON.parse(raw) as {
+          qty?: Record<string, number>;
+          labelLogo?: { data_url: string; filename: string } | null;
+          form?: typeof form;
+          activeRoot?: string | null;
+        };
+        if (d.qty && Object.keys(d.qty).length > 0) setQty(d.qty);
+        if (d.labelLogo) setLabelLogo(d.labelLogo);
+        if (d.form) setForm((f) => ({ ...f, ...d.form }));
+        if (d.activeRoot) setActiveRoot(d.activeRoot);
+      }
+    } catch { /* ignore */ }
+  }, []);
+
+  // Persist draft continuously so it survives an auth redirect round-trip.
+  useEffect(() => {
+    try {
+      const hasItems = Object.values(qty).some((n) => n > 0);
+      if (!hasItems && !labelLogo) {
+        sessionStorage.removeItem(DRAFT_KEY);
+        return;
+      }
+      sessionStorage.setItem(
+        DRAFT_KEY,
+        JSON.stringify({ qty, labelLogo, form, activeRoot }),
+      );
+    } catch { /* ignore */ }
+  }, [qty, labelLogo, form, activeRoot]);
+
+  // Detect signed-in state and, on sign-in, prefill from the customer profile.
+  useEffect(() => {
+    let mounted = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (!mounted) return;
+      const authed = !!data.session;
+      setSignedIn(authed);
+      if (!authed) return;
+      const email = data.session?.user.email;
+      loadProfile().then((p) => {
+        if (!mounted) return;
+        setForm((f) => ({
+          customer_name: p?.full_name ?? f.customer_name,
+          customer_email: p?.email ?? email ?? f.customer_email,
+          customer_phone: p?.phone ?? f.customer_phone,
+          customer_document: p?.document ?? f.customer_document,
+          zip: p?.zip ?? f.zip,
+          street: p?.street ?? f.street,
+          number: p?.number ?? f.number,
+          complement: p?.complement ?? f.complement,
+          neighborhood: p?.neighborhood ?? f.neighborhood,
+          city: p?.city ?? f.city,
+          state: p?.state ?? f.state,
+          notes: f.notes,
+        }));
+      }).catch(() => { /* ignore */ });
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setSignedIn(!!session);
+    });
+    return () => {
+      mounted = false;
+      sub.subscription.unsubscribe();
+    };
+  }, [loadProfile]);
+
 
   const handleZip = async (zip: string) => {
     setForm((f) => ({ ...f, zip }));
