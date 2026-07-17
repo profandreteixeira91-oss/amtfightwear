@@ -148,69 +148,94 @@ export function AppTopNav() {
   const groupActive = (items: Item[]) => items.some((i) => isActive(i.url));
 
   return (
-    <div className="border-b bg-background">
+    <div className="sticky top-0 z-40 border-b border-border/60 bg-background/70 backdrop-blur-xl supports-[backdrop-filter]:bg-background/50">
       <div className="flex h-14 items-center gap-2 px-3 sm:px-4">
-        <Link to="/dashboard" className="flex items-center gap-2 shrink-0">
-          <div className="grid h-8 w-8 place-items-center overflow-hidden rounded-md bg-primary ring-1 ring-primary/30">
+        <Link to="/dashboard" className="group flex items-center gap-2.5 shrink-0">
+          <div className="relative grid h-9 w-9 place-items-center overflow-hidden rounded-lg bg-primary ring-1 ring-primary/40 shadow-[0_0_0_1px_color-mix(in_oklab,var(--primary)_30%,transparent),0_8px_24px_-8px_color-mix(in_oklab,var(--primary)_50%,transparent)] transition-transform group-hover:scale-[1.03]">
             <img src={amtLogo} alt="AMT" className="h-full w-full object-cover" />
+            <span className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-white/30 opacity-0 transition-opacity group-hover:opacity-100" />
           </div>
           <div className="hidden leading-tight sm:block">
             <div className="text-sm font-bold tracking-tight">AMT Growth</div>
-            <div className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
+            <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
               Engine
             </div>
           </div>
         </Link>
 
-        <nav className="ml-4 hidden flex-1 items-center gap-1 overflow-x-auto lg:flex">
-          {groups.map((g) => (
-            <DropdownMenu key={g.label}>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className={cn(
-                    "gap-1 whitespace-nowrap",
-                    groupActive(g.items) && "bg-accent text-accent-foreground",
-                  )}
+        <nav className="ml-4 hidden flex-1 items-center gap-0.5 overflow-x-auto lg:flex">
+          {groups.map((g) => {
+            const active = groupActive(g.items);
+            return (
+              <DropdownMenu key={g.label}>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={cn(
+                      "relative h-9 gap-1 whitespace-nowrap rounded-full px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground",
+                      active && "bg-accent text-foreground shadow-sm",
+                    )}
+                  >
+                    {g.label}
+                    <ChevronDown className="h-3.5 w-3.5 opacity-60 transition-transform data-[state=open]:rotate-180" />
+                    {active && (
+                      <span className="pointer-events-none absolute inset-x-3 -bottom-[7px] h-0.5 rounded-full bg-primary shadow-[0_0_12px_var(--primary)]" />
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="start"
+                  sideOffset={10}
+                  className="w-60 rounded-xl border-border/60 bg-popover/95 p-1.5 shadow-xl backdrop-blur"
                 >
-                  {g.label}
-                  <ChevronDown className="h-3.5 w-3.5 opacity-60" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-56">
-                {g.items.map((item) => (
-                  <DropdownMenuItem key={item.url} asChild>
-                    <Link
-                      to={item.url}
-                      className={cn(
-                        "flex items-center gap-2",
-                        isActive(item.url) && "bg-accent font-medium",
-                      )}
-                    >
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ))}
+                  {g.items.map((item) => (
+                    <DropdownMenuItem key={item.url} asChild>
+                      <Link
+                        to={item.url}
+                        className={cn(
+                          "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm transition-colors",
+                          isActive(item.url)
+                            ? "bg-primary/10 font-medium text-primary"
+                            : "text-foreground/80 hover:text-foreground",
+                        )}
+                      >
+                        <span
+                          className={cn(
+                            "grid h-7 w-7 place-items-center rounded-md border border-border/60 bg-background/60 text-muted-foreground",
+                            isActive(item.url) && "border-primary/30 bg-primary/10 text-primary",
+                          )}
+                        >
+                          <item.icon className="h-3.5 w-3.5" />
+                        </span>
+                        <span className="truncate">{item.title}</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            );
+          })}
         </nav>
 
         <div className="ml-auto lg:hidden">
-          <Button variant="ghost" size="icon" onClick={() => setMobileOpen((v) => !v)}>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setMobileOpen((v) => !v)}
+            className="rounded-full"
+          >
             {mobileOpen ? <X className="h-5 w-5" /> : <MenuIcon className="h-5 w-5" />}
           </Button>
         </div>
       </div>
 
       {mobileOpen && (
-        <div className="border-t bg-background lg:hidden">
-          <div className="max-h-[70vh] overflow-y-auto p-3 space-y-4">
+        <div className="border-t border-border/60 bg-background/95 backdrop-blur lg:hidden">
+          <div className="max-h-[70vh] space-y-4 overflow-y-auto p-3">
             {groups.map((g) => (
               <div key={g.label}>
-                <div className="mb-1 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+                <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                   {g.label}
                 </div>
                 <div className="grid grid-cols-2 gap-1">
@@ -220,8 +245,9 @@ export function AppTopNav() {
                       to={item.url}
                       onClick={() => setMobileOpen(false)}
                       className={cn(
-                        "flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent",
-                        isActive(item.url) && "bg-accent font-medium",
+                        "flex items-center gap-2 rounded-lg border border-transparent px-2 py-1.5 text-sm transition-colors hover:bg-accent",
+                        isActive(item.url) &&
+                          "border-primary/30 bg-primary/10 font-medium text-primary",
                       )}
                     >
                       <item.icon className="h-4 w-4" />
@@ -237,3 +263,4 @@ export function AppTopNav() {
     </div>
   );
 }
+
