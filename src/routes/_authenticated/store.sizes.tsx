@@ -30,6 +30,7 @@ function SizesPage() {
   const load = useServerFn(listSizePresets);
   const save = useServerFn(upsertSizePreset);
   const del = useServerFn(deleteSizePreset);
+  const syncAll = useServerFn(syncAllSizePresets);
   const { data, refetch, isLoading } = useQuery({
     queryKey: ["admin", "store", "size-presets"],
     queryFn: () => load(),
@@ -37,6 +38,7 @@ function SizesPage() {
 
   const [editing, setEditing] = useState<Draft | null>(null);
   const [saving, setSaving] = useState(false);
+  const [syncing, setSyncing] = useState(false);
 
   const start = (p?: SizePreset) => {
     setEditing(
