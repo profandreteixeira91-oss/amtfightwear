@@ -30,12 +30,14 @@ import { Route as AuthenticatedLogsRouteImport } from './routes/_authenticated/l
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdsRouteImport } from './routes/_authenticated/ads'
 import { Route as LojaCustomShopIndexRouteImport } from './routes/loja.custom-shop.index'
+import { Route as LojaContaIndexRouteImport } from './routes/loja.conta.index'
 import { Route as AuthenticatedStoreIndexRouteImport } from './routes/_authenticated/store.index'
 import { Route as AuthenticatedProspectIndexRouteImport } from './routes/_authenticated/prospect.index'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as LojaProdutoSlugRouteImport } from './routes/loja.produto.$slug'
 import { Route as LojaPedidoIdRouteImport } from './routes/loja.pedido.$id'
 import { Route as LojaCustomShopKindRouteImport } from './routes/loja.custom-shop.$kind'
+import { Route as LojaContaPedidosRouteImport } from './routes/loja.conta.pedidos'
 import { Route as LojaCategoriaSlugRouteImport } from './routes/loja.categoria.$slug'
 import { Route as AuthenticatedStoreWholesaleRouteImport } from './routes/_authenticated/store.wholesale'
 import { Route as AuthenticatedStoreSizesRouteImport } from './routes/_authenticated/store.sizes'
@@ -202,6 +204,11 @@ const LojaCustomShopIndexRoute = LojaCustomShopIndexRouteImport.update({
   path: '/loja/custom-shop/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LojaContaIndexRoute = LojaContaIndexRouteImport.update({
+  id: '/loja/conta/',
+  path: '/loja/conta/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedStoreIndexRoute = AuthenticatedStoreIndexRouteImport.update({
   id: '/store/',
   path: '/store/',
@@ -231,6 +238,11 @@ const LojaPedidoIdRoute = LojaPedidoIdRouteImport.update({
 const LojaCustomShopKindRoute = LojaCustomShopKindRouteImport.update({
   id: '/loja/custom-shop/$kind',
   path: '/loja/custom-shop/$kind',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaContaPedidosRoute = LojaContaPedidosRouteImport.update({
+  id: '/loja/conta/pedidos',
+  path: '/loja/conta/pedidos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LojaCategoriaSlugRoute = LojaCategoriaSlugRouteImport.update({
@@ -649,12 +661,14 @@ export interface FileRoutesByFullPath {
   '/store/sizes': typeof AuthenticatedStoreSizesRoute
   '/store/wholesale': typeof AuthenticatedStoreWholesaleRoute
   '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
+  '/loja/conta/pedidos': typeof LojaContaPedidosRoute
   '/loja/custom-shop/$kind': typeof LojaCustomShopKindRoute
   '/loja/pedido/$id': typeof LojaPedidoIdRoute
   '/loja/produto/$slug': typeof LojaProdutoSlugRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/prospect/': typeof AuthenticatedProspectIndexRoute
   '/store/': typeof AuthenticatedStoreIndexRoute
+  '/loja/conta/': typeof LojaContaIndexRoute
   '/loja/custom-shop/': typeof LojaCustomShopIndexRoute
   '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
   '/api/public/hooks/asaas': typeof ApiPublicHooksAsaasRoute
@@ -738,12 +752,14 @@ export interface FileRoutesByTo {
   '/store/sizes': typeof AuthenticatedStoreSizesRoute
   '/store/wholesale': typeof AuthenticatedStoreWholesaleRoute
   '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
+  '/loja/conta/pedidos': typeof LojaContaPedidosRoute
   '/loja/custom-shop/$kind': typeof LojaCustomShopKindRoute
   '/loja/pedido/$id': typeof LojaPedidoIdRoute
   '/loja/produto/$slug': typeof LojaProdutoSlugRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/prospect': typeof AuthenticatedProspectIndexRoute
   '/store': typeof AuthenticatedStoreIndexRoute
+  '/loja/conta': typeof LojaContaIndexRoute
   '/loja/custom-shop': typeof LojaCustomShopIndexRoute
   '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
   '/api/public/hooks/asaas': typeof ApiPublicHooksAsaasRoute
@@ -829,12 +845,14 @@ export interface FileRoutesById {
   '/_authenticated/store/sizes': typeof AuthenticatedStoreSizesRoute
   '/_authenticated/store/wholesale': typeof AuthenticatedStoreWholesaleRoute
   '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
+  '/loja/conta/pedidos': typeof LojaContaPedidosRoute
   '/loja/custom-shop/$kind': typeof LojaCustomShopKindRoute
   '/loja/pedido/$id': typeof LojaPedidoIdRoute
   '/loja/produto/$slug': typeof LojaProdutoSlugRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/_authenticated/prospect/': typeof AuthenticatedProspectIndexRoute
   '/_authenticated/store/': typeof AuthenticatedStoreIndexRoute
+  '/loja/conta/': typeof LojaContaIndexRoute
   '/loja/custom-shop/': typeof LojaCustomShopIndexRoute
   '/_authenticated/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
   '/api/public/hooks/asaas': typeof ApiPublicHooksAsaasRoute
@@ -920,12 +938,14 @@ export interface FileRouteTypes {
     | '/store/sizes'
     | '/store/wholesale'
     | '/loja/categoria/$slug'
+    | '/loja/conta/pedidos'
     | '/loja/custom-shop/$kind'
     | '/loja/pedido/$id'
     | '/loja/produto/$slug'
     | '/lovable/email/suppression'
     | '/prospect/'
     | '/store/'
+    | '/loja/conta/'
     | '/loja/custom-shop/'
     | '/ads/campaigns/$id'
     | '/api/public/hooks/asaas'
@@ -1009,12 +1029,14 @@ export interface FileRouteTypes {
     | '/store/sizes'
     | '/store/wholesale'
     | '/loja/categoria/$slug'
+    | '/loja/conta/pedidos'
     | '/loja/custom-shop/$kind'
     | '/loja/pedido/$id'
     | '/loja/produto/$slug'
     | '/lovable/email/suppression'
     | '/prospect'
     | '/store'
+    | '/loja/conta'
     | '/loja/custom-shop'
     | '/ads/campaigns/$id'
     | '/api/public/hooks/asaas'
@@ -1099,12 +1121,14 @@ export interface FileRouteTypes {
     | '/_authenticated/store/sizes'
     | '/_authenticated/store/wholesale'
     | '/loja/categoria/$slug'
+    | '/loja/conta/pedidos'
     | '/loja/custom-shop/$kind'
     | '/loja/pedido/$id'
     | '/loja/produto/$slug'
     | '/lovable/email/suppression'
     | '/_authenticated/prospect/'
     | '/_authenticated/store/'
+    | '/loja/conta/'
     | '/loja/custom-shop/'
     | '/_authenticated/ads/campaigns/$id'
     | '/api/public/hooks/asaas'
@@ -1141,10 +1165,12 @@ export interface RootRouteChildren {
   LojaCheckoutRoute: typeof LojaCheckoutRoute
   LojaIndexRoute: typeof LojaIndexRoute
   LojaCategoriaSlugRoute: typeof LojaCategoriaSlugRoute
+  LojaContaPedidosRoute: typeof LojaContaPedidosRoute
   LojaCustomShopKindRoute: typeof LojaCustomShopKindRoute
   LojaPedidoIdRoute: typeof LojaPedidoIdRoute
   LojaProdutoSlugRoute: typeof LojaProdutoSlugRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
+  LojaContaIndexRoute: typeof LojaContaIndexRoute
   LojaCustomShopIndexRoute: typeof LojaCustomShopIndexRoute
   ApiPublicHooksAsaasRoute: typeof ApiPublicHooksAsaasRoute
   ApiPublicHooksAutoInstagramPostRoute: typeof ApiPublicHooksAutoInstagramPostRoute
@@ -1313,6 +1339,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LojaCustomShopIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/loja/conta/': {
+      id: '/loja/conta/'
+      path: '/loja/conta'
+      fullPath: '/loja/conta/'
+      preLoaderRoute: typeof LojaContaIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/store/': {
       id: '/_authenticated/store/'
       path: '/store'
@@ -1353,6 +1386,13 @@ declare module '@tanstack/react-router' {
       path: '/loja/custom-shop/$kind'
       fullPath: '/loja/custom-shop/$kind'
       preLoaderRoute: typeof LojaCustomShopKindRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja/conta/pedidos': {
+      id: '/loja/conta/pedidos'
+      path: '/loja/conta/pedidos'
+      fullPath: '/loja/conta/pedidos'
+      preLoaderRoute: typeof LojaContaPedidosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/loja/categoria/$slug': {
@@ -1936,10 +1976,12 @@ const rootRouteChildren: RootRouteChildren = {
   LojaCheckoutRoute: LojaCheckoutRoute,
   LojaIndexRoute: LojaIndexRoute,
   LojaCategoriaSlugRoute: LojaCategoriaSlugRoute,
+  LojaContaPedidosRoute: LojaContaPedidosRoute,
   LojaCustomShopKindRoute: LojaCustomShopKindRoute,
   LojaPedidoIdRoute: LojaPedidoIdRoute,
   LojaProdutoSlugRoute: LojaProdutoSlugRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
+  LojaContaIndexRoute: LojaContaIndexRoute,
   LojaCustomShopIndexRoute: LojaCustomShopIndexRoute,
   ApiPublicHooksAsaasRoute: ApiPublicHooksAsaasRoute,
   ApiPublicHooksAutoInstagramPostRoute: ApiPublicHooksAutoInstagramPostRoute,
