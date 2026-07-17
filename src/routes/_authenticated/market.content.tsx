@@ -19,7 +19,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { generateMarketingContent, suggestViralTopics, autoBriefFromViral } from "@/lib/marketing.functions";
-import { createInstagramPost, listInstagramPosts } from "@/lib/instagram.functions";
+import { createInstagramPost, listInstagramPosts, uploadContentImage } from "@/lib/instagram.functions";
+import { Upload } from "lucide-react";
 import { PostCalendar, type CalendarPost } from "@/components/marketing/PostCalendar";
 
 
@@ -79,6 +80,30 @@ function ContentPage() {
   const [imageUrl, setImageUrl] = useState("");
   const [scheduleAt, setScheduleAt] = useState("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const uploadFn = useServerFn(uploadContentImage);
+
+  const handleUpload = async (file: File) => {
+    if (!file.type.startsWith("image/")) { toast.error("Selecione uma imagem"); return; }
+    if (file.size > 8 * 1024 * 1024) { toast.error("Imagem acima de 8 MB"); return; }
+    setUploading(true);
+    try {
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(String(r.result));
+        r.onerror = () => reject(new Error("Falha ao ler arquivo"));
+        r.readAsDataURL(file);
+      });
+      const ext = (file.name.split(".").pop()?.toLowerCase() === "jpg" || file.type === "image/jpeg") ? "jpg" : "png";
+      const res = await uploadFn({ data: { base64, ext: ext as "png" | "jpg" } });
+      setImageUrl((res as { url: string }).url);
+      toast.success("Imagem enviada");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Falha no upload");
+    } finally {
+      setUploading(false);
+    }
+  };
 
 
 
@@ -371,8 +396,23 @@ function ContentPage() {
 
 
                 <div className="space-y-2">
-                  <Label>URL da imagem (pública)</Label>
-                  <Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://... (cole a URL pública da imagem)" />
+                  <Label>Imagem do post</Label>
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="Cole a URL pública ou envie um arquivo" className="flex-1" />
+                    <label className="inline-flex">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f); e.currentTarget.value = ""; }}
+                      />
+                      <Button type="button" variant="outline" className="gap-2 w-full sm:w-auto" disabled={uploading} asChild>
+                        <span>
+                          {uploading ? <><Loader2 className="h-4 w-4 animate-spin" /> Enviando</> : <><Upload className="h-4 w-4" /> Enviar imagem</>}
+                        </span>
+                      </Button>
+                    </label>
+                  </div>
                 </div>
 
 
