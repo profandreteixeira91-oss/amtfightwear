@@ -664,11 +664,21 @@ export const adminApplyCategoryFiscalToProducts = createServerFn({ method: "POST
       .maybeSingle();
     if (cErr) throw new Error(cErr.message);
     if (!cat) throw new Error("Categoria não encontrada");
-    const patch: Record<string, string | null> = {};
-    for (const f of data.fields) {
-      const v = (cat as Record<string, string | null>)[f];
-      patch[f] = v ?? null;
-    }
+    const patch: {
+      ncm?: string | null;
+      cest?: string | null;
+      origem?: string | null;
+      cfop?: string | null;
+      unidade?: string | null;
+    } = {};
+    const catRec = cat as {
+      ncm: string | null;
+      cest: string | null;
+      origem: string | null;
+      cfop: string | null;
+      unidade: string | null;
+    };
+    for (const f of data.fields) patch[f] = catRec[f] ?? null;
     const { data: updated, error } = await context.supabase
       .from("products")
       .update(patch)
