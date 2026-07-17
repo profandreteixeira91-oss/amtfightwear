@@ -3,14 +3,14 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { toast } from "sonner";
-import { ChevronLeft, Plus, Save, Trash2, X } from "lucide-react";
+import { ChevronLeft, Plus, RefreshCw, Save, Trash2, X } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { listSizePresets, upsertSizePreset, deleteSizePreset, type SizePreset } from "@/lib/store/sizes.functions";
+import { listSizePresets, upsertSizePreset, deleteSizePreset, syncAllSizePresets, type SizePreset } from "@/lib/store/sizes.functions";
 
 export const Route = createFileRoute("/_authenticated/store/sizes")({
   component: SizesPage,
