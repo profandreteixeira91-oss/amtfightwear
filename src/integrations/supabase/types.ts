@@ -2227,17 +2227,22 @@ export type Database = {
         Row: {
           category: string | null
           category_id: string | null
+          cest: string | null
+          cfop: string | null
           compare_at_price: number | null
           cost: number
           created_at: string
           description: string | null
           description_html: string | null
           featured: boolean
+          gtin: string | null
           id: string
           image_url: string | null
           meta_description: string | null
           meta_title: string | null
           name: string
+          ncm: string | null
+          origem: string | null
           price: number
           short_description: string | null
           sku: string | null
@@ -2245,6 +2250,7 @@ export type Database = {
           source_url: string | null
           status: string
           stock: number
+          unidade: string | null
           updated_at: string
           wc_product_id: number | null
           weight_grams: number | null
@@ -2254,17 +2260,22 @@ export type Database = {
         Insert: {
           category?: string | null
           category_id?: string | null
+          cest?: string | null
+          cfop?: string | null
           compare_at_price?: number | null
           cost?: number
           created_at?: string
           description?: string | null
           description_html?: string | null
           featured?: boolean
+          gtin?: string | null
           id?: string
           image_url?: string | null
           meta_description?: string | null
           meta_title?: string | null
           name: string
+          ncm?: string | null
+          origem?: string | null
           price?: number
           short_description?: string | null
           sku?: string | null
@@ -2272,6 +2283,7 @@ export type Database = {
           source_url?: string | null
           status?: string
           stock?: number
+          unidade?: string | null
           updated_at?: string
           wc_product_id?: number | null
           weight_grams?: number | null
@@ -2281,17 +2293,22 @@ export type Database = {
         Update: {
           category?: string | null
           category_id?: string | null
+          cest?: string | null
+          cfop?: string | null
           compare_at_price?: number | null
           cost?: number
           created_at?: string
           description?: string | null
           description_html?: string | null
           featured?: boolean
+          gtin?: string | null
           id?: string
           image_url?: string | null
           meta_description?: string | null
           meta_title?: string | null
           name?: string
+          ncm?: string | null
+          origem?: string | null
           price?: number
           short_description?: string | null
           sku?: string | null
@@ -2299,6 +2316,7 @@ export type Database = {
           source_url?: string | null
           status?: string
           stock?: number
+          unidade?: string | null
           updated_at?: string
           wc_product_id?: number | null
           weight_grams?: number | null
@@ -3339,41 +3357,56 @@ export type Database = {
       store_categories: {
         Row: {
           active: boolean
+          cest: string | null
+          cfop: string | null
           created_at: string
           description: string | null
           id: string
           image_url: string | null
           name: string
+          ncm: string | null
+          origem: string | null
           parent_id: string | null
           slug: string
           sort_order: number
           source_url: string | null
+          unidade: string | null
           updated_at: string
         }
         Insert: {
           active?: boolean
+          cest?: string | null
+          cfop?: string | null
           created_at?: string
           description?: string | null
           id?: string
           image_url?: string | null
           name: string
+          ncm?: string | null
+          origem?: string | null
           parent_id?: string | null
           slug: string
           sort_order?: number
           source_url?: string | null
+          unidade?: string | null
           updated_at?: string
         }
         Update: {
           active?: boolean
+          cest?: string | null
+          cfop?: string | null
           created_at?: string
           description?: string | null
           id?: string
           image_url?: string | null
           name?: string
+          ncm?: string | null
+          origem?: string | null
           parent_id?: string | null
           slug?: string
           sort_order?: number
           source_url?: string | null
+          unidade?: string | null
           updated_at?: string
         }
         Relationships: [

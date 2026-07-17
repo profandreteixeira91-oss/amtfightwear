@@ -626,6 +626,11 @@ export const adminUpsertStoreCategory = createServerFn({ method: "POST" })
       image_url: z.string().optional().nullable(),
       sort_order: z.number().int().default(0),
       active: z.boolean().default(true),
+      ncm: z.string().optional().nullable(),
+      cest: z.string().optional().nullable(),
+      origem: z.string().optional().nullable(),
+      cfop: z.string().optional().nullable(),
+      unidade: z.string().optional().nullable(),
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -637,6 +642,50 @@ export const adminUpsertStoreCategory = createServerFn({ method: "POST" })
     const { data: created, error } = await context.supabase.from("store_categories").insert(data).select("id").single();
     if (error) throw new Error(error.message);
     return { id: created.id };
+  });
+
+/**
+ * Aplica os dados fiscais (NCM, CEST, Origem, CFOP, Unidade) de uma categoria
+ * em todos os produtos vinculados a ela. Sobrescreve o valor em cada produto.
+ */
+export const adminApplyCategoryFiscalToProducts = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({
+      category_id: z.string().uuid(),
+      fields: z.array(z.enum(["ncm", "cest", "origem", "cfop", "unidade"])).min(1),
+    }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: cat, error: cErr } = await context.supabase
+      .from("store_categories")
+      .select("ncm, cest, origem, cfop, unidade")
+      .eq("id", data.category_id)
+      .maybeSingle();
+    if (cErr) throw new Error(cErr.message);
+    if (!cat) throw new Error("Categoria não encontrada");
+    const patch: {
+      ncm?: string | null;
+      cest?: string | null;
+      origem?: string | null;
+      cfop?: string | null;
+      unidade?: string | null;
+    } = {};
+    const catRec = cat as {
+      ncm: string | null;
+      cest: string | null;
+      origem: string | null;
+      cfop: string | null;
+      unidade: string | null;
+    };
+    for (const f of data.fields) patch[f] = catRec[f] ?? null;
+    const { data: updated, error } = await context.supabase
+      .from("products")
+      .update(patch)
+      .eq("category_id", data.category_id)
+      .select("id");
+    if (error) throw new Error(error.message);
+    return { ok: true, updated: updated?.length ?? 0 };
   });
 
 export const adminUpdateStoreProduct = createServerFn({ method: "POST" })
@@ -659,6 +708,12 @@ export const adminUpdateStoreProduct = createServerFn({ method: "POST" })
         image_url: z.string().optional().nullable(),
         wholesale_enabled: z.boolean().optional(),
         wholesale_discount_percent: z.number().min(0).max(90).nullable().optional(),
+        ncm: z.string().optional().nullable(),
+        cest: z.string().optional().nullable(),
+        origem: z.string().optional().nullable(),
+        cfop: z.string().optional().nullable(),
+        unidade: z.string().optional().nullable(),
+        gtin: z.string().optional().nullable(),
       }),
     }).parse(i),
   )
@@ -691,7 +746,7 @@ export const adminGetStoreProduct = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => {
     const { data: product, error } = await context.supabase
       .from("products")
-      .select("id, name, slug, short_description, description, description_html, price, compare_at_price, stock, status, featured, category_id, image_url")
+      .select("id, name, slug, short_description, description, description_html, price, compare_at_price, stock, status, featured, category_id, image_url, ncm, cest, origem, cfop, unidade, gtin")
       .eq("id", data.id)
       .maybeSingle();
     if (error) throw new Error(error.message);
@@ -757,7 +812,7 @@ export const adminListStoreCategories = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("store_categories")
-      .select("id, slug, name, description, image_url, sort_order, active, parent_id")
+      .select("id, slug, name, description, image_url, sort_order, active, parent_id, ncm, cest, origem, cfop, unidade")
       .order("sort_order");
     if (error) throw new Error(error.message);
     return data ?? [];

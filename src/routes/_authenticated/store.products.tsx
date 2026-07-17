@@ -11,6 +11,7 @@ import {
   adminListStoreCategories,
   adminUpsertStoreCategory,
   adminDeleteStoreCategory,
+  adminApplyCategoryFiscalToProducts,
 } from "@/lib/store/store.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -587,6 +588,12 @@ function ProductEditDialog({ productId, onClose, onSaved }: { productId: string;
   const [variants, setVariants] = useState<VariantDraft[]>([]);
   const [deletedIds, setDeletedIds] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
+  const [ncm, setNcm] = useState("");
+  const [cest, setCest] = useState("");
+  const [origem, setOrigem] = useState("");
+  const [cfop, setCfop] = useState("");
+  const [unidade, setUnidade] = useState("");
+  const [gtin, setGtin] = useState("");
 
   useEffect(() => {
     if (!data?.product) return;
@@ -598,6 +605,12 @@ function ProductEditDialog({ productId, onClose, onSaved }: { productId: string;
     setPrice(String(p.price ?? ""));
     setCompareAt(p.compare_at_price != null ? String(p.compare_at_price) : "");
     setStock(String(p.stock ?? 0));
+    setNcm((p as { ncm?: string | null }).ncm ?? "");
+    setCest((p as { cest?: string | null }).cest ?? "");
+    setOrigem((p as { origem?: string | null }).origem ?? "");
+    setCfop((p as { cfop?: string | null }).cfop ?? "");
+    setUnidade((p as { unidade?: string | null }).unidade ?? "");
+    setGtin((p as { gtin?: string | null }).gtin ?? "");
     setVariants(
       (data.variants ?? []).map((v) => ({
         id: v.id,
@@ -659,6 +672,12 @@ function ProductEditDialog({ productId, onClose, onSaved }: { productId: string;
         price: priceNum,
         compare_at_price: parseNum(compareAt),
         stock: stockNum,
+        ncm: ncm.trim() || null,
+        cest: cest.trim() || null,
+        origem: origem.trim() || null,
+        cfop: cfop.trim() || null,
+        unidade: unidade.trim() || null,
+        gtin: gtin.trim() || null,
       };
       await updateProduct({ data: { id: productId, patch } });
 
@@ -728,6 +747,40 @@ function ProductEditDialog({ productId, onClose, onSaved }: { productId: string;
               <Label>Descrição completa</Label>
               <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={6} />
             </div>
+
+            <div className="border rounded-md p-3 space-y-2 bg-muted/30">
+              <div className="font-semibold text-sm">Dados fiscais</div>
+              <p className="text-xs text-muted-foreground">
+                Usados na emissão de notas fiscais. Herdados da categoria por padrão; edite aqui para sobrescrever apenas neste produto.
+              </p>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                <div>
+                  <Label className="text-xs">NCM</Label>
+                  <Input className="h-8" value={ncm} onChange={(e) => setNcm(e.target.value)} placeholder="Ex: 62171000" />
+                </div>
+                <div>
+                  <Label className="text-xs">CEST</Label>
+                  <Input className="h-8" value={cest} onChange={(e) => setCest(e.target.value)} placeholder="Ex: 28.038.00" />
+                </div>
+                <div>
+                  <Label className="text-xs">Origem</Label>
+                  <Input className="h-8" value={origem} onChange={(e) => setOrigem(e.target.value)} placeholder="0 - Nacional" />
+                </div>
+                <div>
+                  <Label className="text-xs">CFOP</Label>
+                  <Input className="h-8" value={cfop} onChange={(e) => setCfop(e.target.value)} placeholder="Ex: 5102" />
+                </div>
+                <div>
+                  <Label className="text-xs">Unidade</Label>
+                  <Input className="h-8" value={unidade} onChange={(e) => setUnidade(e.target.value)} placeholder="UN, PC, KG..." />
+                </div>
+                <div>
+                  <Label className="text-xs">GTIN / EAN</Label>
+                  <Input className="h-8" value={gtin} onChange={(e) => setGtin(e.target.value)} placeholder="Código de barras" />
+                </div>
+              </div>
+            </div>
+
 
             <div>
               <div className="flex items-center justify-between mb-2">
@@ -968,16 +1021,22 @@ type CatDraft = {
   image_url: string;
   sort_order: number;
   active: boolean;
+  ncm: string;
+  cest: string;
+  origem: string;
+  cfop: string;
+  unidade: string;
 };
 
 function emptyCatDraft(): CatDraft {
-  return { slug: "", name: "", description: "", image_url: "", sort_order: 0, active: true };
+  return { slug: "", name: "", description: "", image_url: "", sort_order: 0, active: true, ncm: "", cest: "", origem: "", cfop: "", unidade: "" };
 }
 
 function CategoriesDialog({ onClose }: { onClose: () => void }) {
   const listCats = useServerFn(adminListStoreCategories);
   const upsert = useServerFn(adminUpsertStoreCategory);
   const del = useServerFn(adminDeleteStoreCategory);
+  const applyFiscal = useServerFn(adminApplyCategoryFiscalToProducts);
   const { data, refetch, isLoading } = useQuery({
     queryKey: ["admin", "store", "categories"],
     queryFn: () => listCats({}),
@@ -985,6 +1044,7 @@ function CategoriesDialog({ onClose }: { onClose: () => void }) {
 
   const [draft, setDraft] = useState<CatDraft>(emptyCatDraft());
   const [saving, setSaving] = useState(false);
+  const [applying, setApplying] = useState(false);
   const editing = !!draft.id;
 
   const startEdit = (c: NonNullable<typeof data>[number]) => {
@@ -996,6 +1056,11 @@ function CategoriesDialog({ onClose }: { onClose: () => void }) {
       image_url: c.image_url ?? "",
       sort_order: c.sort_order ?? 0,
       active: c.active,
+      ncm: c.ncm ?? "",
+      cest: c.cest ?? "",
+      origem: c.origem ?? "",
+      cfop: c.cfop ?? "",
+      unidade: c.unidade ?? "",
     });
   };
 
@@ -1017,6 +1082,11 @@ function CategoriesDialog({ onClose }: { onClose: () => void }) {
           image_url: draft.image_url || null,
           sort_order: Number(draft.sort_order) || 0,
           active: draft.active,
+          ncm: draft.ncm.trim() || null,
+          cest: draft.cest.trim() || null,
+          origem: draft.origem.trim() || null,
+          cfop: draft.cfop.trim() || null,
+          unidade: draft.unidade.trim() || null,
         },
       });
       toast.success(editing ? "Categoria atualizada" : "Categoria criada");
@@ -1038,6 +1108,25 @@ function CategoriesDialog({ onClose }: { onClose: () => void }) {
       refetch();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Erro ao excluir");
+    }
+  };
+
+  const applyToProducts = async () => {
+    if (!draft.id) return;
+    if (!confirm("Aplicar os dados fiscais desta categoria em TODOS os produtos vinculados? Isso sobrescreve NCM, CEST, Origem, CFOP e Unidade nos produtos.")) return;
+    setApplying(true);
+    try {
+      const res = await applyFiscal({
+        data: {
+          category_id: draft.id,
+          fields: ["ncm", "cest", "origem", "cfop", "unidade"],
+        },
+      });
+      toast.success(`Aplicado em ${res.updated} produto(s).`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro ao aplicar");
+    } finally {
+      setApplying(false);
     }
   };
 
@@ -1083,6 +1172,41 @@ function CategoriesDialog({ onClose }: { onClose: () => void }) {
                 <span className="text-sm">Ativa</span>
               </div>
             </div>
+
+            <div className="border-t pt-3 space-y-2">
+              <div className="font-semibold text-sm">Dados fiscais (padrão da categoria)</div>
+              <p className="text-xs text-muted-foreground">
+                Preencha para usar como padrão em produtos desta categoria. Use "Aplicar em todos os produtos" para sobrescrever os produtos existentes.
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <Label className="text-xs">NCM</Label>
+                  <Input className="h-8" value={draft.ncm} onChange={(e) => setDraft((d) => ({ ...d, ncm: e.target.value }))} placeholder="Ex: 62171000" />
+                </div>
+                <div>
+                  <Label className="text-xs">CEST</Label>
+                  <Input className="h-8" value={draft.cest} onChange={(e) => setDraft((d) => ({ ...d, cest: e.target.value }))} placeholder="Ex: 28.038.00" />
+                </div>
+                <div>
+                  <Label className="text-xs">Origem</Label>
+                  <Input className="h-8" value={draft.origem} onChange={(e) => setDraft((d) => ({ ...d, origem: e.target.value }))} placeholder="0 - Nacional" />
+                </div>
+                <div>
+                  <Label className="text-xs">CFOP</Label>
+                  <Input className="h-8" value={draft.cfop} onChange={(e) => setDraft((d) => ({ ...d, cfop: e.target.value }))} placeholder="Ex: 5102" />
+                </div>
+                <div className="col-span-2">
+                  <Label className="text-xs">Unidade</Label>
+                  <Input className="h-8" value={draft.unidade} onChange={(e) => setDraft((d) => ({ ...d, unidade: e.target.value }))} placeholder="UN, PC, KG..." />
+                </div>
+              </div>
+              {editing && (
+                <Button variant="outline" size="sm" onClick={applyToProducts} disabled={applying} className="w-full">
+                  {applying ? "Aplicando..." : "Aplicar em todos os produtos"}
+                </Button>
+              )}
+            </div>
+
             <div className="flex gap-2">
               <Button onClick={save} disabled={saving} className="flex-1">
                 <Save className="h-3 w-3 mr-1" />
