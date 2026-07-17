@@ -139,9 +139,10 @@ export async function discoverCompanies(input: {
   const buildDefault = () => {
     const parts = [
       input.segment,
-      input.city ? `em ${input.city}` : null,
-      input.state ? input.state : null,
+      input.city ? `"${input.city}"` : null,
+      input.state ? `"${input.state}"` : null,
       input.keywords ?? null,
+      "Brasil",
       "contato",
     ].filter(Boolean).join(" ");
     const base = input.allowInstagram
@@ -157,6 +158,13 @@ export async function discoverCompanies(input: {
   const seen = new Set<string>();
   const companies: DiscoveredCompany[] = [];
 
+  // Tokens de localidade para filtro pós-busca (title + description + url).
+  const locTokens: string[] = [];
+  if (input.city) locTokens.push(normalizeLoc(input.city));
+  if (input.state) locTokens.push(input.state.toLowerCase());
+  const stateFull = input.state ? STATE_NAMES[input.state.toUpperCase()] : null;
+  if (stateFull) locTokens.push(normalizeLoc(stateFull));
+
   for (const q of queries) {
     if (companies.length >= input.limit) break;
     let results: FcSearchResult[] = [];
@@ -169,6 +177,15 @@ export async function discoverCompanies(input: {
       const domain = safeDomain(r.url);
       if (!domain) continue;
       if (isNoiseDomain(domain, { allowInstagram: input.allowInstagram })) continue;
+      if (isForeignDomain(domain)) continue;
+
+      // Filtro de relevância geográfica: se o usuário informou cidade/UF,
+      // exige que o token apareça no título, descrição ou URL do resultado.
+      if (locTokens.length > 0) {
+        const hay = normalizeLoc(`${r.title ?? ""} ${r.description ?? ""} ${r.url}`);
+        const hit = locTokens.some((t) => t && hay.includes(t));
+        if (!hit) continue;
+      }
 
       const isIg = /instagram\.com$/i.test(domain);
       // Instagram: aceitar SOMENTE perfis (/{handle}), rejeitar posts/reels/stories/etc.
@@ -215,6 +232,26 @@ export async function discoverCompanies(input: {
     }
   }
   return companies;
+}
+
+function normalizeLoc(s: string): string {
+  return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+const STATE_NAMES: Record<string, string> = {
+  AC: "Acre", AL: "Alagoas", AP: "Amapá", AM: "Amazonas", BA: "Bahia", CE: "Ceará",
+  DF: "Distrito Federal", ES: "Espírito Santo", GO: "Goiás", MA: "Maranhão",
+  MT: "Mato Grosso", MS: "Mato Grosso do Sul", MG: "Minas Gerais", PA: "Pará",
+  PB: "Paraíba", PR: "Paraná", PE: "Pernambuco", PI: "Piauí", RJ: "Rio de Janeiro",
+  RN: "Rio Grande do Norte", RS: "Rio Grande do Sul", RO: "Rondônia", RR: "Roraima",
+  SC: "Santa Catarina", SP: "São Paulo", SE: "Sergipe", TO: "Tocantins",
+};
+
+/** TLDs estrangeiros comuns que aparecem como ruído em buscas em português. */
+function isForeignDomain(d: string): boolean {
+  // aceita .br, .com, .org, .net (globais). Rejeita ccTLDs de outros países.
+  const foreign = /\.(pt|es|ar|cl|uy|py|bo|pe|co|mx|us|uk|fr|it|de|nl|ru|jp|cn|kr|au|nz|ca|za|in|ie|be|ch|se|no|fi|dk|pl|cz|gr|tr|il|ae|sa|ao|mz)$/i;
+  return foreign.test(d);
 }
 
 /** Retorna o handle do perfil quando a URL é `instagram.com/{handle}` (não post, reel, story, etc). */
@@ -311,9 +348,11 @@ export function buildMartialArtsQueries(
   preset: string,
   opts: { city?: string | null; state?: string | null } = {},
 ): { queries: string[]; allowInstagram: boolean; category: string } {
-  const loc = [opts.city, opts.state].filter(Boolean).join(" ");
-  const locSuffix = loc ? ` "${loc}"` : "";
-  const igLoc = loc ? ` ${loc}` : "";
+  const locParts = [opts.city, opts.state && STATE_NAMES[opts.state.toUpperCase()]].filter(Boolean) as string[];
+  const locSuffix = locParts.length
+    ? " " + locParts.map((p) => `"${p}"`).join(" ")
+    : ' "Brasil"';
+  const igLoc = locParts.length ? " " + locParts.join(" ") : " Brasil";
 
   const map: Record<string, { q: string[]; ig: boolean; cat: string }> = {
     academias_bjj: {

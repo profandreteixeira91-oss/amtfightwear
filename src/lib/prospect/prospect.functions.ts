@@ -767,3 +767,38 @@ export const uploadOutreachImage = createServerFn({ method: "POST" })
     const pub = supabaseAdmin.storage.from("product-images").getPublicUrl(path);
     return { url: pub.data.publicUrl, path };
   });
+
+// ============= PURGE ALL DATA =============
+
+/**
+ * Apaga TODOS os dados do Lead Engine do usuário atual: empresas, contatos,
+ * timeline, jobs de enriquecimento, buscas, exportações e logs.
+ * As tabelas com FK ON DELETE CASCADE limpam junto ao apagar `prospect_companies`,
+ * mas fazemos a limpeza explícita para cobrir também registros órfãos.
+ */
+export const purgeAllProspectData = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const supa = context.supabase as unknown as {
+      from: (t: string) => { delete: () => { eq: (k: string, v: string) => Promise<{ error: { message: string } | null }> } };
+    };
+    const tables = [
+      "prospect_timeline",
+      "prospect_contacts",
+      "prospect_enrichment_jobs",
+      "prospect_sequence_runs",
+      "prospect_exports",
+      "prospect_logs",
+      "prospect_searches",
+      "prospect_companies",
+    ];
+    const results: Record<string, string> = {};
+    for (const t of tables) {
+      const { error } = await supa.from(t).delete().eq("owner_id", context.userId);
+      results[t] = error ? `erro: ${error.message}` : "ok";
+    }
+    await auditLog(context.supabase, context.userId, "lead", "purge_all",
+      "Limpeza completa do Lead Engine", results as unknown as JsonRow);
+    return { ok: true, tables: results };
+  });
+

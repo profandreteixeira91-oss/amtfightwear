@@ -16,9 +16,11 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
-  runSearch, runMartialArtsSweep, getDailyMaSettings, saveDailyMaSettings,
+  runSearch, runMartialArtsSweep, getDailyMaSettings, saveDailyMaSettings, purgeAllProspectData,
 } from "@/lib/prospect/prospect.functions";
 import { BR_STATES, SEGMENT_PRESETS, MARTIAL_ARTS_PRESETS } from "@/features/prospect/types";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Trash2 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/prospect/search")({
   head: () => ({ meta: [{ title: "Nova Busca — Prospect Engine" }] }),
@@ -34,11 +36,14 @@ function SearchPage() {
 
   return (
     <div className="mx-auto max-w-5xl">
-      <PageHeader
-        eyebrow="Prospect Engine"
-        title="Nova Busca"
-        description="Escolha entre a busca guiada por segmento livre ou o Modo Artes Marciais — varredura automatizada por academias, escolas, professores e projetos sociais de judô e jiu-jitsu."
-      />
+      <div className="flex items-start justify-between gap-4">
+        <PageHeader
+          eyebrow="Prospect Engine"
+          title="Nova Busca"
+          description="Escolha entre a busca guiada por segmento livre ou o Modo Artes Marciais — varredura automatizada por academias, escolas, professores e projetos sociais de judô e jiu-jitsu."
+        />
+        <PurgeAllButton />
+      </div>
 
       <Tabs defaultValue="martial" className="w-full">
         <TabsList className="mb-4">
@@ -59,6 +64,47 @@ function SearchPage() {
         </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+function PurgeAllButton() {
+  const purgeFn = useServerFn(purgeAllProspectData);
+  const qc = useQueryClient();
+  const mut = useMutation({
+    mutationFn: () => purgeFn(),
+    onSuccess: () => {
+      toast.success("Todos os dados do Lead Engine foram apagados");
+      qc.invalidateQueries();
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Falha ao limpar"),
+  });
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
+          <Trash2 className="mr-2 h-4 w-4" /> Limpar todos os dados
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Apagar todos os leads?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Esta ação remove PERMANENTEMENTE todas as empresas, contatos, timeline,
+            buscas, jobs de enriquecimento e logs do seu Lead Engine. Não é possível desfazer.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => mut.mutate()}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            {mut.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+            Apagar tudo
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 
