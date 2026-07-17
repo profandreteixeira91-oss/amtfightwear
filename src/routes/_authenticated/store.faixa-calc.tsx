@@ -321,6 +321,9 @@ function FaixaCalc() {
                               className="ml-auto max-w-[120px] text-right font-bold text-primary"
                             />
                           </td>
+                          <td className="px-3 py-2 text-right font-bold text-emerald-600 tabular-nums">
+                            {brl(price - cost)}
+                          </td>
                         </tr>
                       );
                     })}
