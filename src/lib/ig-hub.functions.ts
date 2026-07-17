@@ -372,13 +372,21 @@ export const syncIgInbox = createServerFn({ method: "POST" })
           .single();
 
         if (convRow && msgs.length) {
+          const bizUsername = conn.instagram_username?.toLowerCase();
           const rows = msgs.map((m) => {
             const att = m.attachments?.data ?? [];
+            // Detecta a direção de forma robusta: compara IDs (IGSID/IG Business ID)
+            // e faz fallback pelo username da conta (quando a Graph retorna apenas username).
+            const fromId = m.from?.id;
+            const fromUser = m.from?.username?.toLowerCase();
+            const isOut =
+              (!!fromId && fromId === businessIgsid) ||
+              (!!bizUsername && !!fromUser && fromUser === bizUsername);
             return {
               user_id: context.userId,
               conversation_id: convRow.id,
               mid: m.id,
-              direction: m.from?.id === businessIgsid ? "out" : "in",
+              direction: isOut ? "out" : "in",
               text: m.message ?? null,
               attachments: att.length ? att : null,
               sent_at: m.created_time ?? new Date().toISOString(),
