@@ -120,6 +120,7 @@ Posso enviar nosso catálogo e apresentar as condições para parceiros?`;
 
 function QualifiedPage() {
   const [search, setSearch] = useState("");
+  const [stageFilter, setStageFilter] = useState<string>("all");
   const [page, setPage] = useState(0);
   const [draft, setDraft] = useState<OutreachDraft | null>(null);
   const [sending, setSending] = useState(false);
@@ -130,12 +131,13 @@ function QualifiedPage() {
   const qc = useQueryClient();
 
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["prospect", "qualified", search, page],
+    queryKey: ["prospect", "qualified", search, stageFilter, page],
     queryFn: () =>
       fetchList({
         data: {
           search: search || undefined,
           onlyEnriched: true,
+          pipeline_stage: stageFilter !== "all" ? stageFilter : undefined,
           limit: PAGE_SIZE,
           offset: page * PAGE_SIZE,
           orderBy: "score",
@@ -264,14 +266,37 @@ function QualifiedPage() {
 
       <Card className="mb-4">
         <CardContent className="p-4">
-          <div className="relative max-w-md">
-            <Search className="pointer-events-none absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              className="pl-8"
-              placeholder="Buscar por nome da empresa..."
-              value={search}
-              onChange={(e) => { setSearch(e.target.value); setPage(0); }}
-            />
+          <div className="flex flex-col gap-3 md:flex-row md:items-center">
+            <div className="relative flex-1 max-w-md">
+              <Search className="pointer-events-none absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                className="pl-8"
+                placeholder="Buscar por nome da empresa..."
+                value={search}
+                onChange={(e) => { setSearch(e.target.value); setPage(0); }}
+              />
+            </div>
+            <Select value={stageFilter} onValueChange={(v) => { setStageFilter(v); setPage(0); }}>
+              <SelectTrigger className="w-full md:w-[220px]">
+                <SelectValue placeholder="Filtrar por estágio" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os estágios</SelectItem>
+                {PIPELINE_STAGES.map((s) => (
+                  <SelectItem key={s.id} value={s.id}>
+                    <span className="inline-flex items-center gap-2">
+                      <span className={`h-2 w-2 rounded-full ${s.color}`} />
+                      {s.label}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {stageFilter !== "all" && (
+              <Button variant="ghost" size="sm" onClick={() => { setStageFilter("all"); setPage(0); }}>
+                Limpar
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>
