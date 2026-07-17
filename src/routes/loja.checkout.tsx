@@ -36,8 +36,8 @@ function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [shipping, setShipping] = useState<ShippingOption | null>(null);
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
-  const [googleLoading, setGoogleLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"PIX" | "CREDIT_CARD" | "BOLETO">("PIX");
+
   const [installments, setInstallments] = useState(1);
   const [card, setCard] = useState({ holderName: "", number: "", expiryMonth: "", expiryYear: "", ccv: "" });
   const [form, setForm] = useState({
