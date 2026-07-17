@@ -284,7 +284,9 @@ export const syncIgInbox = createServerFn({ method: "POST" })
 
     const { data: acc } = await context.supabase
       .from("ig_accounts").select("id, ig_user_id").eq("user_id", context.userId).limit(1).maybeSingle();
-    const businessIgsid = acc?.ig_user_id as string | undefined;
+    // Fallback: se ig_accounts.ig_user_id não estiver preenchido, usar o instagram_business_account_id
+    // da conexão. Sem isso, todas as mensagens caíam como direction="in" (inclusive as enviadas pela marca).
+    const businessIgsid = (acc?.ig_user_id as string | undefined) ?? conn.instagram_business_account_id;
 
     let convCount = 0;
     let msgTotal = 0;
@@ -370,13 +372,21 @@ export const syncIgInbox = createServerFn({ method: "POST" })
           .single();
 
         if (convRow && msgs.length) {
+          const bizUsername = conn.instagram_username?.toLowerCase();
           const rows = msgs.map((m) => {
             const att = m.attachments?.data ?? [];
+            // Detecta a direção de forma robusta: compara IDs (IGSID/IG Business ID)
+            // e faz fallback pelo username da conta (quando a Graph retorna apenas username).
+            const fromId = m.from?.id;
+            const fromUser = m.from?.username?.toLowerCase();
+            const isOut =
+              (!!fromId && fromId === businessIgsid) ||
+              (!!bizUsername && !!fromUser && fromUser === bizUsername);
             return {
               user_id: context.userId,
               conversation_id: convRow.id,
               mid: m.id,
-              direction: m.from?.id === businessIgsid ? "out" : "in",
+              direction: isOut ? "out" : "in",
               text: m.message ?? null,
               attachments: att.length ? att : null,
               sent_at: m.created_time ?? new Date().toISOString(),
