@@ -284,7 +284,9 @@ export const syncIgInbox = createServerFn({ method: "POST" })
 
     const { data: acc } = await context.supabase
       .from("ig_accounts").select("id, ig_user_id").eq("user_id", context.userId).limit(1).maybeSingle();
-    const businessIgsid = acc?.ig_user_id as string | undefined;
+    // Fallback: se ig_accounts.ig_user_id não estiver preenchido, usar o instagram_business_account_id
+    // da conexão. Sem isso, todas as mensagens caíam como direction="in" (inclusive as enviadas pela marca).
+    const businessIgsid = (acc?.ig_user_id as string | undefined) ?? conn.instagram_business_account_id;
 
     let convCount = 0;
     let msgTotal = 0;
