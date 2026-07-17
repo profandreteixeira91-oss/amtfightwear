@@ -454,15 +454,25 @@ function QualifiedPage() {
                           >
                             <Mail className="h-4 w-4" />
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            title={ig ? "Abrir Instagram com mensagem" : "Sem Instagram cadastrado"}
-                            disabled={!ig}
-                            onClick={() => openInstagram(r)}
-                          >
-                            <Instagram className="h-4 w-4" />
-                          </Button>
+                          {(() => {
+                            const igHandleLc = ig ? String(ig).trim().replace(/^https?:\/\/(www\.)?instagram\.com\//i, "").replace(/^@/, "").split(/[/?#]/)[0].toLowerCase() : null;
+                            const isConnected = !!igHandleLc && connectedSet.has(igHandleLc);
+                            return (
+                              <Button
+                                size="sm"
+                                variant={isConnected ? "default" : "outline"}
+                                title={
+                                  !ig ? "Sem Instagram cadastrado"
+                                    : isConnected ? "Enviar DM direto pelo painel (inbox conectado)"
+                                    : "Enviar DM (fallback pelo Instagram se ainda sem conversa)"
+                                }
+                                disabled={!ig}
+                                onClick={() => openInstagram(r)}
+                              >
+                                <Instagram className="h-4 w-4" />
+                              </Button>
+                            );
+                          })()}
                           <Button asChild size="sm" variant="ghost" title="Abrir lead">
                             <Link to="/prospect/$id" params={{ id: r.id }}>
                               <ExternalLink className="h-4 w-4" />
