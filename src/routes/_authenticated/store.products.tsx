@@ -11,6 +11,7 @@ import {
   adminListStoreCategories,
   adminUpsertStoreCategory,
   adminDeleteStoreCategory,
+  adminApplyCategoryFiscalToProducts,
 } from "@/lib/store/store.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
