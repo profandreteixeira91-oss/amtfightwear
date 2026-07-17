@@ -58,6 +58,7 @@ function AdminProductsPage() {
   };
 
   const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<string>("");
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [edits, setEdits] = useState<EditState>({});
@@ -69,12 +70,42 @@ function AdminProductsPage() {
   const [creatingProduct, setCreatingProduct] = useState(false);
   const [managingCategories, setManagingCategories] = useState(false);
 
+  // Conjunto de category_ids que devem passar no filtro (categoria + descendentes)
+  const allowedCategoryIds = useMemo(() => {
+    if (!categoryFilter) return null;
+    const cats = catsAll ?? [];
+    const childrenByParent = new Map<string, string[]>();
+    for (const c of cats) {
+      if (!c.parent_id) continue;
+      const arr = childrenByParent.get(c.parent_id) ?? [];
+      arr.push(c.id);
+      childrenByParent.set(c.parent_id, arr);
+    }
+    const acc = new Set<string>([categoryFilter]);
+    const stack = [categoryFilter];
+    while (stack.length) {
+      const cur = stack.pop()!;
+      for (const child of childrenByParent.get(cur) ?? []) {
+        if (!acc.has(child)) {
+          acc.add(child);
+          stack.push(child);
+        }
+      }
+    }
+    return acc;
+  }, [categoryFilter, catsAll]);
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     const rows = data ?? [];
-    if (!q) return rows;
-    return rows.filter((p) => p.name.toLowerCase().includes(q) || (p.slug ?? "").toLowerCase().includes(q));
-  }, [data, search]);
+    return rows.filter((p) => {
+      if (allowedCategoryIds && !(p.category_id && allowedCategoryIds.has(p.category_id))) return false;
+      if (!q) return true;
+      const tokens = q.split(/\s+/).filter(Boolean);
+      const hay = `${p.name} ${p.slug ?? ""}`.toLowerCase();
+      return tokens.every((t) => hay.includes(t));
+    });
+  }, [data, search, allowedCategoryIds]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
