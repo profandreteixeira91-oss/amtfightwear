@@ -30,6 +30,15 @@ export type SizePreset = {
   sort_order: number;
 };
 
+// Mapeamento chave-preset -> padrão de slug da categoria de produtos.
+// A busca é ilike, então cobre subcategorias (ex.: "faixas-de-jiu-jitsu-...").
+const CATEGORY_SLUG_PATTERNS: Record<string, string[]> = {
+  faixa: ["faixas-%"],
+  kimono: ["kimonos-%"],
+  camiseta: ["camisetas-%"],
+  rashguard: ["rashguards-%"],
+};
+
 async function fetchAll(): Promise<SizePreset[]> {
   const sb = publicClient();
   const { data, error } = await sb
@@ -61,6 +70,98 @@ async function assertAdmin(context: { supabase: ReturnType<typeof createClient<D
   if (!data) throw new Error("Forbidden");
 }
 
+// Aplica um preset a todos os produtos das categorias que combinam com o padrão.
+// Preserva preço/estoque/SKU das variantes cujo tamanho continua no preset,
+// insere as novas e remove as que saíram.
+async function applyPresetToProducts(
+  categoryKey: string,
+  targetSizes: string[],
+): Promise<{ syncedProducts: number; addedVariants: number; removedVariants: number }> {
+  const patterns = CATEGORY_SLUG_PATTERNS[categoryKey.toLowerCase()];
+  if (!patterns || patterns.length === 0) {
+    return { syncedProducts: 0, addedVariants: 0, removedVariants: 0 };
+  }
+
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+  // Coleta todas as categorias que combinam com qualquer um dos padrões.
+  const catIdsSet = new Set<string>();
+  for (const pattern of patterns) {
+    const { data: cats } = await supabaseAdmin
+      .from("store_categories")
+      .select("id")
+      .ilike("slug", pattern);
+    for (const c of cats ?? []) catIdsSet.add(c.id);
+  }
+  const catIds = Array.from(catIdsSet);
+  if (catIds.length === 0) return { syncedProducts: 0, addedVariants: 0, removedVariants: 0 };
+
+  const { data: prods } = await supabaseAdmin
+    .from("products")
+    .select("id, price")
+    .in("category_id", catIds);
+  const products = prods ?? [];
+
+  let syncedProducts = 0;
+  let addedVariants = 0;
+  let removedVariants = 0;
+
+  for (const p of products) {
+    const { data: variants } = await supabaseAdmin
+      .from("store_product_variants")
+      .select("id, size, sort_order")
+      .eq("product_id", p.id);
+    const existing = variants ?? [];
+    const bySize = new Map<string, { id: string; sort_order: number | null }>();
+    for (const v of existing) {
+      if (v.size) bySize.set(v.size, { id: v.id, sort_order: v.sort_order });
+    }
+    const toRemove = existing.filter((v) => !v.size || !targetSizes.includes(v.size));
+    const toInsert: Array<Record<string, unknown>> = [];
+    const toUpdate: Array<{ id: string; sort_order: number }> = [];
+    targetSizes.forEach((s, idx) => {
+      const hit = bySize.get(s);
+      if (hit) {
+        if (hit.sort_order !== idx) toUpdate.push({ id: hit.id, sort_order: idx });
+      } else {
+        toInsert.push({
+          product_id: p.id,
+          size: s,
+          color: null,
+          option_label: null,
+          sku: null,
+          price: p.price ?? null,
+          compare_at_price: null,
+          stock: 0,
+          weight_grams: null,
+          sort_order: idx,
+          active: true,
+        });
+      }
+    });
+    if (toRemove.length > 0) {
+      await supabaseAdmin
+        .from("store_product_variants")
+        .delete()
+        .in("id", toRemove.map((v) => v.id));
+      removedVariants += toRemove.length;
+    }
+    if (toInsert.length > 0) {
+      await supabaseAdmin.from("store_product_variants").insert(toInsert as never);
+      addedVariants += toInsert.length;
+    }
+    for (const u of toUpdate) {
+      await supabaseAdmin
+        .from("store_product_variants")
+        .update({ sort_order: u.sort_order })
+        .eq("id", u.id);
+    }
+    syncedProducts += 1;
+  }
+
+  return { syncedProducts, addedVariants, removedVariants };
+}
+
 export const upsertSizePreset = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => upsertInput.parse(i))
@@ -84,83 +185,8 @@ export const upsertSizePreset = createServerFn({ method: "POST" })
       if (error) throw new Error(error.message);
     }
 
-    // Se a categoria for "faixa", propagar as alterações para todos os produtos
-    // em categorias cujo slug começa com "faixas-" (BJJ + Judô). Preserva
-    // preço, estoque e SKU de variantes cujo tamanho continua no preset;
-    // adiciona os novos e remove os que saíram.
-    let syncedProducts = 0;
-    let addedVariants = 0;
-    let removedVariants = 0;
-    if (categoryKey === "faixa") {
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      const { data: cats } = await supabaseAdmin
-        .from("store_categories")
-        .select("id, slug")
-        .ilike("slug", "faixas-%");
-      const catIds = (cats ?? []).map((c) => c.id);
-      if (catIds.length > 0) {
-        const { data: prods } = await supabaseAdmin
-          .from("products")
-          .select("id, price")
-          .in("category_id", catIds);
-        const products = prods ?? [];
-        const targetSizes = data.sizes;
-        for (const p of products) {
-          const { data: variants } = await supabaseAdmin
-            .from("store_product_variants")
-            .select("id, size, sort_order")
-            .eq("product_id", p.id);
-          const existing = variants ?? [];
-          const bySize = new Map<string, { id: string; sort_order: number | null }>();
-          for (const v of existing) {
-            if (v.size) bySize.set(v.size, { id: v.id, sort_order: v.sort_order });
-          }
-          const toRemove = existing.filter((v) => !v.size || !targetSizes.includes(v.size));
-          const toInsert: Array<Record<string, unknown>> = [];
-          const toUpdate: Array<{ id: string; sort_order: number }> = [];
-          targetSizes.forEach((s, idx) => {
-            const hit = bySize.get(s);
-            if (hit) {
-              if (hit.sort_order !== idx) toUpdate.push({ id: hit.id, sort_order: idx });
-            } else {
-              toInsert.push({
-                product_id: p.id,
-                size: s,
-                color: null,
-                option_label: null,
-                sku: null,
-                price: p.price ?? null,
-                compare_at_price: null,
-                stock: 0,
-                weight_grams: null,
-                sort_order: idx,
-                active: true,
-              });
-            }
-          });
-          if (toRemove.length > 0) {
-            await supabaseAdmin
-              .from("store_product_variants")
-              .delete()
-              .in("id", toRemove.map((v) => v.id));
-            removedVariants += toRemove.length;
-          }
-          if (toInsert.length > 0) {
-            await supabaseAdmin.from("store_product_variants").insert(toInsert as never);
-            addedVariants += toInsert.length;
-          }
-          for (const u of toUpdate) {
-            await supabaseAdmin
-              .from("store_product_variants")
-              .update({ sort_order: u.sort_order })
-              .eq("id", u.id);
-          }
-          syncedProducts += 1;
-        }
-      }
-    }
-
-    return { ok: true, syncedProducts, addedVariants, removedVariants };
+    const sync = await applyPresetToProducts(categoryKey, data.sizes);
+    return { ok: true, ...sync };
   });
 
 export const deleteSizePreset = createServerFn({ method: "POST" })
@@ -171,4 +197,24 @@ export const deleteSizePreset = createServerFn({ method: "POST" })
     const { error } = await context.supabase.from("store_size_presets" as never).delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
+  });
+
+// Força sincronização de todos os presets contra os produtos.
+// Útil quando a admin importou produtos com nomenclaturas antigas e quer
+// alinhar tudo aos presets atuais.
+export const syncAllSizePresets = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const presets = await fetchAll();
+    let syncedProducts = 0;
+    let addedVariants = 0;
+    let removedVariants = 0;
+    for (const p of presets) {
+      const r = await applyPresetToProducts(p.category_key, p.sizes);
+      syncedProducts += r.syncedProducts;
+      addedVariants += r.addedVariants;
+      removedVariants += r.removedVariants;
+    }
+    return { ok: true, syncedProducts, addedVariants, removedVariants };
   });
