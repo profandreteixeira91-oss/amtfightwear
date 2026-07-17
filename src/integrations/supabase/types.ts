@@ -3568,6 +3568,8 @@ export type Database = {
           melhor_envio_status: string | null
           melhor_envio_synced_at: string | null
           metadata: Json
+          mp_payment_id: string | null
+          mp_preference_id: string | null
           notes: string | null
           order_number: string
           payment_method: string | null
@@ -3615,6 +3617,8 @@ export type Database = {
           melhor_envio_status?: string | null
           melhor_envio_synced_at?: string | null
           metadata?: Json
+          mp_payment_id?: string | null
+          mp_preference_id?: string | null
           notes?: string | null
           order_number?: string
           payment_method?: string | null
@@ -3662,6 +3666,8 @@ export type Database = {
           melhor_envio_status?: string | null
           melhor_envio_synced_at?: string | null
           metadata?: Json
+          mp_payment_id?: string | null
+          mp_preference_id?: string | null
           notes?: string | null
           order_number?: string
           payment_method?: string | null
