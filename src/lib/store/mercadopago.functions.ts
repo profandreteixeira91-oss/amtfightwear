@@ -208,7 +208,7 @@ export const createMercadopagoPayment = createServerFn({ method: "POST" })
       payment_method: data.method,
       payment_provider: "mercadopago",
       payment_reference: String(payment.id ?? ""),
-      installments: data.method === "CREDIT_CARD" ? data.installments ?? 1 : null,
+      installments: data.method === "CREDIT_CARD" ? (paymentPayload.installments ?? 1) : null,
       mp_payment_id: String(payment.id ?? ""),
       asaas_payment_id: null,
       asaas_invoice_url: ticketUrl,
