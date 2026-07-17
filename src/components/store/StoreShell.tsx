@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { ShoppingBag, User, Menu, Instagram, Truck, ShieldCheck, CreditCard, LogIn, ChevronDown, LogOut, Package } from "lucide-react";
 import { useCart } from "@/lib/store/cart-store";
 import { useEffect, useRef, useState, type ReactNode } from "react";
@@ -7,6 +7,7 @@ import amtLogo from "@/assets/amt-logo.jpg";
 import { ProductImage } from "@/components/store/ProductImage";
 import { CartSheet } from "@/components/store/CartSheet";
 import { SearchBar } from "@/components/store/SearchBar";
+import { recordStoreVisit } from "@/lib/store/customers.functions";
 
 
 type StoreCategory = { id?: string; slug: string; name: string; parent_id?: string | null };
@@ -93,6 +94,26 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
     document.addEventListener("mousedown", onClick);
     return () => document.removeEventListener("mousedown", onClick);
   }, [accountOpen]);
+
+  // Track store visits (anon + authed). One record per pathname change per tab.
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!pathname.startsWith("/loja") && pathname !== "/") return;
+    let sid = window.sessionStorage.getItem("amt_sid");
+    if (!sid) {
+      sid = (crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`);
+      window.sessionStorage.setItem("amt_sid", sid);
+    }
+    recordStoreVisit({
+      data: {
+        session_id: sid,
+        path: pathname,
+        referrer: document.referrer || null,
+        user_agent: navigator.userAgent.slice(0, 500),
+      },
+    }).catch(() => {});
+  }, [pathname]);
 
 
   // Força tema claro em toda a loja: remove a classe .dark do <html> enquanto o
