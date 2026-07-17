@@ -15,6 +15,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as DataDeletionRouteImport } from './routes/data-deletion'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AtacadoLpRouteImport } from './routes/atacado-lp'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LojaIndexRouteImport } from './routes/loja.index'
@@ -129,6 +130,11 @@ const DataDeletionRoute = DataDeletionRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AtacadoLpRoute = AtacadoLpRouteImport.update({
+  id: '/atacado-lp',
+  path: '/atacado-lp',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
@@ -607,6 +613,7 @@ const AuthenticatedAdsCampaignsIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/atacado-lp': typeof AtacadoLpRoute
   '/auth': typeof AuthRoute
   '/data-deletion': typeof DataDeletionRoute
   '/privacy': typeof PrivacyRoute
@@ -699,6 +706,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/atacado-lp': typeof AtacadoLpRoute
   '/auth': typeof AuthRoute
   '/data-deletion': typeof DataDeletionRoute
   '/privacy': typeof PrivacyRoute
@@ -793,6 +801,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/atacado-lp': typeof AtacadoLpRoute
   '/auth': typeof AuthRoute
   '/data-deletion': typeof DataDeletionRoute
   '/privacy': typeof PrivacyRoute
@@ -887,6 +896,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/atacado-lp'
     | '/auth'
     | '/data-deletion'
     | '/privacy'
@@ -979,6 +989,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/atacado-lp'
     | '/auth'
     | '/data-deletion'
     | '/privacy'
@@ -1072,6 +1083,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/atacado-lp'
     | '/auth'
     | '/data-deletion'
     | '/privacy'
@@ -1166,6 +1178,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AtacadoLpRoute: typeof AtacadoLpRoute
   AuthRoute: typeof AuthRoute
   DataDeletionRoute: typeof DataDeletionRoute
   PrivacyRoute: typeof PrivacyRoute
@@ -1246,6 +1259,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/atacado-lp': {
+      id: '/atacado-lp'
+      path: '/atacado-lp'
+      fullPath: '/atacado-lp'
+      preLoaderRoute: typeof AtacadoLpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -1986,6 +2006,7 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AtacadoLpRoute: AtacadoLpRoute,
   AuthRoute: AuthRoute,
   DataDeletionRoute: DataDeletionRoute,
   PrivacyRoute: PrivacyRoute,
