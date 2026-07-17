@@ -1,77 +1,48 @@
 ## Objetivo
 
-Permitir que apenas administradores editem visualmente, sobre o próprio pré-visualizador, a posição e o tamanho dos elementos de customização (slots de patch/bordado/etiqueta e zonas de cor retangulares) — inclusive as variantes por modalidade (ex.: faixa Judô vs. Jiu-Jitsu). Os valores ficam salvos no banco e passam a alimentar tanto o editor do cliente quanto o preview.
+Enviar as mensagens de captação de leads (DM do Instagram) direto do painel administrativo, sem precisar abrir o app/site do Instagram para colar a mensagem.
 
-## Escopo
+## Limitação da Meta (importante ler antes)
 
-Editar visualmente:
-1. **Slots** (`custom_shop_patch_slots`): `x_pct`, `y_pct`, `w_pct` — arrastar para mover, alça de canto para redimensionar.
-2. **Zonas** (`custom_shop_zones`): novas colunas `x_pct`, `y_pct`, `w_pct`, `h_pct` para tratar cada zona como um retângulo tintável (substitui os `ZONES` hardcoded do frontend). Formas atuais complexas (V da gola, mangas etc.) viram um ou mais retângulos.
-3. **Variantes por modalidade** (faixa Judô/Jiu-Jitsu): nova tabela `custom_shop_variants` (kind, key, label, base_image_url) + colunas `variant_key` em `zones` e `slots` para permitir layouts distintos por variante compartilhando o mesmo template.
+A Graph API do Instagram **só permite enviar DMs para pessoas que já iniciaram uma conversa com o seu perfil** (janela de 24h/7 dias). Cold DMs (você iniciar do zero para um estranho) **não são permitidos pela Meta** — nenhuma integração oficial contorna isso. Então o comportamento realista é:
 
-Fora do escopo: edição de formas poligonais livres (curvas SVG), múltiplos retângulos por zona na mesma UI de arraste (guardaremos apenas um retângulo por zona por variante), edição de patches/tecidos.
+- **Lead que já mandou DM alguma vez** (existe em `ig_conversations`) → envio 100% pelo painel, sem sair.
+- **Lead novo, que nunca respondeu** → precisa de um primeiro toque manual (limitação da plataforma). Vamos manter o atalho `ig.me` com a mensagem já copiada, e assim que ele responder, entra automaticamente no fluxo do inbox.
 
-## Fluxo do usuário admin
+## Mudanças
 
-1. Admin abre `/loja/custom-shop/faixa` (ou outro produto).
-2. Se `has_role(uid, 'admin')` = true, aparece botão flutuante "Editar layout" no canto do pré-visualizador.
-3. Ao ativar:
-   - Overlay editor cobre o preview; cada slot vira um retângulo tracejado arrastável com alça de resize; cada zona vira um retângulo colorido semi-transparente também arrastável/redimensionável.
-   - Seletor de variante no topo (para faixa: Jiu-Jitsu / Judô) — troca quais linhas do banco estão sendo editadas.
-   - Painel lateral lista slots e zonas com valores numéricos (x/y/w/h em %) e permite editar por input também.
-   - Botões: **Salvar**, **Cancelar**, **Restaurar padrão**.
-4. Ao salvar, chama server function admin-only que faz upsert em `custom_shop_zones` e `custom_shop_patch_slots` para a variante ativa; queries do template são invalidadas e o cliente já vê as novas posições.
+### 1. Nova server function `sendLeadOutreachDm` (`src/lib/ig-hub.functions.ts`)
 
-## Alterações técnicas
+Recebe `{ igHandle, text, leadId? }` e:
 
-### Banco (migração)
-- `ALTER TABLE custom_shop_zones` adicionar `variant_key text`, `x_pct numeric`, `y_pct numeric`, `w_pct numeric`, `h_pct numeric` (nullable inicialmente, depois preenchido com defaults compatíveis com o layout atual).
-- `ALTER TABLE custom_shop_patch_slots` adicionar `variant_key text`.
-- Nova tabela `custom_shop_variants(template_id, key, label, base_image_url)` com GRANT/RLS (leitura pública, escrita só admin).
-- Seed: variantes `default` para todos os templates + `judo` para faixa; migrar zonas/slots atuais para `variant_key = 'default'`; inserir linhas específicas para `judo` (corpo, ponta e slot da ponta).
-- RLS de escrita em `custom_shop_zones`, `custom_shop_patch_slots`, `custom_shop_variants`: `has_role(auth.uid(), 'admin')`.
+1. Procura em `ig_conversations` uma conversa com `participant_username` = handle (case-insensitive) para o usuário.
+2. Se achou e a janela de 7 dias está válida:
+   - Envia via Graph API (endpoint `/{page-id}/messages` com fallback para `/{ig-user-id}/messages`, mesma lógica do `sendMessage` atual).
+   - Insere linha em `ig_messages` (direction=out), atualiza `last_message_at`/`preview` e `ig_events`.
+   - Registra em `prospect_timeline` (event_type = `dm_sent`) vinculado ao `leadId`.
+   - Retorna `{ status: "sent", conversationId }`.
+3. Se não achou conversa **ou** janela expirou:
+   - Retorna `{ status: "needs_manual", igMeUrl: "https://ig.me/m/<handle>" }` explicando o motivo.
 
-### Server functions (`src/lib/customshop.functions.ts`)
-- `getCustomTemplate` passa a aceitar `variantKey` opcional e retorna zonas/slots filtrados + lista de variantes + `base_image_url` da variante.
-- Novas funções admin (`.middleware([requireSupabaseAuth])` + verificação `has_role`):
-  - `updateCustomLayout({ template_id, variant_key, zones: [...], slots: [...] })` — upsert transacional.
-  - `resetCustomLayout` — restaura defaults do seed.
+### 2. UI em `prospect.qualified.tsx`
 
-### Frontend
-- `loja.custom-shop.$kind.tsx`:
-  - `BuilderPreview` renderiza zonas como retângulos `x/y/w/h` do banco (com `mix-blend-mode: multiply`) em vez do dicionário `ZONES` hardcoded — remove `JUDO_FAIXA_ZONES`/`remapJudoSlots`.
-  - Novo hook `useIsAdmin` lê `user_roles` via server fn autenticada.
-  - Novo componente `LayoutEditorOverlay` (renderizado só se admin + modo edição): retângulos SVG com handles, drag via `pointerdown`/`pointermove` convertendo pixels → % do container, painel lateral com inputs numéricos e "Salvar/Cancelar/Reset".
-  - Seletor de variante (quando `variants.length > 1`) fica ativo tanto no editor admin quanto no fluxo do cliente (Modalidade da faixa já é isso — passa a ler `variants` do banco).
+- Substituir o botão "Abrir Instagram e copiar mensagem" por **"Enviar DM pelo painel"**.
+- Ao clicar:
+  - Se `status = sent` → toast de sucesso, fecha o dialog, invalida a query do inbox.
+  - Se `status = needs_manual` → mostra aviso curto ("Este lead ainda não iniciou uma conversa — o Instagram só permite envio depois do primeiro contato") e habilita o botão secundário **"Abrir no Instagram"** que copia a mensagem e abre `ig.me` (fluxo atual, agora como fallback).
+- Indicador visual na linha da tabela: badge verde "Inbox conectado" quando existe conversa para aquele handle (uma query leve que retorna o set de usernames com conversa ativa).
 
-### Segurança
-- Todas as mutations passam por server fn com `requireSupabaseAuth` + checagem `has_role('admin')`; RLS reforça no banco.
-- Leitura pública das novas colunas mantida.
+### 3. Integração cruzada leve
 
-## Diagrama do overlay
+- No `syncIgInbox`, quando uma nova conversa for criada e o `participant_username` bater com o Instagram de um lead existente, popular `ig_conversations.lead_id` automaticamente. Assim as respostas dos leads aparecem já vinculadas no inbox.
 
-```text
-+---------------------------------------------------+
-|  [Variante: Judô ▼]     [Salvar] [Cancelar] [↺]  |
-|---------------------------------------------------|
-|                                                   |
-|   [imagem base]                                   |
-|     ┌──── zona corpo ─────┐                       |
-|     │                     │                       |
-|     └─────────────────────┘◉ (handle resize)      |
-|                     ┌─slot ponta─┐                |
-|                     │            │◉               |
-|                     └────────────┘                |
-+---------------------------------------------------+
-| Painel: lista de slots/zonas com x,y,w,h numéricos|
-+---------------------------------------------------+
-```
+## Arquivos afetados
 
-## Passos de implementação
+- `src/lib/ig-hub.functions.ts` — nova função + link automático com `prospect_companies`.
+- `src/routes/_authenticated/prospect.qualified.tsx` — novo botão, novo estado, badge de status.
+- (opcional) `src/routes/_authenticated/instagram.inbox.tsx` — sem mudança de código; herda os benefícios via `router.invalidate()`.
 
-1. Migração SQL (schema + seed + RLS admin).
-2. Atualizar `getCustomTemplate` + criar `updateCustomLayout` / `resetCustomLayout` + `checkIsAdmin` server fn.
-3. Refatorar `BuilderPreview` para ler zonas do banco (retângulos) e suportar `variantKey`.
-4. Implementar `LayoutEditorOverlay` (drag/resize + painel + salvar).
-5. Ligar seletor de variante da faixa (Modalidade) às variantes vindas do banco.
-6. Testar como admin (drag, salvar, refresh) e como cliente (só visualiza).
+## Resultado prático
+
+- Para leads que já responderam alguma vez: você digita a mensagem, clica "Enviar" e o DM sai — a conversa aparece atualizada no inbox e na timeline do lead, sem abrir o Instagram.
+- Para leads totalmente frios (limitação Meta): 1 clique abre `ig.me` com a mensagem já copiada; a partir da 1ª resposta dele, todo o resto vira envio direto pelo painel.
