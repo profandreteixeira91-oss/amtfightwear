@@ -57,11 +57,9 @@ function FaixaCalc() {
   // Alma - EVA
   const [eva, setEva] = useState<MaterialInput>({ pricePerMeter: 25, fabricWidth: 1.2, usedWidth: 0.04 });
 
-  // Frete
-  const [freightBrim, setFreightBrim] = useState<number>(0);
-  const [freightOxford, setFreightOxford] = useState<number>(0);
-  const [freightAlma, setFreightAlma] = useState<number>(0);
-  const [batchMeters, setBatchMeters] = useState<number>(100);
+  // Frete fixo por metro enviado ao fabricante + Mão de obra por faixa
+  const [freightPerMeter, setFreightPerMeter] = useState<number>(2);
+  const [laborPerBelt, setLaborPerBelt] = useState<number>(8);
 
   // Margem de lucro (%)
   const [margin, setMargin] = useState<number>(100);
