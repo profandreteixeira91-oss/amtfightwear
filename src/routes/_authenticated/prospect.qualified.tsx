@@ -120,6 +120,7 @@ Posso enviar nosso catálogo e apresentar as condições para parceiros?`;
 
 function QualifiedPage() {
   const [search, setSearch] = useState("");
+  const [stageFilter, setStageFilter] = useState<string>("all");
   const [page, setPage] = useState(0);
   const [draft, setDraft] = useState<OutreachDraft | null>(null);
   const [sending, setSending] = useState(false);
@@ -130,12 +131,13 @@ function QualifiedPage() {
   const qc = useQueryClient();
 
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["prospect", "qualified", search, page],
+    queryKey: ["prospect", "qualified", search, stageFilter, page],
     queryFn: () =>
       fetchList({
         data: {
           search: search || undefined,
           onlyEnriched: true,
+          pipeline_stage: stageFilter !== "all" ? stageFilter : undefined,
           limit: PAGE_SIZE,
           offset: page * PAGE_SIZE,
           orderBy: "score",
