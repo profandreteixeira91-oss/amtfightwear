@@ -11,8 +11,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { ShippingCalculator } from "@/components/store/ShippingCalculator";
 import type { ShippingOption } from "@/lib/store/shipping.functions";
 import { supabase } from "@/integrations/supabase/client";
-import { authService } from "@/services/authService";
-import { LogIn } from "lucide-react";
+
 
 export const Route = createFileRoute("/loja/checkout")({
   loader: async ({ context }) => {
