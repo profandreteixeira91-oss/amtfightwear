@@ -172,8 +172,17 @@ function OrdersPage() {
                     <td className="px-4 py-3 text-muted-foreground">
                       {new Date(o.created_at).toLocaleDateString("pt-BR")}
                     </td>
-                    <td className="px-4 py-3">{statusLabel[o.status] ?? o.status}</td>
-                    <td className="px-4 py-3">{paymentLabel[o.payment_status] ?? o.payment_status}</td>
+                    <td className="px-4 py-3">
+                      <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${statusBadgeClass(o.status)}`}>
+                        {statusLabel[o.status] ?? o.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${paymentBadgeClass(o.payment_status)}`}>
+                        {paymentLabel[o.payment_status] ?? o.payment_status}
+                      </span>
+                    </td>
+
                     <td className="px-4 py-3 text-right font-black">{formatBRL(Number(o.total))}</td>
                     <td className="px-4 py-3 text-right">
                       <Link
