@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { getIgAdminInfo } from "@/lib/ig-hub.functions";
+import { getIgAdminInfo, subscribeIgWebhook } from "@/lib/ig-hub.functions";
 
 export const Route = createFileRoute("/_authenticated/instagram/admin")({
   component: IgAdmin,
@@ -17,7 +17,8 @@ export const Route = createFileRoute("/_authenticated/instagram/admin")({
 
 function IgAdmin() {
   const fn = useServerFn(getIgAdminInfo);
-  const { data, isLoading } = useQuery({ queryKey: ["ig-admin"], queryFn: () => fn() });
+  const subscribeFn = useServerFn(subscribeIgWebhook);
+  const { data, isLoading, refetch } = useQuery({ queryKey: ["ig-admin"], queryFn: () => fn() });
 
   const copy = (v: string) => {
     navigator.clipboard.writeText(v);
