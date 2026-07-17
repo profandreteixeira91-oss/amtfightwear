@@ -708,6 +708,12 @@ export const adminUpdateStoreProduct = createServerFn({ method: "POST" })
         image_url: z.string().optional().nullable(),
         wholesale_enabled: z.boolean().optional(),
         wholesale_discount_percent: z.number().min(0).max(90).nullable().optional(),
+        ncm: z.string().optional().nullable(),
+        cest: z.string().optional().nullable(),
+        origem: z.string().optional().nullable(),
+        cfop: z.string().optional().nullable(),
+        unidade: z.string().optional().nullable(),
+        gtin: z.string().optional().nullable(),
       }),
     }).parse(i),
   )
