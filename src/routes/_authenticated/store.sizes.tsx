@@ -3,14 +3,14 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { toast } from "sonner";
-import { ChevronLeft, Plus, Save, Trash2, X } from "lucide-react";
+import { ChevronLeft, Plus, RefreshCw, Save, Trash2, X } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { listSizePresets, upsertSizePreset, deleteSizePreset, type SizePreset } from "@/lib/store/sizes.functions";
+import { listSizePresets, upsertSizePreset, deleteSizePreset, syncAllSizePresets, type SizePreset } from "@/lib/store/sizes.functions";
 
 export const Route = createFileRoute("/_authenticated/store/sizes")({
   component: SizesPage,
@@ -30,6 +30,7 @@ function SizesPage() {
   const load = useServerFn(listSizePresets);
   const save = useServerFn(upsertSizePreset);
   const del = useServerFn(deleteSizePreset);
+  const syncAll = useServerFn(syncAllSizePresets);
   const { data, refetch, isLoading } = useQuery({
     queryKey: ["admin", "store", "size-presets"],
     queryFn: () => load(),
@@ -37,6 +38,7 @@ function SizesPage() {
 
   const [editing, setEditing] = useState<Draft | null>(null);
   const [saving, setSaving] = useState(false);
+  const [syncing, setSyncing] = useState(false);
 
   const start = (p?: SizePreset) => {
     setEditing(
@@ -95,10 +97,33 @@ function SizesPage() {
             Presets fixos por categoria (kimono, faixa etc.). Usados para gerar variantes de produto.
           </p>
         </div>
-        <Button onClick={() => start()}>
-          <Plus className="mr-1 h-4 w-4" /> Nova categoria
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" disabled={syncing} onClick={async () => {
+            try {
+              setSyncing(true);
+              const r = await syncAll({});
+              toast.success(
+                `Sincronizado · ${r.syncedProducts} produto(s) (+${r.addedVariants} / -${r.removedVariants} variantes)`,
+              );
+              refetch();
+            } catch (err) {
+              toast.error(err instanceof Error ? err.message : "Falha ao sincronizar");
+            } finally {
+              setSyncing(false);
+            }
+          }}>
+            <RefreshCw className={`mr-1 h-4 w-4 ${syncing ? "animate-spin" : ""}`} /> Sincronizar produtos
+          </Button>
+          <Button onClick={() => start()}>
+            <Plus className="mr-1 h-4 w-4" /> Nova categoria
+          </Button>
+        </div>
       </div>
+
+      <p className="text-xs text-muted-foreground">
+        As chaves reconhecidas para sincronização automática são <code>faixa</code>, <code>kimono</code>, <code>camiseta</code> e <code>rashguard</code>.
+        Ao salvar ou clicar em <b>Sincronizar produtos</b>, os tamanhos das variantes são alinhados aos presets (preço, estoque e SKU são preservados quando o tamanho continua no preset).
+      </p>
 
       <Card>
         <CardHeader>
