@@ -247,8 +247,9 @@ function WholesalePage() {
   const loadProfile = useServerFn(getMyCustomerProfile);
   const saveProfile = useServerFn(saveMyCustomerProfile);
   const createPayment = useServerFn(createAsaasPayment);
-  const search = Route.useSearch();
-  const resumeFlag = !!search.resume;
+  const routeSearch = Route.useSearch();
+  const resumeFlag = !!routeSearch.resume;
+
   // Resumo abre apenas via clique explícito em "Adicionar ao carrinho" (não em mudanças de quantidade).
   // Force-close when jumping to checkout step so the user sees the form summary.
   useEffect(() => {
