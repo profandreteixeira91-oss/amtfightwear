@@ -51,7 +51,10 @@ function CheckoutPage() {
     supabase.auth.getSession().then(({ data }) => {
       const authed = !!data.session;
       setSignedIn(authed);
-      if (!authed) return;
+      if (!authed) {
+        navigate({ to: "/auth", search: { redirect: "/loja/checkout" }, replace: true });
+        return;
+      }
       loadProfile().then((p) => {
         if (!p) return;
         setForm((f) => ({
@@ -69,7 +72,8 @@ function CheckoutPage() {
         }));
       }).catch(() => { /* ignore */ });
     });
-  }, [loadProfile]);
+  }, [loadProfile, navigate]);
+
 
   const onGoogleLogin = async () => {
     setGoogleLoading(true);
