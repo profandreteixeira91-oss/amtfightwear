@@ -132,6 +132,8 @@ function QualifiedPage() {
   const bulkUpdate = useServerFn(bulkUpdateLeads);
   const bulkDelete = useServerFn(bulkDeleteLeads);
   const fetchSettings = useServerFn(getSettings);
+  const fetchInboxHandles = useServerFn(listInboxConnectedHandles);
+  const sendDm = useServerFn(sendLeadOutreachDm);
   const qc = useQueryClient();
 
   const { data: settings } = useQuery({
@@ -139,6 +141,13 @@ function QualifiedPage() {
     queryFn: () => fetchSettings(),
     staleTime: 30_000,
   });
+
+  const { data: inboxHandles } = useQuery({
+    queryKey: ["ig", "inbox-handles"],
+    queryFn: () => fetchInboxHandles(),
+    staleTime: 60_000,
+  });
+  const connectedSet = useMemo(() => new Set((inboxHandles ?? []).map((h) => h.toLowerCase())), [inboxHandles]);
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["prospect", "qualified", search, stageFilter, page],
