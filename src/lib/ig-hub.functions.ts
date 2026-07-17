@@ -66,32 +66,39 @@ export const subscribeIgWebhook = createServerFn({ method: "POST" })
     const conn = await getActiveConnection(context.supabase as any);
     if (!conn) throw new Error("Nenhuma conexão ativa do Instagram. Conecte primeiro.");
 
-    // Subscribe the app to the Facebook Page for the requested webhook fields.
-    // Instagram messaging + comments/mentions são entregues via a Page conectada.
-    const fields = [
+    // Campos válidos no endpoint da Página do Facebook
+    const pageFields = [
       "messages",
       "messaging_postbacks",
       "message_reactions",
-      "messaging_seen",
-      "comments",
-      "mentions",
+      "message_reads",
       "message_deliveries",
+      "message_echoes",
     ].join(",");
 
     const pageResp = await graphPost<{ success?: boolean }>(
       `${conn.page_id}/subscribed_apps`,
       conn.page_access_token,
-      { subscribed_fields: fields },
+      { subscribed_fields: pageFields },
     );
 
-    // Best-effort: também assina o IG Business (para eventos IG diretos, quando aplicável)
+    // Campos válidos no endpoint do Instagram Business
     let igResp: any = null;
     if (conn.instagram_business_account_id) {
+      const igFields = [
+        "messages",
+        "messaging_postbacks",
+        "message_reactions",
+        "message_reads",
+        "comments",
+        "mentions",
+        "story_insights",
+      ].join(",");
       try {
         igResp = await graphPost(
           `${conn.instagram_business_account_id}/subscribed_apps`,
           conn.page_access_token,
-          { subscribed_fields: "messages,messaging_postbacks,comments,mentions" },
+          { subscribed_fields: igFields },
         );
       } catch (e: any) {
         igResp = { error: e?.message ?? String(e) };
