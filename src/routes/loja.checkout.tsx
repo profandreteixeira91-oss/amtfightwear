@@ -193,7 +193,7 @@ function CheckoutPage() {
   };
 
 
-  if (!mounted) return <StoreShell categories={categories}><div className="p-16" /></StoreShell>;
+  if (!mounted || signedIn !== true) return <StoreShell categories={categories}><div className="p-16 text-center text-sm text-muted-foreground">Redirecionando para login…</div></StoreShell>;
 
   if (items.length === 0) {
     return (
@@ -211,23 +211,11 @@ function CheckoutPage() {
       <form onSubmit={handleSubmit} className="mx-auto max-w-6xl px-4 py-8">
         <h1 className="mb-6 text-3xl font-black">Finalizar compra</h1>
 
-        {signedIn === false && (
-          <div className="mb-6 flex flex-col items-start justify-between gap-3 rounded-lg border bg-card p-4 sm:flex-row sm:items-center">
-            <div className="text-sm">
-              <div className="font-semibold">Já tem conta AMT?</div>
-              <div className="text-muted-foreground">Entre com Google para preencher seus dados automaticamente e agilizar próximas compras.</div>
-            </div>
-            <button
-              type="button"
-              onClick={onGoogleLogin}
-              disabled={googleLoading}
-              className="inline-flex items-center gap-2 rounded-md border-2 border-primary bg-background px-4 py-2 text-sm font-bold text-primary hover:bg-primary/5 disabled:opacity-50"
-            >
-              <LogIn className="h-4 w-4" />
-              {googleLoading ? "Abrindo..." : "Entrar com Google"}
-            </button>
-          </div>
-        )}
+        <div className="mb-6 rounded-lg border bg-card p-3 text-xs text-muted-foreground">
+          Seus dados serão salvos automaticamente na sua conta para agilizar próximas compras.
+        </div>
+
+
 
         <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
           <div className="space-y-6">
