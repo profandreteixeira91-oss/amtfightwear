@@ -672,6 +672,12 @@ function ProductEditDialog({ productId, onClose, onSaved }: { productId: string;
         price: priceNum,
         compare_at_price: parseNum(compareAt),
         stock: stockNum,
+        ncm: ncm.trim() || null,
+        cest: cest.trim() || null,
+        origem: origem.trim() || null,
+        cfop: cfop.trim() || null,
+        unidade: unidade.trim() || null,
+        gtin: gtin.trim() || null,
       };
       await updateProduct({ data: { id: productId, patch } });
 
