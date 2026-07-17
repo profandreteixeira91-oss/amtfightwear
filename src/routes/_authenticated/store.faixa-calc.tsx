@@ -221,7 +221,8 @@ function FaixaCalc() {
           <Row label="Oxford por metro" value={brl(oxfordCostPerM)} />
           <Row label={`Lona por metro (${lonaLayers || 0} camadas)`} value={brl(lonaCostPerM)} />
           <Row label="EVA por metro" value={brl(evaCostPerM)} />
-          <Row label="Frete rateado por metro" value={brl(freightPerM)} />
+          <Row label="Frete por metro (fabricante)" value={brl(freightPerMeter)} />
+          <Row label="Mão de obra por faixa" value={brl(laborPerBelt)} />
           <Separator />
           <div className="pt-2">
             <div className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
