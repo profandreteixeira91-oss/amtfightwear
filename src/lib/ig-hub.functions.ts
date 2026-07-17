@@ -60,6 +60,47 @@ export const getIgAccount = createServerFn({ method: "GET" })
     return { account, hasConnection: !!conn, connection: conn ? { id: conn.id, username: conn.instagram_username, expiresAt: conn.token_expires_at } : null };
   });
 
+export const subscribeIgWebhook = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const conn = await getActiveConnection(context.supabase as any);
+    if (!conn) throw new Error("Nenhuma conexão ativa do Instagram. Conecte primeiro.");
+
+    // Subscribe the app to the Facebook Page for the requested webhook fields.
+    // Instagram messaging + comments/mentions são entregues via a Page conectada.
+    const fields = [
+      "messages",
+      "messaging_postbacks",
+      "message_reactions",
+      "messaging_seen",
+      "comments",
+      "mentions",
+      "message_deliveries",
+    ].join(",");
+
+    const pageResp = await graphPost<{ success?: boolean }>(
+      `${conn.page_id}/subscribed_apps`,
+      conn.page_access_token,
+      { subscribed_fields: fields },
+    );
+
+    // Best-effort: também assina o IG Business (para eventos IG diretos, quando aplicável)
+    let igResp: any = null;
+    if (conn.instagram_business_account_id) {
+      try {
+        igResp = await graphPost(
+          `${conn.instagram_business_account_id}/subscribed_apps`,
+          conn.page_access_token,
+          { subscribed_fields: "messages,messaging_postbacks,comments,mentions" },
+        );
+      } catch (e: any) {
+        igResp = { error: e?.message ?? String(e) };
+      }
+    }
+
+    return { ok: true, page: pageResp, instagram: igResp };
+  });
+
 export const syncIgProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {

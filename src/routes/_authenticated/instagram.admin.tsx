@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { getIgAdminInfo } from "@/lib/ig-hub.functions";
+import { getIgAdminInfo, subscribeIgWebhook } from "@/lib/ig-hub.functions";
 
 export const Route = createFileRoute("/_authenticated/instagram/admin")({
   component: IgAdmin,
@@ -17,7 +17,8 @@ export const Route = createFileRoute("/_authenticated/instagram/admin")({
 
 function IgAdmin() {
   const fn = useServerFn(getIgAdminInfo);
-  const { data, isLoading } = useQuery({ queryKey: ["ig-admin"], queryFn: () => fn() });
+  const subscribeFn = useServerFn(subscribeIgWebhook);
+  const { data, isLoading, refetch } = useQuery({ queryKey: ["ig-admin"], queryFn: () => fn() });
 
   const copy = (v: string) => {
     navigator.clipboard.writeText(v);
@@ -40,7 +41,24 @@ function IgAdmin() {
             </Button>
           </div>
           <div className="text-xs text-muted-foreground">
-            <b>Verify token:</b> os primeiros 32 caracteres do seu <code>META_APP_SECRET</code>.
+            <b>Verify token:</b> valor do secret <code>META_VERIFY_TOKEN</code>.
+          </div>
+          <div className="pt-2">
+            <Button
+              size="sm"
+              onClick={async () => {
+                try {
+                  const r = await subscribeFn();
+                  toast.success("Webhook assinado com sucesso na página do Facebook.");
+                  console.log("subscribe result", r);
+                  refetch();
+                } catch (e: any) {
+                  toast.error(e?.message ?? "Falha ao assinar webhook");
+                }
+              }}
+            >
+              Ativar webhook Instagram
+            </Button>
           </div>
         </div>
       </SectionCard>
