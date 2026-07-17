@@ -969,10 +969,15 @@ type CatDraft = {
   image_url: string;
   sort_order: number;
   active: boolean;
+  ncm: string;
+  cest: string;
+  origem: string;
+  cfop: string;
+  unidade: string;
 };
 
 function emptyCatDraft(): CatDraft {
-  return { slug: "", name: "", description: "", image_url: "", sort_order: 0, active: true };
+  return { slug: "", name: "", description: "", image_url: "", sort_order: 0, active: true, ncm: "", cest: "", origem: "", cfop: "", unidade: "" };
 }
 
 function CategoriesDialog({ onClose }: { onClose: () => void }) {
