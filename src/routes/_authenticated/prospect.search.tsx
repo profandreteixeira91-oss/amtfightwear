@@ -67,6 +67,47 @@ function SearchPage() {
   );
 }
 
+function PurgeAllButton() {
+  const purgeFn = useServerFn(purgeAllProspectData);
+  const qc = useQueryClient();
+  const mut = useMutation({
+    mutationFn: () => purgeFn(),
+    onSuccess: () => {
+      toast.success("Todos os dados do Lead Engine foram apagados");
+      qc.invalidateQueries();
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Falha ao limpar"),
+  });
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
+          <Trash2 className="mr-2 h-4 w-4" /> Limpar todos os dados
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Apagar todos os leads?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Esta ação remove PERMANENTEMENTE todas as empresas, contatos, timeline,
+            buscas, jobs de enriquecimento e logs do seu Lead Engine. Não é possível desfazer.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => mut.mutate()}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            {mut.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+            Apagar tudo
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
 // ============= Modo Artes Marciais =============
 
 function MartialArtsSweepPanel({ onDone }: { onDone: () => void }) {
