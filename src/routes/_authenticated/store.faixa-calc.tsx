@@ -93,11 +93,6 @@ function FaixaCalc() {
   const lonaCostPerM = lonaCostPerLayerPerM * (lonaLayers || 0);
   const evaCostPerM = useMemo(() => costPerMeter(eva), [eva]);
 
-  const freightPerM = useMemo(() => {
-    if (!batchMeters) return 0;
-    return (freightBrim + freightOxford + freightAlma) / batchMeters;
-  }, [freightBrim, freightOxford, freightAlma, batchMeters]);
-
   const colorCostPerM = (k: ColoracaoKey) => (k === "brim" ? brimCostPerM : oxfordCostPerM);
   const almaCostPerM = (k: AlmaKey) => (k === "lona" ? lonaCostPerM : evaCostPerM);
 
