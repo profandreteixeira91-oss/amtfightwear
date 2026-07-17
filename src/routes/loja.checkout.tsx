@@ -74,17 +74,7 @@ function CheckoutPage() {
   }, [loadProfile, navigate]);
 
 
-  const onGoogleLogin = async () => {
-    setGoogleLoading(true);
-    try {
-      const result = await authService.signInWithGoogle();
-      if (result.error) toast.error("Falha ao entrar com Google", { description: String(result.error) });
-    } catch (e) {
-      toast.error("Falha ao entrar com Google", { description: e instanceof Error ? e.message : String(e) });
-    } finally {
-      setGoogleLoading(false);
-    }
-  };
+
 
   const FREE_SHIPPING_THRESHOLD = 399;
   const subtotal = items.reduce((a, i) => a + i.quantity * i.unit_price, 0);
