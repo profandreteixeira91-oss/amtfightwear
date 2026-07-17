@@ -29,7 +29,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { listLeads, bulkUpdateLeads, bulkDeleteLeads } from "@/lib/prospect/prospect.functions";
+import { listLeads, bulkUpdateLeads, bulkDeleteLeads, getSettings } from "@/lib/prospect/prospect.functions";
 import { PIPELINE_STAGES } from "@/features/prospect/types";
 import { scoreToStars } from "@/features/prospect/utils";
 
