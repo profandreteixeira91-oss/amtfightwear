@@ -673,6 +673,15 @@ export const adminUpdateStoreProduct = createServerFn({ method: "POST" })
         .eq("product_id", data.id);
       if (vErr) throw new Error(vErr.message);
     }
+    // Sincroniza preço de todas as variantes quando o preço do produto é alterado.
+    // Diferenças por variante devem ser editadas individualmente após esta alteração.
+    if (typeof data.patch.price === "number") {
+      const { error: pErr } = await context.supabase
+        .from("store_product_variants")
+        .update({ price: data.patch.price })
+        .eq("product_id", data.id);
+      if (pErr) throw new Error(pErr.message);
+    }
     return { ok: true };
   });
 
