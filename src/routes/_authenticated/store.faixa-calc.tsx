@@ -161,18 +161,25 @@ function FaixaCalc() {
         </div>
       </div>
 
-      {/* Frete */}
+      {/* Frete e mão de obra */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Frete / busca de materiais (rateio)</CardTitle>
+          <CardTitle className="text-base">Frete e mão de obra</CardTitle>
         </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-4">
-          <Field label="Frete Brim (R$)" value={freightBrim} onChange={setFreightBrim} />
-          <Field label="Frete Oxford (R$)" value={freightOxford} onChange={setFreightOxford} />
-          <Field label="Frete Alma (R$)" value={freightAlma} onChange={setFreightAlma} />
-          <Field label="Metros produzidos no lote" value={batchMeters} onChange={setBatchMeters} step={1} />
+        <CardContent className="grid gap-4 md:grid-cols-2">
+          <Field
+            label="Frete por metro enviado ao fabricante (R$/m)"
+            value={freightPerMeter}
+            onChange={setFreightPerMeter}
+          />
+          <Field
+            label="Mão de obra por faixa (R$)"
+            value={laborPerBelt}
+            onChange={setLaborPerBelt}
+          />
         </CardContent>
       </Card>
+
 
       {/* Padrões + margem */}
       <Card>
