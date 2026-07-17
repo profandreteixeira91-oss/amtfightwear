@@ -57,11 +57,9 @@ function FaixaCalc() {
   // Alma - EVA
   const [eva, setEva] = useState<MaterialInput>({ pricePerMeter: 25, fabricWidth: 1.2, usedWidth: 0.04 });
 
-  // Frete
-  const [freightBrim, setFreightBrim] = useState<number>(0);
-  const [freightOxford, setFreightOxford] = useState<number>(0);
-  const [freightAlma, setFreightAlma] = useState<number>(0);
-  const [batchMeters, setBatchMeters] = useState<number>(100);
+  // Frete fixo por metro enviado ao fabricante + Mão de obra por faixa
+  const [freightPerMeter, setFreightPerMeter] = useState<number>(2);
+  const [laborPerBelt, setLaborPerBelt] = useState<number>(8);
 
   // Margem de lucro (%)
   const [margin, setMargin] = useState<number>(100);
@@ -94,11 +92,6 @@ function FaixaCalc() {
   const lonaCostPerLayerPerM = useMemo(() => costPerMeter(lona), [lona]);
   const lonaCostPerM = lonaCostPerLayerPerM * (lonaLayers || 0);
   const evaCostPerM = useMemo(() => costPerMeter(eva), [eva]);
-
-  const freightPerM = useMemo(() => {
-    if (!batchMeters) return 0;
-    return (freightBrim + freightOxford + freightAlma) / batchMeters;
-  }, [freightBrim, freightOxford, freightAlma, batchMeters]);
 
   const colorCostPerM = (k: ColoracaoKey) => (k === "brim" ? brimCostPerM : oxfordCostPerM);
   const almaCostPerM = (k: AlmaKey) => (k === "lona" ? lonaCostPerM : evaCostPerM);
@@ -168,18 +161,25 @@ function FaixaCalc() {
         </div>
       </div>
 
-      {/* Frete */}
+      {/* Frete e mão de obra */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Frete / busca de materiais (rateio)</CardTitle>
+          <CardTitle className="text-base">Frete e mão de obra</CardTitle>
         </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-4">
-          <Field label="Frete Brim (R$)" value={freightBrim} onChange={setFreightBrim} />
-          <Field label="Frete Oxford (R$)" value={freightOxford} onChange={setFreightOxford} />
-          <Field label="Frete Alma (R$)" value={freightAlma} onChange={setFreightAlma} />
-          <Field label="Metros produzidos no lote" value={batchMeters} onChange={setBatchMeters} step={1} />
+        <CardContent className="grid gap-4 md:grid-cols-2">
+          <Field
+            label="Frete por metro enviado ao fabricante (R$/m)"
+            value={freightPerMeter}
+            onChange={setFreightPerMeter}
+          />
+          <Field
+            label="Mão de obra por faixa (R$)"
+            value={laborPerBelt}
+            onChange={setLaborPerBelt}
+          />
         </CardContent>
       </Card>
+
 
       {/* Padrões + margem */}
       <Card>
@@ -221,7 +221,8 @@ function FaixaCalc() {
           <Row label="Oxford por metro" value={brl(oxfordCostPerM)} />
           <Row label={`Lona por metro (${lonaLayers || 0} camadas)`} value={brl(lonaCostPerM)} />
           <Row label="EVA por metro" value={brl(evaCostPerM)} />
-          <Row label="Frete rateado por metro" value={brl(freightPerM)} />
+          <Row label="Frete por metro (fabricante)" value={brl(freightPerMeter)} />
+          <Row label="Mão de obra por faixa" value={brl(laborPerBelt)} />
           <Separator />
           <div className="pt-2">
             <div className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
@@ -250,8 +251,8 @@ function FaixaCalc() {
                       const len = getLen(s);
                       const cor = getColor(s);
                       const alm = getAlma(s);
-                      const perM = colorCostPerM(cor) + almaCostPerM(alm) + freightPerM;
-                      const cost = perM * len;
+                      const perM = colorCostPerM(cor) + almaCostPerM(alm) + freightPerMeter;
+                      const cost = perM * len + laborPerBelt;
                       const rowMargin = marginBySize[s] ?? margin;
                       const price = cost * (1 + (rowMargin || 0) / 100);
                       return (
