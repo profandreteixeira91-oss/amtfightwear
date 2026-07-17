@@ -588,6 +588,12 @@ function ProductEditDialog({ productId, onClose, onSaved }: { productId: string;
   const [variants, setVariants] = useState<VariantDraft[]>([]);
   const [deletedIds, setDeletedIds] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
+  const [ncm, setNcm] = useState("");
+  const [cest, setCest] = useState("");
+  const [origem, setOrigem] = useState("");
+  const [cfop, setCfop] = useState("");
+  const [unidade, setUnidade] = useState("");
+  const [gtin, setGtin] = useState("");
 
   useEffect(() => {
     if (!data?.product) return;
