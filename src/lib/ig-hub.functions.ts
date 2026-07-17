@@ -383,8 +383,26 @@ export const syncIgInbox = createServerFn({ method: "POST" })
             last_message_preview: lastPreview,
             window_expires_at: windowExpires,
           }, { onConflict: "user_id,channel,participant_igsid" })
-          .select("id")
+          .select("id, lead_id")
           .single();
+
+        // Auto-link: se ainda não há lead_id e existe um prospect_contact com esse @, vincula.
+        if (convRow && !convRow.lead_id && username) {
+          const handleLc = username.toLowerCase();
+          const { data: contactRow } = await (context.supabase as any)
+            .from("prospect_contacts")
+            .select("company_id")
+            .eq("channel", "instagram")
+            .ilike("value", handleLc)
+            .limit(1)
+            .maybeSingle();
+          if (contactRow?.company_id) {
+            await (context.supabase as any)
+              .from("ig_conversations")
+              .update({ lead_id: contactRow.company_id })
+              .eq("id", convRow.id);
+          }
+        }
 
         if (convRow && msgs.length) {
           const bizUsername = conn.instagram_username?.toLowerCase();
@@ -776,4 +794,165 @@ export const aiConversationTools = createServerFn({ method: "POST" })
       await (context.supabase as any).from("ig_conversations").update(patch).eq("id", conv.id);
     }
     return { result: content };
+  });
+
+// ============= LEAD OUTREACH =============
+
+function normalizeHandleLc(v: string): string {
+  return v
+    .trim()
+    .replace(/^https?:\/\/(www\.)?instagram\.com\//i, "")
+    .replace(/^@/, "")
+    .split(/[/?#]/)[0]
+    .toLowerCase();
+}
+
+/**
+ * Lista os @ do Instagram que já têm conversa no inbox e ainda estão
+ * dentro da janela de 7 dias — o front usa para mostrar "Inbox conectado".
+ */
+export const listInboxConnectedHandles = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data } = await context.supabase
+      .from("ig_conversations")
+      .select("participant_username, window_expires_at")
+      .eq("user_id", context.userId)
+      .not("participant_username", "is", null);
+    const now = Date.now();
+    const handles = new Set<string>();
+    for (const row of (data ?? []) as Array<{ participant_username: string | null; window_expires_at: string | null }>) {
+      if (!row.participant_username) continue;
+      // Só marca "conectado" quando ainda podemos enviar sem violar a janela da Meta.
+      if (row.window_expires_at && new Date(row.window_expires_at).getTime() < now) continue;
+      handles.add(row.participant_username.toLowerCase());
+    }
+    return Array.from(handles);
+  });
+
+/**
+ * Envia um DM de captação direto do painel para o @ informado.
+ * - Reaproveita a conversa existente em `ig_conversations` (via participant_username).
+ * - Requer janela da Meta válida (a plataforma bloqueia cold DM por design).
+ * - Registra evento no timeline do lead quando `leadId` é passado.
+ */
+export const sendLeadOutreachDm = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({
+      igHandle: z.string().min(1).max(120),
+      text: z.string().min(1).max(1000),
+      leadId: z.string().uuid().optional(),
+    }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const handle = normalizeHandleLc(data.igHandle);
+    if (!handle) throw new Error("Handle do Instagram inválido.");
+    const igMeUrl = `https://ig.me/m/${handle}`;
+
+    const conn = await getActiveConnection(context.supabase as any);
+    if (!conn?.instagram_business_account_id) {
+      throw new Error("Conta Instagram não conectada. Conecte em Marketing → Conexões.");
+    }
+
+    // Localiza a conversa mais recente com esse @.
+    const { data: conv } = await (context.supabase as any)
+      .from("ig_conversations")
+      .select("*")
+      .eq("user_id", context.userId)
+      .ilike("participant_username", handle)
+      .order("last_message_at", { ascending: false, nullsFirst: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (!conv) {
+      return {
+        status: "needs_manual" as const,
+        reason: "no_conversation",
+        igMeUrl,
+        message:
+          "Este lead ainda não iniciou uma conversa. A Meta bloqueia o primeiro toque via API — abra no Instagram para enviar a mensagem inicial. Quando ele responder, os próximos envios saem direto pelo painel.",
+      };
+    }
+    if (conv.window_expires_at && new Date(conv.window_expires_at) < new Date()) {
+      return {
+        status: "needs_manual" as const,
+        reason: "window_expired",
+        igMeUrl,
+        conversationId: conv.id as string,
+        message:
+          "A janela de 7 dias da Meta expirou nessa conversa. Abra o Instagram para reengajar — assim que ele responder, o envio pelo painel volta a funcionar.",
+      };
+    }
+
+    // Envia (mesma lógica do sendMessage, com fallback Page → IG Business).
+    let resp: { message_id?: string };
+    try {
+      resp = await graphPost<{ message_id?: string }>(
+        `${conn.page_id}/messages`,
+        conn.page_access_token,
+        {
+          recipient: { id: conv.participant_igsid },
+          message: { text: data.text },
+          messaging_type: "RESPONSE",
+        },
+      );
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (/capability|#3|#10|#200/i.test(msg)) {
+        resp = await graphPost<{ message_id?: string }>(
+          `${conn.instagram_business_account_id}/messages`,
+          conn.page_access_token,
+          { recipient: { id: conv.participant_igsid }, message: { text: data.text } },
+        );
+      } else {
+        throw e;
+      }
+    }
+
+    const nowIso = new Date().toISOString();
+    await (context.supabase as any).from("ig_messages").insert({
+      user_id: context.userId,
+      conversation_id: conv.id,
+      mid: resp.message_id ?? null,
+      direction: "out",
+      text: data.text,
+      sent_at: nowIso,
+    });
+    const leadId = (data.leadId ?? (conv.lead_id as string | null)) || null;
+    await (context.supabase as any).from("ig_conversations").update({
+      last_message_at: nowIso,
+      last_message_preview: data.text.slice(0, 120),
+      status: conv.status === "novo_lead" ? "em_atendimento" : conv.status,
+      lead_id: leadId ?? conv.lead_id,
+    }).eq("id", conv.id);
+    await (context.supabase as any).from("ig_events").insert({
+      user_id: context.userId,
+      conversation_id: conv.id,
+      lead_id: leadId,
+      event_type: "outreach_sent",
+      payload: { handle, text: data.text.slice(0, 200) },
+      actor_id: context.userId,
+    });
+
+    if (leadId) {
+      await (context.supabase as any).from("prospect_timeline").insert({
+        owner_id: context.userId,
+        company_id: leadId,
+        event_type: "dm_sent",
+        title: "DM enviado pelo painel",
+        description: data.text.slice(0, 240),
+        payload: { handle, conversation_id: conv.id, message_id: resp.message_id ?? null },
+      });
+      await (context.supabase as any).from("prospect_companies")
+        .update({ last_contacted_at: nowIso, pipeline_stage: "contato_iniciado" })
+        .eq("id", leadId)
+        .eq("owner_id", context.userId);
+    }
+
+    return {
+      status: "sent" as const,
+      conversationId: conv.id as string,
+      messageId: resp.message_id ?? null,
+    };
   });

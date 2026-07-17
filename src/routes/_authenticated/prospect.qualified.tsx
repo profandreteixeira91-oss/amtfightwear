@@ -30,6 +30,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { listLeads, bulkUpdateLeads, bulkDeleteLeads, getSettings } from "@/lib/prospect/prospect.functions";
+import { sendLeadOutreachDm, listInboxConnectedHandles } from "@/lib/ig-hub.functions";
 import { PIPELINE_STAGES } from "@/features/prospect/types";
 import { scoreToStars } from "@/features/prospect/utils";
 
@@ -131,6 +132,8 @@ function QualifiedPage() {
   const bulkUpdate = useServerFn(bulkUpdateLeads);
   const bulkDelete = useServerFn(bulkDeleteLeads);
   const fetchSettings = useServerFn(getSettings);
+  const fetchInboxHandles = useServerFn(listInboxConnectedHandles);
+  const sendDm = useServerFn(sendLeadOutreachDm);
   const qc = useQueryClient();
 
   const { data: settings } = useQuery({
@@ -138,6 +141,13 @@ function QualifiedPage() {
     queryFn: () => fetchSettings(),
     staleTime: 30_000,
   });
+
+  const { data: inboxHandles } = useQuery({
+    queryKey: ["ig", "inbox-handles"],
+    queryFn: () => fetchInboxHandles(),
+    staleTime: 60_000,
+  });
+  const connectedSet = useMemo(() => new Set((inboxHandles ?? []).map((h) => h.toLowerCase())), [inboxHandles]);
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["prospect", "qualified", search, stageFilter, page],
@@ -250,7 +260,32 @@ function QualifiedPage() {
   };
 
 
-  const openIgAndCopy = async () => {
+  const sendDmDirect = async () => {
+    if (!draft || draft.channel !== "instagram" || !draft.igHandle) return;
+    setSending(true);
+    try {
+      const res = await sendDm({
+        data: { igHandle: draft.igHandle, text: draft.message, leadId: draft.lead.id },
+      });
+      if (res.status === "sent") {
+        toast.success(`DM enviado para @${draft.igHandle} pelo painel.`);
+        qc.invalidateQueries({ queryKey: ["ig-conversations"] });
+        qc.invalidateQueries({ queryKey: ["prospect"] });
+        setDraft(null);
+      } else {
+        // Fallback controlado (limitação da Meta): copia e abre ig.me.
+        try { await navigator.clipboard.writeText(draft.message); } catch { /* ignore */ }
+        toast.warning(res.message, { duration: 8000 });
+        window.open(res.igMeUrl, "_blank", "noopener,noreferrer");
+      }
+    } catch (e) {
+      toast.error(`Falha ao enviar DM: ${e instanceof Error ? e.message : String(e)}`);
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const openIgFallback = async () => {
     if (!draft || draft.channel !== "instagram" || !draft.igHandle) return;
     try {
       await navigator.clipboard.writeText(draft.message);
@@ -419,15 +454,25 @@ function QualifiedPage() {
                           >
                             <Mail className="h-4 w-4" />
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            title={ig ? "Abrir Instagram com mensagem" : "Sem Instagram cadastrado"}
-                            disabled={!ig}
-                            onClick={() => openInstagram(r)}
-                          >
-                            <Instagram className="h-4 w-4" />
-                          </Button>
+                          {(() => {
+                            const igHandleLc = ig ? String(ig).trim().replace(/^https?:\/\/(www\.)?instagram\.com\//i, "").replace(/^@/, "").split(/[/?#]/)[0].toLowerCase() : null;
+                            const isConnected = !!igHandleLc && connectedSet.has(igHandleLc);
+                            return (
+                              <Button
+                                size="sm"
+                                variant={isConnected ? "default" : "outline"}
+                                title={
+                                  !ig ? "Sem Instagram cadastrado"
+                                    : isConnected ? "Enviar DM direto pelo painel (inbox conectado)"
+                                    : "Enviar DM (fallback pelo Instagram se ainda sem conversa)"
+                                }
+                                disabled={!ig}
+                                onClick={() => openInstagram(r)}
+                              >
+                                <Instagram className="h-4 w-4" />
+                              </Button>
+                            );
+                          })()}
                           <Button asChild size="sm" variant="ghost" title="Abrir lead">
                             <Link to="/prospect/$id" params={{ id: r.id }}>
                               <ExternalLink className="h-4 w-4" />
@@ -540,7 +585,9 @@ function QualifiedPage() {
                 </div>
                 {draft.channel === "instagram" && (
                   <p className="text-xs text-muted-foreground">
-                    A Meta não permite envio de DMs frios via API. Vamos copiar sua mensagem e abrir o chat do Instagram — cole e envie junto com a imagem baixada.
+                    {draft.igHandle && connectedSet.has(draft.igHandle.toLowerCase())
+                      ? "Este lead já tem conversa aberta no inbox — o DM será enviado direto pelo painel."
+                      : "A Meta bloqueia o primeiro DM via API. Vamos enviar direto se o lead já respondeu alguma vez; senão, abre o Instagram com a mensagem copiada."}
                   </p>
                 )}
               </div>
@@ -555,9 +602,15 @@ function QualifiedPage() {
                     {sending ? "Enviando..." : "Enviar e-mail"}
                   </Button>
                 ) : (
-                  <Button onClick={openIgAndCopy}>
-                    <Instagram className="mr-2 h-4 w-4" /> Copiar e abrir Instagram
-                  </Button>
+                  <>
+                    <Button variant="outline" onClick={openIgFallback} disabled={sending} title="Abrir o Instagram com a mensagem copiada">
+                      <Instagram className="mr-2 h-4 w-4" /> Abrir Instagram
+                    </Button>
+                    <Button onClick={sendDmDirect} disabled={sending}>
+                      {sending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+                      {sending ? "Enviando..." : "Enviar DM pelo painel"}
+                    </Button>
+                  </>
                 )}
               </DialogFooter>
             </>
