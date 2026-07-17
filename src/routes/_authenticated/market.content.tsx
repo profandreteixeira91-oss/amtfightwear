@@ -80,6 +80,30 @@ function ContentPage() {
   const [imageUrl, setImageUrl] = useState("");
   const [scheduleAt, setScheduleAt] = useState("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const uploadFn = useServerFn(uploadContentImage);
+
+  const handleUpload = async (file: File) => {
+    if (!file.type.startsWith("image/")) { toast.error("Selecione uma imagem"); return; }
+    if (file.size > 8 * 1024 * 1024) { toast.error("Imagem acima de 8 MB"); return; }
+    setUploading(true);
+    try {
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(String(r.result));
+        r.onerror = () => reject(new Error("Falha ao ler arquivo"));
+        r.readAsDataURL(file);
+      });
+      const ext = (file.name.split(".").pop()?.toLowerCase() === "jpg" || file.type === "image/jpeg") ? "jpg" : "png";
+      const res = await uploadFn({ data: { base64, ext: ext as "png" | "jpg" } });
+      setImageUrl((res as { url: string }).url);
+      toast.success("Imagem enviada");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Falha no upload");
+    } finally {
+      setUploading(false);
+    }
+  };
 
 
 
