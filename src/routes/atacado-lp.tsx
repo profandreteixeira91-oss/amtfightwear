@@ -126,10 +126,25 @@ function AtacadoLandingPage() {
             >
               <div className="relative overflow-hidden rounded-2xl border border-border/60 shadow-2xl">
                 <img src={f1} alt="Faixas personalizadas AMT" className="h-full w-full object-cover" />
-                <div className="absolute left-4 top-4 rounded-full bg-primary px-4 py-1.5 text-xs font-black uppercase tracking-widest text-primary-foreground shadow-lg">
-                  25% OFF
-                </div>
+
+                {/* Badge de destaque 25% OFF */}
+                <motion.div
+                  initial={{ scale: 0, rotate: -20 }}
+                  animate={{ scale: 1, rotate: -8 }}
+                  transition={{ delay: 0.4, type: "spring", stiffness: 180, damping: 12 }}
+                  className="absolute -left-3 -top-3 md:-left-6 md:-top-6"
+                >
+                  <div className="relative">
+                    <div className="absolute inset-0 animate-ping rounded-full bg-primary/40" />
+                    <div className="relative flex h-28 w-28 md:h-36 md:w-36 flex-col items-center justify-center rounded-full bg-gradient-to-br from-primary via-primary to-primary/80 text-primary-foreground shadow-[0_0_40px_hsl(var(--primary)/0.6)] ring-4 ring-background">
+                      <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest opacity-90">Desconto</span>
+                      <span className="text-4xl md:text-5xl font-black leading-none">25%</span>
+                      <span className="text-sm md:text-base font-black uppercase tracking-wider">OFF</span>
+                    </div>
+                  </div>
+                </motion.div>
               </div>
+
             </motion.div>
           </div>
         </div>
