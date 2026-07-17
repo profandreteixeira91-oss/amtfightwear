@@ -172,10 +172,14 @@ export const createMercadopagoPayment = createServerFn({ method: "POST" })
         document: order.customer_document ?? "",
       });
       const brand = detectBrand(data.card.number);
+      // Regras de parcelamento sem juros: 3x ≥ R$200, 5x ≥ R$600, 10x ≥ R$1000.
+      const requested = data.installments ?? 1;
+      const maxAllowed = total >= 1000 ? 10 : total >= 600 ? 5 : total >= 200 ? 3 : 1;
+      const installments = Math.min(Math.max(1, requested), maxAllowed);
       paymentPayload = {
         ...basePayload,
         token,
-        installments: data.installments ?? 1,
+        installments,
         payment_method_id: brand,
         capture: true,
       };
