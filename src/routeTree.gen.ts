@@ -30,6 +30,7 @@ import { Route as AuthenticatedLogsRouteImport } from './routes/_authenticated/l
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdsRouteImport } from './routes/_authenticated/ads'
 import { Route as LojaCustomShopIndexRouteImport } from './routes/loja.custom-shop.index'
+import { Route as LojaContaIndexRouteImport } from './routes/loja.conta.index'
 import { Route as AuthenticatedStoreIndexRouteImport } from './routes/_authenticated/store.index'
 import { Route as AuthenticatedProspectIndexRouteImport } from './routes/_authenticated/prospect.index'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
@@ -200,6 +201,11 @@ const AuthenticatedAdsRoute = AuthenticatedAdsRouteImport.update({
 const LojaCustomShopIndexRoute = LojaCustomShopIndexRouteImport.update({
   id: '/loja/custom-shop/',
   path: '/loja/custom-shop/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaContaIndexRoute = LojaContaIndexRouteImport.update({
+  id: '/loja/conta/',
+  path: '/loja/conta/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedStoreIndexRoute = AuthenticatedStoreIndexRouteImport.update({
@@ -655,6 +661,7 @@ export interface FileRoutesByFullPath {
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/prospect/': typeof AuthenticatedProspectIndexRoute
   '/store/': typeof AuthenticatedStoreIndexRoute
+  '/loja/conta/': typeof LojaContaIndexRoute
   '/loja/custom-shop/': typeof LojaCustomShopIndexRoute
   '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
   '/api/public/hooks/asaas': typeof ApiPublicHooksAsaasRoute
@@ -744,6 +751,7 @@ export interface FileRoutesByTo {
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/prospect': typeof AuthenticatedProspectIndexRoute
   '/store': typeof AuthenticatedStoreIndexRoute
+  '/loja/conta': typeof LojaContaIndexRoute
   '/loja/custom-shop': typeof LojaCustomShopIndexRoute
   '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
   '/api/public/hooks/asaas': typeof ApiPublicHooksAsaasRoute
@@ -835,6 +843,7 @@ export interface FileRoutesById {
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/_authenticated/prospect/': typeof AuthenticatedProspectIndexRoute
   '/_authenticated/store/': typeof AuthenticatedStoreIndexRoute
+  '/loja/conta/': typeof LojaContaIndexRoute
   '/loja/custom-shop/': typeof LojaCustomShopIndexRoute
   '/_authenticated/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
   '/api/public/hooks/asaas': typeof ApiPublicHooksAsaasRoute
@@ -926,6 +935,7 @@ export interface FileRouteTypes {
     | '/lovable/email/suppression'
     | '/prospect/'
     | '/store/'
+    | '/loja/conta/'
     | '/loja/custom-shop/'
     | '/ads/campaigns/$id'
     | '/api/public/hooks/asaas'
@@ -1015,6 +1025,7 @@ export interface FileRouteTypes {
     | '/lovable/email/suppression'
     | '/prospect'
     | '/store'
+    | '/loja/conta'
     | '/loja/custom-shop'
     | '/ads/campaigns/$id'
     | '/api/public/hooks/asaas'
@@ -1105,6 +1116,7 @@ export interface FileRouteTypes {
     | '/lovable/email/suppression'
     | '/_authenticated/prospect/'
     | '/_authenticated/store/'
+    | '/loja/conta/'
     | '/loja/custom-shop/'
     | '/_authenticated/ads/campaigns/$id'
     | '/api/public/hooks/asaas'
@@ -1145,6 +1157,7 @@ export interface RootRouteChildren {
   LojaPedidoIdRoute: typeof LojaPedidoIdRoute
   LojaProdutoSlugRoute: typeof LojaProdutoSlugRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
+  LojaContaIndexRoute: typeof LojaContaIndexRoute
   LojaCustomShopIndexRoute: typeof LojaCustomShopIndexRoute
   ApiPublicHooksAsaasRoute: typeof ApiPublicHooksAsaasRoute
   ApiPublicHooksAutoInstagramPostRoute: typeof ApiPublicHooksAutoInstagramPostRoute
@@ -1311,6 +1324,13 @@ declare module '@tanstack/react-router' {
       path: '/loja/custom-shop'
       fullPath: '/loja/custom-shop/'
       preLoaderRoute: typeof LojaCustomShopIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja/conta/': {
+      id: '/loja/conta/'
+      path: '/loja/conta'
+      fullPath: '/loja/conta/'
+      preLoaderRoute: typeof LojaContaIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/store/': {
@@ -1940,6 +1960,7 @@ const rootRouteChildren: RootRouteChildren = {
   LojaPedidoIdRoute: LojaPedidoIdRoute,
   LojaProdutoSlugRoute: LojaProdutoSlugRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
+  LojaContaIndexRoute: LojaContaIndexRoute,
   LojaCustomShopIndexRoute: LojaCustomShopIndexRoute,
   ApiPublicHooksAsaasRoute: ApiPublicHooksAsaasRoute,
   ApiPublicHooksAutoInstagramPostRoute: ApiPublicHooksAutoInstagramPostRoute,
