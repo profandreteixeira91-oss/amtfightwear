@@ -251,8 +251,8 @@ function FaixaCalc() {
                       const len = getLen(s);
                       const cor = getColor(s);
                       const alm = getAlma(s);
-                      const perM = colorCostPerM(cor) + almaCostPerM(alm) + freightPerM;
-                      const cost = perM * len;
+                      const perM = colorCostPerM(cor) + almaCostPerM(alm) + freightPerMeter;
+                      const cost = perM * len + laborPerBelt;
                       const rowMargin = marginBySize[s] ?? margin;
                       const price = cost * (1 + (rowMargin || 0) / 100);
                       return (
