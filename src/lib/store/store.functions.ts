@@ -454,6 +454,7 @@ const CheckoutItemSchema = z.union([
 ]);
 
 export const createStoreOrder = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) =>
     z.object({
       customer_email: z.string().email(),
@@ -468,8 +469,9 @@ export const createStoreOrder = createServerFn({ method: "POST" })
       shipping_method: z.string().optional().nullable(),
     }).parse(i),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
 
     const productItems = data.items.filter((i) => !("type" in i) || i.type !== "custom") as Array<{
       type?: "product";
