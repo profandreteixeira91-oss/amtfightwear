@@ -29,7 +29,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { listLeads, bulkUpdateLeads, bulkDeleteLeads } from "@/lib/prospect/prospect.functions";
+import { listLeads, bulkUpdateLeads, bulkDeleteLeads, getSettings } from "@/lib/prospect/prospect.functions";
 import { PIPELINE_STAGES } from "@/features/prospect/types";
 import { scoreToStars } from "@/features/prospect/utils";
 
@@ -118,6 +118,10 @@ Posso enviar nosso catálogo e apresentar as condições para parceiros?`;
 
 
 
+function renderTemplate(tpl: string, vars: Record<string, string>) {
+  return tpl.replace(/\{\{\s*(\w+)\s*\}\}/g, (_, k) => vars[k] ?? "");
+}
+
 function QualifiedPage() {
   const [search, setSearch] = useState("");
   const [stageFilter, setStageFilter] = useState<string>("all");
@@ -128,7 +132,14 @@ function QualifiedPage() {
   const fetchList = useServerFn(listLeads);
   const bulkUpdate = useServerFn(bulkUpdateLeads);
   const bulkDelete = useServerFn(bulkDeleteLeads);
+  const fetchSettings = useServerFn(getSettings);
   const qc = useQueryClient();
+
+  const { data: settings } = useQuery({
+    queryKey: ["prospect", "settings"],
+    queryFn: () => fetchSettings(),
+    staleTime: 30_000,
+  });
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["prospect", "qualified", search, stageFilter, page],
@@ -175,13 +186,21 @@ function QualifiedPage() {
       toast.error("Este lead ainda não tem e-mail cadastrado.");
       return;
     }
+    const vars = {
+      name: String(r.name ?? ""),
+      city: String((r as Record<string, unknown>).city ?? ""),
+      category: String((r as Record<string, unknown>).category ?? ""),
+    };
+    const s = settings as { email_subject_template?: string | null; email_template?: string | null } | undefined;
+    const subjectTpl = s?.email_subject_template?.trim();
+    const bodyTpl = s?.email_template?.trim();
     setDraft({
       lead: r,
       channel: "email",
       email,
       igHandle: null,
-      subject: defaultEmailSubject(String(r.name)),
-      message: defaultEmailBody(String(r.name), r.ai_pitch as string | null),
+      subject: subjectTpl ? renderTemplate(subjectTpl, vars) : defaultEmailSubject(vars.name),
+      message: bodyTpl ? renderTemplate(bodyTpl, vars) : defaultEmailBody(vars.name, r.ai_pitch as string | null),
     });
   };
 
@@ -192,13 +211,20 @@ function QualifiedPage() {
       toast.error("Este lead ainda não tem Instagram cadastrado.");
       return;
     }
+    const vars = {
+      name: String(r.name ?? ""),
+      city: String((r as Record<string, unknown>).city ?? ""),
+      category: String((r as Record<string, unknown>).category ?? ""),
+    };
+    const s = settings as { instagram_template?: string | null } | undefined;
+    const igTpl = s?.instagram_template?.trim();
     setDraft({
       lead: r,
       channel: "instagram",
       email: null,
       igHandle: handle,
       subject: "",
-      message: defaultDmBody(String(r.name)),
+      message: igTpl ? renderTemplate(igTpl, vars) : defaultDmBody(vars.name),
     });
   };
 
