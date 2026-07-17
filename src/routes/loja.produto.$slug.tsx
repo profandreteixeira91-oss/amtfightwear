@@ -39,7 +39,13 @@ function ProductPage() {
   const { data: categories } = useSuspenseQuery(queryOptions({ queryKey: ["store", "categories"], queryFn: () => listStoreCategories() }));
   const add = useCart((s) => s.add);
 
-  const [selectedVariant, setSelectedVariant] = useState<string | null>(data.variants[0]?.id ?? null);
+  const cheapestVariantId = (() => {
+    const inStock = data.variants.filter((v) => v.stock > 0 && v.price != null);
+    const pool = inStock.length > 0 ? inStock : data.variants.filter((v) => v.price != null);
+    if (pool.length === 0) return data.variants[0]?.id ?? null;
+    return pool.reduce((min, v) => (Number(v.price) < Number(min.price) ? v : min)).id;
+  })();
+  const [selectedVariant, setSelectedVariant] = useState<string | null>(cheapestVariantId);
   const [qty, setQty] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
 
