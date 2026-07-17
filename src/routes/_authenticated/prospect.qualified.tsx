@@ -186,13 +186,21 @@ function QualifiedPage() {
       toast.error("Este lead ainda não tem e-mail cadastrado.");
       return;
     }
+    const vars = {
+      name: String(r.name ?? ""),
+      city: String((r as Record<string, unknown>).city ?? ""),
+      category: String((r as Record<string, unknown>).category ?? ""),
+    };
+    const s = settings as { email_subject_template?: string | null; email_template?: string | null } | undefined;
+    const subjectTpl = s?.email_subject_template?.trim();
+    const bodyTpl = s?.email_template?.trim();
     setDraft({
       lead: r,
       channel: "email",
       email,
       igHandle: null,
-      subject: defaultEmailSubject(String(r.name)),
-      message: defaultEmailBody(String(r.name), r.ai_pitch as string | null),
+      subject: subjectTpl ? renderTemplate(subjectTpl, vars) : defaultEmailSubject(vars.name),
+      message: bodyTpl ? renderTemplate(bodyTpl, vars) : defaultEmailBody(vars.name, r.ai_pitch as string | null),
     });
   };
 
@@ -203,13 +211,20 @@ function QualifiedPage() {
       toast.error("Este lead ainda não tem Instagram cadastrado.");
       return;
     }
+    const vars = {
+      name: String(r.name ?? ""),
+      city: String((r as Record<string, unknown>).city ?? ""),
+      category: String((r as Record<string, unknown>).category ?? ""),
+    };
+    const s = settings as { instagram_template?: string | null } | undefined;
+    const igTpl = s?.instagram_template?.trim();
     setDraft({
       lead: r,
       channel: "instagram",
       email: null,
       igHandle: handle,
       subject: "",
-      message: defaultDmBody(String(r.name)),
+      message: igTpl ? renderTemplate(igTpl, vars) : defaultDmBody(vars.name),
     });
   };
 
