@@ -48,12 +48,6 @@ export const recordStoreVisit = createServerFn({ method: "POST" })
 
 // ---------- Admin: visitor stats ----------
 
-async function assertAdmin(ctx: { supabase: NonNullable<Awaited<ReturnType<typeof requireSupabaseAuth>>>; userId: string }) {
-  const { data, error } = await ctx.supabase.rpc("has_role", { _user_id: ctx.userId, _role: "admin" });
-  if (error) throw new Error(error.message);
-  if (!data) throw new Error("Forbidden");
-}
-
 export const adminGetVisitorStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {

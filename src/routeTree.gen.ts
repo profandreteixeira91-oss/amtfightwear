@@ -47,6 +47,7 @@ import { Route as AuthenticatedStoreOrdersRouteImport } from './routes/_authenti
 import { Route as AuthenticatedStoreImportRouteImport } from './routes/_authenticated/store.import'
 import { Route as AuthenticatedStoreImagensRouteImport } from './routes/_authenticated/store.imagens'
 import { Route as AuthenticatedStoreFaixaCalcRouteImport } from './routes/_authenticated/store.faixa-calc'
+import { Route as AuthenticatedStoreCustomersRouteImport } from './routes/_authenticated/store.customers'
 import { Route as AuthenticatedProspectSettingsRouteImport } from './routes/_authenticated/prospect.settings'
 import { Route as AuthenticatedProspectSearchRouteImport } from './routes/_authenticated/prospect.search'
 import { Route as AuthenticatedProspectQualifiedRouteImport } from './routes/_authenticated/prospect.qualified'
@@ -295,6 +296,12 @@ const AuthenticatedStoreFaixaCalcRoute =
   AuthenticatedStoreFaixaCalcRouteImport.update({
     id: '/store/faixa-calc',
     path: '/store/faixa-calc',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStoreCustomersRoute =
+  AuthenticatedStoreCustomersRouteImport.update({
+    id: '/store/customers',
+    path: '/store/customers',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedProspectSettingsRoute =
@@ -653,6 +660,7 @@ export interface FileRoutesByFullPath {
   '/prospect/qualified': typeof AuthenticatedProspectQualifiedRoute
   '/prospect/search': typeof AuthenticatedProspectSearchRoute
   '/prospect/settings': typeof AuthenticatedProspectSettingsRoute
+  '/store/customers': typeof AuthenticatedStoreCustomersRoute
   '/store/faixa-calc': typeof AuthenticatedStoreFaixaCalcRoute
   '/store/imagens': typeof AuthenticatedStoreImagensRoute
   '/store/import': typeof AuthenticatedStoreImportRoute
@@ -744,6 +752,7 @@ export interface FileRoutesByTo {
   '/prospect/qualified': typeof AuthenticatedProspectQualifiedRoute
   '/prospect/search': typeof AuthenticatedProspectSearchRoute
   '/prospect/settings': typeof AuthenticatedProspectSettingsRoute
+  '/store/customers': typeof AuthenticatedStoreCustomersRoute
   '/store/faixa-calc': typeof AuthenticatedStoreFaixaCalcRoute
   '/store/imagens': typeof AuthenticatedStoreImagensRoute
   '/store/import': typeof AuthenticatedStoreImportRoute
@@ -837,6 +846,7 @@ export interface FileRoutesById {
   '/_authenticated/prospect/qualified': typeof AuthenticatedProspectQualifiedRoute
   '/_authenticated/prospect/search': typeof AuthenticatedProspectSearchRoute
   '/_authenticated/prospect/settings': typeof AuthenticatedProspectSettingsRoute
+  '/_authenticated/store/customers': typeof AuthenticatedStoreCustomersRoute
   '/_authenticated/store/faixa-calc': typeof AuthenticatedStoreFaixaCalcRoute
   '/_authenticated/store/imagens': typeof AuthenticatedStoreImagensRoute
   '/_authenticated/store/import': typeof AuthenticatedStoreImportRoute
@@ -930,6 +940,7 @@ export interface FileRouteTypes {
     | '/prospect/qualified'
     | '/prospect/search'
     | '/prospect/settings'
+    | '/store/customers'
     | '/store/faixa-calc'
     | '/store/imagens'
     | '/store/import'
@@ -1021,6 +1032,7 @@ export interface FileRouteTypes {
     | '/prospect/qualified'
     | '/prospect/search'
     | '/prospect/settings'
+    | '/store/customers'
     | '/store/faixa-calc'
     | '/store/imagens'
     | '/store/import'
@@ -1113,6 +1125,7 @@ export interface FileRouteTypes {
     | '/_authenticated/prospect/qualified'
     | '/_authenticated/prospect/search'
     | '/_authenticated/prospect/settings'
+    | '/_authenticated/store/customers'
     | '/_authenticated/store/faixa-calc'
     | '/_authenticated/store/imagens'
     | '/_authenticated/store/import'
@@ -1457,6 +1470,13 @@ declare module '@tanstack/react-router' {
       path: '/store/faixa-calc'
       fullPath: '/store/faixa-calc'
       preLoaderRoute: typeof AuthenticatedStoreFaixaCalcRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/store/customers': {
+      id: '/_authenticated/store/customers'
+      path: '/store/customers'
+      fullPath: '/store/customers'
+      preLoaderRoute: typeof AuthenticatedStoreCustomersRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/prospect/settings': {
@@ -1900,6 +1920,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProspectQualifiedRoute: typeof AuthenticatedProspectQualifiedRoute
   AuthenticatedProspectSearchRoute: typeof AuthenticatedProspectSearchRoute
   AuthenticatedProspectSettingsRoute: typeof AuthenticatedProspectSettingsRoute
+  AuthenticatedStoreCustomersRoute: typeof AuthenticatedStoreCustomersRoute
   AuthenticatedStoreFaixaCalcRoute: typeof AuthenticatedStoreFaixaCalcRoute
   AuthenticatedStoreImagensRoute: typeof AuthenticatedStoreImagensRoute
   AuthenticatedStoreImportRoute: typeof AuthenticatedStoreImportRoute
@@ -1946,6 +1967,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProspectQualifiedRoute: AuthenticatedProspectQualifiedRoute,
   AuthenticatedProspectSearchRoute: AuthenticatedProspectSearchRoute,
   AuthenticatedProspectSettingsRoute: AuthenticatedProspectSettingsRoute,
+  AuthenticatedStoreCustomersRoute: AuthenticatedStoreCustomersRoute,
   AuthenticatedStoreFaixaCalcRoute: AuthenticatedStoreFaixaCalcRoute,
   AuthenticatedStoreImagensRoute: AuthenticatedStoreImagensRoute,
   AuthenticatedStoreImportRoute: AuthenticatedStoreImportRoute,
