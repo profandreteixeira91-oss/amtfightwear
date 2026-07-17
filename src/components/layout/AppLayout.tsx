@@ -7,7 +7,12 @@ import { AppFooter } from "./AppFooter";
 
 export function AppLayout() {
   return (
-    <div className="flex min-h-screen w-full flex-col bg-background">
+    <div className="relative flex min-h-screen w-full flex-col bg-background">
+      {/* Ambient background — subtle radial glow, doesn't shift layout */}
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-0 -z-10 opacity-70 [background:radial-gradient(1000px_500px_at_10%_-10%,color-mix(in_oklab,var(--primary)_10%,transparent),transparent_60%),radial-gradient(800px_400px_at_100%_0%,color-mix(in_oklab,var(--primary)_6%,transparent),transparent_60%)]"
+      />
       <AppTopNav />
       <AppHeader />
       <motion.main
