@@ -7,12 +7,16 @@ import {
   listWholesaleCatalog,
   createWholesaleOrder,
 } from "@/lib/store/store.functions";
+import { createAsaasPayment } from "@/lib/store/payment.functions";
+import { getMyCustomerProfile, saveMyCustomerProfile } from "@/lib/store/customer-profile.functions";
+import { supabase } from "@/integrations/supabase/client";
 import { formatBRL, useCart } from "@/lib/store/cart-store";
 import { ProductImage } from "@/components/store/ProductImage";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Minus, Plus, Upload, X, CheckCircle2, AlertCircle, Package, Search, ChevronDown, ChevronUp, ZoomIn, ShoppingBag, ArrowRight } from "lucide-react";
+import { Minus, Plus, Upload, X, CheckCircle2, AlertCircle, Package, Search, ChevronDown, ChevronUp, ZoomIn, ShoppingBag, ArrowRight, LogIn } from "lucide-react";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { z } from "zod";
 
 const catalogQuery = queryOptions({
   queryKey: ["store", "wholesale-catalog"],
@@ -23,7 +27,11 @@ const catsQuery = queryOptions({
   queryFn: () => listStoreCategories(),
 });
 
+const DRAFT_KEY = "amt.wholesale.draft.v1";
+
 export const Route = createFileRoute("/loja/atacado")({
+  validateSearch: (s: Record<string, unknown>) =>
+    z.object({ resume: z.union([z.literal("1"), z.literal(1), z.boolean()]).optional() }).parse(s),
   loader: async ({ context }) => {
     await Promise.all([
       context.queryClient.ensureQueryData(catalogQuery),
