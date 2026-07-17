@@ -64,7 +64,9 @@ function ProductPage() {
   const compareAt = product.compare_at_price;
   const compareAtNum = compareAt ? Number(compareAt) : null;
   const images = data.images.length > 0 ? data.images : product.image_url ? [{ url: product.image_url, alt: product.name }] : [];
-  const installments = (price / 10).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  const maxInstallments = price >= 1000 ? 10 : price >= 600 ? 5 : price >= 200 ? 3 : 1;
+  const installmentValue = (price / maxInstallments).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  const pixPrice = (price * 0.95).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
   const handleAddToCart = () => {
     add({
