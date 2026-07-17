@@ -307,11 +307,15 @@ function CheckoutPage() {
                       onChange={(e) => setInstallments(Number(e.target.value))}
                       className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-primary"
                     >
-                      {Array.from({ length: 12 }, (_, i) => i + 1).map((n) => (
-                        <option key={n} value={n}>
-                          {n}x de {formatBRL(total / n)}{n === 1 ? " à vista" : ""}
-                        </option>
-                      ))}
+                      {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => {
+                        const enabled = n === 1 || (n <= 3 && total >= 200) || (n <= 5 && total >= 600) || (n <= 10 && total >= 1000);
+                        if (!enabled) return null;
+                        return (
+                          <option key={n} value={n}>
+                            {n}x de {formatBRL(total / n)}{n === 1 ? " à vista" : " sem juros"}
+                          </option>
+                        );
+                      })}
                     </select>
                   </label>
                 </div>
