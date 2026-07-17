@@ -98,7 +98,7 @@ export const createMercadopagoPayment = createServerFn({ method: "POST" })
       .object({
         order_id: z.string().uuid(),
         method: z.enum(["PIX", "CREDIT_CARD", "BOLETO"]),
-        installments: z.number().int().min(1).max(12).optional(),
+        installments: z.number().int().min(1).max(10).optional(),
         card: CardSchema.optional(),
         remote_ip: z.string().optional(),
       })
