@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Search, Loader2 } from "lucide-react";
+import { Search, Loader2, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ProductImage } from "@/components/store/ProductImage";
 
@@ -13,25 +13,71 @@ type Suggestion = {
   category: string | null;
 };
 
+type Cat = { id: string; slug: string; name: string; parent_id: string | null };
+
 export function SearchBar() {
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<Suggestion[]>([]);
   const [activeIdx, setActiveIdx] = useState(-1);
+  const [cats, setCats] = useState<Cat[]>([]);
+  const [selectedCatId, setSelectedCatId] = useState<string>(""); // "" = todas
+  const [catOpen, setCatOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
-  // Fecha ao clicar fora
+  // Load categories once
+  useEffect(() => {
+    supabase
+      .from("store_categories")
+      .select("id, slug, name, parent_id")
+      .order("sort_order", { ascending: true, nullsFirst: false })
+      .order("name")
+      .then(({ data }) => setCats((data ?? []) as Cat[]));
+  }, []);
+
+  const { childrenByParent, topCats, catById } = useMemo(() => {
+    const map = new Map<string, Cat[]>();
+    const byId = new Map<string, Cat>();
+    for (const c of cats) {
+      byId.set(c.id, c);
+      if (c.parent_id) {
+        const arr = map.get(c.parent_id) ?? [];
+        arr.push(c);
+        map.set(c.parent_id, arr);
+      }
+    }
+    return { childrenByParent: map, topCats: cats.filter((c) => !c.parent_id), catById: byId };
+  }, [cats]);
+
+  const descendantIds = (id: string): string[] => {
+    const out = [id];
+    const stack = [id];
+    while (stack.length) {
+      const cur = stack.pop()!;
+      const kids = childrenByParent.get(cur) ?? [];
+      for (const k of kids) {
+        out.push(k.id);
+        stack.push(k.id);
+      }
+    }
+    return out;
+  };
+
+  // Close on outside click
   useEffect(() => {
     const onDown = (e: MouseEvent) => {
-      if (!wrapRef.current?.contains(e.target as Node)) setOpen(false);
+      if (!wrapRef.current?.contains(e.target as Node)) {
+        setOpen(false);
+        setCatOpen(false);
+      }
     };
     document.addEventListener("mousedown", onDown);
     return () => document.removeEventListener("mousedown", onDown);
   }, []);
 
-  // Busca com debounce
+  // Search with debounce — OR across words and fields
   useEffect(() => {
     const term = q.trim();
     if (term.length < 2) {
@@ -41,25 +87,36 @@ export function SearchBar() {
     }
     setLoading(true);
     const handle = setTimeout(async () => {
-      // Divide em palavras e busca cada uma em name/short_description/category
-      const words = term.split(/\s+/).filter(Boolean);
+      const words = Array.from(new Set(term.split(/\s+/).filter((w) => w.length >= 2)));
       let query = supabase
         .from("products")
         .select("id, name, slug, price, image_url, category")
         .eq("status", "active");
-      for (const w of words) {
-        const like = `%${w}%`;
-        query = query.or(
-          `name.ilike.${like},short_description.ilike.${like},category.ilike.${like}`,
-        );
+
+      if (selectedCatId) {
+        query = query.in("category_id", descendantIds(selectedCatId));
       }
-      const { data } = await query.limit(8);
+
+      if (words.length > 0) {
+        const escape = (s: string) => s.replace(/[,%()]/g, " ").trim();
+        const orParts: string[] = [];
+        for (const w of words) {
+          const like = `%${escape(w)}%`;
+          orParts.push(`name.ilike.${like}`);
+          orParts.push(`short_description.ilike.${like}`);
+          orParts.push(`description.ilike.${like}`);
+          orParts.push(`category.ilike.${like}`);
+        }
+        query = query.or(orParts.join(","));
+      }
+
+      const { data } = await query.limit(12);
       setItems((data ?? []) as Suggestion[]);
       setActiveIdx(-1);
       setLoading(false);
     }, 200);
     return () => clearTimeout(handle);
-  }, [q]);
+  }, [q, selectedCatId, cats]);
 
   const go = (s: Suggestion) => {
     setOpen(false);
@@ -85,24 +142,83 @@ export function SearchBar() {
   };
 
   const showDropdown = open && q.trim().length >= 2;
+  const selectedLabel = selectedCatId ? catById.get(selectedCatId)?.name ?? "Todas" : "Todas";
 
   return (
     <div ref={wrapRef} className="relative hidden md:flex flex-1">
-      <div className="flex flex-1 items-center rounded-md border bg-muted/40 px-3">
-        <Search className="h-4 w-4 text-muted-foreground" />
-        <input
-          type="text"
-          value={q}
-          onChange={(e) => {
-            setQ(e.target.value);
-            setOpen(true);
-          }}
-          onFocus={() => setOpen(true)}
-          onKeyDown={onKey}
-          placeholder="Buscar kimono, rashguard, faixa..."
-          className="w-full bg-transparent px-2 py-2 text-sm outline-none placeholder:text-muted-foreground"
-        />
-        {loading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+      <div className="flex flex-1 items-stretch rounded-md border bg-muted/40">
+        {/* Category selector */}
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setCatOpen((v) => !v)}
+            className="flex h-full items-center gap-1 border-r px-3 text-xs font-semibold uppercase tracking-wider text-foreground hover:bg-accent"
+          >
+            <span className="max-w-[140px] truncate">{selectedLabel}</span>
+            <ChevronDown className="h-3 w-3 opacity-60" />
+          </button>
+          {catOpen && (
+            <div className="absolute left-0 top-full z-50 mt-1 max-h-[70vh] w-[280px] overflow-auto rounded-md border bg-popover p-1 shadow-lg">
+              <button
+                type="button"
+                onClick={() => { setSelectedCatId(""); setCatOpen(false); }}
+                className={`block w-full rounded px-3 py-2 text-left text-sm hover:bg-accent ${selectedCatId === "" ? "bg-accent font-semibold" : ""}`}
+              >
+                Todas as categorias
+              </button>
+              <div className="my-1 h-px bg-border" />
+              {topCats.map((c) => (
+                <div key={c.id}>
+                  <button
+                    type="button"
+                    onClick={() => { setSelectedCatId(c.id); setCatOpen(false); }}
+                    className={`block w-full rounded px-3 py-2 text-left text-sm font-semibold hover:bg-accent ${selectedCatId === c.id ? "bg-accent" : ""}`}
+                  >
+                    {c.name}
+                  </button>
+                  {(childrenByParent.get(c.id) ?? []).map((sub) => (
+                    <div key={sub.id}>
+                      <button
+                        type="button"
+                        onClick={() => { setSelectedCatId(sub.id); setCatOpen(false); }}
+                        className={`block w-full rounded px-3 py-1.5 pl-6 text-left text-xs hover:bg-accent ${selectedCatId === sub.id ? "bg-accent font-semibold" : "text-muted-foreground"}`}
+                      >
+                        ↳ {sub.name}
+                      </button>
+                      {(childrenByParent.get(sub.id) ?? []).map((sub2) => (
+                        <button
+                          key={sub2.id}
+                          type="button"
+                          onClick={() => { setSelectedCatId(sub2.id); setCatOpen(false); }}
+                          className={`block w-full rounded px-3 py-1.5 pl-10 text-left text-xs hover:bg-accent ${selectedCatId === sub2.id ? "bg-accent font-semibold" : "text-muted-foreground"}`}
+                        >
+                          · {sub2.name}
+                        </button>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="flex flex-1 items-center px-3">
+          <Search className="h-4 w-4 text-muted-foreground" />
+          <input
+            type="text"
+            value={q}
+            onChange={(e) => {
+              setQ(e.target.value);
+              setOpen(true);
+            }}
+            onFocus={() => setOpen(true)}
+            onKeyDown={onKey}
+            placeholder="Buscar por palavras: ex. 'pro bordada'..."
+            className="w-full bg-transparent px-2 py-2 text-sm outline-none placeholder:text-muted-foreground"
+          />
+          {loading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+        </div>
       </div>
 
       {showDropdown && (
@@ -110,6 +226,7 @@ export function SearchBar() {
           {items.length === 0 && !loading && (
             <div className="px-4 py-6 text-center text-sm text-muted-foreground">
               Nenhum produto encontrado para "{q}"
+              {selectedCatId && <> em <strong>{selectedLabel}</strong></>}
             </div>
           )}
           {items.map((s, i) => {
