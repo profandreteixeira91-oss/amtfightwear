@@ -30,6 +30,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { listLeads, bulkUpdateLeads, bulkDeleteLeads, getSettings } from "@/lib/prospect/prospect.functions";
+import { sendLeadOutreachDm, listInboxConnectedHandles } from "@/lib/ig-hub.functions";
 import { PIPELINE_STAGES } from "@/features/prospect/types";
 import { scoreToStars } from "@/features/prospect/utils";
 
