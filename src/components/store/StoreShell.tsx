@@ -148,19 +148,62 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
 
           <div className="flex items-center gap-1 sm:gap-3">
             {mounted && isAuthed ? (
-              <Link to="/auth" className="hidden sm:inline-flex items-center gap-1 text-sm hover:text-primary">
-                <User className="h-4 w-4" />
-                <span className="hidden lg:inline">Minha conta</span>
-              </Link>
+              <div ref={accountRef} className="relative">
+                <button
+                  type="button"
+                  onClick={() => setAccountOpen((v) => !v)}
+                  className="inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-primary"
+                  aria-haspopup="menu"
+                  aria-expanded={accountOpen}
+                >
+                  <User className="h-4 w-4" />
+                  <span className="hidden sm:inline">Minha conta</span>
+                  <ChevronDown className="h-3 w-3 opacity-60" />
+                </button>
+                {accountOpen && (
+                  <div
+                    role="menu"
+                    className="absolute right-0 top-full z-50 mt-1 min-w-[200px] rounded-md border bg-popover p-1 shadow-lg"
+                  >
+                    <Link
+                      to="/loja/conta"
+                      onClick={() => setAccountOpen(false)}
+                      className="flex items-center gap-2 rounded px-3 py-2 text-sm hover:bg-accent hover:text-primary"
+                    >
+                      <User className="h-4 w-4" /> Meus dados
+                    </Link>
+                    <Link
+                      to="/loja/conta/pedidos"
+                      onClick={() => setAccountOpen(false)}
+                      className="flex items-center gap-2 rounded px-3 py-2 text-sm hover:bg-accent hover:text-primary"
+                    >
+                      <Package className="h-4 w-4" /> Meus pedidos
+                    </Link>
+                    <div className="my-1 h-px bg-border" />
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        setAccountOpen(false);
+                        await supabase.auth.signOut();
+                      }}
+                      className="flex w-full items-center gap-2 rounded px-3 py-2 text-left text-sm hover:bg-accent hover:text-primary"
+                    >
+                      <LogOut className="h-4 w-4" /> Sair
+                    </button>
+                  </div>
+                )}
+              </div>
             ) : (
               <Link
                 to="/auth"
+                search={{ redirect: "/loja/conta" }}
                 className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
               >
                 <LogIn className="h-4 w-4" />
                 <span>Entrar</span>
               </Link>
             )}
+
             <button
               type="button"
               onClick={() => useCart.getState().open()}
