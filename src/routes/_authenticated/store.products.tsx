@@ -748,6 +748,40 @@ function ProductEditDialog({ productId, onClose, onSaved }: { productId: string;
               <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={6} />
             </div>
 
+            <div className="border rounded-md p-3 space-y-2 bg-muted/30">
+              <div className="font-semibold text-sm">Dados fiscais</div>
+              <p className="text-xs text-muted-foreground">
+                Usados na emissão de notas fiscais. Herdados da categoria por padrão; edite aqui para sobrescrever apenas neste produto.
+              </p>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                <div>
+                  <Label className="text-xs">NCM</Label>
+                  <Input className="h-8" value={ncm} onChange={(e) => setNcm(e.target.value)} placeholder="Ex: 62171000" />
+                </div>
+                <div>
+                  <Label className="text-xs">CEST</Label>
+                  <Input className="h-8" value={cest} onChange={(e) => setCest(e.target.value)} placeholder="Ex: 28.038.00" />
+                </div>
+                <div>
+                  <Label className="text-xs">Origem</Label>
+                  <Input className="h-8" value={origem} onChange={(e) => setOrigem(e.target.value)} placeholder="0 - Nacional" />
+                </div>
+                <div>
+                  <Label className="text-xs">CFOP</Label>
+                  <Input className="h-8" value={cfop} onChange={(e) => setCfop(e.target.value)} placeholder="Ex: 5102" />
+                </div>
+                <div>
+                  <Label className="text-xs">Unidade</Label>
+                  <Input className="h-8" value={unidade} onChange={(e) => setUnidade(e.target.value)} placeholder="UN, PC, KG..." />
+                </div>
+                <div>
+                  <Label className="text-xs">GTIN / EAN</Label>
+                  <Input className="h-8" value={gtin} onChange={(e) => setGtin(e.target.value)} placeholder="Código de barras" />
+                </div>
+              </div>
+            </div>
+
+
             <div>
               <div className="flex items-center justify-between mb-2">
                 <Label className="text-base">Variações ({variants.length})</Label>
