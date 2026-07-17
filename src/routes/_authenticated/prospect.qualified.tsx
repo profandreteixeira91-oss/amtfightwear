@@ -260,7 +260,32 @@ function QualifiedPage() {
   };
 
 
-  const openIgAndCopy = async () => {
+  const sendDmDirect = async () => {
+    if (!draft || draft.channel !== "instagram" || !draft.igHandle) return;
+    setSending(true);
+    try {
+      const res = await sendDm({
+        data: { igHandle: draft.igHandle, text: draft.message, leadId: draft.lead.id },
+      });
+      if (res.status === "sent") {
+        toast.success(`DM enviado para @${draft.igHandle} pelo painel.`);
+        qc.invalidateQueries({ queryKey: ["ig-conversations"] });
+        qc.invalidateQueries({ queryKey: ["prospect"] });
+        setDraft(null);
+      } else {
+        // Fallback controlado (limitação da Meta): copia e abre ig.me.
+        try { await navigator.clipboard.writeText(draft.message); } catch { /* ignore */ }
+        toast.warning(res.message, { duration: 8000 });
+        window.open(res.igMeUrl, "_blank", "noopener,noreferrer");
+      }
+    } catch (e) {
+      toast.error(`Falha ao enviar DM: ${e instanceof Error ? e.message : String(e)}`);
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const openIgFallback = async () => {
     if (!draft || draft.channel !== "instagram" || !draft.igHandle) return;
     try {
       await navigator.clipboard.writeText(draft.message);
