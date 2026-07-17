@@ -47,7 +47,7 @@ export function AppHeader() {
   };
 
   return (
-    <header className="sticky top-0 z-30 flex h-12 items-center gap-3 border-b bg-background/80 px-3 backdrop-blur supports-[backdrop-filter]:bg-background/60 sm:px-4">
+    <header className="sticky top-14 z-30 flex h-12 items-center gap-3 border-b border-border/60 bg-background/70 px-3 backdrop-blur-xl supports-[backdrop-filter]:bg-background/50 sm:px-4">
       <div className="hidden min-w-0 flex-1 md:block">
         <AppBreadcrumb />
       </div>

@@ -22,13 +22,14 @@ export function StatCard({ label, value, delta, hint, icon: Icon, loading, index
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25, delay: index * 0.04 }}
     >
-      <Card className="overflow-hidden">
+      <Card className="group relative overflow-hidden border-border/60 bg-card/60 shadow-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[0_10px_30px_-12px_color-mix(in_oklab,var(--primary)_35%,transparent)]">
+        <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
         <CardContent className="p-5">
           <div className="flex items-start justify-between">
-            <div className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               {label}
             </div>
-            <div className="grid h-9 w-9 place-items-center rounded-md bg-primary/10 text-primary">
+            <div className="grid h-9 w-9 place-items-center rounded-lg bg-gradient-to-br from-primary/15 to-primary/5 text-primary ring-1 ring-primary/20">
               <Icon className="h-4 w-4" />
             </div>
           </div>
