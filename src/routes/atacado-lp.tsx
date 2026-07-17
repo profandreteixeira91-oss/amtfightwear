@@ -1,10 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { BadgePercent, Truck, Palette, ShieldCheck, CheckCircle2, Star, Play, ArrowRight, Factory } from "lucide-react";
-import { useState } from "react";
-import faixaHero from "@/assets/customshop-faixa.jpg";
-import faixaJudo from "@/assets/customshop-faixa-judo.png";
-import heroBanner from "@/assets/loja-hero-banner.jpg";
+import { BadgePercent, Truck, Palette, ShieldCheck, CheckCircle2, Star, ArrowRight, Factory } from "lucide-react";
+import amtLogo from "@/assets/amt-logo.jpg";
+import f1 from "@/assets/atacado-lp/f1.jpg";
+import f2 from "@/assets/atacado-lp/f2.jpg";
+import f3 from "@/assets/atacado-lp/f3.jpg";
+import f4 from "@/assets/atacado-lp/f4.jpeg";
+import f5 from "@/assets/atacado-lp/f5.jpeg";
+import f6 from "@/assets/atacado-lp/f6.jpg";
 
 export const Route = createFileRoute("/atacado-lp")({
   head: () => ({
@@ -55,16 +58,33 @@ const testimonials = [
   },
 ];
 
-function AtacadoLandingPage() {
-  const [videoOpen, setVideoOpen] = useState(false);
+const gallery = [f1, f2, f3, f4, f5, f6];
 
+function AtacadoLandingPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
+      {/* TOP BAR COM LOGO */}
+      <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur-md">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+          <div className="flex items-center gap-3">
+            <img src={amtLogo} alt="AMT Fight Wear" className="h-10 w-auto rounded-md object-contain" />
+            <span className="hidden text-sm font-black uppercase tracking-widest sm:inline">AMT Fight Wear</span>
+          </div>
+          <Link
+            to="/loja/atacado"
+            className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-bold text-primary-foreground shadow-md transition-all hover:-translate-y-0.5"
+          >
+            Comprar Agora
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+      </header>
+
       {/* HERO */}
       <section className="relative overflow-hidden">
         <div
-          className="absolute inset-0 -z-10 bg-cover bg-center opacity-20"
-          style={{ backgroundImage: `url(${heroBanner})` }}
+          className="absolute inset-0 -z-10 bg-cover bg-center opacity-15"
+          style={{ backgroundImage: `url(${f1})` }}
         />
         <div className="absolute inset-0 -z-10 bg-gradient-to-b from-background via-background/90 to-background" />
         <div className="mx-auto max-w-6xl px-4 py-16 md:py-24">
@@ -105,7 +125,7 @@ function AtacadoLandingPage() {
               className="relative"
             >
               <div className="relative overflow-hidden rounded-2xl border border-border/60 shadow-2xl">
-                <img src={faixaHero} alt="Faixas personalizadas AMT" className="h-full w-full object-cover" />
+                <img src={f1} alt="Faixas personalizadas AMT" className="h-full w-full object-cover" />
                 <div className="absolute left-4 top-4 rounded-full bg-primary px-4 py-1.5 text-xs font-black uppercase tracking-widest text-primary-foreground shadow-lg">
                   25% OFF
                 </div>
@@ -149,94 +169,64 @@ function AtacadoLandingPage() {
           <h2 className="text-2xl font-black tracking-tight md:text-3xl">Faixas reais, qualidade que se vê</h2>
           <p className="mt-2 text-sm text-muted-foreground">Fotos reais das nossas faixas personalizadas.</p>
         </div>
-        <div className="grid gap-4 md:grid-cols-3">
-          {[faixaHero, faixaJudo, faixaHero].map((src, i) => (
+        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+          {gallery.map((src, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: i * 0.08 }}
+              transition={{ duration: 0.4, delay: i * 0.06 }}
               className="group overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm"
             >
               <div className="aspect-square overflow-hidden">
-                <img src={src} alt={`Faixa personalizada ${i + 1}`} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <img
+                  src={src}
+                  alt={`Faixa personalizada AMT ${i + 1}`}
+                  loading="lazy"
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
               </div>
             </motion.div>
           ))}
-        </div>
-      </section>
-
-      {/* VÍDEO */}
-      <section className="border-y border-border/60 bg-card/30">
-        <div className="mx-auto max-w-4xl px-4 py-14">
-          <div className="mb-6 text-center">
-            <h2 className="text-2xl font-black tracking-tight md:text-3xl">Veja a qualidade em vídeo</h2>
-            <p className="mt-2 text-sm text-muted-foreground">Um tour rápido pela nossa produção e customização.</p>
-          </div>
-          <div className="relative overflow-hidden rounded-2xl border border-border/60 shadow-xl">
-            {videoOpen ? (
-              <div className="aspect-video">
-                <iframe
-                  className="h-full w-full"
-                  src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
-                  title="AMT Fight Wear - Faixas personalizadas"
-                  allow="autoplay; encrypted-media"
-                  allowFullScreen
-                />
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setVideoOpen(true)}
-                className="group relative block aspect-video w-full overflow-hidden"
-              >
-                <img src={faixaJudo} alt="Vídeo da produção" className="h-full w-full object-cover" />
-                <div className="absolute inset-0 bg-black/40 transition-colors group-hover:bg-black/30" />
-                <div className="absolute inset-0 grid place-items-center">
-                  <div className="grid h-20 w-20 place-items-center rounded-full bg-primary text-primary-foreground shadow-2xl transition-transform group-hover:scale-110">
-                    <Play className="h-8 w-8 translate-x-0.5 fill-current" />
-                  </div>
-                </div>
-              </button>
-            )}
-          </div>
         </div>
       </section>
 
       {/* DEPOIMENTOS */}
-      <section className="mx-auto max-w-6xl px-4 py-14">
-        <div className="mb-10 text-center">
-          <h2 className="text-2xl font-black tracking-tight md:text-3xl">O que academias parceiras dizem</h2>
-          <p className="mt-2 text-sm text-muted-foreground">Depoimentos de professores e donos de academia.</p>
-        </div>
-        <div className="grid gap-6 md:grid-cols-3">
-          {testimonials.map((t, i) => (
-            <motion.div
-              key={t.author}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: i * 0.08 }}
-              className="rounded-xl border border-border/60 bg-card p-6 shadow-sm"
-            >
-              <div className="mb-3 flex gap-0.5 text-amber-500">
-                {Array.from({ length: 5 }).map((_, k) => (
-                  <Star key={k} className="h-4 w-4 fill-current" />
-                ))}
-              </div>
-              <p className="text-sm text-foreground/90">"{t.quote}"</p>
-              <div className="mt-4 border-t border-border/60 pt-3">
-                <div className="text-sm font-bold">{t.author}</div>
-                <div className="text-xs text-muted-foreground">{t.academy}</div>
-              </div>
-            </motion.div>
-          ))}
+      <section className="border-y border-border/60 bg-card/30">
+        <div className="mx-auto max-w-6xl px-4 py-14">
+          <div className="mb-10 text-center">
+            <h2 className="text-2xl font-black tracking-tight md:text-3xl">O que academias parceiras dizem</h2>
+            <p className="mt-2 text-sm text-muted-foreground">Depoimentos de professores e donos de academia.</p>
+          </div>
+          <div className="grid gap-6 md:grid-cols-3">
+            {testimonials.map((t, i) => (
+              <motion.div
+                key={t.author}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: i * 0.08 }}
+                className="rounded-xl border border-border/60 bg-card p-6 shadow-sm"
+              >
+                <div className="mb-3 flex gap-0.5 text-amber-500">
+                  {Array.from({ length: 5 }).map((_, k) => (
+                    <Star key={k} className="h-4 w-4 fill-current" />
+                  ))}
+                </div>
+                <p className="text-sm text-foreground/90">"{t.quote}"</p>
+                <div className="mt-4 border-t border-border/60 pt-3">
+                  <div className="text-sm font-bold">{t.author}</div>
+                  <div className="text-xs text-muted-foreground">{t.academy}</div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* CTA FINAL */}
-      <section className="relative overflow-hidden border-t border-border/60">
+      <section className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10 bg-gradient-to-br from-primary/20 via-background to-background" />
         <div className="mx-auto max-w-3xl px-4 py-16 text-center">
           <h2 className="text-3xl font-black tracking-tight md:text-4xl">Pronto para equipar sua academia?</h2>
@@ -259,8 +249,12 @@ function AtacadoLandingPage() {
       </section>
 
       <footer className="border-t border-border/60 bg-card/40">
-        <div className="mx-auto max-w-6xl px-4 py-6 text-center text-xs text-muted-foreground">
-          © {new Date().getFullYear()} AMT Fight Wear — Fábrica de artigos esportivos para artes marciais.
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 px-4 py-6 text-center text-xs text-muted-foreground sm:flex-row sm:justify-between sm:text-left">
+          <div className="flex items-center gap-2">
+            <img src={amtLogo} alt="AMT Fight Wear" className="h-6 w-auto rounded object-contain" />
+            <span>© {new Date().getFullYear()} AMT Fight Wear</span>
+          </div>
+          <span>Fábrica de artigos esportivos para artes marciais.</span>
         </div>
       </footer>
     </div>
