@@ -307,24 +307,39 @@ export const syncIgInbox = createServerFn({ method: "POST" })
       }
 
       // 2) Para cada conversa, paginar TODAS as mensagens
+      const bizUsernameLc = conn.instagram_username?.toLowerCase() ?? null;
       for (const conv of convs.slice(0, maxConvs)) {
-        const other = (conv.participants?.data ?? []).find((p) => p.id !== businessIgsid) ?? conv.participants?.data?.[0];
+        const participants = conv.participants?.data ?? [];
+        // Enriquecer TODOS os participantes com username/name/profile_pic para identificar
+        // corretamente quem é o negócio (por username) e quem é o "outro".
+        const enrichedParticipants: Array<IgParticipant & { profile_pic?: string | null }> = [];
+        for (const p of participants) {
+          let uName = p.username ?? undefined;
+          let pName = p.name ?? undefined;
+          let profile_pic: string | null = null;
+          try {
+            const info = await graphGetAbs<{ username?: string; name?: string; profile_pic?: string }>(
+              `${GRAPH}/${p.id}?fields=username,name,profile_pic&access_token=${token}`,
+            );
+            uName = info.username ?? uName;
+            pName = info.name ?? pName;
+            profile_pic = info.profile_pic ?? null;
+          } catch { /* ignore */ }
+          enrichedParticipants.push({ ...p, username: uName, name: pName, profile_pic });
+        }
+        // "outro" = qualquer participante que NÃO seja o negócio (por username OU por IGSID).
+        const other = enrichedParticipants.find((p) => {
+          const u = p.username?.toLowerCase();
+          if (bizUsernameLc && u && u === bizUsernameLc) return false;
+          if (p.id === businessIgsid) return false;
+          return true;
+        }) ?? enrichedParticipants.find((p) => p.id !== businessIgsid) ?? enrichedParticipants[0];
         if (!other) continue;
         const updated = conv.updated_time ?? new Date().toISOString();
         const windowExpires = new Date(new Date(updated).getTime() + 7 * 86400000).toISOString();
-
-        // Enriquecer participante (avatar/nome) — best-effort
-        let avatarUrl: string | null = null;
-        let username: string | null = other.username ?? null;
-        let name: string | null = other.name ?? null;
-        try {
-          const p = await graphGetAbs<{ username?: string; name?: string; profile_pic?: string }>(
-            `${GRAPH}/${other.id}?fields=username,name,profile_pic&access_token=${token}`,
-          );
-          username = p.username ?? username;
-          name = p.name ?? name;
-          avatarUrl = p.profile_pic ?? null;
-        } catch { /* ignore */ }
+        const avatarUrl: string | null = other.profile_pic ?? null;
+        const username: string | null = other.username ?? null;
+        const name: string | null = other.name ?? null;
 
         // Paginar mensagens da conversa
         const msgs: IgMessageRaw[] = [];
