@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-const REDIRECT_URI = "https://marketing.amtfightwear.com.br/api/public/meta/callback";
+const REDIRECT_URI = "https://loja.amtfightwear.com.br/api/public/meta/callback";
 const GRAPH = "https://graph.facebook.com/v21.0";
 
 function html(body: string, status = 200) {
