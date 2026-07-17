@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   adminListStoreProducts,
   adminUpdateStoreProduct,
@@ -37,10 +37,15 @@ function AdminProductsPage() {
   const list = useServerFn(adminListStoreProducts);
   const update = useServerFn(adminUpdateStoreProduct);
   const deleteProduct = useServerFn(adminDeleteStoreProduct);
+  const listCatsTop = useServerFn(adminListStoreCategories);
   const queryClient = useQueryClient();
   const { data, refetch, isLoading } = useQuery({
     queryKey: ["admin", "store", "products"],
     queryFn: () => list({}),
+  });
+  const { data: catsAll } = useQuery({
+    queryKey: ["admin", "store", "categories"],
+    queryFn: () => listCatsTop({}),
   });
 
 
@@ -53,6 +58,7 @@ function AdminProductsPage() {
   };
 
   const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<string>("");
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [edits, setEdits] = useState<EditState>({});
@@ -64,12 +70,42 @@ function AdminProductsPage() {
   const [creatingProduct, setCreatingProduct] = useState(false);
   const [managingCategories, setManagingCategories] = useState(false);
 
+  // Conjunto de category_ids que devem passar no filtro (categoria + descendentes)
+  const allowedCategoryIds = useMemo(() => {
+    if (!categoryFilter) return null;
+    const cats = catsAll ?? [];
+    const childrenByParent = new Map<string, string[]>();
+    for (const c of cats) {
+      if (!c.parent_id) continue;
+      const arr = childrenByParent.get(c.parent_id) ?? [];
+      arr.push(c.id);
+      childrenByParent.set(c.parent_id, arr);
+    }
+    const acc = new Set<string>([categoryFilter]);
+    const stack = [categoryFilter];
+    while (stack.length) {
+      const cur = stack.pop()!;
+      for (const child of childrenByParent.get(cur) ?? []) {
+        if (!acc.has(child)) {
+          acc.add(child);
+          stack.push(child);
+        }
+      }
+    }
+    return acc;
+  }, [categoryFilter, catsAll]);
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     const rows = data ?? [];
-    if (!q) return rows;
-    return rows.filter((p) => p.name.toLowerCase().includes(q) || (p.slug ?? "").toLowerCase().includes(q));
-  }, [data, search]);
+    return rows.filter((p) => {
+      if (allowedCategoryIds && !(p.category_id && allowedCategoryIds.has(p.category_id))) return false;
+      if (!q) return true;
+      const tokens = q.split(/\s+/).filter(Boolean);
+      const hay = `${p.name} ${p.slug ?? ""}`.toLowerCase();
+      return tokens.every((t) => hay.includes(t));
+    });
+  }, [data, search, allowedCategoryIds]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
@@ -211,13 +247,48 @@ function AdminProductsPage() {
           <h1 className="text-2xl font-black">Produtos da loja</h1>
           <p className="text-sm text-muted-foreground">{filtered.length} produtos {search && `(filtrados de ${data?.length ?? 0})`}</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <Input
             placeholder="Buscar produto..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             className="w-64"
           />
+          <select
+            value={categoryFilter}
+            onChange={(e) => { setCategoryFilter(e.target.value); setPage(1); }}
+            className="h-10 rounded-md border bg-background px-2 text-sm min-w-[14rem]"
+          >
+            <option value="">Todas as categorias</option>
+            {(() => {
+              const cats = catsAll ?? [];
+              const byParent = new Map<string | null, typeof cats>();
+              for (const c of cats) {
+                const k = c.parent_id ?? null;
+                const arr = byParent.get(k) ?? [];
+                arr.push(c);
+                byParent.set(k, arr);
+              }
+              const out: React.ReactNode[] = [];
+              const walk = (parent: string | null, depth: number) => {
+                for (const c of byParent.get(parent) ?? []) {
+                  out.push(
+                    <option key={c.id} value={c.id}>
+                      {`${"— ".repeat(depth)}${c.name}`}
+                    </option>,
+                  );
+                  walk(c.id, depth + 1);
+                }
+              };
+              walk(null, 0);
+              return out;
+            })()}
+          </select>
+          {categoryFilter && (
+            <Button variant="ghost" size="sm" onClick={() => { setCategoryFilter(""); setPage(1); }}>
+              Limpar filtro
+            </Button>
+          )}
           <Button onClick={() => setCreatingProduct(true)}>
             <Plus className="h-4 w-4 mr-1" /> Adicionar produto
           </Button>
