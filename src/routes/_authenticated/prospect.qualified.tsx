@@ -575,7 +575,9 @@ function QualifiedPage() {
                 </div>
                 {draft.channel === "instagram" && (
                   <p className="text-xs text-muted-foreground">
-                    A Meta não permite envio de DMs frios via API. Vamos copiar sua mensagem e abrir o chat do Instagram — cole e envie junto com a imagem baixada.
+                    {draft.igHandle && connectedSet.has(draft.igHandle.toLowerCase())
+                      ? "Este lead já tem conversa aberta no inbox — o DM será enviado direto pelo painel."
+                      : "A Meta bloqueia o primeiro DM via API. Vamos enviar direto se o lead já respondeu alguma vez; senão, abre o Instagram com a mensagem copiada."}
                   </p>
                 )}
               </div>
@@ -590,9 +592,15 @@ function QualifiedPage() {
                     {sending ? "Enviando..." : "Enviar e-mail"}
                   </Button>
                 ) : (
-                  <Button onClick={openIgAndCopy}>
-                    <Instagram className="mr-2 h-4 w-4" /> Copiar e abrir Instagram
-                  </Button>
+                  <>
+                    <Button variant="outline" onClick={openIgFallback} disabled={sending} title="Abrir o Instagram com a mensagem copiada">
+                      <Instagram className="mr-2 h-4 w-4" /> Abrir Instagram
+                    </Button>
+                    <Button onClick={sendDmDirect} disabled={sending}>
+                      {sending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+                      {sending ? "Enviando..." : "Enviar DM pelo painel"}
+                    </Button>
+                  </>
                 )}
               </DialogFooter>
             </>
