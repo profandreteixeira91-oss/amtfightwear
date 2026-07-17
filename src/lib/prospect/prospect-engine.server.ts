@@ -348,9 +348,11 @@ export function buildMartialArtsQueries(
   preset: string,
   opts: { city?: string | null; state?: string | null } = {},
 ): { queries: string[]; allowInstagram: boolean; category: string } {
-  const loc = [opts.city, opts.state].filter(Boolean).join(" ");
-  const locSuffix = loc ? ` "${loc}"` : "";
-  const igLoc = loc ? ` ${loc}` : "";
+  const locParts = [opts.city, opts.state && STATE_NAMES[opts.state.toUpperCase()]].filter(Boolean) as string[];
+  const locSuffix = locParts.length
+    ? " " + locParts.map((p) => `"${p}"`).join(" ")
+    : ' "Brasil"';
+  const igLoc = locParts.length ? " " + locParts.join(" ") : " Brasil";
 
   const map: Record<string, { q: string[]; ig: boolean; cat: string }> = {
     academias_bjj: {
