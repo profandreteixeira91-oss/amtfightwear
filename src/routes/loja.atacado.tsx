@@ -916,7 +916,15 @@ function WholesalePage() {
 
               <div className="rounded-xl border bg-card p-5">
                 <h2 className="text-lg font-black">Forma de pagamento</h2>
+                <div className="mt-3 flex items-start gap-3 rounded-md border border-primary/20 bg-primary/5 p-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                  <div className="text-xs leading-relaxed">
+                    <div className="font-bold text-foreground">Pagamento processado pelo Mercado Pago</div>
+                    <p className="text-muted-foreground">Ambiente 100% seguro com criptografia de ponta a ponta. A AMT Fight Wear não armazena dados de cartão.</p>
+                  </div>
+                </div>
                 <div className="mt-3 grid gap-2 sm:grid-cols-3">
+
                   {(["PIX", "CREDIT_CARD", "BOLETO"] as const).map((m) => (
                     <button
                       key={m}
