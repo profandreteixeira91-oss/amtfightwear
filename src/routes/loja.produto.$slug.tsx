@@ -39,13 +39,12 @@ function ProductPage() {
   const { data: categories } = useSuspenseQuery(queryOptions({ queryKey: ["store", "categories"], queryFn: () => listStoreCategories() }));
   const add = useCart((s) => s.add);
 
-  const cheapestVariantId = (() => {
-    const inStock = data.variants.filter((v) => v.stock > 0 && v.price != null);
-    const pool = inStock.length > 0 ? inStock : data.variants.filter((v) => v.price != null);
-    if (pool.length === 0) return data.variants[0]?.id ?? null;
-    return pool.reduce((min, v) => (Number(v.price) < Number(min.price) ? v : min)).id;
+  const defaultVariantId = (() => {
+    const inStock = data.variants.filter((v) => v.stock > 0);
+    const pool = inStock.length > 0 ? inStock : data.variants;
+    return pool[0]?.id ?? null;
   })();
-  const [selectedVariant, setSelectedVariant] = useState<string | null>(cheapestVariantId);
+  const [selectedVariant, setSelectedVariant] = useState<string | null>(defaultVariantId);
   const [qty, setQty] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
 
@@ -59,8 +58,10 @@ function ProductPage() {
 
   const product = data.product;
   const variant = data.variants.find((v) => v.id === selectedVariant) ?? null;
-  const price = Number(variant?.price ?? product.price);
-  const compareAt = variant?.compare_at_price ?? product.compare_at_price;
+  // Preço é sempre o cadastrado no painel administrativo (products.price),
+  // independentemente de valores individuais em variantes.
+  const price = Number(product.price);
+  const compareAt = product.compare_at_price;
   const compareAtNum = compareAt ? Number(compareAt) : null;
   const images = data.images.length > 0 ? data.images : product.image_url ? [{ url: product.image_url, alt: product.name }] : [];
   const installments = (price / 10).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
