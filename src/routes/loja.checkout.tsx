@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell } from "@/components/store/StoreShell";
 import { listStoreCategories, createStoreOrder } from "@/lib/store/store.functions";
-import { createAsaasPayment } from "@/lib/store/payment.functions";
+import { createMercadopagoPayment } from "@/lib/store/mercadopago.functions";
 import { getMyCustomerProfile, saveMyCustomerProfile } from "@/lib/store/customer-profile.functions";
 import { useCart, formatBRL } from "@/lib/store/cart-store";
 import { useEffect, useState } from "react";
@@ -29,7 +29,7 @@ function CheckoutPage() {
   const clear = useCart((s) => s.clear);
   const navigate = useNavigate();
   const createOrder = useServerFn(createStoreOrder);
-  const createPayment = useServerFn(createAsaasPayment);
+  const createPayment = useServerFn(createMercadopagoPayment);
   const loadProfile = useServerFn(getMyCustomerProfile);
   const saveProfile = useServerFn(saveMyCustomerProfile);
   const [mounted, setMounted] = useState(false);

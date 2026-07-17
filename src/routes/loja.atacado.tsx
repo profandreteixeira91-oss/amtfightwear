@@ -7,7 +7,7 @@ import {
   listWholesaleCatalog,
   createWholesaleOrder,
 } from "@/lib/store/store.functions";
-import { createAsaasPayment } from "@/lib/store/payment.functions";
+import { createMercadopagoPayment } from "@/lib/store/mercadopago.functions";
 import { getMyCustomerProfile, saveMyCustomerProfile } from "@/lib/store/customer-profile.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBRL, useCart } from "@/lib/store/cart-store";
@@ -246,7 +246,7 @@ function WholesalePage() {
   const [card, setCard] = useState({ holderName: "", number: "", expiryMonth: "", expiryYear: "", ccv: "" });
   const loadProfile = useServerFn(getMyCustomerProfile);
   const saveProfile = useServerFn(saveMyCustomerProfile);
-  const createPayment = useServerFn(createAsaasPayment);
+  const createPayment = useServerFn(createMercadopagoPayment);
   const routeSearch = Route.useSearch();
   const resumeFlag = !!routeSearch.resume;
 
