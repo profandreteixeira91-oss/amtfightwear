@@ -244,6 +244,7 @@ function FaixaCalc() {
                       <th className="px-3 py-2 text-right">Custo unit.</th>
                       <th className="px-3 py-2 text-right">Margem (%)</th>
                       <th className="px-3 py-2 text-right">Preço sugerido</th>
+                      <th className="px-3 py-2 text-right">Lucro</th>
                     </tr>
                   </thead>
                   <tbody>
