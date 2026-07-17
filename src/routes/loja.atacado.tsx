@@ -7,12 +7,16 @@ import {
   listWholesaleCatalog,
   createWholesaleOrder,
 } from "@/lib/store/store.functions";
+import { createAsaasPayment } from "@/lib/store/payment.functions";
+import { getMyCustomerProfile, saveMyCustomerProfile } from "@/lib/store/customer-profile.functions";
+import { supabase } from "@/integrations/supabase/client";
 import { formatBRL, useCart } from "@/lib/store/cart-store";
 import { ProductImage } from "@/components/store/ProductImage";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Minus, Plus, Upload, X, CheckCircle2, AlertCircle, Package, Search, ChevronDown, ChevronUp, ZoomIn, ShoppingBag, ArrowRight } from "lucide-react";
+import { Minus, Plus, Upload, X, CheckCircle2, AlertCircle, Package, Search, ChevronDown, ChevronUp, ZoomIn, ShoppingBag, ArrowRight, LogIn } from "lucide-react";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { z } from "zod";
 
 const catalogQuery = queryOptions({
   queryKey: ["store", "wholesale-catalog"],
@@ -23,7 +27,11 @@ const catsQuery = queryOptions({
   queryFn: () => listStoreCategories(),
 });
 
+const DRAFT_KEY = "amt.wholesale.draft.v1";
+
 export const Route = createFileRoute("/loja/atacado")({
+  validateSearch: (s: Record<string, unknown>) =>
+    z.object({ resume: z.union([z.literal("1"), z.literal(1), z.boolean()]).optional() }).parse(s),
   loader: async ({ context }) => {
     await Promise.all([
       context.queryClient.ensureQueryData(catalogQuery),
@@ -231,6 +239,17 @@ function WholesalePage() {
 
   const [step, setStep] = useState<"cart" | "checkout">("cart");
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [signedIn, setSignedIn] = useState<boolean | null>(null);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"PIX" | "CREDIT_CARD" | "BOLETO">("PIX");
+  const [installments, setInstallments] = useState(1);
+  const [card, setCard] = useState({ holderName: "", number: "", expiryMonth: "", expiryYear: "", ccv: "" });
+  const loadProfile = useServerFn(getMyCustomerProfile);
+  const saveProfile = useServerFn(saveMyCustomerProfile);
+  const createPayment = useServerFn(createAsaasPayment);
+  const routeSearch = Route.useSearch();
+  const resumeFlag = !!routeSearch.resume;
+
   // Resumo abre apenas via clique explícito em "Adicionar ao carrinho" (não em mudanças de quantidade).
   // Force-close when jumping to checkout step so the user sees the form summary.
   useEffect(() => {
@@ -261,6 +280,80 @@ function WholesalePage() {
     notes: "",
   });
   const [loading, setLoading] = useState(false);
+  const draftRestored = useRef(false);
+
+  // Restore draft (qty, labelLogo, form) from sessionStorage on mount.
+  useEffect(() => {
+    if (draftRestored.current) return;
+    draftRestored.current = true;
+    try {
+      const raw = sessionStorage.getItem(DRAFT_KEY);
+      if (raw) {
+        const d = JSON.parse(raw) as {
+          qty?: Record<string, number>;
+          labelLogo?: { data_url: string; filename: string } | null;
+          form?: typeof form;
+          activeRoot?: string | null;
+        };
+        if (d.qty && Object.keys(d.qty).length > 0) setQty(d.qty);
+        if (d.labelLogo) setLabelLogo(d.labelLogo);
+        if (d.form) setForm((f) => ({ ...f, ...d.form }));
+        if (d.activeRoot) setActiveRoot(d.activeRoot);
+      }
+    } catch { /* ignore */ }
+  }, []);
+
+  // Persist draft continuously so it survives an auth redirect round-trip.
+  useEffect(() => {
+    try {
+      const hasItems = Object.values(qty).some((n) => n > 0);
+      if (!hasItems && !labelLogo) {
+        sessionStorage.removeItem(DRAFT_KEY);
+        return;
+      }
+      sessionStorage.setItem(
+        DRAFT_KEY,
+        JSON.stringify({ qty, labelLogo, form, activeRoot }),
+      );
+    } catch { /* ignore */ }
+  }, [qty, labelLogo, form, activeRoot]);
+
+  // Detect signed-in state and, on sign-in, prefill from the customer profile.
+  useEffect(() => {
+    let mounted = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (!mounted) return;
+      const authed = !!data.session;
+      setSignedIn(authed);
+      if (!authed) return;
+      const email = data.session?.user.email;
+      loadProfile().then((p) => {
+        if (!mounted) return;
+        setForm((f) => ({
+          customer_name: p?.full_name ?? f.customer_name,
+          customer_email: p?.email ?? email ?? f.customer_email,
+          customer_phone: p?.phone ?? f.customer_phone,
+          customer_document: p?.document ?? f.customer_document,
+          zip: p?.zip ?? f.zip,
+          street: p?.street ?? f.street,
+          number: p?.number ?? f.number,
+          complement: p?.complement ?? f.complement,
+          neighborhood: p?.neighborhood ?? f.neighborhood,
+          city: p?.city ?? f.city,
+          state: p?.state ?? f.state,
+          notes: f.notes,
+        }));
+      }).catch(() => { /* ignore */ });
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setSignedIn(!!session);
+    });
+    return () => {
+      mounted = false;
+      sub.subscription.unsubscribe();
+    };
+  }, [loadProfile]);
+
 
   const handleZip = async (zip: string) => {
     setForm((f) => ({ ...f, zip }));
@@ -282,9 +375,60 @@ function WholesalePage() {
     }
   };
 
+  const proceedToCheckout = () => {
+    if (!canProceed) {
+      toast.error(`Mínimo ${MIN_PER_SUBCAT} unidades por subcategoria`);
+      return;
+    }
+    if (signedIn === null) return; // still resolving
+    if (!signedIn) {
+      toast.info("Entre ou crie sua conta para finalizar o pedido");
+      navigate({ to: "/auth", search: { redirect: "/loja/atacado?resume=1" } });
+      return;
+    }
+    setStep("checkout");
+    setSheetOpen(false);
+  };
+
+  // If the user just returned from /auth with ?resume=1, jump straight to checkout
+  // once auth state and the draft are ready.
+  useEffect(() => {
+    if (!resumeFlag) return;
+    if (signedIn !== true) return;
+    if (!canProceed) return;
+    if (step === "checkout") return;
+    setStep("checkout");
+    setSheetOpen(false);
+    // Clear the query param without adding history entry
+    navigate({ to: "/loja/atacado", search: {}, replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resumeFlag, signedIn, canProceed]);
+
+  const onGoogleLogin = async () => {
+    setGoogleLoading(true);
+    try {
+      const { authService } = await import("@/services/authService");
+      const result = await authService.signInWithGoogle();
+      if (result.error) toast.error("Falha ao entrar com Google", { description: String(result.error) });
+    } catch (e) {
+      toast.error("Falha ao entrar com Google", { description: e instanceof Error ? e.message : String(e) });
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!canProceed) return toast.error("Regra de atacado não atendida");
+    if (!signedIn) {
+      navigate({ to: "/auth", search: { redirect: "/loja/atacado?resume=1" } });
+      return;
+    }
+    if (paymentMethod === "CREDIT_CARD") {
+      if (!card.holderName || !card.number || !card.expiryMonth || !card.expiryYear || !card.ccv) {
+        return toast.error("Preencha os dados do cartão");
+      }
+    }
     setLoading(true);
     try {
       const items = Object.entries(qty)
@@ -313,6 +457,43 @@ function WholesalePage() {
           notes: form.notes || null,
         },
       });
+
+      // Save profile for next purchase (non-blocking).
+      try {
+        await saveProfile({
+          data: {
+            full_name: form.customer_name || null,
+            phone: form.customer_phone || null,
+            document: form.customer_document || null,
+            zip: form.zip || null,
+            street: form.street || null,
+            number: form.number || null,
+            complement: form.complement || null,
+            neighborhood: form.neighborhood || null,
+            city: form.city || null,
+            state: form.state ? form.state.toUpperCase() : null,
+          },
+        });
+      } catch { /* ignore */ }
+
+      // Create Asaas charge.
+      try {
+        await createPayment({
+          data: {
+            order_id: res.id,
+            method: paymentMethod,
+            installments: paymentMethod === "CREDIT_CARD" ? installments : undefined,
+            card: paymentMethod === "CREDIT_CARD" ? card : undefined,
+          },
+        });
+      } catch (payErr) {
+        toast.error(payErr instanceof Error ? payErr.message : "Erro no pagamento");
+        sessionStorage.removeItem(DRAFT_KEY);
+        navigate({ to: "/loja/pedido/$id", params: { id: res.id } });
+        return;
+      }
+
+      sessionStorage.removeItem(DRAFT_KEY);
       toast.success("Pedido de atacado criado!");
       navigate({ to: "/loja/pedido/$id", params: { id: res.id } });
     } catch (err) {
@@ -321,6 +502,7 @@ function WholesalePage() {
       setLoading(false);
     }
   };
+
 
   return (
     <StoreShell categories={cats}>
@@ -681,6 +863,23 @@ function WholesalePage() {
 
           ) : (
             <form onSubmit={submit} className="space-y-4">
+              {signedIn === false && (
+                <div className="flex flex-col items-start justify-between gap-3 rounded-xl border bg-card p-4 sm:flex-row sm:items-center">
+                  <div className="text-sm">
+                    <div className="font-semibold">Entre para concluir seu pedido</div>
+                    <div className="text-muted-foreground">Use sua conta AMT para agilizar próximas compras.</div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={onGoogleLogin}
+                    disabled={googleLoading}
+                    className="inline-flex items-center gap-2 rounded-md border-2 border-primary bg-background px-4 py-2 text-sm font-bold text-primary hover:bg-primary/5 disabled:opacity-50"
+                  >
+                    <LogIn className="h-4 w-4" />
+                    {googleLoading ? "Abrindo..." : "Entrar com Google"}
+                  </button>
+                </div>
+              )}
               <div className="rounded-xl border bg-card p-5">
                 <h2 className="text-lg font-black">Dados do cliente</h2>
                 <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -715,12 +914,58 @@ function WholesalePage() {
                 />
               </div>
 
+              <div className="rounded-xl border bg-card p-5">
+                <h2 className="text-lg font-black">Forma de pagamento</h2>
+                <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                  {(["PIX", "CREDIT_CARD", "BOLETO"] as const).map((m) => (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => setPaymentMethod(m)}
+                      className={`rounded-md border-2 px-3 py-2 text-sm font-bold transition ${paymentMethod === m ? "border-primary bg-primary/10 text-primary" : "border-input hover:border-primary/50"}`}
+                    >
+                      {m === "PIX" ? "PIX" : m === "CREDIT_CARD" ? "Cartão de crédito" : "Boleto"}
+                    </button>
+                  ))}
+                </div>
+                {paymentMethod === "PIX" && (
+                  <p className="mt-3 text-xs text-muted-foreground">Após confirmar, você verá o QR Code e o Copia e Cola. O pedido entra em produção assim que o pagamento é confirmado.</p>
+                )}
+                {paymentMethod === "BOLETO" && (
+                  <p className="mt-3 text-xs text-muted-foreground">O boleto é gerado com vencimento em 3 dias úteis. O pedido é liberado após a compensação bancária.</p>
+                )}
+                {paymentMethod === "CREDIT_CARD" && (
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    <input required placeholder="Nome impresso no cartão" value={card.holderName} onChange={(e) => setCard((c) => ({ ...c, holderName: e.target.value.toUpperCase() }))} className="rounded-md border bg-background px-3 py-2 text-sm uppercase outline-none focus:border-primary sm:col-span-2" />
+                    <input required placeholder="Número do cartão" value={card.number} onChange={(e) => setCard((c) => ({ ...c, number: e.target.value }))} className="rounded-md border bg-background px-3 py-2 text-sm outline-none focus:border-primary sm:col-span-2" />
+                    <input required maxLength={2} placeholder="Mês (MM)" value={card.expiryMonth} onChange={(e) => setCard((c) => ({ ...c, expiryMonth: e.target.value.replace(/\D/g, "").slice(0, 2) }))} className="rounded-md border bg-background px-3 py-2 text-sm outline-none focus:border-primary" />
+                    <input required maxLength={4} placeholder="Ano (AAAA)" value={card.expiryYear} onChange={(e) => setCard((c) => ({ ...c, expiryYear: e.target.value.replace(/\D/g, "").slice(0, 4) }))} className="rounded-md border bg-background px-3 py-2 text-sm outline-none focus:border-primary" />
+                    <input required maxLength={4} placeholder="CVV" value={card.ccv} onChange={(e) => setCard((c) => ({ ...c, ccv: e.target.value.replace(/\D/g, "").slice(0, 4) }))} className="rounded-md border bg-background px-3 py-2 text-sm outline-none focus:border-primary" />
+                    <select
+                      value={installments}
+                      onChange={(e) => setInstallments(Number(e.target.value))}
+                      className="rounded-md border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+                    >
+                      {Array.from({ length: 12 }, (_, i) => i + 1).map((n) => {
+                        const enabled = (n === 1) || (n <= 3 && subtotal >= 200) || (n <= 5 && subtotal >= 600) || (subtotal >= 1000);
+                        if (!enabled) return null;
+                        return (
+                          <option key={n} value={n}>
+                            {n}x de {formatBRL(subtotal / n)} sem juros
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </div>
+                )}
+              </div>
+
               <div className="flex flex-wrap gap-2">
                 <button type="button" onClick={() => setStep("cart")} className="rounded-md border px-4 py-2 text-sm font-semibold hover:bg-accent">
                   ← Voltar ao pedido
                 </button>
                 <button type="submit" disabled={loading || !canProceed} className="flex-1 rounded-md bg-primary px-4 py-3 text-sm font-bold text-primary-foreground disabled:opacity-50">
-                  {loading ? "Enviando..." : `Finalizar pedido · ${formatBRL(subtotal)}`}
+                  {loading ? "Processando..." : `Pagar · ${formatBRL(subtotal)}`}
                 </button>
               </div>
             </form>
@@ -832,11 +1077,16 @@ function WholesalePage() {
             <button
               type="button"
               disabled={!canProceed}
-              onClick={() => { setStep("checkout"); setSheetOpen(false); }}
+              onClick={proceedToCheckout}
               className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 text-sm font-bold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Finalizar compra <ArrowRight className="h-4 w-4" />
+              {signedIn === false ? (<>Entrar para finalizar <ArrowRight className="h-4 w-4" /></>) : (<>Confirmar e ir ao pagamento <ArrowRight className="h-4 w-4" /></>)}
             </button>
+            {signedIn === false && (
+              <p className="mt-2 text-center text-[11px] text-muted-foreground">
+                Você precisa entrar ou criar uma conta para continuar. Seu pedido fica salvo.
+              </p>
+            )}
             <button
               type="button"
               onClick={() => setSheetOpen(false)}
