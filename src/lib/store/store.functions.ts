@@ -136,6 +136,7 @@ const WholesaleItemSchema = z.object({
 });
 
 export const createWholesaleOrder = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) =>
     z.object({
       customer_email: z.string().email(),
@@ -149,8 +150,9 @@ export const createWholesaleOrder = createServerFn({ method: "POST" })
       user_id: z.string().uuid().optional().nullable(),
     }).parse(i),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
 
     // Read admin-controlled wholesale settings.
     const { data: settingsRow } = await supabaseAdmin
