@@ -340,11 +340,33 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
           </div>
         </div>
         <div className="border-t border-background/10">
+          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-5 text-[11px] text-background/70 sm:flex-row">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 text-primary" />
+              <span>
+                Pagamentos processados com <strong className="text-background">100% de segurança</strong> pelo{" "}
+                <a href="https://www.mercadopago.com.br" target="_blank" rel="noreferrer" className="font-semibold text-background underline decoration-primary/60 underline-offset-2 hover:text-primary">Mercado Pago</a>
+                {" "}— criptografia de ponta a ponta. A AMT não armazena dados de cartão.
+              </span>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-background/80">
+              <span className="rounded border border-background/20 px-2 py-1">PIX</span>
+              <span className="rounded border border-background/20 px-2 py-1">Visa</span>
+              <span className="rounded border border-background/20 px-2 py-1">Master</span>
+              <span className="rounded border border-background/20 px-2 py-1">Elo</span>
+              <span className="rounded border border-background/20 px-2 py-1">Amex</span>
+              <span className="rounded border border-background/20 px-2 py-1">Hiper</span>
+              <span className="rounded border border-background/20 px-2 py-1">Boleto</span>
+            </div>
+          </div>
+        </div>
+        <div className="border-t border-background/10">
           <div className="mx-auto max-w-7xl px-4 py-4 text-center text-[11px] text-background/60">
             © {new Date().getFullYear()} AMT Fight Wear — Todos os direitos reservados
           </div>
         </div>
       </footer>
+
       <CartSheet />
     </div>
   );
