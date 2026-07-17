@@ -247,13 +247,48 @@ function AdminProductsPage() {
           <h1 className="text-2xl font-black">Produtos da loja</h1>
           <p className="text-sm text-muted-foreground">{filtered.length} produtos {search && `(filtrados de ${data?.length ?? 0})`}</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <Input
             placeholder="Buscar produto..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             className="w-64"
           />
+          <select
+            value={categoryFilter}
+            onChange={(e) => { setCategoryFilter(e.target.value); setPage(1); }}
+            className="h-10 rounded-md border bg-background px-2 text-sm min-w-[14rem]"
+          >
+            <option value="">Todas as categorias</option>
+            {(() => {
+              const cats = catsAll ?? [];
+              const byParent = new Map<string | null, typeof cats>();
+              for (const c of cats) {
+                const k = c.parent_id ?? null;
+                const arr = byParent.get(k) ?? [];
+                arr.push(c);
+                byParent.set(k, arr);
+              }
+              const out: React.ReactNode[] = [];
+              const walk = (parent: string | null, depth: number) => {
+                for (const c of byParent.get(parent) ?? []) {
+                  out.push(
+                    <option key={c.id} value={c.id}>
+                      {`${"— ".repeat(depth)}${c.name}`}
+                    </option>,
+                  );
+                  walk(c.id, depth + 1);
+                }
+              };
+              walk(null, 0);
+              return out;
+            })()}
+          </select>
+          {categoryFilter && (
+            <Button variant="ghost" size="sm" onClick={() => { setCategoryFilter(""); setPage(1); }}>
+              Limpar filtro
+            </Button>
+          )}
           <Button onClick={() => setCreatingProduct(true)}>
             <Plus className="h-4 w-4 mr-1" /> Adicionar produto
           </Button>
