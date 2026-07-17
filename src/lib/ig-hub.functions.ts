@@ -383,8 +383,26 @@ export const syncIgInbox = createServerFn({ method: "POST" })
             last_message_preview: lastPreview,
             window_expires_at: windowExpires,
           }, { onConflict: "user_id,channel,participant_igsid" })
-          .select("id")
+          .select("id, lead_id")
           .single();
+
+        // Auto-link: se ainda não há lead_id e existe um prospect_contact com esse @, vincula.
+        if (convRow && !convRow.lead_id && username) {
+          const handleLc = username.toLowerCase();
+          const { data: contactRow } = await (context.supabase as any)
+            .from("prospect_contacts")
+            .select("company_id")
+            .eq("channel", "instagram")
+            .ilike("value", handleLc)
+            .limit(1)
+            .maybeSingle();
+          if (contactRow?.company_id) {
+            await (context.supabase as any)
+              .from("ig_conversations")
+              .update({ lead_id: contactRow.company_id })
+              .eq("id", convRow.id);
+          }
+        }
 
         if (convRow && msgs.length) {
           const bizUsername = conn.instagram_username?.toLowerCase();
