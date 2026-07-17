@@ -665,6 +665,14 @@ export const adminUpdateStoreProduct = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("products").update(data.patch).eq("id", data.id);
     if (error) throw new Error(error.message);
+    // Sincroniza estoque entre todas as variantes ativas quando alterado em massa
+    if (typeof data.patch.stock === "number") {
+      const { error: vErr } = await context.supabase
+        .from("store_product_variants")
+        .update({ stock: data.patch.stock })
+        .eq("product_id", data.id);
+      if (vErr) throw new Error(vErr.message);
+    }
     return { ok: true };
   });
 
