@@ -897,12 +897,58 @@ function WholesalePage() {
                 />
               </div>
 
+              <div className="rounded-xl border bg-card p-5">
+                <h2 className="text-lg font-black">Forma de pagamento</h2>
+                <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                  {(["PIX", "CREDIT_CARD", "BOLETO"] as const).map((m) => (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => setPaymentMethod(m)}
+                      className={`rounded-md border-2 px-3 py-2 text-sm font-bold transition ${paymentMethod === m ? "border-primary bg-primary/10 text-primary" : "border-input hover:border-primary/50"}`}
+                    >
+                      {m === "PIX" ? "PIX" : m === "CREDIT_CARD" ? "Cartão de crédito" : "Boleto"}
+                    </button>
+                  ))}
+                </div>
+                {paymentMethod === "PIX" && (
+                  <p className="mt-3 text-xs text-muted-foreground">Após confirmar, você verá o QR Code e o Copia e Cola. O pedido entra em produção assim que o pagamento é confirmado.</p>
+                )}
+                {paymentMethod === "BOLETO" && (
+                  <p className="mt-3 text-xs text-muted-foreground">O boleto é gerado com vencimento em 3 dias úteis. O pedido é liberado após a compensação bancária.</p>
+                )}
+                {paymentMethod === "CREDIT_CARD" && (
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    <input required placeholder="Nome impresso no cartão" value={card.holderName} onChange={(e) => setCard((c) => ({ ...c, holderName: e.target.value.toUpperCase() }))} className="rounded-md border bg-background px-3 py-2 text-sm uppercase outline-none focus:border-primary sm:col-span-2" />
+                    <input required placeholder="Número do cartão" value={card.number} onChange={(e) => setCard((c) => ({ ...c, number: e.target.value }))} className="rounded-md border bg-background px-3 py-2 text-sm outline-none focus:border-primary sm:col-span-2" />
+                    <input required maxLength={2} placeholder="Mês (MM)" value={card.expiryMonth} onChange={(e) => setCard((c) => ({ ...c, expiryMonth: e.target.value.replace(/\D/g, "").slice(0, 2) }))} className="rounded-md border bg-background px-3 py-2 text-sm outline-none focus:border-primary" />
+                    <input required maxLength={4} placeholder="Ano (AAAA)" value={card.expiryYear} onChange={(e) => setCard((c) => ({ ...c, expiryYear: e.target.value.replace(/\D/g, "").slice(0, 4) }))} className="rounded-md border bg-background px-3 py-2 text-sm outline-none focus:border-primary" />
+                    <input required maxLength={4} placeholder="CVV" value={card.ccv} onChange={(e) => setCard((c) => ({ ...c, ccv: e.target.value.replace(/\D/g, "").slice(0, 4) }))} className="rounded-md border bg-background px-3 py-2 text-sm outline-none focus:border-primary" />
+                    <select
+                      value={installments}
+                      onChange={(e) => setInstallments(Number(e.target.value))}
+                      className="rounded-md border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+                    >
+                      {Array.from({ length: 12 }, (_, i) => i + 1).map((n) => {
+                        const enabled = (n === 1) || (n <= 3 && subtotal >= 200) || (n <= 5 && subtotal >= 600) || (subtotal >= 1000);
+                        if (!enabled) return null;
+                        return (
+                          <option key={n} value={n}>
+                            {n}x de {formatBRL(subtotal / n)} sem juros
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </div>
+                )}
+              </div>
+
               <div className="flex flex-wrap gap-2">
                 <button type="button" onClick={() => setStep("cart")} className="rounded-md border px-4 py-2 text-sm font-semibold hover:bg-accent">
                   ← Voltar ao pedido
                 </button>
                 <button type="submit" disabled={loading || !canProceed} className="flex-1 rounded-md bg-primary px-4 py-3 text-sm font-bold text-primary-foreground disabled:opacity-50">
-                  {loading ? "Enviando..." : `Finalizar pedido · ${formatBRL(subtotal)}`}
+                  {loading ? "Processando..." : `Pagar · ${formatBRL(subtotal)}`}
                 </button>
               </div>
             </form>
