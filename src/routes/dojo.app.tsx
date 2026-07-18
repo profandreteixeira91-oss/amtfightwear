@@ -97,6 +97,7 @@ const routeTitles: Array<{ match: (p: string) => boolean; title: string; subtitl
   { match: (p) => p.startsWith("/dojo/app/graduations"), title: "Graduações", subtitle: "Nova graduação e certificados" },
   { match: (p) => p.startsWith("/dojo/app/evaluations"), title: "Avaliações", subtitle: "Provas teóricas e práticas" },
   { match: (p) => p.startsWith("/dojo/app/certificates"), title: "Certificados", subtitle: "Modelos e emissões" },
+  { match: (p) => p.startsWith("/dojo/app/competitions"), title: "Competições", subtitle: "Calendário, atletas e histórico" },
   { match: (p) => p.startsWith("/dojo/app/plans"), title: "Planos", subtitle: "Mensalidades e contratos" },
   { match: (p) => p.startsWith("/dojo/app/finance"), title: "Financeiro", subtitle: "Recebimentos e a receber" },
   { match: (p) => p.startsWith("/dojo/app/units"), title: "Unidades", subtitle: "Dojos e polos" },
