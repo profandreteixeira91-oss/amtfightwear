@@ -180,7 +180,7 @@ export const duplicateVideo = createServerFn({ method: "POST" })
     if (e1 || !src) throw new Error(e1?.message ?? "Vídeo não encontrado");
     const { id, created_at, updated_at, views_count, likes_count, published_at, ...rest } = src as Record<string, any>;
     const clone = { ...rest, title: `${rest.title} (cópia)`, status: "draft", published_at: null };
-    const { data: row, error } = await context.supabase.from("dojo_videos").insert(clone).select().single();
+    const { data: row, error } = await context.supabase.from("dojo_videos").insert(clone as any).select().single();
     if (error) throw new Error(error.message);
     return row;
   });
