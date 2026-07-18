@@ -1,145 +1,123 @@
 
-# Editor Visual do App do Aluno (No-Code)
+# Reformulação do módulo Avaliações
 
-Painel admin em `/dojo/app/student-app` para configurar o portal `/app` sem código. Toda config vive em uma tabela nova (`dojo_student_app_config`) por academia — o app do aluno lê essa config em tempo real e monta a UI dinamicamente.
+O módulo hoje é um CRUD simples de "provas com itens teóricos/práticos + impressão". A reformulação transforma isso em uma plataforma completa mantendo o schema atual (`dojo_evaluations`) como uma das entidades — o campo `items jsonb` passa a suportar a estrutura nova, sem quebrar avaliações existentes.
 
 ## Modelo de dados
 
-Uma linha por academia + histórico de versões:
+Aproveita `dojo_evaluations` (que vira "modelo"/template) e adiciona:
 
 ```text
-dojo_student_app_config           ← config publicada (1 por owner)
-  owner_id, version, published_at, published_by, config jsonb, draft jsonb
-dojo_student_app_versions         ← histórico
-  owner_id, version, config jsonb, label, author_id, created_at
-dojo_student_app_news             ← notícias/banners
-  owner_id, type (news|banner), title, body, image_url, cta_label,
-  cta_link, starts_at, ends_at, priority, audience, active
+dojo_eval_categories       ← categorias técnicas (Fundamentos, Guarda...)
+  owner_id, name, description, icon, color, order_index, archived
+
+dojo_eval_techniques       ← biblioteca central de técnicas
+  owner_id, name, description, category_id, image_url, video_id,
+  default_score, required, estimated_seconds, tags text[], archived
+
+dojo_eval_templates        ← estende dojo_evaluations com metadados novos
+  (adicionar colunas ao dojo_evaluations)
+  modality, category, teacher_id, min_training_months, min_attendance,
+  observations, version, parent_template_id, is_library, method,
+  scale jsonb, structure jsonb  ← categorias > critérios > técnicas
+  
+dojo_eval_sessions         ← execução da avaliação com um aluno
+  owner_id, template_id, student_id, evaluator_id, scheduled_at,
+  started_at, finished_at, status (draft|scheduled|in_progress|done|failed|review),
+  scores jsonb, observations, attachments jsonb, total_score, percentage,
+  result (approved|failed|review|conditional)
+
+dojo_eval_plans            ← plano de evolução pós-avaliação
+  session_id, strong_points, improvement_points, recommended_techniques uuid[],
+  recommended_videos uuid[], comments, next_evaluation_at
 ```
 
-Formato do `config jsonb` (contrato do app):
-
+`structure jsonb` do template:
 ```json
 {
-  "appearance": {
-    "app_name": "Team Alpha",
-    "logo_url": "...",
-    "app_icon_url": "...",
-    "splash_url": "...",
-    "login_bg_url": "...",
-    "home_hero_url": "...",
-    "brand_primary": "#dc2626",
-    "brand_secondary": "#0a0a0a",
-    "button_color": null,
-    "bottom_nav_color": "#ffffff",
-    "card_color": "#ffffff",
-    "title_color": "#0a0a0a",
-    "font_family": "Inter",
-    "theme_mode": "light"
-  },
-  "features": {
-    "agenda": true, "checkin": true, "videos": true, "graduations": true,
-    "certificates": true, "finance": true, "competitions": true,
-    "profile": true, "documents": true, "news": true, "messages": false,
-    "events": true, "announcements": true, "evaluations": false,
-    "attendance": true, "digital_card": false, "store": false,
-    "ranking": false, "gamification": false, "training_plan": false
-  },
-  "audience": { "student": {...features}, "guardian": {...} },
-  "bottom_nav": [
-    { "id": "home", "label": "Início", "icon": "home", "route": "/app/home" },
-    { "id": "agenda", "label": "Agenda", "icon": "calendar", "route": "/app/agenda" },
-    { "id": "checkin", "label": "Check-in", "icon": "qr", "route": "/app/checkin", "primary": true },
-    { "id": "videos", "label": "Vídeos", "icon": "film", "route": "/app/videos" },
-    { "id": "profile", "label": "Perfil", "icon": "user", "route": "/app/profile" }
-  ],
-  "home_blocks": [
-    { "id": "welcome",    "type": "welcome",    "visible": true },
-    { "id": "banner",     "type": "banner",     "visible": true },
-    { "id": "next_class", "type": "next_class", "visible": true },
-    { "id": "shortcuts",  "type": "shortcuts",  "visible": true,
-      "items": ["checkin","videos","finance","graduations"] },
-    { "id": "news",       "type": "news",       "visible": true },
-    { "id": "invoices",   "type": "open_invoices", "visible": true },
-    { "id": "graduation", "type": "graduation", "visible": false }
-  ],
-  "login": {
-    "title": "Bem-vindo",
-    "subtitle": "Acesse com seu e-mail e senha",
-    "institutional_text": null,
-    "button_color": null,
-    "welcome_screen_enabled": false,
-    "welcome_screen_message": null
-  },
-  "notifications": {
-    "welcome_message": "Bem-vindo(a) ao portal!",
-    "push_enabled": false
-  }
+  "categories": [
+    { "id": "...", "name": "Guarda", "weight": 1,
+      "criteria": [
+        { "id": "...", "name": "Fechada", "weight": 2, "max_score": 10,
+          "min_score": 0, "required": true, "eliminatory": false,
+          "techniques": ["<technique_id>", ...] } ] } ]
 }
 ```
 
-Publicação = copiar `draft` → `config` + bump `version` + snapshot em `dojo_student_app_versions`. Rollback = pegar linha do histórico e restaurar.
+Método de avaliação por template: `numeric | checklist | pass_fail | scale | rubric | concept`.
+
+## Seed: biblioteca de modelos prontos
+
+Uma migração adicional insere modelos com `is_library=true` e `owner_id=null` (visíveis a todos):
+- Jiu-Jitsu Infantil (13 faixas conforme lista).
+- Jiu-Jitsu Adulto (5 faixas).
+- Judô (branca a preta — conforme graduação).
+- Genérico vazio.
+
+Modelos com `owner_id IS NULL` são somente-leitura para a academia. "Usar este modelo" faz duplicação em `owner_id = auth.uid()` (linha nova).
+
+RLS: `owner_id = auth.uid() OR (is_library = true AND owner_id IS NULL)` para SELECT; INSERT/UPDATE/DELETE só quando `owner_id = auth.uid()`.
 
 ## Backend
 
-`src/lib/student-app/config.functions.ts`:
-- `getStudentAppConfig()` — retorna `config` publicada (público-para-aluno via `requireSupabaseAuth`; app do aluno consome). Filtro por owner do aluno logado.
-- `adminGetConfig()` — retorna `{ draft, config, version, updated_at }` (admin).
-- `adminSaveDraft(patch)` — merge no `draft`.
-- `adminPublish(label?)` — draft → config, snapshot na tabela de versões, notifica alunos.
-- `adminListVersions()`, `adminRestoreVersion(version)`, `adminDuplicateVersion(version)`.
-- `adminListNews()`, `adminUpsertNews()`, `adminDeleteNews()`.
-- `getActiveNewsAndBanners()` — para o app do aluno.
+`src/lib/dojo/evaluations/`:
+- `templates.functions.ts` — list/get/save/duplicate/archive/delete templates + versionamento.
+- `library.functions.ts` — lista modelos da biblioteca.
+- `categories.functions.ts` — CRUD categorias técnicas.
+- `techniques.functions.ts` — CRUD biblioteca central de técnicas.
+- `sessions.functions.ts` — criar/atualizar/finalizar sessão + calcular resultado.
+- `plans.functions.ts` — CRUD plano de evolução.
+- `dashboard.functions.ts` — agregações para o painel.
+- `integrations.functions.ts` — ao aprovar sessão, criar registro em `dojo_graduations` (opcional por flag).
 
-RLS: `dojo_student_app_config` — admin manage (owner_id = auth.uid()) + aluno SELECT (`owner_id = get_my_student_owner_id()`, mas só colunas de config publicada).
+## UI — `/dojo/app/evaluations` (rebuild)
 
-## Editor admin — `/dojo/app/student-app`
+Layout com abas + subrotas:
+- `/dojo/app/evaluations` → **Dashboard** (KPIs + gráficos com `recharts` já usado).
+- `/dojo/app/evaluations/library` → **Biblioteca de Modelos** (grid com filtro por modalidade/faixa; botão "Usar este modelo").
+- `/dojo/app/evaluations/my` → **Minhas Avaliações** (sessões executadas/agendadas, lista + filtros).
+- `/dojo/app/evaluations/templates` → **Modelos Personalizados** (grid + editor visual drag-and-drop de estrutura).
+- `/dojo/app/evaluations/templates/$id` → **Editor de modelo** (categorias > critérios > técnicas com `@dnd-kit`, seleção de método, escala).
+- `/dojo/app/evaluations/categories` → **Categorias Técnicas** (CRUD).
+- `/dojo/app/evaluations/techniques` → **Biblioteca de Técnicas** (CRUD, busca, filtros, tags, arquivar).
+- `/dojo/app/evaluations/session/$id` → **Executar avaliação** (aluno em foco, header com foto/faixa/histórico, checklist/notas por critério, anexos, salvamento automático, resultado ao final).
+- `/dojo/app/evaluations/session/$id/plan` → **Plano de evolução** (formulário + sugestões de vídeos).
+- `/dojo/app/evaluations/history` → **Histórico** (timeline por aluno).
+- `/dojo/app/evaluations/settings` → **Configurações** (nota mínima padrão, escala padrão, integração automática com graduação, regras de aprovação).
 
-Layout de 2 colunas (desktop):
-- **Esquerda**: sidebar com abas (Aparência / Navegação / Funcionalidades / Tela Inicial / Login / Notícias & Banners / Notificações / Versões).
-- **Direita**: preview de celular em tempo real (mockup iPhone/Android via toggle) — renderiza o mesmo bundle do app dentro de um `<iframe src="/app/home?preview=<hash>">` OU um preview React inline lendo o mesmo `config` que está sendo editado (via Zustand store).
+Componentes reutilizáveis em `src/components/dojo/evaluations/`:
+- `TemplateCard`, `TemplateEditor` (drag-and-drop categorias/critérios/técnicas), `MethodSelector`, `ScaleEditor`, `TechniquePicker`, `SessionRunner` (com auto-save via debounce), `ResultSummary`, `EvolutionPlanForm`, `StudentHeader`, `TimelineList`.
 
-Componentes:
-- `AppearancePanel.tsx` — color pickers, upload de logo/splash/hero (bucket `dojo-brand`), tipografia.
-- `NavigationEditor.tsx` — lista `bottom_nav` com drag-and-drop (`@dnd-kit/sortable`, já instalado); editar rótulo, ícone (picker de lucide-icons), rota; adicionar/remover; máx 5.
-- `FeaturesPanel.tsx` — grid de toggles com descrição.
-- `HomeBlocksEditor.tsx` — drag-and-drop de blocos, toggle visibilidade, config por bloco (ex: shortcuts escolhe quais atalhos).
-- `LoginPanel.tsx` — textos + upload da imagem de fundo.
-- `NewsManager.tsx` — CRUD de notícias/banners com datas de vigência e prioridade.
-- `NotificationsPanel.tsx` — mensagens padrão + toggle push (estrutura).
-- `VersionsPanel.tsx` — lista, restaurar, duplicar, comparar (diff JSON).
-- `PublishBar.tsx` — sticky bottom: "Salvar rascunho" + "Publicar" + selo "Alterações não publicadas".
-- `DevicePreview.tsx` — moldura de celular (Android/iPhone/Tablet) envolvendo o preview.
+Design: Notion/ClickUp — sidebar de abas no topo do módulo, cards, skeleton loading, filtros rápidos, busca instantânea (`useDeferredValue`), painéis laterais para edição, feedback visual (toasts).
 
-Barra superior do editor:
-- Toggle dispositivo (Android / iPhone / Tablet).
-- "Ver como aluno" (abre `/app` numa nova aba com token).
-- Badge de versão atual e status (Rascunho / Publicado).
+## Integrações
 
-## App do aluno — consumir a config
+- **Alunos**: `SessionRunner` puxa `dojo_students`; ao aprovar, gravar linha timeline em `dojo_account_audit`/histórico do aluno.
+- **Vídeos**: `TechniquePicker` linka `dojo_videos.id`; `EvolutionPlanForm` sugere vídeos por técnicas mal avaliadas (query em `dojo_videos` com tags/categoria).
+- **Graduação**: função `promoteFromSession` cria `dojo_graduations` quando `result='approved'` E flag `auto_graduate` do template estiver on. Opcional via botão manual também.
+- **Agenda**: sessão com `scheduled_at` aparece como evento (não altera schema da agenda; consulta cruzada).
+- **Certificados**: reaproveita gerador existente com data da avaliação.
 
-Refatorar as rotas em `src/routes/app._student.*.tsx` para ler `useStudentAppConfig()` (React Query) e:
-- BottomNav renderiza itens de `config.bottom_nav`.
-- Home renderiza `config.home_blocks` em ordem, cada bloco vira um componente (`<WelcomeBlock/>`, `<NextClassBlock/>`, `<ShortcutsBlock items=.../>`, `<NewsBlock/>`, `<BannerBlock/>`, `<OpenInvoicesBlock/>`, `<GraduationBlock/>`).
-- Rotas de funcionalidades desabilitadas retornam redirect para `/app/home` (+ removidas do BottomNav e dos atalhos).
-- Tema aplica cores via CSS custom properties no `StudentThemeProvider` (adicionar novas vars: `--sa-bottom-nav`, `--sa-card`, `--sa-title`, `--sa-button`).
-- Notícias/banners consomem `getActiveNewsAndBanners`.
+## Backward compatibility
 
-## O que NÃO faço agora
+- Rotas antigas continuam funcionando; a listagem de "provas" existente aparece dentro de "Modelos Personalizados" (mesma tabela).
+- `items jsonb` legado é migrado on-the-fly: se `structure` estiver vazio, o UI mostra o modelo em modo compatível (categoria única "Itens", critérios = itens).
+- `saveDojoEvaluation` e `listDojoEvaluations` mantidos e usados por baixo do capô.
 
-- Push notifications reais (FCM) — só toggle na config.
-- Editor por perfil (Responsável/Professor/Convidado) além do toggle base — schema pronto (`audience`), UI só para `student`.
-- Widgets custom / marketplace / temas completos / formulários custom (deixados na estrutura JSON, sem UI ainda).
-- Modo escuro real (schema pronto, sem CSS variant nesta iteração).
-- Sincronização em background/lazy loading avançado — app já faz refetch on focus via React Query.
-- Diff visual entre versões (só metadados + JSON preview).
+## Fora do escopo desta iteração (estrutura preparada)
+
+- Assinatura digital dos avaliadores, avaliação remota, avaliação por vídeo, IA de análise técnica.
+- Ranking técnico e gamificação.
+- Marketplace público entre academias.
+- Compartilhamento entre unidades da mesma academia (schema pronto via `unit_id`, sem UI ainda).
+- Importação/exportação real (JSON de template) — deixo botão "Exportar JSON" e "Importar JSON" simples; import cross-academy fica só como schema.
 
 ## Entrega desta iteração
 
-1. Migração: tabelas `dojo_student_app_config`, `dojo_student_app_versions`, `dojo_student_app_news` + RLS + GRANTs + trigger de updated_at.
-2. `config.functions.ts` completo.
-3. Rota admin `/dojo/app/student-app` com todos os painéis e preview em tempo real.
-4. Refatoração das telas do aluno para consumir a config (BottomNav dinâmica + Home por blocos + gate de features + tema estendido).
-5. Bloco de notícias/banners no home e página `/app/news`.
+1. Migração: novas tabelas + colunas em `dojo_evaluations` + RLS/GRANTs + seed da biblioteca.
+2. Backend completo (`src/lib/dojo/evaluations/*.functions.ts`).
+3. Reescrita do módulo com todas as subrotas listadas.
+4. Componentes reutilizáveis.
+5. Integração automática (opcional) com Graduação.
 
-Tudo em uma iteração. Confirme para eu começar pela migração.
+Confirme para eu começar pela migração.
