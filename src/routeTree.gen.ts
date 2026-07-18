@@ -17,6 +17,7 @@ import { Route as DojoRouteImport } from './routes/dojo'
 import { Route as DataDeletionRouteImport } from './routes/data-deletion'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AtacadoLpRouteImport } from './routes/atacado-lp'
+import { Route as DojoRouteImport } from './routes/_dojo'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LojaIndexRouteImport } from './routes/loja.index'
@@ -158,6 +159,10 @@ const AtacadoLpRoute = AtacadoLpRouteImport.update({
   path: '/atacado-lp',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DojoRoute = DojoRouteImport.update({
+  id: '/_dojo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
@@ -284,9 +289,9 @@ const LojaCategoriaSlugRoute = LojaCategoriaSlugRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const DojoDojoAppRoute = DojoDojoAppRouteImport.update({
-  id: '/_dojo/dojo/app',
+  id: '/dojo/app',
   path: '/dojo/app',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => DojoRoute,
 } as any)
 const AuthenticatedStoreWholesaleRoute =
   AuthenticatedStoreWholesaleRouteImport.update({
@@ -929,6 +934,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/_dojo': typeof DojoRouteWithChildren
   '/atacado-lp': typeof AtacadoLpRoute
   '/auth': typeof AuthRoute
   '/data-deletion': typeof DataDeletionRoute
@@ -1258,6 +1264,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/_dojo'
     | '/atacado-lp'
     | '/auth'
     | '/data-deletion'
@@ -1369,6 +1376,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  DojoRoute: typeof DojoRouteWithChildren
   AtacadoLpRoute: typeof AtacadoLpRoute
   AuthRoute: typeof AuthRoute
   DataDeletionRoute: typeof DataDeletionRoute
@@ -1383,7 +1391,6 @@ export interface RootRouteChildren {
   LojaCarrinhoRoute: typeof LojaCarrinhoRoute
   LojaCheckoutRoute: typeof LojaCheckoutRoute
   LojaIndexRoute: typeof LojaIndexRoute
-  DojoDojoAppRoute: typeof DojoDojoAppRouteWithChildren
   LojaCategoriaSlugRoute: typeof LojaCategoriaSlugRoute
   LojaContaPedidosRoute: typeof LojaContaPedidosRoute
   LojaCustomShopKindRoute: typeof LojaCustomShopKindRoute
@@ -1468,6 +1475,13 @@ declare module '@tanstack/react-router' {
       path: '/atacado-lp'
       fullPath: '/atacado-lp'
       preLoaderRoute: typeof AtacadoLpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_dojo': {
+      id: '/_dojo'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof DojoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -1650,7 +1664,7 @@ declare module '@tanstack/react-router' {
       path: '/dojo/app'
       fullPath: '/dojo/app'
       preLoaderRoute: typeof DojoDojoAppRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof DojoRoute
     }
     '/_authenticated/store/wholesale': {
       id: '/_authenticated/store/wholesale'
@@ -2312,16 +2326,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
-interface DojoRouteChildren {
-  DojoCheckoutRoute: typeof DojoCheckoutRoute
-}
-
-const DojoRouteChildren: DojoRouteChildren = {
-  DojoCheckoutRoute: DojoCheckoutRoute,
-}
-
-const DojoRouteWithChildren = DojoRoute._addFileChildren(DojoRouteChildren)
-
 interface DojoDojoAppStudentsRouteChildren {
   DojoDojoAppStudentsIdRoute: typeof DojoDojoAppStudentsIdRoute
 }
@@ -2361,9 +2365,30 @@ const DojoDojoAppRouteWithChildren = DojoDojoAppRoute._addFileChildren(
   DojoDojoAppRouteChildren,
 )
 
+interface DojoRouteChildren {
+  DojoDojoAppRoute: typeof DojoDojoAppRouteWithChildren
+}
+
+const DojoRouteChildren: DojoRouteChildren = {
+  DojoDojoAppRoute: DojoDojoAppRouteWithChildren,
+}
+
+const DojoRouteWithChildren = DojoRoute._addFileChildren(DojoRouteChildren)
+
+interface DojoRouteChildren {
+  DojoCheckoutRoute: typeof DojoCheckoutRoute
+}
+
+const DojoRouteChildren: DojoRouteChildren = {
+  DojoCheckoutRoute: DojoCheckoutRoute,
+}
+
+const DojoRouteWithChildren = DojoRoute._addFileChildren(DojoRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  DojoRoute: DojoRouteWithChildren,
   AtacadoLpRoute: AtacadoLpRoute,
   AuthRoute: AuthRoute,
   DataDeletionRoute: DataDeletionRoute,
@@ -2378,7 +2403,6 @@ const rootRouteChildren: RootRouteChildren = {
   LojaCarrinhoRoute: LojaCarrinhoRoute,
   LojaCheckoutRoute: LojaCheckoutRoute,
   LojaIndexRoute: LojaIndexRoute,
-  DojoDojoAppRoute: DojoDojoAppRouteWithChildren,
   LojaCategoriaSlugRoute: LojaCategoriaSlugRoute,
   LojaContaPedidosRoute: LojaContaPedidosRoute,
   LojaCustomShopKindRoute: LojaCustomShopKindRoute,
