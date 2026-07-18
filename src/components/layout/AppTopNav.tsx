@@ -122,7 +122,7 @@ const groups: { label: string; items: Item[] }[] = [
     ],
   },
   {
-    label: "Loja",
+    label: "Admin",
     items: [
       { title: "Painel da Loja", url: "/store", icon: Store },
       { title: "Produtos", url: "/store/products", icon: Package },
