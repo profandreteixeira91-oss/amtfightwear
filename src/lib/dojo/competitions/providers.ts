@@ -21,7 +21,7 @@ export type ProviderDefinition = {
 };
 
 export const PROVIDERS: ProviderDefinition[] = [
-  { id: "smoothcomp", label: "Smoothcomp", homepage: "https://www.smoothcomp.com", listUrl: "https://www.smoothcomp.com/en/events?country=BR", priority: "high" },
+  { id: "smoothcomp", label: "Smoothcomp", homepage: "https://www.smoothcomp.com", listUrl: "https://www.smoothcomp.com/en/events/upcoming?country=BR", priority: "high" },
   { id: "sou_competidor", label: "Sou Competidor", homepage: "https://www.soucompetidor.com.br", listUrl: "https://www.soucompetidor.com.br/", priority: "high" },
   { id: "bjj_tour", label: "BJJ Tour", homepage: "https://www.bjjtour.com.br", listUrl: "https://www.bjjtour.com.br/", priority: "high" },
   { id: "ibjjf", label: "IBJJF", homepage: "https://ibjjf.com", listUrl: "https://ibjjf.com/events/calendar", priority: "high" },
