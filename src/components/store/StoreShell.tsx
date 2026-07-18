@@ -160,10 +160,10 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
           <button className="md:hidden">
             <Menu className="h-5 w-5" />
           </button>
-          <Link to="/" className="flex items-center gap-2">
-            <img src={amtLogo} alt="AMT Fight Wear" className="h-9 w-9 rounded object-cover" />
+          <Link to="/" aria-label="Loja AMT Fight Wear — página inicial" className="flex items-center gap-2">
+            <img src={amtLogo} alt="Logotipo da Loja AMT Fight Wear" className="h-9 w-9 rounded object-cover" />
             <div className="leading-tight">
-              <div className="text-sm font-black tracking-tight">AMT</div>
+              <div className="text-sm font-black tracking-tight">Loja AMT</div>
               <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Fight Wear</div>
             </div>
           </Link>
