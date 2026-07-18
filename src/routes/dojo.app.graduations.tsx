@@ -113,13 +113,16 @@ function NewGraduationPage() {
 
   const submitGrad = async () => {
     if (!beltId) return toast.error("Selecione a faixa");
-    if (degree < 0 || degree > maxDeg) return toast.error(`Grau entre 0 e ${maxDeg}`);
+    const submitBeltId = effectiveBelt?.id ?? beltId;
+    const submitDegree = isPretaBase ? 0 : degree;
+    if (!isPretaBase && (degree < 0 || degree > maxDeg)) return toast.error(`Grau entre 0 e ${maxDeg}`);
     try {
       const res = await bulkFn({ data: {
         student_ids: Array.from(selectedStudents),
-        belt_id: beltId, degree, graduation_date: date,
+        belt_id: submitBeltId, degree: submitDegree, graduation_date: date,
         evaluator: evaluator || null, notes: notes || null,
       }});
+
       toast.success(`${res.count} graduação(ões) registrada(s)`);
       setRegistered(res.graduations ?? []);
       qc.invalidateQueries({ queryKey: ["dojo-students"] });
