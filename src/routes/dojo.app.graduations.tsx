@@ -343,7 +343,12 @@ function NewGraduationPage() {
                       <div className="text-xs text-muted-foreground">{selectedBelt?.name}{degree ? ` · ${degree}º grau` : ""}</div>
                     </div>
                     {done ? (
-                      <span className="text-xs text-emerald-600 flex items-center gap-1"><CheckCircle2 className="h-4 w-4" /> Emitido</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-emerald-600 flex items-center gap-1"><CheckCircle2 className="h-4 w-4" /> Emitido</span>
+                        <Button size="sm" variant="outline" onClick={() => setPreviewFor(g.student_id)}>
+                          <Eye className="h-4 w-4 mr-1" /> Ver
+                        </Button>
+                      </div>
                     ) : (
                       <Button size="sm" variant="outline" onClick={() => issueOne(g.student_id, g.id)} disabled={!templateId}>Emitir</Button>
                     )}
@@ -352,15 +357,30 @@ function NewGraduationPage() {
               })}
             </div>
 
-            <div className="flex justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <Button variant="ghost" onClick={reset}>Concluir</Button>
-              <Button onClick={issueAll} disabled={!templateId || issued.size === registered.length}>
-                Emitir todos ({registered.length - issued.size})
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                {issued.size > 0 && (
+                  <Button variant="outline" onClick={printAll}>
+                    <Printer className="h-4 w-4 mr-1" /> Imprimir / PDF ({issued.size})
+                  </Button>
+                )}
+                <Button onClick={issueAll} disabled={!templateId || issued.size === registered.length}>
+                  Emitir todos ({registered.length - issued.size})
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
       )}
+
+      <CertificatePreviewDialog
+        open={!!previewFor}
+        onOpenChange={(v) => { if (!v) setPreviewFor(null); }}
+        template={previewFor ? (issued.get(previewFor)?.template ?? null) : null}
+        values={previewFor ? (issued.get(previewFor)?.values ?? {}) : {}}
+        title={previewFor ? `Certificado — ${issued.get(previewFor)?.studentName ?? ""}` : undefined}
+      />
     </div>
   );
 }
