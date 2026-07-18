@@ -1,231 +1,170 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { PROVIDERS, type NormalizedCompetition, type ProviderId } from "@/lib/dojo/competitions/providers";
+import { PROVIDERS, PROVIDER_BY_ID, type ProviderId } from "@/lib/dojo/competitions/providers";
 
-const providerEnum = z.enum([
-  "manual","smoothcomp","sou_competidor","bjj_tour","ibjjf","uaejjf","cbjj","cbjje","fjjrio","fpjjb","fjjsp","other",
-]);
+const FIRECRAWL_V2 = "https://api.firecrawl.dev/v2";
 
-const athleteStatusEnum = z.enum([
-  "pre_registered","registered","payment_pending","confirmed","cancelled",
-]);
+type ScrapedEvent = {
+  name: string;
+  starts_at?: string | null;
+  ends_at?: string | null;
+  city?: string | null;
+  state?: string | null;
+  country?: string | null;
+  venue?: string | null;
+  registration_url?: string | null;
+  registration_deadline?: string | null;
+};
 
-const competitionSchema = z.object({
-  id: z.string().uuid().optional(),
-  provider: providerEnum.default("manual"),
-  external_id: z.string().nullable().optional(),
-  external_url: z.string().url().nullable().optional().or(z.literal("").transform(() => null)),
-  name: z.string().min(1),
-  banner_url: z.string().url().nullable().optional().or(z.literal("").transform(() => null)),
-  starts_at: z.string().nullable().optional(),
-  ends_at: z.string().nullable().optional(),
-  registration_deadline: z.string().nullable().optional(),
-  city: z.string().nullable().optional(),
-  state: z.string().nullable().optional(),
-  country: z.string().nullable().optional(),
-  venue_name: z.string().nullable().optional(),
-  address: z.string().nullable().optional(),
-  organizer: z.string().nullable().optional(),
-  description: z.string().nullable().optional(),
-  modality: z.string().nullable().optional(),
-  with_gi: z.boolean().nullable().optional(),
-  age_groups: z.array(z.string()).optional(),
-  belts: z.array(z.string()).optional(),
-  categories: z.array(z.string()).optional(),
-  entry_fee: z.number().nullable().optional(),
-  currency: z.string().nullable().optional(),
-  status: z.string().optional(),
-});
+export type LiveCompetition = {
+  id: string;
+  provider: ProviderId;
+  name: string;
+  starts_at: string | null;
+  ends_at: string | null;
+  city: string | null;
+  state: string | null;
+  country: string | null;
+  venue_name: string | null;
+  organizer: string | null;
+  external_url: string;
+  registration_deadline: string | null;
+  banner_url: string | null;
+};
 
-// ================= LIST / GET =================
-export const listCompetitions = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { data, error } = await context.supabase
-      .from("dojo_competitions")
-      .select("*")
-      .order("starts_at", { ascending: true, nullsFirst: false });
-    if (error) throw new Error(error.message);
-    return data ?? [];
+const eventSchema = {
+  type: "object",
+  properties: {
+    events: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          name: { type: "string", description: "Nome do evento/campeonato" },
+          starts_at: { type: "string", description: "Data de início em ISO 8601 (YYYY-MM-DD). null se desconhecida." },
+          ends_at: { type: "string", description: "Data final em ISO 8601. null se não houver." },
+          city: { type: "string" },
+          state: { type: "string", description: "UF (2 letras) ou estado/região" },
+          country: { type: "string" },
+          venue: { type: "string", description: "Local/ginásio" },
+          registration_url: { type: "string", description: "URL absoluta da página de inscrição no site do provedor" },
+          registration_deadline: { type: "string", description: "Data limite de inscrição ISO 8601 se disponível" },
+        },
+        required: ["name"],
+      },
+    },
+  },
+  required: ["events"],
+};
+
+async function scrapeProvider(providerId: ProviderId): Promise<LiveCompetition[]> {
+  const apiKey = process.env.FIRECRAWL_API_KEY;
+  if (!apiKey) throw new Error("FIRECRAWL_API_KEY não configurada");
+  const provider = PROVIDER_BY_ID[providerId];
+  if (!provider) return [];
+
+  const res = await fetch(`${FIRECRAWL_V2}/scrape`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      url: provider.listUrl,
+      onlyMainContent: true,
+      waitFor: 2000,
+      formats: [
+        {
+          type: "json",
+          schema: eventSchema,
+          prompt:
+            "Extraia a lista de competições/campeonatos de jiu-jitsu (ou artes marciais) listadas nesta página. Para cada evento inclua nome, data de início (ISO), data final se houver, cidade, estado/UF, país, local, e a URL absoluta da página de inscrição no próprio site. Ignore eventos já encerrados. Se um campo não for visível, omita-o.",
+        },
+      ],
+    }),
   });
 
-export const getCompetition = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
-  .handler(async ({ data, context }) => {
-    const { data: comp, error } = await context.supabase
-      .from("dojo_competitions")
-      .select("*")
-      .eq("id", data.id)
-      .single();
-    if (error) throw new Error(error.message);
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`Firecrawl ${res.status}: ${body.slice(0, 300)}`);
+  }
 
-    const [athletesRes, attachmentsRes] = await Promise.all([
-      context.supabase
-        .from("dojo_competition_athletes")
-        .select("*, student:dojo_students(id, full_name, photo_url, cpf, phone, current_belt_id, belt:dojo_belts(name, color_hex))")
-        .eq("competition_id", data.id)
-        .order("created_at", { ascending: true }),
-      context.supabase
-        .from("dojo_competition_attachments")
-        .select("*")
-        .eq("competition_id", data.id)
-        .order("created_at", { ascending: false }),
-    ]);
-    if (athletesRes.error) throw new Error(athletesRes.error.message);
-    if (attachmentsRes.error) throw new Error(attachmentsRes.error.message);
+  const payload = await res.json();
+  const json = payload?.data?.json ?? payload?.json ?? {};
+  const events: ScrapedEvent[] = Array.isArray(json?.events) ? json.events : [];
 
-    return {
-      competition: comp,
-      athletes: athletesRes.data ?? [],
-      attachments: attachmentsRes.data ?? [],
-    };
-  });
+  return events
+    .filter((e) => e && e.name)
+    .map((e, idx): LiveCompetition => ({
+      id: `${providerId}:${idx}:${encodeURIComponent(e.name).slice(0, 40)}`,
+      provider: providerId,
+      name: e.name.trim(),
+      starts_at: normalizeDate(e.starts_at),
+      ends_at: normalizeDate(e.ends_at),
+      city: e.city ?? null,
+      state: e.state ?? null,
+      country: e.country ?? null,
+      venue_name: e.venue ?? null,
+      organizer: provider.label,
+      external_url: absoluteUrl(e.registration_url, provider.listUrl),
+      registration_deadline: normalizeDate(e.registration_deadline),
+      banner_url: null,
+    }));
+}
 
-// ================= UPSERT / DELETE =================
-export const upsertCompetition = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => competitionSchema.parse(i))
-  .handler(async ({ data, context }) => {
-    const payload = { ...data, owner_id: context.userId };
-    const { data: row, error } = data.id
-      ? await context.supabase.from("dojo_competitions").update(payload).eq("id", data.id).select().single()
-      : await context.supabase.from("dojo_competitions").insert(payload).select().single();
-    if (error) throw new Error(error.message);
-    return row;
-  });
+function normalizeDate(v?: string | null): string | null {
+  if (!v) return null;
+  const s = String(v).trim();
+  if (!s) return null;
+  const d = new Date(s);
+  if (isNaN(d.getTime())) return null;
+  return d.toISOString();
+}
 
-export const deleteCompetition = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
-  .handler(async ({ data, context }) => {
-    const { error } = await context.supabase.from("dojo_competitions").delete().eq("id", data.id);
-    if (error) throw new Error(error.message);
-    return { ok: true };
-  });
+function absoluteUrl(u: string | null | undefined, base: string): string {
+  if (!u) return base;
+  try {
+    return new URL(u, base).toString();
+  } catch {
+    return base;
+  }
+}
 
-// ================= ATHLETES =================
-const athleteSchema = z.object({
-  id: z.string().uuid().optional(),
-  competition_id: z.string().uuid(),
-  student_id: z.string().uuid(),
-  category: z.string().nullable().optional(),
-  weight: z.number().nullable().optional(),
-  belt: z.string().nullable().optional(),
-  age_group: z.string().nullable().optional(),
-  status: athleteStatusEnum.optional(),
-  notes: z.string().nullable().optional(),
-});
+export const scrapeCompetitions = createServerFn({ method: "POST" })
+  .inputValidator((i: unknown) =>
+    z
+      .object({
+        providers: z.array(z.string()).optional(),
+      })
+      .parse(i ?? {}),
+  )
+  .handler(async ({ data }) => {
+    const targetIds: ProviderId[] = (data.providers && data.providers.length > 0
+      ? data.providers
+      : PROVIDERS.map((p) => p.id)) as ProviderId[];
 
-export const addCompetitionAthlete = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => athleteSchema.parse(i))
-  .handler(async ({ data, context }) => {
-    // Uniqueness enforced by DB unique constraint. Return a friendly error.
-    const payload = {
-      ...data,
-      owner_id: context.userId,
-      registered_by: context.userId,
-    };
-    const { data: row, error } = await context.supabase
-      .from("dojo_competition_athletes")
-      .insert(payload)
-      .select("*, student:dojo_students(id, full_name, photo_url, cpf, phone, belt:dojo_belts(name, color_hex))")
-      .single();
-    if (error) {
-      if (error.code === "23505") throw new Error("Este atleta já está inscrito nesta competição.");
-      throw new Error(error.message);
-    }
-    return row;
-  });
+    const results = await Promise.allSettled(targetIds.map((id) => scrapeProvider(id)));
 
-export const updateCompetitionAthlete = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => athleteSchema.extend({ id: z.string().uuid() }).parse(i))
-  .handler(async ({ data, context }) => {
-    const { id, ...rest } = data;
-    const { data: row, error } = await context.supabase
-      .from("dojo_competition_athletes")
-      .update(rest)
-      .eq("id", id)
-      .select("*, student:dojo_students(id, full_name, photo_url, cpf, phone, belt:dojo_belts(name, color_hex))")
-      .single();
-    if (error) throw new Error(error.message);
-    return row;
-  });
+    const competitions: LiveCompetition[] = [];
+    const summary: { provider: ProviderId; count: number; error?: string }[] = [];
 
-export const removeCompetitionAthlete = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
-  .handler(async ({ data, context }) => {
-    const { error } = await context.supabase
-      .from("dojo_competition_athletes")
-      .delete()
-      .eq("id", data.id);
-    if (error) throw new Error(error.message);
-    return { ok: true };
-  });
-
-// ================= STUDENT SEARCH =================
-export const searchStudents = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ q: z.string().optional() }).parse(i))
-  .handler(async ({ data, context }) => {
-    const q = (data.q ?? "").trim();
-    let query = context.supabase
-      .from("dojo_students")
-      .select("id, full_name, photo_url, cpf, phone, birth_date, current_degree, belt:dojo_belts(name, color_hex)")
-      .order("full_name", { ascending: true })
-      .limit(30);
-    if (q) {
-      const like = `%${q}%`;
-      query = query.or(`full_name.ilike.${like},cpf.ilike.${like},phone.ilike.${like}`);
-    }
-    const { data: rows, error } = await query;
-    if (error) throw new Error(error.message);
-    return rows ?? [];
-  });
-
-// ================= PROVIDER SYNC =================
-export const syncCompetitions = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const owner_id = context.userId;
-    const summary: { provider: ProviderId; inserted: number; updated: number; errors?: string }[] = [];
-
-    for (const p of PROVIDERS) {
-      if (!p.fetchUpcoming) continue;
-      try {
-        const items: NormalizedCompetition[] = await p.fetchUpcoming();
-        let inserted = 0;
-        let updated = 0;
-        for (const it of items) {
-          const row = { ...it, owner_id };
-          if (it.external_id) {
-            const { data: existing } = await context.supabase
-              .from("dojo_competitions")
-              .select("id")
-              .eq("owner_id", owner_id)
-              .eq("provider", p.id)
-              .eq("external_id", it.external_id)
-              .maybeSingle();
-            if (existing?.id) {
-              await context.supabase.from("dojo_competitions").update(row as any).eq("id", existing.id);
-              updated++;
-            } else {
-              await context.supabase.from("dojo_competitions").insert(row as any);
-              inserted++;
-            }
-          } else {
-            await context.supabase.from("dojo_competitions").insert(row as any);
-            inserted++;
-          }
-        }
-        summary.push({ provider: p.id, inserted, updated });
-      } catch (e: any) {
-        summary.push({ provider: p.id, inserted: 0, updated: 0, errors: e?.message ?? "erro" });
+    results.forEach((r, idx) => {
+      const providerId = targetIds[idx];
+      if (r.status === "fulfilled") {
+        competitions.push(...r.value);
+        summary.push({ provider: providerId, count: r.value.length });
+      } else {
+        summary.push({ provider: providerId, count: 0, error: String(r.reason?.message ?? r.reason).slice(0, 200) });
       }
-    }
-    return { summary };
+    });
+
+    // Ordena por data (próximas primeiro, sem data no fim)
+    competitions.sort((a, b) => {
+      if (!a.starts_at && !b.starts_at) return 0;
+      if (!a.starts_at) return 1;
+      if (!b.starts_at) return -1;
+      return new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime();
+    });
+
+    return { competitions, summary, fetchedAt: new Date().toISOString() };
   });
