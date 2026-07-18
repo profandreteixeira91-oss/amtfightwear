@@ -279,7 +279,7 @@ function KioskPanel() {
         </CardContent>
       </Card>
 
-      <SearchDialog open={showSearch} onOpenChange={setShowSearch} unitId={unitId} onSuccess={(name) => {
+      <SearchDialog open={showSearch} onOpenChange={setShowSearch} unitId={unitId} onSuccess={(name: string) => {
         setLastCheckin({ name, message: welcomeTpl.replace(/\{\{name\}\}/g, name.split(" ")[0]), method: "Manual" });
         setTimeout(() => setLastCheckin(null), 3500);
       }} />
