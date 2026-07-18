@@ -140,6 +140,7 @@ import { Route as DojoAppEvaluationsSessionsRouteImport } from './routes/dojo.ap
 import { Route as DojoAppEvaluationsLibraryRouteImport } from './routes/dojo.app.evaluations.library'
 import { Route as DojoAppEvaluationsHistoryRouteImport } from './routes/dojo.app.evaluations.history'
 import { Route as DojoAppEvaluationsCategoriesRouteImport } from './routes/dojo.app.evaluations.categories'
+import { Route as AppStudentInvoiceIdRouteImport } from './routes/app._student.invoice.$id'
 import { Route as ApiPublicSalesMessagesRouteImport } from './routes/api/public/sales/messages'
 import { Route as ApiPublicSalesChatRouteImport } from './routes/api/public/sales/chat'
 import { Route as ApiPublicMetaCallbackRouteImport } from './routes/api/public/meta/callback'
@@ -861,6 +862,11 @@ const DojoAppEvaluationsCategoriesRoute =
     path: '/categories',
     getParentRoute: () => DojoAppEvaluationsRoute,
   } as any)
+const AppStudentInvoiceIdRoute = AppStudentInvoiceIdRouteImport.update({
+  id: '/invoice/$id',
+  path: '/invoice/$id',
+  getParentRoute: () => AppStudentRoute,
+} as any)
 const ApiPublicSalesMessagesRoute = ApiPublicSalesMessagesRouteImport.update({
   id: '/api/public/sales/messages',
   path: '/api/public/sales/messages',
@@ -1110,6 +1116,7 @@ export interface FileRoutesByFullPath {
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
   '/api/public/sales/messages': typeof ApiPublicSalesMessagesRoute
+  '/app/invoice/$id': typeof AppStudentInvoiceIdRoute
   '/dojo/app/evaluations/categories': typeof DojoAppEvaluationsCategoriesRoute
   '/dojo/app/evaluations/history': typeof DojoAppEvaluationsHistoryRoute
   '/dojo/app/evaluations/library': typeof DojoAppEvaluationsLibraryRoute
@@ -1256,6 +1263,7 @@ export interface FileRoutesByTo {
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
   '/api/public/sales/messages': typeof ApiPublicSalesMessagesRoute
+  '/app/invoice/$id': typeof AppStudentInvoiceIdRoute
   '/dojo/app/evaluations/categories': typeof DojoAppEvaluationsCategoriesRoute
   '/dojo/app/evaluations/history': typeof DojoAppEvaluationsHistoryRoute
   '/dojo/app/evaluations/library': typeof DojoAppEvaluationsLibraryRoute
@@ -1409,6 +1417,7 @@ export interface FileRoutesById {
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
   '/api/public/sales/messages': typeof ApiPublicSalesMessagesRoute
+  '/app/_student/invoice/$id': typeof AppStudentInvoiceIdRoute
   '/dojo/app/evaluations/categories': typeof DojoAppEvaluationsCategoriesRoute
   '/dojo/app/evaluations/history': typeof DojoAppEvaluationsHistoryRoute
   '/dojo/app/evaluations/library': typeof DojoAppEvaluationsLibraryRoute
@@ -1563,6 +1572,7 @@ export interface FileRouteTypes {
     | '/api/public/meta/callback'
     | '/api/public/sales/chat'
     | '/api/public/sales/messages'
+    | '/app/invoice/$id'
     | '/dojo/app/evaluations/categories'
     | '/dojo/app/evaluations/history'
     | '/dojo/app/evaluations/library'
@@ -1709,6 +1719,7 @@ export interface FileRouteTypes {
     | '/api/public/meta/callback'
     | '/api/public/sales/chat'
     | '/api/public/sales/messages'
+    | '/app/invoice/$id'
     | '/dojo/app/evaluations/categories'
     | '/dojo/app/evaluations/history'
     | '/dojo/app/evaluations/library'
@@ -1861,6 +1872,7 @@ export interface FileRouteTypes {
     | '/api/public/meta/callback'
     | '/api/public/sales/chat'
     | '/api/public/sales/messages'
+    | '/app/_student/invoice/$id'
     | '/dojo/app/evaluations/categories'
     | '/dojo/app/evaluations/history'
     | '/dojo/app/evaluations/library'
@@ -2853,6 +2865,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DojoAppEvaluationsCategoriesRouteImport
       parentRoute: typeof DojoAppEvaluationsRoute
     }
+    '/app/_student/invoice/$id': {
+      id: '/app/_student/invoice/$id'
+      path: '/invoice/$id'
+      fullPath: '/app/invoice/$id'
+      preLoaderRoute: typeof AppStudentInvoiceIdRouteImport
+      parentRoute: typeof AppStudentRoute
+    }
     '/api/public/sales/messages': {
       id: '/api/public/sales/messages'
       path: '/api/public/sales/messages'
@@ -3155,6 +3174,7 @@ interface AppStudentRouteChildren {
   AppStudentProfileRoute: typeof AppStudentProfileRoute
   AppStudentSettingsRoute: typeof AppStudentSettingsRoute
   AppStudentVideosRoute: typeof AppStudentVideosRoute
+  AppStudentInvoiceIdRoute: typeof AppStudentInvoiceIdRoute
 }
 
 const AppStudentRouteChildren: AppStudentRouteChildren = {
@@ -3170,6 +3190,7 @@ const AppStudentRouteChildren: AppStudentRouteChildren = {
   AppStudentProfileRoute: AppStudentProfileRoute,
   AppStudentSettingsRoute: AppStudentSettingsRoute,
   AppStudentVideosRoute: AppStudentVideosRoute,
+  AppStudentInvoiceIdRoute: AppStudentInvoiceIdRoute,
 }
 
 const AppStudentRouteWithChildren = AppStudentRoute._addFileChildren(
