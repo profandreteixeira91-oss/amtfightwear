@@ -83,6 +83,7 @@ import { Route as AuthenticatedDojoStudentsRouteImport } from './routes/_authent
 import { Route as AuthenticatedDojoPlansRouteImport } from './routes/_authenticated/dojo.plans'
 import { Route as AuthenticatedDojoGraduationsRouteImport } from './routes/_authenticated/dojo.graduations'
 import { Route as AuthenticatedDojoFinanceRouteImport } from './routes/_authenticated/dojo.finance'
+import { Route as AuthenticatedDojoCheckinRouteImport } from './routes/_authenticated/dojo.checkin'
 import { Route as AuthenticatedDojoCertificatesRouteImport } from './routes/_authenticated/dojo.certificates'
 import { Route as AuthenticatedAdsScaleRouteImport } from './routes/_authenticated/ads.scale'
 import { Route as AuthenticatedAdsOptimizationRouteImport } from './routes/_authenticated/ads.optimization'
@@ -516,6 +517,12 @@ const AuthenticatedDojoFinanceRoute =
     path: '/finance',
     getParentRoute: () => AuthenticatedDojoRoute,
   } as any)
+const AuthenticatedDojoCheckinRoute =
+  AuthenticatedDojoCheckinRouteImport.update({
+    id: '/checkin',
+    path: '/checkin',
+    getParentRoute: () => AuthenticatedDojoRoute,
+  } as any)
 const AuthenticatedDojoCertificatesRoute =
   AuthenticatedDojoCertificatesRouteImport.update({
     id: '/certificates',
@@ -714,6 +721,7 @@ export interface FileRoutesByFullPath {
   '/ads/optimization': typeof AuthenticatedAdsOptimizationRoute
   '/ads/scale': typeof AuthenticatedAdsScaleRoute
   '/dojo/certificates': typeof AuthenticatedDojoCertificatesRoute
+  '/dojo/checkin': typeof AuthenticatedDojoCheckinRoute
   '/dojo/finance': typeof AuthenticatedDojoFinanceRoute
   '/dojo/graduations': typeof AuthenticatedDojoGraduationsRoute
   '/dojo/plans': typeof AuthenticatedDojoPlansRoute
@@ -817,6 +825,7 @@ export interface FileRoutesByTo {
   '/ads/optimization': typeof AuthenticatedAdsOptimizationRoute
   '/ads/scale': typeof AuthenticatedAdsScaleRoute
   '/dojo/certificates': typeof AuthenticatedDojoCertificatesRoute
+  '/dojo/checkin': typeof AuthenticatedDojoCheckinRoute
   '/dojo/finance': typeof AuthenticatedDojoFinanceRoute
   '/dojo/graduations': typeof AuthenticatedDojoGraduationsRoute
   '/dojo/plans': typeof AuthenticatedDojoPlansRoute
@@ -923,6 +932,7 @@ export interface FileRoutesById {
   '/_authenticated/ads/optimization': typeof AuthenticatedAdsOptimizationRoute
   '/_authenticated/ads/scale': typeof AuthenticatedAdsScaleRoute
   '/_authenticated/dojo/certificates': typeof AuthenticatedDojoCertificatesRoute
+  '/_authenticated/dojo/checkin': typeof AuthenticatedDojoCheckinRoute
   '/_authenticated/dojo/finance': typeof AuthenticatedDojoFinanceRoute
   '/_authenticated/dojo/graduations': typeof AuthenticatedDojoGraduationsRoute
   '/_authenticated/dojo/plans': typeof AuthenticatedDojoPlansRoute
@@ -1029,6 +1039,7 @@ export interface FileRouteTypes {
     | '/ads/optimization'
     | '/ads/scale'
     | '/dojo/certificates'
+    | '/dojo/checkin'
     | '/dojo/finance'
     | '/dojo/graduations'
     | '/dojo/plans'
@@ -1132,6 +1143,7 @@ export interface FileRouteTypes {
     | '/ads/optimization'
     | '/ads/scale'
     | '/dojo/certificates'
+    | '/dojo/checkin'
     | '/dojo/finance'
     | '/dojo/graduations'
     | '/dojo/plans'
@@ -1237,6 +1249,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ads/optimization'
     | '/_authenticated/ads/scale'
     | '/_authenticated/dojo/certificates'
+    | '/_authenticated/dojo/checkin'
     | '/_authenticated/dojo/finance'
     | '/_authenticated/dojo/graduations'
     | '/_authenticated/dojo/plans'
@@ -1873,6 +1886,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDojoFinanceRouteImport
       parentRoute: typeof AuthenticatedDojoRoute
     }
+    '/_authenticated/dojo/checkin': {
+      id: '/_authenticated/dojo/checkin'
+      path: '/checkin'
+      fullPath: '/dojo/checkin'
+      preLoaderRoute: typeof AuthenticatedDojoCheckinRouteImport
+      parentRoute: typeof AuthenticatedDojoRoute
+    }
     '/_authenticated/dojo/certificates': {
       id: '/_authenticated/dojo/certificates'
       path: '/certificates'
@@ -2136,6 +2156,7 @@ const AuthenticatedDojoStudentsRouteWithChildren =
 
 interface AuthenticatedDojoRouteChildren {
   AuthenticatedDojoCertificatesRoute: typeof AuthenticatedDojoCertificatesRoute
+  AuthenticatedDojoCheckinRoute: typeof AuthenticatedDojoCheckinRoute
   AuthenticatedDojoFinanceRoute: typeof AuthenticatedDojoFinanceRoute
   AuthenticatedDojoGraduationsRoute: typeof AuthenticatedDojoGraduationsRoute
   AuthenticatedDojoPlansRoute: typeof AuthenticatedDojoPlansRoute
@@ -2146,6 +2167,7 @@ interface AuthenticatedDojoRouteChildren {
 
 const AuthenticatedDojoRouteChildren: AuthenticatedDojoRouteChildren = {
   AuthenticatedDojoCertificatesRoute: AuthenticatedDojoCertificatesRoute,
+  AuthenticatedDojoCheckinRoute: AuthenticatedDojoCheckinRoute,
   AuthenticatedDojoFinanceRoute: AuthenticatedDojoFinanceRoute,
   AuthenticatedDojoGraduationsRoute: AuthenticatedDojoGraduationsRoute,
   AuthenticatedDojoPlansRoute: AuthenticatedDojoPlansRoute,
