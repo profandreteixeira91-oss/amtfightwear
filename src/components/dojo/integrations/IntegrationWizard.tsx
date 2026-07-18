@@ -190,9 +190,9 @@ export function IntegrationWizard({
         <DialogFooter className="gap-2">
           <Button variant="ghost" disabled={step === 0} onClick={() => setStep((s) => s - 1)}>Voltar</Button>
           {!isLast ? (
-            <Button onClick={() => setStep((s) => s + 1)}>Próximo</Button>
+            <Button onClick={() => setStep((s) => s + 1)} disabled={stepInvalid}>Próximo</Button>
           ) : (
-            <Button onClick={handleFinish} disabled={saving}>
+            <Button onClick={handleFinish} disabled={saving || !canFinish}>
               {saving ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : null}
               Concluir e salvar
             </Button>
