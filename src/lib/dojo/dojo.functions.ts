@@ -481,7 +481,7 @@ export const saveCertificateTemplate = createServerFn({ method: "POST" })
       width: z.number().optional(),
       height: z.number().optional(),
     })),
-    variables: z.record(z.any()).optional(),
+    variables: z.record(z.string(), z.any()).optional(),
     category: z.string().max(50).optional(),
     is_default: z.boolean().optional(),
     active: z.boolean().optional(),
