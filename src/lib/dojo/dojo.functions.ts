@@ -65,7 +65,7 @@ export const listDojoStudents = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("dojo_students")
-      .select("*, unit:dojo_units(name), belt:dojo_belts(name,color_hex)")
+      .select("*, unit:dojo_units(name), belt:dojo_belts(name,color_hex,stripe_hex,max_degrees)")
       .order("full_name");
     if (error) throw new Error(error.message);
     return data ?? [];
