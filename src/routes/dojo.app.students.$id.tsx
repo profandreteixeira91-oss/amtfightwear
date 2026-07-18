@@ -13,8 +13,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Trash2 } from "lucide-react";
+import { Trash2, Award, Eye, Printer } from "lucide-react";
 import { BeltVisual } from "@/components/dojo/BeltVisual";
+import { CertificatePreviewDialog, openCertificatePrint, type CertificateTemplate } from "@/components/dojo/CertificatePreview";
 
 export const Route = createFileRoute("/dojo/app/students/$id")({
   component: StudentDetail,
@@ -43,6 +44,7 @@ function StudentDetail() {
   const [grad, setGrad] = useState({ belt_id: "", degree: 0, graduation_date: new Date().toISOString().slice(0,10), evaluator: "", notes: "" });
   const [enroll, setEnroll] = useState({ plan_id: "", custom_amount: "", due_day: 5, start_date: new Date().toISOString().slice(0,10), status: "active" as const });
   const [inv, setInv] = useState({ description: "", amount: "", due_date: new Date().toISOString().slice(0,10) });
+  const [previewCert, setPreviewCert] = useState<any | null>(null);
 
   const refresh = () => qc.invalidateQueries({ queryKey: ["dojo-student", id] });
 
@@ -185,6 +187,58 @@ function StudentDetail() {
           </div>
         </CardContent>
       </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2"><Award className="h-4 w-4" /> Certificados emitidos</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="border rounded divide-y">
+            {(q.data.certificates ?? []).map((c: any) => {
+              const dt = new Date(c.issued_at).toLocaleDateString("pt-BR");
+              const beltLabel = c.graduation?.belt?.name
+                ? `${c.graduation.belt.name}${c.graduation.degree ? ` · ${c.graduation.degree}º grau` : ""}`
+                : (c.values?.belt ?? "—");
+              const hasTemplate = !!c.template?.background_url;
+              return (
+                <div key={c.id} className="flex items-center gap-3 p-3 text-sm">
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium truncate">{c.template?.name ?? "Certificado"}</div>
+                    <div className="text-xs text-muted-foreground truncate">Emitido em {dt} · {beltLabel}</div>
+                  </div>
+                  <Button
+                    size="sm" variant="outline"
+                    disabled={!hasTemplate}
+                    onClick={() => setPreviewCert(c)}
+                    title={hasTemplate ? "Pré-visualizar" : "Modelo indisponível"}
+                  >
+                    <Eye className="h-4 w-4 mr-1" /> Ver
+                  </Button>
+                  <Button
+                    size="sm" variant="ghost"
+                    disabled={!hasTemplate}
+                    onClick={() => openCertificatePrint([{ template: c.template as CertificateTemplate, values: c.values ?? {} }])}
+                    title="Imprimir / salvar em PDF"
+                  >
+                    <Printer className="h-4 w-4" />
+                  </Button>
+                </div>
+              );
+            })}
+            {(q.data.certificates ?? []).length === 0 && (
+              <div className="p-3 text-sm text-muted-foreground">Sem certificados. Emita pela aba <strong>Nova graduação</strong>.</div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      <CertificatePreviewDialog
+        open={!!previewCert}
+        onOpenChange={(v) => { if (!v) setPreviewCert(null); }}
+        template={previewCert?.template ?? null}
+        values={previewCert?.values ?? {}}
+        title={previewCert ? `Certificado — ${s.full_name}` : undefined}
+      />
     </div>
   );
 }

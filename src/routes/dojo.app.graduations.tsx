@@ -7,12 +7,13 @@ import {
   listCertificateTemplates, issueCertificate,
 } from "@/lib/dojo/dojo.functions";
 import { BeltVisual } from "@/components/dojo/BeltVisual";
+import { CertificatePreviewDialog, openCertificatePrint, type CertificateTemplate } from "@/components/dojo/CertificatePreview";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { CheckCircle2, Award } from "lucide-react";
+import { CheckCircle2, Award, Eye, Printer } from "lucide-react";
 
 export const Route = createFileRoute("/dojo/app/graduations")({
   component: NewGraduationPage,
@@ -44,7 +45,8 @@ function NewGraduationPage() {
 
   const [registered, setRegistered] = useState<Array<{ id: string; student_id: string }>>([]);
   const [templateId, setTemplateId] = useState("");
-  const [issued, setIssued] = useState<Set<string>>(new Set());
+  const [issued, setIssued] = useState<Map<string, { template: CertificateTemplate; values: Record<string, string>; studentName: string }>>(new Map());
+  const [previewFor, setPreviewFor] = useState<string | null>(null);
 
   // Hide Preta variants from the belt dropdown — they are chosen via the "Grau" selector below.
   const visibleBelts = useMemo(
@@ -146,8 +148,14 @@ function NewGraduationPage() {
     });
     try {
       await issueFn({ data: { student_id: studentId, graduation_id: gradId, template_id: templateId, values } });
-      setIssued(prev => new Set(prev).add(studentId));
+      setIssued(prev => {
+        const next = new Map(prev);
+        next.set(studentId, { template: tpl as unknown as CertificateTemplate, values, studentName: student.full_name });
+        return next;
+      });
       toast.success(`Certificado emitido: ${student.full_name}`);
+      // Auto-open preview for a single-student flow
+      if (registered.length <= 1) setPreviewFor(studentId);
     } catch (e: any) { toast.error(e.message ?? "Erro ao emitir"); }
   };
 
@@ -156,9 +164,15 @@ function NewGraduationPage() {
     for (const g of registered) await issueOne(g.student_id, g.id);
   };
 
+  const printAll = () => {
+    const items = Array.from(issued.values()).map(v => ({ template: v.template, values: v.values }));
+    if (items.length === 0) return toast.error("Emita ao menos um certificado");
+    openCertificatePrint(items);
+  };
+
   const reset = () => {
     setStep("select"); setSelectedStudents(new Set()); setBeltId(""); setDegree(0);
-    setEvaluator(""); setNotes(""); setRegistered([]); setTemplateId(""); setIssued(new Set());
+    setEvaluator(""); setNotes(""); setRegistered([]); setTemplateId(""); setIssued(new Map()); setPreviewFor(null);
   };
 
   return (
@@ -329,7 +343,12 @@ function NewGraduationPage() {
                       <div className="text-xs text-muted-foreground">{selectedBelt?.name}{degree ? ` · ${degree}º grau` : ""}</div>
                     </div>
                     {done ? (
-                      <span className="text-xs text-emerald-600 flex items-center gap-1"><CheckCircle2 className="h-4 w-4" /> Emitido</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-emerald-600 flex items-center gap-1"><CheckCircle2 className="h-4 w-4" /> Emitido</span>
+                        <Button size="sm" variant="outline" onClick={() => setPreviewFor(g.student_id)}>
+                          <Eye className="h-4 w-4 mr-1" /> Ver
+                        </Button>
+                      </div>
                     ) : (
                       <Button size="sm" variant="outline" onClick={() => issueOne(g.student_id, g.id)} disabled={!templateId}>Emitir</Button>
                     )}
@@ -338,15 +357,30 @@ function NewGraduationPage() {
               })}
             </div>
 
-            <div className="flex justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <Button variant="ghost" onClick={reset}>Concluir</Button>
-              <Button onClick={issueAll} disabled={!templateId || issued.size === registered.length}>
-                Emitir todos ({registered.length - issued.size})
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                {issued.size > 0 && (
+                  <Button variant="outline" onClick={printAll}>
+                    <Printer className="h-4 w-4 mr-1" /> Imprimir / PDF ({issued.size})
+                  </Button>
+                )}
+                <Button onClick={issueAll} disabled={!templateId || issued.size === registered.length}>
+                  Emitir todos ({registered.length - issued.size})
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
       )}
+
+      <CertificatePreviewDialog
+        open={!!previewFor}
+        onOpenChange={(v) => { if (!v) setPreviewFor(null); }}
+        template={previewFor ? (issued.get(previewFor)?.template ?? null) : null}
+        values={previewFor ? (issued.get(previewFor)?.values ?? {}) : {}}
+        title={previewFor ? `Certificado — ${issued.get(previewFor)?.studentName ?? ""}` : undefined}
+      />
     </div>
   );
 }

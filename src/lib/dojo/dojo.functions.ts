@@ -82,7 +82,7 @@ export const getDojoStudent = createServerFn({ method: "GET" })
       context.supabase.from("dojo_graduations").select("*, belt:dojo_belts(name,color_hex,stripe_hex,max_degrees)").eq("student_id", data.id).order("graduation_date", { ascending: false }),
       context.supabase.from("dojo_enrollments").select("*, plan:dojo_plans(name,amount)").eq("student_id", data.id),
       context.supabase.from("dojo_invoices").select("*").eq("student_id", data.id).order("due_date", { ascending: false }).limit(50),
-      context.supabase.from("dojo_certificates").select("*").eq("student_id", data.id).order("issued_at", { ascending: false }),
+      context.supabase.from("dojo_certificates").select("*, template:dojo_certificate_templates(*), graduation:dojo_graduations(graduation_date, degree, belt:dojo_belts(name))").eq("student_id", data.id).order("issued_at", { ascending: false }),
     ]);
     return { student, graduations: grads.data ?? [], enrollments: enrolls.data ?? [], invoices: invoices.data ?? [], certificates: certs.data ?? [] };
   });
