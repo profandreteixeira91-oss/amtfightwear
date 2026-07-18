@@ -1336,6 +1336,7 @@ export type Database = {
           id: string
           method: string
           notes: string | null
+          owner_id: string
           source: string | null
           student_id: string | null
           unit_id: string | null
@@ -1348,6 +1349,7 @@ export type Database = {
           id?: string
           method?: string
           notes?: string | null
+          owner_id: string
           source?: string | null
           student_id?: string | null
           unit_id?: string | null
@@ -1360,6 +1362,7 @@ export type Database = {
           id?: string
           method?: string
           notes?: string | null
+          owner_id?: string
           source?: string | null
           student_id?: string | null
           unit_id?: string | null
@@ -1389,6 +1392,7 @@ export type Database = {
           id: string
           max_degrees: number
           name: string
+          owner_id: string
           sort_order: number
         }
         Insert: {
@@ -1398,6 +1402,7 @@ export type Database = {
           id?: string
           max_degrees?: number
           name: string
+          owner_id: string
           sort_order: number
         }
         Update: {
@@ -1407,6 +1412,7 @@ export type Database = {
           id?: string
           max_degrees?: number
           name?: string
+          owner_id?: string
           sort_order?: number
         }
         Relationships: []
@@ -1420,6 +1426,7 @@ export type Database = {
           height: number
           id: string
           name: string
+          owner_id: string
           updated_at: string
           width: number
         }
@@ -1431,6 +1438,7 @@ export type Database = {
           height?: number
           id?: string
           name: string
+          owner_id: string
           updated_at?: string
           width?: number
         }
@@ -1442,6 +1450,7 @@ export type Database = {
           height?: number
           id?: string
           name?: string
+          owner_id?: string
           updated_at?: string
           width?: number
         }
@@ -1453,6 +1462,7 @@ export type Database = {
           graduation_id: string | null
           id: string
           issued_at: string
+          owner_id: string
           pdf_url: string | null
           public_hash: string
           student_id: string
@@ -1464,6 +1474,7 @@ export type Database = {
           graduation_id?: string | null
           id?: string
           issued_at?: string
+          owner_id: string
           pdf_url?: string | null
           public_hash?: string
           student_id: string
@@ -1475,6 +1486,7 @@ export type Database = {
           graduation_id?: string | null
           id?: string
           issued_at?: string
+          owner_id?: string
           pdf_url?: string | null
           public_hash?: string
           student_id?: string
@@ -1512,6 +1524,7 @@ export type Database = {
           due_day: number
           end_date: string | null
           id: string
+          owner_id: string
           plan_id: string
           start_date: string
           status: string
@@ -1524,6 +1537,7 @@ export type Database = {
           due_day?: number
           end_date?: string | null
           id?: string
+          owner_id: string
           plan_id: string
           start_date?: string
           status?: string
@@ -1536,6 +1550,7 @@ export type Database = {
           due_day?: number
           end_date?: string | null
           id?: string
+          owner_id?: string
           plan_id?: string
           start_date?: string
           status?: string
@@ -1567,6 +1582,7 @@ export type Database = {
           description: string
           due_date: string
           id: string
+          owner_id: string
           paid_at: string | null
           status: string
           unit_id: string | null
@@ -1579,6 +1595,7 @@ export type Database = {
           description: string
           due_date: string
           id?: string
+          owner_id: string
           paid_at?: string | null
           status?: string
           unit_id?: string | null
@@ -1591,6 +1608,7 @@ export type Database = {
           description?: string
           due_date?: string
           id?: string
+          owner_id?: string
           paid_at?: string | null
           status?: string
           unit_id?: string | null
@@ -1615,6 +1633,7 @@ export type Database = {
           graduation_date: string
           id: string
           notes: string | null
+          owner_id: string
           student_id: string
         }
         Insert: {
@@ -1625,6 +1644,7 @@ export type Database = {
           graduation_date?: string
           id?: string
           notes?: string | null
+          owner_id: string
           student_id: string
         }
         Update: {
@@ -1635,6 +1655,7 @@ export type Database = {
           graduation_date?: string
           id?: string
           notes?: string | null
+          owner_id?: string
           student_id?: string
         }
         Relationships: [
@@ -1663,6 +1684,7 @@ export type Database = {
           enrollment_id: string | null
           id: string
           method: string | null
+          owner_id: string
           paid_at: string | null
           payment_id: string | null
           payment_link: string | null
@@ -1680,6 +1702,7 @@ export type Database = {
           enrollment_id?: string | null
           id?: string
           method?: string | null
+          owner_id: string
           paid_at?: string | null
           payment_id?: string | null
           payment_link?: string | null
@@ -1697,6 +1720,7 @@ export type Database = {
           enrollment_id?: string | null
           id?: string
           method?: string | null
+          owner_id?: string
           paid_at?: string | null
           payment_id?: string | null
           payment_link?: string | null
@@ -1736,6 +1760,7 @@ export type Database = {
           created_at: string
           external_user: string | null
           id: string
+          owner_id: string | null
           payload: Json | null
           provider: string
           reason: string | null
@@ -1748,6 +1773,7 @@ export type Database = {
           created_at?: string
           external_user?: string | null
           id?: string
+          owner_id?: string | null
           payload?: Json | null
           provider: string
           reason?: string | null
@@ -1760,6 +1786,7 @@ export type Database = {
           created_at?: string
           external_user?: string | null
           id?: string
+          owner_id?: string | null
           payload?: Json | null
           provider?: string
           reason?: string | null
@@ -1791,6 +1818,7 @@ export type Database = {
           created_at: string
           enabled: boolean
           id: string
+          owner_id: string
           provider: string
           unit_id: string | null
           updated_at: string
@@ -1802,6 +1830,7 @@ export type Database = {
           created_at?: string
           enabled?: boolean
           id?: string
+          owner_id: string
           provider: string
           unit_id?: string | null
           updated_at?: string
@@ -1813,6 +1842,7 @@ export type Database = {
           created_at?: string
           enabled?: boolean
           id?: string
+          owner_id?: string
           provider?: string
           unit_id?: string | null
           updated_at?: string
@@ -1836,6 +1866,7 @@ export type Database = {
           duration_days: number
           id: string
           name: string
+          owner_id: string
           unit_id: string | null
           updated_at: string
         }
@@ -1846,6 +1877,7 @@ export type Database = {
           duration_days?: number
           id?: string
           name: string
+          owner_id: string
           unit_id?: string | null
           updated_at?: string
         }
@@ -1856,6 +1888,7 @@ export type Database = {
           duration_days?: number
           id?: string
           name?: string
+          owner_id?: string
           unit_id?: string | null
           updated_at?: string
         }
@@ -1884,6 +1917,7 @@ export type Database = {
           guardian_phone: string | null
           id: string
           notes: string | null
+          owner_id: string
           phone: string | null
           photo_url: string | null
           qr_token: string | null
@@ -1906,6 +1940,7 @@ export type Database = {
           guardian_phone?: string | null
           id?: string
           notes?: string | null
+          owner_id: string
           phone?: string | null
           photo_url?: string | null
           qr_token?: string | null
@@ -1928,6 +1963,7 @@ export type Database = {
           guardian_phone?: string | null
           id?: string
           notes?: string | null
+          owner_id?: string
           phone?: string | null
           photo_url?: string | null
           qr_token?: string | null
@@ -1953,6 +1989,51 @@ export type Database = {
           },
         ]
       }
+      dojo_subscriptions: {
+        Row: {
+          cancelled_at: string | null
+          created_at: string
+          currency: string
+          current_period_end: string | null
+          id: string
+          last_event: Json | null
+          mp_preapproval_id: string | null
+          owner_id: string
+          plan_amount: number
+          status: string
+          trial_ends_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          cancelled_at?: string | null
+          created_at?: string
+          currency?: string
+          current_period_end?: string | null
+          id?: string
+          last_event?: Json | null
+          mp_preapproval_id?: string | null
+          owner_id: string
+          plan_amount?: number
+          status?: string
+          trial_ends_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cancelled_at?: string | null
+          created_at?: string
+          currency?: string
+          current_period_end?: string | null
+          id?: string
+          last_event?: Json | null
+          mp_preapproval_id?: string | null
+          owner_id?: string
+          plan_amount?: number
+          status?: string
+          trial_ends_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       dojo_units: {
         Row: {
           active: boolean
@@ -1960,6 +2041,7 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          owner_id: string
           phone: string | null
           updated_at: string
         }
@@ -1969,6 +2051,7 @@ export type Database = {
           created_at?: string
           id?: string
           name: string
+          owner_id: string
           phone?: string | null
           updated_at?: string
         }
@@ -1978,6 +2061,7 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
+          owner_id?: string
           phone?: string | null
           updated_at?: string
         }
