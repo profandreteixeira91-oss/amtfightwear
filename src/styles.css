@@ -296,6 +296,13 @@
   border-radius: 10px;
 }
 
+/* Switches use blue when active inside dojo panel */
+.dojo-theme [data-slot="switch"][data-state="checked"],
+.dojo-theme button[role="switch"][data-state="checked"] {
+  background-color: #2563eb !important;
+  border-color: #2563eb !important;
+}
+
 .dojo-theme .dojo-chip {
   display: inline-flex;
   align-items: center;
