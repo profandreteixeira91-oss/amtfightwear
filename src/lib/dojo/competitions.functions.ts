@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { PROVIDERS, PROVIDER_BY_ID, type ProviderId } from "@/lib/dojo/competitions/providers";
+import { PROVIDERS, PROVIDER_BY_ID, type ProviderId, type ProviderDefinition } from "@/lib/dojo/competitions/providers";
 
 const FIRECRAWL_V2 = "https://api.firecrawl.dev/v2";
 
