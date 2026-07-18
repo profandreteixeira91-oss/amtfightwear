@@ -18,6 +18,7 @@ import {
 import { listDojoUnits } from "@/lib/dojo/dojo.functions";
 
 export const Route = createFileRoute("/dojo/app/integrations")({
+  head: () => ({ meta: [{ title: "Integrações — AMT Dojo Manager" }] }),
   component: DojoIntegrations,
   errorComponent: ({ error }) => <div className="p-6 text-red-500">{error.message}</div>,
   notFoundComponent: () => <div className="p-6">Não encontrado</div>,

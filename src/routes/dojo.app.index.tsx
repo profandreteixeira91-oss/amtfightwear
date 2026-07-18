@@ -6,6 +6,7 @@ import { BeltVisual } from "@/components/dojo/BeltVisual";
 import { Users, TrendingUp, TrendingDown, Wallet, Award, UserPlus, QrCode, ClipboardList, ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/dojo/app/")({
+  head: () => ({ meta: [{ title: "Painel — AMT Dojo Manager" }] }),
   component: DojoDashboard,
 });
 

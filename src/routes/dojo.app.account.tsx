@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/dojo/app/account")({
+  head: () => ({ meta: [{ title: "Minha Conta — AMT Dojo Manager" }] }),
   component: AccountPage,
 });
 

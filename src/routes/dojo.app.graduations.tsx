@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { CheckCircle2, Award, Eye, Printer } from "lucide-react";
 
 export const Route = createFileRoute("/dojo/app/graduations")({
+  head: () => ({ meta: [{ title: "Graduações — AMT Dojo Manager" }] }),
   component: NewGraduationPage,
 });
 
