@@ -75,6 +75,7 @@ export const Route = createFileRoute("/api/public/dojo/partner-checkin/$provider
             method: provider,
             source: token,
             external_user: externalUser,
+            owner_id: cfg.owner_id,
           })
           .select("id")
           .single();
