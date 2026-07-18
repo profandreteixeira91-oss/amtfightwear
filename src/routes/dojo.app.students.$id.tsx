@@ -187,6 +187,58 @@ function StudentDetail() {
           </div>
         </CardContent>
       </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2"><Award className="h-4 w-4" /> Certificados emitidos</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="border rounded divide-y">
+            {(q.data.certificates ?? []).map((c: any) => {
+              const dt = new Date(c.issued_at).toLocaleDateString("pt-BR");
+              const beltLabel = c.graduation?.belt?.name
+                ? `${c.graduation.belt.name}${c.graduation.degree ? ` · ${c.graduation.degree}º grau` : ""}`
+                : (c.values?.belt ?? "—");
+              const hasTemplate = !!c.template?.background_url;
+              return (
+                <div key={c.id} className="flex items-center gap-3 p-3 text-sm">
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium truncate">{c.template?.name ?? "Certificado"}</div>
+                    <div className="text-xs text-muted-foreground truncate">Emitido em {dt} · {beltLabel}</div>
+                  </div>
+                  <Button
+                    size="sm" variant="outline"
+                    disabled={!hasTemplate}
+                    onClick={() => setPreviewCert(c)}
+                    title={hasTemplate ? "Pré-visualizar" : "Modelo indisponível"}
+                  >
+                    <Eye className="h-4 w-4 mr-1" /> Ver
+                  </Button>
+                  <Button
+                    size="sm" variant="ghost"
+                    disabled={!hasTemplate}
+                    onClick={() => openCertificatePrint([{ template: c.template as CertificateTemplate, values: c.values ?? {} }])}
+                    title="Imprimir / salvar em PDF"
+                  >
+                    <Printer className="h-4 w-4" />
+                  </Button>
+                </div>
+              );
+            })}
+            {(q.data.certificates ?? []).length === 0 && (
+              <div className="p-3 text-sm text-muted-foreground">Sem certificados. Emita pela aba <strong>Nova graduação</strong>.</div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      <CertificatePreviewDialog
+        open={!!previewCert}
+        onOpenChange={(v) => { if (!v) setPreviewCert(null); }}
+        template={previewCert?.template ?? null}
+        values={previewCert?.values ?? {}}
+        title={previewCert ? `Certificado — ${s.full_name}` : undefined}
+      />
     </div>
   );
 }
