@@ -18,6 +18,7 @@ import {
 } from "@/lib/dojo/integrations-catalog";
 import { IntegrationCard, type LiveStatus } from "@/components/dojo/integrations/IntegrationCard";
 import { IntegrationWizard } from "@/components/dojo/integrations/IntegrationWizard";
+import { ApiHubDialog } from "@/components/dojo/integrations/ApiHubDialog";
 
 import { listMyGateways, upsertMyGateway } from "@/lib/dojo/gateways.functions";
 import { listPartnerIntegrations, savePartnerIntegration, listPartnerCheckins } from "@/lib/dojo/attendance.functions";
