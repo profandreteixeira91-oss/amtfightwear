@@ -222,9 +222,14 @@ function NewGraduationPage() {
               </div>
               <div>
                 <label className="text-xs text-muted-foreground">Grau</label>
-                <select className="border rounded p-2 bg-background w-full" value={degree} onChange={(e) => setDegree(Number(e.target.value))} disabled={!selectedBelt}>
-                  {Array.from({ length: maxDeg + 1 }).map((_, i) => <option key={i} value={i}>{i === 0 ? "Sem grau" : `${i}º grau`}</option>)}
+                <select className="border rounded p-2 bg-background w-full" value={degree} onChange={(e) => setDegree(Number(e.target.value))} disabled={!selectedBelt || isFixedDegree}>
+                  {isFixedDegree ? (
+                    <option value={fixedDegreeName as number}>{fixedDegreeName}º grau (obrigatório)</option>
+                  ) : (
+                    Array.from({ length: maxDeg + 1 }).map((_, i) => <option key={i} value={i}>{i === 0 ? "Sem grau" : `${i}º grau`}</option>)
+                  )}
                 </select>
+                {isFixedDegree && <p className="text-[11px] text-muted-foreground mt-1">Esta faixa possui grau fixo.</p>}
               </div>
               <div>
                 <label className="text-xs text-muted-foreground">Data</label>
