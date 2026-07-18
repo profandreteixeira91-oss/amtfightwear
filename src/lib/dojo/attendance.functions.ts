@@ -85,6 +85,7 @@ export const manualCheckin = createServerFn({ method: "POST" })
         method: "manual",
         notes: data.notes ?? null,
         created_by: context.userId,
+        owner_id: context.userId,
       })
       .select("id")
       .single();
