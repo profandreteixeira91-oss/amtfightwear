@@ -18,6 +18,7 @@ const tabs = [
   { to: "/dojo/app", label: "Painel" },
   { to: "/dojo/app/students", label: "Alunos" },
   { to: "/dojo/app/graduations", label: "Graduações" },
+  { to: "/dojo/app/evaluations", label: "Avaliações" },
   { to: "/dojo/app/plans", label: "Planos" },
   { to: "/dojo/app/finance", label: "Financeiro" },
   { to: "/dojo/app/units", label: "Unidades" },
