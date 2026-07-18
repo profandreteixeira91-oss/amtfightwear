@@ -155,6 +155,7 @@ import { Route as ApiPublicHooksMelhorEnvioRouteImport } from './routes/api/publ
 import { Route as ApiPublicHooksMartialArtsDailySweepRouteImport } from './routes/api/public/hooks/martial-arts-daily-sweep'
 import { Route as ApiPublicHooksIgWebhookRouteImport } from './routes/api/public/hooks/ig-webhook'
 import { Route as ApiPublicHooksIgSyncRouteImport } from './routes/api/public/hooks/ig-sync'
+import { Route as ApiPublicHooksGenerateDojoInvoicesRouteImport } from './routes/api/public/hooks/generate-dojo-invoices'
 import { Route as ApiPublicHooksEnrichPendingLeadsRouteImport } from './routes/api/public/hooks/enrich-pending-leads'
 import { Route as ApiPublicHooksAutoInstagramPostRouteImport } from './routes/api/public/hooks/auto-instagram-post'
 import { Route as AuthenticatedAdsCampaignsIdRouteImport } from './routes/_authenticated/ads.campaigns.$id'
@@ -946,6 +947,12 @@ const ApiPublicHooksIgSyncRoute = ApiPublicHooksIgSyncRouteImport.update({
   path: '/api/public/hooks/ig-sync',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksGenerateDojoInvoicesRoute =
+  ApiPublicHooksGenerateDojoInvoicesRouteImport.update({
+    id: '/api/public/hooks/generate-dojo-invoices',
+    path: '/api/public/hooks/generate-dojo-invoices',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksEnrichPendingLeadsRoute =
   ApiPublicHooksEnrichPendingLeadsRouteImport.update({
     id: '/api/public/hooks/enrich-pending-leads',
@@ -1118,6 +1125,7 @@ export interface FileRoutesByFullPath {
   '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
+  '/api/public/hooks/generate-dojo-invoices': typeof ApiPublicHooksGenerateDojoInvoicesRoute
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
   '/api/public/hooks/ig-webhook': typeof ApiPublicHooksIgWebhookRoute
   '/api/public/hooks/martial-arts-daily-sweep': typeof ApiPublicHooksMartialArtsDailySweepRoute
@@ -1267,6 +1275,7 @@ export interface FileRoutesByTo {
   '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
+  '/api/public/hooks/generate-dojo-invoices': typeof ApiPublicHooksGenerateDojoInvoicesRoute
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
   '/api/public/hooks/ig-webhook': typeof ApiPublicHooksIgWebhookRoute
   '/api/public/hooks/martial-arts-daily-sweep': typeof ApiPublicHooksMartialArtsDailySweepRoute
@@ -1423,6 +1432,7 @@ export interface FileRoutesById {
   '/_authenticated/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
+  '/api/public/hooks/generate-dojo-invoices': typeof ApiPublicHooksGenerateDojoInvoicesRoute
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
   '/api/public/hooks/ig-webhook': typeof ApiPublicHooksIgWebhookRoute
   '/api/public/hooks/martial-arts-daily-sweep': typeof ApiPublicHooksMartialArtsDailySweepRoute
@@ -1580,6 +1590,7 @@ export interface FileRouteTypes {
     | '/ads/campaigns/$id'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/enrich-pending-leads'
+    | '/api/public/hooks/generate-dojo-invoices'
     | '/api/public/hooks/ig-sync'
     | '/api/public/hooks/ig-webhook'
     | '/api/public/hooks/martial-arts-daily-sweep'
@@ -1729,6 +1740,7 @@ export interface FileRouteTypes {
     | '/ads/campaigns/$id'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/enrich-pending-leads'
+    | '/api/public/hooks/generate-dojo-invoices'
     | '/api/public/hooks/ig-sync'
     | '/api/public/hooks/ig-webhook'
     | '/api/public/hooks/martial-arts-daily-sweep'
@@ -1884,6 +1896,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ads/campaigns/$id'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/enrich-pending-leads'
+    | '/api/public/hooks/generate-dojo-invoices'
     | '/api/public/hooks/ig-sync'
     | '/api/public/hooks/ig-webhook'
     | '/api/public/hooks/martial-arts-daily-sweep'
@@ -1951,6 +1964,7 @@ export interface RootRouteChildren {
   LojaCustomShopIndexRoute: typeof LojaCustomShopIndexRoute
   ApiPublicHooksAutoInstagramPostRoute: typeof ApiPublicHooksAutoInstagramPostRoute
   ApiPublicHooksEnrichPendingLeadsRoute: typeof ApiPublicHooksEnrichPendingLeadsRoute
+  ApiPublicHooksGenerateDojoInvoicesRoute: typeof ApiPublicHooksGenerateDojoInvoicesRoute
   ApiPublicHooksIgSyncRoute: typeof ApiPublicHooksIgSyncRoute
   ApiPublicHooksIgWebhookRoute: typeof ApiPublicHooksIgWebhookRoute
   ApiPublicHooksMartialArtsDailySweepRoute: typeof ApiPublicHooksMartialArtsDailySweepRoute
@@ -2994,6 +3008,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksIgSyncRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/generate-dojo-invoices': {
+      id: '/api/public/hooks/generate-dojo-invoices'
+      path: '/api/public/hooks/generate-dojo-invoices'
+      fullPath: '/api/public/hooks/generate-dojo-invoices'
+      preLoaderRoute: typeof ApiPublicHooksGenerateDojoInvoicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/enrich-pending-leads': {
       id: '/api/public/hooks/enrich-pending-leads'
       path: '/api/public/hooks/enrich-pending-leads'
@@ -3431,6 +3452,8 @@ const rootRouteChildren: RootRouteChildren = {
   LojaCustomShopIndexRoute: LojaCustomShopIndexRoute,
   ApiPublicHooksAutoInstagramPostRoute: ApiPublicHooksAutoInstagramPostRoute,
   ApiPublicHooksEnrichPendingLeadsRoute: ApiPublicHooksEnrichPendingLeadsRoute,
+  ApiPublicHooksGenerateDojoInvoicesRoute:
+    ApiPublicHooksGenerateDojoInvoicesRoute,
   ApiPublicHooksIgSyncRoute: ApiPublicHooksIgSyncRoute,
   ApiPublicHooksIgWebhookRoute: ApiPublicHooksIgWebhookRoute,
   ApiPublicHooksMartialArtsDailySweepRoute:
