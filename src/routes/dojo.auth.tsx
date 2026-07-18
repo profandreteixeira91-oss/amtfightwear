@@ -44,7 +44,7 @@ function DojoAuthPage() {
 
   const redirectAfter = () => {
     const target = search.redirect && search.redirect.startsWith("/dojo") ? search.redirect : "/dojo/app";
-    navigate({ to: target });
+    window.location.assign(target);
   };
 
   const handleSignIn = async (e: React.FormEvent) => {
