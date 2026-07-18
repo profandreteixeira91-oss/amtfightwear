@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import beltsReference from "@/assets/amt-belts-reference.png.asset.json";
 
 export const Route = createFileRoute("/dojo/app/graduations")({
   component: GraduationsPage,
