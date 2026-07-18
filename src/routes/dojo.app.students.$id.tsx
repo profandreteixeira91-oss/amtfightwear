@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -7,13 +7,14 @@ import {
   addDojoGraduation, deleteDojoGraduation,
   saveDojoEnrollment, deleteDojoEnrollment,
   saveDojoInvoice, markDojoInvoicePaid, deleteDojoInvoice,
+  deleteDojoStudent,
 } from "@/lib/dojo/dojo.functions";
 import { regenerateStudentCodes } from "@/lib/dojo/attendance.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Trash2, Award, Eye, Printer } from "lucide-react";
+import { Trash2, Award, Eye, Printer, Pencil, ArrowLeft } from "lucide-react";
 import { BeltVisual } from "@/components/dojo/BeltVisual";
 import { CertificatePreviewDialog, openCertificatePrint, type CertificateTemplate } from "@/components/dojo/CertificatePreview";
 
