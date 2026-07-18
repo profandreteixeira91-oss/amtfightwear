@@ -141,15 +141,8 @@ const groups: { label: string; items: Item[] }[] = [
       { title: "Configurações", url: "/settings", icon: Settings },
     ],
   },
-
-  {
-    label: "Conta",
-    items: [
-      { title: "Perfil", url: "/profile", icon: User },
-      { title: "Configurações", url: "/settings", icon: Settings },
-    ],
-  },
 ];
+
 
 export function AppTopNav() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
