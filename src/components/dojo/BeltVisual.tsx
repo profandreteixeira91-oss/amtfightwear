@@ -5,6 +5,8 @@ interface BeltVisualProps {
   maxDegrees?: number;
   className?: string;
   label?: string;
+  /** Belt name — used to auto-detect "aparador" (trim) rendering */
+  name?: string;
   /** When true, stripeHex is rendered as top/bottom trim (aparador) instead of a center band */
   trim?: boolean;
 }
