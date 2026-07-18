@@ -1,77 +1,65 @@
-# AMT Dojo Manager — Plano de Construção
+Vou transformar o Dojo Manager em um SaaS independente, servido no subdomínio `dojo.amtfightwear.com.br`, com acesso liberado apenas para quem tem assinatura ativa (R$ 59,90/mês, trial de 14 dias) via Mercado Pago.
 
-Sistema de gestão para academia/dojo, integrado ao ecossistema AMT Fight Wear (loja, autenticação, painel administrativo já existentes). Como o escopo é grande, proponho entregar em fases incrementais, começando pelo núcleo (alunos + financeiro) e evoluindo para integrações externas.
-
-## Arquitetura geral
-
-- Novo grupo de rotas administrativas sob `/_authenticated/dojo/*` com submenu próprio em `AppTopNav`.
-- Reuso do Supabase Auth existente (perfis já linkados a `profiles`).
-- Papéis adicionais em `user_roles`: `dojo_admin`, `instructor`, `student`.
-- App do aluno via rotas públicas/autenticadas `/aluno/*` (mobile-first, PWA).
-- Integrações externas isoladas em `src/lib/dojo/*.functions.ts` + rotas `/api/public/hooks/*` para webhooks.
-
-## Fases propostas
-
-### Fase 1 — Núcleo (Alunos + Graduações + Financeiro básico)
-- **Cadastro de alunos**: dados pessoais, responsável, plano, faixa atual, histórico de graduações, foto, status (ativo/inativo/trancado).
-- **Planos e mensalidades**: catálogo de planos (mensal, trimestral, anual, aula avulsa), vínculo aluno↔plano com data de início/renovação.
-- **Financeiro**:
-  - Contas a receber (mensalidades geradas automaticamente por cron mensal).
-  - Contas a pagar (despesas manuais).
-  - Fluxo de caixa e DRE simples com filtros por período.
-  - Cobrança via Mercado Pago (reuso do módulo já existente): geração de link Pix/cartão por mensalidade.
-- **Graduações**: registro de exames, faixas por modalidade (Jiu-Jitsu, Muay Thai, MMA, etc.), grau/dan, data e avaliador.
-- **Certificados**: geração de PDF (React-PDF) com template personalizável, QR code para verificação pública em `/certificado/$id`.
-
-### Fase 2 — Check-in e presenças
-- Check-in manual pelo instrutor + QR code do aluno.
-- Integração **GymPass / TotalPass**: rotas `/api/public/hooks/gympass` e `/api/public/hooks/totalpass` para validação por CPF/token conforme especificação de cada API (documentação será solicitada quando começarmos).
-- Histórico de presenças por aluno/turma, com relatórios de frequência.
-
-### Fase 3 — App do Aluno
-- Rotas `/aluno/*` autenticadas (mesmo Auth da loja).
-- Telas: home (próxima aula, faixa, mensalidade), meus pagamentos (Pix on-demand), meu histórico, meus certificados (download), meu QR code de check-in, agenda de aulas.
-- Push notifications via web push + notificações in-app (reuso do `NotificationsBell`).
-
-### Fase 4 — WhatsApp
-- Reuso da estrutura já preparada em `src/lib/store/whatsapp.server.ts`.
-- Templates: aviso de mensalidade, confirmação de pagamento, aula cancelada, parabéns por graduação, aniversário.
-
-### Fase 5 — Estoque + integração com Loja
-- Módulo de estoque interno do dojo (kimonos, faixas, luvas, itens de venda balcão).
-- Integração com loja AMT Fight Wear: aluno recebe cupom/desconto automático; pedidos da loja podem ser marcados como "retirada no dojo" e baixam do estoque local.
-- Vendas balcão registradas no financeiro do dojo.
-
-## Estrutura de dados (Fase 1 — a criar via migration)
+## Estrutura de rotas
 
 ```text
-dojo_students        (aluno, vínculo com auth.users opcional)
-dojo_modalities      (Jiu-Jitsu, Muay Thai, ...)
-dojo_belts           (faixa por modalidade, ordem, cor)
-dojo_graduations     (aluno, modalidade, faixa, grau, data, avaliador)
-dojo_plans           (nome, valor, duração)
-dojo_enrollments     (aluno ↔ plano, datas, status)
-dojo_invoices        (mensalidades e cobranças, status, MP payment id)
-dojo_expenses        (contas a pagar)
-dojo_certificates    (PDF gerado, hash público)
+/dojo                       → Landing pública (pitch, preço, CTA "Começar trial")
+/dojo/auth                  → Login/cadastro dedicado do Dojo Manager
+/dojo/checkout              → Iniciar assinatura Mercado Pago (preapproval)
+/dojo/billing               → Portal do assinante (status, cancelar, atualizar cartão)
+/dojo/app                   → Layout autenticado + protegido por assinatura
+/dojo/app/dashboard         → Dashboard financeiro/alunos
+/dojo/app/students          → Alunos (migra de /dojo/students)
+/dojo/app/students/:id      → Prontuário
+/dojo/app/graduations       → Graduações
+/dojo/app/certificates      → Certificados
+/dojo/app/plans             → Planos de mensalidade
+/dojo/app/units             → Unidades
+/dojo/app/financials        → Financeiro/faturas
+/dojo/app/checkin           → Check-in (Fase 2)
+/dojo/app/integrations      → GymPass/TotalPass (Fase 2)
 ```
-Todas com RLS: `dojo_admin`/`instructor` gerenciam; `student` vê apenas o próprio (via `dojo_students.user_id = auth.uid()`).
 
-## Perguntas antes de codar a Fase 1
+- Remove todo o Dojo Manager do `AppTopNav` administrativo da loja — os dois sistemas passam a ser independentes.
+- O subdomínio `dojo.amtfightwear.com.br` aponta para o mesmo projeto; um pequeno middleware no `__root` reescreve `/` → `/dojo` quando o host é o subdomínio, para o cliente enxergar a landing direto na raiz.
 
-1. **Modalidades**: quais devem vir pré-cadastradas? (Jiu-Jitsu, Muay Thai, MMA, Boxe, outras?)
-2. **Sistema de faixas**: uso o padrão IBJJF para Jiu-Jitsu (branca→preta com 4 graus) e faixas coloridas Muay Thai (khan)? Ou você fornece a estrutura?
-3. **Certificado**: você tem um modelo/arte de referência? Precisa de assinatura digital do mestre?
-4. **Mensalidades**: valor único por plano ou personalizado por aluno? Vencimento fixo (todo dia X) ou móvel (30 dias após adesão)?
-5. **Multi-unidade**: um dojo só ou preciso suportar várias unidades desde já?
+## Isolamento por usuário
 
-## Próximo passo
+- Adiciono coluna `owner_id uuid` (FK `auth.users`) em todas as tabelas `dojo_*` existentes.
+- Migro os registros atuais para o e-mail do administrador (`profandreteixeira91@gmail.com`) para não perder os dados já cadastrados.
+- Substituo as policies "admin only" por policies escopadas a `auth.uid() = owner_id`, mantendo o admin com acesso total via `has_role('admin')`.
+- Todas as server functions `dojo/*` passam a filtrar por `owner_id = context.userId`.
 
-Depois de aprovado o plano e respondidas as 5 perguntas acima, começo pela **Fase 1** com:
-1. Migration criando as tabelas + RLS + GRANTs.
-2. Menu "Dojo" no `AppTopNav`.
-3. CRUD de alunos, planos, graduações.
-4. Geração de mensalidades + integração Mercado Pago (reuso).
-5. Emissão de certificado PDF com QR de verificação.
+## Assinatura (Mercado Pago Preapproval)
 
-GymPass, TotalPass, WhatsApp e App do Aluno entram nas fases seguintes conforme prioridade.
+- Nova tabela `dojo_subscriptions` (`owner_id`, `mp_preapproval_id`, `status`, `plan_amount`, `trial_ends_at`, `current_period_end`, timestamps).
+- `createDojoSubscription` server function: cria `preapproval` no Mercado Pago (R$ 59,90, frequência mensal, `free_trial: { frequency: 14, frequency_type: "days" }`) e retorna o `init_point` para redirecionamento.
+- Webhook em `/api/public/hooks/mercadopago-dojo`: consome eventos `preapproval` e sincroniza `status` (`authorized`, `paused`, `cancelled`, `pending`).
+- Middleware `requireDojoSubscription` (compõe com `requireSupabaseAuth`): consulta `dojo_subscriptions`; libera se `status IN ('authorized','trialing')` **ou** se o usuário é admin. Redireciona para `/dojo/checkout` caso contrário.
+- Página `/dojo/billing` mostra status, próxima cobrança, botão de cancelar (chama `cancelDojoSubscription` que atualiza o preapproval no MP para `cancelled`).
+
+## Landing `/dojo`
+
+- Hero: "Gestão completa do seu Dojo em um só lugar"
+- Blocos: Alunos & Graduações · Financeiro & Mensalidades · Certificados · Check-in & GymPass · WhatsApp (em breve)
+- Preço destacado: R$ 59,90/mês · 14 dias grátis · cancele quando quiser
+- CTA principal → `/dojo/auth?redirect=/dojo/checkout`
+- Rodapé próprio (não usa o da loja)
+
+## Passos de execução
+
+1. **Migração SQL**: coluna `owner_id`, backfill, RLS, tabela `dojo_subscriptions`.
+2. **Backend**: `src/lib/dojo/subscription.functions.ts` + `subscription.server.ts` + webhook público.
+3. **Layout**: `src/components/dojo/DojoShell.tsx` (nav própria do SaaS) + `_dojo` pathless layout com guarda de assinatura.
+4. **Rotas**: cria `/dojo`, `/dojo/auth`, `/dojo/checkout`, `/dojo/billing`, move as telas dojo para `/dojo/app/*` (mantendo redirects das antigas `/dojo/*`).
+5. **Nav**: remove grupo Dojo Manager do `AppTopNav.tsx`.
+6. **DNS**: você aponta `dojo.amtfightwear.com.br` para o Lovable em Project Settings → Domains após publicar; te passo as instruções.
+
+## Detalhes técnicos
+
+- Uso `preapproval_plan` do Mercado Pago (recorrência mensal com trial). Segredo já existe: `MERCADOPAGO_ACCESS_TOKEN`.
+- Webhook: valida assinatura via `x-signature` do MP (segredo `MERCADOPAGO_WEBHOOK_SECRET` já configurado).
+- Preservo dados existentes: migração faz `UPDATE ... SET owner_id = <admin uuid>` antes de aplicar `NOT NULL`.
+- O admin da loja (`has_role('admin')`) continua acessando o Dojo Manager sem precisar de assinatura, para fins de teste/suporte.
+
+Aprova para eu executar?
