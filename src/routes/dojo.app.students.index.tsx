@@ -241,16 +241,7 @@ function StudentsPage() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={openNew}>
-                <UserPlus className="h-4 w-4 mr-1" /> Novo aluno
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>{form.id ? "Editar" : "Novo"} aluno</DialogTitle>
-              </DialogHeader>
+
 
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
