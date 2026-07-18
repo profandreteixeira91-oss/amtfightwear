@@ -45,13 +45,13 @@ export function BeltVisual({
         aria-label={label ?? `Faixa ${colorHex}`}
       >
         {/* Two-tone rendering */}
-        {stripeHex && !trim && (
+        {stripeHex && !isTrim && (
           <div
             className="absolute inset-x-0"
             style={{ background: stripeHex, top: "33.333%", height: "33.333%" }}
           />
         )}
-        {stripeHex && trim && (
+        {stripeHex && isTrim && (
           <>
             <div className="absolute inset-x-0 top-0" style={{ background: stripeHex, height: "18%" }} />
             <div className="absolute inset-x-0 bottom-0" style={{ background: stripeHex, height: "18%" }} />
