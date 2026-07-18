@@ -139,7 +139,7 @@ function NewGraduationPage() {
     const fields = Array.isArray(tpl?.fields) ? (tpl.fields as any[]) : [];
     fields.forEach((f: any) => {
       if (f.key === "student_name") values[f.key] = student.full_name;
-      else if (f.key === "belt") values[f.key] = `${selectedBelt?.name}${degree ? ` — ${degree}º grau` : ""}`;
+      else if (f.key === "belt") values[f.key] = effectiveBelt?.name ?? `${selectedBelt?.name}${degree ? ` — ${degree}º grau` : ""}`;
       else if (f.key === "date") values[f.key] = new Date(date).toLocaleDateString("pt-BR");
       else if (f.key === "signature") values[f.key] = evaluator || "";
       else values[f.key] = "";
