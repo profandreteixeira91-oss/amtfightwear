@@ -29,7 +29,7 @@ export function BeltVisual({
   name,
   trim,
 }: BeltVisualProps) {
-  const isTrim = trim ?? (name ? /aparador/i.test(name) : false);
+  const isTrim = trim ?? (name ? (/aparador/i.test(name) || /^preta$/i.test(name.trim())) : false);
   const stripes = Math.max(0, Math.min(degree, maxDegrees));
   const base = (colorHex || "#F5F5F5").toLowerCase();
   const isLight = base === "#ffffff" || base === "#f5f5f5" || base === "#fdd835";
