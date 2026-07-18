@@ -23,10 +23,10 @@ export const Route = createFileRoute("/")({
   },
   head: () => ({
     meta: [
-      { title: "AMT Fight Wear — Loja Oficial | Kimonos, Rashguards e Faixas" },
-      { name: "description", content: "Loja oficial AMT Fight Wear. Kimonos, rashguards, faixas e acessórios para artes marciais. Frete para todo Brasil!" },
-      { property: "og:title", content: "AMT Fight Wear — Loja Oficial | Kimonos, Rashguards e Faixas" },
-      { property: "og:description", content: "Loja oficial AMT Fight Wear. Kimonos, rashguards, faixas e acessórios para artes marciais. Frete para todo Brasil!" },
+      { title: "AMT Fight Wear — Loja Oficial de Kimonos, Rashguards e Faixas" },
+      { name: "description", content: "Loja oficial AMT Fight Wear: kimonos, rashguards, faixas e acessórios de alta performance para jiu-jitsu, judô e artes marciais. Compre direto da fábrica com envio para todo o Brasil, parcelamento em 10x e Custom Shop para peças personalizadas." },
+      { property: "og:title", content: "AMT Fight Wear — Loja Oficial de Kimonos, Rashguards e Faixas" },
+      { property: "og:description", content: "Kimonos, rashguards, faixas e acessórios AMT Fight Wear. Compre direto da fábrica com envio para todo o Brasil e opção de personalização no Custom Shop." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
