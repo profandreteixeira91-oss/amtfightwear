@@ -38,12 +38,7 @@ const signInSchema = z.object({
   password: z.string().min(6, "Mínimo de 6 caracteres"),
 });
 
-const signUpSchema = signInSchema.extend({
-  fullName: z.string().min(2, "Informe seu nome"),
-});
-
 type SignInValues = z.infer<typeof signInSchema>;
-type SignUpValues = z.infer<typeof signUpSchema>;
 
 function AuthPage() {
   const navigate = useNavigate();
