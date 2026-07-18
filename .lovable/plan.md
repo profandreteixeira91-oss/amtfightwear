@@ -1,65 +1,93 @@
-Vou transformar o Dojo Manager em um SaaS independente, servido no subdomínio `dojo.amtfightwear.com.br`, com acesso liberado apenas para quem tem assinatura ativa (R$ 59,90/mês, trial de 14 dias) via Mercado Pago.
+# Editor de Certificados — Evolução para WYSIWYG Profissional
 
-## Estrutura de rotas
+## Estado atual
 
-```text
-/dojo                       → Landing pública (pitch, preço, CTA "Começar trial")
-/dojo/auth                  → Login/cadastro dedicado do Dojo Manager
-/dojo/checkout              → Iniciar assinatura Mercado Pago (preapproval)
-/dojo/billing               → Portal do assinante (status, cancelar, atualizar cartão)
-/dojo/app                   → Layout autenticado + protegido por assinatura
-/dojo/app/dashboard         → Dashboard financeiro/alunos
-/dojo/app/students          → Alunos (migra de /dojo/students)
-/dojo/app/students/:id      → Prontuário
-/dojo/app/graduations       → Graduações
-/dojo/app/certificates      → Certificados
-/dojo/app/plans             → Planos de mensalidade
-/dojo/app/units             → Unidades
-/dojo/app/financials        → Financeiro/faturas
-/dojo/app/checkin           → Check-in (Fase 2)
-/dojo/app/integrations      → GymPass/TotalPass (Fase 2)
-```
+- `src/routes/dojo.app.certificates.tsx` (331 linhas): editor simples com HTML/CSS em textarea e variáveis via chips.
+- `src/components/dojo/CertificatePreview.tsx` (251 linhas): renderiza HTML+CSS e substitui `{{variaveis}}`.
+- Backend: `dojo_certificate_templates` (html_body, css, variables, is_default, category, name) e `dojo_certificates`.
 
-- Remove todo o Dojo Manager do `AppTopNav` administrativo da loja — os dois sistemas passam a ser independentes.
-- O subdomínio `dojo.amtfightwear.com.br` aponta para o mesmo projeto; um pequeno middleware no `__root` reescreve `/` → `/dojo` quando o host é o subdomínio, para o cliente enxergar a landing direto na raiz.
+Compatibilidade: o novo editor **manterá o campo `html_body`** como fonte de verdade renderizada — para cada template criado no modo visual, geramos HTML/CSS equivalente no salvamento. Templates antigos continuam abrindo no modo "HTML avançado".
 
-## Isolamento por usuário
+## Escopo (por fase, entregas navegáveis)
 
-- Adiciono coluna `owner_id uuid` (FK `auth.users`) em todas as tabelas `dojo_*` existentes.
-- Migro os registros atuais para o e-mail do administrador (`profandreteixeira91@gmail.com`) para não perder os dados já cadastrados.
-- Substituo as policies "admin only" por policies escopadas a `auth.uid() = owner_id`, mantendo o admin com acesso total via `has_role('admin')`.
-- Todas as server functions `dojo/*` passam a filtrar por `owner_id = context.userId`.
+Dada a complexidade (equivalente a mini-Canva), vou dividir em 3 fases. Cada fase é entregável e usável isoladamente. Só sigo para a próxima após validação sua.
 
-## Assinatura (Mercado Pago Preapproval)
+### Fase 1 — Canvas WYSIWYG + Drag/Drop essencial (esta entrega)
 
-- Nova tabela `dojo_subscriptions` (`owner_id`, `mp_preapproval_id`, `status`, `plan_amount`, `trial_ends_at`, `current_period_end`, timestamps).
-- `createDojoSubscription` server function: cria `preapproval` no Mercado Pago (R$ 59,90, frequência mensal, `free_trial: { frequency: 14, frequency_type: "days" }`) e retorna o `init_point` para redirecionamento.
-- Webhook em `/api/public/hooks/mercadopago-dojo`: consome eventos `preapproval` e sincroniza `status` (`authorized`, `paused`, `cancelled`, `pending`).
-- Middleware `requireDojoSubscription` (compõe com `requireSupabaseAuth`): consulta `dojo_subscriptions`; libera se `status IN ('authorized','trialing')` **ou** se o usuário é admin. Redireciona para `/dojo/checkout` caso contrário.
-- Página `/dojo/billing` mostra status, próxima cobrança, botão de cancelar (chama `cancelDojoSubscription` que atualiza o preapproval no MP para `cancelled`).
+Layout de 4 áreas (topbar, painel esquerdo, canvas A4, painel direito).
 
-## Landing `/dojo`
+Elementos suportados nesta fase:
+- Texto (com variáveis inline via `{{var}}`)
+- Imagem (URL/upload para bucket existente)
+- Logo / Assinatura (atalhos de imagem)
+- Linha, Retângulo, Círculo
+- QR Code (código de validação do certificado)
+- Data (elemento tipado)
 
-- Hero: "Gestão completa do seu Dojo em um só lugar"
-- Blocos: Alunos & Graduações · Financeiro & Mensalidades · Certificados · Check-in & GymPass · WhatsApp (em breve)
-- Preço destacado: R$ 59,90/mês · 14 dias grátis · cancele quando quiser
-- CTA principal → `/dojo/auth?redirect=/dojo/checkout`
-- Rodapé próprio (não usa o da loja)
+Interações:
+- Arrastar da paleta para o canvas
+- Selecionar, mover, redimensionar, rotacionar
+- Snap à grade + guias inteligentes de alinhamento com outros elementos
+- Réguas horizontal/vertical
+- Zoom 25/50/75/100/125/150/200%
+- Undo/Redo (histórico em memória)
+- Duplicar / Excluir / Bloquear / Ocultar
+- Painel de camadas (mover ordem, renomear, lock, hide)
+- Painel de propriedades por tipo (fonte, tamanho, cor, negrito, itálico, sublinhado, alinhamento, opacidade, rotação, posição, tamanho, camada)
+- Painel de variáveis categorizado (Academia, Aluno, Professor, Graduação, Certificado, Sistema) com busca e inserção por clique/duplo-clique
+- Salvamento automático (debounce 2s) no `html_body` + JSON estruturado em `variables.editor_schema`
+- Preview com dados reais de um aluno selecionado
+- Exportar PDF (via `window.print` com CSS @page A4) e PNG (html-to-image)
 
-## Passos de execução
+Persistência:
+- Reutilizo `dojo_certificate_templates`.
+- `html_body`: HTML/CSS gerado para retrocompatibilidade com `CertificatePreview`.
+- `variables` (jsonb): estende com `{ editor_schema: {...}, favorites: [...], recent: [...] }` — não quebra o schema atual.
 
-1. **Migração SQL**: coluna `owner_id`, backfill, RLS, tabela `dojo_subscriptions`.
-2. **Backend**: `src/lib/dojo/subscription.functions.ts` + `subscription.server.ts` + webhook público.
-3. **Layout**: `src/components/dojo/DojoShell.tsx` (nav própria do SaaS) + `_dojo` pathless layout com guarda de assinatura.
-4. **Rotas**: cria `/dojo`, `/dojo/auth`, `/dojo/checkout`, `/dojo/billing`, move as telas dojo para `/dojo/app/*` (mantendo redirects das antigas `/dojo/*`).
-5. **Nav**: remove grupo Dojo Manager do `AppTopNav.tsx`.
-6. **DNS**: você aponta `dojo.amtfightwear.com.br` para o Lovable em Project Settings → Domains após publicar; te passo as instruções.
+### Fase 2 — Recursos avançados
 
-## Detalhes técnicos
+- Múltiplas assinaturas com bloco composto (imagem + nome + cargo + linha)
+- Selos e marca d'água
+- Alinhamento múltiplo (esquerda/centro/direita/topo/base) e distribuição
+- Seleção múltipla + agrupamento
+- Atalhos de teclado (Ctrl+D, Ctrl+Z, Ctrl+Shift+Z, Del, setas, Ctrl+G)
+- Menus contextuais (botão direito)
+- Biblioteca de modelos com categorias e "definir padrão"
+- Duplicar template
+- Exportação JPEG
 
-- Uso `preapproval_plan` do Mercado Pago (recorrência mensal com trial). Segredo já existe: `MERCADOPAGO_ACCESS_TOKEN`.
-- Webhook: valida assinatura via `x-signature` do MP (segredo `MERCADOPAGO_WEBHOOK_SECRET` já configurado).
-- Preservo dados existentes: migração faz `UPDATE ... SET owner_id = <admin uuid>` antes de aplicar `NOT NULL`.
-- O admin da loja (`has_role('admin')`) continua acessando o Dojo Manager sem precisar de assinatura, para fins de teste/suporte.
+### Fase 3 — Colaboração e histórico
 
-Aprova para eu executar?
+- Tabela `dojo_certificate_template_versions` com autor, timestamp, comentário e snapshot
+- Restaurar versão anterior
+- Tabela (estrutura) — componente novo
+
+## Arquivos previstos (Fase 1)
+
+- `src/routes/dojo.app.certificates.tsx` — troca listagem+editor pelo novo shell
+- `src/components/dojo/certificate-editor/` (novo):
+  - `CertificateEditor.tsx` — orquestrador
+  - `Topbar.tsx`, `LeftPalette.tsx`, `Canvas.tsx`, `RightInspector.tsx`, `LayersPanel.tsx`, `VariablesPanel.tsx`
+  - `elements/` — renderers por tipo (`TextEl`, `ImageEl`, `ShapeEl`, `QrEl`, `DateEl`)
+  - `state.ts` — store com Zustand (já disponível no projeto) para elementos, seleção, histórico
+  - `serialize.ts` — schema JSON ↔ HTML/CSS
+- `src/lib/dojo/certificates.functions.ts` — pequenas adições se necessário (upload proxy para bucket, geração de PDF server-side é opcional)
+
+Dependências novas:
+- `qrcode` (client, tiny) para QR
+- `html-to-image` para exportar PNG
+- Zustand já presente? Verifico; caso contrário, uso `useReducer` sem adicionar dependência.
+
+## Nota técnica
+
+Editor com canvas HTML absoluto posicionado (não Fabric/Konva) — mais fácil manter, renderização por div/span com `transform: translate + rotate`, e serialização direta para HTML final estático. Isso garante que o `CertificatePreview` existente continue renderizando sem mudanças.
+
+## Fora do escopo (agora)
+
+- Tabela dinâmica com dados de banco
+- Colaboração em tempo real
+- Templates da comunidade / marketplace
+
+## Confirmação
+
+Confirma que sigo com a **Fase 1** como descrita? Ou prefere ajustar prioridades (ex.: incluir múltiplas assinaturas / seleção múltipla já na fase 1)?

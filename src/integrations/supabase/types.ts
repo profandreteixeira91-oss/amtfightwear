@@ -1424,37 +1424,46 @@ export type Database = {
         Row: {
           active: boolean
           background_url: string
+          category: string | null
           created_at: string
           fields: Json
           height: number
           id: string
+          is_default: boolean | null
           name: string
           owner_id: string
           updated_at: string
+          variables: Json | null
           width: number
         }
         Insert: {
           active?: boolean
           background_url: string
+          category?: string | null
           created_at?: string
           fields?: Json
           height?: number
           id?: string
+          is_default?: boolean | null
           name: string
           owner_id: string
           updated_at?: string
+          variables?: Json | null
           width?: number
         }
         Update: {
           active?: boolean
           background_url?: string
+          category?: string | null
           created_at?: string
           fields?: Json
           height?: number
           id?: string
+          is_default?: boolean | null
           name?: string
           owner_id?: string
           updated_at?: string
+          variables?: Json | null
           width?: number
         }
         Relationships: []
