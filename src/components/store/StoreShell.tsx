@@ -8,8 +8,9 @@ import { ProductImage } from "@/components/store/ProductImage";
 import { CartSheet } from "@/components/store/CartSheet";
 import { SearchBar } from "@/components/store/SearchBar";
 import { recordStoreVisit } from "@/lib/store/customers.functions";
-import { WhatsAppFloat } from "@/components/store/WhatsAppFloat";
+import { ChatWidget } from "@/components/store/ChatWidget";
 import { NotificationsBell } from "@/components/store/NotificationsBell";
+
 
 
 type StoreCategory = { id?: string; slug: string; name: string; parent_id?: string | null };
@@ -331,8 +332,8 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
         </div>
       </section>
 
-      {/* Floating WhatsApp chat */}
-      <WhatsAppFloat />
+      {/* Floating store chat */}
+      <ChatWidget />
 
       {/* Footer */}
       <footer className="bg-foreground text-background">

@@ -49,6 +49,7 @@ import { Route as AuthenticatedStoreImportRouteImport } from './routes/_authenti
 import { Route as AuthenticatedStoreImagensRouteImport } from './routes/_authenticated/store.imagens'
 import { Route as AuthenticatedStoreFaixaCalcRouteImport } from './routes/_authenticated/store.faixa-calc'
 import { Route as AuthenticatedStoreCustomersRouteImport } from './routes/_authenticated/store.customers'
+import { Route as AuthenticatedStoreChatRouteImport } from './routes/_authenticated/store.chat'
 import { Route as AuthenticatedProspectSettingsRouteImport } from './routes/_authenticated/prospect.settings'
 import { Route as AuthenticatedProspectSearchRouteImport } from './routes/_authenticated/prospect.search'
 import { Route as AuthenticatedProspectQualifiedRouteImport } from './routes/_authenticated/prospect.qualified'
@@ -87,6 +88,7 @@ import { Route as AuthenticatedAdsAlertsRouteImport } from './routes/_authentica
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
+import { Route as ApiPublicSalesMessagesRouteImport } from './routes/api/public/sales/messages'
 import { Route as ApiPublicSalesChatRouteImport } from './routes/api/public/sales/chat'
 import { Route as ApiPublicMetaCallbackRouteImport } from './routes/api/public/meta/callback'
 import { Route as ApiPublicHooksSyncAdsInsightsRouteImport } from './routes/api/public/hooks/sync-ads-insights'
@@ -310,6 +312,11 @@ const AuthenticatedStoreCustomersRoute =
     path: '/store/customers',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreChatRoute = AuthenticatedStoreChatRouteImport.update({
+  id: '/store/chat',
+  path: '/store/chat',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedProspectSettingsRoute =
   AuthenticatedProspectSettingsRouteImport.update({
     id: '/prospect/settings',
@@ -530,6 +537,11 @@ const LovableEmailQueueProcessRoute =
     path: '/lovable/email/queue/process',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicSalesMessagesRoute = ApiPublicSalesMessagesRouteImport.update({
+  id: '/api/public/sales/messages',
+  path: '/api/public/sales/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicSalesChatRoute = ApiPublicSalesChatRouteImport.update({
   id: '/api/public/sales/chat',
   path: '/api/public/sales/chat',
@@ -667,6 +679,7 @@ export interface FileRoutesByFullPath {
   '/prospect/qualified': typeof AuthenticatedProspectQualifiedRoute
   '/prospect/search': typeof AuthenticatedProspectSearchRoute
   '/prospect/settings': typeof AuthenticatedProspectSettingsRoute
+  '/store/chat': typeof AuthenticatedStoreChatRoute
   '/store/customers': typeof AuthenticatedStoreCustomersRoute
   '/store/faixa-calc': typeof AuthenticatedStoreFaixaCalcRoute
   '/store/imagens': typeof AuthenticatedStoreImagensRoute
@@ -700,6 +713,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/sync-ads-insights': typeof ApiPublicHooksSyncAdsInsightsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
+  '/api/public/sales/messages': typeof ApiPublicSalesMessagesRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
@@ -760,6 +774,7 @@ export interface FileRoutesByTo {
   '/prospect/qualified': typeof AuthenticatedProspectQualifiedRoute
   '/prospect/search': typeof AuthenticatedProspectSearchRoute
   '/prospect/settings': typeof AuthenticatedProspectSettingsRoute
+  '/store/chat': typeof AuthenticatedStoreChatRoute
   '/store/customers': typeof AuthenticatedStoreCustomersRoute
   '/store/faixa-calc': typeof AuthenticatedStoreFaixaCalcRoute
   '/store/imagens': typeof AuthenticatedStoreImagensRoute
@@ -793,6 +808,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/sync-ads-insights': typeof ApiPublicHooksSyncAdsInsightsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
+  '/api/public/sales/messages': typeof ApiPublicSalesMessagesRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
@@ -855,6 +871,7 @@ export interface FileRoutesById {
   '/_authenticated/prospect/qualified': typeof AuthenticatedProspectQualifiedRoute
   '/_authenticated/prospect/search': typeof AuthenticatedProspectSearchRoute
   '/_authenticated/prospect/settings': typeof AuthenticatedProspectSettingsRoute
+  '/_authenticated/store/chat': typeof AuthenticatedStoreChatRoute
   '/_authenticated/store/customers': typeof AuthenticatedStoreCustomersRoute
   '/_authenticated/store/faixa-calc': typeof AuthenticatedStoreFaixaCalcRoute
   '/_authenticated/store/imagens': typeof AuthenticatedStoreImagensRoute
@@ -888,6 +905,7 @@ export interface FileRoutesById {
   '/api/public/hooks/sync-ads-insights': typeof ApiPublicHooksSyncAdsInsightsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
+  '/api/public/sales/messages': typeof ApiPublicSalesMessagesRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
@@ -950,6 +968,7 @@ export interface FileRouteTypes {
     | '/prospect/qualified'
     | '/prospect/search'
     | '/prospect/settings'
+    | '/store/chat'
     | '/store/customers'
     | '/store/faixa-calc'
     | '/store/imagens'
@@ -983,6 +1002,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/sync-ads-insights'
     | '/api/public/meta/callback'
     | '/api/public/sales/chat'
+    | '/api/public/sales/messages'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
@@ -1043,6 +1063,7 @@ export interface FileRouteTypes {
     | '/prospect/qualified'
     | '/prospect/search'
     | '/prospect/settings'
+    | '/store/chat'
     | '/store/customers'
     | '/store/faixa-calc'
     | '/store/imagens'
@@ -1076,6 +1097,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/sync-ads-insights'
     | '/api/public/meta/callback'
     | '/api/public/sales/chat'
+    | '/api/public/sales/messages'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
@@ -1137,6 +1159,7 @@ export interface FileRouteTypes {
     | '/_authenticated/prospect/qualified'
     | '/_authenticated/prospect/search'
     | '/_authenticated/prospect/settings'
+    | '/_authenticated/store/chat'
     | '/_authenticated/store/customers'
     | '/_authenticated/store/faixa-calc'
     | '/_authenticated/store/imagens'
@@ -1170,6 +1193,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/sync-ads-insights'
     | '/api/public/meta/callback'
     | '/api/public/sales/chat'
+    | '/api/public/sales/messages'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
@@ -1212,6 +1236,7 @@ export interface RootRouteChildren {
   ApiPublicHooksSyncAdsInsightsRoute: typeof ApiPublicHooksSyncAdsInsightsRoute
   ApiPublicMetaCallbackRoute: typeof ApiPublicMetaCallbackRoute
   ApiPublicSalesChatRoute: typeof ApiPublicSalesChatRoute
+  ApiPublicSalesMessagesRoute: typeof ApiPublicSalesMessagesRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
   LovableEmailTransactionalSendRoute: typeof LovableEmailTransactionalSendRoute
@@ -1499,6 +1524,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreCustomersRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/chat': {
+      id: '/_authenticated/store/chat'
+      path: '/store/chat'
+      fullPath: '/store/chat'
+      preLoaderRoute: typeof AuthenticatedStoreChatRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/prospect/settings': {
       id: '/_authenticated/prospect/settings'
       path: '/prospect/settings'
@@ -1765,6 +1797,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/sales/messages': {
+      id: '/api/public/sales/messages'
+      path: '/api/public/sales/messages'
+      fullPath: '/api/public/sales/messages'
+      preLoaderRoute: typeof ApiPublicSalesMessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/sales/chat': {
       id: '/api/public/sales/chat'
       path: '/api/public/sales/chat'
@@ -1940,6 +1979,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProspectQualifiedRoute: typeof AuthenticatedProspectQualifiedRoute
   AuthenticatedProspectSearchRoute: typeof AuthenticatedProspectSearchRoute
   AuthenticatedProspectSettingsRoute: typeof AuthenticatedProspectSettingsRoute
+  AuthenticatedStoreChatRoute: typeof AuthenticatedStoreChatRoute
   AuthenticatedStoreCustomersRoute: typeof AuthenticatedStoreCustomersRoute
   AuthenticatedStoreFaixaCalcRoute: typeof AuthenticatedStoreFaixaCalcRoute
   AuthenticatedStoreImagensRoute: typeof AuthenticatedStoreImagensRoute
@@ -1987,6 +2027,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProspectQualifiedRoute: AuthenticatedProspectQualifiedRoute,
   AuthenticatedProspectSearchRoute: AuthenticatedProspectSearchRoute,
   AuthenticatedProspectSettingsRoute: AuthenticatedProspectSettingsRoute,
+  AuthenticatedStoreChatRoute: AuthenticatedStoreChatRoute,
   AuthenticatedStoreCustomersRoute: AuthenticatedStoreCustomersRoute,
   AuthenticatedStoreFaixaCalcRoute: AuthenticatedStoreFaixaCalcRoute,
   AuthenticatedStoreImagensRoute: AuthenticatedStoreImagensRoute,
@@ -2042,6 +2083,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksSyncAdsInsightsRoute: ApiPublicHooksSyncAdsInsightsRoute,
   ApiPublicMetaCallbackRoute: ApiPublicMetaCallbackRoute,
   ApiPublicSalesChatRoute: ApiPublicSalesChatRoute,
+  ApiPublicSalesMessagesRoute: ApiPublicSalesMessagesRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
   LovableEmailTransactionalSendRoute: LovableEmailTransactionalSendRoute,
