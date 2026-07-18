@@ -386,3 +386,23 @@ function CheckinCodesCard({ student, onUpdated }: { student: any; onUpdated: () 
     </Card>
   );
 }
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{title}</div>
+      <dl className="space-y-1.5">{children}</dl>
+    </div>
+  );
+}
+
+function Info({ label, value }: { label: string; value: any }) {
+  const v = value === true ? "Sim" : value === false ? "Não" : value;
+  const display = v === null || v === undefined || v === "" ? "—" : String(v);
+  return (
+    <div className="flex gap-2 text-sm">
+      <dt className="min-w-[9rem] text-muted-foreground">{label}</dt>
+      <dd className="flex-1 break-words">{display}</dd>
+    </div>
+  );
+}
