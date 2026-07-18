@@ -46,10 +46,33 @@ function NewGraduationPage() {
   const [templateId, setTemplateId] = useState("");
   const [issued, setIssued] = useState<Set<string>>(new Set());
 
+  // Hide Preta variants from the belt dropdown — they are chosen via the "Grau" selector below.
+  const visibleBelts = useMemo(
+    () => (belts.data ?? []).filter((b: any) => {
+      const n = b.name as string;
+      return !/^preta\s+com\s+aparador$/i.test(n) && !/^preta\s+\d+\s+grau$/i.test(n);
+    }),
+    [belts.data]
+  );
+
   const selectedBelt = useMemo(
     () => (belts.data ?? []).find((b: any) => b.id === beltId),
     [belts.data, beltId]
   );
+  const isPretaBase = /^preta$/i.test(selectedBelt?.name ?? "");
+  // Preta variant: 'plain' | 'aparador' | 1..6
+  const [pretaVariant, setPretaVariant] = useState<string>("plain");
+
+  // Resolve the actual belt row to submit when Preta base is chosen.
+  const effectiveBelt = useMemo(() => {
+    if (!isPretaBase) return selectedBelt;
+    const all = belts.data ?? [];
+    if (pretaVariant === "aparador") return all.find((b: any) => /^preta\s+com\s+aparador$/i.test(b.name)) ?? selectedBelt;
+    const n = Number(pretaVariant);
+    if (n >= 1 && n <= 6) return all.find((b: any) => new RegExp(`^preta\\s+${n}\\s+grau$`, "i").test(b.name)) ?? selectedBelt;
+    return selectedBelt;
+  }, [isPretaBase, pretaVariant, selectedBelt, belts.data]);
+
   const maxDeg = selectedBelt?.max_degrees ?? 4;
   const fixedDegreeName = /^vermelha e preta$/i.test(selectedBelt?.name ?? "")
     ? 7
@@ -63,6 +86,7 @@ function NewGraduationPage() {
   if (isFixedDegree && degree !== fixedDegreeName) {
     setTimeout(() => setDegree(fixedDegreeName as number), 0);
   }
+
 
   const selectedRows = useMemo(
     () => (students.data ?? []).filter((s: any) => selectedStudents.has(s.id)),
@@ -89,13 +113,16 @@ function NewGraduationPage() {
 
   const submitGrad = async () => {
     if (!beltId) return toast.error("Selecione a faixa");
-    if (degree < 0 || degree > maxDeg) return toast.error(`Grau entre 0 e ${maxDeg}`);
+    const submitBeltId = effectiveBelt?.id ?? beltId;
+    const submitDegree = isPretaBase ? 0 : degree;
+    if (!isPretaBase && (degree < 0 || degree > maxDeg)) return toast.error(`Grau entre 0 e ${maxDeg}`);
     try {
       const res = await bulkFn({ data: {
         student_ids: Array.from(selectedStudents),
-        belt_id: beltId, degree, graduation_date: date,
+        belt_id: submitBeltId, degree: submitDegree, graduation_date: date,
         evaluator: evaluator || null, notes: notes || null,
       }});
+
       toast.success(`${res.count} graduação(ões) registrada(s)`);
       setRegistered(res.graduations ?? []);
       qc.invalidateQueries({ queryKey: ["dojo-students"] });
@@ -112,7 +139,7 @@ function NewGraduationPage() {
     const fields = Array.isArray(tpl?.fields) ? (tpl.fields as any[]) : [];
     fields.forEach((f: any) => {
       if (f.key === "student_name") values[f.key] = student.full_name;
-      else if (f.key === "belt") values[f.key] = `${selectedBelt?.name}${degree ? ` — ${degree}º grau` : ""}`;
+      else if (f.key === "belt") values[f.key] = effectiveBelt?.name ?? `${selectedBelt?.name}${degree ? ` — ${degree}º grau` : ""}`;
       else if (f.key === "date") values[f.key] = new Date(date).toLocaleDateString("pt-BR");
       else if (f.key === "signature") values[f.key] = evaluator || "";
       else values[f.key] = "";
@@ -215,20 +242,28 @@ function NewGraduationPage() {
             <div className="grid md:grid-cols-2 gap-3">
               <div>
                 <label className="text-xs text-muted-foreground">Faixa</label>
-                <select className="border rounded p-2 bg-background w-full" value={beltId} onChange={(e) => { setBeltId(e.target.value); setDegree(0); }}>
+                <select className="border rounded p-2 bg-background w-full" value={beltId} onChange={(e) => { setBeltId(e.target.value); setDegree(0); setPretaVariant("plain"); }}>
                   <option value="">Selecione…</option>
-                  {(belts.data ?? []).map((b: any) => <option key={b.id} value={b.id}>{b.name}</option>)}
+                  {visibleBelts.map((b: any) => <option key={b.id} value={b.id}>{b.name}</option>)}
                 </select>
               </div>
               <div>
                 <label className="text-xs text-muted-foreground">Grau</label>
-                <select className="border rounded p-2 bg-background w-full" value={degree} onChange={(e) => setDegree(Number(e.target.value))} disabled={!selectedBelt || isFixedDegree}>
-                  {isFixedDegree ? (
-                    <option value={fixedDegreeName as number}>{fixedDegreeName}º grau (obrigatório)</option>
-                  ) : (
-                    Array.from({ length: maxDeg + 1 }).map((_, i) => <option key={i} value={i}>{i === 0 ? "Sem grau" : `${i}º grau`}</option>)
-                  )}
-                </select>
+                {isPretaBase ? (
+                  <select className="border rounded p-2 bg-background w-full" value={pretaVariant} onChange={(e) => setPretaVariant(e.target.value)}>
+                    <option value="plain">Sem grau</option>
+                    <option value="aparador">Com aparador</option>
+                    {[1,2,3,4,5,6].map(n => <option key={n} value={n}>{n}º grau</option>)}
+                  </select>
+                ) : (
+                  <select className="border rounded p-2 bg-background w-full" value={degree} onChange={(e) => setDegree(Number(e.target.value))} disabled={!selectedBelt || isFixedDegree}>
+                    {isFixedDegree ? (
+                      <option value={fixedDegreeName as number}>{fixedDegreeName}º grau (obrigatório)</option>
+                    ) : (
+                      Array.from({ length: maxDeg + 1 }).map((_, i) => <option key={i} value={i}>{i === 0 ? "Sem grau" : `${i}º grau`}</option>)
+                    )}
+                  </select>
+                )}
                 {isFixedDegree && <p className="text-[11px] text-muted-foreground mt-1">Esta faixa possui grau fixo.</p>}
               </div>
               <div>
@@ -245,15 +280,16 @@ function NewGraduationPage() {
               </div>
             </div>
 
-            {selectedBelt && (
+            {selectedBelt && effectiveBelt && (
               <div className="flex items-center gap-4 p-3 bg-muted/40 rounded">
-                <BeltVisual name={selectedBelt.name} colorHex={selectedBelt.color_hex} stripeHex={selectedBelt.stripe_hex} degree={degree} maxDegrees={maxDeg} className="min-w-[220px]" />
+                <BeltVisual name={effectiveBelt.name} colorHex={effectiveBelt.color_hex} stripeHex={effectiveBelt.stripe_hex} degree={isPretaBase ? 0 : degree} maxDegrees={effectiveBelt.max_degrees ?? maxDeg} className="min-w-[220px]" />
                 <div className="text-sm">
-                  <div className="font-medium">{selectedBelt.name}</div>
-                  <div className="text-muted-foreground">{degree === 0 ? "Sem grau" : `${degree}º grau`}</div>
+                  <div className="font-medium">{effectiveBelt.name}</div>
+                  <div className="text-muted-foreground">{isPretaBase ? "" : (degree === 0 ? "Sem grau" : `${degree}º grau`)}</div>
                 </div>
               </div>
             )}
+
 
             <div className="flex justify-between">
               <Button variant="ghost" onClick={() => setStep("select")}>← Voltar</Button>
