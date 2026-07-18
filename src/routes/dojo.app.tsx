@@ -33,6 +33,7 @@ import {
   UserCircle,
   CalendarDays,
   Trophy,
+  Film,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
@@ -76,6 +77,7 @@ const nav: { label: string; items: NavItem[] }[] = [
       { to: "/dojo/app/evaluations", label: "Avaliações", icon: ClipboardList },
       { to: "/dojo/app/certificates", label: "Certificados", icon: FileBadge },
       { to: "/dojo/app/competitions", label: "Competições", icon: Trophy },
+      { to: "/dojo/app/videos", label: "Vídeos", icon: Film },
     ],
   },
   {
@@ -98,6 +100,7 @@ const routeTitles: Array<{ match: (p: string) => boolean; title: string; subtitl
   { match: (p) => p.startsWith("/dojo/app/evaluations"), title: "Avaliações", subtitle: "Provas teóricas e práticas" },
   { match: (p) => p.startsWith("/dojo/app/certificates"), title: "Certificados", subtitle: "Modelos e emissões" },
   { match: (p) => p.startsWith("/dojo/app/competitions"), title: "Competições", subtitle: "Calendário, atletas e histórico" },
+  { match: (p) => p.startsWith("/dojo/app/videos"), title: "Vídeos", subtitle: "Biblioteca de conteúdos da academia" },
   { match: (p) => p.startsWith("/dojo/app/plans"), title: "Planos", subtitle: "Mensalidades e contratos" },
   { match: (p) => p.startsWith("/dojo/app/finance"), title: "Financeiro", subtitle: "Recebimentos e a receber" },
   { match: (p) => p.startsWith("/dojo/app/units"), title: "Unidades", subtitle: "Dojos e polos" },
