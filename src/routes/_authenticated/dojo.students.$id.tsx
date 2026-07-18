@@ -8,6 +8,7 @@ import {
   saveDojoEnrollment, deleteDojoEnrollment,
   saveDojoInvoice, markDojoInvoicePaid, deleteDojoInvoice,
 } from "@/lib/dojo/dojo.functions";
+import { regenerateStudentCodes } from "@/lib/dojo/attendance.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -91,6 +92,9 @@ function StudentDetail() {
         </CardContent>
       </Card>
 
+      <CheckinCodesCard student={s} onUpdated={() => q.refetch()} />
+
+
       <Card>
         <CardHeader><CardTitle className="text-base">Graduações</CardTitle></CardHeader>
         <CardContent className="space-y-3">
@@ -165,5 +169,44 @@ function StudentDetail() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+function CheckinCodesCard({ student, onUpdated }: { student: any; onUpdated: () => void }) {
+  const regen = useServerFn(regenerateStudentCodes);
+
+  const [busy, setBusy] = useState(false);
+  async function run(kind: "pin" | "qr" | "both") {
+    setBusy(true);
+    try {
+      await regen({ data: {
+        studentId: student.id,
+        resetPin: kind !== "qr",
+        resetQr: kind !== "pin",
+      } });
+      toast.success("Códigos atualizados");
+      onUpdated();
+    } catch (e: any) { toast.error(e.message); }
+    finally { setBusy(false); }
+  }
+  return (
+    <Card>
+      <CardHeader><CardTitle className="text-base">Códigos de Check-in</CardTitle></CardHeader>
+      <CardContent className="grid md:grid-cols-3 gap-3 text-sm">
+        <div>
+          <div className="text-xs text-muted-foreground">PIN</div>
+          <div className="font-mono text-lg">{student.checkin_pin ?? "—"}</div>
+          <Button size="sm" variant="outline" className="mt-2" disabled={busy} onClick={() => run("pin")}>Gerar PIN</Button>
+        </div>
+        <div>
+          <div className="text-xs text-muted-foreground">Token QR</div>
+          <div className="font-mono text-xs break-all">{student.qr_token ?? "—"}</div>
+          <Button size="sm" variant="outline" className="mt-2" disabled={busy} onClick={() => run("qr")}>Rotacionar QR</Button>
+        </div>
+        <div className="flex items-end">
+          <Button size="sm" disabled={busy} onClick={() => run("both")}>Gerar ambos</Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

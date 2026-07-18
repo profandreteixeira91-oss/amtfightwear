@@ -81,8 +81,10 @@ import { Route as AuthenticatedGrowthCrmRouteImport } from './routes/_authentica
 import { Route as AuthenticatedDojoUnitsRouteImport } from './routes/_authenticated/dojo.units'
 import { Route as AuthenticatedDojoStudentsRouteImport } from './routes/_authenticated/dojo.students'
 import { Route as AuthenticatedDojoPlansRouteImport } from './routes/_authenticated/dojo.plans'
+import { Route as AuthenticatedDojoIntegrationsRouteImport } from './routes/_authenticated/dojo.integrations'
 import { Route as AuthenticatedDojoGraduationsRouteImport } from './routes/_authenticated/dojo.graduations'
 import { Route as AuthenticatedDojoFinanceRouteImport } from './routes/_authenticated/dojo.finance'
+import { Route as AuthenticatedDojoCheckinRouteImport } from './routes/_authenticated/dojo.checkin'
 import { Route as AuthenticatedDojoCertificatesRouteImport } from './routes/_authenticated/dojo.certificates'
 import { Route as AuthenticatedAdsScaleRouteImport } from './routes/_authenticated/ads.scale'
 import { Route as AuthenticatedAdsOptimizationRouteImport } from './routes/_authenticated/ads.optimization'
@@ -112,6 +114,7 @@ import { Route as ApiPublicHooksEnrichPendingLeadsRouteImport } from './routes/a
 import { Route as ApiPublicHooksAutoInstagramPostRouteImport } from './routes/api/public/hooks/auto-instagram-post'
 import { Route as AuthenticatedDojoStudentsIdRouteImport } from './routes/_authenticated/dojo.students.$id'
 import { Route as AuthenticatedAdsCampaignsIdRouteImport } from './routes/_authenticated/ads.campaigns.$id'
+import { Route as ApiPublicDojoPartnerCheckinProviderRouteImport } from './routes/api/public/dojo/partner-checkin.$provider'
 
 const UnsubscribeRoute = UnsubscribeRouteImport.update({
   id: '/unsubscribe',
@@ -504,6 +507,12 @@ const AuthenticatedDojoPlansRoute = AuthenticatedDojoPlansRouteImport.update({
   path: '/plans',
   getParentRoute: () => AuthenticatedDojoRoute,
 } as any)
+const AuthenticatedDojoIntegrationsRoute =
+  AuthenticatedDojoIntegrationsRouteImport.update({
+    id: '/integrations',
+    path: '/integrations',
+    getParentRoute: () => AuthenticatedDojoRoute,
+  } as any)
 const AuthenticatedDojoGraduationsRoute =
   AuthenticatedDojoGraduationsRouteImport.update({
     id: '/graduations',
@@ -514,6 +523,12 @@ const AuthenticatedDojoFinanceRoute =
   AuthenticatedDojoFinanceRouteImport.update({
     id: '/finance',
     path: '/finance',
+    getParentRoute: () => AuthenticatedDojoRoute,
+  } as any)
+const AuthenticatedDojoCheckinRoute =
+  AuthenticatedDojoCheckinRouteImport.update({
+    id: '/checkin',
+    path: '/checkin',
     getParentRoute: () => AuthenticatedDojoRoute,
   } as any)
 const AuthenticatedDojoCertificatesRoute =
@@ -681,6 +696,12 @@ const AuthenticatedAdsCampaignsIdRoute =
     path: '/$id',
     getParentRoute: () => AuthenticatedAdsCampaignsRoute,
   } as any)
+const ApiPublicDojoPartnerCheckinProviderRoute =
+  ApiPublicDojoPartnerCheckinProviderRouteImport.update({
+    id: '/api/public/dojo/partner-checkin/$provider',
+    path: '/api/public/dojo/partner-checkin/$provider',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -714,8 +735,10 @@ export interface FileRoutesByFullPath {
   '/ads/optimization': typeof AuthenticatedAdsOptimizationRoute
   '/ads/scale': typeof AuthenticatedAdsScaleRoute
   '/dojo/certificates': typeof AuthenticatedDojoCertificatesRoute
+  '/dojo/checkin': typeof AuthenticatedDojoCheckinRoute
   '/dojo/finance': typeof AuthenticatedDojoFinanceRoute
   '/dojo/graduations': typeof AuthenticatedDojoGraduationsRoute
+  '/dojo/integrations': typeof AuthenticatedDojoIntegrationsRoute
   '/dojo/plans': typeof AuthenticatedDojoPlansRoute
   '/dojo/students': typeof AuthenticatedDojoStudentsRouteWithChildren
   '/dojo/units': typeof AuthenticatedDojoUnitsRoute
@@ -785,6 +808,7 @@ export interface FileRoutesByFullPath {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/api/public/dojo/partner-checkin/$provider': typeof ApiPublicDojoPartnerCheckinProviderRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -817,8 +841,10 @@ export interface FileRoutesByTo {
   '/ads/optimization': typeof AuthenticatedAdsOptimizationRoute
   '/ads/scale': typeof AuthenticatedAdsScaleRoute
   '/dojo/certificates': typeof AuthenticatedDojoCertificatesRoute
+  '/dojo/checkin': typeof AuthenticatedDojoCheckinRoute
   '/dojo/finance': typeof AuthenticatedDojoFinanceRoute
   '/dojo/graduations': typeof AuthenticatedDojoGraduationsRoute
+  '/dojo/integrations': typeof AuthenticatedDojoIntegrationsRoute
   '/dojo/plans': typeof AuthenticatedDojoPlansRoute
   '/dojo/students': typeof AuthenticatedDojoStudentsRouteWithChildren
   '/dojo/units': typeof AuthenticatedDojoUnitsRoute
@@ -888,6 +914,7 @@ export interface FileRoutesByTo {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/api/public/dojo/partner-checkin/$provider': typeof ApiPublicDojoPartnerCheckinProviderRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -923,8 +950,10 @@ export interface FileRoutesById {
   '/_authenticated/ads/optimization': typeof AuthenticatedAdsOptimizationRoute
   '/_authenticated/ads/scale': typeof AuthenticatedAdsScaleRoute
   '/_authenticated/dojo/certificates': typeof AuthenticatedDojoCertificatesRoute
+  '/_authenticated/dojo/checkin': typeof AuthenticatedDojoCheckinRoute
   '/_authenticated/dojo/finance': typeof AuthenticatedDojoFinanceRoute
   '/_authenticated/dojo/graduations': typeof AuthenticatedDojoGraduationsRoute
+  '/_authenticated/dojo/integrations': typeof AuthenticatedDojoIntegrationsRoute
   '/_authenticated/dojo/plans': typeof AuthenticatedDojoPlansRoute
   '/_authenticated/dojo/students': typeof AuthenticatedDojoStudentsRouteWithChildren
   '/_authenticated/dojo/units': typeof AuthenticatedDojoUnitsRoute
@@ -994,6 +1023,7 @@ export interface FileRoutesById {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/api/public/dojo/partner-checkin/$provider': typeof ApiPublicDojoPartnerCheckinProviderRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -1029,8 +1059,10 @@ export interface FileRouteTypes {
     | '/ads/optimization'
     | '/ads/scale'
     | '/dojo/certificates'
+    | '/dojo/checkin'
     | '/dojo/finance'
     | '/dojo/graduations'
+    | '/dojo/integrations'
     | '/dojo/plans'
     | '/dojo/students'
     | '/dojo/units'
@@ -1100,6 +1132,7 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/api/public/dojo/partner-checkin/$provider'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1132,8 +1165,10 @@ export interface FileRouteTypes {
     | '/ads/optimization'
     | '/ads/scale'
     | '/dojo/certificates'
+    | '/dojo/checkin'
     | '/dojo/finance'
     | '/dojo/graduations'
+    | '/dojo/integrations'
     | '/dojo/plans'
     | '/dojo/students'
     | '/dojo/units'
@@ -1203,6 +1238,7 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/api/public/dojo/partner-checkin/$provider'
   id:
     | '__root__'
     | '/'
@@ -1237,8 +1273,10 @@ export interface FileRouteTypes {
     | '/_authenticated/ads/optimization'
     | '/_authenticated/ads/scale'
     | '/_authenticated/dojo/certificates'
+    | '/_authenticated/dojo/checkin'
     | '/_authenticated/dojo/finance'
     | '/_authenticated/dojo/graduations'
+    | '/_authenticated/dojo/integrations'
     | '/_authenticated/dojo/plans'
     | '/_authenticated/dojo/students'
     | '/_authenticated/dojo/units'
@@ -1308,6 +1346,7 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/api/public/dojo/partner-checkin/$provider'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1351,6 +1390,7 @@ export interface RootRouteChildren {
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
   LovableEmailTransactionalSendRoute: typeof LovableEmailTransactionalSendRoute
+  ApiPublicDojoPartnerCheckinProviderRoute: typeof ApiPublicDojoPartnerCheckinProviderRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1859,6 +1899,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDojoPlansRouteImport
       parentRoute: typeof AuthenticatedDojoRoute
     }
+    '/_authenticated/dojo/integrations': {
+      id: '/_authenticated/dojo/integrations'
+      path: '/integrations'
+      fullPath: '/dojo/integrations'
+      preLoaderRoute: typeof AuthenticatedDojoIntegrationsRouteImport
+      parentRoute: typeof AuthenticatedDojoRoute
+    }
     '/_authenticated/dojo/graduations': {
       id: '/_authenticated/dojo/graduations'
       path: '/graduations'
@@ -1871,6 +1918,13 @@ declare module '@tanstack/react-router' {
       path: '/finance'
       fullPath: '/dojo/finance'
       preLoaderRoute: typeof AuthenticatedDojoFinanceRouteImport
+      parentRoute: typeof AuthenticatedDojoRoute
+    }
+    '/_authenticated/dojo/checkin': {
+      id: '/_authenticated/dojo/checkin'
+      path: '/checkin'
+      fullPath: '/dojo/checkin'
+      preLoaderRoute: typeof AuthenticatedDojoCheckinRouteImport
       parentRoute: typeof AuthenticatedDojoRoute
     }
     '/_authenticated/dojo/certificates': {
@@ -2076,6 +2130,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdsCampaignsIdRouteImport
       parentRoute: typeof AuthenticatedAdsCampaignsRoute
     }
+    '/api/public/dojo/partner-checkin/$provider': {
+      id: '/api/public/dojo/partner-checkin/$provider'
+      path: '/api/public/dojo/partner-checkin/$provider'
+      fullPath: '/api/public/dojo/partner-checkin/$provider'
+      preLoaderRoute: typeof ApiPublicDojoPartnerCheckinProviderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -2136,8 +2197,10 @@ const AuthenticatedDojoStudentsRouteWithChildren =
 
 interface AuthenticatedDojoRouteChildren {
   AuthenticatedDojoCertificatesRoute: typeof AuthenticatedDojoCertificatesRoute
+  AuthenticatedDojoCheckinRoute: typeof AuthenticatedDojoCheckinRoute
   AuthenticatedDojoFinanceRoute: typeof AuthenticatedDojoFinanceRoute
   AuthenticatedDojoGraduationsRoute: typeof AuthenticatedDojoGraduationsRoute
+  AuthenticatedDojoIntegrationsRoute: typeof AuthenticatedDojoIntegrationsRoute
   AuthenticatedDojoPlansRoute: typeof AuthenticatedDojoPlansRoute
   AuthenticatedDojoStudentsRoute: typeof AuthenticatedDojoStudentsRouteWithChildren
   AuthenticatedDojoUnitsRoute: typeof AuthenticatedDojoUnitsRoute
@@ -2146,8 +2209,10 @@ interface AuthenticatedDojoRouteChildren {
 
 const AuthenticatedDojoRouteChildren: AuthenticatedDojoRouteChildren = {
   AuthenticatedDojoCertificatesRoute: AuthenticatedDojoCertificatesRoute,
+  AuthenticatedDojoCheckinRoute: AuthenticatedDojoCheckinRoute,
   AuthenticatedDojoFinanceRoute: AuthenticatedDojoFinanceRoute,
   AuthenticatedDojoGraduationsRoute: AuthenticatedDojoGraduationsRoute,
+  AuthenticatedDojoIntegrationsRoute: AuthenticatedDojoIntegrationsRoute,
   AuthenticatedDojoPlansRoute: AuthenticatedDojoPlansRoute,
   AuthenticatedDojoStudentsRoute: AuthenticatedDojoStudentsRouteWithChildren,
   AuthenticatedDojoUnitsRoute: AuthenticatedDojoUnitsRoute,
@@ -2300,6 +2365,8 @@ const rootRouteChildren: RootRouteChildren = {
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
   LovableEmailTransactionalSendRoute: LovableEmailTransactionalSendRoute,
+  ApiPublicDojoPartnerCheckinProviderRoute:
+    ApiPublicDojoPartnerCheckinProviderRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

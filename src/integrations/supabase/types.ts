@@ -1327,6 +1327,60 @@ export type Database = {
         }
         Relationships: []
       }
+      dojo_attendance: {
+        Row: {
+          checked_in_at: string
+          created_at: string
+          created_by: string | null
+          external_user: string | null
+          id: string
+          method: string
+          notes: string | null
+          source: string | null
+          student_id: string | null
+          unit_id: string | null
+        }
+        Insert: {
+          checked_in_at?: string
+          created_at?: string
+          created_by?: string | null
+          external_user?: string | null
+          id?: string
+          method?: string
+          notes?: string | null
+          source?: string | null
+          student_id?: string | null
+          unit_id?: string | null
+        }
+        Update: {
+          checked_in_at?: string
+          created_at?: string
+          created_by?: string | null
+          external_user?: string | null
+          id?: string
+          method?: string
+          notes?: string | null
+          source?: string | null
+          student_id?: string | null
+          unit_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_attendance_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_attendance_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dojo_belts: {
         Row: {
           category: string
@@ -1676,6 +1730,104 @@ export type Database = {
           },
         ]
       }
+      dojo_partner_checkins: {
+        Row: {
+          attendance_id: string | null
+          created_at: string
+          external_user: string | null
+          id: string
+          payload: Json | null
+          provider: string
+          reason: string | null
+          status: string
+          token: string | null
+          unit_id: string | null
+        }
+        Insert: {
+          attendance_id?: string | null
+          created_at?: string
+          external_user?: string | null
+          id?: string
+          payload?: Json | null
+          provider: string
+          reason?: string | null
+          status: string
+          token?: string | null
+          unit_id?: string | null
+        }
+        Update: {
+          attendance_id?: string | null
+          created_at?: string
+          external_user?: string | null
+          id?: string
+          payload?: Json | null
+          provider?: string
+          reason?: string | null
+          status?: string
+          token?: string | null
+          unit_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_partner_checkins_attendance_id_fkey"
+            columns: ["attendance_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_attendance"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_partner_checkins_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_partner_integrations: {
+        Row: {
+          api_key_hint: string | null
+          config: Json
+          created_at: string
+          enabled: boolean
+          id: string
+          provider: string
+          unit_id: string | null
+          updated_at: string
+          webhook_secret: string | null
+        }
+        Insert: {
+          api_key_hint?: string | null
+          config?: Json
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          provider: string
+          unit_id?: string | null
+          updated_at?: string
+          webhook_secret?: string | null
+        }
+        Update: {
+          api_key_hint?: string | null
+          config?: Json
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          provider?: string
+          unit_id?: string | null
+          updated_at?: string
+          webhook_secret?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_partner_integrations_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dojo_plans: {
         Row: {
           active: boolean
@@ -1721,6 +1873,7 @@ export type Database = {
         Row: {
           address: string | null
           birth_date: string | null
+          checkin_pin: string | null
           cpf: string | null
           created_at: string
           current_belt_id: string | null
@@ -1733,6 +1886,7 @@ export type Database = {
           notes: string | null
           phone: string | null
           photo_url: string | null
+          qr_token: string | null
           status: string
           unit_id: string | null
           updated_at: string
@@ -1741,6 +1895,7 @@ export type Database = {
         Insert: {
           address?: string | null
           birth_date?: string | null
+          checkin_pin?: string | null
           cpf?: string | null
           created_at?: string
           current_belt_id?: string | null
@@ -1753,6 +1908,7 @@ export type Database = {
           notes?: string | null
           phone?: string | null
           photo_url?: string | null
+          qr_token?: string | null
           status?: string
           unit_id?: string | null
           updated_at?: string
@@ -1761,6 +1917,7 @@ export type Database = {
         Update: {
           address?: string | null
           birth_date?: string | null
+          checkin_pin?: string | null
           cpf?: string | null
           created_at?: string
           current_belt_id?: string | null
@@ -1773,6 +1930,7 @@ export type Database = {
           notes?: string | null
           phone?: string | null
           photo_url?: string | null
+          qr_token?: string | null
           status?: string
           unit_id?: string | null
           updated_at?: string

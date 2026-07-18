@@ -144,6 +144,9 @@ const groups: { label: string; items: Item[] }[] = [
       { title: "Financeiro", url: "/dojo/finance", icon: DollarSign },
       { title: "Unidades", url: "/dojo/units", icon: Store },
       { title: "Certificados", url: "/dojo/certificates", icon: ScrollText },
+      { title: "Check-in", url: "/dojo/checkin", icon: ListChecks },
+      { title: "Integrações", url: "/dojo/integrations", icon: Plug },
+
     ],
   },
   {
