@@ -29,8 +29,18 @@ import {
   LogOut,
   Search,
   Bell,
+  ChevronDown,
+  UserCircle,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export const Route = createFileRoute("/dojo/app")({
   ssr: false,
@@ -204,6 +214,34 @@ function DojoLayout() {
                 <Bell className="h-4 w-4" />
               </button>
             </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-2 rounded-md border border-[color:var(--dojo-border)] bg-white px-2 py-1.5 hover:bg-muted transition-colors">
+                  <div className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-foreground text-background text-xs font-bold">
+                    {initial}
+                  </div>
+                  <span className="hidden sm:inline max-w-[160px] truncate text-sm font-medium">
+                    {email ?? "Conta"}
+                  </span>
+                  <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel className="truncate">{email ?? "Conta"}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/dojo/app/account">
+                    <UserCircle className="mr-2 h-4 w-4" />
+                    Minha conta
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sair
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </header>
 
           <main className="p-4 md:p-6">
