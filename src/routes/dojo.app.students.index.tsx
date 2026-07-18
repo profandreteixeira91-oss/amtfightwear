@@ -129,6 +129,9 @@ function StudentsPage() {
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
+  const [beltFilter, setBeltFilter] = useState("all");
+  const [unitFilter, setUnitFilter] = useState("all");
+  const [cityFilter, setCityFilter] = useState("");
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<StudentForm>(emptyForm);
 
@@ -150,13 +153,19 @@ function StudentsPage() {
   }, [q.data]);
 
   const filtered = (q.data ?? []).filter((s: any) => {
-    const okS = status === "all" || s.status === status;
-    const okQ =
-      !search ||
-      s.full_name?.toLowerCase().includes(search.toLowerCase()) ||
-      s.email?.toLowerCase().includes(search.toLowerCase());
-    return okS && okQ;
+    if (status !== "all" && s.status !== status) return false;
+    if (beltFilter !== "all" && s.current_belt_id !== beltFilter) return false;
+    if (unitFilter !== "all" && s.unit_id !== unitFilter) return false;
+    if (cityFilter && !(s.city ?? "").toLowerCase().includes(cityFilter.toLowerCase())) return false;
+    if (search) {
+      const term = search.toLowerCase();
+      const hay = [s.full_name, s.email, s.phone, s.cpf, s.rg, s.guardian_name, s.belt?.name, s.unit?.name]
+        .filter(Boolean).join(" ").toLowerCase();
+      if (!hay.includes(term)) return false;
+    }
+    return true;
   });
+
 
   function set<K extends keyof StudentForm>(key: K, val: StudentForm[K]) {
     setForm((f) => ({ ...f, [key]: val }));
@@ -222,26 +231,18 @@ function StudentsPage() {
   };
 
   return (
-    <div>
-      <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-        <h2 className="text-lg font-semibold">Alunos</h2>
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h2 className="text-lg font-semibold">Alunos</h2>
+          <p className="text-xs text-muted-foreground">
+            {filtered.length} {filtered.length === 1 ? "aluno encontrado" : "alunos encontrados"}
+            {q.data && q.data.length !== filtered.length ? ` · ${q.data.length} no total` : ""}
+          </p>
+        </div>
         <div className="flex flex-wrap gap-2">
-          <Input
-            placeholder="Buscar…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-48"
-          />
-          <select
-            className="border rounded px-2 bg-background"
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-          >
-            <option value="all">Todos</option>
-            <option value="active">Ativos</option>
-            <option value="inactive">Inativos</option>
-            <option value="frozen">Trancados</option>
-          </select>
+
+
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button onClick={openNew}>
@@ -538,7 +539,39 @@ function StudentsPage() {
         </div>
       </div>
 
-      <div className="rounded border">
+      {/* Filtros ampliados: nome, e-mail, telefone, CPF, faixa, unidade, cidade, status */}
+      <div className="rounded-lg border border-border bg-card p-3 md:p-4">
+        <div className="grid gap-2 md:grid-cols-6">
+          <Input
+            className="md:col-span-2"
+            placeholder="Buscar por nome, telefone, CPF, e-mail…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <select className="h-10 rounded-md border border-input bg-background px-2 text-sm" value={status} onChange={(e) => setStatus(e.target.value)}>
+            <option value="all">Todos os status</option>
+            <option value="active">Ativos</option>
+            <option value="inactive">Inativos</option>
+            <option value="frozen">Trancados</option>
+          </select>
+          <select className="h-10 rounded-md border border-input bg-background px-2 text-sm" value={beltFilter} onChange={(e) => setBeltFilter(e.target.value)}>
+            <option value="all">Todas as faixas</option>
+            {(belts.data ?? []).map((b: any) => (
+              <option key={b.id} value={b.id}>{b.name}</option>
+            ))}
+          </select>
+          <select className="h-10 rounded-md border border-input bg-background px-2 text-sm" value={unitFilter} onChange={(e) => setUnitFilter(e.target.value)}>
+            <option value="all">Todas as unidades</option>
+            {(units.data ?? []).map((u: any) => (
+              <option key={u.id} value={u.id}>{u.name}</option>
+            ))}
+          </select>
+          <Input placeholder="Cidade" value={cityFilter} onChange={(e) => setCityFilter(e.target.value)} />
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-border bg-card">
+
         {filtered.map((s: any) => (
           <div key={s.id} className="flex items-center justify-between p-3 border-b last:border-0 gap-2">
             <div className="flex min-w-0 flex-1 items-center gap-3">
