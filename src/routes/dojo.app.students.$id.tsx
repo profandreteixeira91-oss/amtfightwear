@@ -789,13 +789,31 @@ function LoadingState() {
 }
 
 function Kpi({ icon: Icon, label, value, tint }: { icon: any; label: string; value: React.ReactNode; tint?: "success" | "warning" }) {
-  const tintCls = tint === "success" ? "text-emerald-600" : tint === "warning" ? "text-amber-600" : "text-foreground";
+  const tintCls =
+    tint === "success"
+      ? "text-emerald-600"
+      : tint === "warning"
+        ? "text-amber-600"
+        : "text-foreground";
+  const iconWrap =
+    tint === "success"
+      ? "bg-emerald-50 text-emerald-600 ring-emerald-100"
+      : tint === "warning"
+        ? "bg-amber-50 text-amber-600 ring-amber-100"
+        : "bg-muted text-muted-foreground ring-border";
   return (
-    <div className="dojo-card rounded-lg border border-border bg-card p-3">
-      <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-muted-foreground">
-        <Icon className="h-3.5 w-3.5" /> {label}
+    <div className="dojo-card group relative flex items-center gap-3 rounded-xl border border-border bg-card p-3.5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-foreground/20 hover:shadow-md">
+      <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-lg ring-1 ${iconWrap}`}>
+        <Icon className="h-[18px] w-[18px]" />
       </div>
-      <div className={`mt-1 text-xl font-semibold ${tintCls}`}>{value ?? "—"}</div>
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+          {label}
+        </div>
+        <div className={`mt-0.5 text-2xl font-bold leading-none tracking-tight ${tintCls}`}>
+          {value ?? "—"}
+        </div>
+      </div>
     </div>
   );
 }
