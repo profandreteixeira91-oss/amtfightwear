@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { PROVIDERS, PROVIDER_BY_ID, type ProviderId } from "@/lib/dojo/competitions/providers";
+import { PROVIDERS, PROVIDER_BY_ID, type ProviderId, type ProviderDefinition } from "@/lib/dojo/competitions/providers";
 
 const FIRECRAWL_V2 = "https://api.firecrawl.dev/v2";
 
@@ -146,7 +146,7 @@ function findLocation(text: string): { city: string | null; state: string | null
   return { city: null, state: null };
 }
 
-const NAV_NOISE = /^(home|início|inicio|menu|login|entrar|cadastro|calendar|calendário|calendario|events|eventos|about|sobre|contact|contato|blog|shop|loja|search|buscar|read more|leia mais|ver mais|saiba mais|see more|next|previous|próxim|anterior|inscrições|inscricoes|inscreva-se|inscrever-se|register|registrar|sign in|sign up|newsletter|privacy|terms|cookies|português|english|espanhol|facebook|instagram|youtube|twitter|whatsapp|telegram|linkedin|tiktok|download|baixar|app|aplicativo|voltar|back|share|compartilhar|resultados|results|ranking|ao vivo|live|mais|more|clique aqui|click here)$/i;
+const NAV_NOISE = /^(home|início|inicio|menu|login|entrar|cadastro|calendar|calendário|calendario|events|eventos|about|sobre|contact|contato|blog|shop|loja|search|buscar|read more|leia mais|ver mais|saiba mais|see more|next|previous|próxim|anterior|inscrições|inscricoes|inscreva-se|inscrever-se|register|registrar|sign in|sign up|newsletter|privacy|terms|cookies|português|english|espanhol|facebook|instagram|youtube|twitter|whatsapp|telegram|linkedin|tiktok|download|baixar|app|aplicativo|voltar|back|share|compartilhar|resultados|results|ranking|ao vivo|live|mais|more|clique aqui|click here|todos os eventos|próximos eventos|proximos eventos|categorias|categories)$/i;
 
 const IMAGE_EXT_RE = /\.(png|jpe?g|gif|webp|svg|bmp|tiff?|avif)(\?|#|$)/i;
 
@@ -163,20 +163,30 @@ function looksLikeEvent(text: string): boolean {
   return true;
 }
 
-function isEventUrl(url: string, baseHost: string): boolean {
-  if (IMAGE_EXT_RE.test(url)) return false;
+function isCandidateUrl(url: string, baseHost: string): URL | null {
+  if (IMAGE_EXT_RE.test(url)) return null;
   try {
     const u = new URL(url);
-    if (/(facebook|instagram|youtube|youtu\.be|twitter|x\.com|whatsapp|telegram|linkedin|tiktok)\./i.test(u.hostname)) return false;
-    if (/\/(wp-content|assets|static|images?|img|media|uploads?|thumbs?)\//i.test(u.pathname)) return false;
+    if (/(facebook|instagram|youtube|youtu\.be|twitter|x\.com|whatsapp|telegram|linkedin|tiktok)\./i.test(u.hostname)) return null;
+    if (/\/(wp-content|assets|static|images?|img|media|uploads?|thumbs?)\//i.test(u.pathname)) return null;
     if (baseHost) {
       const root = baseHost.replace(/^www\./, "").split(".").slice(-2).join(".");
-      if (!u.hostname.replace(/^www\./, "").endsWith(root)) return false;
+      if (!u.hostname.replace(/^www\./, "").endsWith(root)) return null;
     }
-    return true;
+    return u;
   } catch {
-    return false;
+    return null;
   }
+}
+
+function slugToName(slug: string): string {
+  // p2655-bad-boy-open-pro-de-jiu-jitsu-2026-edicao → "Bad Boy Open Pro De Jiu Jitsu 2026 Edicao"
+  const cleaned = slug
+    .replace(/^p\d+-/i, "")
+    .replace(/[-_]+/g, " ")
+    .replace(/\.(html?|php|aspx?)$/i, "")
+    .trim();
+  return cleaned.replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 type ParsedEvent = {
@@ -187,7 +197,7 @@ type ParsedEvent = {
   state: string | null;
 };
 
-function parseMarkdown(md: string, baseUrl: string): ParsedEvent[] {
+function parseMarkdown(md: string, baseUrl: string, provider: ProviderDefinition): ParsedEvent[] {
   const lines = md.split(/\r?\n/);
   const out: ParsedEvent[] = [];
   const seen = new Set<string>();
@@ -196,40 +206,66 @@ function parseMarkdown(md: string, baseUrl: string): ParsedEvent[] {
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    // Não capta links de imagem: [![alt](img)](url) — o texto começa com "!"
-    const linkRe = /\[([^\]!][^\]]{3,160})\]\((https?:\/\/[^\s)]+)\)/g;
+    // Aceita textos entre colchetes, incluindo imagens embutidas dentro do label
+    const linkRe = /\[([^\]]{3,220})\]\((https?:\/\/[^\s)]+)\)/g;
     let mm: RegExpExecArray | null;
     while ((mm = linkRe.exec(line)) !== null) {
-      const name = mm[1].replace(/[*_`]/g, "").trim();
-      const url = mm[2];
-      if (!looksLikeEvent(name)) continue;
-      if (!isEventUrl(url, baseHost)) continue;
-      const ctx = [lines[i - 2], lines[i - 1], line, lines[i + 1], lines[i + 2], lines[i + 3]]
+      const rawLabel = mm[1].replace(/!\[[^\]]*\]\([^)]*\)/g, " ").replace(/[*_`]/g, " ").replace(/\s+/g, " ").trim();
+      const rawUrl = mm[2];
+      const u = isCandidateUrl(rawUrl, baseHost);
+      if (!u) continue;
+      // Precisa parecer com URL de detalhe do evento — assim capturamos exatamente o que o usuário clicaria para se inscrever.
+      if (!provider.isEventDetailUrl(u)) continue;
+
+      // Se o rótulo não é utilizável, tenta extrair um nome legível do próprio slug.
+      const lastSeg = decodeURIComponent(u.pathname.split("/").filter(Boolean).pop() ?? "");
+      const nameCandidate = looksLikeEvent(rawLabel) ? rawLabel : slugToName(lastSeg);
+      if (!looksLikeEvent(nameCandidate)) continue;
+
+      const ctx = [lines[i - 2], lines[i - 1], line, lines[i + 1], lines[i + 2], lines[i + 3], lines[i + 4]]
         .filter(Boolean).join(" \n ");
-      const date = findDate(ctx) ?? findDate(name);
+      const date = findDate(ctx) ?? findDate(nameCandidate);
       const loc = findLocation(ctx);
-      const key = url.split("#")[0];
+      const key = u.toString().split("#")[0];
       if (seen.has(key)) continue;
       seen.add(key);
-      out.push({ name, url, starts_at: date, city: loc.city, state: loc.state });
+      out.push({ name: nameCandidate, url: u.toString(), starts_at: date, city: loc.city, state: loc.state });
     }
   }
 
-  // Mantém apenas eventos com data futura reconhecida — corta o ruído restante.
+  // Ordena: eventos com data futura primeiro; depois demais.
   const now = Date.now();
-  return out
-    .filter((e) => e.starts_at && new Date(e.starts_at).getTime() >= now - 24 * 3600 * 1000)
-    .slice(0, 80);
+  const dated = out.filter((e) => e.starts_at && new Date(e.starts_at).getTime() >= now - 24 * 3600 * 1000);
+  const undated = out.filter((e) => !e.starts_at);
+  return [...dated, ...undated].slice(0, 80);
 }
 
 async function scrapeProvider(providerId: ProviderId): Promise<LiveCompetition[]> {
   const provider = PROVIDER_BY_ID[providerId];
   if (!provider) return [];
 
-  const md = await firecrawlMarkdown(provider.listUrl);
-  const events = parseMarkdown(md, provider.listUrl);
+  const merged: ParsedEvent[] = [];
+  const seen = new Set<string>();
+  const errors: string[] = [];
+  for (const listUrl of provider.listUrls) {
+    try {
+      const md = await firecrawlMarkdown(listUrl);
+      const parsed = parseMarkdown(md, listUrl, provider);
+      for (const e of parsed) {
+        const key = e.url.split("#")[0];
+        if (seen.has(key)) continue;
+        seen.add(key);
+        merged.push(e);
+      }
+    } catch (err) {
+      errors.push(String((err as Error)?.message ?? err));
+    }
+  }
+  if (merged.length === 0 && errors.length === provider.listUrls.length) {
+    throw new Error(errors[0]);
+  }
 
-  return events.map((e, idx): LiveCompetition => ({
+  return merged.map((e, idx): LiveCompetition => ({
     id: `${providerId}:${idx}:${encodeURIComponent(e.name).slice(0, 40)}`,
     provider: providerId,
     name: e.name,
@@ -240,11 +276,12 @@ async function scrapeProvider(providerId: ProviderId): Promise<LiveCompetition[]
     country: "Brasil",
     venue_name: null,
     organizer: provider.label,
-    external_url: absoluteUrl(e.url, provider.listUrl),
+    external_url: e.url,
     registration_deadline: null,
     banner_url: null,
   }));
 }
+
 
 
 function absoluteUrl(u: string | null | undefined, base: string): string {
