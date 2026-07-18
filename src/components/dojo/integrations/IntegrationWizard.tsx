@@ -34,6 +34,17 @@ export function IntegrationWizard({
   const isLast = step === steps.length - 1;
   const hasFields = !!current?.fields?.length;
 
+  const missingFields = (current?.fields ?? []).filter(
+    (f) => !f.optional && !(values[f.key] ?? "").trim(),
+  );
+  const stepInvalid = missingFields.length > 0;
+
+  const allMissing = steps
+    .flatMap((s) => s.fields ?? [])
+    .filter((f) => !f.optional && !(values[f.key] ?? "").trim());
+  const canFinish = allMissing.length === 0;
+
+
   async function handleTest() {
     if (!onTest) return;
     setTesting(true);
@@ -114,29 +125,46 @@ export function IntegrationWizard({
 
           {hasFields && (
             <div className="space-y-3 border-t pt-3">
-              {current.fields!.map((f) => (
-                <div key={f.key}>
-                  <Label className="text-sm">
-                    {f.label}
-                    {f.optional && <span className="text-muted-foreground text-xs ml-1">(opcional)</span>}
-                  </Label>
-                  <Input
-                    type={f.secret ? "password" : "text"}
-                    placeholder={f.placeholder}
-                    value={values[f.key] ?? ""}
-                    onChange={(e) => setValues((v) => ({ ...v, [f.key]: e.target.value }))}
-                    className={f.secret ? "font-mono" : ""}
-                    autoComplete="off"
-                  />
-                  {f.help && <p className="text-xs text-muted-foreground mt-1">{f.help}</p>}
-                </div>
-              ))}
+              {current.fields!.map((f) => {
+                const val = values[f.key] ?? "";
+                const invalid = !f.optional && !val.trim();
+                return (
+                  <div key={f.key}>
+                    <Label className="text-sm">
+                      {f.label}
+                      {f.optional ? (
+                        <span className="text-muted-foreground text-xs ml-1">(opcional)</span>
+                      ) : (
+                        <span className="text-red-500 ml-1">*</span>
+                      )}
+                    </Label>
+                    <Input
+                      type={f.secret ? "password" : "text"}
+                      placeholder={f.placeholder}
+                      value={val}
+                      onChange={(e) => setValues((v) => ({ ...v, [f.key]: e.target.value }))}
+                      className={cn(f.secret ? "font-mono" : "", invalid && "border-red-500/60 focus-visible:ring-red-500/40")}
+                      autoComplete="off"
+                      aria-invalid={invalid}
+                    />
+                    {f.help && <p className="text-xs text-muted-foreground mt-1">{f.help}</p>}
+                    {invalid && <p className="text-xs text-red-500 mt-1">Campo obrigatório</p>}
+                  </div>
+                );
+              })}
             </div>
+          )}
+
+          {stepInvalid && (
+            <p className="text-xs text-red-500">
+              Preencha todos os campos obrigatórios para continuar.
+            </p>
           )}
 
           {step === steps.length - 2 && onTest && (
             <div className="border-t pt-3">
-              <Button onClick={handleTest} disabled={testing} variant="secondary" size="sm">
+              <Button onClick={handleTest} disabled={testing || stepInvalid} variant="secondary" size="sm">
+
                 {testing ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : null}
                 Testar conexão agora
               </Button>
@@ -162,9 +190,9 @@ export function IntegrationWizard({
         <DialogFooter className="gap-2">
           <Button variant="ghost" disabled={step === 0} onClick={() => setStep((s) => s - 1)}>Voltar</Button>
           {!isLast ? (
-            <Button onClick={() => setStep((s) => s + 1)}>Próximo</Button>
+            <Button onClick={() => setStep((s) => s + 1)} disabled={stepInvalid}>Próximo</Button>
           ) : (
-            <Button onClick={handleFinish} disabled={saving}>
+            <Button onClick={handleFinish} disabled={saving || !canFinish}>
               {saving ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : null}
               Concluir e salvar
             </Button>
