@@ -96,7 +96,8 @@ function NewGraduationPage() {
     if (!student) return;
     const tpl = (templates.data ?? []).find((t: any) => t.id === templateId);
     const values: Record<string, string> = {};
-    (tpl?.fields ?? []).forEach((f: any) => {
+    const fields = Array.isArray(tpl?.fields) ? (tpl.fields as any[]) : [];
+    fields.forEach((f: any) => {
       if (f.key === "student_name") values[f.key] = student.full_name;
       else if (f.key === "belt") values[f.key] = `${selectedBelt?.name}${degree ? ` — ${degree}º grau` : ""}`;
       else if (f.key === "date") values[f.key] = new Date(date).toLocaleDateString("pt-BR");
