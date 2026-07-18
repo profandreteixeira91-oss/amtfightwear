@@ -183,7 +183,7 @@ export const savePartnerIntegration = createServerFn({ method: "POST" })
       apiKeyHint: z.string().max(80).optional().nullable(),
       webhookSecret: z.string().max(200).optional().nullable(),
       unitId: z.string().uuid().optional().nullable(),
-      config: z.record(z.any()).optional(),
+      config: z.record(z.string(), z.any()).optional(),
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -194,11 +194,12 @@ export const savePartnerIntegration = createServerFn({ method: "POST" })
       api_key_hint: data.apiKeyHint ?? null,
       webhook_secret: data.webhookSecret ?? null,
       unit_id: data.unitId ?? null,
-      config: data.config ?? {},
+      config: (data.config ?? {}) as any,
     };
     const { error } = await context.supabase
       .from("dojo_partner_integrations")
-      .upsert(payload, { onConflict: "provider" });
+      .upsert(payload as any, { onConflict: "provider" });
+
     if (error) throw new Error(error.message);
     return { ok: true };
   });
