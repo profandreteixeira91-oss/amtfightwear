@@ -24,6 +24,7 @@ import { Route as LojaCheckoutRouteImport } from './routes/loja.checkout'
 import { Route as LojaCarrinhoRouteImport } from './routes/loja.carrinho'
 import { Route as LojaAtacadoRouteImport } from './routes/loja.atacado'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
+import { Route as DojoCheckoutRouteImport } from './routes/dojo.checkout'
 import { Route as ApiGenerateAdImageRouteImport } from './routes/api/generate-ad-image'
 import { Route as AuthenticatedUsersRouteImport } from './routes/_authenticated/users'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
@@ -190,6 +191,11 @@ const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
   id: '/email/unsubscribe',
   path: '/email/unsubscribe',
   getParentRoute: () => rootRouteImport,
+} as any)
+const DojoCheckoutRoute = DojoCheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => DojoRoute,
 } as any)
 const ApiGenerateAdImageRoute = ApiGenerateAdImageRouteImport.update({
   id: '/api/generate-ad-image',
@@ -717,7 +723,7 @@ export interface FileRoutesByFullPath {
   '/atacado-lp': typeof AtacadoLpRoute
   '/auth': typeof AuthRoute
   '/data-deletion': typeof DataDeletionRoute
-  '/dojo': typeof DojoRoute
+  '/dojo': typeof DojoRouteWithChildren
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/terms': typeof TermsRoute
@@ -729,6 +735,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedSettingsRoute
   '/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
+  '/dojo/checkout': typeof DojoCheckoutRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
@@ -825,7 +832,7 @@ export interface FileRoutesByTo {
   '/atacado-lp': typeof AtacadoLpRoute
   '/auth': typeof AuthRoute
   '/data-deletion': typeof DataDeletionRoute
-  '/dojo': typeof DojoRoute
+  '/dojo': typeof DojoRouteWithChildren
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/terms': typeof TermsRoute
@@ -837,6 +844,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsRoute
   '/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
+  '/dojo/checkout': typeof DojoCheckoutRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
@@ -934,7 +942,7 @@ export interface FileRoutesById {
   '/atacado-lp': typeof AtacadoLpRoute
   '/auth': typeof AuthRoute
   '/data-deletion': typeof DataDeletionRoute
-  '/dojo': typeof DojoRoute
+  '/dojo': typeof DojoRouteWithChildren
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/terms': typeof TermsRoute
@@ -946,6 +954,7 @@ export interface FileRoutesById {
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
+  '/dojo/checkout': typeof DojoCheckoutRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
@@ -1056,6 +1065,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/users'
     | '/api/generate-ad-image'
+    | '/dojo/checkout'
     | '/email/unsubscribe'
     | '/loja/atacado'
     | '/loja/carrinho'
@@ -1164,6 +1174,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/users'
     | '/api/generate-ad-image'
+    | '/dojo/checkout'
     | '/email/unsubscribe'
     | '/loja/atacado'
     | '/loja/carrinho'
@@ -1272,6 +1283,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings'
     | '/_authenticated/users'
     | '/api/generate-ad-image'
+    | '/dojo/checkout'
     | '/email/unsubscribe'
     | '/loja/atacado'
     | '/loja/carrinho'
@@ -1370,7 +1382,7 @@ export interface RootRouteChildren {
   AtacadoLpRoute: typeof AtacadoLpRoute
   AuthRoute: typeof AuthRoute
   DataDeletionRoute: typeof DataDeletionRoute
-  DojoRoute: typeof DojoRoute
+  DojoRoute: typeof DojoRouteWithChildren
   PrivacyRoute: typeof PrivacyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   TermsRoute: typeof TermsRoute
@@ -1515,6 +1527,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/email/unsubscribe'
       preLoaderRoute: typeof EmailUnsubscribeRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/dojo/checkout': {
+      id: '/dojo/checkout'
+      path: '/checkout'
+      fullPath: '/dojo/checkout'
+      preLoaderRoute: typeof DojoCheckoutRouteImport
+      parentRoute: typeof DojoRoute
     }
     '/api/generate-ad-image': {
       id: '/api/generate-ad-image'
@@ -2346,13 +2365,23 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface DojoRouteChildren {
+  DojoCheckoutRoute: typeof DojoCheckoutRoute
+}
+
+const DojoRouteChildren: DojoRouteChildren = {
+  DojoCheckoutRoute: DojoCheckoutRoute,
+}
+
+const DojoRouteWithChildren = DojoRoute._addFileChildren(DojoRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AtacadoLpRoute: AtacadoLpRoute,
   AuthRoute: AuthRoute,
   DataDeletionRoute: DataDeletionRoute,
-  DojoRoute: DojoRoute,
+  DojoRoute: DojoRouteWithChildren,
   PrivacyRoute: PrivacyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   TermsRoute: TermsRoute,
