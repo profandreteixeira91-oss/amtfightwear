@@ -20,6 +20,7 @@ import { Route as AtacadoLpRouteImport } from './routes/atacado-lp'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LojaIndexRouteImport } from './routes/loja.index'
+import { Route as DojoIndexRouteImport } from './routes/dojo.index'
 import { Route as LojaCheckoutRouteImport } from './routes/loja.checkout'
 import { Route as LojaCarrinhoRouteImport } from './routes/loja.carrinho'
 import { Route as LojaAtacadoRouteImport } from './routes/loja.atacado'
@@ -172,6 +173,11 @@ const LojaIndexRoute = LojaIndexRouteImport.update({
   id: '/loja/',
   path: '/loja/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const DojoIndexRoute = DojoIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DojoRoute,
 } as any)
 const LojaCheckoutRoute = LojaCheckoutRouteImport.update({
   id: '/loja/checkout',
@@ -738,6 +744,7 @@ export interface FileRoutesByFullPath {
   '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
   '/loja/checkout': typeof LojaCheckoutRoute
+  '/dojo/': typeof DojoIndexRoute
   '/loja/': typeof LojaIndexRoute
   '/ads/alerts': typeof AuthenticatedAdsAlertsRoute
   '/ads/campaigns': typeof AuthenticatedAdsCampaignsRouteWithChildren
@@ -829,7 +836,6 @@ export interface FileRoutesByTo {
   '/atacado-lp': typeof AtacadoLpRoute
   '/auth': typeof AuthRoute
   '/data-deletion': typeof DataDeletionRoute
-  '/dojo': typeof DojoRouteWithChildren
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/terms': typeof TermsRoute
@@ -847,6 +853,7 @@ export interface FileRoutesByTo {
   '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
   '/loja/checkout': typeof LojaCheckoutRoute
+  '/dojo': typeof DojoIndexRoute
   '/loja': typeof LojaIndexRoute
   '/ads/alerts': typeof AuthenticatedAdsAlertsRoute
   '/ads/campaigns': typeof AuthenticatedAdsCampaignsRouteWithChildren
@@ -959,6 +966,7 @@ export interface FileRoutesById {
   '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
   '/loja/checkout': typeof LojaCheckoutRoute
+  '/dojo/': typeof DojoIndexRoute
   '/loja/': typeof LojaIndexRoute
   '/_authenticated/ads/alerts': typeof AuthenticatedAdsAlertsRoute
   '/_authenticated/ads/campaigns': typeof AuthenticatedAdsCampaignsRouteWithChildren
@@ -1071,6 +1079,7 @@ export interface FileRouteTypes {
     | '/loja/atacado'
     | '/loja/carrinho'
     | '/loja/checkout'
+    | '/dojo/'
     | '/loja/'
     | '/ads/alerts'
     | '/ads/campaigns'
@@ -1162,7 +1171,6 @@ export interface FileRouteTypes {
     | '/atacado-lp'
     | '/auth'
     | '/data-deletion'
-    | '/dojo'
     | '/privacy'
     | '/reset-password'
     | '/terms'
@@ -1180,6 +1188,7 @@ export interface FileRouteTypes {
     | '/loja/atacado'
     | '/loja/carrinho'
     | '/loja/checkout'
+    | '/dojo'
     | '/loja'
     | '/ads/alerts'
     | '/ads/campaigns'
@@ -1291,6 +1300,7 @@ export interface FileRouteTypes {
     | '/loja/atacado'
     | '/loja/carrinho'
     | '/loja/checkout'
+    | '/dojo/'
     | '/loja/'
     | '/_authenticated/ads/alerts'
     | '/_authenticated/ads/campaigns'
@@ -1501,6 +1511,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/loja/'
       preLoaderRoute: typeof LojaIndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/dojo/': {
+      id: '/dojo/'
+      path: '/'
+      fullPath: '/dojo/'
+      preLoaderRoute: typeof DojoIndexRouteImport
+      parentRoute: typeof DojoRoute
     }
     '/loja/checkout': {
       id: '/loja/checkout'
@@ -2373,12 +2390,14 @@ interface DojoRouteChildren {
   DojoAppRoute: typeof DojoAppRouteWithChildren
   DojoAuthRoute: typeof DojoAuthRoute
   DojoCheckoutRoute: typeof DojoCheckoutRoute
+  DojoIndexRoute: typeof DojoIndexRoute
 }
 
 const DojoRouteChildren: DojoRouteChildren = {
   DojoAppRoute: DojoAppRouteWithChildren,
   DojoAuthRoute: DojoAuthRoute,
   DojoCheckoutRoute: DojoCheckoutRoute,
+  DojoIndexRoute: DojoIndexRoute,
 }
 
 const DojoRouteWithChildren = DojoRoute._addFileChildren(DojoRouteChildren)
