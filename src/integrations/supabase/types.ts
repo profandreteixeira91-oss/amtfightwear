@@ -1997,72 +1997,147 @@ export type Database = {
       dojo_students: {
         Row: {
           address: string | null
+          address_complement: string | null
+          address_number: string | null
+          anamnesis: Json
           birth_date: string | null
+          blood_type: string | null
           checkin_pin: string | null
+          city: string | null
           cpf: string | null
           created_at: string
           current_belt_id: string | null
           current_degree: number
           email: string | null
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
+          emergency_contact_relationship: string | null
           full_name: string
+          gender: string | null
           guardian_name: string | null
           guardian_phone: string | null
+          has_medical_clearance: boolean
+          health_insurance: string | null
           id: string
+          image_rights_consent: boolean
+          lgpd_consent: boolean
+          lgpd_consent_date: string | null
+          marital_status: string | null
+          medical_clearance_date: string | null
+          nationality: string | null
+          neighborhood: string | null
           notes: string | null
           owner_id: string
           phone: string | null
           photo_url: string | null
+          profession: string | null
           qr_token: string | null
+          rg: string | null
+          state: string | null
           status: string
+          street: string | null
+          terms_accepted: boolean
+          terms_accepted_date: string | null
           unit_id: string | null
           updated_at: string
           user_id: string | null
+          zip: string | null
         }
         Insert: {
           address?: string | null
+          address_complement?: string | null
+          address_number?: string | null
+          anamnesis?: Json
           birth_date?: string | null
+          blood_type?: string | null
           checkin_pin?: string | null
+          city?: string | null
           cpf?: string | null
           created_at?: string
           current_belt_id?: string | null
           current_degree?: number
           email?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          emergency_contact_relationship?: string | null
           full_name: string
+          gender?: string | null
           guardian_name?: string | null
           guardian_phone?: string | null
+          has_medical_clearance?: boolean
+          health_insurance?: string | null
           id?: string
+          image_rights_consent?: boolean
+          lgpd_consent?: boolean
+          lgpd_consent_date?: string | null
+          marital_status?: string | null
+          medical_clearance_date?: string | null
+          nationality?: string | null
+          neighborhood?: string | null
           notes?: string | null
           owner_id: string
           phone?: string | null
           photo_url?: string | null
+          profession?: string | null
           qr_token?: string | null
+          rg?: string | null
+          state?: string | null
           status?: string
+          street?: string | null
+          terms_accepted?: boolean
+          terms_accepted_date?: string | null
           unit_id?: string | null
           updated_at?: string
           user_id?: string | null
+          zip?: string | null
         }
         Update: {
           address?: string | null
+          address_complement?: string | null
+          address_number?: string | null
+          anamnesis?: Json
           birth_date?: string | null
+          blood_type?: string | null
           checkin_pin?: string | null
+          city?: string | null
           cpf?: string | null
           created_at?: string
           current_belt_id?: string | null
           current_degree?: number
           email?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          emergency_contact_relationship?: string | null
           full_name?: string
+          gender?: string | null
           guardian_name?: string | null
           guardian_phone?: string | null
+          has_medical_clearance?: boolean
+          health_insurance?: string | null
           id?: string
+          image_rights_consent?: boolean
+          lgpd_consent?: boolean
+          lgpd_consent_date?: string | null
+          marital_status?: string | null
+          medical_clearance_date?: string | null
+          nationality?: string | null
+          neighborhood?: string | null
           notes?: string | null
           owner_id?: string
           phone?: string | null
           photo_url?: string | null
+          profession?: string | null
           qr_token?: string | null
+          rg?: string | null
+          state?: string | null
           status?: string
+          street?: string | null
+          terms_accepted?: boolean
+          terms_accepted_date?: string | null
           unit_id?: string | null
           updated_at?: string
           user_id?: string | null
+          zip?: string | null
         }
         Relationships: [
           {

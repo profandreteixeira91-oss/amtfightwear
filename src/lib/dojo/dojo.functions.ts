@@ -94,21 +94,49 @@ export const saveDojoStudent = createServerFn({ method: "POST" })
     full_name: z.string().min(1).max(200),
     unit_id: z.string().uuid().optional().nullable(),
     cpf: z.string().max(20).optional().nullable(),
+    rg: z.string().max(30).optional().nullable(),
     birth_date: z.string().optional().nullable(),
-    email: z.string().email().max(200).optional().nullable(),
+    gender: z.string().max(30).optional().nullable(),
+    nationality: z.string().max(60).optional().nullable(),
+    marital_status: z.string().max(30).optional().nullable(),
+    profession: z.string().max(120).optional().nullable(),
+    blood_type: z.string().max(10).optional().nullable(),
+    health_insurance: z.string().max(200).optional().nullable(),
+    email: z.string().email().max(200).optional().nullable().or(z.literal("")),
     phone: z.string().max(40).optional().nullable(),
     address: z.string().max(400).optional().nullable(),
+    zip: z.string().max(20).optional().nullable(),
+    street: z.string().max(200).optional().nullable(),
+    address_number: z.string().max(20).optional().nullable(),
+    address_complement: z.string().max(120).optional().nullable(),
+    neighborhood: z.string().max(120).optional().nullable(),
+    city: z.string().max(120).optional().nullable(),
+    state: z.string().max(2).optional().nullable(),
     photo_url: z.string().max(1000).optional().nullable(),
     guardian_name: z.string().max(200).optional().nullable(),
     guardian_phone: z.string().max(40).optional().nullable(),
+    emergency_contact_name: z.string().max(200).optional().nullable(),
+    emergency_contact_phone: z.string().max(40).optional().nullable(),
+    emergency_contact_relationship: z.string().max(60).optional().nullable(),
     current_belt_id: z.string().uuid().optional().nullable(),
     current_degree: z.number().int().min(0).max(10).optional(),
     status: z.enum(["active","inactive","frozen"]).optional(),
     notes: z.string().max(2000).optional().nullable(),
+    anamnesis: z.record(z.string(), z.any()).optional(),
+    has_medical_clearance: z.boolean().optional(),
+    medical_clearance_date: z.string().optional().nullable(),
+    lgpd_consent: z.boolean().optional(),
+    image_rights_consent: z.boolean().optional(),
+    terms_accepted: z.boolean().optional(),
   }).parse(i))
   .handler(async ({ data, context }) => {
     const { id, ...rest } = data;
     const payload: any = { ...rest };
+    if (payload.email === "") payload.email = null;
+    // Stamp consent timestamps when toggled true
+    const now = new Date().toISOString();
+    if (payload.lgpd_consent === true) payload.lgpd_consent_date = now;
+    if (payload.terms_accepted === true) payload.terms_accepted_date = now;
     Object.keys(payload).forEach(k => payload[k] === undefined && delete payload[k]);
     if (id) {
       const { error } = await context.supabase.from("dojo_students").update(payload).eq("id", id);
@@ -119,6 +147,7 @@ export const saveDojoStudent = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { id: row.id };
   });
+
 
 export const deleteDojoStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
