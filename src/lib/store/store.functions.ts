@@ -613,6 +613,13 @@ export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
     } catch (err) {
       console.error("[whatsapp] status update notify failed", err);
     }
+    try {
+      const { createOrderNotification, notifyEventFromStatus } = await import("@/lib/store/notifications.server");
+      const evt = notifyEventFromStatus(data.status, data.payment_status);
+      if (evt) await createOrderNotification(data.id, evt);
+    } catch (err) {
+      console.error("[notifications] status update notify failed", err);
+    }
     return { ok: true };
   });
 
