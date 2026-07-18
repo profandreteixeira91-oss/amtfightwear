@@ -606,6 +606,13 @@ export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
     if (data.payment_status) patch.payment_status = data.payment_status;
     const { error } = await context.supabase.from("store_orders").update(patch).eq("id", data.id);
     if (error) throw new Error(error.message);
+    try {
+      const { sendWhatsAppOrderStatus, eventFromStatusTransition } = await import("@/lib/store/whatsapp.server");
+      const evt = eventFromStatusTransition(data.status, data.payment_status);
+      if (evt) await sendWhatsAppOrderStatus(data.id, evt);
+    } catch (err) {
+      console.error("[whatsapp] status update notify failed", err);
+    }
     return { ok: true };
   });
 

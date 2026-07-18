@@ -3586,6 +3586,7 @@ export type Database = {
           total: number
           updated_at: string
           user_id: string | null
+          whatsapp_notified: Json
         }
         Insert: {
           asaas_boleto_url?: string | null
@@ -3635,6 +3636,7 @@ export type Database = {
           total?: number
           updated_at?: string
           user_id?: string | null
+          whatsapp_notified?: Json
         }
         Update: {
           asaas_boleto_url?: string | null
@@ -3684,6 +3686,7 @@ export type Database = {
           total?: number
           updated_at?: string
           user_id?: string | null
+          whatsapp_notified?: Json
         }
         Relationships: []
       }
