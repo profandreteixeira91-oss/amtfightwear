@@ -54,6 +54,7 @@ import { Route as DojoAppIntegrationsRouteImport } from './routes/dojo.app.integ
 import { Route as DojoAppGraduationsRouteImport } from './routes/dojo.app.graduations'
 import { Route as DojoAppFinanceRouteImport } from './routes/dojo.app.finance'
 import { Route as DojoAppEvaluationsRouteImport } from './routes/dojo.app.evaluations'
+import { Route as DojoAppCompetitionsRouteImport } from './routes/dojo.app.competitions'
 import { Route as DojoAppCheckinRouteImport } from './routes/dojo.app.checkin'
 import { Route as DojoAppCertificatesRouteImport } from './routes/dojo.app.certificates'
 import { Route as DojoAppAccountRouteImport } from './routes/dojo.app.account'
@@ -346,6 +347,11 @@ const DojoAppFinanceRoute = DojoAppFinanceRouteImport.update({
 const DojoAppEvaluationsRoute = DojoAppEvaluationsRouteImport.update({
   id: '/evaluations',
   path: '/evaluations',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppCompetitionsRoute = DojoAppCompetitionsRouteImport.update({
+  id: '/competitions',
+  path: '/competitions',
   getParentRoute: () => DojoAppRoute,
 } as any)
 const DojoAppCheckinRoute = DojoAppCheckinRouteImport.update({
@@ -812,6 +818,7 @@ export interface FileRoutesByFullPath {
   '/dojo/app/account': typeof DojoAppAccountRoute
   '/dojo/app/certificates': typeof DojoAppCertificatesRoute
   '/dojo/app/checkin': typeof DojoAppCheckinRoute
+  '/dojo/app/competitions': typeof DojoAppCompetitionsRoute
   '/dojo/app/evaluations': typeof DojoAppEvaluationsRoute
   '/dojo/app/finance': typeof DojoAppFinanceRoute
   '/dojo/app/graduations': typeof DojoAppGraduationsRoute
@@ -924,6 +931,7 @@ export interface FileRoutesByTo {
   '/dojo/app/account': typeof DojoAppAccountRoute
   '/dojo/app/certificates': typeof DojoAppCertificatesRoute
   '/dojo/app/checkin': typeof DojoAppCheckinRoute
+  '/dojo/app/competitions': typeof DojoAppCompetitionsRoute
   '/dojo/app/evaluations': typeof DojoAppEvaluationsRoute
   '/dojo/app/finance': typeof DojoAppFinanceRoute
   '/dojo/app/graduations': typeof DojoAppGraduationsRoute
@@ -1040,6 +1048,7 @@ export interface FileRoutesById {
   '/dojo/app/account': typeof DojoAppAccountRoute
   '/dojo/app/certificates': typeof DojoAppCertificatesRoute
   '/dojo/app/checkin': typeof DojoAppCheckinRoute
+  '/dojo/app/competitions': typeof DojoAppCompetitionsRoute
   '/dojo/app/evaluations': typeof DojoAppEvaluationsRoute
   '/dojo/app/finance': typeof DojoAppFinanceRoute
   '/dojo/app/graduations': typeof DojoAppGraduationsRoute
@@ -1156,6 +1165,7 @@ export interface FileRouteTypes {
     | '/dojo/app/account'
     | '/dojo/app/certificates'
     | '/dojo/app/checkin'
+    | '/dojo/app/competitions'
     | '/dojo/app/evaluations'
     | '/dojo/app/finance'
     | '/dojo/app/graduations'
@@ -1268,6 +1278,7 @@ export interface FileRouteTypes {
     | '/dojo/app/account'
     | '/dojo/app/certificates'
     | '/dojo/app/checkin'
+    | '/dojo/app/competitions'
     | '/dojo/app/evaluations'
     | '/dojo/app/finance'
     | '/dojo/app/graduations'
@@ -1383,6 +1394,7 @@ export interface FileRouteTypes {
     | '/dojo/app/account'
     | '/dojo/app/certificates'
     | '/dojo/app/checkin'
+    | '/dojo/app/competitions'
     | '/dojo/app/evaluations'
     | '/dojo/app/finance'
     | '/dojo/app/graduations'
@@ -1784,6 +1796,13 @@ declare module '@tanstack/react-router' {
       path: '/evaluations'
       fullPath: '/dojo/app/evaluations'
       preLoaderRoute: typeof DojoAppEvaluationsRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/competitions': {
+      id: '/dojo/app/competitions'
+      path: '/competitions'
+      fullPath: '/dojo/app/competitions'
+      preLoaderRoute: typeof DojoAppCompetitionsRouteImport
       parentRoute: typeof DojoAppRoute
     }
     '/dojo/app/checkin': {
@@ -2420,6 +2439,7 @@ interface DojoAppRouteChildren {
   DojoAppAccountRoute: typeof DojoAppAccountRoute
   DojoAppCertificatesRoute: typeof DojoAppCertificatesRoute
   DojoAppCheckinRoute: typeof DojoAppCheckinRoute
+  DojoAppCompetitionsRoute: typeof DojoAppCompetitionsRoute
   DojoAppEvaluationsRoute: typeof DojoAppEvaluationsRoute
   DojoAppFinanceRoute: typeof DojoAppFinanceRoute
   DojoAppGraduationsRoute: typeof DojoAppGraduationsRoute
@@ -2435,6 +2455,7 @@ const DojoAppRouteChildren: DojoAppRouteChildren = {
   DojoAppAccountRoute: DojoAppAccountRoute,
   DojoAppCertificatesRoute: DojoAppCertificatesRoute,
   DojoAppCheckinRoute: DojoAppCheckinRoute,
+  DojoAppCompetitionsRoute: DojoAppCompetitionsRoute,
   DojoAppEvaluationsRoute: DojoAppEvaluationsRoute,
   DojoAppFinanceRoute: DojoAppFinanceRoute,
   DojoAppGraduationsRoute: DojoAppGraduationsRoute,
