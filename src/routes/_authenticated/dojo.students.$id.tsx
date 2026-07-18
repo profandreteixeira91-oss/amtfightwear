@@ -91,6 +91,9 @@ function StudentDetail() {
         </CardContent>
       </Card>
 
+      <CheckinCodesCard student={s} onUpdated={() => q.refetch()} />
+
+
       <Card>
         <CardHeader><CardTitle className="text-base">Graduações</CardTitle></CardHeader>
         <CardContent className="space-y-3">
