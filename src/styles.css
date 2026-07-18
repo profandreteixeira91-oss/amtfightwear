@@ -163,3 +163,38 @@
   0% { transform: translateX(-100%); }
   100% { transform: translateX(300%); }
 }
+
+/* ============================================================
+ * AMT Dojo Manager — Typography + subtle surface tuning
+ * Scoped via .dojo-theme so the storefront stays untouched.
+ * Palette: branco, preto e vermelho (herda os tokens globais).
+ * ============================================================ */
+.dojo-theme {
+  font-family: "Figtree", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --dojo-surface: oklch(0.985 0 0);
+  --dojo-sidebar-bg: oklch(0.09 0 0);
+  --dojo-sidebar-fg: oklch(0.98 0 0);
+  --dojo-sidebar-muted: oklch(0.65 0 0);
+  --dojo-sidebar-hover: oklch(0.16 0 0);
+  --dojo-sidebar-active: oklch(0.56 0.235 27);
+  --dojo-border: oklch(0.92 0 0);
+  background-color: var(--dojo-surface);
+}
+.dojo-theme h1,
+.dojo-theme h2,
+.dojo-theme h3,
+.dojo-theme h4,
+.dojo-theme .font-display {
+  font-family: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.01em;
+}
+.dojo-theme .dojo-card {
+  background: #fff;
+  border: 1px solid var(--dojo-border);
+  border-radius: 12px;
+}
+.dojo-theme .dojo-kpi-accent {
+  background: linear-gradient(135deg, oklch(0.56 0.235 27), oklch(0.42 0.18 27));
+  color: #fff;
+}
+
