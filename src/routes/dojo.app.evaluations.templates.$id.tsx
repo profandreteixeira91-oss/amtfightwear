@@ -1,0 +1,321 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import {
+  getEvalTemplate, saveEvalTemplate,
+} from "@/lib/dojo/evaluations.functions";
+import { listDojoBelts } from "@/lib/dojo/dojo.functions";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { toast } from "sonner";
+import { Plus, Trash2, ChevronUp, ChevronDown, ArrowLeft } from "lucide-react";
+
+export const Route = createFileRoute("/dojo/app/evaluations/templates/$id")({
+  component: TemplateEditor,
+});
+
+type Criterion = {
+  id: string;
+  name: string;
+  description?: string | null;
+  weight: number;
+  max_score: number;
+  min_score: number;
+  required: boolean;
+  eliminatory: boolean;
+  techniques: string[];
+};
+type Category = {
+  id: string;
+  name: string;
+  weight: number;
+  criteria: Criterion[];
+};
+
+const uid = () => Math.random().toString(36).slice(2, 10);
+
+function TemplateEditor() {
+  const { id } = Route.useParams();
+  const getFn = useServerFn(getEvalTemplate);
+  const saveFn = useServerFn(saveEvalTemplate);
+  const beltsFn = useServerFn(listDojoBelts);
+  const qc = useQueryClient();
+
+  const { data: tpl, isLoading } = useQuery({
+    queryKey: ["eval-template", id],
+    queryFn: () => getFn({ data: { id } }),
+  });
+  const { data: belts } = useQuery({ queryKey: ["dojo-belts"], queryFn: () => beltsFn() });
+
+  const [form, setForm] = useState<any>(null);
+
+  useEffect(() => {
+    if (tpl && !form) {
+      setForm({
+        title: tpl.title ?? "",
+        description: tpl.description ?? "",
+        modality: tpl.modality ?? "",
+        category: tpl.category ?? "",
+        belt_id: tpl.belt_id ?? "",
+        end_belt_id: tpl.end_belt_id ?? "",
+        degree: tpl.degree ?? 0,
+        min_training_months: tpl.min_training_months ?? "",
+        min_attendance: tpl.min_attendance ?? "",
+        observations: tpl.observations ?? "",
+        method: tpl.method ?? "numeric",
+        passing_score: tpl.passing_score ?? "",
+        active: tpl.active ?? true,
+        auto_graduate: tpl.auto_graduate ?? false,
+        structure: (tpl.structure as any) ?? { categories: [] },
+      });
+    }
+  }, [tpl, form]);
+
+  if (isLoading || !form) return <div className="text-sm text-muted-foreground">Carregando...</div>;
+
+  const cats: Category[] = form.structure.categories ?? [];
+
+  const total = cats.reduce(
+    (s, c) => s + c.criteria.reduce((sc, cr) => sc + Number(cr.max_score || 0), 0),
+    0,
+  );
+
+  const setCats = (next: Category[]) =>
+    setForm({ ...form, structure: { ...form.structure, categories: next } });
+
+  const addCategory = () =>
+    setCats([...cats, { id: uid(), name: "Nova categoria", weight: 1, criteria: [] }]);
+
+  const updCategory = (i: number, patch: Partial<Category>) => {
+    const next = [...cats]; next[i] = { ...next[i], ...patch }; setCats(next);
+  };
+
+  const rmCategory = (i: number) => setCats(cats.filter((_, idx) => idx !== i));
+
+  const moveCategory = (i: number, dir: -1 | 1) => {
+    const j = i + dir;
+    if (j < 0 || j >= cats.length) return;
+    const next = [...cats]; [next[i], next[j]] = [next[j], next[i]]; setCats(next);
+  };
+
+  const addCriterion = (ci: number) => {
+    const next = [...cats];
+    next[ci] = {
+      ...next[ci],
+      criteria: [...next[ci].criteria, {
+        id: uid(), name: "Novo critério", weight: 1,
+        max_score: 10, min_score: 0, required: false, eliminatory: false, techniques: [],
+      }],
+    };
+    setCats(next);
+  };
+
+  const updCriterion = (ci: number, cri: number, patch: Partial<Criterion>) => {
+    const next = [...cats];
+    const list = [...next[ci].criteria];
+    list[cri] = { ...list[cri], ...patch };
+    next[ci] = { ...next[ci], criteria: list };
+    setCats(next);
+  };
+
+  const rmCriterion = (ci: number, cri: number) => {
+    const next = [...cats];
+    next[ci] = { ...next[ci], criteria: next[ci].criteria.filter((_, i) => i !== cri) };
+    setCats(next);
+  };
+
+  const save = async () => {
+    if (!form.title.trim()) return toast.error("Informe um título");
+    try {
+      await saveFn({
+        data: {
+          id,
+          title: form.title,
+          description: form.description || null,
+          modality: form.modality || null,
+          category: form.category || null,
+          belt_id: form.belt_id || null,
+          end_belt_id: form.end_belt_id || null,
+          degree: Number(form.degree) || 0,
+          min_training_months: form.min_training_months === "" ? null : Number(form.min_training_months),
+          min_attendance: form.min_attendance === "" ? null : Number(form.min_attendance),
+          observations: form.observations || null,
+          method: form.method,
+          passing_score: form.passing_score === "" ? null : Number(form.passing_score),
+          active: form.active,
+          auto_graduate: form.auto_graduate,
+          structure: form.structure,
+        },
+      });
+      toast.success("Modelo salvo");
+      qc.invalidateQueries({ queryKey: ["eval-template", id] });
+      qc.invalidateQueries({ queryKey: ["eval-templates"] });
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between gap-2">
+        <Link to="/dojo/app/evaluations/templates" className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1">
+          <ArrowLeft className="h-4 w-4" /> Modelos
+        </Link>
+        <Button onClick={save}>Salvar modelo</Button>
+      </div>
+
+      <Card>
+        <CardHeader><CardTitle className="text-base">Informações gerais</CardTitle></CardHeader>
+        <CardContent className="space-y-3">
+          <div className="grid md:grid-cols-2 gap-3">
+            <div className="md:col-span-2">
+              <Label>Título</Label>
+              <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
+            </div>
+            <div>
+              <Label>Modalidade</Label>
+              <Input value={form.modality} onChange={(e) => setForm({ ...form, modality: e.target.value })} placeholder="Ex.: jiu-jitsu-adulto" />
+            </div>
+            <div>
+              <Label>Categoria</Label>
+              <Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="Ex.: adulto" />
+            </div>
+            <div>
+              <Label>Faixa inicial</Label>
+              <select className="border rounded p-2 bg-background w-full" value={form.belt_id} onChange={(e) => setForm({ ...form, belt_id: e.target.value })}>
+                <option value="">—</option>
+                {(belts ?? []).map((b: any) => <option key={b.id} value={b.id}>{b.name}</option>)}
+              </select>
+            </div>
+            <div>
+              <Label>Faixa final (para graduação)</Label>
+              <select className="border rounded p-2 bg-background w-full" value={form.end_belt_id} onChange={(e) => setForm({ ...form, end_belt_id: e.target.value })}>
+                <option value="">—</option>
+                {(belts ?? []).map((b: any) => <option key={b.id} value={b.id}>{b.name}</option>)}
+              </select>
+            </div>
+            <div>
+              <Label>Tempo mínimo de treino (meses)</Label>
+              <Input type="number" min={0} value={form.min_training_months} onChange={(e) => setForm({ ...form, min_training_months: e.target.value === "" ? "" : Number(e.target.value) })} />
+            </div>
+            <div>
+              <Label>Frequência mínima (aulas)</Label>
+              <Input type="number" min={0} value={form.min_attendance} onChange={(e) => setForm({ ...form, min_attendance: e.target.value === "" ? "" : Number(e.target.value) })} />
+            </div>
+            <div>
+              <Label>Método de avaliação</Label>
+              <select className="border rounded p-2 bg-background w-full" value={form.method} onChange={(e) => setForm({ ...form, method: e.target.value })}>
+                <option value="numeric">Nota numérica</option>
+                <option value="checklist">Checklist</option>
+                <option value="pass_fail">Aprovado/Reprovado</option>
+                <option value="scale">Escala</option>
+                <option value="rubric">Rubrica</option>
+                <option value="concept">Conceito</option>
+              </select>
+            </div>
+            <div>
+              <Label>Nota mínima para aprovação</Label>
+              <Input type="number" min={0} value={form.passing_score} onChange={(e) => setForm({ ...form, passing_score: e.target.value === "" ? "" : Number(e.target.value) })} placeholder={`Total: ${total}`} />
+            </div>
+          </div>
+          <div>
+            <Label>Descrição</Label>
+            <Textarea rows={2} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+          </div>
+          <div>
+            <Label>Observações</Label>
+            <Textarea rows={2} value={form.observations} onChange={(e) => setForm({ ...form, observations: e.target.value })} />
+          </div>
+          <div className="flex flex-wrap gap-6">
+            <label className="flex items-center gap-2 text-sm">
+              <Switch checked={form.active} onCheckedChange={(v) => setForm({ ...form, active: v })} />
+              Ativo
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <Switch checked={form.auto_graduate} onCheckedChange={(v) => setForm({ ...form, auto_graduate: v })} />
+              Graduar automaticamente ao aprovar
+            </label>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base">Estrutura da avaliação</CardTitle>
+            <Button size="sm" variant="outline" onClick={addCategory}>
+              <Plus className="h-3.5 w-3.5 mr-1" /> Categoria
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {cats.length === 0 && (
+            <div className="text-sm text-muted-foreground p-4 text-center border rounded">
+              Adicione categorias, cada uma com seus critérios.
+            </div>
+          )}
+          {cats.map((cat, ci) => (
+            <div key={cat.id} className="border rounded-lg p-3 space-y-3 bg-muted/30">
+              <div className="flex items-center gap-2">
+                <Input
+                  className="flex-1 font-medium"
+                  value={cat.name}
+                  onChange={(e) => updCategory(ci, { name: e.target.value })}
+                />
+                <label className="text-xs text-muted-foreground flex items-center gap-1">
+                  Peso
+                  <Input className="w-16" type="number" min={0} value={cat.weight} onChange={(e) => updCategory(ci, { weight: Number(e.target.value) })} />
+                </label>
+                <Button size="icon" variant="ghost" onClick={() => moveCategory(ci, -1)}><ChevronUp className="h-4 w-4" /></Button>
+                <Button size="icon" variant="ghost" onClick={() => moveCategory(ci, 1)}><ChevronDown className="h-4 w-4" /></Button>
+                <Button size="icon" variant="ghost" onClick={() => rmCategory(ci)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+              </div>
+              <div className="space-y-2 pl-2 border-l-2 border-primary/30">
+                {cat.criteria.map((cr, cri) => (
+                  <div key={cr.id} className="border rounded p-2 bg-background space-y-1.5">
+                    <div className="flex items-center gap-2">
+                      <Input
+                        className="flex-1"
+                        value={cr.name}
+                        onChange={(e) => updCriterion(ci, cri, { name: e.target.value })}
+                        placeholder="Nome do critério"
+                      />
+                      <label className="text-xs text-muted-foreground flex items-center gap-1">
+                        Pts
+                        <Input className="w-16" type="number" min={0} value={cr.max_score} onChange={(e) => updCriterion(ci, cri, { max_score: Number(e.target.value) })} />
+                      </label>
+                      <label className="text-xs text-muted-foreground flex items-center gap-1">
+                        Peso
+                        <Input className="w-14" type="number" min={0} value={cr.weight} onChange={(e) => updCriterion(ci, cri, { weight: Number(e.target.value) })} />
+                      </label>
+                      <Button size="icon" variant="ghost" onClick={() => rmCriterion(ci, cri)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                    </div>
+                    <div className="flex flex-wrap gap-4 text-xs text-muted-foreground pl-1">
+                      <label className="flex items-center gap-1.5">
+                        <input type="checkbox" checked={cr.required} onChange={(e) => updCriterion(ci, cri, { required: e.target.checked })} />
+                        Obrigatório
+                      </label>
+                      <label className="flex items-center gap-1.5">
+                        <input type="checkbox" checked={cr.eliminatory} onChange={(e) => updCriterion(ci, cri, { eliminatory: e.target.checked })} />
+                        Eliminatório
+                      </label>
+                    </div>
+                  </div>
+                ))}
+                <Button size="sm" variant="ghost" onClick={() => addCriterion(ci)}>
+                  <Plus className="h-3.5 w-3.5 mr-1" /> Critério
+                </Button>
+              </div>
+            </div>
+          ))}
+          <div className="text-right text-sm font-medium pt-2">Total: {total} pts</div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

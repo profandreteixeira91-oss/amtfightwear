@@ -2321,48 +2321,329 @@ export type Database = {
           },
         ]
       }
-      dojo_evaluations: {
+      dojo_eval_categories: {
         Row: {
-          active: boolean
-          belt_id: string | null
+          archived: boolean
+          color: string | null
           created_at: string
-          degree: number
           description: string | null
+          icon: string | null
           id: string
-          items: Json
+          name: string
+          order_index: number
           owner_id: string
-          passing_score: number | null
-          title: string
+          updated_at: string
+        }
+        Insert: {
+          archived?: boolean
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          order_index?: number
+          owner_id: string
+          updated_at?: string
+        }
+        Update: {
+          archived?: boolean
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          order_index?: number
+          owner_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      dojo_eval_plans: {
+        Row: {
+          comments: string | null
+          created_at: string
+          id: string
+          improvement_points: string | null
+          next_evaluation_at: string | null
+          owner_id: string
+          recommended_techniques: string[]
+          recommended_videos: string[]
+          session_id: string
+          strong_points: string | null
+          updated_at: string
+        }
+        Insert: {
+          comments?: string | null
+          created_at?: string
+          id?: string
+          improvement_points?: string | null
+          next_evaluation_at?: string | null
+          owner_id: string
+          recommended_techniques?: string[]
+          recommended_videos?: string[]
+          session_id: string
+          strong_points?: string | null
+          updated_at?: string
+        }
+        Update: {
+          comments?: string | null
+          created_at?: string
+          id?: string
+          improvement_points?: string | null
+          next_evaluation_at?: string | null
+          owner_id?: string
+          recommended_techniques?: string[]
+          recommended_videos?: string[]
+          session_id?: string
+          strong_points?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_eval_plans_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_eval_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_eval_sessions: {
+        Row: {
+          attachments: Json
+          created_at: string
+          evaluator_id: string | null
+          finished_at: string | null
+          id: string
+          max_score: number
+          observations: string | null
+          owner_id: string
+          percentage: number
+          result: string | null
+          scheduled_at: string | null
+          scores: Json
+          started_at: string | null
+          status: string
+          student_id: string
+          template_id: string | null
           total_score: number
           updated_at: string
         }
         Insert: {
-          active?: boolean
-          belt_id?: string | null
+          attachments?: Json
           created_at?: string
-          degree?: number
-          description?: string | null
+          evaluator_id?: string | null
+          finished_at?: string | null
           id?: string
-          items?: Json
+          max_score?: number
+          observations?: string | null
           owner_id: string
-          passing_score?: number | null
-          title: string
+          percentage?: number
+          result?: string | null
+          scheduled_at?: string | null
+          scores?: Json
+          started_at?: string | null
+          status?: string
+          student_id: string
+          template_id?: string | null
           total_score?: number
           updated_at?: string
         }
         Update: {
+          attachments?: Json
+          created_at?: string
+          evaluator_id?: string | null
+          finished_at?: string | null
+          id?: string
+          max_score?: number
+          observations?: string | null
+          owner_id?: string
+          percentage?: number
+          result?: string | null
+          scheduled_at?: string | null
+          scores?: Json
+          started_at?: string | null
+          status?: string
+          student_id?: string
+          template_id?: string | null
+          total_score?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_eval_sessions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_eval_sessions_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_evaluations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_eval_techniques: {
+        Row: {
+          archived: boolean
+          category_id: string | null
+          created_at: string
+          default_score: number
+          description: string | null
+          estimated_seconds: number | null
+          id: string
+          image_url: string | null
+          name: string
+          observations: string | null
+          owner_id: string
+          required: boolean
+          tags: string[]
+          updated_at: string
+          video_id: string | null
+        }
+        Insert: {
+          archived?: boolean
+          category_id?: string | null
+          created_at?: string
+          default_score?: number
+          description?: string | null
+          estimated_seconds?: number | null
+          id?: string
+          image_url?: string | null
+          name: string
+          observations?: string | null
+          owner_id: string
+          required?: boolean
+          tags?: string[]
+          updated_at?: string
+          video_id?: string | null
+        }
+        Update: {
+          archived?: boolean
+          category_id?: string | null
+          created_at?: string
+          default_score?: number
+          description?: string | null
+          estimated_seconds?: number | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          observations?: string | null
+          owner_id?: string
+          required?: boolean
+          tags?: string[]
+          updated_at?: string
+          video_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_eval_techniques_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_eval_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_eval_techniques_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_evaluations: {
+        Row: {
+          active: boolean
+          auto_graduate: boolean
+          belt_id: string | null
+          category: string | null
+          created_at: string
+          degree: number
+          description: string | null
+          end_belt_id: string | null
+          id: string
+          is_library: boolean
+          items: Json
+          method: string
+          min_attendance: number | null
+          min_training_months: number | null
+          modality: string | null
+          observations: string | null
+          owner_id: string | null
+          parent_template_id: string | null
+          passing_score: number | null
+          scale: Json
+          structure: Json
+          teacher_id: string | null
+          title: string
+          total_score: number
+          unit_id: string | null
+          updated_at: string
+          version: number
+        }
+        Insert: {
           active?: boolean
+          auto_graduate?: boolean
           belt_id?: string | null
+          category?: string | null
           created_at?: string
           degree?: number
           description?: string | null
+          end_belt_id?: string | null
           id?: string
+          is_library?: boolean
           items?: Json
-          owner_id?: string
+          method?: string
+          min_attendance?: number | null
+          min_training_months?: number | null
+          modality?: string | null
+          observations?: string | null
+          owner_id?: string | null
+          parent_template_id?: string | null
           passing_score?: number | null
+          scale?: Json
+          structure?: Json
+          teacher_id?: string | null
+          title: string
+          total_score?: number
+          unit_id?: string | null
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          active?: boolean
+          auto_graduate?: boolean
+          belt_id?: string | null
+          category?: string | null
+          created_at?: string
+          degree?: number
+          description?: string | null
+          end_belt_id?: string | null
+          id?: string
+          is_library?: boolean
+          items?: Json
+          method?: string
+          min_attendance?: number | null
+          min_training_months?: number | null
+          modality?: string | null
+          observations?: string | null
+          owner_id?: string | null
+          parent_template_id?: string | null
+          passing_score?: number | null
+          scale?: Json
+          structure?: Json
+          teacher_id?: string | null
           title?: string
           total_score?: number
+          unit_id?: string | null
           updated_at?: string
+          version?: number
         }
         Relationships: [
           {
@@ -2370,6 +2651,27 @@ export type Database = {
             columns: ["belt_id"]
             isOneToOne: false
             referencedRelation: "dojo_belts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_evaluations_end_belt_id_fkey"
+            columns: ["end_belt_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_belts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_evaluations_parent_template_id_fkey"
+            columns: ["parent_template_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_evaluations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_evaluations_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_units"
             referencedColumns: ["id"]
           },
         ]

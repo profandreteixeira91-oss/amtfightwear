@@ -124,6 +124,7 @@ import { Route as AuthenticatedAdsCampaignsRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdsAlertsRouteImport } from './routes/_authenticated/ads.alerts'
 import { Route as DojoAppVideosIndexRouteImport } from './routes/dojo.app.videos.index'
 import { Route as DojoAppStudentsIndexRouteImport } from './routes/dojo.app.students.index'
+import { Route as DojoAppEvaluationsIndexRouteImport } from './routes/dojo.app.evaluations.index'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
@@ -132,6 +133,13 @@ import { Route as DojoAppVideosFavoritosRouteImport } from './routes/dojo.app.vi
 import { Route as DojoAppVideosCategoriasRouteImport } from './routes/dojo.app.videos.categorias'
 import { Route as DojoAppVideosIdRouteImport } from './routes/dojo.app.videos.$id'
 import { Route as DojoAppStudentsIdRouteImport } from './routes/dojo.app.students.$id'
+import { Route as DojoAppEvaluationsTemplatesRouteImport } from './routes/dojo.app.evaluations.templates'
+import { Route as DojoAppEvaluationsTechniquesRouteImport } from './routes/dojo.app.evaluations.techniques'
+import { Route as DojoAppEvaluationsSettingsRouteImport } from './routes/dojo.app.evaluations.settings'
+import { Route as DojoAppEvaluationsSessionsRouteImport } from './routes/dojo.app.evaluations.sessions'
+import { Route as DojoAppEvaluationsLibraryRouteImport } from './routes/dojo.app.evaluations.library'
+import { Route as DojoAppEvaluationsHistoryRouteImport } from './routes/dojo.app.evaluations.history'
+import { Route as DojoAppEvaluationsCategoriesRouteImport } from './routes/dojo.app.evaluations.categories'
 import { Route as ApiPublicSalesMessagesRouteImport } from './routes/api/public/sales/messages'
 import { Route as ApiPublicSalesChatRouteImport } from './routes/api/public/sales/chat'
 import { Route as ApiPublicMetaCallbackRouteImport } from './routes/api/public/meta/callback'
@@ -147,6 +155,10 @@ import { Route as ApiPublicHooksIgSyncRouteImport } from './routes/api/public/ho
 import { Route as ApiPublicHooksEnrichPendingLeadsRouteImport } from './routes/api/public/hooks/enrich-pending-leads'
 import { Route as ApiPublicHooksAutoInstagramPostRouteImport } from './routes/api/public/hooks/auto-instagram-post'
 import { Route as AuthenticatedAdsCampaignsIdRouteImport } from './routes/_authenticated/ads.campaigns.$id'
+import { Route as DojoAppEvaluationsTemplatesIndexRouteImport } from './routes/dojo.app.evaluations.templates.index'
+import { Route as DojoAppEvaluationsSessionsIndexRouteImport } from './routes/dojo.app.evaluations.sessions.index'
+import { Route as DojoAppEvaluationsTemplatesIdRouteImport } from './routes/dojo.app.evaluations.templates.$id'
+import { Route as DojoAppEvaluationsSessionsIdRouteImport } from './routes/dojo.app.evaluations.sessions.$id'
 import { Route as ApiPublicDojoPartnerCheckinProviderRouteImport } from './routes/api/public/dojo/partner-checkin.$provider'
 import { Route as ApiPublicAppManifestWebmanifestRouteImport } from './routes/api/public/app/manifest.webmanifest'
 
@@ -759,6 +771,11 @@ const DojoAppStudentsIndexRoute = DojoAppStudentsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => DojoAppStudentsRoute,
 } as any)
+const DojoAppEvaluationsIndexRoute = DojoAppEvaluationsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DojoAppEvaluationsRoute,
+} as any)
 const LovableEmailTransactionalSendRoute =
   LovableEmailTransactionalSendRouteImport.update({
     id: '/lovable/email/transactional/send',
@@ -802,6 +819,48 @@ const DojoAppStudentsIdRoute = DojoAppStudentsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => DojoAppStudentsRoute,
 } as any)
+const DojoAppEvaluationsTemplatesRoute =
+  DojoAppEvaluationsTemplatesRouteImport.update({
+    id: '/templates',
+    path: '/templates',
+    getParentRoute: () => DojoAppEvaluationsRoute,
+  } as any)
+const DojoAppEvaluationsTechniquesRoute =
+  DojoAppEvaluationsTechniquesRouteImport.update({
+    id: '/techniques',
+    path: '/techniques',
+    getParentRoute: () => DojoAppEvaluationsRoute,
+  } as any)
+const DojoAppEvaluationsSettingsRoute =
+  DojoAppEvaluationsSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => DojoAppEvaluationsRoute,
+  } as any)
+const DojoAppEvaluationsSessionsRoute =
+  DojoAppEvaluationsSessionsRouteImport.update({
+    id: '/sessions',
+    path: '/sessions',
+    getParentRoute: () => DojoAppEvaluationsRoute,
+  } as any)
+const DojoAppEvaluationsLibraryRoute =
+  DojoAppEvaluationsLibraryRouteImport.update({
+    id: '/library',
+    path: '/library',
+    getParentRoute: () => DojoAppEvaluationsRoute,
+  } as any)
+const DojoAppEvaluationsHistoryRoute =
+  DojoAppEvaluationsHistoryRouteImport.update({
+    id: '/history',
+    path: '/history',
+    getParentRoute: () => DojoAppEvaluationsRoute,
+  } as any)
+const DojoAppEvaluationsCategoriesRoute =
+  DojoAppEvaluationsCategoriesRouteImport.update({
+    id: '/categories',
+    path: '/categories',
+    getParentRoute: () => DojoAppEvaluationsRoute,
+  } as any)
 const ApiPublicSalesMessagesRoute = ApiPublicSalesMessagesRouteImport.update({
   id: '/api/public/sales/messages',
   path: '/api/public/sales/messages',
@@ -886,6 +945,30 @@ const AuthenticatedAdsCampaignsIdRoute =
     id: '/$id',
     path: '/$id',
     getParentRoute: () => AuthenticatedAdsCampaignsRoute,
+  } as any)
+const DojoAppEvaluationsTemplatesIndexRoute =
+  DojoAppEvaluationsTemplatesIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => DojoAppEvaluationsTemplatesRoute,
+  } as any)
+const DojoAppEvaluationsSessionsIndexRoute =
+  DojoAppEvaluationsSessionsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => DojoAppEvaluationsSessionsRoute,
+  } as any)
+const DojoAppEvaluationsTemplatesIdRoute =
+  DojoAppEvaluationsTemplatesIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => DojoAppEvaluationsTemplatesRoute,
+  } as any)
+const DojoAppEvaluationsSessionsIdRoute =
+  DojoAppEvaluationsSessionsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => DojoAppEvaluationsSessionsRoute,
   } as any)
 const ApiPublicDojoPartnerCheckinProviderRoute =
   ApiPublicDojoPartnerCheckinProviderRouteImport.update({
@@ -991,7 +1074,7 @@ export interface FileRoutesByFullPath {
   '/dojo/app/certificates': typeof DojoAppCertificatesRoute
   '/dojo/app/checkin': typeof DojoAppCheckinRoute
   '/dojo/app/competitions': typeof DojoAppCompetitionsRoute
-  '/dojo/app/evaluations': typeof DojoAppEvaluationsRoute
+  '/dojo/app/evaluations': typeof DojoAppEvaluationsRouteWithChildren
   '/dojo/app/finance': typeof DojoAppFinanceRoute
   '/dojo/app/graduations': typeof DojoAppGraduationsRoute
   '/dojo/app/integrations': typeof DojoAppIntegrationsRoute
@@ -1027,6 +1110,13 @@ export interface FileRoutesByFullPath {
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
   '/api/public/sales/messages': typeof ApiPublicSalesMessagesRoute
+  '/dojo/app/evaluations/categories': typeof DojoAppEvaluationsCategoriesRoute
+  '/dojo/app/evaluations/history': typeof DojoAppEvaluationsHistoryRoute
+  '/dojo/app/evaluations/library': typeof DojoAppEvaluationsLibraryRoute
+  '/dojo/app/evaluations/sessions': typeof DojoAppEvaluationsSessionsRouteWithChildren
+  '/dojo/app/evaluations/settings': typeof DojoAppEvaluationsSettingsRoute
+  '/dojo/app/evaluations/techniques': typeof DojoAppEvaluationsTechniquesRoute
+  '/dojo/app/evaluations/templates': typeof DojoAppEvaluationsTemplatesRouteWithChildren
   '/dojo/app/students/$id': typeof DojoAppStudentsIdRoute
   '/dojo/app/videos/$id': typeof DojoAppVideosIdRoute
   '/dojo/app/videos/categorias': typeof DojoAppVideosCategoriasRoute
@@ -1035,10 +1125,15 @@ export interface FileRoutesByFullPath {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/dojo/app/evaluations/': typeof DojoAppEvaluationsIndexRoute
   '/dojo/app/students/': typeof DojoAppStudentsIndexRoute
   '/dojo/app/videos/': typeof DojoAppVideosIndexRoute
   '/api/public/app/manifest/webmanifest': typeof ApiPublicAppManifestWebmanifestRoute
   '/api/public/dojo/partner-checkin/$provider': typeof ApiPublicDojoPartnerCheckinProviderRoute
+  '/dojo/app/evaluations/sessions/$id': typeof DojoAppEvaluationsSessionsIdRoute
+  '/dojo/app/evaluations/templates/$id': typeof DojoAppEvaluationsTemplatesIdRoute
+  '/dojo/app/evaluations/sessions/': typeof DojoAppEvaluationsSessionsIndexRoute
+  '/dojo/app/evaluations/templates/': typeof DojoAppEvaluationsTemplatesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -1128,7 +1223,6 @@ export interface FileRoutesByTo {
   '/dojo/app/certificates': typeof DojoAppCertificatesRoute
   '/dojo/app/checkin': typeof DojoAppCheckinRoute
   '/dojo/app/competitions': typeof DojoAppCompetitionsRoute
-  '/dojo/app/evaluations': typeof DojoAppEvaluationsRoute
   '/dojo/app/finance': typeof DojoAppFinanceRoute
   '/dojo/app/graduations': typeof DojoAppGraduationsRoute
   '/dojo/app/integrations': typeof DojoAppIntegrationsRoute
@@ -1162,6 +1256,11 @@ export interface FileRoutesByTo {
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
   '/api/public/sales/messages': typeof ApiPublicSalesMessagesRoute
+  '/dojo/app/evaluations/categories': typeof DojoAppEvaluationsCategoriesRoute
+  '/dojo/app/evaluations/history': typeof DojoAppEvaluationsHistoryRoute
+  '/dojo/app/evaluations/library': typeof DojoAppEvaluationsLibraryRoute
+  '/dojo/app/evaluations/settings': typeof DojoAppEvaluationsSettingsRoute
+  '/dojo/app/evaluations/techniques': typeof DojoAppEvaluationsTechniquesRoute
   '/dojo/app/students/$id': typeof DojoAppStudentsIdRoute
   '/dojo/app/videos/$id': typeof DojoAppVideosIdRoute
   '/dojo/app/videos/categorias': typeof DojoAppVideosCategoriasRoute
@@ -1170,10 +1269,15 @@ export interface FileRoutesByTo {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/dojo/app/evaluations': typeof DojoAppEvaluationsIndexRoute
   '/dojo/app/students': typeof DojoAppStudentsIndexRoute
   '/dojo/app/videos': typeof DojoAppVideosIndexRoute
   '/api/public/app/manifest/webmanifest': typeof ApiPublicAppManifestWebmanifestRoute
   '/api/public/dojo/partner-checkin/$provider': typeof ApiPublicDojoPartnerCheckinProviderRoute
+  '/dojo/app/evaluations/sessions/$id': typeof DojoAppEvaluationsSessionsIdRoute
+  '/dojo/app/evaluations/templates/$id': typeof DojoAppEvaluationsTemplatesIdRoute
+  '/dojo/app/evaluations/sessions': typeof DojoAppEvaluationsSessionsIndexRoute
+  '/dojo/app/evaluations/templates': typeof DojoAppEvaluationsTemplatesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -1269,7 +1373,7 @@ export interface FileRoutesById {
   '/dojo/app/certificates': typeof DojoAppCertificatesRoute
   '/dojo/app/checkin': typeof DojoAppCheckinRoute
   '/dojo/app/competitions': typeof DojoAppCompetitionsRoute
-  '/dojo/app/evaluations': typeof DojoAppEvaluationsRoute
+  '/dojo/app/evaluations': typeof DojoAppEvaluationsRouteWithChildren
   '/dojo/app/finance': typeof DojoAppFinanceRoute
   '/dojo/app/graduations': typeof DojoAppGraduationsRoute
   '/dojo/app/integrations': typeof DojoAppIntegrationsRoute
@@ -1305,6 +1409,13 @@ export interface FileRoutesById {
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
   '/api/public/sales/messages': typeof ApiPublicSalesMessagesRoute
+  '/dojo/app/evaluations/categories': typeof DojoAppEvaluationsCategoriesRoute
+  '/dojo/app/evaluations/history': typeof DojoAppEvaluationsHistoryRoute
+  '/dojo/app/evaluations/library': typeof DojoAppEvaluationsLibraryRoute
+  '/dojo/app/evaluations/sessions': typeof DojoAppEvaluationsSessionsRouteWithChildren
+  '/dojo/app/evaluations/settings': typeof DojoAppEvaluationsSettingsRoute
+  '/dojo/app/evaluations/techniques': typeof DojoAppEvaluationsTechniquesRoute
+  '/dojo/app/evaluations/templates': typeof DojoAppEvaluationsTemplatesRouteWithChildren
   '/dojo/app/students/$id': typeof DojoAppStudentsIdRoute
   '/dojo/app/videos/$id': typeof DojoAppVideosIdRoute
   '/dojo/app/videos/categorias': typeof DojoAppVideosCategoriasRoute
@@ -1313,10 +1424,15 @@ export interface FileRoutesById {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/dojo/app/evaluations/': typeof DojoAppEvaluationsIndexRoute
   '/dojo/app/students/': typeof DojoAppStudentsIndexRoute
   '/dojo/app/videos/': typeof DojoAppVideosIndexRoute
   '/api/public/app/manifest/webmanifest': typeof ApiPublicAppManifestWebmanifestRoute
   '/api/public/dojo/partner-checkin/$provider': typeof ApiPublicDojoPartnerCheckinProviderRoute
+  '/dojo/app/evaluations/sessions/$id': typeof DojoAppEvaluationsSessionsIdRoute
+  '/dojo/app/evaluations/templates/$id': typeof DojoAppEvaluationsTemplatesIdRoute
+  '/dojo/app/evaluations/sessions/': typeof DojoAppEvaluationsSessionsIndexRoute
+  '/dojo/app/evaluations/templates/': typeof DojoAppEvaluationsTemplatesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -1447,6 +1563,13 @@ export interface FileRouteTypes {
     | '/api/public/meta/callback'
     | '/api/public/sales/chat'
     | '/api/public/sales/messages'
+    | '/dojo/app/evaluations/categories'
+    | '/dojo/app/evaluations/history'
+    | '/dojo/app/evaluations/library'
+    | '/dojo/app/evaluations/sessions'
+    | '/dojo/app/evaluations/settings'
+    | '/dojo/app/evaluations/techniques'
+    | '/dojo/app/evaluations/templates'
     | '/dojo/app/students/$id'
     | '/dojo/app/videos/$id'
     | '/dojo/app/videos/categorias'
@@ -1455,10 +1578,15 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/dojo/app/evaluations/'
     | '/dojo/app/students/'
     | '/dojo/app/videos/'
     | '/api/public/app/manifest/webmanifest'
     | '/api/public/dojo/partner-checkin/$provider'
+    | '/dojo/app/evaluations/sessions/$id'
+    | '/dojo/app/evaluations/templates/$id'
+    | '/dojo/app/evaluations/sessions/'
+    | '/dojo/app/evaluations/templates/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1548,7 +1676,6 @@ export interface FileRouteTypes {
     | '/dojo/app/certificates'
     | '/dojo/app/checkin'
     | '/dojo/app/competitions'
-    | '/dojo/app/evaluations'
     | '/dojo/app/finance'
     | '/dojo/app/graduations'
     | '/dojo/app/integrations'
@@ -1582,6 +1709,11 @@ export interface FileRouteTypes {
     | '/api/public/meta/callback'
     | '/api/public/sales/chat'
     | '/api/public/sales/messages'
+    | '/dojo/app/evaluations/categories'
+    | '/dojo/app/evaluations/history'
+    | '/dojo/app/evaluations/library'
+    | '/dojo/app/evaluations/settings'
+    | '/dojo/app/evaluations/techniques'
     | '/dojo/app/students/$id'
     | '/dojo/app/videos/$id'
     | '/dojo/app/videos/categorias'
@@ -1590,10 +1722,15 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/dojo/app/evaluations'
     | '/dojo/app/students'
     | '/dojo/app/videos'
     | '/api/public/app/manifest/webmanifest'
     | '/api/public/dojo/partner-checkin/$provider'
+    | '/dojo/app/evaluations/sessions/$id'
+    | '/dojo/app/evaluations/templates/$id'
+    | '/dojo/app/evaluations/sessions'
+    | '/dojo/app/evaluations/templates'
   id:
     | '__root__'
     | '/'
@@ -1724,6 +1861,13 @@ export interface FileRouteTypes {
     | '/api/public/meta/callback'
     | '/api/public/sales/chat'
     | '/api/public/sales/messages'
+    | '/dojo/app/evaluations/categories'
+    | '/dojo/app/evaluations/history'
+    | '/dojo/app/evaluations/library'
+    | '/dojo/app/evaluations/sessions'
+    | '/dojo/app/evaluations/settings'
+    | '/dojo/app/evaluations/techniques'
+    | '/dojo/app/evaluations/templates'
     | '/dojo/app/students/$id'
     | '/dojo/app/videos/$id'
     | '/dojo/app/videos/categorias'
@@ -1732,10 +1876,15 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/dojo/app/evaluations/'
     | '/dojo/app/students/'
     | '/dojo/app/videos/'
     | '/api/public/app/manifest/webmanifest'
     | '/api/public/dojo/partner-checkin/$provider'
+    | '/dojo/app/evaluations/sessions/$id'
+    | '/dojo/app/evaluations/templates/$id'
+    | '/dojo/app/evaluations/sessions/'
+    | '/dojo/app/evaluations/templates/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -2592,6 +2741,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DojoAppStudentsIndexRouteImport
       parentRoute: typeof DojoAppStudentsRoute
     }
+    '/dojo/app/evaluations/': {
+      id: '/dojo/app/evaluations/'
+      path: '/'
+      fullPath: '/dojo/app/evaluations/'
+      preLoaderRoute: typeof DojoAppEvaluationsIndexRouteImport
+      parentRoute: typeof DojoAppEvaluationsRoute
+    }
     '/lovable/email/transactional/send': {
       id: '/lovable/email/transactional/send'
       path: '/lovable/email/transactional/send'
@@ -2647,6 +2803,55 @@ declare module '@tanstack/react-router' {
       fullPath: '/dojo/app/students/$id'
       preLoaderRoute: typeof DojoAppStudentsIdRouteImport
       parentRoute: typeof DojoAppStudentsRoute
+    }
+    '/dojo/app/evaluations/templates': {
+      id: '/dojo/app/evaluations/templates'
+      path: '/templates'
+      fullPath: '/dojo/app/evaluations/templates'
+      preLoaderRoute: typeof DojoAppEvaluationsTemplatesRouteImport
+      parentRoute: typeof DojoAppEvaluationsRoute
+    }
+    '/dojo/app/evaluations/techniques': {
+      id: '/dojo/app/evaluations/techniques'
+      path: '/techniques'
+      fullPath: '/dojo/app/evaluations/techniques'
+      preLoaderRoute: typeof DojoAppEvaluationsTechniquesRouteImport
+      parentRoute: typeof DojoAppEvaluationsRoute
+    }
+    '/dojo/app/evaluations/settings': {
+      id: '/dojo/app/evaluations/settings'
+      path: '/settings'
+      fullPath: '/dojo/app/evaluations/settings'
+      preLoaderRoute: typeof DojoAppEvaluationsSettingsRouteImport
+      parentRoute: typeof DojoAppEvaluationsRoute
+    }
+    '/dojo/app/evaluations/sessions': {
+      id: '/dojo/app/evaluations/sessions'
+      path: '/sessions'
+      fullPath: '/dojo/app/evaluations/sessions'
+      preLoaderRoute: typeof DojoAppEvaluationsSessionsRouteImport
+      parentRoute: typeof DojoAppEvaluationsRoute
+    }
+    '/dojo/app/evaluations/library': {
+      id: '/dojo/app/evaluations/library'
+      path: '/library'
+      fullPath: '/dojo/app/evaluations/library'
+      preLoaderRoute: typeof DojoAppEvaluationsLibraryRouteImport
+      parentRoute: typeof DojoAppEvaluationsRoute
+    }
+    '/dojo/app/evaluations/history': {
+      id: '/dojo/app/evaluations/history'
+      path: '/history'
+      fullPath: '/dojo/app/evaluations/history'
+      preLoaderRoute: typeof DojoAppEvaluationsHistoryRouteImport
+      parentRoute: typeof DojoAppEvaluationsRoute
+    }
+    '/dojo/app/evaluations/categories': {
+      id: '/dojo/app/evaluations/categories'
+      path: '/categories'
+      fullPath: '/dojo/app/evaluations/categories'
+      preLoaderRoute: typeof DojoAppEvaluationsCategoriesRouteImport
+      parentRoute: typeof DojoAppEvaluationsRoute
     }
     '/api/public/sales/messages': {
       id: '/api/public/sales/messages'
@@ -2752,6 +2957,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/ads/campaigns/$id'
       preLoaderRoute: typeof AuthenticatedAdsCampaignsIdRouteImport
       parentRoute: typeof AuthenticatedAdsCampaignsRoute
+    }
+    '/dojo/app/evaluations/templates/': {
+      id: '/dojo/app/evaluations/templates/'
+      path: '/'
+      fullPath: '/dojo/app/evaluations/templates/'
+      preLoaderRoute: typeof DojoAppEvaluationsTemplatesIndexRouteImport
+      parentRoute: typeof DojoAppEvaluationsTemplatesRoute
+    }
+    '/dojo/app/evaluations/sessions/': {
+      id: '/dojo/app/evaluations/sessions/'
+      path: '/'
+      fullPath: '/dojo/app/evaluations/sessions/'
+      preLoaderRoute: typeof DojoAppEvaluationsSessionsIndexRouteImport
+      parentRoute: typeof DojoAppEvaluationsSessionsRoute
+    }
+    '/dojo/app/evaluations/templates/$id': {
+      id: '/dojo/app/evaluations/templates/$id'
+      path: '/$id'
+      fullPath: '/dojo/app/evaluations/templates/$id'
+      preLoaderRoute: typeof DojoAppEvaluationsTemplatesIdRouteImport
+      parentRoute: typeof DojoAppEvaluationsTemplatesRoute
+    }
+    '/dojo/app/evaluations/sessions/$id': {
+      id: '/dojo/app/evaluations/sessions/$id'
+      path: '/$id'
+      fullPath: '/dojo/app/evaluations/sessions/$id'
+      preLoaderRoute: typeof DojoAppEvaluationsSessionsIdRouteImport
+      parentRoute: typeof DojoAppEvaluationsSessionsRoute
     }
     '/api/public/dojo/partner-checkin/$provider': {
       id: '/api/public/dojo/partner-checkin/$provider'
@@ -2959,6 +3192,65 @@ const AppRouteChildren: AppRouteChildren = {
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
+interface DojoAppEvaluationsSessionsRouteChildren {
+  DojoAppEvaluationsSessionsIdRoute: typeof DojoAppEvaluationsSessionsIdRoute
+  DojoAppEvaluationsSessionsIndexRoute: typeof DojoAppEvaluationsSessionsIndexRoute
+}
+
+const DojoAppEvaluationsSessionsRouteChildren: DojoAppEvaluationsSessionsRouteChildren =
+  {
+    DojoAppEvaluationsSessionsIdRoute: DojoAppEvaluationsSessionsIdRoute,
+    DojoAppEvaluationsSessionsIndexRoute: DojoAppEvaluationsSessionsIndexRoute,
+  }
+
+const DojoAppEvaluationsSessionsRouteWithChildren =
+  DojoAppEvaluationsSessionsRoute._addFileChildren(
+    DojoAppEvaluationsSessionsRouteChildren,
+  )
+
+interface DojoAppEvaluationsTemplatesRouteChildren {
+  DojoAppEvaluationsTemplatesIdRoute: typeof DojoAppEvaluationsTemplatesIdRoute
+  DojoAppEvaluationsTemplatesIndexRoute: typeof DojoAppEvaluationsTemplatesIndexRoute
+}
+
+const DojoAppEvaluationsTemplatesRouteChildren: DojoAppEvaluationsTemplatesRouteChildren =
+  {
+    DojoAppEvaluationsTemplatesIdRoute: DojoAppEvaluationsTemplatesIdRoute,
+    DojoAppEvaluationsTemplatesIndexRoute:
+      DojoAppEvaluationsTemplatesIndexRoute,
+  }
+
+const DojoAppEvaluationsTemplatesRouteWithChildren =
+  DojoAppEvaluationsTemplatesRoute._addFileChildren(
+    DojoAppEvaluationsTemplatesRouteChildren,
+  )
+
+interface DojoAppEvaluationsRouteChildren {
+  DojoAppEvaluationsCategoriesRoute: typeof DojoAppEvaluationsCategoriesRoute
+  DojoAppEvaluationsHistoryRoute: typeof DojoAppEvaluationsHistoryRoute
+  DojoAppEvaluationsLibraryRoute: typeof DojoAppEvaluationsLibraryRoute
+  DojoAppEvaluationsSessionsRoute: typeof DojoAppEvaluationsSessionsRouteWithChildren
+  DojoAppEvaluationsSettingsRoute: typeof DojoAppEvaluationsSettingsRoute
+  DojoAppEvaluationsTechniquesRoute: typeof DojoAppEvaluationsTechniquesRoute
+  DojoAppEvaluationsTemplatesRoute: typeof DojoAppEvaluationsTemplatesRouteWithChildren
+  DojoAppEvaluationsIndexRoute: typeof DojoAppEvaluationsIndexRoute
+}
+
+const DojoAppEvaluationsRouteChildren: DojoAppEvaluationsRouteChildren = {
+  DojoAppEvaluationsCategoriesRoute: DojoAppEvaluationsCategoriesRoute,
+  DojoAppEvaluationsHistoryRoute: DojoAppEvaluationsHistoryRoute,
+  DojoAppEvaluationsLibraryRoute: DojoAppEvaluationsLibraryRoute,
+  DojoAppEvaluationsSessionsRoute: DojoAppEvaluationsSessionsRouteWithChildren,
+  DojoAppEvaluationsSettingsRoute: DojoAppEvaluationsSettingsRoute,
+  DojoAppEvaluationsTechniquesRoute: DojoAppEvaluationsTechniquesRoute,
+  DojoAppEvaluationsTemplatesRoute:
+    DojoAppEvaluationsTemplatesRouteWithChildren,
+  DojoAppEvaluationsIndexRoute: DojoAppEvaluationsIndexRoute,
+}
+
+const DojoAppEvaluationsRouteWithChildren =
+  DojoAppEvaluationsRoute._addFileChildren(DojoAppEvaluationsRouteChildren)
+
 interface DojoAppStudentsRouteChildren {
   DojoAppStudentsIdRoute: typeof DojoAppStudentsIdRoute
   DojoAppStudentsIndexRoute: typeof DojoAppStudentsIndexRoute
@@ -2998,7 +3290,7 @@ interface DojoAppRouteChildren {
   DojoAppCertificatesRoute: typeof DojoAppCertificatesRoute
   DojoAppCheckinRoute: typeof DojoAppCheckinRoute
   DojoAppCompetitionsRoute: typeof DojoAppCompetitionsRoute
-  DojoAppEvaluationsRoute: typeof DojoAppEvaluationsRoute
+  DojoAppEvaluationsRoute: typeof DojoAppEvaluationsRouteWithChildren
   DojoAppFinanceRoute: typeof DojoAppFinanceRoute
   DojoAppGraduationsRoute: typeof DojoAppGraduationsRoute
   DojoAppIntegrationsRoute: typeof DojoAppIntegrationsRoute
@@ -3016,7 +3308,7 @@ const DojoAppRouteChildren: DojoAppRouteChildren = {
   DojoAppCertificatesRoute: DojoAppCertificatesRoute,
   DojoAppCheckinRoute: DojoAppCheckinRoute,
   DojoAppCompetitionsRoute: DojoAppCompetitionsRoute,
-  DojoAppEvaluationsRoute: DojoAppEvaluationsRoute,
+  DojoAppEvaluationsRoute: DojoAppEvaluationsRouteWithChildren,
   DojoAppFinanceRoute: DojoAppFinanceRoute,
   DojoAppGraduationsRoute: DojoAppGraduationsRoute,
   DojoAppIntegrationsRoute: DojoAppIntegrationsRoute,
