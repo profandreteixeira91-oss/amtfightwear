@@ -256,6 +256,14 @@ function IntegrationsHub() {
           }}
         />
       )}
+
+      {apiHubMode && (
+        <ApiHubDialog
+          open={!!apiHubMode}
+          onOpenChange={(v) => !v && setApiHubMode(null)}
+          mode={apiHubMode}
+        />
+      )}
     </div>
   );
 }
