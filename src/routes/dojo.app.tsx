@@ -69,6 +69,7 @@ const nav: { label: string; items: NavItem[] }[] = [
     label: "Academia",
     items: [
       { to: "/dojo/app/students", label: "Alunos", icon: Users },
+      { to: "/dojo/app/schedule", label: "Agenda", icon: CalendarDays },
       { to: "/dojo/app/checkin", label: "Check-in", icon: QrCode },
       { to: "/dojo/app/graduations", label: "Graduações", icon: Award },
       { to: "/dojo/app/evaluations", label: "Avaliações", icon: ClipboardList },
