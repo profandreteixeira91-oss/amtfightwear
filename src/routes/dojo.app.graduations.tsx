@@ -51,6 +51,18 @@ function NewGraduationPage() {
     [belts.data, beltId]
   );
   const maxDeg = selectedBelt?.max_degrees ?? 4;
+  const fixedDegreeName = /^vermelha e preta$/i.test(selectedBelt?.name ?? "")
+    ? 7
+    : /^vermelha e branca$/i.test(selectedBelt?.name ?? "")
+    ? 8
+    : /^vermelha$/i.test(selectedBelt?.name ?? "")
+    ? 9
+    : null;
+  const isFixedDegree = fixedDegreeName !== null;
+  // Force degree to mandatory value when a fixed-degree belt is selected
+  if (isFixedDegree && degree !== fixedDegreeName) {
+    setTimeout(() => setDegree(fixedDegreeName as number), 0);
+  }
 
   const selectedRows = useMemo(
     () => (students.data ?? []).filter((s: any) => selectedStudents.has(s.id)),
@@ -210,9 +222,14 @@ function NewGraduationPage() {
               </div>
               <div>
                 <label className="text-xs text-muted-foreground">Grau</label>
-                <select className="border rounded p-2 bg-background w-full" value={degree} onChange={(e) => setDegree(Number(e.target.value))} disabled={!selectedBelt}>
-                  {Array.from({ length: maxDeg + 1 }).map((_, i) => <option key={i} value={i}>{i === 0 ? "Sem grau" : `${i}º grau`}</option>)}
+                <select className="border rounded p-2 bg-background w-full" value={degree} onChange={(e) => setDegree(Number(e.target.value))} disabled={!selectedBelt || isFixedDegree}>
+                  {isFixedDegree ? (
+                    <option value={fixedDegreeName as number}>{fixedDegreeName}º grau (obrigatório)</option>
+                  ) : (
+                    Array.from({ length: maxDeg + 1 }).map((_, i) => <option key={i} value={i}>{i === 0 ? "Sem grau" : `${i}º grau`}</option>)
+                  )}
                 </select>
+                {isFixedDegree && <p className="text-[11px] text-muted-foreground mt-1">Esta faixa possui grau fixo.</p>}
               </div>
               <div>
                 <label className="text-xs text-muted-foreground">Data</label>
