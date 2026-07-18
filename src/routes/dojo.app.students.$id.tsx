@@ -81,22 +81,118 @@ function StudentDetail() {
   if (!q.data) return <div>Carregando…</div>;
   const s = q.data.student;
 
+  const onDeleteStudent = async () => {
+    if (!confirm(`Excluir ${s.full_name}? Esta ação apaga histórico de graduações, mensalidades e certificados.`)) return;
+    try {
+      await delStudent({ data: { id } });
+      toast.success("Aluno excluído");
+      navigate({ to: "/dojo/app/students" });
+    } catch (e: any) { toast.error("Erro ao excluir", { description: e.message }); }
+  };
+
+  const addr = [s.street, s.address_number, s.neighborhood, s.city && `${s.city}/${s.state ?? ""}`, s.zip]
+    .filter(Boolean).join(", ");
+  const anamn = s.anamnesis ?? {};
+
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-3">
-        <Link to="/dojo/app/students" className="text-sm text-muted-foreground hover:underline">← Alunos</Link>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <Link to="/dojo/app/students" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:underline">
+          <ArrowLeft className="h-4 w-4" /> Alunos
+        </Link>
+        <div className="flex gap-2">
+          <Link to="/dojo/app/students" search={{ edit: id } as any}>
+            <Button size="sm" variant="outline"><Pencil className="h-4 w-4 mr-1" /> Editar</Button>
+          </Link>
+          <Button size="sm" variant="destructive" onClick={onDeleteStudent}>
+            <Trash2 className="h-4 w-4 mr-1" /> Excluir
+          </Button>
+        </div>
       </div>
+
       <Card>
-        <CardHeader><CardTitle>{s.full_name}</CardTitle></CardHeader>
-        <CardContent className="text-sm text-muted-foreground grid md:grid-cols-3 gap-2">
-          <div>Status: <b>{s.status}</b></div>
-          <div>CPF: {s.cpf ?? "—"}</div>
-          <div>E-mail: {s.email ?? "—"}</div>
-          <div>Telefone: {s.phone ?? "—"}</div>
-          <div>Grau atual: {s.current_degree}</div>
-          <div>Nascimento: {s.birth_date ?? "—"}</div>
+        <CardHeader className="flex flex-row items-center gap-4 space-y-0">
+          <div className="h-16 w-16 shrink-0 overflow-hidden rounded-full bg-muted">
+            {s.photo_url ? (
+              <img src={s.photo_url} alt={s.full_name} className="h-full w-full object-cover" />
+            ) : (
+              <div className="grid h-full w-full place-items-center text-lg font-semibold text-muted-foreground">
+                {s.full_name?.[0]?.toUpperCase() ?? "?"}
+              </div>
+            )}
+          </div>
+          <div className="min-w-0 flex-1">
+            <CardTitle className="truncate">{s.full_name}</CardTitle>
+            <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
+              <span className={`px-2 py-0.5 rounded ${s.status === "active" ? "bg-green-100 text-green-800" : s.status === "frozen" ? "bg-amber-100 text-amber-800" : "bg-muted"}`}>
+                {s.status === "active" ? "Ativo" : s.status === "frozen" ? "Trancado" : "Inativo"}
+              </span>
+              {s.belt?.name && (
+                <span className="text-muted-foreground">
+                  {s.belt.name}{s.current_degree ? ` · ${s.current_degree}º grau` : ""}
+                </span>
+              )}
+              {s.unit?.name && <span className="text-muted-foreground">· {s.unit.name}</span>}
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="grid gap-6 text-sm md:grid-cols-2">
+          <Section title="Dados pessoais">
+            <Info label="CPF" value={s.cpf} />
+            <Info label="RG" value={s.rg} />
+            <Info label="Nascimento" value={s.birth_date} />
+            <Info label="Gênero" value={s.gender} />
+            <Info label="Nacionalidade" value={s.nationality} />
+            <Info label="Estado civil" value={s.marital_status} />
+            <Info label="Profissão" value={s.profession} />
+            <Info label="Tipo sanguíneo" value={s.blood_type} />
+            <Info label="Plano de saúde" value={s.health_insurance} />
+          </Section>
+
+          <Section title="Contato">
+            <Info label="E-mail" value={s.email} />
+            <Info label="Telefone" value={s.phone} />
+            <Info label="Endereço" value={addr || null} />
+            <Info label="Responsável" value={s.guardian_name} />
+            <Info label="Tel. responsável" value={s.guardian_phone} />
+            <Info label="Contato emergência" value={s.emergency_contact_name} />
+            <Info label="Tel. emergência" value={s.emergency_contact_phone} />
+            <Info label="Parentesco" value={s.emergency_contact_relationship} />
+          </Section>
+
+          <Section title="Anamnese">
+            <Info label="Condições médicas" value={anamn.medical_conditions} />
+            <Info label="Medicações" value={anamn.medications} />
+            <Info label="Alergias" value={anamn.allergies} />
+            <Info label="Cirurgias" value={anamn.surgeries} />
+            <Info label="Lesões" value={anamn.injuries} />
+            <Info label="Nível de atividade" value={anamn.physical_activity_level} />
+            <Info label="Objetivos" value={anamn.objectives} />
+            <Info label="Outros" value={anamn.other} />
+            <Info
+              label="Alertas"
+              value={[
+                anamn.heart_issues && "cardíaco",
+                anamn.diabetes && "diabetes",
+                anamn.hypertension && "hipertensão",
+                anamn.asthma && "asma",
+                anamn.pregnant && "gestante",
+                anamn.smoking && "fumante",
+                anamn.alcohol && "álcool",
+              ].filter(Boolean).join(", ") || null}
+            />
+            <Info label="Atestado médico" value={s.has_medical_clearance ? `Sim${s.medical_clearance_date ? ` (${s.medical_clearance_date})` : ""}` : "Não"} />
+          </Section>
+
+          <Section title="Consentimentos & observações">
+            <Info label="LGPD" value={s.lgpd_consent ? "Autorizado" : "Não"} />
+            <Info label="Uso de imagem" value={s.image_rights_consent ? "Autorizado" : "Não"} />
+            <Info label="Termos aceitos" value={s.terms_accepted ? "Sim" : "Não"} />
+            <Info label="Observações" value={s.notes} />
+          </Section>
         </CardContent>
       </Card>
+
 
       <CheckinCodesCard student={s} onUpdated={() => q.refetch()} />
 
