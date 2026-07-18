@@ -150,7 +150,7 @@ function NewGraduationPage() {
       await issueFn({ data: { student_id: studentId, graduation_id: gradId, template_id: templateId, values } });
       setIssued(prev => {
         const next = new Map(prev);
-        next.set(studentId, { template: tpl as CertificateTemplate, values, studentName: student.full_name });
+        next.set(studentId, { template: tpl as unknown as CertificateTemplate, values, studentName: student.full_name });
         return next;
       });
       toast.success(`Certificado emitido: ${student.full_name}`);
