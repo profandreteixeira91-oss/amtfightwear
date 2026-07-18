@@ -64,11 +64,6 @@ function AuthPage() {
     defaultValues: { email: "", password: "" },
   });
 
-  const signUpForm = useForm<SignUpValues>({
-    resolver: zodResolver(signUpSchema),
-    defaultValues: { email: "", password: "", fullName: "" },
-  });
-
   const onSignIn = signInForm.handleSubmit(async (values) => {
     const { error } = await authService.signInWithPassword(values.email, values.password);
     if (error) {
@@ -77,15 +72,6 @@ function AuthPage() {
     }
     toast.success("Bem-vindo de volta");
     navigate({ to: redirect ?? "/dashboard", replace: true });
-  });
-
-  const onSignUp = signUpForm.handleSubmit(async (values) => {
-    const { error } = await authService.signUpWithPassword(values.email, values.password, values.fullName);
-    if (error) {
-      toast.error("Não foi possível criar a conta", { description: error.message });
-      return;
-    }
-    toast.success("Conta criada", { description: "Confirme seu e-mail para continuar." });
   });
 
   const onForgotPassword = async () => {
