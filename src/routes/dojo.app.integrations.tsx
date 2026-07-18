@@ -51,6 +51,7 @@ function IntegrationsHub() {
   const [query, setQuery] = useState("");
   const [cat, setCat] = useState<CatFilter>("all");
   const [wizardFor, setWizardFor] = useState<IntegrationDef | null>(null);
+  const [apiHubMode, setApiHubMode] = useState<"keys" | "webhooks" | null>(null);
 
   const gwByProvider = useMemo(() => {
     const m = new Map<string, any>();
