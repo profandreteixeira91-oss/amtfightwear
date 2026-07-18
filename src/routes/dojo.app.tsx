@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/_dojo/dojo/app")({
+export const Route = createFileRoute("/dojo/app")({
   component: DojoLayout,
 });
 
