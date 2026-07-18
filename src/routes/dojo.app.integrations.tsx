@@ -21,7 +21,7 @@ import { IntegrationWizard } from "@/components/dojo/integrations/IntegrationWiz
 
 import { listMyGateways, upsertMyGateway } from "@/lib/dojo/gateways.functions";
 import { listPartnerIntegrations, savePartnerIntegration, listPartnerCheckins } from "@/lib/dojo/attendance.functions";
-import { testIntegrationConnection, getIntegrationsMetrics } from "@/lib/dojo/integrations.functions";
+import { testIntegrationConnection, getIntegrationsMetrics, getMyOwnerId } from "@/lib/dojo/integrations.functions";
 
 export const Route = createFileRoute("/dojo/app/integrations")({
   head: () => ({ meta: [{ title: "Central de Integrações — AMT Dojo Manager" }] }),
