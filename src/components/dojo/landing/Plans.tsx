@@ -41,7 +41,7 @@ export function Plans() {
 
               <div className="mt-6 flex items-baseline gap-2">
                 <span className="text-lg font-medium text-white/60">R$</span>
-                <span className="text-6xl font-bold tracking-tight md:text-7xl">59,90</span>
+                <span className="text-6xl font-bold tracking-tight md:text-7xl">69,90</span>
                 <span className="text-lg font-medium text-white/60">/mês</span>
               </div>
               <p className="mt-2 text-sm text-white/50">Mensalidade única — sem taxa de setup.</p>
