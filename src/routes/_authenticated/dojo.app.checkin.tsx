@@ -19,7 +19,7 @@ import {
 import { listDojoStudents, listDojoUnits } from "@/lib/dojo/dojo.functions";
 import { Trash2 } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/dojo/checkin")({
+export const Route = createFileRoute("/_authenticated/dojo/app/app/checkin")({
   component: DojoCheckin,
   errorComponent: ({ error }) => <div className="p-6 text-red-500">{error.message}</div>,
   notFoundComponent: () => <div className="p-6">Não encontrado</div>,

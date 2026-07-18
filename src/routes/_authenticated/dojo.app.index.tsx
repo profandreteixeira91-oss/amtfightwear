@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { dojoFinanceOverview, listDojoStudents } from "@/lib/dojo/dojo.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export const Route = createFileRoute("/_authenticated/dojo/")({
+export const Route = createFileRoute("/_authenticated/dojo/app/app/")({
   component: DojoDashboard,
 });
 
