@@ -211,14 +211,14 @@ export const syncCompetitions = createServerFn({ method: "POST" })
               .eq("external_id", it.external_id)
               .maybeSingle();
             if (existing?.id) {
-              await context.supabase.from("dojo_competitions").update(row).eq("id", existing.id);
+              await context.supabase.from("dojo_competitions").update(row as any).eq("id", existing.id);
               updated++;
             } else {
-              await context.supabase.from("dojo_competitions").insert(row);
+              await context.supabase.from("dojo_competitions").insert(row as any);
               inserted++;
             }
           } else {
-            await context.supabase.from("dojo_competitions").insert(row);
+            await context.supabase.from("dojo_competitions").insert(row as any);
             inserted++;
           }
         }
