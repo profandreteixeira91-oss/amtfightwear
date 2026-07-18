@@ -2782,6 +2782,126 @@ export type Database = {
           },
         ]
       }
+      dojo_student_app_config: {
+        Row: {
+          config: Json
+          created_at: string
+          draft: Json
+          has_unpublished_changes: boolean
+          owner_id: string
+          published_at: string | null
+          published_by: string | null
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          config?: Json
+          created_at?: string
+          draft?: Json
+          has_unpublished_changes?: boolean
+          owner_id: string
+          published_at?: string | null
+          published_by?: string | null
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          draft?: Json
+          has_unpublished_changes?: boolean
+          owner_id?: string
+          published_at?: string | null
+          published_by?: string | null
+          updated_at?: string
+          version?: number
+        }
+        Relationships: []
+      }
+      dojo_student_app_news: {
+        Row: {
+          active: boolean
+          audience: string
+          body: string | null
+          created_at: string
+          cta_label: string | null
+          cta_link: string | null
+          ends_at: string | null
+          id: string
+          image_url: string | null
+          kind: string
+          owner_id: string
+          priority: number
+          starts_at: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          audience?: string
+          body?: string | null
+          created_at?: string
+          cta_label?: string | null
+          cta_link?: string | null
+          ends_at?: string | null
+          id?: string
+          image_url?: string | null
+          kind?: string
+          owner_id: string
+          priority?: number
+          starts_at?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          audience?: string
+          body?: string | null
+          created_at?: string
+          cta_label?: string | null
+          cta_link?: string | null
+          ends_at?: string | null
+          id?: string
+          image_url?: string | null
+          kind?: string
+          owner_id?: string
+          priority?: number
+          starts_at?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      dojo_student_app_versions: {
+        Row: {
+          author_id: string | null
+          config: Json
+          created_at: string
+          id: string
+          label: string | null
+          owner_id: string
+          version: number
+        }
+        Insert: {
+          author_id?: string | null
+          config: Json
+          created_at?: string
+          id?: string
+          label?: string | null
+          owner_id: string
+          version: number
+        }
+        Update: {
+          author_id?: string | null
+          config?: Json
+          created_at?: string
+          id?: string
+          label?: string | null
+          owner_id?: string
+          version?: number
+        }
+        Relationships: []
+      }
       dojo_student_notifications: {
         Row: {
           created_at: string
