@@ -90,6 +90,7 @@ const nav: { label: string; items: NavItem[] }[] = [
 const routeTitles: Array<{ match: (p: string) => boolean; title: string; subtitle?: string }> = [
   { match: (p) => p === "/dojo/app", title: "Painel", subtitle: "Visão geral do dojo" },
   { match: (p) => p.startsWith("/dojo/app/students"), title: "Alunos", subtitle: "Gestão de matrículas e histórico" },
+  { match: (p) => p.startsWith("/dojo/app/schedule"), title: "Agenda", subtitle: "Turmas, horários e ocupação" },
   { match: (p) => p.startsWith("/dojo/app/checkin"), title: "Check-in", subtitle: "Presenças e frequência" },
   { match: (p) => p.startsWith("/dojo/app/graduations"), title: "Graduações", subtitle: "Nova graduação e certificados" },
   { match: (p) => p.startsWith("/dojo/app/evaluations"), title: "Avaliações", subtitle: "Provas teóricas e práticas" },
