@@ -167,145 +167,60 @@ function AuthPage() {
           <Card className="border-border/60 shadow-lg">
             <CardHeader className="space-y-1">
               <CardTitle className="text-2xl font-bold tracking-tight">Acessar plataforma</CardTitle>
-              <CardDescription>Entre com sua conta ou crie uma nova.</CardDescription>
+              <CardDescription>
+                Acesso restrito. Contas são criadas apenas internamente pelo administrador.
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <Tabs defaultValue="signin" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="signin">Entrar</TabsTrigger>
-                  <TabsTrigger value="signup">Criar conta</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="signin" className="mt-6">
-                  <form onSubmit={onSignIn} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="signin-email">E-mail</Label>
-                      <Input
-                        id="signin-email"
-                        type="email"
-                        autoComplete="email"
-                        {...signInForm.register("email")}
-                      />
-                      {signInForm.formState.errors.email && (
-                        <p className="text-xs text-destructive">
-                          {signInForm.formState.errors.email.message}
-                        </p>
-                      )}
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <Label htmlFor="signin-password">Senha</Label>
-                        <button
-                          type="button"
-                          onClick={onForgotPassword}
-                          className="text-xs font-medium text-primary hover:underline"
-                        >
-                          Esqueci minha senha
-                        </button>
-                      </div>
-                      <Input
-                        id="signin-password"
-                        type="password"
-                        autoComplete="current-password"
-                        {...signInForm.register("password")}
-                      />
-                      {signInForm.formState.errors.password && (
-                        <p className="text-xs text-destructive">
-                          {signInForm.formState.errors.password.message}
-                        </p>
-                      )}
-                    </div>
-                    <Button
-                      type="submit"
-                      className="w-full"
-                      disabled={signInForm.formState.isSubmitting}
+              <form onSubmit={onSignIn} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="signin-email">E-mail</Label>
+                  <Input
+                    id="signin-email"
+                    type="email"
+                    autoComplete="email"
+                    {...signInForm.register("email")}
+                  />
+                  {signInForm.formState.errors.email && (
+                    <p className="text-xs text-destructive">
+                      {signInForm.formState.errors.email.message}
+                    </p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="signin-password">Senha</Label>
+                    <button
+                      type="button"
+                      onClick={onForgotPassword}
+                      className="text-xs font-medium text-primary hover:underline"
                     >
-                      {signInForm.formState.isSubmitting && (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      )}
-                      Entrar
-                    </Button>
-                  </form>
-                </TabsContent>
-
-                <TabsContent value="signup" className="mt-6">
-                  <form onSubmit={onSignUp} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-name">Nome completo</Label>
-                      <Input id="signup-name" autoComplete="name" {...signUpForm.register("fullName")} />
-                      {signUpForm.formState.errors.fullName && (
-                        <p className="text-xs text-destructive">
-                          {signUpForm.formState.errors.fullName.message}
-                        </p>
-                      )}
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-email">E-mail</Label>
-                      <Input
-                        id="signup-email"
-                        type="email"
-                        autoComplete="email"
-                        {...signUpForm.register("email")}
-                      />
-                      {signUpForm.formState.errors.email && (
-                        <p className="text-xs text-destructive">
-                          {signUpForm.formState.errors.email.message}
-                        </p>
-                      )}
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-password">Senha</Label>
-                      <Input
-                        id="signup-password"
-                        type="password"
-                        autoComplete="new-password"
-                        {...signUpForm.register("password")}
-                      />
-                      {signUpForm.formState.errors.password && (
-                        <p className="text-xs text-destructive">
-                          {signUpForm.formState.errors.password.message}
-                        </p>
-                      )}
-                    </div>
-                    <Button
-                      type="submit"
-                      className="w-full"
-                      disabled={signUpForm.formState.isSubmitting}
-                    >
-                      {signUpForm.formState.isSubmitting && (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      )}
-                      Criar conta
-                    </Button>
-                  </form>
-                </TabsContent>
-              </Tabs>
-
-              <div className="relative my-6">
-                <Separator />
-                <span className="absolute inset-0 -top-2 mx-auto w-fit bg-card px-2 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-                  ou
-                </span>
-              </div>
-
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={onGoogle}
-                disabled={googleLoading}
-              >
-                {googleLoading ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" aria-hidden>
-                    <path
-                      fill="#EA4335"
-                      d="M12 10.2v3.9h5.5c-.25 1.4-1.7 4.1-5.5 4.1-3.3 0-6-2.7-6-6.1s2.7-6.1 6-6.1c1.9 0 3.1.8 3.9 1.5l2.6-2.5C16.9 3.5 14.7 2.5 12 2.5 6.8 2.5 2.6 6.7 2.6 12s4.2 9.5 9.4 9.5c5.4 0 9-3.8 9-9.2 0-.6-.1-1.1-.2-1.6H12z"
-                    />
-                  </svg>
-                )}
-                Continuar com Google
-              </Button>
+                      Esqueci minha senha
+                    </button>
+                  </div>
+                  <Input
+                    id="signin-password"
+                    type="password"
+                    autoComplete="current-password"
+                    {...signInForm.register("password")}
+                  />
+                  {signInForm.formState.errors.password && (
+                    <p className="text-xs text-destructive">
+                      {signInForm.formState.errors.password.message}
+                    </p>
+                  )}
+                </div>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={signInForm.formState.isSubmitting}
+                >
+                  {signInForm.formState.isSubmitting && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  Entrar
+                </Button>
+              </form>
             </CardContent>
           </Card>
         </motion.div>
