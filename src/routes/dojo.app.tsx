@@ -17,12 +17,12 @@ export const Route = createFileRoute("/dojo/app")({
 const tabs = [
   { to: "/dojo/app", label: "Painel" },
   { to: "/dojo/app/students", label: "Alunos" },
-  { to: "/dojo/app/graduations", label: "Graduações" },
+  { to: "/dojo/app/graduations", label: "Nova graduação" },
   { to: "/dojo/app/evaluations", label: "Avaliações" },
   { to: "/dojo/app/plans", label: "Planos" },
   { to: "/dojo/app/finance", label: "Financeiro" },
   { to: "/dojo/app/units", label: "Unidades" },
-  { to: "/dojo/app/certificates", label: "Certificados" },
+  { to: "/dojo/app/certificates", label: "Modelo de certificado" },
 ];
 
 function DojoLayout() {
