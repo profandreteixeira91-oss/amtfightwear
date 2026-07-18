@@ -33,13 +33,15 @@ export function BeltVisual({
   const isBlack = /^preta$/i.test(n);
   // Coral belts (Vermelha e Preta / Vermelha e Branca): checkered pattern
   const isChecker = /^vermelha e (preta|branca)$/i.test(n);
+  const isRed = /^vermelha$/i.test(n);
   const isTrim = trim ?? (/aparador/i.test(n));
   const stripes = Math.max(0, Math.min(degree, maxDegrees));
   const base = (colorHex || "#F5F5F5").toLowerCase();
   const isLight = base === "#ffffff" || base === "#f5f5f5" || base === "#fdd835";
-  // Black belt uses a red tip (aparador vermelho); everything else keeps a black tip
-  const tipBg = isBlack ? "#B71C1C" : "#111111";
-  const stripeColor = "#FFFFFF";
+  // Tip: white with red stripes for red-family belts; red tip for black belt; black tip otherwise
+  const whiteTip = isChecker || isRed;
+  const tipBg = whiteTip ? "#FFFFFF" : isBlack ? "#B71C1C" : "#111111";
+  const stripeColor = whiteTip ? "#B71C1C" : "#FFFFFF";
 
   // Checkerboard background using two linear gradients (classic CSS trick)
   const checkerA = colorHex || "#B71C1C";
