@@ -5,19 +5,33 @@ interface BeltVisualProps {
   maxDegrees?: number;
   className?: string;
   label?: string;
+  /** When true, stripeHex is rendered as top/bottom trim (aparador) instead of a center band */
+  trim?: boolean;
 }
 
 /**
- * Visual representation of a BJJ / martial arts belt.
+ * Visual representation of a BJJ / martial arts belt matching the AMT belt system reference.
  * - Base color fills the belt.
- * - Optional secondary color (stripe_hex) fills the lower third for two-tone belts
- *   (ex.: Cinza com Preto, Amarela com Branco).
- * - A black tip on the right holds `degree` white stripes (or black stripes if the tip is white).
+ * - stripe_hex renders as a middle horizontal band (default) for two-tone belts
+ *   (ex.: Cinza com Branco, Amarela com Preto) — matches the reference image.
+ * - When trim=true or the belt name contains "aparador", stripe_hex renders as top/bottom edges.
+ * - A black tip on the right holds `degree` white stripes.
  */
-export function BeltVisual({ colorHex, stripeHex, degree = 0, maxDegrees = 4, className = "", label }: BeltVisualProps) {
-  const tipIsDark = true; // always render a black tip section per BJJ convention
-  const stripeColor = colorHex.toLowerCase() === "#111111" || colorHex.toLowerCase() === "#000000" ? "#FFFFFF" : "#FFFFFF";
+export function BeltVisual({
+  colorHex,
+  stripeHex,
+  degree = 0,
+  maxDegrees = 4,
+  className = "",
+  label,
+  trim = false,
+}: BeltVisualProps) {
   const stripes = Math.max(0, Math.min(degree, maxDegrees));
+  const base = (colorHex || "#F5F5F5").toLowerCase();
+  const isLight = base === "#ffffff" || base === "#f5f5f5" || base === "#fdd835";
+  // Red belts (9º) use a black tip; solid red is treated normally.
+  const tipBg = "#111111";
+  const stripeColor = "#FFFFFF";
 
   return (
     <div className={`inline-flex flex-col items-start gap-1 ${className}`}>
@@ -26,14 +40,27 @@ export function BeltVisual({ colorHex, stripeHex, degree = 0, maxDegrees = 4, cl
         style={{ background: colorHex }}
         aria-label={label ?? `Faixa ${colorHex}`}
       >
-        {/* Two-tone lower half */}
-        {stripeHex && (
-          <div className="absolute inset-x-0 bottom-0 h-1/2" style={{ background: stripeHex }} />
+        {/* Two-tone rendering */}
+        {stripeHex && !trim && (
+          <div
+            className="absolute inset-x-0"
+            style={{ background: stripeHex, top: "33.333%", height: "33.333%" }}
+          />
+        )}
+        {stripeHex && trim && (
+          <>
+            <div className="absolute inset-x-0 top-0" style={{ background: stripeHex, height: "18%" }} />
+            <div className="absolute inset-x-0 bottom-0" style={{ background: stripeHex, height: "18%" }} />
+          </>
         )}
         {/* Black tip on the right */}
         <div
           className="absolute right-0 top-0 h-full flex items-center justify-center gap-1 px-2"
-          style={{ width: "38%", background: tipIsDark ? "#111111" : "#FFFFFF", borderLeft: "1px solid rgba(0,0,0,0.35)" }}
+          style={{
+            width: "38%",
+            background: tipBg,
+            borderLeft: isLight ? "1px solid rgba(0,0,0,0.35)" : "1px solid rgba(255,255,255,0.15)",
+          }}
         >
           {Array.from({ length: stripes }).map((_, i) => (
             <div
