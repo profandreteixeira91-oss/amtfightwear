@@ -114,6 +114,7 @@ import { Route as ApiPublicHooksEnrichPendingLeadsRouteImport } from './routes/a
 import { Route as ApiPublicHooksAutoInstagramPostRouteImport } from './routes/api/public/hooks/auto-instagram-post'
 import { Route as AuthenticatedDojoStudentsIdRouteImport } from './routes/_authenticated/dojo.students.$id'
 import { Route as AuthenticatedAdsCampaignsIdRouteImport } from './routes/_authenticated/ads.campaigns.$id'
+import { Route as ApiPublicDojoPartnerCheckinProviderRouteImport } from './routes/api/public/dojo/partner-checkin.$provider'
 
 const UnsubscribeRoute = UnsubscribeRouteImport.update({
   id: '/unsubscribe',
@@ -695,6 +696,12 @@ const AuthenticatedAdsCampaignsIdRoute =
     path: '/$id',
     getParentRoute: () => AuthenticatedAdsCampaignsRoute,
   } as any)
+const ApiPublicDojoPartnerCheckinProviderRoute =
+  ApiPublicDojoPartnerCheckinProviderRouteImport.update({
+    id: '/api/public/dojo/partner-checkin/$provider',
+    path: '/api/public/dojo/partner-checkin/$provider',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -801,6 +808,7 @@ export interface FileRoutesByFullPath {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/api/public/dojo/partner-checkin/$provider': typeof ApiPublicDojoPartnerCheckinProviderRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -906,6 +914,7 @@ export interface FileRoutesByTo {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/api/public/dojo/partner-checkin/$provider': typeof ApiPublicDojoPartnerCheckinProviderRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -1014,6 +1023,7 @@ export interface FileRoutesById {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/api/public/dojo/partner-checkin/$provider': typeof ApiPublicDojoPartnerCheckinProviderRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -1122,6 +1132,7 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/api/public/dojo/partner-checkin/$provider'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1227,6 +1238,7 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/api/public/dojo/partner-checkin/$provider'
   id:
     | '__root__'
     | '/'
@@ -1334,6 +1346,7 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/api/public/dojo/partner-checkin/$provider'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1377,6 +1390,7 @@ export interface RootRouteChildren {
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
   LovableEmailTransactionalSendRoute: typeof LovableEmailTransactionalSendRoute
+  ApiPublicDojoPartnerCheckinProviderRoute: typeof ApiPublicDojoPartnerCheckinProviderRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -2116,6 +2130,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdsCampaignsIdRouteImport
       parentRoute: typeof AuthenticatedAdsCampaignsRoute
     }
+    '/api/public/dojo/partner-checkin/$provider': {
+      id: '/api/public/dojo/partner-checkin/$provider'
+      path: '/api/public/dojo/partner-checkin/$provider'
+      fullPath: '/api/public/dojo/partner-checkin/$provider'
+      preLoaderRoute: typeof ApiPublicDojoPartnerCheckinProviderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -2344,6 +2365,8 @@ const rootRouteChildren: RootRouteChildren = {
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
   LovableEmailTransactionalSendRoute: LovableEmailTransactionalSendRoute,
+  ApiPublicDojoPartnerCheckinProviderRoute:
+    ApiPublicDojoPartnerCheckinProviderRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
