@@ -32,6 +32,7 @@ import {
   ChevronDown,
   UserCircle,
   CalendarDays,
+  Trophy,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
