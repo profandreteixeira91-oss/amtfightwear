@@ -1,18 +1,18 @@
 // Pagamentos in-app do App do Aluno — Pix via Mercado Pago para mensalidades (dojo_invoices).
+// Usa o Access Token do Mercado Pago **do dono do dojo** (não da AMT).
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireOwnerMpToken } from "@/lib/dojo/payment-gateway.server";
 
 const MP_BASE = "https://api.mercadopago.com";
 
-async function mp<T = any>(path: string, init?: RequestInit): Promise<T> {
-  const key = process.env.MERCADOPAGO_ACCESS_TOKEN;
-  if (!key) throw new Error("MERCADOPAGO_ACCESS_TOKEN não configurada");
+async function mpWithToken<T = any>(token: string, path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${MP_BASE}${path}`, {
     ...init,
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${key}`,
+      Authorization: `Bearer ${token}`,
       ...(init?.headers ?? {}),
     },
   });
