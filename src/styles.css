@@ -180,8 +180,8 @@
   --dojo-surface: #ffffff;
   --dojo-surface-2: #fafafa;
   --dojo-surface-3: #f4f4f5;
-  --dojo-border: #ececec;
-  --dojo-border-strong: #d4d4d4;
+  --dojo-border: #e2e2e2;
+  --dojo-border-strong: #c7c7c7;
   --dojo-fg: #0a0a0a;
   --dojo-fg-2: #262626;
   --dojo-muted-fg: #737373;
@@ -215,8 +215,8 @@
   --muted-foreground: 0 0% 45%;
   --accent: 0 0% 96%;
   --accent-foreground: 0 0% 9%;
-  --border: 0 0% 92%;
-  --input: 0 0% 92%;
+  --border: 0 0% 88%;
+  --input: 0 0% 88%;
   --ring: 0 72% 51%;
   --radius: 0.625rem;
 
@@ -247,14 +247,34 @@
   background: var(--dojo-surface);
   border: 1px solid var(--dojo-border);
   border-radius: 12px;
-  box-shadow: var(--dojo-shadow-xs);
+  box-shadow: var(--dojo-shadow-sm);
   transition: box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1),
               border-color 200ms cubic-bezier(0.4, 0, 0.2, 1),
               transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 .dojo-theme .dojo-card:hover {
-  box-shadow: var(--dojo-shadow-sm);
+  box-shadow: var(--dojo-shadow-md);
   border-color: var(--dojo-border-strong);
+}
+
+/* Garante bordas suaves visíveis em qualquer card/painel/divisor do Dojo,
+   mesmo sem a classe utilitária .dojo-card. */
+.dojo-theme [data-slot="card"],
+.dojo-theme .rounded-lg.border,
+.dojo-theme .rounded-xl.border,
+.dojo-theme .rounded-2xl.border,
+.dojo-theme .rounded-md.border {
+  border-color: var(--dojo-border);
+  box-shadow: var(--dojo-shadow-xs);
+}
+.dojo-theme [data-slot="separator-root"],
+.dojo-theme hr {
+  background-color: var(--dojo-border);
+  border-color: var(--dojo-border);
+}
+.dojo-theme .divide-y > * + *,
+.dojo-theme .divide-x > * + * {
+  border-color: var(--dojo-border);
 }
 
 /* Accent KPI — solid red, no gradient noise */
