@@ -87,10 +87,22 @@ export const Route = createFileRoute("/api/public/hooks/mercadopago")({
           patch.payment_status = "pending";
         }
 
+        let updatedOrderId: string | null = orderId;
         if (orderId) {
           await supabaseAdmin.from("store_orders").update(patch as never).eq("id", orderId);
         } else {
-          await supabaseAdmin.from("store_orders").update(patch as never).eq("mp_payment_id", paymentId);
+          const { data: row } = await supabaseAdmin
+            .from("store_orders")
+            .update(patch as never)
+            .eq("mp_payment_id", paymentId)
+            .select("id")
+            .maybeSingle();
+          updatedOrderId = (row as { id: string } | null)?.id ?? null;
+        }
+
+        if (updatedOrderId && patch.payment_status === "paid") {
+          const { sendWhatsAppOrderStatus } = await import("@/lib/store/whatsapp.server");
+          await sendWhatsAppOrderStatus(updatedOrderId, "paid");
         }
 
         return new Response("ok");
