@@ -427,7 +427,7 @@ export const finishEvalSession = createServerFn({ method: "POST" })
         belt_id: sess.template.end_belt_id,
         degree: sess.template.degree ?? 0,
         graduated_at: now,
-      });
+      } as never);
     }
     return { ok: true };
   });
