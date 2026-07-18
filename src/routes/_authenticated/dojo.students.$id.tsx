@@ -173,9 +173,8 @@ function StudentDetail() {
 }
 
 function CheckinCodesCard({ student, onUpdated }: { student: any; onUpdated: () => void }) {
-  const regen = useServerFn(
-    require("@/lib/dojo/attendance.functions").regenerateStudentCodes
-  );
+  const regen = useServerFn(regenerateStudentCodes);
+
   const [busy, setBusy] = useState(false);
   async function run(kind: "pin" | "qr" | "both") {
     setBusy(true);
