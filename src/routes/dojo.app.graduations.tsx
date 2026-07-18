@@ -132,6 +132,25 @@ function NewGraduationPage() {
         {step !== "select" && <Button variant="ghost" onClick={reset}>Recomeçar</Button>}
       </div>
 
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Referência oficial AMT</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <img
+            src={beltsReference}
+            alt="Sistema de faixas AMT — Branca à Vermelha"
+            loading="lazy"
+            width={1408}
+            height={1600}
+            className="w-full h-auto rounded-md border bg-white"
+          />
+          <p className="mt-2 text-xs text-muted-foreground">
+            Branca à Marrom (1–4 graus), Preta (1–6), Vermelha e Preta (7º), Vermelha e Branca (8º) e Vermelha (9º).
+          </p>
+        </CardContent>
+      </Card>
+
       {/* Stepper */}
       <div className="flex items-center gap-2 text-xs">
         {(["select", "grad", "cert"] as Step[]).map((s, i) => (
