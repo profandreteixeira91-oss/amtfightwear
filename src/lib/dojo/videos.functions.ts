@@ -148,12 +148,13 @@ export const upsertVideo = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => videoSchema.parse(i))
   .handler(async ({ data, context }) => {
     const now = new Date().toISOString();
-    const payload: Record<string, unknown> = {
+    const payload = {
       ...data,
       owner_id: context.userId,
+      access_rules: data.access_rules ?? {},
+      attachments: data.attachments ?? [],
       published_at: data.status === "published" ? now : null,
-    };
-    // strip undefined -> avoid overriding
+    } as any;
     Object.keys(payload).forEach((k) => payload[k] === undefined && delete payload[k]);
     const { data: row, error } = data.id
       ? await context.supabase.from("dojo_videos").update(payload).eq("id", data.id).select().single()
