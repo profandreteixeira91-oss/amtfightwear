@@ -106,7 +106,7 @@ export const saveEvalTemplate = createServerFn({ method: "POST" })
       (s, c) => s + c.criteria.reduce((sc, cr) => sc + Number(cr.max_score || 0), 0),
       0,
     );
-    const payload: Record<string, unknown> = {
+    const payload = {
       title: data.title,
       description: data.description ?? null,
       modality: data.modality ?? null,
@@ -129,13 +129,13 @@ export const saveEvalTemplate = createServerFn({ method: "POST" })
       is_library: false,
     };
     if (data.id) {
-      const { error } = await context.supabase.from("dojo_evaluations").update(payload).eq("id", data.id);
+      const { error } = await context.supabase.from("dojo_evaluations").update(payload as never).eq("id", data.id);
       if (error) throw new Error(error.message);
       return { id: data.id };
     }
     const { data: row, error } = await context.supabase
       .from("dojo_evaluations")
-      .insert({ ...payload, owner_id: context.userId })
+      .insert({ ...payload, owner_id: context.userId } as never)
       .select("id").single();
     if (error) throw new Error(error.message);
     return { id: row.id };
