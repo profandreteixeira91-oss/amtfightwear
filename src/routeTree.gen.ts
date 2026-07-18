@@ -55,6 +55,7 @@ import { Route as DojoAppFinanceRouteImport } from './routes/dojo.app.finance'
 import { Route as DojoAppEvaluationsRouteImport } from './routes/dojo.app.evaluations'
 import { Route as DojoAppCheckinRouteImport } from './routes/dojo.app.checkin'
 import { Route as DojoAppCertificatesRouteImport } from './routes/dojo.app.certificates'
+import { Route as DojoAppAccountRouteImport } from './routes/dojo.app.account'
 import { Route as AuthenticatedStoreWholesaleRouteImport } from './routes/_authenticated/store.wholesale'
 import { Route as AuthenticatedStoreSizesRouteImport } from './routes/_authenticated/store.sizes'
 import { Route as AuthenticatedStoreShippingRouteImport } from './routes/_authenticated/store.shipping'
@@ -349,6 +350,11 @@ const DojoAppCheckinRoute = DojoAppCheckinRouteImport.update({
 const DojoAppCertificatesRoute = DojoAppCertificatesRouteImport.update({
   id: '/certificates',
   path: '/certificates',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppAccountRoute = DojoAppAccountRouteImport.update({
+  id: '/account',
+  path: '/account',
   getParentRoute: () => DojoAppRoute,
 } as any)
 const AuthenticatedStoreWholesaleRoute =
@@ -797,6 +803,7 @@ export interface FileRoutesByFullPath {
   '/store/shipping': typeof AuthenticatedStoreShippingRoute
   '/store/sizes': typeof AuthenticatedStoreSizesRoute
   '/store/wholesale': typeof AuthenticatedStoreWholesaleRoute
+  '/dojo/app/account': typeof DojoAppAccountRoute
   '/dojo/app/certificates': typeof DojoAppCertificatesRoute
   '/dojo/app/checkin': typeof DojoAppCheckinRoute
   '/dojo/app/evaluations': typeof DojoAppEvaluationsRoute
@@ -907,6 +914,7 @@ export interface FileRoutesByTo {
   '/store/shipping': typeof AuthenticatedStoreShippingRoute
   '/store/sizes': typeof AuthenticatedStoreSizesRoute
   '/store/wholesale': typeof AuthenticatedStoreWholesaleRoute
+  '/dojo/app/account': typeof DojoAppAccountRoute
   '/dojo/app/certificates': typeof DojoAppCertificatesRoute
   '/dojo/app/checkin': typeof DojoAppCheckinRoute
   '/dojo/app/evaluations': typeof DojoAppEvaluationsRoute
@@ -1021,6 +1029,7 @@ export interface FileRoutesById {
   '/_authenticated/store/shipping': typeof AuthenticatedStoreShippingRoute
   '/_authenticated/store/sizes': typeof AuthenticatedStoreSizesRoute
   '/_authenticated/store/wholesale': typeof AuthenticatedStoreWholesaleRoute
+  '/dojo/app/account': typeof DojoAppAccountRoute
   '/dojo/app/certificates': typeof DojoAppCertificatesRoute
   '/dojo/app/checkin': typeof DojoAppCheckinRoute
   '/dojo/app/evaluations': typeof DojoAppEvaluationsRoute
@@ -1135,6 +1144,7 @@ export interface FileRouteTypes {
     | '/store/shipping'
     | '/store/sizes'
     | '/store/wholesale'
+    | '/dojo/app/account'
     | '/dojo/app/certificates'
     | '/dojo/app/checkin'
     | '/dojo/app/evaluations'
@@ -1245,6 +1255,7 @@ export interface FileRouteTypes {
     | '/store/shipping'
     | '/store/sizes'
     | '/store/wholesale'
+    | '/dojo/app/account'
     | '/dojo/app/certificates'
     | '/dojo/app/checkin'
     | '/dojo/app/evaluations'
@@ -1358,6 +1369,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/shipping'
     | '/_authenticated/store/sizes'
     | '/_authenticated/store/wholesale'
+    | '/dojo/app/account'
     | '/dojo/app/certificates'
     | '/dojo/app/checkin'
     | '/dojo/app/evaluations'
@@ -1767,6 +1779,13 @@ declare module '@tanstack/react-router' {
       path: '/certificates'
       fullPath: '/dojo/app/certificates'
       preLoaderRoute: typeof DojoAppCertificatesRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/account': {
+      id: '/dojo/app/account'
+      path: '/account'
+      fullPath: '/dojo/app/account'
+      preLoaderRoute: typeof DojoAppAccountRouteImport
       parentRoute: typeof DojoAppRoute
     }
     '/_authenticated/store/wholesale': {
@@ -2379,6 +2398,7 @@ const DojoAppStudentsRouteWithChildren = DojoAppStudentsRoute._addFileChildren(
 )
 
 interface DojoAppRouteChildren {
+  DojoAppAccountRoute: typeof DojoAppAccountRoute
   DojoAppCertificatesRoute: typeof DojoAppCertificatesRoute
   DojoAppCheckinRoute: typeof DojoAppCheckinRoute
   DojoAppEvaluationsRoute: typeof DojoAppEvaluationsRoute
@@ -2392,6 +2412,7 @@ interface DojoAppRouteChildren {
 }
 
 const DojoAppRouteChildren: DojoAppRouteChildren = {
+  DojoAppAccountRoute: DojoAppAccountRoute,
   DojoAppCertificatesRoute: DojoAppCertificatesRoute,
   DojoAppCheckinRoute: DojoAppCheckinRoute,
   DojoAppEvaluationsRoute: DojoAppEvaluationsRoute,

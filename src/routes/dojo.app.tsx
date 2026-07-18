@@ -29,8 +29,18 @@ import {
   LogOut,
   Search,
   Bell,
+  ChevronDown,
+  UserCircle,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export const Route = createFileRoute("/dojo/app")({
   ssr: false,
