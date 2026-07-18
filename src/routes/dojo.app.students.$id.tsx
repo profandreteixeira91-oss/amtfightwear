@@ -13,8 +13,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Trash2 } from "lucide-react";
+import { Trash2, Award, Eye, Printer } from "lucide-react";
 import { BeltVisual } from "@/components/dojo/BeltVisual";
+import { CertificatePreviewDialog, openCertificatePrint, type CertificateTemplate } from "@/components/dojo/CertificatePreview";
 
 export const Route = createFileRoute("/dojo/app/students/$id")({
   component: StudentDetail,
