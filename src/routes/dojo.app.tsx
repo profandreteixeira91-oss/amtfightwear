@@ -35,6 +35,7 @@ import {
   Trophy,
   Film,
   Smartphone,
+  CreditCard,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
