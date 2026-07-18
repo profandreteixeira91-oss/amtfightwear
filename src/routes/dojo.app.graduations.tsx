@@ -148,8 +148,14 @@ function NewGraduationPage() {
     });
     try {
       await issueFn({ data: { student_id: studentId, graduation_id: gradId, template_id: templateId, values } });
-      setIssued(prev => new Set(prev).add(studentId));
+      setIssued(prev => {
+        const next = new Map(prev);
+        next.set(studentId, { template: tpl as CertificateTemplate, values, studentName: student.full_name });
+        return next;
+      });
       toast.success(`Certificado emitido: ${student.full_name}`);
+      // Auto-open preview for a single-student flow
+      if (registered.length <= 1) setPreviewFor(studentId);
     } catch (e: any) { toast.error(e.message ?? "Erro ao emitir"); }
   };
 
@@ -158,9 +164,15 @@ function NewGraduationPage() {
     for (const g of registered) await issueOne(g.student_id, g.id);
   };
 
+  const printAll = () => {
+    const items = Array.from(issued.values()).map(v => ({ template: v.template, values: v.values }));
+    if (items.length === 0) return toast.error("Emita ao menos um certificado");
+    openCertificatePrint(items);
+  };
+
   const reset = () => {
     setStep("select"); setSelectedStudents(new Set()); setBeltId(""); setDegree(0);
-    setEvaluator(""); setNotes(""); setRegistered([]); setTemplateId(""); setIssued(new Set());
+    setEvaluator(""); setNotes(""); setRegistered([]); setTemplateId(""); setIssued(new Map()); setPreviewFor(null);
   };
 
   return (
