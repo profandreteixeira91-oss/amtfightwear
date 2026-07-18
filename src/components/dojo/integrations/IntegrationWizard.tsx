@@ -34,6 +34,17 @@ export function IntegrationWizard({
   const isLast = step === steps.length - 1;
   const hasFields = !!current?.fields?.length;
 
+  const missingFields = (current?.fields ?? []).filter(
+    (f) => !f.optional && !(values[f.key] ?? "").trim(),
+  );
+  const stepInvalid = missingFields.length > 0;
+
+  const allMissing = steps
+    .flatMap((s) => s.fields ?? [])
+    .filter((f) => !f.optional && !(values[f.key] ?? "").trim());
+  const canFinish = allMissing.length === 0;
+
+
   async function handleTest() {
     if (!onTest) return;
     setTesting(true);
