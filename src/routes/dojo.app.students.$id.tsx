@@ -99,11 +99,21 @@ function StudentDetail() {
         <CardHeader><CardTitle className="text-base">Graduações</CardTitle></CardHeader>
         <CardContent className="space-y-3">
           <div className="grid md:grid-cols-6 gap-2">
-            <select className="border rounded p-2 bg-background" value={grad.belt_id} onChange={e => setGrad({ ...grad, belt_id: e.target.value })}>
+            <select className="border rounded p-2 bg-background" value={grad.belt_id} onChange={e => setGrad({ ...grad, belt_id: e.target.value, degree: 0 })}>
               <option value="">Faixa</option>
               {(belts.data ?? []).map((b: any) => <option key={b.id} value={b.id}>{b.name}</option>)}
             </select>
-            <Input type="number" placeholder="Grau" value={grad.degree} onChange={e => setGrad({ ...grad, degree: Number(e.target.value) })} />
+            {(() => {
+              const selBelt = (belts.data ?? []).find((b: any) => b.id === grad.belt_id);
+              const maxDeg = selBelt?.max_degrees ?? 4;
+              return (
+                <select className="border rounded p-2 bg-background" value={grad.degree} onChange={e => setGrad({ ...grad, degree: Number(e.target.value) })} disabled={!selBelt}>
+                  {Array.from({ length: maxDeg + 1 }).map((_, i) => (
+                    <option key={i} value={i}>{i === 0 ? "Sem grau" : `${i}º grau`}</option>
+                  ))}
+                </select>
+              );
+            })()}
             <Input type="date" value={grad.graduation_date} onChange={e => setGrad({ ...grad, graduation_date: e.target.value })} />
             <Input placeholder="Avaliador" value={grad.evaluator} onChange={e => setGrad({ ...grad, evaluator: e.target.value })} />
             <Input placeholder="Obs." value={grad.notes} onChange={e => setGrad({ ...grad, notes: e.target.value })} />
@@ -111,8 +121,13 @@ function StudentDetail() {
           </div>
           <div className="border rounded">
             {q.data.graduations.map((g: any) => (
-              <div key={g.id} className="flex items-center justify-between p-2 border-b last:border-0 text-sm">
-                <div>{g.belt?.name} · {g.degree}º grau · {g.graduation_date} · {g.evaluator ?? "—"}</div>
+              <div key={g.id} className="flex items-center justify-between p-2 border-b last:border-0 text-sm gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  {g.belt?.color_hex && (
+                    <BeltVisual colorHex={g.belt.color_hex} stripeHex={g.belt.stripe_hex} degree={g.degree} maxDegrees={g.belt?.max_degrees ?? 4} />
+                  )}
+                  <div className="truncate">{g.belt?.name} · {g.degree === 0 ? "sem grau" : `${g.degree}º grau`} · {g.graduation_date} · {g.evaluator ?? "—"}</div>
+                </div>
                 <Button size="icon" variant="ghost" onClick={async () => { await delGrad({ data: { id: g.id } }); refresh(); }}><Trash2 className="h-4 w-4 text-destructive" /></Button>
               </div>
             ))}
@@ -120,6 +135,7 @@ function StudentDetail() {
           </div>
         </CardContent>
       </Card>
+
 
       <Card>
         <CardHeader><CardTitle className="text-base">Matrícula / Plano</CardTitle></CardHeader>
