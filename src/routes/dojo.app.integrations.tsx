@@ -1,147 +1,342 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Search, Plug, CheckCircle2, XCircle, AlertTriangle, Activity, Zap, Copy } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+
 import {
-  listPartnerIntegrations,
-  savePartnerIntegration,
-  listPartnerCheckins,
-} from "@/lib/dojo/attendance.functions";
-import { listDojoUnits } from "@/lib/dojo/dojo.functions";
+  INTEGRATIONS,
+  INTEGRATION_CATEGORIES,
+  type IntegrationCategory,
+  type IntegrationDef,
+} from "@/lib/dojo/integrations-catalog";
+import { IntegrationCard, type LiveStatus } from "@/components/dojo/integrations/IntegrationCard";
+import { IntegrationWizard } from "@/components/dojo/integrations/IntegrationWizard";
+
+import { listMyGateways, upsertMyGateway } from "@/lib/dojo/gateways.functions";
+import { listPartnerIntegrations, savePartnerIntegration, listPartnerCheckins } from "@/lib/dojo/attendance.functions";
+import { testIntegrationConnection, getIntegrationsMetrics } from "@/lib/dojo/integrations.functions";
 
 export const Route = createFileRoute("/dojo/app/integrations")({
-  head: () => ({ meta: [{ title: "Integrações — AMT Dojo Manager" }] }),
-  component: DojoIntegrations,
+  head: () => ({ meta: [{ title: "Central de Integrações — AMT Dojo Manager" }] }),
+  component: IntegrationsHub,
   errorComponent: ({ error }) => <div className="p-6 text-red-500">{error.message}</div>,
   notFoundComponent: () => <div className="p-6">Não encontrado</div>,
 });
 
-type ProviderKey = "gympass" | "totalpass";
+type CatFilter = "all" | IntegrationCategory;
 
-function DojoIntegrations() {
-  const listInt = useServerFn(listPartnerIntegrations);
-  const save = useServerFn(savePartnerIntegration);
+function IntegrationsHub() {
+  const qc = useQueryClient();
+  const listGw = useServerFn(listMyGateways);
+  const saveGw = useServerFn(upsertMyGateway);
+  const listPartners = useServerFn(listPartnerIntegrations);
+  const savePartner = useServerFn(savePartnerIntegration);
   const listLogs = useServerFn(listPartnerCheckins);
-  const listUnits = useServerFn(listDojoUnits);
+  const test = useServerFn(testIntegrationConnection);
+  const metricsFn = useServerFn(getIntegrationsMetrics);
 
-  const intQ = useQuery({ queryKey: ["partner-int"], queryFn: () => listInt() });
-  const logQ = useQuery({ queryKey: ["partner-logs"], queryFn: () => listLogs({ data: {} }) });
-  const unitsQ = useQuery({ queryKey: ["dojo-units"], queryFn: () => listUnits() });
+  const gwQ = useQuery({ queryKey: ["dojo-gateways"], queryFn: () => listGw() });
+  const partnersQ = useQuery({ queryKey: ["dojo-partners"], queryFn: () => listPartners() });
+  const logsQ = useQuery({ queryKey: ["dojo-partner-logs"], queryFn: () => listLogs({ data: {} }) });
+  const metricsQ = useQuery({ queryKey: ["dojo-int-metrics"], queryFn: () => metricsFn() });
 
-  const webhookBase = typeof window !== "undefined" ? window.location.origin : "";
+  const [query, setQuery] = useState("");
+  const [cat, setCat] = useState<CatFilter>("all");
+  const [wizardFor, setWizardFor] = useState<IntegrationDef | null>(null);
+
+  const gwByProvider = useMemo(() => {
+    const m = new Map<string, any>();
+    for (const g of gwQ.data ?? []) m.set(g.provider, g);
+    return m;
+  }, [gwQ.data]);
+
+  const partnerByProvider = useMemo(() => {
+    const m = new Map<string, any>();
+    for (const p of partnersQ.data ?? []) m.set(p.provider, p);
+    return m;
+  }, [partnersQ.data]);
+
+  function statusFor(def: IntegrationDef): LiveStatus {
+    if (def.defaultStatus === "coming_soon") return "coming_soon";
+    if (def.backend === "payments-gateway" && def.backendKey) {
+      const row = gwByProvider.get(def.backendKey);
+      if (!row) return "available";
+      return row.active ? "connected" : "inactive";
+    }
+    if (def.backend === "partner" && def.backendKey) {
+      const row = partnerByProvider.get(def.backendKey);
+      if (!row) return "available";
+      return row.enabled ? "connected" : "inactive";
+    }
+    if (def.backend === "apis") return "connected";
+    return "available";
+  }
+
+  const filtered = useMemo(() => {
+    return INTEGRATIONS.filter((i) => {
+      if (cat !== "all" && i.category !== cat) return false;
+      if (!query.trim()) return true;
+      const q = query.toLowerCase();
+      return (
+        i.name.toLowerCase().includes(q) ||
+        i.vendor.toLowerCase().includes(q) ||
+        i.description.toLowerCase().includes(q)
+      );
+    });
+  }, [cat, query]);
+
+  async function handleSubmit(def: IntegrationDef, values: Record<string, string>) {
+    if (def.backend === "payments-gateway" && def.backendKey) {
+      await saveGw({
+        data: {
+          provider: def.backendKey as any,
+          access_token: values.access_token || undefined,
+          public_key: values.public_key || undefined,
+          webhook_secret: values.webhook_secret || undefined,
+          active: true,
+        },
+      });
+      qc.invalidateQueries({ queryKey: ["dojo-gateways"] });
+    } else if (def.backend === "partner" && def.backendKey) {
+      await savePartner({
+        data: {
+          provider: def.backendKey as any,
+          enabled: true,
+          apiKeyHint: values.api_key_hint || null,
+          webhookSecret: values.webhook_secret || null,
+          unitId: null,
+        },
+      });
+      qc.invalidateQueries({ queryKey: ["dojo-partners"] });
+    } else {
+      toast.info("Integração em preparação. Estrutura salva.");
+    }
+    qc.invalidateQueries({ queryKey: ["dojo-int-metrics"] });
+  }
+
+  async function handleQuickTest(def: IntegrationDef) {
+    try {
+      const r = await test({ data: { integrationId: def.id } });
+      if (r.ok) toast.success(`${def.name}: ${r.message}${r.latencyMs ? ` (${r.latencyMs}ms)` : ""}`);
+      else toast.error(`${def.name}: ${r.message}`);
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  }
+
+  const m = metricsQ.data ?? { installed: 0, active: 0, inactive: 0, errors24h: 0, calls24h: 0, lastSyncAt: null };
 
   return (
-    <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Integrações de parceiros</h1>
-        <p className="text-muted-foreground text-sm">Configure GymPass e TotalPass para validar check-ins externos.</p>
-      </div>
-
-      <div className="grid md:grid-cols-2 gap-6">
-        {(["gympass", "totalpass"] as ProviderKey[]).map((provider) => (
-          <ProviderCard
-            key={provider}
-            provider={provider}
-            existing={(intQ.data ?? []).find((r: any) => r.provider === provider)}
-            units={unitsQ.data ?? []}
-            webhookUrl={`${webhookBase}/api/public/dojo/partner-checkin/${provider}`}
-            onSaved={() => { intQ.refetch(); toast.success("Configuração salva"); }}
-            save={save}
+    <div className="dojo-theme p-6 space-y-6">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            <Plug className="h-6 w-6 text-primary" /> Central de Integrações
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            Conecte, configure, teste e monitore todos os serviços externos do AMT Dojo Manager.
+          </p>
+        </div>
+        <div className="relative w-full md:w-80">
+          <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Buscar por nome, fornecedor ou categoria..."
+            className="pl-9"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
           />
-        ))}
+        </div>
       </div>
 
-      <Card>
-        <CardHeader><CardTitle>Últimas validações externas</CardTitle></CardHeader>
+      {/* KPI Dashboard */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        <Kpi icon={Plug} label="Instaladas" value={m.installed} tone="default" />
+        <Kpi icon={CheckCircle2} label="Ativas" value={m.active} tone="success" />
+        <Kpi icon={XCircle} label="Inativas" value={m.inactive} tone="muted" />
+        <Kpi icon={AlertTriangle} label="Erros 24h" value={m.errors24h} tone={m.errors24h > 0 ? "danger" : "muted"} />
+        <Kpi icon={Activity} label="Chamadas 24h" value={m.calls24h} tone="default" />
+        <Kpi icon={Zap} label="Última sync" value={m.lastSyncAt ? relativeTime(m.lastSyncAt) : "—"} tone="default" small />
+      </div>
+
+      {/* Layout: sidebar + grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-6">
+        <aside className="space-y-1">
+          <CatItem active={cat === "all"} label="Todas" count={INTEGRATIONS.length} onClick={() => setCat("all")} />
+          {INTEGRATION_CATEGORIES.map((c) => (
+            <CatItem
+              key={c.id}
+              active={cat === c.id}
+              label={c.label}
+              hint={c.description}
+              count={INTEGRATIONS.filter((i) => i.category === c.id).length}
+              onClick={() => setCat(c.id)}
+            />
+          ))}
+        </aside>
+
+        <div>
+          {filtered.length === 0 ? (
+            <div className="rounded-xl border border-dashed p-10 text-center text-sm text-muted-foreground">
+              Nenhuma integração corresponde à sua busca.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              {filtered.map((def) => (
+                <IntegrationCard
+                  key={def.id}
+                  integration={def}
+                  status={statusFor(def)}
+                  onConfigure={() => {
+                    if (def.backend === "apis") {
+                      toast.info(`${def.name}: gerencie chaves e webhooks na seção APIs (em preparação).`);
+                      return;
+                    }
+                    setWizardFor(def);
+                  }}
+                  onTest={def.backend === "payments-gateway" || def.backend === "partner" ? () => handleQuickTest(def) : undefined}
+                  onLogs={def.backend === "partner" ? () => document.getElementById("logs-section")?.scrollIntoView({ behavior: "smooth" }) : undefined}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* API Keys & Webhooks quick section */}
+      <ApiKeysAndWebhooks />
+
+      {/* Logs */}
+      <Card id="logs-section">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Activity className="h-4 w-4" /> Logs recentes (parceiros de check-in)
+          </CardTitle>
+        </CardHeader>
         <CardContent>
           <div className="divide-y">
-            {(logQ.data ?? []).map((l: any) => (
+            {(logsQ.data ?? []).slice(0, 20).map((l: any) => (
               <div key={l.id} className="py-2 flex items-center justify-between text-sm">
                 <div>
-                  <div className="font-medium">{l.provider} · {l.external_user ?? "sem id"}</div>
-                  <div className="text-xs text-muted-foreground">{new Date(l.created_at).toLocaleString("pt-BR")} {l.reason ? `· ${l.reason}` : ""}</div>
+                  <div className="font-medium capitalize">{l.provider} · {l.external_user ?? "sem id"}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {new Date(l.created_at).toLocaleString("pt-BR")} {l.reason ? `· ${l.reason}` : ""}
+                  </div>
                 </div>
                 <Badge variant={l.status === "approved" ? "default" : "destructive"}>{l.status}</Badge>
               </div>
             ))}
-            {(logQ.data ?? []).length === 0 && <div className="py-4 text-sm text-muted-foreground">Nenhuma validação registrada.</div>}
+            {(logsQ.data ?? []).length === 0 && (
+              <div className="py-6 text-sm text-muted-foreground text-center">Nenhum evento registrado ainda.</div>
+            )}
           </div>
         </CardContent>
       </Card>
+
+      {wizardFor && (
+        <IntegrationWizard
+          open={!!wizardFor}
+          onOpenChange={(v) => !v && setWizardFor(null)}
+          integration={wizardFor}
+          onSubmit={(vals) => handleSubmit(wizardFor, vals)}
+          onTest={async (vals) => {
+            const r = await test({ data: { integrationId: wizardFor.id, credentials: vals } });
+            return r;
+          }}
+        />
+      )}
     </div>
   );
 }
 
-function ProviderCard({ provider, existing, units, webhookUrl, save, onSaved }: any) {
-  const [enabled, setEnabled] = useState(false);
-  const [apiKeyHint, setApiKeyHint] = useState("");
-  const [webhookSecret, setWebhookSecret] = useState("");
-  const [unitId, setUnitId] = useState<string>("");
+function Kpi({ icon: Icon, label, value, tone, small }: { icon: any; label: string; value: any; tone: "default" | "success" | "danger" | "muted"; small?: boolean }) {
+  const toneClass = {
+    default: "text-foreground",
+    success: "text-emerald-600 dark:text-emerald-400",
+    danger: "text-red-600 dark:text-red-400",
+    muted: "text-muted-foreground",
+  }[tone];
+  return (
+    <div className="rounded-xl border bg-card p-4">
+      <div className="flex items-center gap-2 text-xs text-muted-foreground uppercase tracking-wide">
+        <Icon className="h-3.5 w-3.5" />
+        {label}
+      </div>
+      <div className={cn("mt-1.5 font-bold", small ? "text-base" : "text-2xl", toneClass)}>{value}</div>
+    </div>
+  );
+}
 
-  useEffect(() => {
-    if (existing) {
-      setEnabled(!!existing.enabled);
-      setApiKeyHint(existing.api_key_hint ?? "");
-      setWebhookSecret(existing.webhook_secret ?? "");
-      setUnitId(existing.unit_id ?? "");
-    }
-  }, [existing?.id]);
+function CatItem({ label, hint, count, active, onClick }: { label: string; hint?: string; count: number; active: boolean; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "w-full rounded-lg border px-3 py-2 text-left transition",
+        active ? "border-primary bg-primary/5" : "border-transparent hover:bg-accent",
+      )}
+    >
+      <div className="flex items-center justify-between">
+        <span className={cn("text-sm font-medium", active && "text-primary")}>{label}</span>
+        <span className="text-[10px] text-muted-foreground">{count}</span>
+      </div>
+      {hint && <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">{hint}</p>}
+    </button>
+  );
+}
 
-  async function onSave() {
-    try {
-      await save({ data: {
-        provider,
-        enabled,
-        apiKeyHint: apiKeyHint || null,
-        webhookSecret: webhookSecret || null,
-        unitId: unitId || null,
-      }});
-      onSaved();
-    } catch (e: any) { toast.error(e.message); }
-  }
-
+function ApiKeysAndWebhooks() {
+  const base = typeof window !== "undefined" ? window.location.origin : "";
+  const endpoints = [
+    { name: "Check-in Gympass", url: `${base}/api/public/dojo/partner-checkin/gympass` },
+    { name: "Check-in TotalPass", url: `${base}/api/public/dojo/partner-checkin/totalpass` },
+    { name: "Webhook Mercado Pago", url: `${base}/api/public/hooks/mercadopago` },
+  ];
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="capitalize">{provider}</CardTitle>
-        <div className="flex items-center gap-2 text-sm">
-          <span className="text-muted-foreground">Ativo</span>
-          <Switch checked={enabled} onCheckedChange={setEnabled} />
-        </div>
+      <CardHeader>
+        <CardTitle className="text-base">Endpoints & Webhooks do sistema</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
-        <div>
-          <Label>Webhook URL</Label>
-          <Input readOnly value={webhookUrl} className="font-mono text-xs" />
-          <p className="text-xs text-muted-foreground mt-1">Cadastre esta URL no painel do parceiro.</p>
-        </div>
-        <div>
-          <Label>Segredo do webhook (HMAC)</Label>
-          <Input value={webhookSecret} onChange={(e) => setWebhookSecret(e.target.value)} placeholder="chave compartilhada" />
-        </div>
-        <div>
-          <Label>Referência da API key (dica)</Label>
-          <Input value={apiKeyHint} onChange={(e) => setApiKeyHint(e.target.value)} placeholder="ex: prod-2026 (identificador)" />
-        </div>
-        <div>
-          <Label>Unidade padrão</Label>
-          <Select value={unitId} onValueChange={setUnitId}>
-            <SelectTrigger><SelectValue placeholder="Selecionar" /></SelectTrigger>
-            <SelectContent>
-              {units.map((u: any) => <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
-        <Button onClick={onSave}>Salvar</Button>
+      <CardContent className="space-y-2">
+        {endpoints.map((e) => (
+          <div key={e.url} className="flex items-center gap-2 rounded-md border px-3 py-2">
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-medium">{e.name}</div>
+              <code className="text-[11px] text-muted-foreground truncate block">{e.url}</code>
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                navigator.clipboard.writeText(e.url);
+                toast.success("URL copiada");
+              }}
+            >
+              <Copy className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        ))}
+        <p className="text-xs text-muted-foreground mt-2">
+          Cole essas URLs nos painéis dos parceiros. As credenciais nunca são exibidas por completo após o salvamento.
+        </p>
       </CardContent>
     </Card>
   );
+}
+
+function relativeTime(iso: string) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return "agora";
+  if (m < 60) return `${m}min`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h`;
+  return `${Math.floor(h / 24)}d`;
 }
