@@ -44,6 +44,7 @@ function StudentDetail() {
   const [grad, setGrad] = useState({ belt_id: "", degree: 0, graduation_date: new Date().toISOString().slice(0,10), evaluator: "", notes: "" });
   const [enroll, setEnroll] = useState({ plan_id: "", custom_amount: "", due_day: 5, start_date: new Date().toISOString().slice(0,10), status: "active" as const });
   const [inv, setInv] = useState({ description: "", amount: "", due_date: new Date().toISOString().slice(0,10) });
+  const [previewCert, setPreviewCert] = useState<any | null>(null);
 
   const refresh = () => qc.invalidateQueries({ queryKey: ["dojo-student", id] });
 
