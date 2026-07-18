@@ -197,8 +197,10 @@ function IntegrationsHub() {
                   integration={def}
                   status={statusFor(def)}
                   onConfigure={() => {
+                    if (def.id === "api_keys") return setApiHubMode("keys");
+                    if (def.id === "webhooks") return setApiHubMode("webhooks");
                     if (def.backend === "apis") {
-                      toast.info(`${def.name}: gerencie chaves e webhooks na seção APIs (em preparação).`);
+                      toast.info(`${def.name}: em preparação.`);
                       return;
                     }
                     setWizardFor(def);
