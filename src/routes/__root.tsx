@@ -135,8 +135,27 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+const DOJO_HOST = "dojomanager.amtfightwear.com.br";
+
+function useDojoDomainRouting() {
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const { hostname, pathname, search, hash } = window.location;
+    // Off-domain access to /dojo/* → send to dedicated subdomain
+    if (hostname !== DOJO_HOST && pathname.startsWith("/dojo")) {
+      window.location.replace(`https://${DOJO_HOST}${pathname}${search}${hash}`);
+      return;
+    }
+    // On the dedicated subdomain, anything outside /dojo goes to /dojo
+    if (hostname === DOJO_HOST && !pathname.startsWith("/dojo")) {
+      window.location.replace(`https://${DOJO_HOST}/dojo${pathname === "/" ? "" : pathname}${search}${hash}`);
+    }
+  }, []);
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  useDojoDomainRouting();
 
   return (
     <QueryClientProvider client={queryClient}>
