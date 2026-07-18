@@ -26,6 +26,8 @@ const brl = (n: number) => Number(n || 0).toLocaleString("pt-BR", { style: "curr
 
 function StudentDetail() {
   const { id } = Route.useParams();
+  const navigate = useNavigate();
+  const delStudent = useServerFn(deleteDojoStudent);
   const getFn = useServerFn(getDojoStudent);
   const beltsFn = useServerFn(listDojoBelts);
   const plansFn = useServerFn(listDojoPlans);
