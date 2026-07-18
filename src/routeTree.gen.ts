@@ -25,6 +25,7 @@ import { Route as LojaCarrinhoRouteImport } from './routes/loja.carrinho'
 import { Route as LojaAtacadoRouteImport } from './routes/loja.atacado'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as DojoCheckoutRouteImport } from './routes/dojo.checkout'
+import { Route as DojoAuthRouteImport } from './routes/dojo.auth'
 import { Route as DojoAppRouteImport } from './routes/dojo.app'
 import { Route as ApiGenerateAdImageRouteImport } from './routes/api/generate-ad-image'
 import { Route as AuthenticatedUsersRouteImport } from './routes/_authenticated/users'
@@ -195,6 +196,11 @@ const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
 const DojoCheckoutRoute = DojoCheckoutRouteImport.update({
   id: '/checkout',
   path: '/checkout',
+  getParentRoute: () => DojoRoute,
+} as any)
+const DojoAuthRoute = DojoAuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => DojoRoute,
 } as any)
 const DojoAppRoute = DojoAppRouteImport.update({
@@ -726,6 +732,7 @@ export interface FileRoutesByFullPath {
   '/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
   '/dojo/app': typeof DojoAppRouteWithChildren
+  '/dojo/auth': typeof DojoAuthRoute
   '/dojo/checkout': typeof DojoCheckoutRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/loja/atacado': typeof LojaAtacadoRoute
@@ -834,6 +841,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsRoute
   '/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
+  '/dojo/auth': typeof DojoAuthRoute
   '/dojo/checkout': typeof DojoCheckoutRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/loja/atacado': typeof LojaAtacadoRoute
@@ -945,6 +953,7 @@ export interface FileRoutesById {
   '/_authenticated/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
   '/dojo/app': typeof DojoAppRouteWithChildren
+  '/dojo/auth': typeof DojoAuthRoute
   '/dojo/checkout': typeof DojoCheckoutRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/loja/atacado': typeof LojaAtacadoRoute
@@ -1056,6 +1065,7 @@ export interface FileRouteTypes {
     | '/users'
     | '/api/generate-ad-image'
     | '/dojo/app'
+    | '/dojo/auth'
     | '/dojo/checkout'
     | '/email/unsubscribe'
     | '/loja/atacado'
@@ -1164,6 +1174,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/users'
     | '/api/generate-ad-image'
+    | '/dojo/auth'
     | '/dojo/checkout'
     | '/email/unsubscribe'
     | '/loja/atacado'
@@ -1274,6 +1285,7 @@ export interface FileRouteTypes {
     | '/_authenticated/users'
     | '/api/generate-ad-image'
     | '/dojo/app'
+    | '/dojo/auth'
     | '/dojo/checkout'
     | '/email/unsubscribe'
     | '/loja/atacado'
@@ -1523,6 +1535,13 @@ declare module '@tanstack/react-router' {
       path: '/checkout'
       fullPath: '/dojo/checkout'
       preLoaderRoute: typeof DojoCheckoutRouteImport
+      parentRoute: typeof DojoRoute
+    }
+    '/dojo/auth': {
+      id: '/dojo/auth'
+      path: '/auth'
+      fullPath: '/dojo/auth'
+      preLoaderRoute: typeof DojoAuthRouteImport
       parentRoute: typeof DojoRoute
     }
     '/dojo/app': {
@@ -2352,11 +2371,13 @@ const DojoAppRouteWithChildren =
 
 interface DojoRouteChildren {
   DojoAppRoute: typeof DojoAppRouteWithChildren
+  DojoAuthRoute: typeof DojoAuthRoute
   DojoCheckoutRoute: typeof DojoCheckoutRoute
 }
 
 const DojoRouteChildren: DojoRouteChildren = {
   DojoAppRoute: DojoAppRouteWithChildren,
+  DojoAuthRoute: DojoAuthRoute,
   DojoCheckoutRoute: DojoCheckoutRoute,
 }
 
