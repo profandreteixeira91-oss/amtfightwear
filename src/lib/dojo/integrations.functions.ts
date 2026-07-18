@@ -51,7 +51,7 @@ export const testIntegrationConnection = createServerFn({ method: "POST" })
           const token = data.credentials?.access_token || (await loadStoredToken("asaas"));
           if (!token) return { ok: false, message: "API Key ausente" };
           const r = await fetch("https://api.asaas.com/v3/finance/balance", {
-            headers: { access_token: token },
+            headers: { access_token: token as string },
           });
           return { ok: r.ok, status: r.status, message: r.ok ? "API Key válida" : (await r.text()).slice(0, 200) };
         });
