@@ -175,6 +175,20 @@ export const Route = createFileRoute("/api/public/sales/chat")({
           // Save user message
           await saveMessage(sb, conversationId, "user", body.message);
 
+          // Se a conversa está em modo atendimento humano, não invoca IA.
+          const { data: convRow } = await sb
+            .from("sales_conversations")
+            .select("status")
+            .eq("id", conversationId)
+            .maybeSingle();
+          if (convRow?.status === "human") {
+            const receipt = "Sua mensagem foi encaminhada para nosso atendente. Assim que ele responder, você verá aqui mesmo. 🙌";
+            return new Response(receipt, {
+              status: 200,
+              headers: { "Content-Type": "text/plain; charset=utf-8", ...cors, "X-Conversation-Id": conversationId, "X-Mode": "human" },
+            });
+          }
+
           // Load KB
           const { data: kbRows } = await sb
             .from("sales_kb_articles")
