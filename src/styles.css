@@ -247,14 +247,34 @@
   background: var(--dojo-surface);
   border: 1px solid var(--dojo-border);
   border-radius: 12px;
-  box-shadow: var(--dojo-shadow-xs);
+  box-shadow: var(--dojo-shadow-sm);
   transition: box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1),
               border-color 200ms cubic-bezier(0.4, 0, 0.2, 1),
               transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 .dojo-theme .dojo-card:hover {
-  box-shadow: var(--dojo-shadow-sm);
+  box-shadow: var(--dojo-shadow-md);
   border-color: var(--dojo-border-strong);
+}
+
+/* Garante bordas suaves visíveis em qualquer card/painel/divisor do Dojo,
+   mesmo sem a classe utilitária .dojo-card. */
+.dojo-theme [data-slot="card"],
+.dojo-theme .rounded-lg.border,
+.dojo-theme .rounded-xl.border,
+.dojo-theme .rounded-2xl.border,
+.dojo-theme .rounded-md.border {
+  border-color: var(--dojo-border);
+  box-shadow: var(--dojo-shadow-xs);
+}
+.dojo-theme [data-slot="separator-root"],
+.dojo-theme hr {
+  background-color: var(--dojo-border);
+  border-color: var(--dojo-border);
+}
+.dojo-theme .divide-y > * + *,
+.dojo-theme .divide-x > * + * {
+  border-color: var(--dojo-border);
 }
 
 /* Accent KPI — solid red, no gradient noise */
