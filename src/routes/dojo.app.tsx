@@ -167,7 +167,7 @@ function DojoLayout() {
 
           <SidebarFooter className="border-t border-[color:var(--dojo-border)]/60">
             <div className="flex items-center gap-2 px-2 py-1.5">
-              <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-foreground text-background text-xs font-bold">
+              <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
                 {initial}
               </div>
               <div className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
