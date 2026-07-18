@@ -162,6 +162,10 @@ function useDojoDomainRouting() {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   useDojoDomainRouting();
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    void import("@/lib/pwa/register").then((m) => m.registerPwa());
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
