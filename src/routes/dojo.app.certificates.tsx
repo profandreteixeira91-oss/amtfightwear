@@ -146,15 +146,15 @@ function CertificatesPage() {
   const previewValues = useMemo(() => {
     const base: Record<string, string> = { ...systemValues() };
     ALL_VARIABLES.forEach((v) => { base[v.key] = v.sample ? v.sample : `[${v.label}]`; });
-    const s = students.data?.find((x: any) => x.id === previewStudentId);
+    const s: any = students.data?.find((x: any) => x.id === previewStudentId);
     if (s) {
       base.aluno_nome = s.full_name || base.aluno_nome;
-      base.aluno_nome_social = s.social_name || base.aluno_nome;
+      base.aluno_nome_social = s.social_name || s.full_name || base.aluno_nome;
       base.aluno_cpf = s.cpf || base.aluno_cpf;
       base.aluno_data_nascimento = s.birth_date ? new Date(s.birth_date).toLocaleDateString("pt-BR") : base.aluno_data_nascimento;
-      base.aluno_faixa = s.current_belt || base.aluno_faixa;
+      base.aluno_faixa = s.current_belt || s.current_belt_id || base.aluno_faixa;
       base.aluno_grau = String(s.current_degree ?? "") || base.aluno_grau;
-      base.aluno_modalidade = s.modality || base.aluno_modalidade;
+      base.aluno_modalidade = s.modality || s.discipline || base.aluno_modalidade;
       base.aluno_foto = s.photo_url || base.aluno_foto;
       base.student_name = base.aluno_nome; // compat
     }
