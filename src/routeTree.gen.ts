@@ -46,6 +46,7 @@ import { Route as LojaPedidoIdRouteImport } from './routes/loja.pedido.$id'
 import { Route as LojaCustomShopKindRouteImport } from './routes/loja.custom-shop.$kind'
 import { Route as LojaContaPedidosRouteImport } from './routes/loja.conta.pedidos'
 import { Route as LojaCategoriaSlugRouteImport } from './routes/loja.categoria.$slug'
+import { Route as DojoAppVideosRouteImport } from './routes/dojo.app.videos'
 import { Route as DojoAppUnitsRouteImport } from './routes/dojo.app.units'
 import { Route as DojoAppStudentsRouteImport } from './routes/dojo.app.students'
 import { Route as DojoAppScheduleRouteImport } from './routes/dojo.app.schedule'
@@ -103,10 +104,15 @@ import { Route as AuthenticatedAdsCopiesRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAdsConnectionsRouteImport } from './routes/_authenticated/ads.connections'
 import { Route as AuthenticatedAdsCampaignsRouteImport } from './routes/_authenticated/ads.campaigns'
 import { Route as AuthenticatedAdsAlertsRouteImport } from './routes/_authenticated/ads.alerts'
+import { Route as DojoAppVideosIndexRouteImport } from './routes/dojo.app.videos.index'
 import { Route as DojoAppStudentsIndexRouteImport } from './routes/dojo.app.students.index'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
+import { Route as DojoAppVideosNovoRouteImport } from './routes/dojo.app.videos.novo'
+import { Route as DojoAppVideosFavoritosRouteImport } from './routes/dojo.app.videos.favoritos'
+import { Route as DojoAppVideosCategoriasRouteImport } from './routes/dojo.app.videos.categorias'
+import { Route as DojoAppVideosIdRouteImport } from './routes/dojo.app.videos.$id'
 import { Route as DojoAppStudentsIdRouteImport } from './routes/dojo.app.students.$id'
 import { Route as ApiPublicSalesMessagesRouteImport } from './routes/api/public/sales/messages'
 import { Route as ApiPublicSalesChatRouteImport } from './routes/api/public/sales/chat'
@@ -309,6 +315,11 @@ const LojaCategoriaSlugRoute = LojaCategoriaSlugRouteImport.update({
   id: '/loja/categoria/$slug',
   path: '/loja/categoria/$slug',
   getParentRoute: () => rootRouteImport,
+} as any)
+const DojoAppVideosRoute = DojoAppVideosRouteImport.update({
+  id: '/videos',
+  path: '/videos',
+  getParentRoute: () => DojoAppRoute,
 } as any)
 const DojoAppUnitsRoute = DojoAppUnitsRouteImport.update({
   id: '/units',
@@ -630,6 +641,11 @@ const AuthenticatedAdsAlertsRoute = AuthenticatedAdsAlertsRouteImport.update({
   path: '/alerts',
   getParentRoute: () => AuthenticatedAdsRoute,
 } as any)
+const DojoAppVideosIndexRoute = DojoAppVideosIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DojoAppVideosRoute,
+} as any)
 const DojoAppStudentsIndexRoute = DojoAppStudentsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -653,6 +669,26 @@ const LovableEmailQueueProcessRoute =
     path: '/lovable/email/queue/process',
     getParentRoute: () => rootRouteImport,
   } as any)
+const DojoAppVideosNovoRoute = DojoAppVideosNovoRouteImport.update({
+  id: '/novo',
+  path: '/novo',
+  getParentRoute: () => DojoAppVideosRoute,
+} as any)
+const DojoAppVideosFavoritosRoute = DojoAppVideosFavoritosRouteImport.update({
+  id: '/favoritos',
+  path: '/favoritos',
+  getParentRoute: () => DojoAppVideosRoute,
+} as any)
+const DojoAppVideosCategoriasRoute = DojoAppVideosCategoriasRouteImport.update({
+  id: '/categorias',
+  path: '/categorias',
+  getParentRoute: () => DojoAppVideosRoute,
+} as any)
+const DojoAppVideosIdRoute = DojoAppVideosIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => DojoAppVideosRoute,
+} as any)
 const DojoAppStudentsIdRoute = DojoAppStudentsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -833,6 +869,7 @@ export interface FileRoutesByFullPath {
   '/dojo/app/schedule': typeof DojoAppScheduleRoute
   '/dojo/app/students': typeof DojoAppStudentsRouteWithChildren
   '/dojo/app/units': typeof DojoAppUnitsRoute
+  '/dojo/app/videos': typeof DojoAppVideosRouteWithChildren
   '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
   '/loja/conta/pedidos': typeof LojaContaPedidosRoute
   '/loja/custom-shop/$kind': typeof LojaCustomShopKindRoute
@@ -860,10 +897,15 @@ export interface FileRoutesByFullPath {
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
   '/api/public/sales/messages': typeof ApiPublicSalesMessagesRoute
   '/dojo/app/students/$id': typeof DojoAppStudentsIdRoute
+  '/dojo/app/videos/$id': typeof DojoAppVideosIdRoute
+  '/dojo/app/videos/categorias': typeof DojoAppVideosCategoriasRoute
+  '/dojo/app/videos/favoritos': typeof DojoAppVideosFavoritosRoute
+  '/dojo/app/videos/novo': typeof DojoAppVideosNovoRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/dojo/app/students/': typeof DojoAppStudentsIndexRoute
+  '/dojo/app/videos/': typeof DojoAppVideosIndexRoute
   '/api/public/dojo/partner-checkin/$provider': typeof ApiPublicDojoPartnerCheckinProviderRoute
 }
 export interface FileRoutesByTo {
@@ -973,10 +1015,15 @@ export interface FileRoutesByTo {
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
   '/api/public/sales/messages': typeof ApiPublicSalesMessagesRoute
   '/dojo/app/students/$id': typeof DojoAppStudentsIdRoute
+  '/dojo/app/videos/$id': typeof DojoAppVideosIdRoute
+  '/dojo/app/videos/categorias': typeof DojoAppVideosCategoriasRoute
+  '/dojo/app/videos/favoritos': typeof DojoAppVideosFavoritosRoute
+  '/dojo/app/videos/novo': typeof DojoAppVideosNovoRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/dojo/app/students': typeof DojoAppStudentsIndexRoute
+  '/dojo/app/videos': typeof DojoAppVideosIndexRoute
   '/api/public/dojo/partner-checkin/$provider': typeof ApiPublicDojoPartnerCheckinProviderRoute
 }
 export interface FileRoutesById {
@@ -1064,6 +1111,7 @@ export interface FileRoutesById {
   '/dojo/app/schedule': typeof DojoAppScheduleRoute
   '/dojo/app/students': typeof DojoAppStudentsRouteWithChildren
   '/dojo/app/units': typeof DojoAppUnitsRoute
+  '/dojo/app/videos': typeof DojoAppVideosRouteWithChildren
   '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
   '/loja/conta/pedidos': typeof LojaContaPedidosRoute
   '/loja/custom-shop/$kind': typeof LojaCustomShopKindRoute
@@ -1091,10 +1139,15 @@ export interface FileRoutesById {
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
   '/api/public/sales/messages': typeof ApiPublicSalesMessagesRoute
   '/dojo/app/students/$id': typeof DojoAppStudentsIdRoute
+  '/dojo/app/videos/$id': typeof DojoAppVideosIdRoute
+  '/dojo/app/videos/categorias': typeof DojoAppVideosCategoriasRoute
+  '/dojo/app/videos/favoritos': typeof DojoAppVideosFavoritosRoute
+  '/dojo/app/videos/novo': typeof DojoAppVideosNovoRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/dojo/app/students/': typeof DojoAppStudentsIndexRoute
+  '/dojo/app/videos/': typeof DojoAppVideosIndexRoute
   '/api/public/dojo/partner-checkin/$provider': typeof ApiPublicDojoPartnerCheckinProviderRoute
 }
 export interface FileRouteTypes {
@@ -1182,6 +1235,7 @@ export interface FileRouteTypes {
     | '/dojo/app/schedule'
     | '/dojo/app/students'
     | '/dojo/app/units'
+    | '/dojo/app/videos'
     | '/loja/categoria/$slug'
     | '/loja/conta/pedidos'
     | '/loja/custom-shop/$kind'
@@ -1209,10 +1263,15 @@ export interface FileRouteTypes {
     | '/api/public/sales/chat'
     | '/api/public/sales/messages'
     | '/dojo/app/students/$id'
+    | '/dojo/app/videos/$id'
+    | '/dojo/app/videos/categorias'
+    | '/dojo/app/videos/favoritos'
+    | '/dojo/app/videos/novo'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
     | '/dojo/app/students/'
+    | '/dojo/app/videos/'
     | '/api/public/dojo/partner-checkin/$provider'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -1322,10 +1381,15 @@ export interface FileRouteTypes {
     | '/api/public/sales/chat'
     | '/api/public/sales/messages'
     | '/dojo/app/students/$id'
+    | '/dojo/app/videos/$id'
+    | '/dojo/app/videos/categorias'
+    | '/dojo/app/videos/favoritos'
+    | '/dojo/app/videos/novo'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
     | '/dojo/app/students'
+    | '/dojo/app/videos'
     | '/api/public/dojo/partner-checkin/$provider'
   id:
     | '__root__'
@@ -1412,6 +1476,7 @@ export interface FileRouteTypes {
     | '/dojo/app/schedule'
     | '/dojo/app/students'
     | '/dojo/app/units'
+    | '/dojo/app/videos'
     | '/loja/categoria/$slug'
     | '/loja/conta/pedidos'
     | '/loja/custom-shop/$kind'
@@ -1439,10 +1504,15 @@ export interface FileRouteTypes {
     | '/api/public/sales/chat'
     | '/api/public/sales/messages'
     | '/dojo/app/students/$id'
+    | '/dojo/app/videos/$id'
+    | '/dojo/app/videos/categorias'
+    | '/dojo/app/videos/favoritos'
+    | '/dojo/app/videos/novo'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
     | '/dojo/app/students/'
+    | '/dojo/app/videos/'
     | '/api/public/dojo/partner-checkin/$provider'
   fileRoutesById: FileRoutesById
 }
@@ -1751,6 +1821,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/loja/categoria/$slug'
       preLoaderRoute: typeof LojaCategoriaSlugRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/dojo/app/videos': {
+      id: '/dojo/app/videos'
+      path: '/videos'
+      fullPath: '/dojo/app/videos'
+      preLoaderRoute: typeof DojoAppVideosRouteImport
+      parentRoute: typeof DojoAppRoute
     }
     '/dojo/app/units': {
       id: '/dojo/app/units'
@@ -2151,6 +2228,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdsAlertsRouteImport
       parentRoute: typeof AuthenticatedAdsRoute
     }
+    '/dojo/app/videos/': {
+      id: '/dojo/app/videos/'
+      path: '/'
+      fullPath: '/dojo/app/videos/'
+      preLoaderRoute: typeof DojoAppVideosIndexRouteImport
+      parentRoute: typeof DojoAppVideosRoute
+    }
     '/dojo/app/students/': {
       id: '/dojo/app/students/'
       path: '/'
@@ -2178,6 +2262,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/lovable/email/queue/process'
       preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/dojo/app/videos/novo': {
+      id: '/dojo/app/videos/novo'
+      path: '/novo'
+      fullPath: '/dojo/app/videos/novo'
+      preLoaderRoute: typeof DojoAppVideosNovoRouteImport
+      parentRoute: typeof DojoAppVideosRoute
+    }
+    '/dojo/app/videos/favoritos': {
+      id: '/dojo/app/videos/favoritos'
+      path: '/favoritos'
+      fullPath: '/dojo/app/videos/favoritos'
+      preLoaderRoute: typeof DojoAppVideosFavoritosRouteImport
+      parentRoute: typeof DojoAppVideosRoute
+    }
+    '/dojo/app/videos/categorias': {
+      id: '/dojo/app/videos/categorias'
+      path: '/categorias'
+      fullPath: '/dojo/app/videos/categorias'
+      preLoaderRoute: typeof DojoAppVideosCategoriasRouteImport
+      parentRoute: typeof DojoAppVideosRoute
+    }
+    '/dojo/app/videos/$id': {
+      id: '/dojo/app/videos/$id'
+      path: '/$id'
+      fullPath: '/dojo/app/videos/$id'
+      preLoaderRoute: typeof DojoAppVideosIdRouteImport
+      parentRoute: typeof DojoAppVideosRoute
     }
     '/dojo/app/students/$id': {
       id: '/dojo/app/students/$id'
@@ -2454,6 +2566,26 @@ const DojoAppStudentsRouteWithChildren = DojoAppStudentsRoute._addFileChildren(
   DojoAppStudentsRouteChildren,
 )
 
+interface DojoAppVideosRouteChildren {
+  DojoAppVideosIdRoute: typeof DojoAppVideosIdRoute
+  DojoAppVideosCategoriasRoute: typeof DojoAppVideosCategoriasRoute
+  DojoAppVideosFavoritosRoute: typeof DojoAppVideosFavoritosRoute
+  DojoAppVideosNovoRoute: typeof DojoAppVideosNovoRoute
+  DojoAppVideosIndexRoute: typeof DojoAppVideosIndexRoute
+}
+
+const DojoAppVideosRouteChildren: DojoAppVideosRouteChildren = {
+  DojoAppVideosIdRoute: DojoAppVideosIdRoute,
+  DojoAppVideosCategoriasRoute: DojoAppVideosCategoriasRoute,
+  DojoAppVideosFavoritosRoute: DojoAppVideosFavoritosRoute,
+  DojoAppVideosNovoRoute: DojoAppVideosNovoRoute,
+  DojoAppVideosIndexRoute: DojoAppVideosIndexRoute,
+}
+
+const DojoAppVideosRouteWithChildren = DojoAppVideosRoute._addFileChildren(
+  DojoAppVideosRouteChildren,
+)
+
 interface DojoAppRouteChildren {
   DojoAppAccountRoute: typeof DojoAppAccountRoute
   DojoAppCertificatesRoute: typeof DojoAppCertificatesRoute
@@ -2467,6 +2599,7 @@ interface DojoAppRouteChildren {
   DojoAppScheduleRoute: typeof DojoAppScheduleRoute
   DojoAppStudentsRoute: typeof DojoAppStudentsRouteWithChildren
   DojoAppUnitsRoute: typeof DojoAppUnitsRoute
+  DojoAppVideosRoute: typeof DojoAppVideosRouteWithChildren
   DojoAppIndexRoute: typeof DojoAppIndexRoute
 }
 
@@ -2483,6 +2616,7 @@ const DojoAppRouteChildren: DojoAppRouteChildren = {
   DojoAppScheduleRoute: DojoAppScheduleRoute,
   DojoAppStudentsRoute: DojoAppStudentsRouteWithChildren,
   DojoAppUnitsRoute: DojoAppUnitsRoute,
+  DojoAppVideosRoute: DojoAppVideosRouteWithChildren,
   DojoAppIndexRoute: DojoAppIndexRoute,
 }
 

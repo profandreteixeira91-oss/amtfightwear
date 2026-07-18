@@ -33,6 +33,7 @@ import {
   UserCircle,
   CalendarDays,
   Trophy,
+  Film,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
