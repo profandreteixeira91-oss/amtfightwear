@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import {
   listCertificateTemplates, saveCertificateTemplate, deleteCertificateTemplate,
-  listStudents,
+  listDojoStudents,
 } from "@/lib/dojo/dojo.functions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
