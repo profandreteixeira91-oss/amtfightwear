@@ -121,10 +121,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
+const DOJO_HOST = "dojomanager.amtfightwear.com.br";
+
+const DOMAIN_ROUTING_SCRIPT = `(function(){try{var h=location.hostname,p=location.pathname,s=location.search||"",x=location.hash||"";if(h!=="${DOJO_HOST}"&&p.indexOf("/dojo")===0){location.replace("https://${DOJO_HOST}"+p+s+x);return;}if(h==="${DOJO_HOST}"&&p.indexOf("/dojo")!==0){location.replace("https://${DOJO_HOST}/dojo"+(p==="/"?"":p)+s+x);}}catch(e){}})();`;
+
 function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: DOMAIN_ROUTING_SCRIPT }} />
         <HeadContent />
       </head>
       <body>
