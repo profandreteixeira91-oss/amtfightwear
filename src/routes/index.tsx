@@ -70,12 +70,12 @@ function StoreHomePage() {
                 <div className="text-[10px] font-bold uppercase tracking-[0.28em] text-primary">Fight Wear</div>
               </div>
             </div>
-            <div className="text-xs font-bold uppercase tracking-[0.3em] text-primary">AMT Fight Wear</div>
+            <div className="text-xs font-bold uppercase tracking-[0.3em] text-primary">Loja oficial · AMT Fight Wear</div>
             <h1 className="mt-3 text-4xl font-black leading-tight sm:text-6xl">
-              Vestido para <span className="text-primary">vencer</span> no tatame.
+              Equipamento oficial para <span className="text-primary">jiu-jitsu, judô</span> e artes marciais.
             </h1>
             <p className="mt-4 max-w-lg text-base text-background/80">
-              Kimonos, rashguards, faixas e acessórios desenvolvidos para atletas exigentes. Produtos de alta performance com garantia AMT.
+              A AMT Fight Wear é fabricante de kimonos, rashguards, faixas e acessórios de alta performance. Compre direto da fábrica, com envio para todo o Brasil, parcelamento em 10x e a opção de personalizar sua peça no Custom Shop.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link to="/loja/categoria/$slug" params={{ slug: categories[0]?.slug ?? "kimonos" }} className="rounded-md bg-primary px-6 py-3 font-semibold text-primary-foreground hover:opacity-90">
