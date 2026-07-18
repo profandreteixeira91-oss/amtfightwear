@@ -202,7 +202,7 @@ function AccountPage() {
               academy={academy}
               setAcademy={setAcademy}
               onSave={saveAcademy}
-              onLog={(a, m) => logAudit(a, m)}
+              onLog={(a: string, m: any) => logAudit(a, m)}
             />
           )}
           {tab === "subscription" && (
@@ -509,7 +509,7 @@ function BrandTab({ academy, setAcademy, onSave, onLog }: any) {
               onPick={() => sigRef.current?.click()}
               onRemove={() => setAcademy({ ...academy, signature_url: null })}
               inputRef={sigRef}
-              onChange={(f) => uploadAsset(f, "signature")}
+              onChange={(f: File) => uploadAsset(f, "signature")}
             />
             <BrandAssetBlock
               title="Carimbo oficial / Selo"
@@ -517,7 +517,7 @@ function BrandTab({ academy, setAcademy, onSave, onLog }: any) {
               onPick={() => stampRef.current?.click()}
               onRemove={() => setAcademy({ ...academy, stamp_url: null })}
               inputRef={stampRef}
-              onChange={(f) => uploadAsset(f, "stamp")}
+              onChange={(f: File) => uploadAsset(f, "stamp")}
             />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -553,7 +553,7 @@ function BrandAssetBlock({ title, url, onPick, onRemove, inputRef, onChange }: a
         <Button size="sm" variant="outline" onClick={onPick}><Upload className="h-3 w-3 mr-1" />Enviar</Button>
         {url && <Button size="sm" variant="outline" onClick={onRemove}><Trash2 className="h-3 w-3 mr-1" />Remover</Button>}
         <input ref={inputRef} type="file" accept="image/*" className="hidden"
-          onChange={(e) => e.target.files?.[0] && onChange(e.target.files[0])} />
+          onChange={(e: any) => e.target.files?.[0] && onChange(e.target.files[0])} />
       </div>
     </div>
   );
