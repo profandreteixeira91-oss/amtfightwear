@@ -65,7 +65,7 @@ export const listDojoStudents = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("dojo_students")
-      .select("*, unit:dojo_units(name), belt:dojo_belts(name,color_hex)")
+      .select("*, unit:dojo_units(name), belt:dojo_belts(name,color_hex,stripe_hex,max_degrees)")
       .order("full_name");
     if (error) throw new Error(error.message);
     return data ?? [];
@@ -79,7 +79,7 @@ export const getDojoStudent = createServerFn({ method: "GET" })
       .from("dojo_students").select("*").eq("id", data.id).single();
     if (error) throw new Error(error.message);
     const [grads, enrolls, invoices, certs] = await Promise.all([
-      context.supabase.from("dojo_graduations").select("*, belt:dojo_belts(name,color_hex)").eq("student_id", data.id).order("graduation_date", { ascending: false }),
+      context.supabase.from("dojo_graduations").select("*, belt:dojo_belts(name,color_hex,stripe_hex,max_degrees)").eq("student_id", data.id).order("graduation_date", { ascending: false }),
       context.supabase.from("dojo_enrollments").select("*, plan:dojo_plans(name,amount)").eq("student_id", data.id),
       context.supabase.from("dojo_invoices").select("*").eq("student_id", data.id).order("due_date", { ascending: false }).limit(50),
       context.supabase.from("dojo_certificates").select("*").eq("student_id", data.id).order("issued_at", { ascending: false }),
