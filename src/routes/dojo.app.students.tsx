@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   listDojoStudents,
   saveDojoStudent,
@@ -134,6 +134,19 @@ function StudentsPage() {
   const q = useQuery({ queryKey: ["dojo-students"], queryFn: () => listFn() });
   const belts = useQuery({ queryKey: ["dojo-belts"], queryFn: () => beltsFn() });
   const units = useQuery({ queryKey: ["dojo-units"], queryFn: () => unitsFn() });
+
+  useEffect(() => {
+    if (!q.data) return;
+    let editId: string | null = null;
+    try { editId = sessionStorage.getItem("dojo-edit-student"); } catch {}
+    if (!editId) return;
+    const target = (q.data as any[]).find((s) => s.id === editId);
+    if (target) {
+      openEdit(target);
+      try { sessionStorage.removeItem("dojo-edit-student"); } catch {}
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [q.data]);
 
   const filtered = (q.data ?? []).filter((s: any) => {
     const okS = status === "all" || s.status === status;
