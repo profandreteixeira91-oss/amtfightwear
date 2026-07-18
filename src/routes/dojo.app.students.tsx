@@ -135,6 +135,19 @@ function StudentsPage() {
   const belts = useQuery({ queryKey: ["dojo-belts"], queryFn: () => beltsFn() });
   const units = useQuery({ queryKey: ["dojo-units"], queryFn: () => unitsFn() });
 
+  useEffect(() => {
+    if (!q.data) return;
+    let editId: string | null = null;
+    try { editId = sessionStorage.getItem("dojo-edit-student"); } catch {}
+    if (!editId) return;
+    const target = (q.data as any[]).find((s) => s.id === editId);
+    if (target) {
+      openEdit(target);
+      try { sessionStorage.removeItem("dojo-edit-student"); } catch {}
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [q.data]);
+
   const filtered = (q.data ?? []).filter((s: any) => {
     const okS = status === "all" || s.status === status;
     const okQ =
