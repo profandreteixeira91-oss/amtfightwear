@@ -1327,6 +1327,504 @@ export type Database = {
         }
         Relationships: []
       }
+      dojo_belts: {
+        Row: {
+          category: string
+          color_hex: string
+          created_at: string
+          id: string
+          max_degrees: number
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          category?: string
+          color_hex?: string
+          created_at?: string
+          id?: string
+          max_degrees?: number
+          name: string
+          sort_order: number
+        }
+        Update: {
+          category?: string
+          color_hex?: string
+          created_at?: string
+          id?: string
+          max_degrees?: number
+          name?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      dojo_certificate_templates: {
+        Row: {
+          active: boolean
+          background_url: string
+          created_at: string
+          fields: Json
+          height: number
+          id: string
+          name: string
+          updated_at: string
+          width: number
+        }
+        Insert: {
+          active?: boolean
+          background_url: string
+          created_at?: string
+          fields?: Json
+          height?: number
+          id?: string
+          name: string
+          updated_at?: string
+          width?: number
+        }
+        Update: {
+          active?: boolean
+          background_url?: string
+          created_at?: string
+          fields?: Json
+          height?: number
+          id?: string
+          name?: string
+          updated_at?: string
+          width?: number
+        }
+        Relationships: []
+      }
+      dojo_certificates: {
+        Row: {
+          created_at: string
+          graduation_id: string | null
+          id: string
+          issued_at: string
+          pdf_url: string | null
+          public_hash: string
+          student_id: string
+          template_id: string | null
+          values: Json
+        }
+        Insert: {
+          created_at?: string
+          graduation_id?: string | null
+          id?: string
+          issued_at?: string
+          pdf_url?: string | null
+          public_hash?: string
+          student_id: string
+          template_id?: string | null
+          values?: Json
+        }
+        Update: {
+          created_at?: string
+          graduation_id?: string | null
+          id?: string
+          issued_at?: string
+          pdf_url?: string | null
+          public_hash?: string
+          student_id?: string
+          template_id?: string | null
+          values?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_certificates_graduation_id_fkey"
+            columns: ["graduation_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_graduations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_certificates_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_certificates_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_certificate_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_enrollments: {
+        Row: {
+          created_at: string
+          custom_amount: number | null
+          due_day: number
+          end_date: string | null
+          id: string
+          plan_id: string
+          start_date: string
+          status: string
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          custom_amount?: number | null
+          due_day?: number
+          end_date?: string | null
+          id?: string
+          plan_id: string
+          start_date?: string
+          status?: string
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          custom_amount?: number | null
+          due_day?: number
+          end_date?: string | null
+          id?: string
+          plan_id?: string
+          start_date?: string
+          status?: string
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_enrollments_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_enrollments_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_expenses: {
+        Row: {
+          amount: number
+          category: string | null
+          created_at: string
+          description: string
+          due_date: string
+          id: string
+          paid_at: string | null
+          status: string
+          unit_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          category?: string | null
+          created_at?: string
+          description: string
+          due_date: string
+          id?: string
+          paid_at?: string | null
+          status?: string
+          unit_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          category?: string | null
+          created_at?: string
+          description?: string
+          due_date?: string
+          id?: string
+          paid_at?: string | null
+          status?: string
+          unit_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_expenses_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_graduations: {
+        Row: {
+          belt_id: string
+          created_at: string
+          degree: number
+          evaluator: string | null
+          graduation_date: string
+          id: string
+          notes: string | null
+          student_id: string
+        }
+        Insert: {
+          belt_id: string
+          created_at?: string
+          degree?: number
+          evaluator?: string | null
+          graduation_date?: string
+          id?: string
+          notes?: string | null
+          student_id: string
+        }
+        Update: {
+          belt_id?: string
+          created_at?: string
+          degree?: number
+          evaluator?: string | null
+          graduation_date?: string
+          id?: string
+          notes?: string | null
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_graduations_belt_id_fkey"
+            columns: ["belt_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_belts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_graduations_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_invoices: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string | null
+          due_date: string
+          enrollment_id: string | null
+          id: string
+          method: string | null
+          paid_at: string | null
+          payment_id: string | null
+          payment_link: string | null
+          payment_provider: string | null
+          status: string
+          student_id: string
+          unit_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description?: string | null
+          due_date: string
+          enrollment_id?: string | null
+          id?: string
+          method?: string | null
+          paid_at?: string | null
+          payment_id?: string | null
+          payment_link?: string | null
+          payment_provider?: string | null
+          status?: string
+          student_id: string
+          unit_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string | null
+          due_date?: string
+          enrollment_id?: string | null
+          id?: string
+          method?: string | null
+          paid_at?: string | null
+          payment_id?: string | null
+          payment_link?: string | null
+          payment_provider?: string | null
+          status?: string
+          student_id?: string
+          unit_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_invoices_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_invoices_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_invoices_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_plans: {
+        Row: {
+          active: boolean
+          amount: number
+          created_at: string
+          duration_days: number
+          id: string
+          name: string
+          unit_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          amount: number
+          created_at?: string
+          duration_days?: number
+          id?: string
+          name: string
+          unit_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          amount?: number
+          created_at?: string
+          duration_days?: number
+          id?: string
+          name?: string
+          unit_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_plans_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_students: {
+        Row: {
+          address: string | null
+          birth_date: string | null
+          cpf: string | null
+          created_at: string
+          current_belt_id: string | null
+          current_degree: number
+          email: string | null
+          full_name: string
+          guardian_name: string | null
+          guardian_phone: string | null
+          id: string
+          notes: string | null
+          phone: string | null
+          photo_url: string | null
+          status: string
+          unit_id: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          address?: string | null
+          birth_date?: string | null
+          cpf?: string | null
+          created_at?: string
+          current_belt_id?: string | null
+          current_degree?: number
+          email?: string | null
+          full_name: string
+          guardian_name?: string | null
+          guardian_phone?: string | null
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          photo_url?: string | null
+          status?: string
+          unit_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          address?: string | null
+          birth_date?: string | null
+          cpf?: string | null
+          created_at?: string
+          current_belt_id?: string | null
+          current_degree?: number
+          email?: string | null
+          full_name?: string
+          guardian_name?: string | null
+          guardian_phone?: string | null
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          photo_url?: string | null
+          status?: string
+          unit_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_students_current_belt_id_fkey"
+            columns: ["current_belt_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_belts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_students_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_units: {
+        Row: {
+          active: boolean
+          address: string | null
+          created_at: string
+          id: string
+          name: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          address?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          address?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       email_send_log: {
         Row: {
           created_at: string
