@@ -140,6 +140,7 @@ function StoreChatAdmin() {
       {tab === "config" && <ChatSettingsPanel />}
       {tab === "kb" && <ChatKbPanel />}
       {tab === "conversas" && (
+        <div className="grid h-[70vh] grid-cols-1 gap-4 lg:grid-cols-[320px_1fr]">
         <aside className="flex min-h-0 flex-col rounded-lg border bg-card">
           <div className="flex items-center gap-1 border-b p-2 text-xs">
             {(["all", "human", "active", "closed"] as const).map((k) => (
