@@ -121,6 +121,7 @@ export const checkinByCode = createServerFn({ method: "POST" })
         unit_id: data.unitId ?? student.unit_id ?? null,
         method: /^\d+$/.test(code) ? "pin" : "qr",
         created_by: context.userId,
+        owner_id: context.userId,
       })
       .select("id")
       .single();
