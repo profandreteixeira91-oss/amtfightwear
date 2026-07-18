@@ -139,15 +139,10 @@ function DojoLayout() {
       <SidebarProvider>
         <Sidebar collapsible="icon" className="border-r border-[color:var(--dojo-border)]">
           <SidebarHeader className="border-b border-[color:var(--dojo-border)]/60">
-            <div className="flex items-center gap-2 px-2 py-1.5">
-              <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground font-black">
-                A
-              </div>
-              <div className="min-w-0 group-data-[collapsible=icon]:hidden">
-                <div className="font-display text-sm font-bold tracking-tight leading-tight">AMT Dojo</div>
-                <div className="text-[11px] text-muted-foreground leading-tight">Manager</div>
-              </div>
-            </div>
+            <Link to="/dojo" className="flex items-center gap-2 px-2 py-1.5">
+              <DojoLogo className="h-10 w-auto shrink-0" />
+              <span className="sr-only">AMT Dojo Manager</span>
+            </Link>
           </SidebarHeader>
 
           <SidebarContent>

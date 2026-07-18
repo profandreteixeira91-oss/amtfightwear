@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Shield } from "lucide-react";
+import { DojoLogo } from "@/components/dojo/DojoLogo";
 import { z } from "zod";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -84,8 +84,8 @@ function DojoAuthPage() {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex flex-col">
       <header className="border-b bg-background/60 backdrop-blur">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <Link to="/dojo" className="flex items-center gap-2 font-bold">
-            <Shield className="h-5 w-5 text-primary" /> AMT Dojo Manager
+          <Link to="/dojo" className="flex items-center gap-2" aria-label="AMT Dojo Manager">
+            <DojoLogo className="h-10 w-auto" />
           </Link>
           <Link to="/dojo" className="text-sm text-muted-foreground hover:text-foreground">
             ← Voltar
