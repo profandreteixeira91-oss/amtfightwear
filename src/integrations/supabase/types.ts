@@ -1471,44 +1471,75 @@ export type Database = {
       dojo_attendance: {
         Row: {
           checked_in_at: string
+          checked_out_at: string | null
+          class_id: string | null
           created_at: string
           created_by: string | null
+          device: string | null
           external_user: string | null
           id: string
+          ip_address: string | null
           method: string
           notes: string | null
           owner_id: string
           source: string | null
+          status: string
           student_id: string | null
           unit_id: string | null
+          visitor_name: string | null
+          visitor_origin: string | null
+          visitor_phone: string | null
         }
         Insert: {
           checked_in_at?: string
+          checked_out_at?: string | null
+          class_id?: string | null
           created_at?: string
           created_by?: string | null
+          device?: string | null
           external_user?: string | null
           id?: string
+          ip_address?: string | null
           method?: string
           notes?: string | null
           owner_id: string
           source?: string | null
+          status?: string
           student_id?: string | null
           unit_id?: string | null
+          visitor_name?: string | null
+          visitor_origin?: string | null
+          visitor_phone?: string | null
         }
         Update: {
           checked_in_at?: string
+          checked_out_at?: string | null
+          class_id?: string | null
           created_at?: string
           created_by?: string | null
+          device?: string | null
           external_user?: string | null
           id?: string
+          ip_address?: string | null
           method?: string
           notes?: string | null
           owner_id?: string
           source?: string | null
+          status?: string
           student_id?: string | null
           unit_id?: string | null
+          visitor_name?: string | null
+          visitor_origin?: string | null
+          visitor_phone?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "dojo_attendance_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_classes"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "dojo_attendance_student_id_fkey"
             columns: ["student_id"]
@@ -1669,6 +1700,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      dojo_checkin_settings: {
+        Row: {
+          allow_multiple_daily: boolean
+          block_on_overdue: boolean
+          created_at: string
+          extras: Json
+          kiosk_pin: string | null
+          min_interval_minutes: number
+          owner_id: string
+          require_checkout: boolean
+          require_partner_validation: boolean
+          updated_at: string
+          warn_on_medical: boolean
+          warn_on_overdue: boolean
+          welcome_message: string | null
+        }
+        Insert: {
+          allow_multiple_daily?: boolean
+          block_on_overdue?: boolean
+          created_at?: string
+          extras?: Json
+          kiosk_pin?: string | null
+          min_interval_minutes?: number
+          owner_id: string
+          require_checkout?: boolean
+          require_partner_validation?: boolean
+          updated_at?: string
+          warn_on_medical?: boolean
+          warn_on_overdue?: boolean
+          welcome_message?: string | null
+        }
+        Update: {
+          allow_multiple_daily?: boolean
+          block_on_overdue?: boolean
+          created_at?: string
+          extras?: Json
+          kiosk_pin?: string | null
+          min_interval_minutes?: number
+          owner_id?: string
+          require_checkout?: boolean
+          require_partner_validation?: boolean
+          updated_at?: string
+          warn_on_medical?: boolean
+          warn_on_overdue?: boolean
+          welcome_message?: string | null
+        }
+        Relationships: []
       }
       dojo_class_occurrences: {
         Row: {
