@@ -210,5 +210,3 @@ function CheckinCodesCard({ student, onUpdated }: { student: any; onUpdated: () 
     </Card>
   );
 }
-
-}
