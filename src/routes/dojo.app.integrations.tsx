@@ -21,7 +21,7 @@ import { IntegrationWizard } from "@/components/dojo/integrations/IntegrationWiz
 
 import { listMyGateways, upsertMyGateway } from "@/lib/dojo/gateways.functions";
 import { listPartnerIntegrations, savePartnerIntegration, listPartnerCheckins } from "@/lib/dojo/attendance.functions";
-import { testIntegrationConnection, getIntegrationsMetrics } from "@/lib/dojo/integrations.functions";
+import { testIntegrationConnection, getIntegrationsMetrics, getMyOwnerId } from "@/lib/dojo/integrations.functions";
 
 export const Route = createFileRoute("/dojo/app/integrations")({
   head: () => ({ meta: [{ title: "Central de Integrações — AMT Dojo Manager" }] }),
@@ -293,23 +293,53 @@ function CatItem({ label, hint, count, active, onClick }: { label: string; hint?
 }
 
 function ApiKeysAndWebhooks() {
-  const base = typeof window !== "undefined" ? window.location.origin : "";
-  const endpoints = [
-    { name: "Check-in Gympass", url: `${base}/api/public/dojo/partner-checkin/gympass` },
-    { name: "Check-in TotalPass", url: `${base}/api/public/dojo/partner-checkin/totalpass` },
-    { name: "Webhook Mercado Pago", url: `${base}/api/public/hooks/mercadopago` },
-  ];
+  const getOwner = useServerFn(getMyOwnerId);
+  const ownerQ = useQuery({ queryKey: ["dojo-owner-id"], queryFn: () => getOwner() });
+  const ownerId = ownerQ.data?.ownerId;
+
+  // URL pública estável do dojo (independe do preview) para o parceiro conseguir chamar.
+  const PUBLIC_BASE = "https://dojomanager.amtfightwear.com.br";
+
+  const endpoints = ownerId
+    ? [
+        {
+          name: "Check-in Gympass",
+          hint: "Cole no painel Gympass como URL de validação de check-in",
+          url: `${PUBLIC_BASE}/api/public/dojo/partner-checkin/gympass?owner=${ownerId}`,
+        },
+        {
+          name: "Check-in TotalPass",
+          hint: "Cole no painel TotalPass como URL de validação de check-in",
+          url: `${PUBLIC_BASE}/api/public/dojo/partner-checkin/totalpass?owner=${ownerId}`,
+        },
+        {
+          name: "Webhook Mercado Pago",
+          hint: "Configure em Mercado Pago → Suas integrações → Webhooks (eventos: payment)",
+          url: `${PUBLIC_BASE}/api/public/hooks/mercadopago?owner=${ownerId}`,
+        },
+      ]
+    : [];
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Endpoints & Webhooks do sistema</CardTitle>
+        <CardTitle className="text-base">Seus Webhooks pessoais</CardTitle>
+        <p className="text-xs text-muted-foreground">
+          Cada dono tem URLs próprias, escopadas ao seu dojo. Cole nas configurações do parceiro para que os eventos cheguem apenas na sua conta.
+        </p>
       </CardHeader>
       <CardContent className="space-y-2">
+        {!ownerId && (
+          <div className="rounded-md border border-dashed p-4 text-sm text-muted-foreground text-center">
+            Carregando seus endpoints…
+          </div>
+        )}
         {endpoints.map((e) => (
           <div key={e.url} className="flex items-center gap-2 rounded-md border px-3 py-2">
             <div className="flex-1 min-w-0">
               <div className="text-sm font-medium">{e.name}</div>
               <code className="text-[11px] text-muted-foreground truncate block">{e.url}</code>
+              <div className="text-[11px] text-muted-foreground mt-0.5">{e.hint}</div>
             </div>
             <Button
               size="sm"
@@ -324,7 +354,7 @@ function ApiKeysAndWebhooks() {
           </div>
         ))}
         <p className="text-xs text-muted-foreground mt-2">
-          Cole essas URLs nos painéis dos parceiros. As credenciais nunca são exibidas por completo após o salvamento.
+          Reforço de segurança: defina também um <strong>Webhook Secret</strong> no wizard de cada integração. As requisições assinadas serão validadas por HMAC antes de qualquer efeito.
         </p>
       </CardContent>
     </Card>

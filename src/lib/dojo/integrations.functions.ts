@@ -101,3 +101,7 @@ export const getIntegrationsMetrics = createServerFn({ method: "GET" })
 
     return { installed, active, inactive, errors24h, calls24h, lastSyncAt };
   });
+
+export const getMyOwnerId = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => ({ ownerId: context.userId as string }));
