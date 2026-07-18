@@ -208,7 +208,7 @@ export function CompetitionDetailSheet({ competitionId, onOpenChange, onEdit }: 
                     <Info icon={<MapPin className="h-4 w-4" />} label="Local" value={[c.venue_name, c.address, [c.city, c.state].filter(Boolean).join("/")].filter(Boolean).join(" — ") || "—"} />
                     <Info icon={<DollarSign className="h-4 w-4" />} label="Inscrição" value={c.entry_fee ? Number(c.entry_fee).toLocaleString("pt-BR", { style: "currency", currency: c.currency || "BRL" }) : "—"} />
                     <Info label="Organizador" value={c.organizer || "—"} />
-                    <Info label="Categorias" value={(c.categories ?? []).join(", ") || "—"} />
+                    <Info label="Categorias" value={(Array.isArray(c.categories) ? (c.categories as string[]) : []).join(", ") || "—"} />
                   </div>
 
                   {c.description && (
