@@ -89,6 +89,34 @@ function StoreHomePage() {
         </div>
       </section>
 
+      {/* Finalidade do app — descrição clara do propósito */}
+      <section aria-labelledby="sobre-o-app" className="border-b bg-card">
+        <div className="mx-auto max-w-7xl px-4 py-10">
+          <div className="grid gap-6 md:grid-cols-3">
+            <div className="md:col-span-1">
+              <div className="text-[11px] font-bold uppercase tracking-[0.3em] text-primary">Sobre este site</div>
+              <h2 id="sobre-o-app" className="mt-2 text-2xl font-black leading-tight sm:text-3xl">
+                O que é a Loja AMT Fight Wear?
+              </h2>
+            </div>
+            <div className="md:col-span-2 space-y-3 text-sm text-muted-foreground sm:text-base">
+              <p>
+                Este é o <strong className="text-foreground">e-commerce oficial da AMT Fight Wear</strong>, fabricante brasileira de artigos para artes marciais. O aplicativo permite que praticantes, academias e lojistas <strong className="text-foreground">naveguem pelo catálogo, personalizem peças no Custom Shop, calculem frete, façam pedidos no varejo ou atacado e acompanhem o status de cada compra</strong> em uma conta protegida.
+              </p>
+              <p>
+                Vendemos <strong className="text-foreground">kimonos, rashguards, faixas de jiu-jitsu e judô, shorts e acessórios</strong> produzidos em nossa fábrica. Todo o processo — do carrinho ao pagamento seguro via Mercado Pago, com envio rastreado para todo o Brasil — acontece dentro deste site.
+              </p>
+              <ul className="grid gap-2 pt-2 sm:grid-cols-2">
+                <li className="flex gap-2"><span className="text-primary">✓</span> Compra direto da fábrica, sem intermediários</li>
+                <li className="flex gap-2"><span className="text-primary">✓</span> Custom Shop para peças 100% personalizadas</li>
+                <li className="flex gap-2"><span className="text-primary">✓</span> Área do cliente com histórico de pedidos</li>
+                <li className="flex gap-2"><span className="text-primary">✓</span> Atendimento humano no chat da loja</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {(() => {
         const pick = [
           ...data.kimonos.slice(0, 2),
