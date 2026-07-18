@@ -36,7 +36,8 @@ export function BeltVisual({
   trim,
 }: BeltVisualProps) {
   const n = (name ?? "").trim();
-  const isBlack = /^preta$/i.test(n);
+  // "Preta 1 a 6 graus" is the only preta variant with the red tip (graus).
+  const isBlack = /^preta\s*1\s*a\s*6/i.test(n);
   const isRedBlack = /^vermelha e preta$/i.test(n);
   const isRedWhite = /^vermelha e branca$/i.test(n);
   const isRedSolid = /^vermelha$/i.test(n);
