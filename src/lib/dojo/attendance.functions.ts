@@ -181,10 +181,11 @@ export const savePartnerIntegration = createServerFn({ method: "POST" })
       webhook_secret: data.webhookSecret ?? null,
       unit_id: data.unitId ?? null,
       config: (data.config ?? {}) as any,
+      owner_id: context.userId,
     };
     const { error } = await context.supabase
       .from("dojo_partner_integrations")
-      .upsert(payload as any, { onConflict: "provider" });
+      .upsert(payload as any, { onConflict: "owner_id,provider" });
 
     if (error) throw new Error(error.message);
     return { ok: true };
