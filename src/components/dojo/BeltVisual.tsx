@@ -89,7 +89,7 @@ export function BeltVisual({
           {Array.from({ length: stripes }).map((_, i) => (
             <div
               key={i}
-              className="h-5 w-[3px] rounded-sm"
+              className="h-full w-[3px] rounded-sm"
               style={{ background: stripeColor, boxShadow: "0 0 0 0.5px rgba(0,0,0,0.4)" }}
             />
           ))}
