@@ -37,12 +37,16 @@ export function BeltVisual({
 }: BeltVisualProps) {
   const n = (name ?? "").trim();
   // "Preta 1 a 6 graus" is the only preta variant with the red tip (graus).
-  const isBlack = /^preta\s*1\s*a\s*6/i.test(n);
+  // "Preta com aparador" and "Preta 1 a 6 graus" both use the red tip section.
+  const isBlackAparador = /^preta\s+com\s+aparador/i.test(n);
+  const isBlackDegrees = /^preta\s*1\s*a\s*6/i.test(n);
+  const isBlack = isBlackAparador || isBlackDegrees;
   const isRedBlack = /^vermelha e preta$/i.test(n);
   const isRedWhite = /^vermelha e branca$/i.test(n);
   const isRedSolid = /^vermelha$/i.test(n);
   const isHighRank = isRedBlack || isRedWhite || isRedSolid;
-  const isTrim = trim ?? /aparador/i.test(n);
+  // Don't render top/bottom trim on the black "com aparador" — its aparador is the red tip.
+  const isTrim = (trim ?? /aparador/i.test(n)) && !isBlackAparador;
 
   // Special layout for the three top-tier belts
   if (isHighRank) {
