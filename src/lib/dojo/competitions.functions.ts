@@ -146,16 +146,37 @@ function findLocation(text: string): { city: string | null; state: string | null
   return { city: null, state: null };
 }
 
-const NAV_NOISE = /^(home|início|inicio|menu|login|entrar|cadastro|calendar|calendário|calendario|events|eventos|about|sobre|contact|contato|blog|shop|loja|search|buscar|read more|leia mais|ver mais|see more|next|previous|próxim|anterior|inscrições|inscricoes|register|sign in|sign up|newsletter|privacy|terms|cookies|português|english|espanhol)$/i;
+const NAV_NOISE = /^(home|início|inicio|menu|login|entrar|cadastro|calendar|calendário|calendario|events|eventos|about|sobre|contact|contato|blog|shop|loja|search|buscar|read more|leia mais|ver mais|saiba mais|see more|next|previous|próxim|anterior|inscrições|inscricoes|inscreva-se|inscrever-se|register|registrar|sign in|sign up|newsletter|privacy|terms|cookies|português|english|espanhol|facebook|instagram|youtube|twitter|whatsapp|telegram|linkedin|tiktok|download|baixar|app|aplicativo|voltar|back|share|compartilhar|resultados|results|ranking|ao vivo|live|mais|more|clique aqui|click here)$/i;
+
+const IMAGE_EXT_RE = /\.(png|jpe?g|gif|webp|svg|bmp|tiff?|avif)(\?|#|$)/i;
 
 function looksLikeEvent(text: string): boolean {
   if (!text) return false;
   const t = text.trim();
   if (t.length < 6 || t.length > 160) return false;
+  if (t.startsWith("!")) return false; // link contendo imagem
   if (NAV_NOISE.test(t)) return false;
   if (/^\d+$/.test(t)) return false;
   if (!/[a-zA-ZÀ-ÿ]/.test(t)) return false;
+  // nomes de eventos costumam ter ao menos duas palavras
+  if (!/\s/.test(t)) return false;
   return true;
+}
+
+function isEventUrl(url: string, baseHost: string): boolean {
+  if (IMAGE_EXT_RE.test(url)) return false;
+  try {
+    const u = new URL(url);
+    if (/(facebook|instagram|youtube|youtu\.be|twitter|x\.com|whatsapp|telegram|linkedin|tiktok)\./i.test(u.hostname)) return false;
+    if (/\/(wp-content|assets|static|images?|img|media|uploads?|thumbs?)\//i.test(u.pathname)) return false;
+    if (baseHost) {
+      const root = baseHost.replace(/^www\./, "").split(".").slice(-2).join(".");
+      if (!u.hostname.replace(/^www\./, "").endsWith(root)) return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 type ParsedEvent = {
@@ -170,16 +191,19 @@ function parseMarkdown(md: string, baseUrl: string): ParsedEvent[] {
   const lines = md.split(/\r?\n/);
   const out: ParsedEvent[] = [];
   const seen = new Set<string>();
+  let baseHost = "";
+  try { baseHost = new URL(baseUrl).hostname; } catch { /* ignore */ }
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    const linkRe = /\[([^\]]{4,160})\]\((https?:\/\/[^\s)]+)\)/g;
+    // Não capta links de imagem: [![alt](img)](url) — o texto começa com "!"
+    const linkRe = /\[([^\]!][^\]]{3,160})\]\((https?:\/\/[^\s)]+)\)/g;
     let mm: RegExpExecArray | null;
     while ((mm = linkRe.exec(line)) !== null) {
       const name = mm[1].replace(/[*_`]/g, "").trim();
       const url = mm[2];
       if (!looksLikeEvent(name)) continue;
-      // Contexto: 2 linhas antes e 3 depois — datas costumam ficar próximas.
+      if (!isEventUrl(url, baseHost)) continue;
       const ctx = [lines[i - 2], lines[i - 1], line, lines[i + 1], lines[i + 2], lines[i + 3]]
         .filter(Boolean).join(" \n ");
       const date = findDate(ctx) ?? findDate(name);
@@ -187,20 +211,14 @@ function parseMarkdown(md: string, baseUrl: string): ParsedEvent[] {
       const key = url.split("#")[0];
       if (seen.has(key)) continue;
       seen.add(key);
-      out.push({
-        name,
-        url,
-        starts_at: date,
-        city: loc.city,
-        state: loc.state,
-      });
+      out.push({ name, url, starts_at: date, city: loc.city, state: loc.state });
     }
   }
 
-  // Prioriza eventos com data futura; mantém demais depois.
+  // Mantém apenas eventos com data futura reconhecida — corta o ruído restante.
   const now = Date.now();
   return out
-    .filter((e) => !e.starts_at || new Date(e.starts_at).getTime() >= now - 24 * 3600 * 1000)
+    .filter((e) => e.starts_at && new Date(e.starts_at).getTime() >= now - 24 * 3600 * 1000)
     .slice(0, 80);
 }
 
