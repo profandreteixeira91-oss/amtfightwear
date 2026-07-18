@@ -125,29 +125,46 @@ export function IntegrationWizard({
 
           {hasFields && (
             <div className="space-y-3 border-t pt-3">
-              {current.fields!.map((f) => (
-                <div key={f.key}>
-                  <Label className="text-sm">
-                    {f.label}
-                    {f.optional && <span className="text-muted-foreground text-xs ml-1">(opcional)</span>}
-                  </Label>
-                  <Input
-                    type={f.secret ? "password" : "text"}
-                    placeholder={f.placeholder}
-                    value={values[f.key] ?? ""}
-                    onChange={(e) => setValues((v) => ({ ...v, [f.key]: e.target.value }))}
-                    className={f.secret ? "font-mono" : ""}
-                    autoComplete="off"
-                  />
-                  {f.help && <p className="text-xs text-muted-foreground mt-1">{f.help}</p>}
-                </div>
-              ))}
+              {current.fields!.map((f) => {
+                const val = values[f.key] ?? "";
+                const invalid = !f.optional && !val.trim();
+                return (
+                  <div key={f.key}>
+                    <Label className="text-sm">
+                      {f.label}
+                      {f.optional ? (
+                        <span className="text-muted-foreground text-xs ml-1">(opcional)</span>
+                      ) : (
+                        <span className="text-red-500 ml-1">*</span>
+                      )}
+                    </Label>
+                    <Input
+                      type={f.secret ? "password" : "text"}
+                      placeholder={f.placeholder}
+                      value={val}
+                      onChange={(e) => setValues((v) => ({ ...v, [f.key]: e.target.value }))}
+                      className={cn(f.secret ? "font-mono" : "", invalid && "border-red-500/60 focus-visible:ring-red-500/40")}
+                      autoComplete="off"
+                      aria-invalid={invalid}
+                    />
+                    {f.help && <p className="text-xs text-muted-foreground mt-1">{f.help}</p>}
+                    {invalid && <p className="text-xs text-red-500 mt-1">Campo obrigatório</p>}
+                  </div>
+                );
+              })}
             </div>
+          )}
+
+          {stepInvalid && (
+            <p className="text-xs text-red-500">
+              Preencha todos os campos obrigatórios para continuar.
+            </p>
           )}
 
           {step === steps.length - 2 && onTest && (
             <div className="border-t pt-3">
-              <Button onClick={handleTest} disabled={testing} variant="secondary" size="sm">
+              <Button onClick={handleTest} disabled={testing || stepInvalid} variant="secondary" size="sm">
+
                 {testing ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : null}
                 Testar conexão agora
               </Button>
