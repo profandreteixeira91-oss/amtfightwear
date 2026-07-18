@@ -56,14 +56,69 @@ export const Route = createFileRoute("/api/public/hooks/mercadopago")({
         const paymentId = String(payload?.data?.id ?? dataId ?? "");
         if (!paymentId) return new Response("ok");
 
-        // Ignora tópicos não-pagamento (merchant_order, plan, etc.)
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+        // ============================================================
+        // FLUXO A: Assinaturas SaaS (Preapproval) — token AMT
+        // ============================================================
+        if (String(type).includes("preapproval") || String(type).includes("subscription")) {
+          if (!accessToken) return new Response("ok");
+          const res = await fetch(`https://api.mercadopago.com/preapproval/${paymentId}`, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          });
+          if (!res.ok) return new Response("ok");
+          const pre = await res.json();
+          const extRef = String(pre.external_reference ?? "");
+          const subLocalId = extRef.startsWith("dojo_sub:") ? extRef.slice("dojo_sub:".length) : null;
+          const patch: Record<string, any> = { last_event: pre };
+          if (pre.status === "authorized") patch.status = "active";
+          else if (pre.status === "paused") patch.status = "paused";
+          else if (pre.status === "cancelled") {
+            patch.status = "cancelled";
+            patch.cancelled_at = new Date().toISOString();
+          }
+          if (pre.next_payment_date) patch.current_period_end = pre.next_payment_date;
+          if (subLocalId) {
+            await supabaseAdmin.from("dojo_subscriptions").update(patch as never).eq("id", subLocalId);
+          } else {
+            await supabaseAdmin
+              .from("dojo_subscriptions")
+              .update(patch as never)
+              .eq("mp_preapproval_id", String(pre.id));
+          }
+          return new Response("ok");
+        }
+
+        // Ignora outros tópicos não-pagamento (merchant_order, plan, etc.)
         if (type && !String(type).includes("payment")) return new Response("ok");
 
-        if (!accessToken) return new Response("ok");
+        // ============================================================
+        // FLUXO B: Pagamentos avulsos (loja + Pix de mensalidades)
+        // ============================================================
+        // Descobre qual token usar: se o external_reference for de dojo_invoice,
+        // busca o token do dono; senão usa o accessToken global (loja AMT).
+        let effectiveToken = accessToken;
+        // Primeiro tenta identificar a fatura pelo payment_id local (para descobrir o dono)
+        const { data: preInv } = await supabaseAdmin
+          .from("dojo_invoices")
+          .select("owner_id")
+          .eq("payment_id", paymentId)
+          .maybeSingle();
+        if (preInv?.owner_id) {
+          const { data: gw } = await supabaseAdmin
+            .from("dojo_payment_gateways")
+            .select("access_token")
+            .eq("owner_id", preInv.owner_id)
+            .eq("provider", "mercadopago")
+            .eq("active", true)
+            .maybeSingle();
+          if (gw?.access_token) effectiveToken = gw.access_token;
+        }
+        if (!effectiveToken) return new Response("ok");
 
         // Busca o pagamento na API para obter status e externalReference
         const res = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
-          headers: { Authorization: `Bearer ${accessToken}` },
+          headers: { Authorization: `Bearer ${effectiveToken}` },
         });
         if (!res.ok) return new Response("ok");
         const payment = await res.json();
@@ -71,7 +126,6 @@ export const Route = createFileRoute("/api/public/hooks/mercadopago")({
         const status = String(payment.status ?? "").toLowerCase();
         const orderId = payment.external_reference ?? null;
 
-        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const patch: Record<string, any> = { payment_raw: payment };
 
         if (status === "approved") {
