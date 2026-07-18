@@ -171,7 +171,6 @@ function CertificatesPage() {
               <div className="text-xs text-muted-foreground">{t.fields?.length ?? 0} campos</div>
               <div className="flex gap-2">
                 <Button size="sm" variant="outline" onClick={() => setEditing(t)}>Editar</Button>
-                <Button size="sm" onClick={() => startIssue(t)}>Emitir</Button>
                 <Button size="icon" variant="ghost" onClick={async () => { if (confirm("Excluir modelo?")) { await delFn({ data: { id: t.id } }); qc.invalidateQueries({ queryKey: ["dojo-templates"] }); } }}><Trash2 className="h-4 w-4 text-destructive" /></Button>
               </div>
             </CardContent>
@@ -179,27 +178,7 @@ function CertificatesPage() {
         ))}
         {(templates.data ?? []).length === 0 && <div className="text-sm text-muted-foreground p-6">Nenhum modelo. Envie sua arte de referência para começar.</div>}
       </div>
-
-      {issue && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setIssue(null)}>
-          <Card className="max-w-lg w-full" onClick={e => e.stopPropagation()}>
-            <CardHeader><CardTitle>Emitir certificado</CardTitle></CardHeader>
-            <CardContent className="space-y-3">
-              <select className="border rounded p-2 bg-background w-full" value={issue.student_id} onChange={e => setIssue({ ...issue, student_id: e.target.value })}>
-                <option value="">Selecione o aluno</option>
-                {(students.data ?? []).map((s: any) => <option key={s.id} value={s.id}>{s.full_name}</option>)}
-              </select>
-              {Object.keys(issue.values).map(k => (
-                <Input key={k} placeholder={k} value={issue.values[k]} onChange={e => setIssue({ ...issue, values: { ...issue.values, [k]: e.target.value } })} />
-              ))}
-              <div className="flex gap-2 justify-end">
-                <Button variant="ghost" onClick={() => setIssue(null)}>Cancelar</Button>
-                <Button onClick={doIssue}>Emitir</Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+      <p className="text-xs text-muted-foreground">Para emitir certificados, use a aba <strong>Nova graduação</strong>.</p>
     </div>
   );
 }
