@@ -277,7 +277,13 @@ function StudentDetail() {
             {q.data.invoices.map((i: any) => (
               <div key={i.id} className="flex items-center justify-between p-2 border-b last:border-0 text-sm gap-2">
                 <div className="flex-1 min-w-0 truncate">{i.description} · {brl(i.amount)} · venc. {i.due_date}</div>
-                <span className={`text-xs px-2 py-0.5 rounded ${i.status === "paid" ? "bg-green-100 text-green-800" : i.status === "overdue" ? "bg-red-100 text-red-800" : "bg-amber-100 text-amber-800"}`}>{i.status}</span>
+                {(() => {
+                  const isOverdue = i.status === "pending" && i.due_date && new Date(i.due_date) < new Date(new Date().toDateString());
+                  const effective = i.status === "paid" ? "paid" : isOverdue ? "overdue" : i.status;
+                  const label = effective === "paid" ? "Paga" : effective === "overdue" ? "Vencida" : "Pendente";
+                  const cls = effective === "paid" ? "bg-green-100 text-green-800" : effective === "overdue" ? "bg-red-100 text-red-800" : "bg-amber-100 text-amber-800";
+                  return <span className={`text-xs px-2 py-0.5 rounded ${cls}`}>{label}</span>;
+                })()}
                 {i.status !== "paid" && <Button size="sm" variant="outline" onClick={async () => { await payInv({ data: { id: i.id, method: "cash" } }); refresh(); }}>Marcar pago</Button>}
                 <Button size="icon" variant="ghost" onClick={async () => { await delInv({ data: { id: i.id } }); refresh(); }}><Trash2 className="h-4 w-4 text-destructive" /></Button>
               </div>
