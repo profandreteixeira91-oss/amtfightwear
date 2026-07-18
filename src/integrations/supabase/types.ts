@@ -1739,6 +1739,302 @@ export type Database = {
           },
         ]
       }
+      dojo_competition_athletes: {
+        Row: {
+          age_group: string | null
+          belt: string | null
+          category: string | null
+          competition_id: string
+          created_at: string
+          id: string
+          notes: string | null
+          owner_id: string
+          registered_at: string
+          registered_by: string | null
+          status: Database["public"]["Enums"]["competition_athlete_status"]
+          student_id: string
+          updated_at: string
+          weight: number | null
+        }
+        Insert: {
+          age_group?: string | null
+          belt?: string | null
+          category?: string | null
+          competition_id: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          owner_id: string
+          registered_at?: string
+          registered_by?: string | null
+          status?: Database["public"]["Enums"]["competition_athlete_status"]
+          student_id: string
+          updated_at?: string
+          weight?: number | null
+        }
+        Update: {
+          age_group?: string | null
+          belt?: string | null
+          category?: string | null
+          competition_id?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          owner_id?: string
+          registered_at?: string
+          registered_by?: string | null
+          status?: Database["public"]["Enums"]["competition_athlete_status"]
+          student_id?: string
+          updated_at?: string
+          weight?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_competition_athletes_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_competitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_competition_athletes_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_competition_attachments: {
+        Row: {
+          competition_id: string
+          created_at: string
+          id: string
+          kind: string | null
+          name: string
+          owner_id: string
+          url: string
+        }
+        Insert: {
+          competition_id: string
+          created_at?: string
+          id?: string
+          kind?: string | null
+          name: string
+          owner_id: string
+          url: string
+        }
+        Update: {
+          competition_id?: string
+          created_at?: string
+          id?: string
+          kind?: string | null
+          name?: string
+          owner_id?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_competition_attachments_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_competitions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_competition_medals: {
+        Row: {
+          athlete_id: string
+          category: string | null
+          competition_id: string
+          created_at: string
+          id: string
+          medal: string
+          owner_id: string
+        }
+        Insert: {
+          athlete_id: string
+          category?: string | null
+          competition_id: string
+          created_at?: string
+          id?: string
+          medal: string
+          owner_id: string
+        }
+        Update: {
+          athlete_id?: string
+          category?: string | null
+          competition_id?: string
+          created_at?: string
+          id?: string
+          medal?: string
+          owner_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_competition_medals_athlete_id_fkey"
+            columns: ["athlete_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_competition_athletes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_competition_medals_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_competitions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_competition_results: {
+        Row: {
+          athlete_id: string
+          competition_id: string
+          created_at: string
+          id: string
+          matches_lost: number | null
+          matches_won: number | null
+          notes: string | null
+          owner_id: string
+          placement: number | null
+          updated_at: string
+        }
+        Insert: {
+          athlete_id: string
+          competition_id: string
+          created_at?: string
+          id?: string
+          matches_lost?: number | null
+          matches_won?: number | null
+          notes?: string | null
+          owner_id: string
+          placement?: number | null
+          updated_at?: string
+        }
+        Update: {
+          athlete_id?: string
+          competition_id?: string
+          created_at?: string
+          id?: string
+          matches_lost?: number | null
+          matches_won?: number | null
+          notes?: string | null
+          owner_id?: string
+          placement?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_competition_results_athlete_id_fkey"
+            columns: ["athlete_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_competition_athletes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_competition_results_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_competitions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_competitions: {
+        Row: {
+          address: string | null
+          age_groups: Json
+          banner_url: string | null
+          belts: Json
+          categories: Json
+          city: string | null
+          country: string | null
+          created_at: string
+          currency: string | null
+          description: string | null
+          ends_at: string | null
+          entry_fee: number | null
+          external_id: string | null
+          external_url: string | null
+          id: string
+          modality: string | null
+          name: string
+          organizer: string | null
+          owner_id: string
+          provider: Database["public"]["Enums"]["competition_provider"]
+          registration_deadline: string | null
+          source_data: Json
+          starts_at: string | null
+          state: string | null
+          status: string
+          updated_at: string
+          venue_name: string | null
+          with_gi: boolean | null
+        }
+        Insert: {
+          address?: string | null
+          age_groups?: Json
+          banner_url?: string | null
+          belts?: Json
+          categories?: Json
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          ends_at?: string | null
+          entry_fee?: number | null
+          external_id?: string | null
+          external_url?: string | null
+          id?: string
+          modality?: string | null
+          name: string
+          organizer?: string | null
+          owner_id: string
+          provider?: Database["public"]["Enums"]["competition_provider"]
+          registration_deadline?: string | null
+          source_data?: Json
+          starts_at?: string | null
+          state?: string | null
+          status?: string
+          updated_at?: string
+          venue_name?: string | null
+          with_gi?: boolean | null
+        }
+        Update: {
+          address?: string | null
+          age_groups?: Json
+          banner_url?: string | null
+          belts?: Json
+          categories?: Json
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          ends_at?: string | null
+          entry_fee?: number | null
+          external_id?: string | null
+          external_url?: string | null
+          id?: string
+          modality?: string | null
+          name?: string
+          organizer?: string | null
+          owner_id?: string
+          provider?: Database["public"]["Enums"]["competition_provider"]
+          registration_deadline?: string | null
+          source_data?: Json
+          starts_at?: string | null
+          state?: string | null
+          status?: string
+          updated_at?: string
+          venue_name?: string | null
+          with_gi?: boolean | null
+        }
+        Relationships: []
+      }
       dojo_enrollments: {
         Row: {
           created_at: string
@@ -5186,6 +5482,25 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      competition_athlete_status:
+        | "pre_registered"
+        | "registered"
+        | "payment_pending"
+        | "confirmed"
+        | "cancelled"
+      competition_provider:
+        | "manual"
+        | "smoothcomp"
+        | "sou_competidor"
+        | "bjj_tour"
+        | "ibjjf"
+        | "uaejjf"
+        | "cbjj"
+        | "cbjje"
+        | "fjjrio"
+        | "fpjjb"
+        | "fjjsp"
+        | "other"
       prospect_contact_channel:
         | "email"
         | "whatsapp"
@@ -5344,6 +5659,27 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      competition_athlete_status: [
+        "pre_registered",
+        "registered",
+        "payment_pending",
+        "confirmed",
+        "cancelled",
+      ],
+      competition_provider: [
+        "manual",
+        "smoothcomp",
+        "sou_competidor",
+        "bjj_tour",
+        "ibjjf",
+        "uaejjf",
+        "cbjj",
+        "cbjje",
+        "fjjrio",
+        "fpjjb",
+        "fjjsp",
+        "other",
+      ],
       prospect_contact_channel: [
         "email",
         "whatsapp",
