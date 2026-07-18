@@ -103,6 +103,7 @@ import { Route as AuthenticatedAdsCopiesRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAdsConnectionsRouteImport } from './routes/_authenticated/ads.connections'
 import { Route as AuthenticatedAdsCampaignsRouteImport } from './routes/_authenticated/ads.campaigns'
 import { Route as AuthenticatedAdsAlertsRouteImport } from './routes/_authenticated/ads.alerts'
+import { Route as DojoAppStudentsIndexRouteImport } from './routes/dojo.app.students.index'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
@@ -629,6 +630,11 @@ const AuthenticatedAdsAlertsRoute = AuthenticatedAdsAlertsRouteImport.update({
   path: '/alerts',
   getParentRoute: () => AuthenticatedAdsRoute,
 } as any)
+const DojoAppStudentsIndexRoute = DojoAppStudentsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DojoAppStudentsRoute,
+} as any)
 const LovableEmailTransactionalSendRoute =
   LovableEmailTransactionalSendRouteImport.update({
     id: '/lovable/email/transactional/send',
@@ -857,6 +863,7 @@ export interface FileRoutesByFullPath {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/dojo/app/students/': typeof DojoAppStudentsIndexRoute
   '/api/public/dojo/partner-checkin/$provider': typeof ApiPublicDojoPartnerCheckinProviderRoute
 }
 export interface FileRoutesByTo {
@@ -938,7 +945,6 @@ export interface FileRoutesByTo {
   '/dojo/app/integrations': typeof DojoAppIntegrationsRoute
   '/dojo/app/plans': typeof DojoAppPlansRoute
   '/dojo/app/schedule': typeof DojoAppScheduleRoute
-  '/dojo/app/students': typeof DojoAppStudentsRouteWithChildren
   '/dojo/app/units': typeof DojoAppUnitsRoute
   '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
   '/loja/conta/pedidos': typeof LojaContaPedidosRoute
@@ -970,6 +976,7 @@ export interface FileRoutesByTo {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/dojo/app/students': typeof DojoAppStudentsIndexRoute
   '/api/public/dojo/partner-checkin/$provider': typeof ApiPublicDojoPartnerCheckinProviderRoute
 }
 export interface FileRoutesById {
@@ -1087,6 +1094,7 @@ export interface FileRoutesById {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/dojo/app/students/': typeof DojoAppStudentsIndexRoute
   '/api/public/dojo/partner-checkin/$provider': typeof ApiPublicDojoPartnerCheckinProviderRoute
 }
 export interface FileRouteTypes {
@@ -1204,6 +1212,7 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/dojo/app/students/'
     | '/api/public/dojo/partner-checkin/$provider'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -1285,7 +1294,6 @@ export interface FileRouteTypes {
     | '/dojo/app/integrations'
     | '/dojo/app/plans'
     | '/dojo/app/schedule'
-    | '/dojo/app/students'
     | '/dojo/app/units'
     | '/loja/categoria/$slug'
     | '/loja/conta/pedidos'
@@ -1317,6 +1325,7 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/dojo/app/students'
     | '/api/public/dojo/partner-checkin/$provider'
   id:
     | '__root__'
@@ -1433,6 +1442,7 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/dojo/app/students/'
     | '/api/public/dojo/partner-checkin/$provider'
   fileRoutesById: FileRoutesById
 }
@@ -2141,6 +2151,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdsAlertsRouteImport
       parentRoute: typeof AuthenticatedAdsRoute
     }
+    '/dojo/app/students/': {
+      id: '/dojo/app/students/'
+      path: '/'
+      fullPath: '/dojo/app/students/'
+      preLoaderRoute: typeof DojoAppStudentsIndexRouteImport
+      parentRoute: typeof DojoAppStudentsRoute
+    }
     '/lovable/email/transactional/send': {
       id: '/lovable/email/transactional/send'
       path: '/lovable/email/transactional/send'
@@ -2425,10 +2442,12 @@ const AuthenticatedRouteRouteWithChildren =
 
 interface DojoAppStudentsRouteChildren {
   DojoAppStudentsIdRoute: typeof DojoAppStudentsIdRoute
+  DojoAppStudentsIndexRoute: typeof DojoAppStudentsIndexRoute
 }
 
 const DojoAppStudentsRouteChildren: DojoAppStudentsRouteChildren = {
   DojoAppStudentsIdRoute: DojoAppStudentsIdRoute,
+  DojoAppStudentsIndexRoute: DojoAppStudentsIndexRoute,
 }
 
 const DojoAppStudentsRouteWithChildren = DojoAppStudentsRoute._addFileChildren(
