@@ -15,7 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/dojo/app/app/students/$id")({
+export const Route = createFileRoute("/_authenticated/dojo/app/students/$id")({
   component: StudentDetail,
 });
 
@@ -78,7 +78,7 @@ function StudentDetail() {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
-        <Link to="/dojo/students" className="text-sm text-muted-foreground hover:underline">← Alunos</Link>
+        <Link to="/dojo/app/students" className="text-sm text-muted-foreground hover:underline">← Alunos</Link>
       </div>
       <Card>
         <CardHeader><CardTitle>{s.full_name}</CardTitle></CardHeader>

@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { toast } from "sonner";
 import { Trash2, Pencil, UserPlus } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/dojo/app/app/students")({
+export const Route = createFileRoute("/_authenticated/dojo/app/students")({
   component: StudentsPage,
 });
 
@@ -114,7 +114,7 @@ function StudentsPage() {
               </div>
             </div>
             <span className={`text-xs px-2 py-0.5 rounded ${s.status === "active" ? "bg-green-100 text-green-800" : "bg-muted"}`}>{s.status}</span>
-            <Link to="/dojo/students/$id" params={{ id: s.id }}><Button size="sm" variant="outline">Abrir</Button></Link>
+            <Link to="/dojo/app/students/$id" params={{ id: s.id }}><Button size="sm" variant="outline">Abrir</Button></Link>
             <Button size="icon" variant="ghost" onClick={() => { setForm(s); setOpen(true); }}><Pencil className="h-4 w-4" /></Button>
             <Button size="icon" variant="ghost" onClick={() => onDelete(s.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
           </div>

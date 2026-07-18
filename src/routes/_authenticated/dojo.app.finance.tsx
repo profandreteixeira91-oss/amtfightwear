@@ -14,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/dojo/app/app/finance")({
+export const Route = createFileRoute("/_authenticated/dojo/app/finance")({
   component: FinancePage,
 });
 

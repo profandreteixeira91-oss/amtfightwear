@@ -17,7 +17,7 @@ import {
 } from "@/lib/dojo/attendance.functions";
 import { listDojoUnits } from "@/lib/dojo/dojo.functions";
 
-export const Route = createFileRoute("/_authenticated/dojo/app/app/integrations")({
+export const Route = createFileRoute("/_authenticated/dojo/app/integrations")({
   component: DojoIntegrations,
   errorComponent: ({ error }) => <div className="p-6 text-red-500">{error.message}</div>,
   notFoundComponent: () => <div className="p-6">Não encontrado</div>,

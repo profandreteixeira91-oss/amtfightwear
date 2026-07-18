@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { listDojoStudents } from "@/lib/dojo/dojo.functions";
 
-export const Route = createFileRoute("/_authenticated/dojo/app/app/graduations")({
+export const Route = createFileRoute("/_authenticated/dojo/app/graduations")({
   component: GraduationsPage,
 });
 
@@ -17,7 +17,7 @@ function GraduationsPage() {
       <p className="text-sm text-muted-foreground mb-4">Abra um aluno para registrar uma nova graduação, definir grau e emitir certificado.</p>
       <div className="rounded border">
         {(q.data ?? []).map((s: any) => (
-          <Link key={s.id} to="/dojo/students/$id" params={{ id: s.id }} className="flex items-center justify-between p-3 border-b last:border-0 hover:bg-muted">
+          <Link key={s.id} to="/dojo/app/students/$id" params={{ id: s.id }} className="flex items-center justify-between p-3 border-b last:border-0 hover:bg-muted">
             <div>
               <div className="font-medium">{s.full_name}</div>
               <div className="text-xs text-muted-foreground">Faixa: {s.belt?.name ?? "—"} {s.current_degree ? `· ${s.current_degree}º grau` : ""}</div>
