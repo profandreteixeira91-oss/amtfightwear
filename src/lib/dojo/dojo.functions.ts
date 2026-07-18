@@ -488,12 +488,13 @@ export const saveCertificateTemplate = createServerFn({ method: "POST" })
   }).parse(i))
   .handler(async ({ data, context }) => {
     const { id, ...rest } = data;
+    const payload = rest as any;
     if (id) {
-      const { error } = await context.supabase.from("dojo_certificate_templates").update(rest).eq("id", id);
+      const { error } = await context.supabase.from("dojo_certificate_templates").update(payload).eq("id", id);
       if (error) throw new Error(error.message);
       return { id };
     }
-    const { data: row, error } = await context.supabase.from("dojo_certificate_templates").insert({ ...rest, owner_id: ownerId(context) }).select("id").single();
+    const { data: row, error } = await context.supabase.from("dojo_certificate_templates").insert({ ...payload, owner_id: ownerId(context) } as any).select("id").single();
     if (error) throw new Error(error.message);
     return { id: row.id };
   });
