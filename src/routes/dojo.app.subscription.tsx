@@ -151,8 +151,9 @@ function SubscriptionPage() {
           </div>
 
           <p className="pt-2 text-[11px] text-neutral-400">
-            Pagamento recorrente processado com segurança pelo Mercado Pago. Você pode cancelar a
-            qualquer momento — nenhum dado do cartão é armazenado no AMT Dojo Manager.
+            Pagamento recorrente processado com segurança pelo Mercado Pago. Você pode pagar com{" "}
+            <strong>cartão de crédito</strong> ou com <strong>saldo da sua conta Mercado Pago</strong>.
+            Cancele a qualquer momento — nenhum dado do cartão é armazenado no AMT Dojo Manager.
           </p>
         </CardContent>
       </Card>
