@@ -236,6 +236,7 @@ function GraduationsPage() {
           {selectedBelt && (
             <div className="flex items-center gap-4 p-3 bg-muted/40 rounded">
               <BeltVisual
+                name={selectedBelt.name}
                 colorHex={selectedBelt.color_hex}
                 stripeHex={selectedBelt.stripe_hex}
                 degree={degree}
