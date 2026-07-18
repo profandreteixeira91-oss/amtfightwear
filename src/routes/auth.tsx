@@ -89,21 +89,6 @@ function AuthPage() {
     });
   };
 
-  const onGoogle = async () => {
-    setGoogleLoading(true);
-    try {
-      const result = await authService.signInWithGoogle();
-      if (result.error) {
-        toast.error("Falha ao entrar com Google", { description: String(result.error) });
-        return;
-      }
-      if (!result.redirected) {
-        navigate({ to: redirect ?? "/dashboard", replace: true });
-      }
-    } finally {
-      setGoogleLoading(false);
-    }
-  };
 
   if (checking) {
     return (
