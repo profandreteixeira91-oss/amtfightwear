@@ -75,6 +75,7 @@ const nav: { label: string; items: NavItem[] }[] = [
       { to: "/dojo/app/graduations", label: "Graduações", icon: Award },
       { to: "/dojo/app/evaluations", label: "Avaliações", icon: ClipboardList },
       { to: "/dojo/app/certificates", label: "Certificados", icon: FileBadge },
+      { to: "/dojo/app/competitions", label: "Competições", icon: Trophy },
     ],
   },
   {
