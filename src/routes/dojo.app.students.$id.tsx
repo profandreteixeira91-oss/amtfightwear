@@ -101,9 +101,12 @@ function StudentDetail() {
           <ArrowLeft className="h-4 w-4" /> Alunos
         </Link>
         <div className="flex gap-2">
-          <Link to="/dojo/app/students" search={{ edit: id } as any}>
-            <Button size="sm" variant="outline"><Pencil className="h-4 w-4 mr-1" /> Editar</Button>
-          </Link>
+          <Button size="sm" variant="outline" onClick={() => {
+            try { sessionStorage.setItem("dojo-edit-student", id); } catch {}
+            navigate({ to: "/dojo/app/students" });
+          }}>
+            <Pencil className="h-4 w-4 mr-1" /> Editar
+          </Button>
           <Button size="sm" variant="destructive" onClick={onDeleteStudent}>
             <Trash2 className="h-4 w-4 mr-1" /> Excluir
           </Button>
