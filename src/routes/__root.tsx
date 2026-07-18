@@ -140,7 +140,6 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
-const DOJO_HOST = "dojomanager.amtfightwear.com.br";
 
 function useDojoDomainRouting() {
   useEffect(() => {
