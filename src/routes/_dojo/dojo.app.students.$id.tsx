@@ -15,7 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/dojo/app/students/$id")({
+export const Route = createFileRoute("/_dojo/dojo/app/students/$id")({
   component: StudentDetail,
 });
 
