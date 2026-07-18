@@ -20,7 +20,7 @@ import { StudentPhotoCapture } from "@/components/dojo/StudentPhotoCapture";
 import { toast } from "sonner";
 import { Trash2, Pencil, UserPlus } from "lucide-react";
 
-export const Route = createFileRoute("/dojo/app/students")({
+export const Route = createFileRoute("/dojo/app/students/")({
   head: () => ({ meta: [{ title: "Alunos — AMT Dojo Manager" }] }),
   component: StudentsPage,
 });
