@@ -8,6 +8,7 @@ import { getMyBranding, getMyStudent } from "@/lib/student/student.functions";
 import { getStudentAppConfig } from "@/lib/student-app/config.functions";
 import { DEFAULT_CONFIG } from "@/lib/student-app/schema";
 import { Bell, LogOut } from "lucide-react";
+import { PushToggle } from "@/components/student/PushToggle";
 
 export const Route = createFileRoute("/app/_student")({
   ssr: false,
@@ -72,6 +73,7 @@ function StudentShell() {
                 <Bell className="h-5 w-5" />
               </Link>
             )}
+            <PushToggle />
             <button
               onClick={signOut}
               className="grid h-9 w-9 place-items-center rounded-full text-neutral-600 transition hover:bg-neutral-100"
