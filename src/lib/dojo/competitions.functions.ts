@@ -20,28 +20,63 @@ export type LiveCompetition = {
   banner_url: string | null;
 };
 
-async function firecrawlMarkdown(url: string): Promise<string> {
+async function firecrawlMarkdownOnce(url: string, timeoutMs: number): Promise<string> {
   const apiKey = process.env.FIRECRAWL_API_KEY;
   if (!apiKey) throw new Error("FIRECRAWL_API_KEY não configurada");
 
-  const res = await fetch(`${FIRECRAWL_V2}/scrape`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      url,
-      onlyMainContent: true,
-      waitFor: 3500,
-      formats: ["markdown"],
-      location: { country: "BR", languages: ["pt-BR", "pt", "en"] },
-    }),
-  });
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    const res = await fetch(`${FIRECRAWL_V2}/scrape`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        url,
+        onlyMainContent: true,
+        waitFor: 2500,
+        formats: ["markdown"],
+        location: { country: "BR", languages: ["pt-BR", "pt", "en"] },
+      }),
+      signal: ctrl.signal,
+    });
 
-  if (!res.ok) {
-    const body = await res.text();
-    throw new Error(`Firecrawl ${res.status}: ${body.slice(0, 200)}`);
+    if (!res.ok) {
+      const body = await res.text();
+      throw new Error(`Firecrawl ${res.status}: ${body.slice(0, 200)}`);
+    }
+    const payload = (await res.json()) as { data?: { markdown?: string }; markdown?: string };
+    return payload?.data?.markdown ?? payload?.markdown ?? "";
+  } finally {
+    clearTimeout(timer);
   }
-  const payload = (await res.json()) as { data?: { markdown?: string }; markdown?: string };
-  return payload?.data?.markdown ?? payload?.markdown ?? "";
+}
+
+type CacheEntry = { md: string; at: number };
+const MD_CACHE = new Map<string, CacheEntry>();
+const CACHE_TTL_MS = 30 * 60_000;
+
+async function firecrawlMarkdown(url: string): Promise<string> {
+  const cached = MD_CACHE.get(url);
+  if (cached && Date.now() - cached.at < CACHE_TTL_MS) return cached.md;
+
+  const attempts = [25_000, 40_000, 55_000];
+  let lastErr: unknown;
+  for (let i = 0; i < attempts.length; i++) {
+    try {
+      const md = await firecrawlMarkdownOnce(url, attempts[i]);
+      if (md && md.trim().length > 0) {
+        MD_CACHE.set(url, { md, at: Date.now() });
+        return md;
+      }
+      lastErr = new Error("resposta vazia");
+    } catch (e) {
+      lastErr = e;
+    }
+    if (i < attempts.length - 1) await new Promise((r) => setTimeout(r, 800 * (i + 1)));
+  }
+  // Fallback para cache antigo se disponível
+  if (cached) return cached.md;
+  throw lastErr instanceof Error ? lastErr : new Error(String(lastErr));
 }
 
 // ---- Parser heurístico (sem IA) --------------------------------------------
