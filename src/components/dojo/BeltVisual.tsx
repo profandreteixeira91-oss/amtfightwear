@@ -36,17 +36,53 @@ export function BeltVisual({
   trim,
 }: BeltVisualProps) {
   const n = (name ?? "").trim();
-  // "Preta 1 a 6 graus" is the only preta variant with the red tip (graus).
-  // "Preta com aparador" and "Preta 1 a 6 graus" both use the red tip section.
-  const isBlackAparador = /^preta\s+com\s+aparador/i.test(n);
-  const isBlackDegrees = /^preta\s*1\s*a\s*6/i.test(n);
-  const isBlack = isBlackAparador || isBlackDegrees;
+  // Preta family variants — matches the AMT reference exactly.
+  const isPretaPlain = /^preta$/i.test(n);
+  const isPretaAparador = /^preta\s+com\s+aparador/i.test(n);
+  const pretaGrauMatch = n.match(/^preta\s+(\d)\s*grau/i);
+  const pretaGrau = pretaGrauMatch ? parseInt(pretaGrauMatch[1], 10) : 0;
+  const isPretaGrau = pretaGrau > 0;
+  const isPretaFamily = isPretaPlain || isPretaAparador || isPretaGrau;
+
   const isRedBlack = /^vermelha e preta$/i.test(n);
   const isRedWhite = /^vermelha e branca$/i.test(n);
   const isRedSolid = /^vermelha$/i.test(n);
   const isHighRank = isRedBlack || isRedWhite || isRedSolid;
-  // Don't render top/bottom trim on the black "com aparador" — its aparador is the red tip.
-  const isTrim = (trim ?? /aparador/i.test(n)) && !isBlackAparador;
+  const isTrim = (trim ?? /aparador/i.test(n)) && !isPretaFamily;
+
+  // Preta family layout — black body, red tip, optional white aparador borders, N white stripes.
+  if (isPretaFamily) {
+    const showAparador = isPretaAparador || isPretaGrau;
+    const stripes = pretaGrau;
+    return (
+      <div className={`inline-flex flex-col items-start gap-1 ${className}`}>
+        <div
+          className="relative flex w-full min-w-[220px] h-8 rounded-sm overflow-hidden border border-black/25 shadow-sm"
+          aria-label={label ?? `Faixa ${n}`}
+        >
+          <div className="h-full" style={{ flex: "0 0 55%", background: "#111111" }} />
+          {showAparador && <div className="h-full" style={{ width: 6, background: "#FFFFFF" }} />}
+          <div
+            className="h-full flex items-stretch justify-end gap-[3px] pr-1.5 pl-2"
+            style={{ flex: "1 1 auto", background: "#D32F2F" }}
+          >
+            {Array.from({ length: stripes }).map((_, i) => (
+              <div
+                key={i}
+                className="h-full"
+                style={{ width: 4, background: "#FFFFFF", boxShadow: "0 0 0 0.5px rgba(0,0,0,0.35)" }}
+              />
+            ))}
+          </div>
+          {showAparador && <div className="h-full" style={{ width: 6, background: "#FFFFFF" }} />}
+          <div className="h-full" style={{ width: 10, background: "#111111" }} />
+        </div>
+        {label && <span className="text-xs text-muted-foreground">{label}</span>}
+      </div>
+    );
+  }
+
+  const isBlack = false;
 
   // Special layout for the three top-tier belts
   if (isHighRank) {
