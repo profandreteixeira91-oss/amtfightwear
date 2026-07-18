@@ -1,32 +1,56 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, CalendarDays, QrCode, Film, User } from "lucide-react";
+import * as Icons from "lucide-react";
+import type { NavItem, Features, FeatureKey } from "@/lib/student-app/schema";
 
-const items = [
-  { to: "/app/home", label: "Início", icon: Home },
-  { to: "/app/agenda", label: "Agenda", icon: CalendarDays },
-  { to: "/app/checkin", label: "Check-in", icon: QrCode, primary: true },
-  { to: "/app/videos", label: "Vídeos", icon: Film },
-  { to: "/app/profile", label: "Perfil", icon: User },
-] as const;
+// Mapa de rotas → feature key para gate.
+const ROUTE_FEATURE: Record<string, FeatureKey> = {
+  "/app/agenda": "agenda",
+  "/app/checkin": "checkin",
+  "/app/videos": "videos",
+  "/app/graduations": "graduations",
+  "/app/certificates": "certificates",
+  "/app/finance": "finance",
+  "/app/competitions": "competitions",
+  "/app/profile": "profile",
+  "/app/documents": "documents",
+  "/app/notifications": "news",
+};
 
-export function BottomNav() {
+function iconFor(name: string) {
+  const key = name
+    .split(/[-_ ]+/)
+    .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+    .join("");
+  const Comp = (Icons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[key];
+  return Comp ?? Icons.Circle;
+}
+
+export function BottomNav({ items, features }: { items: NavItem[]; features: Features }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const filtered = items.filter((it) => {
+    if (it.route === "/app/home") return true;
+    const f = ROUTE_FEATURE[it.route];
+    return f ? features[f] !== false : true;
+  });
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 border-t bg-white/95 backdrop-blur-md"
-      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      className="fixed bottom-0 left-0 right-0 z-40 border-t backdrop-blur-md"
+      style={{
+        background: "color-mix(in oklab, var(--sa-bottom-nav, #ffffff) 95%, transparent)",
+        paddingBottom: "env(safe-area-inset-bottom)",
+      }}
     >
       <ul className="mx-auto flex max-w-md items-stretch justify-around">
-        {items.map((it) => {
-          const Icon = it.icon;
-          const active = pathname.startsWith(it.to);
-          if ("primary" in it && it.primary) {
+        {filtered.map((it) => {
+          const Icon = iconFor(it.icon);
+          const active = pathname === it.route || (it.route !== "/app/home" && pathname.startsWith(it.route));
+          if (it.primary) {
             return (
-              <li key={it.to} className="-mt-6">
+              <li key={it.id} className="-mt-6">
                 <Link
-                  to={it.to}
+                  to={it.route}
                   className="flex h-14 w-14 items-center justify-center rounded-full text-white shadow-lg ring-4 ring-white transition active:scale-95"
-                  style={{ background: "var(--sa-primary, #dc2626)" }}
+                  style={{ background: "var(--sa-button, var(--sa-primary, #dc2626))" }}
                   aria-label={it.label}
                 >
                   <Icon className="h-6 w-6" />
@@ -35,9 +59,9 @@ export function BottomNav() {
             );
           }
           return (
-            <li key={it.to} className="flex-1">
+            <li key={it.id} className="flex-1">
               <Link
-                to={it.to}
+                to={it.route}
                 className={`flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium transition-colors ${
                   active ? "text-[color:var(--sa-primary,#dc2626)]" : "text-neutral-500"
                 }`}
