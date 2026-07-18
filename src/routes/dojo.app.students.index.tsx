@@ -539,7 +539,39 @@ function StudentsPage() {
         </div>
       </div>
 
-      <div className="rounded border">
+      {/* Filtros ampliados: nome, e-mail, telefone, CPF, faixa, unidade, cidade, status */}
+      <div className="rounded-lg border border-border bg-card p-3 md:p-4">
+        <div className="grid gap-2 md:grid-cols-6">
+          <Input
+            className="md:col-span-2"
+            placeholder="Buscar por nome, telefone, CPF, e-mail…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <select className="h-10 rounded-md border border-input bg-background px-2 text-sm" value={status} onChange={(e) => setStatus(e.target.value)}>
+            <option value="all">Todos os status</option>
+            <option value="active">Ativos</option>
+            <option value="inactive">Inativos</option>
+            <option value="frozen">Trancados</option>
+          </select>
+          <select className="h-10 rounded-md border border-input bg-background px-2 text-sm" value={beltFilter} onChange={(e) => setBeltFilter(e.target.value)}>
+            <option value="all">Todas as faixas</option>
+            {(belts.data ?? []).map((b: any) => (
+              <option key={b.id} value={b.id}>{b.name}</option>
+            ))}
+          </select>
+          <select className="h-10 rounded-md border border-input bg-background px-2 text-sm" value={unitFilter} onChange={(e) => setUnitFilter(e.target.value)}>
+            <option value="all">Todas as unidades</option>
+            {(units.data ?? []).map((u: any) => (
+              <option key={u.id} value={u.id}>{u.name}</option>
+            ))}
+          </select>
+          <Input placeholder="Cidade" value={cityFilter} onChange={(e) => setCityFilter(e.target.value)} />
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-border bg-card">
+
         {filtered.map((s: any) => (
           <div key={s.id} className="flex items-center justify-between p-3 border-b last:border-0 gap-2">
             <div className="flex min-w-0 flex-1 items-center gap-3">
