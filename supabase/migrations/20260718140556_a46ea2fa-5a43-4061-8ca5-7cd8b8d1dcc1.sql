@@ -1,0 +1,1 @@
+ALTER TABLE public.store_orders ADD COLUMN IF NOT EXISTS whatsapp_notified jsonb NOT NULL DEFAULT '{}'::jsonb;
