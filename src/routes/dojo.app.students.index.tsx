@@ -231,26 +231,27 @@ function StudentsPage() {
   };
 
   return (
-    <div>
-      <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-        <h2 className="text-lg font-semibold">Alunos</h2>
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h2 className="text-lg font-semibold">Alunos</h2>
+          <p className="text-xs text-muted-foreground">
+            {filtered.length} {filtered.length === 1 ? "aluno encontrado" : "alunos encontrados"}
+            {q.data && q.data.length !== filtered.length ? ` · ${q.data.length} no total` : ""}
+          </p>
+        </div>
         <div className="flex flex-wrap gap-2">
-          <Input
-            placeholder="Buscar…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-48"
-          />
-          <select
-            className="border rounded px-2 bg-background"
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-          >
-            <option value="all">Todos</option>
-            <option value="active">Ativos</option>
-            <option value="inactive">Inativos</option>
-            <option value="frozen">Trancados</option>
-          </select>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={openNew}>
+                <UserPlus className="h-4 w-4 mr-1" /> Novo aluno
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>{form.id ? "Editar" : "Novo"} aluno</DialogTitle>
+              </DialogHeader>
+
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button onClick={openNew}>
