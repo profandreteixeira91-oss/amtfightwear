@@ -2,14 +2,6 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-async function assertAdmin(context: { supabase: any; userId: string }) {
-  const { data, error } = await context.supabase.rpc("has_role", {
-    _user_id: context.userId,
-    _role: "admin",
-  });
-  if (error) throw new Error(error.message);
-  if (!data) throw new Error("Forbidden");
-}
 
 function randomPin() {
   return String(Math.floor(100000 + Math.random() * 900000));
@@ -33,7 +25,6 @@ export const listAttendance = createServerFn({ method: "GET" })
       .parse(i ?? {}),
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context);
     let q = context.supabase
       .from("dojo_attendance")
       .select("*, dojo_students(id, full_name), dojo_units(id, name)")
@@ -51,7 +42,6 @@ export const listAttendance = createServerFn({ method: "GET" })
 export const attendanceStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertAdmin(context);
     const now = new Date();
     const startDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
     const startWeek = new Date(now.getTime() - 7 * 86400000).toISOString();
@@ -76,7 +66,6 @@ export const manualCheckin = createServerFn({ method: "POST" })
       .parse(i),
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context);
     const { data: row, error } = await context.supabase
       .from("dojo_attendance")
       .insert({
@@ -85,6 +74,7 @@ export const manualCheckin = createServerFn({ method: "POST" })
         method: "manual",
         notes: data.notes ?? null,
         created_by: context.userId,
+        owner_id: context.userId,
       })
       .select("id")
       .single();
@@ -103,7 +93,6 @@ export const checkinByCode = createServerFn({ method: "POST" })
       .parse(i),
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context);
     const code = data.code.trim();
     const { data: student, error } = await context.supabase
       .from("dojo_students")
@@ -120,6 +109,7 @@ export const checkinByCode = createServerFn({ method: "POST" })
         unit_id: data.unitId ?? student.unit_id ?? null,
         method: /^\d+$/.test(code) ? "pin" : "qr",
         created_by: context.userId,
+        owner_id: context.userId,
       })
       .select("id")
       .single();
@@ -131,7 +121,6 @@ export const deleteAttendance = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context);
     const { error } = await context.supabase.from("dojo_attendance").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -148,7 +137,6 @@ export const regenerateStudentCodes = createServerFn({ method: "POST" })
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context);
     const patch: { checkin_pin?: string; qr_token?: string } = {};
     if (data.resetPin !== false) patch.checkin_pin = randomPin();
     if (data.resetQr !== false) patch.qr_token = randomToken();
@@ -165,7 +153,6 @@ export const regenerateStudentCodes = createServerFn({ method: "POST" })
 export const listPartnerIntegrations = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertAdmin(context);
     const { data, error } = await context.supabase
       .from("dojo_partner_integrations")
       .select("*")
@@ -187,7 +174,6 @@ export const savePartnerIntegration = createServerFn({ method: "POST" })
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context);
     const payload = {
       provider: data.provider,
       enabled: data.enabled ?? false,
@@ -195,10 +181,11 @@ export const savePartnerIntegration = createServerFn({ method: "POST" })
       webhook_secret: data.webhookSecret ?? null,
       unit_id: data.unitId ?? null,
       config: (data.config ?? {}) as any,
+      owner_id: context.userId,
     };
     const { error } = await context.supabase
       .from("dojo_partner_integrations")
-      .upsert(payload as any, { onConflict: "provider" });
+      .upsert(payload as any, { onConflict: "owner_id,provider" });
 
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -208,7 +195,6 @@ export const listPartnerCheckins = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => z.object({ limit: z.number().int().min(1).max(500).optional() }).parse(i ?? {}))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context);
     const { data: rows, error } = await context.supabase
       .from("dojo_partner_checkins")
       .select("*")

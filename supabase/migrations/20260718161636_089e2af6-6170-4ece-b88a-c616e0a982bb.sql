@@ -1,0 +1,2 @@
+ALTER TABLE public.dojo_partner_integrations DROP CONSTRAINT IF EXISTS dojo_partner_integrations_provider_key;
+ALTER TABLE public.dojo_partner_integrations ADD CONSTRAINT dojo_partner_integrations_owner_provider_key UNIQUE (owner_id, provider);
