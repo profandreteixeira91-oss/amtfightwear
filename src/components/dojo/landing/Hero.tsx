@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DashboardMockup } from "./DashboardMockup";
+import { DojoLogo } from "@/components/dojo/DojoLogo";
 
 export function Hero() {
   return (
@@ -21,6 +22,7 @@ export function Hero() {
 
       <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-2">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+          <DojoLogo className="mb-6 h-28 w-auto md:h-36 drop-shadow-[0_10px_30px_rgba(193,18,31,0.15)]" />
           <span className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-3 py-1 text-xs font-medium text-[#111111]/70 shadow-sm">
             <Sparkles className="h-3.5 w-3.5 text-[#C1121F]" />
             Novo · Integração completa com AMT Fight Wear

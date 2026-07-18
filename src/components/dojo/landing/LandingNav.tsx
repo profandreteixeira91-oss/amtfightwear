@@ -1,7 +1,8 @@
 import { Link } from "@tanstack/react-router";
-import { Shield, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { DojoLogo } from "@/components/dojo/DojoLogo";
 
 const links = [
   { href: "#recursos", label: "Recursos" },
@@ -15,12 +16,9 @@ export function LandingNav() {
   const [open, setOpen] = useState(false);
   return (
     <header className="sticky top-0 z-40 border-b border-black/5 bg-white/85 backdrop-blur-md">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 md:px-6">
-        <a href="#top" className="flex items-center gap-2 text-lg font-bold tracking-tight text-[#111111]">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#111111] text-white">
-            <Shield className="h-5 w-5" strokeWidth={2.2} />
-          </span>
-          AMT Dojo Manager
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 md:px-6 md:py-4">
+        <a href="#top" className="flex items-center gap-2" aria-label="AMT Dojo Manager">
+          <DojoLogo className="h-11 w-auto md:h-12" />
         </a>
         <nav className="hidden items-center gap-8 md:flex">
           {links.map((l) => (

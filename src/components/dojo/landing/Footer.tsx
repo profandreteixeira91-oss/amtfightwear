@@ -1,4 +1,5 @@
-import { Shield, Instagram, Facebook, Youtube } from "lucide-react";
+import { Instagram, Facebook, Youtube } from "lucide-react";
+import { DojoLogo } from "@/components/dojo/DojoLogo";
 
 const groups = [
   { title: "Produto", links: [{ label: "Recursos", href: "#recursos" }, { label: "Módulos", href: "#modulos" }, { label: "Planos", href: "#planos" }] },
@@ -12,12 +13,7 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-4 py-16 md:px-6">
         <div className="grid gap-10 md:grid-cols-4">
           <div>
-            <div className="flex items-center gap-2 text-lg font-bold text-[#111111]">
-              <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#111111] text-white">
-                <Shield className="h-5 w-5" />
-              </span>
-              AMT Dojo Manager
-            </div>
+            <DojoLogo className="h-16 w-auto" />
             <p className="mt-4 max-w-xs text-sm text-[#111111]/55">
               Software de gestão completo para academias de artes marciais.
             </p>
