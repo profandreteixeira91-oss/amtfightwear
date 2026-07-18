@@ -103,6 +103,8 @@ export const Route = createFileRoute("/api/public/hooks/mercadopago")({
         if (updatedOrderId && patch.payment_status === "paid") {
           const { sendWhatsAppOrderStatus } = await import("@/lib/store/whatsapp.server");
           await sendWhatsAppOrderStatus(updatedOrderId, "paid");
+          const { createOrderNotification } = await import("@/lib/store/notifications.server");
+          await createOrderNotification(updatedOrderId, "paid");
         }
 
         return new Response("ok");

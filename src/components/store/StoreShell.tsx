@@ -9,6 +9,7 @@ import { CartSheet } from "@/components/store/CartSheet";
 import { SearchBar } from "@/components/store/SearchBar";
 import { recordStoreVisit } from "@/lib/store/customers.functions";
 import { WhatsAppFloat } from "@/components/store/WhatsAppFloat";
+import { NotificationsBell } from "@/components/store/NotificationsBell";
 
 
 type StoreCategory = { id?: string; slug: string; name: string; parent_id?: string | null };
@@ -169,6 +170,7 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
           <SearchBar />
 
           <div className="flex items-center gap-1 sm:gap-3">
+            {mounted && isAuthed ? <NotificationsBell authed={isAuthed} /> : null}
             {mounted && isAuthed ? (
               <div ref={accountRef} className="relative">
                 <button
