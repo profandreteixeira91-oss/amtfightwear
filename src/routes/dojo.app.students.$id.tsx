@@ -125,7 +125,7 @@ function StudentDetail() {
               <div key={g.id} className="flex items-center justify-between p-2 border-b last:border-0 text-sm gap-3">
                 <div className="flex items-center gap-3 min-w-0">
                   {g.belt?.color_hex && (
-                    <BeltVisual colorHex={g.belt.color_hex} stripeHex={g.belt.stripe_hex} degree={g.degree} maxDegrees={g.belt?.max_degrees ?? 4} />
+                    <BeltVisual name={g.belt.name} colorHex={g.belt.color_hex} stripeHex={g.belt.stripe_hex} degree={g.degree} maxDegrees={g.belt?.max_degrees ?? 4} />
                   )}
                   <div className="truncate">{g.belt?.name} · {g.degree === 0 ? "sem grau" : `${g.degree}º grau`} · {g.graduation_date} · {g.evaluator ?? "—"}</div>
                 </div>
