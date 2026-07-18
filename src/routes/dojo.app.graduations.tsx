@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import beltsReference from "@/assets/amt-belts-reference.png.asset.json";
 
 export const Route = createFileRoute("/dojo/app/graduations")({
   component: GraduationsPage,
@@ -291,7 +292,19 @@ function GraduationsPage() {
       {/* Faixas AMT */}
       <Card>
         <CardHeader><CardTitle className="text-base">Sistema de faixas</CardTitle></CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
+          <figure className="border rounded overflow-hidden bg-muted/30">
+            <img
+              src={beltsReference.url}
+              alt="Sistema de faixas oficial AMT — da Branca à Vermelha, com todos os graus"
+              className="w-full h-auto"
+              loading="lazy"
+            />
+            <figcaption className="p-2 text-xs text-muted-foreground">
+              Referência oficial AMT: Branca à Marrom (1–4 graus), Preta (1–6), Preta com Aparador,
+              Vermelha e Preta (7º), Vermelha e Branca (8º) e Vermelha (9º).
+            </figcaption>
+          </figure>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {(belts.data ?? []).map((b: any) => (
               <div key={b.id} className="border rounded p-3 space-y-2 bg-background">
