@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import { Trash2, Copy, Plus, Star, Search } from "lucide-react";
 import { CertificateEditor } from "@/components/dojo/certificate-editor/CertificateEditor";
 import { migrateLegacyFields, toLegacyFields, type EditorSchema } from "@/components/dojo/certificate-editor/types";
@@ -143,6 +144,16 @@ function CertificatesPage() {
   };
 
   // Preview values
+  const academyProfile = useQuery({
+    queryKey: ["dojo-academy-profile"],
+    queryFn: async () => {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) return null;
+      const { data } = await supabase.from("dojo_academy_profile").select("*").eq("owner_id", u.user.id).maybeSingle();
+      return data;
+    },
+    staleTime: 60_000,
+  });
   const previewValues = useMemo(() => {
     const base: Record<string, string> = { ...systemValues() };
     ALL_VARIABLES.forEach((v) => { base[v.key] = v.sample ? v.sample : `[${v.label}]`; });
@@ -161,8 +172,19 @@ function CertificatesPage() {
     base.certificado_numero = base.certificado_numero || "0001";
     base.certificado_codigo = base.certificado_codigo || "AMT-2026-0001";
     base.certificado_validacao = base.certificado_validacao || "https://dojomanager.amtfightwear.com.br/validar/AMT-2026-0001";
+    const ap: any = academyProfile.data;
+    if (ap) {
+      if (ap.trade_name || ap.legal_name) base.academia_nome = ap.trade_name || ap.legal_name;
+      if (ap.address) base.academia_endereco = ap.address;
+      if (ap.city) base.academia_cidade = ap.city;
+      if (ap.state) base.academia_estado = ap.state;
+      if (ap.cnpj) base.academia_cnpj = ap.cnpj;
+      if (ap.phone) base.academia_telefone = ap.phone;
+      if (ap.email) base.academia_email = ap.email;
+      if (ap.logo_url && ap.logo_as_default !== false) base.academia_logo = ap.logo_url;
+    }
     return base;
-  }, [students.data, previewStudentId]);
+  }, [students.data, previewStudentId, academyProfile.data]);
 
   const previewTemplate: CertificateTemplate | null = useMemo(() => {
     if (!editing) return null;

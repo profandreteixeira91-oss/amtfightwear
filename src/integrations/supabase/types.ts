@@ -1327,6 +1327,147 @@ export type Database = {
         }
         Relationships: []
       }
+      dojo_academy_profile: {
+        Row: {
+          address: string | null
+          brand_primary: string | null
+          brand_secondary: string | null
+          city: string | null
+          cnpj: string | null
+          created_at: string
+          email: string | null
+          facebook: string | null
+          instagram: string | null
+          legal_name: string | null
+          logo_as_default: boolean | null
+          logo_placements: Json | null
+          logo_url: string | null
+          modalities: string[] | null
+          owner_id: string
+          phone: string | null
+          seal_url: string | null
+          signature_url: string | null
+          stamp_url: string | null
+          state: string | null
+          trade_name: string | null
+          updated_at: string
+          website: string | null
+          whatsapp: string | null
+          zip: string | null
+        }
+        Insert: {
+          address?: string | null
+          brand_primary?: string | null
+          brand_secondary?: string | null
+          city?: string | null
+          cnpj?: string | null
+          created_at?: string
+          email?: string | null
+          facebook?: string | null
+          instagram?: string | null
+          legal_name?: string | null
+          logo_as_default?: boolean | null
+          logo_placements?: Json | null
+          logo_url?: string | null
+          modalities?: string[] | null
+          owner_id: string
+          phone?: string | null
+          seal_url?: string | null
+          signature_url?: string | null
+          stamp_url?: string | null
+          state?: string | null
+          trade_name?: string | null
+          updated_at?: string
+          website?: string | null
+          whatsapp?: string | null
+          zip?: string | null
+        }
+        Update: {
+          address?: string | null
+          brand_primary?: string | null
+          brand_secondary?: string | null
+          city?: string | null
+          cnpj?: string | null
+          created_at?: string
+          email?: string | null
+          facebook?: string | null
+          instagram?: string | null
+          legal_name?: string | null
+          logo_as_default?: boolean | null
+          logo_placements?: Json | null
+          logo_url?: string | null
+          modalities?: string[] | null
+          owner_id?: string
+          phone?: string | null
+          seal_url?: string | null
+          signature_url?: string | null
+          stamp_url?: string | null
+          state?: string | null
+          trade_name?: string | null
+          updated_at?: string
+          website?: string | null
+          whatsapp?: string | null
+          zip?: string | null
+        }
+        Relationships: []
+      }
+      dojo_account_audit: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          meta: Json | null
+          owner_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          meta?: Json | null
+          owner_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          meta?: Json | null
+          owner_id?: string
+        }
+        Relationships: []
+      }
+      dojo_account_notifications: {
+        Row: {
+          created_at: string
+          email_enabled: boolean
+          finance_alerts: boolean
+          owner_id: string
+          product_news: boolean
+          reminders: boolean
+          system_enabled: boolean
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email_enabled?: boolean
+          finance_alerts?: boolean
+          owner_id: string
+          product_news?: boolean
+          reminders?: boolean
+          system_enabled?: boolean
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email_enabled?: boolean
+          finance_alerts?: boolean
+          owner_id?: string
+          product_news?: boolean
+          reminders?: boolean
+          system_enabled?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       dojo_attendance: {
         Row: {
           checked_in_at: string
@@ -4163,53 +4304,77 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          birth_date: string | null
           city: string | null
           complement: string | null
+          cpf: string | null
           created_at: string
           document: string | null
           email: string | null
           full_name: string | null
           id: string
+          job_title: string | null
+          language: string | null
           neighborhood: string | null
+          notes: string | null
           number: string | null
           phone: string | null
+          rg: string | null
           state: string | null
           street: string | null
+          timezone: string | null
           updated_at: string
+          whatsapp: string | null
           zip: string | null
         }
         Insert: {
           avatar_url?: string | null
+          birth_date?: string | null
           city?: string | null
           complement?: string | null
+          cpf?: string | null
           created_at?: string
           document?: string | null
           email?: string | null
           full_name?: string | null
           id: string
+          job_title?: string | null
+          language?: string | null
           neighborhood?: string | null
+          notes?: string | null
           number?: string | null
           phone?: string | null
+          rg?: string | null
           state?: string | null
           street?: string | null
+          timezone?: string | null
           updated_at?: string
+          whatsapp?: string | null
           zip?: string | null
         }
         Update: {
           avatar_url?: string | null
+          birth_date?: string | null
           city?: string | null
           complement?: string | null
+          cpf?: string | null
           created_at?: string
           document?: string | null
           email?: string | null
           full_name?: string | null
           id?: string
+          job_title?: string | null
+          language?: string | null
           neighborhood?: string | null
+          notes?: string | null
           number?: string | null
           phone?: string | null
+          rg?: string | null
           state?: string | null
           street?: string | null
+          timezone?: string | null
           updated_at?: string
+          whatsapp?: string | null
           zip?: string | null
         }
         Relationships: []
