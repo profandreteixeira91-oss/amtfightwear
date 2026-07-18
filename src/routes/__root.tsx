@@ -87,25 +87,23 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "AMT Fight Wear — Loja Oficial | Kimonos, Rashguards e Faixas" },
+      { title: "Loja AMT Fight Wear | Artigos para Artes Marciais" },
       {
         name: "description",
         content:
-          "Loja oficial AMT Fight Wear. Kimonos, rashguards, faixas e acessórios para artes marciais. Frete para todo Brasil!",
+          "A Loja AMT Fight Wear é o e-commerce oficial de kimonos, rashguards, faixas e acessórios para artes marciais.",
       },
       { name: "author", content: "AMT Fight Wear" },
-      { property: "og:title", content: "AMT Fight Wear — Loja Oficial | Kimonos, Rashguards e Faixas" },
+      { property: "og:title", content: "Loja AMT Fight Wear | Artigos para Artes Marciais" },
       {
         property: "og:description",
         content:
-          "Loja oficial AMT Fight Wear. Kimonos, rashguards, faixas e acessórios para artes marciais. Frete para todo Brasil!",
+          "A Loja AMT Fight Wear é o e-commerce oficial de kimonos, rashguards, faixas e acessórios para artes marciais.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:title", content: "AMT Fight Wear — Loja Oficial | Kimonos, Rashguards e Faixas" },
-      { name: "description", content: "Loja oficial AMT Fight Wear. Kimonos, rashguards, faixas e acessórios para artes marciais. Frete para todo Brasil!" },
-      { property: "og:description", content: "Loja oficial AMT Fight Wear. Kimonos, rashguards, faixas e acessórios para artes marciais. Frete para todo Brasil!" },
-      { name: "twitter:description", content: "Loja oficial AMT Fight Wear. Kimonos, rashguards, faixas e acessórios para artes marciais. Frete para todo Brasil!" },
+      { name: "twitter:title", content: "Loja AMT Fight Wear | Artigos para Artes Marciais" },
+      { name: "twitter:description", content: "E-commerce oficial de kimonos, rashguards, faixas e acessórios para artes marciais." },
       { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/5b65ed16-336c-4f97-b997-ac7d4e5a86f4" },
       { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/5b65ed16-336c-4f97-b997-ac7d4e5a86f4" },
     ],

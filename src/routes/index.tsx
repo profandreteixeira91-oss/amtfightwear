@@ -23,13 +23,25 @@ export const Route = createFileRoute("/")({
   },
   head: () => ({
     meta: [
-      { title: "AMT Fight Wear — Loja Oficial de Kimonos, Rashguards e Faixas" },
-      { name: "description", content: "Loja oficial AMT Fight Wear: kimonos, rashguards, faixas e acessórios de alta performance para jiu-jitsu, judô e artes marciais. Compre direto da fábrica com envio para todo o Brasil, parcelamento em 10x e Custom Shop para peças personalizadas." },
-      { property: "og:title", content: "AMT Fight Wear — Loja Oficial de Kimonos, Rashguards e Faixas" },
+      { title: "Loja AMT Fight Wear | Artigos para Artes Marciais" },
+      { name: "description", content: "A Loja AMT Fight Wear é o e-commerce oficial para comprar kimonos, rashguards, faixas e acessórios de jiu-jitsu e judô, no varejo ou atacado." },
+      { property: "og:title", content: "Loja AMT Fight Wear | Artigos para Artes Marciais" },
       { property: "og:description", content: "Kimonos, rashguards, faixas e acessórios AMT Fight Wear. Compre direto da fábrica com envio para todo o Brasil e opção de personalização no Custom Shop." },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://loja.amtfightwear.com.br/" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "https://loja.amtfightwear.com.br/" }],
+    scripts: [{
+      type: "application/ld+json",
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "OnlineStore",
+        name: "Loja AMT Fight Wear",
+        url: "https://loja.amtfightwear.com.br/",
+        description: "E-commerce oficial da AMT Fight Wear para venda de kimonos, rashguards, faixas e acessórios para artes marciais.",
+      }),
+    }],
   }),
   component: StoreHomePage,
   errorComponent: ({ error }) => <div className="p-8 text-center text-destructive">Erro: {error.message}</div>,
@@ -70,12 +82,15 @@ function StoreHomePage() {
                 <div className="text-[10px] font-bold uppercase tracking-[0.28em] text-primary">Fight Wear</div>
               </div>
             </div>
-            <div className="text-xs font-bold uppercase tracking-[0.3em] text-primary">Loja oficial · AMT Fight Wear</div>
+            <div className="text-xs font-bold uppercase tracking-[0.3em] text-primary">E-commerce oficial para todo o Brasil</div>
             <h1 className="mt-3 text-4xl font-black leading-tight sm:text-6xl">
-              Equipamento oficial para <span className="text-primary">jiu-jitsu, judô</span> e artes marciais.
+              Loja AMT Fight Wear
             </h1>
-            <p className="mt-4 max-w-lg text-base text-background/80">
-              A AMT Fight Wear é fabricante de kimonos, rashguards, faixas e acessórios de alta performance. Compre direto da fábrica, com envio para todo o Brasil, parcelamento em 10x e a opção de personalizar sua peça no Custom Shop.
+            <p className="mt-3 max-w-xl text-xl font-bold leading-snug text-background sm:text-2xl">
+              Loja online de kimonos, rashguards, faixas e acessórios para jiu-jitsu, judô e artes marciais.
+            </p>
+            <p className="mt-4 max-w-xl text-base text-background/80">
+              Este site permite comprar produtos AMT Fight Wear no varejo ou atacado, personalizar peças, pagar online e acompanhar pedidos. Compre direto da fábrica, com entrega para todo o Brasil.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link to="/loja/categoria/$slug" params={{ slug: categories[0]?.slug ?? "kimonos" }} className="rounded-md bg-primary px-6 py-3 font-semibold text-primary-foreground hover:opacity-90">
@@ -94,14 +109,14 @@ function StoreHomePage() {
         <div className="mx-auto max-w-7xl px-4 py-10">
           <div className="grid gap-6 md:grid-cols-3">
             <div className="md:col-span-1">
-              <div className="text-[11px] font-bold uppercase tracking-[0.3em] text-primary">Sobre este site</div>
+              <div className="text-[11px] font-bold uppercase tracking-[0.3em] text-primary">Finalidade do aplicativo</div>
               <h2 id="sobre-o-app" className="mt-2 text-2xl font-black leading-tight sm:text-3xl">
-                O que é a Loja AMT Fight Wear?
+                Para que serve a Loja AMT Fight Wear?
               </h2>
             </div>
             <div className="md:col-span-2 space-y-3 text-sm text-muted-foreground sm:text-base">
               <p>
-                Este é o <strong className="text-foreground">e-commerce oficial da AMT Fight Wear</strong>, fabricante brasileira de artigos para artes marciais. O aplicativo permite que praticantes, academias e lojistas <strong className="text-foreground">naveguem pelo catálogo, personalizem peças no Custom Shop, calculem frete, façam pedidos no varejo ou atacado e acompanhem o status de cada compra</strong> em uma conta protegida.
+                A <strong className="text-foreground">Loja AMT Fight Wear</strong> é o e-commerce oficial da fabricante brasileira de artigos para artes marciais. O aplicativo permite que praticantes, academias e lojistas <strong className="text-foreground">naveguem pelo catálogo, personalizem peças no Custom Shop, calculem frete, façam pedidos no varejo ou atacado e acompanhem o status de cada compra</strong> em uma conta protegida.
               </p>
               <p>
                 Vendemos <strong className="text-foreground">kimonos, rashguards, faixas de jiu-jitsu e judô, shorts e acessórios</strong> produzidos em nossa fábrica. Todo o processo — do carrinho ao pagamento seguro via Mercado Pago, com envio rastreado para todo o Brasil — acontece dentro deste site.
