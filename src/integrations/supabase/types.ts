@@ -2996,6 +2996,48 @@ export type Database = {
           },
         ]
       }
+      dojo_payment_gateways: {
+        Row: {
+          access_token: string | null
+          active: boolean
+          created_at: string
+          id: string
+          is_default: boolean
+          label: string | null
+          owner_id: string
+          provider: string
+          public_key: string | null
+          updated_at: string
+          webhook_secret: string | null
+        }
+        Insert: {
+          access_token?: string | null
+          active?: boolean
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          label?: string | null
+          owner_id: string
+          provider: string
+          public_key?: string | null
+          updated_at?: string
+          webhook_secret?: string | null
+        }
+        Update: {
+          access_token?: string | null
+          active?: boolean
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          label?: string | null
+          owner_id?: string
+          provider?: string
+          public_key?: string | null
+          updated_at?: string
+          webhook_secret?: string | null
+        }
+        Relationships: []
+      }
       dojo_plans: {
         Row: {
           active: boolean
