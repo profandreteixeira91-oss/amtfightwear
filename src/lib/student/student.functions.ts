@@ -296,7 +296,7 @@ export const getMyVideos = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => {
     let q = context.supabase
       .from("dojo_videos")
-      .select("id, title, description, thumbnail_url, duration_seconds, category_id, published_at, source, url")
+      .select("id, title, description, thumbnail_url, duration_seconds, category_id, published_at, video_source, video_url")
       .order("published_at", { ascending: false })
       .limit(60);
     if (data.q) q = q.ilike("title", `%${data.q}%`);
