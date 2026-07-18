@@ -92,6 +92,11 @@ export const startMySubscription = createServerFn({ method: "POST" })
           transaction_amount: PLAN_AMOUNT,
           currency_id: "BRL",
         },
+        // Aceita cartão de crédito e saldo em conta Mercado Pago no checkout.
+        payment_methods_allowed: {
+          payment_types: [{ id: "credit_card" }, { id: "account_money" }],
+          payment_methods: [],
+        },
         notification_url: notification,
       }),
     });
