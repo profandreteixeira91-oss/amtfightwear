@@ -6,8 +6,13 @@ import {
   adminListSalesMessages,
   adminSendSalesReply,
   adminSetSalesConversationStatus,
+  adminGetChatSettings,
+  adminUpdateChatSettings,
+  adminListKbArticles,
+  adminUpsertKbArticle,
+  adminDeleteKbArticle,
 } from "@/lib/store/sales-chat.functions";
-import { Bot, Headset, Send, User, Loader2, CheckCircle2 } from "lucide-react";
+import { Bot, Headset, Send, User, Loader2, CheckCircle2, Settings, BookOpen, MessageSquare, Save, Plus, Trash2 } from "lucide-react";
 
 type Conv = {
   id: string;
