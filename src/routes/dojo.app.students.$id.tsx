@@ -19,6 +19,7 @@ import { BeltVisual } from "@/components/dojo/BeltVisual";
 import { CertificatePreviewDialog, openCertificatePrint, type CertificateTemplate } from "@/components/dojo/CertificatePreview";
 
 export const Route = createFileRoute("/dojo/app/students/$id")({
+  head: () => ({ meta: [{ title: "Aluno — AMT Dojo Manager" }] }),
   component: StudentDetail,
 });
 

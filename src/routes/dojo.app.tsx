@@ -43,6 +43,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export const Route = createFileRoute("/dojo/app")({
+  head: () => ({ meta: [{ title: "Painel — AMT Dojo Manager" }] }),
   ssr: false,
   beforeLoad: async ({ location }) => {
     const { data, error } = await supabase.auth.getUser();

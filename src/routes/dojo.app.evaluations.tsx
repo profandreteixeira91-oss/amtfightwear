@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { Trash2, Plus, Printer, Pencil } from "lucide-react";
 
 export const Route = createFileRoute("/dojo/app/evaluations")({
+  head: () => ({ meta: [{ title: "Avaliações — AMT Dojo Manager" }] }),
   component: EvaluationsPage,
 });
 

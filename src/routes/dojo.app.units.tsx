@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { Trash2, Pencil } from "lucide-react";
 
 export const Route = createFileRoute("/dojo/app/units")({
+  head: () => ({ meta: [{ title: "Unidades — AMT Dojo Manager" }] }),
   component: UnitsPage,
 });
 

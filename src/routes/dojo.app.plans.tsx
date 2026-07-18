@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { Trash2, Pencil } from "lucide-react";
 
 export const Route = createFileRoute("/dojo/app/plans")({
+  head: () => ({ meta: [{ title: "Planos — AMT Dojo Manager" }] }),
   component: PlansPage,
 });
 

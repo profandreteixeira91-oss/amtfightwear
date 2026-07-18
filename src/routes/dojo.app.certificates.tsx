@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { Trash2, Upload, Plus, Info, Type, Variable, PenLine } from "lucide-react";
 
 export const Route = createFileRoute("/dojo/app/certificates")({
+  head: () => ({ meta: [{ title: "Certificados — AMT Dojo Manager" }] }),
   component: CertificatesPage,
 });
 
