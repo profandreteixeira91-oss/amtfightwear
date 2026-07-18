@@ -135,7 +135,7 @@ function DojoDashboard() {
                 params={{ id: s.id }}
                 className="flex items-center gap-3 px-4 md:px-5 py-3 hover:bg-muted/40 transition-colors"
               >
-                <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-foreground text-background text-xs font-bold">
+                <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gradient-to-br from-primary to-primary/70 text-primary-foreground text-xs font-bold shadow-sm">
                   {(s.full_name?.[0] ?? "A").toUpperCase()}
                 </div>
                 <div className="min-w-0 flex-1">
