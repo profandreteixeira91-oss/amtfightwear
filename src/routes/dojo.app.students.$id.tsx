@@ -267,7 +267,7 @@ function StudentDetail() {
         {/* ============ ÁREA PRINCIPAL ============ */}
         <main className="min-w-0 space-y-4">
           {/* KPIs */}
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
             <Kpi icon={Activity} label="Dias treinando" value={daysTraining || "—"} />
             <Kpi icon={CalendarCheck} label="Presença no mês" value={attendanceThisMonth} />
             <Kpi icon={Wallet} label="Mensalidades pagas" value={paidInvoices} tint={paidInvoices > 0 ? "success" : undefined} />
@@ -275,6 +275,7 @@ function StudentDetail() {
             <Kpi icon={GraduationCap} label="Graduações" value={graduations.length} />
             <Kpi icon={Award} label="Certificados" value={certificates.length} />
           </div>
+
 
           {/* Tabs */}
           <Tabs defaultValue="pessoal" className="w-full">
@@ -802,21 +803,22 @@ function Kpi({ icon: Icon, label, value, tint }: { icon: any; label: string; val
         ? "bg-amber-50 text-amber-600 ring-amber-100"
         : "bg-muted text-muted-foreground ring-border";
   return (
-    <div className="dojo-card group relative flex items-center gap-3 rounded-xl border border-border bg-card p-3.5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-foreground/20 hover:shadow-md">
-      <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-lg ring-1 ${iconWrap}`}>
-        <Icon className="h-[18px] w-[18px]" />
-      </div>
-      <div className="min-w-0 flex-1">
-        <div className="truncate text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-          {label}
+    <div className="dojo-card group relative flex flex-col gap-2 rounded-xl border border-border bg-card p-3.5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-foreground/20 hover:shadow-md">
+      <div className="flex items-center justify-between gap-2">
+        <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg ring-1 ${iconWrap}`}>
+          <Icon className="h-[18px] w-[18px]" />
         </div>
-        <div className={`mt-0.5 text-2xl font-bold leading-none tracking-tight ${tintCls}`}>
+        <div className={`text-2xl font-bold leading-none tracking-tight ${tintCls}`}>
           {value ?? "—"}
         </div>
+      </div>
+      <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground leading-tight">
+        {label}
       </div>
     </div>
   );
 }
+
 
 function StatusBadge({ status, className }: { status?: string; className?: string }) {
   const map: Record<string, { label: string; cls: string }> = {
