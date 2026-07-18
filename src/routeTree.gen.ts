@@ -59,7 +59,6 @@ import { Route as DojoAppCompetitionsRouteImport } from './routes/dojo.app.compe
 import { Route as DojoAppCheckinRouteImport } from './routes/dojo.app.checkin'
 import { Route as DojoAppCertificatesRouteImport } from './routes/dojo.app.certificates'
 import { Route as DojoAppAccountRouteImport } from './routes/dojo.app.account'
-import { Route as ApiPublicDebugFcRouteImport } from './routes/api/public/debug-fc'
 import { Route as AuthenticatedStoreWholesaleRouteImport } from './routes/_authenticated/store.wholesale'
 import { Route as AuthenticatedStoreSizesRouteImport } from './routes/_authenticated/store.sizes'
 import { Route as AuthenticatedStoreShippingRouteImport } from './routes/_authenticated/store.shipping'
@@ -381,11 +380,6 @@ const DojoAppAccountRoute = DojoAppAccountRouteImport.update({
   id: '/account',
   path: '/account',
   getParentRoute: () => DojoAppRoute,
-} as any)
-const ApiPublicDebugFcRoute = ApiPublicDebugFcRouteImport.update({
-  id: '/api/public/debug-fc',
-  path: '/api/public/debug-fc',
-  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedStoreWholesaleRoute =
   AuthenticatedStoreWholesaleRouteImport.update({
@@ -863,7 +857,6 @@ export interface FileRoutesByFullPath {
   '/store/shipping': typeof AuthenticatedStoreShippingRoute
   '/store/sizes': typeof AuthenticatedStoreSizesRoute
   '/store/wholesale': typeof AuthenticatedStoreWholesaleRoute
-  '/api/public/debug-fc': typeof ApiPublicDebugFcRoute
   '/dojo/app/account': typeof DojoAppAccountRoute
   '/dojo/app/certificates': typeof DojoAppCertificatesRoute
   '/dojo/app/checkin': typeof DojoAppCheckinRoute
@@ -984,7 +977,6 @@ export interface FileRoutesByTo {
   '/store/shipping': typeof AuthenticatedStoreShippingRoute
   '/store/sizes': typeof AuthenticatedStoreSizesRoute
   '/store/wholesale': typeof AuthenticatedStoreWholesaleRoute
-  '/api/public/debug-fc': typeof ApiPublicDebugFcRoute
   '/dojo/app/account': typeof DojoAppAccountRoute
   '/dojo/app/certificates': typeof DojoAppCertificatesRoute
   '/dojo/app/checkin': typeof DojoAppCheckinRoute
@@ -1107,7 +1099,6 @@ export interface FileRoutesById {
   '/_authenticated/store/shipping': typeof AuthenticatedStoreShippingRoute
   '/_authenticated/store/sizes': typeof AuthenticatedStoreSizesRoute
   '/_authenticated/store/wholesale': typeof AuthenticatedStoreWholesaleRoute
-  '/api/public/debug-fc': typeof ApiPublicDebugFcRoute
   '/dojo/app/account': typeof DojoAppAccountRoute
   '/dojo/app/certificates': typeof DojoAppCertificatesRoute
   '/dojo/app/checkin': typeof DojoAppCheckinRoute
@@ -1232,7 +1223,6 @@ export interface FileRouteTypes {
     | '/store/shipping'
     | '/store/sizes'
     | '/store/wholesale'
-    | '/api/public/debug-fc'
     | '/dojo/app/account'
     | '/dojo/app/certificates'
     | '/dojo/app/checkin'
@@ -1353,7 +1343,6 @@ export interface FileRouteTypes {
     | '/store/shipping'
     | '/store/sizes'
     | '/store/wholesale'
-    | '/api/public/debug-fc'
     | '/dojo/app/account'
     | '/dojo/app/certificates'
     | '/dojo/app/checkin'
@@ -1475,7 +1464,6 @@ export interface FileRouteTypes {
     | '/_authenticated/store/shipping'
     | '/_authenticated/store/sizes'
     | '/_authenticated/store/wholesale'
-    | '/api/public/debug-fc'
     | '/dojo/app/account'
     | '/dojo/app/certificates'
     | '/dojo/app/checkin'
@@ -1545,7 +1533,6 @@ export interface RootRouteChildren {
   LojaCarrinhoRoute: typeof LojaCarrinhoRoute
   LojaCheckoutRoute: typeof LojaCheckoutRoute
   LojaIndexRoute: typeof LojaIndexRoute
-  ApiPublicDebugFcRoute: typeof ApiPublicDebugFcRoute
   LojaCategoriaSlugRoute: typeof LojaCategoriaSlugRoute
   LojaContaPedidosRoute: typeof LojaContaPedidosRoute
   LojaCustomShopKindRoute: typeof LojaCustomShopKindRoute
@@ -1925,13 +1912,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/dojo/app/account'
       preLoaderRoute: typeof DojoAppAccountRouteImport
       parentRoute: typeof DojoAppRoute
-    }
-    '/api/public/debug-fc': {
-      id: '/api/public/debug-fc'
-      path: '/api/public/debug-fc'
-      fullPath: '/api/public/debug-fc'
-      preLoaderRoute: typeof ApiPublicDebugFcRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/store/wholesale': {
       id: '/_authenticated/store/wholesale'
@@ -2676,7 +2656,6 @@ const rootRouteChildren: RootRouteChildren = {
   LojaCarrinhoRoute: LojaCarrinhoRoute,
   LojaCheckoutRoute: LojaCheckoutRoute,
   LojaIndexRoute: LojaIndexRoute,
-  ApiPublicDebugFcRoute: ApiPublicDebugFcRoute,
   LojaCategoriaSlugRoute: LojaCategoriaSlugRoute,
   LojaContaPedidosRoute: LojaContaPedidosRoute,
   LojaCustomShopKindRoute: LojaCustomShopKindRoute,
