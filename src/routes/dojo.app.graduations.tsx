@@ -142,7 +142,7 @@ function GraduationsPage() {
               <div className="grid gap-2 md:grid-cols-2">
                 {(belts.data ?? []).map((b: any) => (
                   <div key={b.id} className="flex items-center gap-2 border rounded p-2">
-                    <BeltVisual colorHex={b.color_hex} stripeHex={b.stripe_hex} degree={0} maxDegrees={b.max_degrees} />
+                    <BeltVisual colorHex={b.color_hex} name={b.name} stripeHex={b.stripe_hex} degree={0} maxDegrees={b.max_degrees} />
                     <div className="flex-1 min-w-0 text-sm truncate">{b.name}</div>
                     <Input
                       type="number" min={0} className="w-24"
@@ -168,7 +168,7 @@ function GraduationsPage() {
               <div className="grid gap-2 md:grid-cols-2">
                 {(belts.data ?? []).map((b: any) => (
                   <div key={b.id} className="flex items-center gap-2 border rounded p-2">
-                    <BeltVisual colorHex={b.color_hex} stripeHex={b.stripe_hex} degree={0} maxDegrees={b.max_degrees} />
+                    <BeltVisual colorHex={b.color_hex} name={b.name} stripeHex={b.stripe_hex} degree={0} maxDegrees={b.max_degrees} />
                     <div className="flex-1 min-w-0 text-sm truncate">{b.name}</div>
                     <Input
                       type="number" min={0} className="w-24"
@@ -315,7 +315,7 @@ function GraduationsPage() {
                 <div className="flex flex-col gap-1">
                   {Array.from({ length: b.max_degrees + 1 }).map((_, d) => (
                     <div key={d} className="flex items-center gap-2">
-                      <BeltVisual colorHex={b.color_hex} stripeHex={b.stripe_hex} degree={d} maxDegrees={b.max_degrees} />
+                      <BeltVisual colorHex={b.color_hex} name={b.name} stripeHex={b.stripe_hex} degree={d} maxDegrees={b.max_degrees} />
                       <span className="text-[11px] text-muted-foreground">{d === 0 ? "sem grau" : `${d}º`}</span>
                     </div>
                   ))}
