@@ -267,7 +267,7 @@ function StudentDetail() {
         {/* ============ ÁREA PRINCIPAL ============ */}
         <main className="min-w-0 space-y-4">
           {/* KPIs */}
-          <div className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-6">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
             <Kpi icon={Activity} label="Dias treinando" value={daysTraining || "—"} />
             <Kpi icon={CalendarCheck} label="Presença no mês" value={attendanceThisMonth} />
             <Kpi icon={Wallet} label="Mensalidades pagas" value={paidInvoices} tint={paidInvoices > 0 ? "success" : undefined} />
