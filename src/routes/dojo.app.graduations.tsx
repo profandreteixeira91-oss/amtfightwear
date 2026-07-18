@@ -270,7 +270,7 @@ function GraduationsPage() {
                     </div>
                   </div>
                   {s.belt?.color_hex && (
-                    <BeltVisual colorHex={s.belt.color_hex} stripeHex={s.belt.stripe_hex} degree={s.current_degree ?? 0} maxDegrees={s.belt?.max_degrees ?? 4} />
+                    <BeltVisual name={s.belt.name} colorHex={s.belt.color_hex} stripeHex={s.belt.stripe_hex} degree={s.current_degree ?? 0} maxDegrees={s.belt?.max_degrees ?? 4} />
                   )}
                 </label>
               ))}
