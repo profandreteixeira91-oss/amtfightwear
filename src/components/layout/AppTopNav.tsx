@@ -135,6 +135,18 @@ const groups: { label: string; items: Item[] }[] = [
     ],
   },
   {
+    label: "Dojo Manager",
+    items: [
+      { title: "Painel", url: "/dojo", icon: LayoutDashboard },
+      { title: "Alunos", url: "/dojo/students", icon: Users },
+      { title: "Graduações", url: "/dojo/graduations", icon: Shield },
+      { title: "Planos", url: "/dojo/plans", icon: Package },
+      { title: "Financeiro", url: "/dojo/finance", icon: DollarSign },
+      { title: "Unidades", url: "/dojo/units", icon: Store },
+      { title: "Certificados", url: "/dojo/certificates", icon: ScrollText },
+    ],
+  },
+  {
     label: "Conta",
     items: [
       { title: "Perfil", url: "/profile", icon: User },
