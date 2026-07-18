@@ -489,3 +489,143 @@ export const issueCertificate = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return row;
   });
+
+// ============ GRADUATION SETTINGS ============
+export const getGraduationSettings = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
+      .from("dojo_graduation_settings")
+      .select("*")
+      .eq("owner_id", ownerId(context))
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    return data ?? {
+      system: "merit",
+      classes_by_belt: {},
+      period_months_by_belt: {},
+      default_classes: 60,
+      default_period_months: 12,
+    };
+  });
+
+export const saveGraduationSettings = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({
+    system: z.enum(["merit", "classes", "period"]),
+    classes_by_belt: z.record(z.string(), z.number()).optional(),
+    period_months_by_belt: z.record(z.string(), z.number()).optional(),
+    default_classes: z.number().int().min(0).max(10000).optional(),
+    default_period_months: z.number().int().min(0).max(240).optional(),
+  }).parse(i))
+  .handler(async ({ data, context }) => {
+    const payload = {
+      owner_id: ownerId(context),
+      system: data.system,
+      classes_by_belt: data.classes_by_belt ?? {},
+      period_months_by_belt: data.period_months_by_belt ?? {},
+      default_classes: data.default_classes ?? 60,
+      default_period_months: data.default_period_months ?? 12,
+    };
+    const { error } = await context.supabase
+      .from("dojo_graduation_settings")
+      .upsert(payload, { onConflict: "owner_id" });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// ============ BULK GRADUATION ============
+export const addBulkGraduation = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({
+    student_ids: z.array(z.string().uuid()).min(1),
+    belt_id: z.string().uuid(),
+    degree: z.number().int().min(0).max(10).default(0),
+    graduation_date: z.string(),
+    evaluator: z.string().max(200).optional().nullable(),
+    notes: z.string().max(2000).optional().nullable(),
+  }).parse(i))
+  .handler(async ({ data, context }) => {
+    const rows = data.student_ids.map(sid => ({
+      student_id: sid,
+      belt_id: data.belt_id,
+      degree: data.degree,
+      graduation_date: data.graduation_date,
+      evaluator: data.evaluator ?? null,
+      notes: data.notes ?? null,
+      owner_id: ownerId(context),
+    }));
+    const { data: inserted, error } = await context.supabase
+      .from("dojo_graduations").insert(rows).select("id, student_id");
+    if (error) throw new Error(error.message);
+    await context.supabase
+      .from("dojo_students")
+      .update({ current_belt_id: data.belt_id, current_degree: data.degree })
+      .in("id", data.student_ids);
+    return { count: inserted?.length ?? 0, graduations: inserted ?? [] };
+  });
+
+// ============ EVALUATIONS ============
+const evalItemSchema = z.object({
+  type: z.enum(["teorica", "pratica"]),
+  question: z.string().min(1).max(1000),
+  max_score: z.number().min(0).max(1000),
+  notes: z.string().max(1000).optional().nullable(),
+});
+
+export const listDojoEvaluations = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
+      .from("dojo_evaluations")
+      .select("*, belt:dojo_belts(name,color_hex,stripe_hex,max_degrees)")
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+export const saveDojoEvaluation = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({
+    id: z.string().uuid().optional(),
+    belt_id: z.string().uuid().optional().nullable(),
+    degree: z.number().int().min(0).max(10).default(0),
+    title: z.string().min(1).max(200),
+    description: z.string().max(2000).optional().nullable(),
+    items: z.array(evalItemSchema),
+    passing_score: z.number().min(0).optional().nullable(),
+    active: z.boolean().optional(),
+  }).parse(i))
+  .handler(async ({ data, context }) => {
+    const total = data.items.reduce((s, it) => s + Number(it.max_score || 0), 0);
+    const payload = {
+      belt_id: data.belt_id ?? null,
+      degree: data.degree,
+      title: data.title,
+      description: data.description ?? null,
+      items: data.items,
+      total_score: total,
+      passing_score: data.passing_score ?? null,
+      active: data.active ?? true,
+    };
+    if (data.id) {
+      const { error } = await context.supabase.from("dojo_evaluations").update(payload).eq("id", data.id);
+      if (error) throw new Error(error.message);
+      return { id: data.id };
+    }
+    const { data: row, error } = await context.supabase
+      .from("dojo_evaluations")
+      .insert({ ...payload, owner_id: ownerId(context) })
+      .select("id").single();
+    if (error) throw new Error(error.message);
+    return { id: row.id };
+  });
+
+export const deleteDojoEvaluation = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase.from("dojo_evaluations").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
