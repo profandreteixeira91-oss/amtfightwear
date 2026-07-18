@@ -1468,6 +1468,42 @@ export type Database = {
         }
         Relationships: []
       }
+      dojo_api_keys: {
+        Row: {
+          created_at: string
+          hashed_key: string
+          id: string
+          last_used_at: string | null
+          name: string
+          owner_id: string
+          prefix: string
+          revoked_at: string | null
+          scopes: string[]
+        }
+        Insert: {
+          created_at?: string
+          hashed_key: string
+          id?: string
+          last_used_at?: string | null
+          name: string
+          owner_id: string
+          prefix: string
+          revoked_at?: string | null
+          scopes?: string[]
+        }
+        Update: {
+          created_at?: string
+          hashed_key?: string
+          id?: string
+          last_used_at?: string | null
+          name?: string
+          owner_id?: string
+          prefix?: string
+          revoked_at?: string | null
+          scopes?: string[]
+        }
+        Relationships: []
+      }
       dojo_attendance: {
         Row: {
           checked_in_at: string
@@ -3890,6 +3926,89 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      dojo_webhook_deliveries: {
+        Row: {
+          attempt: number
+          created_at: string
+          endpoint_id: string
+          event: string
+          id: string
+          owner_id: string
+          payload: Json
+          response: string | null
+          status: number | null
+        }
+        Insert: {
+          attempt?: number
+          created_at?: string
+          endpoint_id: string
+          event: string
+          id?: string
+          owner_id: string
+          payload?: Json
+          response?: string | null
+          status?: number | null
+        }
+        Update: {
+          attempt?: number
+          created_at?: string
+          endpoint_id?: string
+          event?: string
+          id?: string
+          owner_id?: string
+          payload?: Json
+          response?: string | null
+          status?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_webhook_deliveries_endpoint_id_fkey"
+            columns: ["endpoint_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_webhook_endpoints"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_webhook_endpoints: {
+        Row: {
+          active: boolean
+          created_at: string
+          events: string[]
+          id: string
+          last_delivery_at: string | null
+          last_status: number | null
+          owner_id: string
+          secret: string | null
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          events?: string[]
+          id?: string
+          last_delivery_at?: string | null
+          last_status?: number | null
+          owner_id: string
+          secret?: string | null
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          events?: string[]
+          id?: string
+          last_delivery_at?: string | null
+          last_status?: number | null
+          owner_id?: string
+          secret?: string | null
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
       }
       email_send_log: {
         Row: {
