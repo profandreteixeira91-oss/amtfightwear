@@ -186,7 +186,7 @@ function DojoLayout() {
         </Sidebar>
 
         <SidebarInset className="bg-[color:var(--dojo-surface)]">
-          <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-[color:var(--dojo-border)] bg-background/80 backdrop-blur px-3 md:px-6">
+          <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-[color:var(--dojo-border)] bg-white/85 backdrop-blur-md px-3 md:px-6 shadow-[0_1px_0_0_oklch(0.92_0.006_250)]">
             <SidebarTrigger className="-ml-1" />
             <div className="min-w-0 flex-1">
               <h1 className="font-display text-base md:text-lg font-bold tracking-tight leading-tight truncate">
@@ -204,20 +204,20 @@ function DojoLayout() {
                 <input
                   type="search"
                   placeholder="Buscar aluno, plano, unidade…"
-                  className="h-9 w-64 rounded-md border border-[color:var(--dojo-border)] bg-white pl-8 pr-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  className="h-9 w-64 rounded-lg border border-[color:var(--dojo-border)] bg-[color:var(--dojo-surface-2)] pl-8 pr-3 text-sm outline-none transition-colors focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/15"
                 />
               </div>
               <button
                 title="Notificações"
-                className="grid h-9 w-9 place-items-center rounded-md border border-[color:var(--dojo-border)] bg-white text-muted-foreground hover:text-foreground"
+                className="grid h-9 w-9 place-items-center rounded-lg border border-[color:var(--dojo-border)] bg-white text-muted-foreground hover:text-foreground hover:border-[color:var(--dojo-border-strong)] transition-colors"
               >
                 <Bell className="h-4 w-4" />
               </button>
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 rounded-md border border-[color:var(--dojo-border)] bg-white px-2 py-1.5 hover:bg-muted transition-colors">
-                  <div className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-foreground text-background text-xs font-bold">
+                <button className="flex items-center gap-2 rounded-lg border border-[color:var(--dojo-border)] bg-white px-2 py-1.5 hover:border-[color:var(--dojo-border-strong)] hover:shadow-sm transition-all">
+                  <div className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
                     {initial}
                   </div>
                   <span className="hidden sm:inline max-w-[160px] truncate text-sm font-medium">
