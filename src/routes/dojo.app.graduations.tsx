@@ -7,12 +7,13 @@ import {
   listCertificateTemplates, issueCertificate,
 } from "@/lib/dojo/dojo.functions";
 import { BeltVisual } from "@/components/dojo/BeltVisual";
+import { CertificatePreviewDialog, openCertificatePrint, type CertificateTemplate } from "@/components/dojo/CertificatePreview";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { CheckCircle2, Award } from "lucide-react";
+import { CheckCircle2, Award, Eye, Printer } from "lucide-react";
 
 export const Route = createFileRoute("/dojo/app/graduations")({
   component: NewGraduationPage,
