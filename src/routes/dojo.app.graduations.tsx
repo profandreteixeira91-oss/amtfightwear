@@ -46,10 +46,33 @@ function NewGraduationPage() {
   const [templateId, setTemplateId] = useState("");
   const [issued, setIssued] = useState<Set<string>>(new Set());
 
+  // Hide Preta variants from the belt dropdown — they are chosen via the "Grau" selector below.
+  const visibleBelts = useMemo(
+    () => (belts.data ?? []).filter((b: any) => {
+      const n = b.name as string;
+      return !/^preta\s+com\s+aparador$/i.test(n) && !/^preta\s+\d+\s+grau$/i.test(n);
+    }),
+    [belts.data]
+  );
+
   const selectedBelt = useMemo(
     () => (belts.data ?? []).find((b: any) => b.id === beltId),
     [belts.data, beltId]
   );
+  const isPretaBase = /^preta$/i.test(selectedBelt?.name ?? "");
+  // Preta variant: 'plain' | 'aparador' | 1..6
+  const [pretaVariant, setPretaVariant] = useState<string>("plain");
+
+  // Resolve the actual belt row to submit when Preta base is chosen.
+  const effectiveBelt = useMemo(() => {
+    if (!isPretaBase) return selectedBelt;
+    const all = belts.data ?? [];
+    if (pretaVariant === "aparador") return all.find((b: any) => /^preta\s+com\s+aparador$/i.test(b.name)) ?? selectedBelt;
+    const n = Number(pretaVariant);
+    if (n >= 1 && n <= 6) return all.find((b: any) => new RegExp(`^preta\\s+${n}\\s+grau$`, "i").test(b.name)) ?? selectedBelt;
+    return selectedBelt;
+  }, [isPretaBase, pretaVariant, selectedBelt, belts.data]);
+
   const maxDeg = selectedBelt?.max_degrees ?? 4;
   const fixedDegreeName = /^vermelha e preta$/i.test(selectedBelt?.name ?? "")
     ? 7
@@ -63,6 +86,7 @@ function NewGraduationPage() {
   if (isFixedDegree && degree !== fixedDegreeName) {
     setTimeout(() => setDegree(fixedDegreeName as number), 0);
   }
+
 
   const selectedRows = useMemo(
     () => (students.data ?? []).filter((s: any) => selectedStudents.has(s.id)),
