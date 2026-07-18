@@ -122,7 +122,7 @@ function FinancePage() {
                     "shrink-0 flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors",
                     isActive
                       ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-muted",
+                      : "text-muted-foreground hover:bg-primary hover:text-primary-foreground",
                   )}
                 >
                   <Icon className="h-3.5 w-3.5" />
