@@ -45,7 +45,6 @@ function AuthPage() {
   const redirect =
     rawRedirect && /^\/(?!\/)/.test(rawRedirect) ? rawRedirect : undefined;
   const [checking, setChecking] = useState(true);
-  const [googleLoading, setGoogleLoading] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
