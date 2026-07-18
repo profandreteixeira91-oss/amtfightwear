@@ -143,6 +143,16 @@ function CertificatesPage() {
   };
 
   // Preview values
+  const academyProfile = (require("@tanstack/react-query") as any).useQuery({
+    queryKey: ["dojo-academy-profile"],
+    queryFn: async () => {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) return null;
+      const { data } = await supabase.from("dojo_academy_profile").select("*").eq("owner_id", u.user.id).maybeSingle();
+      return data;
+    },
+    staleTime: 60_000,
+  });
   const previewValues = useMemo(() => {
     const base: Record<string, string> = { ...systemValues() };
     ALL_VARIABLES.forEach((v) => { base[v.key] = v.sample ? v.sample : `[${v.label}]`; });
