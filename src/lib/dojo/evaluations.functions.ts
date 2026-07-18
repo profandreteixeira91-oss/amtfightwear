@@ -393,7 +393,7 @@ export const updateEvalSession = createServerFn({ method: "POST" })
     }
 
     const { error } = await context.supabase
-      .from("dojo_eval_sessions").update(patch).eq("id", data.id);
+      .from("dojo_eval_sessions").update(patch as never).eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
