@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { listDojoStudents } from "@/lib/dojo/dojo.functions";
 
-export const Route = createFileRoute("/_authenticated/dojo/app/graduations")({
+export const Route = createFileRoute("/_dojo/dojo/app/graduations")({
   component: GraduationsPage,
 });
 
