@@ -43,7 +43,7 @@ function DojoLanding() {
           </div>
           <div className="flex gap-2">
             <Button asChild variant="ghost" size="sm">
-              <Link to="/auth">Entrar</Link>
+              <Link to="/dojo/auth">Entrar</Link>
             </Button>
             <Button asChild size="sm">
               <Link to="/dojo/checkout">Começar agora</Link>

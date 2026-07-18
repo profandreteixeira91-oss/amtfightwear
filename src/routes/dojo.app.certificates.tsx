@@ -13,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Trash2, Upload, Plus } from "lucide-react";
 
-export const Route = createFileRoute("/_dojo/dojo/app/certificates")({
+export const Route = createFileRoute("/dojo/app/certificates")({
   component: CertificatesPage,
 });
 

@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { toast } from "sonner";
 import { Trash2, Pencil } from "lucide-react";
 
-export const Route = createFileRoute("/_dojo/dojo/app/plans")({
+export const Route = createFileRoute("/dojo/app/plans")({
   component: PlansPage,
 });
 
