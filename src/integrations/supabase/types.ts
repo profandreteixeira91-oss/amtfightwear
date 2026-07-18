@@ -1577,6 +1577,59 @@ export type Database = {
           },
         ]
       }
+      dojo_evaluations: {
+        Row: {
+          active: boolean
+          belt_id: string | null
+          created_at: string
+          degree: number
+          description: string | null
+          id: string
+          items: Json
+          owner_id: string
+          passing_score: number | null
+          title: string
+          total_score: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          belt_id?: string | null
+          created_at?: string
+          degree?: number
+          description?: string | null
+          id?: string
+          items?: Json
+          owner_id: string
+          passing_score?: number | null
+          title: string
+          total_score?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          belt_id?: string | null
+          created_at?: string
+          degree?: number
+          description?: string | null
+          id?: string
+          items?: Json
+          owner_id?: string
+          passing_score?: number | null
+          title?: string
+          total_score?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_evaluations_belt_id_fkey"
+            columns: ["belt_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_belts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dojo_expenses: {
         Row: {
           amount: number
@@ -1626,6 +1679,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      dojo_graduation_settings: {
+        Row: {
+          classes_by_belt: Json
+          created_at: string
+          default_classes: number
+          default_period_months: number
+          id: string
+          owner_id: string
+          period_months_by_belt: Json
+          system: string
+          updated_at: string
+        }
+        Insert: {
+          classes_by_belt?: Json
+          created_at?: string
+          default_classes?: number
+          default_period_months?: number
+          id?: string
+          owner_id: string
+          period_months_by_belt?: Json
+          system?: string
+          updated_at?: string
+        }
+        Update: {
+          classes_by_belt?: Json
+          created_at?: string
+          default_classes?: number
+          default_period_months?: number
+          id?: string
+          owner_id?: string
+          period_months_by_belt?: Json
+          system?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       dojo_graduations: {
         Row: {
