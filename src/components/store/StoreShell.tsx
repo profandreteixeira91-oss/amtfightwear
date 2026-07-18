@@ -9,6 +9,7 @@ import { CartSheet } from "@/components/store/CartSheet";
 import { SearchBar } from "@/components/store/SearchBar";
 import { recordStoreVisit } from "@/lib/store/customers.functions";
 import { WhatsAppFloat } from "@/components/store/WhatsAppFloat";
+import { NotificationsBell } from "@/components/store/NotificationsBell";
 
 
 type StoreCategory = { id?: string; slug: string; name: string; parent_id?: string | null };
