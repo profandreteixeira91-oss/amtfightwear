@@ -170,6 +170,7 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
           <SearchBar />
 
           <div className="flex items-center gap-1 sm:gap-3">
+            {mounted && isAuthed ? <NotificationsBell authed={isAuthed} /> : null}
             {mounted && isAuthed ? (
               <div ref={accountRef} className="relative">
                 <button
