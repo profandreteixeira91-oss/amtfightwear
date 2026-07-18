@@ -172,8 +172,19 @@ function CertificatesPage() {
     base.certificado_numero = base.certificado_numero || "0001";
     base.certificado_codigo = base.certificado_codigo || "AMT-2026-0001";
     base.certificado_validacao = base.certificado_validacao || "https://dojomanager.amtfightwear.com.br/validar/AMT-2026-0001";
+    const ap: any = academyProfile.data;
+    if (ap) {
+      if (ap.trade_name || ap.legal_name) base.academia_nome = ap.trade_name || ap.legal_name;
+      if (ap.address) base.academia_endereco = ap.address;
+      if (ap.city) base.academia_cidade = ap.city;
+      if (ap.state) base.academia_estado = ap.state;
+      if (ap.cnpj) base.academia_cnpj = ap.cnpj;
+      if (ap.phone) base.academia_telefone = ap.phone;
+      if (ap.email) base.academia_email = ap.email;
+      if (ap.logo_url && ap.logo_as_default !== false) base.academia_logo = ap.logo_url;
+    }
     return base;
-  }, [students.data, previewStudentId]);
+  }, [students.data, previewStudentId, academyProfile.data]);
 
   const previewTemplate: CertificateTemplate | null = useMemo(() => {
     if (!editing) return null;
