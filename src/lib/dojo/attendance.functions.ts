@@ -149,13 +149,14 @@ export const regenerateStudentCodes = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const patch: Record<string, string> = {};
+    const patch: { checkin_pin?: string; qr_token?: string } = {};
     if (data.resetPin !== false) patch.checkin_pin = randomPin();
     if (data.resetQr !== false) patch.qr_token = randomToken();
     const { error } = await context.supabase
       .from("dojo_students")
-      .update(patch)
+      .update(patch as any)
       .eq("id", data.studentId);
+
     if (error) throw new Error(error.message);
     return patch;
   });
