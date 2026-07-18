@@ -475,6 +475,11 @@ export const saveCertificateTemplate = createServerFn({ method: "POST" })
       color: z.string().optional(),
       align: z.enum(["left","center","right"]).optional(),
       bold: z.boolean().optional(),
+      kind: z.enum(["variable","static","signature"]).optional(),
+      text: z.string().optional(),
+      imageUrl: z.string().optional(),
+      width: z.number().optional(),
+      height: z.number().optional(),
     })),
     active: z.boolean().optional(),
   }).parse(i))
