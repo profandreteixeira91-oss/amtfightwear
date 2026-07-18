@@ -43,7 +43,7 @@ function TemplateEditor() {
   const { id } = Route.useParams();
   const getFn = useServerFn(getEvalTemplate);
   const saveFn = useServerFn(saveEvalTemplate);
-  const beltsFn = useServerFn(legacyListBelts);
+  const beltsFn = useServerFn(listDojoBelts);
   const qc = useQueryClient();
 
   const { data: tpl, isLoading } = useQuery({
