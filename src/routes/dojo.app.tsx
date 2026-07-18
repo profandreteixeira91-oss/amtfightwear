@@ -34,6 +34,7 @@ import {
   CalendarDays,
   Trophy,
   Film,
+  Smartphone,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
@@ -89,6 +90,12 @@ const nav: { label: string; items: NavItem[] }[] = [
       { to: "/dojo/app/integrations", label: "Integrações", icon: Plug },
     ],
   },
+  {
+    label: "App do Aluno",
+    items: [
+      { to: "/dojo/app/student-app", label: "Editor do App", icon: Smartphone },
+    ],
+  },
 ];
 
 const routeTitles: Array<{ match: (p: string) => boolean; title: string; subtitle?: string }> = [
@@ -105,6 +112,7 @@ const routeTitles: Array<{ match: (p: string) => boolean; title: string; subtitl
   { match: (p) => p.startsWith("/dojo/app/finance"), title: "Financeiro", subtitle: "Recebimentos e a receber" },
   { match: (p) => p.startsWith("/dojo/app/units"), title: "Unidades", subtitle: "Dojos e polos" },
   { match: (p) => p.startsWith("/dojo/app/integrations"), title: "Integrações", subtitle: "Gympass, TotalPass, WhatsApp" },
+  { match: (p) => p.startsWith("/dojo/app/student-app"), title: "Editor do App do Aluno", subtitle: "Personalize o app sem código" },
 ];
 
 function DojoLayout() {
