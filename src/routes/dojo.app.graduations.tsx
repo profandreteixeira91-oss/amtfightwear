@@ -45,7 +45,8 @@ function NewGraduationPage() {
 
   const [registered, setRegistered] = useState<Array<{ id: string; student_id: string }>>([]);
   const [templateId, setTemplateId] = useState("");
-  const [issued, setIssued] = useState<Set<string>>(new Set());
+  const [issued, setIssued] = useState<Map<string, { template: CertificateTemplate; values: Record<string, string>; studentName: string }>>(new Map());
+  const [previewFor, setPreviewFor] = useState<string | null>(null);
 
   // Hide Preta variants from the belt dropdown — they are chosen via the "Grau" selector below.
   const visibleBelts = useMemo(
