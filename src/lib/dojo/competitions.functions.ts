@@ -193,25 +193,6 @@ async function scrapeProvider(providerId: ProviderId): Promise<LiveCompetition[]
   }));
 }
 
-function normalizeDate(v?: string | null): string | null {
-  if (!v) return null;
-  const s = String(v).trim();
-  if (!s || s.toLowerCase() === "null") return null;
-  const d = new Date(s);
-  if (isNaN(d.getTime())) return null;
-  return d.toISOString();
-}
-void normalizeDate;
-
-
-function normalizeDate(v?: string | null): string | null {
-  if (!v) return null;
-  const s = String(v).trim();
-  if (!s || s.toLowerCase() === "null") return null;
-  const d = new Date(s);
-  if (isNaN(d.getTime())) return null;
-  return d.toISOString();
-}
 
 function absoluteUrl(u: string | null | undefined, base: string): string {
   if (!u) return base;
