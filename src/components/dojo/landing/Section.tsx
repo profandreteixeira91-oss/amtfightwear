@@ -27,10 +27,10 @@ export function Section({ id, eyebrow, title, description, children, className =
               {eyebrow}
             </span>
           )}
-          <h2 className="mt-4 text-3xl font-bold tracking-tight text-[#111111] md:text-4xl lg:text-5xl">
+          <h2 className="mt-4 text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
             {title}
           </h2>
-          {description && <p className="mt-4 text-base text-[#111111]/60 md:text-lg">{description}</p>}
+          {description && <p className="mt-4 text-base opacity-70 md:text-lg">{description}</p>}
         </motion.div>
         {children}
       </div>
