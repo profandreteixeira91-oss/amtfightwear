@@ -11,10 +11,18 @@ export const Route = createFileRoute("/api/public/debug-fc")({
         const res = await fetch("https://api.firecrawl.dev/v2/scrape", {
           method: "POST",
           headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-          body: JSON.stringify({ url: target, onlyMainContent: true, formats: ["markdown"] }),
+          body: JSON.stringify({
+            url: target,
+            onlyMainContent: true,
+            formats: [{
+              type: "json",
+              schema: { type: "object", properties: { events: { type: "array", items: { type: "object", properties: { name: {type:"string"}, starts_at:{type:"string"}, city:{type:"string"}, url:{type:"string"} }, required:["name"] } } }, required:["events"] },
+              prompt: "Extract all listed competition/event names with date and city and URL."
+            }],
+          }),
         });
         const body = await res.text();
-        return new Response(JSON.stringify({ status: res.status, body: body.slice(0, 4000) }, null, 2), {
+        return new Response(JSON.stringify({ status: res.status, body: body.slice(0, 6000) }, null, 2), {
           headers: { "Content-Type": "application/json" },
         });
       },
