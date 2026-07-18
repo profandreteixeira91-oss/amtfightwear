@@ -18,6 +18,7 @@ import {
 } from "@/lib/dojo/integrations-catalog";
 import { IntegrationCard, type LiveStatus } from "@/components/dojo/integrations/IntegrationCard";
 import { IntegrationWizard } from "@/components/dojo/integrations/IntegrationWizard";
+import { ApiHubDialog } from "@/components/dojo/integrations/ApiHubDialog";
 
 import { listMyGateways, upsertMyGateway } from "@/lib/dojo/gateways.functions";
 import { listPartnerIntegrations, savePartnerIntegration, listPartnerCheckins } from "@/lib/dojo/attendance.functions";
@@ -50,6 +51,7 @@ function IntegrationsHub() {
   const [query, setQuery] = useState("");
   const [cat, setCat] = useState<CatFilter>("all");
   const [wizardFor, setWizardFor] = useState<IntegrationDef | null>(null);
+  const [apiHubMode, setApiHubMode] = useState<"keys" | "webhooks" | null>(null);
 
   const gwByProvider = useMemo(() => {
     const m = new Map<string, any>();
@@ -195,8 +197,10 @@ function IntegrationsHub() {
                   integration={def}
                   status={statusFor(def)}
                   onConfigure={() => {
+                    if (def.id === "api_keys") return setApiHubMode("keys");
+                    if (def.id === "webhooks") return setApiHubMode("webhooks");
                     if (def.backend === "apis") {
-                      toast.info(`${def.name}: gerencie chaves e webhooks na seção APIs (em preparação).`);
+                      toast.info(`${def.name}: em preparação.`);
                       return;
                     }
                     setWizardFor(def);
@@ -250,6 +254,14 @@ function IntegrationsHub() {
             const r = await test({ data: { integrationId: wizardFor.id, credentials: vals } });
             return r;
           }}
+        />
+      )}
+
+      {apiHubMode && (
+        <ApiHubDialog
+          open={!!apiHubMode}
+          onOpenChange={(v) => !v && setApiHubMode(null)}
+          mode={apiHubMode}
         />
       )}
     </div>
