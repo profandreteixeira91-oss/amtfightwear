@@ -462,15 +462,15 @@ export const saveCertificateTemplate = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => z.object({
     id: z.string().uuid().optional(),
     name: z.string().min(1).max(200),
-    background_url: z.string().min(1).max(2000),
+    background_url: z.string().max(2000).optional().default(""),
     width: z.number().int().min(200).max(6000),
     height: z.number().int().min(200).max(6000),
     fields: z.array(z.object({
       key: z.string(),
-      label: z.string(),
+      label: z.string().optional().default(""),
       x: z.number(),
       y: z.number(),
-      fontSize: z.number().min(6).max(400),
+      fontSize: z.number().min(6).max(400).optional().default(24),
       fontFamily: z.string().optional(),
       color: z.string().optional(),
       align: z.enum(["left","center","right"]).optional(),
@@ -481,6 +481,9 @@ export const saveCertificateTemplate = createServerFn({ method: "POST" })
       width: z.number().optional(),
       height: z.number().optional(),
     })),
+    variables: z.record(z.any()).optional(),
+    category: z.string().max(50).optional(),
+    is_default: z.boolean().optional(),
     active: z.boolean().optional(),
   }).parse(i))
   .handler(async ({ data, context }) => {
