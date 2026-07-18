@@ -45,6 +45,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { DojoLogo } from "@/components/dojo/DojoLogo";
 
 export const Route = createFileRoute("/dojo/app")({
   head: () => ({ meta: [{ title: "Painel — AMT Dojo Manager" }] }),
