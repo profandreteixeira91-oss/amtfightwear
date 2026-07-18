@@ -1,123 +1,145 @@
 
-# App do Aluno — AMT Dojo Manager
+# Editor Visual do App do Aluno (No-Code)
 
-Este é um módulo grande. Vou entregar como **PWA white-label instalável** (mesmo codebase TanStack Start), servido no subdomínio `dojomanager.amtfightwear.com.br/app` — instalável em Android e iOS via "Adicionar à tela inicial", com identidade visual carregada dinamicamente por academia (sem menção à AMT para o aluno). APK Android pode ser gerado depois via wrapper (PWABuilder/Bubblewrap) sem retrabalho.
+Painel admin em `/dojo/app/student-app` para configurar o portal `/app` sem código. Toda config vive em uma tabela nova (`dojo_student_app_config`) por academia — o app do aluno lê essa config em tempo real e monta a UI dinamicamente.
 
-## Arquitetura
+## Modelo de dados
 
-```text
-/app                        ← área do aluno (layout próprio, sem chrome do Dojo)
-  /app/login                ← login público (email/CPF/matrícula + senha)
-  /app/_student/            ← rota protegida (BottomNav)
-    home                    ← dashboard
-    agenda                  ← aulas das turmas do aluno
-    checkin                 ← QR/PIN + histórico + frequência
-    videos                  ← lista + player + progresso
-    videos/$id
-    graduations             ← faixa, graus, timeline
-    certificates            ← lista + download PDF + validar QR
-    competitions            ← próximas + inscritas
-    finance                 ← faturas + PIX + boletos
-    profile                 ← edição limitada
-    documents               ← contratos, LGPD, atestados
-    notifications           ← central
-    settings                ← senha, notificações, tema
-```
-
-**White label**: um `StudentThemeProvider` no `_student` carrega `dojo_academy_profile` (logo, nome, cores) do owner do aluno, injeta CSS custom properties (`--brand-primary`, etc.) e o `<title>` / manifest. O nome "AMT" some do UI para o aluno.
-
-**Autenticação**: reusa Supabase Auth já existente; aluno é identificado por `dojo_students.user_id` (ou email match). Todas as leituras rodam via `createServerFn` com `requireSupabaseAuth` e uma nova middleware `requireStudent` que resolve o `dojo_students` do usuário logado e aplica RLS baseada em `student_id`.
-
-**PWA**: manifest dinâmico gerado por server route `/app/manifest.webmanifest` lendo cores/nome da academia (via subdomínio ou cookie de tenant). Meta tags iOS. Splash gerado pelo manifest. **Sem service worker de offline nesta primeira entrega** (regra Lovable: só quando explicitamente pedido offline completo; aqui deixamos preparado).
-
-## Backend novo (migração + funções)
-
-Novas RLS/policies para o role "aluno" nas tabelas já existentes:
-- `dojo_students` (self read/update em campos permitidos)
-- `dojo_attendance`, `dojo_class_students`, `dojo_class_occurrences`
-- `dojo_videos` (com controle de acesso), `dojo_video_progress`, `dojo_video_favorites`
-- `dojo_graduations`, `dojo_certificates`
-- `dojo_competitions`, `dojo_competition_athletes`
-- `dojo_invoices`, `dojo_enrollments`
-- `dojo_account_notifications` (repurposed p/ aluno)
-
-Novo arquivo `src/lib/student/student.functions.ts` com:
-- `getMyProfile`, `updateMyProfile` (whitelisted fields)
-- `getMyHome` (dashboard agregado — 1 chamada)
-- `getMyAgenda(range)`
-- `checkinSelf(pin|qr)` (respeita `dojo_checkin_settings`)
-- `getMyAttendance(range)` + `getMyFrequencyStats`
-- `getMyVideos`, `getMyVideoProgress`, `saveVideoProgress`, `toggleFavorite`
-- `getMyGraduations`, `getMyCurrentBelt`
-- `getMyCertificates` + `downloadCertificatePdf` (reuso do gerador existente)
-- `getMyCompetitions`, `confirmCompetition`
-- `getMyInvoices`, `getPixForInvoice`
-- `getMyNotifications`, `markNotificationRead`
-- `getAcademyBranding` (público-para-aluno: logo, nome, cores)
-
-Novo arquivo `src/lib/student/student-middleware.ts`:
-- `requireStudent` — resolve `dojo_students` pelo `auth.uid()` via `user_id` ou `email`.
-
-## Frontend novo
+Uma linha por academia + histórico de versões:
 
 ```text
-src/routes/
-  app.tsx                        ← layout raiz (theme provider white-label)
-  app.index.tsx                  ← redirect /app/home
-  app.login.tsx                  ← login público
-  app._student.tsx               ← gate + BottomNav + header
-  app._student.home.tsx
-  app._student.agenda.tsx
-  app._student.checkin.tsx
-  app._student.videos.tsx
-  app._student.videos.$id.tsx
-  app._student.graduations.tsx
-  app._student.certificates.tsx
-  app._student.competitions.tsx
-  app._student.finance.tsx
-  app._student.profile.tsx
-  app._student.documents.tsx
-  app._student.notifications.tsx
-  app._student.settings.tsx
-  api/public/app/manifest.webmanifest.ts   ← manifest dinâmico
-  api/public/app/branding.$owner.ts        ← cores/logo (público, sem PII)
-
-src/components/student/
-  BottomNav.tsx
-  StudentHeader.tsx
-  StudentThemeProvider.tsx
-  KpiCard.tsx, EmptyState.tsx, SkeletonList.tsx, PullToRefresh.tsx
-  QrScanner.tsx (usa BarcodeDetector com fallback)
+dojo_student_app_config           ← config publicada (1 por owner)
+  owner_id, version, published_at, published_by, config jsonb, draft jsonb
+dojo_student_app_versions         ← histórico
+  owner_id, version, config jsonb, label, author_id, created_at
+dojo_student_app_news             ← notícias/banners
+  owner_id, type (news|banner), title, body, image_url, cta_label,
+  cta_link, starts_at, ends_at, priority, audience, active
 ```
 
-Design system: mobile-first (max-w-md), bottom nav com 5 abas principais (Home / Agenda / Check-in / Vídeos / Perfil), demais telas via "Mais" ou cards no home. Skeleton loading, `refetchOnWindowFocus`, animações discretas.
+Formato do `config jsonb` (contrato do app):
 
-## Segurança
+```json
+{
+  "appearance": {
+    "app_name": "Team Alpha",
+    "logo_url": "...",
+    "app_icon_url": "...",
+    "splash_url": "...",
+    "login_bg_url": "...",
+    "home_hero_url": "...",
+    "brand_primary": "#dc2626",
+    "brand_secondary": "#0a0a0a",
+    "button_color": null,
+    "bottom_nav_color": "#ffffff",
+    "card_color": "#ffffff",
+    "title_color": "#0a0a0a",
+    "font_family": "Inter",
+    "theme_mode": "light"
+  },
+  "features": {
+    "agenda": true, "checkin": true, "videos": true, "graduations": true,
+    "certificates": true, "finance": true, "competitions": true,
+    "profile": true, "documents": true, "news": true, "messages": false,
+    "events": true, "announcements": true, "evaluations": false,
+    "attendance": true, "digital_card": false, "store": false,
+    "ranking": false, "gamification": false, "training_plan": false
+  },
+  "audience": { "student": {...features}, "guardian": {...} },
+  "bottom_nav": [
+    { "id": "home", "label": "Início", "icon": "home", "route": "/app/home" },
+    { "id": "agenda", "label": "Agenda", "icon": "calendar", "route": "/app/agenda" },
+    { "id": "checkin", "label": "Check-in", "icon": "qr", "route": "/app/checkin", "primary": true },
+    { "id": "videos", "label": "Vídeos", "icon": "film", "route": "/app/videos" },
+    { "id": "profile", "label": "Perfil", "icon": "user", "route": "/app/profile" }
+  ],
+  "home_blocks": [
+    { "id": "welcome",    "type": "welcome",    "visible": true },
+    { "id": "banner",     "type": "banner",     "visible": true },
+    { "id": "next_class", "type": "next_class", "visible": true },
+    { "id": "shortcuts",  "type": "shortcuts",  "visible": true,
+      "items": ["checkin","videos","finance","graduations"] },
+    { "id": "news",       "type": "news",       "visible": true },
+    { "id": "invoices",   "type": "open_invoices", "visible": true },
+    { "id": "graduation", "type": "graduation", "visible": false }
+  ],
+  "login": {
+    "title": "Bem-vindo",
+    "subtitle": "Acesse com seu e-mail e senha",
+    "institutional_text": null,
+    "button_color": null,
+    "welcome_screen_enabled": false,
+    "welcome_screen_message": null
+  },
+  "notifications": {
+    "welcome_message": "Bem-vindo(a) ao portal!",
+    "push_enabled": false
+  }
+}
+```
 
-- Supabase JWT + refresh (já implementado).
-- RLS por `owner_id` + `student.user_id = auth.uid()` em cada policy nova.
-- `updateMyProfile` valida whitelist server-side (bloqueia CPF, email, matrícula, faixa, professor).
-- Rate limit em `checkinSelf` respeitando `dojo_checkin_settings.min_interval_minutes`.
+Publicação = copiar `draft` → `config` + bump `version` + snapshot em `dojo_student_app_versions`. Rollback = pegar linha do histórico e restaurar.
 
-## Entregas por fase (evita 1 mega-commit)
+## Backend
 
-**Fase 1 — Fundação (esta iteração)**
-1. Migração RLS + tabelas auxiliares (notif do aluno, se faltar).
-2. `student-middleware.ts` + `student.functions.ts` (Home + Profile + Agenda + Check-in + Notificações).
-3. Rotas: `app.tsx`, `app.login.tsx`, `app._student.tsx` (theme + bottom nav), Home, Perfil, Agenda, Check-in, Notificações.
-4. Manifest dinâmico + meta iOS + splash.
-5. Página de download em `/app/install` com instruções (Android/iOS).
+`src/lib/student-app/config.functions.ts`:
+- `getStudentAppConfig()` — retorna `config` publicada (público-para-aluno via `requireSupabaseAuth`; app do aluno consome). Filtro por owner do aluno logado.
+- `adminGetConfig()` — retorna `{ draft, config, version, updated_at }` (admin).
+- `adminSaveDraft(patch)` — merge no `draft`.
+- `adminPublish(label?)` — draft → config, snapshot na tabela de versões, notifica alunos.
+- `adminListVersions()`, `adminRestoreVersion(version)`, `adminDuplicateVersion(version)`.
+- `adminListNews()`, `adminUpsertNews()`, `adminDeleteNews()`.
+- `getActiveNewsAndBanners()` — para o app do aluno.
 
-**Fase 2** — Vídeos + Graduações + Certificados.
-**Fase 3** — Competições + Financeiro (PIX/boleto) + Documentos + Configurações.
-**Fase 4** — Push notifications (FCM), biometria (WebAuthn), Wallet, offline (SW controlado).
+RLS: `dojo_student_app_config` — admin manage (owner_id = auth.uid()) + aluno SELECT (`owner_id = get_my_student_owner_id()`, mas só colunas de config publicada).
 
-## O que NÃO entrego agora (deixo estrutura pronta)
+## Editor admin — `/dojo/app/student-app`
 
-- APK/IPA nativos (só após homologar PWA).
-- Chat professor↔aluno.
-- Streaming ao vivo, gamificação, ranking, alimentar.
-- Login biométrico ativo (só UI + estrutura).
-- Serviço worker offline (regra Lovable exige pedido explícito de offline).
+Layout de 2 colunas (desktop):
+- **Esquerda**: sidebar com abas (Aparência / Navegação / Funcionalidades / Tela Inicial / Login / Notícias & Banners / Notificações / Versões).
+- **Direita**: preview de celular em tempo real (mockup iPhone/Android via toggle) — renderiza o mesmo bundle do app dentro de um `<iframe src="/app/home?preview=<hash>">` OU um preview React inline lendo o mesmo `config` que está sendo editado (via Zustand store).
 
-Confirma que devo tocar **Fase 1** agora? Se sim, começo pela migração + backend + rotas base.
+Componentes:
+- `AppearancePanel.tsx` — color pickers, upload de logo/splash/hero (bucket `dojo-brand`), tipografia.
+- `NavigationEditor.tsx` — lista `bottom_nav` com drag-and-drop (`@dnd-kit/sortable`, já instalado); editar rótulo, ícone (picker de lucide-icons), rota; adicionar/remover; máx 5.
+- `FeaturesPanel.tsx` — grid de toggles com descrição.
+- `HomeBlocksEditor.tsx` — drag-and-drop de blocos, toggle visibilidade, config por bloco (ex: shortcuts escolhe quais atalhos).
+- `LoginPanel.tsx` — textos + upload da imagem de fundo.
+- `NewsManager.tsx` — CRUD de notícias/banners com datas de vigência e prioridade.
+- `NotificationsPanel.tsx` — mensagens padrão + toggle push (estrutura).
+- `VersionsPanel.tsx` — lista, restaurar, duplicar, comparar (diff JSON).
+- `PublishBar.tsx` — sticky bottom: "Salvar rascunho" + "Publicar" + selo "Alterações não publicadas".
+- `DevicePreview.tsx` — moldura de celular (Android/iPhone/Tablet) envolvendo o preview.
+
+Barra superior do editor:
+- Toggle dispositivo (Android / iPhone / Tablet).
+- "Ver como aluno" (abre `/app` numa nova aba com token).
+- Badge de versão atual e status (Rascunho / Publicado).
+
+## App do aluno — consumir a config
+
+Refatorar as rotas em `src/routes/app._student.*.tsx` para ler `useStudentAppConfig()` (React Query) e:
+- BottomNav renderiza itens de `config.bottom_nav`.
+- Home renderiza `config.home_blocks` em ordem, cada bloco vira um componente (`<WelcomeBlock/>`, `<NextClassBlock/>`, `<ShortcutsBlock items=.../>`, `<NewsBlock/>`, `<BannerBlock/>`, `<OpenInvoicesBlock/>`, `<GraduationBlock/>`).
+- Rotas de funcionalidades desabilitadas retornam redirect para `/app/home` (+ removidas do BottomNav e dos atalhos).
+- Tema aplica cores via CSS custom properties no `StudentThemeProvider` (adicionar novas vars: `--sa-bottom-nav`, `--sa-card`, `--sa-title`, `--sa-button`).
+- Notícias/banners consomem `getActiveNewsAndBanners`.
+
+## O que NÃO faço agora
+
+- Push notifications reais (FCM) — só toggle na config.
+- Editor por perfil (Responsável/Professor/Convidado) além do toggle base — schema pronto (`audience`), UI só para `student`.
+- Widgets custom / marketplace / temas completos / formulários custom (deixados na estrutura JSON, sem UI ainda).
+- Modo escuro real (schema pronto, sem CSS variant nesta iteração).
+- Sincronização em background/lazy loading avançado — app já faz refetch on focus via React Query.
+- Diff visual entre versões (só metadados + JSON preview).
+
+## Entrega desta iteração
+
+1. Migração: tabelas `dojo_student_app_config`, `dojo_student_app_versions`, `dojo_student_app_news` + RLS + GRANTs + trigger de updated_at.
+2. `config.functions.ts` completo.
+3. Rota admin `/dojo/app/student-app` com todos os painéis e preview em tempo real.
+4. Refatoração das telas do aluno para consumir a config (BottomNav dinâmica + Home por blocos + gate de features + tema estendido).
+5. Bloco de notícias/banners no home e página `/app/news`.
+
+Tudo em uma iteração. Confirme para eu começar pela migração.
