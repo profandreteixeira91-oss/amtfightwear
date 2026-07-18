@@ -7,6 +7,7 @@ import {
   listCertificateTemplates, issueCertificate,
 } from "@/lib/dojo/dojo.functions";
 import { BeltVisual } from "@/components/dojo/BeltVisual";
+import beltsReference from "@/assets/amt-belts-reference.jpg";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
