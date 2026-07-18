@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
+import { BeltVisual } from "@/components/dojo/BeltVisual";
 
 export const Route = createFileRoute("/dojo/app/students/$id")({
   component: StudentDetail,
