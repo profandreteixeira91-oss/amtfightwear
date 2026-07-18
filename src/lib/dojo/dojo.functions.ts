@@ -116,7 +116,7 @@ export const saveDojoStudent = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { id, ...rest } = data;
-    const payload: Record<string, unknown> = { ...rest };
+    const payload: any = { ...rest };
     Object.keys(payload).forEach(k => payload[k] === undefined && delete payload[k]);
     if (id) {
       const { error } = await context.supabase.from("dojo_students").update(payload).eq("id", id);
