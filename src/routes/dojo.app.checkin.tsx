@@ -618,34 +618,13 @@ function HistoryPanel() {
 /* ============================ PARTNER (Gympass/TotalPass) ============================ */
 function PartnerPanel({ provider }: { provider: "gympass" | "totalpass" }) {
   const listCfg = useServerFn(listPartnerIntegrations);
-  const saveCfg = useServerFn(savePartnerIntegration);
   const listRuns = useServerFn(listPartnerCheckins);
-  const qc = useQueryClient();
 
   const cfgQ = useQuery({ queryKey: ["dojo-partners"], queryFn: () => listCfg() });
   const runsQ = useQuery({ queryKey: ["dojo-partner-checkins", provider], queryFn: () => listRuns({ data: { limit: 100 } }) });
 
   const cfg = (cfgQ.data ?? []).find((c: any) => c.provider === provider);
-  const [enabled, setEnabled] = useState(false);
-  const [hint, setHint] = useState("");
-  const [secret, setSecret] = useState("");
-
-  useEffect(() => {
-    if (cfg) {
-      setEnabled(!!cfg.enabled);
-      setHint(cfg.api_key_hint || "");
-      setSecret(cfg.webhook_secret || "");
-    }
-  }, [cfg]);
-
-  async function save() {
-    try {
-      await saveCfg({ data: { provider, enabled, apiKeyHint: hint || null, webhookSecret: secret || null } });
-      toast.success("Configuração salva");
-      qc.invalidateQueries({ queryKey: ["dojo-partners"] });
-    } catch (e: any) { toast.error(e.message); }
-  }
-
+  const enabled = !!cfg?.enabled;
   const runs = (runsQ.data ?? []).filter((r: any) => r.provider === provider);
   const brand = provider === "gympass" ? "Gympass" : "TotalPass";
 
@@ -661,30 +640,35 @@ function PartnerPanel({ provider }: { provider: "gympass" | "totalpass" }) {
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between rounded-lg border p-3">
             <div>
-              <div className="font-medium">Integração ativa</div>
-              <div className="text-xs text-muted-foreground">Quando ativa, o sistema aceita validações via webhook oficial.</div>
+              <div className="font-medium flex items-center gap-2">
+                Status
+                <Badge variant={enabled ? "default" : "outline"}>
+                  {enabled ? "Ativa" : "Inativa"}
+                </Badge>
+              </div>
+              <div className="text-xs text-muted-foreground mt-0.5">
+                A configuração ({brand} API, secret e ativação) é feita na Central de Integrações e reflete automaticamente aqui.
+              </div>
             </div>
-            <Switch checked={enabled} onCheckedChange={setEnabled} />
+            <Button asChild variant="outline">
+              <a href="/dojo/app/integrations">Abrir Integrações</a>
+            </Button>
           </div>
-          <div className="grid md:grid-cols-2 gap-3">
-            <div>
-              <Label>Identificador da API (hint)</Label>
-              <Input value={hint} onChange={(e) => setHint(e.target.value)} placeholder="ex: acad-abc123" />
+
+          {cfg?.api_key_hint && (
+            <div className="text-xs text-muted-foreground">
+              Identificador configurado: <code>{cfg.api_key_hint}</code>
             </div>
-            <div>
-              <Label>Segredo do webhook</Label>
-              <Input type="password" value={secret} onChange={(e) => setSecret(e.target.value)} placeholder="HMAC secret" />
-            </div>
-          </div>
+          )}
+
           <div className="rounded-lg bg-muted/50 p-3 text-xs space-y-1">
             <div className="font-mono break-all">
               Endpoint: <span className="text-primary">/api/public/dojo/partner-checkin/{provider}?owner=...</span>
             </div>
             <div className="text-muted-foreground">
-              Envie POST com JSON contendo user_id/email/cpf e opcionalmente token. Assinatura HMAC via header <code>x-signature</code>.
+              Cole essa URL no painel {brand}. A URL específica do seu dojo aparece na aba "Seus Webhooks pessoais" dentro de Integrações.
             </div>
           </div>
-          <Button onClick={save}>Salvar configuração</Button>
         </CardContent>
       </Card>
 
@@ -715,6 +699,7 @@ function PartnerPanel({ provider }: { provider: "gympass" | "totalpass" }) {
     </div>
   );
 }
+
 
 /* ============================ REPORTS ============================ */
 function ReportsPanel() {
