@@ -30,41 +30,52 @@ export function BeltVisual({
   trim,
 }: BeltVisualProps) {
   const n = (name ?? "").trim();
-  const isTrim = trim ?? (/aparador/i.test(n) || /^preta$/i.test(n));
-  // Coral belts (Vermelha e Preta / Vermelha e Branca): horizontal 50/50 split
-  const isSplit = /^vermelha e (preta|branca)$/i.test(n);
+  const isBlack = /^preta$/i.test(n);
+  // Coral belts (Vermelha e Preta / Vermelha e Branca): checkered pattern
+  const isChecker = /^vermelha e (preta|branca)$/i.test(n);
+  const isTrim = trim ?? (/aparador/i.test(n));
   const stripes = Math.max(0, Math.min(degree, maxDegrees));
   const base = (colorHex || "#F5F5F5").toLowerCase();
   const isLight = base === "#ffffff" || base === "#f5f5f5" || base === "#fdd835";
-  const tipBg = "#111111";
+  // Black belt uses a red tip (aparador vermelho); everything else keeps a black tip
+  const tipBg = isBlack ? "#B71C1C" : "#111111";
   const stripeColor = "#FFFFFF";
+
+  // Checkerboard background using two linear gradients (classic CSS trick)
+  const checkerA = colorHex || "#B71C1C";
+  const checkerB = stripeHex || "#111111";
+  const cell = 16; // px — belt is 32px tall → 2 rows
+  const checkerStyle: React.CSSProperties = isChecker
+    ? {
+        backgroundColor: checkerA,
+        backgroundImage: `linear-gradient(45deg, ${checkerB} 25%, transparent 25%, transparent 75%, ${checkerB} 75%), linear-gradient(45deg, ${checkerB} 25%, ${checkerA} 25%, ${checkerA} 75%, ${checkerB} 75%)`,
+        backgroundSize: `${cell}px ${cell}px, ${cell}px ${cell}px`,
+        backgroundPosition: `0 0, ${cell / 2}px ${cell / 2}px`,
+      }
+    : { background: colorHex };
 
   return (
     <div className={`inline-flex flex-col items-start gap-1 ${className}`}>
       <div
         className="relative w-full min-w-[140px] h-8 rounded-sm overflow-hidden border border-black/20 shadow-sm"
-        style={{ background: colorHex }}
+        style={checkerStyle}
         aria-label={label ?? `Faixa ${colorHex}`}
       >
-        {/* Split rendering — top half stripeHex, bottom half base */}
-        {stripeHex && isSplit && (
-          <div className="absolute inset-x-0 top-0" style={{ background: stripeHex, height: "50%" }} />
-        )}
-        {/* Two-tone center band */}
-        {stripeHex && !isTrim && !isSplit && (
+        {/* Two-tone center band (regular two-tone belts) */}
+        {stripeHex && !isTrim && !isChecker && !isBlack && (
           <div
             className="absolute inset-x-0"
             style={{ background: stripeHex, top: "33.333%", height: "33.333%" }}
           />
         )}
-        {/* Trim (aparador) on top and bottom */}
-        {stripeHex && isTrim && (
+        {/* Trim (aparador) on top and bottom — legacy belts */}
+        {stripeHex && isTrim && !isChecker && (
           <>
             <div className="absolute inset-x-0 top-0" style={{ background: stripeHex, height: "18%" }} />
             <div className="absolute inset-x-0 bottom-0" style={{ background: stripeHex, height: "18%" }} />
           </>
         )}
-        {/* Black tip on the right */}
+        {/* Tip on the right (black by default, red for black belt) */}
         <div
           className="absolute right-0 top-0 h-full flex items-center justify-center gap-[3px] px-1.5"
           style={{
