@@ -1,17 +1,17 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/_authenticated/dojo")({
+export const Route = createFileRoute("/_authenticated/dojo/app")({
   component: DojoLayout,
 });
 
 const tabs = [
-  { to: "/dojo", label: "Painel" },
-  { to: "/dojo/students", label: "Alunos" },
-  { to: "/dojo/graduations", label: "Graduações" },
-  { to: "/dojo/plans", label: "Planos" },
-  { to: "/dojo/finance", label: "Financeiro" },
-  { to: "/dojo/units", label: "Unidades" },
-  { to: "/dojo/certificates", label: "Certificados" },
+  { to: "/dojo/app", label: "Painel" },
+  { to: "/dojo/app/students", label: "Alunos" },
+  { to: "/dojo/app/graduations", label: "Graduações" },
+  { to: "/dojo/app/plans", label: "Planos" },
+  { to: "/dojo/app/finance", label: "Financeiro" },
+  { to: "/dojo/app/units", label: "Unidades" },
+  { to: "/dojo/app/certificates", label: "Certificados" },
 ];
 
 function DojoLayout() {
@@ -24,7 +24,7 @@ function DojoLayout() {
       </div>
       <nav className="flex flex-wrap gap-2 mb-6 border-b pb-2 overflow-x-auto">
         {tabs.map(t => {
-          const active = t.to === "/dojo" ? pathname === "/dojo" : pathname.startsWith(t.to);
+          const active = t.to === "/dojo/app" ? pathname === "/dojo/app" : pathname.startsWith(t.to);
           return (
             <Link
               key={t.to}

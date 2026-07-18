@@ -13,6 +13,7 @@ import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as DojoRouteImport } from './routes/dojo'
 import { Route as DataDeletionRouteImport } from './routes/data-deletion'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AtacadoLpRouteImport } from './routes/atacado-lp'
@@ -23,19 +24,18 @@ import { Route as LojaCheckoutRouteImport } from './routes/loja.checkout'
 import { Route as LojaCarrinhoRouteImport } from './routes/loja.carrinho'
 import { Route as LojaAtacadoRouteImport } from './routes/loja.atacado'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
+import { Route as DojoCheckoutRouteImport } from './routes/dojo.checkout'
 import { Route as ApiGenerateAdImageRouteImport } from './routes/api/generate-ad-image'
 import { Route as AuthenticatedUsersRouteImport } from './routes/_authenticated/users'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedLogsRouteImport } from './routes/_authenticated/logs'
-import { Route as AuthenticatedDojoRouteImport } from './routes/_authenticated/dojo'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdsRouteImport } from './routes/_authenticated/ads'
 import { Route as LojaCustomShopIndexRouteImport } from './routes/loja.custom-shop.index'
 import { Route as LojaContaIndexRouteImport } from './routes/loja.conta.index'
 import { Route as AuthenticatedStoreIndexRouteImport } from './routes/_authenticated/store.index'
 import { Route as AuthenticatedProspectIndexRouteImport } from './routes/_authenticated/prospect.index'
-import { Route as AuthenticatedDojoIndexRouteImport } from './routes/_authenticated/dojo.index'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as LojaProdutoSlugRouteImport } from './routes/loja.produto.$slug'
 import { Route as LojaPedidoIdRouteImport } from './routes/loja.pedido.$id'
@@ -78,14 +78,7 @@ import { Route as AuthenticatedGrowthIntelligenceRouteImport } from './routes/_a
 import { Route as AuthenticatedGrowthInsightsRouteImport } from './routes/_authenticated/growth.insights'
 import { Route as AuthenticatedGrowthCustomersRouteImport } from './routes/_authenticated/growth.customers'
 import { Route as AuthenticatedGrowthCrmRouteImport } from './routes/_authenticated/growth.crm'
-import { Route as AuthenticatedDojoUnitsRouteImport } from './routes/_authenticated/dojo.units'
-import { Route as AuthenticatedDojoStudentsRouteImport } from './routes/_authenticated/dojo.students'
-import { Route as AuthenticatedDojoPlansRouteImport } from './routes/_authenticated/dojo.plans'
-import { Route as AuthenticatedDojoIntegrationsRouteImport } from './routes/_authenticated/dojo.integrations'
-import { Route as AuthenticatedDojoGraduationsRouteImport } from './routes/_authenticated/dojo.graduations'
-import { Route as AuthenticatedDojoFinanceRouteImport } from './routes/_authenticated/dojo.finance'
-import { Route as AuthenticatedDojoCheckinRouteImport } from './routes/_authenticated/dojo.checkin'
-import { Route as AuthenticatedDojoCertificatesRouteImport } from './routes/_authenticated/dojo.certificates'
+import { Route as AuthenticatedDojoAppRouteImport } from './routes/_authenticated/dojo.app'
 import { Route as AuthenticatedAdsScaleRouteImport } from './routes/_authenticated/ads.scale'
 import { Route as AuthenticatedAdsOptimizationRouteImport } from './routes/_authenticated/ads.optimization'
 import { Route as AuthenticatedAdsNewRouteImport } from './routes/_authenticated/ads.new'
@@ -95,6 +88,7 @@ import { Route as AuthenticatedAdsCopiesRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAdsConnectionsRouteImport } from './routes/_authenticated/ads.connections'
 import { Route as AuthenticatedAdsCampaignsRouteImport } from './routes/_authenticated/ads.campaigns'
 import { Route as AuthenticatedAdsAlertsRouteImport } from './routes/_authenticated/ads.alerts'
+import { Route as AuthenticatedDojoAppIndexRouteImport } from './routes/_authenticated/dojo.app.index'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
@@ -112,9 +106,17 @@ import { Route as ApiPublicHooksIgWebhookRouteImport } from './routes/api/public
 import { Route as ApiPublicHooksIgSyncRouteImport } from './routes/api/public/hooks/ig-sync'
 import { Route as ApiPublicHooksEnrichPendingLeadsRouteImport } from './routes/api/public/hooks/enrich-pending-leads'
 import { Route as ApiPublicHooksAutoInstagramPostRouteImport } from './routes/api/public/hooks/auto-instagram-post'
-import { Route as AuthenticatedDojoStudentsIdRouteImport } from './routes/_authenticated/dojo.students.$id'
+import { Route as AuthenticatedDojoAppUnitsRouteImport } from './routes/_authenticated/dojo.app.units'
+import { Route as AuthenticatedDojoAppStudentsRouteImport } from './routes/_authenticated/dojo.app.students'
+import { Route as AuthenticatedDojoAppPlansRouteImport } from './routes/_authenticated/dojo.app.plans'
+import { Route as AuthenticatedDojoAppIntegrationsRouteImport } from './routes/_authenticated/dojo.app.integrations'
+import { Route as AuthenticatedDojoAppGraduationsRouteImport } from './routes/_authenticated/dojo.app.graduations'
+import { Route as AuthenticatedDojoAppFinanceRouteImport } from './routes/_authenticated/dojo.app.finance'
+import { Route as AuthenticatedDojoAppCheckinRouteImport } from './routes/_authenticated/dojo.app.checkin'
+import { Route as AuthenticatedDojoAppCertificatesRouteImport } from './routes/_authenticated/dojo.app.certificates'
 import { Route as AuthenticatedAdsCampaignsIdRouteImport } from './routes/_authenticated/ads.campaigns.$id'
 import { Route as ApiPublicDojoPartnerCheckinProviderRouteImport } from './routes/api/public/dojo/partner-checkin.$provider'
+import { Route as AuthenticatedDojoAppStudentsIdRouteImport } from './routes/_authenticated/dojo.app.students.$id'
 
 const UnsubscribeRoute = UnsubscribeRouteImport.update({
   id: '/unsubscribe',
@@ -134,6 +136,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DojoRoute = DojoRouteImport.update({
+  id: '/dojo',
+  path: '/dojo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DataDeletionRoute = DataDeletionRouteImport.update({
@@ -185,6 +192,11 @@ const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
   path: '/email/unsubscribe',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DojoCheckoutRoute = DojoCheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => DojoRoute,
+} as any)
 const ApiGenerateAdImageRoute = ApiGenerateAdImageRouteImport.update({
   id: '/api/generate-ad-image',
   path: '/api/generate-ad-image',
@@ -208,11 +220,6 @@ const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
 const AuthenticatedLogsRoute = AuthenticatedLogsRouteImport.update({
   id: '/logs',
   path: '/logs',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedDojoRoute = AuthenticatedDojoRouteImport.update({
-  id: '/dojo',
-  path: '/dojo',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
@@ -246,11 +253,6 @@ const AuthenticatedProspectIndexRoute =
     path: '/prospect/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedDojoIndexRoute = AuthenticatedDojoIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AuthenticatedDojoRoute,
-} as any)
 const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
   id: '/lovable/email/suppression',
   path: '/lovable/email/suppression',
@@ -491,52 +493,11 @@ const AuthenticatedGrowthCrmRoute = AuthenticatedGrowthCrmRouteImport.update({
   path: '/growth/crm',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedDojoUnitsRoute = AuthenticatedDojoUnitsRouteImport.update({
-  id: '/units',
-  path: '/units',
-  getParentRoute: () => AuthenticatedDojoRoute,
+const AuthenticatedDojoAppRoute = AuthenticatedDojoAppRouteImport.update({
+  id: '/dojo/app',
+  path: '/dojo/app',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedDojoStudentsRoute =
-  AuthenticatedDojoStudentsRouteImport.update({
-    id: '/students',
-    path: '/students',
-    getParentRoute: () => AuthenticatedDojoRoute,
-  } as any)
-const AuthenticatedDojoPlansRoute = AuthenticatedDojoPlansRouteImport.update({
-  id: '/plans',
-  path: '/plans',
-  getParentRoute: () => AuthenticatedDojoRoute,
-} as any)
-const AuthenticatedDojoIntegrationsRoute =
-  AuthenticatedDojoIntegrationsRouteImport.update({
-    id: '/integrations',
-    path: '/integrations',
-    getParentRoute: () => AuthenticatedDojoRoute,
-  } as any)
-const AuthenticatedDojoGraduationsRoute =
-  AuthenticatedDojoGraduationsRouteImport.update({
-    id: '/graduations',
-    path: '/graduations',
-    getParentRoute: () => AuthenticatedDojoRoute,
-  } as any)
-const AuthenticatedDojoFinanceRoute =
-  AuthenticatedDojoFinanceRouteImport.update({
-    id: '/finance',
-    path: '/finance',
-    getParentRoute: () => AuthenticatedDojoRoute,
-  } as any)
-const AuthenticatedDojoCheckinRoute =
-  AuthenticatedDojoCheckinRouteImport.update({
-    id: '/checkin',
-    path: '/checkin',
-    getParentRoute: () => AuthenticatedDojoRoute,
-  } as any)
-const AuthenticatedDojoCertificatesRoute =
-  AuthenticatedDojoCertificatesRouteImport.update({
-    id: '/certificates',
-    path: '/certificates',
-    getParentRoute: () => AuthenticatedDojoRoute,
-  } as any)
 const AuthenticatedAdsScaleRoute = AuthenticatedAdsScaleRouteImport.update({
   id: '/scale',
   path: '/scale',
@@ -587,6 +548,12 @@ const AuthenticatedAdsAlertsRoute = AuthenticatedAdsAlertsRouteImport.update({
   path: '/alerts',
   getParentRoute: () => AuthenticatedAdsRoute,
 } as any)
+const AuthenticatedDojoAppIndexRoute =
+  AuthenticatedDojoAppIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedDojoAppRoute,
+  } as any)
 const LovableEmailTransactionalSendRoute =
   LovableEmailTransactionalSendRouteImport.update({
     id: '/lovable/email/transactional/send',
@@ -684,11 +651,53 @@ const ApiPublicHooksAutoInstagramPostRoute =
     path: '/api/public/hooks/auto-instagram-post',
     getParentRoute: () => rootRouteImport,
   } as any)
-const AuthenticatedDojoStudentsIdRoute =
-  AuthenticatedDojoStudentsIdRouteImport.update({
-    id: '/$id',
-    path: '/$id',
-    getParentRoute: () => AuthenticatedDojoStudentsRoute,
+const AuthenticatedDojoAppUnitsRoute =
+  AuthenticatedDojoAppUnitsRouteImport.update({
+    id: '/units',
+    path: '/units',
+    getParentRoute: () => AuthenticatedDojoAppRoute,
+  } as any)
+const AuthenticatedDojoAppStudentsRoute =
+  AuthenticatedDojoAppStudentsRouteImport.update({
+    id: '/students',
+    path: '/students',
+    getParentRoute: () => AuthenticatedDojoAppRoute,
+  } as any)
+const AuthenticatedDojoAppPlansRoute =
+  AuthenticatedDojoAppPlansRouteImport.update({
+    id: '/plans',
+    path: '/plans',
+    getParentRoute: () => AuthenticatedDojoAppRoute,
+  } as any)
+const AuthenticatedDojoAppIntegrationsRoute =
+  AuthenticatedDojoAppIntegrationsRouteImport.update({
+    id: '/integrations',
+    path: '/integrations',
+    getParentRoute: () => AuthenticatedDojoAppRoute,
+  } as any)
+const AuthenticatedDojoAppGraduationsRoute =
+  AuthenticatedDojoAppGraduationsRouteImport.update({
+    id: '/graduations',
+    path: '/graduations',
+    getParentRoute: () => AuthenticatedDojoAppRoute,
+  } as any)
+const AuthenticatedDojoAppFinanceRoute =
+  AuthenticatedDojoAppFinanceRouteImport.update({
+    id: '/finance',
+    path: '/finance',
+    getParentRoute: () => AuthenticatedDojoAppRoute,
+  } as any)
+const AuthenticatedDojoAppCheckinRoute =
+  AuthenticatedDojoAppCheckinRouteImport.update({
+    id: '/checkin',
+    path: '/checkin',
+    getParentRoute: () => AuthenticatedDojoAppRoute,
+  } as any)
+const AuthenticatedDojoAppCertificatesRoute =
+  AuthenticatedDojoAppCertificatesRouteImport.update({
+    id: '/certificates',
+    path: '/certificates',
+    getParentRoute: () => AuthenticatedDojoAppRoute,
   } as any)
 const AuthenticatedAdsCampaignsIdRoute =
   AuthenticatedAdsCampaignsIdRouteImport.update({
@@ -702,24 +711,31 @@ const ApiPublicDojoPartnerCheckinProviderRoute =
     path: '/api/public/dojo/partner-checkin/$provider',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AuthenticatedDojoAppStudentsIdRoute =
+  AuthenticatedDojoAppStudentsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedDojoAppStudentsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/atacado-lp': typeof AtacadoLpRoute
   '/auth': typeof AuthRoute
   '/data-deletion': typeof DataDeletionRoute
+  '/dojo': typeof DojoRouteWithChildren
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/ads': typeof AuthenticatedAdsRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/dojo': typeof AuthenticatedDojoRouteWithChildren
   '/logs': typeof AuthenticatedLogsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
+  '/dojo/checkout': typeof DojoCheckoutRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
@@ -734,14 +750,7 @@ export interface FileRoutesByFullPath {
   '/ads/new': typeof AuthenticatedAdsNewRoute
   '/ads/optimization': typeof AuthenticatedAdsOptimizationRoute
   '/ads/scale': typeof AuthenticatedAdsScaleRoute
-  '/dojo/certificates': typeof AuthenticatedDojoCertificatesRoute
-  '/dojo/checkin': typeof AuthenticatedDojoCheckinRoute
-  '/dojo/finance': typeof AuthenticatedDojoFinanceRoute
-  '/dojo/graduations': typeof AuthenticatedDojoGraduationsRoute
-  '/dojo/integrations': typeof AuthenticatedDojoIntegrationsRoute
-  '/dojo/plans': typeof AuthenticatedDojoPlansRoute
-  '/dojo/students': typeof AuthenticatedDojoStudentsRouteWithChildren
-  '/dojo/units': typeof AuthenticatedDojoUnitsRoute
+  '/dojo/app': typeof AuthenticatedDojoAppRouteWithChildren
   '/growth/crm': typeof AuthenticatedGrowthCrmRoute
   '/growth/customers': typeof AuthenticatedGrowthCustomersRoute
   '/growth/insights': typeof AuthenticatedGrowthInsightsRoute
@@ -784,13 +793,19 @@ export interface FileRoutesByFullPath {
   '/loja/pedido/$id': typeof LojaPedidoIdRoute
   '/loja/produto/$slug': typeof LojaProdutoSlugRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
-  '/dojo/': typeof AuthenticatedDojoIndexRoute
   '/prospect/': typeof AuthenticatedProspectIndexRoute
   '/store/': typeof AuthenticatedStoreIndexRoute
   '/loja/conta/': typeof LojaContaIndexRoute
   '/loja/custom-shop/': typeof LojaCustomShopIndexRoute
   '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
-  '/dojo/students/$id': typeof AuthenticatedDojoStudentsIdRoute
+  '/dojo/app/certificates': typeof AuthenticatedDojoAppCertificatesRoute
+  '/dojo/app/checkin': typeof AuthenticatedDojoAppCheckinRoute
+  '/dojo/app/finance': typeof AuthenticatedDojoAppFinanceRoute
+  '/dojo/app/graduations': typeof AuthenticatedDojoAppGraduationsRoute
+  '/dojo/app/integrations': typeof AuthenticatedDojoAppIntegrationsRoute
+  '/dojo/app/plans': typeof AuthenticatedDojoAppPlansRoute
+  '/dojo/app/students': typeof AuthenticatedDojoAppStudentsRouteWithChildren
+  '/dojo/app/units': typeof AuthenticatedDojoAppUnitsRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
@@ -808,6 +823,8 @@ export interface FileRoutesByFullPath {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/dojo/app/': typeof AuthenticatedDojoAppIndexRoute
+  '/dojo/app/students/$id': typeof AuthenticatedDojoAppStudentsIdRoute
   '/api/public/dojo/partner-checkin/$provider': typeof ApiPublicDojoPartnerCheckinProviderRoute
 }
 export interface FileRoutesByTo {
@@ -815,6 +832,7 @@ export interface FileRoutesByTo {
   '/atacado-lp': typeof AtacadoLpRoute
   '/auth': typeof AuthRoute
   '/data-deletion': typeof DataDeletionRoute
+  '/dojo': typeof DojoRouteWithChildren
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/terms': typeof TermsRoute
@@ -826,6 +844,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsRoute
   '/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
+  '/dojo/checkout': typeof DojoCheckoutRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
@@ -840,14 +859,6 @@ export interface FileRoutesByTo {
   '/ads/new': typeof AuthenticatedAdsNewRoute
   '/ads/optimization': typeof AuthenticatedAdsOptimizationRoute
   '/ads/scale': typeof AuthenticatedAdsScaleRoute
-  '/dojo/certificates': typeof AuthenticatedDojoCertificatesRoute
-  '/dojo/checkin': typeof AuthenticatedDojoCheckinRoute
-  '/dojo/finance': typeof AuthenticatedDojoFinanceRoute
-  '/dojo/graduations': typeof AuthenticatedDojoGraduationsRoute
-  '/dojo/integrations': typeof AuthenticatedDojoIntegrationsRoute
-  '/dojo/plans': typeof AuthenticatedDojoPlansRoute
-  '/dojo/students': typeof AuthenticatedDojoStudentsRouteWithChildren
-  '/dojo/units': typeof AuthenticatedDojoUnitsRoute
   '/growth/crm': typeof AuthenticatedGrowthCrmRoute
   '/growth/customers': typeof AuthenticatedGrowthCustomersRoute
   '/growth/insights': typeof AuthenticatedGrowthInsightsRoute
@@ -890,13 +901,19 @@ export interface FileRoutesByTo {
   '/loja/pedido/$id': typeof LojaPedidoIdRoute
   '/loja/produto/$slug': typeof LojaProdutoSlugRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
-  '/dojo': typeof AuthenticatedDojoIndexRoute
   '/prospect': typeof AuthenticatedProspectIndexRoute
   '/store': typeof AuthenticatedStoreIndexRoute
   '/loja/conta': typeof LojaContaIndexRoute
   '/loja/custom-shop': typeof LojaCustomShopIndexRoute
   '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
-  '/dojo/students/$id': typeof AuthenticatedDojoStudentsIdRoute
+  '/dojo/app/certificates': typeof AuthenticatedDojoAppCertificatesRoute
+  '/dojo/app/checkin': typeof AuthenticatedDojoAppCheckinRoute
+  '/dojo/app/finance': typeof AuthenticatedDojoAppFinanceRoute
+  '/dojo/app/graduations': typeof AuthenticatedDojoAppGraduationsRoute
+  '/dojo/app/integrations': typeof AuthenticatedDojoAppIntegrationsRoute
+  '/dojo/app/plans': typeof AuthenticatedDojoAppPlansRoute
+  '/dojo/app/students': typeof AuthenticatedDojoAppStudentsRouteWithChildren
+  '/dojo/app/units': typeof AuthenticatedDojoAppUnitsRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
@@ -914,6 +931,8 @@ export interface FileRoutesByTo {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/dojo/app': typeof AuthenticatedDojoAppIndexRoute
+  '/dojo/app/students/$id': typeof AuthenticatedDojoAppStudentsIdRoute
   '/api/public/dojo/partner-checkin/$provider': typeof ApiPublicDojoPartnerCheckinProviderRoute
 }
 export interface FileRoutesById {
@@ -923,18 +942,19 @@ export interface FileRoutesById {
   '/atacado-lp': typeof AtacadoLpRoute
   '/auth': typeof AuthRoute
   '/data-deletion': typeof DataDeletionRoute
+  '/dojo': typeof DojoRouteWithChildren
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/_authenticated/ads': typeof AuthenticatedAdsRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
-  '/_authenticated/dojo': typeof AuthenticatedDojoRouteWithChildren
   '/_authenticated/logs': typeof AuthenticatedLogsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
+  '/dojo/checkout': typeof DojoCheckoutRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
@@ -949,14 +969,7 @@ export interface FileRoutesById {
   '/_authenticated/ads/new': typeof AuthenticatedAdsNewRoute
   '/_authenticated/ads/optimization': typeof AuthenticatedAdsOptimizationRoute
   '/_authenticated/ads/scale': typeof AuthenticatedAdsScaleRoute
-  '/_authenticated/dojo/certificates': typeof AuthenticatedDojoCertificatesRoute
-  '/_authenticated/dojo/checkin': typeof AuthenticatedDojoCheckinRoute
-  '/_authenticated/dojo/finance': typeof AuthenticatedDojoFinanceRoute
-  '/_authenticated/dojo/graduations': typeof AuthenticatedDojoGraduationsRoute
-  '/_authenticated/dojo/integrations': typeof AuthenticatedDojoIntegrationsRoute
-  '/_authenticated/dojo/plans': typeof AuthenticatedDojoPlansRoute
-  '/_authenticated/dojo/students': typeof AuthenticatedDojoStudentsRouteWithChildren
-  '/_authenticated/dojo/units': typeof AuthenticatedDojoUnitsRoute
+  '/_authenticated/dojo/app': typeof AuthenticatedDojoAppRouteWithChildren
   '/_authenticated/growth/crm': typeof AuthenticatedGrowthCrmRoute
   '/_authenticated/growth/customers': typeof AuthenticatedGrowthCustomersRoute
   '/_authenticated/growth/insights': typeof AuthenticatedGrowthInsightsRoute
@@ -999,13 +1012,19 @@ export interface FileRoutesById {
   '/loja/pedido/$id': typeof LojaPedidoIdRoute
   '/loja/produto/$slug': typeof LojaProdutoSlugRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
-  '/_authenticated/dojo/': typeof AuthenticatedDojoIndexRoute
   '/_authenticated/prospect/': typeof AuthenticatedProspectIndexRoute
   '/_authenticated/store/': typeof AuthenticatedStoreIndexRoute
   '/loja/conta/': typeof LojaContaIndexRoute
   '/loja/custom-shop/': typeof LojaCustomShopIndexRoute
   '/_authenticated/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
-  '/_authenticated/dojo/students/$id': typeof AuthenticatedDojoStudentsIdRoute
+  '/_authenticated/dojo/app/certificates': typeof AuthenticatedDojoAppCertificatesRoute
+  '/_authenticated/dojo/app/checkin': typeof AuthenticatedDojoAppCheckinRoute
+  '/_authenticated/dojo/app/finance': typeof AuthenticatedDojoAppFinanceRoute
+  '/_authenticated/dojo/app/graduations': typeof AuthenticatedDojoAppGraduationsRoute
+  '/_authenticated/dojo/app/integrations': typeof AuthenticatedDojoAppIntegrationsRoute
+  '/_authenticated/dojo/app/plans': typeof AuthenticatedDojoAppPlansRoute
+  '/_authenticated/dojo/app/students': typeof AuthenticatedDojoAppStudentsRouteWithChildren
+  '/_authenticated/dojo/app/units': typeof AuthenticatedDojoAppUnitsRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
@@ -1023,6 +1042,8 @@ export interface FileRoutesById {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/_authenticated/dojo/app/': typeof AuthenticatedDojoAppIndexRoute
+  '/_authenticated/dojo/app/students/$id': typeof AuthenticatedDojoAppStudentsIdRoute
   '/api/public/dojo/partner-checkin/$provider': typeof ApiPublicDojoPartnerCheckinProviderRoute
 }
 export interface FileRouteTypes {
@@ -1032,18 +1053,19 @@ export interface FileRouteTypes {
     | '/atacado-lp'
     | '/auth'
     | '/data-deletion'
+    | '/dojo'
     | '/privacy'
     | '/reset-password'
     | '/terms'
     | '/unsubscribe'
     | '/ads'
     | '/dashboard'
-    | '/dojo'
     | '/logs'
     | '/profile'
     | '/settings'
     | '/users'
     | '/api/generate-ad-image'
+    | '/dojo/checkout'
     | '/email/unsubscribe'
     | '/loja/atacado'
     | '/loja/carrinho'
@@ -1058,14 +1080,7 @@ export interface FileRouteTypes {
     | '/ads/new'
     | '/ads/optimization'
     | '/ads/scale'
-    | '/dojo/certificates'
-    | '/dojo/checkin'
-    | '/dojo/finance'
-    | '/dojo/graduations'
-    | '/dojo/integrations'
-    | '/dojo/plans'
-    | '/dojo/students'
-    | '/dojo/units'
+    | '/dojo/app'
     | '/growth/crm'
     | '/growth/customers'
     | '/growth/insights'
@@ -1108,13 +1123,19 @@ export interface FileRouteTypes {
     | '/loja/pedido/$id'
     | '/loja/produto/$slug'
     | '/lovable/email/suppression'
-    | '/dojo/'
     | '/prospect/'
     | '/store/'
     | '/loja/conta/'
     | '/loja/custom-shop/'
     | '/ads/campaigns/$id'
-    | '/dojo/students/$id'
+    | '/dojo/app/certificates'
+    | '/dojo/app/checkin'
+    | '/dojo/app/finance'
+    | '/dojo/app/graduations'
+    | '/dojo/app/integrations'
+    | '/dojo/app/plans'
+    | '/dojo/app/students'
+    | '/dojo/app/units'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/enrich-pending-leads'
     | '/api/public/hooks/ig-sync'
@@ -1132,6 +1153,8 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/dojo/app/'
+    | '/dojo/app/students/$id'
     | '/api/public/dojo/partner-checkin/$provider'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -1139,6 +1162,7 @@ export interface FileRouteTypes {
     | '/atacado-lp'
     | '/auth'
     | '/data-deletion'
+    | '/dojo'
     | '/privacy'
     | '/reset-password'
     | '/terms'
@@ -1150,6 +1174,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/users'
     | '/api/generate-ad-image'
+    | '/dojo/checkout'
     | '/email/unsubscribe'
     | '/loja/atacado'
     | '/loja/carrinho'
@@ -1164,14 +1189,6 @@ export interface FileRouteTypes {
     | '/ads/new'
     | '/ads/optimization'
     | '/ads/scale'
-    | '/dojo/certificates'
-    | '/dojo/checkin'
-    | '/dojo/finance'
-    | '/dojo/graduations'
-    | '/dojo/integrations'
-    | '/dojo/plans'
-    | '/dojo/students'
-    | '/dojo/units'
     | '/growth/crm'
     | '/growth/customers'
     | '/growth/insights'
@@ -1214,13 +1231,19 @@ export interface FileRouteTypes {
     | '/loja/pedido/$id'
     | '/loja/produto/$slug'
     | '/lovable/email/suppression'
-    | '/dojo'
     | '/prospect'
     | '/store'
     | '/loja/conta'
     | '/loja/custom-shop'
     | '/ads/campaigns/$id'
-    | '/dojo/students/$id'
+    | '/dojo/app/certificates'
+    | '/dojo/app/checkin'
+    | '/dojo/app/finance'
+    | '/dojo/app/graduations'
+    | '/dojo/app/integrations'
+    | '/dojo/app/plans'
+    | '/dojo/app/students'
+    | '/dojo/app/units'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/enrich-pending-leads'
     | '/api/public/hooks/ig-sync'
@@ -1238,6 +1261,8 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/dojo/app'
+    | '/dojo/app/students/$id'
     | '/api/public/dojo/partner-checkin/$provider'
   id:
     | '__root__'
@@ -1246,18 +1271,19 @@ export interface FileRouteTypes {
     | '/atacado-lp'
     | '/auth'
     | '/data-deletion'
+    | '/dojo'
     | '/privacy'
     | '/reset-password'
     | '/terms'
     | '/unsubscribe'
     | '/_authenticated/ads'
     | '/_authenticated/dashboard'
-    | '/_authenticated/dojo'
     | '/_authenticated/logs'
     | '/_authenticated/profile'
     | '/_authenticated/settings'
     | '/_authenticated/users'
     | '/api/generate-ad-image'
+    | '/dojo/checkout'
     | '/email/unsubscribe'
     | '/loja/atacado'
     | '/loja/carrinho'
@@ -1272,14 +1298,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ads/new'
     | '/_authenticated/ads/optimization'
     | '/_authenticated/ads/scale'
-    | '/_authenticated/dojo/certificates'
-    | '/_authenticated/dojo/checkin'
-    | '/_authenticated/dojo/finance'
-    | '/_authenticated/dojo/graduations'
-    | '/_authenticated/dojo/integrations'
-    | '/_authenticated/dojo/plans'
-    | '/_authenticated/dojo/students'
-    | '/_authenticated/dojo/units'
+    | '/_authenticated/dojo/app'
     | '/_authenticated/growth/crm'
     | '/_authenticated/growth/customers'
     | '/_authenticated/growth/insights'
@@ -1322,13 +1341,19 @@ export interface FileRouteTypes {
     | '/loja/pedido/$id'
     | '/loja/produto/$slug'
     | '/lovable/email/suppression'
-    | '/_authenticated/dojo/'
     | '/_authenticated/prospect/'
     | '/_authenticated/store/'
     | '/loja/conta/'
     | '/loja/custom-shop/'
     | '/_authenticated/ads/campaigns/$id'
-    | '/_authenticated/dojo/students/$id'
+    | '/_authenticated/dojo/app/certificates'
+    | '/_authenticated/dojo/app/checkin'
+    | '/_authenticated/dojo/app/finance'
+    | '/_authenticated/dojo/app/graduations'
+    | '/_authenticated/dojo/app/integrations'
+    | '/_authenticated/dojo/app/plans'
+    | '/_authenticated/dojo/app/students'
+    | '/_authenticated/dojo/app/units'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/enrich-pending-leads'
     | '/api/public/hooks/ig-sync'
@@ -1346,6 +1371,8 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/_authenticated/dojo/app/'
+    | '/_authenticated/dojo/app/students/$id'
     | '/api/public/dojo/partner-checkin/$provider'
   fileRoutesById: FileRoutesById
 }
@@ -1355,6 +1382,7 @@ export interface RootRouteChildren {
   AtacadoLpRoute: typeof AtacadoLpRoute
   AuthRoute: typeof AuthRoute
   DataDeletionRoute: typeof DataDeletionRoute
+  DojoRoute: typeof DojoRouteWithChildren
   PrivacyRoute: typeof PrivacyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   TermsRoute: typeof TermsRoute
@@ -1421,6 +1449,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dojo': {
+      id: '/dojo'
+      path: '/dojo'
+      fullPath: '/dojo'
+      preLoaderRoute: typeof DojoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/data-deletion': {
@@ -1493,6 +1528,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmailUnsubscribeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dojo/checkout': {
+      id: '/dojo/checkout'
+      path: '/checkout'
+      fullPath: '/dojo/checkout'
+      preLoaderRoute: typeof DojoCheckoutRouteImport
+      parentRoute: typeof DojoRoute
+    }
     '/api/generate-ad-image': {
       id: '/api/generate-ad-image'
       path: '/api/generate-ad-image'
@@ -1526,13 +1568,6 @@ declare module '@tanstack/react-router' {
       path: '/logs'
       fullPath: '/logs'
       preLoaderRoute: typeof AuthenticatedLogsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/dojo': {
-      id: '/_authenticated/dojo'
-      path: '/dojo'
-      fullPath: '/dojo'
-      preLoaderRoute: typeof AuthenticatedDojoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/dashboard': {
@@ -1576,13 +1611,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/prospect/'
       preLoaderRoute: typeof AuthenticatedProspectIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/dojo/': {
-      id: '/_authenticated/dojo/'
-      path: '/'
-      fullPath: '/dojo/'
-      preLoaderRoute: typeof AuthenticatedDojoIndexRouteImport
-      parentRoute: typeof AuthenticatedDojoRoute
     }
     '/lovable/email/suppression': {
       id: '/lovable/email/suppression'
@@ -1878,61 +1906,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedGrowthCrmRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/dojo/units': {
-      id: '/_authenticated/dojo/units'
-      path: '/units'
-      fullPath: '/dojo/units'
-      preLoaderRoute: typeof AuthenticatedDojoUnitsRouteImport
-      parentRoute: typeof AuthenticatedDojoRoute
-    }
-    '/_authenticated/dojo/students': {
-      id: '/_authenticated/dojo/students'
-      path: '/students'
-      fullPath: '/dojo/students'
-      preLoaderRoute: typeof AuthenticatedDojoStudentsRouteImport
-      parentRoute: typeof AuthenticatedDojoRoute
-    }
-    '/_authenticated/dojo/plans': {
-      id: '/_authenticated/dojo/plans'
-      path: '/plans'
-      fullPath: '/dojo/plans'
-      preLoaderRoute: typeof AuthenticatedDojoPlansRouteImport
-      parentRoute: typeof AuthenticatedDojoRoute
-    }
-    '/_authenticated/dojo/integrations': {
-      id: '/_authenticated/dojo/integrations'
-      path: '/integrations'
-      fullPath: '/dojo/integrations'
-      preLoaderRoute: typeof AuthenticatedDojoIntegrationsRouteImport
-      parentRoute: typeof AuthenticatedDojoRoute
-    }
-    '/_authenticated/dojo/graduations': {
-      id: '/_authenticated/dojo/graduations'
-      path: '/graduations'
-      fullPath: '/dojo/graduations'
-      preLoaderRoute: typeof AuthenticatedDojoGraduationsRouteImport
-      parentRoute: typeof AuthenticatedDojoRoute
-    }
-    '/_authenticated/dojo/finance': {
-      id: '/_authenticated/dojo/finance'
-      path: '/finance'
-      fullPath: '/dojo/finance'
-      preLoaderRoute: typeof AuthenticatedDojoFinanceRouteImport
-      parentRoute: typeof AuthenticatedDojoRoute
-    }
-    '/_authenticated/dojo/checkin': {
-      id: '/_authenticated/dojo/checkin'
-      path: '/checkin'
-      fullPath: '/dojo/checkin'
-      preLoaderRoute: typeof AuthenticatedDojoCheckinRouteImport
-      parentRoute: typeof AuthenticatedDojoRoute
-    }
-    '/_authenticated/dojo/certificates': {
-      id: '/_authenticated/dojo/certificates'
-      path: '/certificates'
-      fullPath: '/dojo/certificates'
-      preLoaderRoute: typeof AuthenticatedDojoCertificatesRouteImport
-      parentRoute: typeof AuthenticatedDojoRoute
+    '/_authenticated/dojo/app': {
+      id: '/_authenticated/dojo/app'
+      path: '/dojo/app'
+      fullPath: '/dojo/app'
+      preLoaderRoute: typeof AuthenticatedDojoAppRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/ads/scale': {
       id: '/_authenticated/ads/scale'
@@ -1996,6 +1975,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/ads/alerts'
       preLoaderRoute: typeof AuthenticatedAdsAlertsRouteImport
       parentRoute: typeof AuthenticatedAdsRoute
+    }
+    '/_authenticated/dojo/app/': {
+      id: '/_authenticated/dojo/app/'
+      path: '/'
+      fullPath: '/dojo/app/'
+      preLoaderRoute: typeof AuthenticatedDojoAppIndexRouteImport
+      parentRoute: typeof AuthenticatedDojoAppRoute
     }
     '/lovable/email/transactional/send': {
       id: '/lovable/email/transactional/send'
@@ -2116,12 +2102,61 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksAutoInstagramPostRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/dojo/students/$id': {
-      id: '/_authenticated/dojo/students/$id'
-      path: '/$id'
-      fullPath: '/dojo/students/$id'
-      preLoaderRoute: typeof AuthenticatedDojoStudentsIdRouteImport
-      parentRoute: typeof AuthenticatedDojoStudentsRoute
+    '/_authenticated/dojo/app/units': {
+      id: '/_authenticated/dojo/app/units'
+      path: '/units'
+      fullPath: '/dojo/app/units'
+      preLoaderRoute: typeof AuthenticatedDojoAppUnitsRouteImport
+      parentRoute: typeof AuthenticatedDojoAppRoute
+    }
+    '/_authenticated/dojo/app/students': {
+      id: '/_authenticated/dojo/app/students'
+      path: '/students'
+      fullPath: '/dojo/app/students'
+      preLoaderRoute: typeof AuthenticatedDojoAppStudentsRouteImport
+      parentRoute: typeof AuthenticatedDojoAppRoute
+    }
+    '/_authenticated/dojo/app/plans': {
+      id: '/_authenticated/dojo/app/plans'
+      path: '/plans'
+      fullPath: '/dojo/app/plans'
+      preLoaderRoute: typeof AuthenticatedDojoAppPlansRouteImport
+      parentRoute: typeof AuthenticatedDojoAppRoute
+    }
+    '/_authenticated/dojo/app/integrations': {
+      id: '/_authenticated/dojo/app/integrations'
+      path: '/integrations'
+      fullPath: '/dojo/app/integrations'
+      preLoaderRoute: typeof AuthenticatedDojoAppIntegrationsRouteImport
+      parentRoute: typeof AuthenticatedDojoAppRoute
+    }
+    '/_authenticated/dojo/app/graduations': {
+      id: '/_authenticated/dojo/app/graduations'
+      path: '/graduations'
+      fullPath: '/dojo/app/graduations'
+      preLoaderRoute: typeof AuthenticatedDojoAppGraduationsRouteImport
+      parentRoute: typeof AuthenticatedDojoAppRoute
+    }
+    '/_authenticated/dojo/app/finance': {
+      id: '/_authenticated/dojo/app/finance'
+      path: '/finance'
+      fullPath: '/dojo/app/finance'
+      preLoaderRoute: typeof AuthenticatedDojoAppFinanceRouteImport
+      parentRoute: typeof AuthenticatedDojoAppRoute
+    }
+    '/_authenticated/dojo/app/checkin': {
+      id: '/_authenticated/dojo/app/checkin'
+      path: '/checkin'
+      fullPath: '/dojo/app/checkin'
+      preLoaderRoute: typeof AuthenticatedDojoAppCheckinRouteImport
+      parentRoute: typeof AuthenticatedDojoAppRoute
+    }
+    '/_authenticated/dojo/app/certificates': {
+      id: '/_authenticated/dojo/app/certificates'
+      path: '/certificates'
+      fullPath: '/dojo/app/certificates'
+      preLoaderRoute: typeof AuthenticatedDojoAppCertificatesRouteImport
+      parentRoute: typeof AuthenticatedDojoAppRoute
     }
     '/_authenticated/ads/campaigns/$id': {
       id: '/_authenticated/ads/campaigns/$id'
@@ -2136,6 +2171,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/public/dojo/partner-checkin/$provider'
       preLoaderRoute: typeof ApiPublicDojoPartnerCheckinProviderRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/dojo/app/students/$id': {
+      id: '/_authenticated/dojo/app/students/$id'
+      path: '/$id'
+      fullPath: '/dojo/app/students/$id'
+      preLoaderRoute: typeof AuthenticatedDojoAppStudentsIdRouteImport
+      parentRoute: typeof AuthenticatedDojoAppStudentsRoute
     }
   }
 }
@@ -2181,55 +2223,56 @@ const AuthenticatedAdsRouteChildren: AuthenticatedAdsRouteChildren = {
 const AuthenticatedAdsRouteWithChildren =
   AuthenticatedAdsRoute._addFileChildren(AuthenticatedAdsRouteChildren)
 
-interface AuthenticatedDojoStudentsRouteChildren {
-  AuthenticatedDojoStudentsIdRoute: typeof AuthenticatedDojoStudentsIdRoute
+interface AuthenticatedDojoAppStudentsRouteChildren {
+  AuthenticatedDojoAppStudentsIdRoute: typeof AuthenticatedDojoAppStudentsIdRoute
 }
 
-const AuthenticatedDojoStudentsRouteChildren: AuthenticatedDojoStudentsRouteChildren =
+const AuthenticatedDojoAppStudentsRouteChildren: AuthenticatedDojoAppStudentsRouteChildren =
   {
-    AuthenticatedDojoStudentsIdRoute: AuthenticatedDojoStudentsIdRoute,
+    AuthenticatedDojoAppStudentsIdRoute: AuthenticatedDojoAppStudentsIdRoute,
   }
 
-const AuthenticatedDojoStudentsRouteWithChildren =
-  AuthenticatedDojoStudentsRoute._addFileChildren(
-    AuthenticatedDojoStudentsRouteChildren,
+const AuthenticatedDojoAppStudentsRouteWithChildren =
+  AuthenticatedDojoAppStudentsRoute._addFileChildren(
+    AuthenticatedDojoAppStudentsRouteChildren,
   )
 
-interface AuthenticatedDojoRouteChildren {
-  AuthenticatedDojoCertificatesRoute: typeof AuthenticatedDojoCertificatesRoute
-  AuthenticatedDojoCheckinRoute: typeof AuthenticatedDojoCheckinRoute
-  AuthenticatedDojoFinanceRoute: typeof AuthenticatedDojoFinanceRoute
-  AuthenticatedDojoGraduationsRoute: typeof AuthenticatedDojoGraduationsRoute
-  AuthenticatedDojoIntegrationsRoute: typeof AuthenticatedDojoIntegrationsRoute
-  AuthenticatedDojoPlansRoute: typeof AuthenticatedDojoPlansRoute
-  AuthenticatedDojoStudentsRoute: typeof AuthenticatedDojoStudentsRouteWithChildren
-  AuthenticatedDojoUnitsRoute: typeof AuthenticatedDojoUnitsRoute
-  AuthenticatedDojoIndexRoute: typeof AuthenticatedDojoIndexRoute
+interface AuthenticatedDojoAppRouteChildren {
+  AuthenticatedDojoAppCertificatesRoute: typeof AuthenticatedDojoAppCertificatesRoute
+  AuthenticatedDojoAppCheckinRoute: typeof AuthenticatedDojoAppCheckinRoute
+  AuthenticatedDojoAppFinanceRoute: typeof AuthenticatedDojoAppFinanceRoute
+  AuthenticatedDojoAppGraduationsRoute: typeof AuthenticatedDojoAppGraduationsRoute
+  AuthenticatedDojoAppIntegrationsRoute: typeof AuthenticatedDojoAppIntegrationsRoute
+  AuthenticatedDojoAppPlansRoute: typeof AuthenticatedDojoAppPlansRoute
+  AuthenticatedDojoAppStudentsRoute: typeof AuthenticatedDojoAppStudentsRouteWithChildren
+  AuthenticatedDojoAppUnitsRoute: typeof AuthenticatedDojoAppUnitsRoute
+  AuthenticatedDojoAppIndexRoute: typeof AuthenticatedDojoAppIndexRoute
 }
 
-const AuthenticatedDojoRouteChildren: AuthenticatedDojoRouteChildren = {
-  AuthenticatedDojoCertificatesRoute: AuthenticatedDojoCertificatesRoute,
-  AuthenticatedDojoCheckinRoute: AuthenticatedDojoCheckinRoute,
-  AuthenticatedDojoFinanceRoute: AuthenticatedDojoFinanceRoute,
-  AuthenticatedDojoGraduationsRoute: AuthenticatedDojoGraduationsRoute,
-  AuthenticatedDojoIntegrationsRoute: AuthenticatedDojoIntegrationsRoute,
-  AuthenticatedDojoPlansRoute: AuthenticatedDojoPlansRoute,
-  AuthenticatedDojoStudentsRoute: AuthenticatedDojoStudentsRouteWithChildren,
-  AuthenticatedDojoUnitsRoute: AuthenticatedDojoUnitsRoute,
-  AuthenticatedDojoIndexRoute: AuthenticatedDojoIndexRoute,
+const AuthenticatedDojoAppRouteChildren: AuthenticatedDojoAppRouteChildren = {
+  AuthenticatedDojoAppCertificatesRoute: AuthenticatedDojoAppCertificatesRoute,
+  AuthenticatedDojoAppCheckinRoute: AuthenticatedDojoAppCheckinRoute,
+  AuthenticatedDojoAppFinanceRoute: AuthenticatedDojoAppFinanceRoute,
+  AuthenticatedDojoAppGraduationsRoute: AuthenticatedDojoAppGraduationsRoute,
+  AuthenticatedDojoAppIntegrationsRoute: AuthenticatedDojoAppIntegrationsRoute,
+  AuthenticatedDojoAppPlansRoute: AuthenticatedDojoAppPlansRoute,
+  AuthenticatedDojoAppStudentsRoute:
+    AuthenticatedDojoAppStudentsRouteWithChildren,
+  AuthenticatedDojoAppUnitsRoute: AuthenticatedDojoAppUnitsRoute,
+  AuthenticatedDojoAppIndexRoute: AuthenticatedDojoAppIndexRoute,
 }
 
-const AuthenticatedDojoRouteWithChildren =
-  AuthenticatedDojoRoute._addFileChildren(AuthenticatedDojoRouteChildren)
+const AuthenticatedDojoAppRouteWithChildren =
+  AuthenticatedDojoAppRoute._addFileChildren(AuthenticatedDojoAppRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdsRoute: typeof AuthenticatedAdsRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
-  AuthenticatedDojoRoute: typeof AuthenticatedDojoRouteWithChildren
   AuthenticatedLogsRoute: typeof AuthenticatedLogsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedUsersRoute: typeof AuthenticatedUsersRoute
+  AuthenticatedDojoAppRoute: typeof AuthenticatedDojoAppRouteWithChildren
   AuthenticatedGrowthCrmRoute: typeof AuthenticatedGrowthCrmRoute
   AuthenticatedGrowthCustomersRoute: typeof AuthenticatedGrowthCustomersRoute
   AuthenticatedGrowthInsightsRoute: typeof AuthenticatedGrowthInsightsRoute
@@ -2273,11 +2316,11 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdsRoute: AuthenticatedAdsRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
-  AuthenticatedDojoRoute: AuthenticatedDojoRouteWithChildren,
   AuthenticatedLogsRoute: AuthenticatedLogsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedUsersRoute: AuthenticatedUsersRoute,
+  AuthenticatedDojoAppRoute: AuthenticatedDojoAppRouteWithChildren,
   AuthenticatedGrowthCrmRoute: AuthenticatedGrowthCrmRoute,
   AuthenticatedGrowthCustomersRoute: AuthenticatedGrowthCustomersRoute,
   AuthenticatedGrowthInsightsRoute: AuthenticatedGrowthInsightsRoute,
@@ -2322,12 +2365,23 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface DojoRouteChildren {
+  DojoCheckoutRoute: typeof DojoCheckoutRoute
+}
+
+const DojoRouteChildren: DojoRouteChildren = {
+  DojoCheckoutRoute: DojoCheckoutRoute,
+}
+
+const DojoRouteWithChildren = DojoRoute._addFileChildren(DojoRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AtacadoLpRoute: AtacadoLpRoute,
   AuthRoute: AuthRoute,
   DataDeletionRoute: DataDeletionRoute,
+  DojoRoute: DojoRouteWithChildren,
   PrivacyRoute: PrivacyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   TermsRoute: TermsRoute,
