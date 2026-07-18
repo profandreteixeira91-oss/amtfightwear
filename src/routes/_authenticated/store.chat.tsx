@@ -324,7 +324,311 @@ function StoreChatAdmin() {
             </>
           )}
         </section>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TabButton({ active, onClick, icon: Icon, label }: { active: boolean; onClick: () => void; icon: React.ComponentType<{ className?: string }>; label: string }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition ${active ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}
+    >
+      <Icon className="h-4 w-4" /> {label}
+    </button>
+  );
+}
+
+type ChatSettings = {
+  id?: string;
+  tone: string;
+  greeting_web: string;
+  greeting_wa: string;
+  greeting_ig: string;
+  channel_web_enabled: boolean;
+  channel_wa_enabled: boolean;
+  channel_ig_enabled: boolean;
+  offline_message: string;
+  site_url: string;
+  cart_url_template: string;
+  business_hours_json: { tz: string; always_on: boolean; [k: string]: unknown };
+};
+
+const DEFAULT_SETTINGS: ChatSettings = {
+  tone: "consultivo, cordial, direto",
+  greeting_web: "Olá! Sou o assistente da AMT Fight Wear. Como posso te ajudar a encontrar o produto ideal?",
+  greeting_wa: "Olá! Sou o assistente da AMT Fight Wear. Em que posso ajudar hoje?",
+  greeting_ig: "Olá! Sou o assistente da AMT Fight Wear. Em que posso ajudar?",
+  channel_web_enabled: true,
+  channel_wa_enabled: false,
+  channel_ig_enabled: false,
+  offline_message: "Estamos fora do horário de atendimento. Deixe sua mensagem que retornaremos em breve.",
+  site_url: "https://www.amtfightwear.com.br",
+  cart_url_template: "https://www.amtfightwear.com.br/carrinho/?add-to-cart={ids}&quantity={qtys}",
+  business_hours_json: { tz: "America/Sao_Paulo", always_on: true },
+};
+
+function ChatSettingsPanel() {
+  const getSettings = useServerFn(adminGetChatSettings);
+  const saveSettings = useServerFn(adminUpdateChatSettings);
+  const [s, setS] = useState<ChatSettings | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const row = (await getSettings()) as Partial<ChatSettings> | null;
+        setS({ ...DEFAULT_SETTINGS, ...(row ?? {}) } as ChatSettings);
+      } finally {
+        setLoading(false);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function onSave() {
+    if (!s) return;
+    setSaving(true);
+    setMsg(null);
+    try {
+      const r = (await saveSettings({ data: s })) as { id: string };
+      setS({ ...s, id: r.id });
+      setMsg("Configurações salvas.");
+    } catch (err) {
+      setMsg(err instanceof Error ? err.message : "Erro ao salvar");
+    } finally {
+      setSaving(false);
+      setTimeout(() => setMsg(null), 3000);
+    }
+  }
+
+  if (loading || !s) {
+    return <div className="rounded-lg border bg-card p-6 text-sm text-muted-foreground"><Loader2 className="mr-2 inline h-4 w-4 animate-spin" /> Carregando…</div>;
+  }
+
+  const upd = <K extends keyof ChatSettings>(k: K, v: ChatSettings[K]) => setS({ ...s, [k]: v });
+
+  return (
+    <div className="grid gap-4 lg:grid-cols-2">
+      <section className="rounded-lg border bg-card p-5">
+        <h2 className="mb-3 text-sm font-bold uppercase tracking-widest text-muted-foreground">Comportamento do agente</h2>
+        <Field label="Tom de voz" hint="Ex.: consultivo, cordial, direto">
+          <input value={s.tone} onChange={(e) => upd("tone", e.target.value)} className="input" />
+        </Field>
+        <Field label="URL do site" hint="Usada nos prompts do agente">
+          <input value={s.site_url} onChange={(e) => upd("site_url", e.target.value)} className="input" />
+        </Field>
+        <Field label="Template do carrinho" hint="Use {ids} e {qtys} como placeholders">
+          <input value={s.cart_url_template} onChange={(e) => upd("cart_url_template", e.target.value)} className="input" />
+        </Field>
+        <Field label="Mensagem fora do horário">
+          <textarea rows={3} value={s.offline_message} onChange={(e) => upd("offline_message", e.target.value)} className="input" />
+        </Field>
+        <Field label="Sempre online">
+          <label className="inline-flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={s.business_hours_json.always_on !== false}
+              onChange={(e) => upd("business_hours_json", { ...s.business_hours_json, always_on: e.target.checked })}
+            />
+            Atender 24/7
+          </label>
+        </Field>
+      </section>
+
+      <section className="rounded-lg border bg-card p-5">
+        <h2 className="mb-3 text-sm font-bold uppercase tracking-widest text-muted-foreground">Canais e saudações</h2>
+
+        <ChannelBlock
+          title="Widget do site"
+          enabled={s.channel_web_enabled}
+          onToggle={(v) => upd("channel_web_enabled", v)}
+          greeting={s.greeting_web}
+          onGreeting={(v) => upd("greeting_web", v)}
+        />
+        <ChannelBlock
+          title="WhatsApp"
+          enabled={s.channel_wa_enabled}
+          onToggle={(v) => upd("channel_wa_enabled", v)}
+          greeting={s.greeting_wa}
+          onGreeting={(v) => upd("greeting_wa", v)}
+        />
+        <ChannelBlock
+          title="Instagram"
+          enabled={s.channel_ig_enabled}
+          onToggle={(v) => upd("channel_ig_enabled", v)}
+          greeting={s.greeting_ig}
+          onGreeting={(v) => upd("greeting_ig", v)}
+        />
+      </section>
+
+      <div className="lg:col-span-2 flex items-center justify-end gap-3">
+        {msg && <span className="text-sm text-muted-foreground">{msg}</span>}
+        <button
+          onClick={onSave}
+          disabled={saving}
+          className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow hover:opacity-90 disabled:opacity-50"
+        >
+          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+          Salvar configurações
+        </button>
       </div>
+    </div>
+  );
+}
+
+function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
+  return (
+    <label className="mb-3 block">
+      <div className="mb-1 text-xs font-semibold text-foreground">{label}</div>
+      {children}
+      {hint && <div className="mt-1 text-[11px] text-muted-foreground">{hint}</div>}
+      <style>{`.input{width:100%;border:1px solid hsl(var(--border));background:hsl(var(--background));border-radius:0.375rem;padding:0.5rem 0.75rem;font-size:0.875rem;outline:none}.input:focus{box-shadow:0 0 0 2px hsl(var(--primary)/0.4)}`}</style>
+    </label>
+  );
+}
+
+function ChannelBlock({ title, enabled, onToggle, greeting, onGreeting }: { title: string; enabled: boolean; onToggle: (v: boolean) => void; greeting: string; onGreeting: (v: string) => void }) {
+  return (
+    <div className="mb-3 rounded-md border bg-background p-3">
+      <label className="mb-2 flex items-center justify-between gap-2 text-sm font-semibold">
+        {title}
+        <span className="inline-flex items-center gap-2 text-xs font-normal">
+          <input type="checkbox" checked={enabled} onChange={(e) => onToggle(e.target.checked)} />
+          Ativo
+        </span>
+      </label>
+      <textarea
+        rows={2}
+        value={greeting}
+        onChange={(e) => onGreeting(e.target.value)}
+        placeholder="Mensagem de boas-vindas"
+        className="input"
+      />
+    </div>
+  );
+}
+
+type KbArticle = { id?: string; title: string; body_md: string; tags: string[]; is_active: boolean; updated_at?: string };
+
+function ChatKbPanel() {
+  const listFn = useServerFn(adminListKbArticles);
+  const upsertFn = useServerFn(adminUpsertKbArticle);
+  const deleteFn = useServerFn(adminDeleteKbArticle);
+  const [rows, setRows] = useState<KbArticle[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState<KbArticle | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  async function refresh() {
+    setLoading(true);
+    try {
+      const r = (await listFn()) as KbArticle[];
+      setRows(r);
+    } finally {
+      setLoading(false);
+    }
+  }
+  useEffect(() => {
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function startNew() {
+    setEditing({ title: "", body_md: "", tags: [], is_active: true });
+  }
+  async function save() {
+    if (!editing) return;
+    setSaving(true);
+    try {
+      await upsertFn({ data: editing });
+      setEditing(null);
+      await refresh();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Erro ao salvar");
+    } finally {
+      setSaving(false);
+    }
+  }
+  async function remove(id: string) {
+    if (!confirm("Excluir este artigo?")) return;
+    await deleteFn({ data: { id } });
+    await refresh();
+  }
+
+  return (
+    <div className="grid gap-4 lg:grid-cols-[1fr_1.5fr]">
+      <section className="rounded-lg border bg-card">
+        <div className="flex items-center justify-between border-b p-3">
+          <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Artigos</h2>
+          <button onClick={startNew} className="inline-flex items-center gap-1 rounded-md bg-primary px-2.5 py-1 text-xs font-semibold text-primary-foreground hover:opacity-90">
+            <Plus className="h-3.5 w-3.5" /> Novo
+          </button>
+        </div>
+        <div className="max-h-[65vh] overflow-y-auto">
+          {loading ? (
+            <div className="p-4 text-sm text-muted-foreground"><Loader2 className="mr-2 inline h-4 w-4 animate-spin" /> Carregando…</div>
+          ) : rows.length === 0 ? (
+            <div className="p-4 text-sm text-muted-foreground">Nenhum artigo cadastrado.</div>
+          ) : (
+            rows.map((r) => (
+              <div key={r.id} className={`flex items-start justify-between gap-2 border-b px-3 py-2 hover:bg-accent ${editing?.id === r.id ? "bg-accent" : ""}`}>
+                <button onClick={() => setEditing(r)} className="flex-1 text-left">
+                  <div className="truncate text-sm font-semibold">{r.title}</div>
+                  <div className="mt-0.5 flex flex-wrap gap-1 text-[11px] text-muted-foreground">
+                    {r.tags?.length ? r.tags.map((t) => <span key={t} className="rounded bg-muted px-1.5">{t}</span>) : <span>sem tags</span>}
+                    {!r.is_active && <span className="rounded bg-amber-100 px-1.5 text-amber-800">inativo</span>}
+                  </div>
+                </button>
+                {r.id && (
+                  <button onClick={() => remove(r.id!)} className="rounded p-1 text-destructive hover:bg-destructive/10" aria-label="Excluir">
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+      </section>
+
+      <section className="rounded-lg border bg-card p-4">
+        {!editing ? (
+          <div className="grid h-full place-items-center text-sm text-muted-foreground">
+            Selecione um artigo ou crie um novo. A base de conhecimento alimenta as respostas do agente sobre políticas (troca, frete, garantia).
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <Field label="Título">
+              <input value={editing.title} onChange={(e) => setEditing({ ...editing, title: e.target.value })} className="input" />
+            </Field>
+            <Field label="Conteúdo (Markdown)" hint="Descreva a política ou o processo com detalhes; o agente citará esta fonte.">
+              <textarea rows={12} value={editing.body_md} onChange={(e) => setEditing({ ...editing, body_md: e.target.value })} className="input font-mono text-xs" />
+            </Field>
+            <Field label="Tags (separadas por vírgula)">
+              <input
+                value={editing.tags.join(", ")}
+                onChange={(e) => setEditing({ ...editing, tags: e.target.value.split(",").map((t) => t.trim()).filter(Boolean) })}
+                className="input"
+              />
+            </Field>
+            <label className="inline-flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={editing.is_active} onChange={(e) => setEditing({ ...editing, is_active: e.target.checked })} />
+              Ativo (visível para o agente)
+            </label>
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button onClick={() => setEditing(null)} className="rounded-md border px-3 py-2 text-sm hover:bg-accent">Cancelar</button>
+              <button onClick={save} disabled={saving || !editing.title.trim() || !editing.body_md.trim()} className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50">
+                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                Salvar
+              </button>
+            </div>
+          </div>
+        )}
+      </section>
     </div>
   );
 }
