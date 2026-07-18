@@ -1,0 +1,55 @@
+// Server functions para inscrever/desinscrever o dispositivo do aluno em Web Push.
+import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+
+export const getVapidPublicKey = createServerFn({ method: "GET" }).handler(async () => {
+  return { key: process.env.VAPID_PUBLIC_KEY ?? "" };
+});
+
+const SubscribeSchema = z.object({
+  endpoint: z.string().url(),
+  p256dh: z.string().min(10),
+  auth: z.string().min(4),
+  user_agent: z.string().max(500).optional(),
+});
+
+export const subscribeMyPush = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => SubscribeSchema.parse(i))
+  .handler(async ({ data, context }) => {
+    const { data: student } = await context.supabase
+      .from("dojo_students")
+      .select("id, owner_id")
+      .limit(1)
+      .maybeSingle();
+    if (!student) throw new Error("Aluno não encontrado");
+
+    const { error } = await context.supabase
+      .from("dojo_push_subscriptions")
+      .upsert(
+        {
+          student_id: student.id,
+          owner_id: student.owner_id,
+          endpoint: data.endpoint,
+          p256dh: data.p256dh,
+          auth: data.auth,
+          user_agent: data.user_agent ?? null,
+        } as never,
+        { onConflict: "endpoint" },
+      );
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const unsubscribeMyPush = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ endpoint: z.string().url() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("dojo_push_subscriptions")
+      .delete()
+      .eq("endpoint", data.endpoint);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
