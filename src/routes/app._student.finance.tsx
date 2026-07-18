@@ -1,8 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getMyInvoices } from "@/lib/student/student.functions";
-import { Wallet } from "lucide-react";
+import { Wallet, QrCode } from "lucide-react";
 
 export const Route = createFileRoute("/app/_student/finance")({
   head: () => ({ meta: [{ title: "Financeiro — Portal do Aluno" }] }),
@@ -33,6 +33,7 @@ function FinancePage() {
       <ul className="space-y-2">
         {(data ?? []).map((inv) => {
           const s = statusLabel[inv.status] ?? { label: inv.status, className: "bg-neutral-100 text-neutral-600" };
+          const canPay = inv.status !== "paid" && inv.status !== "canceled";
           return (
             <li key={inv.id} className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-neutral-100">
               <div className="flex items-start justify-between gap-3">
@@ -49,16 +50,16 @@ function FinancePage() {
                   </span>
                 </div>
               </div>
-              {inv.payment_link && inv.status !== "paid" && (
-                <a
-                  href={inv.payment_link}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-3 block w-full rounded-lg py-2.5 text-center text-xs font-semibold text-white"
+              {canPay && (
+                <Link
+                  to="/app/invoice/$id"
+                  params={{ id: inv.id }}
+                  className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg py-2.5 text-center text-xs font-semibold text-white"
                   style={{ background: "var(--sa-primary, #dc2626)" }}
                 >
-                  Pagar agora
-                </a>
+                  <QrCode className="h-4 w-4" />
+                  Pagar com Pix
+                </Link>
               )}
             </li>
           );

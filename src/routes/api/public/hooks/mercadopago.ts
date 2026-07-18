@@ -87,10 +87,14 @@ export const Route = createFileRoute("/api/public/hooks/mercadopago")({
           patch.payment_status = "pending";
         }
 
-        let updatedOrderId: string | null = orderId;
-        if (orderId) {
-          await supabaseAdmin.from("store_orders").update(patch as never).eq("id", orderId);
-        } else {
+        let updatedOrderId: string | null = orderId && !String(orderId).startsWith("dojo_invoice:")
+          ? String(orderId)
+          : null;
+
+        // Fluxo 1: pedidos da loja
+        if (updatedOrderId) {
+          await supabaseAdmin.from("store_orders").update(patch as never).eq("id", updatedOrderId);
+        } else if (!String(orderId ?? "").startsWith("dojo_invoice:")) {
           const { data: row } = await supabaseAdmin
             .from("store_orders")
             .update(patch as never)
@@ -105,6 +109,61 @@ export const Route = createFileRoute("/api/public/hooks/mercadopago")({
           await sendWhatsAppOrderStatus(updatedOrderId, "paid");
           const { createOrderNotification } = await import("@/lib/store/notifications.server");
           await createOrderNotification(updatedOrderId, "paid");
+        }
+
+        // Fluxo 2: mensalidades do Dojo Manager (dojo_invoices)
+        const isDojoInvoice = String(orderId ?? "").startsWith("dojo_invoice:");
+        const invoiceId = isDojoInvoice ? String(orderId).slice("dojo_invoice:".length) : null;
+        let matchedInvoiceId: string | null = invoiceId;
+        if (!matchedInvoiceId) {
+          const { data: invRow } = await supabaseAdmin
+            .from("dojo_invoices")
+            .select("id")
+            .eq("payment_id", paymentId)
+            .maybeSingle();
+          matchedInvoiceId = (invRow as { id: string } | null)?.id ?? null;
+        }
+        if (matchedInvoiceId) {
+          const invPatch: Record<string, any> = {};
+          if (status === "approved") {
+            invPatch.status = "paid";
+            invPatch.paid_at = new Date().toISOString();
+          } else if (["cancelled", "rejected"].includes(status)) {
+            invPatch.status = "canceled";
+          }
+          if (Object.keys(invPatch).length) {
+            const { data: invRow } = await supabaseAdmin
+              .from("dojo_invoices")
+              .update(invPatch as never)
+              .eq("id", matchedInvoiceId)
+              .select("id, student_id, owner_id, amount, description")
+              .maybeSingle();
+
+            if (invRow && invPatch.status === "paid") {
+              // Notificação in-app
+              await supabaseAdmin
+                .from("dojo_student_notifications")
+                .insert({
+                  student_id: (invRow as any).student_id,
+                  owner_id: (invRow as any).owner_id,
+                  type: "invoice_paid",
+                  title: "Pagamento confirmado",
+                  body: `Recebemos R$ ${Number((invRow as any).amount).toFixed(2)} — ${(invRow as any).description ?? "Mensalidade"}.`,
+                } as never);
+              // Push
+              try {
+                const { sendPushToStudent } = await import("@/lib/push/push.server");
+                await sendPushToStudent((invRow as any).student_id, {
+                  title: "Pagamento confirmado ✓",
+                  body: `R$ ${Number((invRow as any).amount).toFixed(2)} — obrigado!`,
+                  url: "/app/finance",
+                  tag: `inv-${matchedInvoiceId}`,
+                });
+              } catch {
+                /* noop */
+              }
+            }
+          }
         }
 
         return new Response("ok");

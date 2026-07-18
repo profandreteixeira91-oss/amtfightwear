@@ -3040,6 +3040,56 @@ export type Database = {
           },
         ]
       }
+      dojo_push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          last_error: string | null
+          last_success_at: string | null
+          owner_id: string
+          p256dh: string
+          student_id: string
+          updated_at: string
+          user_agent: string | null
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          last_error?: string | null
+          last_success_at?: string | null
+          owner_id: string
+          p256dh: string
+          student_id: string
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          last_error?: string | null
+          last_success_at?: string | null
+          owner_id?: string
+          p256dh?: string
+          student_id?: string
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_push_subscriptions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dojo_spaces: {
         Row: {
           active: boolean
