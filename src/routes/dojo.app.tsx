@@ -87,6 +87,8 @@ const nav: { label: string; items: NavItem[] }[] = [
     items: [
       { to: "/dojo/app/plans", label: "Planos", icon: ScrollText },
       { to: "/dojo/app/finance", label: "Financeiro", icon: Wallet },
+      { to: "/dojo/app/gateways", label: "Gateways de Pagamento", icon: Plug },
+      { to: "/dojo/app/subscription", label: "Assinatura AMT", icon: CreditCard },
       { to: "/dojo/app/units", label: "Unidades", icon: Building2 },
       { to: "/dojo/app/integrations", label: "Integrações", icon: Plug },
     ],
@@ -112,6 +114,8 @@ const routeTitles: Array<{ match: (p: string) => boolean; title: string; subtitl
   { match: (p) => p.startsWith("/dojo/app/plans"), title: "Planos", subtitle: "Mensalidades e contratos" },
   { match: (p) => p.startsWith("/dojo/app/finance"), title: "Financeiro", subtitle: "Recebimentos e a receber" },
   { match: (p) => p.startsWith("/dojo/app/units"), title: "Unidades", subtitle: "Dojos e polos" },
+  { match: (p) => p.startsWith("/dojo/app/gateways"), title: "Gateways de Pagamento", subtitle: "Credenciais do seu MP / Asaas / PagSeguro" },
+  { match: (p) => p.startsWith("/dojo/app/subscription"), title: "Assinatura AMT", subtitle: "Plano mensal do sistema" },
   { match: (p) => p.startsWith("/dojo/app/integrations"), title: "Integrações", subtitle: "Gympass, TotalPass, WhatsApp" },
   { match: (p) => p.startsWith("/dojo/app/student-app"), title: "Editor do App do Aluno", subtitle: "Personalize o app sem código" },
 ];
