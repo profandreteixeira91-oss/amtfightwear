@@ -687,7 +687,7 @@ function WholesalePage() {
                         </div>
                       </header>
                       {!isCollapsed && (
-                        <div className="grid grid-cols-2 gap-3 p-3 sm:grid-cols-3 xl:grid-cols-4">
+                        <div className="grid grid-cols-1 gap-3 p-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
                           {items.map((p) => {
                             const vs = variantsByProduct.get(p.id) ?? [];
                             const hasVariants = vs.length > 0;
