@@ -1520,6 +1520,225 @@ export type Database = {
           },
         ]
       }
+      dojo_class_occurrences: {
+        Row: {
+          cancel_reason: string | null
+          class_id: string
+          created_at: string
+          end_time: string | null
+          id: string
+          notes: string | null
+          occurrence_date: string
+          owner_id: string
+          schedule_id: string | null
+          start_time: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          cancel_reason?: string | null
+          class_id: string
+          created_at?: string
+          end_time?: string | null
+          id?: string
+          notes?: string | null
+          occurrence_date: string
+          owner_id: string
+          schedule_id?: string | null
+          start_time?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          cancel_reason?: string | null
+          class_id?: string
+          created_at?: string
+          end_time?: string | null
+          id?: string
+          notes?: string | null
+          occurrence_date?: string
+          owner_id?: string
+          schedule_id?: string | null
+          start_time?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_class_occurrences_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_class_occurrences_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_class_schedules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_class_schedules: {
+        Row: {
+          class_id: string
+          created_at: string
+          end_time: string
+          id: string
+          owner_id: string
+          start_time: string
+          weekday: number
+        }
+        Insert: {
+          class_id: string
+          created_at?: string
+          end_time: string
+          id?: string
+          owner_id: string
+          start_time: string
+          weekday: number
+        }
+        Update: {
+          class_id?: string
+          created_at?: string
+          end_time?: string
+          id?: string
+          owner_id?: string
+          start_time?: string
+          weekday?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_class_schedules_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_class_students: {
+        Row: {
+          class_id: string
+          enrolled_at: string
+          id: string
+          owner_id: string
+          status: string
+          student_id: string
+        }
+        Insert: {
+          class_id: string
+          enrolled_at?: string
+          id?: string
+          owner_id: string
+          status?: string
+          student_id: string
+        }
+        Update: {
+          class_id?: string
+          enrolled_at?: string
+          id?: string
+          owner_id?: string
+          status?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_class_students_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_class_students_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_classes: {
+        Row: {
+          color: string
+          created_at: string
+          description: string | null
+          id: string
+          level: string
+          max_students: number
+          modality: string
+          name: string
+          notes: string | null
+          owner_id: string
+          space_id: string | null
+          status: string
+          teacher_id: string | null
+          teacher_name: string | null
+          unit_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          level?: string
+          max_students?: number
+          modality?: string
+          name: string
+          notes?: string | null
+          owner_id: string
+          space_id?: string | null
+          status?: string
+          teacher_id?: string | null
+          teacher_name?: string | null
+          unit_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          level?: string
+          max_students?: number
+          modality?: string
+          name?: string
+          notes?: string | null
+          owner_id?: string
+          space_id?: string | null
+          status?: string
+          teacher_id?: string | null
+          teacher_name?: string | null
+          unit_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_classes_space_id_fkey"
+            columns: ["space_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_spaces"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_classes_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_classes_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dojo_enrollments: {
         Row: {
           created_at: string
@@ -1987,6 +2206,50 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "dojo_plans_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_spaces: {
+        Row: {
+          active: boolean
+          capacity: number | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          owner_id: string
+          unit_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          capacity?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          owner_id: string
+          unit_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          capacity?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          owner_id?: string
+          unit_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_spaces_unit_id_fkey"
             columns: ["unit_id"]
             isOneToOne: false
             referencedRelation: "dojo_units"
