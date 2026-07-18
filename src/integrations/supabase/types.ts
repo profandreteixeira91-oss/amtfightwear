@@ -1394,6 +1394,7 @@ export type Database = {
           name: string
           owner_id: string
           sort_order: number
+          stripe_hex: string | null
         }
         Insert: {
           category?: string
@@ -1404,6 +1405,7 @@ export type Database = {
           name: string
           owner_id: string
           sort_order: number
+          stripe_hex?: string | null
         }
         Update: {
           category?: string
@@ -1414,6 +1416,7 @@ export type Database = {
           name?: string
           owner_id?: string
           sort_order?: number
+          stripe_hex?: string | null
         }
         Relationships: []
       }
