@@ -9,7 +9,7 @@ export const testIntegrationConnection = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) =>
     z.object({
       integrationId: z.string(),
-      credentials: z.record(z.string()).optional(),
+      credentials: z.record(z.string(), z.string()).optional(),
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
