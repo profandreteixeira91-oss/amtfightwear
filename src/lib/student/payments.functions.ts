@@ -1,18 +1,18 @@
 // Pagamentos in-app do App do Aluno — Pix via Mercado Pago para mensalidades (dojo_invoices).
+// Usa o Access Token do Mercado Pago **do dono do dojo** (não da AMT).
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireOwnerMpToken } from "@/lib/dojo/payment-gateway.server";
 
 const MP_BASE = "https://api.mercadopago.com";
 
-async function mp<T = any>(path: string, init?: RequestInit): Promise<T> {
-  const key = process.env.MERCADOPAGO_ACCESS_TOKEN;
-  if (!key) throw new Error("MERCADOPAGO_ACCESS_TOKEN não configurada");
+async function mpWithToken<T = any>(token: string, path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${MP_BASE}${path}`, {
     ...init,
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${key}`,
+      Authorization: `Bearer ${token}`,
       ...(init?.headers ?? {}),
     },
   });
@@ -38,12 +38,15 @@ export const payMyInvoicePix = createServerFn({ method: "POST" })
     // Carrega a fatura via RLS (aluno só vê as próprias)
     const { data: invoice, error } = await context.supabase
       .from("dojo_invoices")
-      .select("id, student_id, amount, description, status, payment_id, payment_link")
+      .select("id, student_id, owner_id, amount, description, status, payment_id, payment_link")
       .eq("id", data.invoice_id)
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!invoice) throw new Error("Cobrança não encontrada");
     if (invoice.status === "paid") throw new Error("Esta cobrança já foi paga");
+
+    // Token do MP do dono do dojo (não o da AMT).
+    const mpToken = await requireOwnerMpToken((invoice as any).owner_id);
 
     const { data: student } = await context.supabase
       .from("dojo_students")
@@ -55,7 +58,7 @@ export const payMyInvoicePix = createServerFn({ method: "POST" })
     // Se já existe um Pix ativo, reutiliza
     if (invoice.payment_id) {
       try {
-        const existing = await mp<any>(`/v1/payments/${invoice.payment_id}`);
+        const existing = await mpWithToken<any>(mpToken, `/v1/payments/${invoice.payment_id}`);
         const s = String(existing.status ?? "").toLowerCase();
         if (["pending", "in_process", "authorized"].includes(s)) {
           const poi = existing?.point_of_interaction?.transaction_data ?? {};
@@ -81,7 +84,7 @@ export const payMyInvoicePix = createServerFn({ method: "POST" })
     const cpf = onlyDigits(student.cpf);
     const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-    const payment = await mp<any>("/v1/payments", {
+    const payment = await mpWithToken<any>(mpToken, "/v1/payments", {
       method: "POST",
       headers: { "X-Idempotency-Key": `inv-${invoice.id}-${Date.now()}` },
       body: JSON.stringify({
@@ -131,12 +134,13 @@ export const syncMyInvoicePayment = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { data: invoice } = await context.supabase
       .from("dojo_invoices")
-      .select("id, payment_id, status")
+      .select("id, owner_id, payment_id, status")
       .eq("id", data.invoice_id)
       .maybeSingle();
     if (!invoice?.payment_id) return { status: invoice?.status ?? "pending" };
 
-    const payment = await mp<any>(`/v1/payments/${invoice.payment_id}`);
+    const mpToken = await requireOwnerMpToken((invoice as any).owner_id);
+    const payment = await mpWithToken<any>(mpToken, `/v1/payments/${invoice.payment_id}`);
     const status = String(payment.status ?? "").toLowerCase();
     const patch: Record<string, any> = {};
     if (status === "approved") {
