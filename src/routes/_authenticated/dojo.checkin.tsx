@@ -41,7 +41,7 @@ function DojoCheckin() {
 
   const attQ = useQuery({ queryKey: ["dojo-att"], queryFn: () => listAtt({ data: {} }) });
   const statQ = useQuery({ queryKey: ["dojo-att-stats"], queryFn: () => stats() });
-  const studentsQ = useQuery({ queryKey: ["dojo-students-all"], queryFn: () => listStudents({ data: {} }) });
+  const studentsQ = useQuery({ queryKey: ["dojo-students-all"], queryFn: () => listStudents() });
   const unitsQ = useQuery({ queryKey: ["dojo-units"], queryFn: () => listUnits() });
 
   const refresh = () => {
