@@ -108,7 +108,7 @@ export const adminUpdateChatSettings = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => settingsSchema.parse(i))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const payload = { ...data, business_hours_json: data.business_hours_json as unknown as Record<string, unknown>, updated_at: new Date().toISOString() };
+    const payload = { ...data, business_hours_json: data.business_hours_json as never, updated_at: new Date().toISOString() };
     if (data.id) {
       const { error } = await supabaseAdmin
         .from("sales_agent_settings")
