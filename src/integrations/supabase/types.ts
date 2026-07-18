@@ -2782,6 +2782,50 @@ export type Database = {
           },
         ]
       }
+      dojo_student_notifications: {
+        Row: {
+          created_at: string
+          id: string
+          link: string | null
+          message: string | null
+          owner_id: string
+          read_at: string | null
+          student_id: string
+          title: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          link?: string | null
+          message?: string | null
+          owner_id: string
+          read_at?: string | null
+          student_id: string
+          title: string
+          type?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          link?: string | null
+          message?: string | null
+          owner_id?: string
+          read_at?: string | null
+          student_id?: string
+          title?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_student_notifications_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dojo_students: {
         Row: {
           address: string | null
@@ -6019,6 +6063,8 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      get_my_student_id: { Args: never; Returns: string }
+      get_my_student_owner_id: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

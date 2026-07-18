@@ -1,93 +1,123 @@
-# Editor de Certificados — Evolução para WYSIWYG Profissional
 
-## Estado atual
+# App do Aluno — AMT Dojo Manager
 
-- `src/routes/dojo.app.certificates.tsx` (331 linhas): editor simples com HTML/CSS em textarea e variáveis via chips.
-- `src/components/dojo/CertificatePreview.tsx` (251 linhas): renderiza HTML+CSS e substitui `{{variaveis}}`.
-- Backend: `dojo_certificate_templates` (html_body, css, variables, is_default, category, name) e `dojo_certificates`.
+Este é um módulo grande. Vou entregar como **PWA white-label instalável** (mesmo codebase TanStack Start), servido no subdomínio `dojomanager.amtfightwear.com.br/app` — instalável em Android e iOS via "Adicionar à tela inicial", com identidade visual carregada dinamicamente por academia (sem menção à AMT para o aluno). APK Android pode ser gerado depois via wrapper (PWABuilder/Bubblewrap) sem retrabalho.
 
-Compatibilidade: o novo editor **manterá o campo `html_body`** como fonte de verdade renderizada — para cada template criado no modo visual, geramos HTML/CSS equivalente no salvamento. Templates antigos continuam abrindo no modo "HTML avançado".
+## Arquitetura
 
-## Escopo (por fase, entregas navegáveis)
+```text
+/app                        ← área do aluno (layout próprio, sem chrome do Dojo)
+  /app/login                ← login público (email/CPF/matrícula + senha)
+  /app/_student/            ← rota protegida (BottomNav)
+    home                    ← dashboard
+    agenda                  ← aulas das turmas do aluno
+    checkin                 ← QR/PIN + histórico + frequência
+    videos                  ← lista + player + progresso
+    videos/$id
+    graduations             ← faixa, graus, timeline
+    certificates            ← lista + download PDF + validar QR
+    competitions            ← próximas + inscritas
+    finance                 ← faturas + PIX + boletos
+    profile                 ← edição limitada
+    documents               ← contratos, LGPD, atestados
+    notifications           ← central
+    settings                ← senha, notificações, tema
+```
 
-Dada a complexidade (equivalente a mini-Canva), vou dividir em 3 fases. Cada fase é entregável e usável isoladamente. Só sigo para a próxima após validação sua.
+**White label**: um `StudentThemeProvider` no `_student` carrega `dojo_academy_profile` (logo, nome, cores) do owner do aluno, injeta CSS custom properties (`--brand-primary`, etc.) e o `<title>` / manifest. O nome "AMT" some do UI para o aluno.
 
-### Fase 1 — Canvas WYSIWYG + Drag/Drop essencial (esta entrega)
+**Autenticação**: reusa Supabase Auth já existente; aluno é identificado por `dojo_students.user_id` (ou email match). Todas as leituras rodam via `createServerFn` com `requireSupabaseAuth` e uma nova middleware `requireStudent` que resolve o `dojo_students` do usuário logado e aplica RLS baseada em `student_id`.
 
-Layout de 4 áreas (topbar, painel esquerdo, canvas A4, painel direito).
+**PWA**: manifest dinâmico gerado por server route `/app/manifest.webmanifest` lendo cores/nome da academia (via subdomínio ou cookie de tenant). Meta tags iOS. Splash gerado pelo manifest. **Sem service worker de offline nesta primeira entrega** (regra Lovable: só quando explicitamente pedido offline completo; aqui deixamos preparado).
 
-Elementos suportados nesta fase:
-- Texto (com variáveis inline via `{{var}}`)
-- Imagem (URL/upload para bucket existente)
-- Logo / Assinatura (atalhos de imagem)
-- Linha, Retângulo, Círculo
-- QR Code (código de validação do certificado)
-- Data (elemento tipado)
+## Backend novo (migração + funções)
 
-Interações:
-- Arrastar da paleta para o canvas
-- Selecionar, mover, redimensionar, rotacionar
-- Snap à grade + guias inteligentes de alinhamento com outros elementos
-- Réguas horizontal/vertical
-- Zoom 25/50/75/100/125/150/200%
-- Undo/Redo (histórico em memória)
-- Duplicar / Excluir / Bloquear / Ocultar
-- Painel de camadas (mover ordem, renomear, lock, hide)
-- Painel de propriedades por tipo (fonte, tamanho, cor, negrito, itálico, sublinhado, alinhamento, opacidade, rotação, posição, tamanho, camada)
-- Painel de variáveis categorizado (Academia, Aluno, Professor, Graduação, Certificado, Sistema) com busca e inserção por clique/duplo-clique
-- Salvamento automático (debounce 2s) no `html_body` + JSON estruturado em `variables.editor_schema`
-- Preview com dados reais de um aluno selecionado
-- Exportar PDF (via `window.print` com CSS @page A4) e PNG (html-to-image)
+Novas RLS/policies para o role "aluno" nas tabelas já existentes:
+- `dojo_students` (self read/update em campos permitidos)
+- `dojo_attendance`, `dojo_class_students`, `dojo_class_occurrences`
+- `dojo_videos` (com controle de acesso), `dojo_video_progress`, `dojo_video_favorites`
+- `dojo_graduations`, `dojo_certificates`
+- `dojo_competitions`, `dojo_competition_athletes`
+- `dojo_invoices`, `dojo_enrollments`
+- `dojo_account_notifications` (repurposed p/ aluno)
 
-Persistência:
-- Reutilizo `dojo_certificate_templates`.
-- `html_body`: HTML/CSS gerado para retrocompatibilidade com `CertificatePreview`.
-- `variables` (jsonb): estende com `{ editor_schema: {...}, favorites: [...], recent: [...] }` — não quebra o schema atual.
+Novo arquivo `src/lib/student/student.functions.ts` com:
+- `getMyProfile`, `updateMyProfile` (whitelisted fields)
+- `getMyHome` (dashboard agregado — 1 chamada)
+- `getMyAgenda(range)`
+- `checkinSelf(pin|qr)` (respeita `dojo_checkin_settings`)
+- `getMyAttendance(range)` + `getMyFrequencyStats`
+- `getMyVideos`, `getMyVideoProgress`, `saveVideoProgress`, `toggleFavorite`
+- `getMyGraduations`, `getMyCurrentBelt`
+- `getMyCertificates` + `downloadCertificatePdf` (reuso do gerador existente)
+- `getMyCompetitions`, `confirmCompetition`
+- `getMyInvoices`, `getPixForInvoice`
+- `getMyNotifications`, `markNotificationRead`
+- `getAcademyBranding` (público-para-aluno: logo, nome, cores)
 
-### Fase 2 — Recursos avançados
+Novo arquivo `src/lib/student/student-middleware.ts`:
+- `requireStudent` — resolve `dojo_students` pelo `auth.uid()` via `user_id` ou `email`.
 
-- Múltiplas assinaturas com bloco composto (imagem + nome + cargo + linha)
-- Selos e marca d'água
-- Alinhamento múltiplo (esquerda/centro/direita/topo/base) e distribuição
-- Seleção múltipla + agrupamento
-- Atalhos de teclado (Ctrl+D, Ctrl+Z, Ctrl+Shift+Z, Del, setas, Ctrl+G)
-- Menus contextuais (botão direito)
-- Biblioteca de modelos com categorias e "definir padrão"
-- Duplicar template
-- Exportação JPEG
+## Frontend novo
 
-### Fase 3 — Colaboração e histórico
+```text
+src/routes/
+  app.tsx                        ← layout raiz (theme provider white-label)
+  app.index.tsx                  ← redirect /app/home
+  app.login.tsx                  ← login público
+  app._student.tsx               ← gate + BottomNav + header
+  app._student.home.tsx
+  app._student.agenda.tsx
+  app._student.checkin.tsx
+  app._student.videos.tsx
+  app._student.videos.$id.tsx
+  app._student.graduations.tsx
+  app._student.certificates.tsx
+  app._student.competitions.tsx
+  app._student.finance.tsx
+  app._student.profile.tsx
+  app._student.documents.tsx
+  app._student.notifications.tsx
+  app._student.settings.tsx
+  api/public/app/manifest.webmanifest.ts   ← manifest dinâmico
+  api/public/app/branding.$owner.ts        ← cores/logo (público, sem PII)
 
-- Tabela `dojo_certificate_template_versions` com autor, timestamp, comentário e snapshot
-- Restaurar versão anterior
-- Tabela (estrutura) — componente novo
+src/components/student/
+  BottomNav.tsx
+  StudentHeader.tsx
+  StudentThemeProvider.tsx
+  KpiCard.tsx, EmptyState.tsx, SkeletonList.tsx, PullToRefresh.tsx
+  QrScanner.tsx (usa BarcodeDetector com fallback)
+```
 
-## Arquivos previstos (Fase 1)
+Design system: mobile-first (max-w-md), bottom nav com 5 abas principais (Home / Agenda / Check-in / Vídeos / Perfil), demais telas via "Mais" ou cards no home. Skeleton loading, `refetchOnWindowFocus`, animações discretas.
 
-- `src/routes/dojo.app.certificates.tsx` — troca listagem+editor pelo novo shell
-- `src/components/dojo/certificate-editor/` (novo):
-  - `CertificateEditor.tsx` — orquestrador
-  - `Topbar.tsx`, `LeftPalette.tsx`, `Canvas.tsx`, `RightInspector.tsx`, `LayersPanel.tsx`, `VariablesPanel.tsx`
-  - `elements/` — renderers por tipo (`TextEl`, `ImageEl`, `ShapeEl`, `QrEl`, `DateEl`)
-  - `state.ts` — store com Zustand (já disponível no projeto) para elementos, seleção, histórico
-  - `serialize.ts` — schema JSON ↔ HTML/CSS
-- `src/lib/dojo/certificates.functions.ts` — pequenas adições se necessário (upload proxy para bucket, geração de PDF server-side é opcional)
+## Segurança
 
-Dependências novas:
-- `qrcode` (client, tiny) para QR
-- `html-to-image` para exportar PNG
-- Zustand já presente? Verifico; caso contrário, uso `useReducer` sem adicionar dependência.
+- Supabase JWT + refresh (já implementado).
+- RLS por `owner_id` + `student.user_id = auth.uid()` em cada policy nova.
+- `updateMyProfile` valida whitelist server-side (bloqueia CPF, email, matrícula, faixa, professor).
+- Rate limit em `checkinSelf` respeitando `dojo_checkin_settings.min_interval_minutes`.
 
-## Nota técnica
+## Entregas por fase (evita 1 mega-commit)
 
-Editor com canvas HTML absoluto posicionado (não Fabric/Konva) — mais fácil manter, renderização por div/span com `transform: translate + rotate`, e serialização direta para HTML final estático. Isso garante que o `CertificatePreview` existente continue renderizando sem mudanças.
+**Fase 1 — Fundação (esta iteração)**
+1. Migração RLS + tabelas auxiliares (notif do aluno, se faltar).
+2. `student-middleware.ts` + `student.functions.ts` (Home + Profile + Agenda + Check-in + Notificações).
+3. Rotas: `app.tsx`, `app.login.tsx`, `app._student.tsx` (theme + bottom nav), Home, Perfil, Agenda, Check-in, Notificações.
+4. Manifest dinâmico + meta iOS + splash.
+5. Página de download em `/app/install` com instruções (Android/iOS).
 
-## Fora do escopo (agora)
+**Fase 2** — Vídeos + Graduações + Certificados.
+**Fase 3** — Competições + Financeiro (PIX/boleto) + Documentos + Configurações.
+**Fase 4** — Push notifications (FCM), biometria (WebAuthn), Wallet, offline (SW controlado).
 
-- Tabela dinâmica com dados de banco
-- Colaboração em tempo real
-- Templates da comunidade / marketplace
+## O que NÃO entrego agora (deixo estrutura pronta)
 
-## Confirmação
+- APK/IPA nativos (só após homologar PWA).
+- Chat professor↔aluno.
+- Streaming ao vivo, gamificação, ranking, alimentar.
+- Login biométrico ativo (só UI + estrutura).
+- Serviço worker offline (regra Lovable exige pedido explícito de offline).
 
-Confirma que sigo com a **Fase 1** como descrita? Ou prefere ajustar prioridades (ex.: incluir múltiplas assinaturas / seleção múltipla já na fase 1)?
+Confirma que devo tocar **Fase 1** agora? Se sim, começo pela migração + backend + rotas base.
