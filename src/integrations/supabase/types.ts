@@ -2793,6 +2793,317 @@ export type Database = {
         }
         Relationships: []
       }
+      dojo_video_categories: {
+        Row: {
+          color: string | null
+          created_at: string
+          id: string
+          name: string
+          owner_id: string
+          parent_id: string | null
+          slug: string | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          owner_id: string
+          parent_id?: string | null
+          slug?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          owner_id?: string
+          parent_id?: string | null
+          slug?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_video_categories_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_video_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_video_comments: {
+        Row: {
+          author_avatar: string | null
+          author_name: string | null
+          body: string
+          created_at: string
+          id: string
+          likes: number
+          owner_id: string
+          parent_id: string | null
+          pinned: boolean
+          updated_at: string
+          user_id: string
+          video_id: string
+        }
+        Insert: {
+          author_avatar?: string | null
+          author_name?: string | null
+          body: string
+          created_at?: string
+          id?: string
+          likes?: number
+          owner_id: string
+          parent_id?: string | null
+          pinned?: boolean
+          updated_at?: string
+          user_id: string
+          video_id: string
+        }
+        Update: {
+          author_avatar?: string | null
+          author_name?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          likes?: number
+          owner_id?: string
+          parent_id?: string | null
+          pinned?: boolean
+          updated_at?: string
+          user_id?: string
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_video_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_video_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_video_comments_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_video_favorites: {
+        Row: {
+          created_at: string
+          owner_id: string
+          user_id: string
+          video_id: string
+        }
+        Insert: {
+          created_at?: string
+          owner_id: string
+          user_id: string
+          video_id: string
+        }
+        Update: {
+          created_at?: string
+          owner_id?: string
+          user_id?: string
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_video_favorites_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_video_progress: {
+        Row: {
+          completed: boolean
+          created_at: string
+          id: string
+          last_seen_at: string
+          owner_id: string
+          percent: number
+          user_id: string
+          video_id: string
+          watched_seconds: number
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          id?: string
+          last_seen_at?: string
+          owner_id: string
+          percent?: number
+          user_id: string
+          video_id: string
+          watched_seconds?: number
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          id?: string
+          last_seen_at?: string
+          owner_id?: string
+          percent?: number
+          user_id?: string
+          video_id?: string
+          watched_seconds?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_video_progress_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_video_views: {
+        Row: {
+          created_at: string
+          id: string
+          owner_id: string
+          seconds_watched: number
+          user_id: string | null
+          video_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          owner_id: string
+          seconds_watched?: number
+          user_id?: string | null
+          video_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          owner_id?: string
+          seconds_watched?: number
+          user_id?: string | null
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_video_views_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_videos: {
+        Row: {
+          access_rules: Json
+          archived_at: string | null
+          attachments: Json
+          category_id: string | null
+          created_at: string
+          description: string | null
+          duration_seconds: number | null
+          id: string
+          likes_count: number
+          owner_id: string
+          provider_id: string | null
+          published_at: string | null
+          scheduled_at: string | null
+          status: string
+          subcategory_id: string | null
+          tags: string[]
+          teacher_id: string | null
+          teacher_name: string | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          video_source: string
+          video_url: string | null
+          views_count: number
+          visibility: string
+        }
+        Insert: {
+          access_rules?: Json
+          archived_at?: string | null
+          attachments?: Json
+          category_id?: string | null
+          created_at?: string
+          description?: string | null
+          duration_seconds?: number | null
+          id?: string
+          likes_count?: number
+          owner_id: string
+          provider_id?: string | null
+          published_at?: string | null
+          scheduled_at?: string | null
+          status?: string
+          subcategory_id?: string | null
+          tags?: string[]
+          teacher_id?: string | null
+          teacher_name?: string | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          video_source?: string
+          video_url?: string | null
+          views_count?: number
+          visibility?: string
+        }
+        Update: {
+          access_rules?: Json
+          archived_at?: string | null
+          attachments?: Json
+          category_id?: string | null
+          created_at?: string
+          description?: string | null
+          duration_seconds?: number | null
+          id?: string
+          likes_count?: number
+          owner_id?: string
+          provider_id?: string | null
+          published_at?: string | null
+          scheduled_at?: string | null
+          status?: string
+          subcategory_id?: string | null
+          tags?: string[]
+          teacher_id?: string | null
+          teacher_name?: string | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          video_source?: string
+          video_url?: string | null
+          views_count?: number
+          visibility?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_videos_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_video_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_videos_subcategory_id_fkey"
+            columns: ["subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_video_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_send_log: {
         Row: {
           created_at: string
