@@ -79,7 +79,7 @@ function StudentDetail() {
   };
 
   if (!q.data) return <div>Carregando…</div>;
-  const s = q.data.student;
+  const s = q.data.student as any;
 
   const onDeleteStudent = async () => {
     if (!confirm(`Excluir ${s.full_name}? Esta ação apaga histórico de graduações, mensalidades e certificados.`)) return;
