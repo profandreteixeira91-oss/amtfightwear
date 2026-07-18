@@ -15,24 +15,28 @@ export const Route = createFileRoute("/api/public/dojo/partner-checkin/$provider
         const externalUser =
           payload.user_id || payload.userId || payload.email || payload.cpf || payload.member_id || null;
         const token = payload.token || payload.code || payload.checkin_token || null;
+        // Owner disambiguation: caller must include ?owner=<uuid> so we can locate
+        // the right tenant's integration. Falls back to first enabled integration if omitted.
+        const url = new URL(request.url);
+        const ownerHint = url.searchParams.get("owner") || payload.owner_id || null;
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-        const { data: cfg } = await supabaseAdmin
+        let cfgQuery = supabaseAdmin
           .from("dojo_partner_integrations")
           .select("*")
           .eq("provider", provider)
-          .maybeSingle();
+          .eq("enabled", true);
+        if (ownerHint) cfgQuery = cfgQuery.eq("owner_id", ownerHint);
+        const { data: cfg } = await cfgQuery.limit(1).maybeSingle();
 
-        if (!cfg || !cfg.enabled) {
-          await supabaseAdmin.from("dojo_partner_checkins").insert({
-            provider, external_user: externalUser, token, status: "denied",
-            reason: "integration_disabled", payload,
-          });
-          return Response.json({ approved: false, reason: "disabled" }, { status: 403 });
+        if (!cfg) {
+          return Response.json({ approved: false, reason: "integration_not_found" }, { status: 403 });
         }
 
-        // Verificação HMAC (opcional se secret configurado)
+        const ownerId = cfg.owner_id;
+
+        // HMAC verification (optional if secret configured)
         if (cfg.webhook_secret) {
           const signature = request.headers.get("x-signature") || request.headers.get("x-hub-signature-256") || "";
           const clean = signature.replace(/^sha256=/, "");
@@ -42,18 +46,19 @@ export const Route = createFileRoute("/api/public/dojo/partner-checkin/$provider
           if (a.length !== b.length || !timingSafeEqual(a, b)) {
             await supabaseAdmin.from("dojo_partner_checkins").insert({
               provider, external_user: externalUser, token, status: "denied",
-              reason: "invalid_signature", payload, unit_id: cfg.unit_id,
+              reason: "invalid_signature", payload, unit_id: cfg.unit_id, owner_id: ownerId,
             });
             return new Response("Invalid signature", { status: 401 });
           }
         }
 
-        // Localizar aluno vinculado — busca por email/cpf conhecido
+        // Find linked student by email/cpf (scoped to owner)
         let studentId: string | null = null;
         if (externalUser) {
           const { data: s } = await supabaseAdmin
             .from("dojo_students")
             .select("id")
+            .eq("owner_id", ownerId)
             .or(`email.eq.${externalUser},cpf.eq.${externalUser}`)
             .maybeSingle();
           if (s) studentId = s.id;
@@ -62,7 +67,7 @@ export const Route = createFileRoute("/api/public/dojo/partner-checkin/$provider
         if (!studentId) {
           await supabaseAdmin.from("dojo_partner_checkins").insert({
             provider, external_user: externalUser, token, status: "denied",
-            reason: "student_not_found", payload, unit_id: cfg.unit_id,
+            reason: "student_not_found", payload, unit_id: cfg.unit_id, owner_id: ownerId,
           });
           return Response.json({ approved: false, reason: "student_not_found" }, { status: 404 });
         }
@@ -75,7 +80,7 @@ export const Route = createFileRoute("/api/public/dojo/partner-checkin/$provider
             method: provider,
             source: token,
             external_user: externalUser,
-            owner_id: cfg.owner_id,
+            owner_id: ownerId,
           })
           .select("id")
           .single();
@@ -83,14 +88,14 @@ export const Route = createFileRoute("/api/public/dojo/partner-checkin/$provider
         if (attErr) {
           await supabaseAdmin.from("dojo_partner_checkins").insert({
             provider, external_user: externalUser, token, status: "error",
-            reason: attErr.message, payload, unit_id: cfg.unit_id,
+            reason: attErr.message, payload, unit_id: cfg.unit_id, owner_id: ownerId,
           });
           return Response.json({ approved: false, reason: "error" }, { status: 500 });
         }
 
         await supabaseAdmin.from("dojo_partner_checkins").insert({
           provider, external_user: externalUser, token, status: "approved",
-          payload, attendance_id: att.id, unit_id: cfg.unit_id,
+          payload, attendance_id: att.id, unit_id: cfg.unit_id, owner_id: ownerId,
         });
 
         return Response.json({ approved: true, attendance_id: att.id });
