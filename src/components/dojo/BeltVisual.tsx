@@ -29,11 +29,13 @@ export function BeltVisual({
   name,
   trim,
 }: BeltVisualProps) {
-  const isTrim = trim ?? (name ? (/aparador/i.test(name) || /^preta$/i.test(name.trim())) : false);
+  const n = (name ?? "").trim();
+  const isTrim = trim ?? (/aparador/i.test(n) || /^preta$/i.test(n));
+  // Coral belts (Vermelha e Preta / Vermelha e Branca): horizontal 50/50 split
+  const isSplit = /^vermelha e (preta|branca)$/i.test(n);
   const stripes = Math.max(0, Math.min(degree, maxDegrees));
   const base = (colorHex || "#F5F5F5").toLowerCase();
   const isLight = base === "#ffffff" || base === "#f5f5f5" || base === "#fdd835";
-  // Red belts (9º) use a black tip; solid red is treated normally.
   const tipBg = "#111111";
   const stripeColor = "#FFFFFF";
 
@@ -44,13 +46,18 @@ export function BeltVisual({
         style={{ background: colorHex }}
         aria-label={label ?? `Faixa ${colorHex}`}
       >
-        {/* Two-tone rendering */}
-        {stripeHex && !isTrim && (
+        {/* Split rendering — top half stripeHex, bottom half base */}
+        {stripeHex && isSplit && (
+          <div className="absolute inset-x-0 top-0" style={{ background: stripeHex, height: "50%" }} />
+        )}
+        {/* Two-tone center band */}
+        {stripeHex && !isTrim && !isSplit && (
           <div
             className="absolute inset-x-0"
             style={{ background: stripeHex, top: "33.333%", height: "33.333%" }}
           />
         )}
+        {/* Trim (aparador) on top and bottom */}
         {stripeHex && isTrim && (
           <>
             <div className="absolute inset-x-0 top-0" style={{ background: stripeHex, height: "18%" }} />
@@ -59,7 +66,7 @@ export function BeltVisual({
         )}
         {/* Black tip on the right */}
         <div
-          className="absolute right-0 top-0 h-full flex items-center justify-center gap-1 px-2"
+          className="absolute right-0 top-0 h-full flex items-center justify-center gap-[3px] px-1.5"
           style={{
             width: "38%",
             background: tipBg,
@@ -69,7 +76,7 @@ export function BeltVisual({
           {Array.from({ length: stripes }).map((_, i) => (
             <div
               key={i}
-              className="h-5 w-1 rounded-sm"
+              className="h-5 w-[3px] rounded-sm"
               style={{ background: stripeColor, boxShadow: "0 0 0 0.5px rgba(0,0,0,0.4)" }}
             />
           ))}
