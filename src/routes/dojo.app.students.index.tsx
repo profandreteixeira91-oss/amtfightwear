@@ -129,6 +129,9 @@ function StudentsPage() {
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
+  const [beltFilter, setBeltFilter] = useState("all");
+  const [unitFilter, setUnitFilter] = useState("all");
+  const [cityFilter, setCityFilter] = useState("");
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<StudentForm>(emptyForm);
 
@@ -150,13 +153,19 @@ function StudentsPage() {
   }, [q.data]);
 
   const filtered = (q.data ?? []).filter((s: any) => {
-    const okS = status === "all" || s.status === status;
-    const okQ =
-      !search ||
-      s.full_name?.toLowerCase().includes(search.toLowerCase()) ||
-      s.email?.toLowerCase().includes(search.toLowerCase());
-    return okS && okQ;
+    if (status !== "all" && s.status !== status) return false;
+    if (beltFilter !== "all" && s.current_belt_id !== beltFilter) return false;
+    if (unitFilter !== "all" && s.unit_id !== unitFilter) return false;
+    if (cityFilter && !(s.city ?? "").toLowerCase().includes(cityFilter.toLowerCase())) return false;
+    if (search) {
+      const term = search.toLowerCase();
+      const hay = [s.full_name, s.email, s.phone, s.cpf, s.rg, s.guardian_name, s.belt?.name, s.unit?.name]
+        .filter(Boolean).join(" ").toLowerCase();
+      if (!hay.includes(term)) return false;
+    }
+    return true;
   });
+
 
   function set<K extends keyof StudentForm>(key: K, val: StudentForm[K]) {
     setForm((f) => ({ ...f, [key]: val }));
