@@ -580,7 +580,7 @@ function AtacadoLandingPage() {
               ))}
             </div>
 
-            <ul className="grid gap-4">
+            <ul className="grid list-none gap-4 pl-0">
               {qualityPoints.map((q, i) => (
                 <motion.li
                   key={q.title}
