@@ -1474,6 +1474,307 @@ export type Database = {
         }
         Relationships: []
       }
+      dojo_announcement_categories: {
+        Row: {
+          color: string | null
+          created_at: string
+          icon: string | null
+          id: string
+          name: string
+          owner_id: string
+          slug: string | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          icon?: string | null
+          id?: string
+          name: string
+          owner_id: string
+          slug?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          icon?: string | null
+          id?: string
+          name?: string
+          owner_id?: string
+          slug?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      dojo_announcement_comments: {
+        Row: {
+          announcement_id: string
+          comment: string
+          created_at: string
+          id: string
+          owner_id: string
+          student_id: string
+        }
+        Insert: {
+          announcement_id: string
+          comment: string
+          created_at?: string
+          id?: string
+          owner_id: string
+          student_id: string
+        }
+        Update: {
+          announcement_id?: string
+          comment?: string
+          created_at?: string
+          id?: string
+          owner_id?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_announcement_comments_announcement_id_fkey"
+            columns: ["announcement_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_announcements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_announcement_comments_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_announcement_likes: {
+        Row: {
+          announcement_id: string
+          id: string
+          liked_at: string
+          owner_id: string
+          student_id: string
+        }
+        Insert: {
+          announcement_id: string
+          id?: string
+          liked_at?: string
+          owner_id: string
+          student_id: string
+        }
+        Update: {
+          announcement_id?: string
+          id?: string
+          liked_at?: string
+          owner_id?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_announcement_likes_announcement_id_fkey"
+            columns: ["announcement_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_announcements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_announcement_likes_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_announcement_reads: {
+        Row: {
+          announcement_id: string
+          device: string | null
+          id: string
+          ip: string | null
+          owner_id: string
+          read_at: string
+          student_id: string
+        }
+        Insert: {
+          announcement_id: string
+          device?: string | null
+          id?: string
+          ip?: string | null
+          owner_id: string
+          read_at?: string
+          student_id: string
+        }
+        Update: {
+          announcement_id?: string
+          device?: string | null
+          id?: string
+          ip?: string | null
+          owner_id?: string
+          read_at?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_announcement_reads_announcement_id_fkey"
+            columns: ["announcement_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_announcements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_announcement_reads_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_announcement_targets: {
+        Row: {
+          announcement_id: string
+          created_at: string
+          id: string
+          owner_id: string
+          target_id: string | null
+          target_type: string
+        }
+        Insert: {
+          announcement_id: string
+          created_at?: string
+          id?: string
+          owner_id: string
+          target_id?: string | null
+          target_type: string
+        }
+        Update: {
+          announcement_id?: string
+          created_at?: string
+          id?: string
+          owner_id?: string
+          target_id?: string | null
+          target_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_announcement_targets_announcement_id_fkey"
+            columns: ["announcement_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_announcements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_announcements: {
+        Row: {
+          allow_comments: boolean
+          allow_likes: boolean
+          attachments: Json
+          author_name: string | null
+          category_id: string | null
+          color: string | null
+          content: string
+          cover_image: string | null
+          created_at: string
+          created_by: string | null
+          expires_at: string | null
+          featured: boolean
+          gallery: Json
+          icon: string | null
+          id: string
+          owner_id: string
+          pinned: boolean
+          priority: string
+          publish_at: string
+          require_read_confirmation: boolean
+          send_notification: boolean
+          status: string
+          subtitle: string | null
+          summary: string | null
+          target_scope: string
+          title: string
+          updated_at: string
+          video_url: string | null
+          view_count: number
+        }
+        Insert: {
+          allow_comments?: boolean
+          allow_likes?: boolean
+          attachments?: Json
+          author_name?: string | null
+          category_id?: string | null
+          color?: string | null
+          content?: string
+          cover_image?: string | null
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          featured?: boolean
+          gallery?: Json
+          icon?: string | null
+          id?: string
+          owner_id: string
+          pinned?: boolean
+          priority?: string
+          publish_at?: string
+          require_read_confirmation?: boolean
+          send_notification?: boolean
+          status?: string
+          subtitle?: string | null
+          summary?: string | null
+          target_scope?: string
+          title: string
+          updated_at?: string
+          video_url?: string | null
+          view_count?: number
+        }
+        Update: {
+          allow_comments?: boolean
+          allow_likes?: boolean
+          attachments?: Json
+          author_name?: string | null
+          category_id?: string | null
+          color?: string | null
+          content?: string
+          cover_image?: string | null
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          featured?: boolean
+          gallery?: Json
+          icon?: string | null
+          id?: string
+          owner_id?: string
+          pinned?: boolean
+          priority?: string
+          publish_at?: string
+          require_read_confirmation?: boolean
+          send_notification?: boolean
+          status?: string
+          subtitle?: string | null
+          summary?: string | null
+          target_scope?: string
+          title?: string
+          updated_at?: string
+          video_url?: string | null
+          view_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_announcements_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_announcement_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dojo_api_keys: {
         Row: {
           created_at: string
@@ -6805,6 +7106,10 @@ export type Database = {
     Functions: {
       delete_email: {
         Args: { message_id: number; queue_name: string }
+        Returns: boolean
+      }
+      dojo_announcement_visible_to_student: {
+        Args: { _ann: string; _student: string }
         Returns: boolean
       }
       dojo_slugify: { Args: { input: string }; Returns: string }

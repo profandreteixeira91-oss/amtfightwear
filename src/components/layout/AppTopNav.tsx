@@ -42,6 +42,9 @@ import {
   ChevronDown,
   Menu as MenuIcon,
   X,
+  Megaphone,
+  GraduationCap,
+  CalendarDays,
 } from "lucide-react";
 
 import {
@@ -122,6 +125,16 @@ const groups: { label: string; items: Item[] }[] = [
       { title: "Criativos", url: "/ads/creatives", icon: Wand2 },
       { title: "Copies", url: "/ads/copies", icon: MessageSquare },
       { title: "Conexão Meta Ads", url: "/ads/connections", icon: Plug },
+    ],
+  },
+  {
+    label: "Gestão",
+    items: [
+      { title: "Alunos", url: "/dojo/app/students", icon: Users },
+      { title: "Professores", url: "/dojo/app/units", icon: UserSquare2 },
+      { title: "Turmas", url: "/dojo/app/schedule", icon: GraduationCap },
+      { title: "Agenda", url: "/dojo/app/schedule", icon: CalendarDays },
+      { title: "Quadro de Avisos", url: "/dojo/app/announcements", icon: Megaphone },
     ],
   },
   {
