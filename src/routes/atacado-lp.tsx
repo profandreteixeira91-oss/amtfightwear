@@ -182,67 +182,32 @@ const faqs = [
 
 const galleryImages = [f1, f5, f2, f4, f3, f6];
 
-// ============ Reusable CTAs ============
+// ============ Reusable CTA ============
 function BuyButton({
   from,
   size = "md",
   className = "",
+  label = "Comprar Agora",
 }: {
   from: string;
-  size?: "md" | "lg";
-  className?: string;
-}) {
-  const sizing =
-    size === "lg" ? "px-8 py-4 text-base md:px-10 md:py-5 md:text-lg" : "px-6 py-3 text-sm md:text-base";
-  return (
-    <Link
-      to="/loja/categoria/$slug"
-      params={{ slug: "faixas" }}
-      onClick={() => {
-        trackCTA(`buy_${from}`);
-        fbqTrack("InitiateCheckout", { source: from });
-      }}
-      className={`group inline-flex items-center justify-center gap-2 rounded-lg bg-primary font-black uppercase tracking-wide text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/40 ${sizing} ${className}`}
-    >
-      Comprar Faixas
-      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1 md:h-5 md:w-5" />
-    </Link>
-  );
-}
-
-function WhatsAppButton({
-  from,
-  variant = "outline",
-  size = "md",
-  className = "",
-  label = "Solicitar Atendimento",
-}: {
-  from: string;
-  variant?: "outline" | "solid";
   size?: "md" | "lg";
   className?: string;
   label?: string;
 }) {
   const sizing =
     size === "lg" ? "px-8 py-4 text-base md:px-10 md:py-5 md:text-lg" : "px-6 py-3 text-sm md:text-base";
-  const skin =
-    variant === "solid"
-      ? "bg-[#25D366] text-white hover:bg-[#1ebe57]"
-      : "border border-foreground/20 bg-background/70 text-foreground hover:border-foreground/40 hover:bg-background";
   return (
-    <a
-      href={WHATSAPP_HREF}
-      target="_blank"
-      rel="noopener noreferrer"
+    <Link
+      to="/loja/atacado"
       onClick={() => {
-        trackWhatsApp(from);
-        trackCTA(`wa_${from}`);
+        trackCTA(`buy_${from}`);
+        fbqTrack("InitiateCheckout", { source: from });
       }}
-      className={`inline-flex items-center justify-center gap-2 rounded-lg font-black uppercase tracking-wide transition-all hover:-translate-y-0.5 ${sizing} ${skin} ${className}`}
+      className={`group inline-flex items-center justify-center gap-2 rounded-lg bg-primary font-black uppercase tracking-wide text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/40 ${sizing} ${className}`}
     >
-      <MessageCircle className="h-4 w-4 md:h-5 md:w-5" />
       {label}
-    </a>
+      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1 md:h-5 md:w-5" />
+    </Link>
   );
 }
 
