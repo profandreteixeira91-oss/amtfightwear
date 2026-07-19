@@ -115,6 +115,7 @@ const benefits = [
   "Personalização inclusa",
   "Produção própria",
   "Envio para todo o Brasil",
+  "Atendimento especializado",
 ];
 
 const products = [
