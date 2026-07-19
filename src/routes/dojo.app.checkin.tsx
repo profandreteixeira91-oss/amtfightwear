@@ -849,6 +849,97 @@ function SettingsPanel() {
           <SettingRow label="Exigir validação oficial para Gympass/TotalPass" v={state.requirePartnerValidation} onChange={(v) => upd("requirePartnerValidation", v)} />
         </div>
 
+        <div className="rounded-lg border p-4 space-y-3">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <div className="font-semibold text-sm">Validação por localização (GPS)</div>
+              <div className="text-xs text-muted-foreground">
+                Alunos só conseguem fazer check-in pelo app se estiverem dentro do raio configurado a partir do endereço da academia.
+              </div>
+            </div>
+            <Switch checked={!!state.geoRequired} onCheckedChange={(v) => upd("geoRequired", v)} />
+          </div>
+
+          {state.geoRequired && (
+            <div className="space-y-3 pt-2 border-t">
+              <div>
+                <Label>Endereço de referência (opcional)</Label>
+                <Input
+                  value={state.geoAddress ?? ""}
+                  onChange={(e) => upd("geoAddress", e.target.value)}
+                  placeholder="Ex: Rua X, 123 — Bairro, Cidade/UF"
+                />
+              </div>
+              <div className="grid md:grid-cols-3 gap-3">
+                <div>
+                  <Label>Latitude</Label>
+                  <Input
+                    type="number"
+                    step="0.000001"
+                    value={state.geoLat ?? ""}
+                    onChange={(e) => upd("geoLat", e.target.value === "" ? null : parseFloat(e.target.value))}
+                    placeholder="-23.550520"
+                  />
+                </div>
+                <div>
+                  <Label>Longitude</Label>
+                  <Input
+                    type="number"
+                    step="0.000001"
+                    value={state.geoLng ?? ""}
+                    onChange={(e) => upd("geoLng", e.target.value === "" ? null : parseFloat(e.target.value))}
+                    placeholder="-46.633308"
+                  />
+                </div>
+                <div>
+                  <Label>Raio permitido (metros)</Label>
+                  <Input
+                    type="number"
+                    min={10}
+                    max={5000}
+                    value={state.geoRadiusM ?? 50}
+                    onChange={(e) => upd("geoRadiusM", parseInt(e.target.value) || 50)}
+                  />
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    if (!navigator.geolocation) { toast.error("Geolocalização indisponível neste dispositivo"); return; }
+                    navigator.geolocation.getCurrentPosition(
+                      (pos) => {
+                        upd("geoLat", pos.coords.latitude);
+                        upd("geoLng", pos.coords.longitude);
+                        toast.success("Localização capturada");
+                      },
+                      () => toast.error("Não foi possível obter a localização. Permita o acesso ao GPS."),
+                      { enableHighAccuracy: true, timeout: 10000 },
+                    );
+                  }}
+                >
+                  Usar minha localização atual
+                </Button>
+                {state.geoLat != null && state.geoLng != null && (
+                  <a
+                    href={`https://www.google.com/maps?q=${state.geoLat},${state.geoLng}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-xs underline text-muted-foreground self-center"
+                  >
+                    Ver no Google Maps
+                  </a>
+                )}
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                Dica: para maior precisão, abra este painel diretamente do local da academia e clique em “Usar minha localização atual”. O raio padrão é de 50m.
+              </p>
+            </div>
+          )}
+        </div>
+
         <Button onClick={save}>Salvar</Button>
       </CardContent>
     </Card>
