@@ -115,6 +115,11 @@ function StoreHomePage() {
               <h2 id="sobre-o-app" className="mt-2 text-2xl font-black leading-tight sm:text-3xl">
                 Para que serve a Loja AMT Fight Wear?
               </h2>
+              <img
+                src={amtLogo}
+                alt="AMT Fight Wear"
+                className="mt-6 w-full max-w-[280px] rounded-lg border border-border bg-background object-contain shadow-sm"
+              />
             </div>
             <div className="md:col-span-2 space-y-3 text-sm text-muted-foreground sm:text-base">
               <p>
