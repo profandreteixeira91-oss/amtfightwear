@@ -2,8 +2,19 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Smartphone, Share, MoreVertical, ArrowRight, Download, Apple, Chrome, CheckCircle2 } from "lucide-react";
+import {
+  Smartphone,
+  Share,
+  MoreVertical,
+  ArrowRight,
+  Download,
+  Apple,
+  Chrome,
+  CheckCircle2,
+  PackageOpen,
+} from "lucide-react";
 import { getAcademyBySlug, type PublicAcademy } from "@/lib/dojo/academy-public.functions";
+import { getPublicApkInfoBySlug } from "@/lib/dojo/apk-distribution.functions";
 
 export const Route = createFileRoute("/app/install/$slug")({
   head: ({ params }) => ({

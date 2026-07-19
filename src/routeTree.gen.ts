@@ -68,6 +68,7 @@ import { Route as DojoAppEvaluationsRouteImport } from './routes/dojo.app.evalua
 import { Route as DojoAppCompetitionsRouteImport } from './routes/dojo.app.competitions'
 import { Route as DojoAppCheckinRouteImport } from './routes/dojo.app.checkin'
 import { Route as DojoAppCertificatesRouteImport } from './routes/dojo.app.certificates'
+import { Route as DojoAppApkVersionsRouteImport } from './routes/dojo.app.apk-versions'
 import { Route as DojoAppAccountRouteImport } from './routes/dojo.app.account'
 import { Route as AppInstallSlugRouteImport } from './routes/app.install.$slug'
 import { Route as AppStudentVideosRouteImport } from './routes/app._student.videos'
@@ -467,6 +468,11 @@ const DojoAppCheckinRoute = DojoAppCheckinRouteImport.update({
 const DojoAppCertificatesRoute = DojoAppCertificatesRouteImport.update({
   id: '/certificates',
   path: '/certificates',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppApkVersionsRoute = DojoAppApkVersionsRouteImport.update({
+  id: '/apk-versions',
+  path: '/apk-versions',
   getParentRoute: () => DojoAppRoute,
 } as any)
 const DojoAppAccountRoute = DojoAppAccountRouteImport.update({
@@ -1157,6 +1163,7 @@ export interface FileRoutesByFullPath {
   '/app/videos': typeof AppStudentVideosRoute
   '/app/install/$slug': typeof AppInstallSlugRoute
   '/dojo/app/account': typeof DojoAppAccountRoute
+  '/dojo/app/apk-versions': typeof DojoAppApkVersionsRoute
   '/dojo/app/certificates': typeof DojoAppCertificatesRoute
   '/dojo/app/checkin': typeof DojoAppCheckinRoute
   '/dojo/app/competitions': typeof DojoAppCompetitionsRoute
@@ -1319,6 +1326,7 @@ export interface FileRoutesByTo {
   '/app/videos': typeof AppStudentVideosRoute
   '/app/install/$slug': typeof AppInstallSlugRoute
   '/dojo/app/account': typeof DojoAppAccountRoute
+  '/dojo/app/apk-versions': typeof DojoAppApkVersionsRoute
   '/dojo/app/certificates': typeof DojoAppCertificatesRoute
   '/dojo/app/checkin': typeof DojoAppCheckinRoute
   '/dojo/app/competitions': typeof DojoAppCompetitionsRoute
@@ -1482,6 +1490,7 @@ export interface FileRoutesById {
   '/app/_student/videos': typeof AppStudentVideosRoute
   '/app/install/$slug': typeof AppInstallSlugRoute
   '/dojo/app/account': typeof DojoAppAccountRoute
+  '/dojo/app/apk-versions': typeof DojoAppApkVersionsRoute
   '/dojo/app/certificates': typeof DojoAppCertificatesRoute
   '/dojo/app/checkin': typeof DojoAppCheckinRoute
   '/dojo/app/competitions': typeof DojoAppCompetitionsRoute
@@ -1649,6 +1658,7 @@ export interface FileRouteTypes {
     | '/app/videos'
     | '/app/install/$slug'
     | '/dojo/app/account'
+    | '/dojo/app/apk-versions'
     | '/dojo/app/certificates'
     | '/dojo/app/checkin'
     | '/dojo/app/competitions'
@@ -1811,6 +1821,7 @@ export interface FileRouteTypes {
     | '/app/videos'
     | '/app/install/$slug'
     | '/dojo/app/account'
+    | '/dojo/app/apk-versions'
     | '/dojo/app/certificates'
     | '/dojo/app/checkin'
     | '/dojo/app/competitions'
@@ -1973,6 +1984,7 @@ export interface FileRouteTypes {
     | '/app/_student/videos'
     | '/app/install/$slug'
     | '/dojo/app/account'
+    | '/dojo/app/apk-versions'
     | '/dojo/app/certificates'
     | '/dojo/app/checkin'
     | '/dojo/app/competitions'
@@ -2508,6 +2520,13 @@ declare module '@tanstack/react-router' {
       path: '/certificates'
       fullPath: '/dojo/app/certificates'
       preLoaderRoute: typeof DojoAppCertificatesRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/apk-versions': {
+      id: '/dojo/app/apk-versions'
+      path: '/apk-versions'
+      fullPath: '/dojo/app/apk-versions'
+      preLoaderRoute: typeof DojoAppApkVersionsRouteImport
       parentRoute: typeof DojoAppRoute
     }
     '/dojo/app/account': {
@@ -3561,6 +3580,7 @@ const DojoAppVideosRouteWithChildren = DojoAppVideosRoute._addFileChildren(
 
 interface DojoAppRouteChildren {
   DojoAppAccountRoute: typeof DojoAppAccountRoute
+  DojoAppApkVersionsRoute: typeof DojoAppApkVersionsRoute
   DojoAppCertificatesRoute: typeof DojoAppCertificatesRoute
   DojoAppCheckinRoute: typeof DojoAppCheckinRoute
   DojoAppCompetitionsRoute: typeof DojoAppCompetitionsRoute
@@ -3583,6 +3603,7 @@ interface DojoAppRouteChildren {
 
 const DojoAppRouteChildren: DojoAppRouteChildren = {
   DojoAppAccountRoute: DojoAppAccountRoute,
+  DojoAppApkVersionsRoute: DojoAppApkVersionsRoute,
   DojoAppCertificatesRoute: DojoAppCertificatesRoute,
   DojoAppCheckinRoute: DojoAppCheckinRoute,
   DojoAppCompetitionsRoute: DojoAppCompetitionsRoute,
