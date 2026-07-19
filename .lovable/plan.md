@@ -1,123 +1,122 @@
+# Refatoração do módulo Competições — AMT Dojo Manager
 
-# Reformulação do módulo Avaliações
+Reescrita do módulo em arquitetura de 3 camadas independentes, multi-tenant, sem mocks, com sincronização com o App do Aluno.
 
-O módulo hoje é um CRUD simples de "provas com itens teóricos/práticos + impressão". A reformulação transforma isso em uma plataforma completa mantendo o schema atual (`dojo_evaluations`) como uma das entidades — o campo `items jsonb` passa a suportar a estrutura nova, sem quebrar avaliações existentes.
-
-## Modelo de dados
-
-Aproveita `dojo_evaluations` (que vira "modelo"/template) e adiciona:
+## Arquitetura
 
 ```text
-dojo_eval_categories       ← categorias técnicas (Fundamentos, Guarda...)
-  owner_id, name, description, icon, color, order_index, archived
-
-dojo_eval_techniques       ← biblioteca central de técnicas
-  owner_id, name, description, category_id, image_url, video_id,
-  default_score, required, estimated_seconds, tags text[], archived
-
-dojo_eval_templates        ← estende dojo_evaluations com metadados novos
-  (adicionar colunas ao dojo_evaluations)
-  modality, category, teacher_id, min_training_months, min_attendance,
-  observations, version, parent_template_id, is_library, method,
-  scale jsonb, structure jsonb  ← categorias > critérios > técnicas
-  
-dojo_eval_sessions         ← execução da avaliação com um aluno
-  owner_id, template_id, student_id, evaluator_id, scheduled_at,
-  started_at, finished_at, status (draft|scheduled|in_progress|done|failed|review),
-  scores jsonb, observations, attachments jsonb, total_score, percentage,
-  result (approved|failed|review|conditional)
-
-dojo_eval_plans            ← plano de evolução pós-avaliação
-  session_id, strong_points, improvement_points, recommended_techniques uuid[],
-  recommended_videos uuid[], comments, next_evaluation_at
+┌─────────────────────┐   ┌──────────────────────┐   ┌────────────────────────┐
+│  1. Motor de Coleta │──▶│  2. Biblioteca Central│◀──│ 3. Gestão da Academia │
+│  (conectores +      │   │  (competitions +      │   │ (academy_competitions │
+│   cron + Firecrawl) │   │   classificador)      │   │   + atletas + $$$)    │
+└─────────────────────┘   └──────────────────────┘   └────────────┬───────────┘
+                                                                   │
+                                                          ┌────────▼────────┐
+                                                          │  App do Aluno   │
+                                                          └─────────────────┘
 ```
 
-`structure jsonb` do template:
-```json
-{
-  "categories": [
-    { "id": "...", "name": "Guarda", "weight": 1,
-      "criteria": [
-        { "id": "...", "name": "Fechada", "weight": 2, "max_score": 10,
-          "min_score": 0, "required": true, "eliminatory": false,
-          "techniques": ["<technique_id>", ...] } ] } ]
-}
+### Camada 1 — Motor de Coleta
+- `src/lib/dojo/competitions/connectors/` — um arquivo por fonte (IBJJF, CBJJ, UAEJJF, AJP, SJJIF, JJIF, ADCC + genérico Firecrawl). Interface `CompetitionConnector` com `fetch(): Promise<RawEvent[]>`. Falha isolada por conector.
+- `src/lib/dojo/competitions/ingest.functions.ts` — server fn `runCompetitionIngest` que executa todos os conectores, normaliza, classifica e faz upsert em `competitions`.
+- `src/routes/api/public/hooks/competitions-ingest.ts` — endpoint acionado pelo `pg_cron` (a cada 6h) usando `apikey`.
+- Painel admin com botão "Atualizar agora" + configuração de frequência em `dojo_competition_source_settings`.
+- Classificador em `src/lib/dojo/competitions/classifier.ts` — regras por palavras-chave (mundial, grand slam, open, estadual, etc.) e escopo (INT/NAT/REG). Sem IA.
+
+### Camada 2 — Biblioteca Central
+- Tabela `competitions` global (não tem `owner_id` — é catálogo compartilhado, RLS `SELECT TO anon/authenticated`). Campos completos: identidade, geo, datas, valores, categorias JSONB, links, source, `classification` (jsonb: scope/tier/keywords).
+- Índices para busca rápida por país/estado/data/scope/organization.
+- `competition_sources` — registro dos conectores e último status.
+- `competition_ingest_runs` — logs (encontrados, atualizados, erros, duração).
+- Server fns públicas: `listCompetitions` (filtros: nome, país, estado, data, scope, inscrições abertas, valor máx, faixa/idade/peso/sexo), `getCompetition(id)`.
+
+### Camada 3 — Gestão da Academia (multi-tenant, `owner_id`)
+Tabelas com RLS por `owner_id`:
+- `academy_competitions` — vínculo academia↔competição + notas, professor responsável, status interno.
+- `academy_competition_athletes` — atletas inscritos, turma, graduação, categoria, peso, status (interessado→finalizado).
+- `academy_competition_staff` — equipe técnica.
+- `academy_competition_finances` — inscrição, viagem, hospedagem, alimentação, comprovantes.
+- `academy_competition_hotels` — hospedagem.
+- `academy_competition_transport` — transporte.
+- `academy_competition_results` — resultados (lutas, medalha, colocação, fotos, vídeos).
+- `academy_competition_documents` — documentos (S3/bucket `dojo-students` reutilizado ou novo `dojo-competitions`).
+
+### Rotas
+- `/dojo/app/competitions` (admin) — reescrita com abas: **Biblioteca** (busca/filtros na base central), **Meu Calendário** (competições adicionadas), **Dashboard** (indicadores).
+- `/dojo/app/competitions/$id` (admin) — ambiente de gestão da competição adicionada, com sub-abas: Resumo, Cronograma, Atletas, Inscrições, Documentos, Financeiro, Hospedagem, Transporte, Equipe, Resultados, Fotos, Medalhas, Relatórios.
+- `/app/competitions` (aluno) — reescrita: lista somente competições liberadas para o aluno (via `academy_competitions` do dojo dele filtradas por elegibilidade: faixa/idade/peso/sexo/turma).
+- `/app/competitions/$id` (aluno) — detalhe + botões: Tenho interesse, Confirmar, Enviar docs, Google Maps, Inscrição oficial, Compartilhar.
+
+### Notificações
+- Hooks nas mutações relevantes (nova competição adicionada, mudança de data/local, inscrições encerrando, cancelamento, resultado publicado) gravam em `dojo_student_notifications` para os atletas elegíveis. Push/e-mail/WhatsApp/SMS ficam como TODO com abstração `NotificationChannel`.
+
+## Banco de dados (migração única)
+
+```sql
+-- Biblioteca central (global; leitura pública autenticada)
+CREATE TABLE public.competitions (...campos completos, classification jsonb, source_id uuid);
+CREATE TABLE public.competition_sources (id, code UNIQUE, name, url, enabled, schedule, last_run_at, ...);
+CREATE TABLE public.competition_ingest_runs (id, source_id, started_at, finished_at, found, updated, errors jsonb);
+
+-- Gestão por academia
+CREATE TABLE public.academy_competitions (id, owner_id, competition_id, status, professor_id, notes, added_by, ...);
+CREATE TABLE public.academy_competition_athletes (id, owner_id, academy_competition_id, student_id, category, weight, belt, status, ...);
+CREATE TABLE public.academy_competition_staff (id, owner_id, academy_competition_id, role, name, student_id, ...);
+CREATE TABLE public.academy_competition_finances (...);
+CREATE TABLE public.academy_competition_hotels (...);
+CREATE TABLE public.academy_competition_transport (...);
+CREATE TABLE public.academy_competition_results (id, athlete_id, wins, losses, medal, placement, ...);
+CREATE TABLE public.academy_competition_documents (id, academy_competition_id, student_id?, url, kind, ...);
 ```
 
-Método de avaliação por template: `numeric | checklist | pass_fail | scale | rubric | concept`.
+Cada tabela recebe: GRANTs (`authenticated` + `service_role`), RLS por `owner_id = auth.uid()` (admin) + `owner_id = get_my_student_owner_id()` (aluno via SELECT), triggers `set_updated_at`.
 
-## Seed: biblioteca de modelos prontos
+Tabelas legadas atuais que serão substituídas: `dojo_competitions`, `dojo_competition_athletes`, `dojo_competition_medals`, `dojo_competition_results`, `dojo_competition_attachments` — manter fisicamente por compat, novo módulo não escreve nelas. Rota antiga aponta para a nova.
 
-Uma migração adicional insere modelos com `is_library=true` e `owner_id=null` (visíveis a todos):
-- Jiu-Jitsu Infantil (13 faixas conforme lista).
-- Jiu-Jitsu Adulto (5 faixas).
-- Judô (branca a preta — conforme graduação).
-- Genérico vazio.
+## Ingestão
 
-Modelos com `owner_id IS NULL` são somente-leitura para a academia. "Usar este modelo" faz duplicação em `owner_id = auth.uid()` (linha nova).
+Cron `pg_net` → `/api/public/hooks/competitions-ingest` a cada 6h com `apikey`. Endpoint invoca `runCompetitionIngest` que:
+1. Lê `competition_sources` habilitadas.
+2. Para cada, chama o conector isolado (try/catch).
+3. Normaliza `RawEvent → Competition` + roda `classify()`.
+4. Faz `UPSERT` por `(source_code, external_id)`.
+5. Grava `competition_ingest_runs` e atualiza `last_run_at`.
 
-RLS: `owner_id = auth.uid() OR (is_library = true AND owner_id IS NULL)` para SELECT; INSERT/UPDATE/DELETE só quando `owner_id = auth.uid()`.
+Conector Firecrawl usa a secret existente `FIRECRAWL_API_KEY`. Demais conectores começam com stubs bem definidos (interface pronta, endpoint fetch mockado desabilitado por default até integração real) — habilitados apenas quando houver endpoint público confirmado. Firecrawl já cobre IBJJF/CBJJ via scraping. Nada é mockado no produto final: fontes desabilitadas simplesmente não rodam.
 
-## Backend
+## Arquivos principais a criar/editar
 
-`src/lib/dojo/evaluations/`:
-- `templates.functions.ts` — list/get/save/duplicate/archive/delete templates + versionamento.
-- `library.functions.ts` — lista modelos da biblioteca.
-- `categories.functions.ts` — CRUD categorias técnicas.
-- `techniques.functions.ts` — CRUD biblioteca central de técnicas.
-- `sessions.functions.ts` — criar/atualizar/finalizar sessão + calcular resultado.
-- `plans.functions.ts` — CRUD plano de evolução.
-- `dashboard.functions.ts` — agregações para o painel.
-- `integrations.functions.ts` — ao aprovar sessão, criar registro em `dojo_graduations` (opcional por flag).
+Novos:
+- `src/lib/dojo/competitions/types.ts`
+- `src/lib/dojo/competitions/classifier.ts`
+- `src/lib/dojo/competitions/connectors/{ibjjf,cbjjf,uaejjf,ajp,sjjif,jjif,adcc,firecrawl-generic}.ts`
+- `src/lib/dojo/competitions/library.functions.ts` (busca pública)
+- `src/lib/dojo/competitions/academy.functions.ts` (gestão)
+- `src/lib/dojo/competitions/ingest.functions.ts` + `ingest.server.ts`
+- `src/lib/student/competitions.functions.ts` (aluno)
+- `src/routes/api/public/hooks/competitions-ingest.ts`
+- `src/routes/_authenticated/dojo.app.competitions.tsx` (reescrita)
+- `src/routes/_authenticated/dojo.app.competitions.$id.tsx`
+- `src/routes/app._student.competitions.tsx` (reescrita)
+- `src/routes/app._student.competitions.$id.tsx`
 
-## UI — `/dojo/app/evaluations` (rebuild)
+Migração única com todas as tabelas + policies + GRANTs + seeds de `competition_sources`.
 
-Layout com abas + subrotas:
-- `/dojo/app/evaluations` → **Dashboard** (KPIs + gráficos com `recharts` já usado).
-- `/dojo/app/evaluations/library` → **Biblioteca de Modelos** (grid com filtro por modalidade/faixa; botão "Usar este modelo").
-- `/dojo/app/evaluations/my` → **Minhas Avaliações** (sessões executadas/agendadas, lista + filtros).
-- `/dojo/app/evaluations/templates` → **Modelos Personalizados** (grid + editor visual drag-and-drop de estrutura).
-- `/dojo/app/evaluations/templates/$id` → **Editor de modelo** (categorias > critérios > técnicas com `@dnd-kit`, seleção de método, escala).
-- `/dojo/app/evaluations/categories` → **Categorias Técnicas** (CRUD).
-- `/dojo/app/evaluations/techniques` → **Biblioteca de Técnicas** (CRUD, busca, filtros, tags, arquivar).
-- `/dojo/app/evaluations/session/$id` → **Executar avaliação** (aluno em foco, header com foto/faixa/histórico, checklist/notas por critério, anexos, salvamento automático, resultado ao final).
-- `/dojo/app/evaluations/session/$id/plan` → **Plano de evolução** (formulário + sugestões de vídeos).
-- `/dojo/app/evaluations/history` → **Histórico** (timeline por aluno).
-- `/dojo/app/evaluations/settings` → **Configurações** (nota mínima padrão, escala padrão, integração automática com graduação, regras de aprovação).
+## Segurança
+- Todas as tabelas `academy_*` têm RLS por `owner_id`.
+- `competitions` é catálogo global (SELECT autenticado); só `service_role` escreve.
+- Ingest endpoint valida `apikey`.
+- Documentos usam bucket privado com signed URLs.
 
-Componentes reutilizáveis em `src/components/dojo/evaluations/`:
-- `TemplateCard`, `TemplateEditor` (drag-and-drop categorias/critérios/técnicas), `MethodSelector`, `ScaleEditor`, `TechniquePicker`, `SessionRunner` (com auto-save via debounce), `ResultSummary`, `EvolutionPlanForm`, `StudentHeader`, `TimelineList`.
+## Performance
+- Índices em `competitions(country, state, start_at, scope, organization)`.
+- Paginação server-side em `listCompetitions`.
+- Cache do React Query com `staleTime` de 5min.
+- Cron em background, nunca síncrono.
 
-Design: Notion/ClickUp — sidebar de abas no topo do módulo, cards, skeleton loading, filtros rápidos, busca instantânea (`useDeferredValue`), painéis laterais para edição, feedback visual (toasts).
+## Fora de escopo desta entrega
+- Integração real com APIs oficiais (elas exigem contrato). Ficam as interfaces prontas + Firecrawl como fallback.
+- Push/e-mail/WhatsApp/SMS reais — apenas persistência de notificação in-app.
+- Migração de dados legados `dojo_competitions*` — mantidos, novo módulo é isolado.
 
-## Integrações
-
-- **Alunos**: `SessionRunner` puxa `dojo_students`; ao aprovar, gravar linha timeline em `dojo_account_audit`/histórico do aluno.
-- **Vídeos**: `TechniquePicker` linka `dojo_videos.id`; `EvolutionPlanForm` sugere vídeos por técnicas mal avaliadas (query em `dojo_videos` com tags/categoria).
-- **Graduação**: função `promoteFromSession` cria `dojo_graduations` quando `result='approved'` E flag `auto_graduate` do template estiver on. Opcional via botão manual também.
-- **Agenda**: sessão com `scheduled_at` aparece como evento (não altera schema da agenda; consulta cruzada).
-- **Certificados**: reaproveita gerador existente com data da avaliação.
-
-## Backward compatibility
-
-- Rotas antigas continuam funcionando; a listagem de "provas" existente aparece dentro de "Modelos Personalizados" (mesma tabela).
-- `items jsonb` legado é migrado on-the-fly: se `structure` estiver vazio, o UI mostra o modelo em modo compatível (categoria única "Itens", critérios = itens).
-- `saveDojoEvaluation` e `listDojoEvaluations` mantidos e usados por baixo do capô.
-
-## Fora do escopo desta iteração (estrutura preparada)
-
-- Assinatura digital dos avaliadores, avaliação remota, avaliação por vídeo, IA de análise técnica.
-- Ranking técnico e gamificação.
-- Marketplace público entre academias.
-- Compartilhamento entre unidades da mesma academia (schema pronto via `unit_id`, sem UI ainda).
-- Importação/exportação real (JSON de template) — deixo botão "Exportar JSON" e "Importar JSON" simples; import cross-academy fica só como schema.
-
-## Entrega desta iteração
-
-1. Migração: novas tabelas + colunas em `dojo_evaluations` + RLS/GRANTs + seed da biblioteca.
-2. Backend completo (`src/lib/dojo/evaluations/*.functions.ts`).
-3. Reescrita do módulo com todas as subrotas listadas.
-4. Componentes reutilizáveis.
-5. Integração automática (opcional) com Graduação.
-
-Confirme para eu começar pela migração.
+Ao aprovar, executo a migração + criação de arquivos + reescrita das rotas em blocos paralelos.
