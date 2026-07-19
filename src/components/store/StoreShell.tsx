@@ -258,6 +258,9 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
               <Link to="/loja/atacado" className="whitespace-nowrap px-3 py-3 font-bold text-foreground hover:text-primary">
                 Atacado
               </Link>
+              <Link to="/" hash="dojo-manager" className="whitespace-nowrap px-3 py-3 font-bold text-foreground hover:text-primary">
+                AMT Dojo Manager
+              </Link>
 
               {topCategories.map((c) => {
                 const subs = c.id ? childrenByParent.get(c.id) ?? [] : [];
