@@ -142,7 +142,6 @@ const whyUs = [
   { icon: Award, title: "Acabamento premium", desc: "Costura e bordado profissionais em cada peça." },
   { icon: Palette, title: "Personalização inclusa", desc: "Logo, cores e nomes sem custo extra." },
   { icon: Layers, title: "Alta resistência", desc: "Tecidos reforçados que aguentam o treino pesado." },
-  { icon: MessageCircle, title: "Atendimento especializado", desc: "Suporte humano do orçamento à entrega." },
   { icon: Truck, title: "Entrega para todo o Brasil", desc: "Envio de norte a sul, com prazo combinado." },
 ];
 
