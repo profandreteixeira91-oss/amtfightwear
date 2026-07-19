@@ -51,6 +51,13 @@ function BrandedInstallPage() {
     staleTime: 60_000,
   });
 
+  const fetchApk = useServerFn(getPublicApkInfoBySlug);
+  const { data: apk } = useQuery({
+    queryKey: ["public-apk", slug],
+    queryFn: () => fetchApk({ data: { slug } }),
+    staleTime: 60_000,
+  });
+
   const [platform, setPlatform] = useState<Platform>("desktop");
   const [installEvent, setInstallEvent] = useState<BeforeInstallPromptEvent | null>(null);
   const [installed, setInstalled] = useState(false);
