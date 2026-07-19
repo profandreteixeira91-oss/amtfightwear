@@ -149,16 +149,18 @@ function StudentAppEditor() {
       <div className="grid flex-1 gap-4 overflow-hidden lg:grid-cols-[minmax(0,1fr)_400px]">
         <Card className="flex flex-col overflow-hidden">
           <Tabs defaultValue="appearance" className="flex flex-1 flex-col overflow-hidden">
-            <TabsList className="mx-3 mt-3 flex w-fit flex-wrap gap-1">
-              <TabsTrigger value="appearance">Aparência</TabsTrigger>
-              <TabsTrigger value="navigation">Navegação</TabsTrigger>
-              <TabsTrigger value="features">Funcionalidades</TabsTrigger>
-              <TabsTrigger value="home">Tela Inicial</TabsTrigger>
-              <TabsTrigger value="login">Login</TabsTrigger>
-              <TabsTrigger value="news">Notícias &amp; Banners</TabsTrigger>
-              <TabsTrigger value="notifications">Notificações</TabsTrigger>
-              <TabsTrigger value="versions">Versões</TabsTrigger>
-            </TabsList>
+            <div className="mx-3 mt-3 overflow-x-auto">
+              <TabsList className="inline-flex h-auto w-max gap-1 whitespace-nowrap">
+                <TabsTrigger value="appearance">Aparência</TabsTrigger>
+                <TabsTrigger value="navigation">Navegação</TabsTrigger>
+                <TabsTrigger value="features">Funcionalidades</TabsTrigger>
+                <TabsTrigger value="home">Tela Inicial</TabsTrigger>
+                <TabsTrigger value="login">Login</TabsTrigger>
+                <TabsTrigger value="news">Notícias &amp; Banners</TabsTrigger>
+                <TabsTrigger value="notifications">Notificações</TabsTrigger>
+                <TabsTrigger value="versions">Versões</TabsTrigger>
+              </TabsList>
+            </div>
 
             <div className="flex-1 overflow-auto p-4">
               <TabsContent value="appearance" className="m-0">
