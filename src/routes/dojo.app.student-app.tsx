@@ -117,6 +117,9 @@ function StudentAppEditor() {
     setDraft((d) => (d ? { ...d, notifications: { ...d.notifications, ...patch } } : d));
   const setOnboarding = (patch: Partial<StudentAppConfig["onboarding"]>) =>
     setDraft((d) => (d ? { ...d, onboarding: { ...d.onboarding, ...patch } } : d));
+  const setDigitalCard = (patch: Partial<DigitalCardConfig>) =>
+    setDraft((d) => (d ? { ...d, digital_card: { ...d.digital_card, ...patch } } : d));
+
 
   return (
     <div className="dojo-theme flex h-[calc(100vh-8rem)] flex-col gap-4">
