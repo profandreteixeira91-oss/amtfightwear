@@ -80,14 +80,22 @@ function AthletesPanel({ acId }: { acId: string }) {
   const listFn = useServerFn(listCompetitionAthletes);
   const upsertFn = useServerFn(upsertCompetitionAthlete);
   const delFn = useServerFn(deleteCompetitionAthlete);
-  const studentsFn = useServerFn(listStudents);
   const qc = useQueryClient();
 
   const q = useQuery({ queryKey: ["comp-athletes", acId], queryFn: () => listFn({ data: { academy_competition_id: acId } }) });
-  const students = useQuery({ queryKey: ["students-basic"], queryFn: () => studentsFn({ data: {} }) });
+  const students = useQuery({
+    queryKey: ["students-basic"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("dojo_students").select("id, full_name").eq("status", "active").order("full_name");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const upsertMut = useMutation({
-    mutationFn: (i: Parameters<typeof upsertFn>[0]["data"]) => upsertFn({ data: i }),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mutationFn: (i: any) => upsertFn({ data: i }),
     onSuccess: () => { toast.success("Atleta salvo"); qc.invalidateQueries({ queryKey: ["comp-athletes", acId] }); },
     onError: (e: Error) => toast.error(e.message),
   });
