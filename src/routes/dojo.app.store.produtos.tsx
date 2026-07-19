@@ -50,7 +50,7 @@ function ProductsPage() {
     onSuccess: (r: any) => toast.success(r?.favorited ? "Favoritado" : "Removido dos favoritos"),
   });
 
-  const submitSearch = (e: React.FormEvent) => { e.preventDefault(); nav({ search: (s) => ({ ...s, q: q || undefined }) }); };
+  const submitSearch = (e: React.FormEvent) => { e.preventDefault(); nav({ search: (s: any) => ({ ...s, q: q || undefined }) }); };
 
   return (
     <div className="space-y-4">
@@ -61,7 +61,7 @@ function ProductsPage() {
         </form>
         <select
           value={params.sort ?? "recent"}
-          onChange={(e) => nav({ search: (s) => ({ ...s, sort: e.target.value as any }) })}
+          onChange={(e) => nav({ search: (s: any) => ({ ...s, sort: e.target.value as any }) })}
           className="h-9 rounded-md border border-input bg-background px-2 text-sm"
         >
           <option value="recent">Mais recentes</option>
@@ -73,7 +73,7 @@ function ProductsPage() {
 
       <div className="flex gap-2 overflow-x-auto pb-1">
         <button
-          onClick={() => nav({ search: (s) => ({ ...s, cat: undefined }) })}
+          onClick={() => nav({ search: (s: any) => ({ ...s, cat: undefined }) })}
           className={`whitespace-nowrap rounded-full border px-3 py-1 text-xs ${!params.cat ? "border-primary bg-primary text-primary-foreground" : "border-input bg-background"}`}
         >
           Todas
@@ -81,7 +81,7 @@ function ProductsPage() {
         {(cats ?? []).map((c: any) => (
           <button
             key={c.id}
-            onClick={() => nav({ search: (s) => ({ ...s, cat: c.slug }) })}
+            onClick={() => nav({ search: (s: any) => ({ ...s, cat: c.slug }) })}
             className={`whitespace-nowrap rounded-full border px-3 py-1 text-xs ${params.cat === c.slug ? "border-primary bg-primary text-primary-foreground" : "border-input bg-background"}`}
           >
             {c.name}
