@@ -28,7 +28,7 @@ export const listEvalTemplates = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("dojo_evaluations")
-      .select("*, belt:dojo_belts(name,color_hex,stripe_hex,max_degrees)")
+      .select("id,title,method,modality,version,active,total_score,structure,updated_at")
       .eq("is_library", false)
       .order("updated_at", { ascending: false });
     if (error) throw new Error(error.message);
