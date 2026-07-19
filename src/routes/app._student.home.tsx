@@ -45,20 +45,24 @@ function HomePage() {
   const openInvoices = homeData?.openInvoices ?? [];
 
   return (
-    <div className="space-y-5">
-      {config.home_blocks.filter((b) => b.visible !== false).map((block) => (
-        <BlockRenderer
-          key={block.id}
-          block={block}
-          config={config}
-          student={student}
-          belt={belt}
-          openInvoices={openInvoices}
-          lastCheckin={homeData?.lastCheckin}
-          news={news ?? []}
-          isLoading={isLoading}
-        />
-      ))}
+    <div className="mx-auto grid w-full max-w-3xl gap-5 lg:max-w-5xl lg:grid-cols-3 lg:items-start">
+      {config.home_blocks.filter((b) => b.visible !== false).map((block) => {
+        const spanAll = block.type === "welcome" || block.type === "banner" || block.type === "open_invoices";
+        return (
+          <div key={block.id} className={spanAll ? "lg:col-span-3" : block.type === "shortcuts" ? "lg:col-span-2" : "lg:col-span-1"}>
+            <BlockRenderer
+              block={block}
+              config={config}
+              student={student}
+              belt={belt}
+              openInvoices={openInvoices}
+              lastCheckin={homeData?.lastCheckin}
+              news={news ?? []}
+              isLoading={isLoading}
+            />
+          </div>
+        );
+      })}
     </div>
   );
 }
