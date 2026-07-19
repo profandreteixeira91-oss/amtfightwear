@@ -992,7 +992,7 @@ function PreviewOnboarding({ config }: { config: StudentAppConfig }) {
               const Icon = iconFromName(s.icon);
               return (
                 <>
-                  <Icon className="h-4 w-4 shrink-0" style={{ color: accent }} />
+                  <span style={{ color: accent }} className="shrink-0"><Icon className="h-4 w-4" /></span>
                   <div className="min-w-0">
                     <div className="truncate text-[10px] font-semibold" style={{ color: config.appearance.title_color }}>{s.title}</div>
                     <div className="truncate text-[9px] text-neutral-500">{s.description}</div>
