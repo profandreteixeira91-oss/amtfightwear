@@ -166,21 +166,38 @@ function KioskPanel() {
   const [showPartner, setShowPartner] = useState<null | "gympass" | "totalpass">(null);
   const [lastCheckin, setLastCheckin] = useState<null | { name: string; photo?: string | null; message: string; method: string }>(null);
   const [unitId, setUnitId] = useState("");
+  const [now, setNow] = useState(() => new Date());
   const inputRef = useRef<HTMLInputElement>(null);
 
   const qc = useQueryClient();
   const byCode = useServerFn(checkinByCode);
   const settingsFn = useServerFn(getCheckinSettings);
   const listUnits = useServerFn(listDojoUnits);
+  const dashFn = useServerFn(checkinDashboard);
 
   const settingsQ = useQuery({ queryKey: ["dojo-checkin-settings"], queryFn: () => settingsFn() });
   const unitsQ = useQuery({ queryKey: ["dojo-units"], queryFn: () => listUnits() });
+  const dashQ = useQuery({ queryKey: ["dojo-checkin-dashboard"], queryFn: () => dashFn(), refetchInterval: 20000 });
 
   const welcomeTpl = settingsQ.data?.welcome_message || "Bem-vindo, {{name}}! Bom treino 🥋";
+  const activeUnit = (unitsQ.data ?? []).find((u: any) => u.id === unitId);
+  const todayCount = (dashQ.data as any)?.todayCount ?? (dashQ.data as any)?.today ?? (dashQ.data as any)?.total_today ?? null;
+  const presentCount = (dashQ.data as any)?.presentCount ?? (dashQ.data as any)?.present ?? null;
 
   useEffect(() => {
     const t = setTimeout(() => inputRef.current?.focus(), 100);
     return () => clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    function onFsChange() { setIsFullscreen(Boolean(document.fullscreenElement)); }
+    document.addEventListener("fullscreenchange", onFsChange);
+    return () => document.removeEventListener("fullscreenchange", onFsChange);
   }, []);
 
   async function submitCode(code: string) {
@@ -189,7 +206,7 @@ function KioskPanel() {
     try {
       const r = await byCode({ data: { code: c, unitId: unitId || null } });
       const msg = welcomeTpl.replace(/\{\{name\}\}/g, r.student.full_name?.split(" ")[0] ?? "");
-      setLastCheckin({ name: r.student.full_name, message: msg, method: /^\d+$/.test(c) ? "PIN" : "QR" });
+      setLastCheckin({ name: r.student.full_name, photo: (r.student as any).photo_url ?? null, message: msg, method: /^\d+$/.test(c) ? "PIN" : "QR" });
       setPin("");
       qc.invalidateQueries({ queryKey: ["dojo-checkin-dashboard"] });
       qc.invalidateQueries({ queryKey: ["dojo-att"] });
@@ -216,12 +233,48 @@ function KioskPanel() {
     }
   }
 
+  const timeStr = now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  const secondsStr = now.getSeconds().toString().padStart(2, "0");
+  const dateStr = now.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" });
+
   return (
-    <div ref={containerRef} className={`space-y-4 ${isFullscreen ? "bg-background p-6" : ""}`}>
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-2">
+    <div
+      ref={containerRef}
+      className={
+        isFullscreen
+          ? "fixed inset-0 z-50 flex flex-col bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white"
+          : "space-y-4"
+      }
+    >
+      {/* HEADER BAR */}
+      <div
+        className={
+          isFullscreen
+            ? "flex flex-wrap items-center justify-between gap-4 border-b border-white/10 px-8 py-5"
+            : "flex flex-wrap items-center justify-between gap-4"
+        }
+      >
+        <div className="flex items-center gap-3">
+          {isFullscreen && (
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20 ring-1 ring-primary/40">
+              <ScanLine className="h-6 w-6 text-primary" />
+            </div>
+          )}
+          <div>
+            {isFullscreen && (
+              <div className="text-[11px] font-semibold uppercase tracking-[0.3em] text-white/50">
+                Check-in
+              </div>
+            )}
+            <div className={isFullscreen ? "text-xl font-bold" : "sr-only"}>
+              {activeUnit?.name || "Selecione a unidade"}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
           <Select value={unitId} onValueChange={setUnitId}>
-            <SelectTrigger className="w-52">
+            <SelectTrigger className={isFullscreen ? "w-56 border-white/20 bg-white/5 text-white" : "w-52"}>
               <SelectValue placeholder="Unidade (opcional)" />
             </SelectTrigger>
             <SelectContent>
@@ -230,54 +283,111 @@ function KioskPanel() {
               ))}
             </SelectContent>
           </Select>
+
+          {isFullscreen && (
+            <div className="flex items-baseline gap-1 rounded-xl border border-white/10 bg-white/5 px-4 py-2 font-mono tabular-nums">
+              <span className="text-3xl font-bold leading-none">{timeStr}</span>
+              <span className="text-sm text-white/50">:{secondsStr}</span>
+            </div>
+          )}
+
+          <Button
+            variant={isFullscreen ? "secondary" : "outline"}
+            size="sm"
+            onClick={toggleFullscreen}
+            className="gap-2"
+          >
+            {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+            {isFullscreen ? "Sair" : "Modo Kiosk"}
+          </Button>
         </div>
-        <Button variant="outline" size="sm" onClick={toggleFullscreen} className="gap-2">
-          {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-          {isFullscreen ? "Sair da tela cheia" : "Modo Kiosk"}
-        </Button>
       </div>
 
-      <Card className="relative overflow-hidden">
-        <CardContent className="p-8 md:p-12">
-          {lastCheckin ? (
-            <SuccessBanner data={lastCheckin} />
-          ) : (
-            <form
-              onSubmit={(e) => { e.preventDefault(); submitCode(pin); }}
-              className="max-w-2xl mx-auto space-y-6"
-            >
-              <div className="text-center space-y-2">
-                <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mx-auto">
-                  <Fingerprint className="h-8 w-8 text-primary" />
+      {isFullscreen && (
+        <div className="px-8 pt-2 text-sm capitalize text-white/60">{dateStr}</div>
+      )}
+
+      {/* MAIN CARD */}
+      <div className={isFullscreen ? "flex flex-1 items-center justify-center px-4 pb-8" : ""}>
+        <Card
+          className={
+            isFullscreen
+              ? "relative w-full max-w-3xl overflow-hidden border-white/10 bg-white/[0.04] shadow-2xl backdrop-blur"
+              : "relative overflow-hidden"
+          }
+        >
+          <CardContent className={isFullscreen ? "p-10 md:p-14" : "p-8 md:p-12"}>
+            {lastCheckin ? (
+              <SuccessBanner data={lastCheckin} dark={isFullscreen} />
+            ) : (
+              <form
+                onSubmit={(e) => { e.preventDefault(); submitCode(pin); }}
+                className="mx-auto max-w-2xl space-y-8"
+              >
+                <div className="space-y-3 text-center">
+                  <div
+                    className={
+                      isFullscreen
+                        ? "relative mx-auto inline-flex h-24 w-24 items-center justify-center rounded-full bg-primary/20 ring-1 ring-primary/40"
+                        : "mx-auto inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary/10"
+                    }
+                  >
+                    {isFullscreen && (
+                      <span className="absolute inset-0 animate-ping rounded-full bg-primary/20" />
+                    )}
+                    <Fingerprint className={isFullscreen ? "h-12 w-12 text-primary" : "h-8 w-8 text-primary"} />
+                  </div>
+                  <h2 className={isFullscreen ? "text-4xl font-bold tracking-tight md:text-5xl" : "text-2xl font-bold md:text-3xl"}>
+                    Escaneie o QR ou digite seu PIN
+                  </h2>
+                  <p className={isFullscreen ? "text-lg text-white/60" : "text-sm text-muted-foreground"}>
+                    Aproxime-se do leitor ou toque no campo abaixo
+                  </p>
                 </div>
-                <h2 className="text-2xl md:text-3xl font-bold">Digite seu PIN ou escaneie o QR</h2>
-                <p className="text-muted-foreground text-sm">Aproxime-se do leitor ou digite abaixo</p>
-              </div>
 
-              <Input
-                ref={inputRef}
-                value={pin}
-                onChange={(e) => setPin(e.target.value)}
-                placeholder="PIN ou código QR"
-                className="text-center text-3xl h-20 tracking-widest font-mono"
-                autoFocus
-                inputMode="numeric"
-              />
+                <Input
+                  ref={inputRef}
+                  value={pin}
+                  onChange={(e) => setPin(e.target.value)}
+                  placeholder="• • • • • •"
+                  className={
+                    isFullscreen
+                      ? "h-28 border-white/20 bg-white/5 text-center font-mono text-5xl tracking-[0.5em] text-white placeholder:text-white/30"
+                      : "h-20 text-center font-mono text-3xl tracking-widest"
+                  }
+                  autoFocus
+                  inputMode="numeric"
+                />
 
-              <Button type="submit" className="w-full h-14 text-lg" size="lg" disabled={!pin.trim()}>
-                Registrar presença
-              </Button>
+                <Button
+                  type="submit"
+                  className={isFullscreen ? "h-16 w-full text-xl font-bold" : "h-14 w-full text-lg"}
+                  size="lg"
+                  disabled={!pin.trim()}
+                >
+                  Registrar presença
+                </Button>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 pt-4">
-                <ActionButton icon={Search} label="Buscar aluno" onClick={() => setShowSearch(true)} />
-                <ActionButton icon={UserPlus} label="Visitante" onClick={() => setShowVisitor(true)} />
-                <ActionButton icon={Shield} label="Gympass" onClick={() => setShowPartner("gympass")} />
-                <ActionButton icon={Shield} label="TotalPass" onClick={() => setShowPartner("totalpass")} />
-              </div>
-            </form>
-          )}
-        </CardContent>
-      </Card>
+                <div className="grid grid-cols-2 gap-3 pt-2 md:grid-cols-4">
+                  <ActionButton icon={Search} label="Buscar aluno" onClick={() => setShowSearch(true)} dark={isFullscreen} />
+                  <ActionButton icon={UserPlus} label="Visitante" onClick={() => setShowVisitor(true)} dark={isFullscreen} />
+                  <ActionButton icon={Shield} label="Gympass" onClick={() => setShowPartner("gympass")} dark={isFullscreen} />
+                  <ActionButton icon={Shield} label="TotalPass" onClick={() => setShowPartner("totalpass")} dark={isFullscreen} />
+                </div>
+              </form>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* FOOTER STATS in fullscreen */}
+      {isFullscreen && (
+        <div className="grid grid-cols-2 gap-4 border-t border-white/10 px-8 py-4 md:grid-cols-3">
+          <KioskStat icon={Users} label="Presentes agora" value={presentCount ?? "—"} />
+          <KioskStat icon={CheckCircle2} label="Check-ins hoje" value={todayCount ?? "—"} />
+          <KioskStat icon={Clock} label="Sessão" value={timeStr} />
+        </div>
+      )}
 
       <SearchDialog open={showSearch} onOpenChange={setShowSearch} unitId={unitId} onSuccess={(name: string) => {
         setLastCheckin({ name, message: welcomeTpl.replace(/\{\{name\}\}/g, name.split(" ")[0]), method: "Manual" });
@@ -296,28 +406,56 @@ function KioskPanel() {
   );
 }
 
-function ActionButton({ icon: Icon, label, onClick }: any) {
+function ActionButton({ icon: Icon, label, onClick, dark }: any) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="flex flex-col items-center justify-center gap-2 h-24 rounded-xl border-2 border-dashed hover:border-primary hover:bg-primary/5 transition-all"
+      className={
+        dark
+          ? "flex h-24 flex-col items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.04] transition-all hover:border-primary/60 hover:bg-primary/10"
+          : "flex h-24 flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed transition-all hover:border-primary hover:bg-primary/5"
+      }
     >
-      <Icon className="h-6 w-6 text-primary" />
-      <span className="text-sm font-medium">{label}</span>
+      <Icon className={dark ? "h-7 w-7 text-primary" : "h-6 w-6 text-primary"} />
+      <span className={dark ? "text-sm font-semibold text-white/90" : "text-sm font-medium"}>{label}</span>
     </button>
   );
 }
 
-function SuccessBanner({ data }: { data: { name: string; photo?: string | null; message: string; method: string } }) {
+function KioskStat({ icon: Icon, label, value }: { icon: any; label: string; value: any }) {
   return (
-    <div className="flex flex-col items-center gap-4 text-center py-6 animate-in fade-in zoom-in duration-300">
-      <div className="h-24 w-24 rounded-full bg-emerald-100 flex items-center justify-center animate-in zoom-in duration-500">
-        <CheckCircle2 className="h-14 w-14 text-emerald-600" />
+    <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
+      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20">
+        <Icon className="h-5 w-5 text-primary" />
       </div>
       <div>
-        <div className="text-3xl md:text-4xl font-bold">{data.message}</div>
-        <div className="text-muted-foreground mt-2 text-sm">
+        <div className="text-[11px] font-semibold uppercase tracking-wider text-white/50">{label}</div>
+        <div className="text-2xl font-bold tabular-nums text-white">{value}</div>
+      </div>
+    </div>
+  );
+}
+
+function SuccessBanner({ data, dark }: { data: { name: string; photo?: string | null; message: string; method: string }; dark?: boolean }) {
+  return (
+    <div className="flex flex-col items-center gap-6 py-8 text-center animate-in fade-in zoom-in duration-300">
+      <div className="relative">
+        <span className={`absolute inset-0 rounded-full ${dark ? "bg-emerald-400/30" : "bg-emerald-400/40"} animate-ping`} />
+        <div className={`relative flex ${dark ? "h-36 w-36" : "h-28 w-28"} items-center justify-center overflow-hidden rounded-full ${dark ? "bg-emerald-500/20 ring-4 ring-emerald-400/50" : "bg-emerald-100 ring-4 ring-emerald-200"} animate-in zoom-in duration-500`}>
+          {data.photo ? (
+            <img src={data.photo} alt={data.name} className="h-full w-full object-cover" />
+          ) : (
+            <CheckCircle2 className={dark ? "h-20 w-20 text-emerald-400" : "h-16 w-16 text-emerald-600"} />
+          )}
+        </div>
+      </div>
+      <div className="space-y-2">
+        <div className={`${dark ? "text-5xl md:text-6xl text-white" : "text-3xl md:text-4xl"} font-bold leading-tight`}>
+          {data.message}
+        </div>
+        <div className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm ${dark ? "bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-400/30" : "bg-emerald-50 text-emerald-700"}`}>
+          <CheckCircle2 className="h-4 w-4" />
           Presença registrada via {data.method}
         </div>
       </div>
