@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 // Manifest do PWA do Portal do Aluno.
 // White-label: cores podem ser passadas via query (?name=&primary=), permitindo
 // que cada academia gere um link de instalação personalizado.
-export const Route = createFileRoute("/api/public/app/manifest/webmanifest")({
+export const Route = createFileRoute("/api/public/app/manifest.webmanifest")({
   server: {
     handlers: {
       GET: async ({ request }) => {
