@@ -133,7 +133,7 @@ export const runCompetitionIngest = createServerFn({ method: "POST" })
       const providers = Object.keys(PROVIDER_BY_ID).filter(
         (p) => mapProviderToSourceCode(p as ProviderId) === src.code,
       );
-      if (providers.length === 0) {
+      if (providers.length === 0 && src.connector !== "custom") {
         if (runId) {
           await supabaseAdmin
             .from("competition_ingest_runs")
