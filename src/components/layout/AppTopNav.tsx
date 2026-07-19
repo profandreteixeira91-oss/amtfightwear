@@ -42,6 +42,9 @@ import {
   ChevronDown,
   Menu as MenuIcon,
   X,
+  Megaphone,
+  GraduationCap,
+  CalendarDays,
 } from "lucide-react";
 
 import {
