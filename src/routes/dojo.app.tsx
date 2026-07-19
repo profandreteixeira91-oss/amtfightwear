@@ -95,7 +95,7 @@ const nav: { label: string; items: NavItem[] }[] = [
   {
     label: "App do Aluno",
     items: [
-      { to: "/dojo/app/student-app", label: "Editor do App", icon: Smartphone },
+      { to: "/dojo/app/student-app-qr", label: "QR do App", icon: Smartphone },
     ],
   },
 ];
