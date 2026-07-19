@@ -205,8 +205,8 @@ function BuyButton({
   const sizing =
     size === "lg" ? "px-8 py-4 text-base md:px-10 md:py-5 md:text-lg" : "px-6 py-3 text-sm md:text-base";
   return (
-    <Link
-      to={href}
+    <a
+      href={href}
       onClick={() => {
         trackCTA(`buy_${from}`);
         fbqTrack("InitiateCheckout", { source: from });
@@ -215,7 +215,7 @@ function BuyButton({
     >
       {label}
       <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1 md:h-5 md:w-5" />
-    </Link>
+    </a>
   );
 }
 
