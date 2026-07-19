@@ -233,7 +233,8 @@ export const listCompetitionSubRows = createServerFn({ method: "POST" })
       .eq("academy_competition_id", data.academy_competition_id)
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
-    return (rows ?? []) as Array<Record<string, unknown>>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (rows ?? []) as any[];
   });
 
 export const upsertCompetitionSubRow = createServerFn({ method: "POST" })
