@@ -1,80 +1,66 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { getMyCompetitions } from "@/lib/student/student.functions";
-import { Trophy, ExternalLink } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { Trophy, MapPin, Calendar as CalIcon, ChevronRight } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { listStudentCompetitions } from "@/lib/student/competitions.functions";
+import { scopeLabel } from "@/lib/dojo/competitions/classifier";
 
 export const Route = createFileRoute("/app/_student/competitions")({
-  head: () => ({ meta: [{ title: "Competições — Portal do Aluno" }] }),
-  component: CompetitionsPage,
+  head: () => ({ meta: [{ title: "Competições" }] }),
+  component: StudentCompetitionsPage,
 });
 
-function CompetitionsPage() {
-  const fn = useServerFn(getMyCompetitions);
-  const { data } = useQuery({ queryKey: ["student", "competitions"], queryFn: () => fn({}) });
+function StudentCompetitionsPage() {
+  const fn = useServerFn(listStudentCompetitions);
+  const q = useQuery({ queryKey: ["student-competitions"], queryFn: () => fn() });
+
+  const rows = (q.data ?? []) as Array<{ id: string; notes: string | null; competition: { name: string; scope: string | null; city: string | null; state: string | null; start_at: string | null } | null }>;
 
   return (
-    <div className="space-y-5">
-      <h1 className="text-xl font-bold">Competições</h1>
+    <div className="mx-auto max-w-3xl space-y-4 px-4 py-6">
+      <header className="flex items-center gap-2">
+        <Trophy className="h-6 w-6 text-amber-500" />
+        <h1 className="text-xl font-bold">Competições da minha academia</h1>
+      </header>
 
-      {(data?.mine?.length ?? 0) > 0 && (
-        <section>
-          <h2 className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-neutral-400">Minhas inscrições</h2>
-          <ul className="space-y-2">
-            {(data?.mine ?? []).map((m) => {
-              const c = (m as { dojo_competitions?: { id: string; name: string; starts_at?: string; external_url?: string; banner_url?: string; city?: string; state?: string } }).dojo_competitions;
-              return (
-                <li key={m.id} className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-neutral-100">
-                  {c?.banner_url && <img src={c.banner_url} alt="" className="h-32 w-full object-cover" />}
-                  <div className="p-4">
-                    <div className="text-sm font-semibold">{c?.name}</div>
-                    <div className="text-xs text-neutral-500">
-                      {c?.starts_at ? new Date(c.starts_at).toLocaleDateString("pt-BR") : "—"}
-                      {c?.city ? ` · ${c.city}/${c.state}` : ""}
-                    </div>
-                    <div className="mt-1 text-[11px] font-medium text-emerald-700">Status: {m.status}</div>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
+      {q.isLoading && <div className="text-sm text-muted-foreground">Carregando…</div>}
+      {!q.isLoading && rows.length === 0 && (
+        <div className="rounded border border-dashed p-8 text-center text-sm text-muted-foreground">
+          Sua academia ainda não adicionou competições ao calendário.
+        </div>
       )}
 
-      <section>
-        <h2 className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-neutral-400">Próximas competições</h2>
-        {(data?.upcoming?.length ?? 0) === 0 && (
-          <div className="rounded-2xl bg-white p-8 text-center ring-1 ring-neutral-100">
-            <Trophy className="mx-auto h-10 w-10 text-neutral-300" />
-            <p className="mt-3 text-sm text-neutral-500">Nenhuma competição no radar da sua academia.</p>
-          </div>
-        )}
-        <ul className="space-y-2">
-          {(data?.upcoming ?? []).map((c) => (
-            <li key={c.id} className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-neutral-100">
-              {c.banner_url && <img src={c.banner_url} alt="" className="h-32 w-full object-cover" />}
-              <div className="p-4">
-                <div className="text-sm font-semibold">{c.name}</div>
-                <div className="text-xs text-neutral-500">
-                  {c.starts_at ? new Date(c.starts_at).toLocaleDateString("pt-BR") : ""}
-                  {c.city ? ` · ${c.city}/${c.state}` : ""}
+      <div className="grid gap-3">
+        {rows.map((r) => (
+          <Link key={r.id} to="/app/competitions/$id" params={{ id: r.id }}>
+            <Card className="transition hover:shadow-md">
+              <CardContent className="flex items-center gap-3 p-4">
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge variant="outline">{scopeLabel(r.competition?.scope)}</Badge>
+                    {r.competition?.start_at && (
+                      <span className="text-xs text-muted-foreground">
+                        <CalIcon className="mr-1 inline h-3 w-3" />
+                        {new Date(r.competition.start_at).toLocaleDateString("pt-BR")}
+                      </span>
+                    )}
+                  </div>
+                  <h3 className="mt-1 line-clamp-2 font-semibold">{r.competition?.name}</h3>
+                  {(r.competition?.city || r.competition?.state) && (
+                    <div className="mt-1 text-xs text-muted-foreground">
+                      <MapPin className="mr-1 inline h-3 w-3" />
+                      {r.competition?.city}{r.competition?.state && `/${r.competition.state}`}
+                    </div>
+                  )}
                 </div>
-                {c.external_url && (
-                  <a
-                    href={c.external_url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold"
-                    style={{ color: "var(--sa-primary, #dc2626)" }}
-                  >
-                    Inscrever-se <ExternalLink className="h-3 w-3" />
-                  </a>
-                )}
-              </div>
-            </li>
-          ))}
-        </ul>
-      </section>
+                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+              </CardContent>
+            </Card>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }
