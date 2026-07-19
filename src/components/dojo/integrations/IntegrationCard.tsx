@@ -30,12 +30,30 @@ export function IntegrationCard({
 }) {
   const s = statusMeta[status];
   const disabled = status === "coming_soon";
+  const logoUrl = getIntegrationLogoUrl(integration);
+  const [imgFailed, setImgFailed] = useState(false);
+  const showImage = !!logoUrl && !imgFailed;
 
   return (
     <div className="group relative flex flex-col rounded-xl border bg-card p-5 shadow-sm transition hover:shadow-md hover:border-primary/40">
       <div className="flex items-start gap-3">
-        <div className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-white font-bold text-sm", integration.logoColor)}>
-          {integration.logoInitials}
+        <div
+          className={cn(
+            "flex h-11 w-11 shrink-0 items-center justify-center rounded-lg overflow-hidden",
+            showImage ? "bg-white border" : cn("text-white font-bold text-sm", integration.logoColor),
+          )}
+        >
+          {showImage ? (
+            <img
+              src={logoUrl!}
+              alt={`${integration.name} logo`}
+              className="h-8 w-8 object-contain"
+              loading="lazy"
+              onError={() => setImgFailed(true)}
+            />
+          ) : (
+            integration.logoInitials
+          )}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
