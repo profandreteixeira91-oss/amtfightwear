@@ -75,7 +75,8 @@ function LoginPage() {
       const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
       if (error) throw error;
       toast.success("Senha criada com sucesso!");
-      navigate({ to: "/app/home", replace: true });
+      try { localStorage.removeItem("amt-student-onboarded"); } catch {}
+      navigate({ to: "/app/onboarding", replace: true });
     } catch (err: any) {
       toast.error("Falha ao criar acesso", { description: err?.message ?? String(err) });
     } finally {
