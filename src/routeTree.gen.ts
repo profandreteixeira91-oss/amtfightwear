@@ -76,6 +76,7 @@ import { Route as AppStudentNewsRouteImport } from './routes/app._student.news'
 import { Route as AppStudentHomeRouteImport } from './routes/app._student.home'
 import { Route as AppStudentGraduationsRouteImport } from './routes/app._student.graduations'
 import { Route as AppStudentFinanceRouteImport } from './routes/app._student.finance'
+import { Route as AppStudentEvaluationsRouteImport } from './routes/app._student.evaluations'
 import { Route as AppStudentDocumentsRouteImport } from './routes/app._student.documents'
 import { Route as AppStudentCompetitionsRouteImport } from './routes/app._student.competitions'
 import { Route as AppStudentCheckinRouteImport } from './routes/app._student.checkin'
@@ -500,6 +501,11 @@ const AppStudentGraduationsRoute = AppStudentGraduationsRouteImport.update({
 const AppStudentFinanceRoute = AppStudentFinanceRouteImport.update({
   id: '/finance',
   path: '/finance',
+  getParentRoute: () => AppStudentRoute,
+} as any)
+const AppStudentEvaluationsRoute = AppStudentEvaluationsRouteImport.update({
+  id: '/evaluations',
+  path: '/evaluations',
   getParentRoute: () => AppStudentRoute,
 } as any)
 const AppStudentDocumentsRoute = AppStudentDocumentsRouteImport.update({
@@ -1100,6 +1106,7 @@ export interface FileRoutesByFullPath {
   '/app/checkin': typeof AppStudentCheckinRoute
   '/app/competitions': typeof AppStudentCompetitionsRoute
   '/app/documents': typeof AppStudentDocumentsRoute
+  '/app/evaluations': typeof AppStudentEvaluationsRoute
   '/app/finance': typeof AppStudentFinanceRoute
   '/app/graduations': typeof AppStudentGraduationsRoute
   '/app/home': typeof AppStudentHomeRoute
@@ -1255,6 +1262,7 @@ export interface FileRoutesByTo {
   '/app/checkin': typeof AppStudentCheckinRoute
   '/app/competitions': typeof AppStudentCompetitionsRoute
   '/app/documents': typeof AppStudentDocumentsRoute
+  '/app/evaluations': typeof AppStudentEvaluationsRoute
   '/app/finance': typeof AppStudentFinanceRoute
   '/app/graduations': typeof AppStudentGraduationsRoute
   '/app/home': typeof AppStudentHomeRoute
@@ -1411,6 +1419,7 @@ export interface FileRoutesById {
   '/app/_student/checkin': typeof AppStudentCheckinRoute
   '/app/_student/competitions': typeof AppStudentCompetitionsRoute
   '/app/_student/documents': typeof AppStudentDocumentsRoute
+  '/app/_student/evaluations': typeof AppStudentEvaluationsRoute
   '/app/_student/finance': typeof AppStudentFinanceRoute
   '/app/_student/graduations': typeof AppStudentGraduationsRoute
   '/app/_student/home': typeof AppStudentHomeRoute
@@ -1571,6 +1580,7 @@ export interface FileRouteTypes {
     | '/app/checkin'
     | '/app/competitions'
     | '/app/documents'
+    | '/app/evaluations'
     | '/app/finance'
     | '/app/graduations'
     | '/app/home'
@@ -1726,6 +1736,7 @@ export interface FileRouteTypes {
     | '/app/checkin'
     | '/app/competitions'
     | '/app/documents'
+    | '/app/evaluations'
     | '/app/finance'
     | '/app/graduations'
     | '/app/home'
@@ -1881,6 +1892,7 @@ export interface FileRouteTypes {
     | '/app/_student/checkin'
     | '/app/_student/competitions'
     | '/app/_student/documents'
+    | '/app/_student/evaluations'
     | '/app/_student/finance'
     | '/app/_student/graduations'
     | '/app/_student/home'
@@ -2477,6 +2489,13 @@ declare module '@tanstack/react-router' {
       path: '/finance'
       fullPath: '/app/finance'
       preLoaderRoute: typeof AppStudentFinanceRouteImport
+      parentRoute: typeof AppStudentRoute
+    }
+    '/app/_student/evaluations': {
+      id: '/app/_student/evaluations'
+      path: '/evaluations'
+      fullPath: '/app/evaluations'
+      preLoaderRoute: typeof AppStudentEvaluationsRouteImport
       parentRoute: typeof AppStudentRoute
     }
     '/app/_student/documents': {
@@ -3264,6 +3283,7 @@ interface AppStudentRouteChildren {
   AppStudentCheckinRoute: typeof AppStudentCheckinRoute
   AppStudentCompetitionsRoute: typeof AppStudentCompetitionsRoute
   AppStudentDocumentsRoute: typeof AppStudentDocumentsRoute
+  AppStudentEvaluationsRoute: typeof AppStudentEvaluationsRoute
   AppStudentFinanceRoute: typeof AppStudentFinanceRoute
   AppStudentGraduationsRoute: typeof AppStudentGraduationsRoute
   AppStudentHomeRoute: typeof AppStudentHomeRoute
@@ -3282,6 +3302,7 @@ const AppStudentRouteChildren: AppStudentRouteChildren = {
   AppStudentCheckinRoute: AppStudentCheckinRoute,
   AppStudentCompetitionsRoute: AppStudentCompetitionsRoute,
   AppStudentDocumentsRoute: AppStudentDocumentsRoute,
+  AppStudentEvaluationsRoute: AppStudentEvaluationsRoute,
   AppStudentFinanceRoute: AppStudentFinanceRoute,
   AppStudentGraduationsRoute: AppStudentGraduationsRoute,
   AppStudentHomeRoute: AppStudentHomeRoute,
