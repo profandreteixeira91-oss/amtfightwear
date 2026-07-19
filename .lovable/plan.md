@@ -1,122 +1,118 @@
-# Refatoração do módulo Competições — AMT Dojo Manager
+# Módulo AMT Store no AMT Dojo Manager
 
-Reescrita do módulo em arquitetura de 3 camadas independentes, multi-tenant, sem mocks, com sincronização com o App do Aluno.
+Cria um "shopping" completo dentro do Dojo Manager que consome o **próprio catálogo já existente** da loja AMT Fight Wear (tabelas `products`, `store_categories`, `store_product_variants`, `store_orders`, etc.) através de uma **camada de API interna versionada** — de modo que, se amanhã a loja for migrada, basta trocar o adaptador.
 
-## Arquitetura
+Nada de dados mockados. Tudo multi-tenant por `academy_owner_id`.
+
+---
+
+## 1. Arquitetura
 
 ```text
-┌─────────────────────┐   ┌──────────────────────┐   ┌────────────────────────┐
-│  1. Motor de Coleta │──▶│  2. Biblioteca Central│◀──│ 3. Gestão da Academia │
-│  (conectores +      │   │  (competitions +      │   │ (academy_competitions │
-│   cron + Firecrawl) │   │   classificador)      │   │   + atletas + $$$)    │
-└─────────────────────┘   └──────────────────────┘   └────────────┬───────────┘
-                                                                   │
-                                                          ┌────────▼────────┐
-                                                          │  App do Aluno   │
-                                                          └─────────────────┘
+Dojo Manager UI (/dojo/app/store/*)
+        │
+        ▼
+Adapter: src/lib/dojo/store/*.functions.ts   ← createServerFn (RPC tipada)
+        │
+        ▼
+StoreProvider interface (src/lib/dojo/store/provider.ts)
+        │
+        ├── LocalAmtProvider  → lê `products`, `store_*` do próprio Supabase
+        └── (futuro) RemoteHttpProvider → REST autenticado por API key
 ```
 
-### Camada 1 — Motor de Coleta
-- `src/lib/dojo/competitions/connectors/` — um arquivo por fonte (IBJJF, CBJJ, UAEJJF, AJP, SJJIF, JJIF, ADCC + genérico Firecrawl). Interface `CompetitionConnector` com `fetch(): Promise<RawEvent[]>`. Falha isolada por conector.
-- `src/lib/dojo/competitions/ingest.functions.ts` — server fn `runCompetitionIngest` que executa todos os conectores, normaliza, classifica e faz upsert em `competitions`.
-- `src/routes/api/public/hooks/competitions-ingest.ts` — endpoint acionado pelo `pg_cron` (a cada 6h) usando `apikey`.
-- Painel admin com botão "Atualizar agora" + configuração de frequência em `dojo_competition_source_settings`.
-- Classificador em `src/lib/dojo/competitions/classifier.ts` — regras por palavras-chave (mundial, grand slam, open, estadual, etc.) e escopo (INT/NAT/REG). Sem IA.
+O UI **nunca** fala com as tabelas da loja diretamente. Sempre passa pelas server functions, que passam pelo provider. Trocar de plataforma = trocar 1 arquivo.
 
-### Camada 2 — Biblioteca Central
-- Tabela `competitions` global (não tem `owner_id` — é catálogo compartilhado, RLS `SELECT TO anon/authenticated`). Campos completos: identidade, geo, datas, valores, categorias JSONB, links, source, `classification` (jsonb: scope/tier/keywords).
-- Índices para busca rápida por país/estado/data/scope/organization.
-- `competition_sources` — registro dos conectores e último status.
-- `competition_ingest_runs` — logs (encontrados, atualizados, erros, duração).
-- Server fns públicas: `listCompetitions` (filtros: nome, país, estado, data, scope, inscrições abertas, valor máx, faixa/idade/peso/sexo), `getCompetition(id)`.
+## 2. Banco de dados (migração única)
 
-### Camada 3 — Gestão da Academia (multi-tenant, `owner_id`)
-Tabelas com RLS por `owner_id`:
-- `academy_competitions` — vínculo academia↔competição + notas, professor responsável, status interno.
-- `academy_competition_athletes` — atletas inscritos, turma, graduação, categoria, peso, status (interessado→finalizado).
-- `academy_competition_staff` — equipe técnica.
-- `academy_competition_finances` — inscrição, viagem, hospedagem, alimentação, comprovantes.
-- `academy_competition_hotels` — hospedagem.
-- `academy_competition_transport` — transporte.
-- `academy_competition_results` — resultados (lutas, medalha, colocação, fotos, vídeos).
-- `academy_competition_documents` — documentos (S3/bucket `dojo-students` reutilizado ou novo `dojo-competitions`).
+Novas tabelas (todas com `owner_id uuid` + RLS por `auth.uid()` e GRANTs):
 
-### Rotas
-- `/dojo/app/competitions` (admin) — reescrita com abas: **Biblioteca** (busca/filtros na base central), **Meu Calendário** (competições adicionadas), **Dashboard** (indicadores).
-- `/dojo/app/competitions/$id` (admin) — ambiente de gestão da competição adicionada, com sub-abas: Resumo, Cronograma, Atletas, Inscrições, Documentos, Financeiro, Hospedagem, Transporte, Equipe, Resultados, Fotos, Medalhas, Relatórios.
-- `/app/competitions` (aluno) — reescrita: lista somente competições liberadas para o aluno (via `academy_competitions` do dojo dele filtradas por elegibilidade: faixa/idade/peso/sexo/turma).
-- `/app/competitions/$id` (aluno) — detalhe + botões: Tenho interesse, Confirmar, Enviar docs, Google Maps, Inscrição oficial, Compartilhar.
+- `dojo_store_favorites` — favoritos por academia, agrupados em listas (`list_name`).
+- `dojo_store_favorite_lists` — Reposição, Uniformes, Faixas, Competições…
+- `dojo_store_carts` — 1 carrinho ativo por academia (`owner_id` unique).
+- `dojo_store_cart_items` — `product_id`, `variant_id`, `qty`, `customization jsonb`, `student_id` (opcional — compra p/ aluno).
+- `dojo_store_orders` — espelho do pedido criado no fluxo da loja + `owner_id`, `origin='dojo_manager'`, `status`, `totals`, `retail_total`, `wholesale_total`, `savings`, `tracking_code`, `invoice_url`.
+- `dojo_store_order_items` — itens do pedido com `student_id`, `customization`, preços aplicados.
+- `dojo_store_order_timeline` — linha do tempo (evento, autor, timestamp).
+- `dojo_store_student_deliveries` — vincula item entregue a `dojo_students.id` (histórico de kimono/faixa/patch por aluno).
+- `dojo_store_sync_logs` — última sync, contagens, erros.
 
-### Notificações
-- Hooks nas mutações relevantes (nova competição adicionada, mudança de data/local, inscrições encerrando, cancelamento, resultado publicado) gravam em `dojo_student_notifications` para os atletas elegíveis. Push/e-mail/WhatsApp/SMS ficam como TODO com abstração `NotificationChannel`.
+**Não duplico** produtos/preços/estoque — leio direto das tabelas `products`, `store_product_variants` etc. via provider. `store_orders` continua sendo a fonte da verdade do pedido; `dojo_store_orders` é o link tenant → pedido da loja.
 
-## Banco de dados (migração única)
+Regra de atacado (sem cupom): configurável em `app_settings` (`wholesale_min_qty_per_product` = 6 por padrão, `wholesale_min_order_value` = 1000). Aplicada no servidor ao recalcular o carrinho.
 
-```sql
--- Biblioteca central (global; leitura pública autenticada)
-CREATE TABLE public.competitions (...campos completos, classification jsonb, source_id uuid);
-CREATE TABLE public.competition_sources (id, code UNIQUE, name, url, enabled, schedule, last_run_at, ...);
-CREATE TABLE public.competition_ingest_runs (id, source_id, started_at, finished_at, found, updated, errors jsonb);
+## 3. Server functions (`src/lib/dojo/store/*.functions.ts`)
 
--- Gestão por academia
-CREATE TABLE public.academy_competitions (id, owner_id, competition_id, status, professor_id, notes, added_by, ...);
-CREATE TABLE public.academy_competition_athletes (id, owner_id, academy_competition_id, student_id, category, weight, belt, status, ...);
-CREATE TABLE public.academy_competition_staff (id, owner_id, academy_competition_id, role, name, student_id, ...);
-CREATE TABLE public.academy_competition_finances (...);
-CREATE TABLE public.academy_competition_hotels (...);
-CREATE TABLE public.academy_competition_transport (...);
-CREATE TABLE public.academy_competition_results (id, athlete_id, wins, losses, medal, placement, ...);
-CREATE TABLE public.academy_competition_documents (id, academy_competition_id, student_id?, url, kind, ...);
+Todas com `requireSupabaseAuth` e escopadas por `get_my_student_owner_id`-equivalente para dono do dojo:
+
+- `listCategories`, `listProducts({ category, search, filters, sort, page })`, `getProduct(slug)`
+- `listFeatured`, `listNew`, `listPromos`
+- `getCart`, `addToCart`, `updateCartItem`, `removeCartItem`, `clearCart`
+- `applyCoupon`, `computeTotals` (retorna varejo vs atacado + economia)
+- `checkout({ payment_method, shipping })` → cria pedido em `store_orders` (Mercado Pago já configurado) + registro em `dojo_store_orders`
+- `listOrders`, `getOrder(id)`, `reorder(id)`
+- `listFavorites`, `toggleFavorite`, `createFavoriteList`
+- `getDashboardKpis` (pedidos, gasto no mês, economia, top produtos)
+- `getRecommendations` (mais comprados + reposição sugerida por histórico)
+- `runSync()` + `getLastSync()` — atualiza `dojo_store_sync_logs`. Como o provider atual lê direto do banco, sync = contagem/checksum. Já preparado para virar HTTP fetch.
+- `attachItemsToStudents({ order_id, assignments })` — grava em `dojo_store_student_deliveries`
+
+## 4. Rotas UI (todas em `src/routes/_authenticated/dojo.app.store.*`)
+
+```text
+dojo.app.store.tsx                  (layout com top-nav do módulo)
+dojo.app.store.index.tsx            → Dashboard
+dojo.app.store.produtos.tsx         → Catálogo com filtros
+dojo.app.store.produtos.$slug.tsx   → PDP (com botão Personalizar / Comprar / Favoritar / Compartilhar)
+dojo.app.store.faixas.tsx           (atalhos de categoria — reutilizam Catálogo com filtro fixo)
+dojo.app.store.kimonos.tsx
+dojo.app.store.patches.tsx
+dojo.app.store.rashguards.tsx
+dojo.app.store.vestuario.tsx
+dojo.app.store.carrinho.tsx         → Carrinho + resumo atacado/varejo
+dojo.app.store.pedidos.tsx          → Lista
+dojo.app.store.pedidos.$id.tsx      → Detalhe + timeline + "Comprar novamente" + "Atribuir a alunos"
+dojo.app.store.favoritos.tsx        → Listas
+dojo.app.store.configuracoes.tsx    → Sync + preferências
 ```
 
-Cada tabela recebe: GRANTs (`authenticated` + `service_role`), RLS por `owner_id = auth.uid()` (admin) + `owner_id = get_my_student_owner_id()` (aluno via SELECT), triggers `set_updated_at`.
+O menu superior do Dojo (`AppTopNav.tsx`) ganha o item **AMT Store** com dropdown para os submenus pedidos.
 
-Tabelas legadas atuais que serão substituídas: `dojo_competitions`, `dojo_competition_athletes`, `dojo_competition_medals`, `dojo_competition_results`, `dojo_competition_attachments` — manter fisicamente por compat, novo módulo não escreve nelas. Rota antiga aponta para a nova.
+## 5. UX
 
-## Ingestão
+- Visual e-commerce (Nike/Decathlon), reusando os tokens do design system atual do Dojo.
+- Card do produto: badge automático **"Preço atacado desbloqueado"** quando a qty do carrinho para aquele produto ≥ mínimo.
+- Carrinho mostra 2 colunas de subtotal: **Varejo** riscado × **Seu preço (atacado)** + linha **Você economizou R$ X**.
+- Personalização abre o mesmo configurador já existente em `/loja/custom-shop` (extraído para componente reutilizável `<CustomShopConfigurator />`) e persiste `customization` no item.
+- Checkout usa o mesmo fluxo Mercado Pago já implementado (`src/lib/store/mercadopago.functions.ts`) — apenas marca `origin='dojo_manager'` no `store_orders`.
+- Notificações in-app já existentes (`dojo_account_notifications` / `NotificationsBell`) recebem eventos de mudança de status. Hooks para push/WhatsApp/email ficam como interface preparada, sem envio real.
 
-Cron `pg_net` → `/api/public/hooks/competitions-ingest` a cada 6h com `apikey`. Endpoint invoca `runCompetitionIngest` que:
-1. Lê `competition_sources` habilitadas.
-2. Para cada, chama o conector isolado (try/catch).
-3. Normaliza `RawEvent → Competition` + roda `classify()`.
-4. Faz `UPSERT` por `(source_code, external_id)`.
-5. Grava `competition_ingest_runs` e atualiza `last_run_at`.
+## 6. Compra para alunos (arquitetura, sem cobrança automática ainda)
 
-Conector Firecrawl usa a secret existente `FIRECRAWL_API_KEY`. Demais conectores começam com stubs bem definidos (interface pronta, endpoint fetch mockado desabilitado por default até integração real) — habilitados apenas quando houver endpoint público confirmado. Firecrawl já cobre IBJJF/CBJJ via scraping. Nada é mockado no produto final: fontes desabilitadas simplesmente não rodam.
+Na tela do pedido, ação **"Atribuir aos alunos"** abre modal com multi-seleção de `dojo_students`. Grava em `dojo_store_student_deliveries` e mostra no perfil do aluno o histórico. A cobrança pelo Financeiro fica como TODO documentado (não implementado nesta entrega, mas o campo `billable_to_student boolean` já vai no schema).
 
-## Arquivos principais a criar/editar
+## 7. Segurança
 
-Novos:
-- `src/lib/dojo/competitions/types.ts`
-- `src/lib/dojo/competitions/classifier.ts`
-- `src/lib/dojo/competitions/connectors/{ibjjf,cbjjf,uaejjf,ajp,sjjif,jjif,adcc,firecrawl-generic}.ts`
-- `src/lib/dojo/competitions/library.functions.ts` (busca pública)
-- `src/lib/dojo/competitions/academy.functions.ts` (gestão)
-- `src/lib/dojo/competitions/ingest.functions.ts` + `ingest.server.ts`
-- `src/lib/student/competitions.functions.ts` (aluno)
-- `src/routes/api/public/hooks/competitions-ingest.ts`
-- `src/routes/_authenticated/dojo.app.competitions.tsx` (reescrita)
-- `src/routes/_authenticated/dojo.app.competitions.$id.tsx`
-- `src/routes/app._student.competitions.tsx` (reescrita)
-- `src/routes/app._student.competitions.$id.tsx`
+- Todas as tabelas novas com RLS `owner_id = auth.uid()` + GRANTs para `authenticated` e `service_role`.
+- `checkout` executa como usuário (RLS aplica); server valida totais recalculando no backend — nunca confia no valor vindo do cliente.
+- Provider remoto (futuro) autenticaria com API key + HMAC.
 
-Migração única com todas as tabelas + policies + GRANTs + seeds de `competition_sources`.
+## 8. Escopo desta entrega
 
-## Segurança
-- Todas as tabelas `academy_*` têm RLS por `owner_id`.
-- `competitions` é catálogo global (SELECT autenticado); só `service_role` escreve.
-- Ingest endpoint valida `apikey`.
-- Documentos usam bucket privado com signed URLs.
+Incluído: menu, dashboard, catálogo completo, PDP, carrinho com atacado automático, checkout via Mercado Pago existente, pedidos com timeline, favoritos com listas, "comprar novamente", vínculo com alunos, sync log, tela de sincronização.
 
-## Performance
-- Índices em `competitions(country, state, start_at, scope, organization)`.
-- Paginação server-side em `listCompetitions`.
-- Cache do React Query com `staleTime` de 5min.
-- Cron em background, nunca síncrono.
+Fora de escopo (só arquitetura/campos prontos): cobrança automática pelo Financeiro, cashback, assinaturas, marketplace, push/WhatsApp/email. Documentados como extension points.
 
-## Fora de escopo desta entrega
-- Integração real com APIs oficiais (elas exigem contrato). Ficam as interfaces prontas + Firecrawl como fallback.
-- Push/e-mail/WhatsApp/SMS reais — apenas persistência de notificação in-app.
-- Migração de dados legados `dojo_competitions*` — mantidos, novo módulo é isolado.
+## 9. Critérios de aceite mapeados
 
-Ao aprovar, executo a migração + criação de arquivos + reescrita das rotas em blocos paralelos.
+- Catálogo oficial dentro do Dojo Manager ✅ (via provider lendo `products`)
+- Sync automática ✅ (log + botão manual; provider local = tempo real)
+- Atacado automático ✅ (server recalcula)
+- Varejo + atacado no mesmo fluxo ✅
+- Personalização integrada ✅ (configurador reusado)
+- Pedidos gravados em `store_orders` da loja oficial ✅
+- Arquitetura modular / troca de backend sem reescrita ✅ (interface `StoreProvider`)
+
+---
+
+Se aprovar, começo pela migração + provider + rotas de catálogo/carrinho, depois checkout/pedidos/favoritos/dashboard.
