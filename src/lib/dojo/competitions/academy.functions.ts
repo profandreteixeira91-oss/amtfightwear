@@ -225,14 +225,15 @@ export const listCompetitionSubRows = createServerFn({ method: "POST" })
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
-    const { data: rows, error } = await context.supabase
-      .from(tableMap[data.table])
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const client = (context.supabase as any).from(tableMap[data.table]);
+    const { data: rows, error } = await client
       .select("*")
       .eq("owner_id", context.userId)
       .eq("academy_competition_id", data.academy_competition_id)
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
-    return rows ?? [];
+    return (rows ?? []) as Array<Record<string, unknown>>;
   });
 
 export const upsertCompetitionSubRow = createServerFn({ method: "POST" })
@@ -246,12 +247,13 @@ export const upsertCompetitionSubRow = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const payload = { ...(data.row as Record<string, unknown>), owner_id: context.userId };
     const id = payload["id"] as string | undefined;
-    const client = context.supabase.from(tableMap[data.table]);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const client = (context.supabase as any).from(tableMap[data.table]);
     const { data: row, error } = id
-      ? await client.update(payload as never).eq("id", id).eq("owner_id", context.userId).select("*").single()
-      : await client.insert(payload as never).select("*").single();
+      ? await client.update(payload).eq("id", id).eq("owner_id", context.userId).select("*").single()
+      : await client.insert(payload).select("*").single();
     if (error) throw new Error(error.message);
-    return row;
+    return row as Record<string, unknown>;
   });
 
 export const deleteCompetitionSubRow = createServerFn({ method: "POST" })
@@ -263,8 +265,9 @@ export const deleteCompetitionSubRow = createServerFn({ method: "POST" })
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase
-      .from(tableMap[data.table])
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const client = (context.supabase as any).from(tableMap[data.table]);
+    const { error } = await client
       .delete()
       .eq("id", data.id)
       .eq("owner_id", context.userId);
