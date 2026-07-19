@@ -78,15 +78,15 @@ export function FinanceDashboard() {
   return (
     <div className="space-y-6">
       {/* KPI grid */}
-      <div className="grid gap-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+      <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6">
         <Kpi icon={Wallet} label="Saldo disponível" value={brl(k.netProfit)} tone={k.netProfit >= 0 ? "positive" : "negative"} />
         <Kpi icon={TrendingUp} label="Receitas do mês" value={brl(k.paidThisMonth)} tone="positive" />
         <Kpi icon={TrendingDown} label="Despesas do mês" value={brl(k.expensesThisMonth)} tone="negative" />
         <Kpi icon={CircleDollarSign} label="Lucro líquido" value={brl(k.netProfit)} tone={k.netProfit >= 0 ? "positive" : "negative"} />
         <Kpi icon={Receipt} label="Mensalidades recebidas" value={brl(k.paidThisMonth)} hint="Faturas pagas no mês" />
-        <Kpi icon={AlertTriangle} label="Mensalidades em atraso" value={brl(k.overdueAmount)} tone="warning" hint={`${k.overdueCount} cobrança(s)`} />
-        <Kpi icon={ArrowDownRight} label="Contas a receber" value={brl(k.pendingReceivables)} tone="warning" />
-        <Kpi icon={ArrowUpRight} label="Contas a pagar" value={brl(k.pendingPayables)} tone="warning" />
+        <Kpi icon={AlertTriangle} label="Em atraso" value={brl(k.overdueAmount)} tone="warning" hint={`${k.overdueCount} cobrança(s)`} />
+        <Kpi icon={ArrowDownRight} label="A receber" value={brl(k.pendingReceivables)} tone="warning" />
+        <Kpi icon={ArrowUpRight} label="A pagar" value={brl(k.pendingPayables)} tone="warning" />
         <Kpi icon={Users} label="Ticket médio" value={brl(k.avgTicket)} hint="Por aluno pagante" />
         <Kpi icon={AlertTriangle} label="Inadimplência" value={pct(k.overdueRate)} tone={k.overdueRate > 10 ? "negative" : "default"} />
         <Kpi icon={LineIcon} label="MRR" value={brl(k.mrr)} hint="Últimos 30 dias" />
