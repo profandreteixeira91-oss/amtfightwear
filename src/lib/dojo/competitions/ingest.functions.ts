@@ -232,3 +232,35 @@ export const setSourceEnabled = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+const addSchema = z.object({
+  code: z.string().min(2).max(40).regex(/^[a-z0-9_-]+$/i, "Use apenas letras, números, _ ou -"),
+  name: z.string().min(2).max(120),
+  url: z.string().url(),
+  country: z.string().max(80).nullable().optional(),
+});
+export const addCompetitionSource = createServerFn({ method: "POST" })
+  .inputValidator((i: unknown) => addSchema.parse(i))
+  .handler(async ({ data }) => {
+    const supabaseAdmin = await serverAdmin();
+    const { error } = await supabaseAdmin.from("competition_sources").insert({
+      code: data.code.toLowerCase(),
+      name: data.name,
+      url: data.url,
+      enabled: true,
+      connector: "custom",
+      config: { country: data.country ?? null },
+    } as never);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+const deleteSchema = z.object({ id: z.string() });
+export const deleteCompetitionSource = createServerFn({ method: "POST" })
+  .inputValidator((i: unknown) => deleteSchema.parse(i))
+  .handler(async ({ data }) => {
+    const supabaseAdmin = await serverAdmin();
+    const { error } = await supabaseAdmin.from("competition_sources").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
