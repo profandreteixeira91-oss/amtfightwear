@@ -5,7 +5,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { classify } from "@/lib/dojo/competitions/classifier";
-import { scrapeCompetitions, type LiveCompetition } from "@/lib/dojo/competitions.functions";
+import {
+  runScrapeCompetitions,
+  scrapeCustomSource,
+  type LiveCompetition,
+} from "@/lib/dojo/competitions.functions";
 import { PROVIDER_BY_ID, type ProviderId } from "@/lib/dojo/competitions/providers";
 
 type SourceRow = {
@@ -129,7 +133,7 @@ export const runCompetitionIngest = createServerFn({ method: "POST" })
       const providers = Object.keys(PROVIDER_BY_ID).filter(
         (p) => mapProviderToSourceCode(p as ProviderId) === src.code,
       );
-      if (providers.length === 0) {
+      if (providers.length === 0 && src.connector !== "custom") {
         if (runId) {
           await supabaseAdmin
             .from("competition_ingest_runs")
@@ -141,11 +145,15 @@ export const runCompetitionIngest = createServerFn({ method: "POST" })
       }
 
       try {
-        // scrapeCompetitions é uma serverFn — chamamos o handler internamente.
-        // A função aceita { providers: string[] } e retorna { competitions, summary }.
-        const scrapeFn = scrapeCompetitions as unknown as (input: { data: { providers: string[] } }) => Promise<{ competitions: LiveCompetition[]; summary: unknown }>;
-        const result = await scrapeFn({ data: { providers } });
-        const events = result.competitions ?? [];
+        let events: LiveCompetition[] = [];
+        if (src.connector === "custom") {
+          if (!src.url) throw new Error("Fonte customizada sem URL");
+          const cfg = (src.config ?? {}) as { country?: string | null };
+          events = await scrapeCustomSource(src.url, src.name, cfg.country ?? null);
+        } else {
+          const result = await runScrapeCompetitions(providers);
+          events = result.competitions ?? [];
+        }
         let inserted = 0;
         let updated = 0;
         for (const ev of events) {
@@ -154,7 +162,6 @@ export const runCompetitionIngest = createServerFn({ method: "POST" })
             if (out === "inserted") inserted++;
             else updated++;
           } catch (e) {
-            // Ignora falha unitária, continua a lista
             console.error(`[ingest] upsert error for ${src.code}:`, e);
           }
         }
@@ -222,6 +229,38 @@ export const setSourceEnabled = createServerFn({ method: "POST" })
       .from("competition_sources")
       .update({ enabled: data.enabled })
       .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+const addSchema = z.object({
+  code: z.string().min(2).max(40).regex(/^[a-z0-9_-]+$/i, "Use apenas letras, números, _ ou -"),
+  name: z.string().min(2).max(120),
+  url: z.string().url(),
+  country: z.string().max(80).nullable().optional(),
+});
+export const addCompetitionSource = createServerFn({ method: "POST" })
+  .inputValidator((i: unknown) => addSchema.parse(i))
+  .handler(async ({ data }) => {
+    const supabaseAdmin = await serverAdmin();
+    const { error } = await supabaseAdmin.from("competition_sources").insert({
+      code: data.code.toLowerCase(),
+      name: data.name,
+      url: data.url,
+      enabled: true,
+      connector: "custom",
+      config: { country: data.country ?? null },
+    } as never);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+const deleteSchema = z.object({ id: z.string() });
+export const deleteCompetitionSource = createServerFn({ method: "POST" })
+  .inputValidator((i: unknown) => deleteSchema.parse(i))
+  .handler(async ({ data }) => {
+    const supabaseAdmin = await serverAdmin();
+    const { error } = await supabaseAdmin.from("competition_sources").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });

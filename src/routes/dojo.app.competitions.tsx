@@ -19,6 +19,7 @@ import {
 } from "@/lib/dojo/competitions/library.functions";
 import {
   runCompetitionIngest, getIngestStatus, setSourceEnabled,
+  addCompetitionSource, deleteCompetitionSource,
 } from "@/lib/dojo/competitions/ingest.functions";
 import {
   addCompetitionToCalendar, listAcademyCompetitions,
@@ -347,23 +348,50 @@ function SourcesTab() {
   const statusFn = useServerFn(getIngestStatus);
   const runFn = useServerFn(runCompetitionIngest);
   const toggleFn = useServerFn(setSourceEnabled);
+  const addFn = useServerFn(addCompetitionSource);
+  const delFn = useServerFn(deleteCompetitionSource);
   const qc = useQueryClient();
 
   const s = useQuery({ queryKey: ["comp-ingest-status"], queryFn: () => statusFn() });
 
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ["comp-ingest-status"] });
+    qc.invalidateQueries({ queryKey: ["comp-lib"] });
+  };
+
   const runMut = useMutation({
     mutationFn: (codes?: string[]) => runFn({ data: { onlySourceCodes: codes } }),
-    onSuccess: () => {
-      toast.success("Coleta concluída");
-      qc.invalidateQueries({ queryKey: ["comp-ingest-status"] });
-      qc.invalidateQueries({ queryKey: ["comp-lib"] });
-    },
+    onSuccess: () => { toast.success("Coleta concluída"); invalidate(); },
     onError: (e: Error) => toast.error(e.message),
   });
 
   const toggleMut = useMutation({
     mutationFn: (p: { id: string; enabled: boolean }) => toggleFn({ data: p }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["comp-ingest-status"] }),
+    onSuccess: invalidate,
+  });
+
+  const delMut = useMutation({
+    mutationFn: (id: string) => delFn({ data: { id } }),
+    onSuccess: () => { toast.success("Fonte removida"); invalidate(); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const [form, setForm] = useState({ code: "", name: "", url: "", country: "" });
+  const addMut = useMutation({
+    mutationFn: () => addFn({
+      data: {
+        code: form.code.trim(),
+        name: form.name.trim(),
+        url: form.url.trim(),
+        country: form.country.trim() || null,
+      },
+    }),
+    onSuccess: () => {
+      toast.success("Fonte adicionada");
+      setForm({ code: "", name: "", url: "", country: "" });
+      invalidate();
+    },
+    onError: (e: Error) => toast.error(e.message),
   });
 
   return (
@@ -381,6 +409,34 @@ function SourcesTab() {
         </Button>
       </CardContent></Card>
 
+      <Card>
+        <CardContent className="space-y-3 p-4">
+          <div className="flex items-center gap-2 font-semibold">
+            <Plus className="h-4 w-4" /> Adicionar fonte personalizada
+          </div>
+          <div className="grid gap-2 md:grid-cols-4">
+            <Input placeholder="Código (ex: minha_liga)" value={form.code}
+              onChange={(e) => setForm({ ...form, code: e.target.value })} />
+            <Input placeholder="Nome exibido" value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })} />
+            <Input placeholder="URL do calendário" value={form.url}
+              onChange={(e) => setForm({ ...form, url: e.target.value })} />
+            <Input placeholder="País (opcional)" value={form.country}
+              onChange={(e) => setForm({ ...form, country: e.target.value })} />
+          </div>
+          <div className="flex justify-end">
+            <Button size="sm"
+              disabled={addMut.isPending || !form.code || !form.name || !form.url}
+              onClick={() => addMut.mutate()}>
+              {addMut.isPending ? "Adicionando..." : "Adicionar fonte"}
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            O sistema fará scraping da URL informada e detectará eventos automaticamente.
+          </p>
+        </CardContent>
+      </Card>
+
       <div className="grid gap-2">
         {(s.data?.sources ?? []).map((src) => (
           <Card key={src.id}>
@@ -389,9 +445,10 @@ function SourcesTab() {
                 <div className="flex items-center gap-2 font-medium">
                   {(src.config as { country?: string } | null)?.country && (src.config as { country?: string }).country !== "BR" ? <Globe2 className="h-4 w-4 text-purple-500" /> : <Flag className="h-4 w-4 text-emerald-500" />}
                   {src.name}
+                  {src.connector === "custom" && <Badge variant="secondary">custom</Badge>}
                   {!src.enabled && <Badge variant="outline">desativada</Badge>}
                 </div>
-                <div className="text-xs text-muted-foreground">
+                <div className="text-xs text-muted-foreground break-all">
                   {src.url}
                   {src.last_run_at && ` · última coleta: ${new Date(src.last_run_at).toLocaleString("pt-BR")}`}
                   {src.last_status === "error" && src.last_error && <span className="text-red-500"> · erro: {src.last_error}</span>}
@@ -404,6 +461,13 @@ function SourcesTab() {
                 <Button size="sm" variant={src.enabled ? "outline" : "default"} onClick={() => toggleMut.mutate({ id: src.id, enabled: !src.enabled })}>
                   {src.enabled ? "Desativar" : "Ativar"}
                 </Button>
+                {src.connector === "custom" && (
+                  <Button size="sm" variant="destructive"
+                    onClick={() => { if (confirm(`Remover "${src.name}"?`)) delMut.mutate(src.id); }}
+                    disabled={delMut.isPending}>
+                    Excluir
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>

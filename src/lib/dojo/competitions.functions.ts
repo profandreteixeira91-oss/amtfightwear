@@ -282,6 +282,46 @@ async function scrapeProvider(providerId: ProviderId): Promise<LiveCompetition[]
   }));
 }
 
+// Scraper genérico para fontes customizadas (URL fornecida pelo admin).
+// Aceita qualquer link de evento no mesmo domínio do calendário.
+export async function scrapeCustomSource(
+  sourceUrl: string,
+  label: string,
+  countryLabel: string | null,
+): Promise<LiveCompetition[]> {
+  let baseHost = "";
+  try { baseHost = new URL(sourceUrl).hostname; } catch { throw new Error("URL inválida"); }
+  const fakeProvider: ProviderDefinition = {
+    id: "custom" as ProviderId,
+    label,
+    homepage: sourceUrl,
+    listUrls: [sourceUrl],
+    // Aceita qualquer path do mesmo host com pelo menos 2 segmentos.
+    isEventDetailUrl: (u: URL) =>
+      u.hostname.endsWith(baseHost) && u.pathname.split("/").filter(Boolean).length >= 2,
+    priority: "medium",
+    scope: "international",
+    countryLabel: countryLabel ?? "—",
+  };
+  const md = await firecrawlMarkdown(sourceUrl);
+  const parsed = parseMarkdown(md, sourceUrl, fakeProvider);
+  return parsed.map((e, idx): LiveCompetition => ({
+    id: `custom:${idx}:${encodeURIComponent(e.name).slice(0, 40)}`,
+    provider: "custom" as ProviderId,
+    name: e.name,
+    starts_at: e.starts_at,
+    ends_at: null,
+    city: e.city,
+    state: e.state,
+    country: countryLabel,
+    venue_name: null,
+    organizer: label,
+    external_url: e.url,
+    registration_deadline: null,
+    banner_url: null,
+  }));
+}
+
 
 
 function absoluteUrl(u: string | null | undefined, base: string): string {
@@ -293,40 +333,46 @@ function absoluteUrl(u: string | null | undefined, base: string): string {
   }
 }
 
+// Núcleo do scraper como função pura — reutilizado por outras serverFns
+// (ex.: runCompetitionIngest) sem passar pelo stub RPC.
+export async function runScrapeCompetitions(providers?: string[]): Promise<{
+  competitions: LiveCompetition[];
+  summary: { provider: ProviderId; count: number; error?: string }[];
+  fetchedAt: string;
+}> {
+  const targetIds: ProviderId[] = (providers && providers.length > 0
+    ? providers
+    : PROVIDERS.map((p) => p.id)) as ProviderId[];
+
+  const results = await Promise.allSettled(targetIds.map((id) => scrapeProvider(id)));
+
+  const competitions: LiveCompetition[] = [];
+  const summary: { provider: ProviderId; count: number; error?: string }[] = [];
+
+  results.forEach((r, idx) => {
+    const providerId = targetIds[idx];
+    if (r.status === "fulfilled") {
+      competitions.push(...r.value);
+      summary.push({ provider: providerId, count: r.value.length });
+    } else {
+      const reason = r.reason as { message?: string } | string | undefined;
+      const msg = typeof reason === "string" ? reason : reason?.message ?? String(reason);
+      summary.push({ provider: providerId, count: 0, error: msg.slice(0, 200) });
+    }
+  });
+
+  competitions.sort((a, b) => {
+    if (!a.starts_at && !b.starts_at) return 0;
+    if (!a.starts_at) return 1;
+    if (!b.starts_at) return -1;
+    return new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime();
+  });
+
+  return { competitions, summary, fetchedAt: new Date().toISOString() };
+}
+
 export const scrapeCompetitions = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) =>
     z.object({ providers: z.array(z.string()).optional() }).parse(i ?? {}),
   )
-  .handler(async ({ data }) => {
-    const targetIds: ProviderId[] = (data.providers && data.providers.length > 0
-      ? data.providers
-      : PROVIDERS.map((p) => p.id)) as ProviderId[];
-
-    const results = await Promise.allSettled(targetIds.map((id) => scrapeProvider(id)));
-
-    const competitions: LiveCompetition[] = [];
-    const summary: { provider: ProviderId; count: number; error?: string }[] = [];
-
-    results.forEach((r, idx) => {
-      const providerId = targetIds[idx];
-      if (r.status === "fulfilled") {
-        competitions.push(...r.value);
-        summary.push({ provider: providerId, count: r.value.length });
-      } else {
-        summary.push({
-          provider: providerId,
-          count: 0,
-          error: String(r.reason?.message ?? r.reason).slice(0, 200),
-        });
-      }
-    });
-
-    competitions.sort((a, b) => {
-      if (!a.starts_at && !b.starts_at) return 0;
-      if (!a.starts_at) return 1;
-      if (!b.starts_at) return -1;
-      return new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime();
-    });
-
-    return { competitions, summary, fetchedAt: new Date().toISOString() };
-  });
+  .handler(async ({ data }) => runScrapeCompetitions(data.providers));
