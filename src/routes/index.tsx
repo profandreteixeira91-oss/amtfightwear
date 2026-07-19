@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
+import { DojoManagerPromo } from "@/components/store/DojoManagerPromo";
 import { listStorefrontHome, listStoreCategories } from "@/lib/store/store.functions";
 import heroBanner from "@/assets/loja-hero-banner.jpg";
 import amtLogo from "@/assets/amt-logo.jpg";
+
 
 const homeQuery = queryOptions({
   queryKey: ["store", "home"],
@@ -253,6 +255,9 @@ function StoreHomePage() {
           </span>
         </Link>
       </section>
+
+      <DojoManagerPromo />
+
 
       {data.featured.length > 0 && (
         <section id="destaques" className="mx-auto max-w-7xl px-4 py-12">
