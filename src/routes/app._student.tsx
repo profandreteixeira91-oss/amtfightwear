@@ -49,21 +49,29 @@ function StudentShell() {
         style={{ paddingTop: "env(safe-area-inset-top)" }}
       >
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
-          <div className="flex min-w-0 items-center gap-2.5">
+          <div className="flex min-w-0 items-center gap-3">
             {logo ? (
-              <img src={logo} alt={appName} className="h-9 w-9 shrink-0 rounded-lg object-cover" />
+              <img
+                src={logo}
+                alt={branding?.trade_name || appName}
+                className="h-12 w-12 shrink-0 rounded-xl object-contain bg-white ring-1 ring-black/5 shadow-sm p-0.5 sm:h-14 sm:w-14"
+              />
             ) : (
-              <div className="h-9 w-9 shrink-0 rounded-lg" style={{ background: "var(--sa-primary, #dc2626)" }} />
+              <div className="h-12 w-12 shrink-0 rounded-xl sm:h-14 sm:w-14" style={{ background: "var(--sa-primary, #dc2626)" }} />
             )}
             <div className="min-w-0">
-              <div className="truncate text-sm font-semibold leading-tight sm:text-base" style={{ color: "var(--sa-title)" }}>
-                {student?.full_name ?? "Aluno"}
+              <div
+                className="truncate text-base font-bold leading-tight sm:text-lg"
+                style={{ color: "var(--sa-title)" }}
+              >
+                {branding?.trade_name || appName}
               </div>
               <div className="truncate text-[11px] text-neutral-500 sm:text-xs">
-                {branding?.trade_name || appName}
+                {student?.full_name ?? "Aluno"}
               </div>
             </div>
           </div>
+
 
           {/* Desktop nav */}
           <DesktopNav items={config.bottom_nav} features={config.features} />
