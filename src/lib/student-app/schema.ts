@@ -106,6 +106,25 @@ export type OnboardingConfig = {
   finish_label: string;
 };
 
+export type DigitalCardConfig = {
+  title: string;
+  subtitle: string | null;
+  footer_text: string | null;
+  background_style: "gradient" | "solid" | "image";
+  background_url: string | null;
+  background_color: string;
+  text_color: string;
+  accent_color: string;
+  show_photo: boolean;
+  show_qr: boolean;
+  show_pin: boolean;
+  show_belt: boolean;
+  show_enrollment_date: boolean;
+  show_registration_number: boolean;
+  show_academy_logo: boolean;
+  show_unit_name: boolean;
+};
+
 export type StudentAppConfig = {
   appearance: Appearance;
   features: Features;
@@ -114,7 +133,9 @@ export type StudentAppConfig = {
   login: LoginConfig;
   notifications: NotificationsConfig;
   onboarding: OnboardingConfig;
+  digital_card: DigitalCardConfig;
 };
+
 
 export const DEFAULT_FEATURES: Features = {
   agenda: true,
@@ -231,7 +252,26 @@ export const DEFAULT_CONFIG: StudentAppConfig = {
     cta_label: "Vamos começar",
     finish_label: "Concluir",
   },
+  digital_card: {
+    title: "Carteirinha do Aluno",
+    subtitle: null,
+    footer_text: "Apresente esta carteirinha na recepção",
+    background_style: "gradient",
+    background_url: null,
+    background_color: "#0a0a0a",
+    text_color: "#ffffff",
+    accent_color: "#dc2626",
+    show_photo: true,
+    show_qr: true,
+    show_pin: true,
+    show_belt: true,
+    show_enrollment_date: true,
+    show_registration_number: true,
+    show_academy_logo: true,
+    show_unit_name: true,
+  },
 };
+
 
 // Faz merge tolerante para não quebrar quando novas chaves forem adicionadas
 export function normalizeConfig(input: unknown): StudentAppConfig {
@@ -251,5 +291,7 @@ export function normalizeConfig(input: unknown): StudentAppConfig {
         ? src.onboarding!.tour_steps
         : DEFAULT_CONFIG.onboarding.tour_steps,
     },
+    digital_card: { ...DEFAULT_CONFIG.digital_card, ...(src.digital_card ?? {}) },
   };
+
 }
