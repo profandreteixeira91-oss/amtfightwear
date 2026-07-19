@@ -255,7 +255,7 @@ function AtacadoLandingPage() {
   ];
 
   return (
-    <div className="min-h-screen scroll-smooth bg-background text-foreground">
+    <div className="min-h-screen scroll-smooth overflow-x-hidden bg-background text-foreground">
       <MetaPixelNoscript />
 
       {/* HEADER FIXO */}
@@ -421,7 +421,7 @@ function AtacadoLandingPage() {
       </section>
 
       {/* PRODUTOS */}
-      <section id="produtos" className="mx-auto max-w-6xl px-4 py-14 md:py-20">
+      <section id="produtos" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-14 md:py-20">
         <div className="mb-10 text-center">
           <h2 className="text-2xl font-black tracking-tight md:text-4xl">
             Nossos produtos <span className="text-primary">personalizados</span>
@@ -515,7 +515,7 @@ function AtacadoLandingPage() {
       </section>
 
       {/* PERSONALIZAÇÃO — 4 PASSOS */}
-      <section id="personalizacao" className="mx-auto max-w-6xl px-4 py-14 md:py-20">
+      <section id="personalizacao" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-14 md:py-20">
         <div className="mb-10 text-center">
           <h2 className="text-2xl font-black tracking-tight md:text-4xl">
             Como funciona a <span className="text-primary">personalização</span>
@@ -546,7 +546,7 @@ function AtacadoLandingPage() {
       </section>
 
       {/* QUALIDADE + GALERIA */}
-      <section id="qualidade" className="border-y border-border/60 bg-foreground text-background">
+      <section id="qualidade" className="scroll-mt-20 border-y border-border/60 bg-foreground text-background">
         <div className="mx-auto max-w-6xl px-4 py-14 md:py-20">
           <div className="mb-10 text-center">
             <h2 className="text-2xl font-black tracking-tight md:text-4xl">
@@ -580,7 +580,7 @@ function AtacadoLandingPage() {
               ))}
             </div>
 
-            <ul className="grid gap-4">
+            <ul className="grid list-none gap-4 pl-0">
               {qualityPoints.map((q, i) => (
                 <motion.li
                   key={q.title}
@@ -676,7 +676,7 @@ function AtacadoLandingPage() {
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="bg-background">
+      <section id="faq" className="scroll-mt-20 bg-background">
         <div className="mx-auto max-w-3xl px-4 py-14 md:py-20">
           <div className="mb-8 text-center">
             <h2 className="text-2xl font-black tracking-tight md:text-4xl">Perguntas frequentes</h2>
@@ -749,7 +749,7 @@ function AtacadoLandingPage() {
 
       {/* MOBILE STICKY BAR */}
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border/60 bg-background/95 backdrop-blur-md sm:hidden">
-        <div className="px-3 py-2">
+        <div className="px-3 py-2" style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 8px)" }}>
           <BuyButton from="sticky_mobile" className="w-full" />
         </div>
       </div>
