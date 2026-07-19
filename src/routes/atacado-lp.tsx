@@ -583,8 +583,9 @@ function AtacadoLandingPage() {
             </motion.div>
           ))}
         </div>
-        <div className="mt-10 flex justify-center">
-          <BuyButton from="personalizacao" size="lg" />
+        <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <BuyButton from="personalizacao" size="lg" label="Personalizar Agora" />
+          <WhatsAppButton from="personalizacao" size="lg" label="Falar com Especialista" />
         </div>
       </section>
 
