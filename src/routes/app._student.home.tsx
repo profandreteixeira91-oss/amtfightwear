@@ -205,9 +205,14 @@ function BlockRenderer({
       if (list.length === 0 || config.features.news === false) return null;
       return (
         <section>
-          <h2 className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-neutral-400">
-            {block.title ?? "Novidades"}
-          </h2>
+          <div className="mb-2 flex items-center justify-between px-1">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
+              {block.title ?? "Novidades"}
+            </h2>
+            <Link to="/app/news" className="text-[11px] font-medium" style={{ color: "var(--sa-primary)" }}>
+              Ver todas
+            </Link>
+          </div>
           <ul className="space-y-2">
             {list.map((n) => (
               <li
