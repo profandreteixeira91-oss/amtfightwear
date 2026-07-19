@@ -4377,6 +4377,492 @@ export type Database = {
           },
         ]
       }
+      dojo_store_cart_items: {
+        Row: {
+          billable_to_student: boolean
+          cart_id: string
+          created_at: string
+          customization: Json | null
+          id: string
+          owner_id: string
+          product_id: string
+          quantity: number
+          student_id: string | null
+          updated_at: string
+          variant_id: string | null
+        }
+        Insert: {
+          billable_to_student?: boolean
+          cart_id: string
+          created_at?: string
+          customization?: Json | null
+          id?: string
+          owner_id: string
+          product_id: string
+          quantity?: number
+          student_id?: string | null
+          updated_at?: string
+          variant_id?: string | null
+        }
+        Update: {
+          billable_to_student?: boolean
+          cart_id?: string
+          created_at?: string
+          customization?: Json | null
+          id?: string
+          owner_id?: string
+          product_id?: string
+          quantity?: number
+          student_id?: string | null
+          updated_at?: string
+          variant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_store_cart_items_cart_id_fkey"
+            columns: ["cart_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_store_carts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_store_cart_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_store_cart_items_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_store_cart_items_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "store_product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_store_carts: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          owner_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          owner_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          owner_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      dojo_store_favorite_lists: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          owner_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          owner_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          owner_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      dojo_store_favorites: {
+        Row: {
+          created_at: string
+          id: string
+          list_id: string | null
+          owner_id: string
+          product_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          list_id?: string | null
+          owner_id: string
+          product_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          list_id?: string | null
+          owner_id?: string
+          product_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_store_favorites_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_store_favorite_lists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_store_favorites_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_store_order_items: {
+        Row: {
+          billable_to_student: boolean
+          created_at: string
+          customization: Json | null
+          id: string
+          image_url: string | null
+          order_id: string
+          owner_id: string
+          product_id: string | null
+          product_name: string
+          quantity: number
+          student_id: string | null
+          total_price: number
+          unit_price: number
+          unit_retail_price: number
+          variant_id: string | null
+          variant_label: string | null
+        }
+        Insert: {
+          billable_to_student?: boolean
+          created_at?: string
+          customization?: Json | null
+          id?: string
+          image_url?: string | null
+          order_id: string
+          owner_id: string
+          product_id?: string | null
+          product_name: string
+          quantity: number
+          student_id?: string | null
+          total_price: number
+          unit_price: number
+          unit_retail_price: number
+          variant_id?: string | null
+          variant_label?: string | null
+        }
+        Update: {
+          billable_to_student?: boolean
+          created_at?: string
+          customization?: Json | null
+          id?: string
+          image_url?: string | null
+          order_id?: string
+          owner_id?: string
+          product_id?: string | null
+          product_name?: string
+          quantity?: number
+          student_id?: string | null
+          total_price?: number
+          unit_price?: number
+          unit_retail_price?: number
+          variant_id?: string | null
+          variant_label?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_store_order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_store_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_store_order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_store_order_items_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_store_order_items_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "store_product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_store_order_timeline: {
+        Row: {
+          created_at: string
+          event: string
+          id: string
+          message: string | null
+          metadata: Json | null
+          order_id: string
+          owner_id: string
+        }
+        Insert: {
+          created_at?: string
+          event: string
+          id?: string
+          message?: string | null
+          metadata?: Json | null
+          order_id: string
+          owner_id: string
+        }
+        Update: {
+          created_at?: string
+          event?: string
+          id?: string
+          message?: string | null
+          metadata?: Json | null
+          order_id?: string
+          owner_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_store_order_timeline_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_store_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_store_orders: {
+        Row: {
+          created_at: string
+          discount: number
+          id: string
+          invoice_url: string | null
+          is_wholesale: boolean
+          metadata: Json | null
+          order_number: string | null
+          origin: string
+          owner_id: string
+          payment_status: string
+          retail_total: number
+          savings: number
+          shipping_cost: number
+          status: string
+          store_order_id: string | null
+          subtotal: number
+          total: number
+          tracking_code: string | null
+          updated_at: string
+          wholesale_total: number
+        }
+        Insert: {
+          created_at?: string
+          discount?: number
+          id?: string
+          invoice_url?: string | null
+          is_wholesale?: boolean
+          metadata?: Json | null
+          order_number?: string | null
+          origin?: string
+          owner_id: string
+          payment_status?: string
+          retail_total?: number
+          savings?: number
+          shipping_cost?: number
+          status?: string
+          store_order_id?: string | null
+          subtotal?: number
+          total?: number
+          tracking_code?: string | null
+          updated_at?: string
+          wholesale_total?: number
+        }
+        Update: {
+          created_at?: string
+          discount?: number
+          id?: string
+          invoice_url?: string | null
+          is_wholesale?: boolean
+          metadata?: Json | null
+          order_number?: string | null
+          origin?: string
+          owner_id?: string
+          payment_status?: string
+          retail_total?: number
+          savings?: number
+          shipping_cost?: number
+          status?: string
+          store_order_id?: string | null
+          subtotal?: number
+          total?: number
+          tracking_code?: string | null
+          updated_at?: string
+          wholesale_total?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_store_orders_store_order_id_fkey"
+            columns: ["store_order_id"]
+            isOneToOne: false
+            referencedRelation: "store_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_store_settings: {
+        Row: {
+          created_at: string
+          owner_id: string
+          updated_at: string
+          wholesale_min_order_value: number
+          wholesale_min_qty_per_product: number
+        }
+        Insert: {
+          created_at?: string
+          owner_id: string
+          updated_at?: string
+          wholesale_min_order_value?: number
+          wholesale_min_qty_per_product?: number
+        }
+        Update: {
+          created_at?: string
+          owner_id?: string
+          updated_at?: string
+          wholesale_min_order_value?: number
+          wholesale_min_qty_per_product?: number
+        }
+        Relationships: []
+      }
+      dojo_store_student_deliveries: {
+        Row: {
+          created_at: string
+          delivered_at: string | null
+          id: string
+          notes: string | null
+          order_item_id: string | null
+          owner_id: string
+          product_id: string | null
+          product_name: string
+          quantity: number
+          student_id: string
+          variant_label: string | null
+        }
+        Insert: {
+          created_at?: string
+          delivered_at?: string | null
+          id?: string
+          notes?: string | null
+          order_item_id?: string | null
+          owner_id: string
+          product_id?: string | null
+          product_name: string
+          quantity?: number
+          student_id: string
+          variant_label?: string | null
+        }
+        Update: {
+          created_at?: string
+          delivered_at?: string | null
+          id?: string
+          notes?: string | null
+          order_item_id?: string | null
+          owner_id?: string
+          product_id?: string | null
+          product_name?: string
+          quantity?: number
+          student_id?: string
+          variant_label?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_store_student_deliveries_order_item_id_fkey"
+            columns: ["order_item_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_store_order_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_store_student_deliveries_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_store_student_deliveries_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_store_sync_logs: {
+        Row: {
+          categories_count: number | null
+          error: string | null
+          finished_at: string | null
+          id: string
+          metadata: Json | null
+          owner_id: string
+          products_count: number | null
+          started_at: string
+          status: string
+          updated_count: number | null
+        }
+        Insert: {
+          categories_count?: number | null
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          metadata?: Json | null
+          owner_id: string
+          products_count?: number | null
+          started_at?: string
+          status?: string
+          updated_count?: number | null
+        }
+        Update: {
+          categories_count?: number | null
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          metadata?: Json | null
+          owner_id?: string
+          products_count?: number | null
+          started_at?: string
+          status?: string
+          updated_count?: number | null
+        }
+        Relationships: []
+      }
       dojo_student_app_config: {
         Row: {
           config: Json
