@@ -323,7 +323,7 @@ function AtacadoLandingPage() {
               ))}
             </nav>
             <div className="hidden sm:block">
-              <BuyButton from="header" />
+              <BuyButton from="header" label="Comprar Faixas" href={FAIXAS_HREF} />
             </div>
             <button
               type="button"
