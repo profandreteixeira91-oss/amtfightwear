@@ -27,8 +27,10 @@ export const Route = createFileRoute("/dojo/app/student-app-qr")({
 function StudentAppQrPage() {
   const brandingFn = useServerFn(getMyBranding);
   const slugFn = useServerFn(getMyAcademySlug);
+  const publicUrlFn = useServerFn(getAcademyPublicUrl);
   const { data: branding } = useQuery({ queryKey: ["dojo", "branding"], queryFn: () => brandingFn({}) });
   const { data: mine } = useQuery({ queryKey: ["dojo", "my-slug"], queryFn: () => slugFn({}) });
+  const { data: cfg } = useQuery({ queryKey: ["dojo", "public-url"], queryFn: () => publicUrlFn({}) });
 
   const slug = mine?.slug ?? "";
   const [origin, setOrigin] = useState("");
@@ -41,7 +43,8 @@ function StudentAppQrPage() {
 
   // Personalized path per dojo — avoids cross-tenant conflicts.
   const fullPath = slug ? `/app/install/${slug}` : path;
-  const url = origin ? `${origin.replace(/\/$/, "")}${fullPath.startsWith("/") ? fullPath : `/${fullPath}`}` : "";
+  const base = (cfg?.public_url || origin || "").replace(/\/$/, "");
+  const url = base ? `${base}${fullPath.startsWith("/") ? fullPath : `/${fullPath}`}` : "";
   const academyName = branding?.trade_name ?? branding?.legal_name ?? "Sua academia";
   const brandColor = branding?.brand_primary ?? "#dc2626";
 
