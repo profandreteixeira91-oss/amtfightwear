@@ -40,7 +40,7 @@ export const listLibraryTemplates = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("dojo_evaluations")
-      .select("*")
+      .select("id,title,method,modality,description,structure,total_score")
       .eq("is_library", true)
       .order("modality", { ascending: true })
       .order("title", { ascending: true });
