@@ -18,6 +18,70 @@ export const getMyStudent = createServerFn({ method: "GET" })
     return data;
   });
 
+// ============ Carteirinha digital ============
+
+export const getMyDigitalCard = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: student, error } = await context.supabase
+      .from("dojo_students")
+      .select(
+        "id, owner_id, unit_id, full_name, photo_url, current_belt_id, current_degree, checkin_pin, qr_token, created_at",
+      )
+      .limit(1)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!student) return null;
+
+    // Gera credenciais automaticamente se ainda não existirem
+    let pin = student.checkin_pin;
+    let qr = student.qr_token;
+    if (!pin || !qr) {
+      const { data: creds } = await context.supabase.rpc("ensure_my_student_credentials");
+      const row = Array.isArray(creds) ? creds[0] : creds;
+      if (row) {
+        pin = row.checkin_pin ?? pin;
+        qr = row.qr_token ?? qr;
+      }
+    }
+
+    const [{ data: belt }, { data: academy }, { data: unit }, { data: enrollment }] = await Promise.all([
+      student.current_belt_id
+        ? context.supabase
+            .from("dojo_belts")
+            .select("name, color_hex, stripe_hex")
+            .eq("id", student.current_belt_id)
+            .maybeSingle()
+        : Promise.resolve({ data: null }),
+      context.supabase
+        .from("dojo_academy_profile")
+        .select("trade_name, legal_name, logo_url, brand_primary, brand_secondary, city, state")
+        .eq("owner_id", student.owner_id)
+        .maybeSingle(),
+      student.unit_id
+        ? context.supabase.from("dojo_units").select("name, city, state").eq("id", student.unit_id).maybeSingle()
+        : Promise.resolve({ data: null }),
+      context.supabase
+        .from("dojo_enrollments")
+        .select("start_date, status")
+        .eq("student_id", student.id)
+        .order("start_date", { ascending: true })
+        .limit(1)
+        .maybeSingle(),
+    ]);
+
+    return {
+      student: { ...student, checkin_pin: pin, qr_token: qr },
+      belt,
+      academy,
+      unit,
+      registration_number: student.id.slice(0, 8).toUpperCase(),
+      enrollment_date: enrollment?.start_date ?? student.created_at,
+    };
+  });
+
+
+
 export const getMyBranding = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
