@@ -37,7 +37,8 @@ export const getStudentCompetition = createServerFn({ method: "POST" })
       .eq("user_id", context.userId)
       .maybeSingle();
 
-    let athlete: unknown = null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let athlete: any = null;
     if (me?.id) {
       const { data: at } = await context.supabase
         .from("academy_competition_athletes")
