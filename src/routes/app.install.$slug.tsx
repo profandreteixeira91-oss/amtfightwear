@@ -161,6 +161,24 @@ function BrandedInstallPage() {
           </div>
         )}
 
+        {apk && (platform === "android" || platform === "desktop") && (
+          <a
+            href={`/api/public/app/${slug}/download`}
+            className="flex w-full items-center justify-between gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3.5 text-left text-emerald-900 transition hover:bg-emerald-100 active:scale-[0.99]"
+          >
+            <div className="flex items-center gap-3">
+              <PackageOpen className="h-5 w-5" />
+              <div>
+                <div className="text-sm font-semibold">Baixar APK (Android)</div>
+                <div className="text-[11px] opacity-80">
+                  v{apk.version_name} · {(apk.file_size / 1024 / 1024).toFixed(1)} MB
+                </div>
+              </div>
+            </div>
+            <Download className="h-5 w-5" />
+          </a>
+        )}
+
         <Link
           to="/app/login"
           className="flex w-full items-center justify-center gap-2 rounded-2xl border border-neutral-200 bg-white py-3.5 text-base font-semibold text-neutral-900 transition hover:bg-neutral-50 active:scale-[0.99]"
@@ -168,6 +186,13 @@ function BrandedInstallPage() {
           Já instalei — entrar agora <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
+
+      {apk && platform === "android" && (
+        <div className="mt-4 rounded-2xl bg-amber-50 p-4 text-xs text-amber-900 ring-1 ring-amber-200">
+          <b>Instalando o APK:</b> após baixar, abra o arquivo e permita <b>“Instalar apps desconhecidos”</b> se o Android
+          solicitar. É seguro — o arquivo vem direto da sua academia.
+        </div>
+      )}
 
       {(platform === "ios" || platform === "desktop") && (
         <section className="mt-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-neutral-100">
