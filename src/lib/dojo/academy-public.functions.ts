@@ -51,3 +51,23 @@ export const getMyAcademySlug = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     return data as { slug: string | null; trade_name: string | null; legal_name: string | null } | null;
   });
+
+// Authenticated — branding of the current admin's academy (logo + name + colors).
+export const getMyAcademyBranding = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
+      .from("dojo_academy_profile")
+      .select("slug, trade_name, legal_name, logo_url, brand_primary, brand_secondary")
+      .limit(1)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    return data as {
+      slug: string | null;
+      trade_name: string | null;
+      legal_name: string | null;
+      logo_url: string | null;
+      brand_primary: string | null;
+      brand_secondary: string | null;
+    } | null;
+  });
