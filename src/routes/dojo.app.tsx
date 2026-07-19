@@ -95,7 +95,7 @@ const nav: { label: string; items: NavItem[] }[] = [
   {
     label: "App do Aluno",
     items: [
-      { to: "/dojo/app/student-app", label: "Editor do App", icon: Smartphone },
+      { to: "/dojo/app/student-app-qr", label: "QR do App", icon: Smartphone },
     ],
   },
 ];
@@ -116,7 +116,7 @@ const routeTitles: Array<{ match: (p: string) => boolean; title: string; subtitl
   
   { match: (p) => p.startsWith("/dojo/app/subscription"), title: "Assinatura AMT", subtitle: "Plano mensal do sistema" },
   { match: (p) => p.startsWith("/dojo/app/integrations"), title: "Integrações", subtitle: "Gympass, TotalPass, WhatsApp" },
-  { match: (p) => p.startsWith("/dojo/app/student-app"), title: "Editor do App do Aluno", subtitle: "Personalize o app sem código" },
+  { match: (p) => p.startsWith("/dojo/app/student-app-qr"), title: "QR do App do Aluno", subtitle: "Imprima e distribua para os alunos" },
 ];
 
 function DojoLayout() {
