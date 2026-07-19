@@ -60,6 +60,7 @@ import { Route as DojoAppStudentAppRouteImport } from './routes/dojo.app.student
 import { Route as DojoAppScheduleRouteImport } from './routes/dojo.app.schedule'
 import { Route as DojoAppPlansRouteImport } from './routes/dojo.app.plans'
 import { Route as DojoAppIntegrationsRouteImport } from './routes/dojo.app.integrations'
+import { Route as DojoAppInstallRouteImport } from './routes/dojo.app.install'
 import { Route as DojoAppGraduationsRouteImport } from './routes/dojo.app.graduations'
 import { Route as DojoAppGatewaysRouteImport } from './routes/dojo.app.gateways'
 import { Route as DojoAppFinanceRouteImport } from './routes/dojo.app.finance'
@@ -424,6 +425,11 @@ const DojoAppPlansRoute = DojoAppPlansRouteImport.update({
 const DojoAppIntegrationsRoute = DojoAppIntegrationsRouteImport.update({
   id: '/integrations',
   path: '/integrations',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppInstallRoute = DojoAppInstallRouteImport.update({
+  id: '/install',
+  path: '/install',
   getParentRoute: () => DojoAppRoute,
 } as any)
 const DojoAppGraduationsRoute = DojoAppGraduationsRouteImport.update({
@@ -1144,6 +1150,7 @@ export interface FileRoutesByFullPath {
   '/dojo/app/finance': typeof DojoAppFinanceRoute
   '/dojo/app/gateways': typeof DojoAppGatewaysRoute
   '/dojo/app/graduations': typeof DojoAppGraduationsRoute
+  '/dojo/app/install': typeof DojoAppInstallRoute
   '/dojo/app/integrations': typeof DojoAppIntegrationsRoute
   '/dojo/app/plans': typeof DojoAppPlansRoute
   '/dojo/app/schedule': typeof DojoAppScheduleRoute
@@ -1302,6 +1309,7 @@ export interface FileRoutesByTo {
   '/dojo/app/finance': typeof DojoAppFinanceRoute
   '/dojo/app/gateways': typeof DojoAppGatewaysRoute
   '/dojo/app/graduations': typeof DojoAppGraduationsRoute
+  '/dojo/app/install': typeof DojoAppInstallRoute
   '/dojo/app/integrations': typeof DojoAppIntegrationsRoute
   '/dojo/app/plans': typeof DojoAppPlansRoute
   '/dojo/app/schedule': typeof DojoAppScheduleRoute
@@ -1463,6 +1471,7 @@ export interface FileRoutesById {
   '/dojo/app/finance': typeof DojoAppFinanceRoute
   '/dojo/app/gateways': typeof DojoAppGatewaysRoute
   '/dojo/app/graduations': typeof DojoAppGraduationsRoute
+  '/dojo/app/install': typeof DojoAppInstallRoute
   '/dojo/app/integrations': typeof DojoAppIntegrationsRoute
   '/dojo/app/plans': typeof DojoAppPlansRoute
   '/dojo/app/schedule': typeof DojoAppScheduleRoute
@@ -1627,6 +1636,7 @@ export interface FileRouteTypes {
     | '/dojo/app/finance'
     | '/dojo/app/gateways'
     | '/dojo/app/graduations'
+    | '/dojo/app/install'
     | '/dojo/app/integrations'
     | '/dojo/app/plans'
     | '/dojo/app/schedule'
@@ -1785,6 +1795,7 @@ export interface FileRouteTypes {
     | '/dojo/app/finance'
     | '/dojo/app/gateways'
     | '/dojo/app/graduations'
+    | '/dojo/app/install'
     | '/dojo/app/integrations'
     | '/dojo/app/plans'
     | '/dojo/app/schedule'
@@ -1945,6 +1956,7 @@ export interface FileRouteTypes {
     | '/dojo/app/finance'
     | '/dojo/app/gateways'
     | '/dojo/app/graduations'
+    | '/dojo/app/install'
     | '/dojo/app/integrations'
     | '/dojo/app/plans'
     | '/dojo/app/schedule'
@@ -2413,6 +2425,13 @@ declare module '@tanstack/react-router' {
       path: '/integrations'
       fullPath: '/dojo/app/integrations'
       preLoaderRoute: typeof DojoAppIntegrationsRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/install': {
+      id: '/dojo/app/install'
+      path: '/install'
+      fullPath: '/dojo/app/install'
+      preLoaderRoute: typeof DojoAppInstallRouteImport
       parentRoute: typeof DojoAppRoute
     }
     '/dojo/app/graduations': {
@@ -3508,6 +3527,7 @@ interface DojoAppRouteChildren {
   DojoAppFinanceRoute: typeof DojoAppFinanceRoute
   DojoAppGatewaysRoute: typeof DojoAppGatewaysRoute
   DojoAppGraduationsRoute: typeof DojoAppGraduationsRoute
+  DojoAppInstallRoute: typeof DojoAppInstallRoute
   DojoAppIntegrationsRoute: typeof DojoAppIntegrationsRoute
   DojoAppPlansRoute: typeof DojoAppPlansRoute
   DojoAppScheduleRoute: typeof DojoAppScheduleRoute
@@ -3529,6 +3549,7 @@ const DojoAppRouteChildren: DojoAppRouteChildren = {
   DojoAppFinanceRoute: DojoAppFinanceRoute,
   DojoAppGatewaysRoute: DojoAppGatewaysRoute,
   DojoAppGraduationsRoute: DojoAppGraduationsRoute,
+  DojoAppInstallRoute: DojoAppInstallRoute,
   DojoAppIntegrationsRoute: DojoAppIntegrationsRoute,
   DojoAppPlansRoute: DojoAppPlansRoute,
   DojoAppScheduleRoute: DojoAppScheduleRoute,
