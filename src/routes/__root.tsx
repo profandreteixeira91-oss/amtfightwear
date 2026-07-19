@@ -144,6 +144,12 @@ function RootShell({ children }: { children: ReactNode }) {
         <HeadContent />
       </head>
       <body>
+        <noscript
+          dangerouslySetInnerHTML={{
+            __html:
+              '<img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=2149647638877087&ev=PageView&noscript=1" alt="" />',
+          }}
+        />
         {children}
         <Scripts />
       </body>
