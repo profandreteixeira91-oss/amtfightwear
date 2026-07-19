@@ -50,10 +50,19 @@ export const Route = createFileRoute("/api/public/app/$slug/download")({
           ip,
           user_agent: ua,
         });
-        void supabaseAdmin
-          .from("dojo_app_apk_versions")
-          .update({ downloads: (row.downloads ?? 0) + 1 })
-          .eq("id", row.id);
+        void supabaseAdmin.rpc("increment_apk_downloads" as any, { _id: row.id }).then(async ({ error: rErr }: any) => {
+          if (rErr) {
+            const { data: cur } = await supabaseAdmin
+              .from("dojo_app_apk_versions")
+              .select("downloads")
+              .eq("id", row.id)
+              .maybeSingle();
+            await supabaseAdmin
+              .from("dojo_app_apk_versions")
+              .update({ downloads: (cur?.downloads ?? 0) + 1 })
+              .eq("id", row.id);
+          }
+        });
 
         return Response.redirect(signed.signedUrl, 302);
       },
