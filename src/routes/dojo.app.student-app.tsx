@@ -226,11 +226,52 @@ function AppearancePanel({ value, onChange }: { value: StudentAppConfig["appeara
         </Select>
       </Field>
 
-      <ImageUpload label="Logotipo" url={value.logo_url} onChange={(u) => onChange({ logo_url: u })} />
-      <ImageUpload label="Ícone do app" url={value.app_icon_url} onChange={(u) => onChange({ app_icon_url: u })} />
-      <ImageUpload label="Splash Screen" url={value.splash_url} onChange={(u) => onChange({ splash_url: u })} />
-      <ImageUpload label="Fundo do login" url={value.login_bg_url} onChange={(u) => onChange({ login_bg_url: u })} />
-      <ImageUpload label="Imagem da tela inicial" url={value.home_hero_url} onChange={(u) => onChange({ home_hero_url: u })} />
+      <ImageUpload
+        label="Logotipo"
+        url={value.logo_url}
+        onChange={(u) => onChange({ logo_url: u })}
+        aspect="square"
+        hint="Marca principal exibida no cabeçalho do app, no login e nos e-mails. Prefira PNG com fundo transparente."
+        recommendedSize="512×512 px · PNG transparente · até 500 KB"
+      />
+      <ImageUpload
+        label="Ícone do app"
+        url={value.app_icon_url}
+        onChange={(u) => onChange({ app_icon_url: u })}
+        aspect="square"
+        hint="É o ícone que aparece na tela inicial do celular quando o aluno instala o app (PWA). Use uma versão sem texto pequeno."
+        recommendedSize="1024×1024 px · PNG quadrado · fundo colorido preenchido"
+      />
+      <ImageUpload
+        label="Splash Screen"
+        url={value.splash_url}
+        onChange={(u) => onChange({ splash_url: u })}
+        aspect="portrait"
+        hint="Tela de abertura exibida por 1–2 segundos ao abrir o app. Deixe a logo centralizada, sem elementos importantes nas bordas."
+        recommendedSize="1290×2796 px (retrato) · PNG ou JPG · até 2 MB"
+        brand={{ primary: value.brand_primary, secondary: value.brand_secondary, logoUrl: value.logo_url, appName: value.app_name }}
+        templates="splash"
+      />
+      <ImageUpload
+        label="Fundo do login"
+        url={value.login_bg_url}
+        onChange={(u) => onChange({ login_bg_url: u })}
+        aspect="portrait"
+        hint="Aparece atrás do formulário de login. Use imagens escuras ou com áreas neutras para o texto ficar legível."
+        recommendedSize="1290×2796 px (retrato) · JPG · até 1,5 MB"
+        brand={{ primary: value.brand_primary, secondary: value.brand_secondary, logoUrl: value.logo_url, appName: value.app_name }}
+        templates="login"
+      />
+      <ImageUpload
+        label="Imagem da tela inicial"
+        url={value.home_hero_url}
+        onChange={(u) => onChange({ home_hero_url: u })}
+        aspect="landscape"
+        hint="Banner exibido no topo da Home do aluno. Use fotos horizontais da sua academia ou de aulas."
+        recommendedSize="1600×900 px (16:9) · JPG · até 800 KB"
+        brand={{ primary: value.brand_primary, secondary: value.brand_secondary, logoUrl: value.logo_url, appName: value.app_name }}
+        templates="hero"
+      />
 
       <ColorField label="Cor primária" value={value.brand_primary} onChange={(c) => onChange({ brand_primary: c })} />
       <ColorField label="Cor secundária" value={value.brand_secondary} onChange={(c) => onChange({ brand_secondary: c })} />
@@ -746,9 +787,10 @@ function VersionsPanel() {
 // ================================================================
 // Preview do dispositivo
 // ================================================================
-type PreviewScreen = "login" | "onboarding" | "home" | FeatureKey;
+type PreviewScreen = "splash" | "login" | "onboarding" | "home" | FeatureKey;
 
 const SCREEN_LABELS: Record<string, string> = {
+  splash: "Splash screen",
   login: "Login",
   onboarding: "Onboarding",
   home: "Tela inicial",
@@ -761,6 +803,7 @@ function DevicePreview({ device, config }: { device: "iphone" | "android" | "tab
 
   const enabledFeatures = (Object.keys(config.features) as FeatureKey[]).filter((k) => config.features[k]);
   const screens: PreviewScreen[] = [
+    "splash",
     "login",
     ...(config.onboarding.enabled ? (["onboarding"] as PreviewScreen[]) : []),
     "home",
@@ -788,7 +831,9 @@ function DevicePreview({ device, config }: { device: "iphone" | "android" | "tab
         style={{ width: size.w, height: size.h, borderRadius: radius, background: "#f5f5f5" }}
       >
         <div className="flex h-full flex-col" style={{ fontFamily: `${config.appearance.font_family}, system-ui, sans-serif` }}>
-          {screen === "login" ? (
+          {screen === "splash" ? (
+            <PreviewSplash config={config} />
+          ) : screen === "login" ? (
             <PreviewLogin config={config} />
           ) : screen === "onboarding" ? (
             <PreviewOnboarding config={config} />
@@ -839,25 +884,59 @@ function DevicePreview({ device, config }: { device: "iphone" | "android" | "tab
   );
 }
 
-function PreviewLogin({ config }: { config: StudentAppConfig }) {
+function PreviewSplash({ config }: { config: StudentAppConfig }) {
+  const a = config.appearance;
+  const bg = a.splash_url
+    ? { backgroundImage: `url(${a.splash_url})`, backgroundSize: "cover", backgroundPosition: "center" }
+    : { background: `linear-gradient(160deg, ${a.brand_primary}, ${a.brand_secondary})` };
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center" style={{ background: "#ffffff" }}>
-      {config.appearance.logo_url ? (
-        <img src={config.appearance.logo_url} alt="" className="h-14 w-14 rounded-xl object-cover" />
+    <div className="flex h-full w-full flex-col items-center justify-center gap-3" style={bg}>
+      {a.logo_url ? (
+        <img src={a.logo_url} alt="" className="h-16 w-16 rounded-2xl bg-white/95 object-contain p-2 shadow-lg" />
       ) : (
-        <div className="h-14 w-14 rounded-xl" style={{ background: config.appearance.brand_primary }} />
+        <div className="grid h-16 w-16 place-items-center rounded-2xl bg-white/95 text-lg font-black shadow-lg" style={{ color: a.brand_primary }}>
+          {(a.app_name || "AMT").split(/\s+/).map((s) => s[0]).slice(0, 2).join("").toUpperCase()}
+        </div>
       )}
-      <div className="text-sm font-bold" style={{ color: config.appearance.title_color }}>{config.login?.title || config.appearance.app_name}</div>
-      {config.login?.subtitle && (
-        <div className="text-[10px] text-neutral-500">{config.login.subtitle}</div>
-      )}
-      {config.login?.institutional_text && (
-        <div className="text-[9px] text-neutral-400">{config.login.institutional_text}</div>
-      )}
-      <div className="mt-2 w-full space-y-2">
-        <div className="rounded-md border bg-white px-2 py-1.5 text-left text-[10px] text-neutral-400">seu@email.com</div>
-        <div className="rounded-md border bg-white px-2 py-1.5 text-left text-[10px] text-neutral-400">••••••••</div>
-        <div className="rounded-md py-2 text-[11px] font-semibold text-white" style={{ background: config.login?.button_color ?? config.appearance.button_color ?? config.appearance.brand_primary }}>Entrar</div>
+      <div className="text-sm font-bold text-white drop-shadow">{a.app_name}</div>
+      <div className="mt-2 flex gap-1">
+        {[0, 1, 2].map((i) => (
+          <span key={i} className="h-1 w-1 animate-pulse rounded-full bg-white/80" style={{ animationDelay: `${i * 120}ms` }} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PreviewLogin({ config }: { config: StudentAppConfig }) {
+  const a = config.appearance;
+  const bg = a.login_bg_url
+    ? { backgroundImage: `url(${a.login_bg_url})`, backgroundSize: "cover", backgroundPosition: "center" }
+    : { background: "#ffffff" };
+  const hasBg = Boolean(a.login_bg_url);
+  return (
+    <div className="relative flex h-full flex-col items-center justify-center gap-3 px-6 text-center" style={bg}>
+      {hasBg && <div className="absolute inset-0 bg-black/40" />}
+      <div className={`relative flex w-full flex-col items-center gap-3 ${hasBg ? "text-white" : ""}`}>
+        {a.logo_url ? (
+          <img src={a.logo_url} alt="" className="h-14 w-14 rounded-xl object-cover" />
+        ) : (
+          <div className="h-14 w-14 rounded-xl" style={{ background: a.brand_primary }} />
+        )}
+        <div className="text-sm font-bold" style={hasBg ? undefined : { color: a.title_color }}>
+          {config.login?.title || a.app_name}
+        </div>
+        {config.login?.subtitle && (
+          <div className={`text-[10px] ${hasBg ? "text-white/85" : "text-neutral-500"}`}>{config.login.subtitle}</div>
+        )}
+        {config.login?.institutional_text && (
+          <div className={`text-[9px] ${hasBg ? "text-white/70" : "text-neutral-400"}`}>{config.login.institutional_text}</div>
+        )}
+        <div className="mt-2 w-full space-y-2">
+          <div className="rounded-md border bg-white/95 px-2 py-1.5 text-left text-[10px] text-neutral-400">seu@email.com</div>
+          <div className="rounded-md border bg-white/95 px-2 py-1.5 text-left text-[10px] text-neutral-400">••••••••</div>
+          <div className="rounded-md py-2 text-[11px] font-semibold text-white" style={{ background: config.login?.button_color ?? a.button_color ?? a.brand_primary }}>Entrar</div>
+        </div>
       </div>
     </div>
   );
@@ -1072,7 +1151,59 @@ function ColorField({ label, value, onChange }: { label: string; value: string; 
   );
 }
 
-function ImageUpload({ label, url, onChange }: { label: string; url: string | null; onChange: (u: string | null) => void }) {
+type ImageUploadAspect = "square" | "portrait" | "landscape";
+type TemplateKind = "splash" | "login" | "hero";
+
+type BrandRef = { primary: string; secondary: string; logoUrl: string | null; appName: string };
+
+function buildTemplateSvg(kind: TemplateKind, variant: number, brand: BrandRef, w: number, h: number): string {
+  const { primary, secondary, appName } = brand;
+  const initials = (appName || "AMT").split(/\s+/).map((s) => s[0]).slice(0, 2).join("").toUpperCase();
+  const cx = w / 2;
+  const cy = h / 2;
+  let bg = "";
+  if (variant === 0) {
+    bg = `<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${primary}"/><stop offset="1" stop-color="${secondary}"/></linearGradient></defs><rect width="${w}" height="${h}" fill="url(#g)"/>`;
+  } else if (variant === 1) {
+    bg = `<rect width="${w}" height="${h}" fill="${secondary}"/><circle cx="${w * 0.85}" cy="${h * 0.15}" r="${w * 0.6}" fill="${primary}" opacity="0.55"/><circle cx="${w * 0.1}" cy="${h * 0.9}" r="${w * 0.4}" fill="${primary}" opacity="0.35"/>`;
+  } else {
+    bg = `<rect width="${w}" height="${h}" fill="${primary}"/><g opacity="0.18" stroke="${secondary}" stroke-width="2">${Array.from({ length: 14 }).map((_, i) => `<line x1="0" y1="${(h / 14) * i}" x2="${w}" y2="${(h / 14) * i + 40}"/>`).join("")}</g>`;
+  }
+  let content = "";
+  if (kind === "hero") {
+    content = `<text x="${cx}" y="${cy}" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-weight="800" font-size="${Math.round(h * 0.18)}" fill="#ffffff">${appName || "AMT Dojo"}</text>`;
+  } else {
+    content = `<circle cx="${cx}" cy="${cy - h * 0.05}" r="${Math.min(w, h) * 0.14}" fill="#ffffff" opacity="0.95"/><text x="${cx}" y="${cy - h * 0.03}" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-weight="800" font-size="${Math.round(Math.min(w, h) * 0.12)}" fill="${primary}">${initials}</text><text x="${cx}" y="${cy + h * 0.12}" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-weight="700" font-size="${Math.round(h * 0.035)}" fill="#ffffff" opacity="0.9">${appName || "AMT Dojo"}</text>`;
+  }
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">${bg}${content}</svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
+const TEMPLATE_LABELS: Record<TemplateKind, string> = {
+  splash: "Modelos de splash",
+  login: "Modelos de fundo de login",
+  hero: "Modelos de banner",
+};
+
+function ImageUpload({
+  label,
+  url,
+  onChange,
+  hint,
+  recommendedSize,
+  aspect = "square",
+  brand,
+  templates,
+}: {
+  label: string;
+  url: string | null;
+  onChange: (u: string | null) => void;
+  hint?: string;
+  recommendedSize?: string;
+  aspect?: ImageUploadAspect;
+  brand?: BrandRef;
+  templates?: TemplateKind;
+}) {
   const [uploading, setUploading] = useState(false);
   async function upload(file: File) {
     setUploading(true);
@@ -1091,22 +1222,66 @@ function ImageUpload({ label, url, onChange }: { label: string; url: string | nu
       setUploading(false);
     }
   }
+
+  const previewSize =
+    aspect === "portrait" ? "h-24 w-14" : aspect === "landscape" ? "h-12 w-24" : "h-16 w-16";
+  const tplDims = templates === "hero" ? { w: 640, h: 360 } : { w: 420, h: 840 };
+  const tplAspect = templates === "hero" ? "h-10 w-16" : "h-16 w-8";
+
   return (
     <Field label={label}>
-      <div className="flex items-center gap-2">
+      <div className="flex items-start gap-3">
         {url ? (
-          <img src={url} alt="" className="h-14 w-14 rounded-md border object-cover" />
+          <img src={url} alt="" className={`${previewSize} shrink-0 rounded-md border object-cover`} />
         ) : (
-          <div className="grid h-14 w-14 place-items-center rounded-md border bg-muted"><Icons.Image className="h-5 w-5 text-muted-foreground" /></div>
+          <div className={`${previewSize} grid shrink-0 place-items-center rounded-md border bg-muted`}>
+            <Icons.Image className="h-5 w-5 text-muted-foreground" />
+          </div>
         )}
-        <div className="flex-1 space-y-1">
-          <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border bg-background px-3 py-1.5 text-xs font-medium hover:bg-accent">
-            <Icons.Upload className="h-3.5 w-3.5" />
-            {uploading ? "Enviando…" : "Enviar imagem"}
-            <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
-          </label>
-          {url && (
-            <button onClick={() => onChange(null)} className="ml-2 text-xs text-red-600 hover:underline">Remover</button>
+        <div className="flex-1 space-y-1.5">
+          <div className="flex flex-wrap items-center gap-2">
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border bg-background px-3 py-1.5 text-xs font-medium hover:bg-accent">
+              <Icons.Upload className="h-3.5 w-3.5" />
+              {uploading ? "Enviando…" : "Enviar imagem"}
+              <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
+            </label>
+            {url && (
+              <button onClick={() => onChange(null)} className="text-xs text-red-600 hover:underline">
+                Remover
+              </button>
+            )}
+          </div>
+          {hint && <p className="text-[11px] leading-snug text-muted-foreground">{hint}</p>}
+          {recommendedSize && (
+            <div className="inline-flex items-center gap-1 rounded-md bg-muted/60 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+              <Icons.Ruler className="h-3 w-3" /> {recommendedSize}
+            </div>
+          )}
+          {templates && brand && (
+            <div className="pt-1">
+              <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                {TEMPLATE_LABELS[templates]}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {[0, 1, 2].map((v) => {
+                  const src = buildTemplateSvg(templates, v, brand, tplDims.w, tplDims.h);
+                  return (
+                    <button
+                      key={v}
+                      type="button"
+                      title="Aplicar este modelo"
+                      onClick={() => {
+                        onChange(src);
+                        toast.success("Modelo aplicado — pode substituir por sua imagem depois.");
+                      }}
+                      className={`${tplAspect} overflow-hidden rounded-md border transition hover:ring-2 hover:ring-primary`}
+                    >
+                      <img src={src} alt="Modelo" className="h-full w-full object-cover" />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           )}
         </div>
       </div>
