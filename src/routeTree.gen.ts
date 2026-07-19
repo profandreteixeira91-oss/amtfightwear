@@ -169,6 +169,7 @@ import { Route as ApiPublicHooksEnrichPendingLeadsRouteImport } from './routes/a
 import { Route as ApiPublicHooksAutoInstagramPostRouteImport } from './routes/api/public/hooks/auto-instagram-post'
 import { Route as ApiPublicCertificateHashRouteImport } from './routes/api/public/certificate.$hash'
 import { Route as ApiPublicAppManifestDotwebmanifestRouteImport } from './routes/api/public/app/manifest[.]webmanifest'
+import { Route as AuthenticatedDojoAppAnnouncementsRouteImport } from './routes/_authenticated/dojo.app.announcements'
 import { Route as AuthenticatedAdsCampaignsIdRouteImport } from './routes/_authenticated/ads.campaigns.$id'
 import { Route as DojoAppEvaluationsTemplatesIndexRouteImport } from './routes/dojo.app.evaluations.templates.index'
 import { Route as DojoAppEvaluationsSessionsIndexRouteImport } from './routes/dojo.app.evaluations.sessions.index'
@@ -1033,6 +1034,12 @@ const ApiPublicAppManifestDotwebmanifestRoute =
     path: '/api/public/app/manifest.webmanifest',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AuthenticatedDojoAppAnnouncementsRoute =
+  AuthenticatedDojoAppAnnouncementsRouteImport.update({
+    id: '/dojo/app/announcements',
+    path: '/dojo/app/announcements',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdsCampaignsIdRoute =
   AuthenticatedAdsCampaignsIdRouteImport.update({
     id: '/$id',
@@ -1200,6 +1207,7 @@ export interface FileRoutesByFullPath {
   '/loja/conta/': typeof LojaContaIndexRoute
   '/loja/custom-shop/': typeof LojaCustomShopIndexRoute
   '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
+  '/dojo/app/announcements': typeof AuthenticatedDojoAppAnnouncementsRoute
   '/api/public/app/manifest.webmanifest': typeof ApiPublicAppManifestDotwebmanifestRoute
   '/api/public/certificate/$hash': typeof ApiPublicCertificateHashRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
@@ -1361,6 +1369,7 @@ export interface FileRoutesByTo {
   '/loja/conta': typeof LojaContaIndexRoute
   '/loja/custom-shop': typeof LojaCustomShopIndexRoute
   '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
+  '/dojo/app/announcements': typeof AuthenticatedDojoAppAnnouncementsRoute
   '/api/public/app/manifest.webmanifest': typeof ApiPublicAppManifestDotwebmanifestRoute
   '/api/public/certificate/$hash': typeof ApiPublicCertificateHashRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
@@ -1529,6 +1538,7 @@ export interface FileRoutesById {
   '/loja/conta/': typeof LojaContaIndexRoute
   '/loja/custom-shop/': typeof LojaCustomShopIndexRoute
   '/_authenticated/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
+  '/_authenticated/dojo/app/announcements': typeof AuthenticatedDojoAppAnnouncementsRoute
   '/api/public/app/manifest.webmanifest': typeof ApiPublicAppManifestDotwebmanifestRoute
   '/api/public/certificate/$hash': typeof ApiPublicCertificateHashRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
@@ -1698,6 +1708,7 @@ export interface FileRouteTypes {
     | '/loja/conta/'
     | '/loja/custom-shop/'
     | '/ads/campaigns/$id'
+    | '/dojo/app/announcements'
     | '/api/public/app/manifest.webmanifest'
     | '/api/public/certificate/$hash'
     | '/api/public/hooks/auto-instagram-post'
@@ -1859,6 +1870,7 @@ export interface FileRouteTypes {
     | '/loja/conta'
     | '/loja/custom-shop'
     | '/ads/campaigns/$id'
+    | '/dojo/app/announcements'
     | '/api/public/app/manifest.webmanifest'
     | '/api/public/certificate/$hash'
     | '/api/public/hooks/auto-instagram-post'
@@ -2026,6 +2038,7 @@ export interface FileRouteTypes {
     | '/loja/conta/'
     | '/loja/custom-shop/'
     | '/_authenticated/ads/campaigns/$id'
+    | '/_authenticated/dojo/app/announcements'
     | '/api/public/app/manifest.webmanifest'
     | '/api/public/certificate/$hash'
     | '/api/public/hooks/auto-instagram-post'
@@ -3244,6 +3257,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicAppManifestDotwebmanifestRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/dojo/app/announcements': {
+      id: '/_authenticated/dojo/app/announcements'
+      path: '/dojo/app/announcements'
+      fullPath: '/dojo/app/announcements'
+      preLoaderRoute: typeof AuthenticatedDojoAppAnnouncementsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/ads/campaigns/$id': {
       id: '/_authenticated/ads/campaigns/$id'
       path: '/$id'
@@ -3382,6 +3402,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreWholesaleRoute: typeof AuthenticatedStoreWholesaleRoute
   AuthenticatedProspectIndexRoute: typeof AuthenticatedProspectIndexRoute
   AuthenticatedStoreIndexRoute: typeof AuthenticatedStoreIndexRoute
+  AuthenticatedDojoAppAnnouncementsRoute: typeof AuthenticatedDojoAppAnnouncementsRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -3430,6 +3451,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStoreWholesaleRoute: AuthenticatedStoreWholesaleRoute,
   AuthenticatedProspectIndexRoute: AuthenticatedProspectIndexRoute,
   AuthenticatedStoreIndexRoute: AuthenticatedStoreIndexRoute,
+  AuthenticatedDojoAppAnnouncementsRoute:
+    AuthenticatedDojoAppAnnouncementsRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
