@@ -9,14 +9,12 @@ import {
   ArrowRight,
   Factory,
   Award,
-  MessageCircle,
   Sparkles,
   Layers,
   Scissors,
   Ribbon,
   Menu,
   X,
-  Phone,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import amtLogo from "@/assets/amt-logo.jpg";
