@@ -36,7 +36,9 @@ export type IntegrationDef = {
   version: string;
   docsUrl: string;
   logoInitials: string;
-  logoColor: string; // classe tailwind bg
+  logoColor: string; // classe tailwind bg (fallback quando logoUrl falha)
+  /** Domínio oficial do fornecedor — usado para puxar o logotipo real. */
+  logoDomain?: string;
   /** Chave usada nas tabelas dojo_payment_gateways / dojo_partner_integrations */
   backendKey?: string;
   /** Módulo backend responsável (payments | partners | custom | placeholder) */
@@ -45,6 +47,14 @@ export type IntegrationDef = {
   features?: string[];
   wizard?: WizardStep[];
 };
+
+/** URL do logotipo oficial do fornecedor via logo.dev (fallback público sem token). */
+export function getIntegrationLogoUrl(def: Pick<IntegrationDef, "logoDomain">): string | null {
+  if (!def.logoDomain) return null;
+  const token = (import.meta as any)?.env?.VITE_LOVABLE_CONNECTOR_LOGO_DEV_API_KEY;
+  const base = `https://img.logo.dev/${def.logoDomain}?size=128&format=png`;
+  return token ? `${base}&token=${token}` : base;
+}
 
 export const INTEGRATION_CATEGORIES: {
   id: IntegrationCategory;
