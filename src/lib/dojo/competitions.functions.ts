@@ -282,6 +282,46 @@ async function scrapeProvider(providerId: ProviderId): Promise<LiveCompetition[]
   }));
 }
 
+// Scraper genérico para fontes customizadas (URL fornecida pelo admin).
+// Aceita qualquer link de evento no mesmo domínio do calendário.
+export async function scrapeCustomSource(
+  sourceUrl: string,
+  label: string,
+  countryLabel: string | null,
+): Promise<LiveCompetition[]> {
+  let baseHost = "";
+  try { baseHost = new URL(sourceUrl).hostname; } catch { throw new Error("URL inválida"); }
+  const fakeProvider: ProviderDefinition = {
+    id: "custom" as ProviderId,
+    label,
+    homepage: sourceUrl,
+    listUrls: [sourceUrl],
+    // Aceita qualquer path do mesmo host com pelo menos 2 segmentos.
+    isEventDetailUrl: (u: URL) =>
+      u.hostname.endsWith(baseHost) && u.pathname.split("/").filter(Boolean).length >= 2,
+    priority: "medium",
+    scope: "international",
+    countryLabel: countryLabel ?? "—",
+  };
+  const md = await firecrawlMarkdown(sourceUrl);
+  const parsed = parseMarkdown(md, sourceUrl, fakeProvider);
+  return parsed.map((e, idx): LiveCompetition => ({
+    id: `custom:${idx}:${encodeURIComponent(e.name).slice(0, 40)}`,
+    provider: "custom" as ProviderId,
+    name: e.name,
+    starts_at: e.starts_at,
+    ends_at: null,
+    city: e.city,
+    state: e.state,
+    country: countryLabel,
+    venue_name: null,
+    organizer: label,
+    external_url: e.url,
+    registration_deadline: null,
+    banner_url: null,
+  }));
+}
+
 
 
 function absoluteUrl(u: string | null | undefined, base: string): string {
