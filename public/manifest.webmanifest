@@ -1,16 +1,72 @@
 {
+  "id": "/app/",
   "name": "AMT Dojo Manager — Portal do Aluno",
   "short_name": "AMT Aluno",
-  "description": "Portal do aluno AMT Dojo Manager — agenda, graduações, financeiro e certificados.",
-  "start_url": "/app",
-  "id": "/app",
-  "scope": "/app",
+  "description": "Portal do aluno AMT Dojo Manager — agenda, check-in, graduações, vídeos, financeiro e certificados diretamente no seu bolso.",
+  "start_url": "/app/",
+  "scope": "/app/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui", "browser"],
   "orientation": "portrait",
   "background_color": "#ffffff",
   "theme_color": "#dc2626",
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "categories": ["sports", "education", "lifestyle"],
+  "prefer_related_applications": false,
   "icons": [
-    { "src": "/favicon.jpg", "sizes": "192x192", "type": "image/jpeg", "purpose": "any" },
-    { "src": "/favicon.jpg", "sizes": "512x512", "type": "image/jpeg", "purpose": "any" }
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Agenda",
+      "short_name": "Agenda",
+      "description": "Ver aulas e horários",
+      "url": "/app/agenda",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Check-in",
+      "short_name": "Check-in",
+      "description": "Registrar presença",
+      "url": "/app/checkin",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Financeiro",
+      "short_name": "Financeiro",
+      "description": "Faturas e pagamentos",
+      "url": "/app/finance",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
   ]
 }
