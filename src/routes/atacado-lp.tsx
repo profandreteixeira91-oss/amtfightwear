@@ -749,7 +749,7 @@ function AtacadoLandingPage() {
 
       {/* MOBILE STICKY BAR */}
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border/60 bg-background/95 backdrop-blur-md sm:hidden">
-        <div className="px-3 py-2">
+        <div className="px-3 py-2" style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 8px)" }}>
           <BuyButton from="sticky_mobile" className="w-full" />
         </div>
       </div>
