@@ -358,10 +358,9 @@ function AtacadoLandingPage() {
                 </div>
               </div>
 
-              {/* CTAs */}
+              {/* CTA */}
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                 <BuyButton from="hero" size="lg" className="w-full sm:w-auto" />
-                <WhatsAppButton from="hero" size="lg" className="w-full sm:w-auto" />
               </div>
 
               <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
