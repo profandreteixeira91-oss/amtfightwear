@@ -170,6 +170,11 @@ const settingsSchema = z.object({
   warnOnMedical: z.boolean().optional(),
   requirePartnerValidation: z.boolean().optional(),
   kioskPin: z.string().max(20).optional().nullable(),
+  geoRequired: z.boolean().optional(),
+  geoLat: z.number().min(-90).max(90).optional().nullable(),
+  geoLng: z.number().min(-180).max(180).optional().nullable(),
+  geoRadiusM: z.number().int().min(10).max(5000).optional(),
+  geoAddress: z.string().max(300).optional().nullable(),
 });
 
 export const getCheckinSettings = createServerFn({ method: "GET" })
@@ -198,6 +203,11 @@ export const saveCheckinSettings = createServerFn({ method: "POST" })
     if (data.warnOnMedical !== undefined) payload.warn_on_medical = data.warnOnMedical;
     if (data.requirePartnerValidation !== undefined) payload.require_partner_validation = data.requirePartnerValidation;
     if (data.kioskPin !== undefined) payload.kiosk_pin = data.kioskPin;
+    if (data.geoRequired !== undefined) payload.geo_required = data.geoRequired;
+    if (data.geoLat !== undefined) payload.geo_lat = data.geoLat;
+    if (data.geoLng !== undefined) payload.geo_lng = data.geoLng;
+    if (data.geoRadiusM !== undefined) payload.geo_radius_m = data.geoRadiusM;
+    if (data.geoAddress !== undefined) payload.geo_address = data.geoAddress;
     const { error } = await context.supabase
       .from("dojo_checkin_settings")
       .upsert(payload, { onConflict: "owner_id" });

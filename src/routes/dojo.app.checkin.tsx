@@ -777,16 +777,22 @@ function SettingsPanel() {
   const [state, setState] = useState<any>({});
   useEffect(() => {
     if (q.data) {
+      const d = q.data as any;
       setState({
-        minIntervalMinutes: q.data.min_interval_minutes ?? 30,
-        allowMultipleDaily: q.data.allow_multiple_daily ?? true,
-        requireCheckout: q.data.require_checkout ?? false,
-        welcomeMessage: q.data.welcome_message ?? "Bem-vindo, {{name}}! Bom treino 🥋",
-        blockOnOverdue: q.data.block_on_overdue ?? false,
-        warnOnOverdue: q.data.warn_on_overdue ?? true,
-        warnOnMedical: q.data.warn_on_medical ?? true,
-        requirePartnerValidation: q.data.require_partner_validation ?? true,
-        kioskPin: q.data.kiosk_pin ?? "",
+        minIntervalMinutes: d.min_interval_minutes ?? 30,
+        allowMultipleDaily: d.allow_multiple_daily ?? true,
+        requireCheckout: d.require_checkout ?? false,
+        welcomeMessage: d.welcome_message ?? "Bem-vindo, {{name}}! Bom treino 🥋",
+        blockOnOverdue: d.block_on_overdue ?? false,
+        warnOnOverdue: d.warn_on_overdue ?? true,
+        warnOnMedical: d.warn_on_medical ?? true,
+        requirePartnerValidation: d.require_partner_validation ?? true,
+        kioskPin: d.kiosk_pin ?? "",
+        geoRequired: d.geo_required ?? false,
+        geoLat: d.geo_lat ?? null,
+        geoLng: d.geo_lng ?? null,
+        geoRadiusM: d.geo_radius_m ?? 50,
+        geoAddress: d.geo_address ?? "",
       });
     } else if (!q.isLoading) {
       setState({
@@ -794,6 +800,7 @@ function SettingsPanel() {
         welcomeMessage: "Bem-vindo, {{name}}! Bom treino 🥋",
         blockOnOverdue: false, warnOnOverdue: true, warnOnMedical: true,
         requirePartnerValidation: true, kioskPin: "",
+        geoRequired: false, geoLat: null, geoLng: null, geoRadiusM: 50, geoAddress: "",
       });
     }
   }, [q.data, q.isLoading]);
@@ -840,6 +847,97 @@ function SettingsPanel() {
           <SettingRow label="Avisar (sem bloquear) mensalidade em atraso" v={state.warnOnOverdue} onChange={(v) => upd("warnOnOverdue", v)} />
           <SettingRow label="Avisar sobre atestado médico vencido" v={state.warnOnMedical} onChange={(v) => upd("warnOnMedical", v)} />
           <SettingRow label="Exigir validação oficial para Gympass/TotalPass" v={state.requirePartnerValidation} onChange={(v) => upd("requirePartnerValidation", v)} />
+        </div>
+
+        <div className="rounded-lg border p-4 space-y-3">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <div className="font-semibold text-sm">Validação por localização (GPS)</div>
+              <div className="text-xs text-muted-foreground">
+                Alunos só conseguem fazer check-in pelo app se estiverem dentro do raio configurado a partir do endereço da academia.
+              </div>
+            </div>
+            <Switch checked={!!state.geoRequired} onCheckedChange={(v) => upd("geoRequired", v)} />
+          </div>
+
+          {state.geoRequired && (
+            <div className="space-y-3 pt-2 border-t">
+              <div>
+                <Label>Endereço de referência (opcional)</Label>
+                <Input
+                  value={state.geoAddress ?? ""}
+                  onChange={(e) => upd("geoAddress", e.target.value)}
+                  placeholder="Ex: Rua X, 123 — Bairro, Cidade/UF"
+                />
+              </div>
+              <div className="grid md:grid-cols-3 gap-3">
+                <div>
+                  <Label>Latitude</Label>
+                  <Input
+                    type="number"
+                    step="0.000001"
+                    value={state.geoLat ?? ""}
+                    onChange={(e) => upd("geoLat", e.target.value === "" ? null : parseFloat(e.target.value))}
+                    placeholder="-23.550520"
+                  />
+                </div>
+                <div>
+                  <Label>Longitude</Label>
+                  <Input
+                    type="number"
+                    step="0.000001"
+                    value={state.geoLng ?? ""}
+                    onChange={(e) => upd("geoLng", e.target.value === "" ? null : parseFloat(e.target.value))}
+                    placeholder="-46.633308"
+                  />
+                </div>
+                <div>
+                  <Label>Raio permitido (metros)</Label>
+                  <Input
+                    type="number"
+                    min={10}
+                    max={5000}
+                    value={state.geoRadiusM ?? 50}
+                    onChange={(e) => upd("geoRadiusM", parseInt(e.target.value) || 50)}
+                  />
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    if (!navigator.geolocation) { toast.error("Geolocalização indisponível neste dispositivo"); return; }
+                    navigator.geolocation.getCurrentPosition(
+                      (pos) => {
+                        upd("geoLat", pos.coords.latitude);
+                        upd("geoLng", pos.coords.longitude);
+                        toast.success("Localização capturada");
+                      },
+                      () => toast.error("Não foi possível obter a localização. Permita o acesso ao GPS."),
+                      { enableHighAccuracy: true, timeout: 10000 },
+                    );
+                  }}
+                >
+                  Usar minha localização atual
+                </Button>
+                {state.geoLat != null && state.geoLng != null && (
+                  <a
+                    href={`https://www.google.com/maps?q=${state.geoLat},${state.geoLng}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-xs underline text-muted-foreground self-center"
+                  >
+                    Ver no Google Maps
+                  </a>
+                )}
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                Dica: para maior precisão, abra este painel diretamente do local da academia e clique em “Usar minha localização atual”. O raio padrão é de 50m.
+              </p>
+            </div>
+          )}
         </div>
 
         <Button onClick={save}>Salvar</Button>

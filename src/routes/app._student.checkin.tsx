@@ -21,10 +21,36 @@ function CheckinPage() {
   const { data: history, isLoading } = useQuery({ queryKey: ["student", "attendance"], queryFn: () => listFn({}) });
   const [submitting, setSubmitting] = useState(false);
 
+  async function getPosition(): Promise<GeolocationPosition | null> {
+    if (typeof navigator === "undefined" || !navigator.geolocation) return null;
+    return new Promise((resolve) => {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => resolve(pos),
+        () => resolve(null),
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
+      );
+    });
+  }
+
   async function onCheckin() {
     setSubmitting(true);
     try {
-      await checkinFn({ data: { method: "app" } });
+      const pos = await getPosition();
+      if (!pos) {
+        toast.error("Não foi possível obter sua localização", {
+          description: "Ative o GPS e permita o acesso à localização no navegador.",
+        });
+        setSubmitting(false);
+        return;
+      }
+      await checkinFn({
+        data: {
+          method: "app",
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          accuracy: pos.coords.accuracy,
+        },
+      });
       toast.success("Check-in registrado!");
       qc.invalidateQueries({ queryKey: ["student"] });
     } catch (e) {
@@ -53,7 +79,7 @@ function CheckinPage() {
         >
           {submitting ? "Enviando…" : "Registrar check-in agora"}
         </button>
-        <p className="mt-2 text-[11px] text-neutral-500">Se sua academia exigir, use o PIN acima no kiosk.</p>
+        <p className="mt-2 text-[11px] text-neutral-500">O check-in valida sua localização — você precisa estar próximo da academia. Se sua unidade exigir, use o PIN acima no kiosk.</p>
       </section>
 
       <div className="grid grid-cols-2 gap-3">

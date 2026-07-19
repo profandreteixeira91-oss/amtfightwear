@@ -320,7 +320,12 @@ export const getMyAgenda = createServerFn({ method: "GET" })
 export const selfCheckin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) =>
-    z.object({ method: z.enum(["app", "qr", "pin"]).default("app") }).parse(i ?? {}),
+    z.object({
+      method: z.enum(["app", "qr", "pin"]).default("app"),
+      lat: z.number().min(-90).max(90).optional().nullable(),
+      lng: z.number().min(-180).max(180).optional().nullable(),
+      accuracy: z.number().min(0).max(100000).optional().nullable(),
+    }).parse(i ?? {}),
   )
   .handler(async ({ data, context }) => {
     const { data: me } = await context.supabase
@@ -332,10 +337,27 @@ export const selfCheckin = createServerFn({ method: "POST" })
 
     const { data: settings } = await context.supabase
       .from("dojo_checkin_settings")
-      .select("min_interval_minutes, allow_multiple_daily")
-      .limit(1)
+      .select("min_interval_minutes, allow_multiple_daily, geo_required, geo_lat, geo_lng, geo_radius_m")
+      .eq("owner_id", me.owner_id)
       .maybeSingle();
-    const minInterval = settings?.min_interval_minutes ?? 30;
+    const s = settings as any;
+    const minInterval = s?.min_interval_minutes ?? 30;
+
+    // Validação por localização
+    if (s?.geo_required) {
+      if (s.geo_lat == null || s.geo_lng == null) {
+        throw new Error("A academia ainda não configurou a localização de check-in. Peça ao instrutor para configurar.");
+      }
+      if (data.lat == null || data.lng == null) {
+        throw new Error("Ative a localização do dispositivo para realizar o check-in.");
+      }
+      const radius = s.geo_radius_m ?? 50;
+      const distance = haversineMeters(data.lat, data.lng, Number(s.geo_lat), Number(s.geo_lng));
+      if (distance > radius) {
+        throw new Error(`Você está a ${Math.round(distance)}m da academia. É preciso estar a até ${radius}m para fazer check-in.`);
+      }
+    }
+
     const { data: last } = await context.supabase
       .from("dojo_attendance")
       .select("checked_in_at")
@@ -361,6 +383,17 @@ export const selfCheckin = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+function haversineMeters(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371000;
+  const toRad = (v: number) => (v * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(a));
+}
 
 export const getMyAttendance = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])

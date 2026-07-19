@@ -1841,6 +1841,11 @@ export type Database = {
           block_on_overdue: boolean
           created_at: string
           extras: Json
+          geo_address: string | null
+          geo_lat: number | null
+          geo_lng: number | null
+          geo_radius_m: number
+          geo_required: boolean
           kiosk_pin: string | null
           min_interval_minutes: number
           owner_id: string
@@ -1856,6 +1861,11 @@ export type Database = {
           block_on_overdue?: boolean
           created_at?: string
           extras?: Json
+          geo_address?: string | null
+          geo_lat?: number | null
+          geo_lng?: number | null
+          geo_radius_m?: number
+          geo_required?: boolean
           kiosk_pin?: string | null
           min_interval_minutes?: number
           owner_id: string
@@ -1871,6 +1881,11 @@ export type Database = {
           block_on_overdue?: boolean
           created_at?: string
           extras?: Json
+          geo_address?: string | null
+          geo_lat?: number | null
+          geo_lng?: number | null
+          geo_radius_m?: number
+          geo_required?: boolean
           kiosk_pin?: string | null
           min_interval_minutes?: number
           owner_id?: string
