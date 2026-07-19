@@ -57,17 +57,17 @@ function Kpi({
       ? "text-amber-600"
       : "text-foreground";
   return (
-    <Card className="p-4 border border-[color:var(--dojo-border)] hover:border-[color:var(--dojo-border-strong)] transition-colors">
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-[11px] uppercase tracking-widest text-muted-foreground font-medium">
+    <Card className="p-4 border border-[color:var(--dojo-border)] hover:border-[color:var(--dojo-border-strong)] transition-colors min-w-0">
+      <div className="flex items-center justify-between gap-2 mb-2 min-w-0">
+        <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-medium truncate">
           {label}
         </span>
-        <div className="h-8 w-8 grid place-items-center rounded-lg bg-muted/50">
+        <div className="h-8 w-8 shrink-0 grid place-items-center rounded-lg bg-muted/50">
           <Icon className="h-4 w-4 text-muted-foreground" />
         </div>
       </div>
-      <div className={`font-display text-2xl font-bold tracking-tight ${toneClass}`}>{value}</div>
-      {hint && <div className="text-[11px] text-muted-foreground mt-1">{hint}</div>}
+      <div className={`font-display text-xl md:text-2xl font-bold tracking-tight truncate ${toneClass}`}>{value}</div>
+      {hint && <div className="text-[11px] text-muted-foreground mt-1 truncate">{hint}</div>}
     </Card>
   );
 }
