@@ -165,15 +165,31 @@ export const saveAnnouncement = createServerFn({ method: "POST" })
     // Notify students in-app if published + notification flag
     if (row.status === "published" && row.send_notification) {
       try {
-        // Broadcast: create per-student notification rows via a simple insert of a single row referencing announcement
-        await context.supabase.from("dojo_student_notifications").insert({
-          owner_id: context.userId,
-          title: row.title,
-          body: row.summary || row.subtitle || "Novo aviso publicado",
-          link: `/app/announcements/${row.id}`,
-          kind: "announcement",
-        } as any).select();
-      } catch { /* soft-fail if table shape differs */ }
+        const { data: students } = await context.supabase
+          .from("dojo_students")
+          .select("id")
+          .eq("status", "active");
+        const ids = (students ?? []).map((s: any) => s.id);
+        const visibleStudents: string[] = [];
+        for (const sid of ids) {
+          const { data: ok } = await context.supabase.rpc("dojo_announcement_visible_to_student", {
+            _ann: row.id,
+            _student: sid,
+          });
+          if (ok === true) visibleStudents.push(sid);
+        }
+        if (visibleStudents.length > 0) {
+          const notifRows = visibleStudents.map((sid) => ({
+            owner_id: context.userId,
+            student_id: sid,
+            type: "announcement",
+            title: row.title,
+            message: row.summary || row.subtitle || "Novo aviso publicado",
+            link: `/app/announcements/${row.id}`,
+          }));
+          await context.supabase.from("dojo_student_notifications").insert(notifRows);
+        }
+      } catch { /* soft-fail */ }
     }
     return row;
   });
