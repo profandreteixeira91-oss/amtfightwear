@@ -70,7 +70,9 @@ import { Route as DojoAppAccountRouteImport } from './routes/dojo.app.account'
 import { Route as AppStudentVideosRouteImport } from './routes/app._student.videos'
 import { Route as AppStudentSettingsRouteImport } from './routes/app._student.settings'
 import { Route as AppStudentProfileRouteImport } from './routes/app._student.profile'
+import { Route as AppStudentOnboardingRouteImport } from './routes/app._student.onboarding'
 import { Route as AppStudentNotificationsRouteImport } from './routes/app._student.notifications'
+import { Route as AppStudentNewsRouteImport } from './routes/app._student.news'
 import { Route as AppStudentHomeRouteImport } from './routes/app._student.home'
 import { Route as AppStudentGraduationsRouteImport } from './routes/app._student.graduations'
 import { Route as AppStudentFinanceRouteImport } from './routes/app._student.finance'
@@ -470,9 +472,19 @@ const AppStudentProfileRoute = AppStudentProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => AppStudentRoute,
 } as any)
+const AppStudentOnboardingRoute = AppStudentOnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => AppStudentRoute,
+} as any)
 const AppStudentNotificationsRoute = AppStudentNotificationsRouteImport.update({
   id: '/notifications',
   path: '/notifications',
+  getParentRoute: () => AppStudentRoute,
+} as any)
+const AppStudentNewsRoute = AppStudentNewsRouteImport.update({
+  id: '/news',
+  path: '/news',
   getParentRoute: () => AppStudentRoute,
 } as any)
 const AppStudentHomeRoute = AppStudentHomeRouteImport.update({
@@ -1091,7 +1103,9 @@ export interface FileRoutesByFullPath {
   '/app/finance': typeof AppStudentFinanceRoute
   '/app/graduations': typeof AppStudentGraduationsRoute
   '/app/home': typeof AppStudentHomeRoute
+  '/app/news': typeof AppStudentNewsRoute
   '/app/notifications': typeof AppStudentNotificationsRoute
+  '/app/onboarding': typeof AppStudentOnboardingRoute
   '/app/profile': typeof AppStudentProfileRoute
   '/app/settings': typeof AppStudentSettingsRoute
   '/app/videos': typeof AppStudentVideosRoute
@@ -1244,7 +1258,9 @@ export interface FileRoutesByTo {
   '/app/finance': typeof AppStudentFinanceRoute
   '/app/graduations': typeof AppStudentGraduationsRoute
   '/app/home': typeof AppStudentHomeRoute
+  '/app/news': typeof AppStudentNewsRoute
   '/app/notifications': typeof AppStudentNotificationsRoute
+  '/app/onboarding': typeof AppStudentOnboardingRoute
   '/app/profile': typeof AppStudentProfileRoute
   '/app/settings': typeof AppStudentSettingsRoute
   '/app/videos': typeof AppStudentVideosRoute
@@ -1398,7 +1414,9 @@ export interface FileRoutesById {
   '/app/_student/finance': typeof AppStudentFinanceRoute
   '/app/_student/graduations': typeof AppStudentGraduationsRoute
   '/app/_student/home': typeof AppStudentHomeRoute
+  '/app/_student/news': typeof AppStudentNewsRoute
   '/app/_student/notifications': typeof AppStudentNotificationsRoute
+  '/app/_student/onboarding': typeof AppStudentOnboardingRoute
   '/app/_student/profile': typeof AppStudentProfileRoute
   '/app/_student/settings': typeof AppStudentSettingsRoute
   '/app/_student/videos': typeof AppStudentVideosRoute
@@ -1556,7 +1574,9 @@ export interface FileRouteTypes {
     | '/app/finance'
     | '/app/graduations'
     | '/app/home'
+    | '/app/news'
     | '/app/notifications'
+    | '/app/onboarding'
     | '/app/profile'
     | '/app/settings'
     | '/app/videos'
@@ -1709,7 +1729,9 @@ export interface FileRouteTypes {
     | '/app/finance'
     | '/app/graduations'
     | '/app/home'
+    | '/app/news'
     | '/app/notifications'
+    | '/app/onboarding'
     | '/app/profile'
     | '/app/settings'
     | '/app/videos'
@@ -1862,7 +1884,9 @@ export interface FileRouteTypes {
     | '/app/_student/finance'
     | '/app/_student/graduations'
     | '/app/_student/home'
+    | '/app/_student/news'
     | '/app/_student/notifications'
+    | '/app/_student/onboarding'
     | '/app/_student/profile'
     | '/app/_student/settings'
     | '/app/_student/videos'
@@ -2413,11 +2437,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppStudentProfileRouteImport
       parentRoute: typeof AppStudentRoute
     }
+    '/app/_student/onboarding': {
+      id: '/app/_student/onboarding'
+      path: '/onboarding'
+      fullPath: '/app/onboarding'
+      preLoaderRoute: typeof AppStudentOnboardingRouteImport
+      parentRoute: typeof AppStudentRoute
+    }
     '/app/_student/notifications': {
       id: '/app/_student/notifications'
       path: '/notifications'
       fullPath: '/app/notifications'
       preLoaderRoute: typeof AppStudentNotificationsRouteImport
+      parentRoute: typeof AppStudentRoute
+    }
+    '/app/_student/news': {
+      id: '/app/_student/news'
+      path: '/news'
+      fullPath: '/app/news'
+      preLoaderRoute: typeof AppStudentNewsRouteImport
       parentRoute: typeof AppStudentRoute
     }
     '/app/_student/home': {
@@ -3229,7 +3267,9 @@ interface AppStudentRouteChildren {
   AppStudentFinanceRoute: typeof AppStudentFinanceRoute
   AppStudentGraduationsRoute: typeof AppStudentGraduationsRoute
   AppStudentHomeRoute: typeof AppStudentHomeRoute
+  AppStudentNewsRoute: typeof AppStudentNewsRoute
   AppStudentNotificationsRoute: typeof AppStudentNotificationsRoute
+  AppStudentOnboardingRoute: typeof AppStudentOnboardingRoute
   AppStudentProfileRoute: typeof AppStudentProfileRoute
   AppStudentSettingsRoute: typeof AppStudentSettingsRoute
   AppStudentVideosRoute: typeof AppStudentVideosRoute
@@ -3245,7 +3285,9 @@ const AppStudentRouteChildren: AppStudentRouteChildren = {
   AppStudentFinanceRoute: AppStudentFinanceRoute,
   AppStudentGraduationsRoute: AppStudentGraduationsRoute,
   AppStudentHomeRoute: AppStudentHomeRoute,
+  AppStudentNewsRoute: AppStudentNewsRoute,
   AppStudentNotificationsRoute: AppStudentNotificationsRoute,
+  AppStudentOnboardingRoute: AppStudentOnboardingRoute,
   AppStudentProfileRoute: AppStudentProfileRoute,
   AppStudentSettingsRoute: AppStudentSettingsRoute,
   AppStudentVideosRoute: AppStudentVideosRoute,
