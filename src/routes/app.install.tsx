@@ -1,5 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Smartphone, Share, MoreVertical } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Smartphone, Share, MoreVertical, ArrowRight } from "lucide-react";
+
 
 export const Route = createFileRoute("/app/install")({
   head: () => ({ meta: [{ title: "Instalar — Portal do Aluno" }, { name: "robots", content: "noindex" }] }),
@@ -41,9 +42,17 @@ function InstallPage() {
         </ol>
       </section>
 
-      <p className="mt-6 text-center text-xs text-neutral-400">
+      <Link
+        to="/app/login"
+        className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-red-600 py-3.5 text-base font-semibold text-white shadow-lg shadow-red-600/20 transition hover:bg-red-700 active:scale-[0.99]"
+      >
+        Entrar no app agora
+        <ArrowRight className="h-4 w-4" />
+      </Link>
+      <p className="mt-3 text-center text-xs text-neutral-400">
         Após instalar, abra pelo ícone criado — o portal funciona em tela cheia, como um app nativo.
       </p>
     </div>
   );
 }
+

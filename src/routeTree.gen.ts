@@ -163,13 +163,13 @@ import { Route as ApiPublicHooksIgSyncRouteImport } from './routes/api/public/ho
 import { Route as ApiPublicHooksGenerateDojoInvoicesRouteImport } from './routes/api/public/hooks/generate-dojo-invoices'
 import { Route as ApiPublicHooksEnrichPendingLeadsRouteImport } from './routes/api/public/hooks/enrich-pending-leads'
 import { Route as ApiPublicHooksAutoInstagramPostRouteImport } from './routes/api/public/hooks/auto-instagram-post'
+import { Route as ApiPublicAppManifestDotwebmanifestRouteImport } from './routes/api/public/app/manifest[.]webmanifest'
 import { Route as AuthenticatedAdsCampaignsIdRouteImport } from './routes/_authenticated/ads.campaigns.$id'
 import { Route as DojoAppEvaluationsTemplatesIndexRouteImport } from './routes/dojo.app.evaluations.templates.index'
 import { Route as DojoAppEvaluationsSessionsIndexRouteImport } from './routes/dojo.app.evaluations.sessions.index'
 import { Route as DojoAppEvaluationsTemplatesIdRouteImport } from './routes/dojo.app.evaluations.templates.$id'
 import { Route as DojoAppEvaluationsSessionsIdRouteImport } from './routes/dojo.app.evaluations.sessions.$id'
 import { Route as ApiPublicDojoPartnerCheckinProviderRouteImport } from './routes/api/public/dojo/partner-checkin.$provider'
-import { Route as ApiPublicAppManifestWebmanifestRouteImport } from './routes/api/public/app/manifest.webmanifest'
 
 const UnsubscribeRoute = UnsubscribeRouteImport.update({
   id: '/unsubscribe',
@@ -995,6 +995,12 @@ const ApiPublicHooksAutoInstagramPostRoute =
     path: '/api/public/hooks/auto-instagram-post',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicAppManifestDotwebmanifestRoute =
+  ApiPublicAppManifestDotwebmanifestRouteImport.update({
+    id: '/api/public/app/manifest.webmanifest',
+    path: '/api/public/app/manifest.webmanifest',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedAdsCampaignsIdRoute =
   AuthenticatedAdsCampaignsIdRouteImport.update({
     id: '/$id',
@@ -1029,12 +1035,6 @@ const ApiPublicDojoPartnerCheckinProviderRoute =
   ApiPublicDojoPartnerCheckinProviderRouteImport.update({
     id: '/api/public/dojo/partner-checkin/$provider',
     path: '/api/public/dojo/partner-checkin/$provider',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicAppManifestWebmanifestRoute =
-  ApiPublicAppManifestWebmanifestRouteImport.update({
-    id: '/api/public/app/manifest/webmanifest',
-    path: '/api/public/app/manifest/webmanifest',
     getParentRoute: () => rootRouteImport,
   } as any)
 
@@ -1158,6 +1158,7 @@ export interface FileRoutesByFullPath {
   '/loja/conta/': typeof LojaContaIndexRoute
   '/loja/custom-shop/': typeof LojaCustomShopIndexRoute
   '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
+  '/api/public/app/manifest.webmanifest': typeof ApiPublicAppManifestDotwebmanifestRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
   '/api/public/hooks/generate-dojo-invoices': typeof ApiPublicHooksGenerateDojoInvoicesRoute
@@ -1192,7 +1193,6 @@ export interface FileRoutesByFullPath {
   '/dojo/app/evaluations/': typeof DojoAppEvaluationsIndexRoute
   '/dojo/app/students/': typeof DojoAppStudentsIndexRoute
   '/dojo/app/videos/': typeof DojoAppVideosIndexRoute
-  '/api/public/app/manifest/webmanifest': typeof ApiPublicAppManifestWebmanifestRoute
   '/api/public/dojo/partner-checkin/$provider': typeof ApiPublicDojoPartnerCheckinProviderRoute
   '/dojo/app/evaluations/sessions/$id': typeof DojoAppEvaluationsSessionsIdRoute
   '/dojo/app/evaluations/templates/$id': typeof DojoAppEvaluationsTemplatesIdRoute
@@ -1313,6 +1313,7 @@ export interface FileRoutesByTo {
   '/loja/conta': typeof LojaContaIndexRoute
   '/loja/custom-shop': typeof LojaCustomShopIndexRoute
   '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
+  '/api/public/app/manifest.webmanifest': typeof ApiPublicAppManifestDotwebmanifestRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
   '/api/public/hooks/generate-dojo-invoices': typeof ApiPublicHooksGenerateDojoInvoicesRoute
@@ -1345,7 +1346,6 @@ export interface FileRoutesByTo {
   '/dojo/app/evaluations': typeof DojoAppEvaluationsIndexRoute
   '/dojo/app/students': typeof DojoAppStudentsIndexRoute
   '/dojo/app/videos': typeof DojoAppVideosIndexRoute
-  '/api/public/app/manifest/webmanifest': typeof ApiPublicAppManifestWebmanifestRoute
   '/api/public/dojo/partner-checkin/$provider': typeof ApiPublicDojoPartnerCheckinProviderRoute
   '/dojo/app/evaluations/sessions/$id': typeof DojoAppEvaluationsSessionsIdRoute
   '/dojo/app/evaluations/templates/$id': typeof DojoAppEvaluationsTemplatesIdRoute
@@ -1475,6 +1475,7 @@ export interface FileRoutesById {
   '/loja/conta/': typeof LojaContaIndexRoute
   '/loja/custom-shop/': typeof LojaCustomShopIndexRoute
   '/_authenticated/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
+  '/api/public/app/manifest.webmanifest': typeof ApiPublicAppManifestDotwebmanifestRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
   '/api/public/hooks/generate-dojo-invoices': typeof ApiPublicHooksGenerateDojoInvoicesRoute
@@ -1509,7 +1510,6 @@ export interface FileRoutesById {
   '/dojo/app/evaluations/': typeof DojoAppEvaluationsIndexRoute
   '/dojo/app/students/': typeof DojoAppStudentsIndexRoute
   '/dojo/app/videos/': typeof DojoAppVideosIndexRoute
-  '/api/public/app/manifest/webmanifest': typeof ApiPublicAppManifestWebmanifestRoute
   '/api/public/dojo/partner-checkin/$provider': typeof ApiPublicDojoPartnerCheckinProviderRoute
   '/dojo/app/evaluations/sessions/$id': typeof DojoAppEvaluationsSessionsIdRoute
   '/dojo/app/evaluations/templates/$id': typeof DojoAppEvaluationsTemplatesIdRoute
@@ -1638,6 +1638,7 @@ export interface FileRouteTypes {
     | '/loja/conta/'
     | '/loja/custom-shop/'
     | '/ads/campaigns/$id'
+    | '/api/public/app/manifest.webmanifest'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/enrich-pending-leads'
     | '/api/public/hooks/generate-dojo-invoices'
@@ -1672,7 +1673,6 @@ export interface FileRouteTypes {
     | '/dojo/app/evaluations/'
     | '/dojo/app/students/'
     | '/dojo/app/videos/'
-    | '/api/public/app/manifest/webmanifest'
     | '/api/public/dojo/partner-checkin/$provider'
     | '/dojo/app/evaluations/sessions/$id'
     | '/dojo/app/evaluations/templates/$id'
@@ -1793,6 +1793,7 @@ export interface FileRouteTypes {
     | '/loja/conta'
     | '/loja/custom-shop'
     | '/ads/campaigns/$id'
+    | '/api/public/app/manifest.webmanifest'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/enrich-pending-leads'
     | '/api/public/hooks/generate-dojo-invoices'
@@ -1825,7 +1826,6 @@ export interface FileRouteTypes {
     | '/dojo/app/evaluations'
     | '/dojo/app/students'
     | '/dojo/app/videos'
-    | '/api/public/app/manifest/webmanifest'
     | '/api/public/dojo/partner-checkin/$provider'
     | '/dojo/app/evaluations/sessions/$id'
     | '/dojo/app/evaluations/templates/$id'
@@ -1954,6 +1954,7 @@ export interface FileRouteTypes {
     | '/loja/conta/'
     | '/loja/custom-shop/'
     | '/_authenticated/ads/campaigns/$id'
+    | '/api/public/app/manifest.webmanifest'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/enrich-pending-leads'
     | '/api/public/hooks/generate-dojo-invoices'
@@ -1988,7 +1989,6 @@ export interface FileRouteTypes {
     | '/dojo/app/evaluations/'
     | '/dojo/app/students/'
     | '/dojo/app/videos/'
-    | '/api/public/app/manifest/webmanifest'
     | '/api/public/dojo/partner-checkin/$provider'
     | '/dojo/app/evaluations/sessions/$id'
     | '/dojo/app/evaluations/templates/$id'
@@ -2022,6 +2022,7 @@ export interface RootRouteChildren {
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   LojaContaIndexRoute: typeof LojaContaIndexRoute
   LojaCustomShopIndexRoute: typeof LojaCustomShopIndexRoute
+  ApiPublicAppManifestDotwebmanifestRoute: typeof ApiPublicAppManifestDotwebmanifestRoute
   ApiPublicHooksAutoInstagramPostRoute: typeof ApiPublicHooksAutoInstagramPostRoute
   ApiPublicHooksEnrichPendingLeadsRoute: typeof ApiPublicHooksEnrichPendingLeadsRoute
   ApiPublicHooksGenerateDojoInvoicesRoute: typeof ApiPublicHooksGenerateDojoInvoicesRoute
@@ -2040,7 +2041,6 @@ export interface RootRouteChildren {
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
   LovableEmailTransactionalSendRoute: typeof LovableEmailTransactionalSendRoute
-  ApiPublicAppManifestWebmanifestRoute: typeof ApiPublicAppManifestWebmanifestRoute
   ApiPublicDojoPartnerCheckinProviderRoute: typeof ApiPublicDojoPartnerCheckinProviderRoute
 }
 
@@ -3124,6 +3124,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksAutoInstagramPostRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/app/manifest.webmanifest': {
+      id: '/api/public/app/manifest.webmanifest'
+      path: '/api/public/app/manifest.webmanifest'
+      fullPath: '/api/public/app/manifest.webmanifest'
+      preLoaderRoute: typeof ApiPublicAppManifestDotwebmanifestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/ads/campaigns/$id': {
       id: '/_authenticated/ads/campaigns/$id'
       path: '/$id'
@@ -3164,13 +3171,6 @@ declare module '@tanstack/react-router' {
       path: '/api/public/dojo/partner-checkin/$provider'
       fullPath: '/api/public/dojo/partner-checkin/$provider'
       preLoaderRoute: typeof ApiPublicDojoPartnerCheckinProviderRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/app/manifest/webmanifest': {
-      id: '/api/public/app/manifest/webmanifest'
-      path: '/api/public/app/manifest/webmanifest'
-      fullPath: '/api/public/app/manifest/webmanifest'
-      preLoaderRoute: typeof ApiPublicAppManifestWebmanifestRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -3555,6 +3555,8 @@ const rootRouteChildren: RootRouteChildren = {
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   LojaContaIndexRoute: LojaContaIndexRoute,
   LojaCustomShopIndexRoute: LojaCustomShopIndexRoute,
+  ApiPublicAppManifestDotwebmanifestRoute:
+    ApiPublicAppManifestDotwebmanifestRoute,
   ApiPublicHooksAutoInstagramPostRoute: ApiPublicHooksAutoInstagramPostRoute,
   ApiPublicHooksEnrichPendingLeadsRoute: ApiPublicHooksEnrichPendingLeadsRoute,
   ApiPublicHooksGenerateDojoInvoicesRoute:
@@ -3576,7 +3578,6 @@ const rootRouteChildren: RootRouteChildren = {
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
   LovableEmailTransactionalSendRoute: LovableEmailTransactionalSendRoute,
-  ApiPublicAppManifestWebmanifestRoute: ApiPublicAppManifestWebmanifestRoute,
   ApiPublicDojoPartnerCheckinProviderRoute:
     ApiPublicDojoPartnerCheckinProviderRoute,
 }
