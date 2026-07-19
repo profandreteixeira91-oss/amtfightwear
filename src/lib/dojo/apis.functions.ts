@@ -15,7 +15,7 @@ export const listApiKeys = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("dojo_api_keys")
-      .select("id, name, prefix, scopes, last_used_at, revoked_at, created_at")
+      .select("id, name, prefix, scopes, module, last_used_at, revoked_at, created_at")
       .eq("owner_id", context.userId)
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
