@@ -30,6 +30,7 @@ import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe
 import { Route as DojoCheckoutRouteImport } from './routes/dojo.checkout'
 import { Route as DojoAuthRouteImport } from './routes/dojo.auth'
 import { Route as DojoAppRouteImport } from './routes/dojo.app'
+import { Route as CertificateHashRouteImport } from './routes/certificate.$hash'
 import { Route as AppLoginRouteImport } from './routes/app.login'
 import { Route as AppInstallRouteImport } from './routes/app.install'
 import { Route as AppStudentRouteImport } from './routes/app._student'
@@ -278,6 +279,11 @@ const DojoAppRoute = DojoAppRouteImport.update({
   id: '/app',
   path: '/app',
   getParentRoute: () => DojoRoute,
+} as any)
+const CertificateHashRoute = CertificateHashRouteImport.update({
+  id: '/certificate/$hash',
+  path: '/certificate/$hash',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AppLoginRoute = AppLoginRouteImport.update({
   id: '/login',
@@ -1083,6 +1089,7 @@ export interface FileRoutesByFullPath {
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
   '/app/install': typeof AppInstallRouteWithChildren
   '/app/login': typeof AppLoginRoute
+  '/certificate/$hash': typeof CertificateHashRoute
   '/dojo/app': typeof DojoAppRouteWithChildren
   '/dojo/auth': typeof DojoAuthRoute
   '/dojo/checkout': typeof DojoCheckoutRoute
@@ -1247,6 +1254,7 @@ export interface FileRoutesByTo {
   '/app': typeof AppIndexRoute
   '/app/install': typeof AppInstallRouteWithChildren
   '/app/login': typeof AppLoginRoute
+  '/certificate/$hash': typeof CertificateHashRoute
   '/dojo/auth': typeof DojoAuthRoute
   '/dojo/checkout': typeof DojoCheckoutRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -1408,6 +1416,7 @@ export interface FileRoutesById {
   '/app/_student': typeof AppStudentRouteWithChildren
   '/app/install': typeof AppInstallRouteWithChildren
   '/app/login': typeof AppLoginRoute
+  '/certificate/$hash': typeof CertificateHashRoute
   '/dojo/app': typeof DojoAppRouteWithChildren
   '/dojo/auth': typeof DojoAuthRoute
   '/dojo/checkout': typeof DojoCheckoutRoute
@@ -1575,6 +1584,7 @@ export interface FileRouteTypes {
     | '/api/generate-ad-image'
     | '/app/install'
     | '/app/login'
+    | '/certificate/$hash'
     | '/dojo/app'
     | '/dojo/auth'
     | '/dojo/checkout'
@@ -1739,6 +1749,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/app/install'
     | '/app/login'
+    | '/certificate/$hash'
     | '/dojo/auth'
     | '/dojo/checkout'
     | '/email/unsubscribe'
@@ -1899,6 +1910,7 @@ export interface FileRouteTypes {
     | '/app/_student'
     | '/app/install'
     | '/app/login'
+    | '/certificate/$hash'
     | '/dojo/app'
     | '/dojo/auth'
     | '/dojo/checkout'
@@ -2058,6 +2070,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   UnsubscribeRoute: typeof UnsubscribeRoute
   ApiGenerateAdImageRoute: typeof ApiGenerateAdImageRoute
+  CertificateHashRoute: typeof CertificateHashRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   LojaAtacadoRoute: typeof LojaAtacadoRoute
   LojaCarrinhoRoute: typeof LojaCarrinhoRoute
@@ -2243,6 +2256,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dojo/app'
       preLoaderRoute: typeof DojoAppRouteImport
       parentRoute: typeof DojoRoute
+    }
+    '/certificate/$hash': {
+      id: '/certificate/$hash'
+      path: '/certificate/$hash'
+      fullPath: '/certificate/$hash'
+      preLoaderRoute: typeof CertificateHashRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/app/login': {
       id: '/app/login'
@@ -3635,6 +3655,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   UnsubscribeRoute: UnsubscribeRoute,
   ApiGenerateAdImageRoute: ApiGenerateAdImageRoute,
+  CertificateHashRoute: CertificateHashRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   LojaAtacadoRoute: LojaAtacadoRoute,
   LojaCarrinhoRoute: LojaCarrinhoRoute,
