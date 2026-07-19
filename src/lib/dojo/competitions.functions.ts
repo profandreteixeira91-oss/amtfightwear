@@ -273,7 +273,7 @@ async function scrapeProvider(providerId: ProviderId): Promise<LiveCompetition[]
     ends_at: null,
     city: e.city,
     state: e.state,
-    country: "Brasil",
+    country: provider.countryLabel,
     venue_name: null,
     organizer: provider.label,
     external_url: e.url,

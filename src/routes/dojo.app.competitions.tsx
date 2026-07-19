@@ -3,17 +3,20 @@ import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Trophy, RefreshCw, Search, ExternalLink, MapPin, Calendar as CalIcon, AlertTriangle } from "lucide-react";
+import { Trophy, RefreshCw, Search, ExternalLink, MapPin, Calendar as CalIcon, AlertTriangle, Globe2, Flag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import { scrapeCompetitions, type LiveCompetition } from "@/lib/dojo/competitions.functions";
-import { PROVIDERS, providerLabel } from "@/lib/dojo/competitions/providers";
+import { PROVIDERS, providerLabel, providerScope, type ProviderScope } from "@/lib/dojo/competitions/providers";
 
 export const Route = createFileRoute("/dojo/app/competitions")({
   head: () => ({ meta: [{ title: "Competições — AMT Dojo Manager" }] }),
   component: CompetitionsPage,
 });
+
+type ScopeTab = "all" | ProviderScope;
 
 function CompetitionsPage() {
   const scrapeFn = useServerFn(scrapeCompetitions);
@@ -21,23 +24,34 @@ function CompetitionsPage() {
   const q = useQuery({
     queryKey: ["dojo-competitions-live"],
     queryFn: () => scrapeFn({ data: {} }),
-    staleTime: 10 * 60_000, // 10 min
-    refetchOnWindowFocus: false,
+    staleTime: 5 * 60_000,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+    refetchInterval: 15 * 60_000, // enriquecimento automático a cada 15 min
+    refetchIntervalInBackground: false,
   });
 
   const [query, setQuery] = useState("");
   const [fState, setFState] = useState("");
   const [fCity, setFCity] = useState("");
   const [fProvider, setFProvider] = useState<string>("");
+  const [scope, setScope] = useState<ScopeTab>("all");
 
   const competitions = q.data?.competitions ?? [];
   const summary = q.data?.summary ?? [];
 
+  const visibleProviders = useMemo(
+    () => (scope === "all" ? PROVIDERS : PROVIDERS.filter((p) => p.scope === scope)),
+    [scope],
+  );
+
   const filtered = useMemo(() => {
     const term = query.trim().toLowerCase();
     return competitions.filter((c) => {
+      if (scope !== "all" && providerScope(c.provider) !== scope) return false;
       if (term) {
-        const hay = [c.name, c.city, c.state, c.organizer, providerLabel(c.provider)]
+        const hay = [c.name, c.city, c.state, c.country, c.organizer, providerLabel(c.provider)]
           .filter(Boolean).join(" ").toLowerCase();
         if (!hay.includes(term)) return false;
       }
@@ -46,7 +60,8 @@ function CompetitionsPage() {
       if (fProvider && c.provider !== fProvider) return false;
       return true;
     });
-  }, [competitions, query, fState, fCity, fProvider]);
+  }, [competitions, query, fState, fCity, fProvider, scope]);
+
 
   const now = new Date();
   const upcoming = competitions.filter((c) => c.starts_at && new Date(c.starts_at) >= now).length;
@@ -95,6 +110,38 @@ function CompetitionsPage() {
         <StatCard label="Provedores consultados" value={summary.length} />
       </div>
 
+      {/* Scope tabs */}
+      <div className="inline-flex rounded-full border border-[color:var(--dojo-border)] bg-white p-1 text-xs">
+        {(
+          [
+            { id: "all", label: "Todas", icon: Trophy },
+            { id: "national", label: "Brasil", icon: Flag },
+            { id: "international", label: "Internacionais", icon: Globe2 },
+          ] as { id: ScopeTab; label: string; icon: any }[]
+        ).map((t) => {
+          const Icon = t.icon;
+          const active = scope === t.id;
+          const count =
+            t.id === "all"
+              ? competitions.length
+              : competitions.filter((c) => providerScope(c.provider) === t.id).length;
+          return (
+            <button
+              key={t.id}
+              onClick={() => { setScope(t.id); setFProvider(""); }}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 font-medium transition-colors",
+                active ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              <Icon className="h-3.5 w-3.5" />
+              {t.label}
+              <span className={cn("ml-1 rounded-full px-1.5 text-[10px]", active ? "bg-white/20" : "bg-muted")}>{count}</span>
+            </button>
+          );
+        })}
+      </div>
+
       {/* Filters */}
       <Card>
         <CardContent className="p-3 md:p-4 space-y-3">
@@ -102,7 +149,7 @@ function CompetitionsPage() {
             <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               className="pl-8"
-              placeholder="Pesquisar por nome, cidade, estado, organizador…"
+              placeholder="Pesquisar por nome, cidade, estado, país, organizador…"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
@@ -111,12 +158,13 @@ function CompetitionsPage() {
             <Input placeholder="UF" value={fState} onChange={(e) => setFState(e.target.value.toUpperCase())} maxLength={2} />
             <Input placeholder="Cidade" value={fCity} onChange={(e) => setFCity(e.target.value)} />
             <select className="h-10 rounded border bg-background px-2 text-sm md:col-span-2" value={fProvider} onChange={(e) => setFProvider(e.target.value)}>
-              <option value="">Todos os organizadores</option>
-              {PROVIDERS.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
+              <option value="">Todos os organizadores {scope !== "all" ? `(${scope === "national" ? "Brasil" : "Internacionais"})` : ""}</option>
+              {visibleProviders.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
             </select>
           </div>
         </CardContent>
       </Card>
+
 
       {errors.length > 0 && (
         <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900">
@@ -179,6 +227,12 @@ function CompetitionRow({ c }: { c: LiveCompetition }) {
               <MapPin className="h-3 w-3" /> {[c.city, c.state].filter(Boolean).join(" · ")}
             </span>
           )}
+          {c.country && providerScope(c.provider) === "international" && (
+            <span className="inline-flex items-center gap-1">
+              <Globe2 className="h-3 w-3" /> {c.country}
+            </span>
+          )}
+
           <span className="rounded-full bg-[color:var(--dojo-surface-2)] px-2 py-0.5">
             {providerLabel(c.provider)}
           </span>
