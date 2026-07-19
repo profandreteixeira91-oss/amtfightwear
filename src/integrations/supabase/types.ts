@@ -1474,6 +1474,7 @@ export type Database = {
           hashed_key: string
           id: string
           last_used_at: string | null
+          module: string | null
           name: string
           owner_id: string
           prefix: string
@@ -1485,6 +1486,7 @@ export type Database = {
           hashed_key: string
           id?: string
           last_used_at?: string | null
+          module?: string | null
           name: string
           owner_id: string
           prefix: string
@@ -1496,6 +1498,7 @@ export type Database = {
           hashed_key?: string
           id?: string
           last_used_at?: string | null
+          module?: string | null
           name?: string
           owner_id?: string
           prefix?: string
@@ -3979,6 +3982,7 @@ export type Database = {
           id: string
           last_delivery_at: string | null
           last_status: number | null
+          module: string | null
           owner_id: string
           secret: string | null
           updated_at: string
@@ -3991,6 +3995,7 @@ export type Database = {
           id?: string
           last_delivery_at?: string | null
           last_status?: number | null
+          module?: string | null
           owner_id: string
           secret?: string | null
           updated_at?: string
@@ -4003,6 +4008,7 @@ export type Database = {
           id?: string
           last_delivery_at?: string | null
           last_status?: number | null
+          module?: string | null
           owner_id?: string
           secret?: string | null
           updated_at?: string
