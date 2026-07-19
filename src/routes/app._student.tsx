@@ -57,10 +57,10 @@ function StudentShell() {
             )}
             <div className="min-w-0">
               <div className="truncate text-sm font-semibold leading-tight sm:text-base" style={{ color: "var(--sa-title)" }}>
-                {appName}
+                {student?.full_name ?? "Aluno"}
               </div>
               <div className="truncate text-[11px] text-neutral-500 sm:text-xs">
-                Olá, {student?.full_name?.split(" ")[0] ?? "aluno"}
+                {branding?.trade_name || appName}
               </div>
             </div>
           </div>
