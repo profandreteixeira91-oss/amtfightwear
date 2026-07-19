@@ -181,6 +181,9 @@ function StudentAppEditor() {
               <TabsContent value="login" className="m-0">
                 <LoginPanel value={draft.login} onChange={setLogin} />
               </TabsContent>
+              <TabsContent value="onboarding" className="m-0">
+                <OnboardingPanel value={draft.onboarding} onChange={setOnboarding} />
+              </TabsContent>
               <TabsContent value="news" className="m-0">
                 <NewsPanel />
               </TabsContent>
