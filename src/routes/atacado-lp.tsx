@@ -119,7 +119,7 @@ const products = [
     name: "Faixas Personalizadas",
     desc: "Todas as graduações com etiqueta da sua academia e bordado do aluno inclusos.",
     image: f1,
-    href: "/loja/categoria/faixas",
+    href: "/loja/atacado",
   },
   {
     id: "kimonos",
