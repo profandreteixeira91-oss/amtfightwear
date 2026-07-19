@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Copy, KeyRound, Plus, Trash2, Send, Power, Webhook, ShieldCheck } from "lucide-react";
+import { Copy, KeyRound, Plus, Trash2, Send, Power, Webhook, ShieldCheck, Zap } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -21,6 +21,8 @@ import {
   createApiKey,
   revokeApiKey,
   deleteApiKey,
+  autoProvisionApiSuite,
+  DOJO_MODULES,
   listWebhookEndpoints,
   upsertWebhookEndpoint,
   deleteWebhookEndpoint,
