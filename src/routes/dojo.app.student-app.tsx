@@ -152,7 +152,6 @@ function StudentAppEditor() {
             <div className="mx-3 mt-3 overflow-x-auto">
               <TabsList className="inline-flex h-auto w-max gap-1 whitespace-nowrap">
                 <TabsTrigger value="appearance">Aparência</TabsTrigger>
-                <TabsTrigger value="navigation">Navegação</TabsTrigger>
                 <TabsTrigger value="features">Funcionalidades</TabsTrigger>
                 <TabsTrigger value="home">Tela Inicial</TabsTrigger>
                 <TabsTrigger value="login">Login</TabsTrigger>
@@ -165,9 +164,6 @@ function StudentAppEditor() {
             <div className="flex-1 overflow-auto p-4">
               <TabsContent value="appearance" className="m-0">
                 <AppearancePanel value={draft.appearance} onChange={setAppearance} />
-              </TabsContent>
-              <TabsContent value="navigation" className="m-0">
-                <NavigationPanel value={draft.bottom_nav} onChange={setNav} />
               </TabsContent>
               <TabsContent value="features" className="m-0">
                 <FeaturesPanel value={draft.features} onChange={setFeatures} />
