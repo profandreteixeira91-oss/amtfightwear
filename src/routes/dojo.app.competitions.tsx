@@ -206,7 +206,7 @@ type LibraryRow = {
   currency: string | null;
   official_url: string | null;
   registration_url: string | null;
-  source_code: string;
+  source_code: string | null;
 };
 
 function CompetitionCard({ c, onAdd, adding }: { c: LibraryRow; onAdd: () => void; adding: boolean }) {
