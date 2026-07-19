@@ -84,6 +84,28 @@ export type NotificationsConfig = {
   push_enabled: boolean;
 };
 
+export type OnboardingTourStep = {
+  id: string;
+  title: string;
+  description: string;
+  icon: string; // lucide icon name
+};
+
+export type OnboardingConfig = {
+  enabled: boolean;
+  force: boolean;
+  welcome_title: string;
+  welcome_subtitle: string;
+  benefits: string[];
+  tour_enabled: boolean;
+  tour_steps: OnboardingTourStep[];
+  ask_push: boolean;
+  ask_install: boolean;
+  show_home_checklist: boolean;
+  cta_label: string;
+  finish_label: string;
+};
+
 export type StudentAppConfig = {
   appearance: Appearance;
   features: Features;
@@ -91,6 +113,7 @@ export type StudentAppConfig = {
   home_blocks: HomeBlock[];
   login: LoginConfig;
   notifications: NotificationsConfig;
+  onboarding: OnboardingConfig;
 };
 
 export const DEFAULT_FEATURES: Features = {
