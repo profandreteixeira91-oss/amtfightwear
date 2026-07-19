@@ -23,7 +23,7 @@ import { ApiHubDialog } from "@/components/dojo/integrations/ApiHubDialog";
 import { listMyGateways, upsertMyGateway } from "@/lib/dojo/gateways.functions";
 import { listPartnerIntegrations, savePartnerIntegration, listPartnerCheckins } from "@/lib/dojo/attendance.functions";
 import { testIntegrationConnection, getIntegrationsMetrics, getMyOwnerId } from "@/lib/dojo/integrations.functions";
-import { autoProvisionApiSuite, DOJO_MODULES } from "@/lib/dojo/apis.functions";
+import { autoProvisionApiSuite } from "@/lib/dojo/apis.functions";
 
 export const Route = createFileRoute("/dojo/app/integrations")({
   head: () => ({ meta: [{ title: "Central de Integrações — AMT Dojo Manager" }] }),
