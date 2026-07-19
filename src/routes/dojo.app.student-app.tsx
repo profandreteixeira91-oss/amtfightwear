@@ -167,9 +167,11 @@ function StudentAppEditor() {
                 <TabsTrigger value="home">Tela Inicial</TabsTrigger>
                 <TabsTrigger value="login">Login</TabsTrigger>
                 <TabsTrigger value="onboarding">Onboarding</TabsTrigger>
+                <TabsTrigger value="card">Carteirinha</TabsTrigger>
                 <TabsTrigger value="news">Notícias &amp; Banners</TabsTrigger>
                 <TabsTrigger value="notifications">Notificações</TabsTrigger>
                 <TabsTrigger value="versions">Versões</TabsTrigger>
+
               </TabsList>
             </div>
 
