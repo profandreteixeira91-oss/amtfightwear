@@ -133,17 +133,10 @@ function StudentAppQrPage() {
           <Card className="p-4">
             <div className="grid gap-3 md:grid-cols-2">
               <div>
-                <Label className="text-xs">Endereço do app (destino do QR)</Label>
-                <div className="mt-1 flex gap-2">
-                  <Input value={origin} onChange={(e) => setOrigin(e.target.value)} className="font-mono text-xs" />
-                  <Input value={path} onChange={(e) => setPath(e.target.value)} className="max-w-[180px] font-mono text-xs" />
-                </div>
+                <Label className="text-xs">Destino do QR</Label>
+                <Input value={url} readOnly className="mt-1 font-mono text-xs" />
                 <p className="mt-1 text-[11px] text-muted-foreground">
-                  {slug ? (
-                    <>Link exclusivo desta academia: <span className="font-mono">/app/install/{slug}</span></>
-                  ) : (
-                    <>Link genérico — configure o nome da academia para gerar o link personalizado.</>
-                  )}
+                  Ao escanear, o aluno vai direto para o login online do app{slug ? ` desta academia (${slug})` : ""}. Nenhum download é solicitado.
                 </p>
               </div>
               <div className="grid gap-3 md:grid-cols-2">
