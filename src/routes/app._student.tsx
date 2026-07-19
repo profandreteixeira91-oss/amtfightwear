@@ -48,23 +48,27 @@ function StudentShell() {
         className="sticky top-0 z-30 border-b bg-white/90 backdrop-blur"
         style={{ paddingTop: "env(safe-area-inset-top)" }}
       >
-        <div className="mx-auto flex max-w-md items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-2.5">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+          <div className="flex min-w-0 items-center gap-2.5">
             {logo ? (
-              <img src={logo} alt={appName} className="h-9 w-9 rounded-lg object-cover" />
+              <img src={logo} alt={appName} className="h-9 w-9 shrink-0 rounded-lg object-cover" />
             ) : (
-              <div className="h-9 w-9 rounded-lg" style={{ background: "var(--sa-primary, #dc2626)" }} />
+              <div className="h-9 w-9 shrink-0 rounded-lg" style={{ background: "var(--sa-primary, #dc2626)" }} />
             )}
             <div className="min-w-0">
-              <div className="truncate text-sm font-semibold leading-tight" style={{ color: "var(--sa-title)" }}>
+              <div className="truncate text-sm font-semibold leading-tight sm:text-base" style={{ color: "var(--sa-title)" }}>
                 {appName}
               </div>
-              <div className="truncate text-[11px] text-neutral-500">
+              <div className="truncate text-[11px] text-neutral-500 sm:text-xs">
                 Olá, {student?.full_name?.split(" ")[0] ?? "aluno"}
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-1">
+
+          {/* Desktop nav */}
+          <DesktopNav items={config.bottom_nav} features={config.features} />
+
+          <div className="flex shrink-0 items-center gap-1">
             {config.features.news !== false && (
               <Link
                 to="/app/notifications"
@@ -86,11 +90,69 @@ function StudentShell() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-md px-4 pb-28 pt-4">
+      <main className="mx-auto w-full max-w-6xl px-4 pb-28 pt-4 sm:px-6 sm:pt-6 lg:px-8 lg:pb-10">
         <Outlet />
       </main>
 
-      <BottomNav items={config.bottom_nav} features={config.features} />
+      <div className="lg:hidden">
+        <BottomNav items={config.bottom_nav} features={config.features} />
+      </div>
     </StudentThemeProvider>
+  );
+}
+
+const ROUTE_FEATURE: Record<string, FeatureKey> = {
+  "/app/agenda": "agenda",
+  "/app/checkin": "checkin",
+  "/app/videos": "videos",
+  "/app/graduations": "graduations",
+  "/app/certificates": "certificates",
+  "/app/finance": "finance",
+  "/app/competitions": "competitions",
+  "/app/profile": "profile",
+  "/app/documents": "documents",
+  "/app/notifications": "news",
+};
+
+function iconFor(name: string) {
+  const key = name
+    .split(/[-_ ]+/)
+    .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+    .join("");
+  const Comp = (Icons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[key];
+  return Comp ?? Icons.Circle;
+}
+
+function DesktopNav({ items, features }: { items: any[]; features: any }) {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const filtered = items.filter((it) => {
+    if (it.route === "/app/home") return true;
+    const f = ROUTE_FEATURE[it.route];
+    return f ? features[f] !== false : true;
+  });
+  return (
+    <nav className="hidden min-w-0 flex-1 justify-center lg:flex">
+      <ul className="flex items-center gap-1">
+        {filtered.map((it) => {
+          const Icon = iconFor(it.icon);
+          const active = pathname === it.route || (it.route !== "/app/home" && pathname.startsWith(it.route));
+          return (
+            <li key={it.id}>
+              <Link
+                to={it.route}
+                className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition ${
+                  active
+                    ? "bg-[color:var(--sa-primary,#dc2626)]/10 text-[color:var(--sa-primary,#dc2626)]"
+                    : "text-neutral-600 hover:bg-neutral-100"
+                }`}
+              >
+                <Icon className="h-4 w-4" />
+                <span>{it.label}</span>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
   );
 }
