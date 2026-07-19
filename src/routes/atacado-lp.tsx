@@ -134,7 +134,7 @@ const products = [
     id: "kimonos",
     name: "Kimonos Personalizados",
     desc: "Trançado premium, gola reforçada e bordado da sua marca em cores oficiais.",
-    image: f2,
+    image: kimonoStore,
     href: "/loja/atacado",
   },
   {
