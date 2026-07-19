@@ -639,7 +639,7 @@ function AtacadoLandingPage() {
               Equipar Minha Academia
               <ArrowRight className="h-5 w-5" />
             </Link>
-            <WhatsAppButton from="equip_academy" size="lg" />
+            
           </div>
         </div>
       </section>
