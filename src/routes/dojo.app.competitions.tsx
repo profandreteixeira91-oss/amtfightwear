@@ -3,17 +3,20 @@ import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Trophy, RefreshCw, Search, ExternalLink, MapPin, Calendar as CalIcon, AlertTriangle } from "lucide-react";
+import { Trophy, RefreshCw, Search, ExternalLink, MapPin, Calendar as CalIcon, AlertTriangle, Globe2, Flag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import { scrapeCompetitions, type LiveCompetition } from "@/lib/dojo/competitions.functions";
-import { PROVIDERS, providerLabel } from "@/lib/dojo/competitions/providers";
+import { PROVIDERS, providerLabel, providerScope, type ProviderScope } from "@/lib/dojo/competitions/providers";
 
 export const Route = createFileRoute("/dojo/app/competitions")({
   head: () => ({ meta: [{ title: "Competições — AMT Dojo Manager" }] }),
   component: CompetitionsPage,
 });
+
+type ScopeTab = "all" | ProviderScope;
 
 function CompetitionsPage() {
   const scrapeFn = useServerFn(scrapeCompetitions);
@@ -21,23 +24,34 @@ function CompetitionsPage() {
   const q = useQuery({
     queryKey: ["dojo-competitions-live"],
     queryFn: () => scrapeFn({ data: {} }),
-    staleTime: 10 * 60_000, // 10 min
-    refetchOnWindowFocus: false,
+    staleTime: 5 * 60_000,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+    refetchInterval: 15 * 60_000, // enriquecimento automático a cada 15 min
+    refetchIntervalInBackground: false,
   });
 
   const [query, setQuery] = useState("");
   const [fState, setFState] = useState("");
   const [fCity, setFCity] = useState("");
   const [fProvider, setFProvider] = useState<string>("");
+  const [scope, setScope] = useState<ScopeTab>("all");
 
   const competitions = q.data?.competitions ?? [];
   const summary = q.data?.summary ?? [];
 
+  const visibleProviders = useMemo(
+    () => (scope === "all" ? PROVIDERS : PROVIDERS.filter((p) => p.scope === scope)),
+    [scope],
+  );
+
   const filtered = useMemo(() => {
     const term = query.trim().toLowerCase();
     return competitions.filter((c) => {
+      if (scope !== "all" && providerScope(c.provider) !== scope) return false;
       if (term) {
-        const hay = [c.name, c.city, c.state, c.organizer, providerLabel(c.provider)]
+        const hay = [c.name, c.city, c.state, c.country, c.organizer, providerLabel(c.provider)]
           .filter(Boolean).join(" ").toLowerCase();
         if (!hay.includes(term)) return false;
       }
@@ -46,7 +60,8 @@ function CompetitionsPage() {
       if (fProvider && c.provider !== fProvider) return false;
       return true;
     });
-  }, [competitions, query, fState, fCity, fProvider]);
+  }, [competitions, query, fState, fCity, fProvider, scope]);
+
 
   const now = new Date();
   const upcoming = competitions.filter((c) => c.starts_at && new Date(c.starts_at) >= now).length;
