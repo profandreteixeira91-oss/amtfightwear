@@ -293,40 +293,46 @@ function absoluteUrl(u: string | null | undefined, base: string): string {
   }
 }
 
+// Núcleo do scraper como função pura — reutilizado por outras serverFns
+// (ex.: runCompetitionIngest) sem passar pelo stub RPC.
+export async function runScrapeCompetitions(providers?: string[]): Promise<{
+  competitions: LiveCompetition[];
+  summary: { provider: ProviderId; count: number; error?: string }[];
+  fetchedAt: string;
+}> {
+  const targetIds: ProviderId[] = (providers && providers.length > 0
+    ? providers
+    : PROVIDERS.map((p) => p.id)) as ProviderId[];
+
+  const results = await Promise.allSettled(targetIds.map((id) => scrapeProvider(id)));
+
+  const competitions: LiveCompetition[] = [];
+  const summary: { provider: ProviderId; count: number; error?: string }[] = [];
+
+  results.forEach((r, idx) => {
+    const providerId = targetIds[idx];
+    if (r.status === "fulfilled") {
+      competitions.push(...r.value);
+      summary.push({ provider: providerId, count: r.value.length });
+    } else {
+      const reason = r.reason as { message?: string } | string | undefined;
+      const msg = typeof reason === "string" ? reason : reason?.message ?? String(reason);
+      summary.push({ provider: providerId, count: 0, error: msg.slice(0, 200) });
+    }
+  });
+
+  competitions.sort((a, b) => {
+    if (!a.starts_at && !b.starts_at) return 0;
+    if (!a.starts_at) return 1;
+    if (!b.starts_at) return -1;
+    return new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime();
+  });
+
+  return { competitions, summary, fetchedAt: new Date().toISOString() };
+}
+
 export const scrapeCompetitions = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) =>
     z.object({ providers: z.array(z.string()).optional() }).parse(i ?? {}),
   )
-  .handler(async ({ data }) => {
-    const targetIds: ProviderId[] = (data.providers && data.providers.length > 0
-      ? data.providers
-      : PROVIDERS.map((p) => p.id)) as ProviderId[];
-
-    const results = await Promise.allSettled(targetIds.map((id) => scrapeProvider(id)));
-
-    const competitions: LiveCompetition[] = [];
-    const summary: { provider: ProviderId; count: number; error?: string }[] = [];
-
-    results.forEach((r, idx) => {
-      const providerId = targetIds[idx];
-      if (r.status === "fulfilled") {
-        competitions.push(...r.value);
-        summary.push({ provider: providerId, count: r.value.length });
-      } else {
-        summary.push({
-          provider: providerId,
-          count: 0,
-          error: String(r.reason?.message ?? r.reason).slice(0, 200),
-        });
-      }
-    });
-
-    competitions.sort((a, b) => {
-      if (!a.starts_at && !b.starts_at) return 0;
-      if (!a.starts_at) return 1;
-      if (!b.starts_at) return -1;
-      return new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime();
-    });
-
-    return { competitions, summary, fetchedAt: new Date().toISOString() };
-  });
+  .handler(async ({ data }) => runScrapeCompetitions(data.providers));
