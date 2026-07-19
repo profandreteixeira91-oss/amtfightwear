@@ -194,17 +194,19 @@ function BuyButton({
   size = "md",
   className = "",
   label = "Comprar Agora",
+  href = "/loja/atacado",
 }: {
   from: string;
   size?: "md" | "lg";
   className?: string;
   label?: string;
+  href?: string;
 }) {
   const sizing =
     size === "lg" ? "px-8 py-4 text-base md:px-10 md:py-5 md:text-lg" : "px-6 py-3 text-sm md:text-base";
   return (
     <Link
-      to="/loja/atacado"
+      to={href}
       onClick={() => {
         trackCTA(`buy_${from}`);
         fbqTrack("InitiateCheckout", { source: from });
@@ -214,6 +216,36 @@ function BuyButton({
       {label}
       <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1 md:h-5 md:w-5" />
     </Link>
+  );
+}
+
+function WhatsAppButton({
+  from,
+  size = "md",
+  className = "",
+  label = "Falar no WhatsApp",
+}: {
+  from: string;
+  size?: "md" | "lg";
+  className?: string;
+  label?: string;
+}) {
+  const sizing =
+    size === "lg" ? "px-8 py-4 text-base md:px-10 md:py-5 md:text-lg" : "px-6 py-3 text-sm md:text-base";
+  return (
+    <a
+      href={whatsappHref(from)}
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={() => {
+        trackCTA(`whatsapp_${from}`);
+        fbqCustom("ClickWhatsApp", { source: from });
+      }}
+      className={`inline-flex items-center justify-center gap-2 rounded-lg border-2 border-foreground/20 bg-background font-black uppercase tracking-wide text-foreground transition-all hover:-translate-y-0.5 hover:border-emerald-500/60 hover:bg-emerald-500/5 hover:text-emerald-600 ${sizing} ${className}`}
+    >
+      <MessageCircle className="h-4 w-4 md:h-5 md:w-5" />
+      {label}
+    </a>
   );
 }
 
