@@ -15,7 +15,7 @@ const FEATURES = [
 
 export function DojoManagerPromo() {
   return (
-    <section aria-labelledby="dojo-manager-promo" className="mx-auto max-w-7xl px-4 py-12">
+    <section id="dojo-manager" aria-labelledby="dojo-manager-promo" className="mx-auto max-w-7xl px-4 py-12 scroll-mt-32">
       <div className="relative overflow-hidden rounded-3xl border border-border bg-background shadow-[0_20px_60px_-30px_rgba(0,0,0,0.25)]">
         {/* Accent bar */}
         <div aria-hidden className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-primary/60 to-transparent" />
