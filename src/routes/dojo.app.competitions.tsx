@@ -387,7 +387,7 @@ function SourcesTab() {
             <CardContent className="flex flex-wrap items-center justify-between gap-3 p-3">
               <div className="min-w-0">
                 <div className="flex items-center gap-2 font-medium">
-                  {src.country_scope === "international" ? <Globe2 className="h-4 w-4 text-purple-500" /> : <Flag className="h-4 w-4 text-emerald-500" />}
+                  {(src.config as { country?: string } | null)?.country && (src.config as { country?: string }).country !== "BR" ? <Globe2 className="h-4 w-4 text-purple-500" /> : <Flag className="h-4 w-4 text-emerald-500" />}
                   {src.name}
                   {!src.enabled && <Badge variant="outline">desativada</Badge>}
                 </div>
