@@ -291,5 +291,7 @@ export function normalizeConfig(input: unknown): StudentAppConfig {
         ? src.onboarding!.tour_steps
         : DEFAULT_CONFIG.onboarding.tour_steps,
     },
+    digital_card: { ...DEFAULT_CONFIG.digital_card, ...(src.digital_card ?? {}) },
   };
+
 }
