@@ -84,6 +84,28 @@ export type NotificationsConfig = {
   push_enabled: boolean;
 };
 
+export type OnboardingTourStep = {
+  id: string;
+  title: string;
+  description: string;
+  icon: string; // lucide icon name
+};
+
+export type OnboardingConfig = {
+  enabled: boolean;
+  force: boolean;
+  welcome_title: string;
+  welcome_subtitle: string;
+  benefits: string[];
+  tour_enabled: boolean;
+  tour_steps: OnboardingTourStep[];
+  ask_push: boolean;
+  ask_install: boolean;
+  show_home_checklist: boolean;
+  cta_label: string;
+  finish_label: string;
+};
+
 export type StudentAppConfig = {
   appearance: Appearance;
   features: Features;
@@ -91,6 +113,7 @@ export type StudentAppConfig = {
   home_blocks: HomeBlock[];
   login: LoginConfig;
   notifications: NotificationsConfig;
+  onboarding: OnboardingConfig;
 };
 
 export const DEFAULT_FEATURES: Features = {
@@ -184,6 +207,30 @@ export const DEFAULT_CONFIG: StudentAppConfig = {
     welcome_message: "Bem-vindo(a) ao portal!",
     push_enabled: false,
   },
+  onboarding: {
+    enabled: true,
+    force: false,
+    welcome_title: "Bem-vindo(a)!",
+    welcome_subtitle:
+      "Seu portal está pronto. Aqui você acompanha treinos, faz check-in, vê seus certificados e paga mensalidades.",
+    benefits: [
+      "Check-in nas aulas",
+      "Suas graduações e certificados",
+      "Cobranças e Pix",
+      "Novidades da academia",
+    ],
+    tour_enabled: true,
+    tour_steps: [
+      { id: "s1", title: "Check-in em segundos", description: "Marque presença ao chegar na academia direto pelo app.", icon: "qr-code" },
+      { id: "s2", title: "Sua evolução", description: "Acompanhe faixa atual, graus e histórico de graduações.", icon: "award" },
+      { id: "s3", title: "Financeiro sem dor", description: "Veja e pague mensalidades via Pix em poucos toques.", icon: "wallet" },
+    ],
+    ask_push: true,
+    ask_install: true,
+    show_home_checklist: true,
+    cta_label: "Vamos começar",
+    finish_label: "Concluir",
+  },
 };
 
 // Faz merge tolerante para não quebrar quando novas chaves forem adicionadas
@@ -196,5 +243,13 @@ export function normalizeConfig(input: unknown): StudentAppConfig {
     home_blocks: Array.isArray(src.home_blocks) && src.home_blocks.length > 0 ? src.home_blocks : DEFAULT_CONFIG.home_blocks,
     login: { ...DEFAULT_CONFIG.login, ...(src.login ?? {}) },
     notifications: { ...DEFAULT_CONFIG.notifications, ...(src.notifications ?? {}) },
+    onboarding: {
+      ...DEFAULT_CONFIG.onboarding,
+      ...(src.onboarding ?? {}),
+      benefits: Array.isArray(src.onboarding?.benefits) ? src.onboarding!.benefits : DEFAULT_CONFIG.onboarding.benefits,
+      tour_steps: Array.isArray(src.onboarding?.tour_steps) && src.onboarding!.tour_steps.length > 0
+        ? src.onboarding!.tour_steps
+        : DEFAULT_CONFIG.onboarding.tour_steps,
+    },
   };
 }

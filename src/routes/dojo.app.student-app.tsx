@@ -31,6 +31,7 @@ import {
   type NavItem,
   type HomeBlock,
   type FeatureKey,
+  type OnboardingTourStep,
 } from "@/lib/student-app/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -112,6 +113,8 @@ function StudentAppEditor() {
     setDraft((d) => (d ? { ...d, login: { ...d.login, ...patch } } : d));
   const setNotifications = (patch: Partial<StudentAppConfig["notifications"]>) =>
     setDraft((d) => (d ? { ...d, notifications: { ...d.notifications, ...patch } } : d));
+  const setOnboarding = (patch: Partial<StudentAppConfig["onboarding"]>) =>
+    setDraft((d) => (d ? { ...d, onboarding: { ...d.onboarding, ...patch } } : d));
 
   return (
     <div className="dojo-theme flex h-[calc(100vh-8rem)] flex-col gap-4">
@@ -158,6 +161,7 @@ function StudentAppEditor() {
                 <TabsTrigger value="features">Funcionalidades</TabsTrigger>
                 <TabsTrigger value="home">Tela Inicial</TabsTrigger>
                 <TabsTrigger value="login">Login</TabsTrigger>
+                <TabsTrigger value="onboarding">Onboarding</TabsTrigger>
                 <TabsTrigger value="news">Notícias &amp; Banners</TabsTrigger>
                 <TabsTrigger value="notifications">Notificações</TabsTrigger>
                 <TabsTrigger value="versions">Versões</TabsTrigger>
@@ -176,6 +180,9 @@ function StudentAppEditor() {
               </TabsContent>
               <TabsContent value="login" className="m-0">
                 <LoginPanel value={draft.login} onChange={setLogin} />
+              </TabsContent>
+              <TabsContent value="onboarding" className="m-0">
+                <OnboardingPanel value={draft.onboarding} onChange={setOnboarding} />
               </TabsContent>
               <TabsContent value="news" className="m-0">
                 <NewsPanel />
@@ -546,6 +553,162 @@ function NotificationsPanel({ value, onChange }: { value: StudentAppConfig["noti
 }
 
 // ================================================================
+// Onboarding
+// ================================================================
+function OnboardingPanel({
+  value,
+  onChange,
+}: {
+  value: StudentAppConfig["onboarding"];
+  onChange: (p: Partial<StudentAppConfig["onboarding"]>) => void;
+}) {
+  function updateBenefit(idx: number, v: string) {
+    const next = [...value.benefits];
+    next[idx] = v;
+    onChange({ benefits: next });
+  }
+  function addBenefit() {
+    onChange({ benefits: [...value.benefits, "Novo benefício"] });
+  }
+  function removeBenefit(idx: number) {
+    onChange({ benefits: value.benefits.filter((_, i) => i !== idx) });
+  }
+  function updateStep(id: string, patch: Partial<OnboardingTourStep>) {
+    onChange({ tour_steps: value.tour_steps.map((s) => (s.id === id ? { ...s, ...patch } : s)) });
+  }
+  function addStep() {
+    onChange({
+      tour_steps: [
+        ...value.tour_steps,
+        { id: crypto.randomUUID(), title: "Novo passo", description: "Descrição do passo", icon: "star" },
+      ],
+    });
+  }
+  function removeStep(id: string) {
+    onChange({ tour_steps: value.tour_steps.filter((s) => s.id !== id) });
+  }
+
+  return (
+    <div className="space-y-5">
+      <div className="grid gap-3 md:grid-cols-2">
+        <div className="flex items-center gap-3 rounded-lg border p-3">
+          <Switch checked={value.enabled} onCheckedChange={(v) => onChange({ enabled: v })} />
+          <div>
+            <div className="text-sm font-medium">Habilitar onboarding</div>
+            <div className="text-xs text-muted-foreground">Fluxo de boas-vindas no primeiro acesso.</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-3 rounded-lg border p-3">
+          <Switch checked={value.force} onCheckedChange={(v) => onChange({ force: v })} />
+          <div>
+            <div className="text-sm font-medium">Obrigatório</div>
+            <div className="text-xs text-muted-foreground">Aluno é redirecionado até concluir.</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-3 rounded-lg border p-3">
+          <Switch checked={value.ask_push} onCheckedChange={(v) => onChange({ ask_push: v })} />
+          <div className="text-sm font-medium">Pedir notificações push</div>
+        </div>
+        <div className="flex items-center gap-3 rounded-lg border p-3">
+          <Switch checked={value.ask_install} onCheckedChange={(v) => onChange({ ask_install: v })} />
+          <div className="text-sm font-medium">Sugerir instalar como app</div>
+        </div>
+        <div className="flex items-center gap-3 rounded-lg border p-3 md:col-span-2">
+          <Switch checked={value.show_home_checklist} onCheckedChange={(v) => onChange({ show_home_checklist: v })} />
+          <div>
+            <div className="text-sm font-medium">Checklist na tela inicial</div>
+            <div className="text-xs text-muted-foreground">Mostra tarefas pendentes (foto, senha, push, instalar) até serem concluídas.</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-2">
+        <Field label="Título de boas-vindas">
+          <Input value={value.welcome_title} onChange={(e) => onChange({ welcome_title: e.target.value })} />
+        </Field>
+        <Field label="Rótulo do botão principal">
+          <Input value={value.cta_label} onChange={(e) => onChange({ cta_label: e.target.value })} />
+        </Field>
+        <div className="md:col-span-2">
+          <Field label="Subtítulo / descrição">
+            <Textarea rows={3} value={value.welcome_subtitle} onChange={(e) => onChange({ welcome_subtitle: e.target.value })} />
+          </Field>
+        </div>
+        <Field label="Rótulo do botão final">
+          <Input value={value.finish_label} onChange={(e) => onChange({ finish_label: e.target.value })} />
+        </Field>
+      </div>
+
+      <div>
+        <div className="mb-2 flex items-center justify-between">
+          <div className="text-sm font-semibold">Benefícios (lista de boas-vindas)</div>
+          <Button size="sm" variant="outline" onClick={addBenefit}>
+            <Icons.Plus className="mr-1 h-3 w-3" /> Adicionar
+          </Button>
+        </div>
+        <div className="space-y-2">
+          {value.benefits.map((b, i) => (
+            <div key={i} className="flex items-center gap-2 rounded-lg border p-2">
+              <Icons.CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+              <Input value={b} onChange={(e) => updateBenefit(i, e.target.value)} />
+              <Button size="sm" variant="ghost" onClick={() => removeBenefit(i)}>
+                <Icons.Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+          {value.benefits.length === 0 && (
+            <div className="rounded-lg border p-4 text-center text-xs text-muted-foreground">Nenhum benefício listado.</div>
+          )}
+        </div>
+      </div>
+
+      <div>
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-3">
+            <Switch checked={value.tour_enabled} onCheckedChange={(v) => onChange({ tour_enabled: v })} />
+            <div className="text-sm font-semibold">Tour de telas (carrossel)</div>
+          </div>
+          <Button size="sm" variant="outline" onClick={addStep} disabled={!value.tour_enabled}>
+            <Icons.Plus className="mr-1 h-3 w-3" /> Novo passo
+          </Button>
+        </div>
+        <div className={`space-y-2 ${value.tour_enabled ? "" : "opacity-50 pointer-events-none"}`}>
+          {value.tour_steps.map((s, idx) => {
+            const Icon = iconFromName(s.icon);
+            return (
+              <div key={s.id} className="rounded-lg border p-3">
+                <div className="mb-2 flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+                    <Icon className="h-4 w-4" /> Passo {idx + 1}
+                  </div>
+                  <Button size="sm" variant="ghost" onClick={() => removeStep(s.id)}>
+                    <Icons.Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+                <div className="grid gap-2 md:grid-cols-[1fr_180px]">
+                  <Input value={s.title} placeholder="Título" onChange={(e) => updateStep(s.id, { title: e.target.value })} />
+                  <Input value={s.icon} placeholder="Ícone (lucide)" onChange={(e) => updateStep(s.id, { icon: e.target.value })} />
+                </div>
+                <Textarea
+                  className="mt-2"
+                  rows={2}
+                  value={s.description}
+                  placeholder="Descrição"
+                  onChange={(e) => updateStep(s.id, { description: e.target.value })}
+                />
+              </div>
+            );
+          })}
+          {value.tour_steps.length === 0 && (
+            <div className="rounded-lg border p-4 text-center text-xs text-muted-foreground">Nenhum passo cadastrado.</div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ================================================================
 // Versões
 // ================================================================
 function VersionsPanel() {
@@ -583,10 +746,11 @@ function VersionsPanel() {
 // ================================================================
 // Preview do dispositivo
 // ================================================================
-type PreviewScreen = "login" | "home" | FeatureKey;
+type PreviewScreen = "login" | "onboarding" | "home" | FeatureKey;
 
 const SCREEN_LABELS: Record<string, string> = {
   login: "Login",
+  onboarding: "Onboarding",
   home: "Tela inicial",
   ...FEATURE_LABELS,
 };
@@ -596,7 +760,12 @@ function DevicePreview({ device, config }: { device: "iphone" | "android" | "tab
   const radius = device === "iphone" ? 40 : device === "android" ? 26 : 20;
 
   const enabledFeatures = (Object.keys(config.features) as FeatureKey[]).filter((k) => config.features[k]);
-  const screens: PreviewScreen[] = ["login", "home", ...enabledFeatures];
+  const screens: PreviewScreen[] = [
+    "login",
+    ...(config.onboarding.enabled ? (["onboarding"] as PreviewScreen[]) : []),
+    "home",
+    ...enabledFeatures,
+  ];
   const [screen, setScreen] = useState<PreviewScreen>("home");
   useEffect(() => {
     if (!screens.includes(screen)) setScreen("home");
@@ -621,6 +790,8 @@ function DevicePreview({ device, config }: { device: "iphone" | "android" | "tab
         <div className="flex h-full flex-col" style={{ fontFamily: `${config.appearance.font_family}, system-ui, sans-serif` }}>
           {screen === "login" ? (
             <PreviewLogin config={config} />
+          ) : screen === "onboarding" ? (
+            <PreviewOnboarding config={config} />
           ) : (
             <>
               <div className="flex items-center gap-2 border-b bg-white px-3 py-2">
@@ -785,6 +956,56 @@ function PreviewFeature({ featureKey, config }: { featureKey: FeatureKey; config
           Prévia de <b>{title}</b> — conteúdo será exibido aqui no app do aluno.
         </div>
       )}
+    </div>
+  );
+}
+
+function PreviewOnboarding({ config }: { config: StudentAppConfig }) {
+  const ob = config.onboarding;
+  const accent = config.appearance.button_color ?? config.appearance.brand_primary;
+  return (
+    <div className="flex h-full flex-col bg-white px-4 py-5 text-center">
+      <div className="mb-3 flex items-center justify-center gap-1">
+        {[0, 1, 2, 3].map((i) => (
+          <span key={i} className={`h-1 flex-1 max-w-[24px] rounded-full ${i === 0 ? "" : "bg-neutral-200"}`} style={i === 0 ? { background: accent } : undefined} />
+        ))}
+      </div>
+      <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl text-white" style={{ background: accent }}>
+        <Icons.Sparkles className="h-6 w-6" />
+      </div>
+      <div className="mt-3 text-sm font-bold" style={{ color: config.appearance.title_color }}>{ob.welcome_title}</div>
+      <div className="mt-1 text-[10px] leading-snug text-neutral-500 line-clamp-3">{ob.welcome_subtitle}</div>
+      <ul className="mt-3 space-y-1.5 text-left">
+        {ob.benefits.slice(0, 4).map((b, i) => (
+          <li key={i} className="flex items-center gap-2 rounded-lg bg-neutral-50 p-1.5 text-[10px] ring-1 ring-neutral-100">
+            <Icons.CheckCircle2 className="h-3 w-3 shrink-0 text-emerald-600" />
+            <span className="truncate">{b}</span>
+          </li>
+        ))}
+      </ul>
+      {ob.tour_enabled && ob.tour_steps.length > 0 && (
+        <div className="mt-3 rounded-xl p-2 text-left ring-1 ring-neutral-200">
+          <div className="text-[9px] font-semibold uppercase text-neutral-400">Tour</div>
+          <div className="mt-1 flex items-center gap-2">
+            {(() => {
+              const s = ob.tour_steps[0];
+              const Icon = iconFromName(s.icon);
+              return (
+                <>
+                  <span style={{ color: accent }} className="shrink-0"><Icon className="h-4 w-4" /></span>
+                  <div className="min-w-0">
+                    <div className="truncate text-[10px] font-semibold" style={{ color: config.appearance.title_color }}>{s.title}</div>
+                    <div className="truncate text-[9px] text-neutral-500">{s.description}</div>
+                  </div>
+                </>
+              );
+            })()}
+          </div>
+        </div>
+      )}
+      <div className="mt-auto pt-3">
+        <div className="rounded-xl py-2 text-[11px] font-semibold text-white" style={{ background: accent }}>{ob.cta_label}</div>
+      </div>
     </div>
   );
 }
