@@ -748,52 +748,15 @@ function AtacadoLandingPage() {
             <img src={amtLogo} alt="AMT Fight Wear" className="h-6 w-auto rounded object-contain" />
             <span>© {new Date().getFullYear()} AMT Fight Wear · Fábrica nacional de artigos esportivos</span>
           </div>
-          <div className="flex items-center gap-3">
-            <a href={WHATSAPP_HREF} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 hover:text-foreground">
-              <Phone className="h-3.5 w-3.5" /> Atendimento
-            </a>
-          </div>
         </div>
       </footer>
 
       {/* MOBILE STICKY BAR */}
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border/60 bg-background/95 backdrop-blur-md sm:hidden">
-        <div className="grid grid-cols-[1fr_auto] items-center gap-2 px-3 py-2">
-          <BuyButton from="sticky_mobile" />
-          <a
-            href={WHATSAPP_HREF}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Falar no WhatsApp"
-            onClick={() => {
-              trackWhatsApp("sticky_mobile");
-              trackCTA("wa_sticky_mobile");
-            }}
-            className="grid h-12 w-12 place-items-center rounded-lg bg-[#25D366] text-white shadow-md"
-          >
-            <MessageCircle className="h-5 w-5" />
-          </a>
+        <div className="px-3 py-2">
+          <BuyButton from="sticky_mobile" className="w-full" />
         </div>
       </div>
-
-      {/* FLOATING WHATSAPP (desktop) */}
-      <a
-        href={WHATSAPP_HREF}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Falar no WhatsApp"
-        onClick={() => {
-          trackWhatsApp("float");
-          trackCTA("wa_float");
-        }}
-        className="fixed bottom-6 right-6 z-40 hidden items-center gap-2 rounded-full bg-[#25D366] px-4 py-3 text-white shadow-lg shadow-emerald-500/30 transition-transform hover:scale-105 sm:inline-flex"
-      >
-        <span className="relative flex h-6 w-6 items-center justify-center">
-          <span className="absolute inset-0 animate-ping rounded-full bg-white/40" />
-          <MessageCircle className="relative h-6 w-6" strokeWidth={2.4} />
-        </span>
-        <span className="text-sm font-black">Fale conosco</span>
-      </a>
     </div>
   );
 }
