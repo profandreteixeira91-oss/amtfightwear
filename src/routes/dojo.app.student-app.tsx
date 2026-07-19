@@ -1036,7 +1036,9 @@ function PreviewFeature({ featureKey, config }: { featureKey: FeatureKey; config
         <div className="rounded-xl p-2 text-[10px] ring-1 ring-neutral-200" style={{ background: config.appearance.card_color }}>Próxima avaliação em 30 dias</div>
       </div>
     ),
+    digital_card: <PreviewDigitalCard config={config} />,
   };
+
 
   return (
     <div className="space-y-2">
