@@ -26,6 +26,8 @@ import f3 from "@/assets/atacado-lp/f3-clean.jpg";
 import f4 from "@/assets/atacado-lp/f4-clean.jpg";
 import f5 from "@/assets/atacado-lp/f5-clean.jpg";
 import f6 from "@/assets/atacado-lp/f6.jpg";
+import kimonoStoreAsset from "@/assets/kimono-branco.jpg.asset.json";
+const kimonoStore = kimonoStoreAsset.url;
 
 const META_PIXEL_ID = "2149647638877087";
 const WHATSAPP_PHONE = "5582920016732";
@@ -132,7 +134,7 @@ const products = [
     id: "kimonos",
     name: "Kimonos Personalizados",
     desc: "Trançado premium, gola reforçada e bordado da sua marca em cores oficiais.",
-    image: f2,
+    image: kimonoStore,
     href: "/loja/atacado",
   },
   {
