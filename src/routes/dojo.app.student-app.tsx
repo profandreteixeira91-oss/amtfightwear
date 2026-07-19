@@ -113,6 +113,8 @@ function StudentAppEditor() {
     setDraft((d) => (d ? { ...d, login: { ...d.login, ...patch } } : d));
   const setNotifications = (patch: Partial<StudentAppConfig["notifications"]>) =>
     setDraft((d) => (d ? { ...d, notifications: { ...d.notifications, ...patch } } : d));
+  const setOnboarding = (patch: Partial<StudentAppConfig["onboarding"]>) =>
+    setDraft((d) => (d ? { ...d, onboarding: { ...d.onboarding, ...patch } } : d));
 
   return (
     <div className="dojo-theme flex h-[calc(100vh-8rem)] flex-col gap-4">
