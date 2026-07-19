@@ -791,10 +791,30 @@ function AtacadoLandingPage() {
         </div>
       </footer>
 
+      {/* FLOATING WHATSAPP */}
+      <a
+        href={whatsappHref("float")}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={() => {
+          trackCTA("whatsapp_float");
+          fbqCustom("ClickWhatsApp", { source: "float" });
+        }}
+        aria-label="Falar no WhatsApp"
+        className="fixed right-4 z-50 flex items-center gap-2 rounded-full bg-[#25D366] px-4 py-3 text-white shadow-lg shadow-emerald-500/30 transition-transform hover:scale-105 sm:right-6"
+        style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 80px)" }}
+      >
+        <span className="relative flex h-6 w-6 items-center justify-center">
+          <span className="absolute inset-0 animate-ping rounded-full bg-white/40" />
+          <MessageCircle className="relative h-6 w-6" strokeWidth={2.4} />
+        </span>
+        <span className="hidden text-sm font-semibold sm:inline">Fale conosco</span>
+      </a>
+
       {/* MOBILE STICKY BAR */}
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border/60 bg-background/95 backdrop-blur-md sm:hidden">
         <div className="px-3 py-2" style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 8px)" }}>
-          <BuyButton from="sticky_mobile" className="w-full" />
+          <BuyButton from="sticky_mobile" label="Comprar Faixas" href={FAIXAS_HREF} className="w-full" />
         </div>
       </div>
     </div>
