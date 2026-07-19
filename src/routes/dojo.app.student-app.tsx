@@ -553,6 +553,162 @@ function NotificationsPanel({ value, onChange }: { value: StudentAppConfig["noti
 }
 
 // ================================================================
+// Onboarding
+// ================================================================
+function OnboardingPanel({
+  value,
+  onChange,
+}: {
+  value: StudentAppConfig["onboarding"];
+  onChange: (p: Partial<StudentAppConfig["onboarding"]>) => void;
+}) {
+  function updateBenefit(idx: number, v: string) {
+    const next = [...value.benefits];
+    next[idx] = v;
+    onChange({ benefits: next });
+  }
+  function addBenefit() {
+    onChange({ benefits: [...value.benefits, "Novo benefício"] });
+  }
+  function removeBenefit(idx: number) {
+    onChange({ benefits: value.benefits.filter((_, i) => i !== idx) });
+  }
+  function updateStep(id: string, patch: Partial<OnboardingTourStep>) {
+    onChange({ tour_steps: value.tour_steps.map((s) => (s.id === id ? { ...s, ...patch } : s)) });
+  }
+  function addStep() {
+    onChange({
+      tour_steps: [
+        ...value.tour_steps,
+        { id: crypto.randomUUID(), title: "Novo passo", description: "Descrição do passo", icon: "star" },
+      ],
+    });
+  }
+  function removeStep(id: string) {
+    onChange({ tour_steps: value.tour_steps.filter((s) => s.id !== id) });
+  }
+
+  return (
+    <div className="space-y-5">
+      <div className="grid gap-3 md:grid-cols-2">
+        <div className="flex items-center gap-3 rounded-lg border p-3">
+          <Switch checked={value.enabled} onCheckedChange={(v) => onChange({ enabled: v })} />
+          <div>
+            <div className="text-sm font-medium">Habilitar onboarding</div>
+            <div className="text-xs text-muted-foreground">Fluxo de boas-vindas no primeiro acesso.</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-3 rounded-lg border p-3">
+          <Switch checked={value.force} onCheckedChange={(v) => onChange({ force: v })} />
+          <div>
+            <div className="text-sm font-medium">Obrigatório</div>
+            <div className="text-xs text-muted-foreground">Aluno é redirecionado até concluir.</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-3 rounded-lg border p-3">
+          <Switch checked={value.ask_push} onCheckedChange={(v) => onChange({ ask_push: v })} />
+          <div className="text-sm font-medium">Pedir notificações push</div>
+        </div>
+        <div className="flex items-center gap-3 rounded-lg border p-3">
+          <Switch checked={value.ask_install} onCheckedChange={(v) => onChange({ ask_install: v })} />
+          <div className="text-sm font-medium">Sugerir instalar como app</div>
+        </div>
+        <div className="flex items-center gap-3 rounded-lg border p-3 md:col-span-2">
+          <Switch checked={value.show_home_checklist} onCheckedChange={(v) => onChange({ show_home_checklist: v })} />
+          <div>
+            <div className="text-sm font-medium">Checklist na tela inicial</div>
+            <div className="text-xs text-muted-foreground">Mostra tarefas pendentes (foto, senha, push, instalar) até serem concluídas.</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-2">
+        <Field label="Título de boas-vindas">
+          <Input value={value.welcome_title} onChange={(e) => onChange({ welcome_title: e.target.value })} />
+        </Field>
+        <Field label="Rótulo do botão principal">
+          <Input value={value.cta_label} onChange={(e) => onChange({ cta_label: e.target.value })} />
+        </Field>
+        <div className="md:col-span-2">
+          <Field label="Subtítulo / descrição">
+            <Textarea rows={3} value={value.welcome_subtitle} onChange={(e) => onChange({ welcome_subtitle: e.target.value })} />
+          </Field>
+        </div>
+        <Field label="Rótulo do botão final">
+          <Input value={value.finish_label} onChange={(e) => onChange({ finish_label: e.target.value })} />
+        </Field>
+      </div>
+
+      <div>
+        <div className="mb-2 flex items-center justify-between">
+          <div className="text-sm font-semibold">Benefícios (lista de boas-vindas)</div>
+          <Button size="sm" variant="outline" onClick={addBenefit}>
+            <Icons.Plus className="mr-1 h-3 w-3" /> Adicionar
+          </Button>
+        </div>
+        <div className="space-y-2">
+          {value.benefits.map((b, i) => (
+            <div key={i} className="flex items-center gap-2 rounded-lg border p-2">
+              <Icons.CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+              <Input value={b} onChange={(e) => updateBenefit(i, e.target.value)} />
+              <Button size="sm" variant="ghost" onClick={() => removeBenefit(i)}>
+                <Icons.Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+          {value.benefits.length === 0 && (
+            <div className="rounded-lg border p-4 text-center text-xs text-muted-foreground">Nenhum benefício listado.</div>
+          )}
+        </div>
+      </div>
+
+      <div>
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-3">
+            <Switch checked={value.tour_enabled} onCheckedChange={(v) => onChange({ tour_enabled: v })} />
+            <div className="text-sm font-semibold">Tour de telas (carrossel)</div>
+          </div>
+          <Button size="sm" variant="outline" onClick={addStep} disabled={!value.tour_enabled}>
+            <Icons.Plus className="mr-1 h-3 w-3" /> Novo passo
+          </Button>
+        </div>
+        <div className={`space-y-2 ${value.tour_enabled ? "" : "opacity-50 pointer-events-none"}`}>
+          {value.tour_steps.map((s, idx) => {
+            const Icon = iconFromName(s.icon);
+            return (
+              <div key={s.id} className="rounded-lg border p-3">
+                <div className="mb-2 flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+                    <Icon className="h-4 w-4" /> Passo {idx + 1}
+                  </div>
+                  <Button size="sm" variant="ghost" onClick={() => removeStep(s.id)}>
+                    <Icons.Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+                <div className="grid gap-2 md:grid-cols-[1fr_180px]">
+                  <Input value={s.title} placeholder="Título" onChange={(e) => updateStep(s.id, { title: e.target.value })} />
+                  <Input value={s.icon} placeholder="Ícone (lucide)" onChange={(e) => updateStep(s.id, { icon: e.target.value })} />
+                </div>
+                <Textarea
+                  className="mt-2"
+                  rows={2}
+                  value={s.description}
+                  placeholder="Descrição"
+                  onChange={(e) => updateStep(s.id, { description: e.target.value })}
+                />
+              </div>
+            );
+          })}
+          {value.tour_steps.length === 0 && (
+            <div className="rounded-lg border p-4 text-center text-xs text-muted-foreground">Nenhum passo cadastrado.</div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ================================================================
 // Versões
 // ================================================================
 function VersionsPanel() {
