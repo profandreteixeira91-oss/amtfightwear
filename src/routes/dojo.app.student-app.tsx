@@ -746,10 +746,11 @@ function VersionsPanel() {
 // ================================================================
 // Preview do dispositivo
 // ================================================================
-type PreviewScreen = "login" | "home" | FeatureKey;
+type PreviewScreen = "login" | "onboarding" | "home" | FeatureKey;
 
 const SCREEN_LABELS: Record<string, string> = {
   login: "Login",
+  onboarding: "Onboarding",
   home: "Tela inicial",
   ...FEATURE_LABELS,
 };
@@ -759,7 +760,12 @@ function DevicePreview({ device, config }: { device: "iphone" | "android" | "tab
   const radius = device === "iphone" ? 40 : device === "android" ? 26 : 20;
 
   const enabledFeatures = (Object.keys(config.features) as FeatureKey[]).filter((k) => config.features[k]);
-  const screens: PreviewScreen[] = ["login", "home", ...enabledFeatures];
+  const screens: PreviewScreen[] = [
+    "login",
+    ...(config.onboarding.enabled ? (["onboarding"] as PreviewScreen[]) : []),
+    "home",
+    ...enabledFeatures,
+  ];
   const [screen, setScreen] = useState<PreviewScreen>("home");
   useEffect(() => {
     if (!screens.includes(screen)) setScreen("home");
@@ -784,6 +790,8 @@ function DevicePreview({ device, config }: { device: "iphone" | "android" | "tab
         <div className="flex h-full flex-col" style={{ fontFamily: `${config.appearance.font_family}, system-ui, sans-serif` }}>
           {screen === "login" ? (
             <PreviewLogin config={config} />
+          ) : screen === "onboarding" ? (
+            <PreviewOnboarding config={config} />
           ) : (
             <>
               <div className="flex items-center gap-2 border-b bg-white px-3 py-2">
