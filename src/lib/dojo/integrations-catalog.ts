@@ -36,7 +36,9 @@ export type IntegrationDef = {
   version: string;
   docsUrl: string;
   logoInitials: string;
-  logoColor: string; // classe tailwind bg
+  logoColor: string; // classe tailwind bg (fallback quando logoUrl falha)
+  /** Domínio oficial do fornecedor — usado para puxar o logotipo real. */
+  logoDomain?: string;
   /** Chave usada nas tabelas dojo_payment_gateways / dojo_partner_integrations */
   backendKey?: string;
   /** Módulo backend responsável (payments | partners | custom | placeholder) */
@@ -45,6 +47,14 @@ export type IntegrationDef = {
   features?: string[];
   wizard?: WizardStep[];
 };
+
+/** URL do logotipo oficial do fornecedor via logo.dev (fallback público sem token). */
+export function getIntegrationLogoUrl(def: Pick<IntegrationDef, "logoDomain">): string | null {
+  if (!def.logoDomain) return null;
+  const token = (import.meta as any)?.env?.VITE_LOVABLE_CONNECTOR_LOGO_DEV_API_KEY;
+  const base = `https://img.logo.dev/${def.logoDomain}?size=128&format=png`;
+  return token ? `${base}&token=${token}` : base;
+}
 
 export const INTEGRATION_CATEGORIES: {
   id: IntegrationCategory;
@@ -70,6 +80,7 @@ export const INTEGRATIONS: IntegrationDef[] = [
     docsUrl: "https://www.mercadopago.com.br/developers/pt/docs",
     logoInitials: "MP",
     logoColor: "bg-sky-500",
+    logoDomain: "mercadopago.com.br",
     backendKey: "mercadopago",
     backend: "payments-gateway",
     defaultStatus: "available",
@@ -108,6 +119,7 @@ export const INTEGRATIONS: IntegrationDef[] = [
     docsUrl: "https://docs.asaas.com/",
     logoInitials: "AS",
     logoColor: "bg-emerald-500",
+    logoDomain: "asaas.com",
     backendKey: "asaas",
     backend: "payments-gateway",
     defaultStatus: "available",
@@ -145,6 +157,7 @@ export const INTEGRATIONS: IntegrationDef[] = [
     docsUrl: "https://dev.pagbank.uol.com.br/reference",
     logoInitials: "PS",
     logoColor: "bg-orange-500",
+    logoDomain: "pagseguro.uol.com.br",
     backendKey: "pagseguro",
     backend: "payments-gateway",
     defaultStatus: "available",
@@ -170,6 +183,7 @@ export const INTEGRATIONS: IntegrationDef[] = [
     docsUrl: "https://stripe.com/docs/api",
     logoInitials: "ST",
     logoColor: "bg-indigo-500",
+    logoDomain: "stripe.com",
     backend: "placeholder",
     defaultStatus: "coming_soon",
     features: ["Cartão", "Assinaturas", "Multi-moeda"],
@@ -184,6 +198,7 @@ export const INTEGRATIONS: IntegrationDef[] = [
     docsUrl: "https://docs.pagar.me/",
     logoInitials: "PG",
     logoColor: "bg-lime-600",
+    logoDomain: "pagar.me",
     backend: "placeholder",
     defaultStatus: "coming_soon",
   },
@@ -197,6 +212,7 @@ export const INTEGRATIONS: IntegrationDef[] = [
     docsUrl: "https://dev.efipay.com.br/",
     logoInitials: "EF",
     logoColor: "bg-teal-600",
+    logoDomain: "efipay.com.br",
     backend: "placeholder",
     defaultStatus: "coming_soon",
   },
@@ -210,6 +226,7 @@ export const INTEGRATIONS: IntegrationDef[] = [
     docsUrl: "https://docs.stone.com.br/",
     logoInitials: "SN",
     logoColor: "bg-green-700",
+    logoDomain: "stone.com.br",
     backend: "placeholder",
     defaultStatus: "coming_soon",
   },
@@ -223,6 +240,7 @@ export const INTEGRATIONS: IntegrationDef[] = [
     docsUrl: "https://developercielo.github.io/",
     logoInitials: "CL",
     logoColor: "bg-cyan-700",
+    logoDomain: "cielo.com.br",
     backend: "placeholder",
     defaultStatus: "coming_soon",
   },
@@ -236,6 +254,7 @@ export const INTEGRATIONS: IntegrationDef[] = [
     docsUrl: "https://www.userede.com.br/desenvolvedores",
     logoInitials: "RE",
     logoColor: "bg-red-600",
+    logoDomain: "userede.com.br",
     backend: "placeholder",
     defaultStatus: "coming_soon",
   },
@@ -251,6 +270,7 @@ export const INTEGRATIONS: IntegrationDef[] = [
     docsUrl: "https://wellhub.com/partners",
     logoInitials: "GP",
     logoColor: "bg-yellow-500",
+    logoDomain: "wellhub.com",
     backendKey: "gympass",
     backend: "partner",
     defaultStatus: "available",
@@ -276,6 +296,7 @@ export const INTEGRATIONS: IntegrationDef[] = [
     docsUrl: "https://totalpass.com/br/rede-credenciada",
     logoInitials: "TP",
     logoColor: "bg-fuchsia-600",
+    logoDomain: "totalpass.com",
     backendKey: "totalpass",
     backend: "partner",
     defaultStatus: "available",
@@ -303,6 +324,7 @@ export const INTEGRATIONS: IntegrationDef[] = [
     docsUrl: "https://developers.facebook.com/docs/whatsapp/cloud-api",
     logoInitials: "WA",
     logoColor: "bg-green-500",
+    logoDomain: "whatsapp.com",
     backend: "communication",
     defaultStatus: "coming_soon",
     features: ["Template", "Sessão", "Webhook"],
@@ -317,6 +339,7 @@ export const INTEGRATIONS: IntegrationDef[] = [
     docsUrl: "https://resend.com/docs",
     logoInitials: "RS",
     logoColor: "bg-black",
+    logoDomain: "resend.com",
     backend: "communication",
     defaultStatus: "coming_soon",
   },
@@ -330,6 +353,7 @@ export const INTEGRATIONS: IntegrationDef[] = [
     docsUrl: "https://docs.sendgrid.com/",
     logoInitials: "SG",
     logoColor: "bg-blue-500",
+    logoDomain: "sendgrid.com",
     backend: "communication",
     defaultStatus: "coming_soon",
   },
@@ -356,6 +380,7 @@ export const INTEGRATIONS: IntegrationDef[] = [
     docsUrl: "https://www.twilio.com/docs",
     logoInitials: "TW",
     logoColor: "bg-red-500",
+    logoDomain: "twilio.com",
     backend: "communication",
     defaultStatus: "coming_soon",
   },
@@ -369,6 +394,7 @@ export const INTEGRATIONS: IntegrationDef[] = [
     docsUrl: "https://developers.google.com/calendar",
     logoInitials: "GC",
     logoColor: "bg-blue-600",
+    logoDomain: "calendar.google.com",
     backend: "placeholder",
     defaultStatus: "coming_soon",
   },
@@ -382,6 +408,7 @@ export const INTEGRATIONS: IntegrationDef[] = [
     docsUrl: "https://learn.microsoft.com/graph/api/resources/calendar",
     logoInitials: "MC",
     logoColor: "bg-blue-800",
+    logoDomain: "outlook.live.com",
     backend: "placeholder",
     defaultStatus: "coming_soon",
   },
@@ -397,6 +424,7 @@ export const INTEGRATIONS: IntegrationDef[] = [
     docsUrl: "https://developers.google.com/drive/api",
     logoInitials: "GD",
     logoColor: "bg-yellow-600",
+    logoDomain: "drive.google.com",
     backend: "storage",
     defaultStatus: "coming_soon",
   },
@@ -410,6 +438,7 @@ export const INTEGRATIONS: IntegrationDef[] = [
     docsUrl: "https://learn.microsoft.com/onedrive/developer/",
     logoInitials: "OD",
     logoColor: "bg-sky-700",
+    logoDomain: "onedrive.live.com",
     backend: "storage",
     defaultStatus: "coming_soon",
   },
@@ -423,6 +452,7 @@ export const INTEGRATIONS: IntegrationDef[] = [
     docsUrl: "https://www.dropbox.com/developers/documentation",
     logoInitials: "DB",
     logoColor: "bg-blue-500",
+    logoDomain: "dropbox.com",
     backend: "storage",
     defaultStatus: "coming_soon",
   },
@@ -436,6 +466,7 @@ export const INTEGRATIONS: IntegrationDef[] = [
     docsUrl: "https://docs.aws.amazon.com/s3/",
     logoInitials: "S3",
     logoColor: "bg-orange-600",
+    logoDomain: "aws.amazon.com",
     backend: "storage",
     defaultStatus: "coming_soon",
   },
@@ -449,6 +480,7 @@ export const INTEGRATIONS: IntegrationDef[] = [
     docsUrl: "https://developers.cloudflare.com/r2/",
     logoInitials: "R2",
     logoColor: "bg-orange-500",
+    logoDomain: "cloudflare.com",
     backend: "storage",
     defaultStatus: "coming_soon",
   },
