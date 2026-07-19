@@ -14,6 +14,519 @@ export type Database = {
   }
   public: {
     Tables: {
+      academy_competition_athletes: {
+        Row: {
+          academy_competition_id: string
+          age_group: string | null
+          belt_id: string | null
+          belt_name: string | null
+          category: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          owner_id: string
+          paid: boolean
+          status: string
+          student_id: string
+          updated_at: string
+          weight_class: string | null
+          weight_kg: number | null
+        }
+        Insert: {
+          academy_competition_id: string
+          age_group?: string | null
+          belt_id?: string | null
+          belt_name?: string | null
+          category?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          owner_id: string
+          paid?: boolean
+          status?: string
+          student_id: string
+          updated_at?: string
+          weight_class?: string | null
+          weight_kg?: number | null
+        }
+        Update: {
+          academy_competition_id?: string
+          age_group?: string | null
+          belt_id?: string | null
+          belt_name?: string | null
+          category?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          owner_id?: string
+          paid?: boolean
+          status?: string
+          student_id?: string
+          updated_at?: string
+          weight_class?: string | null
+          weight_kg?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academy_competition_athletes_academy_competition_id_fkey"
+            columns: ["academy_competition_id"]
+            isOneToOne: false
+            referencedRelation: "academy_competitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "academy_competition_athletes_belt_id_fkey"
+            columns: ["belt_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_belts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "academy_competition_athletes_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      academy_competition_documents: {
+        Row: {
+          academy_competition_id: string
+          created_at: string
+          file_url: string | null
+          id: string
+          kind: string
+          notes: string | null
+          owner_id: string
+          student_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          academy_competition_id: string
+          created_at?: string
+          file_url?: string | null
+          id?: string
+          kind: string
+          notes?: string | null
+          owner_id: string
+          student_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          academy_competition_id?: string
+          created_at?: string
+          file_url?: string | null
+          id?: string
+          kind?: string
+          notes?: string | null
+          owner_id?: string
+          student_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academy_competition_documents_academy_competition_id_fkey"
+            columns: ["academy_competition_id"]
+            isOneToOne: false
+            referencedRelation: "academy_competitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "academy_competition_documents_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      academy_competition_finances: {
+        Row: {
+          academy_competition_id: string
+          amount: number
+          created_at: string
+          currency: string | null
+          description: string | null
+          id: string
+          kind: string
+          notes: string | null
+          owner_id: string
+          paid_at: string | null
+          receipt_url: string | null
+          student_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          academy_competition_id: string
+          amount?: number
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          id?: string
+          kind: string
+          notes?: string | null
+          owner_id: string
+          paid_at?: string | null
+          receipt_url?: string | null
+          student_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          academy_competition_id?: string
+          amount?: number
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          id?: string
+          kind?: string
+          notes?: string | null
+          owner_id?: string
+          paid_at?: string | null
+          receipt_url?: string | null
+          student_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academy_competition_finances_academy_competition_id_fkey"
+            columns: ["academy_competition_id"]
+            isOneToOne: false
+            referencedRelation: "academy_competitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "academy_competition_finances_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      academy_competition_hotels: {
+        Row: {
+          academy_competition_id: string
+          address: string | null
+          check_in: string | null
+          check_out: string | null
+          created_at: string
+          id: string
+          name: string
+          notes: string | null
+          owner_id: string
+          phone: string | null
+          price: number | null
+          rooms: number | null
+          updated_at: string
+        }
+        Insert: {
+          academy_competition_id: string
+          address?: string | null
+          check_in?: string | null
+          check_out?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          notes?: string | null
+          owner_id: string
+          phone?: string | null
+          price?: number | null
+          rooms?: number | null
+          updated_at?: string
+        }
+        Update: {
+          academy_competition_id?: string
+          address?: string | null
+          check_in?: string | null
+          check_out?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          owner_id?: string
+          phone?: string | null
+          price?: number | null
+          rooms?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academy_competition_hotels_academy_competition_id_fkey"
+            columns: ["academy_competition_id"]
+            isOneToOne: false
+            referencedRelation: "academy_competitions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      academy_competition_results: {
+        Row: {
+          academy_competition_id: string
+          athlete_id: string | null
+          category: string | null
+          created_at: string
+          id: string
+          losses: number
+          matches: number
+          medal: string | null
+          notes: string | null
+          owner_id: string
+          penalties: number
+          photos: string[] | null
+          placement: number | null
+          points: number
+          student_id: string | null
+          submissions: number
+          updated_at: string
+          videos: string[] | null
+          wins: number
+        }
+        Insert: {
+          academy_competition_id: string
+          athlete_id?: string | null
+          category?: string | null
+          created_at?: string
+          id?: string
+          losses?: number
+          matches?: number
+          medal?: string | null
+          notes?: string | null
+          owner_id: string
+          penalties?: number
+          photos?: string[] | null
+          placement?: number | null
+          points?: number
+          student_id?: string | null
+          submissions?: number
+          updated_at?: string
+          videos?: string[] | null
+          wins?: number
+        }
+        Update: {
+          academy_competition_id?: string
+          athlete_id?: string | null
+          category?: string | null
+          created_at?: string
+          id?: string
+          losses?: number
+          matches?: number
+          medal?: string | null
+          notes?: string | null
+          owner_id?: string
+          penalties?: number
+          photos?: string[] | null
+          placement?: number | null
+          points?: number
+          student_id?: string | null
+          submissions?: number
+          updated_at?: string
+          videos?: string[] | null
+          wins?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academy_competition_results_academy_competition_id_fkey"
+            columns: ["academy_competition_id"]
+            isOneToOne: false
+            referencedRelation: "academy_competitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "academy_competition_results_athlete_id_fkey"
+            columns: ["athlete_id"]
+            isOneToOne: false
+            referencedRelation: "academy_competition_athletes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "academy_competition_results_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      academy_competition_staff: {
+        Row: {
+          academy_competition_id: string
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          notes: string | null
+          owner_id: string
+          phone: string | null
+          role: string
+          student_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          academy_competition_id: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          owner_id: string
+          phone?: string | null
+          role: string
+          student_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          academy_competition_id?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          owner_id?: string
+          phone?: string | null
+          role?: string
+          student_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academy_competition_staff_academy_competition_id_fkey"
+            columns: ["academy_competition_id"]
+            isOneToOne: false
+            referencedRelation: "academy_competitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "academy_competition_staff_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      academy_competition_transport: {
+        Row: {
+          academy_competition_id: string
+          created_at: string
+          departure_at: string | null
+          driver: string | null
+          id: string
+          kind: string
+          notes: string | null
+          owner_id: string
+          plate: string | null
+          return_at: string | null
+          seats: number | null
+          updated_at: string
+        }
+        Insert: {
+          academy_competition_id: string
+          created_at?: string
+          departure_at?: string | null
+          driver?: string | null
+          id?: string
+          kind: string
+          notes?: string | null
+          owner_id: string
+          plate?: string | null
+          return_at?: string | null
+          seats?: number | null
+          updated_at?: string
+        }
+        Update: {
+          academy_competition_id?: string
+          created_at?: string
+          departure_at?: string | null
+          driver?: string | null
+          id?: string
+          kind?: string
+          notes?: string | null
+          owner_id?: string
+          plate?: string | null
+          return_at?: string | null
+          seats?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academy_competition_transport_academy_competition_id_fkey"
+            columns: ["academy_competition_id"]
+            isOneToOne: false
+            referencedRelation: "academy_competitions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      academy_competitions: {
+        Row: {
+          added_at: string
+          added_by: string | null
+          competition_id: string
+          created_at: string
+          id: string
+          notes: string | null
+          owner_id: string
+          professor_id: string | null
+          professor_name: string | null
+          status: string
+          target_belt_ids: string[] | null
+          target_class_ids: string[] | null
+          updated_at: string
+          visibility: string
+        }
+        Insert: {
+          added_at?: string
+          added_by?: string | null
+          competition_id: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          owner_id: string
+          professor_id?: string | null
+          professor_name?: string | null
+          status?: string
+          target_belt_ids?: string[] | null
+          target_class_ids?: string[] | null
+          updated_at?: string
+          visibility?: string
+        }
+        Update: {
+          added_at?: string
+          added_by?: string | null
+          competition_id?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          owner_id?: string
+          professor_id?: string | null
+          professor_name?: string | null
+          status?: string
+          target_belt_ids?: string[] | null
+          target_class_ids?: string[] | null
+          updated_at?: string
+          visibility?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academy_competitions_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "competitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "academy_competitions_professor_id_fkey"
+            columns: ["professor_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       activity_logs: {
         Row: {
           action: string
@@ -962,6 +1475,244 @@ export type Database = {
           updated_by?: string | null
         }
         Relationships: []
+      }
+      competition_ingest_runs: {
+        Row: {
+          error: string | null
+          finished_at: string | null
+          found: number
+          id: string
+          inserted: number
+          logs: Json | null
+          source_code: string | null
+          source_id: string | null
+          started_at: string
+          status: string
+          updated: number
+        }
+        Insert: {
+          error?: string | null
+          finished_at?: string | null
+          found?: number
+          id?: string
+          inserted?: number
+          logs?: Json | null
+          source_code?: string | null
+          source_id?: string | null
+          started_at?: string
+          status?: string
+          updated?: number
+        }
+        Update: {
+          error?: string | null
+          finished_at?: string | null
+          found?: number
+          id?: string
+          inserted?: number
+          logs?: Json | null
+          source_code?: string | null
+          source_id?: string | null
+          started_at?: string
+          status?: string
+          updated?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competition_ingest_runs_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "competition_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      competition_sources: {
+        Row: {
+          code: string
+          config: Json
+          connector: string
+          created_at: string
+          enabled: boolean
+          id: string
+          last_error: string | null
+          last_run_at: string | null
+          last_status: string | null
+          name: string
+          schedule: string
+          updated_at: string
+          url: string | null
+        }
+        Insert: {
+          code: string
+          config?: Json
+          connector?: string
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          last_error?: string | null
+          last_run_at?: string | null
+          last_status?: string | null
+          name: string
+          schedule?: string
+          updated_at?: string
+          url?: string | null
+        }
+        Update: {
+          code?: string
+          config?: Json
+          connector?: string
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          last_error?: string | null
+          last_run_at?: string | null
+          last_status?: string | null
+          name?: string
+          schedule?: string
+          updated_at?: string
+          url?: string | null
+        }
+        Relationships: []
+      }
+      competitions: {
+        Row: {
+          address: string | null
+          ages: Json
+          belts: Json
+          categories: Json
+          city: string | null
+          classification: Json
+          contact_email: string | null
+          contact_phone: string | null
+          country: string | null
+          created_at: string
+          currency: string | null
+          description: string | null
+          end_at: string | null
+          event_type: string | null
+          external_id: string | null
+          id: string
+          last_seen_at: string
+          latitude: number | null
+          longitude: number | null
+          modality: string | null
+          name: string
+          official_url: string | null
+          organization: string | null
+          organization_logo: string | null
+          participants_limit: number | null
+          price: number | null
+          raw: Json | null
+          registration_deadline: string | null
+          registration_url: string | null
+          scope: string | null
+          sex: string | null
+          source_code: string | null
+          source_id: string | null
+          start_at: string | null
+          state: string | null
+          status: string
+          tier: string | null
+          updated_at: string
+          venue: string | null
+          weigh_in_at: string | null
+          weights: Json
+        }
+        Insert: {
+          address?: string | null
+          ages?: Json
+          belts?: Json
+          categories?: Json
+          city?: string | null
+          classification?: Json
+          contact_email?: string | null
+          contact_phone?: string | null
+          country?: string | null
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          end_at?: string | null
+          event_type?: string | null
+          external_id?: string | null
+          id?: string
+          last_seen_at?: string
+          latitude?: number | null
+          longitude?: number | null
+          modality?: string | null
+          name: string
+          official_url?: string | null
+          organization?: string | null
+          organization_logo?: string | null
+          participants_limit?: number | null
+          price?: number | null
+          raw?: Json | null
+          registration_deadline?: string | null
+          registration_url?: string | null
+          scope?: string | null
+          sex?: string | null
+          source_code?: string | null
+          source_id?: string | null
+          start_at?: string | null
+          state?: string | null
+          status?: string
+          tier?: string | null
+          updated_at?: string
+          venue?: string | null
+          weigh_in_at?: string | null
+          weights?: Json
+        }
+        Update: {
+          address?: string | null
+          ages?: Json
+          belts?: Json
+          categories?: Json
+          city?: string | null
+          classification?: Json
+          contact_email?: string | null
+          contact_phone?: string | null
+          country?: string | null
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          end_at?: string | null
+          event_type?: string | null
+          external_id?: string | null
+          id?: string
+          last_seen_at?: string
+          latitude?: number | null
+          longitude?: number | null
+          modality?: string | null
+          name?: string
+          official_url?: string | null
+          organization?: string | null
+          organization_logo?: string | null
+          participants_limit?: number | null
+          price?: number | null
+          raw?: Json | null
+          registration_deadline?: string | null
+          registration_url?: string | null
+          scope?: string | null
+          sex?: string | null
+          source_code?: string | null
+          source_id?: string | null
+          start_at?: string | null
+          state?: string | null
+          status?: string
+          tier?: string | null
+          updated_at?: string
+          venue?: string | null
+          weigh_in_at?: string | null
+          weights?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competitions_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "competition_sources"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       crm_deals: {
         Row: {
@@ -7177,6 +7928,8 @@ export type Database = {
           read_ct: number
         }[]
       }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
