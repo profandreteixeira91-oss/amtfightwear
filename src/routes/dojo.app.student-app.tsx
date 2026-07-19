@@ -960,6 +960,56 @@ function PreviewFeature({ featureKey, config }: { featureKey: FeatureKey; config
   );
 }
 
+function PreviewOnboarding({ config }: { config: StudentAppConfig }) {
+  const ob = config.onboarding;
+  const accent = config.appearance.button_color ?? config.appearance.brand_primary;
+  return (
+    <div className="flex h-full flex-col bg-white px-4 py-5 text-center">
+      <div className="mb-3 flex items-center justify-center gap-1">
+        {[0, 1, 2, 3].map((i) => (
+          <span key={i} className={`h-1 flex-1 max-w-[24px] rounded-full ${i === 0 ? "" : "bg-neutral-200"}`} style={i === 0 ? { background: accent } : undefined} />
+        ))}
+      </div>
+      <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl text-white" style={{ background: accent }}>
+        <Icons.Sparkles className="h-6 w-6" />
+      </div>
+      <div className="mt-3 text-sm font-bold" style={{ color: config.appearance.title_color }}>{ob.welcome_title}</div>
+      <div className="mt-1 text-[10px] leading-snug text-neutral-500 line-clamp-3">{ob.welcome_subtitle}</div>
+      <ul className="mt-3 space-y-1.5 text-left">
+        {ob.benefits.slice(0, 4).map((b, i) => (
+          <li key={i} className="flex items-center gap-2 rounded-lg bg-neutral-50 p-1.5 text-[10px] ring-1 ring-neutral-100">
+            <Icons.CheckCircle2 className="h-3 w-3 shrink-0 text-emerald-600" />
+            <span className="truncate">{b}</span>
+          </li>
+        ))}
+      </ul>
+      {ob.tour_enabled && ob.tour_steps.length > 0 && (
+        <div className="mt-3 rounded-xl p-2 text-left ring-1 ring-neutral-200">
+          <div className="text-[9px] font-semibold uppercase text-neutral-400">Tour</div>
+          <div className="mt-1 flex items-center gap-2">
+            {(() => {
+              const s = ob.tour_steps[0];
+              const Icon = iconFromName(s.icon);
+              return (
+                <>
+                  <Icon className="h-4 w-4 shrink-0" style={{ color: accent }} />
+                  <div className="min-w-0">
+                    <div className="truncate text-[10px] font-semibold" style={{ color: config.appearance.title_color }}>{s.title}</div>
+                    <div className="truncate text-[9px] text-neutral-500">{s.description}</div>
+                  </div>
+                </>
+              );
+            })()}
+          </div>
+        </div>
+      )}
+      <div className="mt-auto pt-3">
+        <div className="rounded-xl py-2 text-[11px] font-semibold text-white" style={{ background: accent }}>{ob.cta_label}</div>
+      </div>
+    </div>
+  );
+}
+
 function PreviewHome({ config }: { config: StudentAppConfig }) {
   return (
     <div className="space-y-3">
