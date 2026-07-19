@@ -139,7 +139,13 @@ function StudentAppQrPage() {
                   <Input value={origin} onChange={(e) => setOrigin(e.target.value)} className="font-mono text-xs" />
                   <Input value={path} onChange={(e) => setPath(e.target.value)} className="max-w-[180px] font-mono text-xs" />
                 </div>
-                <p className="mt-1 text-[11px] text-muted-foreground">Ex.: {origin}/app/install</p>
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  {slug ? (
+                    <>Link exclusivo desta academia: <span className="font-mono">/app/install/{slug}</span></>
+                  ) : (
+                    <>Link genérico — configure o nome da academia para gerar o link personalizado.</>
+                  )}
+                </p>
               </div>
               <div className="grid gap-3 md:grid-cols-2">
                 <div>
