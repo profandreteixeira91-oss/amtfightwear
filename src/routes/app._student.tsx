@@ -120,6 +120,7 @@ const ROUTE_FEATURE: Record<string, FeatureKey> = {
   "/app/profile": "profile",
   "/app/documents": "documents",
   "/app/notifications": "news",
+  "/app/announcements": "announcements",
 };
 
 function iconFor(name: string) {
