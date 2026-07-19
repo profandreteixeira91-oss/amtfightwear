@@ -580,51 +580,208 @@ function VersionsPanel() {
 // ================================================================
 // Preview do dispositivo
 // ================================================================
+type PreviewScreen = "login" | "home" | FeatureKey;
+
+const SCREEN_LABELS: Record<string, string> = {
+  login: "Login",
+  home: "Tela inicial",
+  ...FEATURE_LABELS,
+};
+
 function DevicePreview({ device, config }: { device: "iphone" | "android" | "tablet"; config: StudentAppConfig }) {
   const size = device === "tablet" ? { w: 380, h: 640 } : device === "android" ? { w: 300, h: 620 } : { w: 300, h: 640 };
   const radius = device === "iphone" ? 40 : device === "android" ? 26 : 20;
+
+  const enabledFeatures = (Object.keys(config.features) as FeatureKey[]).filter((k) => config.features[k]);
+  const screens: PreviewScreen[] = ["login", "home", ...enabledFeatures];
+  const [screen, setScreen] = useState<PreviewScreen>("home");
+  useEffect(() => {
+    if (!screens.includes(screen)) setScreen("home");
+  }, [screens.join(","), screen]);
+
   return (
     <div className="mx-auto" style={{ width: size.w }}>
+      <div className="mb-3">
+        <Select value={screen} onValueChange={(v) => setScreen(v as PreviewScreen)}>
+          <SelectTrigger className="w-full text-xs"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            {screens.map((s) => (
+              <SelectItem key={s} value={s}>{SCREEN_LABELS[s] ?? s}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
       <div
         className="relative overflow-hidden border-[10px] border-neutral-900 shadow-xl"
         style={{ width: size.w, height: size.h, borderRadius: radius, background: "#f5f5f5" }}
       >
         <div className="flex h-full flex-col" style={{ fontFamily: `${config.appearance.font_family}, system-ui, sans-serif` }}>
-          <div className="flex items-center gap-2 border-b bg-white px-3 py-2">
-            {config.appearance.logo_url ? (
-              <img src={config.appearance.logo_url} alt="" className="h-7 w-7 rounded-md object-cover" />
-            ) : (
-              <div className="h-7 w-7 rounded-md" style={{ background: config.appearance.brand_primary }} />
-            )}
-            <div className="truncate text-xs font-bold" style={{ color: config.appearance.title_color }}>{config.appearance.app_name}</div>
-          </div>
-          <div className="flex-1 overflow-auto p-3">
-            <PreviewHome config={config} />
-          </div>
-          <div className="border-t px-2 py-1" style={{ background: config.appearance.bottom_nav_color }}>
-            <div className="flex items-stretch justify-around">
-              {config.bottom_nav.map((it) => {
-                const Icon = iconFromName(it.icon);
-                if (it.primary) {
-                  return (
-                    <div key={it.id} className="-mt-4">
-                      <div className="grid h-10 w-10 place-items-center rounded-full text-white shadow-lg ring-2 ring-white" style={{ background: config.appearance.button_color ?? config.appearance.brand_primary }}>
+          {screen === "login" ? (
+            <PreviewLogin config={config} />
+          ) : (
+            <>
+              <div className="flex items-center gap-2 border-b bg-white px-3 py-2">
+                {config.appearance.logo_url ? (
+                  <img src={config.appearance.logo_url} alt="" className="h-7 w-7 rounded-md object-cover" />
+                ) : (
+                  <div className="h-7 w-7 rounded-md" style={{ background: config.appearance.brand_primary }} />
+                )}
+                <div className="truncate text-xs font-bold" style={{ color: config.appearance.title_color }}>{config.appearance.app_name}</div>
+              </div>
+              <div className="flex-1 overflow-auto p-3">
+                {screen === "home" ? (
+                  <PreviewHome config={config} />
+                ) : (
+                  <PreviewFeature featureKey={screen as FeatureKey} config={config} />
+                )}
+              </div>
+              <div className="border-t px-2 py-1" style={{ background: config.appearance.bottom_nav_color }}>
+                <div className="flex items-stretch justify-around">
+                  {config.bottom_nav.map((it) => {
+                    const Icon = iconFromName(it.icon);
+                    if (it.primary) {
+                      return (
+                        <div key={it.id} className="-mt-4">
+                          <div className="grid h-10 w-10 place-items-center rounded-full text-white shadow-lg ring-2 ring-white" style={{ background: config.appearance.button_color ?? config.appearance.brand_primary }}>
+                            <Icon className="h-4 w-4" />
+                          </div>
+                        </div>
+                      );
+                    }
+                    return (
+                      <div key={it.id} className="flex flex-col items-center py-1 text-[9px] text-neutral-500">
                         <Icon className="h-4 w-4" />
+                        {it.label}
                       </div>
-                    </div>
-                  );
-                }
-                return (
-                  <div key={it.id} className="flex flex-col items-center py-1 text-[9px] text-neutral-500">
-                    <Icon className="h-4 w-4" />
-                    {it.label}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
+    </div>
+  );
+}
+
+function PreviewLogin({ config }: { config: StudentAppConfig }) {
+  return (
+    <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center" style={{ background: "#ffffff" }}>
+      {config.appearance.logo_url ? (
+        <img src={config.appearance.logo_url} alt="" className="h-14 w-14 rounded-xl object-cover" />
+      ) : (
+        <div className="h-14 w-14 rounded-xl" style={{ background: config.appearance.brand_primary }} />
+      )}
+      <div className="text-sm font-bold" style={{ color: config.appearance.title_color }}>{config.login?.title || config.appearance.app_name}</div>
+      {config.login?.subtitle && (
+        <div className="text-[10px] text-neutral-500">{config.login.subtitle}</div>
+      )}
+      {config.login?.institutional_text && (
+        <div className="text-[9px] text-neutral-400">{config.login.institutional_text}</div>
+      )}
+      <div className="mt-2 w-full space-y-2">
+        <div className="rounded-md border bg-white px-2 py-1.5 text-left text-[10px] text-neutral-400">seu@email.com</div>
+        <div className="rounded-md border bg-white px-2 py-1.5 text-left text-[10px] text-neutral-400">••••••••</div>
+        <div className="rounded-md py-2 text-[11px] font-semibold text-white" style={{ background: config.login?.button_color ?? config.appearance.button_color ?? config.appearance.brand_primary }}>Entrar</div>
+      </div>
+    </div>
+  );
+}
+
+function PreviewFeature({ featureKey, config }: { featureKey: FeatureKey; config: StudentAppConfig }) {
+  const accent = config.appearance.brand_primary;
+  const title = FEATURE_LABELS[featureKey];
+
+  const skeletons: Partial<Record<FeatureKey, React.ReactNode>> = {
+    checkin: (
+      <div className="space-y-2">
+        <div className="rounded-xl p-3 text-center ring-1 ring-neutral-200" style={{ background: config.appearance.card_color }}>
+          <div className="text-[10px] text-neutral-500">Aula das 19h</div>
+          <div className="mt-2 rounded-md py-2 text-[11px] font-semibold text-white" style={{ background: accent }}>Fazer check-in</div>
+        </div>
+        <div className="rounded-xl p-2 text-[10px] ring-1 ring-neutral-200" style={{ background: config.appearance.card_color }}>Histórico de presenças</div>
+      </div>
+    ),
+    videos: (
+      <div className="grid grid-cols-2 gap-2">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="overflow-hidden rounded-md ring-1 ring-neutral-200">
+            <div className="h-14 bg-neutral-200" />
+            <div className="p-1 text-[9px]">Aula {i}</div>
+          </div>
+        ))}
+      </div>
+    ),
+    finance: (
+      <div className="space-y-2">
+        <div className="rounded-xl p-3 ring-1 ring-neutral-200" style={{ background: config.appearance.card_color }}>
+          <div className="text-[10px] text-neutral-500">Mensalidade Nov/25</div>
+          <div className="mt-1 text-sm font-bold" style={{ color: accent }}>R$ 220,00</div>
+          <div className="mt-2 rounded-md py-1.5 text-center text-[10px] font-semibold text-white" style={{ background: accent }}>Pagar via Pix</div>
+        </div>
+        <div className="rounded-xl p-2 text-[10px] ring-1 ring-neutral-200" style={{ background: config.appearance.card_color }}>Histórico de pagamentos</div>
+      </div>
+    ),
+    graduations: (
+      <div className="rounded-xl p-3 text-center ring-1 ring-neutral-200" style={{ background: config.appearance.card_color }}>
+        <div className="text-[10px] text-neutral-500">Faixa atual</div>
+        <div className="mx-auto mt-2 h-3 w-24 rounded-sm bg-blue-600" />
+        <div className="mt-2 text-[10px]">3 graus</div>
+      </div>
+    ),
+    certificates: (
+      <div className="space-y-2">
+        {[1, 2].map((i) => (
+          <div key={i} className="flex items-center gap-2 rounded-xl p-2 text-[10px] ring-1 ring-neutral-200" style={{ background: config.appearance.card_color }}>
+            <Icons.Award className="h-4 w-4" style={{ color: accent }} /> Certificado #{i}
+          </div>
+        ))}
+      </div>
+    ),
+    news: (
+      <div className="space-y-2">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="rounded-xl p-2 ring-1 ring-neutral-200" style={{ background: config.appearance.card_color }}>
+            <div className="h-14 rounded-md bg-neutral-200" />
+            <div className="mt-1 text-[10px] font-semibold">Notícia {i}</div>
+          </div>
+        ))}
+      </div>
+    ),
+    agenda: (
+      <div className="space-y-2">
+        {["Seg 19h", "Ter 20h", "Qui 19h"].map((t) => (
+          <div key={t} className="flex items-center justify-between rounded-xl p-2 text-[10px] ring-1 ring-neutral-200" style={{ background: config.appearance.card_color }}>
+            <span>{t} — Jiu-Jitsu</span>
+            <Icons.ChevronRight className="h-3 w-3" />
+          </div>
+        ))}
+      </div>
+    ),
+    profile: (
+      <div className="space-y-2 text-center">
+        <div className="mx-auto h-14 w-14 rounded-full bg-neutral-200" />
+        <div className="text-xs font-semibold" style={{ color: config.appearance.title_color }}>Nome do Aluno</div>
+        <div className="text-[10px] text-neutral-500">Faixa Azul • 2 graus</div>
+      </div>
+    ),
+    evaluations: (
+      <div className="space-y-2">
+        <div className="rounded-xl p-2 text-[10px] ring-1 ring-neutral-200" style={{ background: config.appearance.card_color }}>Avaliação técnica — 85/100</div>
+        <div className="rounded-xl p-2 text-[10px] ring-1 ring-neutral-200" style={{ background: config.appearance.card_color }}>Próxima avaliação em 30 dias</div>
+      </div>
+    ),
+  };
+
+  return (
+    <div className="space-y-2">
+      <div className="text-[11px] font-bold" style={{ color: config.appearance.title_color }}>{title}</div>
+      {skeletons[featureKey] ?? (
+        <div className="rounded-xl p-3 text-[10px] text-neutral-500 ring-1 ring-neutral-200" style={{ background: config.appearance.card_color }}>
+          Prévia de <b>{title}</b> — conteúdo será exibido aqui no app do aluno.
+        </div>
+      )}
     </div>
   );
 }
