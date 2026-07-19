@@ -1142,6 +1142,168 @@ function iconFromName(name: string) {
 }
 
 // ================================================================
+// Carteirinha digital
+// ================================================================
+function DigitalCardPanel({
+  value,
+  onChange,
+  appearance,
+}: {
+  value: DigitalCardConfig;
+  onChange: (p: Partial<DigitalCardConfig>) => void;
+  appearance: StudentAppConfig["appearance"];
+}) {
+  const brand: BrandRef = {
+    primary: appearance.brand_primary,
+    secondary: appearance.brand_secondary,
+    logoUrl: appearance.logo_url,
+    appName: appearance.app_name,
+  };
+  const toggle = (k: keyof DigitalCardConfig, label: string) => (
+    <div className="flex items-center justify-between rounded-md border p-2">
+      <span className="text-xs">{label}</span>
+      <Switch checked={Boolean(value[k])} onCheckedChange={(v) => onChange({ [k]: v } as Partial<DigitalCardConfig>)} />
+    </div>
+  );
+  return (
+    <div className="space-y-5">
+      <div>
+        <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Textos</div>
+        <div className="grid gap-3 md:grid-cols-2">
+          <Field label="Título">
+            <Input value={value.title} onChange={(e) => onChange({ title: e.target.value })} />
+          </Field>
+          <Field label="Subtítulo (opcional)">
+            <Input value={value.subtitle ?? ""} onChange={(e) => onChange({ subtitle: e.target.value || null })} />
+          </Field>
+          <Field label="Rodapé">
+            <Input value={value.footer_text ?? ""} onChange={(e) => onChange({ footer_text: e.target.value || null })} />
+          </Field>
+        </div>
+      </div>
+
+      <div>
+        <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Cores &amp; Fundo</div>
+        <div className="grid gap-3 md:grid-cols-2">
+          <Field label="Estilo do fundo">
+            <Select
+              value={value.background_style}
+              onValueChange={(v) => onChange({ background_style: v as DigitalCardConfig["background_style"] })}
+            >
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="gradient">Gradiente</SelectItem>
+                <SelectItem value="solid">Cor sólida</SelectItem>
+                <SelectItem value="image">Imagem</SelectItem>
+              </SelectContent>
+            </Select>
+          </Field>
+          <ColorField label="Cor de fundo" value={value.background_color} onChange={(v) => onChange({ background_color: v })} />
+          <ColorField label="Cor do texto" value={value.text_color} onChange={(v) => onChange({ text_color: v })} />
+          <ColorField label="Cor de destaque" value={value.accent_color} onChange={(v) => onChange({ accent_color: v })} />
+        </div>
+        {value.background_style === "image" && (
+          <div className="mt-3">
+            <ImageUpload
+              label="Imagem de fundo da carteirinha"
+              url={value.background_url}
+              onChange={(u) => onChange({ background_url: u })}
+              aspect="landscape"
+              hint="Imagem que aparecerá como fundo. Um overlay escuro é aplicado para garantir a leitura dos dados."
+              recommendedSize="1600×1000 px · PNG ou JPG · até 2 MB"
+              brand={brand}
+              templates="hero"
+            />
+          </div>
+        )}
+      </div>
+
+      <div>
+        <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">O que exibir</div>
+        <div className="grid gap-2 md:grid-cols-2">
+          {toggle("show_photo", "Foto do aluno")}
+          {toggle("show_qr", "QR Code exclusivo")}
+          {toggle("show_pin", "PIN de check-in")}
+          {toggle("show_belt", "Faixa e graus atuais")}
+          {toggle("show_enrollment_date", "Data de matrícula")}
+          {toggle("show_registration_number", "Número de matrícula")}
+          {toggle("show_academy_logo", "Logo da academia")}
+          {toggle("show_unit_name", "Unidade / academia")}
+        </div>
+      </div>
+
+      <p className="rounded-md bg-muted/50 p-3 text-[11px] leading-snug text-muted-foreground">
+        Cada aluno recebe automaticamente um <b>QR Code exclusivo</b> e um <b>PIN de 6 dígitos</b> quando acessa a carteirinha pela primeira vez.
+        Os dados exibidos (nome, faixa, número e data de matrícula) são carregados do cadastro do aluno.
+      </p>
+    </div>
+  );
+}
+
+function PreviewDigitalCard({ config }: { config: StudentAppConfig }) {
+  const dc = config.digital_card;
+  const bg =
+    dc.background_style === "image" && dc.background_url
+      ? { backgroundImage: `url(${dc.background_url})`, backgroundSize: "cover", backgroundPosition: "center" }
+      : dc.background_style === "solid"
+        ? { background: dc.background_color }
+        : { background: `linear-gradient(135deg, ${dc.background_color}, ${dc.accent_color})` };
+  const logo = config.appearance.logo_url;
+  return (
+    <div className="space-y-2">
+      <div
+        className="relative aspect-[1.586] w-full overflow-hidden rounded-xl p-3 text-[9px]"
+        style={{ ...bg, color: dc.text_color }}
+      >
+        {dc.background_style === "image" && dc.background_url && <div className="absolute inset-0 bg-black/50" />}
+        <div className="relative flex h-full flex-col justify-between">
+          <div className="flex items-start justify-between">
+            <div className="text-[8px] font-semibold uppercase opacity-80">{dc.title}</div>
+            {dc.show_academy_logo && logo ? (
+              <img src={logo} alt="" className="h-6 w-6 rounded bg-white/95 object-contain p-0.5" />
+            ) : (
+              dc.show_academy_logo && <div className="h-6 w-6 rounded bg-white/20" />
+            )}
+          </div>
+          <div className="flex items-end gap-2">
+            {dc.show_photo && <div className="h-12 w-10 shrink-0 rounded bg-white/20 ring-1" style={{ borderColor: dc.accent_color }} />}
+            <div className="min-w-0 flex-1 space-y-0.5">
+              <div className="text-[9px] font-bold leading-tight">Nome do Aluno</div>
+              {dc.show_belt && (
+                <div className="flex items-center gap-1">
+                  <span className="inline-block h-1.5 w-5 rounded-sm" style={{ background: "#1e40af" }} />
+                  <span className="text-[8px]">Faixa Azul · 2º grau</span>
+                </div>
+              )}
+              {dc.show_unit_name && <div className="text-[7px] opacity-80">Academia AMT</div>}
+            </div>
+          </div>
+          <div className="flex items-end justify-between">
+            <div className="space-y-0.5 text-[7px]">
+              {dc.show_registration_number && <div>Matrícula: <b>A1B2C3D4</b></div>}
+              {dc.show_enrollment_date && <div>Desde: <b>01/03/2024</b></div>}
+              {dc.show_pin && <div className="font-mono">PIN: <b>123456</b></div>}
+            </div>
+            {dc.show_qr && (
+              <div className="rounded-sm bg-white p-1">
+                <div className="grid h-10 w-10 grid-cols-4 gap-[1px] bg-white">
+                  {Array.from({ length: 16 }).map((_, i) => (
+                    <span key={i} className="bg-neutral-900" style={{ opacity: (i * 37) % 2 ? 1 : 0.15 }} />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      {dc.footer_text && <div className="text-center text-[9px] text-neutral-500">{dc.footer_text}</div>}
+    </div>
+  );
+}
+
+
+
+// ================================================================
 // Helpers
 // ================================================================
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
