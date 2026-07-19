@@ -87,6 +87,7 @@ import { Route as AppStudentCompetitionsRouteImport } from './routes/app._studen
 import { Route as AppStudentCheckinRouteImport } from './routes/app._student.checkin'
 import { Route as AppStudentCertificatesRouteImport } from './routes/app._student.certificates'
 import { Route as AppStudentCardRouteImport } from './routes/app._student.card'
+import { Route as AppStudentAnnouncementsRouteImport } from './routes/app._student.announcements'
 import { Route as AppStudentAgendaRouteImport } from './routes/app._student.agenda'
 import { Route as ApiDojoApkUploadRouteImport } from './routes/api/dojo/apk-upload'
 import { Route as AuthenticatedStoreWholesaleRouteImport } from './routes/_authenticated/store.wholesale'
@@ -565,6 +566,11 @@ const AppStudentCertificatesRoute = AppStudentCertificatesRouteImport.update({
 const AppStudentCardRoute = AppStudentCardRouteImport.update({
   id: '/card',
   path: '/card',
+  getParentRoute: () => AppStudentRoute,
+} as any)
+const AppStudentAnnouncementsRoute = AppStudentAnnouncementsRouteImport.update({
+  id: '/announcements',
+  path: '/announcements',
   getParentRoute: () => AppStudentRoute,
 } as any)
 const AppStudentAgendaRoute = AppStudentAgendaRouteImport.update({
@@ -1160,6 +1166,7 @@ export interface FileRoutesByFullPath {
   '/store/wholesale': typeof AuthenticatedStoreWholesaleRoute
   '/api/dojo/apk-upload': typeof ApiDojoApkUploadRoute
   '/app/agenda': typeof AppStudentAgendaRoute
+  '/app/announcements': typeof AppStudentAnnouncementsRoute
   '/app/card': typeof AppStudentCardRoute
   '/app/certificates': typeof AppStudentCertificatesRoute
   '/app/checkin': typeof AppStudentCheckinRoute
@@ -1325,6 +1332,7 @@ export interface FileRoutesByTo {
   '/store/wholesale': typeof AuthenticatedStoreWholesaleRoute
   '/api/dojo/apk-upload': typeof ApiDojoApkUploadRoute
   '/app/agenda': typeof AppStudentAgendaRoute
+  '/app/announcements': typeof AppStudentAnnouncementsRoute
   '/app/card': typeof AppStudentCardRoute
   '/app/certificates': typeof AppStudentCertificatesRoute
   '/app/checkin': typeof AppStudentCheckinRoute
@@ -1491,6 +1499,7 @@ export interface FileRoutesById {
   '/_authenticated/store/wholesale': typeof AuthenticatedStoreWholesaleRoute
   '/api/dojo/apk-upload': typeof ApiDojoApkUploadRoute
   '/app/_student/agenda': typeof AppStudentAgendaRoute
+  '/app/_student/announcements': typeof AppStudentAnnouncementsRoute
   '/app/_student/card': typeof AppStudentCardRoute
   '/app/_student/certificates': typeof AppStudentCertificatesRoute
   '/app/_student/checkin': typeof AppStudentCheckinRoute
@@ -1661,6 +1670,7 @@ export interface FileRouteTypes {
     | '/store/wholesale'
     | '/api/dojo/apk-upload'
     | '/app/agenda'
+    | '/app/announcements'
     | '/app/card'
     | '/app/certificates'
     | '/app/checkin'
@@ -1826,6 +1836,7 @@ export interface FileRouteTypes {
     | '/store/wholesale'
     | '/api/dojo/apk-upload'
     | '/app/agenda'
+    | '/app/announcements'
     | '/app/card'
     | '/app/certificates'
     | '/app/checkin'
@@ -1991,6 +2002,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/wholesale'
     | '/api/dojo/apk-upload'
     | '/app/_student/agenda'
+    | '/app/_student/announcements'
     | '/app/_student/card'
     | '/app/_student/certificates'
     | '/app/_student/checkin'
@@ -2680,6 +2692,13 @@ declare module '@tanstack/react-router' {
       path: '/card'
       fullPath: '/app/card'
       preLoaderRoute: typeof AppStudentCardRouteImport
+      parentRoute: typeof AppStudentRoute
+    }
+    '/app/_student/announcements': {
+      id: '/app/_student/announcements'
+      path: '/announcements'
+      fullPath: '/app/announcements'
+      preLoaderRoute: typeof AppStudentAnnouncementsRouteImport
       parentRoute: typeof AppStudentRoute
     }
     '/app/_student/agenda': {
@@ -3456,6 +3475,7 @@ const AuthenticatedRouteRouteWithChildren =
 
 interface AppStudentRouteChildren {
   AppStudentAgendaRoute: typeof AppStudentAgendaRoute
+  AppStudentAnnouncementsRoute: typeof AppStudentAnnouncementsRoute
   AppStudentCardRoute: typeof AppStudentCardRoute
   AppStudentCertificatesRoute: typeof AppStudentCertificatesRoute
   AppStudentCheckinRoute: typeof AppStudentCheckinRoute
@@ -3476,6 +3496,7 @@ interface AppStudentRouteChildren {
 
 const AppStudentRouteChildren: AppStudentRouteChildren = {
   AppStudentAgendaRoute: AppStudentAgendaRoute,
+  AppStudentAnnouncementsRoute: AppStudentAnnouncementsRoute,
   AppStudentCardRoute: AppStudentCardRoute,
   AppStudentCertificatesRoute: AppStudentCertificatesRoute,
   AppStudentCheckinRoute: AppStudentCheckinRoute,
