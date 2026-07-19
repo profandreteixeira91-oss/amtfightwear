@@ -12,6 +12,7 @@ import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { getMyBranding } from "@/lib/student/student.functions";
 import { getMyAcademySlug } from "@/lib/dojo/academy-public.functions";
+import { getAcademyPublicUrl } from "@/lib/dojo/apk-distribution.functions";
 
 export const Route = createFileRoute("/dojo/app/student-app-qr")({
   head: () => ({
