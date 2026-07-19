@@ -570,11 +570,14 @@ function StudentsPage() {
         </div>
       </div>
 
-      <div className="rounded-lg border border-border bg-card">
-
+      <div className="overflow-hidden rounded-lg border border-border bg-card">
         {filtered.map((s: any) => (
-          <div key={s.id} className="flex items-center justify-between p-3 border-b last:border-0 gap-2">
-            <div className="flex min-w-0 flex-1 items-center gap-3">
+          <div
+            key={s.id}
+            className="grid grid-cols-[1fr_auto] items-center gap-3 border-b p-3 last:border-0 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:gap-4"
+          >
+            {/* Avatar + nome */}
+            <div className="flex min-w-0 items-center gap-3">
               <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-muted">
                 {s.photo_url ? (
                   <img src={s.photo_url} alt={s.full_name} className="h-full w-full object-cover" />
@@ -584,35 +587,49 @@ function StudentsPage() {
                   </div>
                 )}
               </div>
-              <div className="min-w-0 flex-1">
-                <div className="font-medium truncate">{s.full_name}</div>
-                <div className="text-xs text-muted-foreground truncate">
-                  {s.belt?.name}
-                  {s.current_degree ? ` · ${s.current_degree}º grau` : ""} · {s.unit?.name ?? "—"} · {s.email ?? s.phone ?? ""}
+              <div className="min-w-0">
+                <div className="truncate font-medium">{s.full_name}</div>
+                <div className="truncate text-xs text-muted-foreground">
+                  {[
+                    s.belt?.name && `${s.belt.name}${s.current_degree ? ` · ${s.current_degree}º grau` : ""}`,
+                    s.unit?.name,
+                    s.email ?? s.phone,
+                  ].filter(Boolean).join(" · ") || "Sem dados adicionais"}
                 </div>
               </div>
             </div>
+
+            {/* Status — some no desktop para dar respiro */}
             <span
-              className={`text-xs px-2 py-0.5 rounded ${
-                s.status === "active" ? "bg-green-100 text-green-800" : "bg-muted"
+              className={`hidden shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium sm:inline-flex ${
+                s.status === "active"
+                  ? "bg-green-100 text-green-800"
+                  : s.status === "frozen"
+                    ? "bg-amber-100 text-amber-800"
+                    : "bg-muted text-muted-foreground"
               }`}
             >
-              {s.status}
+              {s.status === "active" ? "Ativo" : s.status === "frozen" ? "Trancado" : "Inativo"}
             </span>
-            <Link to="/dojo/app/students/$id" params={{ id: s.id }}>
-              <Button size="sm" variant="outline">Abrir</Button>
-            </Link>
-            <Button size="icon" variant="ghost" onClick={() => openEdit(s)}>
-              <Pencil className="h-4 w-4" />
-            </Button>
-            <Button size="icon" variant="ghost" onClick={() => onDelete(s.id)}>
-              <Trash2 className="h-4 w-4 text-destructive" />
-            </Button>
+
+            {/* Ações */}
+            <div className="col-start-2 flex shrink-0 items-center gap-1 justify-self-end sm:col-auto">
+              <Link to="/dojo/app/students/$id" params={{ id: s.id }}>
+                <Button size="sm" variant="outline">Abrir</Button>
+              </Link>
+              <Button size="icon" variant="ghost" onClick={() => openEdit(s)} aria-label="Editar aluno">
+                <Pencil className="h-4 w-4" />
+              </Button>
+              <Button size="icon" variant="ghost" onClick={() => onDelete(s.id)} aria-label="Excluir aluno">
+                <Trash2 className="h-4 w-4 text-destructive" />
+              </Button>
+            </div>
           </div>
         ))}
         {filtered.length === 0 && (
           <div className="p-6 text-center text-sm text-muted-foreground">Nenhum aluno.</div>
         )}
+
       </div>
     </div>
   );
