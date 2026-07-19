@@ -421,7 +421,7 @@ function AtacadoLandingPage() {
       </section>
 
       {/* PRODUTOS */}
-      <section id="produtos" className="mx-auto max-w-6xl px-4 py-14 md:py-20">
+      <section id="produtos" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-14 md:py-20">
         <div className="mb-10 text-center">
           <h2 className="text-2xl font-black tracking-tight md:text-4xl">
             Nossos produtos <span className="text-primary">personalizados</span>
