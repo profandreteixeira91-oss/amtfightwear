@@ -290,15 +290,32 @@ export async function scrapeCustomSource(
   countryLabel: string | null,
 ): Promise<LiveCompetition[]> {
   let baseHost = "";
-  try { baseHost = new URL(sourceUrl).hostname; } catch { throw new Error("URL inválida"); }
+  let basePathname = "";
+  let baseSearch = "";
+  try {
+    const b = new URL(sourceUrl);
+    baseHost = b.hostname;
+    basePathname = b.pathname.replace(/\/+$/, "");
+    baseSearch = b.search;
+  } catch {
+    throw new Error("URL inválida");
+  }
   const fakeProvider: ProviderDefinition = {
     id: "custom" as ProviderId,
     label,
     homepage: sourceUrl,
     listUrls: [sourceUrl],
-    // Aceita qualquer path do mesmo host com pelo menos 2 segmentos.
-    isEventDetailUrl: (u: URL) =>
-      u.hostname.endsWith(baseHost) && u.pathname.split("/").filter(Boolean).length >= 2,
+    // Aceita qualquer URL do mesmo host que seja diferente da própria página de listagem —
+    // cobre tanto rotas via path (/eventos/x) quanto sites em query-string (?p=campeonato&id=X).
+    isEventDetailUrl: (u: URL) => {
+      if (!u.hostname.endsWith(baseHost)) return false;
+      const segs = u.pathname.split("/").filter(Boolean);
+      const samePath = u.pathname.replace(/\/+$/, "") === basePathname;
+      const sameSearch = u.search === baseSearch;
+      if (samePath && sameSearch) return false; // é o próprio link da listagem
+      // Path com múltiplos segmentos, OU query-string diferente da base (sites como CBJJE)
+      return segs.length >= 2 || (u.search.length > 1 && !sameSearch);
+    },
     priority: "medium",
     scope: "international",
     countryLabel: countryLabel ?? "—",
@@ -321,6 +338,7 @@ export async function scrapeCustomSource(
     banner_url: null,
   }));
 }
+
 
 
 
