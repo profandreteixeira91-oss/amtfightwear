@@ -28,6 +28,7 @@ export const createApiKey = createServerFn({ method: "POST" })
     z.object({
       name: z.string().min(1).max(80),
       scopes: z.array(z.enum(["read", "write", "webhook"])).min(1),
+      module: z.string().max(40).optional().nullable(),
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -42,12 +43,59 @@ export const createApiKey = createServerFn({ method: "POST" })
         prefix,
         hashed_key: hashed,
         scopes: data.scopes,
+        module: data.module ?? null,
       })
-      .select("id, name, prefix, scopes, created_at")
+      .select("id, name, prefix, scopes, module, created_at")
       .single();
     if (error) throw new Error(error.message);
-    // Retorna a chave em claro APENAS uma vez.
     return { ...inserted, key: raw };
+  });
+
+// Módulos oficiais do Dojo Manager: cada um pode ter sua própria API key.
+export const DOJO_MODULES = [
+  { id: "master",       label: "Master (todos os módulos)", scopes: ["read", "write", "webhook"] as const },
+  { id: "students",     label: "Alunos",                    scopes: ["read", "write"] as const },
+  { id: "invoices",     label: "Financeiro / Faturas",      scopes: ["read", "write"] as const },
+  { id: "checkin",      label: "Check-in",                  scopes: ["read", "write"] as const },
+  { id: "graduations",  label: "Graduações",                scopes: ["read", "write"] as const },
+  { id: "evaluations",  label: "Avaliações",                scopes: ["read", "write"] as const },
+  { id: "schedule",     label: "Agenda",                    scopes: ["read", "write"] as const },
+  { id: "videos",       label: "Vídeos",                    scopes: ["read"] as const },
+  { id: "chat",         label: "Chat / Atendimento",        scopes: ["read", "write"] as const },
+  { id: "competitions", label: "Competições",               scopes: ["read", "write"] as const },
+] as const;
+
+// 1-clique: cria a API Key de cada módulo que ainda não tem uma ativa.
+// Retorna os valores brutos APENAS uma vez (para o dono copiar).
+export const autoProvisionApiSuite = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    // Chaves ativas já existentes por módulo
+    const { data: existing, error: e1 } = await context.supabase
+      .from("dojo_api_keys")
+      .select("module")
+      .eq("owner_id", context.userId)
+      .is("revoked_at", null);
+    if (e1) throw new Error(e1.message);
+    const already = new Set((existing ?? []).map((r: any) => r.module));
+
+    const created: Array<{ module: string; label: string; key: string; prefix: string }> = [];
+    for (const mod of DOJO_MODULES) {
+      if (already.has(mod.id)) continue;
+      const raw = `dojo_${randomBytes(24).toString("hex")}`;
+      const prefix = raw.slice(0, 12);
+      const { error } = await context.supabase.from("dojo_api_keys").insert({
+        owner_id: context.userId,
+        name: `Chave do módulo ${mod.label}`,
+        prefix,
+        hashed_key: sha256(raw),
+        scopes: [...mod.scopes],
+        module: mod.id,
+      });
+      if (error) throw new Error(error.message);
+      created.push({ module: mod.id, label: mod.label, key: raw, prefix });
+    }
+    return { created, skipped: DOJO_MODULES.filter((m) => already.has(m.id)).map((m) => m.id) };
   });
 
 export const revokeApiKey = createServerFn({ method: "POST" })
