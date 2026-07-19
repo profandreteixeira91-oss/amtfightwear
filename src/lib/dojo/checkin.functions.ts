@@ -117,7 +117,7 @@ export const presentNowList = createServerFn({ method: "GET" })
 // ---------- Check-out ----------
 export const checkoutAttendance = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .inputValidator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("dojo_attendance")
@@ -136,7 +136,7 @@ export const registerVisitor = createServerFn({ method: "POST" })
       phone: z.string().max(40).optional().nullable(),
       origin: z.string().max(80).optional().nullable(),
       notes: z.string().max(400).optional().nullable(),
-      unitId: z.string().uuid().optional().nullable(),
+      unitId: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido").optional().nullable(),
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -223,7 +223,7 @@ export const simulatePartnerCheckin = createServerFn({ method: "POST" })
       provider: z.enum(["gympass", "totalpass"]),
       identifier: z.string().min(3).max(120),
       token: z.string().max(120).optional().nullable(),
-      unitId: z.string().uuid().optional().nullable(),
+      unitId: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido").optional().nullable(),
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
