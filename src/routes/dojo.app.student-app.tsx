@@ -1113,7 +1113,59 @@ function ColorField({ label, value, onChange }: { label: string; value: string; 
   );
 }
 
-function ImageUpload({ label, url, onChange }: { label: string; url: string | null; onChange: (u: string | null) => void }) {
+type ImageUploadAspect = "square" | "portrait" | "landscape";
+type TemplateKind = "splash" | "login" | "hero";
+
+type BrandRef = { primary: string; secondary: string; logoUrl: string | null; appName: string };
+
+function buildTemplateSvg(kind: TemplateKind, variant: number, brand: BrandRef, w: number, h: number): string {
+  const { primary, secondary, appName } = brand;
+  const initials = (appName || "AMT").split(/\s+/).map((s) => s[0]).slice(0, 2).join("").toUpperCase();
+  const cx = w / 2;
+  const cy = h / 2;
+  let bg = "";
+  if (variant === 0) {
+    bg = `<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${primary}"/><stop offset="1" stop-color="${secondary}"/></linearGradient></defs><rect width="${w}" height="${h}" fill="url(#g)"/>`;
+  } else if (variant === 1) {
+    bg = `<rect width="${w}" height="${h}" fill="${secondary}"/><circle cx="${w * 0.85}" cy="${h * 0.15}" r="${w * 0.6}" fill="${primary}" opacity="0.55"/><circle cx="${w * 0.1}" cy="${h * 0.9}" r="${w * 0.4}" fill="${primary}" opacity="0.35"/>`;
+  } else {
+    bg = `<rect width="${w}" height="${h}" fill="${primary}"/><g opacity="0.18" stroke="${secondary}" stroke-width="2">${Array.from({ length: 14 }).map((_, i) => `<line x1="0" y1="${(h / 14) * i}" x2="${w}" y2="${(h / 14) * i + 40}"/>`).join("")}</g>`;
+  }
+  let content = "";
+  if (kind === "hero") {
+    content = `<text x="${cx}" y="${cy}" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-weight="800" font-size="${Math.round(h * 0.18)}" fill="#ffffff">${appName || "AMT Dojo"}</text>`;
+  } else {
+    content = `<circle cx="${cx}" cy="${cy - h * 0.05}" r="${Math.min(w, h) * 0.14}" fill="#ffffff" opacity="0.95"/><text x="${cx}" y="${cy - h * 0.03}" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-weight="800" font-size="${Math.round(Math.min(w, h) * 0.12)}" fill="${primary}">${initials}</text><text x="${cx}" y="${cy + h * 0.12}" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-weight="700" font-size="${Math.round(h * 0.035)}" fill="#ffffff" opacity="0.9">${appName || "AMT Dojo"}</text>`;
+  }
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">${bg}${content}</svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
+const TEMPLATE_LABELS: Record<TemplateKind, string> = {
+  splash: "Modelos de splash",
+  login: "Modelos de fundo de login",
+  hero: "Modelos de banner",
+};
+
+function ImageUpload({
+  label,
+  url,
+  onChange,
+  hint,
+  recommendedSize,
+  aspect = "square",
+  brand,
+  templates,
+}: {
+  label: string;
+  url: string | null;
+  onChange: (u: string | null) => void;
+  hint?: string;
+  recommendedSize?: string;
+  aspect?: ImageUploadAspect;
+  brand?: BrandRef;
+  templates?: TemplateKind;
+}) {
   const [uploading, setUploading] = useState(false);
   async function upload(file: File) {
     setUploading(true);
@@ -1132,25 +1184,73 @@ function ImageUpload({ label, url, onChange }: { label: string; url: string | nu
       setUploading(false);
     }
   }
+
+  const previewSize =
+    aspect === "portrait" ? "h-24 w-14" : aspect === "landscape" ? "h-12 w-24" : "h-16 w-16";
+  const tplDims = templates === "hero" ? { w: 640, h: 360 } : { w: 420, h: 840 };
+  const tplAspect = templates === "hero" ? "h-10 w-16" : "h-16 w-8";
+
   return (
     <Field label={label}>
-      <div className="flex items-center gap-2">
+      <div className="flex items-start gap-3">
         {url ? (
-          <img src={url} alt="" className="h-14 w-14 rounded-md border object-cover" />
+          <img src={url} alt="" className={`${previewSize} shrink-0 rounded-md border object-cover`} />
         ) : (
-          <div className="grid h-14 w-14 place-items-center rounded-md border bg-muted"><Icons.Image className="h-5 w-5 text-muted-foreground" /></div>
+          <div className={`${previewSize} grid shrink-0 place-items-center rounded-md border bg-muted`}>
+            <Icons.Image className="h-5 w-5 text-muted-foreground" />
+          </div>
         )}
-        <div className="flex-1 space-y-1">
-          <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border bg-background px-3 py-1.5 text-xs font-medium hover:bg-accent">
-            <Icons.Upload className="h-3.5 w-3.5" />
-            {uploading ? "Enviando…" : "Enviar imagem"}
-            <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
-          </label>
-          {url && (
-            <button onClick={() => onChange(null)} className="ml-2 text-xs text-red-600 hover:underline">Remover</button>
+        <div className="flex-1 space-y-1.5">
+          <div className="flex flex-wrap items-center gap-2">
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border bg-background px-3 py-1.5 text-xs font-medium hover:bg-accent">
+              <Icons.Upload className="h-3.5 w-3.5" />
+              {uploading ? "Enviando…" : "Enviar imagem"}
+              <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
+            </label>
+            {url && (
+              <button onClick={() => onChange(null)} className="text-xs text-red-600 hover:underline">
+                Remover
+              </button>
+            )}
+          </div>
+          {hint && <p className="text-[11px] leading-snug text-muted-foreground">{hint}</p>}
+          {recommendedSize && (
+            <div className="inline-flex items-center gap-1 rounded-md bg-muted/60 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+              <Icons.Ruler className="h-3 w-3" /> {recommendedSize}
+            </div>
+          )}
+          {templates && brand && (
+            <div className="pt-1">
+              <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                {TEMPLATE_LABELS[templates]}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {[0, 1, 2].map((v) => {
+                  const src = buildTemplateSvg(templates, v, brand, tplDims.w, tplDims.h);
+                  return (
+                    <button
+                      key={v}
+                      type="button"
+                      title="Aplicar este modelo"
+                      onClick={() => {
+                        onChange(src);
+                        toast.success("Modelo aplicado — pode substituir por sua imagem depois.");
+                      }}
+                      className={`${tplAspect} overflow-hidden rounded-md border transition hover:ring-2 hover:ring-primary`}
+                    >
+                      <img src={src} alt="Modelo" className="h-full w-full object-cover" />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           )}
         </div>
       </div>
+    </Field>
+  );
+}
+
     </Field>
   );
 }
