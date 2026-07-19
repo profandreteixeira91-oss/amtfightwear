@@ -12,23 +12,32 @@ export const Route = createFileRoute("/api/public/app/manifest.webmanifest")({
         const short = (url.searchParams.get("short") ?? name).slice(0, 12);
         const primary = url.searchParams.get("primary") ?? "#dc2626";
         const bg = url.searchParams.get("bg") ?? "#ffffff";
-        const icon = url.searchParams.get("icon") ?? "/favicon.ico";
 
         const body = {
+          id: "/app/",
           name,
           short_name: short,
           description: "Portal do aluno: agenda, check-in, vídeos, graduações e financeiro.",
           start_url: "/app/home",
           scope: "/app/",
           display: "standalone",
+          display_override: ["standalone", "minimal-ui", "browser"],
           orientation: "portrait",
+          lang: "pt-BR",
+          dir: "ltr",
           background_color: bg,
           theme_color: primary,
+          categories: ["sports", "education", "lifestyle"],
+          prefer_related_applications: false,
           icons: [
-            { src: icon, sizes: "192x192", type: "image/png", purpose: "any maskable" },
-            { src: icon, sizes: "512x512", type: "image/png", purpose: "any maskable" },
+            { src: "/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+            { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+            { src: "/icon-maskable-192.png", sizes: "192x192", type: "image/png", purpose: "maskable" },
+            { src: "/icon-maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+            { src: "/apple-touch-icon.png", sizes: "180x180", type: "image/png", purpose: "any" },
           ],
         };
+
         return new Response(JSON.stringify(body), {
           status: 200,
           headers: {
