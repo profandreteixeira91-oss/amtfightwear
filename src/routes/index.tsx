@@ -270,6 +270,14 @@ function StoreHomePage() {
         </section>
       )}
 
+      <section className="mx-auto max-w-7xl px-4 pt-8">
+        <div className="rounded-lg border border-primary/30 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent px-6 py-5 text-center">
+          <div className="text-[10px] font-bold uppercase tracking-[0.35em] text-primary">Bem-vindo à</div>
+          <h2 className="mt-1 text-3xl font-black uppercase tracking-tight text-foreground sm:text-4xl">Loja Virtual AMT Fight Wear</h2>
+          <p className="mt-2 text-sm text-muted-foreground">Compre online com segurança · entrega para todo o Brasil</p>
+        </div>
+      </section>
+
       {data.newest.length > 0 && (
         <section className="mx-auto max-w-7xl px-4 py-12">
           <div className="mb-6 flex items-end justify-between">
