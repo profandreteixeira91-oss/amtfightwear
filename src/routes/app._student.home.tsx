@@ -181,7 +181,7 @@ function BlockRenderer({
           <h2 className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-neutral-400">
             {block.title ?? "Acesso rápido"}
           </h2>
-          <div className="grid grid-cols-3 gap-2.5">
+          <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-4 sm:gap-3 md:grid-cols-5 lg:grid-cols-4">
             {items.map(({ key, meta }) => {
               const Icon = Icons[meta.icon] as React.ComponentType<{ className?: string }>;
               return (
