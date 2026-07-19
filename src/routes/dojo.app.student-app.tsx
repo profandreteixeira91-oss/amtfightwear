@@ -1250,7 +1250,3 @@ function ImageUpload({
     </Field>
   );
 }
-
-    </Field>
-  );
-}
