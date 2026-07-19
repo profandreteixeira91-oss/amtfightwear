@@ -148,6 +148,9 @@ function StudentAppEditor() {
           <Button asChild variant="outline">
             <Link to="/dojo/app/student-app-qr">QR para imprimir</Link>
           </Button>
+          <Button asChild variant="outline">
+            <Link to="/dojo/app/apk-versions">Versões do APK</Link>
+          </Button>
           <Button variant="outline" onClick={() => saveMut.mutate()} disabled={saveMut.isPending}>
             {saveMut.isPending ? "Salvando…" : "Salvar rascunho"}
           </Button>
