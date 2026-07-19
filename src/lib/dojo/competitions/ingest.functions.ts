@@ -86,10 +86,10 @@ async function upsertOne(supabaseAdmin: Awaited<ReturnType<typeof serverAdmin>>,
     .maybeSingle();
 
   if (existing) {
-    await supabaseAdmin.from("competitions").update(record).eq("id", existing.id);
+    await supabaseAdmin.from("competitions").update(record as never).eq("id", existing.id);
     return "updated" as const;
   }
-  await supabaseAdmin.from("competitions").insert(record);
+  await supabaseAdmin.from("competitions").insert(record as never);
   return "inserted" as const;
 }
 
