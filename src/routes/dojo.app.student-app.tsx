@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState, useEffect, useMemo } from "react";
@@ -137,6 +137,9 @@ function StudentAppEditor() {
               <SelectItem value="tablet">Tablet</SelectItem>
             </SelectContent>
           </Select>
+          <Button asChild variant="outline">
+            <Link to="/dojo/app/student-app-qr">QR para imprimir</Link>
+          </Button>
           <Button variant="outline" onClick={() => saveMut.mutate()} disabled={saveMut.isPending}>
             {saveMut.isPending ? "Salvando…" : "Salvar rascunho"}
           </Button>
