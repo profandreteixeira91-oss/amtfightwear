@@ -68,6 +68,7 @@ import { Route as DojoAppEvaluationsRouteImport } from './routes/dojo.app.evalua
 import { Route as DojoAppCompetitionsRouteImport } from './routes/dojo.app.competitions'
 import { Route as DojoAppCheckinRouteImport } from './routes/dojo.app.checkin'
 import { Route as DojoAppCertificatesRouteImport } from './routes/dojo.app.certificates'
+import { Route as DojoAppApkVersionsRouteImport } from './routes/dojo.app.apk-versions'
 import { Route as DojoAppAccountRouteImport } from './routes/dojo.app.account'
 import { Route as AppInstallSlugRouteImport } from './routes/app.install.$slug'
 import { Route as AppStudentVideosRouteImport } from './routes/app._student.videos'
@@ -86,6 +87,7 @@ import { Route as AppStudentCheckinRouteImport } from './routes/app._student.che
 import { Route as AppStudentCertificatesRouteImport } from './routes/app._student.certificates'
 import { Route as AppStudentCardRouteImport } from './routes/app._student.card'
 import { Route as AppStudentAgendaRouteImport } from './routes/app._student.agenda'
+import { Route as ApiDojoApkUploadRouteImport } from './routes/api/dojo/apk-upload'
 import { Route as AuthenticatedStoreWholesaleRouteImport } from './routes/_authenticated/store.wholesale'
 import { Route as AuthenticatedStoreSizesRouteImport } from './routes/_authenticated/store.sizes'
 import { Route as AuthenticatedStoreShippingRouteImport } from './routes/_authenticated/store.shipping'
@@ -172,6 +174,7 @@ import { Route as DojoAppEvaluationsSessionsIndexRouteImport } from './routes/do
 import { Route as DojoAppEvaluationsTemplatesIdRouteImport } from './routes/dojo.app.evaluations.templates.$id'
 import { Route as DojoAppEvaluationsSessionsIdRouteImport } from './routes/dojo.app.evaluations.sessions.$id'
 import { Route as ApiPublicDojoPartnerCheckinProviderRouteImport } from './routes/api/public/dojo/partner-checkin.$provider'
+import { Route as ApiPublicAppSlugDownloadRouteImport } from './routes/api/public/app/$slug/download'
 
 const UnsubscribeRoute = UnsubscribeRouteImport.update({
   id: '/unsubscribe',
@@ -467,6 +470,11 @@ const DojoAppCertificatesRoute = DojoAppCertificatesRouteImport.update({
   path: '/certificates',
   getParentRoute: () => DojoAppRoute,
 } as any)
+const DojoAppApkVersionsRoute = DojoAppApkVersionsRouteImport.update({
+  id: '/apk-versions',
+  path: '/apk-versions',
+  getParentRoute: () => DojoAppRoute,
+} as any)
 const DojoAppAccountRoute = DojoAppAccountRouteImport.update({
   id: '/account',
   path: '/account',
@@ -556,6 +564,11 @@ const AppStudentAgendaRoute = AppStudentAgendaRouteImport.update({
   id: '/agenda',
   path: '/agenda',
   getParentRoute: () => AppStudentRoute,
+} as any)
+const ApiDojoApkUploadRoute = ApiDojoApkUploadRouteImport.update({
+  id: '/api/dojo/apk-upload',
+  path: '/api/dojo/apk-upload',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedStoreWholesaleRoute =
   AuthenticatedStoreWholesaleRouteImport.update({
@@ -1049,6 +1062,12 @@ const ApiPublicDojoPartnerCheckinProviderRoute =
     path: '/api/public/dojo/partner-checkin/$provider',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicAppSlugDownloadRoute =
+  ApiPublicAppSlugDownloadRouteImport.update({
+    id: '/api/public/app/$slug/download',
+    path: '/api/public/app/$slug/download',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -1125,6 +1144,7 @@ export interface FileRoutesByFullPath {
   '/store/shipping': typeof AuthenticatedStoreShippingRoute
   '/store/sizes': typeof AuthenticatedStoreSizesRoute
   '/store/wholesale': typeof AuthenticatedStoreWholesaleRoute
+  '/api/dojo/apk-upload': typeof ApiDojoApkUploadRoute
   '/app/agenda': typeof AppStudentAgendaRoute
   '/app/card': typeof AppStudentCardRoute
   '/app/certificates': typeof AppStudentCertificatesRoute
@@ -1143,6 +1163,7 @@ export interface FileRoutesByFullPath {
   '/app/videos': typeof AppStudentVideosRoute
   '/app/install/$slug': typeof AppInstallSlugRoute
   '/dojo/app/account': typeof DojoAppAccountRoute
+  '/dojo/app/apk-versions': typeof DojoAppApkVersionsRoute
   '/dojo/app/certificates': typeof DojoAppCertificatesRoute
   '/dojo/app/checkin': typeof DojoAppCheckinRoute
   '/dojo/app/competitions': typeof DojoAppCompetitionsRoute
@@ -1207,6 +1228,7 @@ export interface FileRoutesByFullPath {
   '/dojo/app/evaluations/': typeof DojoAppEvaluationsIndexRoute
   '/dojo/app/students/': typeof DojoAppStudentsIndexRoute
   '/dojo/app/videos/': typeof DojoAppVideosIndexRoute
+  '/api/public/app/$slug/download': typeof ApiPublicAppSlugDownloadRoute
   '/api/public/dojo/partner-checkin/$provider': typeof ApiPublicDojoPartnerCheckinProviderRoute
   '/dojo/app/evaluations/sessions/$id': typeof DojoAppEvaluationsSessionsIdRoute
   '/dojo/app/evaluations/templates/$id': typeof DojoAppEvaluationsTemplatesIdRoute
@@ -1285,6 +1307,7 @@ export interface FileRoutesByTo {
   '/store/shipping': typeof AuthenticatedStoreShippingRoute
   '/store/sizes': typeof AuthenticatedStoreSizesRoute
   '/store/wholesale': typeof AuthenticatedStoreWholesaleRoute
+  '/api/dojo/apk-upload': typeof ApiDojoApkUploadRoute
   '/app/agenda': typeof AppStudentAgendaRoute
   '/app/card': typeof AppStudentCardRoute
   '/app/certificates': typeof AppStudentCertificatesRoute
@@ -1303,6 +1326,7 @@ export interface FileRoutesByTo {
   '/app/videos': typeof AppStudentVideosRoute
   '/app/install/$slug': typeof AppInstallSlugRoute
   '/dojo/app/account': typeof DojoAppAccountRoute
+  '/dojo/app/apk-versions': typeof DojoAppApkVersionsRoute
   '/dojo/app/certificates': typeof DojoAppCertificatesRoute
   '/dojo/app/checkin': typeof DojoAppCheckinRoute
   '/dojo/app/competitions': typeof DojoAppCompetitionsRoute
@@ -1362,6 +1386,7 @@ export interface FileRoutesByTo {
   '/dojo/app/evaluations': typeof DojoAppEvaluationsIndexRoute
   '/dojo/app/students': typeof DojoAppStudentsIndexRoute
   '/dojo/app/videos': typeof DojoAppVideosIndexRoute
+  '/api/public/app/$slug/download': typeof ApiPublicAppSlugDownloadRoute
   '/api/public/dojo/partner-checkin/$provider': typeof ApiPublicDojoPartnerCheckinProviderRoute
   '/dojo/app/evaluations/sessions/$id': typeof DojoAppEvaluationsSessionsIdRoute
   '/dojo/app/evaluations/templates/$id': typeof DojoAppEvaluationsTemplatesIdRoute
@@ -1446,6 +1471,7 @@ export interface FileRoutesById {
   '/_authenticated/store/shipping': typeof AuthenticatedStoreShippingRoute
   '/_authenticated/store/sizes': typeof AuthenticatedStoreSizesRoute
   '/_authenticated/store/wholesale': typeof AuthenticatedStoreWholesaleRoute
+  '/api/dojo/apk-upload': typeof ApiDojoApkUploadRoute
   '/app/_student/agenda': typeof AppStudentAgendaRoute
   '/app/_student/card': typeof AppStudentCardRoute
   '/app/_student/certificates': typeof AppStudentCertificatesRoute
@@ -1464,6 +1490,7 @@ export interface FileRoutesById {
   '/app/_student/videos': typeof AppStudentVideosRoute
   '/app/install/$slug': typeof AppInstallSlugRoute
   '/dojo/app/account': typeof DojoAppAccountRoute
+  '/dojo/app/apk-versions': typeof DojoAppApkVersionsRoute
   '/dojo/app/certificates': typeof DojoAppCertificatesRoute
   '/dojo/app/checkin': typeof DojoAppCheckinRoute
   '/dojo/app/competitions': typeof DojoAppCompetitionsRoute
@@ -1528,6 +1555,7 @@ export interface FileRoutesById {
   '/dojo/app/evaluations/': typeof DojoAppEvaluationsIndexRoute
   '/dojo/app/students/': typeof DojoAppStudentsIndexRoute
   '/dojo/app/videos/': typeof DojoAppVideosIndexRoute
+  '/api/public/app/$slug/download': typeof ApiPublicAppSlugDownloadRoute
   '/api/public/dojo/partner-checkin/$provider': typeof ApiPublicDojoPartnerCheckinProviderRoute
   '/dojo/app/evaluations/sessions/$id': typeof DojoAppEvaluationsSessionsIdRoute
   '/dojo/app/evaluations/templates/$id': typeof DojoAppEvaluationsTemplatesIdRoute
@@ -1611,6 +1639,7 @@ export interface FileRouteTypes {
     | '/store/shipping'
     | '/store/sizes'
     | '/store/wholesale'
+    | '/api/dojo/apk-upload'
     | '/app/agenda'
     | '/app/card'
     | '/app/certificates'
@@ -1629,6 +1658,7 @@ export interface FileRouteTypes {
     | '/app/videos'
     | '/app/install/$slug'
     | '/dojo/app/account'
+    | '/dojo/app/apk-versions'
     | '/dojo/app/certificates'
     | '/dojo/app/checkin'
     | '/dojo/app/competitions'
@@ -1693,6 +1723,7 @@ export interface FileRouteTypes {
     | '/dojo/app/evaluations/'
     | '/dojo/app/students/'
     | '/dojo/app/videos/'
+    | '/api/public/app/$slug/download'
     | '/api/public/dojo/partner-checkin/$provider'
     | '/dojo/app/evaluations/sessions/$id'
     | '/dojo/app/evaluations/templates/$id'
@@ -1771,6 +1802,7 @@ export interface FileRouteTypes {
     | '/store/shipping'
     | '/store/sizes'
     | '/store/wholesale'
+    | '/api/dojo/apk-upload'
     | '/app/agenda'
     | '/app/card'
     | '/app/certificates'
@@ -1789,6 +1821,7 @@ export interface FileRouteTypes {
     | '/app/videos'
     | '/app/install/$slug'
     | '/dojo/app/account'
+    | '/dojo/app/apk-versions'
     | '/dojo/app/certificates'
     | '/dojo/app/checkin'
     | '/dojo/app/competitions'
@@ -1848,6 +1881,7 @@ export interface FileRouteTypes {
     | '/dojo/app/evaluations'
     | '/dojo/app/students'
     | '/dojo/app/videos'
+    | '/api/public/app/$slug/download'
     | '/api/public/dojo/partner-checkin/$provider'
     | '/dojo/app/evaluations/sessions/$id'
     | '/dojo/app/evaluations/templates/$id'
@@ -1931,6 +1965,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/shipping'
     | '/_authenticated/store/sizes'
     | '/_authenticated/store/wholesale'
+    | '/api/dojo/apk-upload'
     | '/app/_student/agenda'
     | '/app/_student/card'
     | '/app/_student/certificates'
@@ -1949,6 +1984,7 @@ export interface FileRouteTypes {
     | '/app/_student/videos'
     | '/app/install/$slug'
     | '/dojo/app/account'
+    | '/dojo/app/apk-versions'
     | '/dojo/app/certificates'
     | '/dojo/app/checkin'
     | '/dojo/app/competitions'
@@ -2013,6 +2049,7 @@ export interface FileRouteTypes {
     | '/dojo/app/evaluations/'
     | '/dojo/app/students/'
     | '/dojo/app/videos/'
+    | '/api/public/app/$slug/download'
     | '/api/public/dojo/partner-checkin/$provider'
     | '/dojo/app/evaluations/sessions/$id'
     | '/dojo/app/evaluations/templates/$id'
@@ -2038,6 +2075,7 @@ export interface RootRouteChildren {
   LojaCarrinhoRoute: typeof LojaCarrinhoRoute
   LojaCheckoutRoute: typeof LojaCheckoutRoute
   LojaIndexRoute: typeof LojaIndexRoute
+  ApiDojoApkUploadRoute: typeof ApiDojoApkUploadRoute
   LojaCategoriaSlugRoute: typeof LojaCategoriaSlugRoute
   LojaContaPedidosRoute: typeof LojaContaPedidosRoute
   LojaCustomShopKindRoute: typeof LojaCustomShopKindRoute
@@ -2065,6 +2103,7 @@ export interface RootRouteChildren {
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
   LovableEmailTransactionalSendRoute: typeof LovableEmailTransactionalSendRoute
+  ApiPublicAppSlugDownloadRoute: typeof ApiPublicAppSlugDownloadRoute
   ApiPublicDojoPartnerCheckinProviderRoute: typeof ApiPublicDojoPartnerCheckinProviderRoute
 }
 
@@ -2483,6 +2522,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DojoAppCertificatesRouteImport
       parentRoute: typeof DojoAppRoute
     }
+    '/dojo/app/apk-versions': {
+      id: '/dojo/app/apk-versions'
+      path: '/apk-versions'
+      fullPath: '/dojo/app/apk-versions'
+      preLoaderRoute: typeof DojoAppApkVersionsRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
     '/dojo/app/account': {
       id: '/dojo/app/account'
       path: '/account'
@@ -2608,6 +2654,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/agenda'
       preLoaderRoute: typeof AppStudentAgendaRouteImport
       parentRoute: typeof AppStudentRoute
+    }
+    '/api/dojo/apk-upload': {
+      id: '/api/dojo/apk-upload'
+      path: '/api/dojo/apk-upload'
+      fullPath: '/api/dojo/apk-upload'
+      preLoaderRoute: typeof ApiDojoApkUploadRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/store/wholesale': {
       id: '/_authenticated/store/wholesale'
@@ -3211,6 +3264,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicDojoPartnerCheckinProviderRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/app/$slug/download': {
+      id: '/api/public/app/$slug/download'
+      path: '/api/public/app/$slug/download'
+      fullPath: '/api/public/app/$slug/download'
+      preLoaderRoute: typeof ApiPublicAppSlugDownloadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -3520,6 +3580,7 @@ const DojoAppVideosRouteWithChildren = DojoAppVideosRoute._addFileChildren(
 
 interface DojoAppRouteChildren {
   DojoAppAccountRoute: typeof DojoAppAccountRoute
+  DojoAppApkVersionsRoute: typeof DojoAppApkVersionsRoute
   DojoAppCertificatesRoute: typeof DojoAppCertificatesRoute
   DojoAppCheckinRoute: typeof DojoAppCheckinRoute
   DojoAppCompetitionsRoute: typeof DojoAppCompetitionsRoute
@@ -3542,6 +3603,7 @@ interface DojoAppRouteChildren {
 
 const DojoAppRouteChildren: DojoAppRouteChildren = {
   DojoAppAccountRoute: DojoAppAccountRoute,
+  DojoAppApkVersionsRoute: DojoAppApkVersionsRoute,
   DojoAppCertificatesRoute: DojoAppCertificatesRoute,
   DojoAppCheckinRoute: DojoAppCheckinRoute,
   DojoAppCompetitionsRoute: DojoAppCompetitionsRoute,
@@ -3599,6 +3661,7 @@ const rootRouteChildren: RootRouteChildren = {
   LojaCarrinhoRoute: LojaCarrinhoRoute,
   LojaCheckoutRoute: LojaCheckoutRoute,
   LojaIndexRoute: LojaIndexRoute,
+  ApiDojoApkUploadRoute: ApiDojoApkUploadRoute,
   LojaCategoriaSlugRoute: LojaCategoriaSlugRoute,
   LojaContaPedidosRoute: LojaContaPedidosRoute,
   LojaCustomShopKindRoute: LojaCustomShopKindRoute,
@@ -3630,6 +3693,7 @@ const rootRouteChildren: RootRouteChildren = {
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
   LovableEmailTransactionalSendRoute: LovableEmailTransactionalSendRoute,
+  ApiPublicAppSlugDownloadRoute: ApiPublicAppSlugDownloadRoute,
   ApiPublicDojoPartnerCheckinProviderRoute:
     ApiPublicDojoPartnerCheckinProviderRoute,
 }
