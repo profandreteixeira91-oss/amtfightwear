@@ -475,14 +475,14 @@ export const dsRunSync = createServerFn({ method: "POST" })
         products_count: pc ?? 0,
         categories_count: cc ?? 0,
         updated_count: pc ?? 0,
-      }).eq("id", log?.id);
+      }).eq("id", log?.id ?? "");
       return { ok: true, products: pc ?? 0, categories: cc ?? 0 };
     } catch (e: any) {
       await context.supabase.from("dojo_store_sync_logs").update({
         finished_at: new Date().toISOString(),
         status: "error",
         error: String(e?.message ?? e),
-      }).eq("id", log?.id);
+      }).eq("id", log?.id ?? "");
       throw e;
     }
   });
