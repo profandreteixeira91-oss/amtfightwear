@@ -256,6 +256,9 @@ function StoreHomePage() {
         </Link>
       </section>
 
+      <DojoManagerPromo />
+
+
       {data.featured.length > 0 && (
         <section id="destaques" className="mx-auto max-w-7xl px-4 py-12">
           <div className="mb-6 flex items-end justify-between">
