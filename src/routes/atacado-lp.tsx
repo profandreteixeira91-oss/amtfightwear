@@ -676,7 +676,7 @@ function AtacadoLandingPage() {
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="bg-background">
+      <section id="faq" className="scroll-mt-20 bg-background">
         <div className="mx-auto max-w-3xl px-4 py-14 md:py-20">
           <div className="mb-8 text-center">
             <h2 className="text-2xl font-black tracking-tight md:text-4xl">Perguntas frequentes</h2>
