@@ -98,8 +98,6 @@ export const getMyAnnouncement = createServerFn({ method: "GET" })
     ]);
     if (ann.error) throw new Error(ann.error.message);
 
-    // Increment view count fire-and-forget
-    await context.supabase.rpc as unknown;
     try {
       await context.supabase.from("dojo_announcements").update({ view_count: (ann.data.view_count ?? 0) + 1 }).eq("id", data.id);
     } catch { /* ignore */ }
