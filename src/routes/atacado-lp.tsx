@@ -773,7 +773,7 @@ function AtacadoLandingPage() {
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <BuyButton from="final_cta" size="lg" />
-            
+            <WhatsAppButton from="final_cta" size="lg" />
           </div>
           <p className="mt-6 text-xs text-muted-foreground">
             25% OFF acima de 10 unidades · Pagamento 100% seguro · Envio para todo o Brasil
