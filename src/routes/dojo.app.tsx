@@ -88,8 +88,6 @@ const nav: { label: string; items: NavItem[] }[] = [
     items: [
       { to: "/dojo/app/plans", label: "Planos", icon: ScrollText },
       { to: "/dojo/app/finance", label: "Financeiro", icon: Wallet },
-      
-      { to: "/dojo/app/subscription", label: "Assinatura AMT", icon: CreditCard },
       { to: "/dojo/app/units", label: "Unidades", icon: Building2 },
       { to: "/dojo/app/integrations", label: "Integrações", icon: Plug },
     ],
