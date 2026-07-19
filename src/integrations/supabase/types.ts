@@ -1345,6 +1345,7 @@ export type Database = {
           modalities: string[] | null
           owner_id: string
           phone: string | null
+          public_url: string | null
           seal_url: string | null
           signature_url: string | null
           slug: string | null
@@ -1373,6 +1374,7 @@ export type Database = {
           modalities?: string[] | null
           owner_id: string
           phone?: string | null
+          public_url?: string | null
           seal_url?: string | null
           signature_url?: string | null
           slug?: string | null
@@ -1401,6 +1403,7 @@ export type Database = {
           modalities?: string[] | null
           owner_id?: string
           phone?: string | null
+          public_url?: string | null
           seal_url?: string | null
           signature_url?: string | null
           slug?: string | null
@@ -1507,6 +1510,95 @@ export type Database = {
           prefix?: string
           revoked_at?: string | null
           scopes?: string[]
+        }
+        Relationships: []
+      }
+      dojo_app_apk_downloads: {
+        Row: {
+          apk_version_id: string
+          created_at: string
+          id: string
+          ip: string | null
+          owner_id: string
+          slug: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          apk_version_id: string
+          created_at?: string
+          id?: string
+          ip?: string | null
+          owner_id: string
+          slug?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          apk_version_id?: string
+          created_at?: string
+          id?: string
+          ip?: string | null
+          owner_id?: string
+          slug?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_app_apk_downloads_apk_version_id_fkey"
+            columns: ["apk_version_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_app_apk_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_app_apk_versions: {
+        Row: {
+          build_code: number
+          created_at: string
+          created_by: string | null
+          downloads: number
+          file_name: string
+          file_path: string
+          file_size: number
+          id: string
+          is_published: boolean
+          mime_type: string
+          owner_id: string
+          release_notes: string | null
+          updated_at: string
+          version_name: string
+        }
+        Insert: {
+          build_code?: number
+          created_at?: string
+          created_by?: string | null
+          downloads?: number
+          file_name: string
+          file_path: string
+          file_size: number
+          id?: string
+          is_published?: boolean
+          mime_type?: string
+          owner_id: string
+          release_notes?: string | null
+          updated_at?: string
+          version_name: string
+        }
+        Update: {
+          build_code?: number
+          created_at?: string
+          created_by?: string | null
+          downloads?: number
+          file_name?: string
+          file_path?: string
+          file_size?: number
+          id?: string
+          is_published?: boolean
+          mime_type?: string
+          owner_id?: string
+          release_notes?: string | null
+          updated_at?: string
+          version_name?: string
         }
         Relationships: []
       }
@@ -6724,6 +6816,19 @@ export type Database = {
           slug: string
           state: string
           trade_name: string
+        }[]
+      }
+      get_latest_apk_by_slug: {
+        Args: { _slug: string }
+        Returns: {
+          build_code: number
+          created_at: string
+          file_name: string
+          file_size: number
+          id: string
+          owner_id: string
+          release_notes: string
+          version_name: string
         }[]
       }
       get_my_student_id: { Args: never; Returns: string }
