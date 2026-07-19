@@ -122,9 +122,10 @@ function TemplatesList() {
               Modelos criados pela sua academia.
             </p>
           </div>
-          <Button onClick={createNew}>
-            <Plus className="h-4 w-4 mr-1" /> Novo modelo
+          <Button onClick={createNew} disabled={creating}>
+            <Plus className="h-4 w-4 mr-1" /> {creating ? "Criando…" : "Novo modelo"}
           </Button>
+
         </div>
 
         {mine.isLoading && <div className="text-sm text-muted-foreground">Carregando modelos…</div>}
