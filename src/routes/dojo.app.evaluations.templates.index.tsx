@@ -64,7 +64,10 @@ function TemplatesList() {
     });
   }, [lib.data, q, modality]);
 
+  const [creating, setCreating] = useState(false);
   const createNew = async () => {
+    if (creating) return;
+    setCreating(true);
     try {
       const res = await saveFn({
         data: {
@@ -74,11 +77,17 @@ function TemplatesList() {
           structure: { categories: [] },
         },
       });
+      // Pré-popula o cache do editor para evitar novo round-trip
+      qc.setQueryData(["eval-template", res.id], res);
+      qc.invalidateQueries({ queryKey: ["eval-templates"] });
       nav({ to: "/dojo/app/evaluations/templates/$id", params: { id: res.id } });
     } catch (e: any) {
       toast.error(e.message);
+    } finally {
+      setCreating(false);
     }
   };
+
 
   const duplicate = async (id: string) => {
     try {
