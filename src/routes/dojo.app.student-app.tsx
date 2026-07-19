@@ -666,22 +666,24 @@ function DevicePreview({ device, config }: { device: "iphone" | "android" | "tab
 }
 
 function PreviewLogin({ config }: { config: StudentAppConfig }) {
-  const bg = config.login?.background_color ?? "#ffffff";
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center" style={{ background: bg }}>
+    <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center" style={{ background: "#ffffff" }}>
       {config.appearance.logo_url ? (
         <img src={config.appearance.logo_url} alt="" className="h-14 w-14 rounded-xl object-cover" />
       ) : (
         <div className="h-14 w-14 rounded-xl" style={{ background: config.appearance.brand_primary }} />
       )}
-      <div className="text-sm font-bold" style={{ color: config.appearance.title_color }}>{config.appearance.app_name}</div>
-      {config.login?.welcome_text && (
-        <div className="text-[10px] text-neutral-500">{config.login.welcome_text}</div>
+      <div className="text-sm font-bold" style={{ color: config.appearance.title_color }}>{config.login?.title || config.appearance.app_name}</div>
+      {config.login?.subtitle && (
+        <div className="text-[10px] text-neutral-500">{config.login.subtitle}</div>
+      )}
+      {config.login?.institutional_text && (
+        <div className="text-[9px] text-neutral-400">{config.login.institutional_text}</div>
       )}
       <div className="mt-2 w-full space-y-2">
         <div className="rounded-md border bg-white px-2 py-1.5 text-left text-[10px] text-neutral-400">seu@email.com</div>
         <div className="rounded-md border bg-white px-2 py-1.5 text-left text-[10px] text-neutral-400">••••••••</div>
-        <div className="rounded-md py-2 text-[11px] font-semibold text-white" style={{ background: config.appearance.button_color ?? config.appearance.brand_primary }}>Entrar</div>
+        <div className="rounded-md py-2 text-[11px] font-semibold text-white" style={{ background: config.login?.button_color ?? config.appearance.button_color ?? config.appearance.brand_primary }}>Entrar</div>
       </div>
     </div>
   );
