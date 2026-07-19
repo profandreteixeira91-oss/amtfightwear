@@ -13,7 +13,7 @@ export const Route = createFileRoute("/api/public/certificate/$hash")({
         }
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-        const { data: cert, error } = await supabaseAdmin
+        const { data: certRaw, error } = await supabaseAdmin
           .from("dojo_certificates")
           .select(
             "id, issued_at, pdf_url, values, student_id, graduation_id, owner_id, " +
@@ -22,6 +22,15 @@ export const Route = createFileRoute("/api/public/certificate/$hash")({
           )
           .eq("public_hash", hash)
           .maybeSingle();
+        const cert = certRaw as unknown as {
+          id: string;
+          issued_at: string;
+          pdf_url: string | null;
+          values: unknown;
+          owner_id: string | null;
+          student?: { full_name?: string | null } | null;
+          graduation?: { graduation_date?: string | null; degree?: number | null; belt?: { name?: string | null; color_hex?: string | null } | null } | null;
+        } | null;
 
         if (error) {
           console.error("[certificate/validate] db error", error);

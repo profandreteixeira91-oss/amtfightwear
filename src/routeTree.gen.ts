@@ -167,6 +167,7 @@ import { Route as ApiPublicHooksIgSyncRouteImport } from './routes/api/public/ho
 import { Route as ApiPublicHooksGenerateDojoInvoicesRouteImport } from './routes/api/public/hooks/generate-dojo-invoices'
 import { Route as ApiPublicHooksEnrichPendingLeadsRouteImport } from './routes/api/public/hooks/enrich-pending-leads'
 import { Route as ApiPublicHooksAutoInstagramPostRouteImport } from './routes/api/public/hooks/auto-instagram-post'
+import { Route as ApiPublicCertificateHashRouteImport } from './routes/api/public/certificate.$hash'
 import { Route as ApiPublicAppManifestDotwebmanifestRouteImport } from './routes/api/public/app/manifest[.]webmanifest'
 import { Route as AuthenticatedAdsCampaignsIdRouteImport } from './routes/_authenticated/ads.campaigns.$id'
 import { Route as DojoAppEvaluationsTemplatesIndexRouteImport } from './routes/dojo.app.evaluations.templates.index'
@@ -1020,6 +1021,12 @@ const ApiPublicHooksAutoInstagramPostRoute =
     path: '/api/public/hooks/auto-instagram-post',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicCertificateHashRoute =
+  ApiPublicCertificateHashRouteImport.update({
+    id: '/api/public/certificate/$hash',
+    path: '/api/public/certificate/$hash',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicAppManifestDotwebmanifestRoute =
   ApiPublicAppManifestDotwebmanifestRouteImport.update({
     id: '/api/public/app/manifest.webmanifest',
@@ -1194,6 +1201,7 @@ export interface FileRoutesByFullPath {
   '/loja/custom-shop/': typeof LojaCustomShopIndexRoute
   '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
   '/api/public/app/manifest.webmanifest': typeof ApiPublicAppManifestDotwebmanifestRoute
+  '/api/public/certificate/$hash': typeof ApiPublicCertificateHashRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
   '/api/public/hooks/generate-dojo-invoices': typeof ApiPublicHooksGenerateDojoInvoicesRoute
@@ -1354,6 +1362,7 @@ export interface FileRoutesByTo {
   '/loja/custom-shop': typeof LojaCustomShopIndexRoute
   '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
   '/api/public/app/manifest.webmanifest': typeof ApiPublicAppManifestDotwebmanifestRoute
+  '/api/public/certificate/$hash': typeof ApiPublicCertificateHashRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
   '/api/public/hooks/generate-dojo-invoices': typeof ApiPublicHooksGenerateDojoInvoicesRoute
@@ -1521,6 +1530,7 @@ export interface FileRoutesById {
   '/loja/custom-shop/': typeof LojaCustomShopIndexRoute
   '/_authenticated/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
   '/api/public/app/manifest.webmanifest': typeof ApiPublicAppManifestDotwebmanifestRoute
+  '/api/public/certificate/$hash': typeof ApiPublicCertificateHashRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
   '/api/public/hooks/generate-dojo-invoices': typeof ApiPublicHooksGenerateDojoInvoicesRoute
@@ -1689,6 +1699,7 @@ export interface FileRouteTypes {
     | '/loja/custom-shop/'
     | '/ads/campaigns/$id'
     | '/api/public/app/manifest.webmanifest'
+    | '/api/public/certificate/$hash'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/enrich-pending-leads'
     | '/api/public/hooks/generate-dojo-invoices'
@@ -1849,6 +1860,7 @@ export interface FileRouteTypes {
     | '/loja/custom-shop'
     | '/ads/campaigns/$id'
     | '/api/public/app/manifest.webmanifest'
+    | '/api/public/certificate/$hash'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/enrich-pending-leads'
     | '/api/public/hooks/generate-dojo-invoices'
@@ -2015,6 +2027,7 @@ export interface FileRouteTypes {
     | '/loja/custom-shop/'
     | '/_authenticated/ads/campaigns/$id'
     | '/api/public/app/manifest.webmanifest'
+    | '/api/public/certificate/$hash'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/enrich-pending-leads'
     | '/api/public/hooks/generate-dojo-invoices'
@@ -2086,6 +2099,7 @@ export interface RootRouteChildren {
   LojaContaIndexRoute: typeof LojaContaIndexRoute
   LojaCustomShopIndexRoute: typeof LojaCustomShopIndexRoute
   ApiPublicAppManifestDotwebmanifestRoute: typeof ApiPublicAppManifestDotwebmanifestRoute
+  ApiPublicCertificateHashRoute: typeof ApiPublicCertificateHashRoute
   ApiPublicHooksAutoInstagramPostRoute: typeof ApiPublicHooksAutoInstagramPostRoute
   ApiPublicHooksEnrichPendingLeadsRoute: typeof ApiPublicHooksEnrichPendingLeadsRoute
   ApiPublicHooksGenerateDojoInvoicesRoute: typeof ApiPublicHooksGenerateDojoInvoicesRoute
@@ -3216,6 +3230,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksAutoInstagramPostRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/certificate/$hash': {
+      id: '/api/public/certificate/$hash'
+      path: '/api/public/certificate/$hash'
+      fullPath: '/api/public/certificate/$hash'
+      preLoaderRoute: typeof ApiPublicCertificateHashRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/app/manifest.webmanifest': {
       id: '/api/public/app/manifest.webmanifest'
       path: '/api/public/app/manifest.webmanifest'
@@ -3672,6 +3693,7 @@ const rootRouteChildren: RootRouteChildren = {
   LojaCustomShopIndexRoute: LojaCustomShopIndexRoute,
   ApiPublicAppManifestDotwebmanifestRoute:
     ApiPublicAppManifestDotwebmanifestRoute,
+  ApiPublicCertificateHashRoute: ApiPublicCertificateHashRoute,
   ApiPublicHooksAutoInstagramPostRoute: ApiPublicHooksAutoInstagramPostRoute,
   ApiPublicHooksEnrichPendingLeadsRoute: ApiPublicHooksEnrichPendingLeadsRoute,
   ApiPublicHooksGenerateDojoInvoicesRoute:
