@@ -546,7 +546,7 @@ function AtacadoLandingPage() {
       </section>
 
       {/* QUALIDADE + GALERIA */}
-      <section id="qualidade" className="border-y border-border/60 bg-foreground text-background">
+      <section id="qualidade" className="scroll-mt-20 border-y border-border/60 bg-foreground text-background">
         <div className="mx-auto max-w-6xl px-4 py-14 md:py-20">
           <div className="mb-10 text-center">
             <h2 className="text-2xl font-black tracking-tight md:text-4xl">
