@@ -57,8 +57,8 @@ export const Route = createFileRoute("/api/public/certificate/$hash")({
           academy = a ?? null;
         }
 
-        const grad = (cert as unknown as { graduation?: { graduation_date?: string; degree?: number; belt?: { name?: string; color_hex?: string } } }).graduation;
-        const student = (cert as unknown as { student?: { full_name?: string } }).student;
+        const grad = cert.graduation ?? null;
+        const student = cert.student ?? null;
 
         const payload = {
           id: cert.id,
