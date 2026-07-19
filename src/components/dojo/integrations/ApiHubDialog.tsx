@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Copy, KeyRound, Plus, Trash2, Send, Power, Webhook, ShieldCheck } from "lucide-react";
+import { Copy, KeyRound, Plus, Trash2, Send, Power, Webhook, ShieldCheck, Zap } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -21,6 +21,8 @@ import {
   createApiKey,
   revokeApiKey,
   deleteApiKey,
+  autoProvisionApiSuite,
+  DOJO_MODULES,
   listWebhookEndpoints,
   upsertWebhookEndpoint,
   deleteWebhookEndpoint,
@@ -65,14 +67,18 @@ function KeysPanel() {
   const qc = useQueryClient();
   const list = useServerFn(listApiKeys);
   const create = useServerFn(createApiKey);
+  const auto = useServerFn(autoProvisionApiSuite);
   const revoke = useServerFn(revokeApiKey);
   const del = useServerFn(deleteApiKey);
 
   const q = useQuery({ queryKey: ["dojo-api-keys"], queryFn: () => list() });
   const [name, setName] = useState("");
   const [scopes, setScopes] = useState<string[]>(["read"]);
+  const [moduleId, setModuleId] = useState<string>("master");
   const [justCreated, setJustCreated] = useState<{ key: string; name: string } | null>(null);
+  const [bulkCreated, setBulkCreated] = useState<Array<{ module: string; label: string; key: string }>>([]);
   const [saving, setSaving] = useState(false);
+  const [autoRunning, setAutoRunning] = useState(false);
 
   function toggleScope(s: string) {
     setScopes((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
@@ -82,7 +88,7 @@ function KeysPanel() {
     if (!name.trim() || scopes.length === 0) return toast.error("Informe nome e ao menos 1 escopo");
     setSaving(true);
     try {
-      const r = await create({ data: { name: name.trim(), scopes: scopes as any } });
+      const r = await create({ data: { name: name.trim(), scopes: scopes as any, module: moduleId } });
       setJustCreated({ key: r.key, name: r.name });
       setName("");
       setScopes(["read"]);
@@ -94,8 +100,84 @@ function KeysPanel() {
     }
   }
 
+  async function onAutoProvision() {
+    setAutoRunning(true);
+    try {
+      const r = await auto();
+      setBulkCreated(r.created);
+      qc.invalidateQueries({ queryKey: ["dojo-api-keys"] });
+      if (r.created.length === 0) {
+        toast.info("Todas as chaves já existem — nada a gerar.");
+      } else {
+        toast.success(`${r.created.length} chave(s) geradas automaticamente`);
+      }
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setAutoRunning(false);
+    }
+  }
+
   return (
     <div className="space-y-4">
+      {/* 1-clique auto-provision */}
+      <div className="rounded-lg border border-primary/40 bg-primary/5 p-3 space-y-2">
+        <div className="flex items-start gap-2">
+          <Zap className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <div className="text-sm font-medium">Gerar chaves para todos os módulos (1 clique)</div>
+            <p className="text-xs text-muted-foreground">
+              Cria automaticamente uma chave própria para cada módulo do seu dojo (Alunos, Financeiro, Check-in, Graduações, Avaliações, Agenda, Vídeos, Chat, Competições) + uma chave Master de acesso completo. Você só copia e usa.
+            </p>
+          </div>
+          <Button size="sm" onClick={onAutoProvision} disabled={autoRunning}>
+            <Zap className="h-4 w-4 mr-1" />
+            {autoRunning ? "Gerando..." : "Gerar tudo"}
+          </Button>
+        </div>
+      </div>
+
+      {bulkCreated.length > 0 && (
+        <div className="rounded-md border border-emerald-500/40 bg-emerald-500/5 p-3 space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="text-sm font-medium">
+              {bulkCreated.length} chave(s) geradas — guarde agora, não serão exibidas novamente.
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                const txt = bulkCreated.map((c) => `${c.label}: ${c.key}`).join("\n");
+                navigator.clipboard.writeText(txt);
+                toast.success("Todas copiadas");
+              }}
+            >
+              <Copy className="h-3.5 w-3.5 mr-1" /> Copiar todas
+            </Button>
+          </div>
+          <div className="space-y-1.5 max-h-64 overflow-y-auto">
+            {bulkCreated.map((c) => (
+              <div key={c.module} className="flex items-center gap-2 text-xs">
+                <Badge variant="secondary" className="shrink-0">{c.label}</Badge>
+                <code className="flex-1 rounded bg-background px-2 py-1 break-all">{c.key}</code>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-7 w-7 p-0"
+                  onClick={() => {
+                    navigator.clipboard.writeText(c.key);
+                    toast.success("Copiada");
+                  }}
+                >
+                  <Copy className="h-3 w-3" />
+                </Button>
+              </div>
+            ))}
+          </div>
+          <Button size="sm" variant="ghost" onClick={() => setBulkCreated([])}>Fechar</Button>
+        </div>
+      )}
+
       {justCreated && (
         <div className="rounded-md border border-emerald-500/40 bg-emerald-500/5 p-3 space-y-2">
           <div className="text-sm font-medium">Chave criada: {justCreated.name}</div>
@@ -120,10 +202,22 @@ function KeysPanel() {
       )}
 
       <div className="rounded-lg border p-3 space-y-3">
-        <div className="text-sm font-medium">Nova chave</div>
+        <div className="text-sm font-medium">Nova chave manual (avançado)</div>
         <div className="grid gap-2">
           <Label>Nome / descrição</Label>
           <Input placeholder="Integração ERP externo" value={name} onChange={(e) => setName(e.target.value)} />
+        </div>
+        <div className="grid gap-2">
+          <Label>Módulo</Label>
+          <select
+            className="border rounded-md px-3 py-2 bg-background text-sm"
+            value={moduleId}
+            onChange={(e) => setModuleId(e.target.value)}
+          >
+            {DOJO_MODULES.map((m) => (
+              <option key={m.id} value={m.id}>{m.label}</option>
+            ))}
+          </select>
         </div>
         <div className="grid gap-2">
           <Label>Escopos</Label>
@@ -151,8 +245,9 @@ function KeysPanel() {
         {(q.data ?? []).map((k: any) => (
           <div key={k.id} className="rounded-md border p-3 flex items-center gap-3">
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <span className="font-medium text-sm">{k.name}</span>
+                {k.module && <Badge variant="secondary" className="text-[10px]">{k.module}</Badge>}
                 {k.revoked_at ? (
                   <Badge variant="destructive">Revogada</Badge>
                 ) : (

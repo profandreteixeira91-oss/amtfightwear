@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Search, Plug, CheckCircle2, XCircle, AlertTriangle, Activity, Zap, Copy } from "lucide-react";
+import { Search, Plug, CheckCircle2, XCircle, AlertTriangle, Activity, Zap, Copy, KeyRound, Webhook } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,6 +23,7 @@ import { ApiHubDialog } from "@/components/dojo/integrations/ApiHubDialog";
 import { listMyGateways, upsertMyGateway } from "@/lib/dojo/gateways.functions";
 import { listPartnerIntegrations, savePartnerIntegration, listPartnerCheckins } from "@/lib/dojo/attendance.functions";
 import { testIntegrationConnection, getIntegrationsMetrics, getMyOwnerId } from "@/lib/dojo/integrations.functions";
+import { autoProvisionApiSuite } from "@/lib/dojo/apis.functions";
 
 export const Route = createFileRoute("/dojo/app/integrations")({
   head: () => ({ meta: [{ title: "Central de Integrações — AMT Dojo Manager" }] }),
@@ -305,14 +306,18 @@ function CatItem({ label, hint, count, active, onClick }: { label: string; hint?
 }
 
 function ApiKeysAndWebhooks() {
+  const qc = useQueryClient();
   const getOwner = useServerFn(getMyOwnerId);
+  const auto = useServerFn(autoProvisionApiSuite);
   const ownerQ = useQuery({ queryKey: ["dojo-owner-id"], queryFn: () => getOwner() });
   const ownerId = ownerQ.data?.ownerId;
+  const [autoRunning, setAutoRunning] = useState(false);
+  const [bulk, setBulk] = useState<Array<{ module: string; label: string; key: string }>>([]);
 
   // URL pública estável do dojo (independe do preview) para o parceiro conseguir chamar.
   const PUBLIC_BASE = "https://dojomanager.amtfightwear.com.br";
 
-  const endpoints = ownerId
+  const partnerEndpoints = ownerId
     ? [
         {
           name: "Check-in Gympass",
@@ -332,44 +337,125 @@ function ApiKeysAndWebhooks() {
       ]
     : [];
 
+  async function onAutoProvision() {
+    setAutoRunning(true);
+    try {
+      const r = await auto();
+      setBulk(r.created);
+      qc.invalidateQueries({ queryKey: ["dojo-api-keys"] });
+      if (r.created.length === 0) toast.info("Todas as chaves já existem — nada a gerar.");
+      else toast.success(`${r.created.length} chave(s) geradas`);
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setAutoRunning(false);
+    }
+  }
+
+  function copyAllBulk() {
+    const txt = bulk.map((c) => `${c.label}: ${c.key}`).join("\n");
+    navigator.clipboard.writeText(txt);
+    toast.success("Chaves copiadas");
+  }
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base">Seus Webhooks pessoais</CardTitle>
-        <p className="text-xs text-muted-foreground">
-          Cada dono tem URLs próprias, escopadas ao seu dojo. Cole nas configurações do parceiro para que os eventos cheguem apenas na sua conta.
-        </p>
-      </CardHeader>
-      <CardContent className="space-y-2">
-        {!ownerId && (
-          <div className="rounded-md border border-dashed p-4 text-sm text-muted-foreground text-center">
-            Carregando seus endpoints…
-          </div>
-        )}
-        {endpoints.map((e) => (
-          <div key={e.url} className="flex items-center gap-2 rounded-md border px-3 py-2">
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium">{e.name}</div>
-              <code className="text-[11px] text-muted-foreground truncate block">{e.url}</code>
-              <div className="text-[11px] text-muted-foreground mt-0.5">{e.hint}</div>
+    <div className="space-y-4">
+      {/* Auto-provisão de credenciais */}
+      <Card className="border-primary/40">
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Zap className="h-4 w-4 text-primary" /> Configuração automática (1 clique)
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">
+            Gera automaticamente uma <strong>API Key</strong> própria para cada módulo do seu dojo. Sem formulários — clique e copie.
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <Button size="sm" onClick={onAutoProvision} disabled={autoRunning}>
+            <Zap className="h-4 w-4 mr-1.5" />
+            {autoRunning ? "Gerando..." : "Gerar API Keys de todos os módulos"}
+          </Button>
+
+          {bulk.length > 0 && (
+            <div className="rounded-md border border-emerald-500/40 bg-emerald-500/5 p-3 space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <div className="text-sm font-medium">
+                  {bulk.length} chave(s) geradas — copie agora, não aparecem novamente.
+                </div>
+                <Button size="sm" variant="outline" onClick={copyAllBulk}>
+                  <Copy className="h-3.5 w-3.5 mr-1" /> Copiar todas
+                </Button>
+              </div>
+              <div className="space-y-1.5 max-h-64 overflow-y-auto">
+                {bulk.map((c) => (
+                  <div key={c.module} className="flex items-center gap-2 text-xs">
+                    <Badge variant="secondary" className="shrink-0">{c.label}</Badge>
+                    <code className="flex-1 rounded bg-background px-2 py-1 break-all">{c.key}</code>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 w-7 p-0"
+                      onClick={() => {
+                        navigator.clipboard.writeText(c.key);
+                        toast.success("Copiada");
+                      }}
+                    >
+                      <Copy className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+              <Button size="sm" variant="ghost" onClick={() => setBulk([])}>Fechar</Button>
             </div>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => {
-                navigator.clipboard.writeText(e.url);
-                toast.success("URL copiada");
-              }}
-            >
-              <Copy className="h-3.5 w-3.5" />
-            </Button>
-          </div>
-        ))}
-        <p className="text-xs text-muted-foreground mt-2">
-          Reforço de segurança: defina também um <strong>Webhook Secret</strong> no wizard de cada integração. As requisições assinadas serão validadas por HMAC antes de qualquer efeito.
-        </p>
-      </CardContent>
-    </Card>
+          )}
+
+          <p className="text-[11px] text-muted-foreground">
+            Uso: <code>Authorization: Bearer &lt;chave&gt;</code>. Cada chave tem escopos apropriados ao seu módulo.
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* Webhooks públicos por módulo */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Webhook className="h-4 w-4 text-primary" /> Seus Webhooks pessoais por módulo
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">
+            URLs únicas do seu dojo — os eventos chegam apenas na sua conta. Copie e cole na configuração do parceiro.
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {!ownerId && (
+            <div className="rounded-md border border-dashed p-4 text-sm text-muted-foreground text-center">
+              Carregando seus endpoints…
+            </div>
+          )}
+          {partnerEndpoints.map((e) => (
+            <div key={e.url} className="flex items-center gap-2 rounded-md border px-3 py-2">
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium">{e.name}</div>
+                <code className="text-[11px] text-muted-foreground truncate block">{e.url}</code>
+                <div className="text-[11px] text-muted-foreground mt-0.5">{e.hint}</div>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  navigator.clipboard.writeText(e.url);
+                  toast.success("URL copiada");
+                }}
+              >
+                <Copy className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          ))}
+          <p className="text-xs text-muted-foreground mt-2">
+            Reforço de segurança: as requisições são validadas por HMAC contra o secret configurado em cada integração antes de qualquer efeito.
+          </p>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 
