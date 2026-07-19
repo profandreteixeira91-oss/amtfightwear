@@ -110,6 +110,38 @@ function CompetitionsPage() {
         <StatCard label="Provedores consultados" value={summary.length} />
       </div>
 
+      {/* Scope tabs */}
+      <div className="inline-flex rounded-full border border-[color:var(--dojo-border)] bg-white p-1 text-xs">
+        {(
+          [
+            { id: "all", label: "Todas", icon: Trophy },
+            { id: "national", label: "Brasil", icon: Flag },
+            { id: "international", label: "Internacionais", icon: Globe2 },
+          ] as { id: ScopeTab; label: string; icon: any }[]
+        ).map((t) => {
+          const Icon = t.icon;
+          const active = scope === t.id;
+          const count =
+            t.id === "all"
+              ? competitions.length
+              : competitions.filter((c) => providerScope(c.provider) === t.id).length;
+          return (
+            <button
+              key={t.id}
+              onClick={() => { setScope(t.id); setFProvider(""); }}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 font-medium transition-colors",
+                active ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              <Icon className="h-3.5 w-3.5" />
+              {t.label}
+              <span className={cn("ml-1 rounded-full px-1.5 text-[10px]", active ? "bg-white/20" : "bg-muted")}>{count}</span>
+            </button>
+          );
+        })}
+      </div>
+
       {/* Filters */}
       <Card>
         <CardContent className="p-3 md:p-4 space-y-3">
@@ -117,7 +149,7 @@ function CompetitionsPage() {
             <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               className="pl-8"
-              placeholder="Pesquisar por nome, cidade, estado, organizador…"
+              placeholder="Pesquisar por nome, cidade, estado, país, organizador…"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
@@ -126,12 +158,13 @@ function CompetitionsPage() {
             <Input placeholder="UF" value={fState} onChange={(e) => setFState(e.target.value.toUpperCase())} maxLength={2} />
             <Input placeholder="Cidade" value={fCity} onChange={(e) => setFCity(e.target.value)} />
             <select className="h-10 rounded border bg-background px-2 text-sm md:col-span-2" value={fProvider} onChange={(e) => setFProvider(e.target.value)}>
-              <option value="">Todos os organizadores</option>
-              {PROVIDERS.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
+              <option value="">Todos os organizadores {scope !== "all" ? `(${scope === "national" ? "Brasil" : "Internacionais"})` : ""}</option>
+              {visibleProviders.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
             </select>
           </div>
         </CardContent>
       </Card>
+
 
       {errors.length > 0 && (
         <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900">
