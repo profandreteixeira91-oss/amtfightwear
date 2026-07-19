@@ -57,17 +57,17 @@ function Kpi({
       ? "text-amber-600"
       : "text-foreground";
   return (
-    <Card className="p-4 border border-[color:var(--dojo-border)] hover:border-[color:var(--dojo-border-strong)] transition-colors">
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-[11px] uppercase tracking-widest text-muted-foreground font-medium">
+    <Card className="p-4 border border-[color:var(--dojo-border)] hover:border-[color:var(--dojo-border-strong)] transition-colors min-w-0">
+      <div className="flex items-center justify-between gap-2 mb-2 min-w-0">
+        <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-medium truncate">
           {label}
         </span>
-        <div className="h-8 w-8 grid place-items-center rounded-lg bg-muted/50">
+        <div className="h-8 w-8 shrink-0 grid place-items-center rounded-lg bg-muted/50">
           <Icon className="h-4 w-4 text-muted-foreground" />
         </div>
       </div>
-      <div className={`font-display text-2xl font-bold tracking-tight ${toneClass}`}>{value}</div>
-      {hint && <div className="text-[11px] text-muted-foreground mt-1">{hint}</div>}
+      <div className={`font-display text-xl md:text-2xl font-bold tracking-tight truncate ${toneClass}`}>{value}</div>
+      {hint && <div className="text-[11px] text-muted-foreground mt-1 truncate">{hint}</div>}
     </Card>
   );
 }
@@ -78,15 +78,15 @@ export function FinanceDashboard() {
   return (
     <div className="space-y-6">
       {/* KPI grid */}
-      <div className="grid gap-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+      <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6">
         <Kpi icon={Wallet} label="Saldo disponível" value={brl(k.netProfit)} tone={k.netProfit >= 0 ? "positive" : "negative"} />
         <Kpi icon={TrendingUp} label="Receitas do mês" value={brl(k.paidThisMonth)} tone="positive" />
         <Kpi icon={TrendingDown} label="Despesas do mês" value={brl(k.expensesThisMonth)} tone="negative" />
         <Kpi icon={CircleDollarSign} label="Lucro líquido" value={brl(k.netProfit)} tone={k.netProfit >= 0 ? "positive" : "negative"} />
         <Kpi icon={Receipt} label="Mensalidades recebidas" value={brl(k.paidThisMonth)} hint="Faturas pagas no mês" />
-        <Kpi icon={AlertTriangle} label="Mensalidades em atraso" value={brl(k.overdueAmount)} tone="warning" hint={`${k.overdueCount} cobrança(s)`} />
-        <Kpi icon={ArrowDownRight} label="Contas a receber" value={brl(k.pendingReceivables)} tone="warning" />
-        <Kpi icon={ArrowUpRight} label="Contas a pagar" value={brl(k.pendingPayables)} tone="warning" />
+        <Kpi icon={AlertTriangle} label="Em atraso" value={brl(k.overdueAmount)} tone="warning" hint={`${k.overdueCount} cobrança(s)`} />
+        <Kpi icon={ArrowDownRight} label="A receber" value={brl(k.pendingReceivables)} tone="warning" />
+        <Kpi icon={ArrowUpRight} label="A pagar" value={brl(k.pendingPayables)} tone="warning" />
         <Kpi icon={Users} label="Ticket médio" value={brl(k.avgTicket)} hint="Por aluno pagante" />
         <Kpi icon={AlertTriangle} label="Inadimplência" value={pct(k.overdueRate)} tone={k.overdueRate > 10 ? "negative" : "default"} />
         <Kpi icon={LineIcon} label="MRR" value={brl(k.mrr)} hint="Últimos 30 dias" />
@@ -95,7 +95,7 @@ export function FinanceDashboard() {
 
       {/* Charts row 1 */}
       <div className="grid gap-4 lg:grid-cols-3">
-        <Card className="p-4 border border-[color:var(--dojo-border)] lg:col-span-2">
+        <Card className="p-4 border border-[color:var(--dojo-border)] lg:col-span-2 min-w-0 overflow-hidden">
           <div className="flex items-center justify-between mb-3">
             <div>
               <h3 className="font-display font-bold text-sm">Receitas × Despesas</h3>
@@ -116,7 +116,7 @@ export function FinanceDashboard() {
           </ResponsiveContainer>
         </Card>
 
-        <Card className="p-4 border border-[color:var(--dojo-border)]">
+        <Card className="p-4 border border-[color:var(--dojo-border)] min-w-0 overflow-hidden">
           <div className="flex items-center justify-between mb-3">
             <div>
               <h3 className="font-display font-bold text-sm">Formas de pagamento</h3>
@@ -144,7 +144,7 @@ export function FinanceDashboard() {
 
       {/* Charts row 2 */}
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card className="p-4 border border-[color:var(--dojo-border)]">
+        <Card className="p-4 border border-[color:var(--dojo-border)] min-w-0 overflow-hidden">
           <div className="flex items-center justify-between mb-3">
             <div>
               <h3 className="font-display font-bold text-sm">Evolução do saldo</h3>
@@ -168,7 +168,7 @@ export function FinanceDashboard() {
           </ResponsiveContainer>
         </Card>
 
-        <Card className="p-4 border border-[color:var(--dojo-border)]">
+        <Card className="p-4 border border-[color:var(--dojo-border)] min-w-0 overflow-hidden">
           <div className="flex items-center justify-between mb-3">
             <div>
               <h3 className="font-display font-bold text-sm">Fluxo de caixa</h3>

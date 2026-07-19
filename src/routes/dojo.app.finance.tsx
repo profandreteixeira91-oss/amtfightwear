@@ -105,71 +105,34 @@ function FinancePage() {
   const current = sections.find((s) => s.id === active)!;
 
   return (
-    <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
-      {/* Sub-navegação lateral */}
-      <aside className="lg:w-60 shrink-0">
-        <div className="lg:sticky lg:top-20 rounded-xl border border-[color:var(--dojo-border)] bg-white p-2">
-          {/* Mobile: horizontal scroll chips */}
-          <div className="flex lg:hidden gap-1 overflow-x-auto pb-1">
-            {sections.map((s) => {
-              const Icon = s.icon;
-              const isActive = s.id === active;
-              return (
-                <button
-                  key={s.id}
-                  onClick={() => setActive(s.id)}
-                  className={cn(
-                    "shrink-0 flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors",
-                    isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-primary hover:text-primary-foreground",
-                  )}
-                >
-                  <Icon className="h-3.5 w-3.5" />
-                  {s.label}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Desktop: grouped list */}
-          <div className="hidden lg:block">
-            {groupOrder.map((group) => (
-              <div key={group} className="mb-3 last:mb-0">
-                <div className="px-2 py-1 text-[10px] uppercase tracking-widest text-muted-foreground/70 font-semibold">
-                  {group}
-                </div>
-                <div className="space-y-0.5">
-                  {sections
-                    .filter((s) => s.group === group)
-                    .map((s) => {
-                      const Icon = s.icon;
-                      const isActive = s.id === active;
-                      return (
-                        <button
-                          key={s.id}
-                          onClick={() => setActive(s.id)}
-                          className={cn(
-                            "w-full flex items-center gap-2 rounded-lg px-2.5 py-2 text-sm transition-colors",
-                            isActive
-                              ? "bg-primary text-primary-foreground font-semibold"
-                              : "text-foreground/80 hover:bg-primary hover:text-primary-foreground",
-                          )}
-                        >
-                          <Icon className="h-4 w-4 shrink-0" />
-                          <span className="truncate">{s.label}</span>
-                        </button>
-                      );
-                    })}
-                </div>
-              </div>
-            ))}
-          </div>
+    <div className="flex flex-col gap-4">
+      {/* Sub-navegação horizontal (topo) */}
+      <div className="rounded-xl border border-[color:var(--dojo-border)] bg-white p-2">
+        <div className="flex gap-1 overflow-x-auto pb-1">
+          {sections.map((s) => {
+            const Icon = s.icon;
+            const isActive = s.id === active;
+            return (
+              <button
+                key={s.id}
+                onClick={() => setActive(s.id)}
+                className={cn(
+                  "shrink-0 flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors whitespace-nowrap",
+                  isActive
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-primary/10 hover:text-foreground",
+                )}
+              >
+                <Icon className="h-3.5 w-3.5 shrink-0" />
+                {s.label}
+              </button>
+            );
+          })}
         </div>
-      </aside>
+      </div>
 
       {/* Conteúdo */}
-      <div className="flex-1 min-w-0">
+      <div className="min-w-0">
         <div className="mb-4">
           <h2 className="font-display text-xl font-bold tracking-tight">{current.label}</h2>
           <p className="text-xs text-muted-foreground">
