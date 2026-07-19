@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { cn } from "@/lib/utils";
-import type { IntegrationDef } from "@/lib/dojo/integrations-catalog";
+import { getIntegrationLogoUrl, type IntegrationDef } from "@/lib/dojo/integrations-catalog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, Settings2, Zap, FileText } from "lucide-react";
