@@ -74,7 +74,7 @@ async function upsertOne(supabaseAdmin: Awaited<ReturnType<typeof serverAdmin>>,
     registration_url: ev.external_url,
     scope: cls.scope,
     tier: cls.tier,
-    classification: cls as unknown as Record<string, unknown>,
+    classification: cls as unknown as never,
     last_seen_at: new Date().toISOString(),
   };
 
