@@ -312,7 +312,6 @@ function AtacadoLandingPage() {
               ))}
               <div className="mt-2 grid grid-cols-1 gap-2 pt-2">
                 <BuyButton from="mobile_menu" />
-                <WhatsAppButton from="mobile_menu" />
               </div>
             </nav>
           </div>
