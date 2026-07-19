@@ -9,14 +9,12 @@ import {
   ArrowRight,
   Factory,
   Award,
-  MessageCircle,
   Sparkles,
   Layers,
   Scissors,
   Ribbon,
   Menu,
   X,
-  Phone,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import amtLogo from "@/assets/amt-logo.jpg";
@@ -30,10 +28,7 @@ import kimonoStoreAsset from "@/assets/kimono-branco.jpg.asset.json";
 const kimonoStore = kimonoStoreAsset.url;
 
 const META_PIXEL_ID = "2149647638877087";
-const WHATSAPP_PHONE = "5582920016732";
-const WHATSAPP_MSG =
-  "Olá! Vim pela página de atacado da AMT Fight Wear e gostaria de solicitar um atendimento.";
-const WHATSAPP_HREF = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(WHATSAPP_MSG)}`;
+
 
 export const Route = createFileRoute("/atacado-lp")({
   head: () => ({
@@ -107,9 +102,6 @@ function fbqCustom(event: string, data?: Record<string, unknown>) {
 function trackCTA(label: string, extra?: Record<string, unknown>) {
   fbqCustom("CTA_Click", { label, ...extra });
 }
-function trackWhatsApp(from: string) {
-  fbqCustom("ClickWhatsApp", { from });
-}
 function trackViewContent(name: string) {
   fbqTrack("ViewContent", { content_name: name, content_category: "atacado" });
 }
@@ -119,7 +111,6 @@ const benefits = [
   "Personalização inclusa",
   "Produção própria",
   "Envio para todo o Brasil",
-  "Atendimento especializado",
 ];
 
 const products = [
@@ -128,7 +119,7 @@ const products = [
     name: "Faixas Personalizadas",
     desc: "Todas as graduações com etiqueta da sua academia e bordado do aluno inclusos.",
     image: f1,
-    href: "/loja/categoria/faixas",
+    href: "/loja/atacado",
   },
   {
     id: "kimonos",
@@ -151,7 +142,6 @@ const whyUs = [
   { icon: Award, title: "Acabamento premium", desc: "Costura e bordado profissionais em cada peça." },
   { icon: Palette, title: "Personalização inclusa", desc: "Logo, cores e nomes sem custo extra." },
   { icon: Layers, title: "Alta resistência", desc: "Tecidos reforçados que aguentam o treino pesado." },
-  { icon: MessageCircle, title: "Atendimento especializado", desc: "Suporte humano do orçamento à entrega." },
   { icon: Truck, title: "Entrega para todo o Brasil", desc: "Envio de norte a sul, com prazo combinado." },
 ];
 
@@ -192,67 +182,32 @@ const faqs = [
 
 const galleryImages = [f1, f5, f2, f4, f3, f6];
 
-// ============ Reusable CTAs ============
+// ============ Reusable CTA ============
 function BuyButton({
   from,
   size = "md",
   className = "",
+  label = "Comprar Agora",
 }: {
   from: string;
-  size?: "md" | "lg";
-  className?: string;
-}) {
-  const sizing =
-    size === "lg" ? "px-8 py-4 text-base md:px-10 md:py-5 md:text-lg" : "px-6 py-3 text-sm md:text-base";
-  return (
-    <Link
-      to="/loja/categoria/$slug"
-      params={{ slug: "faixas" }}
-      onClick={() => {
-        trackCTA(`buy_${from}`);
-        fbqTrack("InitiateCheckout", { source: from });
-      }}
-      className={`group inline-flex items-center justify-center gap-2 rounded-lg bg-primary font-black uppercase tracking-wide text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/40 ${sizing} ${className}`}
-    >
-      Comprar Faixas
-      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1 md:h-5 md:w-5" />
-    </Link>
-  );
-}
-
-function WhatsAppButton({
-  from,
-  variant = "outline",
-  size = "md",
-  className = "",
-  label = "Solicitar Atendimento",
-}: {
-  from: string;
-  variant?: "outline" | "solid";
   size?: "md" | "lg";
   className?: string;
   label?: string;
 }) {
   const sizing =
     size === "lg" ? "px-8 py-4 text-base md:px-10 md:py-5 md:text-lg" : "px-6 py-3 text-sm md:text-base";
-  const skin =
-    variant === "solid"
-      ? "bg-[#25D366] text-white hover:bg-[#1ebe57]"
-      : "border border-foreground/20 bg-background/70 text-foreground hover:border-foreground/40 hover:bg-background";
   return (
-    <a
-      href={WHATSAPP_HREF}
-      target="_blank"
-      rel="noopener noreferrer"
+    <Link
+      to="/loja/atacado"
       onClick={() => {
-        trackWhatsApp(from);
-        trackCTA(`wa_${from}`);
+        trackCTA(`buy_${from}`);
+        fbqTrack("InitiateCheckout", { source: from });
       }}
-      className={`inline-flex items-center justify-center gap-2 rounded-lg font-black uppercase tracking-wide transition-all hover:-translate-y-0.5 ${sizing} ${skin} ${className}`}
+      className={`group inline-flex items-center justify-center gap-2 rounded-lg bg-primary font-black uppercase tracking-wide text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/40 ${sizing} ${className}`}
     >
-      <MessageCircle className="h-4 w-4 md:h-5 md:w-5" />
       {label}
-    </a>
+      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1 md:h-5 md:w-5" />
+    </Link>
   );
 }
 
@@ -357,7 +312,6 @@ function AtacadoLandingPage() {
               ))}
               <div className="mt-2 grid grid-cols-1 gap-2 pt-2">
                 <BuyButton from="mobile_menu" />
-                <WhatsAppButton from="mobile_menu" />
               </div>
             </nav>
           </div>
@@ -404,10 +358,9 @@ function AtacadoLandingPage() {
                 </div>
               </div>
 
-              {/* CTAs */}
+              {/* CTA */}
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                 <BuyButton from="hero" size="lg" className="w-full sm:w-auto" />
-                <WhatsAppButton from="hero" size="lg" className="w-full sm:w-auto" />
               </div>
 
               <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
@@ -686,7 +639,7 @@ function AtacadoLandingPage() {
               Equipar Minha Academia
               <ArrowRight className="h-5 w-5" />
             </Link>
-            <WhatsAppButton from="equip_academy" size="lg" />
+            
           </div>
         </div>
       </section>
@@ -721,12 +674,7 @@ function AtacadoLandingPage() {
             ))}
           </div>
           <div className="mt-8 flex justify-center">
-            <WhatsAppButton
-              from="social_proof"
-              size="md"
-              variant="solid"
-              label="Quero fazer parte"
-            />
+            <BuyButton from="social_proof" label="Quero fazer parte" />
           </div>
         </div>
       </section>
@@ -785,7 +733,7 @@ function AtacadoLandingPage() {
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <BuyButton from="final_cta" size="lg" />
-            <WhatsAppButton from="final_cta" size="lg" variant="solid" label="Falar no WhatsApp" />
+            
           </div>
           <p className="mt-6 text-xs text-muted-foreground">
             25% OFF acima de 10 unidades · Pagamento 100% seguro · Envio para todo o Brasil
@@ -800,52 +748,15 @@ function AtacadoLandingPage() {
             <img src={amtLogo} alt="AMT Fight Wear" className="h-6 w-auto rounded object-contain" />
             <span>© {new Date().getFullYear()} AMT Fight Wear · Fábrica nacional de artigos esportivos</span>
           </div>
-          <div className="flex items-center gap-3">
-            <a href={WHATSAPP_HREF} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 hover:text-foreground">
-              <Phone className="h-3.5 w-3.5" /> Atendimento
-            </a>
-          </div>
         </div>
       </footer>
 
       {/* MOBILE STICKY BAR */}
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border/60 bg-background/95 backdrop-blur-md sm:hidden">
-        <div className="grid grid-cols-[1fr_auto] items-center gap-2 px-3 py-2">
-          <BuyButton from="sticky_mobile" />
-          <a
-            href={WHATSAPP_HREF}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Falar no WhatsApp"
-            onClick={() => {
-              trackWhatsApp("sticky_mobile");
-              trackCTA("wa_sticky_mobile");
-            }}
-            className="grid h-12 w-12 place-items-center rounded-lg bg-[#25D366] text-white shadow-md"
-          >
-            <MessageCircle className="h-5 w-5" />
-          </a>
+        <div className="px-3 py-2">
+          <BuyButton from="sticky_mobile" className="w-full" />
         </div>
       </div>
-
-      {/* FLOATING WHATSAPP (desktop) */}
-      <a
-        href={WHATSAPP_HREF}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Falar no WhatsApp"
-        onClick={() => {
-          trackWhatsApp("float");
-          trackCTA("wa_float");
-        }}
-        className="fixed bottom-6 right-6 z-40 hidden items-center gap-2 rounded-full bg-[#25D366] px-4 py-3 text-white shadow-lg shadow-emerald-500/30 transition-transform hover:scale-105 sm:inline-flex"
-      >
-        <span className="relative flex h-6 w-6 items-center justify-center">
-          <span className="absolute inset-0 animate-ping rounded-full bg-white/40" />
-          <MessageCircle className="relative h-6 w-6" strokeWidth={2.4} />
-        </span>
-        <span className="text-sm font-black">Fale conosco</span>
-      </a>
     </div>
   );
 }
