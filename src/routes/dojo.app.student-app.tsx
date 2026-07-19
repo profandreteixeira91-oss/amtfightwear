@@ -191,6 +191,10 @@ function StudentAppEditor() {
               <TabsContent value="onboarding" className="m-0">
                 <OnboardingPanel value={draft.onboarding} onChange={setOnboarding} />
               </TabsContent>
+              <TabsContent value="card" className="m-0">
+                <DigitalCardPanel value={draft.digital_card} onChange={setDigitalCard} appearance={draft.appearance} />
+              </TabsContent>
+
               <TabsContent value="news" className="m-0">
                 <NewsPanel />
               </TabsContent>
