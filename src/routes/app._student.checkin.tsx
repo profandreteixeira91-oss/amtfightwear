@@ -79,7 +79,7 @@ function CheckinPage() {
         >
           {submitting ? "Enviando…" : "Registrar check-in agora"}
         </button>
-        <p className="mt-2 text-[11px] text-neutral-500">Se sua academia exigir, use o PIN acima no kiosk.</p>
+        <p className="mt-2 text-[11px] text-neutral-500">O check-in valida sua localização — você precisa estar próximo da academia. Se sua unidade exigir, use o PIN acima no kiosk.</p>
       </section>
 
       <div className="grid grid-cols-2 gap-3">
