@@ -276,10 +276,10 @@ function EvaluationDetail({ session, onBack }: { session: Session; onBack: () =>
         </section>
       )}
 
-      {session.notes && (
+      {session.observations && (
         <section className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-neutral-100">
           <div className="text-[10px] uppercase tracking-wider text-neutral-400">Observações do instrutor</div>
-          <p className="mt-1 whitespace-pre-wrap text-xs text-neutral-700">{session.notes}</p>
+          <p className="mt-1 whitespace-pre-wrap text-xs text-neutral-700">{session.observations}</p>
         </section>
       )}
     </div>
