@@ -107,10 +107,10 @@ function StudentAppQrPage() {
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 border-b bg-white px-4 py-3">
           <div className="flex items-center gap-3">
             <Link
-              to="/dojo/app/student-app"
+              to="/dojo/app"
               className="inline-flex items-center gap-1 text-sm font-medium text-neutral-500 hover:text-neutral-800"
             >
-              <ArrowLeft className="h-4 w-4" /> Editor do app
+              <ArrowLeft className="h-4 w-4" /> Painel do Dojo
             </Link>
             <div>
               <h1 className="text-lg font-bold">QR do App do Aluno</h1>
