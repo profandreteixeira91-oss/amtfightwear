@@ -246,15 +246,17 @@ export const upsertCompetitionSubRow = createServerFn({ method: "POST" })
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
-    const payload = { ...(data.row as Record<string, unknown>), owner_id: context.userId };
-    const id = payload["id"] as string | undefined;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const payload: any = { ...(data.row as Record<string, unknown>), owner_id: context.userId };
+    const id = payload.id as string | undefined;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const client = (context.supabase as any).from(tableMap[data.table]);
     const { data: row, error } = id
       ? await client.update(payload).eq("id", id).eq("owner_id", context.userId).select("*").single()
       : await client.insert(payload).select("*").single();
     if (error) throw new Error(error.message);
-    return row as Record<string, unknown>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return row as any;
   });
 
 export const deleteCompetitionSubRow = createServerFn({ method: "POST" })
