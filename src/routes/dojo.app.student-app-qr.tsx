@@ -48,7 +48,12 @@ function StudentAppQrPage() {
   const brandColor = branding?.brand_primary ?? "#dc2626";
 
   useEffect(() => {
-    if (typeof window !== "undefined") setOrigin(window.location.origin);
+    if (typeof window === "undefined") return;
+    // O subdomínio dojomanager redireciona qualquer rota fora de /dojo/* para /dojo/*,
+    // o que quebra /app/login. O portal do aluno vive no domínio principal.
+    const host = window.location.hostname;
+    if (host === "dojomanager.amtfightwear.com.br") setOrigin("https://loja.amtfightwear.com.br");
+    else setOrigin(window.location.origin);
   }, []);
 
 
