@@ -19,6 +19,7 @@ import {
 } from "@/lib/dojo/competitions/library.functions";
 import {
   runCompetitionIngest, getIngestStatus, setSourceEnabled,
+  addCompetitionSource, deleteCompetitionSource,
 } from "@/lib/dojo/competitions/ingest.functions";
 import {
   addCompetitionToCalendar, listAcademyCompetitions,
