@@ -349,7 +349,8 @@ function AtacadoLandingPage() {
                 </a>
               ))}
               <div className="mt-2 grid grid-cols-1 gap-2 pt-2">
-                <BuyButton from="mobile_menu" />
+                <BuyButton from="mobile_menu" label="Comprar Faixas" href={FAIXAS_HREF} />
+                <WhatsAppButton from="mobile_menu" label="Solicitar Atendimento" />
               </div>
             </nav>
           </div>
