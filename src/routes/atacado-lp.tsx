@@ -25,6 +25,8 @@ import f4 from "@/assets/atacado-lp/f4-clean.jpg";
 import f5 from "@/assets/atacado-lp/f5-clean.jpg";
 import f6 from "@/assets/atacado-lp/f6.jpg";
 
+const META_PIXEL_ID = "2149647638877087";
+
 export const Route = createFileRoute("/atacado-lp")({
   head: () => ({
     meta: [
@@ -38,9 +40,29 @@ export const Route = createFileRoute("/atacado-lp")({
       { property: "og:title", content: "Faixas Personalizadas no Atacado — Direto da Fábrica" },
       { property: "og:description", content: "25% OFF, customização inclusa e envio para todo o Brasil." },
     ],
+    links: [{ rel: "preconnect", href: "https://connect.facebook.net" }],
+    scripts: [
+      {
+        children: `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${META_PIXEL_ID}');fbq('track','PageView');`,
+      },
+    ],
   }),
   component: AtacadoLandingPage,
 });
+
+function MetaPixelNoscript() {
+  return (
+    <noscript>
+      <img
+        height="1"
+        width="1"
+        style={{ display: "none" }}
+        src={`https://www.facebook.com/tr?id=${META_PIXEL_ID}&ev=PageView&noscript=1`}
+        alt=""
+      />
+    </noscript>
+  );
+}
 
 const advantages = [
   {
@@ -152,6 +174,8 @@ function AtacadoLandingPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <MetaPixelNoscript />
+
       {/* TOP BAR COM LOGO */}
       <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
