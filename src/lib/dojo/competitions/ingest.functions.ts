@@ -5,7 +5,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { classify } from "@/lib/dojo/competitions/classifier";
-import { scrapeCompetitions, type LiveCompetition } from "@/lib/dojo/competitions.functions";
+import {
+  runScrapeCompetitions,
+  scrapeCustomSource,
+  type LiveCompetition,
+} from "@/lib/dojo/competitions.functions";
 import { PROVIDER_BY_ID, type ProviderId } from "@/lib/dojo/competitions/providers";
 
 type SourceRow = {
