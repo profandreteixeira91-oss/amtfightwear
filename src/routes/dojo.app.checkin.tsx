@@ -777,16 +777,22 @@ function SettingsPanel() {
   const [state, setState] = useState<any>({});
   useEffect(() => {
     if (q.data) {
+      const d = q.data as any;
       setState({
-        minIntervalMinutes: q.data.min_interval_minutes ?? 30,
-        allowMultipleDaily: q.data.allow_multiple_daily ?? true,
-        requireCheckout: q.data.require_checkout ?? false,
-        welcomeMessage: q.data.welcome_message ?? "Bem-vindo, {{name}}! Bom treino 🥋",
-        blockOnOverdue: q.data.block_on_overdue ?? false,
-        warnOnOverdue: q.data.warn_on_overdue ?? true,
-        warnOnMedical: q.data.warn_on_medical ?? true,
-        requirePartnerValidation: q.data.require_partner_validation ?? true,
-        kioskPin: q.data.kiosk_pin ?? "",
+        minIntervalMinutes: d.min_interval_minutes ?? 30,
+        allowMultipleDaily: d.allow_multiple_daily ?? true,
+        requireCheckout: d.require_checkout ?? false,
+        welcomeMessage: d.welcome_message ?? "Bem-vindo, {{name}}! Bom treino 🥋",
+        blockOnOverdue: d.block_on_overdue ?? false,
+        warnOnOverdue: d.warn_on_overdue ?? true,
+        warnOnMedical: d.warn_on_medical ?? true,
+        requirePartnerValidation: d.require_partner_validation ?? true,
+        kioskPin: d.kiosk_pin ?? "",
+        geoRequired: d.geo_required ?? false,
+        geoLat: d.geo_lat ?? null,
+        geoLng: d.geo_lng ?? null,
+        geoRadiusM: d.geo_radius_m ?? 50,
+        geoAddress: d.geo_address ?? "",
       });
     } else if (!q.isLoading) {
       setState({
@@ -794,6 +800,7 @@ function SettingsPanel() {
         welcomeMessage: "Bem-vindo, {{name}}! Bom treino 🥋",
         blockOnOverdue: false, warnOnOverdue: true, warnOnMedical: true,
         requirePartnerValidation: true, kioskPin: "",
+        geoRequired: false, geoLat: null, geoLng: null, geoRadiusM: 50, geoAddress: "",
       });
     }
   }, [q.data, q.isLoading]);
