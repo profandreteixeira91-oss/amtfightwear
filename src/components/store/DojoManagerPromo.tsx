@@ -1,4 +1,4 @@
-import dojoPreview from "@/assets/dojo-manager-preview.jpg";
+import dojoPreview from "@/assets/dojo-manager-preview.png";
 
 const FEATURES = [
   "Gestão completa de alunos e atletas",
