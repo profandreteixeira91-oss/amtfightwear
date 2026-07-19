@@ -561,18 +561,25 @@ function BrandAssetBlock({ title, url, onPick, onRemove, inputRef, onChange }: a
 
 /* ---------------- Subscription ---------------- */
 function SubscriptionTab({ subscription }: any) {
-  const status = subscription?.status ?? "trial";
+  const status = subscription?.status ?? "trialing";
   const trialLeft = subscription?.trial_ends_at
     ? Math.max(0, Math.ceil((new Date(subscription.trial_ends_at).getTime() - Date.now()) / 86400000))
     : null;
+  const statusLabel: Record<string, string> = {
+    trialing: "Período de teste",
+    pending: "Aguardando autorização",
+    active: "Ativa",
+    paused: "Pausada",
+    cancelled: "Cancelada",
+  };
   return (
     <Card>
       <CardHeader><CardTitle>Assinatura</CardTitle></CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <Info label="Plano atual" value="AMT Dojo Manager" />
-          <Info label="Status" value={status} />
-          <Info label="Valor mensal" value={brl(subscription?.plan_amount ?? 59.9)} />
+          <Info label="Status" value={statusLabel[status] ?? status} />
+          <Info label="Valor mensal" value={brl(subscription?.plan_amount ?? 69.9)} />
           <Info label="Próxima cobrança" value={subscription?.current_period_end ? new Date(subscription.current_period_end).toLocaleDateString("pt-BR") : "—"} />
           <Info label="Forma de pagamento" value="Mercado Pago" />
           <Info label="Renovação automática" value={status === "active" ? "Sim" : "—"} />
@@ -582,11 +589,15 @@ function SubscriptionTab({ subscription }: any) {
             Período de teste: <strong>{trialLeft} dias restantes</strong> (termina em {new Date(subscription.trial_ends_at).toLocaleDateString("pt-BR")}).
           </div>
         )}
+        <p className="text-xs text-neutral-500">
+          Cobrança recorrente processada pelo Mercado Pago (cartão de crédito ou saldo da conta MP). Cancele quando quiser — nenhum dado do cartão é armazenado no sistema.
+        </p>
         <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm">Alterar plano</Button>
-          <Button variant="outline" size="sm">Atualizar forma de pagamento</Button>
-          <Button variant="outline" size="sm">Renovar agora</Button>
-          <Button variant="outline" size="sm" className="text-red-600">Cancelar assinatura</Button>
+          <Button size="sm" asChild className="bg-red-600 hover:bg-red-700">
+            <a href="/dojo/app/subscription">
+              {status === "active" ? "Gerenciar assinatura" : status === "cancelled" ? "Reativar assinatura" : "Ativar assinatura no Mercado Pago"}
+            </a>
+          </Button>
         </div>
       </CardContent>
     </Card>
