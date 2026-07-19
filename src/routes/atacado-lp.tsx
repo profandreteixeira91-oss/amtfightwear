@@ -28,7 +28,7 @@ import kimonoStoreAsset from "@/assets/kimono-branco.jpg.asset.json";
 const kimonoStore = kimonoStoreAsset.url;
 
 const META_PIXEL_ID = "2149647638877087";
-const WHATSAPP_HREF = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(WHATSAPP_MSG)}`;
+
 
 export const Route = createFileRoute("/atacado-lp")({
   head: () => ({
