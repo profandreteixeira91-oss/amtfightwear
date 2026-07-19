@@ -117,20 +117,18 @@ function StudentDetail() {
     } catch (e: any) { toast.error(e.message); }
   };
 
-  if (q.isLoading || !q.data) return <LoadingState />;
-
-  const s = q.data.student as any;
-  const graduations = q.data.graduations ?? [];
-  const enrollments = q.data.enrollments ?? [];
-  const invoices = q.data.invoices ?? [];
-  const certificates = q.data.certificates ?? [];
+  const s = (q.data?.student ?? null) as any;
+  const graduations = q.data?.graduations ?? [];
+  const enrollments = q.data?.enrollments ?? [];
+  const invoices = q.data?.invoices ?? [];
+  const certificates = q.data?.certificates ?? [];
   const attendanceRows = (attendance.data ?? []) as any[];
 
   const currentEnrollment = enrollments.find((e: any) => e.status === "active") ?? enrollments[0];
-  const anamn = s.anamnesis ?? {};
+  const anamn = s?.anamnesis ?? {};
 
   // === Métricas ===
-  const enrollmentDate = s.created_at ?? currentEnrollment?.start_date ?? null;
+  const enrollmentDate = s?.created_at ?? currentEnrollment?.start_date ?? null;
   const daysTraining = enrollmentDate
     ? Math.max(0, Math.floor((Date.now() - new Date(enrollmentDate).getTime()) / 86400000))
     : 0;
@@ -140,12 +138,18 @@ function StudentDetail() {
   const lastAttendance = attendanceRows[0]?.checked_in_at ?? null;
   const pendingInvoices = invoices.filter((i: any) => i.status !== "paid" && i.status !== "cancelled").length;
   const paidInvoices = invoices.filter((i: any) => i.status === "paid").length;
-  const age = s.birth_date
+  const age = s?.birth_date
     ? Math.floor((Date.now() - new Date(s.birth_date).getTime()) / (365.25 * 86400000))
     : null;
 
-  // === Timeline ===
-  const timeline = useMemo(() => buildTimeline({ graduations, invoices, certificates, attendanceRows, student: s }), [graduations, invoices, certificates, attendanceRows, s]);
+  // === Timeline === (hook chamado incondicionalmente para respeitar Rules of Hooks)
+  const timeline = useMemo(
+    () => (s ? buildTimeline({ graduations, invoices, certificates, attendanceRows, student: s }) : []),
+    [graduations, invoices, certificates, attendanceRows, s],
+  );
+
+  if (q.isLoading || !q.data || !s) return <LoadingState />;
+
 
   const onDeleteStudent = async () => {
     if (!confirm(`Excluir ${s.full_name}? Esta ação apaga histórico de graduações, mensalidades e certificados.`)) return;
