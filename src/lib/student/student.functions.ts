@@ -156,7 +156,7 @@ export const getMyEvaluations = createServerFn({ method: "GET" })
     const { data, error } = await context.supabase
       .from("dojo_eval_sessions")
       .select(
-        "id, status, result, total_score, max_score, percentage, scheduled_at, started_at, finished_at, notes, scores, criteria_notes, template:dojo_evaluations(title, method, modality, passing_score, structure)",
+        "id, status, result, total_score, max_score, percentage, scheduled_at, started_at, finished_at, observations, scores, template:dojo_evaluations(title, method, modality, passing_score, structure)",
       )
       .eq("student_id", me.id)
       .order("scheduled_at", { ascending: false, nullsFirst: false })
