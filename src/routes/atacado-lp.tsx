@@ -15,7 +15,15 @@ import {
   Ribbon,
   Menu,
   X,
+  MessageCircle,
+  Headphones,
 } from "lucide-react";
+
+const WHATSAPP_PHONE = "5582920016732";
+const WHATSAPP_MSG = "Olá! Vim pela página de atacado e gostaria de tirar uma dúvida.";
+const whatsappHref = (from: string) =>
+  `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(WHATSAPP_MSG + " (origem: " + from + ")")}`;
+const FAIXAS_HREF = "/loja/categoria/faixas";
 import { useEffect, useRef, useState } from "react";
 import amtLogo from "@/assets/amt-logo.jpg";
 import f1 from "@/assets/atacado-lp/f1-clean.jpg";
@@ -107,6 +115,7 @@ const benefits = [
   "Personalização inclusa",
   "Produção própria",
   "Envio para todo o Brasil",
+  "Atendimento especializado",
 ];
 
 const products = [
@@ -138,6 +147,7 @@ const whyUs = [
   { icon: Award, title: "Acabamento premium", desc: "Costura e bordado profissionais em cada peça." },
   { icon: Palette, title: "Personalização inclusa", desc: "Logo, cores e nomes sem custo extra." },
   { icon: Layers, title: "Alta resistência", desc: "Tecidos reforçados que aguentam o treino pesado." },
+  { icon: Headphones, title: "Atendimento especializado", desc: "Time direto da fábrica orientando o seu pedido." },
   { icon: Truck, title: "Entrega para todo o Brasil", desc: "Envio de norte a sul, com prazo combinado." },
 ];
 
@@ -184,6 +194,36 @@ function BuyButton({
   size = "md",
   className = "",
   label = "Comprar Agora",
+  href = "/loja/atacado",
+}: {
+  from: string;
+  size?: "md" | "lg";
+  className?: string;
+  label?: string;
+  href?: string;
+}) {
+  const sizing =
+    size === "lg" ? "px-8 py-4 text-base md:px-10 md:py-5 md:text-lg" : "px-6 py-3 text-sm md:text-base";
+  return (
+    <a
+      href={href}
+      onClick={() => {
+        trackCTA(`buy_${from}`);
+        fbqTrack("InitiateCheckout", { source: from });
+      }}
+      className={`group inline-flex items-center justify-center gap-2 rounded-lg bg-primary font-black uppercase tracking-wide text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/40 ${sizing} ${className}`}
+    >
+      {label}
+      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1 md:h-5 md:w-5" />
+    </a>
+  );
+}
+
+function WhatsAppButton({
+  from,
+  size = "md",
+  className = "",
+  label = "Falar no WhatsApp",
 }: {
   from: string;
   size?: "md" | "lg";
@@ -193,17 +233,19 @@ function BuyButton({
   const sizing =
     size === "lg" ? "px-8 py-4 text-base md:px-10 md:py-5 md:text-lg" : "px-6 py-3 text-sm md:text-base";
   return (
-    <Link
-      to="/loja/atacado"
+    <a
+      href={whatsappHref(from)}
+      target="_blank"
+      rel="noopener noreferrer"
       onClick={() => {
-        trackCTA(`buy_${from}`);
-        fbqTrack("InitiateCheckout", { source: from });
+        trackCTA(`whatsapp_${from}`);
+        fbqCustom("ClickWhatsApp", { source: from });
       }}
-      className={`group inline-flex items-center justify-center gap-2 rounded-lg bg-primary font-black uppercase tracking-wide text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/40 ${sizing} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-lg border-2 border-foreground/20 bg-background font-black uppercase tracking-wide text-foreground transition-all hover:-translate-y-0.5 hover:border-emerald-500/60 hover:bg-emerald-500/5 hover:text-emerald-600 ${sizing} ${className}`}
     >
+      <MessageCircle className="h-4 w-4 md:h-5 md:w-5" />
       {label}
-      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1 md:h-5 md:w-5" />
-    </Link>
+    </a>
   );
 }
 
@@ -281,7 +323,7 @@ function AtacadoLandingPage() {
               ))}
             </nav>
             <div className="hidden sm:block">
-              <BuyButton from="header" />
+              <BuyButton from="header" label="Comprar Faixas" href={FAIXAS_HREF} />
             </div>
             <button
               type="button"
@@ -307,7 +349,8 @@ function AtacadoLandingPage() {
                 </a>
               ))}
               <div className="mt-2 grid grid-cols-1 gap-2 pt-2">
-                <BuyButton from="mobile_menu" />
+                <BuyButton from="mobile_menu" label="Comprar Faixas" href={FAIXAS_HREF} />
+                <WhatsAppButton from="mobile_menu" label="Solicitar Atendimento" />
               </div>
             </nav>
           </div>
@@ -354,9 +397,10 @@ function AtacadoLandingPage() {
                 </div>
               </div>
 
-              {/* CTA */}
+              {/* CTAs */}
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                <BuyButton from="hero" size="lg" className="w-full sm:w-auto" />
+                <BuyButton from="hero" size="lg" label="Comprar Faixas" href={FAIXAS_HREF} className="w-full sm:w-auto" />
+                <WhatsAppButton from="hero" size="lg" label="Solicitar Atendimento" className="w-full sm:w-auto" />
               </div>
 
               <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
@@ -540,8 +584,9 @@ function AtacadoLandingPage() {
             </motion.div>
           ))}
         </div>
-        <div className="mt-10 flex justify-center">
-          <BuyButton from="personalizacao" size="lg" />
+        <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <BuyButton from="personalizacao" size="lg" label="Personalizar Agora" />
+          <WhatsAppButton from="personalizacao" size="lg" label="Falar com Especialista" />
         </div>
       </section>
 
@@ -635,7 +680,7 @@ function AtacadoLandingPage() {
               Equipar Minha Academia
               <ArrowRight className="h-5 w-5" />
             </Link>
-            
+            <WhatsAppButton from="equip_academy" size="lg" label="Solicitar Atendimento" />
           </div>
         </div>
       </section>
@@ -729,7 +774,7 @@ function AtacadoLandingPage() {
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <BuyButton from="final_cta" size="lg" />
-            
+            <WhatsAppButton from="final_cta" size="lg" />
           </div>
           <p className="mt-6 text-xs text-muted-foreground">
             25% OFF acima de 10 unidades · Pagamento 100% seguro · Envio para todo o Brasil
@@ -747,10 +792,30 @@ function AtacadoLandingPage() {
         </div>
       </footer>
 
+      {/* FLOATING WHATSAPP */}
+      <a
+        href={whatsappHref("float")}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={() => {
+          trackCTA("whatsapp_float");
+          fbqCustom("ClickWhatsApp", { source: "float" });
+        }}
+        aria-label="Falar no WhatsApp"
+        className="fixed right-4 z-50 flex items-center gap-2 rounded-full bg-[#25D366] px-4 py-3 text-white shadow-lg shadow-emerald-500/30 transition-transform hover:scale-105 sm:right-6"
+        style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 80px)" }}
+      >
+        <span className="relative flex h-6 w-6 items-center justify-center">
+          <span className="absolute inset-0 animate-ping rounded-full bg-white/40" />
+          <MessageCircle className="relative h-6 w-6" strokeWidth={2.4} />
+        </span>
+        <span className="hidden text-sm font-semibold sm:inline">Fale conosco</span>
+      </a>
+
       {/* MOBILE STICKY BAR */}
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border/60 bg-background/95 backdrop-blur-md sm:hidden">
         <div className="px-3 py-2" style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 8px)" }}>
-          <BuyButton from="sticky_mobile" className="w-full" />
+          <BuyButton from="sticky_mobile" label="Comprar Faixas" href={FAIXAS_HREF} className="w-full" />
         </div>
       </div>
     </div>
