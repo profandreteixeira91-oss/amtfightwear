@@ -25,7 +25,7 @@ import {
   listAnnouncementCategories, upsertAnnouncementCategory, deleteAnnouncementCategory,
 } from "@/lib/dojo/announcements.functions";
 
-export const Route = createFileRoute("/_authenticated/dojo/app/announcements")({
+export const Route = createFileRoute("/dojo/app/announcements")({
   head: () => ({ meta: [{ title: "Quadro de Avisos — AMT Dojo Manager" }] }),
   component: AnnouncementsAdmin,
 });
