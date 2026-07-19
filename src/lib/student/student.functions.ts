@@ -62,6 +62,110 @@ export const updateMyProfile = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+// ============ Anamnese ============
+
+const anamnesisSchema = z.object({
+  medical_conditions: z.string().max(1000).optional().nullable(),
+  medications: z.string().max(1000).optional().nullable(),
+  allergies: z.string().max(1000).optional().nullable(),
+  surgeries: z.string().max(1000).optional().nullable(),
+  injuries: z.string().max(1000).optional().nullable(),
+  physical_activity_level: z.string().max(200).optional().nullable(),
+  objectives: z.string().max(1000).optional().nullable(),
+  smoking: z.boolean().optional(),
+  alcohol: z.boolean().optional(),
+  heart_issues: z.boolean().optional(),
+  diabetes: z.boolean().optional(),
+  hypertension: z.boolean().optional(),
+  asthma: z.boolean().optional(),
+  pregnant: z.boolean().optional(),
+  other: z.string().max(2000).optional().nullable(),
+  health_card_number: z.string().max(60).optional().nullable(),
+});
+
+export const getMyAnamnesis = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data } = await context.supabase
+      .from("dojo_students")
+      .select("anamnesis, health_insurance, has_medical_clearance, medical_clearance_date")
+      .limit(1)
+      .maybeSingle();
+    return data ?? null;
+  });
+
+export const updateMyAnamnesis = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({
+      anamnesis: anamnesisSchema,
+      health_insurance: z.string().max(200).optional().nullable(),
+    }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: me } = await context.supabase.from("dojo_students").select("id").limit(1).maybeSingle();
+    if (!me) throw new Error("Aluno não encontrado");
+    const { error } = await context.supabase
+      .from("dojo_students")
+      .update({ anamnesis: data.anamnesis, health_insurance: data.health_insurance ?? null })
+      .eq("id", me.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// ============ Foto de perfil (upload) ============
+
+export const uploadMyPhoto = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({
+      data_url: z.string().min(30).max(6_500_000), // ~5MB base64
+      content_type: z.string().max(100).default("image/jpeg"),
+    }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: me } = await context.supabase.from("dojo_students").select("id, owner_id").limit(1).maybeSingle();
+    if (!me) throw new Error("Aluno não encontrado");
+    // decode base64
+    const match = data.data_url.match(/^data:([^;]+);base64,(.+)$/);
+    if (!match) throw new Error("Formato de imagem inválido");
+    const contentType = match[1] || data.content_type || "image/jpeg";
+    const b64 = match[2];
+    const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+    const ext = contentType.split("/")[1]?.split("+")[0] ?? "jpg";
+    const path = `${me.owner_id}/${me.id}-${Date.now()}.${ext}`;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error: upErr } = await supabaseAdmin.storage
+      .from("dojo-students")
+      .upload(path, bytes, { contentType, upsert: true });
+    if (upErr) throw new Error(upErr.message);
+    const { data: pub } = supabaseAdmin.storage.from("dojo-students").getPublicUrl(path);
+    const url = pub.publicUrl;
+    const { error } = await supabaseAdmin.from("dojo_students").update({ photo_url: url }).eq("id", me.id);
+    if (error) throw new Error(error.message);
+    return { url };
+  });
+
+// ============ Avaliações do aluno ============
+
+export const getMyEvaluations = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: me } = await context.supabase.from("dojo_students").select("id").limit(1).maybeSingle();
+    if (!me) return [];
+    const { data, error } = await context.supabase
+      .from("dojo_eval_sessions")
+      .select(
+        "id, status, result, total_score, max_score, percentage, scheduled_at, started_at, finished_at, observations, scores, template:dojo_evaluations(title, method, modality, passing_score, structure)",
+      )
+      .eq("student_id", me.id)
+      .order("scheduled_at", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+
 // ============ Home / dashboard ============
 
 export const getMyHome = createServerFn({ method: "GET" })
