@@ -541,7 +541,7 @@ function StudentsPage() {
 
       {/* Filtros ampliados: nome, e-mail, telefone, CPF, faixa, unidade, cidade, status */}
       <div className="rounded-lg border border-border bg-card p-3 md:p-4">
-        <div className="grid gap-2 md:grid-cols-6">
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-6">
           <Input
             className="md:col-span-2"
             placeholder="Buscar por nome, telefone, CPF, e-mail…"
