@@ -34,27 +34,22 @@ function StudentAppQrPage() {
 
   const slug = mine?.slug ?? "";
   const [origin, setOrigin] = useState("");
-  const [path, setPath] = useState("/app/install");
-  const [headline, setHeadline] = useState("Baixe o App do Aluno");
-  const [subline, setSubline] = useState("Aponte a câmera do celular para o código abaixo");
+  const [headline, setHeadline] = useState("Acesse o App do Aluno");
+  const [subline, setSubline] = useState("Aponte a câmera do celular para o código abaixo e entre pelo navegador");
   const [dataUrl, setDataUrl] = useState<string>("");
   const [copied, setCopied] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Personalized path per dojo — avoids cross-tenant conflicts.
-  const fullPath = slug ? `/app/install/${slug}` : path;
+  // QR aponta direto para o login online do app — sem etapa de download.
+  const fullPath = slug ? `/app/login?dojo=${encodeURIComponent(slug)}` : `/app/login`;
   const base = (cfg?.public_url || origin || "").replace(/\/$/, "");
-  const url = base ? `${base}${fullPath.startsWith("/") ? fullPath : `/${fullPath}`}` : "";
+  const url = base ? `${base}${fullPath}` : "";
   const academyName = branding?.trade_name ?? branding?.legal_name ?? "Sua academia";
   const brandColor = branding?.brand_primary ?? "#dc2626";
 
   useEffect(() => {
     if (typeof window !== "undefined") setOrigin(window.location.origin);
   }, []);
-
-  useEffect(() => {
-    if (slug) setPath(`/app/install/${slug}`);
-  }, [slug]);
 
 
 
