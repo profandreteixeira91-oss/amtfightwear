@@ -128,6 +128,16 @@ const groups: { label: string; items: Item[] }[] = [
     ],
   },
   {
+    label: "Gestão",
+    items: [
+      { title: "Alunos", url: "/dojo/app/students", icon: Users },
+      { title: "Professores", url: "/dojo/app/units", icon: UserSquare2 },
+      { title: "Turmas", url: "/dojo/app/schedule", icon: GraduationCap },
+      { title: "Agenda", url: "/dojo/app/schedule", icon: CalendarDays },
+      { title: "Quadro de Avisos", url: "/dojo/app/announcements", icon: Megaphone },
+    ],
+  },
+  {
     label: "Admin",
     items: [
       { title: "Painel da Loja", url: "/store", icon: Store },
