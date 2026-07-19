@@ -231,7 +231,7 @@ function AnnouncementDetail({ id, onClose }: { id: string; onClose: () => void }
     onSuccess: () => qc.invalidateQueries({ queryKey: ["student", "announcement", id] }),
   });
 
-  const a = q.data?.announcement;
+  const a: any = q.data?.announcement;
   const embed = useMemo(() => toEmbed(a?.video_url), [a?.video_url]);
 
   return (
