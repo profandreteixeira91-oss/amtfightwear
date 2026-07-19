@@ -168,6 +168,7 @@ import { Route as ApiPublicHooksIgWebhookRouteImport } from './routes/api/public
 import { Route as ApiPublicHooksIgSyncRouteImport } from './routes/api/public/hooks/ig-sync'
 import { Route as ApiPublicHooksGenerateDojoInvoicesRouteImport } from './routes/api/public/hooks/generate-dojo-invoices'
 import { Route as ApiPublicHooksEnrichPendingLeadsRouteImport } from './routes/api/public/hooks/enrich-pending-leads'
+import { Route as ApiPublicHooksCompetitionsIngestRouteImport } from './routes/api/public/hooks/competitions-ingest'
 import { Route as ApiPublicHooksAutoInstagramPostRouteImport } from './routes/api/public/hooks/auto-instagram-post'
 import { Route as ApiPublicCertificateHashRouteImport } from './routes/api/public/certificate.$hash'
 import { Route as ApiPublicAppManifestDotwebmanifestRouteImport } from './routes/api/public/app/manifest[.]webmanifest'
@@ -1027,6 +1028,12 @@ const ApiPublicHooksEnrichPendingLeadsRoute =
     path: '/api/public/hooks/enrich-pending-leads',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksCompetitionsIngestRoute =
+  ApiPublicHooksCompetitionsIngestRouteImport.update({
+    id: '/api/public/hooks/competitions-ingest',
+    path: '/api/public/hooks/competitions-ingest',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksAutoInstagramPostRoute =
   ApiPublicHooksAutoInstagramPostRouteImport.update({
     id: '/api/public/hooks/auto-instagram-post',
@@ -1217,6 +1224,7 @@ export interface FileRoutesByFullPath {
   '/api/public/app/manifest.webmanifest': typeof ApiPublicAppManifestDotwebmanifestRoute
   '/api/public/certificate/$hash': typeof ApiPublicCertificateHashRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
+  '/api/public/hooks/competitions-ingest': typeof ApiPublicHooksCompetitionsIngestRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
   '/api/public/hooks/generate-dojo-invoices': typeof ApiPublicHooksGenerateDojoInvoicesRoute
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
@@ -1380,6 +1388,7 @@ export interface FileRoutesByTo {
   '/api/public/app/manifest.webmanifest': typeof ApiPublicAppManifestDotwebmanifestRoute
   '/api/public/certificate/$hash': typeof ApiPublicCertificateHashRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
+  '/api/public/hooks/competitions-ingest': typeof ApiPublicHooksCompetitionsIngestRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
   '/api/public/hooks/generate-dojo-invoices': typeof ApiPublicHooksGenerateDojoInvoicesRoute
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
@@ -1550,6 +1559,7 @@ export interface FileRoutesById {
   '/api/public/app/manifest.webmanifest': typeof ApiPublicAppManifestDotwebmanifestRoute
   '/api/public/certificate/$hash': typeof ApiPublicCertificateHashRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
+  '/api/public/hooks/competitions-ingest': typeof ApiPublicHooksCompetitionsIngestRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
   '/api/public/hooks/generate-dojo-invoices': typeof ApiPublicHooksGenerateDojoInvoicesRoute
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
@@ -1721,6 +1731,7 @@ export interface FileRouteTypes {
     | '/api/public/app/manifest.webmanifest'
     | '/api/public/certificate/$hash'
     | '/api/public/hooks/auto-instagram-post'
+    | '/api/public/hooks/competitions-ingest'
     | '/api/public/hooks/enrich-pending-leads'
     | '/api/public/hooks/generate-dojo-invoices'
     | '/api/public/hooks/ig-sync'
@@ -1884,6 +1895,7 @@ export interface FileRouteTypes {
     | '/api/public/app/manifest.webmanifest'
     | '/api/public/certificate/$hash'
     | '/api/public/hooks/auto-instagram-post'
+    | '/api/public/hooks/competitions-ingest'
     | '/api/public/hooks/enrich-pending-leads'
     | '/api/public/hooks/generate-dojo-invoices'
     | '/api/public/hooks/ig-sync'
@@ -2053,6 +2065,7 @@ export interface FileRouteTypes {
     | '/api/public/app/manifest.webmanifest'
     | '/api/public/certificate/$hash'
     | '/api/public/hooks/auto-instagram-post'
+    | '/api/public/hooks/competitions-ingest'
     | '/api/public/hooks/enrich-pending-leads'
     | '/api/public/hooks/generate-dojo-invoices'
     | '/api/public/hooks/ig-sync'
@@ -2125,6 +2138,7 @@ export interface RootRouteChildren {
   ApiPublicAppManifestDotwebmanifestRoute: typeof ApiPublicAppManifestDotwebmanifestRoute
   ApiPublicCertificateHashRoute: typeof ApiPublicCertificateHashRoute
   ApiPublicHooksAutoInstagramPostRoute: typeof ApiPublicHooksAutoInstagramPostRoute
+  ApiPublicHooksCompetitionsIngestRoute: typeof ApiPublicHooksCompetitionsIngestRoute
   ApiPublicHooksEnrichPendingLeadsRoute: typeof ApiPublicHooksEnrichPendingLeadsRoute
   ApiPublicHooksGenerateDojoInvoicesRoute: typeof ApiPublicHooksGenerateDojoInvoicesRoute
   ApiPublicHooksIgSyncRoute: typeof ApiPublicHooksIgSyncRoute
@@ -3261,6 +3275,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksEnrichPendingLeadsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/competitions-ingest': {
+      id: '/api/public/hooks/competitions-ingest'
+      path: '/api/public/hooks/competitions-ingest'
+      fullPath: '/api/public/hooks/competitions-ingest'
+      preLoaderRoute: typeof ApiPublicHooksCompetitionsIngestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/auto-instagram-post': {
       id: '/api/public/hooks/auto-instagram-post'
       path: '/api/public/hooks/auto-instagram-post'
@@ -3737,6 +3758,7 @@ const rootRouteChildren: RootRouteChildren = {
     ApiPublicAppManifestDotwebmanifestRoute,
   ApiPublicCertificateHashRoute: ApiPublicCertificateHashRoute,
   ApiPublicHooksAutoInstagramPostRoute: ApiPublicHooksAutoInstagramPostRoute,
+  ApiPublicHooksCompetitionsIngestRoute: ApiPublicHooksCompetitionsIngestRoute,
   ApiPublicHooksEnrichPendingLeadsRoute: ApiPublicHooksEnrichPendingLeadsRoute,
   ApiPublicHooksGenerateDojoInvoicesRoute:
     ApiPublicHooksGenerateDojoInvoicesRoute,
