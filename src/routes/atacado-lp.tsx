@@ -674,12 +674,7 @@ function AtacadoLandingPage() {
             ))}
           </div>
           <div className="mt-8 flex justify-center">
-            <WhatsAppButton
-              from="social_proof"
-              size="md"
-              variant="solid"
-              label="Quero fazer parte"
-            />
+            <BuyButton from="social_proof" label="Quero fazer parte" />
           </div>
         </div>
       </section>
