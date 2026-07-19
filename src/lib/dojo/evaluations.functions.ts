@@ -129,16 +129,22 @@ export const saveEvalTemplate = createServerFn({ method: "POST" })
       is_library: false,
     };
     if (data.id) {
-      const { error } = await context.supabase.from("dojo_evaluations").update(payload as never).eq("id", data.id);
+      const { data: row, error } = await context.supabase
+        .from("dojo_evaluations")
+        .update(payload as never)
+        .eq("id", data.id)
+        .select("*, belt:dojo_belts(name,color_hex,stripe_hex,max_degrees)")
+        .single();
       if (error) throw new Error(error.message);
-      return { id: data.id };
+      return row;
     }
     const { data: row, error } = await context.supabase
       .from("dojo_evaluations")
       .insert({ ...payload, owner_id: context.userId } as never)
-      .select("id").single();
+      .select("*, belt:dojo_belts(name,color_hex,stripe_hex,max_degrees)").single();
     if (error) throw new Error(error.message);
-    return { id: row.id };
+    return row;
+
   });
 
 export const duplicateEvalTemplate = createServerFn({ method: "POST" })

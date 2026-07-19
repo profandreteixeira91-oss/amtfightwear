@@ -64,7 +64,10 @@ function TemplatesList() {
     });
   }, [lib.data, q, modality]);
 
+  const [creating, setCreating] = useState(false);
   const createNew = async () => {
+    if (creating) return;
+    setCreating(true);
     try {
       const res = await saveFn({
         data: {
@@ -74,11 +77,17 @@ function TemplatesList() {
           structure: { categories: [] },
         },
       });
+      // Pré-popula o cache do editor para evitar novo round-trip
+      qc.setQueryData(["eval-template", res.id], res);
+      qc.invalidateQueries({ queryKey: ["eval-templates"] });
       nav({ to: "/dojo/app/evaluations/templates/$id", params: { id: res.id } });
     } catch (e: any) {
       toast.error(e.message);
+    } finally {
+      setCreating(false);
     }
   };
+
 
   const duplicate = async (id: string) => {
     try {
@@ -113,9 +122,10 @@ function TemplatesList() {
               Modelos criados pela sua academia.
             </p>
           </div>
-          <Button onClick={createNew}>
-            <Plus className="h-4 w-4 mr-1" /> Novo modelo
+          <Button onClick={createNew} disabled={creating}>
+            <Plus className="h-4 w-4 mr-1" /> {creating ? "Criando…" : "Novo modelo"}
           </Button>
+
         </div>
 
         {mine.isLoading && <div className="text-sm text-muted-foreground">Carregando modelos…</div>}
