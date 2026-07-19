@@ -6702,6 +6702,13 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      ensure_my_student_credentials: {
+        Args: never
+        Returns: {
+          checkin_pin: string
+          qr_token: string
+        }[]
+      }
       get_my_student_id: { Args: never; Returns: string }
       get_my_student_owner_id: { Args: never; Returns: string }
       has_role: {
