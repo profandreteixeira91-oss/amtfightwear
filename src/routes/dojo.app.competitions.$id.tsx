@@ -16,7 +16,7 @@ import {
   listCompetitionAthletes, upsertCompetitionAthlete, deleteCompetitionAthlete,
   listCompetitionSubRows, upsertCompetitionSubRow, deleteCompetitionSubRow,
 } from "@/lib/dojo/competitions/academy.functions";
-import { listStudents } from "@/lib/dojo/students.functions";
+import { supabase } from "@/integrations/supabase/client";
 import { scopeLabel, tierLabel } from "@/lib/dojo/competitions/classifier";
 
 export const Route = createFileRoute("/dojo/app/competitions/$id")({
