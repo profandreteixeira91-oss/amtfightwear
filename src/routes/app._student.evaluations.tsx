@@ -173,7 +173,7 @@ function EvaluationDetail({ session, onBack }: { session: Session; onBack: () =>
     }>;
   };
   const scores = (session.scores ?? {}) as Record<string, number>;
-  const criteriaNotes = (session.criteria_notes ?? {}) as Record<string, string>;
+  const criteriaNotes = {} as Record<string, string>;
   const result = session.result ? RESULT_META[session.result] : null;
 
   return (
