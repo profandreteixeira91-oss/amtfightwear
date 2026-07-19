@@ -443,6 +443,9 @@ export function ProductCard({ product }: { product: { id: string; name: string; 
             {price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
           </div>
           <div className="text-[11px] text-muted-foreground">ou 10x de <span className="font-semibold text-foreground">{installments}</span></div>
+          <div className="mt-3 flex w-full items-center justify-center rounded-md bg-primary px-3 py-2 text-xs font-black uppercase tracking-widest text-primary-foreground transition-colors group-hover:bg-primary/90">
+            Comprar
+          </div>
         </div>
       </div>
     </Link>
