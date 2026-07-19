@@ -45,20 +45,24 @@ function HomePage() {
   const openInvoices = homeData?.openInvoices ?? [];
 
   return (
-    <div className="space-y-5">
-      {config.home_blocks.filter((b) => b.visible !== false).map((block) => (
-        <BlockRenderer
-          key={block.id}
-          block={block}
-          config={config}
-          student={student}
-          belt={belt}
-          openInvoices={openInvoices}
-          lastCheckin={homeData?.lastCheckin}
-          news={news ?? []}
-          isLoading={isLoading}
-        />
-      ))}
+    <div className="mx-auto grid w-full max-w-3xl gap-5 lg:max-w-5xl lg:grid-cols-3 lg:items-start">
+      {config.home_blocks.filter((b) => b.visible !== false).map((block) => {
+        const spanAll = block.type === "welcome" || block.type === "banner" || block.type === "open_invoices";
+        return (
+          <div key={block.id} className={spanAll ? "lg:col-span-3" : block.type === "shortcuts" ? "lg:col-span-2" : "lg:col-span-1"}>
+            <BlockRenderer
+              block={block}
+              config={config}
+              student={student}
+              belt={belt}
+              openInvoices={openInvoices}
+              lastCheckin={homeData?.lastCheckin}
+              news={news ?? []}
+              isLoading={isLoading}
+            />
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -177,7 +181,7 @@ function BlockRenderer({
           <h2 className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-neutral-400">
             {block.title ?? "Acesso rápido"}
           </h2>
-          <div className="grid grid-cols-3 gap-2.5">
+          <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-4 sm:gap-3 md:grid-cols-5 lg:grid-cols-4">
             {items.map(({ key, meta }) => {
               const Icon = Icons[meta.icon] as React.ComponentType<{ className?: string }>;
               return (
