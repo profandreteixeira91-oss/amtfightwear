@@ -252,7 +252,26 @@ export const DEFAULT_CONFIG: StudentAppConfig = {
     cta_label: "Vamos começar",
     finish_label: "Concluir",
   },
+  digital_card: {
+    title: "Carteirinha do Aluno",
+    subtitle: null,
+    footer_text: "Apresente esta carteirinha na recepção",
+    background_style: "gradient",
+    background_url: null,
+    background_color: "#0a0a0a",
+    text_color: "#ffffff",
+    accent_color: "#dc2626",
+    show_photo: true,
+    show_qr: true,
+    show_pin: true,
+    show_belt: true,
+    show_enrollment_date: true,
+    show_registration_number: true,
+    show_academy_logo: true,
+    show_unit_name: true,
+  },
 };
+
 
 // Faz merge tolerante para não quebrar quando novas chaves forem adicionadas
 export function normalizeConfig(input: unknown): StudentAppConfig {
