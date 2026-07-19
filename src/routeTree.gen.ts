@@ -68,6 +68,7 @@ import { Route as DojoAppCompetitionsRouteImport } from './routes/dojo.app.compe
 import { Route as DojoAppCheckinRouteImport } from './routes/dojo.app.checkin'
 import { Route as DojoAppCertificatesRouteImport } from './routes/dojo.app.certificates'
 import { Route as DojoAppAccountRouteImport } from './routes/dojo.app.account'
+import { Route as AppInstallSlugRouteImport } from './routes/app.install.$slug'
 import { Route as AppStudentVideosRouteImport } from './routes/app._student.videos'
 import { Route as AppStudentSettingsRouteImport } from './routes/app._student.settings'
 import { Route as AppStudentProfileRouteImport } from './routes/app._student.profile'
@@ -464,6 +465,11 @@ const DojoAppAccountRoute = DojoAppAccountRouteImport.update({
   id: '/account',
   path: '/account',
   getParentRoute: () => DojoAppRoute,
+} as any)
+const AppInstallSlugRoute = AppInstallSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => AppInstallRoute,
 } as any)
 const AppStudentVideosRoute = AppStudentVideosRouteImport.update({
   id: '/videos',
@@ -1056,7 +1062,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedSettingsRoute
   '/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
-  '/app/install': typeof AppInstallRoute
+  '/app/install': typeof AppInstallRouteWithChildren
   '/app/login': typeof AppLoginRoute
   '/dojo/app': typeof DojoAppRouteWithChildren
   '/dojo/auth': typeof DojoAuthRoute
@@ -1129,6 +1135,7 @@ export interface FileRoutesByFullPath {
   '/app/profile': typeof AppStudentProfileRoute
   '/app/settings': typeof AppStudentSettingsRoute
   '/app/videos': typeof AppStudentVideosRoute
+  '/app/install/$slug': typeof AppInstallSlugRoute
   '/dojo/app/account': typeof DojoAppAccountRoute
   '/dojo/app/certificates': typeof DojoAppCertificatesRoute
   '/dojo/app/checkin': typeof DojoAppCheckinRoute
@@ -1216,7 +1223,7 @@ export interface FileRoutesByTo {
   '/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
   '/app': typeof AppIndexRoute
-  '/app/install': typeof AppInstallRoute
+  '/app/install': typeof AppInstallRouteWithChildren
   '/app/login': typeof AppLoginRoute
   '/dojo/auth': typeof DojoAuthRoute
   '/dojo/checkout': typeof DojoCheckoutRoute
@@ -1287,6 +1294,7 @@ export interface FileRoutesByTo {
   '/app/profile': typeof AppStudentProfileRoute
   '/app/settings': typeof AppStudentSettingsRoute
   '/app/videos': typeof AppStudentVideosRoute
+  '/app/install/$slug': typeof AppInstallSlugRoute
   '/dojo/app/account': typeof DojoAppAccountRoute
   '/dojo/app/certificates': typeof DojoAppCertificatesRoute
   '/dojo/app/checkin': typeof DojoAppCheckinRoute
@@ -1373,7 +1381,7 @@ export interface FileRoutesById {
   '/_authenticated/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
   '/app/_student': typeof AppStudentRouteWithChildren
-  '/app/install': typeof AppInstallRoute
+  '/app/install': typeof AppInstallRouteWithChildren
   '/app/login': typeof AppLoginRoute
   '/dojo/app': typeof DojoAppRouteWithChildren
   '/dojo/auth': typeof DojoAuthRoute
@@ -1446,6 +1454,7 @@ export interface FileRoutesById {
   '/app/_student/profile': typeof AppStudentProfileRoute
   '/app/_student/settings': typeof AppStudentSettingsRoute
   '/app/_student/videos': typeof AppStudentVideosRoute
+  '/app/install/$slug': typeof AppInstallSlugRoute
   '/dojo/app/account': typeof DojoAppAccountRoute
   '/dojo/app/certificates': typeof DojoAppCertificatesRoute
   '/dojo/app/checkin': typeof DojoAppCheckinRoute
@@ -1609,6 +1618,7 @@ export interface FileRouteTypes {
     | '/app/profile'
     | '/app/settings'
     | '/app/videos'
+    | '/app/install/$slug'
     | '/dojo/app/account'
     | '/dojo/app/certificates'
     | '/dojo/app/checkin'
@@ -1767,6 +1777,7 @@ export interface FileRouteTypes {
     | '/app/profile'
     | '/app/settings'
     | '/app/videos'
+    | '/app/install/$slug'
     | '/dojo/app/account'
     | '/dojo/app/certificates'
     | '/dojo/app/checkin'
@@ -1925,6 +1936,7 @@ export interface FileRouteTypes {
     | '/app/_student/profile'
     | '/app/_student/settings'
     | '/app/_student/videos'
+    | '/app/install/$slug'
     | '/dojo/app/account'
     | '/dojo/app/certificates'
     | '/dojo/app/checkin'
@@ -2458,6 +2470,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dojo/app/account'
       preLoaderRoute: typeof DojoAppAccountRouteImport
       parentRoute: typeof DojoAppRoute
+    }
+    '/app/install/$slug': {
+      id: '/app/install/$slug'
+      path: '/$slug'
+      fullPath: '/app/install/$slug'
+      preLoaderRoute: typeof AppInstallSlugRouteImport
+      parentRoute: typeof AppInstallRoute
     }
     '/app/_student/videos': {
       id: '/app/_student/videos'
@@ -3359,16 +3378,28 @@ const AppStudentRouteWithChildren = AppStudentRoute._addFileChildren(
   AppStudentRouteChildren,
 )
 
+interface AppInstallRouteChildren {
+  AppInstallSlugRoute: typeof AppInstallSlugRoute
+}
+
+const AppInstallRouteChildren: AppInstallRouteChildren = {
+  AppInstallSlugRoute: AppInstallSlugRoute,
+}
+
+const AppInstallRouteWithChildren = AppInstallRoute._addFileChildren(
+  AppInstallRouteChildren,
+)
+
 interface AppRouteChildren {
   AppStudentRoute: typeof AppStudentRouteWithChildren
-  AppInstallRoute: typeof AppInstallRoute
+  AppInstallRoute: typeof AppInstallRouteWithChildren
   AppLoginRoute: typeof AppLoginRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppStudentRoute: AppStudentRouteWithChildren,
-  AppInstallRoute: AppInstallRoute,
+  AppInstallRoute: AppInstallRouteWithChildren,
   AppLoginRoute: AppLoginRoute,
   AppIndexRoute: AppIndexRoute,
 }
