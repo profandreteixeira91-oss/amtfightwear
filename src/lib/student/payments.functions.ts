@@ -33,7 +33,7 @@ function onlyDigits(s: string | null | undefined): string {
 
 export const payMyInvoicePix = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ invoice_id: z.string().uuid() }).parse(i))
+  .inputValidator((i: unknown) => z.object({ invoice_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
   .handler(async ({ data, context }) => {
     // Carrega a fatura via RLS (aluno só vê as próprias)
     const { data: invoice, error } = await context.supabase
@@ -130,7 +130,7 @@ export const payMyInvoicePix = createServerFn({ method: "POST" })
 
 export const syncMyInvoicePayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ invoice_id: z.string().uuid() }).parse(i))
+  .inputValidator((i: unknown) => z.object({ invoice_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: invoice } = await context.supabase
       .from("dojo_invoices")
@@ -157,7 +157,7 @@ export const syncMyInvoicePayment = createServerFn({ method: "POST" })
 
 export const getMyInvoice = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .inputValidator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: inv, error } = await context.supabase
       .from("dojo_invoices")

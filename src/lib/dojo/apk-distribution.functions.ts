@@ -33,7 +33,7 @@ export const listApkVersions = createServerFn({ method: "GET" })
 // ------- Admin: publish/unpublish -------
 export const setApkPublished = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid(), published: z.boolean() }).parse(i))
+  .inputValidator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido"), published: z.boolean() }).parse(i))
   .handler(async ({ data, context }) => {
     if (data.published) {
       // Só uma versão publicada por dono — despublica todas as outras
@@ -54,7 +54,7 @@ export const setApkPublished = createServerFn({ method: "POST" })
 // ------- Admin: delete -------
 export const deleteApkVersion = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .inputValidator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: row, error: rErr } = await context.supabase
       .from("dojo_app_apk_versions")
@@ -74,7 +74,7 @@ export const deleteApkVersion = createServerFn({ method: "POST" })
 // ------- Admin: signed URL para o próprio dono baixar/testar -------
 export const getApkSignedUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .inputValidator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
       .from("dojo_app_apk_versions")
