@@ -32,7 +32,9 @@ import {
   type HomeBlock,
   type FeatureKey,
   type OnboardingTourStep,
+  type DigitalCardConfig,
 } from "@/lib/student-app/schema";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
