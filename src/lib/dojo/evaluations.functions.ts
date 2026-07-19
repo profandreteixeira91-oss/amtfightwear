@@ -143,7 +143,8 @@ export const saveEvalTemplate = createServerFn({ method: "POST" })
       .insert({ ...payload, owner_id: context.userId } as never)
       .select("*, belt:dojo_belts(name,color_hex,stripe_hex,max_degrees)").single();
     if (error) throw new Error(error.message);
-    return { id: row.id };
+    return row;
+
   });
 
 export const duplicateEvalTemplate = createServerFn({ method: "POST" })
