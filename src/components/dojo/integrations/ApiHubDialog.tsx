@@ -67,14 +67,18 @@ function KeysPanel() {
   const qc = useQueryClient();
   const list = useServerFn(listApiKeys);
   const create = useServerFn(createApiKey);
+  const auto = useServerFn(autoProvisionApiSuite);
   const revoke = useServerFn(revokeApiKey);
   const del = useServerFn(deleteApiKey);
 
   const q = useQuery({ queryKey: ["dojo-api-keys"], queryFn: () => list() });
   const [name, setName] = useState("");
   const [scopes, setScopes] = useState<string[]>(["read"]);
+  const [moduleId, setModuleId] = useState<string>("master");
   const [justCreated, setJustCreated] = useState<{ key: string; name: string } | null>(null);
+  const [bulkCreated, setBulkCreated] = useState<Array<{ module: string; label: string; key: string }>>([]);
   const [saving, setSaving] = useState(false);
+  const [autoRunning, setAutoRunning] = useState(false);
 
   function toggleScope(s: string) {
     setScopes((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
@@ -84,7 +88,7 @@ function KeysPanel() {
     if (!name.trim() || scopes.length === 0) return toast.error("Informe nome e ao menos 1 escopo");
     setSaving(true);
     try {
-      const r = await create({ data: { name: name.trim(), scopes: scopes as any } });
+      const r = await create({ data: { name: name.trim(), scopes: scopes as any, module: moduleId } });
       setJustCreated({ key: r.key, name: r.name });
       setName("");
       setScopes(["read"]);
@@ -93,6 +97,24 @@ function KeysPanel() {
       toast.error(e.message);
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function onAutoProvision() {
+    setAutoRunning(true);
+    try {
+      const r = await auto();
+      setBulkCreated(r.created);
+      qc.invalidateQueries({ queryKey: ["dojo-api-keys"] });
+      if (r.created.length === 0) {
+        toast.info("Todas as chaves já existem — nada a gerar.");
+      } else {
+        toast.success(`${r.created.length} chave(s) geradas automaticamente`);
+      }
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setAutoRunning(false);
     }
   }
 
