@@ -102,9 +102,6 @@ function fbqCustom(event: string, data?: Record<string, unknown>) {
 function trackCTA(label: string, extra?: Record<string, unknown>) {
   fbqCustom("CTA_Click", { label, ...extra });
 }
-function trackWhatsApp(from: string) {
-  fbqCustom("ClickWhatsApp", { from });
-}
 function trackViewContent(name: string) {
   fbqTrack("ViewContent", { content_name: name, content_category: "atacado" });
 }
