@@ -145,11 +145,15 @@ export const runCompetitionIngest = createServerFn({ method: "POST" })
       }
 
       try {
-        // scrapeCompetitions é uma serverFn — chamamos o handler internamente.
-        // A função aceita { providers: string[] } e retorna { competitions, summary }.
-        const scrapeFn = scrapeCompetitions as unknown as (input: { data: { providers: string[] } }) => Promise<{ competitions: LiveCompetition[]; summary: unknown }>;
-        const result = await scrapeFn({ data: { providers } });
-        const events = result.competitions ?? [];
+        let events: LiveCompetition[] = [];
+        if (src.connector === "custom") {
+          if (!src.url) throw new Error("Fonte customizada sem URL");
+          const cfg = (src.config ?? {}) as { country?: string | null };
+          events = await scrapeCustomSource(src.url, src.name, cfg.country ?? null);
+        } else {
+          const result = await runScrapeCompetitions(providers);
+          events = result.competitions ?? [];
+        }
         let inserted = 0;
         let updated = 0;
         for (const ev of events) {
@@ -158,7 +162,6 @@ export const runCompetitionIngest = createServerFn({ method: "POST" })
             if (out === "inserted") inserted++;
             else updated++;
           } catch (e) {
-            // Ignora falha unitária, continua a lista
             console.error(`[ingest] upsert error for ${src.code}:`, e);
           }
         }
