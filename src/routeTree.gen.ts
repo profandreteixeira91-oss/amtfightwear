@@ -82,6 +82,7 @@ import { Route as AppStudentDocumentsRouteImport } from './routes/app._student.d
 import { Route as AppStudentCompetitionsRouteImport } from './routes/app._student.competitions'
 import { Route as AppStudentCheckinRouteImport } from './routes/app._student.checkin'
 import { Route as AppStudentCertificatesRouteImport } from './routes/app._student.certificates'
+import { Route as AppStudentCardRouteImport } from './routes/app._student.card'
 import { Route as AppStudentAgendaRouteImport } from './routes/app._student.agenda'
 import { Route as AuthenticatedStoreWholesaleRouteImport } from './routes/_authenticated/store.wholesale'
 import { Route as AuthenticatedStoreSizesRouteImport } from './routes/_authenticated/store.sizes'
@@ -532,6 +533,11 @@ const AppStudentCheckinRoute = AppStudentCheckinRouteImport.update({
 const AppStudentCertificatesRoute = AppStudentCertificatesRouteImport.update({
   id: '/certificates',
   path: '/certificates',
+  getParentRoute: () => AppStudentRoute,
+} as any)
+const AppStudentCardRoute = AppStudentCardRouteImport.update({
+  id: '/card',
+  path: '/card',
   getParentRoute: () => AppStudentRoute,
 } as any)
 const AppStudentAgendaRoute = AppStudentAgendaRouteImport.update({
@@ -1108,6 +1114,7 @@ export interface FileRoutesByFullPath {
   '/store/sizes': typeof AuthenticatedStoreSizesRoute
   '/store/wholesale': typeof AuthenticatedStoreWholesaleRoute
   '/app/agenda': typeof AppStudentAgendaRoute
+  '/app/card': typeof AppStudentCardRoute
   '/app/certificates': typeof AppStudentCertificatesRoute
   '/app/checkin': typeof AppStudentCheckinRoute
   '/app/competitions': typeof AppStudentCompetitionsRoute
@@ -1265,6 +1272,7 @@ export interface FileRoutesByTo {
   '/store/sizes': typeof AuthenticatedStoreSizesRoute
   '/store/wholesale': typeof AuthenticatedStoreWholesaleRoute
   '/app/agenda': typeof AppStudentAgendaRoute
+  '/app/card': typeof AppStudentCardRoute
   '/app/certificates': typeof AppStudentCertificatesRoute
   '/app/checkin': typeof AppStudentCheckinRoute
   '/app/competitions': typeof AppStudentCompetitionsRoute
@@ -1423,6 +1431,7 @@ export interface FileRoutesById {
   '/_authenticated/store/sizes': typeof AuthenticatedStoreSizesRoute
   '/_authenticated/store/wholesale': typeof AuthenticatedStoreWholesaleRoute
   '/app/_student/agenda': typeof AppStudentAgendaRoute
+  '/app/_student/card': typeof AppStudentCardRoute
   '/app/_student/certificates': typeof AppStudentCertificatesRoute
   '/app/_student/checkin': typeof AppStudentCheckinRoute
   '/app/_student/competitions': typeof AppStudentCompetitionsRoute
@@ -1585,6 +1594,7 @@ export interface FileRouteTypes {
     | '/store/sizes'
     | '/store/wholesale'
     | '/app/agenda'
+    | '/app/card'
     | '/app/certificates'
     | '/app/checkin'
     | '/app/competitions'
@@ -1742,6 +1752,7 @@ export interface FileRouteTypes {
     | '/store/sizes'
     | '/store/wholesale'
     | '/app/agenda'
+    | '/app/card'
     | '/app/certificates'
     | '/app/checkin'
     | '/app/competitions'
@@ -1899,6 +1910,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/sizes'
     | '/_authenticated/store/wholesale'
     | '/app/_student/agenda'
+    | '/app/_student/card'
     | '/app/_student/certificates'
     | '/app/_student/checkin'
     | '/app/_student/competitions'
@@ -2543,6 +2555,13 @@ declare module '@tanstack/react-router' {
       path: '/certificates'
       fullPath: '/app/certificates'
       preLoaderRoute: typeof AppStudentCertificatesRouteImport
+      parentRoute: typeof AppStudentRoute
+    }
+    '/app/_student/card': {
+      id: '/app/_student/card'
+      path: '/card'
+      fullPath: '/app/card'
+      preLoaderRoute: typeof AppStudentCardRouteImport
       parentRoute: typeof AppStudentRoute
     }
     '/app/_student/agenda': {
@@ -3298,6 +3317,7 @@ const AuthenticatedRouteRouteWithChildren =
 
 interface AppStudentRouteChildren {
   AppStudentAgendaRoute: typeof AppStudentAgendaRoute
+  AppStudentCardRoute: typeof AppStudentCardRoute
   AppStudentCertificatesRoute: typeof AppStudentCertificatesRoute
   AppStudentCheckinRoute: typeof AppStudentCheckinRoute
   AppStudentCompetitionsRoute: typeof AppStudentCompetitionsRoute
@@ -3317,6 +3337,7 @@ interface AppStudentRouteChildren {
 
 const AppStudentRouteChildren: AppStudentRouteChildren = {
   AppStudentAgendaRoute: AppStudentAgendaRoute,
+  AppStudentCardRoute: AppStudentCardRoute,
   AppStudentCertificatesRoute: AppStudentCertificatesRoute,
   AppStudentCheckinRoute: AppStudentCheckinRoute,
   AppStudentCompetitionsRoute: AppStudentCompetitionsRoute,

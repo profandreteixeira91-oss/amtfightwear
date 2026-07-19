@@ -59,7 +59,7 @@ export const getMyDigitalCard = createServerFn({ method: "GET" })
         .eq("owner_id", student.owner_id)
         .maybeSingle(),
       student.unit_id
-        ? context.supabase.from("dojo_units").select("name, city, state").eq("id", student.unit_id).maybeSingle()
+        ? context.supabase.from("dojo_units").select("name").eq("id", student.unit_id).maybeSingle()
         : Promise.resolve({ data: null }),
       context.supabase
         .from("dojo_enrollments")
