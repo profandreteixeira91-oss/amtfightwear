@@ -884,25 +884,59 @@ function DevicePreview({ device, config }: { device: "iphone" | "android" | "tab
   );
 }
 
-function PreviewLogin({ config }: { config: StudentAppConfig }) {
+function PreviewSplash({ config }: { config: StudentAppConfig }) {
+  const a = config.appearance;
+  const bg = a.splash_url
+    ? { backgroundImage: `url(${a.splash_url})`, backgroundSize: "cover", backgroundPosition: "center" }
+    : { background: `linear-gradient(160deg, ${a.brand_primary}, ${a.brand_secondary})` };
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center" style={{ background: "#ffffff" }}>
-      {config.appearance.logo_url ? (
-        <img src={config.appearance.logo_url} alt="" className="h-14 w-14 rounded-xl object-cover" />
+    <div className="flex h-full w-full flex-col items-center justify-center gap-3" style={bg}>
+      {a.logo_url ? (
+        <img src={a.logo_url} alt="" className="h-16 w-16 rounded-2xl bg-white/95 object-contain p-2 shadow-lg" />
       ) : (
-        <div className="h-14 w-14 rounded-xl" style={{ background: config.appearance.brand_primary }} />
+        <div className="grid h-16 w-16 place-items-center rounded-2xl bg-white/95 text-lg font-black shadow-lg" style={{ color: a.brand_primary }}>
+          {(a.app_name || "AMT").split(/\s+/).map((s) => s[0]).slice(0, 2).join("").toUpperCase()}
+        </div>
       )}
-      <div className="text-sm font-bold" style={{ color: config.appearance.title_color }}>{config.login?.title || config.appearance.app_name}</div>
-      {config.login?.subtitle && (
-        <div className="text-[10px] text-neutral-500">{config.login.subtitle}</div>
-      )}
-      {config.login?.institutional_text && (
-        <div className="text-[9px] text-neutral-400">{config.login.institutional_text}</div>
-      )}
-      <div className="mt-2 w-full space-y-2">
-        <div className="rounded-md border bg-white px-2 py-1.5 text-left text-[10px] text-neutral-400">seu@email.com</div>
-        <div className="rounded-md border bg-white px-2 py-1.5 text-left text-[10px] text-neutral-400">••••••••</div>
-        <div className="rounded-md py-2 text-[11px] font-semibold text-white" style={{ background: config.login?.button_color ?? config.appearance.button_color ?? config.appearance.brand_primary }}>Entrar</div>
+      <div className="text-sm font-bold text-white drop-shadow">{a.app_name}</div>
+      <div className="mt-2 flex gap-1">
+        {[0, 1, 2].map((i) => (
+          <span key={i} className="h-1 w-1 animate-pulse rounded-full bg-white/80" style={{ animationDelay: `${i * 120}ms` }} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PreviewLogin({ config }: { config: StudentAppConfig }) {
+  const a = config.appearance;
+  const bg = a.login_bg_url
+    ? { backgroundImage: `url(${a.login_bg_url})`, backgroundSize: "cover", backgroundPosition: "center" }
+    : { background: "#ffffff" };
+  const hasBg = Boolean(a.login_bg_url);
+  return (
+    <div className="relative flex h-full flex-col items-center justify-center gap-3 px-6 text-center" style={bg}>
+      {hasBg && <div className="absolute inset-0 bg-black/40" />}
+      <div className={`relative flex w-full flex-col items-center gap-3 ${hasBg ? "text-white" : ""}`}>
+        {a.logo_url ? (
+          <img src={a.logo_url} alt="" className="h-14 w-14 rounded-xl object-cover" />
+        ) : (
+          <div className="h-14 w-14 rounded-xl" style={{ background: a.brand_primary }} />
+        )}
+        <div className="text-sm font-bold" style={hasBg ? undefined : { color: a.title_color }}>
+          {config.login?.title || a.app_name}
+        </div>
+        {config.login?.subtitle && (
+          <div className={`text-[10px] ${hasBg ? "text-white/85" : "text-neutral-500"}`}>{config.login.subtitle}</div>
+        )}
+        {config.login?.institutional_text && (
+          <div className={`text-[9px] ${hasBg ? "text-white/70" : "text-neutral-400"}`}>{config.login.institutional_text}</div>
+        )}
+        <div className="mt-2 w-full space-y-2">
+          <div className="rounded-md border bg-white/95 px-2 py-1.5 text-left text-[10px] text-neutral-400">seu@email.com</div>
+          <div className="rounded-md border bg-white/95 px-2 py-1.5 text-left text-[10px] text-neutral-400">••••••••</div>
+          <div className="rounded-md py-2 text-[11px] font-semibold text-white" style={{ background: config.login?.button_color ?? a.button_color ?? a.brand_primary }}>Entrar</div>
+        </div>
       </div>
     </div>
   );
