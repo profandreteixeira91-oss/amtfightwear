@@ -255,7 +255,7 @@ function AtacadoLandingPage() {
   ];
 
   return (
-    <div className="min-h-screen scroll-smooth bg-background text-foreground">
+    <div className="min-h-screen scroll-smooth overflow-x-hidden bg-background text-foreground">
       <MetaPixelNoscript />
 
       {/* HEADER FIXO */}
