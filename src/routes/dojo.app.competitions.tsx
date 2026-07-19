@@ -227,6 +227,12 @@ function CompetitionRow({ c }: { c: LiveCompetition }) {
               <MapPin className="h-3 w-3" /> {[c.city, c.state].filter(Boolean).join(" · ")}
             </span>
           )}
+          {c.country && providerScope(c.provider) === "international" && (
+            <span className="inline-flex items-center gap-1">
+              <Globe2 className="h-3 w-3" /> {c.country}
+            </span>
+          )}
+
           <span className="rounded-full bg-[color:var(--dojo-surface-2)] px-2 py-0.5">
             {providerLabel(c.provider)}
           </span>
