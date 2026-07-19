@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Smartphone, Share, MoreVertical, ArrowRight, Download, Apple, Chrome, CheckCircle2 } from "lucide-react";
 
@@ -29,11 +29,20 @@ type BeforeInstallPromptEvent = Event & {
 };
 
 function InstallPage() {
+  const navigate = useNavigate();
   const [platform, setPlatform] = useState<Platform>("desktop");
   const [installEvent, setInstallEvent] = useState<BeforeInstallPromptEvent | null>(null);
   const [installed, setInstalled] = useState(false);
 
   useEffect(() => {
+    // If this device previously opened a branded install link, keep the tenant scope.
+    try {
+      const savedSlug = localStorage.getItem("dojo_slug");
+      if (savedSlug && /^[a-z0-9-]+$/.test(savedSlug)) {
+        navigate({ to: "/app/install/$slug", params: { slug: savedSlug }, replace: true });
+        return;
+      }
+    } catch {}
     setPlatform(detectPlatform());
     const standalone =
       window.matchMedia("(display-mode: standalone)").matches ||

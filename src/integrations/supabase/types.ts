@@ -1347,6 +1347,7 @@ export type Database = {
           phone: string | null
           seal_url: string | null
           signature_url: string | null
+          slug: string | null
           stamp_url: string | null
           state: string | null
           trade_name: string | null
@@ -1374,6 +1375,7 @@ export type Database = {
           phone?: string | null
           seal_url?: string | null
           signature_url?: string | null
+          slug?: string | null
           stamp_url?: string | null
           state?: string | null
           trade_name?: string | null
@@ -1401,6 +1403,7 @@ export type Database = {
           phone?: string | null
           seal_url?: string | null
           signature_url?: string | null
+          slug?: string | null
           stamp_url?: string | null
           state?: string | null
           trade_name?: string | null
@@ -6697,6 +6700,7 @@ export type Database = {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
       }
+      dojo_slugify: { Args: { input: string }; Returns: string }
       email_queue_dispatch: { Args: never; Returns: undefined }
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
@@ -6707,6 +6711,19 @@ export type Database = {
         Returns: {
           checkin_pin: string
           qr_token: string
+        }[]
+      }
+      get_academy_by_slug: {
+        Args: { _slug: string }
+        Returns: {
+          brand_primary: string
+          brand_secondary: string
+          city: string
+          legal_name: string
+          logo_url: string
+          slug: string
+          state: string
+          trade_name: string
         }[]
       }
       get_my_student_id: { Args: never; Returns: string }

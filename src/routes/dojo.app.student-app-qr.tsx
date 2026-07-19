@@ -11,6 +11,7 @@ import { Card } from "@/components/ui/card";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { getMyBranding } from "@/lib/student/student.functions";
+import { getMyAcademySlug } from "@/lib/dojo/academy-public.functions";
 
 export const Route = createFileRoute("/dojo/app/student-app-qr")({
   head: () => ({
@@ -24,8 +25,11 @@ export const Route = createFileRoute("/dojo/app/student-app-qr")({
 
 function StudentAppQrPage() {
   const brandingFn = useServerFn(getMyBranding);
+  const slugFn = useServerFn(getMyAcademySlug);
   const { data: branding } = useQuery({ queryKey: ["dojo", "branding"], queryFn: () => brandingFn({}) });
+  const { data: mine } = useQuery({ queryKey: ["dojo", "my-slug"], queryFn: () => slugFn({}) });
 
+  const slug = mine?.slug ?? "";
   const [origin, setOrigin] = useState("");
   const [path, setPath] = useState("/app/install");
   const [headline, setHeadline] = useState("Baixe o App do Aluno");
@@ -34,13 +38,21 @@ function StudentAppQrPage() {
   const [copied, setCopied] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const url = origin ? `${origin.replace(/\/$/, "")}${path.startsWith("/") ? path : `/${path}`}` : "";
+  // Personalized path per dojo — avoids cross-tenant conflicts.
+  const fullPath = slug ? `/app/install/${slug}` : path;
+  const url = origin ? `${origin.replace(/\/$/, "")}${fullPath.startsWith("/") ? fullPath : `/${fullPath}`}` : "";
   const academyName = branding?.trade_name ?? branding?.legal_name ?? "Sua academia";
   const brandColor = branding?.brand_primary ?? "#dc2626";
 
   useEffect(() => {
     if (typeof window !== "undefined") setOrigin(window.location.origin);
   }, []);
+
+  useEffect(() => {
+    if (slug) setPath(`/app/install/${slug}`);
+  }, [slug]);
+
+
 
   useEffect(() => {
     if (!url || !canvasRef.current) return;
@@ -127,7 +139,13 @@ function StudentAppQrPage() {
                   <Input value={origin} onChange={(e) => setOrigin(e.target.value)} className="font-mono text-xs" />
                   <Input value={path} onChange={(e) => setPath(e.target.value)} className="max-w-[180px] font-mono text-xs" />
                 </div>
-                <p className="mt-1 text-[11px] text-muted-foreground">Ex.: {origin}/app/install</p>
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  {slug ? (
+                    <>Link exclusivo desta academia: <span className="font-mono">/app/install/{slug}</span></>
+                  ) : (
+                    <>Link genérico — configure o nome da academia para gerar o link personalizado.</>
+                  )}
+                </p>
               </div>
               <div className="grid gap-3 md:grid-cols-2">
                 <div>
