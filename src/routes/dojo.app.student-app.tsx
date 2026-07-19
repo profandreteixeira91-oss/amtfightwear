@@ -831,7 +831,9 @@ function DevicePreview({ device, config }: { device: "iphone" | "android" | "tab
         style={{ width: size.w, height: size.h, borderRadius: radius, background: "#f5f5f5" }}
       >
         <div className="flex h-full flex-col" style={{ fontFamily: `${config.appearance.font_family}, system-ui, sans-serif` }}>
-          {screen === "login" ? (
+          {screen === "splash" ? (
+            <PreviewSplash config={config} />
+          ) : screen === "login" ? (
             <PreviewLogin config={config} />
           ) : screen === "onboarding" ? (
             <PreviewOnboarding config={config} />
