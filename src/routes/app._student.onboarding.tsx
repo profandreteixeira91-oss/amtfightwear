@@ -1,17 +1,21 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { CheckCircle2, Bell, Smartphone, Share, MoreVertical, ArrowRight, Sparkles } from "lucide-react";
+import * as Icons from "lucide-react";
+import { CheckCircle2, Bell, Smartphone, Share, MoreVertical, ArrowRight, Sparkles, ArrowLeft } from "lucide-react";
 import { getVapidPublicKey, subscribeMyPush } from "@/lib/student/push.functions";
 import { isPushSupported, subscribePush, subscriptionToPayload } from "@/lib/pwa/push-client";
+import { getStudentAppConfig } from "@/lib/student-app/config.functions";
+import { DEFAULT_CONFIG, type OnboardingTourStep } from "@/lib/student-app/schema";
 
 export const Route = createFileRoute("/app/_student/onboarding")({
   head: () => ({ meta: [{ title: "Bem-vindo — Portal do Aluno" }, { name: "robots", content: "noindex" }] }),
   component: OnboardingPage,
 });
 
-type Step = "welcome" | "push" | "install" | "done";
+type Step = "welcome" | "tour" | "push" | "install" | "done";
 
 function detectPlatform(): "ios" | "android" | "other" {
   if (typeof navigator === "undefined") return "other";
@@ -21,11 +25,32 @@ function detectPlatform(): "ios" | "android" | "other" {
   return "other";
 }
 
+function iconFromName(name: string) {
+  const key = name.split(/[-_ ]+/).map((s) => s.charAt(0).toUpperCase() + s.slice(1)).join("");
+  return (Icons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[key] ?? Icons.Sparkles;
+}
+
 function OnboardingPage() {
   const navigate = useNavigate();
   const getKey = useServerFn(getVapidPublicKey);
   const sub = useServerFn(subscribeMyPush);
+  const cfgFn = useServerFn(getStudentAppConfig);
+  const { data: cfgData } = useQuery({ queryKey: ["student", "app-config"], queryFn: () => cfgFn({}), staleTime: 60_000 });
+  const ob = cfgData?.config.onboarding ?? DEFAULT_CONFIG.onboarding;
+  const appearance = cfgData?.config.appearance ?? DEFAULT_CONFIG.appearance;
+  const accent = appearance.button_color ?? appearance.brand_primary;
+
+  const steps = useMemo<Step[]>(() => {
+    const s: Step[] = ["welcome"];
+    if (ob.tour_enabled && ob.tour_steps.length > 0) s.push("tour");
+    if (ob.ask_push) s.push("push");
+    if (ob.ask_install) s.push("install");
+    s.push("done");
+    return s;
+  }, [ob.tour_enabled, ob.tour_steps.length, ob.ask_push, ob.ask_install]);
+
   const [step, setStep] = useState<Step>("welcome");
+  const [tourIdx, setTourIdx] = useState(0);
   const [busy, setBusy] = useState(false);
   const [installEvent, setInstallEvent] = useState<any>(null);
   const [installed, setInstalled] = useState(false);
@@ -43,6 +68,17 @@ function OnboardingPage() {
     return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);
 
+  const currentIdx = steps.indexOf(step);
+  function goNext() {
+    const next = steps[currentIdx + 1];
+    if (next) setStep(next);
+    else finish();
+  }
+  function goBack() {
+    const prev = steps[currentIdx - 1];
+    if (prev) setStep(prev);
+  }
+
   function finish() {
     try {
       localStorage.setItem("amt-student-onboarded", "1");
@@ -53,7 +89,7 @@ function OnboardingPage() {
   async function enablePush() {
     if (!isPushSupported()) {
       toast.info("Este dispositivo não suporta notificações push");
-      setStep("install");
+      goNext();
       return;
     }
     setBusy(true);
@@ -65,10 +101,12 @@ function OnboardingPage() {
       await sub({ data: subscriptionToPayload(s) });
       toast.success("Notificações ativadas!");
     } catch (e: any) {
-      toast.error(e?.message ?? "Não foi possível ativar", { description: "Você pode ativar mais tarde no cabeçalho." });
+      toast.error(e?.message ?? "Não foi possível ativar", {
+        description: "Você pode ativar mais tarde no cabeçalho.",
+      });
     } finally {
       setBusy(false);
-      setStep("install");
+      goNext();
     }
   }
 
@@ -88,17 +126,19 @@ function OnboardingPage() {
   }
 
   const platform = detectPlatform();
+  const tourStep: OnboardingTourStep | null = ob.tour_steps[tourIdx] ?? null;
+  const TourIcon = tourStep ? iconFromName(tourStep.icon) : Sparkles;
 
   return (
     <div className="mx-auto max-w-md">
       <div className="mb-6 flex items-center justify-center gap-1.5">
-        {(["welcome", "push", "install", "done"] as Step[]).map((s, i) => {
-          const currentIdx = ["welcome", "push", "install", "done"].indexOf(step);
+        {steps.slice(0, -1).map((s, i) => {
           const active = i <= currentIdx;
           return (
             <span
               key={s}
-              className={`h-1.5 flex-1 rounded-full transition ${active ? "bg-red-600" : "bg-neutral-200"}`}
+              className="h-1.5 flex-1 rounded-full transition"
+              style={{ background: active ? accent : "#e5e5e5" }}
             />
           );
         })}
@@ -106,26 +146,88 @@ function OnboardingPage() {
 
       {step === "welcome" && (
         <div className="text-center">
-          <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br from-red-500 to-red-700 text-white shadow-lg">
+          <div
+            className="mx-auto grid h-16 w-16 place-items-center rounded-2xl text-white shadow-lg"
+            style={{ background: `linear-gradient(135deg, ${accent}, ${appearance.brand_secondary})` }}
+          >
             <Sparkles className="h-8 w-8" />
           </div>
-          <h1 className="mt-5 text-2xl font-bold" style={{ color: "var(--sa-title)" }}>Bem-vindo(a)!</h1>
-          <p className="mt-2 text-sm text-neutral-500">
-            Seu portal está pronto. Aqui você acompanha treinos, faz check-in, vê seus certificados e paga mensalidades.
-          </p>
-          <ul className="mt-6 space-y-2 text-left">
-            {["Check-in nas aulas", "Suas graduações e certificados", "Cobranças e Pix", "Novidades da academia"].map((f) => (
-              <li key={f} className="flex items-center gap-2 rounded-xl bg-white p-3 text-sm shadow-sm ring-1 ring-neutral-100">
-                <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                <span className="text-neutral-700">{f}</span>
-              </li>
-            ))}
-          </ul>
+          <h1 className="mt-5 text-2xl font-bold" style={{ color: appearance.title_color }}>{ob.welcome_title}</h1>
+          <p className="mt-2 text-sm text-neutral-500">{ob.welcome_subtitle}</p>
+          {ob.benefits.length > 0 && (
+            <ul className="mt-6 space-y-2 text-left">
+              {ob.benefits.map((f, i) => (
+                <li key={i} className="flex items-center gap-2 rounded-xl bg-white p-3 text-sm shadow-sm ring-1 ring-neutral-100">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                  <span className="text-neutral-700">{f}</span>
+                </li>
+              ))}
+            </ul>
+          )}
           <button
-            onClick={() => setStep("push")}
-            className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-red-600 py-3.5 text-sm font-semibold text-white shadow-lg transition hover:bg-red-700"
+            onClick={goNext}
+            className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-semibold text-white shadow-lg transition"
+            style={{ background: accent }}
           >
-            Vamos começar <ArrowRight className="h-4 w-4" />
+            {ob.cta_label} <ArrowRight className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+
+      {step === "tour" && tourStep && (
+        <div className="text-center">
+          <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl text-white shadow-lg" style={{ background: accent }}>
+            <TourIcon className="h-8 w-8" />
+          </div>
+          <h1 className="mt-5 text-2xl font-bold" style={{ color: appearance.title_color }}>{tourStep.title}</h1>
+          <p className="mt-2 text-sm text-neutral-500">{tourStep.description}</p>
+
+          <div className="mt-6 flex items-center justify-center gap-1.5">
+            {ob.tour_steps.map((_, i) => (
+              <span
+                key={i}
+                className="h-1.5 w-6 rounded-full transition"
+                style={{ background: i === tourIdx ? accent : "#e5e5e5" }}
+              />
+            ))}
+          </div>
+
+          <div className="mt-6 flex gap-2">
+            {tourIdx > 0 ? (
+              <button
+                onClick={() => setTourIdx((i) => i - 1)}
+                className="flex flex-1 items-center justify-center gap-1 rounded-2xl bg-neutral-100 py-3 text-sm font-semibold text-neutral-700"
+              >
+                <ArrowLeft className="h-4 w-4" /> Voltar
+              </button>
+            ) : (
+              <button
+                onClick={goBack}
+                className="flex flex-1 items-center justify-center gap-1 rounded-2xl bg-neutral-100 py-3 text-sm font-semibold text-neutral-700"
+              >
+                <ArrowLeft className="h-4 w-4" /> Voltar
+              </button>
+            )}
+            {tourIdx < ob.tour_steps.length - 1 ? (
+              <button
+                onClick={() => setTourIdx((i) => i + 1)}
+                className="flex flex-1 items-center justify-center gap-1 rounded-2xl py-3 text-sm font-semibold text-white shadow-lg"
+                style={{ background: accent }}
+              >
+                Próximo <ArrowRight className="h-4 w-4" />
+              </button>
+            ) : (
+              <button
+                onClick={goNext}
+                className="flex flex-1 items-center justify-center gap-1 rounded-2xl py-3 text-sm font-semibold text-white shadow-lg"
+                style={{ background: accent }}
+              >
+                Continuar <ArrowRight className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+          <button onClick={goNext} className="mt-2 w-full py-2 text-xs font-medium text-neutral-500 hover:text-neutral-700">
+            Pular tour
           </button>
         </div>
       )}
@@ -135,7 +237,7 @@ function OnboardingPage() {
           <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-blue-100 text-blue-700">
             <Bell className="h-8 w-8" />
           </div>
-          <h1 className="mt-5 text-2xl font-bold" style={{ color: "var(--sa-title)" }}>Ative as notificações</h1>
+          <h1 className="mt-5 text-2xl font-bold" style={{ color: appearance.title_color }}>Ative as notificações</h1>
           <p className="mt-2 text-sm text-neutral-500">
             Receba avisos de aulas, novas cobranças, faixas concedidas e comunicados importantes.
           </p>
@@ -149,14 +251,12 @@ function OnboardingPage() {
           <button
             onClick={enablePush}
             disabled={busy}
-            className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-red-600 py-3.5 text-sm font-semibold text-white shadow-lg transition hover:bg-red-700 disabled:opacity-60"
+            className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-semibold text-white shadow-lg transition disabled:opacity-60"
+            style={{ background: accent }}
           >
             {busy ? "Ativando…" : "Ativar notificações"}
           </button>
-          <button
-            onClick={() => setStep("install")}
-            className="mt-2 w-full py-2 text-xs font-medium text-neutral-500 hover:text-neutral-700"
-          >
+          <button onClick={goNext} className="mt-2 w-full py-2 text-xs font-medium text-neutral-500 hover:text-neutral-700">
             Agora não
           </button>
         </div>
@@ -167,7 +267,7 @@ function OnboardingPage() {
           <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-neutral-900 text-white">
             <Smartphone className="h-8 w-8" />
           </div>
-          <h1 className="mt-5 text-center text-2xl font-bold" style={{ color: "var(--sa-title)" }}>
+          <h1 className="mt-5 text-center text-2xl font-bold" style={{ color: appearance.title_color }}>
             {installed ? "Já está instalado 🎉" : "Instale como app"}
           </h1>
           <p className="mt-2 text-center text-sm text-neutral-500">
@@ -180,7 +280,8 @@ function OnboardingPage() {
             <button
               onClick={triggerInstall}
               disabled={busy}
-              className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-red-600 py-3.5 text-sm font-semibold text-white shadow-lg transition hover:bg-red-700 disabled:opacity-60"
+              className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-semibold text-white shadow-lg transition disabled:opacity-60"
+              style={{ background: accent }}
             >
               Instalar agora
             </button>
@@ -227,13 +328,10 @@ function OnboardingPage() {
             onClick={finish}
             className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-neutral-900 py-3.5 text-sm font-semibold text-white transition hover:bg-neutral-800"
           >
-            {installed ? "Continuar" : "Concluir"} <ArrowRight className="h-4 w-4" />
+            {installed ? "Continuar" : ob.finish_label} <ArrowRight className="h-4 w-4" />
           </button>
           {!installed && (
-            <button
-              onClick={finish}
-              className="mt-2 w-full py-2 text-xs font-medium text-neutral-500 hover:text-neutral-700"
-            >
+            <button onClick={finish} className="mt-2 w-full py-2 text-xs font-medium text-neutral-500 hover:text-neutral-700">
               Pular por enquanto
             </button>
           )}
