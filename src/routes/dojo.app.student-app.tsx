@@ -787,9 +787,10 @@ function VersionsPanel() {
 // ================================================================
 // Preview do dispositivo
 // ================================================================
-type PreviewScreen = "login" | "onboarding" | "home" | FeatureKey;
+type PreviewScreen = "splash" | "login" | "onboarding" | "home" | FeatureKey;
 
 const SCREEN_LABELS: Record<string, string> = {
+  splash: "Splash screen",
   login: "Login",
   onboarding: "Onboarding",
   home: "Tela inicial",
@@ -802,6 +803,7 @@ function DevicePreview({ device, config }: { device: "iphone" | "android" | "tab
 
   const enabledFeatures = (Object.keys(config.features) as FeatureKey[]).filter((k) => config.features[k]);
   const screens: PreviewScreen[] = [
+    "splash",
     "login",
     ...(config.onboarding.enabled ? (["onboarding"] as PreviewScreen[]) : []),
     "home",
