@@ -100,7 +100,7 @@ async function computeCart(supabase: any, ownerId: string) {
     .eq("cart_id", cartId)
     .order("created_at", { ascending: true });
   const rows = items ?? [];
-  const productIds = Array.from(new Set(rows.map((r: any) => r.product_id)));
+  const productIds = Array.from(new Set(rows.map((r: any) => r.product_id as string)));
   const products = await getStoreProvider(supabase).getProductsByIds(productIds);
   const productMap = new Map(products.map((p) => [p.id, p]));
 
