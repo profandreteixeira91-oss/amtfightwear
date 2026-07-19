@@ -226,11 +226,52 @@ function AppearancePanel({ value, onChange }: { value: StudentAppConfig["appeara
         </Select>
       </Field>
 
-      <ImageUpload label="Logotipo" url={value.logo_url} onChange={(u) => onChange({ logo_url: u })} />
-      <ImageUpload label="Ícone do app" url={value.app_icon_url} onChange={(u) => onChange({ app_icon_url: u })} />
-      <ImageUpload label="Splash Screen" url={value.splash_url} onChange={(u) => onChange({ splash_url: u })} />
-      <ImageUpload label="Fundo do login" url={value.login_bg_url} onChange={(u) => onChange({ login_bg_url: u })} />
-      <ImageUpload label="Imagem da tela inicial" url={value.home_hero_url} onChange={(u) => onChange({ home_hero_url: u })} />
+      <ImageUpload
+        label="Logotipo"
+        url={value.logo_url}
+        onChange={(u) => onChange({ logo_url: u })}
+        aspect="square"
+        hint="Marca principal exibida no cabeçalho do app, no login e nos e-mails. Prefira PNG com fundo transparente."
+        recommendedSize="512×512 px · PNG transparente · até 500 KB"
+      />
+      <ImageUpload
+        label="Ícone do app"
+        url={value.app_icon_url}
+        onChange={(u) => onChange({ app_icon_url: u })}
+        aspect="square"
+        hint="É o ícone que aparece na tela inicial do celular quando o aluno instala o app (PWA). Use uma versão sem texto pequeno."
+        recommendedSize="1024×1024 px · PNG quadrado · fundo colorido preenchido"
+      />
+      <ImageUpload
+        label="Splash Screen"
+        url={value.splash_url}
+        onChange={(u) => onChange({ splash_url: u })}
+        aspect="portrait"
+        hint="Tela de abertura exibida por 1–2 segundos ao abrir o app. Deixe a logo centralizada, sem elementos importantes nas bordas."
+        recommendedSize="1290×2796 px (retrato) · PNG ou JPG · até 2 MB"
+        brand={{ primary: value.brand_primary, secondary: value.brand_secondary, logoUrl: value.logo_url, appName: value.app_name }}
+        templates="splash"
+      />
+      <ImageUpload
+        label="Fundo do login"
+        url={value.login_bg_url}
+        onChange={(u) => onChange({ login_bg_url: u })}
+        aspect="portrait"
+        hint="Aparece atrás do formulário de login. Use imagens escuras ou com áreas neutras para o texto ficar legível."
+        recommendedSize="1290×2796 px (retrato) · JPG · até 1,5 MB"
+        brand={{ primary: value.brand_primary, secondary: value.brand_secondary, logoUrl: value.logo_url, appName: value.app_name }}
+        templates="login"
+      />
+      <ImageUpload
+        label="Imagem da tela inicial"
+        url={value.home_hero_url}
+        onChange={(u) => onChange({ home_hero_url: u })}
+        aspect="landscape"
+        hint="Banner exibido no topo da Home do aluno. Use fotos horizontais da sua academia ou de aulas."
+        recommendedSize="1600×900 px (16:9) · JPG · até 800 KB"
+        brand={{ primary: value.brand_primary, secondary: value.brand_secondary, logoUrl: value.logo_url, appName: value.app_name }}
+        templates="hero"
+      />
 
       <ColorField label="Cor primária" value={value.brand_primary} onChange={(c) => onChange({ brand_primary: c })} />
       <ColorField label="Cor secundária" value={value.brand_secondary} onChange={(c) => onChange({ brand_secondary: c })} />
