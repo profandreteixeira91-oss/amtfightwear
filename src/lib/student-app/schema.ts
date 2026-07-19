@@ -106,6 +106,25 @@ export type OnboardingConfig = {
   finish_label: string;
 };
 
+export type DigitalCardConfig = {
+  title: string;
+  subtitle: string | null;
+  footer_text: string | null;
+  background_style: "gradient" | "solid" | "image";
+  background_url: string | null;
+  background_color: string;
+  text_color: string;
+  accent_color: string;
+  show_photo: boolean;
+  show_qr: boolean;
+  show_pin: boolean;
+  show_belt: boolean;
+  show_enrollment_date: boolean;
+  show_registration_number: boolean;
+  show_academy_logo: boolean;
+  show_unit_name: boolean;
+};
+
 export type StudentAppConfig = {
   appearance: Appearance;
   features: Features;
@@ -114,7 +133,9 @@ export type StudentAppConfig = {
   login: LoginConfig;
   notifications: NotificationsConfig;
   onboarding: OnboardingConfig;
+  digital_card: DigitalCardConfig;
 };
+
 
 export const DEFAULT_FEATURES: Features = {
   agenda: true,
