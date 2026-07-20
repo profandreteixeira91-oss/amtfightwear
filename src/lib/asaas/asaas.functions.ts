@@ -212,11 +212,11 @@ export const createMyAsaasSubaccount = createServerFn({ method: "POST" })
     await context.supabase.from("dojo_account_audit").insert({
       owner_id: context.userId,
       action: "asaas_subaccount_created",
-      metadata: {
+      meta: {
         subaccount_id: subaccount.id,
         wallet_id: subaccount.walletId,
         onboarding_status: subaccount.onboardingStatus,
-      } as unknown as Record<string, unknown>,
+      },
     });
 
     return {
