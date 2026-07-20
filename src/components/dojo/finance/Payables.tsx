@@ -189,61 +189,65 @@ export function FinancePayables() {
         </Card>
       ) : (
         <Card className="border border-[color:var(--dojo-border)] overflow-hidden">
-          <div className="hidden md:grid grid-cols-[minmax(0,1fr)_140px_120px_120px_120px_140px] gap-3 px-4 py-2 bg-[color:var(--dojo-surface-2)] border-b border-[color:var(--dojo-border)] text-[10px] uppercase tracking-widest text-muted-foreground">
-            <span>Descrição</span>
-            <span>Categoria</span>
-            <span>Valor</span>
-            <span>Vencimento</span>
-            <span>Status</span>
-            <span className="text-right">Ações</span>
-          </div>
-          <div className="divide-y divide-[color:var(--dojo-border)]">
-            {rows.map((r) => {
-              const overdueDays = r.status !== "paid" ? Math.max(0, daysBetween(r.due_date, isoDate())) : 0;
-              return (
-                <div
-                  key={r.id}
-                  className="grid md:grid-cols-[minmax(0,1fr)_140px_120px_120px_120px_140px] gap-3 px-4 py-3 items-center hover:bg-[color:var(--dojo-surface-2)]/60 transition-colors"
-                >
-                  <button className="text-left min-w-0" onClick={() => setSelected(r)}>
-                    <div className="font-medium text-sm truncate">{r.description}</div>
-                  </button>
-                  <div className="text-xs text-muted-foreground truncate">{r.category ?? "—"}</div>
-                  <div className="text-sm font-semibold">{brl(r.amount)}</div>
-                  <div className="text-xs">
-                    <div>{r.due_date}</div>
-                    {overdueDays > 0 && <div className="text-red-600">{overdueDays}d atraso</div>}
-                  </div>
-                  <div>
-                    <Badge
-                      variant="outline"
-                      className={
-                        r.status === "paid"
-                          ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                          : overdueDays > 0
-                          ? "bg-red-50 text-red-700 border-red-200"
-                          : "bg-amber-50 text-amber-700 border-amber-200"
-                      }
+          <div className="overflow-x-auto">
+            <div className="min-w-[820px]">
+              <div className="hidden md:grid grid-cols-[minmax(0,1fr)_140px_110px_120px_110px_170px] gap-3 px-4 py-2 bg-[color:var(--dojo-surface-2)] border-b border-[color:var(--dojo-border)] text-[10px] uppercase tracking-widest text-muted-foreground">
+                <span>Descrição</span>
+                <span>Categoria</span>
+                <span>Valor</span>
+                <span>Vencimento</span>
+                <span>Status</span>
+                <span className="text-right">Ações</span>
+              </div>
+              <div className="divide-y divide-[color:var(--dojo-border)]">
+                {rows.map((r) => {
+                  const overdueDays = r.status !== "paid" ? Math.max(0, daysBetween(r.due_date, isoDate())) : 0;
+                  return (
+                    <div
+                      key={r.id}
+                      className="grid md:grid-cols-[minmax(0,1fr)_140px_110px_120px_110px_170px] gap-3 px-4 py-3 items-center hover:bg-[color:var(--dojo-surface-2)]/60 transition-colors"
                     >
-                      {r.status === "paid" ? "Pago" : overdueDays > 0 ? "Atrasado" : "Pendente"}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center justify-end gap-1">
-                    <Button size="icon" variant="ghost" title="Detalhes" onClick={() => setSelected(r)}>
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    {r.status !== "paid" && (
-                      <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => handlePay(r)}>
-                        <CheckCircle2 className="h-3.5 w-3.5 mr-1" /> Pagar
-                      </Button>
-                    )}
-                    <Button size="icon" variant="ghost" onClick={() => handleDelete(r.id)}>
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </div>
-                </div>
-              );
-            })}
+                      <button className="text-left min-w-0" onClick={() => setSelected(r)}>
+                        <div className="font-medium text-sm truncate">{r.description}</div>
+                      </button>
+                      <div className="text-xs text-muted-foreground truncate min-w-0">{r.category ?? "—"}</div>
+                      <div className="text-sm font-semibold whitespace-nowrap">{brl(r.amount)}</div>
+                      <div className="text-xs min-w-0">
+                        <div className="truncate">{r.due_date}</div>
+                        {overdueDays > 0 && <div className="text-red-600 truncate">{overdueDays}d atraso</div>}
+                      </div>
+                      <div className="min-w-0">
+                        <Badge
+                          variant="outline"
+                          className={
+                            r.status === "paid"
+                              ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                              : overdueDays > 0
+                              ? "bg-red-50 text-red-700 border-red-200"
+                              : "bg-amber-50 text-amber-700 border-amber-200"
+                          }
+                        >
+                          {r.status === "paid" ? "Pago" : overdueDays > 0 ? "Atrasado" : "Pendente"}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center justify-end gap-1 flex-nowrap">
+                        <Button size="icon" variant="ghost" title="Detalhes" onClick={() => setSelected(r)} className="shrink-0 h-8 w-8">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        {r.status !== "paid" && (
+                          <Button size="sm" variant="outline" className="h-8 text-xs shrink-0" onClick={() => handlePay(r)}>
+                            <CheckCircle2 className="h-3.5 w-3.5 mr-1" /> Pagar
+                          </Button>
+                        )}
+                        <Button size="icon" variant="ghost" onClick={() => handleDelete(r.id)} className="shrink-0 h-8 w-8">
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </Card>
       )}
