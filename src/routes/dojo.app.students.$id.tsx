@@ -207,8 +207,9 @@ function StudentDetail() {
         </div>
       </div>
 
-      {/* Layout: sidebar / conteúdo (+ timeline como 3ª col apenas em telas muito largas) */}
-      <div className="grid gap-4 lg:grid-cols-[280px_minmax(0,1fr)] 2xl:grid-cols-[280px_minmax(0,1fr)_320px]">
+      {/* Layout: sidebar / conteúdo (timeline vai como card horizontal abaixo) */}
+      <div className="grid gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
+
         {/* ============ SIDEBAR ============ */}
         <aside className="space-y-3 lg:sticky lg:top-4 lg:self-start">
           <Card className="dojo-card overflow-hidden">
