@@ -269,14 +269,27 @@ function CartPage() {
               <span>💰 Você economizou</span><span className="font-bold">{brl(data.savings)}</span>
             </div>
           )}
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Frete {shipping ? `(${shipping.company} ${shipping.name})` : ""}</span>
+            <span className={shipping ? "font-medium" : "text-muted-foreground"}>{shipping ? brl(shippingPrice) : "Informe o CEP"}</span>
+          </div>
           <div className="flex justify-between border-t pt-2 text-base">
             <span className="font-semibold">Total</span>
             <span className="font-bold text-primary">{brl(total)}</span>
           </div>
-          <div className="rounded-md bg-muted/50 px-2 py-1.5 text-[11px] text-muted-foreground">
-            🚚 O frete será calculado na próxima etapa (checkout AMT Fight Wear).
-          </div>
         </div>
+
+        <ShippingCalculator
+          items={data.items.map((it: any) => ({ product_id: it.product_id, variant_id: it.variant_id ?? null, quantity: it.quantity }))}
+          initialZip={shipZip}
+          selectedId={shipping?.id ?? null}
+          onSelect={(opt) => setShipping(opt)}
+          compact
+        />
+        <div className="text-[11px] text-muted-foreground">
+          Você pode alterar o CEP no checkout, se preferir.
+        </div>
+
 
         <Button className="w-full" size="lg" disabled={checkout.isPending} onClick={() => checkout.mutate()}>
           {checkout.isPending ? "Processando…" : (<>Finalizar Compra <ArrowRight className="ml-2 h-4 w-4" /></>)}
