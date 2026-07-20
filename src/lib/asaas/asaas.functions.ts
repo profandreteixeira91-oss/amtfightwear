@@ -473,3 +473,201 @@ export const linkExistingAsaasAccount = createServerFn({ method: "POST" })
 
     return { ok: true as const, walletId };
   });
+
+// ============================================================
+// DOCUMENTOS DA SUBCONTA (KYC obrigatório, principalmente CNPJ)
+// ============================================================
+
+/** Mapeia tipos de documento do Asaas para os tipos locais salvos no bucket
+ *  `dojo-documents` durante o onboarding. */
+function mapAsaasTypeToLocal(asaasType: string): string[] {
+  const t = asaasType.toUpperCase();
+  if (t === "IDENTIFICATION") return ["identity_front", "identity_back"];
+  if (t === "RESIDENCIAL_PROOF" || t === "RESIDENCE_PROOF" || t === "ADDRESS_PROOF")
+    return ["address_proof"];
+  if (
+    t === "SOCIAL_CONTRACT" ||
+    t === "ENTREPRENEUR_REQUIREMENT" ||
+    t === "MINUTES_OF_ELECTION" ||
+    t === "CNPJ" ||
+    t === "CUSTOM"
+  )
+    return ["cnpj_card", "social_contract"];
+  return [];
+}
+
+/** Lista os documentos pendentes/enviados na subconta Asaas do dojo autenticado. */
+export const listMyAsaasDocuments = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: profile } = await context.supabase
+      .from("dojo_academy_profile")
+      .select("asaas_subaccount_id, asaas_api_key_encrypted")
+      .eq("owner_id", context.userId)
+      .maybeSingle();
+
+    const p = profile as
+      | { asaas_subaccount_id?: string | null; asaas_api_key_encrypted?: string | null }
+      | null;
+
+    if (!p?.asaas_subaccount_id) {
+      return { configured: false as const, apiKeyMissing: false, pending: [] as any[], localDocs: [] as any[] };
+    }
+    if (!p.asaas_api_key_encrypted) {
+      return { configured: true as const, apiKeyMissing: true, pending: [] as any[], localDocs: [] as any[] };
+    }
+
+    const { asaasListMyDocuments } = await import("@/lib/asaas/client.server");
+    let res: { data: any[] };
+    try {
+      res = await asaasListMyDocuments(p.asaas_api_key_encrypted);
+    } catch (err) {
+      throw new Error(
+        `Não foi possível consultar documentos no Asaas: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
+
+    const { data: local } = await context.supabase
+      .from("dojo_onboarding_documents")
+      .select("doc_type, file_name, mime_type")
+      .eq("owner_id", context.userId);
+
+    const localTypes = new Set((local ?? []).map((d) => String(d.doc_type)));
+    const pending = (res.data ?? []).map((item) => {
+      const mapped = mapAsaasTypeToLocal(String(item.type || ""));
+      const availableLocal = mapped.filter((t) => localTypes.has(t));
+      return {
+        id: String(item.id),
+        status: String(item.status || "PENDING"),
+        type: String(item.type || ""),
+        title: item.title ?? null,
+        description: item.description ?? null,
+        expectedLocalTypes: mapped,
+        availableLocalTypes: availableLocal,
+      };
+    });
+
+    return {
+      configured: true as const,
+      apiKeyMissing: false,
+      pending,
+      localDocs: (local ?? []).map((d) => ({
+        doc_type: String(d.doc_type),
+        file_name: String(d.file_name || ""),
+      })),
+    };
+  });
+
+/** Envia os documentos locais do onboarding para os itens pendentes da subconta Asaas. */
+export const sendMyAsaasDocuments = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: profile } = await context.supabase
+      .from("dojo_academy_profile")
+      .select("asaas_subaccount_id, asaas_api_key_encrypted")
+      .eq("owner_id", context.userId)
+      .maybeSingle();
+
+    const p = profile as
+      | { asaas_subaccount_id?: string | null; asaas_api_key_encrypted?: string | null }
+      | null;
+
+    if (!p?.asaas_subaccount_id) throw new Error("Subconta Asaas não configurada.");
+    if (!p.asaas_api_key_encrypted)
+      throw new Error(
+        "API key da subconta indisponível. Redefina o AMT Pay e refaça a ativação para poder enviar os documentos.",
+      );
+
+    const { asaasListMyDocuments, asaasSendMyDocument } = await import(
+      "@/lib/asaas/client.server"
+    );
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: local } = await context.supabase
+      .from("dojo_onboarding_documents")
+      .select("doc_type, file_path, file_name, mime_type")
+      .eq("owner_id", context.userId);
+    const byType = new Map<string, { path: string; name: string; mime: string }>();
+    for (const d of local ?? []) {
+      byType.set(String(d.doc_type), {
+        path: String(d.file_path),
+        name: String(d.file_name || "document.pdf"),
+        mime: String(d.mime_type || "application/octet-stream"),
+      });
+    }
+
+    const pendingRes = await asaasListMyDocuments(p.asaas_api_key_encrypted);
+    const pending = (pendingRes.data ?? []).filter(
+      (d: any) => String(d.status || "").toUpperCase() !== "APPROVED",
+    );
+
+    const results: Array<{
+      pendingId: string;
+      asaasType: string;
+      sent: boolean;
+      reason?: string;
+    }> = [];
+
+    for (const item of pending) {
+      const asaasType = String(item.type || "").toUpperCase();
+      const localTypes = mapAsaasTypeToLocal(asaasType);
+      if (!localTypes.length) {
+        results.push({
+          pendingId: String(item.id),
+          asaasType,
+          sent: false,
+          reason: "Tipo sem correspondência local — envie manualmente pelo painel Asaas.",
+        });
+        continue;
+      }
+
+      const files: Array<{ blob: Blob; fileName: string }> = [];
+      for (const t of localTypes) {
+        const local = byType.get(t);
+        if (!local) continue;
+        const { data: fileBlob, error } = await supabaseAdmin.storage
+          .from("dojo-documents")
+          .download(local.path);
+        if (error || !fileBlob) {
+          results.push({
+            pendingId: String(item.id),
+            asaasType,
+            sent: false,
+            reason: `Falha ao ler ${t} do storage: ${error?.message ?? "arquivo indisponível"}`,
+          });
+          files.length = 0;
+          break;
+        }
+        files.push({ blob: fileBlob, fileName: local.name });
+      }
+      if (!files.length) {
+        results.push({
+          pendingId: String(item.id),
+          asaasType,
+          sent: false,
+          reason: `Envie primeiro os documentos locais: ${localTypes.join(", ")}`,
+        });
+        continue;
+      }
+
+      try {
+        await asaasSendMyDocument(String(item.id), asaasType, files, p.asaas_api_key_encrypted);
+        results.push({ pendingId: String(item.id), asaasType, sent: true });
+      } catch (err) {
+        results.push({
+          pendingId: String(item.id),
+          asaasType,
+          sent: false,
+          reason: err instanceof Error ? err.message : String(err),
+        });
+      }
+    }
+
+    await context.supabase.from("dojo_account_audit").insert({
+      owner_id: context.userId,
+      action: "asaas_documents_sent",
+      meta: { results },
+    });
+
+    return { ok: true as const, results };
+  });
