@@ -24,6 +24,7 @@ type Props = {
   name: string;
   category?: string;
   isDefault?: boolean;
+  values?: Record<string, string>;
   onNameChange: (v: string) => void;
   onCategoryChange: (v: string) => void;
   onDefaultChange: (v: boolean) => void;
@@ -32,6 +33,7 @@ type Props = {
   onDuplicate?: () => void;
   saving?: boolean;
 };
+
 
 // Canvas: renders the schema for editing. We work in percent so preview stays consistent.
 export function CertificateEditor(props: Props) {
