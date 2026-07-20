@@ -543,3 +543,35 @@ export const dsListSyncLogs = createServerFn({ method: "GET" })
       .select("*").order("started_at", { ascending: false }).limit(20);
     return data ?? [];
   });
+
+/* ============================================================
+   HANDOFF PARA O CHECKOUT AMT FIGHT WEAR
+   Retorna os itens do carrinho do Dojo já com preço final (com atacado
+   aplicado quando devido). O client injeta em `useCart` da loja principal
+   e navega para /loja/checkout — reaproveitando 100% do fluxo existente.
+   ============================================================ */
+export const dsHandoffToStoreCheckout = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const cart = await computeCart(context.supabase, context.userId);
+    if (!cart.items.length) throw new Error("Carrinho vazio");
+    const items = cart.items.map((l) => ({
+      product_id: l.product_id,
+      variant_id: l.variant_id ?? null,
+      name: l.product?.name ?? "Produto",
+      slug: l.product?.slug ?? "",
+      image_url: l.product?.image_url ?? null,
+      variant_label: l.variant_label ?? null,
+      unit_price: l.unit_final,
+      quantity: l.quantity,
+    }));
+    // limpa o carrinho do Dojo para evitar duplicidade após o checkout
+    await context.supabase.from("dojo_store_cart_items").delete().eq("cart_id", cart.cart_id);
+    return {
+      items,
+      subtotal: cart.subtotal,
+      retail_total: cart.retail_total,
+      savings: cart.savings,
+      has_wholesale: cart.has_wholesale,
+    };
+  });
