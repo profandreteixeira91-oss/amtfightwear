@@ -296,6 +296,7 @@ function AccountPage() {
           {tab === "sessions" && (
             <SessionsTab user={user} onSignOutAll={signOutAll} />
           )}
+          {tab === "documents" && <DocumentsTab />}
           {tab === "integrations" && <IntegrationsTab />}
         </div>
       </div>
