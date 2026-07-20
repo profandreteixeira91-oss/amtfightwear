@@ -428,29 +428,30 @@ function ActionButton({ icon: Icon, label, onClick, dark }: any) {
       onClick={onClick}
       className={
         dark
-          ? "flex h-24 flex-col items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.04] transition-all hover:border-primary/60 hover:bg-primary/10"
+          ? "flex h-16 flex-col items-center justify-center gap-1 rounded-xl border border-white/15 bg-white/[0.04] transition-all hover:border-primary/60 hover:bg-primary/10 md:h-20 md:gap-1.5"
           : "flex h-24 flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed transition-all hover:border-primary hover:bg-primary/5"
       }
     >
-      <Icon className={dark ? "h-7 w-7 text-primary" : "h-6 w-6 text-primary"} />
-      <span className={dark ? "text-sm font-semibold text-white/90" : "text-sm font-medium"}>{label}</span>
+      <Icon className={dark ? "h-5 w-5 text-primary md:h-6 md:w-6" : "h-6 w-6 text-primary"} />
+      <span className={dark ? "text-xs font-semibold text-white/90 md:text-sm" : "text-sm font-medium"}>{label}</span>
     </button>
   );
 }
 
 function KioskStat({ icon: Icon, label, value }: { icon: any; label: string; value: any }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
-      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20">
-        <Icon className="h-5 w-5 text-primary" />
+    <div className="flex min-w-0 items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 md:gap-3 md:px-4">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/20 md:h-10 md:w-10">
+        <Icon className="h-4 w-4 text-primary md:h-5 md:w-5" />
       </div>
-      <div>
-        <div className="text-[11px] font-semibold uppercase tracking-wider text-white/50">{label}</div>
-        <div className="text-2xl font-bold tabular-nums text-white">{value}</div>
+      <div className="min-w-0">
+        <div className="truncate text-[9px] font-semibold uppercase tracking-wider text-white/50 md:text-[11px]">{label}</div>
+        <div className="text-lg font-bold tabular-nums text-white md:text-2xl">{value}</div>
       </div>
     </div>
   );
 }
+
 
 function SuccessBanner({ data, dark }: { data: { name: string; photo?: string | null; message: string; method: string }; dark?: boolean }) {
   return (
