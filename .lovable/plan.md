@@ -1,118 +1,57 @@
-# Módulo AMT Store no AMT Dojo Manager
+# Auditoria de UI/UX AMT Fight Wear — Plano em Fases
 
-Cria um "shopping" completo dentro do Dojo Manager que consome o **próprio catálogo já existente** da loja AMT Fight Wear (tabelas `products`, `store_categories`, `store_product_variants`, `store_orders`, etc.) através de uma **camada de API interna versionada** — de modo que, se amanhã a loja for migrada, basta trocar o adaptador.
+O sistema tem 80+ rotas entre loja, painel administrativo, Dojo Manager, app do aluno e landing pages. Uma varredura única entregaria mudanças rasas e inconsistentes. A proposta é criar uma **fundação de design tokens/primitivas** e depois aplicar por área, com você validando cada fase.
 
-Nada de dados mockados. Tudo multi-tenant por `academy_owner_id`.
+## Fase 0 — Fundação (sem mudança visível, base para o resto)
 
----
+Padroniza os tokens que hoje variam de página para página:
 
-## 1. Arquitetura
+- **Espaçamentos** em `src/styles.css`: tokens `--space-section` (24px), `--space-card` (16px), `--space-field` (12px), `--space-inline` (8px) + utilitários `space-y-section`, `gap-cards`.
+- **Escala tipográfica** consistente: `text-page-title` (28/32), `text-section-title` (18/20), `text-card-title` (15/16), `text-body` (14), `text-meta` (12) — hoje cada tela usa tamanhos ad-hoc.
+- **Container padrão** `<PageShell>` com `max-w-7xl mx-auto px-4 md:px-6 py-6 space-y-6` para eliminar as margens inconsistentes entre `p-4`, `p-6`, `p-8` que aparecem misturadas.
+- **Grid responsivo padrão**: helper `.grid-cards` que resolve `1 → 2 → 3` (nunca 4+ em desktop) automaticamente. Substitui as ~30 variações de `grid-cols-*` espalhadas.
+- **Wrapper de tabela** `<DataTable>` com scroll horizontal isolado (`overflow-x-auto` na tabela, não na página), cabeçalho sticky e larguras mínimas de coluna.
+- **Card com padding confortável** por padrão: `p-6` (não `p-3`/`p-4` que aperta conteúdo).
 
-```text
-Dojo Manager UI (/dojo/app/store/*)
-        │
-        ▼
-Adapter: src/lib/dojo/store/*.functions.ts   ← createServerFn (RPC tipada)
-        │
-        ▼
-StoreProvider interface (src/lib/dojo/store/provider.ts)
-        │
-        ├── LocalAmtProvider  → lê `products`, `store_*` do próprio Supabase
-        └── (futuro) RemoteHttpProvider → REST autenticado por API key
-```
+## Fase 1 — Painel administrativo da loja (mais crítico)
 
-O UI **nunca** fala com as tabelas da loja diretamente. Sempre passa pelas server functions, que passam pelo provider. Trocar de plataforma = trocar 1 arquivo.
+Rotas: `store.index`, `store.orders`, `store.products`, `store.customers`, `store.wholesale`, `store.faixa-calc`, `store.sizes`, `store.import`, `store.chat`, `store.imagens`, `store.shipping`.
 
-## 2. Banco de dados (migração única)
+Aplicações:
+- Header padronizado com título + subtítulo + ações à direita (agrupa botões em "Mais ações" quando >2).
+- Filtros globais em barra dedicada, não misturados com KPIs.
+- Tabelas com colunas proporcionais, ações em dropdown ao invés de 4-5 botões inline.
+- Formulários com campos longos (descrição, endereço) em full-width; campos curtos lado a lado.
+- Modais com largura mínima decente (`max-w-2xl` para forms, `max-w-4xl` para detalhes).
 
-Novas tabelas (todas com `owner_id uuid` + RLS por `auth.uid()` e GRANTs):
+## Fase 2 — Dojo Manager
 
-- `dojo_store_favorites` — favoritos por academia, agrupados em listas (`list_name`).
-- `dojo_store_favorite_lists` — Reposição, Uniformes, Faixas, Competições…
-- `dojo_store_carts` — 1 carrinho ativo por academia (`owner_id` unique).
-- `dojo_store_cart_items` — `product_id`, `variant_id`, `qty`, `customization jsonb`, `student_id` (opcional — compra p/ aluno).
-- `dojo_store_orders` — espelho do pedido criado no fluxo da loja + `owner_id`, `origin='dojo_manager'`, `status`, `totals`, `retail_total`, `wholesale_total`, `savings`, `tracking_code`, `invoice_url`.
-- `dojo_store_order_items` — itens do pedido com `student_id`, `customization`, preços aplicados.
-- `dojo_store_order_timeline` — linha do tempo (evento, autor, timestamp).
-- `dojo_store_student_deliveries` — vincula item entregue a `dojo_students.id` (histórico de kimono/faixa/patch por aluno).
-- `dojo_store_sync_logs` — última sync, contagens, erros.
+Rotas: `dojo.app.*` (alunos, financeiro, agenda, avaliações, graduações, check-in, competições, quadro-de-avisos, store).
 
-**Não duplico** produtos/preços/estoque — leio direto das tabelas `products`, `store_product_variants` etc. via provider. `store_orders` continua sendo a fonte da verdade do pedido; `dojo_store_orders` é o link tenant → pedido da loja.
+Reorganiza dashboards que hoje têm KPIs em linhas de 6-7 cards; quebra em blocos temáticos (Financeiro / Alunos / Aulas) com no máximo 4 por linha.
 
-Regra de atacado (sem cupom): configurável em `app_settings` (`wholesale_min_qty_per_product` = 6 por padrão, `wholesale_min_order_value` = 1000). Aplicada no servidor ao recalcular o carrinho.
+## Fase 3 — Loja pública e app do aluno
 
-## 3. Server functions (`src/lib/dojo/store/*.functions.ts`)
+Rotas: `/loja/*`, `atacado-lp`, `app.*` (portal do aluno PWA).
 
-Todas com `requireSupabaseAuth` e escopadas por `get_my_student_owner_id`-equivalente para dono do dojo:
+Foco em respiração vertical, hierarquia entre título de seção e conteúdo, densidade mobile.
 
-- `listCategories`, `listProducts({ category, search, filters, sort, page })`, `getProduct(slug)`
-- `listFeatured`, `listNew`, `listPromos`
-- `getCart`, `addToCart`, `updateCartItem`, `removeCartItem`, `clearCart`
-- `applyCoupon`, `computeTotals` (retorna varejo vs atacado + economia)
-- `checkout({ payment_method, shipping })` → cria pedido em `store_orders` (Mercado Pago já configurado) + registro em `dojo_store_orders`
-- `listOrders`, `getOrder(id)`, `reorder(id)`
-- `listFavorites`, `toggleFavorite`, `createFavoriteList`
-- `getDashboardKpis` (pedidos, gasto no mês, economia, top produtos)
-- `getRecommendations` (mais comprados + reposição sugerida por histórico)
-- `runSync()` + `getLastSync()` — atualiza `dojo_store_sync_logs`. Como o provider atual lê direto do banco, sync = contagem/checksum. Já preparado para virar HTTP fetch.
-- `attachItemsToStudents({ order_id, assignments })` — grava em `dojo_store_student_deliveries`
+## Fase 4 — Landing pages e páginas institucionais
 
-## 4. Rotas UI (todas em `src/routes/_authenticated/dojo.app.store.*`)
+Rotas: `/`, `dojo/index`, `privacy`, `terms`, `data-deletion`, `auth`, `reset-password`.
 
-```text
-dojo.app.store.tsx                  (layout com top-nav do módulo)
-dojo.app.store.index.tsx            → Dashboard
-dojo.app.store.produtos.tsx         → Catálogo com filtros
-dojo.app.store.produtos.$slug.tsx   → PDP (com botão Personalizar / Comprar / Favoritar / Compartilhar)
-dojo.app.store.faixas.tsx           (atalhos de categoria — reutilizam Catálogo com filtro fixo)
-dojo.app.store.kimonos.tsx
-dojo.app.store.patches.tsx
-dojo.app.store.rashguards.tsx
-dojo.app.store.vestuario.tsx
-dojo.app.store.carrinho.tsx         → Carrinho + resumo atacado/varejo
-dojo.app.store.pedidos.tsx          → Lista
-dojo.app.store.pedidos.$id.tsx      → Detalhe + timeline + "Comprar novamente" + "Atribuir a alunos"
-dojo.app.store.favoritos.tsx        → Listas
-dojo.app.store.configuracoes.tsx    → Sync + preferências
-```
-
-O menu superior do Dojo (`AppTopNav.tsx`) ganha o item **AMT Store** com dropdown para os submenus pedidos.
-
-## 5. UX
-
-- Visual e-commerce (Nike/Decathlon), reusando os tokens do design system atual do Dojo.
-- Card do produto: badge automático **"Preço atacado desbloqueado"** quando a qty do carrinho para aquele produto ≥ mínimo.
-- Carrinho mostra 2 colunas de subtotal: **Varejo** riscado × **Seu preço (atacado)** + linha **Você economizou R$ X**.
-- Personalização abre o mesmo configurador já existente em `/loja/custom-shop` (extraído para componente reutilizável `<CustomShopConfigurator />`) e persiste `customization` no item.
-- Checkout usa o mesmo fluxo Mercado Pago já implementado (`src/lib/store/mercadopago.functions.ts`) — apenas marca `origin='dojo_manager'` no `store_orders`.
-- Notificações in-app já existentes (`dojo_account_notifications` / `NotificationsBell`) recebem eventos de mudança de status. Hooks para push/WhatsApp/email ficam como interface preparada, sem envio real.
-
-## 6. Compra para alunos (arquitetura, sem cobrança automática ainda)
-
-Na tela do pedido, ação **"Atribuir aos alunos"** abre modal com multi-seleção de `dojo_students`. Grava em `dojo_store_student_deliveries` e mostra no perfil do aluno o histórico. A cobrança pelo Financeiro fica como TODO documentado (não implementado nesta entrega, mas o campo `billable_to_student boolean` já vai no schema).
-
-## 7. Segurança
-
-- Todas as tabelas novas com RLS `owner_id = auth.uid()` + GRANTs para `authenticated` e `service_role`.
-- `checkout` executa como usuário (RLS aplica); server valida totais recalculando no backend — nunca confia no valor vindo do cliente.
-- Provider remoto (futuro) autenticaria com API key + HMAC.
-
-## 8. Escopo desta entrega
-
-Incluído: menu, dashboard, catálogo completo, PDP, carrinho com atacado automático, checkout via Mercado Pago existente, pedidos com timeline, favoritos com listas, "comprar novamente", vínculo com alunos, sync log, tela de sincronização.
-
-Fora de escopo (só arquitetura/campos prontos): cobrança automática pelo Financeiro, cashback, assinaturas, marketplace, push/WhatsApp/email. Documentados como extension points.
-
-## 9. Critérios de aceite mapeados
-
-- Catálogo oficial dentro do Dojo Manager ✅ (via provider lendo `products`)
-- Sync automática ✅ (log + botão manual; provider local = tempo real)
-- Atacado automático ✅ (server recalcula)
-- Varejo + atacado no mesmo fluxo ✅
-- Personalização integrada ✅ (configurador reusado)
-- Pedidos gravados em `store_orders` da loja oficial ✅
-- Arquitetura modular / troca de backend sem reescrita ✅ (interface `StoreProvider`)
+Passe final de espaçamento/tipografia.
 
 ---
 
-Se aprovar, começo pela migração + provider + rotas de catálogo/carrinho, depois checkout/pedidos/favoritos/dashboard.
+## O que NÃO muda
+
+- Nenhuma regra de negócio, fluxo, banco ou funcionalidade.
+- Nenhum componente é removido — só reorganizado, reagrupado ou tem padding/grid ajustado.
+- Cores da marca (vermelho AMT + preto/branco) mantidas — só melhora contraste e hierarquia onde estiver ruim.
+
+## Como quero prosseguir
+
+Preciso que você confirme **qual fase começar primeiro** (recomendo Fase 0 + Fase 1 no próximo turno — a fundação sozinha já melhora tudo, e a Fase 1 tem o maior impacto operacional).
+
+Se quiser priorizar telas específicas em vez de áreas inteiras (ex: "só a dashboard e a página de pedidos"), me diga quais.
