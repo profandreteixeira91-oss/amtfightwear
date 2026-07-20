@@ -640,7 +640,7 @@ function OnboardingPage() {
                       {has ? "Substituir arquivo" : "Enviar arquivo"}
                       <input
                         type="file"
-                        accept="image/*,application/pdf"
+                        accept={accept}
                         className="sr-only"
                         onChange={(e) => {
                           const f = e.target.files?.[0];
