@@ -529,10 +529,11 @@ export const listMyAsaasDocuments = createServerFn({ method: "GET" })
 
     const { data: local } = await context.supabase
       .from("dojo_onboarding_documents")
-      .select("doc_type, file_name, mime_type")
+      .select("doc_type, file_path, mime_type")
       .eq("owner_id", context.userId);
 
-    const localTypes = new Set((local ?? []).map((d) => String(d.doc_type)));
+    const localList = (local ?? []) as Array<{ doc_type: string; file_path: string; mime_type: string | null }>;
+    const localTypes = new Set(localList.map((d) => String(d.doc_type)));
     const pending = (res.data ?? []).map((item) => {
       const mapped = mapAsaasTypeToLocal(String(item.type || ""));
       const availableLocal = mapped.filter((t) => localTypes.has(t));
@@ -551,9 +552,9 @@ export const listMyAsaasDocuments = createServerFn({ method: "GET" })
       configured: true as const,
       apiKeyMissing: false,
       pending,
-      localDocs: (local ?? []).map((d) => ({
+      localDocs: localList.map((d) => ({
         doc_type: String(d.doc_type),
-        file_name: String(d.file_name || ""),
+        file_name: String(d.file_path).split("/").pop() ?? String(d.file_path),
       })),
     };
   });
