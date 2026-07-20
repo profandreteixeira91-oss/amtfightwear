@@ -586,13 +586,14 @@ export const sendMyAsaasDocuments = createServerFn({ method: "POST" })
 
     const { data: local } = await context.supabase
       .from("dojo_onboarding_documents")
-      .select("doc_type, file_path, file_name, mime_type")
+      .select("doc_type, file_path, mime_type")
       .eq("owner_id", context.userId);
+    const localList = (local ?? []) as Array<{ doc_type: string; file_path: string; mime_type: string | null }>;
     const byType = new Map<string, { path: string; name: string; mime: string }>();
-    for (const d of local ?? []) {
+    for (const d of localList) {
       byType.set(String(d.doc_type), {
         path: String(d.file_path),
-        name: String(d.file_name || "document.pdf"),
+        name: String(d.file_path).split("/").pop() || "document.pdf",
         mime: String(d.mime_type || "application/octet-stream"),
       });
     }
