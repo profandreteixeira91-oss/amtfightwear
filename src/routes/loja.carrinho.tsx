@@ -4,8 +4,12 @@ import { StoreShell } from "@/components/store/StoreShell";
 import { ProductImage } from "@/components/store/ProductImage";
 import { listStoreCategories } from "@/lib/store/store.functions";
 import { useCart, formatBRL } from "@/lib/store/cart-store";
+import { ShippingCalculator } from "@/components/store/ShippingCalculator";
+import type { ShippingOption } from "@/lib/store/shipping.functions";
 import { Trash2, ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
+
+const SHIPPING_KEY = "amt-checkout-shipping";
 
 export const Route = createFileRoute("/loja/carrinho")({
   loader: async ({ context }) => {
