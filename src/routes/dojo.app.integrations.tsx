@@ -7,12 +7,14 @@ import {
   FileText,
   CreditCard,
   ShieldCheck,
+  Info,
 } from "lucide-react";
 import { AMTPayDashboard } from "@/components/dojo/amtpay/AMTPayDashboard";
 import { WalletPanel } from "@/components/dojo/amtpay/WalletPanel";
 import { WithdrawalsPanel } from "@/components/dojo/amtpay/WithdrawalsPanel";
 import { StatementPanel } from "@/components/dojo/amtpay/StatementPanel";
 import { AsaasOnboardingCard } from "@/components/dojo/amtpay/AsaasOnboardingCard";
+import { AMTPayInfoPanel } from "@/components/dojo/amtpay/AMTPayInfoPanel";
 
 export const Route = createFileRoute("/dojo/app/integrations")({
   head: () => ({ meta: [{ title: "AMT Pay — Central financeira" }] }),
