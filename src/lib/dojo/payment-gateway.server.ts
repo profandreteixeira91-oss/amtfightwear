@@ -1,56 +1,44 @@
-// Helpers para carregar a configuração do gateway de pagamento de um dono de dojo.
-// Usa supabaseAdmin (bypass RLS) — chame só a partir de código servidor autorizado.
+// AMT Pay v2 — Mercado Pago centralizado da AMT Fight Wear.
+// Todas as cobranças (mensalidades, matrículas, avulsos) são processadas
+// pela conta MP única da AMT. Este helper apenas retorna o token global.
+// O split é calculado no webhook conforme dojo_split_config.
 
 export type OwnerGateway = {
   id: string;
   owner_id: string;
-  provider: "mercadopago" | "asaas" | "pagseguro";
-  label: string | null;
-  access_token: string | null;
-  public_key: string | null;
-  webhook_secret: string | null;
-  is_default: boolean;
-  active: boolean;
+  provider: "amt_pay";
+  label: string;
+  is_default: true;
+  active: true;
 };
 
-/** Retorna o gateway padrão ativo do dono, ou null. */
-export async function getOwnerDefaultGateway(ownerId: string): Promise<OwnerGateway | null> {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data } = await supabaseAdmin
-    .from("dojo_payment_gateways")
-    .select("*")
-    .eq("owner_id", ownerId)
-    .eq("active", true)
-    .eq("is_default", true)
-    .maybeSingle();
-  return (data as OwnerGateway | null) ?? null;
-}
-
-/** Retorna qualquer gateway ativo do dono que atenda ao provider preferido. */
-export async function getOwnerGatewayByProvider(
-  ownerId: string,
-  provider: OwnerGateway["provider"],
-): Promise<OwnerGateway | null> {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data } = await supabaseAdmin
-    .from("dojo_payment_gateways")
-    .select("*")
-    .eq("owner_id", ownerId)
-    .eq("provider", provider)
-    .eq("active", true)
-    .maybeSingle();
-  return (data as OwnerGateway | null) ?? null;
-}
-
-/** Retorna o access token do dono para MP, ou lança erro amigável. */
-export async function requireOwnerMpToken(ownerId: string): Promise<string> {
-  const gw =
-    (await getOwnerGatewayByProvider(ownerId, "mercadopago")) ??
-    (await getOwnerDefaultGateway(ownerId));
-  if (!gw || gw.provider !== "mercadopago" || !gw.access_token) {
+/** Retorna o token da conta MP central da AMT. Aceita ownerId por compat. */
+export async function requireOwnerMpToken(_ownerId?: string): Promise<string> {
+  const token = process.env.MERCADOPAGO_ACCESS_TOKEN;
+  if (!token) {
     throw new Error(
-      "A academia ainda não configurou o Mercado Pago para receber cobranças. Peça ao administrador para cadastrar as credenciais em Gateways de Pagamento.",
+      "AMT Pay indisponível: MERCADOPAGO_ACCESS_TOKEN não configurada na conta central da AMT.",
     );
   }
-  return gw.access_token;
+  return token;
+}
+
+/** Mantido apenas por compatibilidade; sempre retorna o gateway AMT Pay ativo. */
+export async function getOwnerDefaultGateway(ownerId: string): Promise<OwnerGateway | null> {
+  if (!process.env.MERCADOPAGO_ACCESS_TOKEN) return null;
+  return {
+    id: "amt-pay",
+    owner_id: ownerId,
+    provider: "amt_pay",
+    label: "AMT Pay (Mercado Pago)",
+    is_default: true,
+    active: true,
+  };
+}
+
+export async function getOwnerGatewayByProvider(
+  ownerId: string,
+  _provider: string,
+): Promise<OwnerGateway | null> {
+  return getOwnerDefaultGateway(ownerId);
 }

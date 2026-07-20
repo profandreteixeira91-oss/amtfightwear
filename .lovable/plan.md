@@ -1,114 +1,95 @@
-# Evolução do Módulo Equipe — Plano de Entrega
+# Refatoração AMT Pay — Split de Pagamento centralizado
 
-Escopo massivo. Vou entregar em **5 fases sequenciais**, cada uma funcional de ponta a ponta, para evitar um único deploy gigante e permitir validação incremental. Todas as fases respeitam multi-tenant (`dojo_id` em toda tabela + RLS via `has_role`/ownership).
+## Novo conceito
 
----
+AMT Pay deixa de ser um **hub de integrações** (Asaas/MP/Pagar.me configurados pelo dono do dojo) e passa a ser um **módulo de pagamento próprio**, operando 100% no **Mercado Pago corporativo da AMT Fight Wear** com **split** (Marketplace/Oauth) para cada dojo cliente.
 
-## Fase 1 — Escalas & Substituições (base operacional)
+- O dojo **não conecta mais** gateway próprio.
+- Toda cobrança (mensalidades, matrículas, avulsos) é processada pela conta MP da AMT.
+- O valor é **automaticamente dividido** entre AMT (taxa da plataforma) e o dojo (repasse), configurável por operação.
+- Saques do dojo continuam via AMT Pay (agora saldo interno, não mais consulta a gateway externo).
 
-**Banco**
-- `dojo_team_schedules` — escalas recorrentes (professor, aula, dia da semana, horário, unidade, sala, modalidade, recorrência, período).
-- `dojo_team_schedule_occurrences` — ocorrências geradas (data específica, status, substituto_id, motivo).
-- `dojo_team_substitutions` — histórico permanente de substituições (professor original, substituto, motivo, período, criado_por).
+## Arquitetura do split
 
-**Service** — `src/lib/dojo/team-schedule.functions.ts`
-- `listSchedules`, `upsertSchedule`, `generateOccurrences` (materializa X semanas à frente), `substituteTeacher`, `listSubstitutions`.
-- Regra crítica: substituição **nunca** apaga vínculo original, apenas cria registro paralelo.
+```text
+Aluno paga R$ 200 (mensalidade)
+        ↓
+Mercado Pago AMT Fight Wear (conta única)
+        ↓
+   Split configurado
+   ├── AMT: R$ X (taxa da plataforma - % ou fixo)
+   └── Dojo: R$ (200 - X - MDR MP)  →  saldo AMT Pay do dojo
+        ↓
+Dojo solicita saque → transferência PIX AMT → conta bancária cadastrada
+```
 
-**UI** — Nova aba `dojo.app.team.schedules.tsx`
-- Visualizações: Hoje / Semana / Mês / Timeline / Calendário (usando `date-fns` + grid custom, sem dep nova).
-- Modal "Substituir Professor" com fluxo: atual → novo → motivo → período → confirmar.
-- Drag-and-drop entre slots (usar `@dnd-kit` já instalado).
+## Escopo desta entrega
 
-**Integrações**
-- `dojo_class_occurrences` (agenda geral) recebe atualização quando substituição confirmada.
-- Check-in valida contra `schedule_occurrences.substituto_id ?? professor_id`.
+### 1. Módulo AMT Pay — remoção de integrações
 
----
+- Remover completamente:
+  - `AMTPayWizard.tsx` (assistente de conexão de gateways).
+  - `GatewayAccountsPanel.tsx` (cards de contas Asaas/MP/Pagar.me).
+  - Aba/tela de "Modo Avançado" com API Keys.
+  - Adapters em `src/lib/dojo/gateway-adapters/*` (Asaas/MP externos).
+- Manter tabelas `dojo_gateway_history` e `dojo_payment_gateways` como **histórico read-only** (para dojos que já usaram); não permitir novas conexões.
 
-## Fase 2 — Carga Horária & Metas
+### 2. Nova estrutura de split
 
-**Banco**
-- `dojo_team_workload_summary` (view materializada por colaborador/mês): horas previstas, ministradas, extras, faltas, reposições, canceladas, substituições feitas/recebidas.
-- `dojo_team_goals` — metas (tipo enum: matriculas, renovacoes, frequencia, avaliacoes, eventos, receita, checkins, conversao; alvo, período, bônus_valor).
-- `dojo_team_goal_progress` — snapshots de progresso.
+- Migration criando:
+  - `dojo_split_config` — configuração de split por dojo (percentual/fixo da AMT, tipo de operação: mensalidade / matrícula / avulso, ativo).
+  - `dojo_split_transactions` — registro de cada transação: `mp_payment_id`, `gross_amount`, `mp_fee`, `amt_fee`, `dojo_net`, `status`, `student_id`, `invoice_id`, `type`.
+  - Ajuste em `dojo_wallet_transactions` para referenciar `split_transaction_id`.
+- Grants + RLS: dojo lê o próprio; AMT (role admin) lê tudo.
 
-**Service** — `src/lib/dojo/team-workload.functions.ts` + `team-goals.functions.ts`
-- Cálculo derivado da agenda (nada duplicado).
-- Goals com auto-cálculo cruzando `dojo_enrollments`, `dojo_attendance`, `dojo_evaluations`, `store_orders`.
+### 3. Configuração central (AMT admin)
 
-**UI**
-- Aba "Carga Horária" na ficha do colaborador + relatório global.
-- Aba "Metas" com progresso, percentual, bônus previsto.
+- Nova rota `/admin/amt-pay-config` (visível apenas para role `admin` da AMT):
+  - Definir taxa padrão da plataforma (% + fixo).
+  - Override por dojo.
+  - Ver todas as transações e volumes.
 
----
+### 4. Painel do dojo (`/dojo/app/amt-pay`)
 
-## Fase 3 — Remuneração Inteligente & Comissões
+Redesenhar totalmente a rota `dojo.app.integrations.tsx` (renomear conceitualmente):
 
-**Banco**
-- Expandir `dojo_team_payroll_config`: JSONB `compensation_rules` com múltiplos modelos simultâneos (fixo, hora, aula, comissão matrícula, renovação, produto, mensalidade, exame, bônus meta).
-- `dojo_team_commissions` — cada comissão calculada (origem_tipo, origem_id, base_valor, percentual/fixo, valor_final, status).
-- `dojo_team_private_classes` — aulas particulares (aluno, data, valor, status, forma_pagamento).
+- **Aba Visão Geral**: saldo disponível (do wallet interno), a receber, taxa da plataforma configurada, últimas transações.
+- **Aba Extrato**: transações vindas do split (não mais do gateway externo). Cada linha mostra: bruto, taxa MP, taxa AMT, líquido.
+- **Aba Saques**: fluxo mantido (`WithdrawDialog`), agora contra saldo interno.
+- **Aba Configuração**: apenas dados bancários e chave PIX para saque. Sem "conectar gateway".
 
-**Service** — `src/lib/dojo/team-commission.functions.ts` + expansão `team-payroll`
-- Triggers de cálculo:
-  - Ao confirmar pagamento de mensalidade → comissão para professor da turma.
-  - Ao criar `dojo_enrollments` → comissão matrícula.
-  - Ao renovar plano → comissão renovação.
-  - Ao pagar `store_orders`/`dojo_store_orders` → comissão produto (vendedor_id).
-  - Ao concluir `dojo_evaluations` → comissão exame.
-  - Ao bater meta → bônus.
-- Motor único `computeCommissionsForPeriod(memberId, period)`.
+### 5. Motor de cobrança
 
-**UI**
-- Editor de regras de remuneração (checkboxes + config por regra) na aba Financeiro do colaborador.
-- Registro de aulas particulares.
-- Preview de comissões pendentes.
+- Refatorar `mercadopago.functions.ts` para usar credenciais **únicas da AMT** (secrets já existentes: `MERCADOPAGO_ACCESS_TOKEN`, `MERCADOPAGO_WEBHOOK_SECRET`, `MERCADOPAGO_PUBLIC_KEY`).
+- Ao criar cobrança de mensalidade/matrícula, incluir metadata `{ dojo_owner_id, invoice_id, type }`.
+- Novo endpoint público `/api/public/webhooks/mercadopago-split` que:
+  1. Valida assinatura MP.
+  2. Ao receber `payment.approved`, calcula split conforme `dojo_split_config`.
+  3. Grava `dojo_split_transactions`.
+  4. Credita saldo no wallet do dojo (`dojo_wallet_transactions` tipo `credit`).
+  5. Marca invoice como paga.
 
----
+### 6. Fluxos afetados
 
-## Fase 4 — Desempenho, Dashboard Individual & Financeiro
+- `enrollStudentWithPlan` — segue gerando link MP, mas via conta AMT com metadata do dojo.
+- Faturas recorrentes: mesma coisa.
+- Loja AMT (dojo store checkout): mantém-se; o split já é diferente (produtos da AMT), não misturar.
 
-**Banco**
-- `dojo_team_performance` — indicadores mensais (pontualidade, presença, aulas, avaliações aplicadas, graduações, retenção, satisfação).
-- Expandir `dojo_team_history` — categorias: cargo, faixa, curso, certificação, treinamento, aumento, substituição, advertência, elogio, férias, licença.
+## Fora do escopo (para próxima fase)
 
-**Service** — `team-performance.functions.ts` + `team-analytics.functions.ts`
+- Split via API oficial Marketplace do MP (OAuth). Nesta fase implementamos split **contábil** (uma conta MP recebe tudo e distribuímos internamente). O usuário confirma que essa abordagem inicial serve, dado que o dono da conta MP é a AMT.
+- Emissão automática de nota fiscal.
+- Reconciliação com extrato bancário da AMT.
 
-**UI**
-- Rota `/dojo/app/team/me` — dashboard do colaborador logado (agenda, aulas hoje, horas mês, remuneração prevista, comissões, pendências, indicadores).
-- Extrato financeiro exportável (CSV/PDF via `openBrandedPrintDocument`).
-- Timeline de histórico profissional.
+## Estrutura técnica (detalhes)
 
----
+- Tabelas novas seguem regra: `CREATE TABLE` → `GRANT` → `ENABLE RLS` → `POLICY`.
+- Função `has_role(auth.uid(), 'admin')` para políticas AMT.
+- `.functions.ts` finos, helpers em `.server.ts`.
+- Sem novos gateway adapters.
 
-## Fase 5 — Alertas, Relatórios & Integração AMT Pay
+## Confirmações necessárias
 
-**Banco**
-- `dojo_team_alerts` — alertas gerados (tipo, severidade, colaborador, contexto, lido).
-- Job `pg_cron` diário gerando alertas (férias em curso, excesso de carga, sem aulas, docs vencidos, aniversário, contrato próximo do fim).
-
-**Relatórios**
-- Central em `/dojo/app/team/reports`: horas, aulas, produtividade, comissões, folha, custos, professores por modalidade, substituições, metas, desempenho.
-- Export PDF (branded print), Excel (`xlsx`), CSV.
-
-**AMT Pay**
-- Preparar estrutura: cada `dojo_team_payments` aponta para futuro `wallet_transaction_id` (nullable). Sem transferência automática nesta versão — apenas registro.
-
----
-
-## Detalhes técnicos globais
-
-- **RLS**: toda tabela nova segue padrão existente (`dojo_id = get_current_dojo_id()` + `has_role`).
-- **GRANTS**: authenticated + service_role em cada CREATE TABLE.
-- **Navegação**: sub-navegação horizontal dentro de `/dojo/app/team` (Dashboard, Colaboradores, Escalas, Carga Horária, Metas, Comissões, Desempenho, Alertas, Relatórios).
-- **Consumo unificado**: Agenda, Check-in, Financeiro, AMT Store, Avaliações e Certificados passam a ler via os novos services (sem duplicar lógica).
-- **Sem breaking changes**: tabelas atuais (`dojo_team_members`, `dojo_team_payroll_config`, `dojo_team_payments`, `dojo_team_attendance`, `dojo_team_documents`, `dojo_team_signatures`, `dojo_team_history`) são expandidas, não substituídas.
-
----
-
-## Ordem de execução
-
-Começo pela **Fase 1** (base de escalas + substituições) porque todas as outras dependem dela: carga horária, comissão por aula, desempenho e alertas são derivados da agenda materializada.
-
-Confirma que devo iniciar pela Fase 1, ou prefere que eu ajuste o escopo/ordem?
+1. **Split contábil** (conta única AMT recebe tudo, distribuição interna via saldo) está OK como v1? Ou você já quer o **Split MP Marketplace via OAuth** (dojo autoriza a AMT a fazer split direto na API do MP — mais complexo, exige homologação MP)?
+2. Confirma que a **taxa da plataforma** é configurável no admin da AMT (não pelo dojo)?
+3. Manter o histórico das antigas conexões de gateway como read-only, ou apagar tudo?

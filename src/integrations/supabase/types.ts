@@ -4732,6 +4732,102 @@ export type Database = {
           },
         ]
       }
+      dojo_split_config: {
+        Row: {
+          active: boolean
+          amt_fixed_fee: number
+          amt_percent: number
+          created_at: string
+          id: string
+          min_withdrawal: number
+          notes: string | null
+          owner_id: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          amt_fixed_fee?: number
+          amt_percent?: number
+          created_at?: string
+          id?: string
+          min_withdrawal?: number
+          notes?: string | null
+          owner_id: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          amt_fixed_fee?: number
+          amt_percent?: number
+          created_at?: string
+          id?: string
+          min_withdrawal?: number
+          notes?: string | null
+          owner_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      dojo_split_transactions: {
+        Row: {
+          amt_fee_amount: number
+          amt_fixed_applied: number | null
+          amt_percent_applied: number | null
+          created_at: string
+          dojo_net_amount: number
+          gross_amount: number
+          id: string
+          invoice_id: string | null
+          mp_fee_amount: number
+          mp_payment_id: string
+          operation_type: string
+          owner_id: string
+          paid_at: string | null
+          raw: Json | null
+          status: string
+          student_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          amt_fee_amount?: number
+          amt_fixed_applied?: number | null
+          amt_percent_applied?: number | null
+          created_at?: string
+          dojo_net_amount: number
+          gross_amount: number
+          id?: string
+          invoice_id?: string | null
+          mp_fee_amount?: number
+          mp_payment_id: string
+          operation_type?: string
+          owner_id: string
+          paid_at?: string | null
+          raw?: Json | null
+          status?: string
+          student_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amt_fee_amount?: number
+          amt_fixed_applied?: number | null
+          amt_percent_applied?: number | null
+          created_at?: string
+          dojo_net_amount?: number
+          gross_amount?: number
+          id?: string
+          invoice_id?: string | null
+          mp_fee_amount?: number
+          mp_payment_id?: string
+          operation_type?: string
+          owner_id?: string
+          paid_at?: string | null
+          raw?: Json | null
+          status?: string
+          student_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       dojo_store_cart_items: {
         Row: {
           billable_to_student: boolean
@@ -6553,6 +6649,7 @@ export type Database = {
           provider_tx_id: string | null
           reference_id: string | null
           reference_type: string | null
+          split_transaction_id: string | null
           status: Database["public"]["Enums"]["amtpay_tx_status"]
           student_id: string | null
           updated_at: string
@@ -6576,6 +6673,7 @@ export type Database = {
           provider_tx_id?: string | null
           reference_id?: string | null
           reference_type?: string | null
+          split_transaction_id?: string | null
           status?: Database["public"]["Enums"]["amtpay_tx_status"]
           student_id?: string | null
           updated_at?: string
@@ -6599,6 +6697,7 @@ export type Database = {
           provider_tx_id?: string | null
           reference_id?: string | null
           reference_type?: string | null
+          split_transaction_id?: string | null
           status?: Database["public"]["Enums"]["amtpay_tx_status"]
           student_id?: string | null
           updated_at?: string

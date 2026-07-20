@@ -117,7 +117,7 @@ export function WithdrawDialog({
                 <Button size="sm" onClick={() => { onOpenChange(false); onNeedBankAccount(); }}>
                   <Landmark className="h-4 w-4 mr-2" /> Cadastrar conta
                 </Button>
-                {caps?.chooseWithdrawalPixKey && (
+                {caps?.withdrawals && (
                   <Button size="sm" variant="outline" onClick={() => setUseAltPix(true)}>
                     Usar chave PIX
                   </Button>
@@ -146,7 +146,7 @@ export function WithdrawDialog({
               </div>
             </div>
 
-            {caps?.chooseWithdrawalPixKey && (
+            {caps?.withdrawals && (
               <div className="rounded-lg border p-3 space-y-2">
                 <label className="flex items-center gap-2 text-sm">
                   <input type="checkbox" checked={useAltPix} onChange={(e) => setUseAltPix(e.target.checked)} />
