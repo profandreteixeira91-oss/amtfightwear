@@ -115,8 +115,9 @@ function CartPage() {
   const total = data.subtotal + shippingPrice;
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
-      <div className="space-y-3">
+    <div className="grid w-full max-w-full gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
+      <div className="min-w-0 space-y-3">
+
         {data.subcategory_progress && data.subcategory_progress.length > 0 && (
           <div className="space-y-2">
             {data.subcategory_progress.map((c: any) => (
@@ -234,7 +235,7 @@ function CartPage() {
             </div>
           </Card>
         ))}
-        <div className="flex justify-between">
+        <div className="flex flex-wrap justify-between gap-2">
           <Button asChild variant="ghost" size="sm"><Link to="/dojo/app/store">Continuar comprando</Link></Button>
           <Button
             variant="outline"
@@ -253,7 +254,8 @@ function CartPage() {
         </div>
       </div>
 
-      <Card className="h-fit space-y-3 p-4">
+      <Card className="h-fit min-w-0 space-y-3 p-4">
+
         <div className="text-sm font-semibold">Resumo</div>
         <div className="space-y-1 text-sm">
           {data.savings > 0 && (
@@ -269,10 +271,11 @@ function CartPage() {
               <span>💰 Você economizou</span><span className="font-bold">{brl(data.savings)}</span>
             </div>
           )}
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Frete {shipping ? `(${shipping.company} ${shipping.name})` : ""}</span>
-            <span className={shipping ? "font-medium" : "text-muted-foreground"}>{shipping ? brl(shippingPrice) : "Informe o CEP"}</span>
+          <div className="flex justify-between gap-2">
+            <span className="min-w-0 truncate text-muted-foreground">Frete {shipping ? `(${shipping.company} ${shipping.name})` : ""}</span>
+            <span className={`shrink-0 ${shipping ? "font-medium" : "text-muted-foreground"}`}>{shipping ? brl(shippingPrice) : "Informe o CEP"}</span>
           </div>
+
           <div className="flex justify-between border-t pt-2 text-base">
             <span className="font-semibold">Total</span>
             <span className="font-bold text-primary">{brl(total)}</span>
