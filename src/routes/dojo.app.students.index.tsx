@@ -11,6 +11,7 @@ import {
   listDojoPlans,
   enrollStudentWithPlan,
 } from "@/lib/dojo/dojo.functions";
+import { paymentMethodLabel, normalizePlanPaymentMethods } from "@/lib/dojo/payment-methods";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
