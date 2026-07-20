@@ -673,3 +673,80 @@ export const sendMyAsaasDocuments = createServerFn({ method: "POST" })
 
     return { ok: true as const, results };
   });
+
+/**
+ * Envia um arquivo específico (já carregado no bucket `dojo-documents`) para
+ * um item pendente do KYC Asaas. Usado para envio individual e para reenvio
+ * em caso de REJECTED — o Asaas aceita novos arquivos no mesmo pendingId.
+ */
+export const uploadAsaasDocumentForPending = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z
+      .object({
+        pendingId: z.string().trim().min(1).max(120),
+        asaasType: z.string().trim().min(1).max(60),
+        filePath: z.string().trim().min(3).max(500),
+        mimeType: z.string().trim().max(120).optional().nullable(),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    // Segurança: só aceita arquivos dentro do prefixo do próprio usuário
+    if (!data.filePath.startsWith(`${context.userId}/`)) {
+      throw new Error("Caminho de arquivo inválido.");
+    }
+
+    const { data: profile } = await context.supabase
+      .from("dojo_academy_profile")
+      .select("asaas_subaccount_id, asaas_api_key_encrypted")
+      .eq("owner_id", context.userId)
+      .maybeSingle();
+    const p = profile as
+      | { asaas_subaccount_id?: string | null; asaas_api_key_encrypted?: string | null }
+      | null;
+
+    if (!p?.asaas_subaccount_id) throw new Error("Subconta Asaas não configurada.");
+    if (!p.asaas_api_key_encrypted) {
+      throw new Error(
+        "A chave privada da subconta não está disponível. Redefina o AMT Pay e refaça a ativação para poder enviar documentos.",
+      );
+    }
+
+    const { asaasSendMyDocument } = await import("@/lib/asaas/client.server");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: blob, error: dlErr } = await supabaseAdmin.storage
+      .from("dojo-documents")
+      .download(data.filePath);
+    if (dlErr || !blob) {
+      throw new Error(`Falha ao ler o arquivo: ${dlErr?.message ?? "arquivo indisponível"}`);
+    }
+
+    const fileName = data.filePath.split("/").pop() || "document.pdf";
+    try {
+      await asaasSendMyDocument(
+        data.pendingId,
+        data.asaasType.toUpperCase(),
+        [{ blob, fileName }],
+        p.asaas_api_key_encrypted,
+      );
+    } catch (err) {
+      throw new Error(
+        `O Asaas recusou o envio: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
+
+    await context.supabase.from("dojo_account_audit").insert({
+      owner_id: context.userId,
+      action: "asaas_document_uploaded",
+      meta: {
+        pending_id: data.pendingId,
+        asaas_type: data.asaasType,
+        file_path: data.filePath,
+      },
+    });
+
+    return { ok: true as const };
+  });
+

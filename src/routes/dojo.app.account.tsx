@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { useCepLookup } from "@/hooks/useCepLookup";
 import { useServerFn } from "@tanstack/react-start";
 import { createMyAsaasSubaccount, getMyAsaasConfig } from "@/lib/asaas/asaas.functions";
+import { DocumentsTab } from "@/components/dojo/account/DocumentsTab";
 
 export const Route = createFileRoute("/dojo/app/account")({
   head: () => ({ meta: [{ title: "Minha Conta — AMT Dojo Manager" }] }),
@@ -31,7 +32,7 @@ export const Route = createFileRoute("/dojo/app/account")({
 
 type TabKey =
   | "personal" | "academy" | "brand" | "subscription"
-  | "financial" | "security" | "notifications" | "sessions" | "integrations";
+  | "financial" | "documents" | "security" | "notifications" | "sessions" | "integrations";
 
 const TABS: { key: TabKey; label: string; icon: any }[] = [
   { key: "personal", label: "Dados Pessoais", icon: UserIcon },
@@ -39,11 +40,13 @@ const TABS: { key: TabKey; label: string; icon: any }[] = [
   { key: "brand", label: "Identidade Visual", icon: Palette },
   { key: "subscription", label: "Assinatura", icon: CreditCard },
   { key: "financial", label: "Financeiro", icon: Receipt },
+  { key: "documents", label: "Documentos", icon: Upload },
   { key: "security", label: "Segurança", icon: Shield },
   { key: "notifications", label: "Notificações", icon: Bell },
   { key: "sessions", label: "Sessões Ativas", icon: Monitor },
   { key: "integrations", label: "Integrações", icon: Plug },
 ];
+
 
 const PLACEMENTS: { key: string; label: string }[] = [
   { key: "certificates_graduation", label: "Certificados de graduação" },
@@ -294,6 +297,7 @@ function AccountPage() {
           {tab === "sessions" && (
             <SessionsTab user={user} onSignOutAll={signOutAll} />
           )}
+          {tab === "documents" && <DocumentsTab />}
           {tab === "integrations" && <IntegrationsTab />}
         </div>
       </div>
