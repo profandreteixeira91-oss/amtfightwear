@@ -36,6 +36,9 @@ import {
   Film,
   Smartphone,
   CreditCard,
+  Megaphone,
+  ShoppingBag,
+
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
