@@ -141,7 +141,7 @@ function AccountPage() {
       (academy?.legal_name || academy?.trade_name) &&
       academy?.cnpj &&
       academy?.email &&
-      academy?.phone &&
+      (academy?.whatsapp || academy?.phone) &&
       academy?.address &&
       academy?.address_number &&
       academy?.neighborhood &&
