@@ -70,6 +70,7 @@ export const saveDojoBelt = createServerFn({ method: "POST" })
     sort_order: z.number().int().min(0).max(999),
     max_degrees: z.number().int().min(0).max(20),
     category: z.string().max(30).optional().default("adult"),
+    min_months: z.number().int().min(0).max(240).nullable().optional(),
     scope: z.enum(["global", "own"]).default("own"),
   }).parse(i))
   .handler(async ({ data, context }) => {
