@@ -1,16 +1,17 @@
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Wallet, ArrowDownRight, ArrowUpRight, Landmark, TrendingUp, Clock, ShieldAlert, Plus } from "lucide-react";
+import { Wallet, ArrowDownRight, ArrowUpRight, Landmark, TrendingUp, Clock, ShieldAlert, Plus, RefreshCw, ExternalLink, AlertTriangle } from "lucide-react";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
 import {
   getWalletDashboard,
   getWalletChart,
   listWalletTransactions,
   getPrimaryBankAccount,
+  getGatewayCapabilities,
 } from "@/lib/dojo/amtpay.functions";
 import { BankAccountDialog } from "./BankAccountDialog";
 import { WithdrawDialog } from "./WithdrawDialog";
