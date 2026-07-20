@@ -91,6 +91,9 @@ const nav: { label: string; items: NavItem[] }[] = [
     label: "Loja",
     items: [
       { to: "/dojo/app/store", label: "AMT Store", icon: ShoppingBag },
+    ],
+  },
+
 
   {
     label: "Gestão",
