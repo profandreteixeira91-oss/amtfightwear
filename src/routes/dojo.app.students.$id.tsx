@@ -733,38 +733,8 @@ function StudentDetail() {
             </TabsContent>
           </Tabs>
         </main>
-
-        {/* ============ TIMELINE (direita) ============ */}
-        <aside className="lg:col-span-2 2xl:col-span-1 2xl:sticky 2xl:top-4 2xl:self-start">
-          <Card className="dojo-card">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-sm">
-                <Sparkles className="h-4 w-4 text-primary" /> Movimentação
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="max-h-[70vh] overflow-y-auto pt-0">
-              {timeline.length === 0 ? (
-                <EmptyState label="Sem eventos registrados." compact />
-              ) : (
-                <ol className="relative border-l-2 border-border pl-4">
-                  {timeline.slice(0, 30).map((ev, idx) => (
-                    <li key={idx} className="relative mb-4 last:mb-0">
-                      <span className="absolute -left-[21px] top-1 grid h-3 w-3 place-items-center rounded-full border-2 border-primary bg-card" />
-                      <div className="text-xs">
-                        <div className="flex items-center gap-1.5 font-medium">
-                          <ev.Icon className="h-3 w-3 text-primary" /> {ev.title}
-                        </div>
-                        {ev.description && <div className="mt-0.5 text-[11px] text-muted-foreground">{ev.description}</div>}
-                        <div className="mt-0.5 text-[10px] uppercase tracking-widest text-muted-foreground">{relativeTime(ev.date)}</div>
-                      </div>
-                    </li>
-                  ))}
-                </ol>
-              )}
-            </CardContent>
-          </Card>
-        </aside>
       </div>
+
 
       {/* ============ MOVIMENTAÇÃO (card horizontal, largura total) ============ */}
       <Card className="dojo-card">
