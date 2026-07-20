@@ -73,6 +73,9 @@ function AccountPage() {
   const [loading, setLoading] = useState(true);
   const [password, setPassword] = useState("");
   const [savingPwd, setSavingPwd] = useState(false);
+  const [snapshot, setSnapshot] = useState<string>("");
+  const currentSnap = JSON.stringify({ profile, academy, notifPrefs });
+  useUnsavedChanges(!loading && snapshot !== "" && snapshot !== currentSnap);
 
   useEffect(() => { void load(); }, []);
 
