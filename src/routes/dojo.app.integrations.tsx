@@ -28,7 +28,7 @@ import { testIntegrationConnection, getIntegrationsMetrics, getMyOwnerId } from 
 import { autoProvisionApiSuite } from "@/lib/dojo/apis.functions";
 
 export const Route = createFileRoute("/dojo/app/integrations")({
-  head: () => ({ meta: [{ title: "Central de Integrações — AMT Dojo Manager" }] }),
+  head: () => ({ meta: [{ title: "AMT Pay — Central financeira" }] }),
   component: IntegrationsHub,
   errorComponent: ({ error }) => <div className="p-6 text-red-500">{error.message}</div>,
   notFoundComponent: () => <div className="p-6">Não encontrado</div>,
