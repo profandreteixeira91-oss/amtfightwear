@@ -149,54 +149,95 @@ export const createMyAsaasSubaccount = createServerFn({ method: "POST" })
     if (profileErr) throw new Error(profileErr.message);
     if (!profile) throw new Error("Perfil do dojo não encontrado. Complete os dados fiscais primeiro.");
 
-    if (profile.asaas_subaccount_id) {
+    const p = profile as Record<string, unknown> & {
+      asaas_subaccount_id?: string | null;
+      asaas_wallet_id?: string | null;
+      asaas_onboarding_url?: string | null;
+      asaas_onboarding_status?: string | null;
+      legal_name?: string | null;
+      trade_name?: string | null;
+      cnpj?: string | null;
+      email?: string | null;
+      phone?: string | null;
+      whatsapp?: string | null;
+      address?: string | null;
+      city?: string | null;
+      state?: string | null;
+      zip?: string | null;
+      address_number?: string | null;
+      address_complement?: string | null;
+      neighborhood?: string | null;
+      company_type?: string | null;
+      monthly_income?: number | null;
+      birth_date?: string | null;
+    };
+
+    if (p.asaas_subaccount_id) {
       return {
         ok: true as const,
         alreadyExists: true,
-        subaccountId: profile.asaas_subaccount_id,
-        walletId: profile.asaas_wallet_id,
-        onboardingUrl: profile.asaas_onboarding_url,
-        onboardingStatus: profile.asaas_onboarding_status,
+        subaccountId: p.asaas_subaccount_id,
+        walletId: p.asaas_wallet_id ?? null,
+        onboardingUrl: p.asaas_onboarding_url ?? null,
+        onboardingStatus: p.asaas_onboarding_status ?? "pending",
       };
     }
 
+    // Merge input com perfil (input tem prioridade e será salvo no perfil depois)
+    const addressNumber = data.addressNumber ?? p.address_number ?? null;
+    const province = data.province ?? p.neighborhood ?? null;
+    const complement = data.complement ?? p.address_complement ?? undefined;
+    const companyType = (data.companyType ?? (p.company_type as typeof data.companyType | null)) ?? undefined;
+    const incomeValue = data.incomeValue ?? (typeof p.monthly_income === "number" ? p.monthly_income : undefined);
+    const birthDate = data.birthDate ?? (p.birth_date ? String(p.birth_date).slice(0, 10) : undefined);
+    const mobilePhone = data.mobilePhone ?? (p.whatsapp ? String(p.whatsapp) : undefined);
+
     // Validações mínimas
     const missing: string[] = [];
-    if (!profile.legal_name && !profile.trade_name) missing.push("Nome / Razão social");
-    if (!profile.cnpj) missing.push("CPF/CNPJ");
-    if (!profile.email) missing.push("E-mail");
-    if (!profile.address) missing.push("Endereço");
-    if (!profile.city) missing.push("Cidade");
-    if (!profile.state) missing.push("Estado (UF)");
-    if (!profile.zip) missing.push("CEP");
-    if (!data.addressNumber) missing.push("Número do endereço");
-    if (!data.province) missing.push("Bairro");
+    if (!p.legal_name && !p.trade_name) missing.push("Nome / Razão social");
+    if (!p.cnpj) missing.push("CPF/CNPJ");
+    if (!p.email) missing.push("E-mail");
+    if (!p.address) missing.push("Endereço");
+    if (!p.city) missing.push("Cidade");
+    if (!p.state) missing.push("Estado (UF)");
+    if (!p.zip) missing.push("CEP");
+    if (!addressNumber) missing.push("Número do endereço");
+    if (!province) missing.push("Bairro");
     if (missing.length) {
       throw new Error(`Campos obrigatórios ausentes: ${missing.join(", ")}`);
     }
 
-    const cpfCnpj = String(profile.cnpj).replace(/\D/g, "");
-    const zip = String(profile.zip).replace(/\D/g, "");
+    const cpfCnpj = String(p.cnpj).replace(/\D/g, "");
+    const zip = String(p.zip).replace(/\D/g, "");
     const isCpf = cpfCnpj.length === 11;
+
+    // Persiste os dados fornecidos no perfil (para próximas ativações serem 1-clique)
+    await context.supabase
+      .from("dojo_academy_profile")
+      .update({
+        address_number: addressNumber,
+        address_complement: complement ?? null,
+        neighborhood: province,
+        company_type: companyType ?? null,
+        monthly_income: incomeValue ?? null,
+        birth_date: birthDate ?? null,
+      } as never)
+      .eq("owner_id", context.userId);
 
     // Criar subconta no Asaas
     const subaccount = await asaasCreateSubaccount({
-      name: String(profile.legal_name || profile.trade_name),
-      email: String(profile.email),
+      name: String(p.legal_name || p.trade_name),
+      email: String(p.email),
       cpfCnpj,
-      birthDate: isCpf ? data.birthDate : undefined,
-      companyType: !isCpf ? data.companyType || "MEI" : undefined,
-      phone: profile.phone ? String(profile.phone).replace(/\D/g, "") : undefined,
-      mobilePhone: data.mobilePhone
-        ? data.mobilePhone.replace(/\D/g, "")
-        : profile.whatsapp
-          ? String(profile.whatsapp).replace(/\D/g, "")
-          : undefined,
-      incomeValue: data.incomeValue,
-      address: String(profile.address),
-      addressNumber: data.addressNumber!,
-      complement: data.complement,
-      province: data.province!,
+      birthDate: isCpf ? birthDate : undefined,
+      companyType: !isCpf ? (companyType || "MEI") : undefined,
+      phone: p.phone ? String(p.phone).replace(/\D/g, "") : undefined,
+      mobilePhone: mobilePhone ? mobilePhone.replace(/\D/g, "") : undefined,
+      incomeValue: incomeValue ?? 5000,
+      address: String(p.address),
+      addressNumber: addressNumber!,
+      complement,
+      province: province!,
       postalCode: zip,
       externalReference: `dojo:${context.userId}`,
     });
