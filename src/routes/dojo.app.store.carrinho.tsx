@@ -166,14 +166,52 @@ function CartPage() {
                 </button>
               </div>
               <div className="mt-auto flex items-center justify-between gap-2 pt-2">
-                <div className="flex items-center rounded-md border">
+                <div className="flex items-center rounded-md border overflow-hidden">
                   {(() => {
-                    const q = localQty[it.id] ?? it.quantity;
+                    const q = it.quantity;
+                    const shown = draft[it.id] ?? String(q);
                     return (
                       <>
-                        <button type="button" className="px-2 py-1 text-base" onClick={() => bumpQty(it.id, q, -1)}>−</button>
-                        <div className="w-8 text-center text-sm tabular-nums">{q}</div>
-                        <button type="button" className="px-2 py-1 text-base" onClick={() => bumpQty(it.id, q, +1)}>+</button>
+                        <button
+                          type="button"
+                          className="px-3 py-1.5 text-base hover:bg-muted active:bg-muted/70 transition-colors"
+                          onClick={() => commitQty(it.id, q - 1)}
+                          aria-label="Diminuir"
+                        >
+                          −
+                        </button>
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          className="w-12 border-x bg-transparent py-1.5 text-center text-sm tabular-nums outline-none focus:bg-muted/40"
+                          value={shown}
+                          onChange={(e) => {
+                            const raw = e.target.value.replace(/[^0-9]/g, "").slice(0, 3);
+                            setDraft((s) => ({ ...s, [it.id]: raw }));
+                            const parsed = parseInt(raw, 10);
+                            if (!Number.isNaN(parsed) && parsed >= 1) {
+                              commitQty(it.id, parsed);
+                            }
+                          }}
+                          onBlur={() => {
+                            setDraft((s) => {
+                              const { [it.id]: _, ...rest } = s;
+                              return rest;
+                            });
+                            const parsed = parseInt(shown, 10);
+                            if (!parsed || parsed < 1) commitQty(it.id, 1);
+                          }}
+                          aria-label="Quantidade"
+                        />
+                        <button
+                          type="button"
+                          className="px-3 py-1.5 text-base hover:bg-muted active:bg-muted/70 transition-colors"
+                          onClick={() => commitQty(it.id, q + 1)}
+                          aria-label="Aumentar"
+                        >
+                          +
+                        </button>
                       </>
                     );
                   })()}
