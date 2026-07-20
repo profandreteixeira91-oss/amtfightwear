@@ -227,6 +227,29 @@ export function AsaasOnboardingCard() {
                   split automático para esta wallet.
                 </AlertDescription>
               </Alert>
+              <div className="flex gap-2 flex-wrap">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    if (
+                      confirm(
+                        "Desvincular a conta Asaas atual? Você poderá vincular outra wallet ou criar uma nova subconta em seguida.",
+                      )
+                    ) {
+                      reset.mutate();
+                    }
+                  }}
+                  disabled={reset.isPending}
+                >
+                  {reset.isPending ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <RotateCcw className="h-4 w-4 mr-2" />
+                  )}
+                  Desvincular conta
+                </Button>
+              </div>
             </>
           ) : hasSubaccount ? (
             <>
@@ -285,8 +308,30 @@ export function AsaasOnboardingCard() {
                     </a>
                   </Button>
                 )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    if (
+                      confirm(
+                        "Redefinir a configuração do AMT Pay? Use esta opção se você encerrou a subconta no Asaas ou quer começar do zero. Cobranças já emitidas não serão afetadas.",
+                      )
+                    ) {
+                      reset.mutate();
+                    }
+                  }}
+                  disabled={reset.isPending}
+                >
+                  {reset.isPending ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <RotateCcw className="h-4 w-4 mr-2" />
+                  )}
+                  Redefinir configuração
+                </Button>
               </div>
             </>
+
           ) : missingProfile.length > 0 ? (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
