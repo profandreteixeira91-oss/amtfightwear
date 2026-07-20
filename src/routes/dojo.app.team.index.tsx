@@ -243,11 +243,9 @@ function TeamPage() {
           </SelectContent>
         </Select>
         <Button variant="outline" asChild>
-          <Link to="/dojo/app/team/payroll">Folha de pagamento</Link>
+          <Link to="/dojo/app/team/schedules">Escalas</Link>
         </Button>
-        <Button variant="outline" asChild>
-          <Link to="/dojo/app/team/attendance">Ponto</Link>
-        </Button>
+
       </div>
 
       {/* List */}
