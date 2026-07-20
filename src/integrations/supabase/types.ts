@@ -5557,6 +5557,477 @@ export type Database = {
         }
         Relationships: []
       }
+      dojo_team_attendance: {
+        Row: {
+          break_minutes: number
+          clock_in: string | null
+          clock_out: string | null
+          created_at: string
+          hours_worked: number | null
+          id: string
+          justification: string | null
+          member_id: string
+          owner_id: string
+          status: string
+          updated_at: string
+          work_date: string
+        }
+        Insert: {
+          break_minutes?: number
+          clock_in?: string | null
+          clock_out?: string | null
+          created_at?: string
+          hours_worked?: number | null
+          id?: string
+          justification?: string | null
+          member_id: string
+          owner_id: string
+          status?: string
+          updated_at?: string
+          work_date: string
+        }
+        Update: {
+          break_minutes?: number
+          clock_in?: string | null
+          clock_out?: string | null
+          created_at?: string
+          hours_worked?: number | null
+          id?: string
+          justification?: string | null
+          member_id?: string
+          owner_id?: string
+          status?: string
+          updated_at?: string
+          work_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_team_attendance_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_team_documents: {
+        Row: {
+          archived_at: string | null
+          created_at: string
+          file_size: number | null
+          file_url: string
+          id: string
+          kind: string
+          member_id: string
+          mime_type: string | null
+          notes: string | null
+          owner_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          archived_at?: string | null
+          created_at?: string
+          file_size?: number | null
+          file_url: string
+          id?: string
+          kind?: string
+          member_id: string
+          mime_type?: string | null
+          notes?: string | null
+          owner_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          archived_at?: string | null
+          created_at?: string
+          file_size?: number | null
+          file_url?: string
+          id?: string
+          kind?: string
+          member_id?: string
+          mime_type?: string | null
+          notes?: string | null
+          owner_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_team_documents_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_team_history: {
+        Row: {
+          actor_user_id: string | null
+          after_data: Json | null
+          before_data: Json | null
+          created_at: string
+          description: string
+          event_type: string
+          id: string
+          member_id: string
+          owner_id: string
+        }
+        Insert: {
+          actor_user_id?: string | null
+          after_data?: Json | null
+          before_data?: Json | null
+          created_at?: string
+          description: string
+          event_type: string
+          id?: string
+          member_id: string
+          owner_id: string
+        }
+        Update: {
+          actor_user_id?: string | null
+          after_data?: Json | null
+          before_data?: Json | null
+          created_at?: string
+          description?: string
+          event_type?: string
+          id?: string
+          member_id?: string
+          owner_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_team_history_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_team_members: {
+        Row: {
+          address_complement: string | null
+          address_neighborhood: string | null
+          address_number: string | null
+          address_street: string | null
+          admission_date: string | null
+          belt_grade: number | null
+          belt_id: string | null
+          biography: string | null
+          birth_date: string | null
+          city: string | null
+          cpf: string | null
+          created_at: string
+          email: string | null
+          full_name: string
+          gender: string | null
+          id: string
+          legacy_unit_id: string | null
+          marital_status: string | null
+          mini_resume: string | null
+          modalities: Json
+          notes: string | null
+          owner_id: string
+          phone: string | null
+          photo_url: string | null
+          professional_photo_url: string | null
+          professional_registry: string | null
+          rg: string | null
+          role: string
+          specialties: string | null
+          state: string | null
+          status: string
+          termination_date: string | null
+          updated_at: string
+          user_id: string | null
+          whatsapp: string | null
+          zip_code: string | null
+        }
+        Insert: {
+          address_complement?: string | null
+          address_neighborhood?: string | null
+          address_number?: string | null
+          address_street?: string | null
+          admission_date?: string | null
+          belt_grade?: number | null
+          belt_id?: string | null
+          biography?: string | null
+          birth_date?: string | null
+          city?: string | null
+          cpf?: string | null
+          created_at?: string
+          email?: string | null
+          full_name: string
+          gender?: string | null
+          id?: string
+          legacy_unit_id?: string | null
+          marital_status?: string | null
+          mini_resume?: string | null
+          modalities?: Json
+          notes?: string | null
+          owner_id: string
+          phone?: string | null
+          photo_url?: string | null
+          professional_photo_url?: string | null
+          professional_registry?: string | null
+          rg?: string | null
+          role?: string
+          specialties?: string | null
+          state?: string | null
+          status?: string
+          termination_date?: string | null
+          updated_at?: string
+          user_id?: string | null
+          whatsapp?: string | null
+          zip_code?: string | null
+        }
+        Update: {
+          address_complement?: string | null
+          address_neighborhood?: string | null
+          address_number?: string | null
+          address_street?: string | null
+          admission_date?: string | null
+          belt_grade?: number | null
+          belt_id?: string | null
+          biography?: string | null
+          birth_date?: string | null
+          city?: string | null
+          cpf?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          gender?: string | null
+          id?: string
+          legacy_unit_id?: string | null
+          marital_status?: string | null
+          mini_resume?: string | null
+          modalities?: Json
+          notes?: string | null
+          owner_id?: string
+          phone?: string | null
+          photo_url?: string | null
+          professional_photo_url?: string | null
+          professional_registry?: string | null
+          rg?: string | null
+          role?: string
+          specialties?: string | null
+          state?: string | null
+          status?: string
+          termination_date?: string | null
+          updated_at?: string
+          user_id?: string | null
+          whatsapp?: string | null
+          zip_code?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_team_members_belt_id_fkey"
+            columns: ["belt_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_belts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_team_members_legacy_unit_id_fkey"
+            columns: ["legacy_unit_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_team_payments: {
+        Row: {
+          amount: number
+          classes_count: number | null
+          created_at: string
+          description: string | null
+          due_date: string | null
+          hours_worked: number | null
+          id: string
+          kind: string
+          member_id: string
+          notes: string | null
+          owner_id: string
+          paid_at: string | null
+          payment_method: string | null
+          reference_month: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          classes_count?: number | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          hours_worked?: number | null
+          id?: string
+          kind?: string
+          member_id: string
+          notes?: string | null
+          owner_id: string
+          paid_at?: string | null
+          payment_method?: string | null
+          reference_month?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          classes_count?: number | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          hours_worked?: number | null
+          id?: string
+          kind?: string
+          member_id?: string
+          notes?: string | null
+          owner_id?: string
+          paid_at?: string | null
+          payment_method?: string | null
+          reference_month?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_team_payments_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_team_payroll_config: {
+        Row: {
+          bank_account: string | null
+          bank_agency: string | null
+          bank_name: string | null
+          base_salary: number | null
+          commission_on_enrollment: number | null
+          commission_on_renewal: number | null
+          commission_on_sale: number | null
+          commission_percent: number | null
+          created_at: string
+          hourly_rate: number | null
+          id: string
+          member_id: string
+          notes: string | null
+          owner_id: string
+          payment_type: string
+          per_class_rate: number | null
+          pix_key: string | null
+          pix_key_type: string | null
+          tax_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          bank_account?: string | null
+          bank_agency?: string | null
+          bank_name?: string | null
+          base_salary?: number | null
+          commission_on_enrollment?: number | null
+          commission_on_renewal?: number | null
+          commission_on_sale?: number | null
+          commission_percent?: number | null
+          created_at?: string
+          hourly_rate?: number | null
+          id?: string
+          member_id: string
+          notes?: string | null
+          owner_id: string
+          payment_type?: string
+          per_class_rate?: number | null
+          pix_key?: string | null
+          pix_key_type?: string | null
+          tax_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          bank_account?: string | null
+          bank_agency?: string | null
+          bank_name?: string | null
+          base_salary?: number | null
+          commission_on_enrollment?: number | null
+          commission_on_renewal?: number | null
+          commission_on_sale?: number | null
+          commission_percent?: number | null
+          created_at?: string
+          hourly_rate?: number | null
+          id?: string
+          member_id?: string
+          notes?: string | null
+          owner_id?: string
+          payment_type?: string
+          per_class_rate?: number | null
+          pix_key?: string | null
+          pix_key_type?: string | null
+          tax_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_team_payroll_config_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: true
+            referencedRelation: "dojo_team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_team_signatures: {
+        Row: {
+          belt_label: string | null
+          can_sign_certificates: boolean
+          created_at: string
+          display_name: string
+          id: string
+          member_id: string
+          owner_id: string
+          role_label: string | null
+          signature_url: string
+          updated_at: string
+        }
+        Insert: {
+          belt_label?: string | null
+          can_sign_certificates?: boolean
+          created_at?: string
+          display_name: string
+          id?: string
+          member_id: string
+          owner_id: string
+          role_label?: string | null
+          signature_url: string
+          updated_at?: string
+        }
+        Update: {
+          belt_label?: string | null
+          can_sign_certificates?: boolean
+          created_at?: string
+          display_name?: string
+          id?: string
+          member_id?: string
+          owner_id?: string
+          role_label?: string | null
+          signature_url?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_team_signatures_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: true
+            referencedRelation: "dojo_team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dojo_units: {
         Row: {
           active: boolean
