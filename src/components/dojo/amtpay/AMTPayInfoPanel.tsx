@@ -77,7 +77,7 @@ export function AMTPayInfoPanel() {
                   Taxa da plataforma AMT
                 </div>
                 <div className="text-2xl font-bold tracking-tight mt-0.5">
-                  5,00% <span className="text-sm font-normal text-muted-foreground">por transação aprovada</span>
+                  2,00% <span className="text-sm font-normal text-muted-foreground">por transação aprovada</span>
                 </div>
               </div>
               <Badge variant="secondary" className="shrink-0">Split automático</Badge>
@@ -137,7 +137,7 @@ export function AMTPayInfoPanel() {
             <p>
               <strong>Transparência total:</strong> cada cobrança gera um
               lançamento no extrato indicando o valor bruto, a taxa do meio
-              de pagamento (Asaas) e o split de 5% da AMT. O valor líquido é
+              de pagamento (Asaas) e o split de 2% da AMT. O valor líquido é
               o que fica na sua carteira.
             </p>
           </div>
@@ -189,7 +189,7 @@ export function AMTPayInfoPanel() {
             <SecItem icon={ShieldCheck} title="Split contábil isolado">
               O dinheiro dos seus alunos entra na subconta bancária em nome
               do seu dojo. A AMT <strong>não movimenta</strong> o saldo — só
-              recebe a taxa de 5% via split automático.
+              recebe a taxa de 2% via split automático.
             </SecItem>
             <SecItem icon={Wallet} title="Saques só para conta titular">
               Transferências e PIX só são liberados para contas bancárias

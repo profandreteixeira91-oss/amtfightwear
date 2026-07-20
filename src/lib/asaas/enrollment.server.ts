@@ -151,34 +151,33 @@ export async function ensureAsaasCustomerForStudent(
 
 /**
  * Resolve a API key + split a usar para as cobranças de um dojo.
- * - Se o dojo tem subconta Asaas (`asaas_api_key_encrypted`): usa a chave da
- *   subconta e aplica split de 5% para a wallet AMT.
- * - Se vinculou conta existente: usa a conta AMT central e envia 95% para a
- *   wallet do dojo, mantendo 5% na operação AMT.
+ *
+ * - Se criou subconta: usa a API key da subconta (`asaas_subaccount_api_key`)
+ *   e aplica split de 2% para a wallet AMT.
+ * - Se vinculou conta existente: usa a conta AMT central e envia 98% para a
+ *   wallet do dojo, mantendo 2% na operação AMT.
  */
 export function resolveDojoAsaasCredentials(profile: {
-  asaas_api_key_encrypted?: string | null;
+  asaas_subaccount_api_key?: string | null;
   asaas_wallet_id?: string | null;
 }): { apiKey: string | undefined; split: AsaasSplit[]; mode: "subaccount" | "linked_wallet" } {
-  const subaccountKey = profile?.asaas_api_key_encrypted ?? null;
+  const subaccountKey = profile.asaas_subaccount_api_key?.trim();
   if (subaccountKey) {
-    const walletId = process.env.ASAAS_WALLET_ID_AMT;
+    const walletId = process.env.ASAAS_WALLET_ID_AMT?.trim();
     const split: AsaasSplit[] = walletId
-      ? [{ walletId, percentualValue: 5 }]
+      ? [{ walletId, percentualValue: 2 }]
       : [];
     return { apiKey: subaccountKey, split, mode: "subaccount" };
   }
 
-  const dojoWalletId = profile?.asaas_wallet_id ?? null;
+  const dojoWalletId = profile.asaas_wallet_id?.trim();
   if (!dojoWalletId) {
-    throw new Error(
-      "AMT Pay não está ativado. Vincule sua conta Asaas pela wallet ID antes de gerar cobranças.",
-    );
+    return { apiKey: undefined, split: [], mode: "linked_wallet" };
   }
 
   return {
-    apiKey: undefined,
-    split: [{ walletId: dojoWalletId, percentualValue: 95 }],
+    apiKey: process.env.ASAAS_PRODUCTION_API_KEY,
+    split: [{ walletId: dojoWalletId, percentualValue: 98 }],
     mode: "linked_wallet",
   };
 }
