@@ -21,7 +21,31 @@ export const listMyAnnouncements = createServerFn({ method: "GET" })
   )
   .handler(async ({ data, context }) => {
     const studentId = await currentStudent(context.supabase);
-    if (!studentId) return { items: [], student_id: null };
+
+    // Fallback: quando o usuário logado NÃO é aluno (ex.: o próprio dono
+    // testando o app do aluno), ainda listamos os avisos publicados do
+    // owner_id = auth.uid(), para que o Quadro de Avisos apareça.
+    if (!studentId) {
+      let q = context.supabase
+        .from("dojo_announcements")
+        .select("*, category:dojo_announcement_categories(id, name, color, icon)")
+        .eq("owner_id", context.userId)
+        .eq("status", "published")
+        .lte("publish_at", new Date().toISOString())
+        .order("pinned", { ascending: false })
+        .order("priority", { ascending: false })
+        .order("publish_at", { ascending: false });
+      if (data.q) q = q.ilike("title", `%${data.q}%`);
+      if (data.category_id) q = q.eq("category_id", data.category_id);
+      if (data.priority && data.priority !== "all") q = q.eq("priority", data.priority);
+      const { data: rows } = await q;
+      const nowIso = new Date().toISOString();
+      let items = (rows ?? [])
+        .filter((r: any) => !r.expires_at || r.expires_at > nowIso)
+        .map((r: any) => ({ ...r, is_read: false, is_liked: false }));
+      if (data.filter === "featured") items = items.filter((r: any) => r.featured || r.pinned);
+      return { items, student_id: null, categoryCount: items.length };
+    }
 
     // Get all owner-scoped published announcements the RLS allows
     let q = context.supabase
