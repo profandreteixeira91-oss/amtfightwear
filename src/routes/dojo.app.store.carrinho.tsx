@@ -37,9 +37,37 @@ function CartPage() {
   const { data, isLoading } = useQuery({ queryKey: ["dojo-store", "cart"], queryFn: () => getFn() });
   const refresh = () => qc.invalidateQueries({ queryKey: ["dojo-store", "cart"] });
 
-  const upd = useMutation({ mutationFn: (v: { id: string; quantity: number }) => updFn({ data: v }), onSuccess: refresh });
+  const upd = useMutation({
+    mutationFn: (v: { id: string; quantity: number }) => updFn({ data: v }),
+    onSuccess: refresh,
+  });
   const rm = useMutation({ mutationFn: (id: string) => rmFn({ data: { id } }), onSuccess: refresh });
   const clr = useMutation({ mutationFn: () => clrFn(), onSuccess: refresh });
+
+  // Optimistic local quantities: keep server in sync via debounced flush.
+  const [localQty, setLocalQty] = useState<Record<string, number>>({});
+  const timers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  useEffect(() => () => { Object.values(timers.current).forEach(clearTimeout); }, []);
+
+  const bumpQty = (id: string, current: number, delta: number) => {
+    const next = Math.max(1, current + delta);
+    if (next === current) return;
+    setLocalQty((s) => ({ ...s, [id]: next }));
+    if (timers.current[id]) clearTimeout(timers.current[id]);
+    timers.current[id] = setTimeout(() => {
+      upd.mutate(
+        { id, quantity: next },
+        {
+          onSettled: () => {
+            setLocalQty((s) => {
+              const { [id]: _, ...rest } = s;
+              return rest;
+            });
+          },
+        },
+      );
+    }, 350);
+  };
 
   const [cep, setCep] = useState("");
   const [options, setOptions] = useState<ShipOption[]>([]);
