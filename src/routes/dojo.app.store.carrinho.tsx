@@ -81,10 +81,11 @@ function CartPage() {
     mutationFn: () => handoffFn(),
     onSuccess: (r: any) => {
       // Subdomínios diferentes (dojomanager x loja) não compartilham
-      // localStorage, então o carrinho é enviado via URL para a rota
-      // /loja/carrinho, que faz o import e segue para /loja/checkout.
-      // O frete é calculado lá no checkout oficial.
-      const payload = { items: r.items };
+      // localStorage — enviamos itens + frete via URL para /loja/carrinho,
+      // que grava a seleção no sessionStorage e segue para /loja/checkout.
+      const payload: Record<string, unknown> = { items: r.items };
+      if (shipping) payload.shipping = shipping;
+      if (shipZip) payload.zip = shipZip;
       const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
       refresh();
       const url = `https://loja.amtfightwear.com.br/loja/carrinho?checkout=1&import=${encodeURIComponent(b64)}`;
@@ -92,11 +93,12 @@ function CartPage() {
       if (!win) {
         toast.error("Ative pop-ups para abrir o checkout ou clique novamente.");
       } else {
-        toast.success("Checkout aberto em nova janela. O frete será calculado lá.");
+        toast.success(shipping ? "Checkout aberto com o frete escolhido." : "Checkout aberto em nova janela.");
       }
     },
     onError: (e: any) => toast.error(e?.message ?? "Falha ao finalizar"),
   });
+
 
   if (isLoading) return <div className="text-sm text-muted-foreground">Carregando…</div>;
   if (!data?.items.length) {
