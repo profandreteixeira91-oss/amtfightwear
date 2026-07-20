@@ -111,6 +111,19 @@ export function AsaasOnboardingCard() {
     mobilePhone: "",
   });
   const [pixKey, setPixKey] = useState("");
+  const [existingWalletId, setExistingWalletId] = useState("");
+  const [showLinkExisting, setShowLinkExisting] = useState(false);
+
+  const linkExisting = useMutation({
+    mutationFn: (walletId: string) => linkFn({ data: { walletId } }),
+    onSuccess: () => {
+      toast.success("Conta Asaas existente vinculada com sucesso!");
+      setExistingWalletId("");
+      setShowLinkExisting(false);
+      qc.invalidateQueries({ queryKey: ["asaas-config"] });
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
 
   if (cfg.isLoading) {
     return (
