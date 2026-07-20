@@ -578,10 +578,32 @@ function OnboardingPage() {
 
           {/* Documentos */}
           <Section title="Documentos obrigatórios" description="Envie fotos ou PDFs legíveis (até 10 MB cada). Comprovante de endereço só é solicitado se a análise do Asaas pedir depois.">
+            <label className="mb-3 flex items-start gap-3 rounded-xl border border-black/10 bg-black/[0.02] p-3 text-sm text-black/70">
+              <Checkbox
+                checked={useCnhDigital}
+                onCheckedChange={(v) => {
+                  const next = !!v;
+                  setUseCnhDigital(next);
+                  if (next && docs.identity_back) handleRemoveDoc("identity_back");
+                }}
+              />
+              <span>
+                <b>Tenho CNH Digital.</b> Vou enviar o <b>PDF original</b> baixado do app Carteira Digital de Trânsito
+                (um único arquivo). Dispensa o envio do verso.
+              </span>
+            </label>
             <div className="grid gap-3 md:grid-cols-2">
               {requiredDocs.map((docType) => {
                 const isRequired = requiredDocs.includes(docType);
                 const has = !!docs[docType];
+                const label =
+                  docType === "identity_front" && useCnhDigital
+                    ? "CNH Digital (PDF único)"
+                    : DOC_LABELS[docType];
+                const accept =
+                  docType === "identity_front" && useCnhDigital
+                    ? "application/pdf"
+                    : "image/*,application/pdf";
                 return (
                   <div
                     key={docType}
@@ -590,8 +612,12 @@ function OnboardingPage() {
                     <div className="flex items-center justify-between gap-2">
                       <div className="min-w-0">
                         <div className="text-sm font-medium truncate">
-                          {DOC_LABELS[docType]} {isRequired && <span className="text-[#C1121F]">*</span>}
+                          {label} {isRequired && <span className="text-[#C1121F]">*</span>}
                         </div>
+                        <div className="text-[11px] text-black/50">
+                          {has ? "Enviado" : "Nenhum arquivo enviado"}
+                        </div>
+                      </div>
                         <div className="text-[11px] text-black/50">
                           {has ? "Enviado" : "Nenhum arquivo enviado"}
                         </div>
