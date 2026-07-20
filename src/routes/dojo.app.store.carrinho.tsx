@@ -8,14 +8,12 @@ import {
   dsClearCart,
   dsHandoffToStoreCheckout,
 } from "@/lib/dojo/store/store.functions";
-import { calculateShipping } from "@/lib/store/shipping.functions";
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Trash2, ShoppingBag, Truck, ArrowRight } from "lucide-react";
+import { Trash2, ShoppingBag, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export const Route = createFileRoute("/dojo/app/store/carrinho")({ component: CartPage });
 
