@@ -228,6 +228,17 @@ export const CONFIG_LABELS: Record<keyof PaymentMethodConfig, string> = {
   cash_discount_pct: "Desconto à vista (%)",
 };
 
+/**
+ * Métodos aceitos pelo Asaas (gateway centralizado do AMT Pay).
+ * Somente estes aparecem como opção nas Regras de Planos.
+ */
+export const ASAAS_SUPPORTED_METHODS: PaymentMethodCode[] = [
+  "pix",
+  "boleto",
+  "credit_card",
+];
+
+
 export function findPaymentMethod(code: PaymentMethodCode | string | undefined) {
   if (!code) return undefined;
   return PAYMENT_METHODS.find((m) => m.code === code);

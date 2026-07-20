@@ -5,18 +5,17 @@ import { useEffect, useMemo, useState } from "react";
 import { listDojoPlans, saveDojoPlan, deleteDojoPlan, listDojoUnits } from "@/lib/dojo/dojo.functions";
 import {
   PAYMENT_METHODS,
-  GATEWAY_LABELS,
-  CONFIG_LABELS,
-  FREQUENCY_LABELS,
-  FREQUENCY_MONTHS,
+  ASAAS_SUPPORTED_METHODS,
   defaultPlanPaymentMethods,
   defaultPlanRules,
   normalizePlanPaymentMethods,
   type PlanPaymentMethod,
   type PlanRules,
   type PlanFrequency,
+  FREQUENCY_LABELS,
+  FREQUENCY_MONTHS,
+  CONFIG_LABELS,
   type PaymentMethodConfig,
-  type GatewayCode,
 } from "@/lib/dojo/payment-methods";
 import { DojoPageShell } from "@/components/dojo/DojoPageShell";
 import { Button } from "@/components/ui/button";
@@ -458,8 +457,14 @@ function PlansPage() {
                     Somente os métodos habilitados aqui aparecerão nas cobranças geradas pelo Financeiro
                     para alunos com este plano.
                   </p>
+                  <div className="mb-3 rounded-md border border-primary/20 bg-primary/[0.04] px-3 py-2 text-[11px] text-muted-foreground">
+                    Todas as cobranças deste plano são processadas pelo <strong>AMT Pay (Asaas)</strong>.
+                    Apenas os métodos aceitos pelo gateway são exibidos abaixo.
+                  </div>
                   <div className="grid gap-3 md:grid-cols-2">
-                    {PAYMENT_METHODS.map((def) => {
+                    {PAYMENT_METHODS.filter((def) =>
+                      ASAAS_SUPPORTED_METHODS.includes(def.code),
+                    ).map((def) => {
                       const state = form.payment_methods.find((m) => m.code === def.code)!;
                       const Icon = def.icon;
                       return (
@@ -488,69 +493,50 @@ function PlansPage() {
                                 <div className="truncate text-sm font-medium">{def.label}</div>
                                 {state.enabled && (
                                   <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                                    Gateway: {GATEWAY_LABELS[state.gateway ?? "manual"]}
+                                    Processado por Asaas
                                   </div>
                                 )}
                               </div>
                             </div>
                             <Switch
                               checked={state.enabled}
-                              onCheckedChange={(v) => patchMethod(def.code, { enabled: v })}
+                              onCheckedChange={(v) =>
+                                patchMethod(def.code, { enabled: v, gateway: "asaas" })
+                              }
                             />
                           </div>
 
-                          {state.enabled && (
+                          {state.enabled && def.configFields.length > 0 && (
                             <div className="mt-3 space-y-2 border-t border-dashed pt-3">
-                              <div>
-                                <Label className="text-[11px] text-muted-foreground">Gateway</Label>
-                                <Select
-                                  value={state.gateway ?? "manual"}
-                                  onValueChange={(v) =>
-                                    patchMethod(def.code, { gateway: v as GatewayCode })
-                                  }
-                                >
-                                  <SelectTrigger className="h-8">
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {def.gateways.map((g) => (
-                                      <SelectItem key={g} value={g}>
-                                        {GATEWAY_LABELS[g]}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
+                              <div className="grid grid-cols-2 gap-2">
+                                {def.configFields.map((k) => (
+                                  <div key={k}>
+                                    <Label className="text-[11px] text-muted-foreground">
+                                      {CONFIG_LABELS[k]}
+                                    </Label>
+                                    <Input
+                                      type="number"
+                                      step="0.01"
+                                      className="h-8"
+                                      value={(state.config?.[k] as any) ?? ""}
+                                      onChange={(e) =>
+                                        patchMethodConfig(
+                                          def.code,
+                                          k,
+                                          e.target.value === "" ? undefined : Number(e.target.value),
+                                        )
+                                      }
+                                    />
+                                  </div>
+                                ))}
                               </div>
-                              {def.configFields.length > 0 && (
-                                <div className="grid grid-cols-2 gap-2">
-                                  {def.configFields.map((k) => (
-                                    <div key={k}>
-                                      <Label className="text-[11px] text-muted-foreground">
-                                        {CONFIG_LABELS[k]}
-                                      </Label>
-                                      <Input
-                                        type="number"
-                                        step="0.01"
-                                        className="h-8"
-                                        value={(state.config?.[k] as any) ?? ""}
-                                        onChange={(e) =>
-                                          patchMethodConfig(
-                                            def.code,
-                                            k,
-                                            e.target.value === "" ? undefined : Number(e.target.value),
-                                          )
-                                        }
-                                      />
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
                             </div>
                           )}
                         </div>
                       );
                     })}
                   </div>
+
                 </SectionCard>
 
                 {/* Regras */}
