@@ -47,6 +47,15 @@ function CheckoutPage() {
 
   useEffect(() => {
     setMounted(true);
+    // Restaura frete + CEP pré-selecionados no carrinho.
+    try {
+      const raw = sessionStorage.getItem("amt-checkout-shipping");
+      if (raw) {
+        const parsed = JSON.parse(raw) as { zip?: string; option?: ShippingOption };
+        if (parsed.option) setShipping(parsed.option);
+        if (parsed.zip) setForm((f) => ({ ...f, zip: parsed.zip! }));
+      }
+    } catch { /* ignore */ }
     supabase.auth.getSession().then(({ data }) => {
       const authed = !!data.session;
       setSignedIn(authed);
@@ -61,7 +70,7 @@ function CheckoutPage() {
           customer_email: p.email ?? f.customer_email,
           customer_phone: p.phone ?? f.customer_phone,
           customer_document: p.document ?? f.customer_document,
-          zip: p.zip ?? f.zip,
+          zip: f.zip || p.zip || "",
           street: p.street ?? f.street,
           number: p.number ?? f.number,
           complement: p.complement ?? f.complement,
@@ -72,6 +81,7 @@ function CheckoutPage() {
       }).catch(() => { /* ignore */ });
     });
   }, [loadProfile, navigate]);
+
 
 
 
