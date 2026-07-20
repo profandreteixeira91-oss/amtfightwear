@@ -326,6 +326,7 @@ function StudentDetail() {
               <TabsList className="flex w-max min-w-full flex-nowrap gap-0.5 rounded-lg border border-border bg-card p-1">
                 <TabsTrigger value="pessoal">Dados</TabsTrigger>
                 <TabsTrigger value="academia">Academia</TabsTrigger>
+                <TabsTrigger value="plano">Plano</TabsTrigger>
                 <TabsTrigger value="anamnese">Anamnese</TabsTrigger>
                 <TabsTrigger value="lgpd">LGPD</TabsTrigger>
                 <TabsTrigger value="graduacoes">Graduações</TabsTrigger>
