@@ -207,6 +207,7 @@ function BeltsPage() {
                   <div className="text-sm font-medium">{b.name}</div>
                   <div className="text-xs text-muted-foreground">
                     {b.max_degrees > 0 ? `${b.max_degrees} graus` : "sem graus"} · {b.owner_id ? "própria" : "global"}
+                    {b.min_months != null && ` · carência ${b.min_months} ${b.min_months === 1 ? "mês" : "meses"}`}
                   </div>
                 </div>
                 <Button size="sm" variant="ghost" onClick={() => openEdit(b)}>
@@ -280,6 +281,19 @@ function BeltsPage() {
                 type="number"
                 value={form.max_degrees}
                 onChange={(e) => setForm((f) => ({ ...f, max_degrees: Number(e.target.value) }))}
+              />
+            </div>
+            <div className="col-span-2">
+              <label className="text-xs text-muted-foreground">
+                Carência (opcional) — tempo mínimo em meses antes da próxima graduação
+              </label>
+              <Input
+                type="number"
+                min={0}
+                max={240}
+                placeholder="Ex.: 6, 12, 24… (deixe vazio para sem carência)"
+                value={form.min_months}
+                onChange={(e) => setForm((f) => ({ ...f, min_months: e.target.value }))}
               />
             </div>
             <div className="col-span-2">
