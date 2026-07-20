@@ -673,13 +673,14 @@ function renderInner(el: AnyElement, qr: string, values: Record<string, string>,
   if (el.kind === "signature-block") {
     return (
       <div className="flex h-full w-full flex-col items-center justify-end gap-0.5 text-center" style={{ color: el.color }}>
-        {el.imageUrl && <img src={el.imageUrl} className="max-h-[55%] max-w-full" style={{ objectFit: "contain" }} alt="" />}
+        {el.imageUrl && <img src={el.imageUrl} className="min-h-[40%] max-h-[70%] max-w-full flex-1" style={{ objectFit: "contain" }} alt="Assinatura" crossOrigin="anonymous" />}
         {el.showLine !== false && <div className="w-full border-t border-current" />}
         <div className="text-[10px] font-semibold" style={{ fontSize: `${9 * zoom}px` }}>{el.personName || "Nome"}</div>
         {el.personRole && <div className="text-[9px] opacity-70" style={{ fontSize: `${8 * zoom}px` }}>{el.personRole}</div>}
       </div>
     );
   }
+
   return null;
 }
 
@@ -728,15 +729,31 @@ function PropsPanel({ el, onPatch, onMoveLayer, onRemove }: { el: AnyElement; on
   const upload = async (file: File) => {
     setUploading(true);
     try {
-      const path = `certificates/${Date.now()}-${file.name}`;
-      const { error } = await supabase.storage.from("product-images").upload(path, file, { upsert: true, contentType: file.type });
+      if (!file.type.startsWith("image/")) throw new Error("Selecione uma imagem válida");
+      if (file.size > 10 * 1024 * 1024) throw new Error("Imagem excede 10MB");
+      const ext = (file.name.split(".").pop() || "png").toLowerCase().replace(/[^a-z0-9]/g, "");
+      const safeExt = ext || "png";
+      const path = `certificates/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${safeExt}`;
+      const { error } = await supabase.storage.from("product-images").upload(path, file, { upsert: true, contentType: file.type, cacheControl: "3600" });
       if (error) throw error;
       const { data } = supabase.storage.from("product-images").getPublicUrl(path);
-      onPatch({ imageUrl: data.publicUrl } as any);
+      const url = `${data.publicUrl}?v=${Date.now()}`;
+      // Pre-load to ensure image is available before applying (avoids blank canvas)
+      await new Promise<void>((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve();
+        img.onerror = () => resolve();
+        img.src = url;
+      });
+      onPatch({ imageUrl: url } as any);
       toast.success("Imagem enviada");
-    } catch (e: any) { toast.error(e.message); }
+    } catch (e: any) {
+      console.error("[certificate upload]", e);
+      toast.error(e?.message || "Falha no upload");
+    }
     finally { setUploading(false); }
   };
+
 
   return (
     <div className="space-y-3">
