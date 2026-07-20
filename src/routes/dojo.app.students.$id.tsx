@@ -772,12 +772,14 @@ function StudentDetail() {
         </CardContent>
       </Card>
 
+      <CertificatePreviewDialog
         open={!!previewCert}
         onOpenChange={(v) => { if (!v) setPreviewCert(null); }}
         template={previewCert?.template ?? null}
         values={previewCert?.values ?? {}}
         title={previewCert ? `Certificado — ${s.full_name}` : undefined}
       />
+
     </div>
   );
 }
