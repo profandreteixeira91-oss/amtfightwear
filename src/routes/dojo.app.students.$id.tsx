@@ -27,6 +27,8 @@ import {
 } from "lucide-react";
 import { BeltVisual } from "@/components/dojo/BeltVisual";
 import { CertificatePreviewDialog, openCertificatePrint, type CertificateTemplate } from "@/components/dojo/CertificatePreview";
+import { openBrandedPrintDocument, escapeHtml, kvTable } from "@/lib/dojo/print-document";
+import { useDojoBranding } from "@/hooks/useDojoBranding";
 
 export const Route = createFileRoute("/dojo/app/students/$id")({
   head: () => ({ meta: [{ title: "Aluno — AMT Dojo Manager" }] }),
