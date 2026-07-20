@@ -34,6 +34,7 @@ type BeltRow = {
   category: string;
   modality: string;
   owner_id: string | null;
+  min_months: number | null;
 };
 
 const emptyForm = {
@@ -45,6 +46,7 @@ const emptyForm = {
   sort_order: 10,
   max_degrees: 0,
   category: "adult",
+  min_months: "" as string, // empty = sem carência
   scope: "own" as "own" | "global",
 };
 
@@ -87,6 +89,7 @@ function BeltsPage() {
       sort_order: b.sort_order,
       max_degrees: b.max_degrees,
       category: b.category ?? "adult",
+      min_months: b.min_months != null ? String(b.min_months) : "",
       scope: b.owner_id ? "own" : "global",
     });
     setOpen(true);
@@ -99,6 +102,7 @@ function BeltsPage() {
         data: {
           ...form,
           stripe_hex: form.stripe_hex?.trim() ? form.stripe_hex : null,
+          min_months: form.min_months?.toString().trim() === "" ? null : Number(form.min_months),
         } as any,
       });
       toast.success("Faixa salva");
