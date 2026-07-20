@@ -9,12 +9,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
 import {
   User as UserIcon, Building2, Palette, CreditCard, Receipt, Shield,
-  Bell, Monitor, Plug, Upload, Trash2, Save, KeyRound, LogOut, History,
+  Bell, Monitor, Plug, Upload, Trash2, Save, KeyRound, LogOut, History, Loader2, ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useCepLookup } from "@/hooks/useCepLookup";
+import { useServerFn } from "@tanstack/react-start";
+import { createMyAsaasSubaccount, getMyAsaasConfig } from "@/lib/asaas/asaas.functions";
 
 export const Route = createFileRoute("/dojo/app/account")({
   head: () => ({ meta: [{ title: "Minha Conta — AMT Dojo Manager" }] }),
