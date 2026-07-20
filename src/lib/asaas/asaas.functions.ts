@@ -80,7 +80,7 @@ export const getMyAsaasConfig = createServerFn({ method: "GET" })
     const { data, error } = await context.supabase
       .from("dojo_academy_profile")
       .select(
-        "asaas_subaccount_id, asaas_wallet_id, asaas_onboarding_status, asaas_onboarding_url, pix_key, pix_key_type",
+        "asaas_subaccount_id, asaas_wallet_id, asaas_onboarding_status, asaas_onboarding_url, pix_key, pix_key_type, legal_name, trade_name, cnpj, email, phone, whatsapp, address, city, state, zip",
       )
       .eq("owner_id", context.userId)
       .maybeSingle();
@@ -94,5 +94,169 @@ export const getMyAsaasConfig = createServerFn({ method: "GET" })
       pixKey: data?.pix_key ?? null,
       pixKeyType: data?.pix_key_type ?? null,
       hasSplit: !!data?.asaas_wallet_id,
+      profile: {
+        legalName: data?.legal_name ?? null,
+        tradeName: data?.trade_name ?? null,
+        cnpj: data?.cnpj ?? null,
+        email: data?.email ?? null,
+        phone: data?.phone ?? null,
+        whatsapp: data?.whatsapp ?? null,
+        address: data?.address ?? null,
+        city: data?.city ?? null,
+        state: data?.state ?? null,
+        zip: data?.zip ?? null,
+      },
+    };
+  });
+
+/**
+ * Cria a subconta Asaas do dojo autenticado.
+ * Requer perfil preenchido (CPF/CNPJ, email, endereço). Os campos que faltam
+ * podem ser complementados via `extras`.
+ */
+export const createMyAsaasSubaccount = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z
+      .object({
+        // Campos opcionais para complementar o perfil na hora do onboarding
+        birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+        companyType: z.enum(["MEI", "LIMITED", "INDIVIDUAL", "ASSOCIATION"]).optional(),
+        incomeValue: z.number().positive().optional(),
+        addressNumber: z.string().min(1).max(20).optional(),
+        complement: z.string().max(120).optional(),
+        province: z.string().min(1).max(120).optional(), // bairro
+        mobilePhone: z.string().max(20).optional(),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { asaasCreateSubaccount } = await import("@/lib/asaas/client.server");
+
+    // Carrega perfil
+    const { data: profile, error: profileErr } = await context.supabase
+      .from("dojo_academy_profile")
+      .select("*")
+      .eq("owner_id", context.userId)
+      .maybeSingle();
+
+    if (profileErr) throw new Error(profileErr.message);
+    if (!profile) throw new Error("Perfil do dojo não encontrado. Complete os dados fiscais primeiro.");
+
+    if (profile.asaas_subaccount_id) {
+      return {
+        ok: true as const,
+        alreadyExists: true,
+        subaccountId: profile.asaas_subaccount_id,
+        walletId: profile.asaas_wallet_id,
+        onboardingUrl: profile.asaas_onboarding_url,
+        onboardingStatus: profile.asaas_onboarding_status,
+      };
+    }
+
+    // Validações mínimas
+    const missing: string[] = [];
+    if (!profile.legal_name && !profile.trade_name) missing.push("Nome / Razão social");
+    if (!profile.cnpj) missing.push("CPF/CNPJ");
+    if (!profile.email) missing.push("E-mail");
+    if (!profile.address) missing.push("Endereço");
+    if (!profile.city) missing.push("Cidade");
+    if (!profile.state) missing.push("Estado (UF)");
+    if (!profile.zip) missing.push("CEP");
+    if (!data.addressNumber) missing.push("Número do endereço");
+    if (!data.province) missing.push("Bairro");
+    if (missing.length) {
+      throw new Error(`Campos obrigatórios ausentes: ${missing.join(", ")}`);
+    }
+
+    const cpfCnpj = String(profile.cnpj).replace(/\D/g, "");
+    const zip = String(profile.zip).replace(/\D/g, "");
+    const isCpf = cpfCnpj.length === 11;
+
+    // Criar subconta no Asaas
+    const subaccount = await asaasCreateSubaccount({
+      name: String(profile.legal_name || profile.trade_name),
+      email: String(profile.email),
+      cpfCnpj,
+      birthDate: isCpf ? data.birthDate : undefined,
+      companyType: !isCpf ? data.companyType || "MEI" : undefined,
+      phone: profile.phone ? String(profile.phone).replace(/\D/g, "") : undefined,
+      mobilePhone: data.mobilePhone
+        ? data.mobilePhone.replace(/\D/g, "")
+        : profile.whatsapp
+          ? String(profile.whatsapp).replace(/\D/g, "")
+          : undefined,
+      incomeValue: data.incomeValue,
+      address: String(profile.address),
+      addressNumber: data.addressNumber!,
+      complement: data.complement,
+      province: data.province!,
+      postalCode: zip,
+      externalReference: `dojo:${context.userId}`,
+    });
+
+    // Persiste subaccount_id, walletId, apiKey (privada — usada para PIX out desta subconta)
+    const { error: updateErr } = await context.supabase
+      .from("dojo_academy_profile")
+      .update({
+        asaas_subaccount_id: subaccount.id,
+        asaas_wallet_id: subaccount.walletId,
+        asaas_onboarding_status: subaccount.onboardingStatus || "pending",
+        asaas_api_key_encrypted: subaccount.apiKey || null,
+      })
+      .eq("owner_id", context.userId);
+
+    if (updateErr) throw new Error(updateErr.message);
+
+    // Log auditoria
+    await context.supabase.from("dojo_account_audit").insert({
+      owner_id: context.userId,
+      action: "asaas_subaccount_created",
+      metadata: {
+        subaccount_id: subaccount.id,
+        wallet_id: subaccount.walletId,
+        onboarding_status: subaccount.onboardingStatus,
+      } as unknown as Record<string, unknown>,
+    });
+
+    return {
+      ok: true as const,
+      alreadyExists: false,
+      subaccountId: subaccount.id,
+      walletId: subaccount.walletId,
+      onboardingStatus: subaccount.onboardingStatus || "pending",
+    };
+  });
+
+/** Consulta o status atual da subconta e atualiza o onboarding_status local. */
+export const refreshMyAsaasSubaccount = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { asaasGetSubaccount } = await import("@/lib/asaas/client.server");
+
+    const { data: profile } = await context.supabase
+      .from("dojo_academy_profile")
+      .select("asaas_subaccount_id")
+      .eq("owner_id", context.userId)
+      .maybeSingle();
+
+    if (!profile?.asaas_subaccount_id) {
+      throw new Error("Subconta Asaas ainda não criada.");
+    }
+
+    const remote = await asaasGetSubaccount(profile.asaas_subaccount_id);
+
+    await context.supabase
+      .from("dojo_academy_profile")
+      .update({
+        asaas_onboarding_status: remote.onboardingStatus || "pending",
+        asaas_wallet_id: remote.walletId,
+      })
+      .eq("owner_id", context.userId);
+
+    return {
+      subaccountId: remote.id,
+      walletId: remote.walletId,
+      onboardingStatus: remote.onboardingStatus || "pending",
     };
   });
