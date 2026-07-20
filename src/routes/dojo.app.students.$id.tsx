@@ -243,13 +243,14 @@ function StudentDetail() {
                   {(() => {
                     const belt = (belts.data ?? []).find((b: any) => b.id === s.current_belt_id);
                     return belt ? (
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-col items-center gap-2">
                         <BeltVisual name={belt.name} colorHex={belt.color_hex} stripeHex={belt.stripe_hex} degree={s.current_degree ?? 0} maxDegrees={belt.max_degrees ?? 4} />
-                        <div className="min-w-0">
-                          <div className="font-medium truncate">{belt.name}</div>
+                        <div className="min-w-0 text-center">
+                          <div className="font-medium">{belt.name}</div>
                           <div className="text-xs text-muted-foreground">{s.current_degree ? `${s.current_degree}º grau` : "Sem grau"}</div>
                         </div>
                       </div>
+
                     ) : null;
                   })()}
                 </div>
