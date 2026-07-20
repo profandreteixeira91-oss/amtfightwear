@@ -10,6 +10,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Plus, X, Download, FileSpreadsheet, FileText, Upload, Sparkles, Building2, Tag } from "lucide-react";
 import { brl, useFinanceKpis, useFinanceSettings } from "./shared";
+import { openBrandedPrintDocument, escapeHtml } from "@/lib/dojo/print-document";
+import { useDojoBranding } from "@/hooks/useDojoBranding";
 
 // ============ Categorias + Centros de Custo ============
 export function FinanceCategories() {
