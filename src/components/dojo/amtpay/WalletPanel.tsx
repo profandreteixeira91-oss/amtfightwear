@@ -1,16 +1,17 @@
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Wallet, ArrowDownRight, ArrowUpRight, Landmark, TrendingUp, Clock, ShieldAlert, Plus } from "lucide-react";
+import { Wallet, ArrowDownRight, ArrowUpRight, Landmark, TrendingUp, Clock, ShieldAlert, Plus, RefreshCw, ExternalLink, AlertTriangle } from "lucide-react";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
 import {
   getWalletDashboard,
   getWalletChart,
   listWalletTransactions,
   getPrimaryBankAccount,
+  getGatewayCapabilities,
 } from "@/lib/dojo/amtpay.functions";
 import { BankAccountDialog } from "./BankAccountDialog";
 import { WithdrawDialog } from "./WithdrawDialog";
@@ -18,24 +19,66 @@ import { WithdrawDialog } from "./WithdrawDialog";
 const brl = (n: number) => Number(n).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
 export function WalletPanel() {
+  const qc = useQueryClient();
   const dashFn = useServerFn(getWalletDashboard);
   const chartFn = useServerFn(getWalletChart);
   const txFn = useServerFn(listWalletTransactions);
   const bankFn = useServerFn(getPrimaryBankAccount);
+  const capsFn = useServerFn(getGatewayCapabilities);
 
   const dashQ = useQuery({ queryKey: ["amtpay-dashboard"], queryFn: () => dashFn() });
   const chartQ = useQuery({ queryKey: ["amtpay-chart"], queryFn: () => chartFn() });
   const txQ = useQuery({ queryKey: ["amtpay-tx", "wallet-recent"], queryFn: () => txFn({ data: { limit: 8 } }) });
   const bankQ = useQuery({ queryKey: ["amtpay-bank"], queryFn: () => bankFn() });
+  const capsQ = useQuery({ queryKey: ["amtpay-caps"], queryFn: () => capsFn() });
 
   const [bankOpen, setBankOpen] = useState(false);
   const [wdOpen, setWdOpen] = useState(false);
 
   const d = dashQ.data;
   const bal = d?.balance;
+  const caps = capsQ.data;
+
+  function refresh() {
+    qc.invalidateQueries({ queryKey: ["amtpay-dashboard"] });
+    qc.invalidateQueries({ queryKey: ["amtpay-chart"] });
+    qc.invalidateQueries({ queryKey: ["amtpay-tx"] });
+    qc.invalidateQueries({ queryKey: ["amtpay-balance"] });
+  }
 
   return (
     <div className="space-y-6">
+      {/* Banner de origem dos dados */}
+      {caps && !caps.connected ? (
+        <div className="rounded-xl border border-amber-500/40 bg-amber-50 dark:bg-amber-950/20 p-4 flex items-start gap-3">
+          <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5" />
+          <div className="text-sm">
+            <div className="font-semibold">Nenhum gateway conectado</div>
+            <div className="text-muted-foreground">
+              Conecte um gateway de pagamento em <strong>Gateways</strong> para visualizar seu saldo e receber cobranças.
+              Nesta versão o AMT Pay consulta seu saldo diretamente no gateway — nenhum valor é mantido localmente.
+            </div>
+          </div>
+        </div>
+      ) : caps ? (
+        <div className="flex items-center justify-between rounded-xl border bg-card px-4 py-2 text-xs">
+          <div className="text-muted-foreground">
+            Fonte: <strong className="text-foreground">{caps.providerName}</strong>
+            {d?.lastSyncAt && <> · atualizado {new Date(d.lastSyncAt).toLocaleTimeString("pt-BR")}</>}
+          </div>
+          <div className="flex items-center gap-2">
+            {caps.dashboardUrl && (
+              <a href={caps.dashboardUrl} target="_blank" rel="noreferrer" className="text-primary inline-flex items-center gap-1 hover:underline">
+                <ExternalLink className="h-3 w-3" /> Painel do {caps.providerName}
+              </a>
+            )}
+            <Button size="sm" variant="ghost" onClick={refresh} className="h-7 px-2">
+              <RefreshCw className="h-3.5 w-3.5 mr-1" /> Atualizar
+            </Button>
+          </div>
+        </div>
+      ) : null}
+
       {/* Header carteira */}
       <Card className="overflow-hidden">
         <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-6">
@@ -48,14 +91,18 @@ export function WalletPanel() {
                 <div className="font-semibold">Minha Carteira</div>
                 <Badge variant="outline" className="text-[10px]">AMT Pay</Badge>
               </div>
-              <div className="text-xs text-muted-foreground">Saldo consolidado da sua academia</div>
+              <div className="text-xs text-muted-foreground">
+                {caps?.connected
+                  ? `Saldo consultado ao vivo no ${caps.providerName}`
+                  : "Conecte um gateway para consultar seu saldo"}
+              </div>
             </div>
             <div className="flex gap-2">
               <Button variant="outline" onClick={() => setBankOpen(true)}>
                 <Landmark className="h-4 w-4 mr-2" />
                 {bankQ.data ? "Editar conta bancária" : "Cadastrar conta"}
               </Button>
-              <Button onClick={() => setWdOpen(true)}>
+              <Button onClick={() => setWdOpen(true)} disabled={!caps?.withdrawals}>
                 <ArrowDownRight className="h-4 w-4 mr-2" /> Solicitar saque
               </Button>
             </div>
@@ -67,6 +114,12 @@ export function WalletPanel() {
             <BalanceCard label="Bloqueado" value={bal?.blocked ?? 0} tone="danger" />
             <BalanceCard label="Saldo total" value={bal?.total ?? 0} tone="muted" />
           </div>
+
+          {caps && !caps.withdrawals && caps.connected && (
+            <div className="mt-4 text-[11px] text-muted-foreground">
+              Saques via API não são suportados pelo {caps.providerName}. Use o painel do gateway para transferir seu saldo.
+            </div>
+          )}
         </div>
       </Card>
 
