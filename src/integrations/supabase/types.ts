@@ -2742,6 +2742,75 @@ export type Database = {
           },
         ]
       }
+      dojo_bank_accounts: {
+        Row: {
+          account_digit: string | null
+          account_number: string | null
+          account_type: Database["public"]["Enums"]["amtpay_bank_account_type"]
+          active: boolean
+          bank_code: string | null
+          bank_name: string | null
+          branch: string | null
+          branch_digit: string | null
+          created_at: string
+          holder_document: string
+          holder_name: string
+          id: string
+          is_primary: boolean
+          notes: string | null
+          owner_id: string
+          pix_key: string | null
+          pix_key_type:
+            | Database["public"]["Enums"]["amtpay_pix_key_type"]
+            | null
+          updated_at: string
+        }
+        Insert: {
+          account_digit?: string | null
+          account_number?: string | null
+          account_type?: Database["public"]["Enums"]["amtpay_bank_account_type"]
+          active?: boolean
+          bank_code?: string | null
+          bank_name?: string | null
+          branch?: string | null
+          branch_digit?: string | null
+          created_at?: string
+          holder_document: string
+          holder_name: string
+          id?: string
+          is_primary?: boolean
+          notes?: string | null
+          owner_id: string
+          pix_key?: string | null
+          pix_key_type?:
+            | Database["public"]["Enums"]["amtpay_pix_key_type"]
+            | null
+          updated_at?: string
+        }
+        Update: {
+          account_digit?: string | null
+          account_number?: string | null
+          account_type?: Database["public"]["Enums"]["amtpay_bank_account_type"]
+          active?: boolean
+          bank_code?: string | null
+          bank_name?: string | null
+          branch?: string | null
+          branch_digit?: string | null
+          created_at?: string
+          holder_document?: string
+          holder_name?: string
+          id?: string
+          is_primary?: boolean
+          notes?: string | null
+          owner_id?: string
+          pix_key?: string | null
+          pix_key_type?:
+            | Database["public"]["Enums"]["amtpay_pix_key_type"]
+            | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       dojo_belts: {
         Row: {
           category: string
@@ -5638,6 +5707,117 @@ export type Database = {
           },
         ]
       }
+      dojo_wallet_settings: {
+        Row: {
+          auto_release_days: number
+          created_at: string
+          currency: string
+          extras: Json
+          min_withdrawal_amount: number
+          owner_id: string
+          payout_mode: Database["public"]["Enums"]["amtpay_payout_mode"]
+          updated_at: string
+          withdrawal_fee_amount: number
+          withdrawal_fee_percent: number
+        }
+        Insert: {
+          auto_release_days?: number
+          created_at?: string
+          currency?: string
+          extras?: Json
+          min_withdrawal_amount?: number
+          owner_id: string
+          payout_mode?: Database["public"]["Enums"]["amtpay_payout_mode"]
+          updated_at?: string
+          withdrawal_fee_amount?: number
+          withdrawal_fee_percent?: number
+        }
+        Update: {
+          auto_release_days?: number
+          created_at?: string
+          currency?: string
+          extras?: Json
+          min_withdrawal_amount?: number
+          owner_id?: string
+          payout_mode?: Database["public"]["Enums"]["amtpay_payout_mode"]
+          updated_at?: string
+          withdrawal_fee_amount?: number
+          withdrawal_fee_percent?: number
+        }
+        Relationships: []
+      }
+      dojo_wallet_transactions: {
+        Row: {
+          amount: number
+          available_at: string | null
+          created_at: string
+          currency: string
+          description: string | null
+          direction: number
+          fee_amount: number
+          id: string
+          kind: Database["public"]["Enums"]["amtpay_tx_kind"]
+          metadata: Json
+          method: Database["public"]["Enums"]["amtpay_tx_method"]
+          net_amount: number
+          occurred_at: string
+          owner_id: string
+          provider: string | null
+          provider_tx_id: string | null
+          reference_id: string | null
+          reference_type: string | null
+          status: Database["public"]["Enums"]["amtpay_tx_status"]
+          student_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          available_at?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          direction?: number
+          fee_amount?: number
+          id?: string
+          kind: Database["public"]["Enums"]["amtpay_tx_kind"]
+          metadata?: Json
+          method?: Database["public"]["Enums"]["amtpay_tx_method"]
+          net_amount: number
+          occurred_at?: string
+          owner_id: string
+          provider?: string | null
+          provider_tx_id?: string | null
+          reference_id?: string | null
+          reference_type?: string | null
+          status?: Database["public"]["Enums"]["amtpay_tx_status"]
+          student_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          available_at?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          direction?: number
+          fee_amount?: number
+          id?: string
+          kind?: Database["public"]["Enums"]["amtpay_tx_kind"]
+          metadata?: Json
+          method?: Database["public"]["Enums"]["amtpay_tx_method"]
+          net_amount?: number
+          occurred_at?: string
+          owner_id?: string
+          provider?: string | null
+          provider_tx_id?: string | null
+          reference_id?: string | null
+          reference_type?: string | null
+          status?: Database["public"]["Enums"]["amtpay_tx_status"]
+          student_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       dojo_webhook_deliveries: {
         Row: {
           attempt: number
@@ -5723,6 +5903,101 @@ export type Database = {
           url?: string
         }
         Relationships: []
+      }
+      dojo_withdrawals: {
+        Row: {
+          amount: number
+          bank_account_id: string | null
+          cancelled_at: string | null
+          created_at: string
+          currency: string
+          destination: Json
+          fee_amount: number
+          id: string
+          metadata: Json
+          net_amount: number
+          notes: string | null
+          owner_id: string
+          paid_at: string | null
+          pix_key: string | null
+          pix_key_type:
+            | Database["public"]["Enums"]["amtpay_pix_key_type"]
+            | null
+          processed_at: string | null
+          provider: string | null
+          provider_tx_id: string | null
+          rejected_at: string | null
+          rejection_reason: string | null
+          requested_at: string
+          reviewed_at: string | null
+          status: Database["public"]["Enums"]["amtpay_withdrawal_status"]
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          bank_account_id?: string | null
+          cancelled_at?: string | null
+          created_at?: string
+          currency?: string
+          destination?: Json
+          fee_amount?: number
+          id?: string
+          metadata?: Json
+          net_amount: number
+          notes?: string | null
+          owner_id: string
+          paid_at?: string | null
+          pix_key?: string | null
+          pix_key_type?:
+            | Database["public"]["Enums"]["amtpay_pix_key_type"]
+            | null
+          processed_at?: string | null
+          provider?: string | null
+          provider_tx_id?: string | null
+          rejected_at?: string | null
+          rejection_reason?: string | null
+          requested_at?: string
+          reviewed_at?: string | null
+          status?: Database["public"]["Enums"]["amtpay_withdrawal_status"]
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          bank_account_id?: string | null
+          cancelled_at?: string | null
+          created_at?: string
+          currency?: string
+          destination?: Json
+          fee_amount?: number
+          id?: string
+          metadata?: Json
+          net_amount?: number
+          notes?: string | null
+          owner_id?: string
+          paid_at?: string | null
+          pix_key?: string | null
+          pix_key_type?:
+            | Database["public"]["Enums"]["amtpay_pix_key_type"]
+            | null
+          processed_at?: string | null
+          provider?: string | null
+          provider_tx_id?: string | null
+          rejected_at?: string | null
+          rejection_reason?: string | null
+          requested_at?: string
+          reviewed_at?: string | null
+          status?: Database["public"]["Enums"]["amtpay_withdrawal_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_withdrawals_bank_account_id_fkey"
+            columns: ["bank_account_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_bank_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       email_send_log: {
         Row: {
@@ -8398,7 +8673,17 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      dojo_wallet_balance: {
+        Row: {
+          available_balance: number | null
+          blocked_balance: number | null
+          last_movement_at: string | null
+          owner_id: string | null
+          pending_balance: number | null
+          total_balance: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       delete_email: {
@@ -8478,6 +8763,35 @@ export type Database = {
       show_trgm: { Args: { "": string }; Returns: string[] }
     }
     Enums: {
+      amtpay_bank_account_type: "checking" | "savings" | "payment"
+      amtpay_payout_mode: "manual" | "daily" | "weekly" | "monthly"
+      amtpay_pix_key_type: "cpf" | "cnpj" | "email" | "phone" | "random"
+      amtpay_tx_kind:
+        | "receipt"
+        | "fee"
+        | "refund"
+        | "withdrawal"
+        | "withdrawal_reversal"
+        | "adjustment"
+        | "transfer_in"
+        | "transfer_out"
+      amtpay_tx_method:
+        | "pix"
+        | "card"
+        | "boleto"
+        | "link"
+        | "cash"
+        | "transfer"
+        | "internal"
+        | "other"
+      amtpay_tx_status: "pending" | "available" | "blocked" | "reversed"
+      amtpay_withdrawal_status:
+        | "requested"
+        | "in_review"
+        | "processing"
+        | "paid"
+        | "cancelled"
+        | "rejected"
       app_role: "admin" | "moderator" | "user"
       competition_athlete_status:
         | "pre_registered"
@@ -8655,6 +8969,38 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      amtpay_bank_account_type: ["checking", "savings", "payment"],
+      amtpay_payout_mode: ["manual", "daily", "weekly", "monthly"],
+      amtpay_pix_key_type: ["cpf", "cnpj", "email", "phone", "random"],
+      amtpay_tx_kind: [
+        "receipt",
+        "fee",
+        "refund",
+        "withdrawal",
+        "withdrawal_reversal",
+        "adjustment",
+        "transfer_in",
+        "transfer_out",
+      ],
+      amtpay_tx_method: [
+        "pix",
+        "card",
+        "boleto",
+        "link",
+        "cash",
+        "transfer",
+        "internal",
+        "other",
+      ],
+      amtpay_tx_status: ["pending", "available", "blocked", "reversed"],
+      amtpay_withdrawal_status: [
+        "requested",
+        "in_review",
+        "processing",
+        "paid",
+        "cancelled",
+        "rejected",
+      ],
       app_role: ["admin", "moderator", "user"],
       competition_athlete_status: [
         "pre_registered",
