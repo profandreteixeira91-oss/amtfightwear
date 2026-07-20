@@ -244,7 +244,7 @@ export const Route = createFileRoute("/api/public/hooks/mercadopago")({
                   status: "available",
                   amount: gross,
                   direction: 1,
-                  fee_amount: mpFee + platformFee,
+                  fee_amount: mpFee + amtFee,
                   net_amount: dojoNet,
                   description: `Mensalidade ${(invRow as any).description ?? ""}`.trim(),
                   reference_type: "invoice",
