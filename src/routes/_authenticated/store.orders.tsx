@@ -26,8 +26,20 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { formatBRL } from "@/lib/store/cart-store";
 import { useState } from "react";
-import { Truck, RefreshCw, Package, ExternalLink, Wallet } from "lucide-react";
+import { Truck, RefreshCw, Package, ExternalLink, Wallet, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { PageShell } from "@/components/common/PageShell";
+
 
 export const Route = createFileRoute("/_authenticated/store/orders")({
   component: AdminOrdersPage,
