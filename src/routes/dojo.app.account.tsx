@@ -58,7 +58,8 @@ const PLACEMENTS: { key: string; label: string }[] = [
 ];
 
 function AccountPage() {
-  const [tab, setTab] = useState<TabKey>("personal");
+  const { onboarding } = Route.useSearch();
+  const [tab, setTab] = useState<TabKey>(onboarding ? "academy" : "personal");
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>({});
   const [academy, setAcademy] = useState<any>({});
