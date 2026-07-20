@@ -162,9 +162,19 @@ function IntegrationsHub() {
       {/* ================= AMT PAY — Fluxo principal ================= */}
       <PaymentsHero
         gateway={paymentGw}
-        onActivate={() => setAmtPayOpen(true)}
+        onActivate={() => { setAmtPayProvider(undefined); setAmtPayOpen(true); }}
         onManage={() => setAdvancedOpen(true)}
       />
+
+      {/* Painel de contas conectadas + histórico */}
+      <GatewayAccountsPanel
+        onConnect={() => { setAmtPayProvider(undefined); setAmtPayOpen(true); }}
+        onReconfigure={(prov) => {
+          setAmtPayProvider(prov as any);
+          setAmtPayOpen(true);
+        }}
+      />
+
 
       {/* ================= Modo avançado (colapsado) ================= */}
       <button
