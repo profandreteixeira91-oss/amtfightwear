@@ -57,21 +57,28 @@ function HomePage() {
       {config.home_blocks.filter((b) => b.visible !== false).map((block) => {
         const spanAll = block.type === "welcome" || block.type === "banner" || block.type === "open_invoices";
         return (
-          <div key={block.id} className={spanAll ? "lg:col-span-3" : block.type === "shortcuts" ? "lg:col-span-2" : "lg:col-span-1"}>
-            <BlockRenderer
-              block={block}
-              config={config}
-              student={student}
-              belt={belt}
-              openInvoices={openInvoices}
-              lastCheckin={homeData?.lastCheckin}
-              news={news ?? []}
-              isLoading={isLoading}
-            />
+          <div key={block.id} className={`${spanAll ? "lg:col-span-3" : block.type === "shortcuts" ? "lg:col-span-2" : "lg:col-span-1"} contents`}>
+            <div className={spanAll ? "lg:col-span-3" : block.type === "shortcuts" ? "lg:col-span-2" : "lg:col-span-1"}>
+              <BlockRenderer
+                block={block}
+                config={config}
+                student={student}
+                belt={belt}
+                openInvoices={openInvoices}
+                lastCheckin={homeData?.lastCheckin}
+                news={news ?? []}
+                isLoading={isLoading}
+              />
+            </div>
+            {block.type === "welcome" && (
+              <div className="lg:col-span-3">
+                <AnnouncementsWidget items={announcements} />
+              </div>
+            )}
           </div>
         );
       })}
-      {announcements.length > 0 && (
+      {!config.home_blocks.some((b) => b.type === "welcome" && b.visible !== false) && (
         <div className="lg:col-span-3">
           <AnnouncementsWidget items={announcements} />
         </div>
@@ -79,6 +86,7 @@ function HomePage() {
     </div>
   );
 }
+
 
 function AnnouncementsWidget({ items }: { items: any[] }) {
   const sorted = [...items].sort((a, b) => {
