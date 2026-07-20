@@ -3927,6 +3927,42 @@ export type Database = {
           },
         ]
       }
+      dojo_gateway_history: {
+        Row: {
+          action: string
+          actor_email: string | null
+          actor_user_id: string | null
+          created_at: string
+          details: Json
+          id: string
+          owner_id: string
+          provider: string
+          reason: string | null
+        }
+        Insert: {
+          action: string
+          actor_email?: string | null
+          actor_user_id?: string | null
+          created_at?: string
+          details?: Json
+          id?: string
+          owner_id: string
+          provider: string
+          reason?: string | null
+        }
+        Update: {
+          action?: string
+          actor_email?: string | null
+          actor_user_id?: string | null
+          created_at?: string
+          details?: Json
+          id?: string
+          owner_id?: string
+          provider?: string
+          reason?: string | null
+        }
+        Relationships: []
+      }
       dojo_graduation_settings: {
         Row: {
           classes_by_belt: Json
