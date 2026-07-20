@@ -31,11 +31,10 @@ async function resolveDestination(userId: string, requested?: string): Promise<s
   try {
     const { data } = await supabase
       .from("dojo_academy_profile")
-      .select("legal_name, trade_name, cnpj")
+      .select("onboarding_completed")
       .eq("owner_id", userId)
       .maybeSingle();
-    const complete = !!data && !!(data.legal_name || data.trade_name) && !!data.cnpj;
-    if (!complete) return "/dojo/app/account?onboarding=1";
+    if (!data?.onboarding_completed) return "/dojo/onboarding";
     return safe;
   } catch {
     return safe;
