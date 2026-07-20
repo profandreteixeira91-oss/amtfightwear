@@ -249,18 +249,23 @@ function OnboardingPage() {
         delete n[docType];
         return n;
       });
+      setDocMimes((prev) => {
+        const n = { ...prev };
+        delete n[docType];
+        return n;
+      });
       toast.success("Documento removido");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : String(e));
     }
   };
 
-  const requiredDocs = useMemo<DocType[]>(
-    // Comprovante de endereço não é exigido pela API do Asaas — só é solicitado
-    // via CUSTOM se o analista pedir; nesse caso, o AMT Pay mostra o pendente.
-    () => (isCnpj ? ["identity_front", "identity_back", "cnpj_card"] : ["identity_front", "identity_back"]),
-    [isCnpj],
-  );
+  const requiredDocs = useMemo<DocType[]>(() => {
+    const base: DocType[] = ["identity_front"];
+    if (!useCnhDigital) base.push("identity_back");
+    if (isCnpj) base.push("cnpj_card");
+    return base;
+  }, [isCnpj, useCnhDigital]);
 
   const validate = (): string | null => {
     try {
