@@ -28,6 +28,7 @@ import {
   createMyAsaasSubaccount,
   refreshMyAsaasSubaccount,
   setDojoPixKey,
+  linkExistingAsaasAccount,
 } from "@/lib/asaas/asaas.functions";
 
 function StatusBadge({ status }: { status: string }) {
@@ -50,6 +51,7 @@ export function AsaasOnboardingCard() {
   const createFn = useServerFn(createMyAsaasSubaccount);
   const refreshFn = useServerFn(refreshMyAsaasSubaccount);
   const savePixFn = useServerFn(setDojoPixKey);
+  const linkFn = useServerFn(linkExistingAsaasAccount);
 
   const cfg = useQuery({
     queryKey: ["asaas-config"],
@@ -109,6 +111,19 @@ export function AsaasOnboardingCard() {
     mobilePhone: "",
   });
   const [pixKey, setPixKey] = useState("");
+  const [existingWalletId, setExistingWalletId] = useState("");
+  const [showLinkExisting, setShowLinkExisting] = useState(false);
+
+  const linkExisting = useMutation({
+    mutationFn: (walletId: string) => linkFn({ data: { walletId } }),
+    onSuccess: () => {
+      toast.success("Conta Asaas existente vinculada com sucesso!");
+      setExistingWalletId("");
+      setShowLinkExisting(false);
+      qc.invalidateQueries({ queryKey: ["asaas-config"] });
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
 
   if (cfg.isLoading) {
     return (
@@ -376,8 +391,64 @@ export function AsaasOnboardingCard() {
               </Button>
             </form>
           )}
+
+          {/* Já tem conta Asaas? Vincular usando walletId */}
+          {!hasSubaccount && (
+            <div className="mt-4 pt-4 border-t">
+              {!showLinkExisting ? (
+                <button
+                  type="button"
+                  onClick={() => setShowLinkExisting(true)}
+                  className="text-sm text-primary hover:underline"
+                >
+                  Já tenho uma conta Asaas — vincular pela walletId
+                </button>
+              ) : (
+                <div className="space-y-3">
+                  <Alert>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Vincular conta Asaas existente</AlertTitle>
+                    <AlertDescription>
+                      Se você já opera com Asaas, informe o <b>walletId</b> da sua
+                      conta. Ele fica em <i>Painel Asaas → Minha conta → Integrações
+                      → Chaves de API → walletId</i>. As mensalidades emitidas pelo
+                      AMT Pay serão direcionadas para essa carteira via split — sem
+                      criar uma nova subconta.
+                    </AlertDescription>
+                  </Alert>
+                  <div className="flex gap-2 flex-wrap">
+                    <Input
+                      placeholder="ex: 12345678-1234-1234-1234-123456789abc"
+                      value={existingWalletId}
+                      onChange={(e) => setExistingWalletId(e.target.value.trim())}
+                      className="flex-1 min-w-[280px] font-mono text-sm"
+                    />
+                    <Button
+                      onClick={() => linkExisting.mutate(existingWalletId)}
+                      disabled={linkExisting.isPending || existingWalletId.length < 10}
+                    >
+                      {linkExisting.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                      Vincular
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      onClick={() => { setShowLinkExisting(false); setExistingWalletId(""); }}
+                    >
+                      Cancelar
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Sua conta deve estar na mesma plataforma Asaas
+                    (<b>produção</b>) da AMT. Contas em sandbox não funcionam com o
+                    ambiente de produção.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
+
 
 
       {/* Card de chave PIX para saques */}
