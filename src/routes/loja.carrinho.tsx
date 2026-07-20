@@ -29,7 +29,35 @@ function CartPage() {
   const addCart = useCart((s) => s.add);
   const clearCart = useCart((s) => s.clear);
   const [mounted, setMounted] = useState(false);
+  const [shipping, setShipping] = useState<ShippingOption | null>(null);
+  const [zip, setZip] = useState<string>("");
   useEffect(() => setMounted(true), []);
+
+  // Restaura seleção de frete do sessionStorage (persiste entre carrinho ↔ checkout).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = sessionStorage.getItem(SHIPPING_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw) as { zip?: string; option?: ShippingOption };
+        if (parsed.zip) setZip(parsed.zip);
+        if (parsed.option) setShipping(parsed.option);
+      }
+    } catch { /* ignore */ }
+  }, []);
+
+  // Persiste seleção para o checkout usar automaticamente.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (shipping) {
+      sessionStorage.setItem(SHIPPING_KEY, JSON.stringify({ zip, option: shipping }));
+    }
+  }, [shipping, zip]);
+
+  const handleShippingSelect = (opt: ShippingOption) => {
+    setShipping(opt);
+  };
+
 
   // Handoff vindo do AMT Dojo Manager (subdomínio diferente ⇒ localStorage separado).
   // Aceita ?import=<base64(JSON)> e/ou ?checkout=1 para pular direto ao checkout.
