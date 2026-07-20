@@ -162,6 +162,7 @@ function useDojoDomainRouting() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const { hostname, pathname, search, hash } = window.location;
+    if (hostname === "localhost" || hostname === "127.0.0.1" || hostname.endsWith(".lovable.app")) return;
     const isDojoArea =
       pathname.startsWith("/dojo") ||
       pathname.startsWith("/app") ||
