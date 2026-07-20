@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Search, Plug, CheckCircle2, XCircle, AlertTriangle, Activity, Zap, Copy, KeyRound, Webhook } from "lucide-react";
+import { Search, Plug, CheckCircle2, XCircle, AlertTriangle, Activity, Zap, Copy, KeyRound, Webhook, Sparkles, ChevronDown, ChevronUp, ShieldCheck, Wallet, Settings2, Landmark } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +19,7 @@ import {
 import { IntegrationCard, type LiveStatus } from "@/components/dojo/integrations/IntegrationCard";
 import { IntegrationWizard } from "@/components/dojo/integrations/IntegrationWizard";
 import { ApiHubDialog } from "@/components/dojo/integrations/ApiHubDialog";
+import { AMTPayWizard } from "@/components/dojo/integrations/AMTPayWizard";
 
 import { listMyGateways, upsertMyGateway } from "@/lib/dojo/gateways.functions";
 import { listPartnerIntegrations, savePartnerIntegration, listPartnerCheckins } from "@/lib/dojo/attendance.functions";
@@ -53,6 +54,9 @@ function IntegrationsHub() {
   const [cat, setCat] = useState<CatFilter>("all");
   const [wizardFor, setWizardFor] = useState<IntegrationDef | null>(null);
   const [apiHubMode, setApiHubMode] = useState<"keys" | "webhooks" | null>(null);
+  const [amtPayOpen, setAmtPayOpen] = useState(false);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+
 
   const gwByProvider = useMemo(() => {
     const m = new Map<string, any>();
@@ -136,23 +140,65 @@ function IntegrationsHub() {
 
   const m = metricsQ.data ?? { installed: 0, active: 0, inactive: 0, errors24h: 0, calls24h: 0, lastSyncAt: null };
 
+  const paymentGw = useMemo(() => {
+    const list = gwQ.data ?? [];
+    return list.find((g: any) => g.is_default) ?? list.find((g: any) => g.active) ?? list[0] ?? null;
+  }, [gwQ.data]);
+
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 md:gap-7">
       {/* Header + busca */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <p className="text-muted-foreground text-sm max-w-2xl">
-          Conecte, configure, teste e monitore todos os serviços externos do AMT Dojo Manager.
-        </p>
-        <div className="relative w-full md:w-80">
-          <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Buscar por nome, fornecedor ou categoria..."
-            className="pl-9"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
+        <div>
+          <h1 className="text-xl md:text-2xl font-bold tracking-tight">Integrações</h1>
+          <p className="text-muted-foreground text-sm max-w-2xl mt-1">
+            Configure recebimentos, parceiros e serviços externos do AMT Dojo Manager.
+          </p>
         </div>
       </div>
+
+      {/* ================= AMT PAY — Fluxo principal ================= */}
+      <PaymentsHero
+        gateway={paymentGw}
+        onActivate={() => setAmtPayOpen(true)}
+        onManage={() => setAdvancedOpen(true)}
+      />
+
+      {/* ================= Modo avançado (colapsado) ================= */}
+      <button
+        type="button"
+        onClick={() => setAdvancedOpen((v) => !v)}
+        className="flex items-center justify-between gap-3 rounded-xl border bg-card px-4 py-3 hover:border-primary/40 transition text-left"
+      >
+        <div className="flex items-center gap-3">
+          <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center">
+            <Settings2 className="h-4 w-4 text-muted-foreground" />
+          </div>
+          <div>
+            <div className="text-sm font-semibold flex items-center gap-2">
+              Configuração avançada
+              <Badge variant="outline" className="text-[10px] border-amber-500/40 text-amber-600 dark:text-amber-400">Técnico</Badge>
+            </div>
+            <div className="text-[11px] text-muted-foreground">
+              API Keys, tokens, webhooks e catálogo completo de parceiros. Recomendado apenas para equipes de TI.
+            </div>
+          </div>
+        </div>
+        {advancedOpen ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+      </button>
+
+      {!advancedOpen ? null : (
+      <>
+      <div className="relative">
+        <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          placeholder="Buscar por nome, fornecedor ou categoria..."
+          className="pl-9"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+      </div>
+
 
 
       {/* KPI Dashboard */}
@@ -240,6 +286,11 @@ function IntegrationsHub() {
           </div>
         </CardContent>
       </Card>
+      </>
+      )}
+
+      {/* Wizard AMT Pay */}
+      <AMTPayWizard open={amtPayOpen} onOpenChange={setAmtPayOpen} />
 
       {wizardFor && (
         <IntegrationWizard
@@ -264,6 +315,145 @@ function IntegrationsHub() {
     </div>
   );
 }
+
+/* =====================================================================
+ * PaymentsHero — cards principais do fluxo AMT Pay
+ * ===================================================================== */
+function PaymentsHero({
+  gateway,
+  onActivate,
+  onManage,
+}: {
+  gateway: any | null;
+  onActivate: () => void;
+  onManage: () => void;
+}) {
+  const active = !!gateway?.active;
+  const providerName = gateway?.provider
+    ? gateway.provider === "asaas"
+      ? "Asaas"
+      : gateway.provider === "mercadopago"
+        ? "Mercado Pago"
+        : gateway.provider === "pagseguro"
+          ? "PagSeguro"
+          : gateway.provider
+    : null;
+
+  if (active && providerName) {
+    return (
+      <Card className="border-emerald-500/40 bg-gradient-to-br from-emerald-500/10 via-background to-background">
+        <CardContent className="p-5 md:p-6">
+          <div className="flex flex-col md:flex-row md:items-center gap-5">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <div className="h-12 w-12 rounded-xl bg-emerald-500/15 flex items-center justify-center shrink-0">
+                <CheckCircle2 className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-lg font-bold">AMT Pay Ativo</span>
+                  <Badge className="bg-emerald-500 hover:bg-emerald-500 text-white">🟢 Online</Badge>
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Gateway: <strong>{providerName}</strong> · Conta ••••{" "}
+                  {gateway?.updated_at && <>· última sync {relativeTime(gateway.updated_at)}</>}
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <MethodPill label="PIX" on />
+              <MethodPill label="Cartão" on />
+              <MethodPill label="Boleto" on />
+            </div>
+            <Button size="sm" variant="outline" onClick={onManage}>
+              <Settings2 className="h-4 w-4 mr-1.5" /> Gerenciar conta
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="grid gap-4 lg:grid-cols-3">
+      {/* Card 1 — Ativar AMT Pay (destaque) */}
+      <Card className="lg:col-span-2 relative overflow-hidden border-primary/30 bg-gradient-to-br from-primary/10 via-background to-background">
+        <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
+        <CardContent className="p-6 md:p-7 relative">
+          <div className="flex items-start gap-4">
+            <div className="h-14 w-14 rounded-2xl bg-primary/15 flex items-center justify-center shrink-0">
+              <Wallet className="h-7 w-7 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap mb-1">
+                <h2 className="text-xl md:text-2xl font-bold tracking-tight">Ativar AMT Pay</h2>
+                <Badge className="bg-amber-500 hover:bg-amber-500 text-white shadow-sm">
+                  <Sparkles className="h-3 w-3 mr-1" /> Recomendado
+                </Badge>
+              </div>
+              <p className="text-sm text-muted-foreground max-w-xl">
+                Configure os recebimentos da sua academia através de um assistente simples e guiado. PIX, cartão, boleto e cobrança recorrente — sem lidar com APIs ou tokens.
+              </p>
+              <div className="flex flex-wrap items-center gap-3 mt-4">
+                <Button onClick={onActivate} size="lg" className="shadow-sm">
+                  <Sparkles className="h-4 w-4 mr-1.5" /> Iniciar configuração
+                </Button>
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <ShieldCheck className="h-3.5 w-3.5" /> Criptografado por academia · 2–3 min
+                </div>
+              </div>
+              <div className="mt-5 grid grid-cols-3 gap-2 max-w-md">
+                <FeatureBadge icon={Landmark} label="Asaas" />
+                <FeatureBadge icon={Wallet} label="PIX & Cartão" />
+                <FeatureBadge icon={Zap} label="Cobrança recorrente" />
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Card 2 — Configuração Avançada (colapsado por padrão) */}
+      <Card className="border-dashed">
+        <CardContent className="p-6 flex flex-col h-full">
+          <div className="h-11 w-11 rounded-xl bg-muted flex items-center justify-center mb-3">
+            <Settings2 className="h-5 w-5 text-muted-foreground" />
+          </div>
+          <h3 className="text-base font-semibold">Configuração Avançada</h3>
+          <p className="text-xs text-muted-foreground mt-1 flex-1">
+            Conecte manualmente seu gateway com API Keys, tokens e webhooks. Recomendado apenas para equipes de TI.
+          </p>
+          <Button variant="outline" size="sm" onClick={onManage} className="mt-4">
+            Modo Avançado
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function FeatureBadge({ icon: Icon, label }: { icon: any; label: string }) {
+  return (
+    <div className="rounded-lg border bg-card/60 backdrop-blur px-2.5 py-2 flex items-center gap-2">
+      <Icon className="h-3.5 w-3.5 text-primary" />
+      <span className="text-[11px] font-medium">{label}</span>
+    </div>
+  );
+}
+
+function MethodPill({ label, on }: { label: string; on: boolean }) {
+  return (
+    <div
+      className={cn(
+        "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-medium",
+        on
+          ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+          : "border-border bg-muted text-muted-foreground",
+      )}
+    >
+      <CheckCircle2 className="h-3 w-3" /> {label}
+    </div>
+  );
+}
+
 
 function Kpi({ icon: Icon, label, value, tone, small }: { icon: any; label: string; value: any; tone: "default" | "success" | "danger" | "muted"; small?: boolean }) {
   const toneClass = {
