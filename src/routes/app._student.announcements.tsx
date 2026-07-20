@@ -37,10 +37,17 @@ function fmtDate(iso?: string | null) {
 
 function MyAnnouncements() {
   const listFn = useServerFn(listMyAnnouncements);
+  const search = Route.useSearch();
+  const navigate = useNavigate();
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<string>("all");
   const [priority, setPriority] = useState<string>("all");
-  const [detailId, setDetailId] = useState<string | null>(null);
+  const [detailId, setDetailId] = useState<string | null>(search.open ?? null);
+
+  useEffect(() => {
+    if (search.open && search.open !== detailId) setDetailId(search.open);
+  }, [search.open]);
+
 
   const { data, isLoading } = useQuery({
     queryKey: ["student", "announcements", q, filter, priority],
