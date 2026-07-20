@@ -31,7 +31,7 @@ import {
 import { Users, GraduationCap, UserSquare2, ShieldCheck, Cake, Wallet, Search, Plus } from "lucide-react";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/dojo/app/team")({
+export const Route = createFileRoute("/dojo/app/team/")({
   head: () => ({
     meta: [
       { title: "Equipe — AMT Dojo Manager" },
