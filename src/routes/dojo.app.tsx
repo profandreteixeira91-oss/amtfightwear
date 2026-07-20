@@ -139,6 +139,26 @@ function DojoLayout() {
     supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? null));
   }, []);
 
+  // Força tema claro em todo o Dojo Manager (inclusive popups/dialogs portados fora do escopo .dojo-theme)
+  useEffect(() => {
+    const root = document.documentElement;
+    const hadDark = root.classList.contains("dark");
+    const prevColorScheme = root.style.colorScheme;
+    const forceLight = () => {
+      if (root.classList.contains("dark")) root.classList.remove("dark");
+      root.style.colorScheme = "light";
+    };
+    forceLight();
+    const observer = new MutationObserver(forceLight);
+    observer.observe(root, { attributes: true, attributeFilter: ["class"] });
+    return () => {
+      observer.disconnect();
+      if (hadDark) root.classList.add("dark");
+      root.style.colorScheme = prevColorScheme;
+    };
+  }, []);
+
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     window.location.href = "/dojo";
