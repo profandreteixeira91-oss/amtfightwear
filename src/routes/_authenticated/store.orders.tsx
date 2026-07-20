@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { adminListOrders, adminUpdateOrderStatus } from "@/lib/store/store.functions";
+import { adminListOrders, adminUpdateOrderStatus, adminDeleteStoreOrder } from "@/lib/store/store.functions";
+
 import {
   adminMelhorEnvioBalance,
   adminMelhorEnvioQuoteOrder,
@@ -25,8 +26,20 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { formatBRL } from "@/lib/store/cart-store";
 import { useState } from "react";
-import { Truck, RefreshCw, Package, ExternalLink, Wallet } from "lucide-react";
+import { Truck, RefreshCw, Package, ExternalLink, Wallet, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { PageShell } from "@/components/common/PageShell";
+
 
 export const Route = createFileRoute("/_authenticated/store/orders")({
   component: AdminOrdersPage,
@@ -54,6 +67,7 @@ type Order = {
 function AdminOrdersPage() {
   const list = useServerFn(adminListOrders);
   const update = useServerFn(adminUpdateOrderStatus);
+  const del = useServerFn(adminDeleteStoreOrder);
   const balanceFn = useServerFn(adminMelhorEnvioBalance);
   const { data, refetch, isLoading } = useQuery({
     queryKey: ["admin", "store", "orders"],
@@ -74,6 +88,17 @@ function AdminOrdersPage() {
       toast.error(e instanceof Error ? e.message : "Erro");
     }
   };
+
+  const remove = async (id: string) => {
+    try {
+      await del({ data: { id } });
+      toast.success("Pedido excluído");
+      refetch();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro");
+    }
+  };
+
 
   return (
     <PageShell
@@ -112,7 +137,9 @@ function AdminOrdersPage() {
                     <th className="p-2 text-left">Status</th>
                     <th className="p-2 text-left">Envio</th>
                     <th className="p-2 text-left">Data</th>
+                    <th className="p-2 text-right">Ações</th>
                   </tr>
+
                 </thead>
                 <tbody>
                   {data?.map((o) => (
@@ -142,7 +169,31 @@ function AdminOrdersPage() {
                         <ShippingCell order={o as Order} onChange={() => refetch()} />
                       </td>
                       <td className="p-2 text-xs">{new Date(o.created_at).toLocaleString("pt-BR")}</td>
+                      <td className="p-2 text-right">
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10 hover:text-destructive" aria-label="Excluir pedido">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Excluir pedido {o.order_number}?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Esta ação é permanente. O pedido, seus itens e notificações associadas serão removidos.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => remove(o.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                                Excluir
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </td>
                     </tr>
+
                   ))}
                 </tbody>
               </table>
