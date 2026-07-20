@@ -21,6 +21,12 @@ import { IntegrationWizard } from "@/components/dojo/integrations/IntegrationWiz
 import { ApiHubDialog } from "@/components/dojo/integrations/ApiHubDialog";
 import { AMTPayWizard } from "@/components/dojo/integrations/AMTPayWizard";
 import { GatewayAccountsPanel } from "@/components/dojo/integrations/GatewayAccountsPanel";
+import { AMTPayDashboard } from "@/components/dojo/amtpay/AMTPayDashboard";
+import { WalletPanel } from "@/components/dojo/amtpay/WalletPanel";
+import { WithdrawalsPanel } from "@/components/dojo/amtpay/WithdrawalsPanel";
+import { StatementPanel } from "@/components/dojo/amtpay/StatementPanel";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { LayoutDashboard, Wallet as WalletIcon, ArrowDownRight, FileText as FileTextIcon, Plug as PlugIcon } from "lucide-react";
 
 import { listMyGateways, upsertMyGateway } from "@/lib/dojo/gateways.functions";
 import { listPartnerIntegrations, savePartnerIntegration, listPartnerCheckins } from "@/lib/dojo/attendance.functions";
@@ -165,21 +171,47 @@ function IntegrationsHub() {
         </div>
       </div>
 
-      {/* ================= AMT PAY — Fluxo principal ================= */}
-      <PaymentsHero
-        gateway={paymentGw}
-        onActivate={() => { setAmtPayProvider(undefined); setAmtPayOpen(true); }}
-        onManage={() => setAdvancedOpen(true)}
-      />
+      {/* ================= AMT PAY — Central financeira (Tabs) ================= */}
+      <Tabs defaultValue="dashboard" className="w-full">
+        <TabsList className="flex flex-wrap h-auto">
+          <TabsTrigger value="dashboard" className="gap-2"><LayoutDashboard className="h-4 w-4" />Visão geral</TabsTrigger>
+          <TabsTrigger value="wallet" className="gap-2"><WalletIcon className="h-4 w-4" />Minha carteira</TabsTrigger>
+          <TabsTrigger value="withdrawals" className="gap-2"><ArrowDownRight className="h-4 w-4" />Saques</TabsTrigger>
+          <TabsTrigger value="statement" className="gap-2"><FileTextIcon className="h-4 w-4" />Extrato</TabsTrigger>
+          <TabsTrigger value="gateways" className="gap-2"><PlugIcon className="h-4 w-4" />Gateways</TabsTrigger>
+        </TabsList>
 
-      {/* Painel de contas conectadas + histórico */}
-      <GatewayAccountsPanel
-        onConnect={() => { setAmtPayProvider(undefined); setAmtPayOpen(true); }}
-        onReconfigure={(prov) => {
-          setAmtPayProvider(prov as any);
-          setAmtPayOpen(true);
-        }}
-      />
+        <TabsContent value="dashboard" className="mt-6 space-y-6">
+          <AMTPayDashboard />
+          <PaymentsHero
+            gateway={paymentGw}
+            onActivate={() => { setAmtPayProvider(undefined); setAmtPayOpen(true); }}
+            onManage={() => setAdvancedOpen(true)}
+          />
+        </TabsContent>
+
+        <TabsContent value="wallet" className="mt-6">
+          <WalletPanel />
+        </TabsContent>
+
+        <TabsContent value="withdrawals" className="mt-6">
+          <WithdrawalsPanel />
+        </TabsContent>
+
+        <TabsContent value="statement" className="mt-6">
+          <StatementPanel />
+        </TabsContent>
+
+        <TabsContent value="gateways" className="mt-6 space-y-6">
+          <GatewayAccountsPanel
+            onConnect={() => { setAmtPayProvider(undefined); setAmtPayOpen(true); }}
+            onReconfigure={(prov) => {
+              setAmtPayProvider(prov as any);
+              setAmtPayOpen(true);
+            }}
+          />
+        </TabsContent>
+      </Tabs>
 
 
       {/* ================= Modo avançado (colapsado) ================= */}
