@@ -140,23 +140,65 @@ function IntegrationsHub() {
 
   const m = metricsQ.data ?? { installed: 0, active: 0, inactive: 0, errors24h: 0, calls24h: 0, lastSyncAt: null };
 
+  const paymentGw = useMemo(() => {
+    const list = gwQ.data ?? [];
+    return list.find((g: any) => g.is_default) ?? list.find((g: any) => g.active) ?? list[0] ?? null;
+  }, [gwQ.data]);
+
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 md:gap-7">
       {/* Header + busca */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <p className="text-muted-foreground text-sm max-w-2xl">
-          Conecte, configure, teste e monitore todos os serviços externos do AMT Dojo Manager.
-        </p>
-        <div className="relative w-full md:w-80">
-          <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Buscar por nome, fornecedor ou categoria..."
-            className="pl-9"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
+        <div>
+          <h1 className="text-xl md:text-2xl font-bold tracking-tight">Integrações</h1>
+          <p className="text-muted-foreground text-sm max-w-2xl mt-1">
+            Configure recebimentos, parceiros e serviços externos do AMT Dojo Manager.
+          </p>
         </div>
       </div>
+
+      {/* ================= AMT PAY — Fluxo principal ================= */}
+      <PaymentsHero
+        gateway={paymentGw}
+        onActivate={() => setAmtPayOpen(true)}
+        onManage={() => setAdvancedOpen(true)}
+      />
+
+      {/* ================= Modo avançado (colapsado) ================= */}
+      <button
+        type="button"
+        onClick={() => setAdvancedOpen((v) => !v)}
+        className="flex items-center justify-between gap-3 rounded-xl border bg-card px-4 py-3 hover:border-primary/40 transition text-left"
+      >
+        <div className="flex items-center gap-3">
+          <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center">
+            <Settings2 className="h-4 w-4 text-muted-foreground" />
+          </div>
+          <div>
+            <div className="text-sm font-semibold flex items-center gap-2">
+              Configuração avançada
+              <Badge variant="outline" className="text-[10px] border-amber-500/40 text-amber-600 dark:text-amber-400">Técnico</Badge>
+            </div>
+            <div className="text-[11px] text-muted-foreground">
+              API Keys, tokens, webhooks e catálogo completo de parceiros. Recomendado apenas para equipes de TI.
+            </div>
+          </div>
+        </div>
+        {advancedOpen ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+      </button>
+
+      {!advancedOpen ? null : (
+      <>
+      <div className="relative">
+        <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          placeholder="Buscar por nome, fornecedor ou categoria..."
+          className="pl-9"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+      </div>
+
 
 
       {/* KPI Dashboard */}
