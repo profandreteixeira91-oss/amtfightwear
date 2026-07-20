@@ -124,9 +124,12 @@ function SchedulesPage() {
 
   const teamById = useMemo(() => {
     const map = new Map<string, any>();
-    for (const m of team.data ?? []) map.set(m.id, m);
+    for (const m of team.data ?? []) {
+      if (m?.id) map.set(m.id as string, m);
+    }
     return map;
   }, [team.data]);
+
 
   // Agrupar ocorrências por dia
   const byDay = useMemo(() => {
