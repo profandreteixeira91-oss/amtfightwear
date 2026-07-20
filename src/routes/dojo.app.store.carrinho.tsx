@@ -8,21 +8,16 @@ import {
   dsClearCart,
   dsHandoffToStoreCheckout,
 } from "@/lib/dojo/store/store.functions";
-import { calculateShipping } from "@/lib/store/shipping.functions";
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Trash2, ShoppingBag, Truck, ArrowRight } from "lucide-react";
+import { Trash2, ShoppingBag, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export const Route = createFileRoute("/dojo/app/store/carrinho")({ component: CartPage });
 
 const brl = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-const onlyDigits = (s: string) => s.replace(/\D/g, "");
-
-type ShipOption = { id: number; name: string; company: string; price: number; delivery_time?: number; error?: string };
 
 function CartPage() {
   const nav = useNavigate();
@@ -32,7 +27,6 @@ function CartPage() {
   const rmFn = useServerFn(dsRemoveCartItem);
   const clrFn = useServerFn(dsClearCart);
   const handoffFn = useServerFn(dsHandoffToStoreCheckout);
-  const shipFn = useServerFn(calculateShipping);
 
   const { data, isLoading } = useQuery({ queryKey: ["dojo-store", "cart"], queryFn: () => getFn() });
   const refresh = () => qc.invalidateQueries({ queryKey: ["dojo-store", "cart"] });
@@ -69,51 +63,23 @@ function CartPage() {
     }, 350);
   };
 
-  const [cep, setCep] = useState("");
-  const [options, setOptions] = useState<ShipOption[]>([]);
-  const [selected, setSelected] = useState<number | null>(null);
-  const shippingCost = useMemo(
-    () => options.find((o) => o.id === selected)?.price ?? 0,
-    [options, selected],
-  );
-
-  const quote = useMutation({
-    mutationFn: async () => {
-      if (!data?.items.length) throw new Error("Carrinho vazio");
-      const clean = onlyDigits(cep);
-      if (clean.length !== 8) throw new Error("CEP inválido");
-      const res = await shipFn({
-        data: {
-          to_zip: clean,
-          items: data.items.map((it) => ({
-            product_id: it.product_id,
-            variant_id: it.variant_id ?? undefined,
-            quantity: it.quantity,
-          })),
-        },
-      });
-      return res.options as ShipOption[];
-    },
-    onSuccess: (opts) => {
-      setOptions(opts);
-      const cheapest = opts.filter((o) => !o.error).sort((a, b) => a.price - b.price)[0];
-      setSelected(cheapest?.id ?? null);
-    },
-    onError: (e: any) => toast.error(e?.message ?? "Falha ao calcular frete"),
-  });
-
   const checkout = useMutation({
     mutationFn: () => handoffFn(),
     onSuccess: (r: any) => {
       // Subdomínios diferentes (dojomanager x loja) não compartilham
       // localStorage, então o carrinho é enviado via URL para a rota
       // /loja/carrinho, que faz o import e segue para /loja/checkout.
+      // O frete é calculado lá no checkout oficial.
       const payload = { items: r.items };
       const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
       refresh();
-      toast.success("Redirecionando para o checkout AMT Fight Wear…");
-      window.location.href =
-        `https://loja.amtfightwear.com.br/loja/carrinho?checkout=1&import=${encodeURIComponent(b64)}`;
+      const url = `https://loja.amtfightwear.com.br/loja/carrinho?checkout=1&import=${encodeURIComponent(b64)}`;
+      const win = window.open(url, "_blank", "noopener,noreferrer");
+      if (!win) {
+        toast.error("Ative pop-ups para abrir o checkout ou clique novamente.");
+      } else {
+        toast.success("Checkout aberto em nova janela. O frete será calculado lá.");
+      }
     },
     onError: (e: any) => toast.error(e?.message ?? "Falha ao finalizar"),
   });
@@ -129,7 +95,7 @@ function CartPage() {
     );
   }
 
-  const total = Math.round((data.subtotal + shippingCost) * 100) / 100;
+  const total = data.subtotal;
 
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
@@ -215,7 +181,20 @@ function CartPage() {
         ))}
         <div className="flex justify-between">
           <Button asChild variant="ghost" size="sm"><Link to="/dojo/app/store">Continuar comprando</Link></Button>
-          <Button variant="ghost" size="sm" onClick={() => clr.mutate()}>Esvaziar</Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-destructive hover:bg-destructive/10"
+            disabled={clr.isPending}
+            onClick={() => {
+              if (window.confirm("Tem certeza que deseja limpar o carrinho? Esta ação não pode ser desfeita.")) {
+                clr.mutate();
+              }
+            }}
+          >
+            <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+            Limpar carrinho
+          </Button>
         </div>
       </div>
 
@@ -235,67 +214,20 @@ function CartPage() {
               <span>💰 Você economizou</span><span className="font-bold">{brl(data.savings)}</span>
             </div>
           )}
-          <div className="flex justify-between">
-            <span>Frete</span>
-            <span className="font-medium">{shippingCost > 0 ? brl(shippingCost) : "—"}</span>
-          </div>
           <div className="flex justify-between border-t pt-2 text-base">
             <span className="font-semibold">Total</span>
             <span className="font-bold text-primary">{brl(total)}</span>
           </div>
-        </div>
-
-        <div className="space-y-2 border-t pt-3">
-          <div className="flex items-center gap-1.5 text-xs font-medium">
-            <Truck className="h-3.5 w-3.5" /> Calcular frete
+          <div className="rounded-md bg-muted/50 px-2 py-1.5 text-[11px] text-muted-foreground">
+            🚚 O frete será calculado na próxima etapa (checkout AMT Fight Wear).
           </div>
-          <div className="flex gap-2">
-            <Input
-              placeholder="CEP (00000-000)"
-              value={cep}
-              onChange={(e) => setCep(e.target.value)}
-              maxLength={9}
-              className="h-9"
-              inputMode="numeric"
-            />
-            <Button size="sm" onClick={() => quote.mutate()} disabled={quote.isPending}>
-              {quote.isPending ? "…" : "OK"}
-            </Button>
-          </div>
-          {options.length > 0 && (
-            <div className="space-y-1">
-              {options.map((o) => (
-                <label
-                  key={o.id}
-                  className={`flex cursor-pointer items-center justify-between gap-2 rounded-md border p-2 text-xs ${
-                    selected === o.id ? "border-primary bg-primary/5" : "border-input"
-                  } ${o.error ? "opacity-50" : ""}`}
-                >
-                  <span className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      checked={selected === o.id}
-                      onChange={() => setSelected(o.id)}
-                      disabled={!!o.error}
-                    />
-                    <span>
-                      <span className="font-medium">{o.company} · {o.name}</span>
-                      {o.delivery_time && <span className="ml-1 text-muted-foreground">({o.delivery_time} dias)</span>}
-                      {o.error && <span className="ml-1 text-destructive">{o.error}</span>}
-                    </span>
-                  </span>
-                  {!o.error && <span className="font-semibold">{brl(o.price)}</span>}
-                </label>
-              ))}
-            </div>
-          )}
         </div>
 
         <Button className="w-full" size="lg" disabled={checkout.isPending} onClick={() => checkout.mutate()}>
           {checkout.isPending ? "Processando…" : (<>Finalizar Compra <ArrowRight className="ml-2 h-4 w-4" /></>)}
         </Button>
         <div className="text-[11px] text-muted-foreground">
-          O pagamento e o gerenciamento do pedido são processados pela AMT Fight Wear.
+          O checkout abrirá em uma nova janela. Seu carrinho fica salvo aqui até você concluir a compra.
           10+ unidades por subcategoria garantem 25% de desconto automático.
         </div>
       </Card>
