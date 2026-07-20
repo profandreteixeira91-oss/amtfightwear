@@ -768,6 +768,16 @@ function StudentDetail() {
                 )}
               </SectionCard>
             </TabsContent>
+
+            {/* --- Benefícios Corporativos --- */}
+            <TabsContent value="beneficios" className="mt-4 space-y-4">
+              <SectionCard title="Benefícios Corporativos" icon={ShieldCheck}>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Vincule o aluno a plataformas de benefícios corporativos. A validação de check-in acontece automaticamente no módulo Check-in.
+                </p>
+                <StudentCorporateBenefitsSection studentId={id} />
+              </SectionCard>
+            </TabsContent>
           </Tabs>
         </main>
       </div>
