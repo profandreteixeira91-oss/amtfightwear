@@ -122,20 +122,17 @@ function StoreChatAdmin() {
   const [tab, setTab] = useState<"conversas" | "config" | "kb">("conversas");
 
   return (
-    <div className="mx-auto max-w-7xl p-4">
-      <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold">Chat da loja</h1>
-          <p className="text-sm text-muted-foreground">
-            Atenda conversas, configure o agente de IA e mantenha a base de conhecimento.
-          </p>
-        </div>
+    <PageShell
+      title="Chat da loja"
+      description="Atenda conversas, configure o agente de IA e mantenha a base de conhecimento."
+      actions={
         <div className="flex items-center gap-1 rounded-lg border bg-card p-1 text-sm">
           <TabButton active={tab === "conversas"} onClick={() => setTab("conversas")} icon={MessageSquare} label="Conversas" />
           <TabButton active={tab === "config"} onClick={() => setTab("config")} icon={Settings} label="Configurações" />
           <TabButton active={tab === "kb"} onClick={() => setTab("kb")} icon={BookOpen} label="Base de conhecimento" />
         </div>
-      </div>
+      }
+    >
 
       {tab === "config" && <ChatSettingsPanel />}
       {tab === "kb" && <ChatKbPanel />}
