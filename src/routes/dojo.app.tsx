@@ -52,6 +52,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DojoLogo } from "@/components/dojo/DojoLogo";
+import { TrialBadge } from "@/components/dojo/TrialBadge";
 
 export const Route = createFileRoute("/dojo/app")({
   head: () => ({ meta: [{ title: "Painel — AMT Dojo Manager" }] }),
@@ -253,7 +254,9 @@ function DojoLayout() {
                 </p>
               )}
             </div>
+            <TrialBadge />
             <div className="hidden md:flex items-center gap-2">
+
               <div className="relative">
                 <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                 <input
