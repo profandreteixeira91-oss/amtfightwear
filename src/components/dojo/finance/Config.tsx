@@ -82,6 +82,7 @@ export function FinanceCategories() {
 // ============ Relatórios ============
 export function FinanceReports() {
   const k = useFinanceKpis();
+  const { data: branding } = useDojoBranding();
 
   const download = (name: string, content: string, type: string) => {
     const blob = new Blob([content], { type });
@@ -132,7 +133,7 @@ export function FinanceReports() {
           <Button size="sm" variant="outline" onClick={() => exportCsv("expenses")}>
             <FileSpreadsheet className="h-4 w-4 mr-1" /> Despesas (CSV)
           </Button>
-          <Button size="sm" variant="outline" onClick={() => window.print()}>
+          <Button size="sm" variant="outline" onClick={() => printFinanceReport(k, branding)}>
             <FileText className="h-4 w-4 mr-1" /> Imprimir / PDF
           </Button>
         </div>
