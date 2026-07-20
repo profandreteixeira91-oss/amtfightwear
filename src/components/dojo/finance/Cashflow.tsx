@@ -132,30 +132,34 @@ export function FinanceCashflow() {
       </Card>
 
       <Card className="border border-[color:var(--dojo-border)] overflow-hidden">
-        <div className="grid grid-cols-[120px_repeat(3,minmax(0,1fr))] px-4 py-2 bg-[color:var(--dojo-surface-2)] border-b border-[color:var(--dojo-border)] text-[10px] uppercase tracking-widest text-muted-foreground">
-          <span>Data</span>
-          <span>Entradas</span>
-          <span>Saídas</span>
-          <span>Saldo</span>
-        </div>
-        <div className="divide-y divide-[color:var(--dojo-border)] max-h-[400px] overflow-y-auto">
-          {days
-            .filter((d) => d.entradas || d.saidas)
-            .map((d) => (
-              <div key={d.day} className="grid grid-cols-[120px_repeat(3,minmax(0,1fr))] px-4 py-2 text-sm">
-                <span className="text-xs text-muted-foreground">{d.label}</span>
-                <span className="text-emerald-600 font-medium">{brl(d.entradas)}</span>
-                <span className="text-red-600 font-medium">{brl(d.saidas)}</span>
-                <span className={`font-semibold ${d.saldo >= 0 ? "text-emerald-600" : "text-red-600"}`}>
-                  {brl(d.saldo)}
-                </span>
-              </div>
-            ))}
-          {days.filter((d) => d.entradas || d.saidas).length === 0 && (
-            <div className="p-6 text-center">
-              <Badge variant="outline">Sem movimentações no período</Badge>
+        <div className="overflow-x-auto">
+          <div className="min-w-[560px]">
+            <div className="grid grid-cols-[110px_repeat(3,minmax(0,1fr))] px-4 py-2 bg-[color:var(--dojo-surface-2)] border-b border-[color:var(--dojo-border)] text-[10px] uppercase tracking-widest text-muted-foreground">
+              <span>Data</span>
+              <span>Entradas</span>
+              <span>Saídas</span>
+              <span>Saldo</span>
             </div>
-          )}
+            <div className="divide-y divide-[color:var(--dojo-border)] max-h-[400px] overflow-y-auto">
+              {days
+                .filter((d) => d.entradas || d.saidas)
+                .map((d) => (
+                  <div key={d.day} className="grid grid-cols-[110px_repeat(3,minmax(0,1fr))] px-4 py-2 text-sm">
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">{d.label}</span>
+                    <span className="text-emerald-600 font-medium whitespace-nowrap">{brl(d.entradas)}</span>
+                    <span className="text-red-600 font-medium whitespace-nowrap">{brl(d.saidas)}</span>
+                    <span className={`font-semibold whitespace-nowrap ${d.saldo >= 0 ? "text-emerald-600" : "text-red-600"}`}>
+                      {brl(d.saldo)}
+                    </span>
+                  </div>
+                ))}
+              {days.filter((d) => d.entradas || d.saidas).length === 0 && (
+                <div className="p-6 text-center">
+                  <Badge variant="outline">Sem movimentações no período</Badge>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </Card>
     </div>
