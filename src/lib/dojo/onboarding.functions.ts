@@ -84,10 +84,43 @@ const profileSchema = z.object({
   acceptAmtPayTerms: z.literal(true),
 });
 
+const FIELD_LABELS: Record<string, string> = {
+  responsibleName: "Nome do responsável",
+  email: "E-mail",
+  whatsapp: "WhatsApp",
+  phone: "Telefone",
+  cnpj: "CPF/CNPJ",
+  birthDate: "Data de nascimento",
+  companyType: "Tipo de empresa",
+  legalName: "Razão social",
+  tradeName: "Nome fantasia",
+  monthlyIncome: "Faturamento mensal",
+  modalities: "Modalidades",
+  zip: "CEP",
+  address: "Endereço",
+  addressNumber: "Número",
+  addressComplement: "Complemento",
+  neighborhood: "Bairro",
+  city: "Cidade",
+  state: "Estado (UF)",
+  pixKey: "Chave PIX",
+  pixKeyType: "Tipo da chave PIX",
+  acceptAmtPayTerms: "Aceite dos termos AMT Pay",
+};
+
+function parseProfile(d: unknown) {
+  const res = profileSchema.safeParse(d);
+  if (res.success) return res.data;
+  const issue = res.error.issues[0];
+  const field = String(issue?.path?.[0] ?? "");
+  const label = FIELD_LABELS[field] || field || "campo";
+  throw new Error(`${label}: ${issue?.message ?? "valor inválido"}`);
+}
+
 /** Salva/atualiza o perfil do dojo com dados de onboarding (sem finalizar). */
 export const saveOnboardingProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => profileSchema.parse(d))
+  .inputValidator((d) => parseProfile(d))
   .handler(async ({ data, context }) => {
     const cnpj = data.cnpj.replace(/\D/g, "");
     const isCpf = cnpj.length === 11;
