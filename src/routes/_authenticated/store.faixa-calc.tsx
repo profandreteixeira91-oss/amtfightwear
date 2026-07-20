@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Calculator } from "lucide-react";
+import { PageShell } from "@/components/common/PageShell";
 import { brl } from "@/lib/format";
 import { listSizePresets, type SizePreset } from "@/lib/store/sizes.functions";
 
@@ -333,7 +334,7 @@ function FaixaCalc() {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </PageShell>
   );
 }
 

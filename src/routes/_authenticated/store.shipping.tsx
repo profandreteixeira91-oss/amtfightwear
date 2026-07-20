@@ -139,7 +139,7 @@ function ShippingSettingsPage() {
           <TestQuoteBlock />
         </CardContent>
       </Card>
-    </div>
+    </PageShell>
   );
 }
 

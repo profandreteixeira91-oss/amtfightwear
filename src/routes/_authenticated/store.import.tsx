@@ -92,7 +92,7 @@ function ImportPage() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </PageShell>
   );
 }
 

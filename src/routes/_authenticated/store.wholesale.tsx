@@ -150,7 +150,7 @@ function WholesaleSettingsPage() {
           </p>
         </CardContent>
       </Card>
-    </div>
+    </PageShell>
   );
 }
 
