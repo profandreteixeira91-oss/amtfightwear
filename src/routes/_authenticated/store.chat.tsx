@@ -13,6 +13,7 @@ import {
   adminDeleteKbArticle,
 } from "@/lib/store/sales-chat.functions";
 import { Bot, Headset, Send, User, Loader2, CheckCircle2, Settings, BookOpen, MessageSquare, Save, Plus, Trash2 } from "lucide-react";
+import { PageShell } from "@/components/common/PageShell";
 
 type Conv = {
   id: string;
