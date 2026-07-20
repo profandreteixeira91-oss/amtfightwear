@@ -136,6 +136,12 @@ export function AsaasOnboardingCard() {
     if (!profile.zip) missingProfile.push("CEP");
   }
 
+  // Se o perfil já tem número e bairro salvos, ativação é 1-clique
+  const canOneClick =
+    missingProfile.length === 0 &&
+    !!profile?.addressNumber &&
+    !!profile?.neighborhood;
+
   return (
     <div className="space-y-6">
       {/* Card principal - Status */}
@@ -225,6 +231,24 @@ export function AsaasOnboardingCard() {
                 {missingProfile.join(", ")}.
               </AlertDescription>
             </Alert>
+          ) : canOneClick ? (
+            <div className="space-y-3">
+              <Alert>
+                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                <AlertTitle>Dados prontos</AlertTitle>
+                <AlertDescription>
+                  Todos os dados fiscais do dojo já estão preenchidos. Clique em
+                  ativar para criar sua subconta Asaas automaticamente.
+                </AlertDescription>
+              </Alert>
+              <Button
+                onClick={() => create.mutate({})}
+                disabled={create.isPending}
+              >
+                {create.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                Ativar recebimento agora
+              </Button>
+            </div>
           ) : (
             <form
               className="space-y-3"
@@ -245,6 +269,14 @@ export function AsaasOnboardingCard() {
                 });
               }}
             >
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Complete os últimos dados</AlertTitle>
+                <AlertDescription>
+                  Faltam apenas alguns campos exigidos pelo Asaas. Eles serão salvos
+                  no perfil do dojo — nas próximas vezes a ativação será instantânea.
+                </AlertDescription>
+              </Alert>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
                   <Label htmlFor="province">Bairro *</Label>
@@ -346,6 +378,7 @@ export function AsaasOnboardingCard() {
           )}
         </CardContent>
       </Card>
+
 
       {/* Card de chave PIX para saques */}
       {hasSubaccount && (
