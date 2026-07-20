@@ -168,7 +168,7 @@ export const upsertPayrollConfig = createServerFn({ method: "POST" })
     await context.supabase.from("dojo_team_history").insert({
       owner_id: context.userId, member_id: data.member_id,
       event_type: "salary_change", description: "Configuração financeira atualizada",
-      after_data: data, actor_user_id: context.userId,
+      after_data: data as never, actor_user_id: context.userId,
     });
     return { ok: true };
   });
@@ -225,7 +225,7 @@ export const upsertPayment = createServerFn({ method: "POST" })
     await context.supabase.from("dojo_team_history").insert({
       owner_id: context.userId, member_id: rest.member_id,
       event_type: "payment", description: `Pagamento registrado: ${rest.kind} R$ ${rest.amount}`,
-      after_data: rest, actor_user_id: context.userId,
+      after_data: rest as never, actor_user_id: context.userId,
     });
     return { id: row.id };
   });
