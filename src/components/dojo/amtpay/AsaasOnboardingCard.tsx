@@ -56,6 +56,7 @@ export function AsaasOnboardingCard() {
   const refreshFn = useServerFn(refreshMyAsaasSubaccount);
   const savePixFn = useServerFn(setDojoPixKey);
   const linkFn = useServerFn(linkExistingAsaasAccount);
+  const resetFn = useServerFn(resetMyAsaasConfig);
 
   const cfg = useQuery({
     queryKey: ["asaas-config"],
@@ -81,8 +82,21 @@ export function AsaasOnboardingCard() {
 
   const refresh = useMutation({
     mutationFn: () => refreshFn({}),
+    onSuccess: (result) => {
+      if (result?.reset) {
+        toast.warning(result.reason || "Subconta encerrada — configuração redefinida.");
+      } else {
+        toast.success("Status atualizado");
+      }
+      qc.invalidateQueries({ queryKey: ["asaas-config"] });
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const reset = useMutation({
+    mutationFn: () => resetFn({}),
     onSuccess: () => {
-      toast.success("Status atualizado");
+      toast.success("Configuração do AMT Pay redefinida. Você pode configurar novamente.");
       qc.invalidateQueries({ queryKey: ["asaas-config"] });
     },
     onError: (err: Error) => toast.error(err.message),
@@ -96,6 +110,19 @@ export function AsaasOnboardingCard() {
     },
     onError: (err: Error) => toast.error(err.message),
   });
+
+  // Auto-check: quando existir subconta, valida com Asaas ao carregar o card
+  // (uma vez por sessão) para detectar encerramentos feitos fora do sistema.
+  const autoCheckedRef = useRef(false);
+  useEffect(() => {
+    if (autoCheckedRef.current) return;
+    if (cfg.isLoading || !cfg.data) return;
+    if (!cfg.data.subaccountId) return;
+    autoCheckedRef.current = true;
+    refresh.mutate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cfg.isLoading, cfg.data?.subaccountId]);
+
 
   const [form, setForm] = useState<{
     birthDate: string;
