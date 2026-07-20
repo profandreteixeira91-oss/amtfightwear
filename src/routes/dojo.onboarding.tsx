@@ -26,7 +26,6 @@ import {
   recordOnboardingDocument,
   removeOnboardingDocument,
   finishOnboarding,
-  DOC_TYPES as _DOC_TYPES,
   type DocType,
 } from "@/lib/dojo/onboarding.functions";
 import { createMyAsaasSubaccount } from "@/lib/asaas/asaas.functions";
