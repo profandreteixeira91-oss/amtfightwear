@@ -117,7 +117,9 @@ function OnboardingPage() {
   const [uid, setUid] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(empty);
   const [docs, setDocs] = useState<Record<string, string>>({});
+  const [docMimes, setDocMimes] = useState<Record<string, string>>({});
   const [uploadingDoc, setUploadingDoc] = useState<DocType | null>(null);
+  const [useCnhDigital, setUseCnhDigital] = useState(false);
 
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((prev) => ({ ...prev, [k]: v }));
@@ -164,8 +166,16 @@ function OnboardingPage() {
           acceptAmtPayTerms: !!p.accepted_amtpay_terms,
         }));
         const map: Record<string, string> = {};
-        for (const d of state.documents) map[d.doc_type] = d.file_path;
+        const mimes: Record<string, string> = {};
+        for (const d of state.documents) {
+          map[d.doc_type] = d.file_path;
+          if (d.mime_type) mimes[d.doc_type] = d.mime_type;
+        }
         setDocs(map);
+        setDocMimes(mimes);
+        if ((mimes.identity_front || "").toLowerCase().includes("pdf")) {
+          setUseCnhDigital(true);
+        }
       } catch (e) {
         toast.error("Falha ao carregar", {
           description: e instanceof Error ? e.message : String(e),
@@ -220,6 +230,7 @@ function OnboardingPage() {
         },
       });
       setDocs((prev) => ({ ...prev, [docType]: path }));
+      setDocMimes((prev) => ({ ...prev, [docType]: file.type || "" }));
       toast.success(`${DOC_LABELS[docType]} enviado`);
     } catch (e) {
       toast.error("Falha no upload", {
@@ -238,18 +249,23 @@ function OnboardingPage() {
         delete n[docType];
         return n;
       });
+      setDocMimes((prev) => {
+        const n = { ...prev };
+        delete n[docType];
+        return n;
+      });
       toast.success("Documento removido");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : String(e));
     }
   };
 
-  const requiredDocs = useMemo<DocType[]>(
-    // Comprovante de endereço não é exigido pela API do Asaas — só é solicitado
-    // via CUSTOM se o analista pedir; nesse caso, o AMT Pay mostra o pendente.
-    () => (isCnpj ? ["identity_front", "identity_back", "cnpj_card"] : ["identity_front", "identity_back"]),
-    [isCnpj],
-  );
+  const requiredDocs = useMemo<DocType[]>(() => {
+    const base: DocType[] = ["identity_front"];
+    if (!useCnhDigital) base.push("identity_back");
+    if (isCnpj) base.push("cnpj_card");
+    return base;
+  }, [isCnpj, useCnhDigital]);
 
   const validate = (): string | null => {
     try {
@@ -562,10 +578,32 @@ function OnboardingPage() {
 
           {/* Documentos */}
           <Section title="Documentos obrigatórios" description="Envie fotos ou PDFs legíveis (até 10 MB cada). Comprovante de endereço só é solicitado se a análise do Asaas pedir depois.">
+            <label className="mb-3 flex items-start gap-3 rounded-xl border border-black/10 bg-black/[0.02] p-3 text-sm text-black/70">
+              <Checkbox
+                checked={useCnhDigital}
+                onCheckedChange={(v) => {
+                  const next = !!v;
+                  setUseCnhDigital(next);
+                  if (next && docs.identity_back) handleRemoveDoc("identity_back");
+                }}
+              />
+              <span>
+                <b>Tenho CNH Digital.</b> Vou enviar o <b>PDF original</b> baixado do app Carteira Digital de Trânsito
+                (um único arquivo). Dispensa o envio do verso.
+              </span>
+            </label>
             <div className="grid gap-3 md:grid-cols-2">
               {requiredDocs.map((docType) => {
                 const isRequired = requiredDocs.includes(docType);
                 const has = !!docs[docType];
+                const label =
+                  docType === "identity_front" && useCnhDigital
+                    ? "CNH Digital (PDF único)"
+                    : DOC_LABELS[docType];
+                const accept =
+                  docType === "identity_front" && useCnhDigital
+                    ? "application/pdf"
+                    : "image/*,application/pdf";
                 return (
                   <div
                     key={docType}
@@ -574,7 +612,7 @@ function OnboardingPage() {
                     <div className="flex items-center justify-between gap-2">
                       <div className="min-w-0">
                         <div className="text-sm font-medium truncate">
-                          {DOC_LABELS[docType]} {isRequired && <span className="text-[#C1121F]">*</span>}
+                          {label} {isRequired && <span className="text-[#C1121F]">*</span>}
                         </div>
                         <div className="text-[11px] text-black/50">
                           {has ? "Enviado" : "Nenhum arquivo enviado"}
@@ -602,7 +640,7 @@ function OnboardingPage() {
                       {has ? "Substituir arquivo" : "Enviar arquivo"}
                       <input
                         type="file"
-                        accept="image/*,application/pdf"
+                        accept={accept}
                         className="sr-only"
                         onChange={(e) => {
                           const f = e.target.files?.[0];

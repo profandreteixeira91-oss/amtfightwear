@@ -232,19 +232,22 @@ export const finishOnboarding = createServerFn({ method: "POST" })
     // Documentos obrigatórios
     const { data: docs } = await context.supabase
       .from("dojo_onboarding_documents")
-      .select("doc_type")
+      .select("doc_type, mime_type")
       .eq("owner_id", context.userId);
-    const uploaded = new Set((docs ?? []).map((d) => d.doc_type as string));
-    // Documentos obrigatórios seguem o enum oficial do Asaas
-    // (GET /v3/myAccount/documents). Comprovante de residência NÃO está
-    // na lista de tipos exigidos pela API — só aparece se o analista
-    // solicitar via CUSTOM, e nesse caso é enviado direto pelo AMT Pay.
-    const docRequired: string[] = ["identity_front", "identity_back"];
+    const uploaded = new Map(
+      (docs ?? []).map((d) => [d.doc_type as string, (d.mime_type ?? "") as string]),
+    );
+    // CNH Digital: PDF único no campo identity_front dispensa o verso.
+    const frontMime = uploaded.get("identity_front") ?? "";
+    const isCnhDigital = frontMime.toLowerCase().includes("pdf");
+
+    const docRequired: string[] = ["identity_front"];
+    if (!isCnhDigital) docRequired.push("identity_back");
     if (isCnpj) docRequired.push("cnpj_card");
     const missingDocs = docRequired.filter((d) => !uploaded.has(d));
     if (missingDocs.length) {
       const labels: Record<string, string> = {
-        identity_front: "RG/CNH (frente)",
+        identity_front: "Documento de identidade (frente ou CNH Digital)",
         identity_back: "RG/CNH (verso)",
         address_proof: "Comprovante de endereço",
         cnpj_card: "Cartão CNPJ",
@@ -254,6 +257,7 @@ export const finishOnboarding = createServerFn({ method: "POST" })
         `Envie: ${missingDocs.map((d) => labels[d] || d).join(", ")}`,
       );
     }
+
 
     const { error: updErr } = await context.supabase
       .from("dojo_academy_profile")
