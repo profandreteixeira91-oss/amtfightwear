@@ -186,6 +186,7 @@ function RootComponent() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     void import("@/lib/pwa/register").then((m) => m.registerPwa());
+    void import("@/lib/cep-autofill").then((m) => m.attachCepAutofill());
   }, []);
 
   return (
