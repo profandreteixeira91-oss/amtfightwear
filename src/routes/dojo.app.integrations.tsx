@@ -165,50 +165,50 @@ function IntegrationsHub() {
         <Kpi icon={Zap} label="Última sync" value={m.lastSyncAt ? relativeTime(m.lastSyncAt) : "—"} tone="default" small />
       </div>
 
-      {/* Layout: sidebar + grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-6">
-        <aside className="space-y-1">
-          <CatItem active={cat === "all"} label="Todas" count={INTEGRATIONS.length} onClick={() => setCat("all")} />
+      {/* Menu superior deslizante de categorias */}
+      <div className="-mx-2 px-2 sticky top-14 z-20 bg-background/80 backdrop-blur-md border-b">
+        <div className="flex gap-2 overflow-x-auto py-3 scrollbar-thin snap-x">
+          <CatChip active={cat === "all"} label="Todas" count={INTEGRATIONS.length} onClick={() => setCat("all")} />
           {INTEGRATION_CATEGORIES.map((c) => (
-            <CatItem
+            <CatChip
               key={c.id}
               active={cat === c.id}
               label={c.label}
-              hint={c.description}
               count={INTEGRATIONS.filter((i) => i.category === c.id).length}
               onClick={() => setCat(c.id)}
             />
           ))}
-        </aside>
-
-        <div>
-          {filtered.length === 0 ? (
-            <div className="rounded-xl border border-dashed p-10 text-center text-sm text-muted-foreground">
-              Nenhuma integração corresponde à sua busca.
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-              {filtered.map((def) => (
-                <IntegrationCard
-                  key={def.id}
-                  integration={def}
-                  status={statusFor(def)}
-                  onConfigure={() => {
-                    if (def.id === "api_keys") return setApiHubMode("keys");
-                    if (def.id === "webhooks") return setApiHubMode("webhooks");
-                    if (def.backend === "apis") {
-                      toast.info(`${def.name}: em preparação.`);
-                      return;
-                    }
-                    setWizardFor(def);
-                  }}
-                  onTest={def.backend === "payments-gateway" || def.backend === "partner" ? () => handleQuickTest(def) : undefined}
-                  onLogs={def.backend === "partner" ? () => document.getElementById("logs-section")?.scrollIntoView({ behavior: "smooth" }) : undefined}
-                />
-              ))}
-            </div>
-          )}
         </div>
+      </div>
+
+      {/* Grid de integrações */}
+      <div>
+        {filtered.length === 0 ? (
+          <div className="rounded-xl border border-dashed p-10 text-center text-sm text-muted-foreground">
+            Nenhuma integração corresponde à sua busca.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {filtered.map((def) => (
+              <IntegrationCard
+                key={def.id}
+                integration={def}
+                status={statusFor(def)}
+                onConfigure={() => {
+                  if (def.id === "api_keys") return setApiHubMode("keys");
+                  if (def.id === "webhooks") return setApiHubMode("webhooks");
+                  if (def.backend === "apis") {
+                    toast.info(`${def.name}: em preparação.`);
+                    return;
+                  }
+                  setWizardFor(def);
+                }}
+                onTest={def.backend === "payments-gateway" || def.backend === "partner" ? () => handleQuickTest(def) : undefined}
+                onLogs={def.backend === "partner" ? () => document.getElementById("logs-section")?.scrollIntoView({ behavior: "smooth" }) : undefined}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* API Keys & Webhooks quick section */}
