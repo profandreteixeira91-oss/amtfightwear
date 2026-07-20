@@ -167,36 +167,44 @@ export function AppTopNav() {
   const isActive = (path: string) => pathname === path || pathname.startsWith(`${path}/`);
   const groupActive = (items: Item[]) => items.some((i) => isActive(i.url));
 
+  // /store é um sistema independente do Dojo Manager — não exibir nada de dojo aqui.
+  const inStore = pathname === "/store" || pathname.startsWith("/store/");
+
   const brandingFn = useServerFn(getMyAcademyBranding);
   const { data: dojo } = useQuery({
     queryKey: ["admin", "academy-branding"],
     queryFn: () => brandingFn({}),
     staleTime: 60_000,
+    enabled: !inStore,
   });
-  const dojoName = dojo?.trade_name || dojo?.legal_name;
-  const dojoLogo = dojo?.logo_url;
+  const dojoName = !inStore ? (dojo?.trade_name || dojo?.legal_name) : undefined;
+  const dojoLogo = !inStore ? dojo?.logo_url : undefined;
+
+  const visibleGroups = inStore
+    ? groups.filter((g) => g.label !== "Gestão")
+    : groups;
 
   return (
     <div className="sticky top-0 z-40 border-b border-border/60 bg-background/70 backdrop-blur-xl supports-[backdrop-filter]:bg-background/50">
       <div className="flex h-14 items-center gap-2 px-3 sm:px-4">
-        <Link to="/dashboard" className="group flex items-center gap-2.5 shrink-0">
+        <Link to={inStore ? "/store" : "/dashboard"} className="group flex items-center gap-2.5 shrink-0">
           <div className="relative grid h-10 w-10 place-items-center overflow-hidden rounded-lg bg-primary ring-1 ring-primary/40 shadow-[0_0_0_1px_color-mix(in_oklab,var(--primary)_30%,transparent),0_8px_24px_-8px_color-mix(in_oklab,var(--primary)_50%,transparent)] transition-transform group-hover:scale-[1.03]">
             <img src={dojoLogo || amtLogo} alt={dojoName || "AMT"} className="h-full w-full object-cover" />
             <span className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-white/30 opacity-0 transition-opacity group-hover:opacity-100" />
           </div>
           <div className="hidden leading-tight sm:block">
             <div className="text-sm font-bold tracking-tight truncate max-w-[220px]">
-              {dojoName || "AMT Growth"}
+              {inStore ? "AMT Fight Wear" : (dojoName || "AMT Growth")}
             </div>
             <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-              {dojoName ? "Dojo Manager" : "Engine"}
+              {inStore ? "Loja" : (dojoName ? "Dojo Manager" : "Engine")}
             </div>
           </div>
         </Link>
 
 
         <nav className="ml-4 hidden flex-1 items-center gap-0.5 overflow-x-auto lg:flex">
-          {groups.map((g) => {
+          {visibleGroups.map((g) => {
             const active = groupActive(g.items);
             return (
               <DropdownMenu key={g.label}>
@@ -265,7 +273,7 @@ export function AppTopNav() {
       {mobileOpen && (
         <div className="border-t border-border/60 bg-background/95 backdrop-blur lg:hidden">
           <div className="max-h-[70vh] space-y-4 overflow-y-auto p-3">
-            {groups.map((g) => (
+            {visibleGroups.map((g) => (
               <div key={g.label}>
                 <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                   {g.label}
