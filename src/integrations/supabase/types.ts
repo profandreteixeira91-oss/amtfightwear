@@ -2081,15 +2081,19 @@ export type Database = {
       dojo_academy_profile: {
         Row: {
           address: string | null
+          address_complement: string | null
+          address_number: string | null
           asaas_api_key_encrypted: string | null
           asaas_onboarding_status: string | null
           asaas_onboarding_url: string | null
           asaas_subaccount_id: string | null
           asaas_wallet_id: string | null
+          birth_date: string | null
           brand_primary: string | null
           brand_secondary: string | null
           city: string | null
           cnpj: string | null
+          company_type: string | null
           created_at: string
           email: string | null
           facebook: string | null
@@ -2099,6 +2103,8 @@ export type Database = {
           logo_placements: Json | null
           logo_url: string | null
           modalities: string[] | null
+          monthly_income: number | null
+          neighborhood: string | null
           owner_id: string
           phone: string | null
           pix_key: string | null
@@ -2117,15 +2123,19 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          address_complement?: string | null
+          address_number?: string | null
           asaas_api_key_encrypted?: string | null
           asaas_onboarding_status?: string | null
           asaas_onboarding_url?: string | null
           asaas_subaccount_id?: string | null
           asaas_wallet_id?: string | null
+          birth_date?: string | null
           brand_primary?: string | null
           brand_secondary?: string | null
           city?: string | null
           cnpj?: string | null
+          company_type?: string | null
           created_at?: string
           email?: string | null
           facebook?: string | null
@@ -2135,6 +2145,8 @@ export type Database = {
           logo_placements?: Json | null
           logo_url?: string | null
           modalities?: string[] | null
+          monthly_income?: number | null
+          neighborhood?: string | null
           owner_id: string
           phone?: string | null
           pix_key?: string | null
@@ -2153,15 +2165,19 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          address_complement?: string | null
+          address_number?: string | null
           asaas_api_key_encrypted?: string | null
           asaas_onboarding_status?: string | null
           asaas_onboarding_url?: string | null
           asaas_subaccount_id?: string | null
           asaas_wallet_id?: string | null
+          birth_date?: string | null
           brand_primary?: string | null
           brand_secondary?: string | null
           city?: string | null
           cnpj?: string | null
+          company_type?: string | null
           created_at?: string
           email?: string | null
           facebook?: string | null
@@ -2171,6 +2187,8 @@ export type Database = {
           logo_placements?: Json | null
           logo_url?: string | null
           modalities?: string[] | null
+          monthly_income?: number | null
+          neighborhood?: string | null
           owner_id?: string
           phone?: string | null
           pix_key?: string | null
