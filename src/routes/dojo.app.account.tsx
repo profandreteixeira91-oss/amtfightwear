@@ -22,6 +22,9 @@ import { createMyAsaasSubaccount, getMyAsaasConfig } from "@/lib/asaas/asaas.fun
 
 export const Route = createFileRoute("/dojo/app/account")({
   head: () => ({ meta: [{ title: "Minha Conta — AMT Dojo Manager" }] }),
+  validateSearch: (s: Record<string, unknown>) => ({
+    onboarding: s.onboarding === "1" || s.onboarding === 1 ? true : undefined,
+  }),
   component: AccountPage,
 });
 
@@ -55,7 +58,8 @@ const PLACEMENTS: { key: string; label: string }[] = [
 ];
 
 function AccountPage() {
-  const [tab, setTab] = useState<TabKey>("personal");
+  const { onboarding } = Route.useSearch();
+  const [tab, setTab] = useState<TabKey>(onboarding ? "academy" : "personal");
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>({});
   const [academy, setAcademy] = useState<any>({});
@@ -197,6 +201,17 @@ function AccountPage() {
 
   return (
     <div className="space-y-4 max-w-6xl">
+      {onboarding && (
+        <Alert className="border-primary/40 bg-primary/5">
+          <ShieldCheck className="h-4 w-4 text-primary" />
+          <AlertTitle>Bem-vindo ao AMT Dojo Manager!</AlertTitle>
+          <AlertDescription>
+            Para começar a operar, preencha os dados obrigatórios da sua academia
+            (razão social, CNPJ, endereço e contato). Assim que estiverem completos,
+            sua conta financeira (Asaas) será ativada automaticamente.
+          </AlertDescription>
+        </Alert>
+      )}
       <AccountHeader
         user={user}
         profile={profile}
