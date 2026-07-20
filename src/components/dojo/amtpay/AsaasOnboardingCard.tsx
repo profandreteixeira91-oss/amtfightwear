@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,6 +21,7 @@ import {
   ExternalLink,
   RefreshCw,
   ShieldCheck,
+  RotateCcw,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -29,7 +30,9 @@ import {
   refreshMyAsaasSubaccount,
   setDojoPixKey,
   linkExistingAsaasAccount,
+  resetMyAsaasConfig,
 } from "@/lib/asaas/asaas.functions";
+
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; className: string }> = {
