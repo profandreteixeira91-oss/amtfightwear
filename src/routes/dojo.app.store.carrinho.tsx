@@ -9,7 +9,7 @@ import {
   dsHandoffToStoreCheckout,
 } from "@/lib/dojo/store/store.functions";
 import { calculateShipping } from "@/lib/store/shipping.functions";
-import { useCart } from "@/lib/store/cart-store";
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
