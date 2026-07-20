@@ -25,6 +25,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { formatBRL } from "@/lib/store/cart-store";
 import { ExternalLink, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Save, Pencil, Trash2, Plus } from "lucide-react";
+import { PageShell } from "@/components/common/PageShell";
 
 export const Route = createFileRoute("/_authenticated/store/products")({
   component: AdminProductsPage,
@@ -242,23 +243,21 @@ function AdminProductsPage() {
   const dirtyCount = Object.keys(edits).length;
 
   return (
-    <div className="p-6 space-y-4">
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div>
-          <h1 className="text-2xl font-black">Produtos da loja</h1>
-          <p className="text-sm text-muted-foreground">{filtered.length} produtos {search && `(filtrados de ${data?.length ?? 0})`}</p>
-        </div>
-        <div className="flex items-center gap-2 flex-wrap">
+    <PageShell
+      title="Produtos da loja"
+      description={`${filtered.length} produtos${search ? ` (filtrados de ${data?.length ?? 0})` : ""}`}
+      actions={
+        <div className="flex flex-wrap items-center gap-2">
           <Input
             placeholder="Buscar produto..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            className="w-64"
+            className="w-56"
           />
           <select
             value={categoryFilter}
             onChange={(e) => { setCategoryFilter(e.target.value); setPage(1); }}
-            className="h-10 rounded-md border bg-background px-2 text-sm min-w-[14rem]"
+            className="h-10 rounded-md border bg-background px-2 text-sm min-w-[12rem]"
           >
             <option value="">Todas as categorias</option>
             {(() => {
@@ -299,7 +298,8 @@ function AdminProductsPage() {
           <Link to="/store/wholesale"><Button variant="outline">Atacado</Button></Link>
           <Link to="/store/import"><Button variant="outline">Importar catálogo</Button></Link>
         </div>
-      </div>
+      }
+    >
 
       <Card className="border-primary/40 bg-primary/5">
         <CardContent className="p-4">
@@ -550,7 +550,7 @@ function AdminProductsPage() {
       {managingCategories && (
         <CategoriesDialog onClose={() => setManagingCategories(false)} />
       )}
-    </div>
+    </PageShell>
   );
 }
 
