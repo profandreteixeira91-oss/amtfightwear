@@ -274,6 +274,72 @@ export const simulatePartnerCheckin = createServerFn({ method: "POST" })
       throw new Error("Aluno não encontrado com este identificador (email ou CPF).");
     }
 
+    // === Corporate Benefits Service (fonte única para elegibilidade Gympass/TotalPass) ===
+    // Se houver integração ativa no novo módulo, esta é a fonte da verdade.
+    // Nenhuma validação de benefício acontece fora daqui; o módulo Benefícios Corporativos
+    // apenas expõe os dados — a decisão final é registrada em dojo_partner_checkins.
+    const { data: corpIntegration } = await context.supabase
+      .from("dojo_corporate_integrations")
+      .select("status")
+      .eq("owner_id", context.userId)
+      .eq("provider", data.provider)
+      .maybeSingle();
+
+    if (corpIntegration && (corpIntegration as any).status === "connected") {
+      const { data: benef } = await context.supabase
+        .from("dojo_corporate_beneficiaries")
+        .select("id, status, eligible, plan_name")
+        .eq("owner_id", context.userId)
+        .eq("student_id", student.id)
+        .eq("provider", data.provider)
+        .maybeSingle();
+
+      const now = new Date().toISOString();
+      const b = benef as any;
+      const authorized = b && b.eligible === true && b.status === "active";
+
+      if (b) {
+        await context.supabase
+          .from("dojo_corporate_beneficiaries")
+          .update({ last_check_at: now, last_check_result: authorized ? "authorized" : "denied" })
+          .eq("id", b.id);
+      }
+      await context.supabase.from("dojo_corporate_history").insert({
+        owner_id: context.userId,
+        provider: data.provider,
+        event: authorized ? "checkin_authorized" : "checkin_denied",
+        details: { studentId: student.id, reason: !b ? "not_a_beneficiary" : b.status },
+      });
+
+      if (!authorized) {
+        const reason = !b
+          ? "not_a_beneficiary"
+          : b.status === "expired"
+            ? "benefit_expired"
+            : b.status === "blocked"
+              ? "benefit_blocked"
+              : b.status === "pending"
+                ? "benefit_pending"
+                : "not_eligible";
+        await context.supabase.from("dojo_partner_checkins").insert({
+          provider: data.provider,
+          external_user: data.identifier,
+          token: data.token ?? null,
+          status: "denied",
+          reason,
+          payload: { corporate_benefits: true, plan: b?.plan_name ?? null } as any,
+          unit_id: data.unitId ?? cfg.unit_id ?? null,
+          owner_id: context.userId,
+        } as any);
+        throw new Error(
+          !b
+            ? "Aluno não é beneficiário desta plataforma."
+            : `Benefício ${data.provider} não elegível (${b.status}).`,
+        );
+      }
+    }
+
+
     const { data: att, error: attErr } = await context.supabase
       .from("dojo_attendance")
       .insert({

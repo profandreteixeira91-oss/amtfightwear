@@ -3534,6 +3534,200 @@ export type Database = {
         }
         Relationships: []
       }
+      dojo_corporate_beneficiaries: {
+        Row: {
+          beneficiary_code: string | null
+          created_at: string
+          eligible: boolean
+          id: string
+          last_check_at: string | null
+          last_check_result: string | null
+          last_sync_at: string | null
+          owner_id: string
+          plan_info: Json
+          plan_name: string | null
+          provider: string
+          status: string
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          beneficiary_code?: string | null
+          created_at?: string
+          eligible?: boolean
+          id?: string
+          last_check_at?: string | null
+          last_check_result?: string | null
+          last_sync_at?: string | null
+          owner_id: string
+          plan_info?: Json
+          plan_name?: string | null
+          provider: string
+          status?: string
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          beneficiary_code?: string | null
+          created_at?: string
+          eligible?: boolean
+          id?: string
+          last_check_at?: string | null
+          last_check_result?: string | null
+          last_sync_at?: string | null
+          owner_id?: string
+          plan_info?: Json
+          plan_name?: string | null
+          provider?: string
+          status?: string
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_corporate_beneficiaries_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_corporate_history: {
+        Row: {
+          actor: string | null
+          actor_email: string | null
+          created_at: string
+          details: Json
+          event: string
+          id: string
+          owner_id: string
+          provider: string
+        }
+        Insert: {
+          actor?: string | null
+          actor_email?: string | null
+          created_at?: string
+          details?: Json
+          event: string
+          id?: string
+          owner_id: string
+          provider: string
+        }
+        Update: {
+          actor?: string | null
+          actor_email?: string | null
+          created_at?: string
+          details?: Json
+          event?: string
+          id?: string
+          owner_id?: string
+          provider?: string
+        }
+        Relationships: []
+      }
+      dojo_corporate_integrations: {
+        Row: {
+          academy_snapshot: Json
+          auth_state: Json
+          config: Json
+          connected_at: string | null
+          created_at: string
+          disconnected_at: string | null
+          gym_code: string | null
+          id: string
+          last_sync_at: string | null
+          last_sync_message: string | null
+          last_sync_status: string | null
+          owner_id: string
+          provider: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          academy_snapshot?: Json
+          auth_state?: Json
+          config?: Json
+          connected_at?: string | null
+          created_at?: string
+          disconnected_at?: string | null
+          gym_code?: string | null
+          id?: string
+          last_sync_at?: string | null
+          last_sync_message?: string | null
+          last_sync_status?: string | null
+          owner_id: string
+          provider: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          academy_snapshot?: Json
+          auth_state?: Json
+          config?: Json
+          connected_at?: string | null
+          created_at?: string
+          disconnected_at?: string | null
+          gym_code?: string | null
+          id?: string
+          last_sync_at?: string | null
+          last_sync_message?: string | null
+          last_sync_status?: string | null
+          owner_id?: string
+          provider?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      dojo_corporate_sync_logs: {
+        Row: {
+          created_at: string
+          finished_at: string | null
+          id: string
+          items_failed: number
+          items_processed: number
+          items_updated: number
+          kind: string
+          message: string | null
+          owner_id: string
+          payload: Json
+          provider: string
+          started_at: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          finished_at?: string | null
+          id?: string
+          items_failed?: number
+          items_processed?: number
+          items_updated?: number
+          kind: string
+          message?: string | null
+          owner_id: string
+          payload?: Json
+          provider: string
+          started_at?: string
+          status: string
+        }
+        Update: {
+          created_at?: string
+          finished_at?: string | null
+          id?: string
+          items_failed?: number
+          items_processed?: number
+          items_updated?: number
+          kind?: string
+          message?: string | null
+          owner_id?: string
+          payload?: Json
+          provider?: string
+          started_at?: string
+          status?: string
+        }
+        Relationships: []
+      }
       dojo_enrollments: {
         Row: {
           created_at: string

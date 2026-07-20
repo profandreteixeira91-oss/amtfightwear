@@ -29,6 +29,7 @@ import { BeltVisual } from "@/components/dojo/BeltVisual";
 import { CertificatePreviewDialog, openCertificatePrint, type CertificateTemplate } from "@/components/dojo/CertificatePreview";
 import { openBrandedPrintDocument, escapeHtml, kvTable } from "@/lib/dojo/print-document";
 import { useDojoBranding } from "@/hooks/useDojoBranding";
+import { StudentCorporateBenefitsSection } from "@/components/dojo/corporate-benefits/StudentCorporateBenefitsSection";
 
 export const Route = createFileRoute("/dojo/app/students/$id")({
   head: () => ({ meta: [{ title: "Aluno — AMT Dojo Manager" }] }),
@@ -333,6 +334,7 @@ function StudentDetail() {
                 <TabsTrigger value="frequencia">Frequência</TabsTrigger>
                 <TabsTrigger value="documentos">Documentos</TabsTrigger>
                 <TabsTrigger value="observacoes">Observações</TabsTrigger>
+                <TabsTrigger value="beneficios">Benefícios</TabsTrigger>
               </TabsList>
             </div>
 
@@ -765,6 +767,16 @@ function StudentDetail() {
                     {s.notes}
                   </div>
                 )}
+              </SectionCard>
+            </TabsContent>
+
+            {/* --- Benefícios Corporativos --- */}
+            <TabsContent value="beneficios" className="mt-4 space-y-4">
+              <SectionCard title="Benefícios Corporativos" icon={ShieldCheck}>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Vincule o aluno a plataformas de benefícios corporativos. A validação de check-in acontece automaticamente no módulo Check-in.
+                </p>
+                <StudentCorporateBenefitsSection studentId={id} />
               </SectionCard>
             </TabsContent>
           </Tabs>
