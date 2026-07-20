@@ -111,18 +111,25 @@ async function computeCart(supabase: any, ownerId: string) {
     (variants ?? []).forEach((v: any) => variantMap.set(v.id, v));
   }
 
-  // Somar quantidades por produto (para regra de atacado por produto)
-  const qtyByProduct = new Map<string, number>();
-  rows.forEach((r: any) => qtyByProduct.set(r.product_id, (qtyByProduct.get(r.product_id) ?? 0) + r.quantity));
+  // Agregação por CATEGORIA (regra: ≥10 itens/categoria → 25% atacado)
+  const WHOLESALE_MIN = 10;
+  const WHOLESALE_PCT = 0.25;
+  const catKeyFor = (p: any) => (p?.category_id ?? p?.category_slug ?? p?.category_name ?? "__uncat__") as string;
+  const qtyByCategory = new Map<string, number>();
+  rows.forEach((r: any) => {
+    const key = catKeyFor(productMap.get(r.product_id));
+    qtyByCategory.set(key, (qtyByCategory.get(key) ?? 0) + r.quantity);
+  });
 
   const lines: CartLine[] = rows.map((r: any) => {
     const p = productMap.get(r.product_id) ?? null;
     const v = r.variant_id ? variantMap.get(r.variant_id) : null;
-    // Preço sempre igual ao da loja AMT Fight Wear.
-    // Regras de atacado/desconto ficam a cargo do dono da loja (loja principal),
-    // portanto o Dojo Manager espelha exatamente `products.price` (ou o preço da variante).
     const unitRetail = v?.price != null ? Number(v.price) : (p?.price ?? 0);
-    const unitFinal = unitRetail;
+    const catQty = qtyByCategory.get(catKeyFor(p)) ?? 0;
+    const isWholesale = catQty >= WHOLESALE_MIN;
+    const unitFinal = isWholesale
+      ? Math.round(unitRetail * (1 - WHOLESALE_PCT) * 100) / 100
+      : unitRetail;
     return {
       id: r.id,
       product_id: r.product_id,
@@ -135,8 +142,8 @@ async function computeCart(supabase: any, ownerId: string) {
       variant_label: v?.option_label ?? [v?.size, v?.color].filter(Boolean).join(" / ") ?? null,
       variant_price: v?.price != null ? Number(v.price) : null,
       unit_retail: unitRetail,
-      unit_wholesale: unitRetail,
-      is_wholesale: false,
+      unit_wholesale: Math.round(unitRetail * (1 - WHOLESALE_PCT) * 100) / 100,
+      is_wholesale: isWholesale,
       unit_final: unitFinal,
       line_total: Math.round(unitFinal * r.quantity * 100) / 100,
     };
@@ -144,8 +151,21 @@ async function computeCart(supabase: any, ownerId: string) {
 
   const retail_total = Math.round(lines.reduce((s, l) => s + l.unit_retail * l.quantity, 0) * 100) / 100;
   const subtotal = Math.round(lines.reduce((s, l) => s + l.line_total, 0) * 100) / 100;
-  const savings = 0;
-  const has_wholesale = false;
+  const savings = Math.round((retail_total - subtotal) * 100) / 100;
+  const has_wholesale = lines.some((l) => l.is_wholesale);
+
+  const category_progress = Array.from(qtyByCategory.entries()).map(([key, qty]) => {
+    const sample = rows.find((r: any) => catKeyFor(productMap.get(r.product_id)) === key);
+    const p = sample ? productMap.get(sample.product_id) : null;
+    return {
+      key,
+      name: (p as any)?.category_name ?? "Sem categoria",
+      qty,
+      min: WHOLESALE_MIN,
+      unlocked: qty >= WHOLESALE_MIN,
+      missing: Math.max(0, WHOLESALE_MIN - qty),
+    };
+  });
 
   return {
     cart_id: cartId,
@@ -155,6 +175,9 @@ async function computeCart(supabase: any, ownerId: string) {
     subtotal,
     savings,
     has_wholesale,
+    category_progress,
+    wholesale_min_qty: WHOLESALE_MIN,
+    wholesale_percent: WHOLESALE_PCT,
   };
 }
 
