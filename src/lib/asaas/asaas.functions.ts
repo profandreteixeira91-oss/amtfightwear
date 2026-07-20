@@ -80,7 +80,7 @@ export const getMyAsaasConfig = createServerFn({ method: "GET" })
     const { data, error } = await context.supabase
       .from("dojo_academy_profile")
       .select(
-        "asaas_subaccount_id, asaas_wallet_id, asaas_onboarding_status, asaas_onboarding_url, pix_key, pix_key_type, legal_name, trade_name, cnpj, email, phone, whatsapp, address, city, state, zip",
+        "asaas_subaccount_id, asaas_wallet_id, asaas_onboarding_status, asaas_onboarding_url, pix_key, pix_key_type, legal_name, trade_name, cnpj, email, phone, whatsapp, address, city, state, zip, address_number, address_complement, neighborhood, company_type, monthly_income, birth_date",
       )
       .eq("owner_id", context.userId)
       .maybeSingle();
@@ -105,6 +105,12 @@ export const getMyAsaasConfig = createServerFn({ method: "GET" })
         city: data?.city ?? null,
         state: data?.state ?? null,
         zip: data?.zip ?? null,
+        addressNumber: (data as { address_number?: string | null })?.address_number ?? null,
+        addressComplement: (data as { address_complement?: string | null })?.address_complement ?? null,
+        neighborhood: (data as { neighborhood?: string | null })?.neighborhood ?? null,
+        companyType: (data as { company_type?: string | null })?.company_type ?? null,
+        monthlyIncome: (data as { monthly_income?: number | null })?.monthly_income ?? null,
+        birthDate: (data as { birth_date?: string | null })?.birth_date ?? null,
       },
     };
   });
