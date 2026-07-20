@@ -397,7 +397,7 @@ function StudentDetail() {
                 </InfoGrid>
               </SectionCard>
 
-              <SectionCard title="Matrículas / Planos" icon={Wallet}>
+              <div id="plans-section"><SectionCard title="Matrículas / Planos" icon={Wallet}>
                 <div className="grid md:grid-cols-5 gap-2">
                   <select className="h-10 rounded-md border border-input bg-background px-2 text-sm" value={enroll.plan_id} onChange={(e) => setEnroll({ ...enroll, plan_id: e.target.value })}>
                     <option value="">Plano</option>
