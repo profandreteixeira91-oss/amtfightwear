@@ -31,11 +31,10 @@ async function resolveDestination(userId: string, requested?: string): Promise<s
   try {
     const { data } = await supabase
       .from("dojo_academy_profile")
-      .select("legal_name, trade_name, cnpj")
+      .select("onboarding_completed")
       .eq("owner_id", userId)
       .maybeSingle();
-    const complete = !!data && !!(data.legal_name || data.trade_name) && !!data.cnpj;
-    if (!complete) return "/dojo/app/account?onboarding=1";
+    if (!data?.onboarding_completed) return "/dojo/onboarding";
     return safe;
   } catch {
     return safe;
@@ -96,7 +95,7 @@ function DojoAuthPage() {
     if (error) return toast.error("Falha ao criar conta", { description: error.message });
     if (data.session) {
       toast.success("Conta criada! Vamos configurar seu dojo.");
-      window.location.assign("/dojo/app/account?onboarding=1");
+      window.location.assign("/dojo/onboarding");
     } else {
       toast.success("Conta criada! Confirme seu e-mail para continuar.");
       setMode("signin");
