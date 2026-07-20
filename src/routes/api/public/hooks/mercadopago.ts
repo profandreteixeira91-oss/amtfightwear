@@ -198,13 +198,13 @@ export const Route = createFileRoute("/api/public/hooks/mercadopago")({
                   .select("*")
                   .eq("owner_id", ownerId)
                   .maybeSingle();
-                const platformPct = Number((cfg as any)?.platform_fee_percent ?? 5);
-                const platformFixed = Number((cfg as any)?.platform_fee_fixed ?? 0);
+                const amtPercent = Number((cfg as any)?.amt_percent ?? 5);
+                const amtFixed = Number((cfg as any)?.amt_fixed_fee ?? 0);
 
-                const platformFee = Number(
-                  (gross * (platformPct / 100) + platformFixed).toFixed(2),
+                const amtFee = Number(
+                  (gross * (amtPercent / 100) + amtFixed).toFixed(2),
                 );
-                const dojoNet = Number((gross - mpFee - platformFee).toFixed(2));
+                const dojoNet = Number((gross - mpFee - amtFee).toFixed(2));
 
                 const { data: splitRow } = await supabaseAdmin
                   .from("dojo_split_transactions")
@@ -212,15 +212,16 @@ export const Route = createFileRoute("/api/public/hooks/mercadopago")({
                     owner_id: ownerId,
                     invoice_id: matchedInvoiceId,
                     mp_payment_id: paymentId,
+                    operation_type: "invoice",
                     gross_amount: gross,
                     mp_fee_amount: mpFee,
-                    platform_fee_amount: platformFee,
+                    amt_fee_amount: amtFee,
                     dojo_net_amount: dojoNet,
-                    platform_fee_percent: platformPct,
-                    platform_fee_fixed: platformFixed,
+                    amt_percent_applied: amtPercent,
+                    amt_fixed_applied: amtFixed,
                     status: "approved",
                     paid_at: new Date().toISOString(),
-                    payload: payment,
+                    raw: payment,
                   } as never)
                   .select("id")
                   .single();
