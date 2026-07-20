@@ -117,7 +117,9 @@ function OnboardingPage() {
   const [uid, setUid] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(empty);
   const [docs, setDocs] = useState<Record<string, string>>({});
+  const [docMimes, setDocMimes] = useState<Record<string, string>>({});
   const [uploadingDoc, setUploadingDoc] = useState<DocType | null>(null);
+  const [useCnhDigital, setUseCnhDigital] = useState(false);
 
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((prev) => ({ ...prev, [k]: v }));
