@@ -28,6 +28,7 @@ import {
   createMyAsaasSubaccount,
   refreshMyAsaasSubaccount,
   setDojoPixKey,
+  linkExistingAsaasAccount,
 } from "@/lib/asaas/asaas.functions";
 
 function StatusBadge({ status }: { status: string }) {
