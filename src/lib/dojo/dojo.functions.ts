@@ -203,10 +203,14 @@ export const listDojoPlans = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
-      .from("dojo_plans").select("*, unit:dojo_units(name)").order("name");
+      .from("dojo_plans")
+      .select("*, unit:dojo_units(name)")
+      .order("sort_order", { ascending: true })
+      .order("name", { ascending: true });
     if (error) throw new Error(error.message);
     return data ?? [];
   });
+
 
 export const saveDojoPlan = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
