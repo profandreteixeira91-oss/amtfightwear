@@ -259,7 +259,7 @@ export const Route = createFileRoute("/api/public/hooks/mercadopago")({
                 .from("dojo_student_notifications")
                 .insert({
                   student_id: (invRow as any).student_id,
-                  owner_id,
+                  owner_id: ownerId,
                   type: "invoice_paid",
                   title: "Pagamento confirmado",
                   body: `Recebemos R$ ${Number((invRow as any).amount).toFixed(2)} — ${(invRow as any).description ?? "Mensalidade"}.`,
