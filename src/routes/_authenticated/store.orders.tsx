@@ -67,6 +67,7 @@ type Order = {
 function AdminOrdersPage() {
   const list = useServerFn(adminListOrders);
   const update = useServerFn(adminUpdateOrderStatus);
+  const del = useServerFn(adminDeleteStoreOrder);
   const balanceFn = useServerFn(adminMelhorEnvioBalance);
   const { data, refetch, isLoading } = useQuery({
     queryKey: ["admin", "store", "orders"],
@@ -87,6 +88,17 @@ function AdminOrdersPage() {
       toast.error(e instanceof Error ? e.message : "Erro");
     }
   };
+
+  const remove = async (id: string) => {
+    try {
+      await del({ data: { id } });
+      toast.success("Pedido excluído");
+      refetch();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro");
+    }
+  };
+
 
   return (
     <PageShell
