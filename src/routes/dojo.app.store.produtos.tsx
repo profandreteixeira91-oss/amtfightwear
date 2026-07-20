@@ -71,23 +71,11 @@ function ProductsPage() {
         </select>
       </div>
 
-      <div className="flex gap-2 overflow-x-auto pb-1">
-        <button
-          onClick={() => nav({ search: (s: any) => ({ ...s, cat: undefined }) })}
-          className={`whitespace-nowrap rounded-full border px-3 py-1 text-xs ${!params.cat ? "border-primary bg-primary text-primary-foreground" : "border-input bg-background"}`}
-        >
-          Todas
-        </button>
-        {(cats ?? []).map((c: any) => (
-          <button
-            key={c.id}
-            onClick={() => nav({ search: (s: any) => ({ ...s, cat: c.slug }) })}
-            className={`whitespace-nowrap rounded-full border px-3 py-1 text-xs ${params.cat === c.slug ? "border-primary bg-primary text-primary-foreground" : "border-input bg-background"}`}
-          >
-            {c.name}
-          </button>
-        ))}
-      </div>
+      <CategoryNav
+        categories={cats ?? []}
+        selected={params.cat}
+        onSelect={(slug) => nav({ search: (s: any) => ({ ...s, cat: slug }) })}
+      />
 
       {isLoading ? (
         <div className="text-sm text-muted-foreground">Carregando produtos…</div>
@@ -110,11 +98,6 @@ function ProductsPage() {
                   )}
                   <span className="text-base font-bold">{brl(p.price)}</span>
                 </div>
-                {p.wholesale_enabled && (
-                  <div className="rounded bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700">
-                    Atacado: {brl(p.wholesale_price)} · −{p.wholesale_discount_percent}%
-                  </div>
-                )}
                 <div className="flex gap-1.5 pt-1">
                   <Button size="sm" className="flex-1" onClick={() => add.mutate(p.id)} disabled={add.isPending}>
                     <ShoppingCart className="mr-1 h-3.5 w-3.5" /> Comprar
@@ -125,6 +108,65 @@ function ProductsPage() {
                 </div>
               </div>
             </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+type Cat = { id: string; slug: string; name: string; parent_id: string | null };
+
+function CategoryNav({
+  categories,
+  selected,
+  onSelect,
+}: {
+  categories: Cat[];
+  selected: string | undefined;
+  onSelect: (slug: string | undefined) => void;
+}) {
+  const parents = categories.filter((c) => !c.parent_id);
+  const childrenOf = (id: string) => categories.filter((c) => c.parent_id === id);
+  const selectedCat = categories.find((c) => c.slug === selected);
+  const activeParentId =
+    selectedCat?.parent_id ?? (selectedCat && !selectedCat.parent_id ? selectedCat.id : null);
+  const activeChildren = activeParentId ? childrenOf(activeParentId) : [];
+
+  return (
+    <div className="space-y-2">
+      <div className="flex gap-2 overflow-x-auto pb-1">
+        <button
+          onClick={() => onSelect(undefined)}
+          className={`whitespace-nowrap rounded-full border px-3 py-1 text-xs ${!selected ? "border-primary bg-primary text-primary-foreground" : "border-input bg-background"}`}
+        >
+          Todas
+        </button>
+        {parents.map((c) => {
+          const isActive =
+            selected === c.slug ||
+            (selectedCat?.parent_id && selectedCat.parent_id === c.id);
+          return (
+            <button
+              key={c.id}
+              onClick={() => onSelect(c.slug)}
+              className={`whitespace-nowrap rounded-full border px-3 py-1 text-xs ${isActive ? "border-primary bg-primary text-primary-foreground" : "border-input bg-background"}`}
+            >
+              {c.name}
+            </button>
+          );
+        })}
+      </div>
+      {activeChildren.length > 0 && (
+        <div className="flex gap-2 overflow-x-auto pb-1 pl-2">
+          {activeChildren.map((c) => (
+            <button
+              key={c.id}
+              onClick={() => onSelect(c.slug)}
+              className={`whitespace-nowrap rounded-full border px-2.5 py-1 text-[11px] ${selected === c.slug ? "border-primary bg-primary/10 text-primary" : "border-input bg-background text-muted-foreground hover:text-foreground"}`}
+            >
+              {c.name}
+            </button>
           ))}
         </div>
       )}

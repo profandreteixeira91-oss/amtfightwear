@@ -115,16 +115,14 @@ async function computeCart(supabase: any, ownerId: string) {
   const qtyByProduct = new Map<string, number>();
   rows.forEach((r: any) => qtyByProduct.set(r.product_id, (qtyByProduct.get(r.product_id) ?? 0) + r.quantity));
 
-  const minQty = Number(settings?.wholesale_min_qty_per_product ?? 6);
-
   const lines: CartLine[] = rows.map((r: any) => {
     const p = productMap.get(r.product_id) ?? null;
     const v = r.variant_id ? variantMap.get(r.variant_id) : null;
+    // Preço sempre igual ao da loja AMT Fight Wear.
+    // Regras de atacado/desconto ficam a cargo do dono da loja (loja principal),
+    // portanto o Dojo Manager espelha exatamente `products.price` (ou o preço da variante).
     const unitRetail = v?.price != null ? Number(v.price) : (p?.price ?? 0);
-    const unitWholesale = p ? computeWholesalePrice({ ...p, price: unitRetail }) : unitRetail;
-    const qty = qtyByProduct.get(r.product_id) ?? r.quantity;
-    const eligible = !!p?.wholesale_enabled && qty >= minQty;
-    const unitFinal = eligible ? unitWholesale : unitRetail;
+    const unitFinal = unitRetail;
     return {
       id: r.id,
       product_id: r.product_id,
@@ -137,8 +135,8 @@ async function computeCart(supabase: any, ownerId: string) {
       variant_label: v?.option_label ?? [v?.size, v?.color].filter(Boolean).join(" / ") ?? null,
       variant_price: v?.price != null ? Number(v.price) : null,
       unit_retail: unitRetail,
-      unit_wholesale: unitWholesale,
-      is_wholesale: eligible,
+      unit_wholesale: unitRetail,
+      is_wholesale: false,
       unit_final: unitFinal,
       line_total: Math.round(unitFinal * r.quantity * 100) / 100,
     };
@@ -146,8 +144,8 @@ async function computeCart(supabase: any, ownerId: string) {
 
   const retail_total = Math.round(lines.reduce((s, l) => s + l.unit_retail * l.quantity, 0) * 100) / 100;
   const subtotal = Math.round(lines.reduce((s, l) => s + l.line_total, 0) * 100) / 100;
-  const savings = Math.round((retail_total - subtotal) * 100) / 100;
-  const has_wholesale = lines.some((l) => l.is_wholesale);
+  const savings = 0;
+  const has_wholesale = false;
 
   return {
     cart_id: cartId,

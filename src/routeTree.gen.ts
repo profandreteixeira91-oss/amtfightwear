@@ -156,7 +156,6 @@ import { Route as DojoAppStorePatchesRouteImport } from './routes/dojo.app.store
 import { Route as DojoAppStoreKimonosRouteImport } from './routes/dojo.app.store.kimonos'
 import { Route as DojoAppStoreFavoritosRouteImport } from './routes/dojo.app.store.favoritos'
 import { Route as DojoAppStoreFaixasRouteImport } from './routes/dojo.app.store.faixas'
-import { Route as DojoAppStoreConfiguracoesRouteImport } from './routes/dojo.app.store.configuracoes'
 import { Route as DojoAppStoreCarrinhoRouteImport } from './routes/dojo.app.store.carrinho'
 import { Route as DojoAppEvaluationsTemplatesRouteImport } from './routes/dojo.app.evaluations.templates'
 import { Route as DojoAppEvaluationsTechniquesRouteImport } from './routes/dojo.app.evaluations.techniques'
@@ -968,12 +967,6 @@ const DojoAppStoreFaixasRoute = DojoAppStoreFaixasRouteImport.update({
   path: '/faixas',
   getParentRoute: () => DojoAppStoreRoute,
 } as any)
-const DojoAppStoreConfiguracoesRoute =
-  DojoAppStoreConfiguracoesRouteImport.update({
-    id: '/configuracoes',
-    path: '/configuracoes',
-    getParentRoute: () => DojoAppStoreRoute,
-  } as any)
 const DojoAppStoreCarrinhoRoute = DojoAppStoreCarrinhoRouteImport.update({
   id: '/carrinho',
   path: '/carrinho',
@@ -1350,7 +1343,6 @@ export interface FileRoutesByFullPath {
   '/dojo/app/evaluations/techniques': typeof DojoAppEvaluationsTechniquesRoute
   '/dojo/app/evaluations/templates': typeof DojoAppEvaluationsTemplatesRouteWithChildren
   '/dojo/app/store/carrinho': typeof DojoAppStoreCarrinhoRoute
-  '/dojo/app/store/configuracoes': typeof DojoAppStoreConfiguracoesRoute
   '/dojo/app/store/faixas': typeof DojoAppStoreFaixasRoute
   '/dojo/app/store/favoritos': typeof DojoAppStoreFavoritosRoute
   '/dojo/app/store/kimonos': typeof DojoAppStoreKimonosRoute
@@ -1527,7 +1519,6 @@ export interface FileRoutesByTo {
   '/dojo/app/evaluations/settings': typeof DojoAppEvaluationsSettingsRoute
   '/dojo/app/evaluations/techniques': typeof DojoAppEvaluationsTechniquesRoute
   '/dojo/app/store/carrinho': typeof DojoAppStoreCarrinhoRoute
-  '/dojo/app/store/configuracoes': typeof DojoAppStoreConfiguracoesRoute
   '/dojo/app/store/faixas': typeof DojoAppStoreFaixasRoute
   '/dojo/app/store/favoritos': typeof DojoAppStoreFavoritosRoute
   '/dojo/app/store/kimonos': typeof DojoAppStoreKimonosRoute
@@ -1716,7 +1707,6 @@ export interface FileRoutesById {
   '/dojo/app/evaluations/techniques': typeof DojoAppEvaluationsTechniquesRoute
   '/dojo/app/evaluations/templates': typeof DojoAppEvaluationsTemplatesRouteWithChildren
   '/dojo/app/store/carrinho': typeof DojoAppStoreCarrinhoRoute
-  '/dojo/app/store/configuracoes': typeof DojoAppStoreConfiguracoesRoute
   '/dojo/app/store/faixas': typeof DojoAppStoreFaixasRoute
   '/dojo/app/store/favoritos': typeof DojoAppStoreFavoritosRoute
   '/dojo/app/store/kimonos': typeof DojoAppStoreKimonosRoute
@@ -1904,7 +1894,6 @@ export interface FileRouteTypes {
     | '/dojo/app/evaluations/techniques'
     | '/dojo/app/evaluations/templates'
     | '/dojo/app/store/carrinho'
-    | '/dojo/app/store/configuracoes'
     | '/dojo/app/store/faixas'
     | '/dojo/app/store/favoritos'
     | '/dojo/app/store/kimonos'
@@ -2081,7 +2070,6 @@ export interface FileRouteTypes {
     | '/dojo/app/evaluations/settings'
     | '/dojo/app/evaluations/techniques'
     | '/dojo/app/store/carrinho'
-    | '/dojo/app/store/configuracoes'
     | '/dojo/app/store/faixas'
     | '/dojo/app/store/favoritos'
     | '/dojo/app/store/kimonos'
@@ -2269,7 +2257,6 @@ export interface FileRouteTypes {
     | '/dojo/app/evaluations/techniques'
     | '/dojo/app/evaluations/templates'
     | '/dojo/app/store/carrinho'
-    | '/dojo/app/store/configuracoes'
     | '/dojo/app/store/faixas'
     | '/dojo/app/store/favoritos'
     | '/dojo/app/store/kimonos'
@@ -3384,13 +3371,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DojoAppStoreFaixasRouteImport
       parentRoute: typeof DojoAppStoreRoute
     }
-    '/dojo/app/store/configuracoes': {
-      id: '/dojo/app/store/configuracoes'
-      path: '/configuracoes'
-      fullPath: '/dojo/app/store/configuracoes'
-      preLoaderRoute: typeof DojoAppStoreConfiguracoesRouteImport
-      parentRoute: typeof DojoAppStoreRoute
-    }
     '/dojo/app/store/carrinho': {
       id: '/dojo/app/store/carrinho'
       path: '/carrinho'
@@ -3981,7 +3961,6 @@ const DojoAppStoreProdutosRouteWithChildren =
 
 interface DojoAppStoreRouteChildren {
   DojoAppStoreCarrinhoRoute: typeof DojoAppStoreCarrinhoRoute
-  DojoAppStoreConfiguracoesRoute: typeof DojoAppStoreConfiguracoesRoute
   DojoAppStoreFaixasRoute: typeof DojoAppStoreFaixasRoute
   DojoAppStoreFavoritosRoute: typeof DojoAppStoreFavoritosRoute
   DojoAppStoreKimonosRoute: typeof DojoAppStoreKimonosRoute
@@ -3995,7 +3974,6 @@ interface DojoAppStoreRouteChildren {
 
 const DojoAppStoreRouteChildren: DojoAppStoreRouteChildren = {
   DojoAppStoreCarrinhoRoute: DojoAppStoreCarrinhoRoute,
-  DojoAppStoreConfiguracoesRoute: DojoAppStoreConfiguracoesRoute,
   DojoAppStoreFaixasRoute: DojoAppStoreFaixasRoute,
   DojoAppStoreFavoritosRoute: DojoAppStoreFavoritosRoute,
   DojoAppStoreKimonosRoute: DojoAppStoreKimonosRoute,
