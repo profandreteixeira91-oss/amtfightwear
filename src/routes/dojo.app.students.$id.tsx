@@ -473,7 +473,7 @@ function StudentDetail() {
                       <Info label="Status" value={<Badge variant="outline">{currentEnrollment.status}</Badge>} />
                       <Info
                         label="Recorrência"
-                        value={currentEnrollment.plan?.billing_cycle ?? currentEnrollment.plan?.recurrence ?? "Mensal"}
+                        value={(currentEnrollment.plan as any)?.billing_cycle ?? (currentEnrollment.plan as any)?.recurrence ?? "Mensal"}
                       />
                     </InfoGrid>
                     <div className="mt-4 flex flex-wrap gap-2">
