@@ -147,7 +147,7 @@ function DojoDashboard() {
                 </div>
                 {s.belt?.color_hex && (
                   <div className="hidden sm:block shrink-0">
-                    <BeltVisual name={s.belt.name} colorHex={s.belt.color_hex} stripeHex={s.belt.stripe_hex} degree={s.current_degree ?? 0} maxDegrees={s.belt?.max_degrees ?? 4} className="min-w-[140px]" />
+                    <BeltVisual modality={s.belt.modality} name={s.belt.name} colorHex={s.belt.color_hex} stripeHex={s.belt.stripe_hex} degree={s.current_degree ?? 0} maxDegrees={s.belt?.max_degrees ?? 4} className="min-w-[140px]" />
                   </div>
                 )}
                 <span className={`text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded shrink-0 ${

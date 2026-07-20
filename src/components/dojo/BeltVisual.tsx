@@ -9,21 +9,22 @@ interface BeltVisualProps {
   name?: string;
   /** When true, stripeHex is rendered as top/bottom trim (aparador) instead of a center band */
   trim?: boolean;
+  /** Modality slug (jiu-jitsu, judo, karate, taekwondo, etc). Controls rendering style. */
+  modality?: string | null;
 }
 
 /**
- * Visual representation of a BJJ / martial arts belt matching the AMT belt system.
+ * Visual representation of a martial arts belt.
  *
- * Special high-rank belts (mandatory fixed degrees):
- * - "Vermelha e Preta" (7 graus): alternating red/black blocks + white tip with red stripes
- * - "Vermelha e Branca" (8 graus): alternating red/white blocks + white tip with red stripes
- * - "Vermelha" (9 graus): solid red + gold dividers + white tip with red stripes
- * These belts do not accept degree choice — degree is forced to the mandatory count.
+ * Jiu-Jitsu (default) — belt with black tip on the right holding white stripes for degrees.
+ * Preta/Vermelha families remain BJJ-only (matched by name).
  *
- * Other belts:
- * - Base color fills the belt
- * - stripe_hex renders as a middle horizontal band (default) or as top/bottom trim (aparador)
- * - Black tip on the right holds white stripes; Faixa Preta uses a red tip with white stripes.
+ * Other modalities (Judô, Karatê, Taekwondo, etc.) — no black tip. The belt is a solid
+ * color band. Names containing "ponta {cor}" (e.g. "Branca ponta cinza") render as
+ * three horizontal segments: tip-color / main-color / tip-color, matching the Judô
+ * infant/youth belt system (kohaku / mon).
+ * Degree marks (when applicable) render as thin vertical stripes at the right end,
+ * directly over the belt color — no black rectangle.
  */
 export function BeltVisual({
   colorHex,
@@ -34,19 +35,23 @@ export function BeltVisual({
   label,
   name,
   trim,
+  modality,
 }: BeltVisualProps) {
   const n = (name ?? "").trim();
-  // Preta family variants — matches the AMT reference exactly.
+  const mod = (modality ?? "").toString().toLowerCase().trim();
+  const isJiuJitsu = mod === "" || mod === "jiu-jitsu" || mod === "jiujitsu" || mod === "bjj";
+
+  // Preta family variants — BJJ only.
   const isPretaPlain = /^preta$/i.test(n);
   const isPretaAparador = /^preta\s+com\s+aparador/i.test(n);
   const pretaGrauMatch = n.match(/^preta\s+(\d)\s*grau/i);
   const pretaGrau = pretaGrauMatch ? parseInt(pretaGrauMatch[1], 10) : 0;
   const isPretaGrau = pretaGrau > 0;
-  const isPretaFamily = isPretaPlain || isPretaAparador || isPretaGrau;
+  const isPretaFamily = isJiuJitsu && (isPretaPlain || isPretaAparador || isPretaGrau);
 
-  const isRedBlack = /^vermelha e preta$/i.test(n);
-  const isRedWhite = /^vermelha e branca$/i.test(n);
-  const isRedSolid = /^vermelha$/i.test(n);
+  const isRedBlack = isJiuJitsu && /^vermelha e preta$/i.test(n);
+  const isRedWhite = isJiuJitsu && /^vermelha e branca$/i.test(n);
+  const isRedSolid = isJiuJitsu && /^vermelha$/i.test(n);
   const isHighRank = isRedBlack || isRedWhite || isRedSolid;
   const isTrim = (trim ?? /aparador/i.test(n)) && !isPretaFamily;
 
@@ -82,9 +87,7 @@ export function BeltVisual({
     );
   }
 
-  const isBlack = false;
-
-  // Special layout for the three top-tier belts
+  // Special layout for the three top-tier BJJ belts
   if (isHighRank) {
     const forcedDegrees = isRedBlack ? 7 : isRedWhite ? 8 : 9;
     const blockAlt = isRedBlack ? "#111111" : "#FFFFFF"; // black or white
@@ -133,11 +136,85 @@ export function BeltVisual({
     );
   }
 
-  // Standard belts
   const stripes = Math.max(0, Math.min(degree, maxDegrees));
   const base = (colorHex || "#F5F5F5").toLowerCase();
   const isLight = base === "#ffffff" || base === "#f5f5f5" || base === "#fdd835";
-  const tipBg = isBlack ? "#B71C1C" : "#111111";
+
+  // === Non-BJJ modalities: Judô / Karatê / Taekwondo / etc. ===
+  // Render without the black tip rectangle.
+  if (!isJiuJitsu) {
+    // Detect "ponta {cor}" pattern in the belt name for Judô-style kohaku/mon belts.
+    // Examples: "Branca ponta cinza", "Cinza ponta azul", "Azul ponta amarela".
+    const pontaMatch = n.match(/ponta[s]?\s+([a-zç\s]+?)(?:\s+\d.*)?$/i);
+    const pontaName = pontaMatch ? pontaMatch[1].trim().toLowerCase() : "";
+    // Fall back to stripe_hex when the name does not encode a "ponta" color.
+    const pontaColor = pontaName ? colorNameToHex(pontaName) : stripeHex || null;
+    const hasPonta = !!pontaMatch && !!pontaColor;
+
+    return (
+      <div className={`inline-flex flex-col items-start gap-1 ${className}`}>
+        <div
+          className="relative flex w-full min-w-[220px] h-8 rounded-sm overflow-hidden border border-black/20 shadow-sm"
+          aria-label={label ?? `Faixa ${n || colorHex}`}
+        >
+          {hasPonta ? (
+            <>
+              {/* Left tip */}
+              <div className="h-full" style={{ flex: "0 0 22%", background: pontaColor! }} />
+              {/* Middle (main color) */}
+              <div className="h-full flex-1 relative" style={{ background: colorHex }}>
+                {/* Optional center trim/band if stripe_hex is set and unrelated to ponta */}
+                {stripeHex && !isTrim && pontaName === "" && (
+                  <div
+                    className="absolute inset-x-0"
+                    style={{ background: stripeHex, top: "33.333%", height: "33.333%" }}
+                  />
+                )}
+              </div>
+              {/* Right tip */}
+              <div className="h-full" style={{ flex: "0 0 22%", background: pontaColor! }} />
+            </>
+          ) : (
+            <div className="relative w-full h-full" style={{ background: colorHex }}>
+              {/* Center band */}
+              {stripeHex && !isTrim && (
+                <div
+                  className="absolute inset-x-0"
+                  style={{ background: stripeHex, top: "33.333%", height: "33.333%" }}
+                />
+              )}
+              {/* Aparador (top/bottom trim) */}
+              {stripeHex && isTrim && (
+                <>
+                  <div className="absolute inset-x-0 top-0" style={{ background: stripeHex, height: "18%" }} />
+                  <div className="absolute inset-x-0 bottom-0" style={{ background: stripeHex, height: "18%" }} />
+                </>
+              )}
+              {/* Degree marks — thin dark stripes near the right end, no black rectangle */}
+              {stripes > 0 && (
+                <div className="absolute right-2 top-0 h-full flex items-center gap-[3px]">
+                  {Array.from({ length: stripes }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="h-[70%] w-[3px] rounded-sm"
+                      style={{
+                        background: isLight ? "#111111" : "#FFFFFF",
+                        boxShadow: "0 0 0 0.5px rgba(0,0,0,0.35)",
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+        {label && <span className="text-xs text-muted-foreground">{label}</span>}
+      </div>
+    );
+  }
+
+  // === Jiu-Jitsu standard belts (with black tip) ===
+  const tipBg = "#111111";
   const stripeColor = "#FFFFFF";
 
   return (
@@ -148,7 +225,7 @@ export function BeltVisual({
         aria-label={label ?? `Faixa ${colorHex}`}
       >
         {/* Two-tone center band (regular two-tone belts) */}
-        {stripeHex && !isTrim && !isBlack && (
+        {stripeHex && !isTrim && (
           <div
             className="absolute inset-x-0"
             style={{ background: stripeHex, top: "33.333%", height: "33.333%" }}
@@ -161,7 +238,7 @@ export function BeltVisual({
             <div className="absolute inset-x-0 bottom-0" style={{ background: stripeHex, height: "18%" }} />
           </>
         )}
-        {/* Tip on the right */}
+        {/* Black tip on the right */}
         <div
           className="absolute right-0 top-0 h-full flex items-center justify-center gap-[3px] px-1.5"
           style={{
@@ -182,4 +259,39 @@ export function BeltVisual({
       {label && <span className="text-xs text-muted-foreground">{label}</span>}
     </div>
   );
+}
+
+/** Map common Portuguese color names to hex — used to render "ponta {cor}" tips. */
+function colorNameToHex(raw: string): string | null {
+  const key = raw
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+  const map: Record<string, string> = {
+    branca: "#FFFFFF",
+    branco: "#FFFFFF",
+    cinza: "#9CA3AF",
+    "cinza claro": "#D1D5DB",
+    "cinza escuro": "#4B5563",
+    preta: "#111111",
+    preto: "#111111",
+    amarela: "#FDD835",
+    amarelo: "#FDD835",
+    laranja: "#FB923C",
+    verde: "#16A34A",
+    azul: "#2563EB",
+    "azul claro": "#60A5FA",
+    "azul escuro": "#1E3A8A",
+    roxa: "#7C3AED",
+    roxo: "#7C3AED",
+    marrom: "#78350F",
+    vermelha: "#B71C1C",
+    vermelho: "#B71C1C",
+    rosa: "#EC4899",
+    dourada: "#C5A657",
+    dourado: "#C5A657",
+    prata: "#C0C0C0",
+  };
+  return map[key] ?? null;
 }
