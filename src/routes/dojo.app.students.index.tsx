@@ -8,6 +8,8 @@ import {
   deleteDojoStudent,
   listDojoBelts,
   listDojoUnits,
+  listDojoPlans,
+  enrollStudentWithPlan,
 } from "@/lib/dojo/dojo.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
