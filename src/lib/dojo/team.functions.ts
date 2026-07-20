@@ -76,33 +76,33 @@ export const upsertTeamMember = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => memberSchema.parse(i))
   .handler(async ({ data, context }) => {
     const { id, ...rest } = data;
-    const payload: Record<string, unknown> = { ...rest };
-    if (payload.email === "") payload.email = null;
-    if (payload.modalities) payload.modalities = payload.modalities;
+    const payload = { ...rest, email: rest.email === "" ? null : rest.email } as typeof rest;
 
     if (id) {
-      // capture "before" for history
       const before = await context.supabase.from("dojo_team_members").select("*").eq("id", id).maybeSingle();
       const { error } = await context.supabase.from("dojo_team_members").update(payload).eq("id", id);
       if (error) throw new Error(error.message);
       await context.supabase.from("dojo_team_history").insert({
         owner_id: context.userId, member_id: id,
         event_type: "profile_change", description: "Cadastro atualizado",
-        before_data: before.data ?? null, after_data: payload, actor_user_id: context.userId,
+        before_data: (before.data ?? null) as never,
+        after_data: payload as never,
+        actor_user_id: context.userId,
       });
       return { id };
     }
 
+    const insertPayload = { ...payload, owner_id: context.userId, full_name: payload.full_name };
     const { data: row, error } = await context.supabase
       .from("dojo_team_members")
-      .insert({ ...payload, owner_id: context.userId })
+      .insert(insertPayload)
       .select("id").single();
     if (error) throw new Error(error.message);
 
     await context.supabase.from("dojo_team_history").insert({
       owner_id: context.userId, member_id: row.id,
       event_type: "log", description: "Colaborador criado",
-      after_data: payload, actor_user_id: context.userId,
+      after_data: payload as never, actor_user_id: context.userId,
     });
     return { id: row.id };
   });
