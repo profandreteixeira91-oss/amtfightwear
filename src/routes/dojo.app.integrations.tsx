@@ -194,11 +194,11 @@ function IntegrationsHub() {
           </div>
           <div>
             <div className="text-sm font-semibold flex items-center gap-2">
-              Configuração avançada
+              Modo Avançado
               <Badge variant="outline" className="text-[10px] border-amber-500/40 text-amber-600 dark:text-amber-400">Técnico</Badge>
             </div>
             <div className="text-[11px] text-muted-foreground">
-              API Keys, tokens, webhooks e catálogo completo de parceiros. Recomendado apenas para equipes de TI.
+              Utilize esta opção apenas caso solicitado pelo suporte técnico. Aqui ficam API Keys, tokens, webhooks e configurações manuais.
             </div>
           </div>
         </div>
