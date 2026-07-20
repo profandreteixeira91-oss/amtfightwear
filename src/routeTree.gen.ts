@@ -149,6 +149,7 @@ import { Route as DojoAppVideosNovoRouteImport } from './routes/dojo.app.videos.
 import { Route as DojoAppVideosFavoritosRouteImport } from './routes/dojo.app.videos.favoritos'
 import { Route as DojoAppVideosCategoriasRouteImport } from './routes/dojo.app.videos.categorias'
 import { Route as DojoAppVideosIdRouteImport } from './routes/dojo.app.videos.$id'
+import { Route as DojoAppTeamIdRouteImport } from './routes/dojo.app.team.$id'
 import { Route as DojoAppStudentsIdRouteImport } from './routes/dojo.app.students.$id'
 import { Route as DojoAppStorePedidosRouteImport } from './routes/dojo.app.store.pedidos'
 import { Route as DojoAppStoreCarrinhoRouteImport } from './routes/dojo.app.store.carrinho'
@@ -930,6 +931,11 @@ const DojoAppVideosIdRoute = DojoAppVideosIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => DojoAppVideosRoute,
 } as any)
+const DojoAppTeamIdRoute = DojoAppTeamIdRouteImport.update({
+  id: '/team/$id',
+  path: '/team/$id',
+  getParentRoute: () => DojoAppRoute,
+} as any)
 const DojoAppStudentsIdRoute = DojoAppStudentsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -1331,6 +1337,7 @@ export interface FileRoutesByFullPath {
   '/dojo/app/store/carrinho': typeof DojoAppStoreCarrinhoRoute
   '/dojo/app/store/pedidos': typeof DojoAppStorePedidosRouteWithChildren
   '/dojo/app/students/$id': typeof DojoAppStudentsIdRoute
+  '/dojo/app/team/$id': typeof DojoAppTeamIdRoute
   '/dojo/app/videos/$id': typeof DojoAppVideosIdRoute
   '/dojo/app/videos/categorias': typeof DojoAppVideosCategoriasRoute
   '/dojo/app/videos/favoritos': typeof DojoAppVideosFavoritosRoute
@@ -1504,6 +1511,7 @@ export interface FileRoutesByTo {
   '/dojo/app/store/carrinho': typeof DojoAppStoreCarrinhoRoute
   '/dojo/app/store/pedidos': typeof DojoAppStorePedidosRouteWithChildren
   '/dojo/app/students/$id': typeof DojoAppStudentsIdRoute
+  '/dojo/app/team/$id': typeof DojoAppTeamIdRoute
   '/dojo/app/videos/$id': typeof DojoAppVideosIdRoute
   '/dojo/app/videos/categorias': typeof DojoAppVideosCategoriasRoute
   '/dojo/app/videos/favoritos': typeof DojoAppVideosFavoritosRoute
@@ -1689,6 +1697,7 @@ export interface FileRoutesById {
   '/dojo/app/store/carrinho': typeof DojoAppStoreCarrinhoRoute
   '/dojo/app/store/pedidos': typeof DojoAppStorePedidosRouteWithChildren
   '/dojo/app/students/$id': typeof DojoAppStudentsIdRoute
+  '/dojo/app/team/$id': typeof DojoAppTeamIdRoute
   '/dojo/app/videos/$id': typeof DojoAppVideosIdRoute
   '/dojo/app/videos/categorias': typeof DojoAppVideosCategoriasRoute
   '/dojo/app/videos/favoritos': typeof DojoAppVideosFavoritosRoute
@@ -1873,6 +1882,7 @@ export interface FileRouteTypes {
     | '/dojo/app/store/carrinho'
     | '/dojo/app/store/pedidos'
     | '/dojo/app/students/$id'
+    | '/dojo/app/team/$id'
     | '/dojo/app/videos/$id'
     | '/dojo/app/videos/categorias'
     | '/dojo/app/videos/favoritos'
@@ -2046,6 +2056,7 @@ export interface FileRouteTypes {
     | '/dojo/app/store/carrinho'
     | '/dojo/app/store/pedidos'
     | '/dojo/app/students/$id'
+    | '/dojo/app/team/$id'
     | '/dojo/app/videos/$id'
     | '/dojo/app/videos/categorias'
     | '/dojo/app/videos/favoritos'
@@ -2230,6 +2241,7 @@ export interface FileRouteTypes {
     | '/dojo/app/store/carrinho'
     | '/dojo/app/store/pedidos'
     | '/dojo/app/students/$id'
+    | '/dojo/app/team/$id'
     | '/dojo/app/videos/$id'
     | '/dojo/app/videos/categorias'
     | '/dojo/app/videos/favoritos'
@@ -3289,6 +3301,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DojoAppVideosIdRouteImport
       parentRoute: typeof DojoAppVideosRoute
     }
+    '/dojo/app/team/$id': {
+      id: '/dojo/app/team/$id'
+      path: '/team/$id'
+      fullPath: '/dojo/app/team/$id'
+      preLoaderRoute: typeof DojoAppTeamIdRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
     '/dojo/app/students/$id': {
       id: '/dojo/app/students/$id'
       path: '/$id'
@@ -3974,6 +3993,7 @@ interface DojoAppRouteChildren {
   DojoAppUnitsRoute: typeof DojoAppUnitsRoute
   DojoAppVideosRoute: typeof DojoAppVideosRouteWithChildren
   DojoAppIndexRoute: typeof DojoAppIndexRoute
+  DojoAppTeamIdRoute: typeof DojoAppTeamIdRoute
   DojoAppTeamIndexRoute: typeof DojoAppTeamIndexRoute
 }
 
@@ -4000,6 +4020,7 @@ const DojoAppRouteChildren: DojoAppRouteChildren = {
   DojoAppUnitsRoute: DojoAppUnitsRoute,
   DojoAppVideosRoute: DojoAppVideosRouteWithChildren,
   DojoAppIndexRoute: DojoAppIndexRoute,
+  DojoAppTeamIdRoute: DojoAppTeamIdRoute,
   DojoAppTeamIndexRoute: DojoAppTeamIndexRoute,
 }
 
