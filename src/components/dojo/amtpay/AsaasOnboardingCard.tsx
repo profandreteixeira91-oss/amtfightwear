@@ -91,9 +91,17 @@ export function AsaasOnboardingCard() {
     onError: (err: Error) => toast.error(err.message),
   });
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<{
+    birthDate: string;
+    companyType: "MEI" | "LIMITED" | "INDIVIDUAL" | "ASSOCIATION";
+    incomeValue: number;
+    addressNumber: string;
+    province: string;
+    complement: string;
+    mobilePhone: string;
+  }>({
     birthDate: "",
-    companyType: "MEI" as const,
+    companyType: "MEI",
     incomeValue: 5000,
     addressNumber: "",
     province: "",
