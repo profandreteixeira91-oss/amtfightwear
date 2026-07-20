@@ -242,7 +242,7 @@ function KioskPanel() {
       ref={containerRef}
       className={
         isFullscreen
-          ? "fixed inset-0 z-50 flex flex-col bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white"
+          ? "fixed inset-0 z-50 flex h-screen max-h-screen flex-col overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white"
           : "space-y-4"
       }
     >
@@ -250,44 +250,54 @@ function KioskPanel() {
       <div
         className={
           isFullscreen
-            ? "flex flex-wrap items-center justify-between gap-4 border-b border-white/10 px-8 py-5"
-            : "flex flex-wrap items-center justify-between gap-4"
+            ? "flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-white/10 px-4 py-3 md:px-8 md:py-4"
+            : "flex flex-wrap items-center justify-between gap-3"
         }
       >
-        <div className="flex items-center gap-3">
+        <div className="flex min-w-0 items-center gap-3">
           {isFullscreen && (
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20 ring-1 ring-primary/40">
-              <ScanLine className="h-6 w-6 text-primary" />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/20 ring-1 ring-primary/40">
+              <ScanLine className="h-5 w-5 text-primary" />
             </div>
           )}
-          <div>
+          <div className="min-w-0">
             {isFullscreen && (
-              <div className="text-[11px] font-semibold uppercase tracking-[0.3em] text-white/50">
-                Check-in
+              <div className="text-[10px] font-semibold uppercase tracking-[0.3em] text-white/50">
+                Check-in {dateStr && <span className="ml-2 normal-case tracking-normal text-white/40">· {dateStr}</span>}
               </div>
             )}
-            <div className={isFullscreen ? "text-xl font-bold" : "sr-only"}>
-              {activeUnit?.name || "Selecione a unidade"}
+            <div className={isFullscreen ? "truncate text-base font-bold md:text-lg" : "sr-only"}>
+              {activeUnit?.name || "Selecione a unidade abaixo"}
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           <Select value={unitId} onValueChange={setUnitId}>
-            <SelectTrigger className={isFullscreen ? "w-56 border-white/20 bg-white/5 text-white" : "w-52"}>
-              <SelectValue placeholder="Unidade (opcional)" />
+            <SelectTrigger
+              className={
+                isFullscreen
+                  ? `h-10 w-48 md:w-56 border-white/20 bg-white/5 text-white ${!unitId ? "ring-2 ring-amber-400/60" : ""}`
+                  : "w-52"
+              }
+            >
+              <SelectValue placeholder="Selecione a unidade" />
             </SelectTrigger>
             <SelectContent>
-              {(unitsQ.data ?? []).map((u: any) => (
-                <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
-              ))}
+              {(unitsQ.data ?? []).length === 0 ? (
+                <div className="px-3 py-2 text-xs text-muted-foreground">Nenhuma unidade cadastrada</div>
+              ) : (
+                (unitsQ.data ?? []).map((u: any) => (
+                  <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
+                ))
+              )}
             </SelectContent>
           </Select>
 
           {isFullscreen && (
-            <div className="flex items-baseline gap-1 rounded-xl border border-white/10 bg-white/5 px-4 py-2 font-mono tabular-nums">
-              <span className="text-3xl font-bold leading-none">{timeStr}</span>
-              <span className="text-sm text-white/50">:{secondsStr}</span>
+            <div className="flex items-baseline gap-1 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 font-mono tabular-nums">
+              <span className="text-xl font-bold leading-none md:text-2xl">{timeStr}</span>
+              <span className="text-[10px] text-white/50">:{secondsStr}</span>
             </div>
           )}
 
@@ -298,50 +308,54 @@ function KioskPanel() {
             className="gap-2"
           >
             {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-            {isFullscreen ? "Sair" : "Modo Kiosk"}
+            <span className="hidden sm:inline">{isFullscreen ? "Sair" : "Modo Kiosk"}</span>
           </Button>
         </div>
       </div>
 
-      {isFullscreen && (
-        <div className="px-8 pt-2 text-sm capitalize text-white/60">{dateStr}</div>
-      )}
-
       {/* MAIN CARD */}
-      <div className={isFullscreen ? "flex flex-1 items-center justify-center px-4 pb-8" : ""}>
+      <div
+        className={
+          isFullscreen
+            ? "flex min-h-0 flex-1 items-center justify-center overflow-y-auto px-3 py-3 md:px-6"
+            : ""
+        }
+      >
         <Card
           className={
             isFullscreen
-              ? "relative w-full max-w-3xl overflow-hidden border-white/10 bg-white/[0.04] shadow-2xl backdrop-blur"
+              ? "relative w-full max-w-2xl overflow-hidden border-white/10 bg-white/[0.04] shadow-2xl backdrop-blur"
               : "relative overflow-hidden"
           }
         >
-          <CardContent className={isFullscreen ? "p-10 md:p-14" : "p-8 md:p-12"}>
+          <CardContent className={isFullscreen ? "p-5 sm:p-7 md:p-9" : "p-8 md:p-12"}>
             {lastCheckin ? (
               <SuccessBanner data={lastCheckin} dark={isFullscreen} />
             ) : (
               <form
                 onSubmit={(e) => { e.preventDefault(); submitCode(pin); }}
-                className="mx-auto max-w-2xl space-y-8"
+                className={isFullscreen ? "mx-auto max-w-xl space-y-4 md:space-y-5" : "mx-auto max-w-2xl space-y-8"}
               >
-                <div className="space-y-3 text-center">
+                <div className={isFullscreen ? "space-y-2 text-center" : "space-y-3 text-center"}>
                   <div
                     className={
                       isFullscreen
-                        ? "relative mx-auto inline-flex h-24 w-24 items-center justify-center rounded-full bg-primary/20 ring-1 ring-primary/40"
+                        ? "relative mx-auto inline-flex h-14 w-14 items-center justify-center rounded-full bg-primary/20 ring-1 ring-primary/40 md:h-16 md:w-16"
                         : "mx-auto inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary/10"
                     }
                   >
                     {isFullscreen && (
                       <span className="absolute inset-0 animate-ping rounded-full bg-primary/20" />
                     )}
-                    <Fingerprint className={isFullscreen ? "h-12 w-12 text-primary" : "h-8 w-8 text-primary"} />
+                    <Fingerprint className={isFullscreen ? "h-7 w-7 text-primary md:h-8 md:w-8" : "h-8 w-8 text-primary"} />
                   </div>
-                  <h2 className={isFullscreen ? "text-4xl font-bold tracking-tight md:text-5xl" : "text-2xl font-bold md:text-3xl"}>
+                  <h2 className={isFullscreen ? "text-xl font-bold tracking-tight md:text-2xl lg:text-3xl" : "text-2xl font-bold md:text-3xl"}>
                     Escaneie o QR ou digite seu PIN
                   </h2>
-                  <p className={isFullscreen ? "text-lg text-white/60" : "text-sm text-muted-foreground"}>
-                    Aproxime-se do leitor ou toque no campo abaixo
+                  <p className={isFullscreen ? "text-xs text-white/60 md:text-sm" : "text-sm text-muted-foreground"}>
+                    {!unitId && (unitsQ.data ?? []).length > 0
+                      ? "Selecione a unidade no topo para começar"
+                      : "Aproxime-se do leitor ou toque no campo abaixo"}
                   </p>
                 </div>
 
@@ -352,7 +366,7 @@ function KioskPanel() {
                   placeholder="• • • • • •"
                   className={
                     isFullscreen
-                      ? "h-28 border-white/20 bg-white/5 text-center font-mono text-5xl tracking-[0.5em] text-white placeholder:text-white/30"
+                      ? "h-16 border-white/20 bg-white/5 text-center font-mono text-3xl tracking-[0.4em] text-white placeholder:text-white/30 md:h-20 md:text-4xl"
                       : "h-20 text-center font-mono text-3xl tracking-widest"
                   }
                   autoFocus
@@ -361,14 +375,14 @@ function KioskPanel() {
 
                 <Button
                   type="submit"
-                  className={isFullscreen ? "h-16 w-full text-xl font-bold" : "h-14 w-full text-lg"}
+                  className={isFullscreen ? "h-12 w-full text-base font-bold md:h-14 md:text-lg" : "h-14 w-full text-lg"}
                   size="lg"
                   disabled={!pin.trim()}
                 >
                   Registrar presença
                 </Button>
 
-                <div className="grid grid-cols-2 gap-3 pt-2 md:grid-cols-4">
+                <div className="grid grid-cols-2 gap-2 pt-1 md:grid-cols-4">
                   <ActionButton icon={Search} label="Buscar aluno" onClick={() => setShowSearch(true)} dark={isFullscreen} />
                   <ActionButton icon={UserPlus} label="Visitante" onClick={() => setShowVisitor(true)} dark={isFullscreen} />
                   <ActionButton icon={Shield} label="Gympass" onClick={() => setShowPartner("gympass")} dark={isFullscreen} />
@@ -382,12 +396,13 @@ function KioskPanel() {
 
       {/* FOOTER STATS in fullscreen */}
       {isFullscreen && (
-        <div className="grid grid-cols-2 gap-4 border-t border-white/10 px-8 py-4 md:grid-cols-3">
+        <div className="grid shrink-0 grid-cols-3 gap-2 border-t border-white/10 px-4 py-2 md:gap-4 md:px-8 md:py-3">
           <KioskStat icon={Users} label="Presentes agora" value={presentCount ?? "—"} />
           <KioskStat icon={CheckCircle2} label="Check-ins hoje" value={todayCount ?? "—"} />
           <KioskStat icon={Clock} label="Sessão" value={timeStr} />
         </div>
       )}
+
 
       <SearchDialog open={showSearch} onOpenChange={setShowSearch} unitId={unitId} onSuccess={(name: string) => {
         setLastCheckin({ name, message: welcomeTpl.replace(/\{\{name\}\}/g, name.split(" ")[0]), method: "Manual" });
