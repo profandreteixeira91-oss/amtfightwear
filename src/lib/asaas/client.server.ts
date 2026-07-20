@@ -78,6 +78,8 @@ export type AsaasCustomerInput = {
 export type AsaasSubaccountInput = {
   name: string;
   email: string;
+  loginEmail?: string;
+  personType?: "FISICA" | "JURIDICA";
   cpfCnpj: string;
   birthDate?: string;
   companyType?: "MEI" | "LIMITED" | "INDIVIDUAL" | "ASSOCIATION";
@@ -89,6 +91,7 @@ export type AsaasSubaccountInput = {
   complement?: string;
   province: string;
   postalCode: string;
+  site?: string;
   externalReference?: string;
 };
 

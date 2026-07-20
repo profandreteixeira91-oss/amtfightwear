@@ -455,9 +455,11 @@ function AcademyTab({ academy, setAcademy, onSave }: any) {
   }
 
   // Requisitos mínimos para ativação automática da subconta Asaas
+  const cnpjDigits = String(academy?.cnpj ?? "").replace(/\D/g, "");
+  const isCpf = cnpjDigits.length === 11;
   const req = {
     name: !!(academy?.legal_name || academy?.trade_name),
-    cnpj: !!academy?.cnpj,
+    cnpj: cnpjDigits.length === 11 || cnpjDigits.length === 14,
     email: !!academy?.email,
     mobile: !!(academy?.whatsapp || academy?.phone),
     address: !!academy?.address,
@@ -466,6 +468,8 @@ function AcademyTab({ academy, setAcademy, onSave }: any) {
     city: !!academy?.city,
     state: !!academy?.state,
     zip: !!academy?.zip,
+    income: typeof academy?.monthly_income === "number" && academy.monthly_income > 0,
+    holder: isCpf ? !!academy?.birth_date : !!academy?.company_type,
   };
   const allOk = Object.values(req).every(Boolean);
   const hasSubaccount = !!academy?.asaas_subaccount_id;
@@ -557,35 +561,47 @@ function AcademyTab({ academy, setAcademy, onSave }: any) {
         <Separator />
 
         <div className="text-sm font-medium">Informações fiscais (Asaas)</div>
+        <p className="text-xs text-muted-foreground">
+          Preenchendo tudo abaixo, sua subconta é aprovada automaticamente — sem
+          precisar confirmar por e-mail depois.
+        </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <Field label="Tipo de titular">
-            <select
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-              value={academy?.company_type ?? "MEI"}
-              onChange={(e) => setAcademy({ ...academy, company_type: e.target.value })}
-            >
-              <option value="INDIVIDUAL">Pessoa Física</option>
-              <option value="MEI">MEI</option>
-              <option value="LIMITED">LTDA</option>
-              <option value="ASSOCIATION">Associação</option>
-            </select>
-          </Field>
-          <Field label="Faturamento mensal estimado (R$)">
+          {!isCpf && (
+            <Field label="Tipo de titular *">
+              <select
+                required
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                value={academy?.company_type ?? ""}
+                onChange={(e) => setAcademy({ ...academy, company_type: e.target.value })}
+              >
+                <option value="" disabled>Selecione…</option>
+                <option value="MEI">MEI</option>
+                <option value="LIMITED">LTDA</option>
+                <option value="ASSOCIATION">Associação</option>
+                <option value="INDIVIDUAL">Empresário Individual</option>
+              </select>
+            </Field>
+          )}
+          <Field label="Faturamento mensal estimado (R$) *">
             <Input
+              required
               type="number"
-              min={0}
+              min={1}
               value={academy?.monthly_income ?? ""}
               onChange={(e) => setAcademy({ ...academy, monthly_income: Number(e.target.value) || null })}
               placeholder="5000"
             />
           </Field>
-          <Field label="Data de nascimento (PF)">
-            <Input
-              type="date"
-              value={academy?.birth_date ? String(academy.birth_date).slice(0, 10) : ""}
-              onChange={(e) => setAcademy({ ...academy, birth_date: e.target.value || null })}
-            />
-          </Field>
+          {isCpf && (
+            <Field label="Data de nascimento *">
+              <Input
+                required
+                type="date"
+                value={academy?.birth_date ? String(academy.birth_date).slice(0, 10) : ""}
+                onChange={(e) => setAcademy({ ...academy, birth_date: e.target.value || null })}
+              />
+            </Field>
+          )}
         </div>
 
         <Separator />

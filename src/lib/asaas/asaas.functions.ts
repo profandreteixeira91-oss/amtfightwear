@@ -198,10 +198,15 @@ export const createMyAsaasSubaccount = createServerFn({ method: "POST" })
       (p.phone ? String(p.phone) : undefined);
     const mobilePhone = mobilePhoneRaw ? mobilePhoneRaw.replace(/\D/g, "") : undefined;
 
-    // Validações mínimas
+    const cpfCnpj = String(p.cnpj ?? "").replace(/\D/g, "");
+    const isCpf = cpfCnpj.length === 11;
+    const isCnpj = cpfCnpj.length === 14;
+
+    // Validações mínimas — tudo que o Asaas exige para APROVAR a subconta
+    // automaticamente (sem exigir confirmação de e-mail depois).
     const missing: string[] = [];
     if (!p.legal_name && !p.trade_name) missing.push("Nome / Razão social");
-    if (!p.cnpj) missing.push("CPF/CNPJ");
+    if (!isCpf && !isCnpj) missing.push("CPF ou CNPJ válido");
     if (!p.email) missing.push("E-mail");
     if (!p.address) missing.push("Endereço");
     if (!p.city) missing.push("Cidade");
@@ -210,13 +215,14 @@ export const createMyAsaasSubaccount = createServerFn({ method: "POST" })
     if (!addressNumber) missing.push("Número do endereço");
     if (!province) missing.push("Bairro");
     if (!mobilePhone || mobilePhone.length < 10) missing.push("Celular (WhatsApp)");
+    if (!incomeValue || incomeValue <= 0) missing.push("Faturamento mensal estimado");
+    if (isCpf && !birthDate) missing.push("Data de nascimento");
+    if (isCnpj && !companyType) missing.push("Tipo de titular (MEI/LTDA/…)");
     if (missing.length) {
       throw new Error(`Campos obrigatórios ausentes: ${missing.join(", ")}`);
     }
 
-    const cpfCnpj = String(p.cnpj).replace(/\D/g, "");
     const zip = String(p.zip).replace(/\D/g, "");
-    const isCpf = cpfCnpj.length === 11;
 
     // Persiste os dados fornecidos no perfil (para próximas ativações serem 1-clique)
     await context.supabase
@@ -231,21 +237,25 @@ export const createMyAsaasSubaccount = createServerFn({ method: "POST" })
       } as never)
       .eq("owner_id", context.userId);
 
-    // Criar subconta no Asaas
+    // Criar subconta no Asaas — payload completo evita a etapa manual de
+    // "confirmação de e-mail / ativação" que o Asaas cobra em cadastros parciais.
     const subaccount = await asaasCreateSubaccount({
       name: String(p.legal_name || p.trade_name),
       email: String(p.email),
+      loginEmail: String(p.email),
+      personType: isCpf ? "FISICA" : "JURIDICA",
       cpfCnpj,
       birthDate: isCpf ? birthDate : undefined,
-      companyType: !isCpf ? (companyType || "MEI") : undefined,
+      companyType: isCnpj ? companyType : undefined,
       phone: p.phone ? String(p.phone).replace(/\D/g, "") : (mobilePhone ?? undefined),
       mobilePhone,
-      incomeValue: incomeValue ?? 5000,
+      incomeValue: incomeValue!,
       address: String(p.address),
       addressNumber: addressNumber!,
       complement,
       province: province!,
       postalCode: zip,
+      site: (p as any).website ?? undefined,
       externalReference: `dojo:${context.userId}`,
     });
 
