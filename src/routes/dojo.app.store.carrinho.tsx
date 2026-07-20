@@ -18,9 +18,6 @@ import { useEffect, useRef, useState } from "react";
 export const Route = createFileRoute("/dojo/app/store/carrinho")({ component: CartPage });
 
 const brl = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-const onlyDigits = (s: string) => s.replace(/\D/g, "");
-
-type ShipOption = { id: number; name: string; company: string; price: number; delivery_time?: number; error?: string };
 
 function CartPage() {
   const nav = useNavigate();
@@ -30,7 +27,6 @@ function CartPage() {
   const rmFn = useServerFn(dsRemoveCartItem);
   const clrFn = useServerFn(dsClearCart);
   const handoffFn = useServerFn(dsHandoffToStoreCheckout);
-  const shipFn = useServerFn(calculateShipping);
 
   const { data, isLoading } = useQuery({ queryKey: ["dojo-store", "cart"], queryFn: () => getFn() });
   const refresh = () => qc.invalidateQueries({ queryKey: ["dojo-store", "cart"] });
