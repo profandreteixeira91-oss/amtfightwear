@@ -340,6 +340,13 @@ export async function asaasCancelSubscription(
   });
 }
 
+export async function asaasListSubscriptionPayments(
+  subscriptionId: string,
+  apiKey?: string,
+): Promise<{ data: AsaasCharge[]; totalCount: number; hasMore: boolean }> {
+  return asaasFetch(`/subscriptions/${subscriptionId}/payments?limit=10`, { apiKey });
+}
+
 // ============ TRANSFERS (PIX out) ============
 export async function asaasCreateTransfer(
   input: AsaasTransferInput,
