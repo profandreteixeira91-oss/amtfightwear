@@ -20,6 +20,7 @@ import { IntegrationCard, type LiveStatus } from "@/components/dojo/integrations
 import { IntegrationWizard } from "@/components/dojo/integrations/IntegrationWizard";
 import { ApiHubDialog } from "@/components/dojo/integrations/ApiHubDialog";
 import { AMTPayWizard } from "@/components/dojo/integrations/AMTPayWizard";
+import { GatewayAccountsPanel } from "@/components/dojo/integrations/GatewayAccountsPanel";
 
 import { listMyGateways, upsertMyGateway } from "@/lib/dojo/gateways.functions";
 import { listPartnerIntegrations, savePartnerIntegration, listPartnerCheckins } from "@/lib/dojo/attendance.functions";
