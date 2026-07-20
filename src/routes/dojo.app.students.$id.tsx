@@ -787,15 +787,19 @@ function StudentDetail() {
 // ============ HELPERS ============
 function LoadingState() {
   return (
-    <div className="grid gap-4 lg:grid-cols-[280px_minmax(0,1fr)_320px]">
-      <Skeleton className="h-96 w-full" />
-      <div className="space-y-3">
-        <div className="grid grid-cols-3 gap-2 md:grid-cols-6">
-          {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-20 w-full" />)}
+    <div className="space-y-4">
+      <div className="grid gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
+        <Skeleton className="h-96 w-full" />
+        <div className="space-y-3">
+          <div className="grid grid-cols-3 gap-2 md:grid-cols-6">
+            {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-20 w-full" />)}
+          </div>
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-64 w-full" />
         </div>
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-64 w-full" />
       </div>
+      <Skeleton className="h-32 w-full" />
+
       <Skeleton className="h-96 w-full" />
     </div>
   );
