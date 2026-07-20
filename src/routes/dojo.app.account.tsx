@@ -95,12 +95,16 @@ function AccountPage() {
       supabase.from("dojo_invoices").select("*").eq("owner_id", uid).order("due_date", { ascending: false }).limit(50),
       supabase.from("dojo_account_audit").select("*").eq("owner_id", uid).order("created_at", { ascending: false }).limit(30),
     ]);
-    setProfile(p ?? { id: uid, email: u.user.email });
-    setAcademy(a ?? { owner_id: uid, modalities: [] });
+    const pv = p ?? { id: uid, email: u.user.email };
+    const av = a ?? { owner_id: uid, modalities: [] };
+    setProfile(pv);
+    setAcademy(av);
+    const nv = n ?? { email_enabled: true, system_enabled: true, finance_alerts: true, product_news: true, reminders: true };
     if (n) setNotifPrefs(n);
     setSubscription(sub);
     setInvoices(inv ?? []);
     setAudit(au ?? []);
+    setSnapshot(JSON.stringify({ profile: pv, academy: av, notifPrefs: nv }));
     setLoading(false);
   }
 
