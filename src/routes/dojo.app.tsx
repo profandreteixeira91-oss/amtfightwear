@@ -53,6 +53,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { DojoLogo } from "@/components/dojo/DojoLogo";
 import { TrialBadge } from "@/components/dojo/TrialBadge";
+import { UnsavedChangesProvider } from "@/components/common/UnsavedChangesGuard";
 
 export const Route = createFileRoute("/dojo/app")({
   head: () => ({ meta: [{ title: "Painel — AMT Dojo Manager" }] }),
@@ -303,7 +304,9 @@ function DojoLayout() {
           </header>
 
           <main className="min-w-0 max-w-full overflow-x-hidden p-4 md:p-6">
-            <Outlet />
+            <UnsavedChangesProvider>
+              <Outlet />
+            </UnsavedChangesProvider>
           </main>
         </SidebarInset>
       </SidebarProvider>
