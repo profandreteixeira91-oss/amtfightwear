@@ -103,16 +103,18 @@ export function FinanceReceivables() {
       </Card>
 
       <Tabs defaultValue="all">
-        <TabsList>
-          <TabsTrigger value="all">Todas · {items.length}</TabsTrigger>
-          <TabsTrigger value="pending">Pendentes · {pending.length}</TabsTrigger>
-          <TabsTrigger value="overdue">
-            <AlertCircle className="h-3 w-3 mr-1 text-red-600" />
-            Vencidas · {overdue.length}
-          </TabsTrigger>
-          <TabsTrigger value="paid">Pagas · {paid.length}</TabsTrigger>
-          <TabsTrigger value="cancelled">Canceladas · {cancelled.length}</TabsTrigger>
-        </TabsList>
+        <div className="-mx-1 overflow-x-auto">
+          <TabsList className="w-max min-w-full flex-nowrap">
+            <TabsTrigger value="all" className="whitespace-nowrap">Todas · {items.length}</TabsTrigger>
+            <TabsTrigger value="pending" className="whitespace-nowrap">Pendentes · {pending.length}</TabsTrigger>
+            <TabsTrigger value="overdue" className="whitespace-nowrap">
+              <AlertCircle className="h-3 w-3 mr-1 text-red-600" />
+              Vencidas · {overdue.length}
+            </TabsTrigger>
+            <TabsTrigger value="paid" className="whitespace-nowrap">Pagas · {paid.length}</TabsTrigger>
+            <TabsTrigger value="cancelled" className="whitespace-nowrap">Canceladas · {cancelled.length}</TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="all">
           <InvoiceList rows={items} loading={invs.isLoading} onOpen={setSelected} onPay={handlePay} onDelete={handleDelete} />
