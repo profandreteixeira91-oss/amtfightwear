@@ -55,7 +55,7 @@ function OverviewPage() {
             <StatCard label="Negócios no CRM" value={String(data?.deals ?? 0)} icon={Handshake} />
             <StatCard label="Pipeline aberto" value={brl(data?.pipeline ?? 0)} icon={Users} />
             <StatCard label="Produtos no catálogo" value={String(data?.products ?? 0)} icon={Package} />
-          </PageShell>
+          </>
         )}
       </div>
 
