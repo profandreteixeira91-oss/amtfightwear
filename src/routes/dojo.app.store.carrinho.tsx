@@ -77,29 +77,15 @@ function CartPage() {
   const checkout = useMutation({
     mutationFn: () => handoffFn(),
     onSuccess: (r: any) => {
-      // Injeta os itens no carrinho persistido da AMT Fight Wear e redireciona
-      // para o checkout oficial. A gestão do pedido (pagamento, produção,
-      // envio) continua sendo feita 100% pela loja principal.
-      const cart = useCart.getState();
-      cart.clear();
-      for (const it of r.items) {
-        cart.add({
-          product_id: it.product_id,
-          variant_id: it.variant_id,
-          name: it.name,
-          slug: it.slug,
-          image_url: it.image_url,
-          variant_label: it.variant_label,
-          unit_price: it.unit_price,
-          quantity: it.quantity,
-          type: "product",
-        });
-      }
-      cart.close();
+      // Subdomínios diferentes (dojomanager x loja) não compartilham
+      // localStorage, então o carrinho é enviado via URL para a rota
+      // /loja/carrinho, que faz o import e segue para /loja/checkout.
+      const payload = { items: r.items };
+      const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
       refresh();
       toast.success("Redirecionando para o checkout AMT Fight Wear…");
-      // Sai do domínio do Dojo Manager e volta para a loja principal.
-      window.location.href = "https://loja.amtfightwear.com.br/loja/checkout";
+      window.location.href =
+        `https://loja.amtfightwear.com.br/loja/carrinho?checkout=1&import=${encodeURIComponent(b64)}`;
     },
     onError: (e: any) => toast.error(e?.message ?? "Falha ao finalizar"),
   });
