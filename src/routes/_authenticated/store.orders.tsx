@@ -153,7 +153,7 @@ function AdminOrdersPage() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </PageShell>
   );
 }
 
