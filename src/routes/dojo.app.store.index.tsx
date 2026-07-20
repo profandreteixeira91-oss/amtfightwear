@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { dsDashboardKpis } from "@/lib/dojo/store/store.functions";
 import { Card } from "@/components/ui/card";
-import { ShoppingBag, Clock, CheckCircle2, DollarSign, PiggyBank, TrendingUp } from "lucide-react";
+import { ShoppingBag, Clock, CheckCircle2, DollarSign, TrendingUp } from "lucide-react";
 
 export const Route = createFileRoute("/dojo/app/store/")({ component: StoreDashboard });
 
@@ -19,14 +19,13 @@ function StoreDashboard() {
     { label: "Em andamento", value: kpi?.in_progress ?? 0, icon: Clock, color: "bg-amber-50 text-amber-600" },
     { label: "Entregues", value: kpi?.delivered ?? 0, icon: CheckCircle2, color: "bg-emerald-50 text-emerald-600" },
     { label: "Gasto no mês", value: brl(kpi?.month_spend ?? 0), icon: DollarSign, color: "bg-purple-50 text-purple-600" },
-    { label: "Economia atacado", value: brl(kpi?.total_savings ?? 0), icon: PiggyBank, color: "bg-pink-50 text-pink-600" },
   ];
 
   if (isLoading) return <div className="text-sm text-muted-foreground">Carregando…</div>;
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {cards.map((c) => {
           const Icon = c.icon;
           return (
@@ -92,7 +91,6 @@ function StoreDashboard() {
                 </div>
                 <div className="text-right">
                   <div className="text-sm font-bold">{brl(Number(o.total))}</div>
-                  {Number(o.savings) > 0 && <div className="text-xs text-emerald-600">−{brl(Number(o.savings))}</div>}
                 </div>
               </Link>
             ))}
@@ -120,9 +118,6 @@ function ProductGrid({ products }: { products: any[] }) {
                 ) : null}
                 <span className="text-sm font-bold">{brl(Number(p.price))}</span>
               </div>
-              {p.wholesale_enabled && (
-                <div className="mt-0.5 text-[10px] text-emerald-600">Atacado: {brl(p.wholesale_price)}</div>
-              )}
             </div>
           </Card>
         </Link>

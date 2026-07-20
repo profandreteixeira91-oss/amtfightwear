@@ -86,11 +86,6 @@ function PdpPage() {
               )}
               <span className="text-3xl font-bold text-primary">{brl(product.price)}</span>
             </div>
-            {product.wholesale_enabled && (
-              <div className="mt-1 inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-1 text-xs text-emerald-700">
-                💰 Preço atacado: <b>{brl(product.wholesale_price)}</b> · −{product.wholesale_discount_percent}%
-              </div>
-            )}
           </div>
 
           {product.short_description && <p className="text-sm text-muted-foreground">{product.short_description}</p>}
