@@ -167,7 +167,7 @@ function InvoiceList({
   }
   return (
     <Card className="border border-[color:var(--dojo-border)] overflow-hidden">
-    <Card className="border border-[color:var(--dojo-border)] overflow-hidden">
+
       <div className="overflow-x-auto">
         <div className="min-w-[720px]">
           <div className="hidden md:grid grid-cols-[minmax(0,1fr)_110px_120px_110px_210px] gap-3 px-4 py-2 bg-[color:var(--dojo-surface-2)] border-b border-[color:var(--dojo-border)] text-[10px] uppercase tracking-widest text-muted-foreground">
