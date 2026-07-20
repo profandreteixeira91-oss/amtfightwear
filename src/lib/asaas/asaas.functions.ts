@@ -190,7 +190,13 @@ export const createMyAsaasSubaccount = createServerFn({ method: "POST" })
     const companyType = (data.companyType ?? (p.company_type as typeof data.companyType | null)) ?? undefined;
     const incomeValue = data.incomeValue ?? (typeof p.monthly_income === "number" ? p.monthly_income : undefined);
     const birthDate = data.birthDate ?? (p.birth_date ? String(p.birth_date).slice(0, 10) : undefined);
-    const mobilePhone = data.mobilePhone ?? (p.whatsapp ? String(p.whatsapp) : undefined);
+    // Asaas exige mobilePhone (celular) para permitir emissão de boletos.
+    // Prioriza input → whatsapp → phone do perfil (cadastro do dono do dojo).
+    const mobilePhoneRaw =
+      data.mobilePhone ??
+      (p.whatsapp ? String(p.whatsapp) : undefined) ??
+      (p.phone ? String(p.phone) : undefined);
+    const mobilePhone = mobilePhoneRaw ? mobilePhoneRaw.replace(/\D/g, "") : undefined;
 
     // Validações mínimas
     const missing: string[] = [];
