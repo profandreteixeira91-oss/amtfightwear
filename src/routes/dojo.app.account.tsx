@@ -22,6 +22,9 @@ import { createMyAsaasSubaccount, getMyAsaasConfig } from "@/lib/asaas/asaas.fun
 
 export const Route = createFileRoute("/dojo/app/account")({
   head: () => ({ meta: [{ title: "Minha Conta — AMT Dojo Manager" }] }),
+  validateSearch: (s: Record<string, unknown>) => ({
+    onboarding: s.onboarding === "1" || s.onboarding === 1 ? true : undefined,
+  }),
   component: AccountPage,
 });
 
