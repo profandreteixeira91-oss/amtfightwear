@@ -664,7 +664,7 @@ function OnboardingPage() {
               />
               <span>
                 Li e aceito os termos do AMT Pay, incluindo a criação automática de subconta no Asaas
-                para processamento de pagamentos, com taxa administrativa da AMT de 5% sobre cada transação.
+                para processamento de pagamentos, com taxa administrativa da AMT de 2% sobre cada transação.
               </span>
             </label>
           </Section>
