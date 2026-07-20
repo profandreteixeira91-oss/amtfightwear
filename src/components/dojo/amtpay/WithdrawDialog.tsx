@@ -117,7 +117,7 @@ export function WithdrawDialog({
                 <Button size="sm" onClick={() => { onOpenChange(false); onNeedBankAccount(); }}>
                   <Landmark className="h-4 w-4 mr-2" /> Cadastrar conta
                 </Button>
-                {caps?.chooseWithdrawalPixKey && (
+                {caps?.withdrawals && (
                   <Button size="sm" variant="outline" onClick={() => setUseAltPix(true)}>
                     Usar chave PIX
                   </Button>
