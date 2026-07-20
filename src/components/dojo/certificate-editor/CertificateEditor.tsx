@@ -673,13 +673,14 @@ function renderInner(el: AnyElement, qr: string, values: Record<string, string>,
   if (el.kind === "signature-block") {
     return (
       <div className="flex h-full w-full flex-col items-center justify-end gap-0.5 text-center" style={{ color: el.color }}>
-        {el.imageUrl && <img src={el.imageUrl} className="max-h-[55%] max-w-full" style={{ objectFit: "contain" }} alt="" />}
+        {el.imageUrl && <img src={el.imageUrl} className="min-h-[40%] max-h-[70%] max-w-full flex-1" style={{ objectFit: "contain" }} alt="Assinatura" crossOrigin="anonymous" />}
         {el.showLine !== false && <div className="w-full border-t border-current" />}
         <div className="text-[10px] font-semibold" style={{ fontSize: `${9 * zoom}px` }}>{el.personName || "Nome"}</div>
         {el.personRole && <div className="text-[9px] opacity-70" style={{ fontSize: `${8 * zoom}px` }}>{el.personRole}</div>}
       </div>
     );
   }
+
   return null;
 }
 
