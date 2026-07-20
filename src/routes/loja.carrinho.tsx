@@ -84,6 +84,14 @@ function CartPage() {
             });
           }
         }
+        // Aceita frete + CEP vindos do carrinho de origem (dojo).
+        if (json?.shipping || json?.zip) {
+          if (json.zip) setZip(String(json.zip));
+          if (json.shipping) setShipping(json.shipping as ShippingOption);
+          try {
+            sessionStorage.setItem(SHIPPING_KEY, JSON.stringify({ zip: json.zip, option: json.shipping }));
+          } catch { /* ignore */ }
+        }
       } catch { /* ignore */ }
       const goCheckout = params.get("checkout") === "1";
       const url = new URL(window.location.href);
@@ -93,6 +101,7 @@ function CartPage() {
       if (goCheckout) window.location.href = "/loja/checkout";
     }
   }, [addCart, clearCart]);
+
 
   const subtotal = items.reduce((a, i) => a + i.quantity * i.unit_price, 0);
 
