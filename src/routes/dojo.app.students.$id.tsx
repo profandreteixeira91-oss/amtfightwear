@@ -606,46 +606,15 @@ function StudentDetail() {
                 {invoices.length === 0 ? (
                   <EmptyState label="Sem cobranças registradas." />
                 ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                        <tr className="border-b border-border">
-                          <th className="p-2 text-left">Descrição</th>
-                          <th className="p-2 text-right">Valor</th>
-                          <th className="p-2 text-left">Vencimento</th>
-                          <th className="p-2 text-left">Pagamento</th>
-                          <th className="p-2 text-left">Status</th>
-                          <th className="p-2 text-right">Ações</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {invoices.map((i: any) => {
-                          const isOverdue = i.status === "pending" && i.due_date && new Date(i.due_date) < new Date(new Date().toDateString());
-                          const effective = i.status === "paid" ? "paid" : isOverdue ? "overdue" : i.status;
-                          return (
-                            <tr key={i.id} className="border-b border-border last:border-0">
-                              <td className="p-2 font-medium truncate max-w-[240px]">{i.description}</td>
-                              <td className="p-2 text-right">{brl(i.amount)}</td>
-                              <td className="p-2 text-muted-foreground">{fmtDate(i.due_date)}</td>
-                              <td className="p-2 text-muted-foreground">{i.paid_at ? fmtDate(i.paid_at) : "—"}</td>
-                              <td className="p-2"><InvoiceStatus status={effective} /></td>
-                              <td className="p-2 text-right">
-                                <div className="inline-flex gap-1">
-                                  {i.status !== "paid" && (
-                                    <Button size="sm" variant="outline" onClick={async () => { await payInv({ data: { id: i.id, method: "cash" } }); refresh(); }}>
-                                      Marcar pago
-                                    </Button>
-                                  )}
-                                  <Button size="icon" variant="ghost" onClick={async () => { await delInv({ data: { id: i.id } }); refresh(); }}>
-                                    <Trash2 className="h-4 w-4 text-destructive" />
-                                  </Button>
-                                </div>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
+                  <div className="space-y-2">
+                    {invoices.map((i: any) => (
+                      <TuitionRow
+                        key={i.id}
+                        inv={i}
+                        onMarkPaid={async (id) => { await payInv({ data: { id, method: "cash" } }); toast.success("Mensalidade recebida"); refresh(); }}
+                        onDelete={async (id) => { if (!confirm("Excluir esta mensalidade?")) return; await delInv({ data: { id } }); refresh(); }}
+                      />
+                    ))}
                   </div>
                 )}
               </SectionCard>
