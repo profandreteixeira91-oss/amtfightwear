@@ -265,6 +265,16 @@ function NewGraduationPage() {
             </div>
             <div className="grid md:grid-cols-2 gap-3">
               <div>
+                <label className="text-xs text-muted-foreground">Modalidade</label>
+                <select
+                  className="border rounded p-2 bg-background w-full"
+                  value={modality}
+                  onChange={(e) => { setModality(e.target.value); setBeltId(""); setDegree(0); }}
+                >
+                  {modalities.map((m) => <option key={m} value={m}>{m}</option>)}
+                </select>
+              </div>
+              <div>
                 <label className="text-xs text-muted-foreground">Faixa</label>
                 <select className="border rounded p-2 bg-background w-full" value={beltId} onChange={(e) => { setBeltId(e.target.value); setDegree(0); setPretaVariant("plain"); }}>
                   <option value="">Selecione…</option>
