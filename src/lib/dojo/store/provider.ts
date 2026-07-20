@@ -129,11 +129,21 @@ export class LocalAmtProvider implements StoreProvider {
       .eq("status", "active");
 
     if (input.search && input.search.trim()) {
-      // Busca por palavras soltas (OR entre tokens)
+      // Busca por palavras soltas (OR entre tokens) — inclui nome de categoria.
       const tokens = input.search.trim().toLowerCase().split(/\s+/).filter(Boolean);
       if (tokens.length) {
-        const or = tokens.map((t) => `name.ilike.%${t}%,description.ilike.%${t}%,short_description.ilike.%${t}%`).join(",");
-        query = query.or(or);
+        // Pré-busca IDs de categorias cujo nome/slug bate com algum token.
+        const catOr = tokens.map((t) => `name.ilike.%${t}%,slug.ilike.%${t}%`).join(",");
+        const { data: matchedCats } = await this.supabase
+          .from("store_categories")
+          .select("id")
+          .or(catOr);
+        const catIds = (matchedCats ?? []).map((c: any) => c.id);
+        const textOr = tokens
+          .map((t) => `name.ilike.%${t}%,description.ilike.%${t}%,short_description.ilike.%${t}%,category.ilike.%${t}%`)
+          .join(",");
+        const finalOr = catIds.length ? `${textOr},category_id.in.(${catIds.join(",")})` : textOr;
+        query = query.or(finalOr);
       }
     }
     if (input.categorySlug) {
