@@ -100,31 +100,45 @@ export const getMyAnnouncement = createServerFn({ method: "GET" })
   .inputValidator((i: unknown) => z.object({ id: uuid }).parse(i))
   .handler(async ({ data, context }) => {
     const studentId = await currentStudent(context.supabase);
-    if (!studentId) throw new Error("Aluno não encontrado");
 
-    const { data: ok } = await context.supabase.rpc("dojo_announcement_visible_to_student", {
-      _ann: data.id,
-      _student: studentId,
-    });
-    if (ok !== true) throw new Error("Aviso indisponível");
+    // Fallback admin/owner (sem student): retorna só o aviso, sem comentários/likes.
+    if (!studentId) {
+      const { data: ann, error } = await context.supabase
+        .from("dojo_announcements")
+        .select("*, category:dojo_announcement_categories(id, name, color, icon)")
+        .eq("id", data.id)
+        .eq("owner_id", context.userId)
+        .single();
+      if (error) throw new Error(error.message);
+      return {
+        announcement: ann,
+        comments: [],
+        like_count: 0,
+        liked: false,
+        read: false,
+        read_at: null,
+        student_id: null,
+      };
+    }
 
-    const [ann, comments, likes, myLike, myRead, likeCount] = await Promise.all([
+    const [ann, comments, myLike, myRead, likeCount] = await Promise.all([
       context.supabase.from("dojo_announcements")
         .select("*, category:dojo_announcement_categories(id, name, color, icon)")
         .eq("id", data.id).single(),
       context.supabase.from("dojo_announcement_comments")
         .select("*, student:dojo_students(id, full_name, photo_url)")
         .eq("announcement_id", data.id).order("created_at", { ascending: false }),
-      context.supabase.from("dojo_announcement_likes").select("id", { count: "exact", head: true }).eq("announcement_id", data.id),
       context.supabase.from("dojo_announcement_likes").select("id").eq("announcement_id", data.id).eq("student_id", studentId).maybeSingle(),
       context.supabase.from("dojo_announcement_reads").select("id, read_at").eq("announcement_id", data.id).eq("student_id", studentId).maybeSingle(),
       context.supabase.from("dojo_announcement_likes").select("id", { count: "exact", head: true }).eq("announcement_id", data.id),
     ]);
     if (ann.error) throw new Error(ann.error.message);
 
-    try {
-      await context.supabase.from("dojo_announcements").update({ view_count: (ann.data.view_count ?? 0) + 1 }).eq("id", data.id);
-    } catch { /* ignore */ }
+    // view_count: fire-and-forget para não travar a resposta
+    context.supabase.from("dojo_announcements")
+      .update({ view_count: (ann.data.view_count ?? 0) + 1 })
+      .eq("id", data.id)
+      .then(() => {}, () => {});
 
     return {
       announcement: ann.data,
@@ -136,6 +150,7 @@ export const getMyAnnouncement = createServerFn({ method: "GET" })
       student_id: studentId,
     };
   });
+
 
 export const confirmRead = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
