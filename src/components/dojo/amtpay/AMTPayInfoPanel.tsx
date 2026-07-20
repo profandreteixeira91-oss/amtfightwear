@@ -77,7 +77,7 @@ export function AMTPayInfoPanel() {
                   Taxa da plataforma AMT
                 </div>
                 <div className="text-2xl font-bold tracking-tight mt-0.5">
-                  5,00% <span className="text-sm font-normal text-muted-foreground">por transação aprovada</span>
+                  2,00% <span className="text-sm font-normal text-muted-foreground">por transação aprovada</span>
                 </div>
               </div>
               <Badge variant="secondary" className="shrink-0">Split automático</Badge>
