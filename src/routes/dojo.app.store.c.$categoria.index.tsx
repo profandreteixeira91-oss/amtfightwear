@@ -5,7 +5,7 @@ import { dsListCategories } from "@/lib/dojo/store/store.functions";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, ChevronRight, Layers } from "lucide-react";
 
-export const Route = createFileRoute("/dojo/app/store/c/$categoria")({ component: SubcategoryPage });
+export const Route = createFileRoute("/dojo/app/store/c/$categoria/")({ component: SubcategoryPage });
 
 type Cat = { id: string; slug: string; name: string; parent_id: string | null };
 
