@@ -160,28 +160,52 @@ function CartPage() {
             </div>
 
 
-            <div className="h-fit rounded-lg border bg-card p-5">
-              <h2 className="mb-3 text-lg font-bold">Resumo</h2>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span>Subtotal</span>
-                  <span className="font-semibold">{formatBRL(subtotal)}</span>
+            <div className="h-fit space-y-4">
+              <div className="rounded-lg border bg-card p-5">
+                <h2 className="mb-3 text-lg font-bold">Calcular frete</h2>
+                <ShippingCalculator
+                  items={items.map((i) => ({ product_id: i.product_id, variant_id: i.variant_id ?? null, quantity: i.quantity }))}
+                  initialZip={zip}
+                  selectedId={shipping?.id ?? null}
+                  onSelect={handleShippingSelect}
+                  compact
+                />
+                <div className="mt-2 text-[11px] text-muted-foreground">
+                  Você poderá alterar o CEP no checkout, se quiser.
                 </div>
-                <div className="flex justify-between text-muted-foreground">
-                  <span>Frete</span>
-                  <span>Calculado no checkout</span>
-                </div>
-                <div className="my-3 border-t pt-3 flex justify-between text-base font-black">
-                  <span>Total</span>
-                  <span>{formatBRL(subtotal)}</span>
-                </div>
-                <div className="text-xs text-muted-foreground">ou 10x de <strong>{formatBRL(subtotal / 10)}</strong> sem juros</div>
               </div>
-              <Link to="/loja/checkout" className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 font-bold text-primary-foreground hover:opacity-90">
-                Finalizar compra <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link to="/" className="mt-2 block text-center text-sm text-muted-foreground hover:text-primary">Continuar comprando</Link>
+
+              <div className="rounded-lg border bg-card p-5">
+                <h2 className="mb-3 text-lg font-bold">Resumo</h2>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span>Subtotal</span>
+                    <span className="font-semibold">{formatBRL(subtotal)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">
+                      Frete {shipping ? `(${shipping.company} ${shipping.name})` : ""}
+                    </span>
+                    <span className={shipping ? "font-semibold" : "text-muted-foreground"}>
+                      {shipping ? (freeShipping ? <><span className="line-through mr-1">{formatBRL(shippingCost)}</span><span className="text-emerald-600">Grátis</span></> : formatBRL(shippingCost)) : "Informe o CEP"}
+                    </span>
+                  </div>
+                  {freeShipping && shipping && (
+                    <div className="text-[11px] text-emerald-600">🎉 Frete grátis desbloqueado</div>
+                  )}
+                  <div className="my-3 border-t pt-3 flex justify-between text-base font-black">
+                    <span>Total</span>
+                    <span>{formatBRL(total)}</span>
+                  </div>
+                  <div className="text-xs text-muted-foreground">ou 10x de <strong>{formatBRL(total / 10)}</strong> sem juros</div>
+                </div>
+                <Link to="/loja/checkout" className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 font-bold text-primary-foreground hover:opacity-90">
+                  Finalizar compra <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link to="/" className="mt-2 block text-center text-sm text-muted-foreground hover:text-primary">Continuar comprando</Link>
+              </div>
             </div>
+
           </div>
         )}
       </div>
