@@ -145,7 +145,7 @@ function StudentsPage() {
     start_date: new Date().toISOString().slice(0, 10),
     first_due_date: new Date().toISOString().slice(0, 10),
     include_enrollment_fee: true,
-    payment_method: "manual" as "manual" | "mp_link",
+    payment_method: "manual" as string,
     custom_amount: "" as string,
   });
 
