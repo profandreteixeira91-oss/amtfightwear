@@ -78,7 +78,7 @@ export const adminGetDashboard = createServerFn({ method: "GET" })
     const paid = <T extends { payment_status?: string | null }>(arr: T[]): T[] =>
       arr.filter((o) => o.payment_status === "paid" || o.payment_status === "approved");
 
-    const sum = (arr: { total: number | string }[]) => arr.reduce((a, b) => a + Number(b.total || 0), 0);
+    const sum = <T extends { total: number | string }>(arr: T[]) => arr.reduce((a, b) => a + Number(b.total || 0), 0);
 
     const revenueToday = sum(paid(ordersToday ?? []));
     const revenueYesterday = sum(paid(ordersYesterday ?? []));
