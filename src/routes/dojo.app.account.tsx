@@ -124,6 +124,7 @@ function AccountPage() {
     // Ativação automática do Asaas assim que os dados fiscais obrigatórios
     // estiverem preenchidos e a subconta ainda não existir.
     const hasSubaccount = !!academy?.asaas_subaccount_id;
+    const hasLinkedWallet = !!academy?.asaas_wallet_id;
     const requiredOk =
       (academy?.legal_name || academy?.trade_name) &&
       academy?.cnpj &&
@@ -136,14 +137,24 @@ function AccountPage() {
       academy?.state &&
       academy?.zip;
 
-    if (!opts?.skipAsaas && !hasSubaccount && requiredOk) {
+    // Não tentar criar subconta se já existir OU se o dono já vinculou uma
+    // conta Asaas existente pela walletId (mesmo CNPJ).
+    if (!opts?.skipAsaas && !hasSubaccount && !hasLinkedWallet && requiredOk) {
       try {
         toast.info("Ativando subconta Asaas…");
         const res = await createAsaasFn({ data: {} });
         await logAudit("asaas_subaccount_auto_created", { subaccount_id: res.subaccountId });
         toast.success("Subconta Asaas ativada automaticamente!");
       } catch (e: any) {
-        toast.error("Não foi possível ativar a subconta Asaas: " + (e?.message || "erro desconhecido"));
+        const msg = String(e?.message || "erro desconhecido");
+        if (/CNPJ.*(uso|utiliza|cadastrad)/i.test(msg) || /CPF.*(uso|utiliza|cadastrad)/i.test(msg)) {
+          toast.error(
+            "Este CNPJ/CPF já possui conta no Asaas. Vá em AMT Pay → 'Já tenho uma conta Asaas' e informe seu walletId para receber via split.",
+            { duration: 12000 },
+          );
+        } else {
+          toast.error("Não foi possível ativar a subconta Asaas: " + msg);
+        }
       }
     }
 
