@@ -141,51 +141,117 @@ export type AsaasBalance = {
   totalBalance: number;
 };
 
-/** Lê env vars e configura URL base + API key ativa. */
-function getAsaasConfig(): { baseUrl: string; apiKey: string; env: AsaasEnv } {
-  const env = (process.env.ASAAS_ENV || "sandbox") as AsaasEnv;
-  const isProd = env === "production";
-  const apiKey = isProd
-    ? process.env.ASAAS_PRODUCTION_API_KEY || process.env.ASAAS_API_KEY
-    : process.env.ASAAS_SANDBOX_API_KEY || process.env.ASAAS_API_KEY;
+type AsaasConfig = { baseUrl: string; apiKey: string; env: AsaasEnv; source: string };
 
-  if (!apiKey) {
-    throw new Error(
-      `Asaas API key não configurada para ambiente ${env}. ` +
-        `Configure ${isProd ? "ASAAS_API_KEY" : "ASAAS_SANDBOX_API_KEY"}.`,
-    );
+function cleanSecret(value: string | undefined): string | null {
+  if (!value) return null;
+  const clean = value.trim().replace(/^(["'])(.*)\1$/, "$2").trim();
+  return clean || null;
+}
+
+function normalizeEnv(value: string | undefined): AsaasEnv {
+  return cleanSecret(value)?.toLowerCase() === "production" ? "production" : "sandbox";
+}
+
+function inferKeyEnv(apiKey: string, fallback: AsaasEnv): AsaasEnv {
+  if (apiKey.startsWith("$aact_prod_")) return "production";
+  if (apiKey.startsWith("$aact_hmlg_")) return "sandbox";
+  return fallback;
+}
+
+function makeAsaasConfig(
+  apiKey: string,
+  fallbackEnv: AsaasEnv,
+  source: string,
+): AsaasConfig {
+  const env = inferKeyEnv(apiKey, fallbackEnv);
+  return {
+    apiKey,
+    env,
+    source,
+    baseUrl: env === "production" ? "https://api.asaas.com/v3" : "https://api-sandbox.asaas.com/v3",
+  };
+}
+
+/**
+ * Monta as credenciais disponíveis na ordem do ambiente configurado.
+ * Em caso de chave antiga/inválida, o cliente tenta a credencial do outro
+ * ambiente somente após um 401. Isso também corrige chaves salvas com aspas
+ * ou espaços e evita enviar uma chave de produção para a URL de homologação.
+ */
+function getAsaasConfigs(): AsaasConfig[] {
+  const preferredEnv = normalizeEnv(process.env.ASAAS_ENV);
+  const productionKey = cleanSecret(process.env.ASAAS_PRODUCTION_API_KEY);
+  const sandboxKey = cleanSecret(process.env.ASAAS_SANDBOX_API_KEY);
+  const genericKey = cleanSecret(process.env.ASAAS_API_KEY);
+  const candidates: AsaasConfig[] = [];
+
+  const add = (apiKey: string | null, fallbackEnv: AsaasEnv, source: string) => {
+    if (!apiKey || candidates.some((candidate) => candidate.apiKey === apiKey)) return;
+    candidates.push(makeAsaasConfig(apiKey, fallbackEnv, source));
+  };
+
+  if (preferredEnv === "production") {
+    add(productionKey, "production", "ASAAS_PRODUCTION_API_KEY");
+    add(genericKey, "production", "ASAAS_API_KEY");
+    add(sandboxKey, "sandbox", "ASAAS_SANDBOX_API_KEY");
+  } else {
+    add(sandboxKey, "sandbox", "ASAAS_SANDBOX_API_KEY");
+    add(genericKey, "sandbox", "ASAAS_API_KEY");
+    add(productionKey, "production", "ASAAS_PRODUCTION_API_KEY");
   }
 
-  const baseUrl = isProd ? "https://api.asaas.com/v3" : "https://api-sandbox.asaas.com/v3";
-  return { baseUrl, apiKey, env };
+  if (!candidates.length) {
+    throw new Error("Asaas API key não configurada. Configure a credencial do ambiente do AMT Pay.");
+  }
+
+  return candidates;
 }
 
 async function asaasFetch<T>(
   path: string,
   init: RequestInit & { apiKey?: string } = {},
 ): Promise<T> {
-  const cfg = getAsaasConfig();
-  const apiKey = init.apiKey || cfg.apiKey;
+  const configured = getAsaasConfigs();
+  const overrideKey = cleanSecret(init.apiKey);
+  const configs = overrideKey
+    ? [makeAsaasConfig(overrideKey, configured[0].env, "subaccount")]
+    : configured;
+  const attempted: string[] = [];
 
-  const res = await fetch(`${cfg.baseUrl}${path}`, {
-    ...init,
-    headers: {
-      "Content-Type": "application/json",
-      access_token: apiKey,
-      "User-Agent": "AMT-Dojo-Manager/1.0",
-      ...(init.headers || {}),
-    },
-  });
+  for (const cfg of configs) {
+    const { apiKey: _ignoredApiKey, ...fetchInit } = init;
+    const res = await fetch(`${cfg.baseUrl}${path}`, {
+      ...fetchInit,
+      headers: {
+        "Content-Type": "application/json",
+        access_token: cfg.apiKey,
+        "User-Agent": "AMT-Dojo-Manager/1.0",
+        ...(init.headers || {}),
+      },
+    });
 
-  const text = await res.text();
-  const data = text ? JSON.parse(text) : {};
+    const text = await res.text();
+    let data: Record<string, any> = {};
+    try {
+      data = text ? JSON.parse(text) : {};
+    } catch {
+      data = {};
+    }
 
-  if (!res.ok) {
+    if (res.ok) return data as T;
+
     const err = data?.errors?.[0]?.description || data?.message || res.statusText;
-    throw new Error(`Asaas API ${res.status}: ${err}`);
+    if (res.status !== 401 || overrideKey) {
+      throw new Error(`Asaas API ${res.status}: ${err}`);
+    }
+
+    attempted.push(`${cfg.source} (${cfg.env})`);
   }
 
-  return data as T;
+  throw new Error(
+    `Asaas API 401: nenhuma credencial configurada foi aceita. Tentativas: ${attempted.join(", ")}.`,
+  );
 }
 
 // ============ CUSTOMERS ============
@@ -327,7 +393,7 @@ export function detectPixKeyType(key: string): AsaasPixKeyType | null {
 }
 
 export function getAsaasEnv(): AsaasEnv {
-  return (process.env.ASAAS_ENV || "sandbox") as AsaasEnv;
+  return getAsaasConfigs()[0].env;
 }
 
 export function getAmtWalletId(): string {
