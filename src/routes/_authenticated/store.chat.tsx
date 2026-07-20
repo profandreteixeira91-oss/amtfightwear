@@ -323,7 +323,7 @@ function StoreChatAdmin() {
         </section>
         </div>
       )}
-    </div>
+    </PageShell>
   );
 }
 
