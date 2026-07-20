@@ -166,8 +166,16 @@ function OnboardingPage() {
           acceptAmtPayTerms: !!p.accepted_amtpay_terms,
         }));
         const map: Record<string, string> = {};
-        for (const d of state.documents) map[d.doc_type] = d.file_path;
+        const mimes: Record<string, string> = {};
+        for (const d of state.documents) {
+          map[d.doc_type] = d.file_path;
+          if (d.mime_type) mimes[d.doc_type] = d.mime_type;
+        }
         setDocs(map);
+        setDocMimes(mimes);
+        if ((mimes.identity_front || "").toLowerCase().includes("pdf")) {
+          setUseCnhDigital(true);
+        }
       } catch (e) {
         toast.error("Falha ao carregar", {
           description: e instanceof Error ? e.message : String(e),
