@@ -183,10 +183,12 @@ import { Route as DojoAppEvaluationsTemplatesIndexRouteImport } from './routes/d
 import { Route as DojoAppEvaluationsSessionsIndexRouteImport } from './routes/dojo.app.evaluations.sessions.index'
 import { Route as DojoAppStoreProdutosSlugRouteImport } from './routes/dojo.app.store.produtos.$slug'
 import { Route as DojoAppStorePedidosIdRouteImport } from './routes/dojo.app.store.pedidos.$id'
+import { Route as DojoAppStoreCCategoriaRouteImport } from './routes/dojo.app.store.c.$categoria'
 import { Route as DojoAppEvaluationsTemplatesIdRouteImport } from './routes/dojo.app.evaluations.templates.$id'
 import { Route as DojoAppEvaluationsSessionsIdRouteImport } from './routes/dojo.app.evaluations.sessions.$id'
 import { Route as ApiPublicDojoPartnerCheckinProviderRouteImport } from './routes/api/public/dojo/partner-checkin.$provider'
 import { Route as ApiPublicAppSlugDownloadRouteImport } from './routes/api/public/app/$slug/download'
+import { Route as DojoAppStoreCCategoriaSubcategoriaRouteImport } from './routes/dojo.app.store.c.$categoria.$subcategoria'
 
 const UnsubscribeRoute = UnsubscribeRouteImport.update({
   id: '/unsubscribe',
@@ -1120,6 +1122,11 @@ const DojoAppStorePedidosIdRoute = DojoAppStorePedidosIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => DojoAppStorePedidosRoute,
 } as any)
+const DojoAppStoreCCategoriaRoute = DojoAppStoreCCategoriaRouteImport.update({
+  id: '/c/$categoria',
+  path: '/c/$categoria',
+  getParentRoute: () => DojoAppStoreRoute,
+} as any)
 const DojoAppEvaluationsTemplatesIdRoute =
   DojoAppEvaluationsTemplatesIdRouteImport.update({
     id: '/$id',
@@ -1143,6 +1150,12 @@ const ApiPublicAppSlugDownloadRoute =
     id: '/api/public/app/$slug/download',
     path: '/api/public/app/$slug/download',
     getParentRoute: () => rootRouteImport,
+  } as any)
+const DojoAppStoreCCategoriaSubcategoriaRoute =
+  DojoAppStoreCCategoriaSubcategoriaRouteImport.update({
+    id: '/$subcategoria',
+    path: '/$subcategoria',
+    getParentRoute: () => DojoAppStoreCCategoriaRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -1318,10 +1331,12 @@ export interface FileRoutesByFullPath {
   '/api/public/dojo/partner-checkin/$provider': typeof ApiPublicDojoPartnerCheckinProviderRoute
   '/dojo/app/evaluations/sessions/$id': typeof DojoAppEvaluationsSessionsIdRoute
   '/dojo/app/evaluations/templates/$id': typeof DojoAppEvaluationsTemplatesIdRoute
+  '/dojo/app/store/c/$categoria': typeof DojoAppStoreCCategoriaRouteWithChildren
   '/dojo/app/store/pedidos/$id': typeof DojoAppStorePedidosIdRoute
   '/dojo/app/store/produtos/$slug': typeof DojoAppStoreProdutosSlugRoute
   '/dojo/app/evaluations/sessions/': typeof DojoAppEvaluationsSessionsIndexRoute
   '/dojo/app/evaluations/templates/': typeof DojoAppEvaluationsTemplatesIndexRoute
+  '/dojo/app/store/c/$categoria/$subcategoria': typeof DojoAppStoreCCategoriaSubcategoriaRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -1487,10 +1502,12 @@ export interface FileRoutesByTo {
   '/api/public/dojo/partner-checkin/$provider': typeof ApiPublicDojoPartnerCheckinProviderRoute
   '/dojo/app/evaluations/sessions/$id': typeof DojoAppEvaluationsSessionsIdRoute
   '/dojo/app/evaluations/templates/$id': typeof DojoAppEvaluationsTemplatesIdRoute
+  '/dojo/app/store/c/$categoria': typeof DojoAppStoreCCategoriaRouteWithChildren
   '/dojo/app/store/pedidos/$id': typeof DojoAppStorePedidosIdRoute
   '/dojo/app/store/produtos/$slug': typeof DojoAppStoreProdutosSlugRoute
   '/dojo/app/evaluations/sessions': typeof DojoAppEvaluationsSessionsIndexRoute
   '/dojo/app/evaluations/templates': typeof DojoAppEvaluationsTemplatesIndexRoute
+  '/dojo/app/store/c/$categoria/$subcategoria': typeof DojoAppStoreCCategoriaSubcategoriaRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -1668,10 +1685,12 @@ export interface FileRoutesById {
   '/api/public/dojo/partner-checkin/$provider': typeof ApiPublicDojoPartnerCheckinProviderRoute
   '/dojo/app/evaluations/sessions/$id': typeof DojoAppEvaluationsSessionsIdRoute
   '/dojo/app/evaluations/templates/$id': typeof DojoAppEvaluationsTemplatesIdRoute
+  '/dojo/app/store/c/$categoria': typeof DojoAppStoreCCategoriaRouteWithChildren
   '/dojo/app/store/pedidos/$id': typeof DojoAppStorePedidosIdRoute
   '/dojo/app/store/produtos/$slug': typeof DojoAppStoreProdutosSlugRoute
   '/dojo/app/evaluations/sessions/': typeof DojoAppEvaluationsSessionsIndexRoute
   '/dojo/app/evaluations/templates/': typeof DojoAppEvaluationsTemplatesIndexRoute
+  '/dojo/app/store/c/$categoria/$subcategoria': typeof DojoAppStoreCCategoriaSubcategoriaRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -1848,10 +1867,12 @@ export interface FileRouteTypes {
     | '/api/public/dojo/partner-checkin/$provider'
     | '/dojo/app/evaluations/sessions/$id'
     | '/dojo/app/evaluations/templates/$id'
+    | '/dojo/app/store/c/$categoria'
     | '/dojo/app/store/pedidos/$id'
     | '/dojo/app/store/produtos/$slug'
     | '/dojo/app/evaluations/sessions/'
     | '/dojo/app/evaluations/templates/'
+    | '/dojo/app/store/c/$categoria/$subcategoria'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -2017,10 +2038,12 @@ export interface FileRouteTypes {
     | '/api/public/dojo/partner-checkin/$provider'
     | '/dojo/app/evaluations/sessions/$id'
     | '/dojo/app/evaluations/templates/$id'
+    | '/dojo/app/store/c/$categoria'
     | '/dojo/app/store/pedidos/$id'
     | '/dojo/app/store/produtos/$slug'
     | '/dojo/app/evaluations/sessions'
     | '/dojo/app/evaluations/templates'
+    | '/dojo/app/store/c/$categoria/$subcategoria'
   id:
     | '__root__'
     | '/'
@@ -2197,10 +2220,12 @@ export interface FileRouteTypes {
     | '/api/public/dojo/partner-checkin/$provider'
     | '/dojo/app/evaluations/sessions/$id'
     | '/dojo/app/evaluations/templates/$id'
+    | '/dojo/app/store/c/$categoria'
     | '/dojo/app/store/pedidos/$id'
     | '/dojo/app/store/produtos/$slug'
     | '/dojo/app/evaluations/sessions/'
     | '/dojo/app/evaluations/templates/'
+    | '/dojo/app/store/c/$categoria/$subcategoria'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -3476,6 +3501,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DojoAppStorePedidosIdRouteImport
       parentRoute: typeof DojoAppStorePedidosRoute
     }
+    '/dojo/app/store/c/$categoria': {
+      id: '/dojo/app/store/c/$categoria'
+      path: '/c/$categoria'
+      fullPath: '/dojo/app/store/c/$categoria'
+      preLoaderRoute: typeof DojoAppStoreCCategoriaRouteImport
+      parentRoute: typeof DojoAppStoreRoute
+    }
     '/dojo/app/evaluations/templates/$id': {
       id: '/dojo/app/evaluations/templates/$id'
       path: '/$id'
@@ -3503,6 +3535,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/public/app/$slug/download'
       preLoaderRoute: typeof ApiPublicAppSlugDownloadRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/dojo/app/store/c/$categoria/$subcategoria': {
+      id: '/dojo/app/store/c/$categoria/$subcategoria'
+      path: '/$subcategoria'
+      fullPath: '/dojo/app/store/c/$categoria/$subcategoria'
+      preLoaderRoute: typeof DojoAppStoreCCategoriaSubcategoriaRouteImport
+      parentRoute: typeof DojoAppStoreCCategoriaRoute
     }
   }
 }
@@ -3815,10 +3854,26 @@ const DojoAppStorePedidosRouteChildren: DojoAppStorePedidosRouteChildren = {
 const DojoAppStorePedidosRouteWithChildren =
   DojoAppStorePedidosRoute._addFileChildren(DojoAppStorePedidosRouteChildren)
 
+interface DojoAppStoreCCategoriaRouteChildren {
+  DojoAppStoreCCategoriaSubcategoriaRoute: typeof DojoAppStoreCCategoriaSubcategoriaRoute
+}
+
+const DojoAppStoreCCategoriaRouteChildren: DojoAppStoreCCategoriaRouteChildren =
+  {
+    DojoAppStoreCCategoriaSubcategoriaRoute:
+      DojoAppStoreCCategoriaSubcategoriaRoute,
+  }
+
+const DojoAppStoreCCategoriaRouteWithChildren =
+  DojoAppStoreCCategoriaRoute._addFileChildren(
+    DojoAppStoreCCategoriaRouteChildren,
+  )
+
 interface DojoAppStoreRouteChildren {
   DojoAppStoreCarrinhoRoute: typeof DojoAppStoreCarrinhoRoute
   DojoAppStorePedidosRoute: typeof DojoAppStorePedidosRouteWithChildren
   DojoAppStoreIndexRoute: typeof DojoAppStoreIndexRoute
+  DojoAppStoreCCategoriaRoute: typeof DojoAppStoreCCategoriaRouteWithChildren
   DojoAppStoreProdutosSlugRoute: typeof DojoAppStoreProdutosSlugRoute
 }
 
@@ -3826,6 +3881,7 @@ const DojoAppStoreRouteChildren: DojoAppStoreRouteChildren = {
   DojoAppStoreCarrinhoRoute: DojoAppStoreCarrinhoRoute,
   DojoAppStorePedidosRoute: DojoAppStorePedidosRouteWithChildren,
   DojoAppStoreIndexRoute: DojoAppStoreIndexRoute,
+  DojoAppStoreCCategoriaRoute: DojoAppStoreCCategoriaRouteWithChildren,
   DojoAppStoreProdutosSlugRoute: DojoAppStoreProdutosSlugRoute,
 }
 
