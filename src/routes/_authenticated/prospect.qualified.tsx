@@ -7,7 +7,7 @@ import {
   Search, Mail, Instagram, Star, ExternalLink, Copy, Sparkles, MessageCircle, Globe, Send, Loader2, Image as ImageIcon, Trash2,
 } from "lucide-react";
 import { sendTransactionalEmail } from "@/lib/email/send";
-import { PageHeader } from "@/components/common/PageHeader";
+import { PageShell } from "@/components/common/PageShell";
 import { ErrorState } from "@/components/common/ErrorState";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -309,8 +309,7 @@ function QualifiedPage() {
   const pageInfo = useMemo(() => `${page + 1} / ${totalPages}`, [page, totalPages]);
 
   return (
-    <div className="mx-auto max-w-7xl">
-      <PageHeader
+    <PageShell
         eyebrow="Prospect Engine"
         title="Potenciais Clientes"
         description={`${total} leads enriquecidos e prontos para abordagem. Envie e-mail ou abra o Instagram com a mensagem pré-pronta.`}
@@ -321,7 +320,7 @@ function QualifiedPage() {
             </Link>
           </Button>
         }
-      />
+      >
 
       <Card className="mb-4">
         <CardContent className="p-4">
@@ -617,6 +616,6 @@ function QualifiedPage() {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </PageShell>
   );
 }

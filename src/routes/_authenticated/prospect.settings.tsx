@@ -4,7 +4,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Save, Loader2, Upload, X } from "lucide-react";
-import { PageHeader } from "@/components/common/PageHeader";
+import { PageShell } from "@/components/common/PageShell";
 import { SectionCard } from "@/components/common/SectionCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -111,8 +111,7 @@ function SettingsPage() {
   if (isLoading) return <div className="mx-auto max-w-4xl space-y-3"><Skeleton className="h-32" /><Skeleton className="h-64" /></div>;
 
   return (
-    <div className="mx-auto max-w-4xl">
-      <PageHeader
+    <PageShell
         eyebrow="Prospect Engine"
         title="Configurações"
         description="Ajuste pesos do Lead Score, templates, regiões prioritárias e autopilot."
@@ -122,7 +121,7 @@ function SettingsPage() {
             Salvar
           </Button>
         }
-      />
+      >
 
       <div className="grid gap-4">
         <SectionCard title="Autopilot" description="Executa buscas e enriquecimento em segundo plano.">
@@ -300,6 +299,6 @@ function SettingsPage() {
           </div>
         </SectionCard>
       </div>
-    </div>
+    </PageShell>
   );
 }

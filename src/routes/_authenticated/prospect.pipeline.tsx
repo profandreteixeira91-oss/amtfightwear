@@ -9,7 +9,7 @@ import {
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Star, Mail, MessageCircle, Instagram } from "lucide-react";
-import { PageHeader } from "@/components/common/PageHeader";
+import { PageShell } from "@/components/common/PageShell";
 import { ErrorState } from "@/components/common/ErrorState";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -81,12 +81,11 @@ function PipelinePage() {
   }
 
   return (
-    <div className="mx-auto max-w-[1600px]">
-      <PageHeader
+    <PageShell
         eyebrow="Prospect Engine"
         title="Pipeline Comercial"
         description="Arraste os cards entre estágios para atualizar o funil. Sincronização em tempo real."
-      />
+      >
 
       {error && <ErrorState message={String(error)} onRetry={() => refetch()} />}
 
@@ -103,7 +102,7 @@ function PipelinePage() {
           </div>
         </DndContext>
       )}
-    </div>
+    </PageShell>
   );
 }
 

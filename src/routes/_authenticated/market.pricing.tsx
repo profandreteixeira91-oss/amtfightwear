@@ -15,7 +15,7 @@ import {
   Check,
   Store,
 } from "lucide-react";
-import { PageHeader } from "@/components/common/PageHeader";
+import { PageShell } from "@/components/common/PageShell";
 import { SectionCard } from "@/components/common/SectionCard";
 import { StatCard } from "@/components/common/StatCard";
 import { EmptyState } from "@/components/common/EmptyState";
@@ -170,12 +170,11 @@ function PricingPage() {
   const delta = sug ? ((sug.suggested_price - sug.current_price) / sug.current_price) * 100 : 0;
 
   return (
-    <>
-      <PageHeader
+    <PageShell
         eyebrow="MarketEngine"
         title="Pesquisa de Mercado & Preços"
         description="A IA pesquisa preços de concorrentes no Google (sites próprios e marketplaces), compara descrições e sugere um preço competitivo para cada produto da AMT."
-      />
+      >
 
       <SectionCard title="1. Selecione um produto AMT">
         {productsQ.isLoading ? (
@@ -355,6 +354,6 @@ function PricingPage() {
           </SectionCard>
         </motion.div>
       )}
-    </>
+    </PageShell>
   );
 }

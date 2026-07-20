@@ -5,7 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { motion } from "framer-motion";
 import { Wand2, Instagram, MessageCircle, Mail, Sparkles, Loader2, Send, Clock, TrendingUp, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
-import { PageHeader } from "@/components/common/PageHeader";
+import { PageShell } from "@/components/common/PageShell";
 import { SectionCard } from "@/components/common/SectionCard";
 import { EmptyState } from "@/components/common/EmptyState";
 import { Button } from "@/components/ui/button";
@@ -214,12 +214,11 @@ function ContentPage() {
 
 
   return (
-    <>
-      <PageHeader
+    <PageShell
         eyebrow="MarketEngine"
         title="IA Content Hub"
         description="Gere copies com IA e agende posts no calendário estilo Meta Business."
-      />
+      >
 
 
 
@@ -363,7 +362,7 @@ function ContentPage() {
                 disabled={mut.isPending || (productRequired && !productId)}
                 onClick={() => mut.mutate()}
               >
-                {mut.isPending ? <><Loader2 className="h-4 w-4 animate-spin" /> Gerando com IA...</> : <><Sparkles className="h-4 w-4" /> Gerar copies</>}
+                {mut.isPending ? <><Loader2 className="h-4 w-4 animate-spin" /> Gerando com IA...</PageShell> : <><Sparkles className="h-4 w-4" /> Gerar copies</>}
               </Button>
             </div>
           )}
