@@ -64,6 +64,7 @@ function DojoLanding() {
         <Features />
         <Differentiators />
         <ModulesGrid />
+        <RealScreenshots />
         <FightWearIntegration />
         <Integrations />
         <Plans />
