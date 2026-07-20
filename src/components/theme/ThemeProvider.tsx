@@ -13,18 +13,19 @@ const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 const STORAGE_KEY = "amt-theme";
 
 function getInitialTheme(): Theme {
-  if (typeof window === "undefined") return "dark";
+  if (typeof window === "undefined") return "light";
   const stored = window.localStorage.getItem(STORAGE_KEY);
   if (stored === "light" || stored === "dark") return stored;
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("dark");
+  const [theme, setThemeState] = useState<Theme>("light");
 
   useEffect(() => {
     setThemeState(getInitialTheme());
   }, []);
+
 
   useEffect(() => {
     const root = document.documentElement;
