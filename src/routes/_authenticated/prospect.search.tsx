@@ -36,13 +36,11 @@ function SearchPage() {
 
   return (
     <PageShell
-          eyebrow="Prospect Engine"
-          title="Nova Busca"
-          description="Escolha entre a busca guiada por segmento livre ou o Modo Artes Marciais — varredura automatizada por academias, escolas, professores e projetos sociais de judô e jiu-jitsu."
-        >
-        <PurgeAllButton />
-      </PageShell>
-
+      eyebrow="Prospect Engine"
+      title="Nova Busca"
+      description="Escolha entre a busca guiada por segmento livre ou o Modo Artes Marciais — varredura automatizada por academias, escolas, professores e projetos sociais de judô e jiu-jitsu."
+      actions={<PurgeAllButton />}
+    >
       <Tabs defaultValue="martial" className="w-full">
         <TabsList className="mb-4">
           <TabsTrigger value="martial">
@@ -61,9 +59,10 @@ function SearchPage() {
           <GuidedSearchPanel onDone={() => navigate({ to: "/prospect/leads" })} />
         </TabsContent>
       </Tabs>
-    </div>
+    </PageShell>
   );
 }
+
 
 function PurgeAllButton() {
   const purgeFn = useServerFn(purgeAllProspectData);
