@@ -2080,6 +2080,8 @@ export type Database = {
       }
       dojo_academy_profile: {
         Row: {
+          accepted_amtpay_terms: boolean
+          accepted_amtpay_terms_at: string | null
           address: string | null
           address_complement: string | null
           address_number: string | null
@@ -2105,11 +2107,14 @@ export type Database = {
           modalities: string[] | null
           monthly_income: number | null
           neighborhood: string | null
+          onboarding_completed: boolean
+          onboarding_completed_at: string | null
           owner_id: string
           phone: string | null
           pix_key: string | null
           pix_key_type: string | null
           public_url: string | null
+          responsible_name: string | null
           seal_url: string | null
           signature_url: string | null
           slug: string | null
@@ -2122,6 +2127,8 @@ export type Database = {
           zip: string | null
         }
         Insert: {
+          accepted_amtpay_terms?: boolean
+          accepted_amtpay_terms_at?: string | null
           address?: string | null
           address_complement?: string | null
           address_number?: string | null
@@ -2147,11 +2154,14 @@ export type Database = {
           modalities?: string[] | null
           monthly_income?: number | null
           neighborhood?: string | null
+          onboarding_completed?: boolean
+          onboarding_completed_at?: string | null
           owner_id: string
           phone?: string | null
           pix_key?: string | null
           pix_key_type?: string | null
           public_url?: string | null
+          responsible_name?: string | null
           seal_url?: string | null
           signature_url?: string | null
           slug?: string | null
@@ -2164,6 +2174,8 @@ export type Database = {
           zip?: string | null
         }
         Update: {
+          accepted_amtpay_terms?: boolean
+          accepted_amtpay_terms_at?: string | null
           address?: string | null
           address_complement?: string | null
           address_number?: string | null
@@ -2189,11 +2201,14 @@ export type Database = {
           modalities?: string[] | null
           monthly_income?: number | null
           neighborhood?: string | null
+          onboarding_completed?: boolean
+          onboarding_completed_at?: string | null
           owner_id?: string
           phone?: string | null
           pix_key?: string | null
           pix_key_type?: string | null
           public_url?: string | null
+          responsible_name?: string | null
           seal_url?: string | null
           signature_url?: string | null
           slug?: string | null
@@ -4495,6 +4510,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      dojo_onboarding_documents: {
+        Row: {
+          created_at: string
+          doc_type: string
+          file_path: string
+          id: string
+          mime_type: string | null
+          owner_id: string
+          size_bytes: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          doc_type: string
+          file_path: string
+          id?: string
+          mime_type?: string | null
+          owner_id: string
+          size_bytes?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          doc_type?: string
+          file_path?: string
+          id?: string
+          mime_type?: string | null
+          owner_id?: string
+          size_bytes?: number | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       dojo_partner_checkins: {
         Row: {
