@@ -335,10 +335,10 @@ function MonthView({ cursor, events, onSelect }: { cursor: Date; events: any[]; 
   for (const e of events) { (byDay[e.date] = byDay[e.date] ?? []).push(e); }
 
   return (
-    <div className="border rounded-lg bg-white overflow-hidden">
-      <div className="grid grid-cols-7 border-b bg-muted/30">
+    <div className="border border-gray-200 rounded-lg bg-white overflow-hidden">
+      <div className="grid grid-cols-7 border-b border-gray-200 bg-gray-50">
         {WEEKDAYS.map((d) => (
-          <div key={d.value} className="p-2 text-[10px] uppercase text-center text-muted-foreground border-l first:border-l-0">
+          <div key={d.value} className="p-2 text-[10px] uppercase text-center text-muted-foreground border-l border-gray-100 first:border-l-0">
             {d.short}
           </div>
         ))}
@@ -352,8 +352,9 @@ function MonthView({ cursor, events, onSelect }: { cursor: Date; events: any[]; 
           return (
             <div
               key={i}
-              className={`min-h-[92px] p-1.5 border-b border-l first:border-l-0 ${inMonth ? "bg-white" : "bg-muted/20"}`}
+              className={`min-h-[92px] p-1.5 border-b border-l border-gray-100 first:border-l-0 ${inMonth ? "bg-white" : "bg-gray-50/60"}`}
             >
+
               <div className={`text-[11px] font-semibold mb-1 ${isToday ? "text-primary" : inMonth ? "" : "text-muted-foreground"}`}>
                 {d.getDate()}
               </div>
