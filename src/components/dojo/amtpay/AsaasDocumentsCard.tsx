@@ -238,10 +238,13 @@ export function AsaasDocumentsCard() {
           </div>
         </div>
         <p className="text-sm text-muted-foreground mt-1">
-          Fluxo homologado pelo Asaas: (1) listamos os documentos exigidos, (2)
-          você envia cada arquivo, (3) o Asaas analisa e o status muda para{" "}
-          <b>APROVADO</b> ou <b>REJEITADO</b>. Documentos rejeitados podem ser
-          reenviados aqui mesmo.
+          Fluxo homologado pelo Asaas: (1) a API <code>/myAccount/documents</code>{" "}
+          lista <b>apenas os documentos obrigatórios</b> para a sua conta, (2)
+          você envia cada arquivo aqui, (3) o Asaas analisa e o status muda para{" "}
+          <b>APROVADO</b> ou <b>REJEITADO</b> — rejeitados podem ser reenviados
+          no mesmo item. <b>Comprovante de residência não é exigido</b> pela API
+          para PF/MEI/LTDA/Individual; só aparece se o analista solicitar via{" "}
+          <i>CUSTOM</i>.
         </p>
       </CardHeader>
       <CardContent className="space-y-3">
