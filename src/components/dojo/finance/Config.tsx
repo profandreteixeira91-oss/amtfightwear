@@ -13,6 +13,57 @@ import { brl, useFinanceKpis, useFinanceSettings } from "./shared";
 import { openBrandedPrintDocument, escapeHtml } from "@/lib/dojo/print-document";
 import { useDojoBranding } from "@/hooks/useDojoBranding";
 
+function printFinanceReport(k: ReturnType<typeof useFinanceKpis>, branding: any) {
+  const kpiCards = [
+    ["Receitas do mês", brl(k.paidThisMonth)],
+    ["Despesas do mês", brl(k.expensesThisMonth)],
+    ["Lucro líquido", brl(k.netProfit)],
+    ["MRR (30d)", brl(k.mrr)],
+    ["A receber", brl(k.pendingReceivables)],
+    ["A pagar", brl(k.pendingPayables)],
+    ["Ticket médio", brl(k.avgTicket)],
+    ["Inadimplência", `${k.overdueRate.toFixed(1)}%`],
+  ]
+    .map(([l, v]) => `<div class="kpi"><div class="label">${escapeHtml(l)}</div><div class="value">${escapeHtml(v)}</div></div>`)
+    .join("");
+
+  const monthsRows = k.months
+    .map(
+      (m) =>
+        `<tr><td>${escapeHtml(m.label)}</td><td class="num">${escapeHtml(brl(m.receitas))}</td><td class="num">${escapeHtml(brl(m.despesas))}</td><td class="num" style="font-weight:700;color:${m.saldo >= 0 ? "#166534" : "#991b1b"}">${escapeHtml(brl(m.saldo))}</td></tr>`,
+    )
+    .join("");
+
+  const methodsRows = k.paymentMethods.length
+    ? k.paymentMethods
+        .map(
+          (p) =>
+            `<tr><td>${escapeHtml(p.name)}</td><td class="num">${escapeHtml(brl(p.value))}</td></tr>`,
+        )
+        .join("")
+    : `<tr><td colspan="2" style="color:#94a3b8;text-align:center">Sem pagamentos registrados</td></tr>`;
+
+  openBrandedPrintDocument({
+    branding,
+    title: "Resumo Financeiro",
+    subtitle: `Relatório executivo · ${new Date().toLocaleDateString("pt-BR", { month: "long", year: "numeric" })}`,
+    sections: [
+      { title: "Indicadores do mês", html: `<div class="kpi-grid" style="grid-template-columns:repeat(4,minmax(0,1fr))">${kpiCards}</div>` },
+      {
+        title: "Evolução últimos 12 meses",
+        html: `<table class="data"><thead><tr><th>Mês</th><th class="num">Receitas</th><th class="num">Despesas</th><th class="num">Saldo</th></tr></thead><tbody>${monthsRows}</tbody></table>`,
+      },
+      {
+        title: "Formas de pagamento recebidas",
+        html: `<table class="data"><thead><tr><th>Método</th><th class="num">Total</th></tr></thead><tbody>${methodsRows}</tbody></table>`,
+      },
+    ],
+    footerLeft: "Relatório financeiro · uso interno",
+    footerRight: "AMT Dojo Manager",
+  });
+}
+
+
 // ============ Categorias + Centros de Custo ============
 export function FinanceCategories() {
   const { settings, save } = useFinanceSettings();
