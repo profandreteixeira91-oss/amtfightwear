@@ -181,7 +181,20 @@ function CartPage() {
         ))}
         <div className="flex justify-between">
           <Button asChild variant="ghost" size="sm"><Link to="/dojo/app/store">Continuar comprando</Link></Button>
-          <Button variant="ghost" size="sm" onClick={() => clr.mutate()}>Esvaziar</Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-destructive hover:bg-destructive/10"
+            disabled={clr.isPending}
+            onClick={() => {
+              if (window.confirm("Tem certeza que deseja limpar o carrinho? Esta ação não pode ser desfeita.")) {
+                clr.mutate();
+              }
+            }}
+          >
+            <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+            Limpar carrinho
+          </Button>
         </div>
       </div>
 
@@ -201,67 +214,20 @@ function CartPage() {
               <span>💰 Você economizou</span><span className="font-bold">{brl(data.savings)}</span>
             </div>
           )}
-          <div className="flex justify-between">
-            <span>Frete</span>
-            <span className="font-medium">{shippingCost > 0 ? brl(shippingCost) : "—"}</span>
-          </div>
           <div className="flex justify-between border-t pt-2 text-base">
             <span className="font-semibold">Total</span>
             <span className="font-bold text-primary">{brl(total)}</span>
           </div>
-        </div>
-
-        <div className="space-y-2 border-t pt-3">
-          <div className="flex items-center gap-1.5 text-xs font-medium">
-            <Truck className="h-3.5 w-3.5" /> Calcular frete
+          <div className="rounded-md bg-muted/50 px-2 py-1.5 text-[11px] text-muted-foreground">
+            🚚 O frete será calculado na próxima etapa (checkout AMT Fight Wear).
           </div>
-          <div className="flex gap-2">
-            <Input
-              placeholder="CEP (00000-000)"
-              value={cep}
-              onChange={(e) => setCep(e.target.value)}
-              maxLength={9}
-              className="h-9"
-              inputMode="numeric"
-            />
-            <Button size="sm" onClick={() => quote.mutate()} disabled={quote.isPending}>
-              {quote.isPending ? "…" : "OK"}
-            </Button>
-          </div>
-          {options.length > 0 && (
-            <div className="space-y-1">
-              {options.map((o) => (
-                <label
-                  key={o.id}
-                  className={`flex cursor-pointer items-center justify-between gap-2 rounded-md border p-2 text-xs ${
-                    selected === o.id ? "border-primary bg-primary/5" : "border-input"
-                  } ${o.error ? "opacity-50" : ""}`}
-                >
-                  <span className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      checked={selected === o.id}
-                      onChange={() => setSelected(o.id)}
-                      disabled={!!o.error}
-                    />
-                    <span>
-                      <span className="font-medium">{o.company} · {o.name}</span>
-                      {o.delivery_time && <span className="ml-1 text-muted-foreground">({o.delivery_time} dias)</span>}
-                      {o.error && <span className="ml-1 text-destructive">{o.error}</span>}
-                    </span>
-                  </span>
-                  {!o.error && <span className="font-semibold">{brl(o.price)}</span>}
-                </label>
-              ))}
-            </div>
-          )}
         </div>
 
         <Button className="w-full" size="lg" disabled={checkout.isPending} onClick={() => checkout.mutate()}>
           {checkout.isPending ? "Processando…" : (<>Finalizar Compra <ArrowRight className="ml-2 h-4 w-4" /></>)}
         </Button>
         <div className="text-[11px] text-muted-foreground">
-          O pagamento e o gerenciamento do pedido são processados pela AMT Fight Wear.
+          O checkout abrirá em uma nova janela. Seu carrinho fica salvo aqui até você concluir a compra.
           10+ unidades por subcategoria garantem 25% de desconto automático.
         </div>
       </Card>
