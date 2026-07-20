@@ -220,7 +220,7 @@ function SizesPage() {
           </CardContent>
         </Card>
       )}
-    </div>
+    </PageShell>
   );
 }
 
