@@ -5,18 +5,12 @@ import { useEffect, useMemo, useState } from "react";
 import { listDojoPlans, saveDojoPlan, deleteDojoPlan, listDojoUnits } from "@/lib/dojo/dojo.functions";
 import {
   PAYMENT_METHODS,
-  GATEWAY_LABELS,
-  CONFIG_LABELS,
-  FREQUENCY_LABELS,
-  FREQUENCY_MONTHS,
+  ASAAS_SUPPORTED_METHODS,
   defaultPlanPaymentMethods,
-  defaultPlanRules,
   normalizePlanPaymentMethods,
   type PlanPaymentMethod,
-  type PlanRules,
-  type PlanFrequency,
+  CONFIG_LABELS,
   type PaymentMethodConfig,
-  type GatewayCode,
 } from "@/lib/dojo/payment-methods";
 import { DojoPageShell } from "@/components/dojo/DojoPageShell";
 import { Button } from "@/components/ui/button";
