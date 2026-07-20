@@ -209,6 +209,7 @@ export const createMyAsaasSubaccount = createServerFn({ method: "POST" })
     if (!p.zip) missing.push("CEP");
     if (!addressNumber) missing.push("Número do endereço");
     if (!province) missing.push("Bairro");
+    if (!mobilePhone || mobilePhone.length < 10) missing.push("Celular (WhatsApp)");
     if (missing.length) {
       throw new Error(`Campos obrigatórios ausentes: ${missing.join(", ")}`);
     }
