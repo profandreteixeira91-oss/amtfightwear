@@ -593,8 +593,10 @@ function ElementView({
   const values = useMemo(() => {
     const v: Record<string, string> = { ...systemValues() };
     ALL_VARIABLES.forEach((x) => { if (!(x.key in v)) v[x.key] = x.sample ? `[${x.sample}]` : `{{${x.key}}}`; });
+    if (previewValues) Object.assign(v, previewValues);
     return v;
-  }, []);
+  }, [previewValues]);
+
 
   return (
     <div style={style} onMouseDown={onMouseDown} onDoubleClick={(e) => { e.stopPropagation(); }}>
