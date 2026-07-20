@@ -26,6 +26,7 @@ import { Badge } from "@/components/ui/badge";
 import { formatBRL } from "@/lib/store/cart-store";
 import { useState } from "react";
 import { Truck, RefreshCw, Package, ExternalLink, Wallet } from "lucide-react";
+import { PageShell } from "@/components/common/PageShell";
 
 export const Route = createFileRoute("/_authenticated/store/orders")({
   component: AdminOrdersPage,
@@ -75,12 +76,10 @@ function AdminOrdersPage() {
   };
 
   return (
-    <div className="p-6 space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-black">Pedidos</h1>
-          <p className="text-sm text-muted-foreground">{data?.length ?? 0} pedidos recebidos</p>
-        </div>
+    <PageShell
+      title="Pedidos"
+      description={`${data?.length ?? 0} pedidos recebidos`}
+      actions={
         <div className="flex items-center gap-2 rounded-md border bg-card px-3 py-2 text-sm">
           <Wallet className="h-4 w-4 text-primary" />
           <div>
@@ -91,7 +90,8 @@ function AdminOrdersPage() {
             </div>
           </div>
         </div>
-      </div>
+      }
+    >
 
       <Card>
         <CardHeader>
