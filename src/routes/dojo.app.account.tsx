@@ -141,7 +141,7 @@ function AccountPage() {
       (academy?.legal_name || academy?.trade_name) &&
       academy?.cnpj &&
       academy?.email &&
-      academy?.phone &&
+      (academy?.whatsapp || academy?.phone) &&
       academy?.address &&
       academy?.address_number &&
       academy?.neighborhood &&
@@ -459,7 +459,7 @@ function AcademyTab({ academy, setAcademy, onSave }: any) {
     name: !!(academy?.legal_name || academy?.trade_name),
     cnpj: !!academy?.cnpj,
     email: !!academy?.email,
-    phone: !!academy?.phone,
+    mobile: !!(academy?.whatsapp || academy?.phone),
     address: !!academy?.address,
     number: !!academy?.address_number,
     neighborhood: !!academy?.neighborhood,
@@ -505,8 +505,8 @@ function AcademyTab({ academy, setAcademy, onSave }: any) {
           <Field label="Razão social / Nome *"><Input required {...bind("legal_name")} /></Field>
           <Field label="Nome fantasia"><Input {...bind("trade_name")} /></Field>
           <Field label="CPF ou CNPJ *"><Input required {...bind("cnpj")} placeholder="Somente números" /></Field>
-          <Field label="Telefone *"><Input required {...bind("phone")} placeholder="(11) 3333-4444" /></Field>
-          <Field label="WhatsApp / Celular"><Input {...bind("whatsapp")} placeholder="(11) 9xxxx-xxxx" /></Field>
+          <Field label="Telefone fixo"><Input {...bind("phone")} placeholder="(11) 3333-4444" /></Field>
+          <Field label="Celular / WhatsApp *"><Input required {...bind("whatsapp")} placeholder="(11) 9xxxx-xxxx" /></Field>
           <Field label="E-mail institucional *"><Input required type="email" {...bind("email")} /></Field>
           <Field label="Site"><Input {...bind("website")} /></Field>
           <Field label="Instagram"><Input {...bind("instagram")} placeholder="@usuario" /></Field>

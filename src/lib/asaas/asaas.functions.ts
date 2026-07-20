@@ -190,7 +190,13 @@ export const createMyAsaasSubaccount = createServerFn({ method: "POST" })
     const companyType = (data.companyType ?? (p.company_type as typeof data.companyType | null)) ?? undefined;
     const incomeValue = data.incomeValue ?? (typeof p.monthly_income === "number" ? p.monthly_income : undefined);
     const birthDate = data.birthDate ?? (p.birth_date ? String(p.birth_date).slice(0, 10) : undefined);
-    const mobilePhone = data.mobilePhone ?? (p.whatsapp ? String(p.whatsapp) : undefined);
+    // Asaas exige mobilePhone (celular) para permitir emissão de boletos.
+    // Prioriza input → whatsapp → phone do perfil (cadastro do dono do dojo).
+    const mobilePhoneRaw =
+      data.mobilePhone ??
+      (p.whatsapp ? String(p.whatsapp) : undefined) ??
+      (p.phone ? String(p.phone) : undefined);
+    const mobilePhone = mobilePhoneRaw ? mobilePhoneRaw.replace(/\D/g, "") : undefined;
 
     // Validações mínimas
     const missing: string[] = [];
@@ -203,6 +209,7 @@ export const createMyAsaasSubaccount = createServerFn({ method: "POST" })
     if (!p.zip) missing.push("CEP");
     if (!addressNumber) missing.push("Número do endereço");
     if (!province) missing.push("Bairro");
+    if (!mobilePhone || mobilePhone.length < 10) missing.push("Celular (WhatsApp)");
     if (missing.length) {
       throw new Error(`Campos obrigatórios ausentes: ${missing.join(", ")}`);
     }
@@ -231,8 +238,8 @@ export const createMyAsaasSubaccount = createServerFn({ method: "POST" })
       cpfCnpj,
       birthDate: isCpf ? birthDate : undefined,
       companyType: !isCpf ? (companyType || "MEI") : undefined,
-      phone: p.phone ? String(p.phone).replace(/\D/g, "") : undefined,
-      mobilePhone: mobilePhone ? mobilePhone.replace(/\D/g, "") : undefined,
+      phone: p.phone ? String(p.phone).replace(/\D/g, "") : (mobilePhone ?? undefined),
+      mobilePhone,
       incomeValue: incomeValue ?? 5000,
       address: String(p.address),
       addressNumber: addressNumber!,
