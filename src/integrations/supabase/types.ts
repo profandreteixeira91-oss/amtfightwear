@@ -2872,6 +2872,7 @@ export type Database = {
           created_at: string
           id: string
           max_degrees: number
+          min_months: number | null
           modality: string
           name: string
           owner_id: string | null
@@ -2884,6 +2885,7 @@ export type Database = {
           created_at?: string
           id?: string
           max_degrees?: number
+          min_months?: number | null
           modality?: string
           name: string
           owner_id?: string | null
@@ -2896,6 +2898,7 @@ export type Database = {
           created_at?: string
           id?: string
           max_degrees?: number
+          min_months?: number | null
           modality?: string
           name?: string
           owner_id?: string | null
