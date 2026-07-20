@@ -126,7 +126,7 @@ export const saveOnboardingProfile = createServerFn({ method: "POST" })
 
     const { error } = await context.supabase
       .from("dojo_academy_profile")
-      .upsert(payload, { onConflict: "owner_id" });
+      .upsert(payload as never, { onConflict: "owner_id" });
     if (error) throw new Error(error.message);
 
     return { ok: true as const };
