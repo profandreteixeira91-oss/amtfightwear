@@ -545,6 +545,10 @@ export function AsaasOnboardingCard() {
         </CardContent>
       </Card>
 
+      {hasSubaccount && <AsaasDocumentsCard />}
+
+
+
 
 
       {/* Card de chave PIX para saques */}
