@@ -56,6 +56,7 @@ function IntegrationsHub() {
   const [wizardFor, setWizardFor] = useState<IntegrationDef | null>(null);
   const [apiHubMode, setApiHubMode] = useState<"keys" | "webhooks" | null>(null);
   const [amtPayOpen, setAmtPayOpen] = useState(false);
+  const [amtPayProvider, setAmtPayProvider] = useState<"asaas" | "mercadopago" | undefined>(undefined);
   const [advancedOpen, setAdvancedOpen] = useState(false);
 
 
