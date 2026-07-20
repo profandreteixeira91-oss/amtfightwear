@@ -122,7 +122,7 @@ function ConnectionsPage() {
               className="w-full gap-2 bg-[#1877F2] hover:bg-[#166FE0] text-white"
             >
               {connectMutation.isPending ? (
-                <><Loader2 className="h-4 w-4 animate-spin" /> Preparando…</PageShell>
+                <><Loader2 className="h-4 w-4 animate-spin" /> Preparando…</>
               ) : (
                 <><Facebook className="h-4 w-4" /> {conn ? "Reconectar / Adicionar Página" : "Conectar via Facebook Login"}</>
               )}
@@ -157,6 +157,6 @@ function ConnectionsPage() {
           </div>
         </SectionCard>
       </div>
-    </>
+    </PageShell>
   );
 }

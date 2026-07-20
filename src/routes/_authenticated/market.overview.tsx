@@ -84,6 +84,6 @@ function OverviewPage() {
       </div>
 
       <SocialInsights />
-    </>
+    </PageShell>
   );
 }

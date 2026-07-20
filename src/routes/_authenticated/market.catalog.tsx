@@ -47,7 +47,7 @@ function CatalogPage() {
             <StatCard label="Produtos no catálogo" value={String(total)} icon={Package} />
             <StatCard label="Ticket médio" value={brl(avgPrice)} icon={BarChart4} />
             <StatCard label="SKUs com estoque baixo" value={String(lowStock.length)} icon={AlertTriangle} />
-          </PageShell>
+          </>
         )}
       </div>
 
@@ -113,6 +113,6 @@ function CatalogPage() {
           )}
         </SectionCard>
       </div>
-    </>
+    </PageShell>
   );
 }

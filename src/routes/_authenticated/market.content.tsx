@@ -362,7 +362,7 @@ function ContentPage() {
                 disabled={mut.isPending || (productRequired && !productId)}
                 onClick={() => mut.mutate()}
               >
-                {mut.isPending ? <><Loader2 className="h-4 w-4 animate-spin" /> Gerando com IA...</PageShell> : <><Sparkles className="h-4 w-4" /> Gerar copies</>}
+                {mut.isPending ? <><Loader2 className="h-4 w-4 animate-spin" /> Gerando com IA...</> : <><Sparkles className="h-4 w-4" /> Gerar copies</>}
               </Button>
             </div>
           )}
@@ -454,7 +454,7 @@ function ContentPage() {
           />
         )}
       </SectionCard>
-    </>
+    </PageShell>
   );
 }
 
