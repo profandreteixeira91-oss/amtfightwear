@@ -303,7 +303,7 @@ function DayView({ events, onSelect }: { events: any[]; onSelect: (id: string, d
         <button
           key={i}
           onClick={() => onSelect(e.classId, e.date)}
-          className={`w-full flex items-center gap-3 p-3 text-left hover:bg-muted transition-colors ${e.item.cancelled ? "opacity-60" : ""}`}
+          className={`w-full flex items-center gap-3 p-3 text-left hover:bg-gray-50 transition-colors ${e.item.cancelled ? "opacity-60" : ""}`}
         >
           <span className="h-10 w-1.5 rounded-full" style={{ background: e.item.color }} />
           <div className="w-24 text-sm font-semibold">{fmtTime(e.item.start)}–{fmtTime(e.item.end)}</div>
