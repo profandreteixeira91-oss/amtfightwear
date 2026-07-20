@@ -222,14 +222,9 @@ function SchedulesPage() {
 
   return (
     <DojoPageShell
-      icon={Calendar}
       title="Escalas"
-      subtitle="Agenda semanal, substituições e histórico"
-      breadcrumbs={[
-        { label: "Dojo Manager", to: "/dojo/app" },
-        { label: "Equipe", to: "/dojo/app/team" },
-        { label: "Escalas" },
-      ]}
+      description="Agenda semanal, substituições e histórico completo"
+
       actions={
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={materialize}>
