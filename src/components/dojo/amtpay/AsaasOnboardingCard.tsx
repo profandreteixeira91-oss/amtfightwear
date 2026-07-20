@@ -391,8 +391,64 @@ export function AsaasOnboardingCard() {
               </Button>
             </form>
           )}
+
+          {/* Já tem conta Asaas? Vincular usando walletId */}
+          {!hasSubaccount && (
+            <div className="mt-4 pt-4 border-t">
+              {!showLinkExisting ? (
+                <button
+                  type="button"
+                  onClick={() => setShowLinkExisting(true)}
+                  className="text-sm text-primary hover:underline"
+                >
+                  Já tenho uma conta Asaas — vincular pela walletId
+                </button>
+              ) : (
+                <div className="space-y-3">
+                  <Alert>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Vincular conta Asaas existente</AlertTitle>
+                    <AlertDescription>
+                      Se você já opera com Asaas, informe o <b>walletId</b> da sua
+                      conta. Ele fica em <i>Painel Asaas → Minha conta → Integrações
+                      → Chaves de API → walletId</i>. As mensalidades emitidas pelo
+                      AMT Pay serão direcionadas para essa carteira via split — sem
+                      criar uma nova subconta.
+                    </AlertDescription>
+                  </Alert>
+                  <div className="flex gap-2 flex-wrap">
+                    <Input
+                      placeholder="ex: 12345678-1234-1234-1234-123456789abc"
+                      value={existingWalletId}
+                      onChange={(e) => setExistingWalletId(e.target.value.trim())}
+                      className="flex-1 min-w-[280px] font-mono text-sm"
+                    />
+                    <Button
+                      onClick={() => linkExisting.mutate(existingWalletId)}
+                      disabled={linkExisting.isPending || existingWalletId.length < 10}
+                    >
+                      {linkExisting.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                      Vincular
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      onClick={() => { setShowLinkExisting(false); setExistingWalletId(""); }}
+                    >
+                      Cancelar
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Sua conta deve estar na mesma plataforma Asaas
+                    (<b>produção</b>) da AMT. Contas em sandbox não funcionam com o
+                    ambiente de produção.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
+
 
 
       {/* Card de chave PIX para saques */}
