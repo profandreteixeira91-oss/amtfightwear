@@ -1,95 +1,132 @@
-# Refatoração AMT Pay — Split de Pagamento centralizado
+# Migração AMT Pay para Asaas
 
-## Novo conceito
+## Objetivo
 
-AMT Pay deixa de ser um **hub de integrações** (Asaas/MP/Pagar.me configurados pelo dono do dojo) e passa a ser um **módulo de pagamento próprio**, operando 100% no **Mercado Pago corporativo da AMT Fight Wear** com **split** (Marketplace/Oauth) para cada dojo cliente.
+Substituir o Mercado Pago pelo **Asaas** como gateway do AMT Pay (mensalidades e repasses aos dojos), aproveitando:
+- **Split nativo** (sem OAuth de dojo)
+- **PIX Out automático** para chave PIX do dojo
+- **Assinaturas recorrentes** nativas (mensalidades)
+- **Onboarding de subcontas** via API
 
-- O dojo **não conecta mais** gateway próprio.
-- Toda cobrança (mensalidades, matrículas, avulsos) é processada pela conta MP da AMT.
-- O valor é **automaticamente dividido** entre AMT (taxa da plataforma) e o dojo (repasse), configurável por operação.
-- Saques do dojo continuam via AMT Pay (agora saldo interno, não mais consulta a gateway externo).
+A loja AMT Fight Wear (checkout de produtos) **continua no Mercado Pago** — nada muda para o cliente final da loja.
 
-## Arquitetura do split
+## Escopo desta migração
+
+**Dentro do escopo:**
+- Mensalidades de alunos (matrícula + recorrência)
+- Split contábil AMT ↔ Dojo
+- Repasse automático ao dojo (subconta Asaas + saque PIX)
+- Carteira e extrato do AMT Pay
+- Webhook de confirmação de pagamento
+
+**Fora do escopo (mantém MP):**
+- Loja AMT Fight Wear
+- AMT Store dentro do Dojo Manager (usa checkout da loja)
+- Custom Shop
+
+## Arquitetura alvo
 
 ```text
-Aluno paga R$ 200 (mensalidade)
-        ↓
-Mercado Pago AMT Fight Wear (conta única)
-        ↓
-   Split configurado
-   ├── AMT: R$ X (taxa da plataforma - % ou fixo)
-   └── Dojo: R$ (200 - X - MDR MP)  →  saldo AMT Pay do dojo
-        ↓
-Dojo solicita saque → transferência PIX AMT → conta bancária cadastrada
+┌─────────────────────────────────────────────────────┐
+│  Aluno paga mensalidade                             │
+│  (PIX / Cartão / Boleto via Asaas Checkout)         │
+└────────────────────┬────────────────────────────────┘
+                     ↓
+┌─────────────────────────────────────────────────────┐
+│  Cobrança Asaas com SPLIT nativo:                   │
+│    - 95% (ou %) → subconta Asaas do DOJO            │
+│    - 5% (ou %) → conta principal AMT                │
+└────────────────────┬────────────────────────────────┘
+                     ↓
+      ┌──────────────┴──────────────┐
+      ↓                             ↓
+  Subconta Dojo                  Conta AMT
+  (crédito D+1)                  (crédito D+1)
+      ↓
+  Saque PIX automático
+  para chave PIX cadastrada
 ```
 
-## Escopo desta entrega
+## Fases de entrega
 
-### 1. Módulo AMT Pay — remoção de integrações
+### Fase 1 — Fundação Asaas (backend)
+1. Criar `src/lib/asaas/client.server.ts` — HTTP client tipado (Bearer token, base URL sandbox/prod).
+2. Criar `src/lib/asaas/asaas.server.ts` com wrappers para:
+   - `createCustomer`, `createSubaccount` (subconta do dojo)
+   - `createCharge` com split, `createSubscription`
+   - `createTransfer` (PIX Out)
+   - `getBalance`, `listTransactions`
+3. Migration: adicionar em `dojo_academy_profile`:
+   - `asaas_subaccount_id`, `asaas_wallet_id`, `asaas_api_key_encrypted`
+   - `pix_key`, `pix_key_type`
+4. Migration: adicionar em `dojo_invoices`:
+   - `asaas_charge_id`, `asaas_invoice_url`, `split_config` (JSONB)
+5. Configurar secret `ASAAS_WALLET_ID_AMT` (Wallet ID master da AMT — necessário para receber o percentual do split).
 
-- Remover completamente:
-  - `AMTPayWizard.tsx` (assistente de conexão de gateways).
-  - `GatewayAccountsPanel.tsx` (cards de contas Asaas/MP/Pagar.me).
-  - Aba/tela de "Modo Avançado" com API Keys.
-  - Adapters em `src/lib/dojo/gateway-adapters/*` (Asaas/MP externos).
-- Manter tabelas `dojo_gateway_history` e `dojo_payment_gateways` como **histórico read-only** (para dojos que já usaram); não permitir novas conexões.
+### Fase 2 — Onboarding automático de dojos
+1. Ao concluir cadastro do dojo (ou botão "Ativar AMT Pay"):
+   - Criar subconta Asaas via API (CPF/CNPJ, dados do responsável, endereço)
+   - Guardar `wallet_id` retornado em `dojo_academy_profile`
+   - Retornar link de KYC do Asaas se pendente
+2. UI: nova aba "Configurar recebimento" no AMT Pay com formulário unificado (dados fiscais + chave PIX).
 
-### 2. Nova estrutura de split
+### Fase 3 — Refatorar cobrança de mensalidades
+1. Substituir `enrollStudentWithPlan` para criar cobrança Asaas com split:
+   - `split: [{ walletId: dojoWalletId, percentualValue: 95 }]`
+   - Restante (5%) fica automaticamente na conta AMT
+2. Substituir `subscription.functions.ts` para usar `POST /subscriptions` do Asaas (recorrência nativa com retry).
+3. Criar rota pública `src/routes/api/public/hooks/asaas.ts`:
+   - Validar `asaas-access-token` header contra `ASAAS_WEBHOOK_TOKEN`
+   - Atualizar `dojo_invoices` no evento `PAYMENT_CONFIRMED`
+   - Registrar entrada em `dojo_wallet_transactions` (log contábil apenas)
 
-- Migration criando:
-  - `dojo_split_config` — configuração de split por dojo (percentual/fixo da AMT, tipo de operação: mensalidade / matrícula / avulso, ativo).
-  - `dojo_split_transactions` — registro de cada transação: `mp_payment_id`, `gross_amount`, `mp_fee`, `amt_fee`, `dojo_net`, `status`, `student_id`, `invoice_id`, `type`.
-  - Ajuste em `dojo_wallet_transactions` para referenciar `split_transaction_id`.
-- Grants + RLS: dojo lê o próprio; AMT (role admin) lê tudo.
+### Fase 4 — Repasse PIX automático
+1. Cadastro de chave PIX no perfil do dojo (`pix_key`, `pix_key_type` com validação).
+2. Refatorar `WithdrawDialog.tsx`:
+   - Consulta saldo real via `getBalance(dojoWalletId)`
+   - Ao solicitar saque, chama `createTransfer` do Asaas
+   - Atualiza `dojo_withdrawals` com `asaas_transfer_id` e `status`
+3. Webhook Asaas `TRANSFER_DONE` marca saque como confirmado.
+4. Opcional: cron de repasse automático semanal (checkbox no perfil).
 
-### 3. Configuração central (AMT admin)
+### Fase 5 — Descomissionar MP no AMT Pay
+1. Remover `src/lib/store/mercadopago.functions.ts` **apenas** das rotas de mensalidade — manter para a loja.
+2. Remover código de "split contábil interno" no webhook MP (rotas de mensalidade).
+3. Manter tabela `dojo_split_transactions` como legado histórico (não apagar dados).
+4. Atualizar UI do AMT Pay (`dojo.app.integrations.tsx`) para:
+   - Banner: "Fonte: Asaas (tempo real)"
+   - Card de saldo consultando Asaas ao vivo
 
-- Nova rota `/admin/amt-pay-config` (visível apenas para role `admin` da AMT):
-  - Definir taxa padrão da plataforma (% + fixo).
-  - Override por dojo.
-  - Ver todas as transações e volumes.
+### Fase 6 — Documentação e migração de dados
+1. Script de migração: para cada dojo ativo, criar subconta Asaas (com aprovação do dono via aceite de termos).
+2. Assinaturas MP existentes ficam ativas até vencimento; novas mensalidades vão para Asaas.
+3. Atualizar `mem://` com a decisão arquitetural.
 
-### 4. Painel do dojo (`/dojo/app/amt-pay`)
+## Secrets necessários
 
-Redesenhar totalmente a rota `dojo.app.integrations.tsx` (renomear conceitualmente):
+| Secret | Origem | Status |
+|---|---|---|
+| `ASAAS_API_KEY` | Painel Asaas → Integrações → API Key produção | ✅ já configurado |
+| `ASAAS_WEBHOOK_TOKEN` | Painel Asaas → Notificações → Token | ✅ já configurado |
+| `ASAAS_WALLET_ID_AMT` | Painel Asaas → Minha conta → Wallet ID | ⚠️ **falta configurar** |
+| `ASAAS_ENV` | `production` ou `sandbox` | ⚠️ **falta configurar** |
 
-- **Aba Visão Geral**: saldo disponível (do wallet interno), a receber, taxa da plataforma configurada, últimas transações.
-- **Aba Extrato**: transações vindas do split (não mais do gateway externo). Cada linha mostra: bruto, taxa MP, taxa AMT, líquido.
-- **Aba Saques**: fluxo mantido (`WithdrawDialog`), agora contra saldo interno.
-- **Aba Configuração**: apenas dados bancários e chave PIX para saque. Sem "conectar gateway".
+## Webhook a configurar no painel Asaas
 
-### 5. Motor de cobrança
+URL: `https://dojomanager.amtfightwear.com.br/api/public/hooks/asaas`
 
-- Refatorar `mercadopago.functions.ts` para usar credenciais **únicas da AMT** (secrets já existentes: `MERCADOPAGO_ACCESS_TOKEN`, `MERCADOPAGO_WEBHOOK_SECRET`, `MERCADOPAGO_PUBLIC_KEY`).
-- Ao criar cobrança de mensalidade/matrícula, incluir metadata `{ dojo_owner_id, invoice_id, type }`.
-- Novo endpoint público `/api/public/webhooks/mercadopago-split` que:
-  1. Valida assinatura MP.
-  2. Ao receber `payment.approved`, calcula split conforme `dojo_split_config`.
-  3. Grava `dojo_split_transactions`.
-  4. Credita saldo no wallet do dojo (`dojo_wallet_transactions` tipo `credit`).
-  5. Marca invoice como paga.
+Eventos: `PAYMENT_CONFIRMED`, `PAYMENT_RECEIVED`, `PAYMENT_OVERDUE`, `PAYMENT_REFUNDED`, `TRANSFER_DONE`, `TRANSFER_FAILED`.
 
-### 6. Fluxos afetados
+## Riscos e mitigação
 
-- `enrollStudentWithPlan` — segue gerando link MP, mas via conta AMT com metadata do dojo.
-- Faturas recorrentes: mesma coisa.
-- Loja AMT (dojo store checkout): mantém-se; o split já é diferente (produtos da AMT), não misturar.
+- **Dojos existentes sem subconta Asaas:** manter fallback para MP até que o dono complete o KYC do Asaas.
+- **Falha no split (dojo sem `wallet_id`):** cobrança cai 100% na AMT + alerta no painel para configurar.
+- **Recorrência já ativa no MP:** não interromper; apenas rotear NOVAS cobranças para Asaas.
+- **Chave PIX inválida:** validar formato antes de salvar; Asaas também valida antes de transferir.
 
-## Fora do escopo (para próxima fase)
+## Decisões que preciso confirmar antes de começar
 
-- Split via API oficial Marketplace do MP (OAuth). Nesta fase implementamos split **contábil** (uma conta MP recebe tudo e distribuímos internamente). O usuário confirma que essa abordagem inicial serve, dado que o dono da conta MP é a AMT.
-- Emissão automática de nota fiscal.
-- Reconciliação com extrato bancário da AMT.
-
-## Estrutura técnica (detalhes)
-
-- Tabelas novas seguem regra: `CREATE TABLE` → `GRANT` → `ENABLE RLS` → `POLICY`.
-- Função `has_role(auth.uid(), 'admin')` para políticas AMT.
-- `.functions.ts` finos, helpers em `.server.ts`.
-- Sem novos gateway adapters.
-
-## Confirmações necessárias
-
-1. **Split contábil** (conta única AMT recebe tudo, distribuição interna via saldo) está OK como v1? Ou você já quer o **Split MP Marketplace via OAuth** (dojo autoriza a AMT a fazer split direto na API do MP — mais complexo, exige homologação MP)?
-2. Confirma que a **taxa da plataforma** é configurável no admin da AMT (não pelo dojo)?
-3. Manter o histórico das antigas conexões de gateway como read-only, ou apagar tudo?
+1. **Percentual de split padrão:** 5% AMT / 95% dojo? Ou você quer configurável por dojo (tabela `dojo_split_config` já existe)?
+2. **Ambiente inicial:** começamos em `sandbox` do Asaas para eu testar, depois viramos a chave para `production`?
+3. **Migração de alunos com assinatura ativa no MP:** deixa expirar naturalmente (recomendado) ou cancela e recria no Asaas?
+4. **Onde você quer que eu envie o formulário de secret?** Preciso do `ASAAS_WALLET_ID_AMT` (você pega no painel Asaas → Minha conta → seção Split / Wallet ID) e do `ASAAS_ENV` (`sandbox` ou `production`).
