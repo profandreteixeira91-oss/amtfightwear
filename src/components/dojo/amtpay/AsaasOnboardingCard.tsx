@@ -61,8 +61,8 @@ export function AsaasOnboardingCard() {
       birthDate?: string;
       companyType?: "MEI" | "LIMITED" | "INDIVIDUAL" | "ASSOCIATION";
       incomeValue?: number;
-      addressNumber: string;
-      province: string;
+      addressNumber?: string;
+      province?: string;
       complement?: string;
       mobilePhone?: string;
     }) => createFn({ data: input }),
