@@ -386,9 +386,9 @@ function ClassesTable({ classes, onOpen }: { classes: any[]; onOpen: (c: any) =>
     return <div className="border rounded-lg bg-white p-8 text-center text-sm text-muted-foreground">Nenhuma turma cadastrada.</div>;
   }
   return (
-    <div className="border rounded-lg bg-white overflow-x-auto">
+    <div className="border border-gray-200 rounded-lg bg-white overflow-x-auto">
       <table className="w-full text-sm">
-        <thead className="bg-muted/40 text-[11px] uppercase text-muted-foreground">
+        <thead className="bg-gray-50 text-[11px] uppercase text-muted-foreground border-b border-gray-200">
           <tr>
             <th className="text-left p-2">Turma</th>
             <th className="text-left p-2">Modalidade</th>
@@ -399,7 +399,8 @@ function ClassesTable({ classes, onOpen }: { classes: any[]; onOpen: (c: any) =>
             <th className="text-left p-2">Status</th>
           </tr>
         </thead>
-        <tbody className="divide-y">
+        <tbody className="divide-y divide-gray-100">
+
           {classes.map((c: any) => (
             <tr key={c.id} onClick={() => onOpen(c)} className="cursor-pointer hover:bg-muted/40">
               <td className="p-2">
