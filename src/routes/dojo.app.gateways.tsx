@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { listMyGateways } from "@/lib/dojo/gateways.functions";
+import { DojoPageShell } from "@/components/dojo/DojoPageShell";
 
 export const Route = createFileRoute("/dojo/app/gateways")({
   head: () => ({ meta: [{ title: "Gateways de Pagamento — AMT Dojo Manager" }] }),
@@ -36,18 +37,11 @@ function GatewaysPage() {
   const gateways = (data as GatewayRow[] | undefined) ?? [];
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6 p-6">
-      <div className="flex items-center gap-3">
-        <div className="grid h-11 w-11 place-items-center rounded-xl bg-red-50 text-red-600">
-          <Plug className="h-5 w-5" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-bold">Gateways de Pagamento</h1>
-          <p className="text-sm text-neutral-500">
-            Status dos gateways vinculados a este dojo. A configuração (tokens, chaves e ativação) é feita na Central de Integrações.
-          </p>
-        </div>
-      </div>
+    <DojoPageShell
+      narrow
+      description="Status dos gateways vinculados a este dojo. A configuração (tokens, chaves e ativação) é feita na Central de Integrações."
+    >
+
 
       <Card className="border-emerald-200 bg-emerald-50/40">
         <CardContent className="flex items-start gap-3 py-4 text-sm text-emerald-900">
@@ -111,6 +105,6 @@ function GatewaysPage() {
           </Button>
         </CardContent>
       </Card>
-    </div>
+    </DojoPageShell>
   );
 }

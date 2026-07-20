@@ -44,18 +44,13 @@ function DojoCheckinModule() {
   const [tab, setTab] = useState("dashboard");
 
   return (
-    <div className="min-h-full bg-background">
-      <div className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-30">
-        <div className="max-w-[1400px] mx-auto px-4 py-4 flex items-center justify-between gap-4 flex-wrap">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Check-in</h1>
-            <p className="text-sm text-muted-foreground">Controle de acesso, presença e integrações Gympass/TotalPass</p>
-          </div>
-        </div>
-      </div>
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 md:gap-7">
+      <p className="text-sm text-muted-foreground max-w-2xl">
+        Controle de acesso, presença e integrações Gympass/TotalPass.
+      </p>
 
-      <div className="max-w-[1400px] mx-auto p-4 md:p-6">
-        <Tabs value={tab} onValueChange={setTab} className="space-y-6">
+      <Tabs value={tab} onValueChange={setTab} className="space-y-6">
+
           <div className="overflow-x-auto -mx-4 px-4">
             <TabsList className="w-max min-w-full flex justify-start">
               <TabsTrigger value="dashboard" className="gap-2"><Activity className="h-4 w-4" />Dashboard</TabsTrigger>
@@ -78,7 +73,6 @@ function DojoCheckinModule() {
           <TabsContent value="reports"><ReportsPanel /></TabsContent>
           <TabsContent value="settings"><SettingsPanel /></TabsContent>
         </Tabs>
-      </div>
     </div>
   );
 }

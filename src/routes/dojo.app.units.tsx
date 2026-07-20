@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Trash2, Pencil } from "lucide-react";
+import { DojoPageShell } from "@/components/dojo/DojoPageShell";
 
 export const Route = createFileRoute("/dojo/app/units")({
   head: () => ({ meta: [{ title: "Unidades — AMT Dojo Manager" }] }),
@@ -38,24 +39,29 @@ function UnitsPage() {
     qc.invalidateQueries({ queryKey: ["dojo-units"] });
   };
 
+  const dialog = (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button onClick={() => setForm({ name: "", address: "", phone: "", active: true })}>Nova unidade</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader><DialogTitle>{form.id ? "Editar" : "Nova"} unidade</DialogTitle></DialogHeader>
+        <div className="space-y-3">
+          <Input placeholder="Nome" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
+          <Input placeholder="Endereço" value={form.address ?? ""} onChange={e => setForm({ ...form, address: e.target.value })} />
+          <Input placeholder="Telefone" value={form.phone ?? ""} onChange={e => setForm({ ...form, phone: e.target.value })} />
+          <Button onClick={onSave} className="w-full">Salvar</Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+
   return (
-    <div>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">Unidades</h2>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild><Button onClick={() => setForm({ name: "", address: "", phone: "", active: true })}>Nova unidade</Button></DialogTrigger>
-          <DialogContent>
-            <DialogHeader><DialogTitle>{form.id ? "Editar" : "Nova"} unidade</DialogTitle></DialogHeader>
-            <div className="space-y-3">
-              <Input placeholder="Nome" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
-              <Input placeholder="Endereço" value={form.address ?? ""} onChange={e => setForm({ ...form, address: e.target.value })} />
-              <Input placeholder="Telefone" value={form.phone ?? ""} onChange={e => setForm({ ...form, phone: e.target.value })} />
-              <Button onClick={onSave} className="w-full">Salvar</Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
-      <div className="rounded border">
+    <DojoPageShell
+      description="Cadastro de dojos e polos vinculados à sua conta."
+      actions={dialog}
+    >
+      <div className="rounded-lg border bg-white overflow-hidden">
         {(q.data ?? []).map((u: any) => (
           <div key={u.id} className="flex items-center justify-between p-3 border-b last:border-0">
             <div>
@@ -70,6 +76,6 @@ function UnitsPage() {
         ))}
         {(q.data ?? []).length === 0 && <div className="p-6 text-center text-sm text-muted-foreground">Nenhuma unidade cadastrada.</div>}
       </div>
-    </div>
+    </DojoPageShell>
   );
 }

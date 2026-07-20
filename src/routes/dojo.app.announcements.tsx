@@ -93,23 +93,19 @@ function AnnouncementsAdmin() {
   const rows = list.data ?? [];
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6 lg:p-8">
-      <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-        <div>
-          <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight">
-            <Megaphone className="h-6 w-6 text-primary" /> Quadro de Avisos
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Publique comunicados que aparecem automaticamente no App do Aluno.
-          </p>
-        </div>
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 md:gap-7">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <p className="max-w-2xl text-sm text-muted-foreground">
+          Publique comunicados que aparecem automaticamente no App do Aluno.
+        </p>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" onClick={() => setShowCatMgr(true)}>Categorias</Button>
           <Button onClick={() => { setEditing(null); setShowEditor(true); }}>
             <Plus className="mr-1 h-4 w-4" /> Novo aviso
           </Button>
         </div>
-      </header>
+      </div>
+
 
       {/* Stats */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-5">

@@ -177,14 +177,14 @@ function NewGraduationPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-semibold">Nova graduação</h2>
-          <p className="text-sm text-muted-foreground">Selecione alunos, registre a graduação e emita os certificados.</p>
-        </div>
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 md:gap-7">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-muted-foreground max-w-2xl">
+          Selecione alunos, registre a graduação e emita os certificados.
+        </p>
         {step !== "select" && <Button variant="ghost" onClick={reset}>Recomeçar</Button>}
       </div>
+
 
 
 

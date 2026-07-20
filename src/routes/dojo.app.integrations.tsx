@@ -137,17 +137,12 @@ function IntegrationsHub() {
   const m = metricsQ.data ?? { installed: 0, active: 0, inactive: 0, errors24h: 0, calls24h: 0, lastSyncAt: null };
 
   return (
-    <div className="dojo-theme p-6 space-y-6">
-      {/* Header */}
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 md:gap-7">
+      {/* Header + busca */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Plug className="h-6 w-6 text-primary" /> Central de Integrações
-          </h1>
-          <p className="text-muted-foreground text-sm">
-            Conecte, configure, teste e monitore todos os serviços externos do AMT Dojo Manager.
-          </p>
-        </div>
+        <p className="text-muted-foreground text-sm max-w-2xl">
+          Conecte, configure, teste e monitore todos os serviços externos do AMT Dojo Manager.
+        </p>
         <div className="relative w-full md:w-80">
           <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -158,6 +153,7 @@ function IntegrationsHub() {
           />
         </div>
       </div>
+
 
       {/* KPI Dashboard */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">

@@ -137,15 +137,12 @@ function SchedulePage() {
   const openEdit = (c: any) => { setEditing(c); setFormOpen(true); setPanel(null); };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 md:gap-7">
+      {/* Header ações */}
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h2 className="font-display text-xl md:text-2xl font-bold tracking-tight">Agenda de Aulas</h2>
-          <p className="text-sm text-muted-foreground">
-            Gerencie turmas, horários, professores e alunos da academia.
-          </p>
-        </div>
+        <p className="text-sm text-muted-foreground max-w-2xl">
+          Gerencie turmas, horários, professores e alunos da academia.
+        </p>
         <Button onClick={openNew} className="bg-primary hover:bg-primary/90">
           <Plus className="h-4 w-4 mr-1" /> Nova turma
         </Button>
@@ -158,6 +155,7 @@ function SchedulePage() {
         <Kpi icon={Users} label="Alunos matriculados" value={stats.data?.enrolledStudents ?? 0} />
         <Kpi icon={Percent} label="Taxa de ocupação" value={`${stats.data?.occupancyRate ?? 0}%`} />
       </div>
+
 
       <Tabs defaultValue="calendar" className="w-full">
         <TabsList>

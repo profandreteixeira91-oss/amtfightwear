@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Trash2, Pencil } from "lucide-react";
+import { DojoPageShell } from "@/components/dojo/DojoPageShell";
 
 export const Route = createFileRoute("/dojo/app/plans")({
   head: () => ({ meta: [{ title: "Planos — AMT Dojo Manager" }] }),
@@ -42,28 +43,33 @@ function PlansPage() {
     qc.invalidateQueries({ queryKey: ["dojo-plans"] });
   };
 
+  const dialog = (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button onClick={() => setForm({ name: "", amount: 0, duration_days: 30, unit_id: null, active: true })}>Novo plano</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader><DialogTitle>{form.id ? "Editar" : "Novo"} plano</DialogTitle></DialogHeader>
+        <div className="space-y-3">
+          <Input placeholder="Nome" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
+          <Input placeholder="Valor (R$)" type="number" step="0.01" value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })} />
+          <Input placeholder="Duração em dias" type="number" value={form.duration_days} onChange={e => setForm({ ...form, duration_days: e.target.value })} />
+          <select className="w-full border rounded p-2 bg-background" value={form.unit_id ?? ""} onChange={e => setForm({ ...form, unit_id: e.target.value || null })}>
+            <option value="">— Sem unidade —</option>
+            {(units.data ?? []).map((u: any) => <option key={u.id} value={u.id}>{u.name}</option>)}
+          </select>
+          <Button onClick={onSave} className="w-full">Salvar</Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+
   return (
-    <div>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">Planos</h2>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild><Button onClick={() => setForm({ name: "", amount: 0, duration_days: 30, unit_id: null, active: true })}>Novo plano</Button></DialogTrigger>
-          <DialogContent>
-            <DialogHeader><DialogTitle>{form.id ? "Editar" : "Novo"} plano</DialogTitle></DialogHeader>
-            <div className="space-y-3">
-              <Input placeholder="Nome" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
-              <Input placeholder="Valor (R$)" type="number" step="0.01" value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })} />
-              <Input placeholder="Duração em dias" type="number" value={form.duration_days} onChange={e => setForm({ ...form, duration_days: e.target.value })} />
-              <select className="w-full border rounded p-2 bg-background" value={form.unit_id ?? ""} onChange={e => setForm({ ...form, unit_id: e.target.value || null })}>
-                <option value="">— Sem unidade —</option>
-                {(units.data ?? []).map((u: any) => <option key={u.id} value={u.id}>{u.name}</option>)}
-              </select>
-              <Button onClick={onSave} className="w-full">Salvar</Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
-      <div className="rounded border">
+    <DojoPageShell
+      description="Mensalidades, planos anuais e contratos oferecidos pela academia."
+      actions={dialog}
+    >
+      <div className="rounded-lg border bg-white overflow-hidden">
         {(q.data ?? []).map((p: any) => (
           <div key={p.id} className="flex items-center justify-between p-3 border-b last:border-0">
             <div>
@@ -78,6 +84,6 @@ function PlansPage() {
         ))}
         {(q.data ?? []).length === 0 && <div className="p-6 text-center text-sm text-muted-foreground">Nenhum plano cadastrado.</div>}
       </div>
-    </div>
+    </DojoPageShell>
   );
 }

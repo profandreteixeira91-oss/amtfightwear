@@ -249,9 +249,9 @@ function CertificatesPage() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 md:gap-7">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <h1 className="font-display text-2xl font-bold">Modelos de Certificado</h1>
+        <p className="text-sm text-muted-foreground max-w-2xl">Modelos de certificado disponíveis para emissão.</p>
         <div className="flex items-center gap-2">
           <div className="relative">
             <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
