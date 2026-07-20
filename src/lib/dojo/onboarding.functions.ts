@@ -32,16 +32,17 @@ export const getMyOnboardingState = createServerFn({ method: "GET" })
       .select("doc_type, file_path, mime_type, size_bytes, created_at")
       .eq("owner_id", context.userId);
 
+    const p = (profile ?? null) as Record<string, unknown> | null;
     return {
-      profile: (profile ?? null) as Record<string, unknown> | null,
-      documents: (docs ?? []) as Array<{
-        doc_type: DocType;
-        file_path: string;
-        mime_type: string | null;
-        size_bytes: number | null;
-        created_at: string;
-      }>,
-      completed: !!(profile as { onboarding_completed?: boolean } | null)?.onboarding_completed,
+      profile: p ? (JSON.parse(JSON.stringify(p)) as Record<string, string | number | boolean | null>) : null,
+      documents: (docs ?? []).map((d) => ({
+        doc_type: d.doc_type as DocType,
+        file_path: String(d.file_path),
+        mime_type: d.mime_type ?? null,
+        size_bytes: d.size_bytes ?? null,
+        created_at: String(d.created_at),
+      })),
+      completed: !!(p as { onboarding_completed?: boolean } | null)?.onboarding_completed,
     };
   });
 
