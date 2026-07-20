@@ -455,9 +455,11 @@ function AcademyTab({ academy, setAcademy, onSave }: any) {
   }
 
   // Requisitos mínimos para ativação automática da subconta Asaas
+  const cnpjDigits = String(academy?.cnpj ?? "").replace(/\D/g, "");
+  const isCpf = cnpjDigits.length === 11;
   const req = {
     name: !!(academy?.legal_name || academy?.trade_name),
-    cnpj: !!academy?.cnpj,
+    cnpj: cnpjDigits.length === 11 || cnpjDigits.length === 14,
     email: !!academy?.email,
     mobile: !!(academy?.whatsapp || academy?.phone),
     address: !!academy?.address,
@@ -466,6 +468,8 @@ function AcademyTab({ academy, setAcademy, onSave }: any) {
     city: !!academy?.city,
     state: !!academy?.state,
     zip: !!academy?.zip,
+    income: typeof academy?.monthly_income === "number" && academy.monthly_income > 0,
+    holder: isCpf ? !!academy?.birth_date : !!academy?.company_type,
   };
   const allOk = Object.values(req).every(Boolean);
   const hasSubaccount = !!academy?.asaas_subaccount_id;
