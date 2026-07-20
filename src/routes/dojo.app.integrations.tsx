@@ -54,6 +54,9 @@ function IntegrationsHub() {
   const [cat, setCat] = useState<CatFilter>("all");
   const [wizardFor, setWizardFor] = useState<IntegrationDef | null>(null);
   const [apiHubMode, setApiHubMode] = useState<"keys" | "webhooks" | null>(null);
+  const [amtPayOpen, setAmtPayOpen] = useState(false);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+
 
   const gwByProvider = useMemo(() => {
     const m = new Map<string, any>();
