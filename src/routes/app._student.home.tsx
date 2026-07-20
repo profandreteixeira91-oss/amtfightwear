@@ -3,9 +3,10 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getMyHome } from "@/lib/student/student.functions";
 import { getStudentAppConfig, getActiveAppNews } from "@/lib/student-app/config.functions";
+import { listMyAnnouncements } from "@/lib/student/announcements.functions";
 import { DEFAULT_CONFIG, type HomeBlock, type FeatureKey } from "@/lib/student-app/schema";
 import * as Icons from "lucide-react";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Megaphone, Pin, Star, AlertTriangle } from "lucide-react";
 
 export const Route = createFileRoute("/app/_student/home")({
   head: () => ({ meta: [{ title: "Início — Portal do Aluno" }] }),
