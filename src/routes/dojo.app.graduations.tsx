@@ -37,6 +37,7 @@ function NewGraduationPage() {
   const [step, setStep] = useState<Step>("select");
   const [selectedStudents, setSelectedStudents] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState("");
+  const [modality, setModality] = useState<string>("jiu-jitsu");
 
   const [beltId, setBeltId] = useState("");
   const [degree, setDegree] = useState(0);
