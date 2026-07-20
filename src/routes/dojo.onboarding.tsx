@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Loader2, Upload, CheckCircle2, XCircle, LogOut } from "lucide-react";
+import { Loader2, Upload, CheckCircle2, XCircle, LogOut, ShieldCheck, Wallet, Percent, Lock } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
