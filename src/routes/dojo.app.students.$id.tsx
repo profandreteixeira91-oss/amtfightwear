@@ -112,6 +112,33 @@ function StudentDetail() {
     } catch (e: any) { toast.error(e.message); }
   };
 
+  const doChangePlan = async () => {
+    if (!changePlan.plan_id) return toast.error("Escolha o novo plano");
+    setChangingPlan(true);
+    try {
+      // Encerra matrícula ativa atual
+      for (const e of enrollments) {
+        if (e.status === "active") {
+          try { await delEnroll({ data: { id: e.id } }); } catch {}
+        }
+      }
+      // Cria a nova matrícula
+      await saveEnroll({ data: {
+        student_id: id, plan_id: changePlan.plan_id,
+        custom_amount: changePlan.custom_amount ? Number(changePlan.custom_amount) : null,
+        due_day: Number(changePlan.due_day), start_date: changePlan.start_date, status: "active",
+      }});
+      toast.success("Plano alterado com sucesso");
+      setChangePlan({ ...changePlan, open: false, plan_id: "", custom_amount: "" });
+      refresh();
+    } catch (e: any) {
+      toast.error(e.message ?? "Falha ao alterar plano");
+    } finally {
+      setChangingPlan(false);
+    }
+  };
+
+
   const doAddInv = async () => {
     if (!inv.amount) return toast.error("Informe o valor");
     try {
