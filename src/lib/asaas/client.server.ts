@@ -146,7 +146,7 @@ function getAsaasConfig(): { baseUrl: string; apiKey: string; env: AsaasEnv } {
   const env = (process.env.ASAAS_ENV || "sandbox") as AsaasEnv;
   const isProd = env === "production";
   const apiKey = isProd
-    ? process.env.ASAAS_API_KEY
+    ? process.env.ASAAS_PRODUCTION_API_KEY || process.env.ASAAS_API_KEY
     : process.env.ASAAS_SANDBOX_API_KEY || process.env.ASAAS_API_KEY;
 
   if (!apiKey) {
