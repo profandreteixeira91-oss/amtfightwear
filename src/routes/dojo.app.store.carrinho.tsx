@@ -111,7 +111,8 @@ function CartPage() {
     );
   }
 
-  const total = data.subtotal;
+  const shippingPrice = shipping?.price ?? 0;
+  const total = data.subtotal + shippingPrice;
 
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
