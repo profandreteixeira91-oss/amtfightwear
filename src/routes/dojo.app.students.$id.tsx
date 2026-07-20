@@ -1073,3 +1073,157 @@ function CheckinCodesCard({ student, onUpdated }: { student: any; onUpdated: () 
     </Card>
   );
 }
+
+// ============ Impressão: Ficha do Aluno ============
+function printStudentReport(p: {
+  student: any;
+  branding: any;
+  belts: any[];
+  graduations: any[];
+  enrollments: any[];
+  invoices: any[];
+  certificates: any[];
+  attendanceRows: any[];
+  metrics: {
+    daysTraining: number;
+    attendanceThisMonth: number;
+    paidInvoices: number;
+    pendingInvoices: number;
+    age: number | null;
+    enrollmentDate: string | null;
+    lastAttendance: string | null;
+  };
+}) {
+  const { student: s, branding, belts, graduations, enrollments, invoices, certificates, attendanceRows, metrics } = p;
+  const anamn = s?.anamnesis ?? {};
+  const belt = belts.find((b) => b.id === s.current_belt_id);
+  const currentEnroll = enrollments.find((e) => e.status === "active") ?? enrollments[0];
+
+  const kpiHtml = [
+    ["Dias treinando", metrics.daysTraining || "—"],
+    ["Presença no mês", metrics.attendanceThisMonth],
+    ["Mensalidades pagas", metrics.paidInvoices],
+    ["Pendentes", metrics.pendingInvoices],
+    ["Graduações", graduations.length],
+    ["Certificados", certificates.length],
+    ["Última presença", metrics.lastAttendance ? fmtDate(metrics.lastAttendance) : "—"],
+    ["Faixa atual", belt ? `${belt.name}${s.current_degree ? ` · ${s.current_degree}º grau` : ""}` : "—"],
+  ]
+    .map(([l, v]) => `<div class="kpi"><div class="label">${escapeHtml(String(l))}</div><div class="value">${escapeHtml(String(v))}</div></div>`)
+    .join("");
+
+  const gradsRows = graduations.length
+    ? graduations
+        .map(
+          (g: any) =>
+            `<tr><td>${escapeHtml(fmtDate(g.graduation_date))}</td><td>${escapeHtml(g.belt?.name ?? "—")}</td><td>${escapeHtml(g.degree ? `${g.degree}º grau` : "Sem grau")}</td><td>${escapeHtml(g.evaluator ?? "—")}</td></tr>`,
+        )
+        .join("")
+    : `<tr><td colspan="4" style="text-align:center;color:#94a3b8">Sem graduações registradas</td></tr>`;
+
+  const invRows = invoices.length
+    ? invoices
+        .slice(0, 20)
+        .map(
+          (i: any) =>
+            `<tr><td>${escapeHtml(i.description ?? "—")}</td><td class="num">${escapeHtml(brl(i.amount))}</td><td>${escapeHtml(fmtDate(i.due_date))}</td><td>${escapeHtml(i.paid_at ? fmtDate(i.paid_at) : "—")}</td><td><span class="badge ${i.status === "paid" ? "success" : "warn"}">${escapeHtml(i.status)}</span></td></tr>`,
+        )
+        .join("")
+    : `<tr><td colspan="5" style="text-align:center;color:#94a3b8">Sem cobranças</td></tr>`;
+
+  const alerts = [
+    anamn.heart_issues && "Cardíaco",
+    anamn.diabetes && "Diabetes",
+    anamn.hypertension && "Hipertensão",
+    anamn.asthma && "Asma",
+    anamn.pregnant && "Gestante",
+    anamn.smoking && "Fumante",
+    anamn.alcohol && "Álcool",
+  ].filter(Boolean) as string[];
+
+  openBrandedPrintDocument({
+    branding,
+    title: "Ficha do Aluno",
+    subtitle: s.full_name,
+    documentId: s.id?.slice(0, 8).toUpperCase(),
+    sections: [
+      { title: "Resumo", html: `<div class="kpi-grid" style="grid-template-columns:repeat(4,minmax(0,1fr))">${kpiHtml}</div>` },
+      {
+        title: "Identificação",
+        html: kvTable([
+          ["Nome completo", s.full_name],
+          ["CPF", s.cpf],
+          ["RG", s.rg],
+          ["Nascimento", fmtDate(s.birth_date)],
+          ["Idade", metrics.age != null ? `${metrics.age} anos` : "—"],
+          ["Sexo", s.gender],
+          ["Nacionalidade", s.nationality],
+          ["Estado civil", s.marital_status],
+          ["Profissão", s.profession],
+        ]),
+      },
+      {
+        title: "Contato",
+        html: kvTable([
+          ["Telefone", s.phone],
+          ["E-mail", s.email],
+          ["Endereço", [s.street, s.address_number, s.neighborhood].filter(Boolean).join(", ")],
+          ["Cidade / UF", [s.city, s.state].filter(Boolean).join(" / ")],
+          ["CEP", s.zip],
+        ]),
+      },
+      {
+        title: "Responsável e emergência",
+        html: kvTable([
+          ["Responsável", s.guardian_name],
+          ["Tel. responsável", s.guardian_phone],
+          ["Contato emergência", s.emergency_contact_name],
+          ["Tel. emergência", s.emergency_contact_phone],
+          ["Parentesco", s.emergency_contact_relationship],
+        ]),
+      },
+      {
+        title: "Academia e plano",
+        html: kvTable([
+          ["Matrícula", fmtDate(metrics.enrollmentDate)],
+          ["Unidade", s.unit?.name],
+          ["Plano atual", currentEnroll?.plan?.name],
+          ["Valor mensal", currentEnroll ? brl(currentEnroll.custom_amount ?? currentEnroll.plan?.amount ?? 0) : "—"],
+          ["Dia venc.", currentEnroll?.due_day],
+          ["Status", s.status],
+          ["Modalidade", anamn.modality],
+        ]),
+      },
+      {
+        title: "Anamnese",
+        html: `${kvTable([
+          ["Tipo sanguíneo", s.blood_type],
+          ["Peso", anamn.weight ? `${anamn.weight} kg` : null],
+          ["Altura", anamn.height ? `${anamn.height} m` : null],
+          ["Plano de saúde", s.health_insurance],
+          ["Atestado médico", s.has_medical_clearance ? `Sim (${fmtDate(s.medical_clearance_date)})` : "Não"],
+          ["Medicações", anamn.medications],
+          ["Alergias", anamn.allergies],
+          ["Doenças", anamn.medical_conditions],
+          ["Lesões anteriores", anamn.injuries],
+          ["Objetivos", anamn.objectives],
+        ])}${alerts.length ? `<div style="margin-top:8px" class="badges">${alerts.map((a) => `<span class="badge danger">${escapeHtml(a)}</span>`).join("")}</div>` : ""}`,
+      },
+      {
+        title: "Graduações",
+        html: `<table class="data"><thead><tr><th>Data</th><th>Faixa</th><th>Grau</th><th>Avaliador</th></tr></thead><tbody>${gradsRows}</tbody></table>`,
+      },
+      {
+        title: "Histórico financeiro (últimos 20)",
+        html: `<table class="data"><thead><tr><th>Descrição</th><th class="num">Valor</th><th>Vencimento</th><th>Pagamento</th><th>Status</th></tr></thead><tbody>${invRows}</tbody></table>`,
+      },
+      ...(s.notes
+        ? [{ title: "Observações internas", html: `<div style="white-space:pre-wrap;font-size:11.5px">${escapeHtml(s.notes)}</div>` }]
+        : []),
+    ],
+    footerLeft: `Ficha de ${s.full_name}`,
+    footerRight: "Documento gerado pelo AMT Dojo Manager",
+  });
+  // uso para evitar warning quando attendanceRows não é referenciado
+  void attendanceRows;
+}
