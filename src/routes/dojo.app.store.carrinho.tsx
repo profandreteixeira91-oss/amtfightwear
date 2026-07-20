@@ -33,34 +33,44 @@ function CartPage() {
 
   const upd = useMutation({
     mutationFn: (v: { id: string; quantity: number }) => updFn({ data: v }),
-    onSuccess: refresh,
+    onSuccess: (fresh: any) => {
+      // Substitui o cache pelo carrinho recalculado no servidor
+      // (preços atacado, progresso etc.), sem refetch adicional.
+      if (fresh) qc.setQueryData(["dojo-store", "cart"], fresh);
+    },
+    onError: () => refresh(),
   });
   const rm = useMutation({ mutationFn: (id: string) => rmFn({ data: { id } }), onSuccess: refresh });
   const clr = useMutation({ mutationFn: () => clrFn(), onSuccess: refresh });
 
-  // Optimistic local quantities: keep server in sync via debounced flush.
-  const [localQty, setLocalQty] = useState<Record<string, number>>({});
+  // Debounce por item: UI atualiza instantaneamente via setQueryData,
+  // servidor sincroniza após 400ms de inatividade.
   const timers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  const pending = useRef<Record<string, number>>({});
+  const [draft, setDraft] = useState<Record<string, string>>({});
   useEffect(() => () => { Object.values(timers.current).forEach(clearTimeout); }, []);
 
-  const bumpQty = (id: string, current: number, delta: number) => {
-    const next = Math.max(1, current + delta);
-    if (next === current) return;
-    setLocalQty((s) => ({ ...s, [id]: next }));
+  const commitQty = (id: string, next: number) => {
+    const n = Math.max(1, Math.min(999, Math.floor(next) || 1));
+    pending.current[id] = n;
+
+    // Atualização otimista imediata no cache.
+    qc.setQueryData(["dojo-store", "cart"], (old: any) => {
+      if (!old?.items) return old;
+      return {
+        ...old,
+        items: old.items.map((it: any) =>
+          it.id === id
+            ? { ...it, quantity: n, line_total: Number((it.unit_final * n).toFixed(2)) }
+            : it,
+        ),
+      };
+    });
+
     if (timers.current[id]) clearTimeout(timers.current[id]);
     timers.current[id] = setTimeout(() => {
-      upd.mutate(
-        { id, quantity: next },
-        {
-          onSettled: () => {
-            setLocalQty((s) => {
-              const { [id]: _, ...rest } = s;
-              return rest;
-            });
-          },
-        },
-      );
-    }, 350);
+      upd.mutate({ id, quantity: pending.current[id] });
+    }, 400);
   };
 
   const checkout = useMutation({
