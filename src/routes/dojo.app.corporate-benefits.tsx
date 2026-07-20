@@ -91,8 +91,7 @@ function CorporateBenefitsPage() {
   return (
     <DojoPageShell
       title="Benefícios Corporativos"
-      subtitle="Gerencie integrações com plataformas de benefícios corporativos."
-      icon={ShieldCheck}
+      description="Gerencie integrações com plataformas de benefícios corporativos."
     >
       {/* Empty state: nenhuma integração */}
       {!overview.isLoading && !hasAnyConnected && (
