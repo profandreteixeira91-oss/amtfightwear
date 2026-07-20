@@ -427,7 +427,7 @@ export const requestWithdrawal = createServerFn({ method: "POST" })
         net_amount: result.amount,
         destination: bankAccount ?? null,
         pix_key: result.pix_key,
-        pix_key_type: result.pix_key_type,
+        pix_key_type: (result.pix_key_type as any) ?? null,
         provider: adapter.capabilities.provider,
         provider_tx_id: result.provider_tx_id,
         status: result.status,
