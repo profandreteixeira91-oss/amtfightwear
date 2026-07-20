@@ -2081,6 +2081,11 @@ export type Database = {
       dojo_academy_profile: {
         Row: {
           address: string | null
+          asaas_api_key_encrypted: string | null
+          asaas_onboarding_status: string | null
+          asaas_onboarding_url: string | null
+          asaas_subaccount_id: string | null
+          asaas_wallet_id: string | null
           brand_primary: string | null
           brand_secondary: string | null
           city: string | null
@@ -2096,6 +2101,8 @@ export type Database = {
           modalities: string[] | null
           owner_id: string
           phone: string | null
+          pix_key: string | null
+          pix_key_type: string | null
           public_url: string | null
           seal_url: string | null
           signature_url: string | null
@@ -2110,6 +2117,11 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          asaas_api_key_encrypted?: string | null
+          asaas_onboarding_status?: string | null
+          asaas_onboarding_url?: string | null
+          asaas_subaccount_id?: string | null
+          asaas_wallet_id?: string | null
           brand_primary?: string | null
           brand_secondary?: string | null
           city?: string | null
@@ -2125,6 +2137,8 @@ export type Database = {
           modalities?: string[] | null
           owner_id: string
           phone?: string | null
+          pix_key?: string | null
+          pix_key_type?: string | null
           public_url?: string | null
           seal_url?: string | null
           signature_url?: string | null
@@ -2139,6 +2153,11 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          asaas_api_key_encrypted?: string | null
+          asaas_onboarding_status?: string | null
+          asaas_onboarding_url?: string | null
+          asaas_subaccount_id?: string | null
+          asaas_wallet_id?: string | null
           brand_primary?: string | null
           brand_secondary?: string | null
           city?: string | null
@@ -2154,6 +2173,8 @@ export type Database = {
           modalities?: string[] | null
           owner_id?: string
           phone?: string | null
+          pix_key?: string | null
+          pix_key_type?: string | null
           public_url?: string | null
           seal_url?: string | null
           signature_url?: string | null
@@ -4348,6 +4369,11 @@ export type Database = {
       dojo_invoices: {
         Row: {
           amount: number
+          asaas_charge_id: string | null
+          asaas_invoice_url: string | null
+          asaas_pix_copypaste: string | null
+          asaas_pix_qrcode: string | null
+          asaas_subscription_id: string | null
           created_at: string
           description: string | null
           due_date: string
@@ -4359,6 +4385,8 @@ export type Database = {
           payment_id: string | null
           payment_link: string | null
           payment_provider: string | null
+          provider: string | null
+          split_config: Json | null
           status: string
           student_id: string
           unit_id: string | null
@@ -4366,6 +4394,11 @@ export type Database = {
         }
         Insert: {
           amount: number
+          asaas_charge_id?: string | null
+          asaas_invoice_url?: string | null
+          asaas_pix_copypaste?: string | null
+          asaas_pix_qrcode?: string | null
+          asaas_subscription_id?: string | null
           created_at?: string
           description?: string | null
           due_date: string
@@ -4377,6 +4410,8 @@ export type Database = {
           payment_id?: string | null
           payment_link?: string | null
           payment_provider?: string | null
+          provider?: string | null
+          split_config?: Json | null
           status?: string
           student_id: string
           unit_id?: string | null
@@ -4384,6 +4419,11 @@ export type Database = {
         }
         Update: {
           amount?: number
+          asaas_charge_id?: string | null
+          asaas_invoice_url?: string | null
+          asaas_pix_copypaste?: string | null
+          asaas_pix_qrcode?: string | null
+          asaas_subscription_id?: string | null
           created_at?: string
           description?: string | null
           due_date?: string
@@ -4395,6 +4435,8 @@ export type Database = {
           payment_id?: string | null
           payment_link?: string | null
           payment_provider?: string | null
+          provider?: string | null
+          split_config?: Json | null
           status?: string
           student_id?: string
           unit_id?: string | null
@@ -6793,6 +6835,8 @@ export type Database = {
       dojo_withdrawals: {
         Row: {
           amount: number
+          asaas_transfer_id: string | null
+          asaas_transfer_status: string | null
           bank_account_id: string | null
           cancelled_at: string | null
           created_at: string
@@ -6821,6 +6865,8 @@ export type Database = {
         }
         Insert: {
           amount: number
+          asaas_transfer_id?: string | null
+          asaas_transfer_status?: string | null
           bank_account_id?: string | null
           cancelled_at?: string | null
           created_at?: string
@@ -6849,6 +6895,8 @@ export type Database = {
         }
         Update: {
           amount?: number
+          asaas_transfer_id?: string | null
+          asaas_transfer_status?: string | null
           bank_account_id?: string | null
           cancelled_at?: string | null
           created_at?: string
