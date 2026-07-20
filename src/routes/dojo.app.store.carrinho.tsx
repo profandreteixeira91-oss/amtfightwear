@@ -2,14 +2,20 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { dsGetCart, dsUpdateCartItem, dsRemoveCartItem, dsClearCart, dsCheckout } from "@/lib/dojo/store/store.functions";
+import { calculateShipping } from "@/lib/store/shipping.functions";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Trash2, ShoppingBag } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Trash2, ShoppingBag, Truck } from "lucide-react";
 import { toast } from "sonner";
+import { useMemo, useState } from "react";
 
 export const Route = createFileRoute("/dojo/app/store/carrinho")({ component: CartPage });
 
 const brl = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+const onlyDigits = (s: string) => s.replace(/\D/g, "");
+
+type ShipOption = { id: number; name: string; company: string; price: number; delivery_time?: number; error?: string };
 
 function CartPage() {
   const nav = useNavigate();
@@ -19,6 +25,7 @@ function CartPage() {
   const rmFn = useServerFn(dsRemoveCartItem);
   const clrFn = useServerFn(dsClearCart);
   const coFn = useServerFn(dsCheckout);
+  const shipFn = useServerFn(calculateShipping);
 
   const { data, isLoading } = useQuery({ queryKey: ["dojo-store", "cart"], queryFn: () => getFn() });
 
@@ -26,8 +33,42 @@ function CartPage() {
   const upd = useMutation({ mutationFn: (v: { id: string; quantity: number }) => updFn({ data: v }), onSuccess: refresh });
   const rm = useMutation({ mutationFn: (id: string) => rmFn({ data: { id } }), onSuccess: refresh });
   const clr = useMutation({ mutationFn: () => clrFn(), onSuccess: refresh });
+
+  const [cep, setCep] = useState("");
+  const [options, setOptions] = useState<ShipOption[]>([]);
+  const [selected, setSelected] = useState<number | null>(null);
+  const shippingCost = useMemo(
+    () => options.find((o) => o.id === selected)?.price ?? 0,
+    [options, selected],
+  );
+
+  const quote = useMutation({
+    mutationFn: async () => {
+      if (!data?.items.length) throw new Error("Carrinho vazio");
+      const clean = onlyDigits(cep);
+      if (clean.length !== 8) throw new Error("CEP inválido");
+      const res = await shipFn({
+        data: {
+          to_zip: clean,
+          items: data.items.map((it) => ({
+            product_id: it.product_id,
+            variant_id: it.variant_id ?? undefined,
+            quantity: it.quantity,
+          })),
+        },
+      });
+      return res.options as ShipOption[];
+    },
+    onSuccess: (opts) => {
+      setOptions(opts);
+      const cheapest = opts.filter((o) => !o.error).sort((a, b) => a.price - b.price)[0];
+      setSelected(cheapest?.id ?? null);
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Falha ao calcular frete"),
+  });
+
   const co = useMutation({
-    mutationFn: () => coFn({ data: { shipping_cost: 0 } }),
+    mutationFn: () => coFn({ data: { shipping_cost: shippingCost } }),
     onSuccess: (r: any) => {
       toast.success(`Pedido ${r.order_number} criado`);
       refresh();
@@ -42,14 +83,33 @@ function CartPage() {
       <Card className="p-12 text-center">
         <ShoppingBag className="mx-auto h-10 w-10 text-muted-foreground" />
         <div className="mt-3 text-lg font-semibold">Seu carrinho está vazio</div>
-        <Button asChild className="mt-4"><Link to="/dojo/app/store/produtos">Explorar produtos</Link></Button>
+        <Button asChild className="mt-4"><Link to="/dojo/app/store/produtos">Buscar produtos</Link></Button>
       </Card>
     );
   }
 
+  const total = Math.round((data.subtotal + shippingCost) * 100) / 100;
+
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
       <div className="space-y-3">
+        {data.category_progress && data.category_progress.length > 0 && (
+          <div className="space-y-2">
+            {data.category_progress.map((c: any) => (
+              <div
+                key={c.key}
+                className={`rounded-md border p-2 text-xs ${c.unlocked ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-amber-200 bg-amber-50 text-amber-800"}`}
+              >
+                {c.unlocked ? (
+                  <>🎉 <strong>Atacado 25% OFF</strong> aplicado em <strong>{c.name}</strong> ({c.qty} itens)</>
+                ) : (
+                  <>Faltam <strong>{c.missing}</strong> itens em <strong>{c.name}</strong> para liberar 25% OFF (mín. {c.min}).</>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
         {data.items.map((it) => (
           <Card key={it.id} className="flex gap-3 p-3">
             <div className="h-24 w-24 shrink-0 overflow-hidden rounded-md bg-muted">
@@ -59,6 +119,9 @@ function CartPage() {
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <div className="font-medium">{it.product?.name}</div>
+                  {it.product?.category_name && (
+                    <div className="text-[11px] text-muted-foreground">{it.product.category_name}</div>
+                  )}
                   {it.variant_label && <div className="text-xs text-muted-foreground">{it.variant_label}</div>}
                   {it.customization && (
                     <div className="mt-1 text-[11px] text-primary">
@@ -79,7 +142,7 @@ function CartPage() {
                 <div className="text-right">
                   {it.is_wholesale && <div className="text-[10px] text-muted-foreground line-through">{brl(it.unit_retail)}</div>}
                   <div className="text-sm font-bold">{brl(it.line_total)}</div>
-                  {it.is_wholesale && <div className="text-[10px] font-medium text-emerald-600">Atacado</div>}
+                  {it.is_wholesale && <div className="text-[10px] font-medium text-emerald-600">Atacado −25%</div>}
                 </div>
               </div>
             </div>
@@ -94,31 +157,76 @@ function CartPage() {
       <Card className="h-fit p-4 space-y-3">
         <div className="text-sm font-semibold">Resumo</div>
         <div className="space-y-1 text-sm">
-          <div className="flex justify-between text-muted-foreground">
-            <span>Subtotal (varejo)</span><span className="line-through">{brl(data.retail_total)}</span>
-          </div>
+          {data.savings > 0 && (
+            <div className="flex justify-between text-muted-foreground">
+              <span>Subtotal (varejo)</span><span className="line-through">{brl(data.retail_total)}</span>
+            </div>
+          )}
           <div className="flex justify-between">
-            <span>Seu preço</span><span className="font-medium">{brl(data.subtotal)}</span>
+            <span>Subtotal</span><span className="font-medium">{brl(data.subtotal)}</span>
           </div>
           {data.savings > 0 && (
             <div className="flex justify-between rounded-md bg-emerald-50 px-2 py-1 text-emerald-700">
-              <span>💰 Você economizou</span><span className="font-bold">{brl(data.savings)}</span>
+              <span>💰 Economia atacado</span><span className="font-bold">{brl(data.savings)}</span>
             </div>
           )}
+          <div className="flex justify-between">
+            <span>Frete</span>
+            <span className="font-medium">{shippingCost > 0 ? brl(shippingCost) : "—"}</span>
+          </div>
           <div className="flex justify-between border-t pt-2 text-base">
-            <span className="font-semibold">Total</span><span className="font-bold text-primary">{brl(data.subtotal)}</span>
+            <span className="font-semibold">Total</span><span className="font-bold text-primary">{brl(total)}</span>
           </div>
         </div>
-        {data.has_wholesale && (
-          <div className="rounded-md bg-primary/5 p-2 text-xs text-primary">
-            🎉 Preço de atacado desbloqueado!
+
+        <div className="space-y-2 border-t pt-3">
+          <div className="flex items-center gap-1.5 text-xs font-medium">
+            <Truck className="h-3.5 w-3.5" /> Calcular frete
           </div>
-        )}
+          <div className="flex gap-2">
+            <Input
+              placeholder="CEP (00000-000)"
+              value={cep}
+              onChange={(e) => setCep(e.target.value)}
+              maxLength={9}
+              className="h-9"
+            />
+            <Button size="sm" onClick={() => quote.mutate()} disabled={quote.isPending}>
+              {quote.isPending ? "…" : "OK"}
+            </Button>
+          </div>
+          {options.length > 0 && (
+            <div className="space-y-1">
+              {options.map((o) => (
+                <label
+                  key={o.id}
+                  className={`flex cursor-pointer items-center justify-between gap-2 rounded-md border p-2 text-xs ${selected === o.id ? "border-primary bg-primary/5" : "border-input"} ${o.error ? "opacity-50" : ""}`}
+                >
+                  <span className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      checked={selected === o.id}
+                      onChange={() => setSelected(o.id)}
+                      disabled={!!o.error}
+                    />
+                    <span>
+                      <span className="font-medium">{o.company} · {o.name}</span>
+                      {o.delivery_time && <span className="ml-1 text-muted-foreground">({o.delivery_time} dias)</span>}
+                      {o.error && <span className="ml-1 text-destructive">{o.error}</span>}
+                    </span>
+                  </span>
+                  {!o.error && <span className="font-semibold">{brl(o.price)}</span>}
+                </label>
+              ))}
+            </div>
+          )}
+        </div>
+
         <Button className="w-full" size="lg" disabled={co.isPending} onClick={() => co.mutate()}>
           {co.isPending ? "Processando…" : "Finalizar pedido"}
         </Button>
         <div className="text-[11px] text-muted-foreground">
-          Ao finalizar, o pedido é registrado e você será redirecionado para o pagamento pela loja oficial (Mercado Pago).
+          Compre 10 ou mais itens da mesma categoria e ganhe 25% de desconto automático.
         </div>
       </Card>
     </div>
