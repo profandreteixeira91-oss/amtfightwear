@@ -490,6 +490,8 @@ function ElementView({
   const wPct = (el as any).w ?? 20;
   const hPct = (el as any).h ?? 10;
   const isText = el.kind === "text" || el.kind === "date";
+  const hasExplicitW = typeof (el as any).w === "number";
+  const hasExplicitH = typeof (el as any).h === "number";
   // Auto width for text if none set: use natural
   const style: CSSProperties = {
     position: "absolute",
@@ -500,9 +502,9 @@ function ElementView({
     outlineOffset: selected ? 1 : 0,
     cursor: el.locked ? "not-allowed" : "move",
     zIndex: el.z,
-    width: isText ? "auto" : `${wPct}%`,
-    height: isText ? "auto" : `${hPct}%`,
-    maxWidth: isText ? "90%" : undefined,
+    width: isText ? (hasExplicitW ? `${wPct}%` : "auto") : `${wPct}%`,
+    height: isText ? (hasExplicitH ? `${hPct}%` : "auto") : `${hPct}%`,
+    maxWidth: isText && !hasExplicitW ? "90%" : undefined,
   };
 
   const onMouseDown = (e: React.MouseEvent) => {
@@ -531,19 +533,48 @@ function ElementView({
   };
 
   const onResizeDown = (e: React.MouseEvent, corner: "se" | "sw" | "ne" | "nw" | "e" | "w" | "n" | "s") => {
-    if (el.locked || isText) return;
+    if (el.locked) return;
     e.stopPropagation();
-    const parent = (e.currentTarget as HTMLElement).parentElement!.parentElement!.getBoundingClientRect();
+    e.preventDefault();
+    const elNode = (e.currentTarget as HTMLElement).parentElement!;
+    const parent = elNode.parentElement!.getBoundingClientRect();
     const startX = e.clientX; const startY = e.clientY;
-    const origW = wPct; const origH = hPct;
+    const rect = elNode.getBoundingClientRect();
+    const origW = hasExplicitW ? wPct : (rect.width / parent.width) * 100;
+    const origH = hasExplicitH ? hPct : (rect.height / parent.height) * 100;
+    const origFontSize = (el as any).fontSize ?? 24;
+    const isCorner = corner.length === 2;
+    const shiftKey = e.shiftKey;
     const move = (m: MouseEvent) => {
       const dx = ((m.clientX - startX) / parent.width) * 100;
       const dy = ((m.clientY - startY) / parent.height) * 100;
       const dir = corner.includes("e") ? 1 : corner.includes("w") ? -1 : 0;
       const dirY = corner.includes("s") ? 1 : corner.includes("n") ? -1 : 0;
-      const nw = Math.max(0.5, origW + dx * dir);
-      const nh = Math.max(0.2, origH + dy * dirY);
-      onPatch({ w: nw, h: nh } as any);
+      const patch: any = {};
+      if (isText) {
+        if (dir !== 0) patch.w = Math.max(2, origW + dx * dir);
+        if (dirY !== 0 || isCorner) {
+          const scale = 1 + (dy * dirY) / Math.max(1, origH);
+          patch.fontSize = Math.max(6, Math.round(origFontSize * scale));
+        }
+        if (isCorner && shiftKey) {
+          const scale = 1 + (dx * dir) / Math.max(1, origW);
+          patch.fontSize = Math.max(6, Math.round(origFontSize * scale));
+          patch.w = Math.max(2, origW + dx * dir);
+        }
+      } else {
+        let nw = dir !== 0 ? Math.max(0.5, origW + dx * dir) : origW;
+        let nh = dirY !== 0 ? Math.max(0.2, origH + dy * dirY) : origH;
+        if (isCorner && shiftKey) {
+          const ratio = origW / Math.max(0.01, origH);
+          const scale = Math.max(nw / origW, nh / origH);
+          nw = origW * scale;
+          nh = (origW * scale) / ratio;
+        }
+        patch.w = nw;
+        patch.h = nh;
+      }
+      onPatch(patch);
     };
     const up = () => { window.removeEventListener("mousemove", move); window.removeEventListener("mouseup", up); };
     window.addEventListener("mousemove", move); window.addEventListener("mouseup", up);
@@ -558,11 +589,16 @@ function ElementView({
   return (
     <div style={style} onMouseDown={onMouseDown} onDoubleClick={(e) => { e.stopPropagation(); }}>
       {renderInner(el, qr, values, zoom, W)}
-      {selected && !el.locked && !isText && (
+      {selected && !el.locked && (
         <>
           {(["nw","n","ne","e","se","s","sw","w"] as const).map((c) => (
-            <div key={c} onMouseDown={(e) => onResizeDown(e, c)} className="absolute h-2 w-2 rounded-sm border border-primary bg-background"
-              style={handleStyle(c)} />
+            <div
+              key={c}
+              onMouseDown={(e) => onResizeDown(e, c)}
+              title={c.length === 2 ? "Livre (Shift: proporcional)" : (c === "n" || c === "s") ? "Vertical" : "Horizontal"}
+              className="absolute h-3 w-3 rounded-full border-2 border-primary bg-background shadow-md hover:scale-125 transition-transform"
+              style={handleStyle(c)}
+            />
           ))}
         </>
       )}
