@@ -262,6 +262,67 @@ async function asaasFetch<T>(
   );
 }
 
+async function asaasFetchMultipart<T>(
+  path: string,
+  form: FormData,
+  overrideKey?: string,
+): Promise<T> {
+  const configured = getAsaasConfigs();
+  const override = cleanSecret(overrideKey);
+  const configs = override
+    ? [makeAsaasConfig(override, configured[0].env, "subaccount")]
+    : configured;
+  const attempted: string[] = [];
+  for (const cfg of configs) {
+    const res = await fetch(`${cfg.baseUrl}${path}`, {
+      method: "POST",
+      body: form,
+      headers: {
+        access_token: cfg.apiKey,
+        "User-Agent": "AMT-Dojo-Manager/1.0",
+      },
+    });
+    const text = await res.text();
+    let data: Record<string, any> = {};
+    try { data = text ? JSON.parse(text) : {}; } catch { data = {}; }
+    if (res.ok) return data as T;
+    const err = data?.errors?.[0]?.description || data?.message || res.statusText;
+    if (res.status !== 401 || override) {
+      throw new Error(`Asaas API ${res.status}: ${err}`);
+    }
+    attempted.push(`${cfg.source} (${cfg.env})`);
+  }
+  throw new Error(`Asaas API 401 (multipart): ${attempted.join(", ")}`);
+}
+
+// ============ SUBACCOUNT DOCUMENTS ============
+export type AsaasPendingDocument = {
+  id: string;
+  status: string;
+  type: string;
+  title?: string;
+  description?: string;
+  documents?: Array<{ id: string; fileName?: string; type?: string; status?: string }>;
+};
+
+export async function asaasListMyDocuments(
+  apiKey?: string,
+): Promise<{ data: AsaasPendingDocument[] }> {
+  return asaasFetch<{ data: AsaasPendingDocument[] }>(`/myAccount/documents`, { apiKey });
+}
+
+export async function asaasSendMyDocument(
+  pendingId: string,
+  type: string,
+  files: Array<{ blob: Blob; fileName: string }>,
+  apiKey?: string,
+): Promise<unknown> {
+  const form = new FormData();
+  form.set("type", type);
+  for (const f of files) form.append("documentFile", f.blob, f.fileName);
+  return asaasFetchMultipart(`/myAccount/documents/${pendingId}`, form, apiKey);
+}
+
 // ============ CUSTOMERS ============
 export async function asaasCreateCustomer(
   input: AsaasCustomerInput,
