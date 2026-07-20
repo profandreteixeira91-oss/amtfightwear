@@ -33,34 +33,44 @@ function CartPage() {
 
   const upd = useMutation({
     mutationFn: (v: { id: string; quantity: number }) => updFn({ data: v }),
-    onSuccess: refresh,
+    onSuccess: (fresh: any) => {
+      // Substitui o cache pelo carrinho recalculado no servidor
+      // (preços atacado, progresso etc.), sem refetch adicional.
+      if (fresh) qc.setQueryData(["dojo-store", "cart"], fresh);
+    },
+    onError: () => refresh(),
   });
   const rm = useMutation({ mutationFn: (id: string) => rmFn({ data: { id } }), onSuccess: refresh });
   const clr = useMutation({ mutationFn: () => clrFn(), onSuccess: refresh });
 
-  // Optimistic local quantities: keep server in sync via debounced flush.
-  const [localQty, setLocalQty] = useState<Record<string, number>>({});
+  // Debounce por item: UI atualiza instantaneamente via setQueryData,
+  // servidor sincroniza após 400ms de inatividade.
   const timers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  const pending = useRef<Record<string, number>>({});
+  const [draft, setDraft] = useState<Record<string, string>>({});
   useEffect(() => () => { Object.values(timers.current).forEach(clearTimeout); }, []);
 
-  const bumpQty = (id: string, current: number, delta: number) => {
-    const next = Math.max(1, current + delta);
-    if (next === current) return;
-    setLocalQty((s) => ({ ...s, [id]: next }));
+  const commitQty = (id: string, next: number) => {
+    const n = Math.max(1, Math.min(999, Math.floor(next) || 1));
+    pending.current[id] = n;
+
+    // Atualização otimista imediata no cache.
+    qc.setQueryData(["dojo-store", "cart"], (old: any) => {
+      if (!old?.items) return old;
+      return {
+        ...old,
+        items: old.items.map((it: any) =>
+          it.id === id
+            ? { ...it, quantity: n, line_total: Number((it.unit_final * n).toFixed(2)) }
+            : it,
+        ),
+      };
+    });
+
     if (timers.current[id]) clearTimeout(timers.current[id]);
     timers.current[id] = setTimeout(() => {
-      upd.mutate(
-        { id, quantity: next },
-        {
-          onSettled: () => {
-            setLocalQty((s) => {
-              const { [id]: _, ...rest } = s;
-              return rest;
-            });
-          },
-        },
-      );
-    }, 350);
+      upd.mutate({ id, quantity: pending.current[id] });
+    }, 400);
   };
 
   const checkout = useMutation({
@@ -156,14 +166,52 @@ function CartPage() {
                 </button>
               </div>
               <div className="mt-auto flex items-center justify-between gap-2 pt-2">
-                <div className="flex items-center rounded-md border">
+                <div className="flex items-center rounded-md border overflow-hidden">
                   {(() => {
-                    const q = localQty[it.id] ?? it.quantity;
+                    const q = it.quantity;
+                    const shown = draft[it.id] ?? String(q);
                     return (
                       <>
-                        <button type="button" className="px-2 py-1 text-base" onClick={() => bumpQty(it.id, q, -1)}>−</button>
-                        <div className="w-8 text-center text-sm tabular-nums">{q}</div>
-                        <button type="button" className="px-2 py-1 text-base" onClick={() => bumpQty(it.id, q, +1)}>+</button>
+                        <button
+                          type="button"
+                          className="px-3 py-1.5 text-base hover:bg-muted active:bg-muted/70 transition-colors"
+                          onClick={() => commitQty(it.id, q - 1)}
+                          aria-label="Diminuir"
+                        >
+                          −
+                        </button>
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          className="w-12 border-x bg-transparent py-1.5 text-center text-sm tabular-nums outline-none focus:bg-muted/40"
+                          value={shown}
+                          onChange={(e) => {
+                            const raw = e.target.value.replace(/[^0-9]/g, "").slice(0, 3);
+                            setDraft((s) => ({ ...s, [it.id]: raw }));
+                            const parsed = parseInt(raw, 10);
+                            if (!Number.isNaN(parsed) && parsed >= 1) {
+                              commitQty(it.id, parsed);
+                            }
+                          }}
+                          onBlur={() => {
+                            setDraft((s) => {
+                              const { [it.id]: _, ...rest } = s;
+                              return rest;
+                            });
+                            const parsed = parseInt(shown, 10);
+                            if (!parsed || parsed < 1) commitQty(it.id, 1);
+                          }}
+                          aria-label="Quantidade"
+                        />
+                        <button
+                          type="button"
+                          className="px-3 py-1.5 text-base hover:bg-muted active:bg-muted/70 transition-colors"
+                          onClick={() => commitQty(it.id, q + 1)}
+                          aria-label="Aumentar"
+                        >
+                          +
+                        </button>
                       </>
                     );
                   })()}
