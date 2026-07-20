@@ -146,7 +146,7 @@ export function WithdrawDialog({
               </div>
             </div>
 
-            {caps?.chooseWithdrawalPixKey && (
+            {caps?.withdrawals && (
               <div className="rounded-lg border p-3 space-y-2">
                 <label className="flex items-center gap-2 text-sm">
                   <input type="checkbox" checked={useAltPix} onChange={(e) => setUseAltPix(e.target.checked)} />
