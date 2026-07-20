@@ -36,6 +36,9 @@ import {
   Film,
   Smartphone,
   CreditCard,
+  Megaphone,
+  ShoppingBag,
+
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
@@ -80,9 +83,18 @@ const nav: { label: string; items: NavItem[] }[] = [
       { to: "/dojo/app/evaluations", label: "Avaliações", icon: ClipboardList },
       { to: "/dojo/app/certificates", label: "Certificados", icon: FileBadge },
       { to: "/dojo/app/competitions", label: "Competições", icon: Trophy },
+      { to: "/dojo/app/announcements", label: "Quadro de Avisos", icon: Megaphone },
       { to: "/dojo/app/videos", label: "Vídeos", icon: Film },
     ],
   },
+  {
+    label: "Loja",
+    items: [
+      { to: "/dojo/app/store", label: "AMT Store", icon: ShoppingBag },
+    ],
+  },
+
+
   {
     label: "Gestão",
     items: [
