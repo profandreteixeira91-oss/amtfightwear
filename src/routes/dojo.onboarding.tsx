@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Loader2, Upload, CheckCircle2, XCircle, LogOut } from "lucide-react";
+import { Loader2, Upload, CheckCircle2, XCircle, LogOut, ShieldCheck, Wallet, Percent, Lock } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -26,7 +26,6 @@ import {
   recordOnboardingDocument,
   removeOnboardingDocument,
   finishOnboarding,
-  DOC_TYPES,
   type DocType,
 } from "@/lib/dojo/onboarding.functions";
 import { createMyAsaasSubaccount } from "@/lib/asaas/asaas.functions";
@@ -375,6 +374,50 @@ function OnboardingPage() {
           </p>
         </div>
 
+        <section className="mb-6 overflow-hidden rounded-2xl border border-[#C1121F]/15 bg-gradient-to-br from-[#C1121F]/5 via-white to-white shadow-sm">
+          <div className="flex items-start gap-3 border-b border-black/5 px-5 py-4">
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#C1121F] text-white shadow-sm">
+              <Wallet className="h-5 w-5" />
+            </div>
+            <div className="min-w-0">
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-[#C1121F]">O que é o AMT Pay</div>
+              <h2 className="text-base font-semibold tracking-tight">Sua central financeira dentro do Dojo Manager</h2>
+              <p className="mt-1 text-sm text-black/60">
+                O AMT Pay é o meio de recebimento oficial do Dojo Manager. Ao concluir este cadastro, criamos
+                automaticamente uma subconta bancária <b>em seu nome</b> no Asaas (parceiro regulado pelo BACEN),
+                por onde seus alunos pagam mensalidades via PIX, boleto ou cartão — e você saca direto para sua chave PIX.
+              </p>
+            </div>
+          </div>
+          <div className="grid gap-3 p-5 md:grid-cols-3">
+            <div className="rounded-xl bg-white p-3 ring-1 ring-black/5">
+              <div className="flex items-center gap-2 text-xs font-semibold">
+                <Percent className="h-3.5 w-3.5 text-[#C1121F]" /> Taxa AMT
+              </div>
+              <p className="mt-1 text-xs text-black/60">
+                5% sobre cada transação recebida. Sem mensalidade, sem taxa de adesão.
+              </p>
+            </div>
+            <div className="rounded-xl bg-white p-3 ring-1 ring-black/5">
+              <div className="flex items-center gap-2 text-xs font-semibold">
+                <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" /> Segurança
+              </div>
+              <p className="mt-1 text-xs text-black/60">
+                Dados protegidos por criptografia. Asaas é instituição de pagamento autorizada pelo Banco Central.
+              </p>
+            </div>
+            <div className="rounded-xl bg-white p-3 ring-1 ring-black/5">
+              <div className="flex items-center gap-2 text-xs font-semibold">
+                <Lock className="h-3.5 w-3.5 text-black/70" /> Titularidade
+              </div>
+              <p className="mt-1 text-xs text-black/60">
+                O dinheiro fica em subconta no seu CPF/CNPJ. A AMT nunca retém seus recebíveis.
+              </p>
+            </div>
+          </div>
+        </section>
+
+
         <div className="space-y-6">
           {/* Responsável */}
           <Section title="Dados do responsável" description="Quem é o titular da conta no Asaas.">
@@ -518,9 +561,9 @@ function OnboardingPage() {
           </Section>
 
           {/* Documentos */}
-          <Section title="Documentos" description="Envie fotos ou PDFs legíveis (até 10 MB cada).">
+          <Section title="Documentos obrigatórios" description="Envie fotos ou PDFs legíveis (até 10 MB cada). Comprovante de endereço só é solicitado se a análise do Asaas pedir depois.">
             <div className="grid gap-3 md:grid-cols-2">
-              {DOC_TYPES.filter((d) => d !== "social_contract" || isCnpj).map((docType) => {
+              {requiredDocs.map((docType) => {
                 const isRequired = requiredDocs.includes(docType);
                 const has = !!docs[docType];
                 return (
