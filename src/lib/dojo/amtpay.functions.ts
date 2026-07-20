@@ -1,20 +1,14 @@
 // ============================================================
-// AMT Pay Service — v1: camada de leitura/comando sobre o gateway.
-// Nenhum saldo é persistido localmente. Toda consulta financeira
-// é feita ao vivo no gateway conectado, via GatewayAdapter.
+// AMT Pay v2 — módulo financeiro centralizado no Mercado Pago da AMT.
+// Saldo, extrato e saques são mantidos internamente na tabela
+// dojo_wallet_transactions, alimentados pelo webhook de split.
 // ============================================================
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import type {
-  GatewayBalance,
-  GatewayCapabilities,
-  NormalizedTx,
-  NormalizedWithdrawal,
-} from "./gateway-adapters/types";
 
 // ------------------------------------------------------------
-// Tipos expostos à UI (compatíveis com componentes atuais)
+// Tipos expostos à UI
 // ------------------------------------------------------------
 export type WalletBalance = {
   available: number;
@@ -23,6 +17,14 @@ export type WalletBalance = {
   total: number;
   currency: string;
   fetchedAt: string;
+};
+
+export type GatewayCapabilities = {
+  connected: boolean;
+  provider: "amt_pay";
+  providerName: string;
+  withdrawals: boolean;
+  dashboardUrl: string | null;
 };
 
 export type WalletDashboard = {
@@ -43,19 +45,23 @@ export type WalletDashboard = {
   gateway: GatewayCapabilities;
 };
 
+const CAPS: GatewayCapabilities = {
+  connected: true,
+  provider: "amt_pay",
+  providerName: "AMT Pay",
+  withdrawals: true,
+  dashboardUrl: null,
+};
+
 // ------------------------------------------------------------
-// Capacidades do gateway (usado pela UI para ocultar/exibir ações)
+// Capacidades (compat com UI antiga)
 // ------------------------------------------------------------
 export const getGatewayCapabilities = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<GatewayCapabilities> => {
-    const { resolveAdapter } = await import("./gateway-adapters/index.server");
-    const adapter = await resolveAdapter(context.userId);
-    return adapter.capabilities;
-  });
+  .handler(async (): Promise<GatewayCapabilities> => CAPS);
 
 // ------------------------------------------------------------
-// Configurações de saque (mínimo, taxa, modo). Mantém local.
+// Wallet settings
 // ------------------------------------------------------------
 async function ensureWalletSettings(supabase: any, ownerId: string) {
   const { data } = await supabase
@@ -101,7 +107,7 @@ export const updateWalletSettings = createServerFn({ method: "POST" })
   });
 
 // ------------------------------------------------------------
-// Conta bancária local (usada como destino padrão dos saques)
+// Conta bancária local (destino dos saques via AMT)
 // ------------------------------------------------------------
 const bankAccountSchema = z.object({
   bank_code: z.string().max(20).optional().nullable(),
@@ -180,75 +186,121 @@ export const saveBankAccount = createServerFn({ method: "POST" })
   });
 
 // ------------------------------------------------------------
-// Saldo (live no gateway)
+// Saldo interno — soma de dojo_wallet_transactions
 // ------------------------------------------------------------
+async function computeBalance(supabase: any, ownerId: string): Promise<WalletBalance> {
+  const { data } = await supabase
+    .from("dojo_wallet_transactions")
+    .select("direction, status, net_amount")
+    .eq("owner_id", ownerId);
+  const rows = (data ?? []) as Array<{ direction: number; status: string; net_amount: number | string }>;
+  let available = 0;
+  let pending = 0;
+  let blocked = 0;
+  for (const r of rows) {
+    const v = Number(r.net_amount) * (Number(r.direction) === -1 ? -1 : 1);
+    if (r.status === "available") available += v;
+    else if (r.status === "pending") pending += v;
+    else if (r.status === "blocked") blocked += v;
+  }
+  return {
+    available: Math.max(0, Number(available.toFixed(2))),
+    pending: Math.max(0, Number(pending.toFixed(2))),
+    blocked: Math.max(0, Number(blocked.toFixed(2))),
+    total: Math.max(0, Number((available + pending + blocked).toFixed(2))),
+    currency: "BRL",
+    fetchedAt: new Date().toISOString(),
+  };
+}
+
 export const getWalletBalance = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<WalletBalance> => {
-    const { resolveAdapter } = await import("./gateway-adapters/index.server");
-    const adapter = await resolveAdapter(context.userId);
-    const b: GatewayBalance = await adapter.getBalance();
-    return { ...b };
-  });
+  .handler(async ({ context }): Promise<WalletBalance> =>
+    computeBalance(context.supabase, context.userId),
+  );
 
 // ------------------------------------------------------------
-// Dashboard (saldo + resumo gateway + dados DM)
+// Dashboard
 // ------------------------------------------------------------
 export const getWalletDashboard = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<WalletDashboard> => {
     const supabase = context.supabase;
     const ownerId = context.userId;
-    const { resolveAdapter } = await import("./gateway-adapters/index.server");
-    const adapter = await resolveAdapter(ownerId);
 
-    const [balance, receipts, withdrawals, openQ, overdueQ, activeSubsQ] = await Promise.all([
-      adapter.getBalance().catch(() => ({
-        available: 0, pending: 0, blocked: 0, total: 0, currency: "BRL",
-        fetchedAt: new Date().toISOString(),
-      } satisfies GatewayBalance)),
-      adapter.getReceiptsSummary().catch(() => ({ today: 0, month: 0, currency: "BRL" })),
-      adapter.listWithdrawals().catch(() => [] as NormalizedWithdrawal[]),
-      supabase
-        .from("dojo_invoices")
-        .select("id", { count: "exact", head: true })
-        .eq("owner_id", ownerId)
-        .eq("status", "open"),
-      supabase
-        .from("dojo_invoices")
-        .select("amount")
-        .eq("owner_id", ownerId)
-        .eq("status", "overdue"),
-      supabase
-        .from("dojo_subscriptions")
-        .select("id", { count: "exact", head: true })
-        .eq("owner_id", ownerId)
-        .eq("status", "active"),
-    ]);
+    const now = new Date();
+    const startDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+    const startMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
 
+    const [balance, receiptsDay, receiptsMonth, openQ, overdueQ, activeSubsQ, lastWdQ] =
+      await Promise.all([
+        computeBalance(supabase, ownerId),
+        supabase
+          .from("dojo_split_transactions")
+          .select("dojo_net_amount")
+          .eq("owner_id", ownerId)
+          .eq("status", "approved")
+          .gte("paid_at", startDay),
+        supabase
+          .from("dojo_split_transactions")
+          .select("dojo_net_amount")
+          .eq("owner_id", ownerId)
+          .eq("status", "approved")
+          .gte("paid_at", startMonth),
+        supabase
+          .from("dojo_invoices")
+          .select("id", { count: "exact", head: true })
+          .eq("owner_id", ownerId)
+          .eq("status", "open"),
+        supabase
+          .from("dojo_invoices")
+          .select("amount")
+          .eq("owner_id", ownerId)
+          .eq("status", "overdue"),
+        supabase
+          .from("dojo_subscriptions")
+          .select("id", { count: "exact", head: true })
+          .eq("owner_id", ownerId)
+          .eq("status", "active"),
+        supabase
+          .from("dojo_withdrawals")
+          .select("id, amount, status, requested_at")
+          .eq("owner_id", ownerId)
+          .order("requested_at", { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+      ]);
+
+    const sumNet = (rows: any) =>
+      (rows?.data ?? []).reduce((s: number, r: any) => s + Number(r.dojo_net_amount ?? 0), 0);
     const overdueAmount = (overdueQ.data ?? []).reduce(
-      (s: number, r: any) => s + Number(r.amount ?? 0), 0,
+      (s: number, r: any) => s + Number(r.amount ?? 0),
+      0,
     );
-    const last = withdrawals[0];
 
     return {
       balance,
-      receiptsToday: receipts.today,
-      receiptsMonth: receipts.month,
+      receiptsToday: sumNet(receiptsDay),
+      receiptsMonth: sumNet(receiptsMonth),
       activeSubscriptions: activeSubsQ.count ?? 0,
       openInvoices: openQ.count ?? 0,
       overdueAmount,
       lastSyncAt: balance.fetchedAt,
       nextPayoutAt: null,
-      lastWithdrawal: last
-        ? { id: last.id, amount: last.amount, status: last.status, requested_at: last.requested_at }
+      lastWithdrawal: lastWdQ.data
+        ? {
+            id: lastWdQ.data.id,
+            amount: Number(lastWdQ.data.amount),
+            status: lastWdQ.data.status,
+            requested_at: lastWdQ.data.requested_at,
+          }
         : null,
-      gateway: adapter.capabilities,
+      gateway: CAPS,
     };
   });
 
 // ------------------------------------------------------------
-// Extrato — live no gateway
+// Extrato
 // ------------------------------------------------------------
 export const listWalletTransactions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -258,44 +310,64 @@ export const listWalletTransactions = createServerFn({ method: "POST" })
         from: z.string().optional(),
         to: z.string().optional(),
         kind: z
-          .enum(["receipt", "fee", "refund", "withdrawal", "withdrawal_reversal", "adjustment", "transfer_in", "transfer_out"])
+          .enum([
+            "receipt",
+            "fee",
+            "refund",
+            "withdrawal",
+            "withdrawal_reversal",
+            "adjustment",
+            "transfer_in",
+            "transfer_out",
+          ])
           .optional(),
-        method: z.enum(["pix", "card", "boleto", "link", "cash", "transfer", "internal", "other"]).optional(),
+        method: z
+          .enum(["pix", "card", "boleto", "link", "cash", "transfer", "internal", "other"])
+          .optional(),
         status: z.enum(["pending", "available", "blocked", "reversed"]).optional(),
         studentId: z.string().uuid().optional(),
         limit: z.number().int().min(1).max(500).default(100).optional(),
       })
       .parse(i ?? {}),
   )
-  .handler(async ({ data, context }): Promise<NormalizedTx[]> => {
-    const { resolveAdapter } = await import("./gateway-adapters/index.server");
-    const adapter = await resolveAdapter(context.userId);
-    const rows = await adapter.getStatement({ from: data.from, to: data.to, limit: data.limit }).catch(() => []);
-    return rows
-      .filter((r) => !data.kind || r.kind === data.kind)
-      .filter((r) => !data.method || r.method === data.method)
-      .filter((r) => !data.status || r.status === data.status);
+  .handler(async ({ data, context }) => {
+    let q = context.supabase
+      .from("dojo_wallet_transactions")
+      .select("*")
+      .eq("owner_id", context.userId)
+      .order("occurred_at", { ascending: false })
+      .limit(data.limit ?? 100);
+    if (data.from) q = q.gte("occurred_at", data.from);
+    if (data.to) q = q.lte("occurred_at", data.to);
+    if (data.kind) q = q.eq("kind", data.kind);
+    if (data.method) q = q.eq("method", data.method);
+    if (data.status) q = q.eq("status", data.status);
+    if (data.studentId) q = q.eq("student_id", data.studentId);
+    const { data: rows, error } = await q;
+    if (error) throw new Error(error.message);
+    return rows ?? [];
   });
 
-/** Série dos últimos 30 dias — agrega o extrato do gateway em memória. */
+/** Série 30 dias */
 export const getWalletChart = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { resolveAdapter } = await import("./gateway-adapters/index.server");
-    const adapter = await resolveAdapter(context.userId);
     const since = new Date(Date.now() - 29 * 24 * 3600 * 1000);
     since.setHours(0, 0, 0, 0);
-    const rows = await adapter
-      .getStatement({ from: since.toISOString(), to: new Date().toISOString(), limit: 500 })
-      .catch(() => []);
-
+    const { data } = await context.supabase
+      .from("dojo_wallet_transactions")
+      .select("occurred_at, direction, net_amount")
+      .eq("owner_id", context.userId)
+      .gte("occurred_at", since.toISOString())
+      .limit(500);
+    const rows = (data ?? []) as Array<{ occurred_at: string; direction: number; net_amount: number | string }>;
     const byDay: Record<string, { in: number; out: number }> = {};
     for (const row of rows) {
       const d = new Date(row.occurred_at);
       const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
       byDay[key] ??= { in: 0, out: 0 };
       const v = Number(row.net_amount ?? 0);
-      if (row.direction === 1) byDay[key].in += v;
+      if (Number(row.direction) === 1) byDay[key].in += v;
       else byDay[key].out += v;
     }
     const series: { date: string; in: number; out: number; balance: number }[] = [];
@@ -312,25 +384,27 @@ export const getWalletChart = createServerFn({ method: "GET" })
   });
 
 // ------------------------------------------------------------
-// Saques — sempre do gateway (fonte da verdade).
-// Mantemos um registro em `dojo_withdrawals` apenas como auditoria
-// das solicitações feitas via AMT Pay.
+// Saques — solicitados via AMT Pay, quitados pela AMT (PIX manual)
 // ------------------------------------------------------------
 export const listWithdrawals = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { resolveAdapter } = await import("./gateway-adapters/index.server");
-    const adapter = await resolveAdapter(context.userId);
-    const list = await adapter.listWithdrawals().catch(() => []);
-    return list.map((w) => ({
+    const { data, error } = await context.supabase
+      .from("dojo_withdrawals")
+      .select("*")
+      .eq("owner_id", context.userId)
+      .order("requested_at", { ascending: false })
+      .limit(100);
+    if (error) throw new Error(error.message);
+    return (data ?? []).map((w: any) => ({
       id: w.id,
       provider_tx_id: w.provider_tx_id,
-      amount: w.amount,
+      amount: Number(w.amount),
       status: w.status,
       requested_at: w.requested_at,
       pix_key: w.pix_key,
       pix_key_type: w.pix_key_type,
-      bank_account: w.bank_account,
+      bank_account: w.destination,
     }));
   });
 
@@ -347,39 +421,24 @@ export const requestWithdrawal = createServerFn({ method: "POST" })
       })
       .parse(i),
   )
-  .handler(async ({ data, context }): Promise<NormalizedWithdrawal> => {
+  .handler(async ({ data, context }) => {
     const supabase = context.supabase;
     const ownerId = context.userId;
-    const { resolveAdapter } = await import("./gateway-adapters/index.server");
-    const adapter = await resolveAdapter(ownerId);
 
-    if (!adapter.capabilities.connected) {
-      throw new Error("Conecte um gateway de pagamento antes de solicitar um saque.");
-    }
-    if (!adapter.capabilities.withdrawals) {
-      throw new Error(
-        `Saques via API não são suportados pelo ${adapter.capabilities.providerName}. Acesse o painel do gateway para transferir seu saldo.`,
-      );
-    }
-
-    // Regras mínimas locais
     const settings = await ensureWalletSettings(supabase, ownerId);
     const min = Number(settings.min_withdrawal_amount ?? 0);
     if (data.amount < min) {
       throw new Error(`Valor mínimo para saque é R$ ${min.toFixed(2)}.`);
     }
 
-    // Verifica saldo real no gateway
-    const balance = await adapter.getBalance();
+    const balance = await computeBalance(supabase, ownerId);
     if (data.amount > balance.available) {
-      throw new Error("Saldo insuficiente no gateway para este saque.");
+      throw new Error("Saldo insuficiente na sua carteira AMT Pay para este saque.");
     }
 
-    // Resolve destino: chave PIX escolhida OU conta bancária primária local
     let bankAccount: any = null;
-    let pixKey: string | null = data.pix_key ?? null;
+    let pixKey = data.pix_key ?? null;
     let pixKeyType = data.pix_key_type ?? null;
-
     if (!pixKey) {
       const { data: acc } = await supabase
         .from("dojo_bank_accounts")
@@ -396,71 +455,86 @@ export const requestWithdrawal = createServerFn({ method: "POST" })
       pixKeyType = bankAccount.pix_key_type ?? null;
     }
 
-    // Chama o gateway
-    const result = await adapter.requestWithdrawal({
-      amount: data.amount,
-      pixKey,
-      pixKeyType: pixKeyType as any,
-      bank: pixKey
-        ? null
-        : bankAccount
-          ? {
-              bank_code: bankAccount.bank_code,
-              branch: bankAccount.branch,
-              account_number: bankAccount.account_number,
-              account_digit: bankAccount.account_digit,
-              holder_name: bankAccount.holder_name,
-              holder_document: bankAccount.holder_document,
-              account_type: bankAccount.account_type,
-            }
-          : null,
-      notes: data.notes ?? null,
-    });
-
-    // Auditoria (não é fonte da verdade — o gateway é)
-    try {
-      await supabase.from("dojo_withdrawals").insert({
+    const { data: wd, error } = await supabase
+      .from("dojo_withdrawals")
+      .insert({
         owner_id: ownerId,
         bank_account_id: bankAccount?.id ?? null,
-        amount: result.amount,
+        amount: data.amount,
         fee_amount: 0,
-        net_amount: result.amount,
+        net_amount: data.amount,
         destination: bankAccount ?? null,
-        pix_key: result.pix_key,
-        pix_key_type: (result.pix_key_type as any) ?? null,
-        provider: adapter.capabilities.provider,
-        provider_tx_id: result.provider_tx_id,
-        status: result.status,
+        pix_key: pixKey,
+        pix_key_type: pixKeyType,
+        provider: "amt_pay",
+        provider_tx_id: null,
+        status: "requested",
         notes: data.notes ?? null,
-      });
-    } catch {
-      /* auditoria é best-effort */
-    }
+      } as never)
+      .select("*")
+      .single();
+    if (error) throw new Error(error.message);
 
-    return result;
+    // Debita saldo (kind=withdrawal, direction=-1, status=available)
+    await supabase.from("dojo_wallet_transactions").insert({
+      owner_id: ownerId,
+      kind: "withdrawal",
+      method: "pix",
+      status: "available",
+      amount: data.amount,
+      direction: -1,
+      fee_amount: 0,
+      net_amount: data.amount,
+      description: `Solicitação de saque #${(wd as any).id.slice(0, 8)}`,
+      reference_type: "withdrawal",
+      reference_id: (wd as any).id,
+      provider: "amt_pay",
+    } as never);
+
+    return {
+      id: (wd as any).id,
+      provider_tx_id: null,
+      amount: Number((wd as any).amount),
+      status: (wd as any).status,
+      requested_at: (wd as any).requested_at,
+      pix_key: (wd as any).pix_key,
+      pix_key_type: (wd as any).pix_key_type,
+      bank_account: (wd as any).destination,
+    };
   });
 
 export const cancelWithdrawal = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => z.object({ id: z.string() }).parse(i))
   .handler(async ({ data, context }) => {
-    const { resolveAdapter } = await import("./gateway-adapters/index.server");
-    const adapter = await resolveAdapter(context.userId);
-    if (!adapter.capabilities.withdrawals) {
-      throw new Error(
-        `Cancelamento não suportado pelo ${adapter.capabilities.providerName}. Use o painel do gateway.`,
-      );
+    const { data: wd } = await context.supabase
+      .from("dojo_withdrawals")
+      .select("*")
+      .eq("id", data.id)
+      .eq("owner_id", context.userId)
+      .maybeSingle();
+    if (!wd) throw new Error("Solicitação não encontrada");
+    if ((wd as any).status !== "requested" && (wd as any).status !== "pending") {
+      throw new Error("Este saque já foi processado e não pode ser cancelado.");
     }
-    await adapter.cancelWithdrawal(data.id);
-    // Reflete no log de auditoria (best-effort).
-    try {
-      await context.supabase
-        .from("dojo_withdrawals")
-        .update({ status: "cancelled", cancelled_at: new Date().toISOString() })
-        .eq("owner_id", context.userId)
-        .eq("provider_tx_id", data.id);
-    } catch {
-      /* best-effort */
-    }
+    await context.supabase
+      .from("dojo_withdrawals")
+      .update({ status: "cancelled", cancelled_at: new Date().toISOString() } as never)
+      .eq("id", data.id);
+    // Reverte o débito
+    await context.supabase.from("dojo_wallet_transactions").insert({
+      owner_id: context.userId,
+      kind: "withdrawal_reversal",
+      method: "internal",
+      status: "available",
+      amount: Number((wd as any).amount),
+      direction: 1,
+      fee_amount: 0,
+      net_amount: Number((wd as any).amount),
+      description: `Cancelamento de saque #${data.id.slice(0, 8)}`,
+      reference_type: "withdrawal",
+      reference_id: data.id,
+      provider: "amt_pay",
+    } as never);
     return { ok: true };
   });
