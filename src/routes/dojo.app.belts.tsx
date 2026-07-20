@@ -191,6 +191,7 @@ function BeltsPage() {
               <div key={b.id} className="flex flex-wrap items-center gap-3 p-3">
                 <div className="w-8 text-xs text-muted-foreground">{b.sort_order}</div>
                 <BeltVisual
+                  modality={b.modality}
                   name={b.name}
                   colorHex={b.color_hex}
                   stripeHex={b.stripe_hex}
@@ -290,6 +291,7 @@ function BeltsPage() {
             </div>
             <div className="col-span-2 flex items-center gap-3 bg-muted/40 p-3 rounded">
               <BeltVisual
+                modality={form.modality}
                 name={form.name}
                 colorHex={form.color_hex}
                 stripeHex={form.stripe_hex || null}
