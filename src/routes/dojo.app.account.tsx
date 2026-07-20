@@ -111,13 +111,42 @@ function AccountPage() {
     load();
   }
 
-  async function saveAcademy() {
+  const createAsaasFn = useServerFn(createMyAsaasSubaccount);
+
+  async function saveAcademy(opts?: { skipAsaas?: boolean }) {
     if (!user) return;
     const payload = { ...academy, owner_id: user.id };
     const { error } = await supabase.from("dojo_academy_profile").upsert(payload);
     if (error) return toast.error(error.message);
     await logAudit("academy_updated");
     toast.success("Dados da academia salvos");
+
+    // Ativação automática do Asaas assim que os dados fiscais obrigatórios
+    // estiverem preenchidos e a subconta ainda não existir.
+    const hasSubaccount = !!academy?.asaas_subaccount_id;
+    const requiredOk =
+      (academy?.legal_name || academy?.trade_name) &&
+      academy?.cnpj &&
+      academy?.email &&
+      academy?.phone &&
+      academy?.address &&
+      academy?.address_number &&
+      academy?.neighborhood &&
+      academy?.city &&
+      academy?.state &&
+      academy?.zip;
+
+    if (!opts?.skipAsaas && !hasSubaccount && requiredOk) {
+      try {
+        toast.info("Ativando subconta Asaas…");
+        const res = await createAsaasFn({ data: {} });
+        await logAudit("asaas_subaccount_auto_created", { subaccount_id: res.subaccountId });
+        toast.success("Subconta Asaas ativada automaticamente!");
+      } catch (e: any) {
+        toast.error("Não foi possível ativar a subconta Asaas: " + (e?.message || "erro desconhecido"));
+      }
+    }
+
     load();
   }
 
