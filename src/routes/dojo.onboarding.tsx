@@ -230,6 +230,7 @@ function OnboardingPage() {
         },
       });
       setDocs((prev) => ({ ...prev, [docType]: path }));
+      setDocMimes((prev) => ({ ...prev, [docType]: file.type || "" }));
       toast.success(`${DOC_LABELS[docType]} enviado`);
     } catch (e) {
       toast.error("Falha no upload", {
