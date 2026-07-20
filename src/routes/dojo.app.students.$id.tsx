@@ -800,7 +800,6 @@ function LoadingState() {
       </div>
       <Skeleton className="h-32 w-full" />
 
-      <Skeleton className="h-96 w-full" />
     </div>
   );
 }
