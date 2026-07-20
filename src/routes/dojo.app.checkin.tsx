@@ -73,7 +73,6 @@ function DojoCheckinModule() {
           <TabsContent value="reports"><ReportsPanel /></TabsContent>
           <TabsContent value="settings"><SettingsPanel /></TabsContent>
         </Tabs>
-      </div>
     </div>
   );
 }
