@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Package, ShoppingCart, ClipboardList, Heart, Settings, Shirt, Award, Sparkles, Tag, Store as StoreIcon } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, ClipboardList, Heart, Shirt, Award, Sparkles, Tag, Store as StoreIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/dojo/app/store")({
@@ -18,7 +18,6 @@ const nav = [
   { to: "/dojo/app/store/carrinho", label: "Carrinho", icon: ShoppingCart },
   { to: "/dojo/app/store/pedidos", label: "Pedidos", icon: ClipboardList },
   { to: "/dojo/app/store/favoritos", label: "Favoritos", icon: Heart },
-  { to: "/dojo/app/store/configuracoes", label: "Configurações", icon: Settings },
 ];
 
 function StoreLayout() {
