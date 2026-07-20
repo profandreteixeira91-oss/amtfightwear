@@ -56,14 +56,16 @@ export const PROVIDERS: ProviderDefinition[] = [
     label: "Sou Competidor",
     homepage: "https://www.soucompetidor.com.br",
     listUrls: [
-      "https://www.soucompetidor.com.br/pt-br/eventos/todos-os-eventos/",
-      "https://www.soucompetidor.com.br/pt-br/eventos/proximos-eventos/",
+      "https://soucompetidor.com.br/pt-br/eventos/todos-os-eventos/novos/?modalidade=1&pais=1",
+      "https://soucompetidor.com.br/pt-br/eventos/todos-os-eventos/",
+      "https://soucompetidor.com.br/pt-br/eventos/proximos-eventos/",
     ],
     isEventDetailUrl: anyOf(/\/eventos\/[^/]+\/p\d+[-a-z0-9]/i),
     priority: "high",
     scope: "national",
     countryLabel: "Brasil",
   },
+
   {
     id: "bjj_tour",
     label: "BJJ Tour",

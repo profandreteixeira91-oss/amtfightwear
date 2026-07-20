@@ -1,8 +1,7 @@
-import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
 import { PROVIDERS, PROVIDER_BY_ID, type ProviderId, type ProviderDefinition } from "@/lib/dojo/competitions/providers";
 
 const FIRECRAWL_V2 = "https://api.firecrawl.dev/v2";
+
 
 export type LiveCompetition = {
   id: string;
@@ -59,7 +58,10 @@ async function firecrawlMarkdown(url: string): Promise<string> {
   const cached = MD_CACHE.get(url);
   if (cached && Date.now() - cached.at < CACHE_TTL_MS) return cached.md;
 
-  const attempts = [25_000, 40_000, 55_000];
+  // Um único attempt com timeout curto — o cron/hook roda com orçamento
+  // limitado (Cloudflare Workers). Falhas isoladas por URL não devem derrubar
+  // as demais fontes.
+  const attempts = [22_000];
   let lastErr: unknown;
   for (let i = 0; i < attempts.length; i++) {
     try {
@@ -72,12 +74,11 @@ async function firecrawlMarkdown(url: string): Promise<string> {
     } catch (e) {
       lastErr = e;
     }
-    if (i < attempts.length - 1) await new Promise((r) => setTimeout(r, 800 * (i + 1)));
   }
-  // Fallback para cache antigo se disponível
   if (cached) return cached.md;
   throw lastErr instanceof Error ? lastErr : new Error(String(lastErr));
 }
+
 
 // ---- Parser heurístico (sem IA) --------------------------------------------
 
@@ -389,8 +390,3 @@ export async function runScrapeCompetitions(providers?: string[]): Promise<{
   return { competitions, summary, fetchedAt: new Date().toISOString() };
 }
 
-export const scrapeCompetitions = createServerFn({ method: "POST" })
-  .inputValidator((i: unknown) =>
-    z.object({ providers: z.array(z.string()).optional() }).parse(i ?? {}),
-  )
-  .handler(async ({ data }) => runScrapeCompetitions(data.providers));
