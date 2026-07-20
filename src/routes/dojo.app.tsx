@@ -38,6 +38,8 @@ import {
   CreditCard,
   Megaphone,
   ShoppingBag,
+  UsersRound,
+  HeartHandshake,
 
 } from "lucide-react";
 import { useEffect, useState } from "react";
