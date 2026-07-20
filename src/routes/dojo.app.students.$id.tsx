@@ -279,6 +279,34 @@ function StudentDetail() {
 
         {/* ============ ÁREA PRINCIPAL ============ */}
         <main className="min-w-0 space-y-4">
+          {/* Alerta: aluno sem plano cadastrado */}
+          {enrollments.length === 0 && (
+            <Card className="border-amber-500/40 bg-gradient-to-br from-amber-500/10 via-background to-background">
+              <CardContent className="p-4 md:p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+                <div className="h-11 w-11 rounded-xl bg-amber-500/15 flex items-center justify-center shrink-0">
+                  <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-sm">Este aluno ainda não possui um plano</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    Cadastre um plano para iniciar o ciclo financeiro. A primeira cobrança será gerada automaticamente pelo AMT Pay.
+                  </div>
+                </div>
+                <Button
+                  onClick={() => {
+                    setActiveTab("academia");
+                    setTimeout(() => {
+                      document.getElementById("plans-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }, 50);
+                  }}
+                  className="shrink-0"
+                >
+                  <Wallet className="h-4 w-4 mr-1.5" /> Cadastrar Plano
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
           {/* KPIs */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
             <Kpi icon={Activity} label="Dias treinando" value={daysTraining || "—"} />
@@ -291,7 +319,7 @@ function StudentDetail() {
 
 
           {/* Tabs */}
-          <Tabs defaultValue="pessoal" className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="overflow-x-auto">
               <TabsList className="flex w-max min-w-full flex-nowrap gap-0.5 rounded-lg border border-border bg-card p-1">
                 <TabsTrigger value="pessoal">Dados</TabsTrigger>
