@@ -111,22 +111,48 @@ async function computeCart(supabase: any, ownerId: string) {
     (variants ?? []).forEach((v: any) => variantMap.set(v.id, v));
   }
 
-  // Agregação por CATEGORIA (regra: ≥10 itens/categoria → 25% atacado)
+  // ============================================================
+  // Agregação por SUBCATEGORIA (regra: ≥10 itens/subcategoria → 25% OFF)
+  // Se o produto está numa categoria filha (parent_id ≠ null) o bucket
+  // é a própria subcategoria (category_id). Se está em uma categoria raiz,
+  // o bucket é a própria raiz e conta separadamente — não se somam raízes
+  // diferentes nem raiz + filha.
+  // ============================================================
   const WHOLESALE_MIN = 10;
   const WHOLESALE_PCT = 0.25;
-  const catKeyFor = (p: any) => (p?.category_id ?? p?.category_slug ?? p?.category_name ?? "__uncat__") as string;
-  const qtyByCategory = new Map<string, number>();
+
+  // Carrega categorias para resolver parent_id/label.
+  const catIdsSet = new Set<string>();
+  productMap.forEach((p) => { if (p?.category_id) catIdsSet.add(p.category_id); });
+  const catMeta = new Map<string, { id: string; name: string; slug: string; parent_id: string | null }>();
+  if (catIdsSet.size) {
+    const { data: cats } = await supabase
+      .from("store_categories")
+      .select("id, name, slug, parent_id")
+      .in("id", Array.from(catIdsSet));
+    (cats ?? []).forEach((c: any) => catMeta.set(c.id, c));
+  }
+
+  const bucketFor = (p: any): { key: string; name: string } => {
+    if (!p?.category_id) return { key: "__uncat__", name: "Sem categoria" };
+    const meta = catMeta.get(p.category_id);
+    if (meta) return { key: meta.id, name: meta.name };
+    return { key: p.category_id, name: p.category_name ?? "Categoria" };
+  };
+
+  const qtyByBucket = new Map<string, number>();
   rows.forEach((r: any) => {
-    const key = catKeyFor(productMap.get(r.product_id));
-    qtyByCategory.set(key, (qtyByCategory.get(key) ?? 0) + r.quantity);
+    const b = bucketFor(productMap.get(r.product_id));
+    qtyByBucket.set(b.key, (qtyByBucket.get(b.key) ?? 0) + r.quantity);
   });
 
   const lines: CartLine[] = rows.map((r: any) => {
     const p = productMap.get(r.product_id) ?? null;
     const v = r.variant_id ? variantMap.get(r.variant_id) : null;
     const unitRetail = v?.price != null ? Number(v.price) : (p?.price ?? 0);
-    const catQty = qtyByCategory.get(catKeyFor(p)) ?? 0;
-    const isWholesale = catQty >= WHOLESALE_MIN;
+    const bKey = bucketFor(p).key;
+    const bQty = qtyByBucket.get(bKey) ?? 0;
+    const isWholesale = bQty >= WHOLESALE_MIN;
     const unitFinal = isWholesale
       ? Math.round(unitRetail * (1 - WHOLESALE_PCT) * 100) / 100
       : unitRetail;
@@ -154,12 +180,12 @@ async function computeCart(supabase: any, ownerId: string) {
   const savings = Math.round((retail_total - subtotal) * 100) / 100;
   const has_wholesale = lines.some((l) => l.is_wholesale);
 
-  const category_progress = Array.from(qtyByCategory.entries()).map(([key, qty]) => {
-    const sample = rows.find((r: any) => catKeyFor(productMap.get(r.product_id)) === key);
+  const subcategory_progress = Array.from(qtyByBucket.entries()).map(([key, qty]) => {
+    const sample = rows.find((r: any) => bucketFor(productMap.get(r.product_id)).key === key);
     const p = sample ? productMap.get(sample.product_id) : null;
     return {
       key,
-      name: (p as any)?.category_name ?? "Sem categoria",
+      name: bucketFor(p).name,
       qty,
       min: WHOLESALE_MIN,
       unlocked: qty >= WHOLESALE_MIN,
@@ -175,7 +201,9 @@ async function computeCart(supabase: any, ownerId: string) {
     subtotal,
     savings,
     has_wholesale,
-    category_progress,
+    subcategory_progress,
+    // legado — mesma forma, mantém compat com telas antigas
+    category_progress: subcategory_progress,
     wholesale_min_qty: WHOLESALE_MIN,
     wholesale_percent: WHOLESALE_PCT,
   };
