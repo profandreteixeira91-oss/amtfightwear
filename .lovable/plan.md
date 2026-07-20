@@ -1,96 +1,114 @@
-## Módulo Equipe — Plano de Entrega
+# Evolução do Módulo Equipe — Plano de Entrega
 
-Este é um escopo muito grande (13+ áreas funcionais). Vou entregar em **duas fases** para não deixar nenhuma área quebrada. Se preferir, ajuste as prioridades antes de eu começar.
-
-### Princípios
-
-- **Multi-tenant estrito**: toda tabela com `owner_id` + RLS por `auth.uid()`, sem exceção.
-- **Team Service único** (`src/lib/dojo/team.functions.ts`): fonte da verdade. Agenda, Turmas, Certificados, Check-in, Avaliações, Eventos, Financeiro passam a **consumir** esse serviço em vez de replicar dados.
-- **Não duplicar**: `dojo_units` (professores atuais), `dojo_class_schedules`, `dojo_evaluations`, `dojo_certificates` já existem. Vou **estender** (não recriar) e migrar dados existentes.
-- **Perfis de permissão**: reutilizar `user_roles` + `has_role`. Zero nova estrutura de RBAC.
-- **UI**: `DojoPageShell` + navegação superior + padrão visual já em uso (cards, tabs, timeline).
+Escopo massivo. Vou entregar em **5 fases sequenciais**, cada uma funcional de ponta a ponta, para evitar um único deploy gigante e permitir validação incremental. Todas as fases respeitam multi-tenant (`dojo_id` em toda tabela + RLS via `has_role`/ownership).
 
 ---
 
-### FASE 1 — Núcleo entregue nesta rodada
+## Fase 1 — Escalas & Substituições (base operacional)
 
-**1. Migração de banco (uma migration)**
+**Banco**
+- `dojo_team_schedules` — escalas recorrentes (professor, aula, dia da semana, horário, unidade, sala, modalidade, recorrência, período).
+- `dojo_team_schedule_occurrences` — ocorrências geradas (data específica, status, substituto_id, motivo).
+- `dojo_team_substitutions` — histórico permanente de substituições (professor original, substituto, motivo, período, criado_por).
 
-- `dojo_team_members` — colaborador (dados pessoais + profissionais + status). Substitui/estende `dojo_units` como fonte central. Mantém `dojo_units` sincronizada por trigger para não quebrar o que já consome.
-- `dojo_team_documents` — anexos (contrato, RG, diplomas). Nunca deletados fisicamente (`archived_at`).
-- `dojo_team_payroll_config` — tipo de pagamento (fixo/hora-aula/percentual/comissão), valores base, dados bancários/PIX.
-- `dojo_team_payments` — pagamentos, adiantamentos, descontos, bônus, comissões, horas extras, reembolsos. Status: pendente/pago/cancelado.
-- `dojo_team_attendance` — controle de presença da equipe (entrada/saída/intervalo/justificativa).
-- `dojo_team_history` — audit permanente (insert-only para o usuário).
-- `dojo_team_signatures` — assinatura digital para certificados (imagem, nome, cargo, faixa).
-- View `dojo_team_dashboard` — KPIs agregados.
-- Todas com GRANTs + RLS por `owner_id` + política do aluno/próprio membro quando aplicável.
+**Service** — `src/lib/dojo/team-schedule.functions.ts`
+- `listSchedules`, `upsertSchedule`, `generateOccurrences` (materializa X semanas à frente), `substituteTeacher`, `listSubstitutions`.
+- Regra crítica: substituição **nunca** apaga vínculo original, apenas cria registro paralelo.
 
-**2. Team Service (`src/lib/dojo/team.functions.ts`)**
+**UI** — Nova aba `dojo.app.team.schedules.tsx`
+- Visualizações: Hoje / Semana / Mês / Timeline / Calendário (usando `date-fns` + grid custom, sem dep nova).
+- Modal "Substituir Professor" com fluxo: atual → novo → motivo → período → confirmar.
+- Drag-and-drop entre slots (usar `@dnd-kit` já instalado).
 
-CRUD completo, incluindo:
-- `listTeamMembers`, `getTeamMember`, `upsertTeamMember`, `updateStatus`, `archiveTeamMember`
-- `listPayments`, `registerPayment`, `computePayrollPreview` (usa `dojo_attendance` × config)
-- `listTeamAttendance`, `punchIn`, `punchOut`
-- `listDocuments`, `uploadDocument`, `archiveDocument`
-- `getTeamSignature`, `setTeamSignature`
-- `getTeamDashboard` — cards do dashboard
-- `listBirthdaysThisMonth`
-
-**3. Rotas**
-
-- `dojo.app.team.index.tsx` — dashboard + lista com filtros (cargo, status, modalidade), busca, cards.
-- `dojo.app.team.$id.tsx` — perfil do colaborador em 8 abas:
-  1. Dados Pessoais
-  2. Dados Profissionais
-  3. Permissões (integrado ao `user_roles` existente)
-  4. Agenda (embed `dojo_class_schedules` filtrado)
-  5. Turmas (reuso do módulo existente)
-  6. Financeiro (config + histórico)
-  7. Documentos
-  8. Histórico
-- `dojo.app.team.payroll.tsx` — folha do mês (todos), export PDF/Excel.
-- `dojo.app.team.attendance.tsx` — controle de presença da equipe.
-
-**4. Menu**
-
-Adicionar em `AppTopNav.tsx` grupo Gestão: **Equipe** — ícone `Users` (👥). Renomear item "Professores" existente para link à `/dojo/app/team` (mesma rota).
-
-**5. Integrações imediatas nesta fase**
-
-- **Certificados**: `CertificateEditor` lê `dojo_team_signatures` (o professor logado precisa estar cadastrado em Equipe).
-- **Check-in**: quando o aluno faz check-in em uma turma, o serviço identifica o professor titular via `dojo_class_schedules.instructor_id` → `dojo_team_members`.
-- **Dashboard geral do Dojo**: puxa KPIs de folha do mês.
-- **Agenda**: nada muda (já usa `dojo_class_schedules`); a aba Agenda do colaborador é uma view filtrada.
+**Integrações**
+- `dojo_class_occurrences` (agenda geral) recebe atualização quando substituição confirmada.
+- Check-in valida contra `schedule_occurrences.substituto_id ?? professor_id`.
 
 ---
 
-### FASE 2 — Entregue em rodada separada (aviso ao final)
+## Fase 2 — Carga Horária & Metas
 
-Ganchos preparados no serviço, mas UI/lógica completa depois:
-- Dashboard do Professor (rota `/dojo/app/me` — visão do professor logado).
-- Comunicação (envio de comunicado/mensagem/email — integrar ao módulo Avisos existente).
-- Cálculo automático de comissões por matrícula/renovação/venda (depende de eventos financeiros).
-- Ponto eletrônico real (biometria/hardware).
-- Eventos: vincular professores com funções (organizador/árbitro/etc.).
+**Banco**
+- `dojo_team_workload_summary` (view materializada por colaborador/mês): horas previstas, ministradas, extras, faltas, reposições, canceladas, substituições feitas/recebidas.
+- `dojo_team_goals` — metas (tipo enum: matriculas, renovacoes, frequencia, avaliacoes, eventos, receita, checkins, conversao; alvo, período, bônus_valor).
+- `dojo_team_goal_progress` — snapshots de progresso.
 
----
+**Service** — `src/lib/dojo/team-workload.functions.ts` + `team-goals.functions.ts`
+- Cálculo derivado da agenda (nada duplicado).
+- Goals com auto-cálculo cruzando `dojo_enrollments`, `dojo_attendance`, `dojo_evaluations`, `store_orders`.
 
-### Detalhes técnicos
-
-- **Não haverá duplicação com `dojo_units`**: `dojo_team_members` recebe um campo `legacy_unit_id` apontando para `dojo_units` durante a migração; uma função `sync_team_to_units()` (trigger) mantém `dojo_units.instructor_name/instructor_email` em espelho. Consumers antigos continuam funcionando.
-- **Permissões**: aba "Permissões" grava roles em `user_roles` via `assign_role` server-fn (já existe padrão). Perfis pré-definidos (Administrador/Professor/Recepção/Financeiro/Instrutor) mapeiam para combinações de roles + escopo. Perfil "Personalizado" abre matriz granular.
-- **Documentos**: bucket `team-documents` (privado), RLS por `owner_id` do dono e pelo próprio colaborador.
-- **Foto/assinatura**: bucket `team-media` (público apenas para foto de perfil, assinatura privada).
-- **Cálculo de folha**: `computePayrollPreview` cruza `dojo_attendance` (ou `dojo_class_occurrences`) com `dojo_team_payroll_config` para gerar preview antes do registro em `dojo_team_payments`. Não altera pagamentos existentes.
-- **Multi-tenant**: cada função server usa `requireSupabaseAuth`; toda query filtra por `owner_id = context.userId`.
+**UI**
+- Aba "Carga Horária" na ficha do colaborador + relatório global.
+- Aba "Metas" com progresso, percentual, bônus previsto.
 
 ---
 
-### O que NÃO farei sem pedir
+## Fase 3 — Remuneração Inteligente & Comissões
 
-- Não vou remover `dojo_units` (quebraria o resto do sistema).
-- Não vou refatorar módulos existentes para "consumir Team Service" agora — eles continuam funcionando; migração de leitores acontece incrementalmente.
-- Não vou implementar WhatsApp (fora de escopo desta fase).
+**Banco**
+- Expandir `dojo_team_payroll_config`: JSONB `compensation_rules` com múltiplos modelos simultâneos (fixo, hora, aula, comissão matrícula, renovação, produto, mensalidade, exame, bônus meta).
+- `dojo_team_commissions` — cada comissão calculada (origem_tipo, origem_id, base_valor, percentual/fixo, valor_final, status).
+- `dojo_team_private_classes` — aulas particulares (aluno, data, valor, status, forma_pagamento).
 
-Confirme e eu executo a Fase 1 (migration + serviço + rotas + integrações mínimas).
+**Service** — `src/lib/dojo/team-commission.functions.ts` + expansão `team-payroll`
+- Triggers de cálculo:
+  - Ao confirmar pagamento de mensalidade → comissão para professor da turma.
+  - Ao criar `dojo_enrollments` → comissão matrícula.
+  - Ao renovar plano → comissão renovação.
+  - Ao pagar `store_orders`/`dojo_store_orders` → comissão produto (vendedor_id).
+  - Ao concluir `dojo_evaluations` → comissão exame.
+  - Ao bater meta → bônus.
+- Motor único `computeCommissionsForPeriod(memberId, period)`.
+
+**UI**
+- Editor de regras de remuneração (checkboxes + config por regra) na aba Financeiro do colaborador.
+- Registro de aulas particulares.
+- Preview de comissões pendentes.
+
+---
+
+## Fase 4 — Desempenho, Dashboard Individual & Financeiro
+
+**Banco**
+- `dojo_team_performance` — indicadores mensais (pontualidade, presença, aulas, avaliações aplicadas, graduações, retenção, satisfação).
+- Expandir `dojo_team_history` — categorias: cargo, faixa, curso, certificação, treinamento, aumento, substituição, advertência, elogio, férias, licença.
+
+**Service** — `team-performance.functions.ts` + `team-analytics.functions.ts`
+
+**UI**
+- Rota `/dojo/app/team/me` — dashboard do colaborador logado (agenda, aulas hoje, horas mês, remuneração prevista, comissões, pendências, indicadores).
+- Extrato financeiro exportável (CSV/PDF via `openBrandedPrintDocument`).
+- Timeline de histórico profissional.
+
+---
+
+## Fase 5 — Alertas, Relatórios & Integração AMT Pay
+
+**Banco**
+- `dojo_team_alerts` — alertas gerados (tipo, severidade, colaborador, contexto, lido).
+- Job `pg_cron` diário gerando alertas (férias em curso, excesso de carga, sem aulas, docs vencidos, aniversário, contrato próximo do fim).
+
+**Relatórios**
+- Central em `/dojo/app/team/reports`: horas, aulas, produtividade, comissões, folha, custos, professores por modalidade, substituições, metas, desempenho.
+- Export PDF (branded print), Excel (`xlsx`), CSV.
+
+**AMT Pay**
+- Preparar estrutura: cada `dojo_team_payments` aponta para futuro `wallet_transaction_id` (nullable). Sem transferência automática nesta versão — apenas registro.
+
+---
+
+## Detalhes técnicos globais
+
+- **RLS**: toda tabela nova segue padrão existente (`dojo_id = get_current_dojo_id()` + `has_role`).
+- **GRANTS**: authenticated + service_role em cada CREATE TABLE.
+- **Navegação**: sub-navegação horizontal dentro de `/dojo/app/team` (Dashboard, Colaboradores, Escalas, Carga Horária, Metas, Comissões, Desempenho, Alertas, Relatórios).
+- **Consumo unificado**: Agenda, Check-in, Financeiro, AMT Store, Avaliações e Certificados passam a ler via os novos services (sem duplicar lógica).
+- **Sem breaking changes**: tabelas atuais (`dojo_team_members`, `dojo_team_payroll_config`, `dojo_team_payments`, `dojo_team_attendance`, `dojo_team_documents`, `dojo_team_signatures`, `dojo_team_history`) são expandidas, não substituídas.
+
+---
+
+## Ordem de execução
+
+Começo pela **Fase 1** (base de escalas + substituições) porque todas as outras dependem dela: carga horária, comissão por aula, desempenho e alertas são derivados da agenda materializada.
+
+Confirma que devo iniciar pela Fase 1, ou prefere que eu ajuste o escopo/ordem?
