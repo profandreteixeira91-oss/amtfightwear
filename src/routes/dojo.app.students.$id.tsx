@@ -23,7 +23,7 @@ import {
   Trash2, Award, Eye, Printer, Pencil, ArrowLeft, MessageSquare, Mail as MailIcon,
   Wallet, CalendarCheck, GraduationCap, Trophy, FileText, ShieldCheck,
   Activity, Heart, User as UserIcon, MapPin, Phone, ClipboardList, Upload,
-  QrCode, RefreshCw, TrendingUp, ExternalLink, Sparkles,
+  QrCode, RefreshCw, TrendingUp, ExternalLink, Sparkles, AlertTriangle,
 } from "lucide-react";
 import { BeltVisual } from "@/components/dojo/BeltVisual";
 import { CertificatePreviewDialog, openCertificatePrint, type CertificateTemplate } from "@/components/dojo/CertificatePreview";
