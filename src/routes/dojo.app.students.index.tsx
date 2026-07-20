@@ -482,6 +482,106 @@ function StudentsPage() {
                   </Field>
                 </TabsContent>
 
+                {/* ============ PLANO & COBRANÇA ============ */}
+                {!form.id && (
+                  <TabsContent value="plano" className="mt-4 space-y-4">
+                    <p className="text-xs text-muted-foreground">
+                      Selecione o plano do aluno. Uma matrícula é criada automaticamente e a 1ª mensalidade é gerada com base no plano.
+                      As mensalidades seguintes são criadas mensalmente no Financeiro.
+                    </p>
+                    <div className="grid gap-3 md:grid-cols-2">
+                      <Field label="Plano *" className="md:col-span-2">
+                        <select
+                          className="border rounded p-2 bg-background w-full"
+                          value={enrollment.plan_id}
+                          onChange={(e) => setEnrollment((s) => ({ ...s, plan_id: e.target.value }))}
+                        >
+                          <option value="">— Selecionar plano —</option>
+                          {(plans.data ?? [])
+                            .filter((p: any) => p.active !== false)
+                            .map((p: any) => (
+                              <option key={p.id} value={p.id}>
+                                {p.name} — R$ {Number(p.amount ?? 0).toFixed(2)}
+                                {Number(p.enrollment_fee ?? 0) > 0
+                                  ? ` (+ matrícula R$ ${Number(p.enrollment_fee).toFixed(2)})`
+                                  : ""}
+                              </option>
+                            ))}
+                        </select>
+                        {(plans.data ?? []).length === 0 && (
+                          <p className="text-xs text-destructive mt-1">
+                            Nenhum plano cadastrado.{" "}
+                            <Link to="/dojo/app/plans" className="underline">
+                              Cadastre um plano
+                            </Link>{" "}
+                            antes de matricular o aluno.
+                          </p>
+                        )}
+                      </Field>
+                      <Field label="Data de início">
+                        <Input
+                          type="date"
+                          value={enrollment.start_date}
+                          onChange={(e) => setEnrollment((s) => ({ ...s, start_date: e.target.value }))}
+                        />
+                      </Field>
+                      <Field label="Dia de vencimento (1-28)">
+                        <Input
+                          type="number"
+                          min={1}
+                          max={28}
+                          value={enrollment.due_day}
+                          onChange={(e) =>
+                            setEnrollment((s) => ({ ...s, due_day: Math.max(1, Math.min(28, Number(e.target.value) || 1)) }))
+                          }
+                        />
+                      </Field>
+                      <Field label="Vencimento da 1ª mensalidade">
+                        <Input
+                          type="date"
+                          value={enrollment.first_due_date}
+                          onChange={(e) => setEnrollment((s) => ({ ...s, first_due_date: e.target.value }))}
+                        />
+                      </Field>
+                      <Field label="Valor customizado (opcional)">
+                        <Input
+                          type="number"
+                          step="0.01"
+                          placeholder="Deixe vazio para usar o valor do plano"
+                          value={enrollment.custom_amount}
+                          onChange={(e) => setEnrollment((s) => ({ ...s, custom_amount: e.target.value }))}
+                        />
+                      </Field>
+                      <div className="md:col-span-2">
+                        <BoolChk
+                          label="Cobrar taxa de matrícula na 1ª fatura (se o plano tiver)"
+                          checked={enrollment.include_enrollment_fee}
+                          onChange={(v) => setEnrollment((s) => ({ ...s, include_enrollment_fee: v }))}
+                        />
+                      </div>
+                      <Field label="Forma de pagamento da 1ª mensalidade" className="md:col-span-2">
+                        <select
+                          className="border rounded p-2 bg-background w-full"
+                          value={enrollment.payment_method}
+                          onChange={(e) =>
+                            setEnrollment((s) => ({ ...s, payment_method: e.target.value as "manual" | "mp_link" }))
+                          }
+                        >
+                          <option value="manual">Registrar manualmente (dinheiro/PIX/transferência)</option>
+                          <option value="mp_link">Gerar link de pagamento Mercado Pago (cartão / Pix / boleto)</option>
+                        </select>
+                        {enrollment.payment_method === "mp_link" && (
+                          <p className="text-xs text-muted-foreground mt-1">
+                            O link será aberto em nova aba e enviado ao aluno; a fatura é marcada como paga automaticamente após confirmação do Mercado Pago.
+                          </p>
+                        )}
+                      </Field>
+                    </div>
+                  </TabsContent>
+                )}
+
+
+
                 {/* ============ ANAMNESE ============ */}
                 <TabsContent value="anamnese" className="mt-4 space-y-4">
                   <p className="text-xs text-muted-foreground">
