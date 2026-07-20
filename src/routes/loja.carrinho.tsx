@@ -54,8 +54,9 @@ function CartPage() {
     }
   }, [shipping, zip]);
 
-  const handleShippingSelect = (opt: ShippingOption) => {
+  const handleShippingSelect = (opt: ShippingOption, selectedZip: string) => {
     setShipping(opt);
+    if (selectedZip) setZip(selectedZip);
   };
 
 
