@@ -550,7 +550,7 @@ function AdminProductsPage() {
       {managingCategories && (
         <CategoriesDialog onClose={() => setManagingCategories(false)} />
       )}
-    </div>
+    </PageShell>
   );
 }
 
