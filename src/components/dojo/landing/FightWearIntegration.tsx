@@ -1,12 +1,16 @@
 import { motion } from "framer-motion";
 import { ArrowRight, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import kimonoImg from "@/assets/dojo/product-kimono.jpg";
+import faixaImg from "@/assets/dojo/product-faixa.jpg";
+import patchImg from "@/assets/dojo/product-patch.jpg";
+import lojaImg from "@/assets/dojo/product-loja.jpg";
 
 const cards = [
-  { emoji: "🥋", label: "Kimonos", desc: "Modelos oficiais e personalizados" },
-  { emoji: "🎗️", label: "Faixas", desc: "Todas as graduações disponíveis" },
-  { emoji: "🏷️", label: "Patches", desc: "Bordado da sua academia" },
-  { emoji: "🛒", label: "Loja Online", desc: "Compras direto pelo sistema" },
+  { img: kimonoImg, label: "Kimonos", desc: "Modelos oficiais e personalizados" },
+  { img: faixaImg, label: "Faixas", desc: "Todas as graduações disponíveis" },
+  { img: patchImg, label: "Patches", desc: "Bordado da sua academia" },
+  { img: lojaImg, label: "Loja Online", desc: "Compras direto pelo sistema" },
 ];
 
 export function FightWearIntegration() {
@@ -24,10 +28,10 @@ export function FightWearIntegration() {
               <ShoppingBag className="h-3.5 w-3.5 text-[#C1121F]" />
               AMT Fight Wear · Parceria oficial
             </span>
-            <h2 className="mt-5 text-3xl font-bold leading-tight text-white md:text-4xl lg:text-5xl">
+            <h2 className="mt-5 text-3xl font-bold leading-tight !text-white md:text-4xl lg:text-5xl">
               Sua academia conectada à <span className="text-[#C1121F]">fábrica</span>.
             </h2>
-            <p className="mt-5 max-w-lg text-base text-white/60">
+            <p className="mt-5 max-w-lg text-base text-white/70">
               O AMT Dojo Manager integra diretamente com a AMT Fight Wear, permitindo que academias solicitem faixas, kimonos, patches e produtos personalizados sem sair do sistema.
             </p>
             <Button asChild size="lg" className="mt-8 group rounded-full bg-[#C1121F] text-white hover:bg-[#a30f1a]">
@@ -46,11 +50,23 @@ export function FightWearIntegration() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.08 }}
-                className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur transition-colors hover:border-[#C1121F]/40 hover:bg-white/[0.08]"
+                className="group overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur transition-all hover:border-[#C1121F]/50 hover:bg-white/[0.06]"
               >
-                <div className="text-4xl">{c.emoji}</div>
-                <p className="mt-4 text-base font-semibold text-white">{c.label}</p>
-                <p className="mt-1 text-xs text-white/50">{c.desc}</p>
+                <div className="relative aspect-[4/3] overflow-hidden">
+                  <img
+                    src={c.img}
+                    alt={c.label}
+                    loading="lazy"
+                    width={800}
+                    height={600}
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                </div>
+                <div className="p-5">
+                  <p className="text-base font-semibold !text-white">{c.label}</p>
+                  <p className="mt-1 text-xs text-white/60">{c.desc}</p>
+                </div>
               </motion.div>
             ))}
           </div>
