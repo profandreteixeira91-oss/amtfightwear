@@ -207,8 +207,8 @@ function StudentDetail() {
         </div>
       </div>
 
-      {/* Layout 3 colunas: sidebar / conteúdo / timeline */}
-      <div className="grid gap-4 lg:grid-cols-[280px_minmax(0,1fr)_320px]">
+      {/* Layout: sidebar / conteúdo (+ timeline como 3ª col apenas em telas muito largas) */}
+      <div className="grid gap-4 lg:grid-cols-[280px_minmax(0,1fr)] 2xl:grid-cols-[280px_minmax(0,1fr)_320px]">
         {/* ============ SIDEBAR ============ */}
         <aside className="space-y-3 lg:sticky lg:top-4 lg:self-start">
           <Card className="dojo-card overflow-hidden">
@@ -271,10 +271,10 @@ function StudentDetail() {
         {/* ============ ÁREA PRINCIPAL ============ */}
         <main className="min-w-0 space-y-4">
           {/* KPIs */}
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
             <Kpi icon={Activity} label="Dias treinando" value={daysTraining || "—"} />
             <Kpi icon={CalendarCheck} label="Presença no mês" value={attendanceThisMonth} />
-            <Kpi icon={Wallet} label="Mensalidades pagas" value={paidInvoices} tint={paidInvoices > 0 ? "success" : undefined} />
+            <Kpi icon={Wallet} label="Pagas" value={paidInvoices} tint={paidInvoices > 0 ? "success" : undefined} />
             <Kpi icon={Wallet} label="Pendentes" value={pendingInvoices} tint={pendingInvoices > 0 ? "warning" : undefined} />
             <Kpi icon={GraduationCap} label="Graduações" value={graduations.length} />
             <Kpi icon={Award} label="Certificados" value={certificates.length} />
@@ -734,7 +734,7 @@ function StudentDetail() {
         </main>
 
         {/* ============ TIMELINE (direita) ============ */}
-        <aside className="lg:sticky lg:top-4 lg:self-start">
+        <aside className="lg:col-span-2 2xl:col-span-1 2xl:sticky 2xl:top-4 2xl:self-start">
           <Card className="dojo-card">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-sm">
