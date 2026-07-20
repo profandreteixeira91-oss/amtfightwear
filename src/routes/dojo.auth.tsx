@@ -95,7 +95,7 @@ function DojoAuthPage() {
     if (error) return toast.error("Falha ao criar conta", { description: error.message });
     if (data.session) {
       toast.success("Conta criada! Vamos configurar seu dojo.");
-      window.location.assign("/dojo/app/account?onboarding=1");
+      window.location.assign("/dojo/onboarding");
     } else {
       toast.success("Conta criada! Confirme seu e-mail para continuar.");
       setMode("signin");
