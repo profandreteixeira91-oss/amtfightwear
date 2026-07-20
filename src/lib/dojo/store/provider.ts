@@ -148,7 +148,31 @@ export class LocalAmtProvider implements StoreProvider {
     }
     if (input.categorySlug) {
       const { data: cat } = await this.supabase.from("store_categories").select("id").eq("slug", input.categorySlug).maybeSingle();
-      if (cat?.id) query = query.eq("category_id", cat.id);
+      if (cat?.id) {
+        // Inclui produtos da categoria e de TODAS as suas descendentes (subárvore),
+        // igual ao comportamento da loja principal — evita "nenhum produto"
+        // quando os produtos estão em subcategorias filhas.
+        const { data: allCats } = await this.supabase
+          .from("store_categories")
+          .select("id, parent_id")
+          .eq("active", true);
+        const childrenByParent = new Map<string, string[]>();
+        for (const c of (allCats ?? []) as Array<{ id: string; parent_id: string | null }>) {
+          if (!c.parent_id) continue;
+          const arr = childrenByParent.get(c.parent_id) ?? [];
+          arr.push(c.id);
+          childrenByParent.set(c.parent_id, arr);
+        }
+        const ids: string[] = [];
+        const stack: string[] = [cat.id];
+        while (stack.length) {
+          const cur = stack.pop()!;
+          ids.push(cur);
+          const kids = childrenByParent.get(cur);
+          if (kids) stack.push(...kids);
+        }
+        query = query.in("category_id", ids);
+      }
     }
     if (input.featured) query = query.eq("featured", true);
 
