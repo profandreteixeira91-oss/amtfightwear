@@ -104,6 +104,10 @@ function CartPage() {
 
 
   const subtotal = items.reduce((a, i) => a + i.quantity * i.unit_price, 0);
+  const FREE_SHIPPING_THRESHOLD = 399;
+  const shippingCost = shipping?.price ?? 0;
+  const freeShipping = subtotal >= FREE_SHIPPING_THRESHOLD && !!shipping;
+  const total = subtotal + (freeShipping ? 0 : shippingCost);
 
   if (!mounted) return <StoreShell categories={categories}><div className="p-16" /></StoreShell>;
 
