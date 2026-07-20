@@ -189,7 +189,7 @@ export function AMTPayInfoPanel() {
             <SecItem icon={ShieldCheck} title="Split contábil isolado">
               O dinheiro dos seus alunos entra na subconta bancária em nome
               do seu dojo. A AMT <strong>não movimenta</strong> o saldo — só
-              recebe a taxa de 5% via split automático.
+              recebe a taxa de 2% via split automático.
             </SecItem>
             <SecItem icon={Wallet} title="Saques só para conta titular">
               Transferências e PIX só são liberados para contas bancárias
