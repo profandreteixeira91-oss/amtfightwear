@@ -618,10 +618,6 @@ function OnboardingPage() {
                           {has ? "Enviado" : "Nenhum arquivo enviado"}
                         </div>
                       </div>
-                        <div className="text-[11px] text-black/50">
-                          {has ? "Enviado" : "Nenhum arquivo enviado"}
-                        </div>
-                      </div>
                       {has ? (
                         <button
                           type="button"
