@@ -51,12 +51,20 @@ function NewGraduationPage() {
   const [previewFor, setPreviewFor] = useState<string | null>(null);
 
   // Hide Preta variants from the belt dropdown — they are chosen via the "Grau" selector below.
+  const modalities = useMemo(() => {
+    const set = new Set<string>();
+    (belts.data ?? []).forEach((b: any) => set.add(b.modality ?? "jiu-jitsu"));
+    return Array.from(set);
+  }, [belts.data]);
+
+  // Hide Preta variants from the belt dropdown — they are chosen via the "Grau" selector below.
   const visibleBelts = useMemo(
     () => (belts.data ?? []).filter((b: any) => {
+      if ((b.modality ?? "jiu-jitsu") !== modality) return false;
       const n = b.name as string;
       return !/^preta\s+com\s+aparador$/i.test(n) && !/^preta\s+\d+\s+grau$/i.test(n);
     }),
-    [belts.data]
+    [belts.data, modality]
   );
 
   const selectedBelt = useMemo(
