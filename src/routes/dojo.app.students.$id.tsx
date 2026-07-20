@@ -333,6 +333,7 @@ function StudentDetail() {
                 <TabsTrigger value="frequencia">Frequência</TabsTrigger>
                 <TabsTrigger value="documentos">Documentos</TabsTrigger>
                 <TabsTrigger value="observacoes">Observações</TabsTrigger>
+                <TabsTrigger value="beneficios">Benefícios</TabsTrigger>
               </TabsList>
             </div>
 
