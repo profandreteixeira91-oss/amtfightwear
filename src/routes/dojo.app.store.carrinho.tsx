@@ -95,7 +95,7 @@ function CartPage() {
     );
   }
 
-  const total = Math.round((data.subtotal + shippingCost) * 100) / 100;
+  const total = data.subtotal;
 
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
