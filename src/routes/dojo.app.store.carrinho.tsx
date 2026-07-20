@@ -50,6 +50,8 @@ function CartPage() {
   const timers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
   const pending = useRef<Record<string, number>>({});
   const [draft, setDraft] = useState<Record<string, string>>({});
+  const [shipping, setShipping] = useState<ShippingOption | null>(null);
+  const [shipZip, setShipZip] = useState<string>("");
   useEffect(() => () => { Object.values(timers.current).forEach(clearTimeout); }, []);
 
   const commitQty = (id: string, next: number) => {
