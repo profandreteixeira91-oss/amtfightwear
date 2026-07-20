@@ -103,6 +103,20 @@ export const upsertMyGateway = createServerFn({ method: "POST" })
         .eq("provider", data.provider);
     }
 
+    await context.supabase.from("dojo_gateway_history").insert({
+      owner_id: context.userId,
+      provider: data.provider,
+      action: id ? "reconfigured" : "connected",
+      actor_user_id: context.userId,
+      actor_email: (context.claims as any)?.email ?? null,
+      details: {
+        label: data.label ?? null,
+        active: patch.active ?? null,
+        is_default: data.is_default ?? null,
+        credentials_updated: !!(data.access_token || data.webhook_secret),
+      },
+    } as never);
+
     return { ok: true };
   });
 
