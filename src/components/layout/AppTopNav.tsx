@@ -135,6 +135,7 @@ const groups: { label: string; items: Item[] }[] = [
       { title: "Turmas", url: "/dojo/app/schedule", icon: GraduationCap },
       { title: "Agenda", url: "/dojo/app/schedule", icon: CalendarDays },
       { title: "Quadro de Avisos", url: "/dojo/app/announcements", icon: Megaphone },
+      { title: "Benefícios Corporativos", url: "/dojo/app/corporate-benefits", icon: Building2 },
       { title: "AMT Store", url: "/dojo/app/store", icon: Store },
     ],
   },
