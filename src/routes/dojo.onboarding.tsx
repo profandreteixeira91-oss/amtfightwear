@@ -518,9 +518,9 @@ function OnboardingPage() {
           </Section>
 
           {/* Documentos */}
-          <Section title="Documentos" description="Envie fotos ou PDFs legíveis (até 10 MB cada).">
+          <Section title="Documentos obrigatórios" description="Envie fotos ou PDFs legíveis (até 10 MB cada). Comprovante de endereço só é solicitado se a análise do Asaas pedir depois.">
             <div className="grid gap-3 md:grid-cols-2">
-              {DOC_TYPES.filter((d) => d !== "social_contract" || isCnpj).map((docType) => {
+              {requiredDocs.map((docType) => {
                 const isRequired = requiredDocs.includes(docType);
                 const has = !!docs[docType];
                 return (
