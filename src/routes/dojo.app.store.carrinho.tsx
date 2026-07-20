@@ -1,12 +1,19 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { dsGetCart, dsUpdateCartItem, dsRemoveCartItem, dsClearCart, dsCheckout } from "@/lib/dojo/store/store.functions";
+import {
+  dsGetCart,
+  dsUpdateCartItem,
+  dsRemoveCartItem,
+  dsClearCart,
+  dsHandoffToStoreCheckout,
+} from "@/lib/dojo/store/store.functions";
 import { calculateShipping } from "@/lib/store/shipping.functions";
+import { useCart } from "@/lib/store/cart-store";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Trash2, ShoppingBag, Truck } from "lucide-react";
+import { Trash2, ShoppingBag, Truck, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { useMemo, useState } from "react";
 
@@ -24,12 +31,12 @@ function CartPage() {
   const updFn = useServerFn(dsUpdateCartItem);
   const rmFn = useServerFn(dsRemoveCartItem);
   const clrFn = useServerFn(dsClearCart);
-  const coFn = useServerFn(dsCheckout);
+  const handoffFn = useServerFn(dsHandoffToStoreCheckout);
   const shipFn = useServerFn(calculateShipping);
 
   const { data, isLoading } = useQuery({ queryKey: ["dojo-store", "cart"], queryFn: () => getFn() });
-
   const refresh = () => qc.invalidateQueries({ queryKey: ["dojo-store", "cart"] });
+
   const upd = useMutation({ mutationFn: (v: { id: string; quantity: number }) => updFn({ data: v }), onSuccess: refresh });
   const rm = useMutation({ mutationFn: (id: string) => rmFn({ data: { id } }), onSuccess: refresh });
   const clr = useMutation({ mutationFn: () => clrFn(), onSuccess: refresh });
@@ -67,14 +74,34 @@ function CartPage() {
     onError: (e: any) => toast.error(e?.message ?? "Falha ao calcular frete"),
   });
 
-  const co = useMutation({
-    mutationFn: () => coFn({ data: { shipping_cost: shippingCost } }),
+  const checkout = useMutation({
+    mutationFn: () => handoffFn(),
     onSuccess: (r: any) => {
-      toast.success(`Pedido ${r.order_number} criado`);
+      // Injeta os itens no carrinho persistido da AMT Fight Wear e redireciona
+      // para o checkout oficial. A gestão do pedido (pagamento, produção,
+      // envio) continua sendo feita 100% pela loja principal.
+      const cart = useCart.getState();
+      cart.clear();
+      for (const it of r.items) {
+        cart.add({
+          product_id: it.product_id,
+          variant_id: it.variant_id,
+          name: it.name,
+          slug: it.slug,
+          image_url: it.image_url,
+          variant_label: it.variant_label,
+          unit_price: it.unit_price,
+          quantity: it.quantity,
+          type: "product",
+        });
+      }
+      cart.close();
       refresh();
-      nav({ to: "/dojo/app/store/pedidos/$id", params: { id: r.order_id } });
+      toast.success("Redirecionando para o checkout AMT Fight Wear…");
+      // Sai do domínio do Dojo Manager e volta para a loja principal.
+      window.location.href = "https://loja.amtfightwear.com.br/loja/checkout";
     },
-    onError: (e: any) => toast.error(e?.message ?? "Falha"),
+    onError: (e: any) => toast.error(e?.message ?? "Falha ao finalizar"),
   });
 
   if (isLoading) return <div className="text-sm text-muted-foreground">Carregando…</div>;
@@ -83,7 +110,7 @@ function CartPage() {
       <Card className="p-12 text-center">
         <ShoppingBag className="mx-auto h-10 w-10 text-muted-foreground" />
         <div className="mt-3 text-lg font-semibold">Seu carrinho está vazio</div>
-        <Button asChild className="mt-4"><Link to="/dojo/app/store/produtos">Buscar produtos</Link></Button>
+        <Button asChild className="mt-4"><Link to="/dojo/app/store">Escolher categoria</Link></Button>
       </Card>
     );
   }
@@ -93,12 +120,16 @@ function CartPage() {
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
       <div className="space-y-3">
-        {data.category_progress && data.category_progress.length > 0 && (
+        {data.subcategory_progress && data.subcategory_progress.length > 0 && (
           <div className="space-y-2">
-            {data.category_progress.map((c: any) => (
+            {data.subcategory_progress.map((c: any) => (
               <div
                 key={c.key}
-                className={`rounded-md border p-2 text-xs ${c.unlocked ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-amber-200 bg-amber-50 text-amber-800"}`}
+                className={`rounded-md border p-2 text-xs ${
+                  c.unlocked
+                    ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                    : "border-amber-200 bg-amber-50 text-amber-800"
+                }`}
               >
                 {c.unlocked ? (
                   <>🎉 <strong>Atacado 25% OFF</strong> aplicado em <strong>{c.name}</strong> ({c.qty} itens)</>
@@ -113,23 +144,34 @@ function CartPage() {
         {data.items.map((it) => (
           <Card key={it.id} className="flex gap-3 p-3">
             <div className="h-24 w-24 shrink-0 overflow-hidden rounded-md bg-muted">
-              {it.product?.image_url ? <img src={it.product.image_url} alt="" className="h-full w-full object-cover" /> : null}
+              {it.product?.image_url ? (
+                <img src={it.product.image_url} alt="" className="h-full w-full object-cover" loading="lazy" />
+              ) : null}
             </div>
-            <div className="flex flex-1 flex-col">
+            <div className="flex min-w-0 flex-1 flex-col">
               <div className="flex items-start justify-between gap-2">
-                <div>
-                  <div className="font-medium">{it.product?.name}</div>
+                <div className="min-w-0">
+                  <div className="truncate font-medium">{it.product?.name}</div>
                   {it.product?.category_name && (
                     <div className="text-[11px] text-muted-foreground">{it.product.category_name}</div>
                   )}
-                  {it.variant_label && <div className="text-xs text-muted-foreground">{it.variant_label}</div>}
+                  {it.variant_label && (
+                    <div className="text-xs text-muted-foreground">Tamanho: {it.variant_label}</div>
+                  )}
                   {it.customization && (
                     <div className="mt-1 text-[11px] text-primary">
                       ✨ Personalizado{it.customization.name ? `: ${it.customization.name}` : ""}
                     </div>
                   )}
+                  <div className="mt-1 text-[11px] text-muted-foreground">
+                    Unitário: <span className="font-medium text-foreground">{brl(it.unit_final)}</span>
+                  </div>
                 </div>
-                <button className="text-muted-foreground hover:text-destructive" onClick={() => rm.mutate(it.id)}>
+                <button
+                  className="shrink-0 text-muted-foreground hover:text-destructive"
+                  onClick={() => rm.mutate(it.id)}
+                  aria-label="Remover"
+                >
                   <Trash2 className="h-4 w-4" />
                 </button>
               </div>
@@ -140,7 +182,9 @@ function CartPage() {
                   <button className="px-2" onClick={() => upd.mutate({ id: it.id, quantity: it.quantity + 1 })}>+</button>
                 </div>
                 <div className="text-right">
-                  {it.is_wholesale && <div className="text-[10px] text-muted-foreground line-through">{brl(it.unit_retail)}</div>}
+                  {it.is_wholesale && (
+                    <div className="text-[10px] text-muted-foreground line-through">{brl(it.unit_retail * it.quantity)}</div>
+                  )}
                   <div className="text-sm font-bold">{brl(it.line_total)}</div>
                   {it.is_wholesale && <div className="text-[10px] font-medium text-emerald-600">Atacado −25%</div>}
                 </div>
@@ -149,12 +193,12 @@ function CartPage() {
           </Card>
         ))}
         <div className="flex justify-between">
-          <Button asChild variant="ghost" size="sm"><Link to="/dojo/app/store/produtos">Continuar comprando</Link></Button>
+          <Button asChild variant="ghost" size="sm"><Link to="/dojo/app/store">Continuar comprando</Link></Button>
           <Button variant="ghost" size="sm" onClick={() => clr.mutate()}>Esvaziar</Button>
         </div>
       </div>
 
-      <Card className="h-fit p-4 space-y-3">
+      <Card className="h-fit space-y-3 p-4">
         <div className="text-sm font-semibold">Resumo</div>
         <div className="space-y-1 text-sm">
           {data.savings > 0 && (
@@ -167,7 +211,7 @@ function CartPage() {
           </div>
           {data.savings > 0 && (
             <div className="flex justify-between rounded-md bg-emerald-50 px-2 py-1 text-emerald-700">
-              <span>💰 Economia atacado</span><span className="font-bold">{brl(data.savings)}</span>
+              <span>💰 Você economizou</span><span className="font-bold">{brl(data.savings)}</span>
             </div>
           )}
           <div className="flex justify-between">
@@ -175,7 +219,8 @@ function CartPage() {
             <span className="font-medium">{shippingCost > 0 ? brl(shippingCost) : "—"}</span>
           </div>
           <div className="flex justify-between border-t pt-2 text-base">
-            <span className="font-semibold">Total</span><span className="font-bold text-primary">{brl(total)}</span>
+            <span className="font-semibold">Total</span>
+            <span className="font-bold text-primary">{brl(total)}</span>
           </div>
         </div>
 
@@ -190,6 +235,7 @@ function CartPage() {
               onChange={(e) => setCep(e.target.value)}
               maxLength={9}
               className="h-9"
+              inputMode="numeric"
             />
             <Button size="sm" onClick={() => quote.mutate()} disabled={quote.isPending}>
               {quote.isPending ? "…" : "OK"}
@@ -200,7 +246,9 @@ function CartPage() {
               {options.map((o) => (
                 <label
                   key={o.id}
-                  className={`flex cursor-pointer items-center justify-between gap-2 rounded-md border p-2 text-xs ${selected === o.id ? "border-primary bg-primary/5" : "border-input"} ${o.error ? "opacity-50" : ""}`}
+                  className={`flex cursor-pointer items-center justify-between gap-2 rounded-md border p-2 text-xs ${
+                    selected === o.id ? "border-primary bg-primary/5" : "border-input"
+                  } ${o.error ? "opacity-50" : ""}`}
                 >
                   <span className="flex items-center gap-2">
                     <input
@@ -222,11 +270,12 @@ function CartPage() {
           )}
         </div>
 
-        <Button className="w-full" size="lg" disabled={co.isPending} onClick={() => co.mutate()}>
-          {co.isPending ? "Processando…" : "Finalizar pedido"}
+        <Button className="w-full" size="lg" disabled={checkout.isPending} onClick={() => checkout.mutate()}>
+          {checkout.isPending ? "Processando…" : (<>Finalizar Compra <ArrowRight className="ml-2 h-4 w-4" /></>)}
         </Button>
         <div className="text-[11px] text-muted-foreground">
-          Compre 10 ou mais itens da mesma categoria e ganhe 25% de desconto automático.
+          O pagamento e o gerenciamento do pedido são processados pela AMT Fight Wear.
+          10+ unidades por subcategoria garantem 25% de desconto automático.
         </div>
       </Card>
     </div>
