@@ -2857,8 +2857,9 @@ export type Database = {
           created_at: string
           id: string
           max_degrees: number
+          modality: string
           name: string
-          owner_id: string
+          owner_id: string | null
           sort_order: number
           stripe_hex: string | null
         }
@@ -2868,8 +2869,9 @@ export type Database = {
           created_at?: string
           id?: string
           max_degrees?: number
+          modality?: string
           name: string
-          owner_id: string
+          owner_id?: string | null
           sort_order: number
           stripe_hex?: string | null
         }
@@ -2879,8 +2881,9 @@ export type Database = {
           created_at?: string
           id?: string
           max_degrees?: number
+          modality?: string
           name?: string
-          owner_id?: string
+          owner_id?: string | null
           sort_order?: number
           stripe_hex?: string | null
         }

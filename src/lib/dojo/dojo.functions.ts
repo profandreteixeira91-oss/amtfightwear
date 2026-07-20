@@ -54,9 +54,46 @@ export const listDojoBelts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
-      .from("dojo_belts").select("*").order("sort_order");
+      .from("dojo_belts").select("*").order("modality").order("sort_order");
     if (error) throw new Error(error.message);
     return data ?? [];
+  });
+
+export const saveDojoBelt = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({
+    id: z.string().uuid().optional(),
+    modality: z.string().min(1).max(60),
+    name: z.string().min(1).max(80),
+    color_hex: z.string().regex(/^#[0-9a-fA-F]{6}$/),
+    stripe_hex: z.string().regex(/^#[0-9a-fA-F]{6}$/).nullable().optional(),
+    sort_order: z.number().int().min(0).max(999),
+    max_degrees: z.number().int().min(0).max(20),
+    category: z.string().max(30).optional().default("adult"),
+    scope: z.enum(["global", "own"]).default("own"),
+  }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { id, scope, ...rest } = data;
+    const payload: any = { ...rest, owner_id: scope === "global" ? null : context.userId };
+    if (id) {
+      const { data: upd, error } = await context.supabase
+        .from("dojo_belts").update(payload).eq("id", id).select().single();
+      if (error) throw new Error(error.message);
+      return upd;
+    }
+    const { data: ins, error } = await context.supabase
+      .from("dojo_belts").insert(payload).select().single();
+    if (error) throw new Error(error.message);
+    return ins;
+  });
+
+export const deleteDojoBelt = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase.from("dojo_belts").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });
 
 // ============ STUDENTS ============
