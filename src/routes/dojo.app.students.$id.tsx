@@ -191,7 +191,10 @@ function StudentDetail() {
           }}>
             <Pencil className="h-4 w-4 mr-1.5" /> Editar
           </Button>
-          <Button size="sm" variant="outline" onClick={() => window.print()}>
+          <Button size="sm" variant="outline" onClick={() => printStudentReport({
+            student: s, branding, belts: belts.data ?? [], graduations, enrollments, invoices, certificates, attendanceRows,
+            metrics: { daysTraining, attendanceThisMonth, paidInvoices, pendingInvoices, age, enrollmentDate, lastAttendance },
+          })}>
             <Printer className="h-4 w-4 mr-1.5" /> Imprimir
           </Button>
           {whatsappLink && (
