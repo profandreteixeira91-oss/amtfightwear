@@ -32,6 +32,7 @@ import {
   linkExistingAsaasAccount,
   resetMyAsaasConfig,
 } from "@/lib/asaas/asaas.functions";
+import { AsaasDocumentsCard } from "./AsaasDocumentsCard";
 
 
 function StatusBadge({ status }: { status: string }) {
@@ -543,6 +544,10 @@ export function AsaasOnboardingCard() {
           )}
         </CardContent>
       </Card>
+
+      {hasSubaccount && <AsaasDocumentsCard />}
+
+
 
 
 
