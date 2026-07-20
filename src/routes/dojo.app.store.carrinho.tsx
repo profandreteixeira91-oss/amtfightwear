@@ -191,9 +191,16 @@ function CartPage() {
               </div>
               <div className="mt-auto flex items-center justify-between gap-2 pt-2">
                 <div className="flex items-center rounded-md border">
-                  <button className="px-2" onClick={() => upd.mutate({ id: it.id, quantity: Math.max(1, it.quantity - 1) })}>−</button>
-                  <div className="w-8 text-center text-sm">{it.quantity}</div>
-                  <button className="px-2" onClick={() => upd.mutate({ id: it.id, quantity: it.quantity + 1 })}>+</button>
+                  {(() => {
+                    const q = localQty[it.id] ?? it.quantity;
+                    return (
+                      <>
+                        <button type="button" className="px-2 py-1 text-base" onClick={() => bumpQty(it.id, q, -1)}>−</button>
+                        <div className="w-8 text-center text-sm tabular-nums">{q}</div>
+                        <button type="button" className="px-2 py-1 text-base" onClick={() => bumpQty(it.id, q, +1)}>+</button>
+                      </>
+                    );
+                  })()}
                 </div>
                 <div className="text-right">
                   {it.is_wholesale && (
