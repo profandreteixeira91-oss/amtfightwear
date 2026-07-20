@@ -482,12 +482,14 @@ function Rulers({ W, H, zoom }: { W: number; H: number; zoom: number }) {
 /* ---------- ELEMENT RENDER + INTERACTIONS ---------- */
 
 function ElementView({
-  el, W, H, zoom, snap, selected, onSelect, onPatch, allElements,
+  el, W, H, zoom, snap, selected, onSelect, onPatch, allElements, previewValues,
 }: {
   el: AnyElement; W: number; H: number; zoom: number; snap: boolean;
   selected: boolean; onSelect: (id: string, additive: boolean) => void;
   onPatch: (patch: Partial<AnyElement>) => void; allElements: AnyElement[];
+  previewValues?: Record<string, string>;
 }) {
+
   if (el.hidden) return null;
 
   const [qr, setQr] = useState<string>("");
