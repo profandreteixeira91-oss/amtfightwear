@@ -81,6 +81,7 @@ function StudentDetail() {
   const [inv, setInv] = useState({ description: "", amount: "", due_date: new Date().toISOString().slice(0, 10) });
   const [previewCert, setPreviewCert] = useState<any | null>(null);
   const [manualNote, setManualNote] = useState("");
+  const [activeTab, setActiveTab] = useState("pessoal");
 
   const refresh = () => qc.invalidateQueries({ queryKey: ["dojo-student", id] });
 
