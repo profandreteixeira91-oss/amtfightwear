@@ -271,13 +271,63 @@ function CertificatesPage() {
           const elCount = editorSchema?.elements.length ?? t.fields?.length ?? 0;
           const catLabel = CATEGORIES.find((c) => c.id === t.category)?.label ?? "Personalizado";
           const previewUrl = editorSchema?.page.backgroundUrl || t.background_url;
+
+          const setBackground = async (url: string | undefined, w?: number, h?: number) => {
+            try {
+              const schema: EditorSchema = editorSchema ?? migrateLegacyFields(t);
+              const nextSchema: EditorSchema = {
+                ...schema,
+                page: { ...schema.page, backgroundUrl: url, ...(w ? { width: w } : {}), ...(h ? { height: h } : {}) },
+              };
+              const legacy = toLegacyFields(nextSchema);
+              await saveFn({ data: {
+                id: t.id,
+                name: t.name,
+                background_url: legacy.background_url,
+                width: legacy.width,
+                height: legacy.height,
+                fields: legacy.fields as any,
+                variables: { ...(t.variables ?? {}), editor_schema: nextSchema },
+                category: t.category ?? "personalizado",
+                is_default: !!t.is_default,
+                active: true,
+              }});
+              toast.success(url ? "Plano de fundo atualizado" : "Plano de fundo removido");
+              qc.invalidateQueries({ queryKey: ["dojo-templates"] });
+            } catch (e: any) { toast.error(e.message); }
+          };
+
+          const uploadBackground = async (file: File) => {
+            if (!file.type.startsWith("image/")) { toast.error("Envie um arquivo de imagem"); return; }
+            if (file.size > 10 * 1024 * 1024) { toast.error("Imagem muito grande (máx. 10MB)"); return; }
+            try {
+              const path = `certificates/bg-${Date.now()}-${file.name.replace(/[^a-z0-9.\-_]/gi, "_")}`;
+              const { error } = await supabase.storage.from("product-images").upload(path, file, { upsert: true, contentType: file.type });
+              if (error) throw error;
+              const { data } = supabase.storage.from("product-images").getPublicUrl(path);
+              const img = new Image();
+              await new Promise<void>((res, rej) => { img.onload = () => res(); img.onerror = () => rej(new Error("Falha ao ler imagem")); img.src = data.publicUrl; });
+              await setBackground(data.publicUrl, img.naturalWidth, img.naturalHeight);
+            } catch (e: any) { toast.error(e.message); }
+          };
+
           return (
             <Card key={t.id} className="dojo-card group overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-md">
-              <div className="relative aspect-[7/5] bg-muted">
+              <div
+                className="relative aspect-[7/5] bg-muted"
+                onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add("ring-2","ring-primary"); }}
+                onDragLeave={(e) => e.currentTarget.classList.remove("ring-2","ring-primary")}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  e.currentTarget.classList.remove("ring-2","ring-primary");
+                  const f = e.dataTransfer.files?.[0];
+                  if (f) uploadBackground(f);
+                }}
+              >
                 {previewUrl ? (
                   <img src={previewUrl} alt={t.name} className="h-full w-full object-contain" />
                 ) : (
-                  <div className="grid h-full w-full place-items-center text-xs text-muted-foreground">Sem plano de fundo</div>
+                  <div className="grid h-full w-full place-items-center text-xs text-muted-foreground">Arraste uma imagem ou use o botão abaixo</div>
                 )}
                 {t.is_default && (
                   <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-yellow-400/95 px-2 py-0.5 text-[10px] font-bold text-yellow-950 shadow">
@@ -285,6 +335,30 @@ function CertificatesPage() {
                   </span>
                 )}
                 <span className="absolute right-2 top-2 rounded-full bg-background/90 px-2 py-0.5 text-[10px] font-medium text-foreground shadow">{catLabel}</span>
+
+                {/* Overlay de ações do fundo */}
+                <div className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-1 bg-gradient-to-t from-black/70 to-transparent p-2 opacity-0 transition group-hover:opacity-100">
+                  <label className="inline-flex cursor-pointer items-center gap-1 rounded-md bg-white/95 px-2 py-1 text-[11px] font-medium text-foreground shadow hover:bg-white">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      hidden
+                      onChange={(e) => e.target.files?.[0] && uploadBackground(e.target.files[0])}
+                    />
+                    <Upload className="h-3 w-3" /> {previewUrl ? "Trocar fundo" : "Enviar fundo"}
+                  </label>
+                  {previewUrl && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (confirm("Remover plano de fundo deste modelo?")) setBackground(undefined);
+                      }}
+                      className="inline-flex items-center gap-1 rounded-md bg-white/95 px-2 py-1 text-[11px] font-medium text-destructive shadow hover:bg-white"
+                    >
+                      <ImageOff className="h-3 w-3" /> Remover
+                    </button>
+                  )}
+                </div>
               </div>
               <CardHeader className="pb-2">
                 <CardTitle className="text-base leading-tight">{t.name}</CardTitle>
