@@ -3028,10 +3028,16 @@ export type Database = {
           id: string
           notes: string | null
           occurrence_date: string
+          original_teacher_id: string | null
           owner_id: string
           schedule_id: string | null
           start_time: string | null
           status: string
+          substitute_reason: string | null
+          substitute_reason_detail: string | null
+          substitute_teacher_id: string | null
+          substituted_at: string | null
+          substituted_by: string | null
           updated_at: string
         }
         Insert: {
@@ -3042,10 +3048,16 @@ export type Database = {
           id?: string
           notes?: string | null
           occurrence_date: string
+          original_teacher_id?: string | null
           owner_id: string
           schedule_id?: string | null
           start_time?: string | null
           status?: string
+          substitute_reason?: string | null
+          substitute_reason_detail?: string | null
+          substitute_teacher_id?: string | null
+          substituted_at?: string | null
+          substituted_by?: string | null
           updated_at?: string
         }
         Update: {
@@ -3056,10 +3068,16 @@ export type Database = {
           id?: string
           notes?: string | null
           occurrence_date?: string
+          original_teacher_id?: string | null
           owner_id?: string
           schedule_id?: string | null
           start_time?: string | null
           status?: string
+          substitute_reason?: string | null
+          substitute_reason_detail?: string | null
+          substitute_teacher_id?: string | null
+          substituted_at?: string | null
+          substituted_by?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -3071,10 +3089,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "dojo_class_occurrences_original_teacher_id_fkey"
+            columns: ["original_teacher_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_team_members"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "dojo_class_occurrences_schedule_id_fkey"
             columns: ["schedule_id"]
             isOneToOne: false
             referencedRelation: "dojo_class_schedules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_class_occurrences_substitute_teacher_id_fkey"
+            columns: ["substitute_teacher_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_team_members"
             referencedColumns: ["id"]
           },
         ]
@@ -6023,6 +6055,96 @@ export type Database = {
             foreignKeyName: "dojo_team_signatures_member_id_fkey"
             columns: ["member_id"]
             isOneToOne: true
+            referencedRelation: "dojo_team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_team_substitutions: {
+        Row: {
+          class_id: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          metadata: Json
+          occurrence_id: string | null
+          original_teacher_id: string | null
+          owner_id: string
+          period_end: string | null
+          period_start: string | null
+          reason: string
+          reason_detail: string | null
+          scope: string
+          substitute_teacher_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          class_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          metadata?: Json
+          occurrence_id?: string | null
+          original_teacher_id?: string | null
+          owner_id: string
+          period_end?: string | null
+          period_start?: string | null
+          reason: string
+          reason_detail?: string | null
+          scope?: string
+          substitute_teacher_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          class_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          metadata?: Json
+          occurrence_id?: string | null
+          original_teacher_id?: string | null
+          owner_id?: string
+          period_end?: string | null
+          period_start?: string | null
+          reason?: string
+          reason_detail?: string | null
+          scope?: string
+          substitute_teacher_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_team_substitutions_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_team_substitutions_occurrence_id_fkey"
+            columns: ["occurrence_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_class_occurrences"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_team_substitutions_occurrence_id_fkey"
+            columns: ["occurrence_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_team_schedule_view"
+            referencedColumns: ["occurrence_id"]
+          },
+          {
+            foreignKeyName: "dojo_team_substitutions_original_teacher_id_fkey"
+            columns: ["original_teacher_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_team_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_team_substitutions_substitute_teacher_id_fkey"
+            columns: ["substitute_teacher_id"]
+            isOneToOne: false
             referencedRelation: "dojo_team_members"
             referencedColumns: ["id"]
           },
@@ -9338,6 +9460,83 @@ export type Database = {
       }
     }
     Views: {
+      dojo_team_schedule_view: {
+        Row: {
+          cancel_reason: string | null
+          class_id: string | null
+          class_name: string | null
+          class_teacher_id: string | null
+          color: string | null
+          effective_teacher_id: string | null
+          end_time: string | null
+          level: string | null
+          max_students: number | null
+          modality: string | null
+          occurrence_date: string | null
+          occurrence_id: string | null
+          original_teacher_id: string | null
+          owner_id: string | null
+          schedule_id: string | null
+          space_id: string | null
+          start_time: string | null
+          status: string | null
+          substitute_reason: string | null
+          substitute_teacher_id: string | null
+          substituted_at: string | null
+          unit_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_class_occurrences_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_class_occurrences_original_teacher_id_fkey"
+            columns: ["original_teacher_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_team_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_class_occurrences_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_class_schedules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_class_occurrences_substitute_teacher_id_fkey"
+            columns: ["substitute_teacher_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_team_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_classes_space_id_fkey"
+            columns: ["space_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_spaces"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_classes_teacher_id_fkey"
+            columns: ["class_teacher_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_classes_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dojo_wallet_balance: {
         Row: {
           available_balance: number | null
