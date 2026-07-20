@@ -392,6 +392,174 @@ export const deleteDojoInvoice = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+// ============ MP CHECKOUT PARA MENSALIDADES ============
+async function createMpPreferenceForInvoice(opts: {
+  ownerId: string;
+  invoiceId: string;
+  amount: number;
+  description: string;
+  payerEmail?: string | null;
+}): Promise<string> {
+  const { requireOwnerMpToken } = await import("@/lib/dojo/payment-gateway.server");
+  const token = await requireOwnerMpToken(opts.ownerId);
+  const backBase = "https://dojomanager.amtfightwear.com.br/app/finance";
+  const notification = "https://loja.amtfightwear.com.br/api/public/hooks/mercadopago";
+  const res = await fetch("https://api.mercadopago.com/checkout/preferences", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify({
+      items: [{
+        title: opts.description.slice(0, 240) || "Mensalidade",
+        quantity: 1,
+        currency_id: "BRL",
+        unit_price: Number(opts.amount.toFixed(2)),
+      }],
+      payer: opts.payerEmail ? { email: opts.payerEmail } : undefined,
+      external_reference: `dojo_invoice:${opts.invoiceId}`,
+      notification_url: notification,
+      back_urls: { success: backBase, failure: backBase, pending: backBase },
+      auto_return: "approved",
+    }),
+  });
+  const text = await res.text();
+  const body = text ? (() => { try { return JSON.parse(text); } catch { return null; } })() : null;
+  if (!res.ok) {
+    const msg = (body && (body.message || body?.cause?.[0]?.description)) || `MP ${res.status}`;
+    throw new Error(String(msg));
+  }
+  const url = body?.init_point ?? body?.sandbox_init_point;
+  if (!url) throw new Error("Mercado Pago não retornou link de pagamento");
+  return String(url);
+}
+
+/** Gera/atualiza link Mercado Pago para uma fatura já existente. */
+export const chargeDojoInvoiceMp = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({
+    invoice_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido"),
+  }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { data: inv, error } = await context.supabase
+      .from("dojo_invoices")
+      .select("id, amount, description, owner_id, student:dojo_students(email, full_name)")
+      .eq("id", data.invoice_id)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!inv) throw new Error("Fatura não encontrada");
+    const url = await createMpPreferenceForInvoice({
+      ownerId: (inv as any).owner_id,
+      invoiceId: inv.id,
+      amount: Number(inv.amount),
+      description: (inv as any).description ?? "Mensalidade",
+      payerEmail: (inv as any).student?.email ?? null,
+    });
+    await context.supabase
+      .from("dojo_invoices")
+      .update({ payment_link: url, payment_provider: "mercadopago" } as never)
+      .eq("id", inv.id);
+    return { url };
+  });
+
+/**
+ * Cria matrícula + primeira fatura para o aluno.
+ * Se method === 'mp_link', também gera link de checkout Mercado Pago da 1ª mensalidade.
+ * Cobranças recorrentes são geradas mensalmente por generateMonthlyInvoices.
+ */
+export const enrollStudentWithPlan = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({
+    student_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido"),
+    plan_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido"),
+    due_day: z.number().int().min(1).max(28),
+    start_date: z.string(),
+    first_due_date: z.string().optional(),
+    custom_amount: z.number().min(0).optional().nullable(),
+    include_enrollment_fee: z.boolean().optional(),
+    payment_method: z.enum(["manual", "mp_link"]).default("manual"),
+  }).parse(i))
+  .handler(async ({ data, context }) => {
+    // 1) Carrega plano
+    const { data: plan, error: planErr } = await context.supabase
+      .from("dojo_plans")
+      .select("id, name, amount, enrollment_fee")
+      .eq("id", data.plan_id)
+      .maybeSingle();
+    if (planErr) throw new Error(planErr.message);
+    if (!plan) throw new Error("Plano não encontrado");
+
+    // 2) Aluno (para unit_id e email)
+    const { data: student } = await context.supabase
+      .from("dojo_students")
+      .select("id, unit_id, email, full_name")
+      .eq("id", data.student_id)
+      .maybeSingle();
+    if (!student) throw new Error("Aluno não encontrado");
+
+    // 3) Cria matrícula
+    const { data: enrollRow, error: enrErr } = await context.supabase
+      .from("dojo_enrollments")
+      .insert({
+        student_id: data.student_id,
+        plan_id: data.plan_id,
+        due_day: data.due_day,
+        start_date: data.start_date,
+        custom_amount: data.custom_amount ?? null,
+        status: "active",
+        owner_id: ownerId(context),
+      } as never)
+      .select("id")
+      .single();
+    if (enrErr) throw new Error(enrErr.message);
+
+    // 4) Cria primeira fatura
+    const baseAmount = Number(data.custom_amount ?? plan.amount ?? 0);
+    const fee = data.include_enrollment_fee ? Number(plan.enrollment_fee ?? 0) : 0;
+    const amount = baseAmount + fee;
+    const dueDate = data.first_due_date ?? data.start_date;
+    const desc = fee > 0
+      ? `Matrícula + 1ª mensalidade — ${plan.name}`
+      : `1ª mensalidade — ${plan.name}`;
+
+    const { data: invRow, error: invErr } = await context.supabase
+      .from("dojo_invoices")
+      .insert({
+        student_id: data.student_id,
+        enrollment_id: enrollRow.id,
+        unit_id: (student as any).unit_id ?? null,
+        description: desc,
+        amount,
+        due_date: dueDate,
+        status: "pending",
+        owner_id: ownerId(context),
+      } as never)
+      .select("id")
+      .single();
+    if (invErr) throw new Error(invErr.message);
+
+    // 5) Gera link MP se solicitado
+    let payment_url: string | null = null;
+    if (data.payment_method === "mp_link") {
+      payment_url = await createMpPreferenceForInvoice({
+        ownerId: ownerId(context),
+        invoiceId: invRow.id,
+        amount,
+        description: desc,
+        payerEmail: (student as any).email,
+      });
+      await context.supabase
+        .from("dojo_invoices")
+        .update({ payment_link: payment_url, payment_provider: "mercadopago" } as never)
+        .eq("id", invRow.id);
+    }
+
+    return {
+      enrollment_id: enrollRow.id,
+      invoice_id: invRow.id,
+      amount,
+      payment_url,
+    };
+  });
+
 export const generateMonthlyInvoices = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => z.object({
