@@ -134,7 +134,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 const DOJO_HOST = "dojomanager.amtfightwear.com.br";
 
-const DOMAIN_ROUTING_SCRIPT = `(function(){try{var h=location.hostname,p=location.pathname,s=location.search||"",x=location.hash||"";var isDojoArea=p.indexOf("/dojo")===0||p.indexOf("/app")===0||p.indexOf("/api/public/app")===0;if(h!=="${DOJO_HOST}"&&p.indexOf("/dojo")===0){location.replace("https://${DOJO_HOST}"+p+s+x);return;}if(h==="${DOJO_HOST}"&&!isDojoArea){location.replace("https://${DOJO_HOST}/dojo"+(p==="/"?"":p)+s+x);}}catch(e){}})();`;
+const DOMAIN_ROUTING_SCRIPT = `(function(){try{var h=location.hostname,p=location.pathname,s=location.search||"",x=location.hash||"";if(h==="localhost"||h==="127.0.0.1"||h.endsWith(".lovable.app"))return;var isDojoArea=p.indexOf("/dojo")===0||p.indexOf("/app")===0||p.indexOf("/api/public/app")===0;if(h!=="${DOJO_HOST}"&&p.indexOf("/dojo")===0){location.replace("https://${DOJO_HOST}"+p+s+x);return;}if(h==="${DOJO_HOST}"&&!isDojoArea){location.replace("https://${DOJO_HOST}/dojo"+(p==="/"?"":p)+s+x);}}catch(e){}})();`;
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
