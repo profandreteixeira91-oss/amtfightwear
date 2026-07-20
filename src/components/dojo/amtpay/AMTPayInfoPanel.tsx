@@ -137,7 +137,7 @@ export function AMTPayInfoPanel() {
             <p>
               <strong>Transparência total:</strong> cada cobrança gera um
               lançamento no extrato indicando o valor bruto, a taxa do meio
-              de pagamento (Asaas) e o split de 5% da AMT. O valor líquido é
+              de pagamento (Asaas) e o split de 2% da AMT. O valor líquido é
               o que fica na sua carteira.
             </p>
           </div>
