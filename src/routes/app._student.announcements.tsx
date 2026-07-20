@@ -202,7 +202,7 @@ function MyAnnouncements() {
         </ul>
       )}
 
-      {detailId && <AnnouncementDetail id={detailId} onClose={() => setDetailId(null)} />}
+      {detailId && <AnnouncementDetail id={detailId} onClose={() => { setDetailId(null); if (search.open) navigate({ to: "/app/announcements", search: {} as any, replace: true }); }} />}
     </div>
   );
 }
