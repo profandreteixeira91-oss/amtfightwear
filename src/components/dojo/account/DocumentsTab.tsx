@@ -72,8 +72,8 @@ export function DocumentsTab() {
   const cnpj = String(profile?.cnpj ?? "").replace(/\D/g, "");
   const isCnpj = cnpj.length === 14;
   const requiredDocs: DocType[] = isCnpj
-    ? ["identity_front", "identity_back", "address_proof", "cnpj_card"]
-    : ["identity_front", "identity_back", "address_proof"];
+    ? ["identity_front", "identity_back", "cnpj_card"]
+    : ["identity_front", "identity_back"];
   const optionalDocs: DocType[] = DOC_TYPES.filter((d) => !requiredDocs.includes(d));
 
   const docMap: Record<string, { file_path: string; mime_type: string | null }> = {};
