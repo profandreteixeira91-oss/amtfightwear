@@ -189,7 +189,7 @@ export function CertificateEditor(props: Props) {
         <Button size="sm" variant="outline" onClick={props.onPreview}><Eye className="h-4 w-4 mr-1" /> Visualizar</Button>
         <Button size="sm" variant="outline" onClick={exportPng}><FileDown className="h-4 w-4 mr-1" /> PNG</Button>
         <Button size="sm" variant="outline" onClick={exportJpeg}><FileDown className="h-4 w-4 mr-1" /> JPG</Button>
-        <Button size="sm" variant="outline" onClick={() => window.print()}><Printer className="h-4 w-4 mr-1" /> Imprimir</Button>
+        <Button size="sm" variant="outline" onClick={props.onPreview}><Printer className="h-4 w-4 mr-1" /> Imprimir</Button>
         <Button size="sm" onClick={() => props.onSave({ schema, favorites, recent: recentVars })} disabled={props.saving}>
           <Save className="h-4 w-4 mr-1" /> {props.saving ? "Salvando…" : "Salvar"}
         </Button>
