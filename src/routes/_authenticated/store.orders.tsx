@@ -137,7 +137,9 @@ function AdminOrdersPage() {
                     <th className="p-2 text-left">Status</th>
                     <th className="p-2 text-left">Envio</th>
                     <th className="p-2 text-left">Data</th>
+                    <th className="p-2 text-right">Ações</th>
                   </tr>
+
                 </thead>
                 <tbody>
                   {data?.map((o) => (
