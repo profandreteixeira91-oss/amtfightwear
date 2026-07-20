@@ -205,7 +205,9 @@ export function CertificateEditor(props: Props) {
           schema={schema} selectedIds={selectedIds} sortedByZ={sortedByZ}
           zoom={zoom} showGrid={showGrid} showRulers={showRulers} snap={snap}
           onSelect={select} onPatch={patchElement} onBgChange={(p) => update({ page: { ...schema.page, ...p } })}
+          previewValues={props.values}
         />
+
 
         {/* RIGHT INSPECTOR */}
         <RightInspector
