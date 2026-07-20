@@ -235,7 +235,7 @@ function CartPage() {
             </div>
           </Card>
         ))}
-        <div className="flex justify-between">
+        <div className="flex flex-wrap justify-between gap-2">
           <Button asChild variant="ghost" size="sm"><Link to="/dojo/app/store">Continuar comprando</Link></Button>
           <Button
             variant="outline"
@@ -254,7 +254,8 @@ function CartPage() {
         </div>
       </div>
 
-      <Card className="h-fit space-y-3 p-4">
+      <Card className="h-fit min-w-0 space-y-3 p-4">
+
         <div className="text-sm font-semibold">Resumo</div>
         <div className="space-y-1 text-sm">
           {data.savings > 0 && (
