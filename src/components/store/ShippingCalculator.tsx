@@ -14,7 +14,7 @@ export type ShippingCalcItem = {
 type Props = {
   items: ShippingCalcItem[];
   initialZip?: string;
-  onSelect?: (option: ShippingOption) => void;
+  onSelect?: (option: ShippingOption, zip: string) => void;
   selectedId?: number | null;
   compact?: boolean;
 };
