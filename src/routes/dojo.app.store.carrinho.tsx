@@ -63,51 +63,23 @@ function CartPage() {
     }, 350);
   };
 
-  const [cep, setCep] = useState("");
-  const [options, setOptions] = useState<ShipOption[]>([]);
-  const [selected, setSelected] = useState<number | null>(null);
-  const shippingCost = useMemo(
-    () => options.find((o) => o.id === selected)?.price ?? 0,
-    [options, selected],
-  );
-
-  const quote = useMutation({
-    mutationFn: async () => {
-      if (!data?.items.length) throw new Error("Carrinho vazio");
-      const clean = onlyDigits(cep);
-      if (clean.length !== 8) throw new Error("CEP inválido");
-      const res = await shipFn({
-        data: {
-          to_zip: clean,
-          items: data.items.map((it) => ({
-            product_id: it.product_id,
-            variant_id: it.variant_id ?? undefined,
-            quantity: it.quantity,
-          })),
-        },
-      });
-      return res.options as ShipOption[];
-    },
-    onSuccess: (opts) => {
-      setOptions(opts);
-      const cheapest = opts.filter((o) => !o.error).sort((a, b) => a.price - b.price)[0];
-      setSelected(cheapest?.id ?? null);
-    },
-    onError: (e: any) => toast.error(e?.message ?? "Falha ao calcular frete"),
-  });
-
   const checkout = useMutation({
     mutationFn: () => handoffFn(),
     onSuccess: (r: any) => {
       // Subdomínios diferentes (dojomanager x loja) não compartilham
       // localStorage, então o carrinho é enviado via URL para a rota
       // /loja/carrinho, que faz o import e segue para /loja/checkout.
+      // O frete é calculado lá no checkout oficial.
       const payload = { items: r.items };
       const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
       refresh();
-      toast.success("Redirecionando para o checkout AMT Fight Wear…");
-      window.location.href =
-        `https://loja.amtfightwear.com.br/loja/carrinho?checkout=1&import=${encodeURIComponent(b64)}`;
+      const url = `https://loja.amtfightwear.com.br/loja/carrinho?checkout=1&import=${encodeURIComponent(b64)}`;
+      const win = window.open(url, "_blank", "noopener,noreferrer");
+      if (!win) {
+        toast.error("Ative pop-ups para abrir o checkout ou clique novamente.");
+      } else {
+        toast.success("Checkout aberto em nova janela. O frete será calculado lá.");
+      }
     },
     onError: (e: any) => toast.error(e?.message ?? "Falha ao finalizar"),
   });
