@@ -4244,10 +4244,18 @@ export type Database = {
           active: boolean
           amount: number
           created_at: string
+          custom_months: number | null
+          description: string | null
           duration_days: number
+          enrollment_fee: number
+          frequency: string
           id: string
+          installments: number
           name: string
           owner_id: string
+          payment_methods: Json
+          rules: Json
+          sort_order: number
           unit_id: string | null
           updated_at: string
         }
@@ -4255,10 +4263,18 @@ export type Database = {
           active?: boolean
           amount: number
           created_at?: string
+          custom_months?: number | null
+          description?: string | null
           duration_days?: number
+          enrollment_fee?: number
+          frequency?: string
           id?: string
+          installments?: number
           name: string
           owner_id: string
+          payment_methods?: Json
+          rules?: Json
+          sort_order?: number
           unit_id?: string | null
           updated_at?: string
         }
@@ -4266,10 +4282,18 @@ export type Database = {
           active?: boolean
           amount?: number
           created_at?: string
+          custom_months?: number | null
+          description?: string | null
           duration_days?: number
+          enrollment_fee?: number
+          frequency?: string
           id?: string
+          installments?: number
           name?: string
           owner_id?: string
+          payment_methods?: Json
+          rules?: Json
+          sort_order?: number
           unit_id?: string | null
           updated_at?: string
         }

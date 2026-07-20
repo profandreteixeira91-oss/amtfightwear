@@ -203,29 +203,50 @@ export const listDojoPlans = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
-      .from("dojo_plans").select("*, unit:dojo_units(name)").order("name");
+      .from("dojo_plans")
+      .select("*, unit:dojo_units(name)")
+      .order("sort_order", { ascending: true })
+      .order("name", { ascending: true });
     if (error) throw new Error(error.message);
     return data ?? [];
   });
+
 
 export const saveDojoPlan = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => z.object({
     id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido").optional(),
     name: z.string().min(1).max(120),
+    description: z.string().max(500).optional().nullable(),
     amount: z.number().min(0),
-    duration_days: z.number().int().min(1).max(3650),
+    enrollment_fee: z.number().min(0).optional(),
+    duration_days: z.number().int().min(1).max(3650).optional(),
+    frequency: z.enum(["monthly","bimonthly","quarterly","quadrimestral","semiannual","annual","custom"]).optional(),
+    custom_months: z.number().int().min(1).max(60).optional().nullable(),
+    installments: z.number().int().min(1).max(60).optional(),
     unit_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido").optional().nullable(),
     active: z.boolean().optional(),
+    sort_order: z.number().int().optional(),
+    payment_methods: z.array(z.object({
+      code: z.string(),
+      enabled: z.boolean(),
+      gateway: z.string().optional(),
+      config: z.record(z.string(), z.any()).optional(),
+    })).optional(),
+    rules: z.record(z.string(), z.any()).optional(),
   }).parse(i))
   .handler(async ({ data, context }) => {
     const { id, ...rest } = data;
     if (id) {
-      const { error } = await context.supabase.from("dojo_plans").update(rest).eq("id", id);
+      const { error } = await context.supabase.from("dojo_plans").update(rest as any).eq("id", id);
       if (error) throw new Error(error.message);
       return { id };
     }
-    const { data: row, error } = await context.supabase.from("dojo_plans").insert({ ...rest, owner_id: ownerId(context) }).select("id").single();
+    const { data: row, error } = await context.supabase
+      .from("dojo_plans")
+      .insert({ ...(rest as any), owner_id: ownerId(context) })
+      .select("id")
+      .single();
     if (error) throw new Error(error.message);
     return { id: row.id };
   });
@@ -238,6 +259,35 @@ export const deleteDojoPlan = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+/**
+ * Retorna as formas de pagamento habilitadas para o aluno,
+ * lidas a partir do plano da matrícula ativa. Se não houver
+ * plano ativo, devolve lista vazia. Fonte única de verdade
+ * usada pelo Financeiro, Cobranças e Renovações.
+ */
+export const getStudentAllowedPaymentMethods = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({
+    student_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido"),
+  }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { data: enroll } = await context.supabase
+      .from("dojo_enrollments")
+      .select("plan_id, plan:dojo_plans(id, name, payment_methods, rules, amount, enrollment_fee, installments, frequency, custom_months)")
+      .eq("student_id", data.student_id)
+      .eq("status", "active")
+      .order("start_date", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const plan: any = (enroll as any)?.plan ?? null;
+    if (!plan) return { plan: null, methods: [] };
+    const methods = Array.isArray(plan.payment_methods)
+      ? plan.payment_methods.filter((m: any) => m?.enabled)
+      : [];
+    return { plan, methods };
+  });
+
 
 // ============ ENROLLMENTS ============
 export const saveDojoEnrollment = createServerFn({ method: "POST" })
