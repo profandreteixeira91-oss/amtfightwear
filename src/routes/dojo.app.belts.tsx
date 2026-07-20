@@ -34,6 +34,7 @@ type BeltRow = {
   category: string;
   modality: string;
   owner_id: string | null;
+  min_months: number | null;
 };
 
 const emptyForm = {
@@ -45,6 +46,7 @@ const emptyForm = {
   sort_order: 10,
   max_degrees: 0,
   category: "adult",
+  min_months: "" as string, // empty = sem carência
   scope: "own" as "own" | "global",
 };
 
@@ -87,6 +89,7 @@ function BeltsPage() {
       sort_order: b.sort_order,
       max_degrees: b.max_degrees,
       category: b.category ?? "adult",
+      min_months: b.min_months != null ? String(b.min_months) : "",
       scope: b.owner_id ? "own" : "global",
     });
     setOpen(true);
@@ -99,6 +102,7 @@ function BeltsPage() {
         data: {
           ...form,
           stripe_hex: form.stripe_hex?.trim() ? form.stripe_hex : null,
+          min_months: form.min_months?.toString().trim() === "" ? null : Number(form.min_months),
         } as any,
       });
       toast.success("Faixa salva");
@@ -203,6 +207,7 @@ function BeltsPage() {
                   <div className="text-sm font-medium">{b.name}</div>
                   <div className="text-xs text-muted-foreground">
                     {b.max_degrees > 0 ? `${b.max_degrees} graus` : "sem graus"} · {b.owner_id ? "própria" : "global"}
+                    {b.min_months != null && ` · carência ${b.min_months} ${b.min_months === 1 ? "mês" : "meses"}`}
                   </div>
                 </div>
                 <Button size="sm" variant="ghost" onClick={() => openEdit(b)}>
@@ -276,6 +281,19 @@ function BeltsPage() {
                 type="number"
                 value={form.max_degrees}
                 onChange={(e) => setForm((f) => ({ ...f, max_degrees: Number(e.target.value) }))}
+              />
+            </div>
+            <div className="col-span-2">
+              <label className="text-xs text-muted-foreground">
+                Carência (opcional) — tempo mínimo em meses antes da próxima graduação
+              </label>
+              <Input
+                type="number"
+                min={0}
+                max={240}
+                placeholder="Ex.: 6, 12, 24… (deixe vazio para sem carência)"
+                value={form.min_months}
+                onChange={(e) => setForm((f) => ({ ...f, min_months: e.target.value }))}
               />
             </div>
             <div className="col-span-2">
