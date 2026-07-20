@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
 import { Download, RefreshCw } from "lucide-react";
+import { PageShell } from "@/components/common/PageShell";
 
 export const Route = createFileRoute("/_authenticated/store/import")({
   component: ImportPage,
@@ -45,11 +46,11 @@ function ImportPage() {
   const progress = job?.total_urls ? (job.processed / job.total_urls) * 100 : 0;
 
   return (
-    <div className="mx-auto max-w-4xl p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-black">Importar catálogo</h1>
-        <p className="text-sm text-muted-foreground">Extrai produtos, categorias, imagens e variações do site amtfightwear.com.br via Firecrawl + IA.</p>
-      </div>
+    <PageShell
+      narrow
+      title="Importar catálogo"
+      description="Extrai produtos, categorias, imagens e variações do site amtfightwear.com.br via Firecrawl + IA."
+    >
 
       <Card>
         <CardHeader>
@@ -91,7 +92,7 @@ function ImportPage() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </PageShell>
   );
 }
 

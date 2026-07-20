@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { listSizePresets, upsertSizePreset, deleteSizePreset, syncAllSizePresets, type SizePreset } from "@/lib/store/sizes.functions";
+import { PageShell } from "@/components/common/PageShell";
 
 export const Route = createFileRoute("/_authenticated/store/sizes")({
   component: SizesPage,
@@ -84,19 +85,15 @@ function SizesPage() {
   };
 
   return (
-    <div className="p-6 space-y-4 max-w-5xl">
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Link to="/store" className="inline-flex items-center hover:text-foreground">
-              <ChevronLeft className="h-3 w-3" /> Loja
-            </Link>
-          </div>
-          <h1 className="text-2xl font-black">Tabela de tamanhos</h1>
-          <p className="text-sm text-muted-foreground">
-            Presets fixos por categoria (kimono, faixa etc.). Usados para gerar variantes de produto.
-          </p>
-        </div>
+    <PageShell
+      eyebrow={
+        <Link to="/store" className="inline-flex items-center hover:text-foreground">
+          <ChevronLeft className="h-3 w-3" /> Loja
+        </Link>
+      }
+      title="Tabela de tamanhos"
+      description="Presets fixos por categoria (kimono, faixa etc.). Usados para gerar variantes de produto."
+      actions={
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" disabled={syncing} onClick={async () => {
             try {
@@ -118,7 +115,8 @@ function SizesPage() {
             <Plus className="mr-1 h-4 w-4" /> Nova categoria
           </Button>
         </div>
-      </div>
+      }
+    >
 
       <p className="text-xs text-muted-foreground">
         As chaves reconhecidas para sincronização automática são <code>faixa</code>, <code>kimono</code>, <code>camiseta</code> e <code>rashguard</code>.
@@ -222,7 +220,7 @@ function SizesPage() {
           </CardContent>
         </Card>
       )}
-    </div>
+    </PageShell>
   );
 }
 

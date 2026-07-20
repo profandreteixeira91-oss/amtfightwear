@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Truck, Save } from "lucide-react";
+import { PageShell } from "@/components/common/PageShell";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ShippingCalculator } from "@/components/store/ShippingCalculator";
@@ -64,15 +65,15 @@ function ShippingSettingsPage() {
   };
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6 p-6">
-      <div>
-        <h1 className="flex items-center gap-2 text-2xl font-black">
+    <PageShell
+      narrow
+      title={
+        <span className="inline-flex items-center gap-2">
           <Truck className="h-6 w-6 text-primary" /> Envio — Melhor Envio
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Configure origem, dimensões padrão e ambiente da integração com o Melhor Envio.
-        </p>
-      </div>
+        </span>
+      }
+      description="Configure origem, dimensões padrão e ambiente da integração com o Melhor Envio."
+    >
 
       <Card>
         <CardHeader>
@@ -138,7 +139,7 @@ function ShippingSettingsPage() {
           <TestQuoteBlock />
         </CardContent>
       </Card>
-    </div>
+    </PageShell>
   );
 }
 
