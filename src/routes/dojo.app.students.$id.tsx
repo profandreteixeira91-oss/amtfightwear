@@ -84,6 +84,8 @@ function StudentDetail() {
   const [previewCert, setPreviewCert] = useState<any | null>(null);
   const [manualNote, setManualNote] = useState("");
   const [activeTab, setActiveTab] = useState("pessoal");
+  const [changePlan, setChangePlan] = useState({ open: false, plan_id: "", custom_amount: "", due_day: 5, start_date: new Date().toISOString().slice(0, 10) });
+  const [changingPlan, setChangingPlan] = useState(false);
 
   const refresh = () => qc.invalidateQueries({ queryKey: ["dojo-student", id] });
 
