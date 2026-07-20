@@ -839,30 +839,69 @@ function LayersPanel({ elements, selectedIds, onSelect, onPatch, onMoveLayer }: 
 
 function PagePanel({ page, onChange }: { page: EditorSchema["page"]; onChange: (p: Partial<EditorSchema["page"]>) => void }) {
   const [uploading, setUploading] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
   const upload = async (file: File) => {
+    if (!file.type.startsWith("image/")) { toast.error("Envie um arquivo de imagem"); return; }
+    if (file.size > 10 * 1024 * 1024) { toast.error("Imagem muito grande (máx. 10MB)"); return; }
     setUploading(true);
     try {
-      const path = `certificates/bg-${Date.now()}-${file.name}`;
+      const path = `certificates/bg-${Date.now()}-${file.name.replace(/[^a-z0-9.\-_]/gi, "_")}`;
       const { error } = await supabase.storage.from("product-images").upload(path, file, { upsert: true, contentType: file.type });
       if (error) throw error;
       const { data } = supabase.storage.from("product-images").getPublicUrl(path);
       const img = new Image();
-      img.onload = () => onChange({ backgroundUrl: data.publicUrl, width: img.naturalWidth, height: img.naturalHeight });
+      img.onload = () => {
+        onChange({ backgroundUrl: data.publicUrl, width: img.naturalWidth, height: img.naturalHeight });
+        toast.success("Plano de fundo atualizado");
+      };
       img.src = data.publicUrl;
     } catch (e: any) { toast.error(e.message); }
     finally { setUploading(false); }
   };
   return (
     <div className="space-y-2">
-      <Field label="Largura"><Input type="number" value={page.width} onChange={(e) => onChange({ width: Number(e.target.value) })} className="h-8" /></Field>
-      <Field label="Altura"><Input type="number" value={page.height} onChange={(e) => onChange({ height: Number(e.target.value) })} className="h-8" /></Field>
+      <div
+        onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+        onDragLeave={() => setDragOver(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDragOver(false);
+          const f = e.dataTransfer.files?.[0];
+          if (f) upload(f);
+        }}
+        className={`relative overflow-hidden rounded-md border-2 border-dashed transition ${dragOver ? "border-primary bg-primary/5" : "border-border bg-muted/30"}`}
+      >
+        {page.backgroundUrl ? (
+          <div className="relative">
+            <img src={page.backgroundUrl} alt="Fundo" className="h-28 w-full object-contain bg-white" />
+            <button
+              type="button"
+              onClick={() => onChange({ backgroundUrl: undefined })}
+              className="absolute right-1 top-1 inline-flex h-6 items-center gap-1 rounded bg-background/90 px-1.5 text-[10px] font-medium text-destructive shadow hover:bg-background"
+              title="Remover plano de fundo"
+            >
+              <Trash2 className="h-3 w-3" /> Remover
+            </button>
+          </div>
+        ) : (
+          <div className="grid h-24 place-items-center text-center text-[11px] text-muted-foreground px-2">
+            Arraste uma imagem aqui<br />ou use o botão abaixo
+          </div>
+        )}
+        <label className="flex">
+          <input type="file" accept="image/*" hidden onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
+          <span className="inline-flex w-full cursor-pointer items-center justify-center gap-1 border-t bg-background px-2 py-1.5 text-xs hover:bg-muted">
+            <Upload className="h-3.5 w-3.5" /> {uploading ? "Enviando…" : page.backgroundUrl ? "Trocar imagem de fundo" : "Enviar imagem de fundo"}
+          </span>
+        </label>
+      </div>
+      <Field label="URL do fundo"><Input value={page.backgroundUrl ?? ""} onChange={(e) => onChange({ backgroundUrl: e.target.value || undefined })} placeholder="Cole uma URL" className="h-8" /></Field>
       <Field label="Cor de fundo"><input type="color" value={page.background ?? "#ffffff"} onChange={(e) => onChange({ background: e.target.value })} className="h-8 w-full rounded border" /></Field>
-      <Field label="Imagem fundo"><Input value={page.backgroundUrl ?? ""} onChange={(e) => onChange({ backgroundUrl: e.target.value })} placeholder="URL" className="h-8" /></Field>
-      <label className="inline-flex">
-        <input type="file" accept="image/*" hidden onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
-        <span className="inline-flex h-8 cursor-pointer items-center gap-1 rounded-md border border-input bg-background px-2 text-xs hover:bg-muted"><Upload className="h-3.5 w-3.5" /> {uploading ? "Enviando…" : "Enviar imagem de fundo"}</span>
-      </label>
-      <div className="pt-2 text-[11px] text-muted-foreground">
+      <div className="grid grid-cols-2 gap-2">
+        <Field label="Largura"><Input type="number" value={page.width} onChange={(e) => onChange({ width: Number(e.target.value) })} className="h-8" /></Field>
+        <Field label="Altura"><Input type="number" value={page.height} onChange={(e) => onChange({ height: Number(e.target.value) })} className="h-8" /></Field>
+      </div>
+      <div className="pt-1 text-[11px] text-muted-foreground">
         Presets:
         <div className="mt-1 flex flex-wrap gap-1">
           <button onClick={() => onChange({ width: 1754, height: 1240 })} className="rounded border border-border px-2 py-1 text-[10px] hover:bg-muted">A4 Paisagem</button>
