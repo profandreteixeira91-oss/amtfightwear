@@ -7,12 +7,14 @@ import {
   FileText,
   CreditCard,
   ShieldCheck,
+  Info,
 } from "lucide-react";
 import { AMTPayDashboard } from "@/components/dojo/amtpay/AMTPayDashboard";
 import { WalletPanel } from "@/components/dojo/amtpay/WalletPanel";
 import { WithdrawalsPanel } from "@/components/dojo/amtpay/WithdrawalsPanel";
 import { StatementPanel } from "@/components/dojo/amtpay/StatementPanel";
 import { AsaasOnboardingCard } from "@/components/dojo/amtpay/AsaasOnboardingCard";
+import { AMTPayInfoPanel } from "@/components/dojo/amtpay/AMTPayInfoPanel";
 
 export const Route = createFileRoute("/dojo/app/integrations")({
   head: () => ({ meta: [{ title: "AMT Pay — Central financeira" }] }),
@@ -40,8 +42,11 @@ function AMTPayHub() {
         </div>
       </header>
 
-      <Tabs defaultValue="onboarding" className="w-full">
+      <Tabs defaultValue="about" className="w-full">
         <TabsList className="flex flex-wrap md:w-fit">
+          <TabsTrigger value="about" className="gap-2">
+            <Info className="h-4 w-4" /> Sobre & Taxas
+          </TabsTrigger>
           <TabsTrigger value="onboarding" className="gap-2">
             <ShieldCheck className="h-4 w-4" /> Recebimento
           </TabsTrigger>
@@ -59,6 +64,9 @@ function AMTPayHub() {
           </TabsTrigger>
         </TabsList>
 
+        <TabsContent value="about" className="mt-6">
+          <AMTPayInfoPanel />
+        </TabsContent>
         <TabsContent value="onboarding" className="mt-6">
           <AsaasOnboardingCard />
         </TabsContent>
