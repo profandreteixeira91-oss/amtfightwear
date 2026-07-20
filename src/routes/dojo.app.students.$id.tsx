@@ -70,6 +70,7 @@ function StudentDetail() {
   const belts = useQuery({ queryKey: ["dojo-belts"], queryFn: () => beltsFn() });
   const plans = useQuery({ queryKey: ["dojo-plans"], queryFn: () => plansFn() });
   const units = useQuery({ queryKey: ["dojo-units"], queryFn: () => unitsFn() });
+  const { data: branding } = useDojoBranding();
   const attendance = useQuery({
     queryKey: ["dojo-attendance", id],
     queryFn: () => attendanceFn({ data: { studentId: id, limit: 200 } }),
