@@ -766,7 +766,42 @@ function StudentDetail() {
         </aside>
       </div>
 
-      <CertificatePreviewDialog
+      {/* ============ MOVIMENTAÇÃO (card horizontal, largura total) ============ */}
+      <Card className="dojo-card">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-sm">
+            <Sparkles className="h-4 w-4 text-primary" /> Movimentação
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-0">
+          {timeline.length === 0 ? (
+            <EmptyState label="Sem eventos registrados." compact />
+          ) : (
+            <div className="-mx-2 overflow-x-auto pb-2">
+              <ol className="flex min-w-full gap-3 px-2">
+                {timeline.slice(0, 30).map((ev, idx) => (
+                  <li
+                    key={idx}
+                    className="relative flex w-56 shrink-0 flex-col gap-1 rounded-lg border border-border bg-card/60 p-3 text-xs shadow-sm"
+                  >
+                    <div className="flex items-center gap-1.5 font-medium">
+                      <ev.Icon className="h-3.5 w-3.5 text-primary shrink-0" />
+                      <span className="truncate">{ev.title}</span>
+                    </div>
+                    {ev.description && (
+                      <div className="text-[11px] text-muted-foreground line-clamp-2">{ev.description}</div>
+                    )}
+                    <div className="mt-auto text-[10px] uppercase tracking-widest text-muted-foreground">
+                      {relativeTime(ev.date)}
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
         open={!!previewCert}
         onOpenChange={(v) => { if (!v) setPreviewCert(null); }}
         template={previewCert?.template ?? null}
