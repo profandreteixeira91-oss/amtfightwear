@@ -307,3 +307,53 @@ export const refreshMyAsaasSubaccount = createServerFn({ method: "POST" })
       onboardingStatus: remote.onboardingStatus || "pending",
     };
   });
+
+/**
+ * Vincula uma conta Asaas existente (o dono do dojo já possui conta própria).
+ * Em vez de criar subconta, gravamos apenas o `walletId` — o split das
+ * mensalidades será direcionado para a wallet informada.
+ *
+ * Nota: só funciona se a conta destino estiver na mesma plataforma Asaas
+ * (production/sandbox) que a AMT. O walletId aparece no painel do Asaas em
+ * "Minha conta" → "Integrações" → "Chaves de API".
+ */
+export const linkExistingAsaasAccount = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z
+      .object({
+        walletId: z
+          .string()
+          .trim()
+          .min(10, "walletId inválido")
+          .max(120, "walletId inválido"),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const walletId = data.walletId.trim();
+
+    // Validação leve: walletId do Asaas é um UUID v4.
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(walletId)) {
+      throw new Error("walletId inválido — deve ser um UUID (ex: 12345678-abcd-...).");
+    }
+
+    const { error } = await context.supabase
+      .from("dojo_academy_profile")
+      .update({
+        asaas_wallet_id: walletId,
+        asaas_subaccount_id: null, // conta externa, não é subconta gerenciada
+        asaas_onboarding_status: "linked_external",
+      })
+      .eq("owner_id", context.userId);
+
+    if (error) throw error;
+
+    await context.supabase.from("dojo_account_audit").insert({
+      owner_id: context.userId,
+      action: "asaas_account_linked_external",
+      meta: { wallet_id: walletId },
+    });
+
+    return { ok: true as const, walletId };
+  });
