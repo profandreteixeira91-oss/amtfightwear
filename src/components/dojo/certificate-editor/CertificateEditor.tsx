@@ -443,7 +443,9 @@ function CanvasArea({
               onSelect={(id, additive) => onSelect(additive ? Array.from(new Set([...selectedIds, id])) : [id])}
               onPatch={(patch) => onPatch(el.id, patch)}
               allElements={sortedByZ}
+              previewValues={previewValues}
             />
+
           ))}
         </div>
       </div>
