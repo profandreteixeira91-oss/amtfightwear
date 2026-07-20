@@ -246,7 +246,9 @@ function OnboardingPage() {
   };
 
   const requiredDocs = useMemo<DocType[]>(
-    () => (isCnpj ? ["identity_front", "identity_back", "address_proof", "cnpj_card"] : ["identity_front", "identity_back", "address_proof"]),
+    // Comprovante de endereço não é exigido pela API do Asaas — só é solicitado
+    // via CUSTOM se o analista pedir; nesse caso, o AMT Pay mostra o pendente.
+    () => (isCnpj ? ["identity_front", "identity_back", "cnpj_card"] : ["identity_front", "identity_back"]),
     [isCnpj],
   );
 
