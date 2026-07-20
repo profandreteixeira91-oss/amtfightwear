@@ -169,7 +169,31 @@ function AdminOrdersPage() {
                         <ShippingCell order={o as Order} onChange={() => refetch()} />
                       </td>
                       <td className="p-2 text-xs">{new Date(o.created_at).toLocaleString("pt-BR")}</td>
+                      <td className="p-2 text-right">
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10 hover:text-destructive" aria-label="Excluir pedido">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Excluir pedido {o.order_number}?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Esta ação é permanente. O pedido, seus itens e notificações associadas serão removidos.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => remove(o.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                                Excluir
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </td>
                     </tr>
+
                   ))}
                 </tbody>
               </table>
