@@ -38,6 +38,8 @@ import {
   CreditCard,
   Megaphone,
   ShoppingBag,
+  UsersRound,
+  HeartHandshake,
 
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -98,8 +100,10 @@ const nav: { label: string; items: NavItem[] }[] = [
   {
     label: "Gestão",
     items: [
+      { to: "/dojo/app/team", label: "Equipe", icon: UsersRound },
       { to: "/dojo/app/plans", label: "Planos", icon: ScrollText },
       { to: "/dojo/app/finance", label: "Financeiro", icon: Wallet },
+      { to: "/dojo/app/corporate-benefits", label: "Benefícios Corporativos", icon: HeartHandshake },
       { to: "/dojo/app/units", label: "Unidades", icon: Building2 },
       { to: "/dojo/app/integrations", label: "AMT Pay", icon: CreditCard },
     ],
@@ -124,6 +128,8 @@ const routeTitles: Array<{ match: (p: string) => boolean; title: string; subtitl
   { match: (p) => p.startsWith("/dojo/app/videos"), title: "Vídeos", subtitle: "Biblioteca de conteúdos da academia" },
   { match: (p) => p.startsWith("/dojo/app/plans"), title: "Planos", subtitle: "Mensalidades e contratos" },
   { match: (p) => p.startsWith("/dojo/app/finance"), title: "Financeiro", subtitle: "Recebimentos e a receber" },
+  { match: (p) => p.startsWith("/dojo/app/team"), title: "Equipe", subtitle: "Colaboradores, folha e escalas" },
+  { match: (p) => p.startsWith("/dojo/app/corporate-benefits"), title: "Benefícios Corporativos", subtitle: "Gympass, TotalPass e beneficiários" },
   { match: (p) => p.startsWith("/dojo/app/units"), title: "Unidades", subtitle: "Dojos e polos" },
   
   { match: (p) => p.startsWith("/dojo/app/subscription"), title: "Assinatura AMT", subtitle: "Plano mensal do sistema" },
