@@ -108,13 +108,52 @@ export const upsertMyGateway = createServerFn({ method: "POST" })
 
 export const deleteMyGateway = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ provider: providerSchema }).parse(i))
+  .inputValidator((i: unknown) =>
+    z.object({ provider: providerSchema, reason: z.string().max(400).optional().nullable() }).parse(i),
+  )
   .handler(async ({ data, context }) => {
+    // Bloqueia remoção se houver fatura em processamento vinculada a este provedor.
+    const { count: pending } = await context.supabase
+      .from("dojo_invoices")
+      .select("id", { count: "exact", head: true })
+      .eq("owner_id", context.userId)
+      .eq("payment_provider", data.provider)
+      .in("status", ["pending", "processing"]);
+    if ((pending ?? 0) > 0) {
+      throw new Error(
+        "Existe uma sincronização financeira em andamento. Aguarde sua conclusão antes de remover esta integração.",
+      );
+    }
+
     const { error } = await context.supabase
       .from("dojo_payment_gateways")
       .delete()
       .eq("owner_id", context.userId)
       .eq("provider", data.provider);
     if (error) throw new Error(error.message);
+
+    await context.supabase.from("dojo_gateway_history").insert({
+      owner_id: context.userId,
+      provider: data.provider,
+      action: "disconnected",
+      actor_user_id: context.userId,
+      actor_email: (context.claims as any)?.email ?? null,
+      reason: data.reason ?? null,
+      details: {},
+    } as never);
+
     return { ok: true };
+  });
+
+export const listMyGatewayHistory = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
+      .from("dojo_gateway_history")
+      .select("id, provider, action, actor_email, reason, details, created_at")
+      .eq("owner_id", context.userId)
+      .order("created_at", { ascending: false })
+      .limit(200);
+    if (error) throw new Error(error.message);
+    return data ?? [];
   });
