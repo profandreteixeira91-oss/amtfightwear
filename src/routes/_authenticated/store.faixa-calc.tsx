@@ -102,18 +102,17 @@ function FaixaCalc() {
   const marginMult = 1 + (margin || 0) / 100;
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center gap-3">
-        <div className="grid h-10 w-10 place-items-center rounded-md bg-primary/10 text-primary">
-          <Calculator className="h-5 w-5" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-black">Calculadora de custo — Faixas</h1>
-          <p className="text-sm text-muted-foreground">
-            Selecione a coloração e o tipo de alma para cada modelo. Inclui margem e preço sugerido.
-          </p>
-        </div>
-      </div>
+    <PageShell
+      title={
+        <span className="inline-flex items-center gap-3">
+          <span className="grid h-10 w-10 place-items-center rounded-md bg-primary/10 text-primary">
+            <Calculator className="h-5 w-5" />
+          </span>
+          Calculadora de custo — Faixas
+        </span>
+      }
+      description="Selecione a coloração e o tipo de alma para cada modelo. Inclui margem e preço sugerido."
+    >
 
       {/* Coloração */}
       <div>

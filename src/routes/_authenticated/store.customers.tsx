@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { adminListStoreCustomers } from "@/lib/store/customers.functions";
-import { PageHeader } from "@/components/common/PageHeader";
+import { PageShell } from "@/components/common/PageShell";
 
 export const Route = createFileRoute("/_authenticated/store/customers")({
   head: () => ({
@@ -53,14 +53,12 @@ function StoreCustomersPage() {
   }, [data]);
 
   return (
-    <div className="p-6 space-y-6">
-      <PageHeader
-        eyebrow="Loja"
-        title="Clientes"
-        description="Todos os clientes que criaram conta e navegaram na loja."
-      />
-
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+    <PageShell
+      eyebrow="Loja"
+      title="Clientes"
+      description="Todos os clientes que criaram conta e navegaram na loja."
+    >
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <Card>
           <CardContent className="p-5">
             <div className="text-xs uppercase tracking-widest text-muted-foreground">Total de clientes</div>
@@ -149,6 +147,6 @@ function StoreCustomersPage() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </PageShell>
   );
 }

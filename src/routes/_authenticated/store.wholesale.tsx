@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { ChevronLeft, Save } from "lucide-react";
+import { PageShell } from "@/components/common/PageShell";
 
 export const Route = createFileRoute("/_authenticated/store/wholesale")({
   component: WholesaleSettingsPage,
@@ -65,23 +66,21 @@ function WholesaleSettingsPage() {
   };
 
   return (
-    <div className="p-6 space-y-4 max-w-3xl">
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Link to="/store/products" className="inline-flex items-center hover:text-foreground">
-              <ChevronLeft className="h-3 w-3" /> Produtos
-            </Link>
-          </div>
-          <h1 className="text-2xl font-black">Atacado</h1>
-          <p className="text-sm text-muted-foreground">
-            Configurações globais e produtos habilitados para venda no atacado.
-          </p>
-        </div>
+    <PageShell
+      narrow
+      eyebrow={
+        <Link to="/store/products" className="inline-flex items-center hover:text-foreground">
+          <ChevronLeft className="h-3 w-3" /> Produtos
+        </Link>
+      }
+      title="Atacado"
+      description="Configurações globais e produtos habilitados para venda no atacado."
+      actions={
         <Button onClick={onSave} disabled={saving || isLoading}>
           <Save className="mr-1 h-4 w-4" /> Salvar
         </Button>
-      </div>
+      }
+    >
 
       <Card>
         <CardHeader>
