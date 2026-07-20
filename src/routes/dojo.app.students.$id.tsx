@@ -734,7 +734,7 @@ function StudentDetail() {
         </main>
 
         {/* ============ TIMELINE (direita) ============ */}
-        <aside className="lg:sticky lg:top-4 lg:self-start">
+        <aside className="lg:col-span-2 2xl:col-span-1 2xl:sticky 2xl:top-4 2xl:self-start">
           <Card className="dojo-card">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-sm">
