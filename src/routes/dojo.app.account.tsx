@@ -395,34 +395,167 @@ function PersonalTab({ profile, setProfile, email, onSave }: any) {
 
 /* ---------------- Academy ---------------- */
 function AcademyTab({ academy, setAcademy, onSave }: any) {
+  const { lookup: cepLookup, loading: cepLoading } = useCepLookup();
   const bind = (k: string) => ({
     value: academy?.[k] ?? "",
     onChange: (e: any) => setAcademy({ ...academy, [k]: e.target.value }),
   });
+
+  async function handleCepBlur() {
+    const zip = String(academy?.zip || "").replace(/\D/g, "");
+    if (zip.length !== 8) return;
+    const addr = await cepLookup(zip);
+    if (!addr) {
+      toast.error("CEP não encontrado");
+      return;
+    }
+    setAcademy((prev: any) => ({
+      ...prev,
+      zip: addr.zip,
+      address: addr.address || prev?.address || "",
+      neighborhood: addr.neighborhood || prev?.neighborhood || "",
+      city: addr.city || prev?.city || "",
+      state: addr.state || prev?.state || "",
+    }));
+    toast.success("Endereço preenchido pelo CEP");
+  }
+
+  // Requisitos mínimos para ativação automática da subconta Asaas
+  const req = {
+    name: !!(academy?.legal_name || academy?.trade_name),
+    cnpj: !!academy?.cnpj,
+    email: !!academy?.email,
+    phone: !!academy?.phone,
+    address: !!academy?.address,
+    number: !!academy?.address_number,
+    neighborhood: !!academy?.neighborhood,
+    city: !!academy?.city,
+    state: !!academy?.state,
+    zip: !!academy?.zip,
+  };
+  const allOk = Object.values(req).every(Boolean);
+  const hasSubaccount = !!academy?.asaas_subaccount_id;
+
   return (
     <Card>
-      <CardHeader><CardTitle>Dados da Academia</CardTitle></CardHeader>
+      <CardHeader>
+        <div className="flex items-start justify-between gap-3 flex-wrap">
+          <CardTitle>Dados da Academia</CardTitle>
+          {hasSubaccount ? (
+            <Badge className="bg-emerald-500/15 text-emerald-600 border-emerald-500/30 border">
+              <ShieldCheck className="h-3 w-3 mr-1" /> Asaas ativo
+            </Badge>
+          ) : allOk ? (
+            <Badge className="bg-blue-500/15 text-blue-600 border-blue-500/30 border">
+              Pronto para ativar Asaas
+            </Badge>
+          ) : (
+            <Badge variant="outline">Complete os dados para ativar Asaas</Badge>
+          )}
+        </div>
+      </CardHeader>
       <CardContent className="space-y-4">
+        {!hasSubaccount && (
+          <Alert>
+            <ShieldCheck className="h-4 w-4" />
+            <AlertTitle>Ativação automática do AMT Pay</AlertTitle>
+            <AlertDescription>
+              Ao salvar com todos os campos marcados com <b>*</b> preenchidos, sua
+              subconta Asaas será criada automaticamente para receber mensalidades
+              via PIX, boleto e cartão.
+            </AlertDescription>
+          </Alert>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <Field label="Razão social"><Input {...bind("legal_name")} /></Field>
+          <Field label="Razão social / Nome *"><Input required {...bind("legal_name")} /></Field>
           <Field label="Nome fantasia"><Input {...bind("trade_name")} /></Field>
-          <Field label="CNPJ"><Input {...bind("cnpj")} /></Field>
-          <Field label="Telefone"><Input {...bind("phone")} /></Field>
-          <Field label="WhatsApp"><Input {...bind("whatsapp")} /></Field>
-          <Field label="E-mail institucional"><Input {...bind("email")} /></Field>
+          <Field label="CPF ou CNPJ *"><Input required {...bind("cnpj")} placeholder="Somente números" /></Field>
+          <Field label="Telefone *"><Input required {...bind("phone")} placeholder="(11) 3333-4444" /></Field>
+          <Field label="WhatsApp / Celular"><Input {...bind("whatsapp")} placeholder="(11) 9xxxx-xxxx" /></Field>
+          <Field label="E-mail institucional *"><Input required type="email" {...bind("email")} /></Field>
           <Field label="Site"><Input {...bind("website")} /></Field>
           <Field label="Instagram"><Input {...bind("instagram")} placeholder="@usuario" /></Field>
           <Field label="Facebook"><Input {...bind("facebook")} /></Field>
         </div>
+
         <Separator />
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-          <div className="md:col-span-2"><Field label="Endereço"><Input {...bind("address")} /></Field></div>
-          <Field label="Cidade"><Input {...bind("city")} /></Field>
-          <div className="grid grid-cols-2 gap-2">
-            <Field label="UF"><Input {...bind("state")} maxLength={2} /></Field>
-            <Field label="CEP"><Input {...bind("zip")} /></Field>
+
+        <div className="text-sm font-medium">Endereço fiscal</div>
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-3">
+          <div className="md:col-span-2">
+            <Field label="CEP *">
+              <div className="relative">
+                <Input
+                  required
+                  value={academy?.zip ?? ""}
+                  onChange={(e) => setAcademy({ ...academy, zip: e.target.value })}
+                  onBlur={handleCepBlur}
+                  placeholder="00000-000"
+                  maxLength={9}
+                />
+                {cepLoading && (
+                  <Loader2 className="h-4 w-4 animate-spin absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                )}
+              </div>
+            </Field>
+          </div>
+          <div className="md:col-span-4">
+            <Field label="Endereço (rua/avenida) *"><Input required {...bind("address")} /></Field>
+          </div>
+          <div className="md:col-span-1">
+            <Field label="Número *"><Input required {...bind("address_number")} /></Field>
+          </div>
+          <div className="md:col-span-2">
+            <Field label="Complemento"><Input {...bind("address_complement")} placeholder="Sala, andar…" /></Field>
+          </div>
+          <div className="md:col-span-3">
+            <Field label="Bairro *"><Input required {...bind("neighborhood")} /></Field>
+          </div>
+          <div className="md:col-span-4">
+            <Field label="Cidade *"><Input required {...bind("city")} /></Field>
+          </div>
+          <div className="md:col-span-2">
+            <Field label="UF *"><Input required {...bind("state")} maxLength={2} placeholder="SP" /></Field>
           </div>
         </div>
+
+        <Separator />
+
+        <div className="text-sm font-medium">Informações fiscais (Asaas)</div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <Field label="Tipo de titular">
+            <select
+              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+              value={academy?.company_type ?? "MEI"}
+              onChange={(e) => setAcademy({ ...academy, company_type: e.target.value })}
+            >
+              <option value="INDIVIDUAL">Pessoa Física</option>
+              <option value="MEI">MEI</option>
+              <option value="LIMITED">LTDA</option>
+              <option value="ASSOCIATION">Associação</option>
+            </select>
+          </Field>
+          <Field label="Faturamento mensal estimado (R$)">
+            <Input
+              type="number"
+              min={0}
+              value={academy?.monthly_income ?? ""}
+              onChange={(e) => setAcademy({ ...academy, monthly_income: Number(e.target.value) || null })}
+              placeholder="5000"
+            />
+          </Field>
+          <Field label="Data de nascimento (PF)">
+            <Input
+              type="date"
+              value={academy?.birth_date ? String(academy.birth_date).slice(0, 10) : ""}
+              onChange={(e) => setAcademy({ ...academy, birth_date: e.target.value || null })}
+            />
+          </Field>
+        </div>
+
+        <Separator />
+
         <Field label="Modalidades oferecidas (separadas por vírgula)">
           <Input
             value={(academy?.modalities ?? []).join(", ")}
@@ -430,7 +563,15 @@ function AcademyTab({ academy, setAcademy, onSave }: any) {
             placeholder="Jiu-Jitsu, Muay Thai, Boxe"
           />
         </Field>
-        <Button onClick={onSave}><Save className="h-4 w-4 mr-1" />Salvar academia</Button>
+
+        <div className="flex flex-wrap items-center gap-3">
+          <Button onClick={() => onSave()}><Save className="h-4 w-4 mr-1" />Salvar academia</Button>
+          {!hasSubaccount && !allOk && (
+            <span className="text-xs text-muted-foreground">
+              Preencha os campos marcados com <b>*</b> para ativar o recebimento automaticamente.
+            </span>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
