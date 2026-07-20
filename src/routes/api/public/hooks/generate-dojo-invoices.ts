@@ -26,8 +26,9 @@ export const Route = createFileRoute("/api/public/hooks/generate-dojo-invoices")
 
         const { data: enrolls, error } = await supabaseAdmin
           .from("dojo_enrollments")
-          .select("id, owner_id, student_id, due_day, custom_amount, plan:dojo_plans(amount), student:dojo_students(unit_id)")
-          .eq("status", "active");
+          .select("id, owner_id, student_id, due_day, custom_amount, asaas_subscription_id, plan:dojo_plans(amount), student:dojo_students(unit_id)")
+          .eq("status", "active")
+          .is("asaas_subscription_id", null); // Asaas Subscriptions emitem cobrança pelo gateway
         if (error) return Response.json({ error: error.message }, { status: 500 });
 
         let created = 0;

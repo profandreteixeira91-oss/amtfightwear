@@ -3801,12 +3801,15 @@ export type Database = {
       }
       dojo_enrollments: {
         Row: {
+          asaas_subscription_id: string | null
+          billing_type: string | null
           created_at: string
           custom_amount: number | null
           due_day: number
           end_date: string | null
           id: string
           owner_id: string
+          payment_method_code: string | null
           plan_id: string
           start_date: string
           status: string
@@ -3814,12 +3817,15 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          asaas_subscription_id?: string | null
+          billing_type?: string | null
           created_at?: string
           custom_amount?: number | null
           due_day?: number
           end_date?: string | null
           id?: string
           owner_id: string
+          payment_method_code?: string | null
           plan_id: string
           start_date?: string
           status?: string
@@ -3827,12 +3833,15 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          asaas_subscription_id?: string | null
+          billing_type?: string | null
           created_at?: string
           custom_amount?: number | null
           due_day?: number
           end_date?: string | null
           id?: string
           owner_id?: string
+          payment_method_code?: string | null
           plan_id?: string
           start_date?: string
           status?: string
@@ -5544,6 +5553,7 @@ export type Database = {
           address_complement: string | null
           address_number: string | null
           anamnesis: Json
+          asaas_customer_id: string | null
           birth_date: string | null
           blood_type: string | null
           checkin_pin: string | null
@@ -5592,6 +5602,7 @@ export type Database = {
           address_complement?: string | null
           address_number?: string | null
           anamnesis?: Json
+          asaas_customer_id?: string | null
           birth_date?: string | null
           blood_type?: string | null
           checkin_pin?: string | null
@@ -5640,6 +5651,7 @@ export type Database = {
           address_complement?: string | null
           address_number?: string | null
           anamnesis?: Json
+          asaas_customer_id?: string | null
           birth_date?: string | null
           blood_type?: string | null
           checkin_pin?: string | null

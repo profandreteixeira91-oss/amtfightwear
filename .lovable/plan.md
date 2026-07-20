@@ -1,132 +1,91 @@
-# Migração AMT Pay para Asaas
 
-## Objetivo
+# Cobrança recorrente de mensalidades via Asaas (modo NextFit)
 
-Substituir o Mercado Pago pelo **Asaas** como gateway do AMT Pay (mensalidades e repasses aos dojos), aproveitando:
-- **Split nativo** (sem OAuth de dojo)
-- **PIX Out automático** para chave PIX do dojo
-- **Assinaturas recorrentes** nativas (mensalidades)
-- **Onboarding de subcontas** via API
+## Diagnóstico do fluxo atual
 
-A loja AMT Fight Wear (checkout de produtos) **continua no Mercado Pago** — nada muda para o cliente final da loja.
+Hoje, ao matricular um aluno em um plano (`enrollStudentWithPlan`):
 
-## Escopo desta migração
+1. Criamos matrícula em `dojo_enrollments`.
+2. Criamos **apenas** a primeira fatura em `dojo_invoices` (local).
+3. Opcionalmente geramos link de checkout Mercado Pago da 1ª mensalidade.
+4. As mensalidades seguintes são geradas **localmente por um cron mensal** (`generateMonthlyInvoices` / `/api/public/hooks/generate-dojo-invoices`) — sem gateway, sem QR/boleto/link automáticos.
 
-**Dentro do escopo:**
-- Mensalidades de alunos (matrícula + recorrência)
-- Split contábil AMT ↔ Dojo
-- Repasse automático ao dojo (subconta Asaas + saque PIX)
-- Carteira e extrato do AMT Pay
-- Webhook de confirmação de pagamento
+Ou seja: o Asaas não conhece o plano do aluno. Não há assinatura, não há emissão automática de PIX/Boleto/Cartão, e não há webhook para conciliar pagamentos. Não é o modelo NextFit.
 
-**Fora do escopo (mantém MP):**
-- Loja AMT Fight Wear
-- AMT Store dentro do Dojo Manager (usa checkout da loja)
-- Custom Shop
+## Modelo alvo (NextFit)
 
-## Arquitetura alvo
+Plano criado → aluno matriculado no plano → **criamos uma Subscription no Asaas** com o ciclo do plano → o Asaas passa a **emitir cada cobrança automaticamente** na data de vencimento e nos envia os eventos → nós apenas **espelhamos** as cobranças em `dojo_invoices` via webhook. Cancelamento da matrícula cancela a subscription.
 
 ```text
-┌─────────────────────────────────────────────────────┐
-│  Aluno paga mensalidade                             │
-│  (PIX / Cartão / Boleto via Asaas Checkout)         │
-└────────────────────┬────────────────────────────────┘
-                     ↓
-┌─────────────────────────────────────────────────────┐
-│  Cobrança Asaas com SPLIT nativo:                   │
-│    - 95% (ou %) → subconta Asaas do DOJO            │
-│    - 5% (ou %) → conta principal AMT                │
-└────────────────────┬────────────────────────────────┘
-                     ↓
-      ┌──────────────┴──────────────┐
-      ↓                             ↓
-  Subconta Dojo                  Conta AMT
-  (crédito D+1)                  (crédito D+1)
-      ↓
-  Saque PIX automático
-  para chave PIX cadastrada
+[Plano]  ──▶  [Matrícula]  ──▶  [Asaas Customer + Subscription]
+                                        │  emite cobrança a cada ciclo
+                                        ▼
+                              [Webhook Asaas] ──▶ dojo_invoices (upsert)
 ```
 
-## Fases de entrega
+## Escopo
 
-### Fase 1 — Fundação Asaas (backend)
-1. Criar `src/lib/asaas/client.server.ts` — HTTP client tipado (Bearer token, base URL sandbox/prod).
-2. Criar `src/lib/asaas/asaas.server.ts` com wrappers para:
-   - `createCustomer`, `createSubaccount` (subconta do dojo)
-   - `createCharge` com split, `createSubscription`
-   - `createTransfer` (PIX Out)
-   - `getBalance`, `listTransactions`
-3. Migration: adicionar em `dojo_academy_profile`:
-   - `asaas_subaccount_id`, `asaas_wallet_id`, `asaas_api_key_encrypted`
-   - `pix_key`, `pix_key_type`
-4. Migration: adicionar em `dojo_invoices`:
-   - `asaas_charge_id`, `asaas_invoice_url`, `split_config` (JSONB)
-5. Configurar secret `ASAAS_WALLET_ID_AMT` (Wallet ID master da AMT — necessário para receber o percentual do split).
+### 1. Banco (uma migration)
+- `dojo_students`: adicionar `asaas_customer_id text` (cache do customer no Asaas).
+- `dojo_enrollments`: adicionar `asaas_subscription_id text`, `billing_type text` (PIX/BOLETO/CREDIT_CARD/UNDEFINED), `payment_method_code text`.
+- Índices em `dojo_invoices(asaas_charge_id)` e `dojo_enrollments(asaas_subscription_id)` para o webhook.
 
-### Fase 2 — Onboarding automático de dojos
-1. Ao concluir cadastro do dojo (ou botão "Ativar AMT Pay"):
-   - Criar subconta Asaas via API (CPF/CNPJ, dados do responsável, endereço)
-   - Guardar `wallet_id` retornado em `dojo_academy_profile`
-   - Retornar link de KYC do Asaas se pendente
-2. UI: nova aba "Configurar recebimento" no AMT Pay com formulário unificado (dados fiscais + chave PIX).
+### 2. Cliente Asaas (`src/lib/asaas/client.server.ts`)
+- Adicionar `asaasListSubscriptionPayments(subId, apiKey?)` para puxar a 1ª cobrança emitida logo após criar a subscription.
+- Reaproveitar `asaasCreateSubscription`, `asaasCancelSubscription`, `asaasCreateCustomer`, `asaasFindCustomerByCpfCnpj` (já existem).
 
-### Fase 3 — Refatorar cobrança de mensalidades
-1. Substituir `enrollStudentWithPlan` para criar cobrança Asaas com split:
-   - `split: [{ walletId: dojoWalletId, percentualValue: 95 }]`
-   - Restante (5%) fica automaticamente na conta AMT
-2. Substituir `subscription.functions.ts` para usar `POST /subscriptions` do Asaas (recorrência nativa com retry).
-3. Criar rota pública `src/routes/api/public/hooks/asaas.ts`:
-   - Validar `asaas-access-token` header contra `ASAAS_WEBHOOK_TOKEN`
-   - Atualizar `dojo_invoices` no evento `PAYMENT_CONFIRMED`
-   - Registrar entrada em `dojo_wallet_transactions` (log contábil apenas)
+### 3. Helper novo (`src/lib/asaas/enrollment.server.ts`)
+- `ensureAsaasCustomerForStudent(supabase, student)` — busca por CPF; cria se não existir; grava `asaas_customer_id` no aluno.
+- `mapFrequencyToAsaasCycle(plan)` — `monthly→MONTHLY`, `bimonthly→BIMONTHLY`, `quarterly→QUARTERLY`, `quadrimestral→QUARTERLY` (Asaas não tem quadrimestral; será tratada como QUARTERLY + validação), `semiannual→SEMIANNUALLY`, `annual→YEARLY`. `custom` bloqueia com mensagem clara (Asaas não expõe ciclo arbitrário em meses).
+- `mapPaymentMethodToBillingType(code)` — `pix→PIX`, `boleto→BOLETO`, `credit_card→CREDIT_CARD`, `payment_link|recurring→UNDEFINED` (Asaas deixa o aluno escolher na página de pagamento).
+- `resolveDojoApiKey(profile)` — se o dojo tem `asaas_api_key_encrypted` (subconta), usa; senão cai na chave AMT. Split de 5% para `ASAAS_WALLET_ID_AMT` só quando a chave usada é da subconta do dojo.
 
-### Fase 4 — Repasse PIX automático
-1. Cadastro de chave PIX no perfil do dojo (`pix_key`, `pix_key_type` com validação).
-2. Refatorar `WithdrawDialog.tsx`:
-   - Consulta saldo real via `getBalance(dojoWalletId)`
-   - Ao solicitar saque, chama `createTransfer` do Asaas
-   - Atualiza `dojo_withdrawals` com `asaas_transfer_id` e `status`
-3. Webhook Asaas `TRANSFER_DONE` marca saque como confirmado.
-4. Opcional: cron de repasse automático semanal (checkbox no perfil).
+### 4. Refatorar `enrollStudentWithPlan` (`src/lib/dojo/dojo.functions.ts`)
+- Passa a receber `payment_method_code` (pix / boleto / credit_card / payment_link / manual / cash) em vez do enum atual.
+- Valida que o `payment_method_code` está habilitado no plano (`dojo_plans.payment_methods`).
+- Cria a matrícula localmente.
+- Se o método é gateway-based (não `manual`/`cash`):
+  1. Garante o Asaas Customer do aluno.
+  2. Cria a Subscription no Asaas com o ciclo do plano, `nextDueDate = first_due_date`, `value`, `description = "Mensalidade — <plano>"`, `externalReference = enrollment_id`, split 5% AMT quando aplicável.
+  3. Grava `asaas_subscription_id` e `billing_type` no enrollment.
+  4. Chama `asaasListSubscriptionPayments` para obter a **1ª cobrança emitida pelo Asaas** e faz upsert em `dojo_invoices` com `asaas_charge_id`, `asaas_invoice_url`, `payment_link`, `provider='asaas'`. (O webhook cuida das seguintes.)
+- Se o método é `manual`/`cash`: mantém o comportamento atual (fatura local, sem gateway).
+- Retorna `{ enrollment_id, invoice_id, invoice_url, asaas_subscription_id }`.
 
-### Fase 5 — Descomissionar MP no AMT Pay
-1. Remover `src/lib/store/mercadopago.functions.ts` **apenas** das rotas de mensalidade — manter para a loja.
-2. Remover código de "split contábil interno" no webhook MP (rotas de mensalidade).
-3. Manter tabela `dojo_split_transactions` como legado histórico (não apagar dados).
-4. Atualizar UI do AMT Pay (`dojo.app.integrations.tsx`) para:
-   - Banner: "Fonte: Asaas (tempo real)"
-   - Card de saldo consultando Asaas ao vivo
+### 5. Cancelamento (`cancelEnrollment` novo)
+- Marca enrollment `status = 'cancelled'`.
+- Se tem `asaas_subscription_id`, chama `asaasCancelSubscription` para o Asaas parar de emitir cobranças.
+- Cancela cobranças `pending` futuras opcionalmente (config no plano).
 
-### Fase 6 — Documentação e migração de dados
-1. Script de migração: para cada dojo ativo, criar subconta Asaas (com aprovação do dono via aceite de termos).
-2. Assinaturas MP existentes ficam ativas até vencimento; novas mensalidades vão para Asaas.
-3. Atualizar `mem://` com a decisão arquitetural.
+### 6. Webhook Asaas (`src/routes/api/public/hooks/asaas.ts`) — novo
+- Valida header `asaas-access-token` contra `ASAAS_WEBHOOK_TOKEN` (timing-safe).
+- Trata eventos:
+  - `PAYMENT_CREATED` → localiza `enrollment` pela `subscription` do payload, faz upsert em `dojo_invoices` (chave `asaas_charge_id`) com status `pending`, salva `invoice_url`, `pix_qrcode`, `pix_copypaste`.
+  - `PAYMENT_UPDATED` → atualiza valor/vencimento.
+  - `PAYMENT_CONFIRMED` / `PAYMENT_RECEIVED` → `status='paid'`, `paid_at = now()`.
+  - `PAYMENT_OVERDUE` → `status='overdue'`.
+  - `PAYMENT_DELETED` / `PAYMENT_REFUNDED` → `status='cancelled'` ou `refunded`.
+- Usa `supabaseAdmin` (webhook público). Idempotente (upsert por `asaas_charge_id`).
+- Retorno 200 rápido; erros logam mas retornam 200 salvo assinatura inválida (401).
 
-## Secrets necessários
+### 7. Cron de fallback
+- `generateMonthlyInvoices` continua rodando, mas ignora enrollments que já têm `asaas_subscription_id` (Asaas emite). Cobre apenas matrículas `manual`/`cash`.
 
-| Secret | Origem | Status |
-|---|---|---|
-| `ASAAS_API_KEY` | Painel Asaas → Integrações → API Key produção | ✅ já configurado |
-| `ASAAS_WEBHOOK_TOKEN` | Painel Asaas → Notificações → Token | ✅ já configurado |
-| `ASAAS_WALLET_ID_AMT` | Painel Asaas → Minha conta → Wallet ID | ⚠️ **falta configurar** |
-| `ASAAS_ENV` | `production` ou `sandbox` | ⚠️ **falta configurar** |
+### 8. UI — mínimo necessário
+- Diálogo de matrícula em `dojo.app.students.$id.tsx`: substituir o seletor "manual / mp_link" por um select das formas de pagamento habilitadas do plano; ao confirmar, chamar o novo `enrollStudentWithPlan` e exibir `invoice_url` (abrir em nova aba).
+- Botão "Cancelar matrícula" que chama `cancelEnrollment`.
+- Nenhuma outra tela precisa mudar — a lista de faturas já lê `dojo_invoices` e vai receber as cobranças automaticamente via webhook.
 
-## Webhook a configurar no painel Asaas
+## Configuração pós-deploy (usuário faz uma única vez)
+No painel Asaas → Integrações → Webhooks, cadastrar:
+- URL: `https://project--673d932e-eb85-41a4-9454-a94c54c26ec9.lovable.app/api/public/hooks/asaas`
+- Token de autenticação: valor de `ASAAS_WEBHOOK_TOKEN` (já configurado)
+- Eventos: `PAYMENT_CREATED`, `PAYMENT_UPDATED`, `PAYMENT_CONFIRMED`, `PAYMENT_RECEIVED`, `PAYMENT_OVERDUE`, `PAYMENT_DELETED`, `PAYMENT_REFUNDED`
 
-URL: `https://dojomanager.amtfightwear.com.br/api/public/hooks/asaas`
+## Pontos de atenção
+- **Ciclo "custom" e "quadrimestral"**: Asaas Subscriptions não suporta ciclo arbitrário em meses. `custom` será rejeitado com mensagem clara ("Planos personalizados exigem cobrança manual"). `quadrimestral` cai para `QUARTERLY` com aviso, ou pode ser bloqueado — decisão sua.
+- **Split 5% AMT**: só é aplicado quando a chave usada é da subconta do dojo. Se o dojo usa a conta AMT central, o split não faz sentido.
+- **Idempotência**: matrícula com Asaas depende do CPF do aluno; alunos sem CPF caem obrigatoriamente em `manual`.
 
-Eventos: `PAYMENT_CONFIRMED`, `PAYMENT_RECEIVED`, `PAYMENT_OVERDUE`, `PAYMENT_REFUNDED`, `TRANSFER_DONE`, `TRANSFER_FAILED`.
-
-## Riscos e mitigação
-
-- **Dojos existentes sem subconta Asaas:** manter fallback para MP até que o dono complete o KYC do Asaas.
-- **Falha no split (dojo sem `wallet_id`):** cobrança cai 100% na AMT + alerta no painel para configurar.
-- **Recorrência já ativa no MP:** não interromper; apenas rotear NOVAS cobranças para Asaas.
-- **Chave PIX inválida:** validar formato antes de salvar; Asaas também valida antes de transferir.
-
-## Decisões que preciso confirmar antes de começar
-
-1. **Percentual de split padrão:** 5% AMT / 95% dojo? Ou você quer configurável por dojo (tabela `dojo_split_config` já existe)?
-2. **Ambiente inicial:** começamos em `sandbox` do Asaas para eu testar, depois viramos a chave para `production`?
-3. **Migração de alunos com assinatura ativa no MP:** deixa expirar naturalmente (recomendado) ou cancela e recria no Asaas?
-4. **Onde você quer que eu envie o formulário de secret?** Preciso do `ASAAS_WALLET_ID_AMT` (você pega no painel Asaas → Minha conta → seção Split / Wallet ID) e do `ASAAS_ENV` (`sandbox` ou `production`).
+## Entrega
+Aprovado o plano, executo em duas etapas: (1) migration; (2) todo o código (helpers, refactor do enroll, webhook, cron, UI mínima).

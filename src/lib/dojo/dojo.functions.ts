@@ -461,9 +461,15 @@ export const chargeDojoInvoiceMp = createServerFn({ method: "POST" })
   });
 
 /**
- * Cria matrícula + primeira fatura para o aluno.
- * Se method === 'mp_link', também gera link de checkout Mercado Pago da 1ª mensalidade.
- * Cobranças recorrentes são geradas mensalmente por generateMonthlyInvoices.
+ * Cria matrícula e inicia a cobrança recorrente.
+ *
+ * Fluxo NextFit-like:
+ *  - Método de pagamento do plano em (pix|boleto|credit_card|debit_card|payment_link|recurring):
+ *    cria Subscription no Asaas → Asaas emite cobranças no ciclo do plano
+ *    e o webhook `/api/public/hooks/asaas` sincroniza cada cobrança
+ *    como `dojo_invoices`. NÃO cria fatura local (o webhook faz).
+ *  - Método manual/cash: cria a primeira fatura local pendente. As faturas
+ *    seguintes seguem sendo geradas pelo cron `generate-dojo-invoices`.
  */
 export const enrollStudentWithPlan = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -475,27 +481,53 @@ export const enrollStudentWithPlan = createServerFn({ method: "POST" })
     first_due_date: z.string().optional(),
     custom_amount: z.number().min(0).optional().nullable(),
     include_enrollment_fee: z.boolean().optional(),
-    payment_method: z.enum(["manual", "mp_link"]).default("manual"),
+    // Método selecionado no ato da matrícula (ex.: "pix", "boleto", "credit_card", "manual", "cash").
+    // Deve ser um dos habilitados no plano — validado abaixo.
+    payment_method: z.string().min(1).default("manual"),
   }).parse(i))
   .handler(async ({ data, context }) => {
-    // 1) Carrega plano
+    // 1) Carrega plano (com frequência e métodos habilitados)
     const { data: plan, error: planErr } = await context.supabase
       .from("dojo_plans")
-      .select("id, name, amount, enrollment_fee")
+      .select("id, name, amount, enrollment_fee, frequency, custom_months, payment_methods")
       .eq("id", data.plan_id)
       .maybeSingle();
     if (planErr) throw new Error(planErr.message);
     if (!plan) throw new Error("Plano não encontrado");
 
-    // 2) Aluno (para unit_id e email)
+    // 2) Aluno
     const { data: student } = await context.supabase
       .from("dojo_students")
-      .select("id, unit_id, email, full_name")
+      .select("id, unit_id, email, full_name, phone, cpf, asaas_customer_id")
       .eq("id", data.student_id)
       .maybeSingle();
     if (!student) throw new Error("Aluno não encontrado");
 
-    // 3) Cria matrícula
+    // Valida método vs plano
+    const methodCode = data.payment_method;
+    const enabledMethods = Array.isArray((plan as any).payment_methods)
+      ? ((plan as any).payment_methods as any[])
+          .filter((m) => m && (m.enabled === true || m.enabled === undefined))
+          .map((m) => String(m.code))
+      : [];
+    if (enabledMethods.length > 0 && !enabledMethods.includes(methodCode)) {
+      throw new Error(`Método "${methodCode}" não está habilitado no plano.`);
+    }
+
+    // Import lazy dos helpers server-only
+    const {
+      isGatewayPaymentMethod,
+      mapPaymentMethodToBillingType,
+      mapFrequencyToAsaasCycle,
+      ensureAsaasCustomerForStudent,
+      resolveDojoAsaasCredentials,
+    } = await import("@/lib/asaas/enrollment.server");
+
+    // 3) Cria matrícula (base)
+    const baseAmount = Number(data.custom_amount ?? plan.amount ?? 0);
+    const fee = data.include_enrollment_fee ? Number((plan as any).enrollment_fee ?? 0) : 0;
+    const firstDueDate = data.first_due_date ?? data.start_date;
+
     const { data: enrollRow, error: enrErr } = await context.supabase
       .from("dojo_enrollments")
       .insert({
@@ -505,21 +537,95 @@ export const enrollStudentWithPlan = createServerFn({ method: "POST" })
         start_date: data.start_date,
         custom_amount: data.custom_amount ?? null,
         status: "active",
+        payment_method_code: methodCode,
         owner_id: ownerId(context),
       } as never)
       .select("id")
       .single();
     if (enrErr) throw new Error(enrErr.message);
 
-    // 4) Cria primeira fatura
-    const baseAmount = Number(data.custom_amount ?? plan.amount ?? 0);
-    const fee = data.include_enrollment_fee ? Number(plan.enrollment_fee ?? 0) : 0;
+    // 4a) Fluxo GATEWAY (Asaas Subscription)
+    if (isGatewayPaymentMethod(methodCode)) {
+      // Carrega profile do dojo (para chave/subconta Asaas)
+      const { data: profile } = await context.supabase
+        .from("dojo_academy_profile")
+        .select("asaas_api_key_encrypted, trade_name")
+        .eq("owner_id", ownerId(context))
+        .maybeSingle();
+
+      const { apiKey, split } = resolveDojoAsaasCredentials((profile ?? {}) as any);
+
+      try {
+        // Garante Customer no Asaas
+        const customerId = await ensureAsaasCustomerForStudent(
+          context.supabase as any,
+          student as any,
+          apiKey,
+        );
+
+        // Cria Subscription
+        const { asaasCreateSubscription } = await import("@/lib/asaas/client.server");
+        const cycle = mapFrequencyToAsaasCycle((plan as any).frequency);
+        const billingType = mapPaymentMethodToBillingType(methodCode);
+        const description = `${(profile as any)?.trade_name ?? "Dojo"} — ${plan.name}`;
+
+        const sub = await asaasCreateSubscription(
+          {
+            customer: customerId,
+            billingType,
+            value: baseAmount,
+            nextDueDate: firstDueDate,
+            cycle,
+            description,
+            externalReference: `dojo_enrollment:${enrollRow.id}`,
+            split,
+          },
+          apiKey,
+        );
+
+        // Atualiza matrícula com id da subscription
+        await context.supabase
+          .from("dojo_enrollments")
+          .update({
+            asaas_subscription_id: sub.id,
+            billing_type: billingType,
+          } as never)
+          .eq("id", enrollRow.id);
+
+        // Se há taxa de matrícula, ela é lançada como fatura local separada
+        // (Subscription do Asaas só emite valor recorrente).
+        if (fee > 0) {
+          await context.supabase.from("dojo_invoices").insert({
+            student_id: data.student_id,
+            enrollment_id: enrollRow.id,
+            unit_id: (student as any).unit_id ?? null,
+            description: `Taxa de matrícula — ${plan.name}`,
+            amount: fee,
+            due_date: firstDueDate,
+            status: "pending",
+            owner_id: ownerId(context),
+          } as never);
+        }
+
+        return {
+          enrollment_id: enrollRow.id,
+          asaas_subscription_id: sub.id,
+          billing_type: billingType,
+          amount: baseAmount,
+          message: "Assinatura criada no Asaas. As cobranças serão emitidas automaticamente e sincronizadas via webhook.",
+        };
+      } catch (e: any) {
+        // Rollback matrícula se falhou criar subscription
+        await context.supabase.from("dojo_enrollments").delete().eq("id", enrollRow.id);
+        throw new Error(`Falha ao criar assinatura Asaas: ${e.message}`);
+      }
+    }
+
+    // 4b) Fluxo MANUAL — cria 1ª fatura local pendente
     const amount = baseAmount + fee;
-    const dueDate = data.first_due_date ?? data.start_date;
     const desc = fee > 0
       ? `Matrícula + 1ª mensalidade — ${plan.name}`
       : `1ª mensalidade — ${plan.name}`;
-
     const { data: invRow, error: invErr } = await context.supabase
       .from("dojo_invoices")
       .insert({
@@ -528,7 +634,7 @@ export const enrollStudentWithPlan = createServerFn({ method: "POST" })
         unit_id: (student as any).unit_id ?? null,
         description: desc,
         amount,
-        due_date: dueDate,
+        due_date: firstDueDate,
         status: "pending",
         owner_id: ownerId(context),
       } as never)
@@ -536,29 +642,57 @@ export const enrollStudentWithPlan = createServerFn({ method: "POST" })
       .single();
     if (invErr) throw new Error(invErr.message);
 
-    // 5) Gera link MP se solicitado
-    let payment_url: string | null = null;
-    if (data.payment_method === "mp_link") {
-      payment_url = await createMpPreferenceForInvoice({
-        ownerId: ownerId(context),
-        invoiceId: invRow.id,
-        amount,
-        description: desc,
-        payerEmail: (student as any).email,
-      });
-      await context.supabase
-        .from("dojo_invoices")
-        .update({ payment_link: payment_url, payment_provider: "mercadopago" } as never)
-        .eq("id", invRow.id);
-    }
-
     return {
       enrollment_id: enrollRow.id,
       invoice_id: invRow.id,
       amount,
-      payment_url,
+      payment_url: null as string | null,
     };
   });
+
+/**
+ * Cancela uma matrícula: cancela a Subscription no Asaas (se houver)
+ * e marca `status='canceled'`, `end_date=hoje`.
+ */
+export const cancelEnrollment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({
+    enrollment_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido"),
+  }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { data: enr } = await context.supabase
+      .from("dojo_enrollments")
+      .select("id, asaas_subscription_id")
+      .eq("id", data.enrollment_id)
+      .maybeSingle();
+    if (!enr) throw new Error("Matrícula não encontrada");
+
+    if ((enr as any).asaas_subscription_id) {
+      try {
+        const { data: profile } = await context.supabase
+          .from("dojo_academy_profile")
+          .select("asaas_api_key_encrypted")
+          .eq("owner_id", ownerId(context))
+          .maybeSingle();
+        const { resolveDojoAsaasCredentials } = await import("@/lib/asaas/enrollment.server");
+        const { apiKey } = resolveDojoAsaasCredentials((profile ?? {}) as any);
+        const { asaasCancelSubscription } = await import("@/lib/asaas/client.server");
+        await asaasCancelSubscription((enr as any).asaas_subscription_id, apiKey);
+      } catch (e: any) {
+        // Não bloqueia o cancelamento local
+        console.error("[cancelEnrollment] Asaas cancel failed:", e.message);
+      }
+    }
+
+    const today = new Date().toISOString().slice(0, 10);
+    const { error } = await context.supabase
+      .from("dojo_enrollments")
+      .update({ status: "canceled", end_date: today } as never)
+      .eq("id", data.enrollment_id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
 
 export const generateMonthlyInvoices = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

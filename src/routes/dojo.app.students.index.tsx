@@ -11,6 +11,7 @@ import {
   listDojoPlans,
   enrollStudentWithPlan,
 } from "@/lib/dojo/dojo.functions";
+import { paymentMethodLabel, normalizePlanPaymentMethods } from "@/lib/dojo/payment-methods";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -144,7 +145,7 @@ function StudentsPage() {
     start_date: new Date().toISOString().slice(0, 10),
     first_due_date: new Date().toISOString().slice(0, 10),
     include_enrollment_fee: true,
-    payment_method: "manual" as "manual" | "mp_link",
+    payment_method: "manual" as string,
     custom_amount: "" as string,
   });
 
@@ -254,10 +255,15 @@ function StudentsPage() {
             custom_amount: Number.isFinite(customAmt as number) ? customAmt : null,
           },
         });
-        toast.success("Aluno matriculado e 1ª mensalidade gerada");
-        if (res?.payment_url) {
-          window.open(res.payment_url, "_blank", "noopener,noreferrer");
-          toast.info("Link de pagamento aberto em nova aba");
+        if (res?.asaas_subscription_id) {
+          toast.success("Aluno matriculado — assinatura Asaas criada");
+          toast.info("As cobranças serão emitidas automaticamente pelo Asaas no ciclo do plano.");
+        } else {
+          toast.success("Aluno matriculado e 1ª mensalidade gerada");
+          if (res?.payment_url) {
+            window.open(res.payment_url, "_blank", "noopener,noreferrer");
+            toast.info("Link de pagamento aberto em nova aba");
+          }
         }
       } else {
         toast.success("Aluno salvo");
@@ -559,22 +565,48 @@ function StudentsPage() {
                           onChange={(v) => setEnrollment((s) => ({ ...s, include_enrollment_fee: v }))}
                         />
                       </div>
-                      <Field label="Forma de pagamento da 1ª mensalidade" className="md:col-span-2">
-                        <select
-                          className="border rounded p-2 bg-background w-full"
-                          value={enrollment.payment_method}
-                          onChange={(e) =>
-                            setEnrollment((s) => ({ ...s, payment_method: e.target.value as "manual" | "mp_link" }))
-                          }
-                        >
-                          <option value="manual">Registrar manualmente (dinheiro/PIX/transferência)</option>
-                          <option value="mp_link">Gerar link de pagamento Mercado Pago (cartão / Pix / boleto)</option>
-                        </select>
-                        {enrollment.payment_method === "mp_link" && (
-                          <p className="text-xs text-muted-foreground mt-1">
-                            O link será aberto em nova aba e enviado ao aluno; a fatura é marcada como paga automaticamente após confirmação do Mercado Pago.
-                          </p>
-                        )}
+                      <Field label="Forma de pagamento da matrícula" className="md:col-span-2">
+                        {(() => {
+                          const selectedPlan = (plans.data as any[] | undefined)?.find(
+                            (p) => p.id === enrollment.plan_id,
+                          );
+                          const methods = selectedPlan
+                            ? normalizePlanPaymentMethods(selectedPlan.payment_methods).filter((m) => m.enabled)
+                            : [];
+                          const gatewayCodes = new Set(["pix", "boleto", "credit_card", "debit_card", "payment_link", "recurring"]);
+                          const isGateway = gatewayCodes.has(enrollment.payment_method);
+                          return (
+                            <>
+                              <select
+                                className="border rounded p-2 bg-background w-full"
+                                value={enrollment.payment_method}
+                                onChange={(e) =>
+                                  setEnrollment((s) => ({ ...s, payment_method: e.target.value }))
+                                }
+                              >
+                                {methods.length === 0 && (
+                                  <option value="manual">Registrar manualmente</option>
+                                )}
+                                {methods.map((m) => (
+                                  <option key={m.code} value={m.code}>
+                                    {paymentMethodLabel(m.code)}
+                                  </option>
+                                ))}
+                              </select>
+                              {isGateway && (
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  Uma assinatura será criada no Asaas e emitirá as cobranças automaticamente no ciclo do plano.
+                                  O aluno recebe a fatura por e-mail; as cobranças aparecem no Financeiro conforme o Asaas confirma.
+                                </p>
+                              )}
+                              {!isGateway && (
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  Cobranças manuais: a 1ª fatura é criada no sistema e as próximas são geradas mensalmente.
+                                </p>
+                              )}
+                            </>
+                          );
+                        })()}
                       </Field>
                     </div>
                   </TabsContent>
