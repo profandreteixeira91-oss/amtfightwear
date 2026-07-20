@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useParams, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Megaphone, Search, Pin, Star, Heart, MessageCircle, Check, ChevronLeft, Share2,
   Bell, AlertTriangle,
@@ -12,6 +12,7 @@ import {
 
 export const Route = createFileRoute("/app/_student/announcements")({
   head: () => ({ meta: [{ title: "Quadro de Avisos — Portal do Aluno" }] }),
+  validateSearch: (s: Record<string, unknown>) => ({ open: typeof s.open === "string" ? s.open : undefined }),
   component: MyAnnouncements,
 });
 
@@ -36,10 +37,17 @@ function fmtDate(iso?: string | null) {
 
 function MyAnnouncements() {
   const listFn = useServerFn(listMyAnnouncements);
+  const search = Route.useSearch();
+  const navigate = useNavigate();
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<string>("all");
   const [priority, setPriority] = useState<string>("all");
-  const [detailId, setDetailId] = useState<string | null>(null);
+  const [detailId, setDetailId] = useState<string | null>(search.open ?? null);
+
+  useEffect(() => {
+    if (search.open && search.open !== detailId) setDetailId(search.open);
+  }, [search.open]);
+
 
   const { data, isLoading } = useQuery({
     queryKey: ["student", "announcements", q, filter, priority],
@@ -194,7 +202,7 @@ function MyAnnouncements() {
         </ul>
       )}
 
-      {detailId && <AnnouncementDetail id={detailId} onClose={() => setDetailId(null)} />}
+      {detailId && <AnnouncementDetail id={detailId} onClose={() => { setDetailId(null); if (search.open) navigate({ to: "/app/announcements", search: {} as any, replace: true }); }} />}
     </div>
   );
 }

@@ -3,9 +3,10 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getMyHome } from "@/lib/student/student.functions";
 import { getStudentAppConfig, getActiveAppNews } from "@/lib/student-app/config.functions";
+import { listMyAnnouncements } from "@/lib/student/announcements.functions";
 import { DEFAULT_CONFIG, type HomeBlock, type FeatureKey } from "@/lib/student-app/schema";
 import * as Icons from "lucide-react";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Megaphone, Pin, Star, AlertTriangle } from "lucide-react";
 
 export const Route = createFileRoute("/app/_student/home")({
   head: () => ({ meta: [{ title: "Início — Portal do Aluno" }] }),
@@ -35,14 +36,21 @@ function HomePage() {
   const homeFn = useServerFn(getMyHome);
   const configFn = useServerFn(getStudentAppConfig);
   const newsFn = useServerFn(getActiveAppNews);
+  const annFn = useServerFn(listMyAnnouncements);
   const { data: homeData, isLoading } = useQuery({ queryKey: ["student", "home"], queryFn: () => homeFn({}) });
   const { data: cfgData } = useQuery({ queryKey: ["student", "app-config"], queryFn: () => configFn({}), staleTime: 30_000 });
   const { data: news } = useQuery({ queryKey: ["student", "app-news"], queryFn: () => newsFn({}) });
+  const { data: annData } = useQuery({
+    queryKey: ["student", "announcements", "home"],
+    queryFn: () => annFn({ data: { filter: "all" as any } }),
+    staleTime: 30_000,
+  });
 
   const config = cfgData?.config ?? DEFAULT_CONFIG;
   const student = homeData?.student;
   const belt = homeData?.belt;
   const openInvoices = homeData?.openInvoices ?? [];
+  const announcements = annData?.items ?? [];
 
   return (
     <div className="mx-auto grid w-full max-w-3xl gap-5 lg:max-w-5xl lg:grid-cols-3 lg:items-start">
@@ -63,9 +71,81 @@ function HomePage() {
           </div>
         );
       })}
+      {announcements.length > 0 && (
+        <div className="lg:col-span-3">
+          <AnnouncementsWidget items={announcements} />
+        </div>
+      )}
     </div>
   );
 }
+
+function AnnouncementsWidget({ items }: { items: any[] }) {
+  const sorted = [...items].sort((a, b) => {
+    const score = (x: any) => (x.pinned ? 4 : 0) + (x.featured ? 2 : 0) + (!x.is_read ? 1 : 0) + (x.priority === "urgent" ? 3 : 0);
+    return score(b) - score(a);
+  });
+  const top = sorted.slice(0, 4);
+  const unread = items.filter((i) => !i.is_read).length;
+  return (
+    <section>
+      <div className="mb-2 flex items-center justify-between px-1">
+        <h2 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-neutral-400">
+          <Megaphone className="h-3.5 w-3.5" /> Quadro de Avisos
+          {unread > 0 && (
+            <span className="ml-1 rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-bold text-white">{unread}</span>
+          )}
+        </h2>
+        <Link to="/app/announcements" className="text-[11px] font-medium" style={{ color: "var(--sa-primary)" }}>
+          Ver todos
+        </Link>
+      </div>
+      <ul className="grid gap-2 sm:grid-cols-2">
+        {top.map((a) => (
+          <li key={a.id}>
+            <Link
+              to="/app/announcements"
+              search={{ open: a.id } as any}
+              className="flex items-start gap-3 rounded-2xl p-3 shadow-sm ring-1 ring-neutral-100 transition hover:ring-neutral-200"
+              style={{ background: "var(--sa-card, #fff)" }}
+            >
+              {a.cover_image ? (
+                <img src={a.cover_image} alt="" className="h-14 w-14 shrink-0 rounded-xl object-cover" />
+              ) : (
+                <div
+                  className="grid h-14 w-14 shrink-0 place-items-center rounded-xl"
+                  style={{ background: a.color ? `${a.color}20` : "#f5f5f5", color: a.color ?? "#666" }}
+                >
+                  <Megaphone className="h-5 w-5" />
+                </div>
+              )}
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-1">
+                  {!a.is_read && <span className="h-2 w-2 rounded-full bg-red-500" />}
+                  {a.pinned && <Pin className="h-3 w-3 text-neutral-500" />}
+                  {a.featured && <Star className="h-3 w-3 text-yellow-500" />}
+                  {a.priority === "urgent" && (
+                    <span className="inline-flex items-center gap-0.5 rounded-full bg-red-50 px-1.5 py-0.5 text-[9px] font-semibold uppercase text-red-700 ring-1 ring-red-200">
+                      <AlertTriangle className="h-2.5 w-2.5" /> Urgente
+                    </span>
+                  )}
+                </div>
+                <p
+                  className={`mt-1 line-clamp-1 text-sm font-semibold ${a.is_read ? "text-neutral-600" : ""}`}
+                  style={{ color: a.is_read ? undefined : "var(--sa-title)" }}
+                >
+                  {a.title}
+                </p>
+                {a.summary && <p className="mt-0.5 line-clamp-2 text-xs text-neutral-500">{a.summary}</p>}
+              </div>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 
 function BlockRenderer({
   block,
