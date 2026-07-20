@@ -10,6 +10,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   asaasCreateCustomer,
   asaasFindCustomerByCpfCnpj,
+  asaasGetCustomer,
   type AsaasSplit,
 } from "@/lib/asaas/client.server";
 
@@ -103,7 +104,14 @@ export async function ensureAsaasCustomerForStudent(
   },
   apiKey?: string,
 ): Promise<string> {
-  if (student.asaas_customer_id) return student.asaas_customer_id;
+  if (student.asaas_customer_id) {
+    try {
+      await asaasGetCustomer(student.asaas_customer_id, apiKey);
+      return student.asaas_customer_id;
+    } catch {
+      // O Customer pode pertencer a outra conta Asaas; recria na conta emissora.
+    }
+  }
   if (!student.cpf || student.cpf.replace(/\D/g, "").length < 11) {
     throw new Error(
       "CPF do aluno é obrigatório para cobrança automática pelo Asaas. Preencha o CPF ou escolha cobrança manual.",
@@ -145,18 +153,98 @@ export async function ensureAsaasCustomerForStudent(
  * Resolve a API key + split a usar para as cobranças de um dojo.
  * - Se o dojo tem subconta Asaas (`asaas_api_key_encrypted`): usa a chave da
  *   subconta e aplica split de 5% para a wallet AMT.
- * - Caso contrário: cai na chave AMT central (sem split — a AMT já é dona).
+ * - Se vinculou conta existente: usa a conta AMT central e envia 95% para a
+ *   wallet do dojo, mantendo 5% na operação AMT.
  */
 export function resolveDojoAsaasCredentials(profile: {
   asaas_api_key_encrypted?: string | null;
-}): { apiKey: string | undefined; split: AsaasSplit[] | undefined } {
+  asaas_wallet_id?: string | null;
+}): { apiKey: string | undefined; split: AsaasSplit[]; mode: "subaccount" | "linked_wallet" } {
   const subaccountKey = profile?.asaas_api_key_encrypted ?? null;
   if (subaccountKey) {
     const walletId = process.env.ASAAS_WALLET_ID_AMT;
-    const split: AsaasSplit[] | undefined = walletId
+    const split: AsaasSplit[] = walletId
       ? [{ walletId, percentualValue: 5 }]
-      : undefined;
-    return { apiKey: subaccountKey, split };
+      : [];
+    return { apiKey: subaccountKey, split, mode: "subaccount" };
   }
-  return { apiKey: undefined, split: undefined };
+
+  const dojoWalletId = profile?.asaas_wallet_id ?? null;
+  if (!dojoWalletId) {
+    throw new Error(
+      "AMT Pay não está ativado. Vincule sua conta Asaas pela wallet ID antes de gerar cobranças.",
+    );
+  }
+
+  return {
+    apiKey: undefined,
+    split: [{ walletId: dojoWalletId, percentualValue: 95 }],
+    mode: "linked_wallet",
+  };
+}
+
+/**
+ * Cria uma cobrança avulsa no Asaas para uma fatura.
+ * Usado para taxas de matrícula e faturas manuais criadas pelo owner.
+ */
+export async function syncInvoiceWithAsaas(
+  supabase: AnyDb,
+  invoice: {
+    id?: string;
+    student_id: string;
+    amount: number;
+    due_date: string;
+    description?: string | null;
+    owner_id: string;
+  },
+) {
+  // 1. Carrega profile do dojo (para chave Asaas)
+  const { data: profile } = await supabase
+    .from("dojo_academy_profile")
+    .select("asaas_api_key_encrypted, asaas_wallet_id, trade_name")
+    .eq("owner_id", invoice.owner_id)
+    .maybeSingle();
+
+  const { apiKey, split } = resolveDojoAsaasCredentials((profile ?? {}) as any);
+
+  // 2. Carrega aluno
+  const { data: student } = await supabase
+    .from("dojo_students")
+    .select("id, full_name, email, phone, cpf, asaas_customer_id")
+    .eq("id", invoice.student_id)
+    .maybeSingle();
+
+  if (!student) throw new Error("Aluno não encontrado para sincronização Asaas");
+
+  // 3. Garante Customer no Asaas
+  const customerId = await ensureAsaasCustomerForStudent(
+    supabase,
+    student as any,
+    apiKey,
+  );
+
+  // 4. Cria Cobrança (Payment) no Asaas
+  const { asaasCreateCharge } = await import("@/lib/asaas/client.server");
+  const charge = await asaasCreateCharge(
+    {
+      customer: customerId,
+      billingType: "UNDEFINED", // Permite o aluno escolher (Pix/Boleto/Cartão) no link
+      value: invoice.amount,
+      dueDate: invoice.due_date,
+      description: invoice.description ?? "Mensalidade",
+      externalReference: invoice.id ? `dojo_invoice:${invoice.id}` : undefined,
+      split,
+    },
+    apiKey,
+  );
+
+  return {
+    asaas_charge_id: charge.id,
+    payment_id: charge.id,
+    payment_link: charge.invoiceUrl,
+    asaas_invoice_url: charge.invoiceUrl,
+    payment_provider: "asaas",
+    provider: "asaas",
+    split_config: split,
+  };
 }

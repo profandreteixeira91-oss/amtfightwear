@@ -218,7 +218,7 @@ export const saveDojoPlan = createServerFn({ method: "POST" })
     id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido").optional(),
     name: z.string().min(1).max(120),
     description: z.string().max(500).optional().nullable(),
-    amount: z.number().min(0),
+    amount: z.number().positive(),
     enrollment_fee: z.number().min(0).optional(),
     duration_days: z.number().int().min(1).max(3650).optional(),
     frequency: z.enum(["monthly","bimonthly","quarterly","quadrimestral","semiannual","annual","custom"]).optional(),
@@ -351,7 +351,7 @@ export const saveDojoInvoice = createServerFn({ method: "POST" })
     enrollment_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido").optional().nullable(),
     unit_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido").optional().nullable(),
     description: z.string().max(300).optional().nullable(),
-    amount: z.number().min(0),
+    amount: z.number().positive(),
     due_date: z.string(),
     status: z.enum(["pending","paid","overdue","cancelled"]).optional(),
     method: z.string().max(30).optional().nullable(),
@@ -360,11 +360,68 @@ export const saveDojoInvoice = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { id, ...rest } = data;
     if (id) {
-      const { error } = await context.supabase.from("dojo_invoices").update(rest).eq("id", id);
+      const { data: current, error: currentError } = await context.supabase
+        .from("dojo_invoices")
+        .select("asaas_charge_id")
+        .eq("id", id)
+        .maybeSingle();
+      if (currentError) throw new Error(currentError.message);
+      if (!current) throw new Error("Cobrança não encontrada");
+
+      const owner_id = ownerId(context);
+      const { data: profile } = await context.supabase
+        .from("dojo_academy_profile")
+        .select("asaas_api_key_encrypted, asaas_wallet_id")
+        .eq("owner_id", owner_id)
+        .maybeSingle();
+      const { resolveDojoAsaasCredentials, syncInvoiceWithAsaas } = await import("@/lib/asaas/enrollment.server");
+      const { apiKey, split } = resolveDojoAsaasCredentials((profile ?? {}) as any);
+      const patch: any = { ...rest };
+
+      if ((current as any).asaas_charge_id) {
+        const { asaasUpdateCharge } = await import("@/lib/asaas/client.server");
+        const charge = await asaasUpdateCharge(
+          (current as any).asaas_charge_id,
+          {
+            billingType: "UNDEFINED",
+            value: rest.amount,
+            dueDate: rest.due_date,
+            description: rest.description ?? "Mensalidade",
+            split,
+          },
+          apiKey,
+        );
+        Object.assign(patch, {
+          payment_link: charge.invoiceUrl,
+          asaas_invoice_url: charge.invoiceUrl,
+          split_config: split,
+          provider: "asaas",
+          payment_provider: "asaas",
+        });
+      } else {
+        const asaasData = await syncInvoiceWithAsaas(context.supabase as any, {
+          id,
+          ...rest,
+          owner_id,
+        });
+        Object.assign(patch, asaasData);
+      }
+
+      const { error } = await context.supabase.from("dojo_invoices").update(patch).eq("id", id);
       if (error) throw new Error(error.message);
       return { id };
     }
-    const { data: row, error } = await context.supabase.from("dojo_invoices").insert({ ...rest, owner_id: ownerId(context) }).select("id").single();
+    const payload: any = {
+      id: crypto.randomUUID(),
+      ...rest,
+      status: "pending",
+      owner_id: ownerId(context),
+    };
+    const { syncInvoiceWithAsaas } = await import("@/lib/asaas/enrollment.server");
+    const asaasData = await syncInvoiceWithAsaas(context.supabase as any, payload);
+    Object.assign(payload, asaasData);
+
+    const { data: row, error } = await context.supabase.from("dojo_invoices").insert(payload).select("id").single();
     if (error) throw new Error(error.message);
     return { id: row.id };
   });
@@ -376,6 +433,31 @@ export const markDojoInvoicePaid = createServerFn({ method: "POST" })
     method: z.string().max(30).optional(),
   }).parse(i))
   .handler(async ({ data, context }) => {
+    const { data: invoice, error: invoiceError } = await context.supabase
+      .from("dojo_invoices")
+      .select("amount, asaas_charge_id")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (invoiceError) throw new Error(invoiceError.message);
+    if (!invoice) throw new Error("Cobrança não encontrada");
+
+    if (!(invoice as any).asaas_charge_id) {
+      throw new Error("Esta cobrança antiga ainda não está vinculada ao Asaas. Edite e salve a cobrança antes de registrar o pagamento.");
+    }
+    const { data: profile } = await context.supabase
+      .from("dojo_academy_profile")
+      .select("asaas_api_key_encrypted, asaas_wallet_id")
+      .eq("owner_id", ownerId(context))
+      .maybeSingle();
+    const { resolveDojoAsaasCredentials } = await import("@/lib/asaas/enrollment.server");
+    const { apiKey } = resolveDojoAsaasCredentials((profile ?? {}) as any);
+    const { asaasReceiveChargeInCash } = await import("@/lib/asaas/client.server");
+    await asaasReceiveChargeInCash(
+      (invoice as any).asaas_charge_id,
+      Number(invoice.amount),
+      apiKey,
+    );
+
     const { error } = await context.supabase.from("dojo_invoices")
       .update({ status: "paid", paid_at: new Date().toISOString(), method: data.method ?? "cash" })
       .eq("id", data.id);
@@ -387,77 +469,30 @@ export const deleteDojoInvoice = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
   .handler(async ({ data, context }) => {
+    const { data: invoice, error: invoiceError } = await context.supabase
+      .from("dojo_invoices")
+      .select("asaas_charge_id")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (invoiceError) throw new Error(invoiceError.message);
+    if (!invoice) throw new Error("Cobrança não encontrada");
+
+    if (!(invoice as any).asaas_charge_id) {
+      throw new Error("Esta cobrança antiga ainda não está vinculada ao Asaas. Edite e salve a cobrança antes de excluí-la.");
+    }
+    const { data: profile } = await context.supabase
+      .from("dojo_academy_profile")
+      .select("asaas_api_key_encrypted, asaas_wallet_id")
+      .eq("owner_id", ownerId(context))
+      .maybeSingle();
+    const { resolveDojoAsaasCredentials } = await import("@/lib/asaas/enrollment.server");
+    const { apiKey } = resolveDojoAsaasCredentials((profile ?? {}) as any);
+    const { asaasCancelCharge } = await import("@/lib/asaas/client.server");
+    await asaasCancelCharge((invoice as any).asaas_charge_id, apiKey);
+
     const { error } = await context.supabase.from("dojo_invoices").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
-  });
-
-// ============ MP CHECKOUT PARA MENSALIDADES ============
-async function createMpPreferenceForInvoice(opts: {
-  ownerId: string;
-  invoiceId: string;
-  amount: number;
-  description: string;
-  payerEmail?: string | null;
-}): Promise<string> {
-  const { requireOwnerMpToken } = await import("@/lib/dojo/payment-gateway.server");
-  const token = await requireOwnerMpToken(opts.ownerId);
-  const backBase = "https://dojomanager.amtfightwear.com.br/app/finance";
-  const notification = "https://loja.amtfightwear.com.br/api/public/hooks/mercadopago";
-  const res = await fetch("https://api.mercadopago.com/checkout/preferences", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-    body: JSON.stringify({
-      items: [{
-        title: opts.description.slice(0, 240) || "Mensalidade",
-        quantity: 1,
-        currency_id: "BRL",
-        unit_price: Number(opts.amount.toFixed(2)),
-      }],
-      payer: opts.payerEmail ? { email: opts.payerEmail } : undefined,
-      external_reference: `dojo_invoice:${opts.invoiceId}`,
-      notification_url: notification,
-      back_urls: { success: backBase, failure: backBase, pending: backBase },
-      auto_return: "approved",
-    }),
-  });
-  const text = await res.text();
-  const body = text ? (() => { try { return JSON.parse(text); } catch { return null; } })() : null;
-  if (!res.ok) {
-    const msg = (body && (body.message || body?.cause?.[0]?.description)) || `MP ${res.status}`;
-    throw new Error(String(msg));
-  }
-  const url = body?.init_point ?? body?.sandbox_init_point;
-  if (!url) throw new Error("Mercado Pago não retornou link de pagamento");
-  return String(url);
-}
-
-/** Gera/atualiza link Mercado Pago para uma fatura já existente. */
-export const chargeDojoInvoiceMp = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
-    invoice_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido"),
-  }).parse(i))
-  .handler(async ({ data, context }) => {
-    const { data: inv, error } = await context.supabase
-      .from("dojo_invoices")
-      .select("id, amount, description, owner_id, student:dojo_students(email, full_name)")
-      .eq("id", data.invoice_id)
-      .maybeSingle();
-    if (error) throw new Error(error.message);
-    if (!inv) throw new Error("Fatura não encontrada");
-    const url = await createMpPreferenceForInvoice({
-      ownerId: (inv as any).owner_id,
-      invoiceId: inv.id,
-      amount: Number(inv.amount),
-      description: (inv as any).description ?? "Mensalidade",
-      payerEmail: (inv as any).student?.email ?? null,
-    });
-    await context.supabase
-      .from("dojo_invoices")
-      .update({ payment_link: url, payment_provider: "mercadopago" } as never)
-      .eq("id", inv.id);
-    return { url };
   });
 
 /**
@@ -549,7 +584,7 @@ export const enrollStudentWithPlan = createServerFn({ method: "POST" })
       // Carrega profile do dojo (para chave/subconta Asaas)
       const { data: profile } = await context.supabase
         .from("dojo_academy_profile")
-        .select("asaas_api_key_encrypted, trade_name")
+        .select("asaas_api_key_encrypted, asaas_wallet_id, trade_name")
         .eq("owner_id", ownerId(context))
         .maybeSingle();
 
@@ -595,7 +630,8 @@ export const enrollStudentWithPlan = createServerFn({ method: "POST" })
         // Se há taxa de matrícula, ela é lançada como fatura local separada
         // (Subscription do Asaas só emite valor recorrente).
         if (fee > 0) {
-          await context.supabase.from("dojo_invoices").insert({
+          const feePayload: any = {
+            id: crypto.randomUUID(),
             student_id: data.student_id,
             enrollment_id: enrollRow.id,
             unit_id: (student as any).unit_id ?? null,
@@ -604,7 +640,11 @@ export const enrollStudentWithPlan = createServerFn({ method: "POST" })
             due_date: firstDueDate,
             status: "pending",
             owner_id: ownerId(context),
-          } as never);
+          };
+          const { syncInvoiceWithAsaas } = await import("@/lib/asaas/enrollment.server");
+          const asaasData = await syncInvoiceWithAsaas(context.supabase as any, feePayload);
+          Object.assign(feePayload, asaasData);
+          await context.supabase.from("dojo_invoices").insert(feePayload as never);
         }
 
         return {
@@ -626,9 +666,8 @@ export const enrollStudentWithPlan = createServerFn({ method: "POST" })
     const desc = fee > 0
       ? `Matrícula + 1ª mensalidade — ${plan.name}`
       : `1ª mensalidade — ${plan.name}`;
-    const { data: invRow, error: invErr } = await context.supabase
-      .from("dojo_invoices")
-      .insert({
+    const invPayload: any = {
+        id: crypto.randomUUID(),
         student_id: data.student_id,
         enrollment_id: enrollRow.id,
         unit_id: (student as any).unit_id ?? null,
@@ -637,7 +676,14 @@ export const enrollStudentWithPlan = createServerFn({ method: "POST" })
         due_date: firstDueDate,
         status: "pending",
         owner_id: ownerId(context),
-      } as never)
+      };
+    const { syncInvoiceWithAsaas } = await import("@/lib/asaas/enrollment.server");
+    const asaasData = await syncInvoiceWithAsaas(context.supabase as any, invPayload);
+    Object.assign(invPayload, asaasData);
+
+    const { data: invRow, error: invErr } = await context.supabase
+      .from("dojo_invoices")
+      .insert(invPayload as never)
       .select("id")
       .single();
     if (invErr) throw new Error(invErr.message);
@@ -646,7 +692,7 @@ export const enrollStudentWithPlan = createServerFn({ method: "POST" })
       enrollment_id: enrollRow.id,
       invoice_id: invRow.id,
       amount,
-      payment_url: null as string | null,
+      payment_url: invPayload.payment_link as string,
     };
   });
 
@@ -668,20 +714,15 @@ export const cancelEnrollment = createServerFn({ method: "POST" })
     if (!enr) throw new Error("Matrícula não encontrada");
 
     if ((enr as any).asaas_subscription_id) {
-      try {
-        const { data: profile } = await context.supabase
-          .from("dojo_academy_profile")
-          .select("asaas_api_key_encrypted")
-          .eq("owner_id", ownerId(context))
-          .maybeSingle();
-        const { resolveDojoAsaasCredentials } = await import("@/lib/asaas/enrollment.server");
-        const { apiKey } = resolveDojoAsaasCredentials((profile ?? {}) as any);
-        const { asaasCancelSubscription } = await import("@/lib/asaas/client.server");
-        await asaasCancelSubscription((enr as any).asaas_subscription_id, apiKey);
-      } catch (e: any) {
-        // Não bloqueia o cancelamento local
-        console.error("[cancelEnrollment] Asaas cancel failed:", e.message);
-      }
+      const { data: profile } = await context.supabase
+        .from("dojo_academy_profile")
+        .select("asaas_api_key_encrypted, asaas_wallet_id")
+        .eq("owner_id", ownerId(context))
+        .maybeSingle();
+      const { resolveDojoAsaasCredentials } = await import("@/lib/asaas/enrollment.server");
+      const { apiKey } = resolveDojoAsaasCredentials((profile ?? {}) as any);
+      const { asaasCancelSubscription } = await import("@/lib/asaas/client.server");
+      await asaasCancelSubscription((enr as any).asaas_subscription_id, apiKey);
     }
 
     const today = new Date().toISOString().slice(0, 10);
@@ -702,8 +743,9 @@ export const generateMonthlyInvoices = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { data: enrolls, error } = await context.supabase
       .from("dojo_enrollments")
-      .select("id, student_id, due_day, custom_amount, plan:dojo_plans(amount), student:dojo_students(unit_id)")
-      .eq("status", "active");
+      .select("id, student_id, due_day, custom_amount, asaas_subscription_id, plan:dojo_plans(amount), student:dojo_students(unit_id)")
+      .eq("status", "active")
+      .is("asaas_subscription_id", null);
     if (error) throw new Error(error.message);
     const [y, m] = data.reference_month.split("-").map(Number);
     let created = 0;
@@ -716,7 +758,8 @@ export const generateMonthlyInvoices = createServerFn({ method: "POST" })
       const { data: existing } = await context.supabase.from("dojo_invoices")
         .select("id").eq("enrollment_id", e.id).gte("due_date", monthStart).lt("due_date", nextMonth).maybeSingle();
       if (existing) continue;
-      const { error: insErr } = await context.supabase.from("dojo_invoices").insert({
+      const invPayload: any = {
+        id: crypto.randomUUID(),
         student_id: e.student_id,
         enrollment_id: e.id,
         unit_id: e.student?.unit_id ?? null,
@@ -725,7 +768,11 @@ export const generateMonthlyInvoices = createServerFn({ method: "POST" })
         due_date: dueDate,
         status: "pending",
         owner_id: ownerId(context),
-      });
+      };
+      const { syncInvoiceWithAsaas } = await import("@/lib/asaas/enrollment.server");
+      const asaasData = await syncInvoiceWithAsaas(context.supabase as any, invPayload);
+      Object.assign(invPayload, asaasData);
+      const { error: insErr } = await context.supabase.from("dojo_invoices").insert(invPayload);
       if (!insErr) created++;
     }
     return { created };

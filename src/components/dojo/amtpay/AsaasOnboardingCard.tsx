@@ -39,6 +39,7 @@ function StatusBadge({ status }: { status: string }) {
     pending: { label: "Em análise", className: "bg-amber-500/15 text-amber-500" },
     REJECTED: { label: "Recusado", className: "bg-red-500/15 text-red-500" },
     rejected: { label: "Recusado", className: "bg-red-500/15 text-red-500" },
+    linked_external: { label: "Conta vinculada", className: "bg-emerald-500/15 text-emerald-500" },
     not_started: { label: "Não iniciado", className: "bg-slate-500/15 text-slate-500" },
   };
   const s = map[status] || { label: status, className: "bg-slate-500/15 text-slate-500" };
@@ -137,6 +138,9 @@ export function AsaasOnboardingCard() {
 
   const data = cfg.data;
   const hasSubaccount = !!data?.subaccountId;
+  const hasLinkedWallet = !!data?.walletId;
+  const isExternalAccount = hasLinkedWallet && !hasSubaccount;
+  const isConfigured = hasSubaccount || hasLinkedWallet;
   const isApproved =
     data?.onboardingStatus === "APPROVED" || data?.onboardingStatus === "approved";
   const profile = data?.profile;
@@ -174,11 +178,27 @@ export function AsaasOnboardingCard() {
                 taxa de intermediação combinada.
               </p>
             </div>
-            {hasSubaccount && <StatusBadge status={data.onboardingStatus} />}
+            {isConfigured && <StatusBadge status={data.onboardingStatus} />}
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          {hasSubaccount ? (
+          {isExternalAccount ? (
+            <>
+              <div className="rounded-md border p-3">
+                <div className="text-xs text-muted-foreground">Wallet ID vinculada</div>
+                <div className="font-mono text-sm break-all">{data.walletId}</div>
+              </div>
+              <Alert>
+                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                <AlertTitle>AMT Pay configurado</AlertTitle>
+                <AlertDescription>
+                  Sua conta Asaas existente está vinculada. A configuração foi
+                  concluída e todas as novas cobranças serão emitidas pelo Asaas com
+                  split automático para esta wallet.
+                </AlertDescription>
+              </Alert>
+            </>
+          ) : hasSubaccount ? (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="rounded-md border p-3">
@@ -393,7 +413,7 @@ export function AsaasOnboardingCard() {
           )}
 
           {/* Já tem conta Asaas? Vincular usando walletId */}
-          {!hasSubaccount && (
+          {!isConfigured && (
             <div className="mt-4 pt-4 border-t">
               {!showLinkExisting ? (
                 <button

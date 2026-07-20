@@ -48,7 +48,8 @@ export const Route = createFileRoute("/api/public/hooks/generate-dojo-invoices")
           if (existing) { skipped++; continue; }
 
           const amount = e.custom_amount ?? e.plan?.amount ?? 0;
-          const { error: insErr } = await supabaseAdmin.from("dojo_invoices").insert({
+          const invPayload: any = {
+            id: crypto.randomUUID(),
             student_id: e.student_id,
             enrollment_id: e.id,
             unit_id: e.student?.unit_id ?? null,
@@ -57,7 +58,11 @@ export const Route = createFileRoute("/api/public/hooks/generate-dojo-invoices")
             amount,
             due_date: dueDate,
             status: "pending",
-          });
+          };
+          const { syncInvoiceWithAsaas } = await import("@/lib/asaas/enrollment.server");
+          const asaasData = await syncInvoiceWithAsaas(supabaseAdmin as any, invPayload);
+          Object.assign(invPayload, asaasData);
+          const { error: insErr } = await supabaseAdmin.from("dojo_invoices").insert(invPayload);
           if (!insErr) created++;
         }
 
