@@ -6,6 +6,7 @@ import { Benefits } from "@/components/dojo/landing/Benefits";
 import { Features } from "@/components/dojo/landing/Features";
 import { Differentiators } from "@/components/dojo/landing/Differentiators";
 import { ModulesGrid } from "@/components/dojo/landing/ModulesGrid";
+import { RealScreenshots } from "@/components/dojo/landing/RealScreenshots";
 import { FightWearIntegration } from "@/components/dojo/landing/FightWearIntegration";
 import { Integrations } from "@/components/dojo/landing/Integrations";
 import { Plans } from "@/components/dojo/landing/Plans";
