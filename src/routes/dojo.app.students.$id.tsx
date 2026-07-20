@@ -421,7 +421,7 @@ function StudentDetail() {
                   ))}
                   {enrollments.length === 0 && <div className="p-4 text-sm text-muted-foreground">Sem matrículas ativas.</div>}
                 </div>
-              </SectionCard>
+              </SectionCard></div>
             </TabsContent>
 
             {/* --- Anamnese --- */}
