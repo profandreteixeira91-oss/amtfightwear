@@ -459,7 +459,7 @@ function AcademyTab({ academy, setAcademy, onSave }: any) {
     name: !!(academy?.legal_name || academy?.trade_name),
     cnpj: !!academy?.cnpj,
     email: !!academy?.email,
-    phone: !!academy?.phone,
+    mobile: !!(academy?.whatsapp || academy?.phone),
     address: !!academy?.address,
     number: !!academy?.address_number,
     neighborhood: !!academy?.neighborhood,
