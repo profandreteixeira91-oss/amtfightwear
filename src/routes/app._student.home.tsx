@@ -109,48 +109,58 @@ function AnnouncementsWidget({ items }: { items: any[] }) {
           Ver todos
         </Link>
       </div>
-      <ul className="grid gap-2 sm:grid-cols-2">
-        {top.map((a) => (
-          <li key={a.id}>
-            <Link
-              to="/app/announcements"
-              search={{ open: a.id } as any}
-              className="flex items-start gap-3 rounded-2xl p-3 shadow-sm ring-1 ring-neutral-100 transition hover:ring-neutral-200"
-              style={{ background: "var(--sa-card, #fff)" }}
-            >
-              {a.cover_image ? (
-                <img src={a.cover_image} alt="" className="h-14 w-14 shrink-0 rounded-xl object-cover" />
-              ) : (
-                <div
-                  className="grid h-14 w-14 shrink-0 place-items-center rounded-xl"
-                  style={{ background: a.color ? `${a.color}20` : "#f5f5f5", color: a.color ?? "#666" }}
-                >
-                  <Megaphone className="h-5 w-5" />
+      {top.length === 0 ? (
+        <div
+          className="rounded-2xl p-4 text-center text-xs text-neutral-500 shadow-sm ring-1 ring-neutral-100"
+          style={{ background: "var(--sa-card, #fff)" }}
+        >
+          Nenhum aviso disponível no momento.
+        </div>
+      ) : (
+        <ul className="grid gap-2 sm:grid-cols-2">
+          {top.map((a) => (
+            <li key={a.id}>
+              <Link
+                to="/app/announcements"
+                search={{ open: a.id } as any}
+                className="flex items-start gap-3 rounded-2xl p-3 shadow-sm ring-1 ring-neutral-100 transition hover:ring-neutral-200"
+                style={{ background: "var(--sa-card, #fff)" }}
+              >
+                {a.cover_image ? (
+                  <img src={a.cover_image} alt="" className="h-14 w-14 shrink-0 rounded-xl object-cover" />
+                ) : (
+                  <div
+                    className="grid h-14 w-14 shrink-0 place-items-center rounded-xl"
+                    style={{ background: a.color ? `${a.color}20` : "#f5f5f5", color: a.color ?? "#666" }}
+                  >
+                    <Megaphone className="h-5 w-5" />
+                  </div>
+                )}
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-1">
+                    {!a.is_read && <span className="h-2 w-2 rounded-full bg-red-500" />}
+                    {a.pinned && <Pin className="h-3 w-3 text-neutral-500" />}
+                    {a.featured && <Star className="h-3 w-3 text-yellow-500" />}
+                    {a.priority === "urgent" && (
+                      <span className="inline-flex items-center gap-0.5 rounded-full bg-red-50 px-1.5 py-0.5 text-[9px] font-semibold uppercase text-red-700 ring-1 ring-red-200">
+                        <AlertTriangle className="h-2.5 w-2.5" /> Urgente
+                      </span>
+                    )}
+                  </div>
+                  <p
+                    className={`mt-1 line-clamp-1 text-sm font-semibold ${a.is_read ? "text-neutral-600" : ""}`}
+                    style={{ color: a.is_read ? undefined : "var(--sa-title)" }}
+                  >
+                    {a.title}
+                  </p>
+                  {a.summary && <p className="mt-0.5 line-clamp-2 text-xs text-neutral-500">{a.summary}</p>}
                 </div>
-              )}
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-1">
-                  {!a.is_read && <span className="h-2 w-2 rounded-full bg-red-500" />}
-                  {a.pinned && <Pin className="h-3 w-3 text-neutral-500" />}
-                  {a.featured && <Star className="h-3 w-3 text-yellow-500" />}
-                  {a.priority === "urgent" && (
-                    <span className="inline-flex items-center gap-0.5 rounded-full bg-red-50 px-1.5 py-0.5 text-[9px] font-semibold uppercase text-red-700 ring-1 ring-red-200">
-                      <AlertTriangle className="h-2.5 w-2.5" /> Urgente
-                    </span>
-                  )}
-                </div>
-                <p
-                  className={`mt-1 line-clamp-1 text-sm font-semibold ${a.is_read ? "text-neutral-600" : ""}`}
-                  style={{ color: a.is_read ? undefined : "var(--sa-title)" }}
-                >
-                  {a.title}
-                </p>
-                {a.summary && <p className="mt-0.5 line-clamp-2 text-xs text-neutral-500">{a.summary}</p>}
-              </div>
-            </Link>
-          </li>
-        ))}
-      </ul>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+
     </section>
   );
 }
