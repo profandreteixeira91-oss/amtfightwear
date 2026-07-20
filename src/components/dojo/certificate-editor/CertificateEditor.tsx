@@ -385,13 +385,14 @@ function VarRow({ v, onInsert, favorite, onToggleFav }: { v: { key: string; labe
 /* ---------- CANVAS ---------- */
 
 function CanvasArea({
-  schema, selectedIds, sortedByZ, zoom, showGrid, showRulers, snap, onSelect, onPatch, onBgChange,
+  schema, selectedIds, sortedByZ, zoom, showGrid, showRulers, snap, onSelect, onPatch, onBgChange, previewValues,
 }: {
   schema: EditorSchema; selectedIds: string[]; sortedByZ: AnyElement[];
   zoom: number; showGrid: boolean; showRulers: boolean; snap: boolean;
   onSelect: (ids: string[]) => void;
   onPatch: (id: string, patch: Partial<AnyElement>) => void;
   onBgChange: (p: Partial<EditorSchema["page"]>) => void;
+  previewValues?: Record<string, string>;
 }) {
   const W = schema.page.width;
   const H = schema.page.height;
@@ -406,6 +407,7 @@ function CanvasArea({
           onClick={(e) => { if (e.target === e.currentTarget) onSelect([]); }}
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => {
+
             const key = e.dataTransfer.getData("text/x-cert-var");
             if (!key) return;
             const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
