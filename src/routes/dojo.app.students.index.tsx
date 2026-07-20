@@ -190,6 +190,15 @@ function StudentsPage() {
 
   function openNew() {
     setForm(emptyForm);
+    setEnrollment({
+      plan_id: "",
+      due_day: 5,
+      start_date: new Date().toISOString().slice(0, 10),
+      first_due_date: new Date().toISOString().slice(0, 10),
+      include_enrollment_fee: true,
+      payment_method: "manual",
+      custom_amount: "",
+    });
     setOpen(true);
   }
   function openEdit(s: any) {
@@ -213,30 +222,56 @@ function StudentsPage() {
       toast.error("É necessário registrar o consentimento LGPD e o aceite dos termos");
       return;
     }
+    // Ao criar novo aluno, exigir plano
+    const isNew = !form.id;
+    if (isNew && !enrollment.plan_id) {
+      toast.error("Selecione um plano para o aluno na aba Plano & Cobrança");
+      return;
+    }
     try {
       const payload: any = { ...form, current_degree: Number(form.current_degree || 0) };
-      // convert empty strings to null (except booleans/anamnesis/status)
       const skip = new Set([
-        "anamnesis",
-        "status",
-        "lgpd_consent",
-        "image_rights_consent",
-        "terms_accepted",
-        "has_medical_clearance",
-        "current_degree",
+        "anamnesis", "status", "lgpd_consent", "image_rights_consent",
+        "terms_accepted", "has_medical_clearance", "current_degree",
       ]);
       Object.keys(payload).forEach((k) => {
         if (!skip.has(k) && payload[k] === "") payload[k] = null;
       });
-      await saveFn({ data: payload });
-      toast.success("Aluno salvo");
+      const saved: any = await saveFn({ data: payload });
+      const studentId = saved?.id ?? form.id;
+
+      if (isNew && studentId && enrollment.plan_id) {
+        const customAmt = enrollment.custom_amount.trim() === "" ? null : Number(enrollment.custom_amount);
+        const res: any = await enrollFn({
+          data: {
+            student_id: studentId,
+            plan_id: enrollment.plan_id,
+            due_day: enrollment.due_day,
+            start_date: enrollment.start_date,
+            first_due_date: enrollment.first_due_date,
+            include_enrollment_fee: enrollment.include_enrollment_fee,
+            payment_method: enrollment.payment_method,
+            custom_amount: Number.isFinite(customAmt as number) ? customAmt : null,
+          },
+        });
+        toast.success("Aluno matriculado e 1ª mensalidade gerada");
+        if (res?.payment_url) {
+          window.open(res.payment_url, "_blank", "noopener,noreferrer");
+          toast.info("Link de pagamento aberto em nova aba");
+        }
+      } else {
+        toast.success("Aluno salvo");
+      }
       setOpen(false);
       setForm(emptyForm);
       qc.invalidateQueries({ queryKey: ["dojo-students"] });
+      qc.invalidateQueries({ queryKey: ["dojo-invoices"] });
     } catch (e: any) {
       toast.error("Erro ao salvar", { description: e.message });
     }
   };
+
+
 
   const onDelete = async (id: string) => {
     if (!confirm("Excluir aluno? Esta ação apaga histórico de graduações e mensalidades.")) return;
