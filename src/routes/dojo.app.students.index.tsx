@@ -309,6 +309,7 @@ function StudentsPage() {
                   <TabsTrigger value="endereco">Endereço</TabsTrigger>
                   <TabsTrigger value="contato">Contatos</TabsTrigger>
                   <TabsTrigger value="dojo">Dojo</TabsTrigger>
+                  {!form.id && <TabsTrigger value="plano">Plano & Cobrança</TabsTrigger>}
                   <TabsTrigger value="anamnese">Anamnese</TabsTrigger>
                   <TabsTrigger value="foto">Foto</TabsTrigger>
                   <TabsTrigger value="consent">Consentimentos</TabsTrigger>
