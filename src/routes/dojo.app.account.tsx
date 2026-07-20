@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { useCepLookup } from "@/hooks/useCepLookup";
 import { useServerFn } from "@tanstack/react-start";
 import { createMyAsaasSubaccount, getMyAsaasConfig } from "@/lib/asaas/asaas.functions";
+import { DocumentsTab } from "@/components/dojo/account/DocumentsTab";
 
 export const Route = createFileRoute("/dojo/app/account")({
   head: () => ({ meta: [{ title: "Minha Conta — AMT Dojo Manager" }] }),
