@@ -612,8 +612,8 @@ function StudentDetail() {
                       <TuitionRow
                         key={i.id}
                         inv={i}
-                        onMarkPaid={async (id) => { await payInv({ data: { id, method: "cash" } }); toast.success("Mensalidade recebida"); refresh(); }}
-                        onDelete={async (id) => { if (!confirm("Excluir esta mensalidade?")) return; await delInv({ data: { id } }); refresh(); }}
+                        onMarkPaid={async (id: string) => { await payInv({ data: { id, method: "cash" } }); toast.success("Mensalidade recebida"); refresh(); }}
+                        onDelete={async (id: string) => { if (!confirm("Excluir esta mensalidade?")) return; await delInv({ data: { id } }); refresh(); }}
                       />
                     ))}
                   </div>
