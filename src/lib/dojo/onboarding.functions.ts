@@ -122,7 +122,7 @@ export const saveOnboardingProfile = createServerFn({ method: "POST" })
       pix_key_type: data.pixKeyType.toLowerCase(),
       accepted_amtpay_terms: true,
       accepted_amtpay_terms_at: new Date().toISOString(),
-    } as Record<string, unknown>;
+    };
 
     const { error } = await context.supabase
       .from("dojo_academy_profile")
