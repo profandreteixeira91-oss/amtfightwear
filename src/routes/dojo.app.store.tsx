@@ -61,21 +61,25 @@ function StoreLayout() {
         <div className="flex shrink-0 items-center gap-2">
           <Link
             to="/dojo/app/store/carrinho"
-            className="relative inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-xs font-medium hover:bg-white/25"
+            aria-label={`Carrinho${count > 0 ? ` (${count} itens)` : ""}`}
+            className="relative inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-bold text-primary shadow-lg ring-2 ring-white/60 transition hover:scale-[1.03] hover:shadow-xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white"
           >
-            <ShoppingCart className="h-4 w-4" />
-            Carrinho
+            <ShoppingCart className="h-5 w-5" />
+            <span>Carrinho</span>
             {count > 0 && (
-              <span className="ml-1 grid h-5 min-w-5 place-items-center rounded-full bg-white px-1 text-[10px] font-bold text-primary">
+              <span className="grid h-6 min-w-6 animate-in place-items-center rounded-full bg-primary px-1.5 text-[11px] font-bold text-primary-foreground ring-2 ring-white">
                 {count}
               </span>
             )}
           </Link>
           <Link
             to="/dojo/app/store/pedidos"
-            className="hidden items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-xs font-medium hover:bg-white/25 sm:inline-flex"
+            aria-label="Meus pedidos"
+            className="inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm font-semibold text-primary-foreground ring-1 ring-white/40 backdrop-blur transition hover:bg-white/30 hover:ring-white/70"
           >
-            <ClipboardList className="h-4 w-4" /> Pedidos
+            <ClipboardList className="h-5 w-5" />
+            <span className="hidden sm:inline">Meus Pedidos</span>
+            <span className="sm:hidden">Pedidos</span>
           </Link>
         </div>
       </header>
