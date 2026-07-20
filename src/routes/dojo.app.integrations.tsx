@@ -301,6 +301,25 @@ function CatItem({ label, hint, count, active, onClick }: { label: string; hint?
   );
 }
 
+function CatChip({ label, count, active, onClick }: { label: string; count: number; active: boolean; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "snap-start shrink-0 inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm transition whitespace-nowrap",
+        active
+          ? "border-primary bg-primary text-primary-foreground shadow-sm"
+          : "border-border bg-card hover:border-primary/40 hover:bg-accent",
+      )}
+    >
+      <span className="font-medium">{label}</span>
+      <span className={cn("text-[10px] rounded-full px-1.5 py-0.5", active ? "bg-primary-foreground/20" : "bg-muted text-muted-foreground")}>
+        {count}
+      </span>
+    </button>
+  );
+}
+
 function ApiKeysAndWebhooks() {
   const qc = useQueryClient();
   const getOwner = useServerFn(getMyOwnerId);
