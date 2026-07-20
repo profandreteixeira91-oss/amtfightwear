@@ -57,7 +57,7 @@ function HomePage() {
       {config.home_blocks.filter((b) => b.visible !== false).map((block) => {
         const spanAll = block.type === "welcome" || block.type === "banner" || block.type === "open_invoices";
         return (
-          <div key={block.id} className={`${spanAll ? "lg:col-span-3" : block.type === "shortcuts" ? "lg:col-span-2" : "lg:col-span-1"} contents`}>
+          <div key={block.id} className="contents">
             <div className={spanAll ? "lg:col-span-3" : block.type === "shortcuts" ? "lg:col-span-2" : "lg:col-span-1"}>
               <BlockRenderer
                 block={block}
@@ -76,6 +76,7 @@ function HomePage() {
               </div>
             )}
           </div>
+
         );
       })}
       {!config.home_blocks.some((b) => b.type === "welcome" && b.visible !== false) && (
