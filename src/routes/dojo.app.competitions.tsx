@@ -34,20 +34,13 @@ export const Route = createFileRoute("/dojo/app/competitions")({
 
 function CompetitionsPage() {
   return (
-    <div className="mx-auto max-w-7xl space-y-6 px-4 py-6">
-      <header className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="flex items-center gap-2 text-2xl font-bold">
-            <Trophy className="h-6 w-6 text-amber-500" />
-            Hub de Competições
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Agregador de competições oficiais + gestão completa da sua academia.
-          </p>
-        </div>
-      </header>
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 md:gap-7">
+      <p className="text-sm text-muted-foreground max-w-2xl">
+        Agregador de competições oficiais + gestão completa da sua academia.
+      </p>
 
       <Tabs defaultValue="dashboard" className="space-y-4">
+
         <TabsList className="flex flex-wrap">
           <TabsTrigger value="dashboard"><BarChart3 className="mr-2 h-4 w-4" /> Dashboard</TabsTrigger>
           <TabsTrigger value="library"><Search className="mr-2 h-4 w-4" /> Biblioteca</TabsTrigger>
