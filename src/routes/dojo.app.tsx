@@ -128,6 +128,8 @@ const routeTitles: Array<{ match: (p: string) => boolean; title: string; subtitl
   { match: (p) => p.startsWith("/dojo/app/videos"), title: "Vídeos", subtitle: "Biblioteca de conteúdos da academia" },
   { match: (p) => p.startsWith("/dojo/app/plans"), title: "Planos", subtitle: "Mensalidades e contratos" },
   { match: (p) => p.startsWith("/dojo/app/finance"), title: "Financeiro", subtitle: "Recebimentos e a receber" },
+  { match: (p) => p.startsWith("/dojo/app/team"), title: "Equipe", subtitle: "Colaboradores, folha e escalas" },
+  { match: (p) => p.startsWith("/dojo/app/corporate-benefits"), title: "Benefícios Corporativos", subtitle: "Gympass, TotalPass e beneficiários" },
   { match: (p) => p.startsWith("/dojo/app/units"), title: "Unidades", subtitle: "Dojos e polos" },
   
   { match: (p) => p.startsWith("/dojo/app/subscription"), title: "Assinatura AMT", subtitle: "Plano mensal do sistema" },
