@@ -9,7 +9,11 @@ export type ShippingCalcItem = {
   product_id: string;
   variant_id?: string | null;
   quantity: number;
+  /** Preço unitário efetivamente pago (após atacado/descontos). Se omitido,
+   *  a cotação usará o preço de catálogo do produto. */
+  unit_price?: number;
 };
+
 
 type Props = {
   items: ShippingCalcItem[];
