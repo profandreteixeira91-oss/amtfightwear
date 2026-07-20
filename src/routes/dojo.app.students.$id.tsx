@@ -30,6 +30,7 @@ import { CertificatePreviewDialog, openCertificatePrint, type CertificateTemplat
 import { openBrandedPrintDocument, escapeHtml, kvTable } from "@/lib/dojo/print-document";
 import { useDojoBranding } from "@/hooks/useDojoBranding";
 import { StudentCorporateBenefitsSection } from "@/components/dojo/corporate-benefits/StudentCorporateBenefitsSection";
+import { TuitionRow } from "@/components/dojo/finance/TuitionList";
 
 export const Route = createFileRoute("/dojo/app/students/$id")({
   head: () => ({ meta: [{ title: "Aluno — AMT Dojo Manager" }] }),
