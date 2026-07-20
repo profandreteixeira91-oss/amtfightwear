@@ -271,10 +271,11 @@ function CartPage() {
               <span>💰 Você economizou</span><span className="font-bold">{brl(data.savings)}</span>
             </div>
           )}
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Frete {shipping ? `(${shipping.company} ${shipping.name})` : ""}</span>
-            <span className={shipping ? "font-medium" : "text-muted-foreground"}>{shipping ? brl(shippingPrice) : "Informe o CEP"}</span>
+          <div className="flex justify-between gap-2">
+            <span className="min-w-0 truncate text-muted-foreground">Frete {shipping ? `(${shipping.company} ${shipping.name})` : ""}</span>
+            <span className={`shrink-0 ${shipping ? "font-medium" : "text-muted-foreground"}`}>{shipping ? brl(shippingPrice) : "Informe o CEP"}</span>
           </div>
+
           <div className="flex justify-between border-t pt-2 text-base">
             <span className="font-semibold">Total</span>
             <span className="font-bold text-primary">{brl(total)}</span>
