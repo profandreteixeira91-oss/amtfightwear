@@ -22,12 +22,50 @@ function CartPage() {
   const items = useCart((s) => s.items);
   const remove = useCart((s) => s.remove);
   const setQuantity = useCart((s) => s.setQuantity);
+  const addCart = useCart((s) => s.add);
+  const clearCart = useCart((s) => s.clear);
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+
+  // Handoff vindo do AMT Dojo Manager (subdomínio diferente ⇒ localStorage separado).
+  // Aceita ?import=<base64(JSON)> e/ou ?checkout=1 para pular direto ao checkout.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const payload = params.get("import");
+    if (payload) {
+      try {
+        const json = JSON.parse(decodeURIComponent(escape(atob(payload))));
+        if (Array.isArray(json?.items) && json.items.length > 0) {
+          clearCart();
+          for (const it of json.items) {
+            addCart({
+              product_id: it.product_id,
+              variant_id: it.variant_id ?? null,
+              name: it.name,
+              slug: it.slug,
+              image_url: it.image_url ?? null,
+              variant_label: it.variant_label ?? null,
+              unit_price: Number(it.unit_price),
+              quantity: Number(it.quantity),
+              type: "product",
+            });
+          }
+        }
+      } catch { /* ignore */ }
+      const goCheckout = params.get("checkout") === "1";
+      const url = new URL(window.location.href);
+      url.searchParams.delete("import");
+      url.searchParams.delete("checkout");
+      window.history.replaceState({}, "", url.toString());
+      if (goCheckout) window.location.href = "/loja/checkout";
+    }
+  }, [addCart, clearCart]);
 
   const subtotal = items.reduce((a, i) => a + i.quantity * i.unit_price, 0);
 
   if (!mounted) return <StoreShell categories={categories}><div className="p-16" /></StoreShell>;
+
 
   return (
     <StoreShell categories={categories}>
