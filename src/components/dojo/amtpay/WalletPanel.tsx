@@ -19,21 +19,32 @@ import { WithdrawDialog } from "./WithdrawDialog";
 const brl = (n: number) => Number(n).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
 export function WalletPanel() {
+  const qc = useQueryClient();
   const dashFn = useServerFn(getWalletDashboard);
   const chartFn = useServerFn(getWalletChart);
   const txFn = useServerFn(listWalletTransactions);
   const bankFn = useServerFn(getPrimaryBankAccount);
+  const capsFn = useServerFn(getGatewayCapabilities);
 
   const dashQ = useQuery({ queryKey: ["amtpay-dashboard"], queryFn: () => dashFn() });
   const chartQ = useQuery({ queryKey: ["amtpay-chart"], queryFn: () => chartFn() });
   const txQ = useQuery({ queryKey: ["amtpay-tx", "wallet-recent"], queryFn: () => txFn({ data: { limit: 8 } }) });
   const bankQ = useQuery({ queryKey: ["amtpay-bank"], queryFn: () => bankFn() });
+  const capsQ = useQuery({ queryKey: ["amtpay-caps"], queryFn: () => capsFn() });
 
   const [bankOpen, setBankOpen] = useState(false);
   const [wdOpen, setWdOpen] = useState(false);
 
   const d = dashQ.data;
   const bal = d?.balance;
+  const caps = capsQ.data;
+
+  function refresh() {
+    qc.invalidateQueries({ queryKey: ["amtpay-dashboard"] });
+    qc.invalidateQueries({ queryKey: ["amtpay-chart"] });
+    qc.invalidateQueries({ queryKey: ["amtpay-tx"] });
+    qc.invalidateQueries({ queryKey: ["amtpay-balance"] });
+  }
 
   return (
     <div className="space-y-6">
