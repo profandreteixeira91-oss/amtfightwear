@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useParams, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Megaphone, Search, Pin, Star, Heart, MessageCircle, Check, ChevronLeft, Share2,
   Bell, AlertTriangle,
@@ -12,6 +12,7 @@ import {
 
 export const Route = createFileRoute("/app/_student/announcements")({
   head: () => ({ meta: [{ title: "Quadro de Avisos — Portal do Aluno" }] }),
+  validateSearch: (s: Record<string, unknown>) => ({ open: typeof s.open === "string" ? s.open : undefined }),
   component: MyAnnouncements,
 });
 
