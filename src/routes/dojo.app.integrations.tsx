@@ -165,50 +165,50 @@ function IntegrationsHub() {
         <Kpi icon={Zap} label="Última sync" value={m.lastSyncAt ? relativeTime(m.lastSyncAt) : "—"} tone="default" small />
       </div>
 
-      {/* Layout: sidebar + grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-6">
-        <aside className="space-y-1">
-          <CatItem active={cat === "all"} label="Todas" count={INTEGRATIONS.length} onClick={() => setCat("all")} />
+      {/* Menu superior deslizante de categorias */}
+      <div className="-mx-2 px-2 sticky top-14 z-20 bg-background/80 backdrop-blur-md border-b">
+        <div className="flex gap-2 overflow-x-auto py-3 scrollbar-thin snap-x">
+          <CatChip active={cat === "all"} label="Todas" count={INTEGRATIONS.length} onClick={() => setCat("all")} />
           {INTEGRATION_CATEGORIES.map((c) => (
-            <CatItem
+            <CatChip
               key={c.id}
               active={cat === c.id}
               label={c.label}
-              hint={c.description}
               count={INTEGRATIONS.filter((i) => i.category === c.id).length}
               onClick={() => setCat(c.id)}
             />
           ))}
-        </aside>
-
-        <div>
-          {filtered.length === 0 ? (
-            <div className="rounded-xl border border-dashed p-10 text-center text-sm text-muted-foreground">
-              Nenhuma integração corresponde à sua busca.
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-              {filtered.map((def) => (
-                <IntegrationCard
-                  key={def.id}
-                  integration={def}
-                  status={statusFor(def)}
-                  onConfigure={() => {
-                    if (def.id === "api_keys") return setApiHubMode("keys");
-                    if (def.id === "webhooks") return setApiHubMode("webhooks");
-                    if (def.backend === "apis") {
-                      toast.info(`${def.name}: em preparação.`);
-                      return;
-                    }
-                    setWizardFor(def);
-                  }}
-                  onTest={def.backend === "payments-gateway" || def.backend === "partner" ? () => handleQuickTest(def) : undefined}
-                  onLogs={def.backend === "partner" ? () => document.getElementById("logs-section")?.scrollIntoView({ behavior: "smooth" }) : undefined}
-                />
-              ))}
-            </div>
-          )}
         </div>
+      </div>
+
+      {/* Grid de integrações */}
+      <div>
+        {filtered.length === 0 ? (
+          <div className="rounded-xl border border-dashed p-10 text-center text-sm text-muted-foreground">
+            Nenhuma integração corresponde à sua busca.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {filtered.map((def) => (
+              <IntegrationCard
+                key={def.id}
+                integration={def}
+                status={statusFor(def)}
+                onConfigure={() => {
+                  if (def.id === "api_keys") return setApiHubMode("keys");
+                  if (def.id === "webhooks") return setApiHubMode("webhooks");
+                  if (def.backend === "apis") {
+                    toast.info(`${def.name}: em preparação.`);
+                    return;
+                  }
+                  setWizardFor(def);
+                }}
+                onTest={def.backend === "payments-gateway" || def.backend === "partner" ? () => handleQuickTest(def) : undefined}
+                onLogs={def.backend === "partner" ? () => document.getElementById("logs-section")?.scrollIntoView({ behavior: "smooth" }) : undefined}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* API Keys & Webhooks quick section */}
@@ -297,6 +297,25 @@ function CatItem({ label, hint, count, active, onClick }: { label: string; hint?
         <span className="text-[10px] text-muted-foreground">{count}</span>
       </div>
       {hint && <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">{hint}</p>}
+    </button>
+  );
+}
+
+function CatChip({ label, count, active, onClick }: { label: string; count: number; active: boolean; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "snap-start shrink-0 inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm transition whitespace-nowrap",
+        active
+          ? "border-primary bg-primary text-primary-foreground shadow-sm"
+          : "border-border bg-card hover:border-primary/40 hover:bg-accent",
+      )}
+    >
+      <span className="font-medium">{label}</span>
+      <span className={cn("text-[10px] rounded-full px-1.5 py-0.5", active ? "bg-primary-foreground/20" : "bg-muted text-muted-foreground")}>
+        {count}
+      </span>
     </button>
   );
 }

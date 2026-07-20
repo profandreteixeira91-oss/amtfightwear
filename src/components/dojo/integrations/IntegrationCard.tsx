@@ -56,11 +56,11 @@ export function IntegrationCard({
           )}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <h3 className="font-semibold truncate">{integration.name}</h3>
-            <span className="text-[10px] text-muted-foreground">v{integration.version}</span>
+          <div className="flex items-start gap-2">
+            <h3 className="font-semibold text-sm leading-tight break-words" title={integration.name}>{integration.name}</h3>
+            <span className="text-[10px] text-muted-foreground shrink-0 mt-0.5">v{integration.version}</span>
           </div>
-          <p className="text-xs text-muted-foreground">{integration.vendor}</p>
+          <p className="text-xs text-muted-foreground truncate mt-0.5">{integration.vendor}</p>
         </div>
         <span className={cn("inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-medium", s.className)}>
           <span className={cn("h-1.5 w-1.5 rounded-full", s.dot)} />
