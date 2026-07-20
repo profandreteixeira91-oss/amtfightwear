@@ -283,7 +283,7 @@ function CartPage() {
           items={data.items.map((it: any) => ({ product_id: it.product_id, variant_id: it.variant_id ?? null, quantity: it.quantity }))}
           initialZip={shipZip}
           selectedId={shipping?.id ?? null}
-          onSelect={(opt) => setShipping(opt)}
+          onSelect={(opt, z) => { setShipping(opt); if (z) setShipZip(z); }}
           compact
         />
         <div className="text-[11px] text-muted-foreground">
