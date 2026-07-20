@@ -302,7 +302,7 @@ function IntegrationsHub() {
       )}
 
       {/* Wizard AMT Pay */}
-      <AMTPayWizard open={amtPayOpen} onOpenChange={setAmtPayOpen} />
+      <AMTPayWizard open={amtPayOpen} onOpenChange={setAmtPayOpen} initialGateway={amtPayProvider} />
 
       {wizardFor && (
         <IntegrationWizard
