@@ -255,10 +255,15 @@ function StudentsPage() {
             custom_amount: Number.isFinite(customAmt as number) ? customAmt : null,
           },
         });
-        toast.success("Aluno matriculado e 1ª mensalidade gerada");
-        if (res?.payment_url) {
-          window.open(res.payment_url, "_blank", "noopener,noreferrer");
-          toast.info("Link de pagamento aberto em nova aba");
+        if (res?.asaas_subscription_id) {
+          toast.success("Aluno matriculado — assinatura Asaas criada");
+          toast.info("As cobranças serão emitidas automaticamente pelo Asaas no ciclo do plano.");
+        } else {
+          toast.success("Aluno matriculado e 1ª mensalidade gerada");
+          if (res?.payment_url) {
+            window.open(res.payment_url, "_blank", "noopener,noreferrer");
+            toast.info("Link de pagamento aberto em nova aba");
+          }
         }
       } else {
         toast.success("Aluno salvo");
