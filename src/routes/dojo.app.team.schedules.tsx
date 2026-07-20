@@ -134,11 +134,13 @@ function SchedulesPage() {
   // Agrupar ocorrências por dia
   const byDay = useMemo(() => {
     const map = new Map<string, any[]>();
-    for (const occ of schedule.data ?? []) {
-      const k = occ.occurrence_date;
+    for (const occ of (schedule.data ?? []) as any[]) {
+      const k = occ.occurrence_date as string | null;
+      if (!k) continue;
       if (!map.has(k)) map.set(k, []);
       map.get(k)!.push(occ);
     }
+
     return map;
   }, [schedule.data]);
 
