@@ -169,7 +169,7 @@ function CartPage() {
               <div className="rounded-lg border bg-card p-5">
                 <h2 className="mb-3 text-lg font-bold">Calcular frete</h2>
                 <ShippingCalculator
-                  items={items.map((i) => ({ product_id: i.product_id, variant_id: i.variant_id ?? null, quantity: i.quantity }))}
+                  items={items.map((i) => ({ product_id: i.product_id, variant_id: i.variant_id ?? null, quantity: i.quantity, unit_price: Number(i.unit_price) }))}
                   initialZip={zip}
                   selectedId={shipping?.id ?? null}
                   onSelect={handleShippingSelect}

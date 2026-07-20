@@ -283,7 +283,7 @@ function CartPage() {
         </div>
 
         <ShippingCalculator
-          items={data.items.map((it: any) => ({ product_id: it.product_id, variant_id: it.variant_id ?? null, quantity: it.quantity }))}
+          items={data.items.map((it: any) => ({ product_id: it.product_id, variant_id: it.variant_id ?? null, quantity: it.quantity, unit_price: Number(it.unit_final) }))}
           initialZip={shipZip}
           selectedId={shipping?.id ?? null}
           onSelect={(opt, z) => { setShipping(opt); if (z) setShipZip(z); }}

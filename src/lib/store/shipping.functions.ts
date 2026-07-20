@@ -61,9 +61,14 @@ const QuoteInput = z.object({
       product_id: z.string().uuid(),
       variant_id: z.string().uuid().nullable().optional(),
       quantity: z.number().int().positive(),
+      // Preço unitário efetivamente pago pelo cliente (após atacado/descontos).
+      // Quando informado, o seguro do Melhor Envio será exatamente igual ao
+      // valor da compra sem o frete. Caso ausente, usamos o preço do catálogo.
+      unit_price: z.number().nonnegative().optional(),
     }),
   ).min(1),
 });
+
 
 export type ShippingOption = {
   id: number;
@@ -114,7 +119,11 @@ export const calculateShipping = createServerFn({ method: "POST" })
     const meProducts = data.items.map((item, idx) => {
       const prod = productMap.get(item.product_id);
       const variant = item.variant_id ? variantMap.get(item.variant_id) : null;
-      const unitPrice = Number(variant?.price ?? prod?.price ?? 0);
+      const catalogPrice = Number(variant?.price ?? prod?.price ?? 0);
+      // O seguro precisa refletir o valor da compra sem o frete. Quando o
+      // cliente enviar o preço unitário pago (após atacado/descontos), usamos
+      // exatamente esse valor; caso contrário, caímos no preço de catálogo.
+      const unitPrice = item.unit_price != null ? Number(item.unit_price) : catalogPrice;
       const weightKg = prod?.weight_grams ? Number(prod.weight_grams) / 1000 : Number(settings.default_weight_kg);
       return {
         id: `${idx}`,
@@ -122,10 +131,11 @@ export const calculateShipping = createServerFn({ method: "POST" })
         height: Number(settings.default_height_cm),
         length: Number(settings.default_length_cm),
         weight: weightKg > 0 ? weightKg : Number(settings.default_weight_kg),
-        insurance_value: unitPrice * item.quantity,
+        insurance_value: Number((unitPrice * item.quantity).toFixed(2)),
         quantity: item.quantity,
       };
     });
+
 
     const body = {
       from: { postal_code: onlyDigits(String(settings.origin_zip)) },

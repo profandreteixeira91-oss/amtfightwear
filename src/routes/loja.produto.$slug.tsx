@@ -208,8 +208,9 @@ function ProductPage() {
             )}
 
             <ShippingCalculator
-              items={[{ product_id: product.id, variant_id: variant?.id ?? null, quantity: qty }]}
+              items={[{ product_id: product.id, variant_id: variant?.id ?? null, quantity: qty, unit_price: Number(price) }]}
             />
+
           </div>
         </div>
 
