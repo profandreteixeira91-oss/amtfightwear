@@ -236,7 +236,7 @@ function NewGraduationPage() {
                     </div>
                   </div>
                   {s.belt?.color_hex && (
-                    <BeltVisual name={s.belt.name} colorHex={s.belt.color_hex} stripeHex={s.belt.stripe_hex} degree={s.current_degree ?? 0} maxDegrees={s.belt?.max_degrees ?? 4} />
+                    <BeltVisual modality={s.belt.modality} name={s.belt.name} colorHex={s.belt.color_hex} stripeHex={s.belt.stripe_hex} degree={s.current_degree ?? 0} maxDegrees={s.belt?.max_degrees ?? 4} />
                   )}
                 </label>
               ))}
@@ -316,7 +316,7 @@ function NewGraduationPage() {
 
             {selectedBelt && effectiveBelt && (
               <div className="flex items-center gap-4 p-3 bg-muted/40 rounded">
-                <BeltVisual name={effectiveBelt.name} colorHex={effectiveBelt.color_hex} stripeHex={effectiveBelt.stripe_hex} degree={isPretaBase ? 0 : degree} maxDegrees={effectiveBelt.max_degrees ?? maxDeg} className="min-w-[220px]" />
+                <BeltVisual modality={effectiveBelt.modality} name={effectiveBelt.name} colorHex={effectiveBelt.color_hex} stripeHex={effectiveBelt.stripe_hex} degree={isPretaBase ? 0 : degree} maxDegrees={effectiveBelt.max_degrees ?? maxDeg} className="min-w-[220px]" />
                 <div className="text-sm">
                   <div className="font-medium">{effectiveBelt.name}</div>
                   <div className="text-muted-foreground">{isPretaBase ? "" : (degree === 0 ? "Sem grau" : `${degree}º grau`)}</div>

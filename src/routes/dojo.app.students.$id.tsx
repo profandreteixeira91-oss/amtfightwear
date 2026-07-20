@@ -282,7 +282,7 @@ function StudentDetail() {
                     const belt = (belts.data ?? []).find((b: any) => b.id === s.current_belt_id);
                     return belt ? (
                       <div className="flex flex-col items-center gap-2">
-                        <BeltVisual name={belt.name} colorHex={belt.color_hex} stripeHex={belt.stripe_hex} degree={s.current_degree ?? 0} maxDegrees={belt.max_degrees ?? 4} />
+                        <BeltVisual modality={belt.modality} name={belt.name} colorHex={belt.color_hex} stripeHex={belt.stripe_hex} degree={s.current_degree ?? 0} maxDegrees={belt.max_degrees ?? 4} />
                         <div className="min-w-0 text-center">
                           <div className="font-medium">{belt.name}</div>
                           <div className="text-xs text-muted-foreground">{s.current_degree ? `${s.current_degree}º grau` : "Sem grau"}</div>
@@ -694,7 +694,7 @@ function StudentDetail() {
                         <span className="absolute -left-[21px] top-1.5 h-3 w-3 rounded-full border-2 border-primary bg-card" />
                         <div className="flex flex-wrap items-center gap-3">
                           {g.belt?.color_hex && (
-                            <BeltVisual name={g.belt.name} colorHex={g.belt.color_hex} stripeHex={g.belt.stripe_hex} degree={g.degree} maxDegrees={g.belt?.max_degrees ?? 4} />
+                            <BeltVisual modality={g.belt.modality} name={g.belt.name} colorHex={g.belt.color_hex} stripeHex={g.belt.stripe_hex} degree={g.degree} maxDegrees={g.belt?.max_degrees ?? 4} />
                           )}
                           <div className="min-w-0 flex-1">
                             <div className="font-medium">
