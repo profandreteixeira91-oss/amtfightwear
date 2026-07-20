@@ -24,6 +24,7 @@ type Props = {
   name: string;
   category?: string;
   isDefault?: boolean;
+  values?: Record<string, string>;
   onNameChange: (v: string) => void;
   onCategoryChange: (v: string) => void;
   onDefaultChange: (v: boolean) => void;
@@ -32,6 +33,7 @@ type Props = {
   onDuplicate?: () => void;
   saving?: boolean;
 };
+
 
 // Canvas: renders the schema for editing. We work in percent so preview stays consistent.
 export function CertificateEditor(props: Props) {
@@ -203,7 +205,9 @@ export function CertificateEditor(props: Props) {
           schema={schema} selectedIds={selectedIds} sortedByZ={sortedByZ}
           zoom={zoom} showGrid={showGrid} showRulers={showRulers} snap={snap}
           onSelect={select} onPatch={patchElement} onBgChange={(p) => update({ page: { ...schema.page, ...p } })}
+          previewValues={props.values}
         />
+
 
         {/* RIGHT INSPECTOR */}
         <RightInspector
@@ -381,13 +385,14 @@ function VarRow({ v, onInsert, favorite, onToggleFav }: { v: { key: string; labe
 /* ---------- CANVAS ---------- */
 
 function CanvasArea({
-  schema, selectedIds, sortedByZ, zoom, showGrid, showRulers, snap, onSelect, onPatch, onBgChange,
+  schema, selectedIds, sortedByZ, zoom, showGrid, showRulers, snap, onSelect, onPatch, onBgChange, previewValues,
 }: {
   schema: EditorSchema; selectedIds: string[]; sortedByZ: AnyElement[];
   zoom: number; showGrid: boolean; showRulers: boolean; snap: boolean;
   onSelect: (ids: string[]) => void;
   onPatch: (id: string, patch: Partial<AnyElement>) => void;
   onBgChange: (p: Partial<EditorSchema["page"]>) => void;
+  previewValues?: Record<string, string>;
 }) {
   const W = schema.page.width;
   const H = schema.page.height;
@@ -402,6 +407,7 @@ function CanvasArea({
           onClick={(e) => { if (e.target === e.currentTarget) onSelect([]); }}
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => {
+
             const key = e.dataTransfer.getData("text/x-cert-var");
             if (!key) return;
             const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
@@ -437,7 +443,9 @@ function CanvasArea({
               onSelect={(id, additive) => onSelect(additive ? Array.from(new Set([...selectedIds, id])) : [id])}
               onPatch={(patch) => onPatch(el.id, patch)}
               allElements={sortedByZ}
+              previewValues={previewValues}
             />
+
           ))}
         </div>
       </div>
@@ -474,12 +482,14 @@ function Rulers({ W, H, zoom }: { W: number; H: number; zoom: number }) {
 /* ---------- ELEMENT RENDER + INTERACTIONS ---------- */
 
 function ElementView({
-  el, W, H, zoom, snap, selected, onSelect, onPatch, allElements,
+  el, W, H, zoom, snap, selected, onSelect, onPatch, allElements, previewValues,
 }: {
   el: AnyElement; W: number; H: number; zoom: number; snap: boolean;
   selected: boolean; onSelect: (id: string, additive: boolean) => void;
   onPatch: (patch: Partial<AnyElement>) => void; allElements: AnyElement[];
+  previewValues?: Record<string, string>;
 }) {
+
   if (el.hidden) return null;
 
   const [qr, setQr] = useState<string>("");
@@ -583,8 +593,10 @@ function ElementView({
   const values = useMemo(() => {
     const v: Record<string, string> = { ...systemValues() };
     ALL_VARIABLES.forEach((x) => { if (!(x.key in v)) v[x.key] = x.sample ? `[${x.sample}]` : `{{${x.key}}}`; });
+    if (previewValues) Object.assign(v, previewValues);
     return v;
-  }, []);
+  }, [previewValues]);
+
 
   return (
     <div style={style} onMouseDown={onMouseDown} onDoubleClick={(e) => { e.stopPropagation(); }}>
