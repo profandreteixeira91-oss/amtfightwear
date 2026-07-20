@@ -115,8 +115,9 @@ function CartPage() {
   const total = data.subtotal + shippingPrice;
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
-      <div className="space-y-3">
+    <div className="grid w-full max-w-full gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
+      <div className="min-w-0 space-y-3">
+
         {data.subcategory_progress && data.subcategory_progress.length > 0 && (
           <div className="space-y-2">
             {data.subcategory_progress.map((c: any) => (
