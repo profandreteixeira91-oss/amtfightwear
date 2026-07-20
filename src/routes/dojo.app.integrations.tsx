@@ -1,10 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { LayoutDashboard, Wallet, ArrowDownRight, FileText, CreditCard } from "lucide-react";
+import {
+  LayoutDashboard,
+  Wallet,
+  ArrowDownRight,
+  FileText,
+  CreditCard,
+  ShieldCheck,
+} from "lucide-react";
 import { AMTPayDashboard } from "@/components/dojo/amtpay/AMTPayDashboard";
 import { WalletPanel } from "@/components/dojo/amtpay/WalletPanel";
 import { WithdrawalsPanel } from "@/components/dojo/amtpay/WithdrawalsPanel";
 import { StatementPanel } from "@/components/dojo/amtpay/StatementPanel";
+import { AsaasOnboardingCard } from "@/components/dojo/amtpay/AsaasOnboardingCard";
 
 export const Route = createFileRoute("/dojo/app/integrations")({
   head: () => ({ meta: [{ title: "AMT Pay — Central financeira" }] }),
@@ -25,15 +33,18 @@ function AMTPayHub() {
             Central financeira do seu dojo
           </h1>
           <p className="text-sm text-muted-foreground max-w-2xl mt-1">
-            Toda a operação de pagamentos é processada pela plataforma AMT Fight Wear via Mercado Pago,
-            com split automático de valores. Você acompanha seus recebimentos, saldo e saques neste painel —
-            sem precisar configurar nada.
+            Recebimento de mensalidades via Asaas com split automático. Ative sua
+            subconta, cadastre a chave PIX e acompanhe saldo, saques e extrato — tudo
+            neste painel.
           </p>
         </div>
       </header>
 
-      <Tabs defaultValue="dashboard" className="w-full">
-        <TabsList className="grid grid-cols-4 md:w-fit">
+      <Tabs defaultValue="onboarding" className="w-full">
+        <TabsList className="flex flex-wrap md:w-fit">
+          <TabsTrigger value="onboarding" className="gap-2">
+            <ShieldCheck className="h-4 w-4" /> Recebimento
+          </TabsTrigger>
           <TabsTrigger value="dashboard" className="gap-2">
             <LayoutDashboard className="h-4 w-4" /> Visão geral
           </TabsTrigger>
@@ -48,6 +59,9 @@ function AMTPayHub() {
           </TabsTrigger>
         </TabsList>
 
+        <TabsContent value="onboarding" className="mt-6">
+          <AsaasOnboardingCard />
+        </TabsContent>
         <TabsContent value="dashboard" className="mt-6">
           <AMTPayDashboard />
         </TabsContent>
@@ -64,3 +78,4 @@ function AMTPayHub() {
     </div>
   );
 }
+
