@@ -61,9 +61,14 @@ const QuoteInput = z.object({
       product_id: z.string().uuid(),
       variant_id: z.string().uuid().nullable().optional(),
       quantity: z.number().int().positive(),
+      // Preço unitário efetivamente pago pelo cliente (após atacado/descontos).
+      // Quando informado, o seguro do Melhor Envio será exatamente igual ao
+      // valor da compra sem o frete. Caso ausente, usamos o preço do catálogo.
+      unit_price: z.number().nonnegative().optional(),
     }),
   ).min(1),
 });
+
 
 export type ShippingOption = {
   id: number;
