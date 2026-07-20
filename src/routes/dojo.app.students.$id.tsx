@@ -207,8 +207,9 @@ function StudentDetail() {
         </div>
       </div>
 
-      {/* Layout: sidebar / conteúdo (+ timeline como 3ª col apenas em telas muito largas) */}
-      <div className="grid gap-4 lg:grid-cols-[280px_minmax(0,1fr)] 2xl:grid-cols-[280px_minmax(0,1fr)_320px]">
+      {/* Layout: sidebar / conteúdo (timeline vai como card horizontal abaixo) */}
+      <div className="grid gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
+
         {/* ============ SIDEBAR ============ */}
         <aside className="space-y-3 lg:sticky lg:top-4 lg:self-start">
           <Card className="dojo-card overflow-hidden">
@@ -732,38 +733,44 @@ function StudentDetail() {
             </TabsContent>
           </Tabs>
         </main>
-
-        {/* ============ TIMELINE (direita) ============ */}
-        <aside className="lg:col-span-2 2xl:col-span-1 2xl:sticky 2xl:top-4 2xl:self-start">
-          <Card className="dojo-card">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-sm">
-                <Sparkles className="h-4 w-4 text-primary" /> Movimentação
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="max-h-[70vh] overflow-y-auto pt-0">
-              {timeline.length === 0 ? (
-                <EmptyState label="Sem eventos registrados." compact />
-              ) : (
-                <ol className="relative border-l-2 border-border pl-4">
-                  {timeline.slice(0, 30).map((ev, idx) => (
-                    <li key={idx} className="relative mb-4 last:mb-0">
-                      <span className="absolute -left-[21px] top-1 grid h-3 w-3 place-items-center rounded-full border-2 border-primary bg-card" />
-                      <div className="text-xs">
-                        <div className="flex items-center gap-1.5 font-medium">
-                          <ev.Icon className="h-3 w-3 text-primary" /> {ev.title}
-                        </div>
-                        {ev.description && <div className="mt-0.5 text-[11px] text-muted-foreground">{ev.description}</div>}
-                        <div className="mt-0.5 text-[10px] uppercase tracking-widest text-muted-foreground">{relativeTime(ev.date)}</div>
-                      </div>
-                    </li>
-                  ))}
-                </ol>
-              )}
-            </CardContent>
-          </Card>
-        </aside>
       </div>
+
+
+      {/* ============ MOVIMENTAÇÃO (card horizontal, largura total) ============ */}
+      <Card className="dojo-card">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-sm">
+            <Sparkles className="h-4 w-4 text-primary" /> Movimentação
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-0">
+          {timeline.length === 0 ? (
+            <EmptyState label="Sem eventos registrados." compact />
+          ) : (
+            <div className="-mx-2 overflow-x-auto pb-2">
+              <ol className="flex min-w-full gap-3 px-2">
+                {timeline.slice(0, 30).map((ev, idx) => (
+                  <li
+                    key={idx}
+                    className="relative flex w-56 shrink-0 flex-col gap-1 rounded-lg border border-border bg-card/60 p-3 text-xs shadow-sm"
+                  >
+                    <div className="flex items-center gap-1.5 font-medium">
+                      <ev.Icon className="h-3.5 w-3.5 text-primary shrink-0" />
+                      <span className="truncate">{ev.title}</span>
+                    </div>
+                    {ev.description && (
+                      <div className="text-[11px] text-muted-foreground line-clamp-2">{ev.description}</div>
+                    )}
+                    <div className="mt-auto text-[10px] uppercase tracking-widest text-muted-foreground">
+                      {relativeTime(ev.date)}
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <CertificatePreviewDialog
         open={!!previewCert}
@@ -772,6 +779,7 @@ function StudentDetail() {
         values={previewCert?.values ?? {}}
         title={previewCert ? `Certificado — ${s.full_name}` : undefined}
       />
+
     </div>
   );
 }
@@ -779,16 +787,19 @@ function StudentDetail() {
 // ============ HELPERS ============
 function LoadingState() {
   return (
-    <div className="grid gap-4 lg:grid-cols-[280px_minmax(0,1fr)_320px]">
-      <Skeleton className="h-96 w-full" />
-      <div className="space-y-3">
-        <div className="grid grid-cols-3 gap-2 md:grid-cols-6">
-          {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-20 w-full" />)}
+    <div className="space-y-4">
+      <div className="grid gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
+        <Skeleton className="h-96 w-full" />
+        <div className="space-y-3">
+          <div className="grid grid-cols-3 gap-2 md:grid-cols-6">
+            {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-20 w-full" />)}
+          </div>
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-64 w-full" />
         </div>
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-64 w-full" />
       </div>
-      <Skeleton className="h-96 w-full" />
+      <Skeleton className="h-32 w-full" />
+
     </div>
   );
 }
