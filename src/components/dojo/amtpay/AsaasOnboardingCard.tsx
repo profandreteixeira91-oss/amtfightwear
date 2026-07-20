@@ -51,6 +51,7 @@ export function AsaasOnboardingCard() {
   const createFn = useServerFn(createMyAsaasSubaccount);
   const refreshFn = useServerFn(refreshMyAsaasSubaccount);
   const savePixFn = useServerFn(setDojoPixKey);
+  const linkFn = useServerFn(linkExistingAsaasAccount);
 
   const cfg = useQuery({
     queryKey: ["asaas-config"],
