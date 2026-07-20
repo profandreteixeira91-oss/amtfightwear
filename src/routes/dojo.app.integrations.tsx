@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Search, Plug, CheckCircle2, XCircle, AlertTriangle, Activity, Zap, Copy, KeyRound, Webhook } from "lucide-react";
+import { Search, Plug, CheckCircle2, XCircle, AlertTriangle, Activity, Zap, Copy, KeyRound, Webhook, Sparkles, ChevronDown, ChevronUp, ShieldCheck, Wallet, Settings2, Landmark } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
