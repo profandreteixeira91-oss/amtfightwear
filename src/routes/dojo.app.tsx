@@ -101,7 +101,7 @@ const nav: { label: string; items: NavItem[] }[] = [
       { to: "/dojo/app/plans", label: "Planos", icon: ScrollText },
       { to: "/dojo/app/finance", label: "Financeiro", icon: Wallet },
       { to: "/dojo/app/units", label: "Unidades", icon: Building2 },
-      { to: "/dojo/app/integrations", label: "Integrações", icon: Plug },
+      { to: "/dojo/app/integrations", label: "AMT Pay", icon: CreditCard },
     ],
   },
   {
