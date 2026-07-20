@@ -20,6 +20,7 @@ import { IntegrationCard, type LiveStatus } from "@/components/dojo/integrations
 import { IntegrationWizard } from "@/components/dojo/integrations/IntegrationWizard";
 import { ApiHubDialog } from "@/components/dojo/integrations/ApiHubDialog";
 import { AMTPayWizard } from "@/components/dojo/integrations/AMTPayWizard";
+import { GatewayAccountsPanel } from "@/components/dojo/integrations/GatewayAccountsPanel";
 
 import { listMyGateways, upsertMyGateway } from "@/lib/dojo/gateways.functions";
 import { listPartnerIntegrations, savePartnerIntegration, listPartnerCheckins } from "@/lib/dojo/attendance.functions";
@@ -55,6 +56,7 @@ function IntegrationsHub() {
   const [wizardFor, setWizardFor] = useState<IntegrationDef | null>(null);
   const [apiHubMode, setApiHubMode] = useState<"keys" | "webhooks" | null>(null);
   const [amtPayOpen, setAmtPayOpen] = useState(false);
+  const [amtPayProvider, setAmtPayProvider] = useState<"asaas" | "mercadopago" | undefined>(undefined);
   const [advancedOpen, setAdvancedOpen] = useState(false);
 
 
@@ -160,9 +162,19 @@ function IntegrationsHub() {
       {/* ================= AMT PAY — Fluxo principal ================= */}
       <PaymentsHero
         gateway={paymentGw}
-        onActivate={() => setAmtPayOpen(true)}
+        onActivate={() => { setAmtPayProvider(undefined); setAmtPayOpen(true); }}
         onManage={() => setAdvancedOpen(true)}
       />
+
+      {/* Painel de contas conectadas + histórico */}
+      <GatewayAccountsPanel
+        onConnect={() => { setAmtPayProvider(undefined); setAmtPayOpen(true); }}
+        onReconfigure={(prov) => {
+          setAmtPayProvider(prov as any);
+          setAmtPayOpen(true);
+        }}
+      />
+
 
       {/* ================= Modo avançado (colapsado) ================= */}
       <button
@@ -290,7 +302,7 @@ function IntegrationsHub() {
       )}
 
       {/* Wizard AMT Pay */}
-      <AMTPayWizard open={amtPayOpen} onOpenChange={setAmtPayOpen} />
+      <AMTPayWizard open={amtPayOpen} onOpenChange={setAmtPayOpen} initialGateway={amtPayProvider} />
 
       {wizardFor && (
         <IntegrationWizard
