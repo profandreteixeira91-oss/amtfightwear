@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { adminListOrders, adminUpdateOrderStatus } from "@/lib/store/store.functions";
+import { adminListOrders, adminUpdateOrderStatus, adminDeleteStoreOrder } from "@/lib/store/store.functions";
+
 import {
   adminMelhorEnvioBalance,
   adminMelhorEnvioQuoteOrder,
