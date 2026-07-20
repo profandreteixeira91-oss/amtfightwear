@@ -728,15 +728,31 @@ function PropsPanel({ el, onPatch, onMoveLayer, onRemove }: { el: AnyElement; on
   const upload = async (file: File) => {
     setUploading(true);
     try {
-      const path = `certificates/${Date.now()}-${file.name}`;
-      const { error } = await supabase.storage.from("product-images").upload(path, file, { upsert: true, contentType: file.type });
+      if (!file.type.startsWith("image/")) throw new Error("Selecione uma imagem válida");
+      if (file.size > 10 * 1024 * 1024) throw new Error("Imagem excede 10MB");
+      const ext = (file.name.split(".").pop() || "png").toLowerCase().replace(/[^a-z0-9]/g, "");
+      const safeExt = ext || "png";
+      const path = `certificates/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${safeExt}`;
+      const { error } = await supabase.storage.from("product-images").upload(path, file, { upsert: true, contentType: file.type, cacheControl: "3600" });
       if (error) throw error;
       const { data } = supabase.storage.from("product-images").getPublicUrl(path);
-      onPatch({ imageUrl: data.publicUrl } as any);
+      const url = `${data.publicUrl}?v=${Date.now()}`;
+      // Pre-load to ensure image is available before applying (avoids blank canvas)
+      await new Promise<void>((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve();
+        img.onerror = () => resolve();
+        img.src = url;
+      });
+      onPatch({ imageUrl: url } as any);
       toast.success("Imagem enviada");
-    } catch (e: any) { toast.error(e.message); }
+    } catch (e: any) {
+      console.error("[certificate upload]", e);
+      toast.error(e?.message || "Falha no upload");
+    }
     finally { setUploading(false); }
   };
+
 
   return (
     <div className="space-y-3">
