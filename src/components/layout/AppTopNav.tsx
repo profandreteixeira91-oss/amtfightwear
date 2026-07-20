@@ -204,7 +204,7 @@ export function AppTopNav() {
 
 
         <nav className="ml-4 hidden flex-1 items-center gap-0.5 overflow-x-auto lg:flex">
-          {groups.map((g) => {
+          {visibleGroups.map((g) => {
             const active = groupActive(g.items);
             return (
               <DropdownMenu key={g.label}>
@@ -273,7 +273,7 @@ export function AppTopNav() {
       {mobileOpen && (
         <div className="border-t border-border/60 bg-background/95 backdrop-blur lg:hidden">
           <div className="max-h-[70vh] space-y-4 overflow-y-auto p-3">
-            {groups.map((g) => (
+            {visibleGroups.map((g) => (
               <div key={g.label}>
                 <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                   {g.label}
