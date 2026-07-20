@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Trash2, ShoppingBag, Truck, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export const Route = createFileRoute("/dojo/app/store/carrinho")({ component: CartPage });
 
@@ -37,9 +37,37 @@ function CartPage() {
   const { data, isLoading } = useQuery({ queryKey: ["dojo-store", "cart"], queryFn: () => getFn() });
   const refresh = () => qc.invalidateQueries({ queryKey: ["dojo-store", "cart"] });
 
-  const upd = useMutation({ mutationFn: (v: { id: string; quantity: number }) => updFn({ data: v }), onSuccess: refresh });
+  const upd = useMutation({
+    mutationFn: (v: { id: string; quantity: number }) => updFn({ data: v }),
+    onSuccess: refresh,
+  });
   const rm = useMutation({ mutationFn: (id: string) => rmFn({ data: { id } }), onSuccess: refresh });
   const clr = useMutation({ mutationFn: () => clrFn(), onSuccess: refresh });
+
+  // Optimistic local quantities: keep server in sync via debounced flush.
+  const [localQty, setLocalQty] = useState<Record<string, number>>({});
+  const timers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  useEffect(() => () => { Object.values(timers.current).forEach(clearTimeout); }, []);
+
+  const bumpQty = (id: string, current: number, delta: number) => {
+    const next = Math.max(1, current + delta);
+    if (next === current) return;
+    setLocalQty((s) => ({ ...s, [id]: next }));
+    if (timers.current[id]) clearTimeout(timers.current[id]);
+    timers.current[id] = setTimeout(() => {
+      upd.mutate(
+        { id, quantity: next },
+        {
+          onSettled: () => {
+            setLocalQty((s) => {
+              const { [id]: _, ...rest } = s;
+              return rest;
+            });
+          },
+        },
+      );
+    }, 350);
+  };
 
   const [cep, setCep] = useState("");
   const [options, setOptions] = useState<ShipOption[]>([]);
@@ -163,9 +191,16 @@ function CartPage() {
               </div>
               <div className="mt-auto flex items-center justify-between gap-2 pt-2">
                 <div className="flex items-center rounded-md border">
-                  <button className="px-2" onClick={() => upd.mutate({ id: it.id, quantity: Math.max(1, it.quantity - 1) })}>−</button>
-                  <div className="w-8 text-center text-sm">{it.quantity}</div>
-                  <button className="px-2" onClick={() => upd.mutate({ id: it.id, quantity: it.quantity + 1 })}>+</button>
+                  {(() => {
+                    const q = localQty[it.id] ?? it.quantity;
+                    return (
+                      <>
+                        <button type="button" className="px-2 py-1 text-base" onClick={() => bumpQty(it.id, q, -1)}>−</button>
+                        <div className="w-8 text-center text-sm tabular-nums">{q}</div>
+                        <button type="button" className="px-2 py-1 text-base" onClick={() => bumpQty(it.id, q, +1)}>+</button>
+                      </>
+                    );
+                  })()}
                 </div>
                 <div className="text-right">
                   {it.is_wholesale && (
