@@ -235,11 +235,11 @@ export const finishOnboarding = createServerFn({ method: "POST" })
       .select("doc_type")
       .eq("owner_id", context.userId);
     const uploaded = new Set((docs ?? []).map((d) => d.doc_type as string));
-    const docRequired: string[] = [
-      "identity_front",
-      "identity_back",
-      "address_proof",
-    ];
+    // Documentos obrigatórios seguem o enum oficial do Asaas
+    // (GET /v3/myAccount/documents). Comprovante de residência NÃO está
+    // na lista de tipos exigidos pela API — só aparece se o analista
+    // solicitar via CUSTOM, e nesse caso é enviado direto pelo AMT Pay.
+    const docRequired: string[] = ["identity_front", "identity_back"];
     if (isCnpj) docRequired.push("cnpj_card");
     const missingDocs = docRequired.filter((d) => !uploaded.has(d));
     if (missingDocs.length) {
