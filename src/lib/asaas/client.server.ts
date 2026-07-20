@@ -30,6 +30,11 @@ export type AsaasChargeInput = {
   postalService?: boolean;
 };
 
+export type AsaasChargeUpdateInput = Pick<
+  AsaasChargeInput,
+  "billingType" | "value" | "dueDate" | "description" | "split"
+>;
+
 export type AsaasCharge = {
   id: string;
   status: string;
@@ -277,6 +282,13 @@ export async function asaasFindCustomerByCpfCnpj(
   return res.data?.[0] || null;
 }
 
+export async function asaasGetCustomer(
+  customerId: string,
+  apiKey?: string,
+): Promise<AsaasCustomer> {
+  return asaasFetch<AsaasCustomer>(`/customers/${customerId}`, { apiKey });
+}
+
 // ============ SUBACCOUNTS (dojos) ============
 export async function asaasCreateSubaccount(
   input: AsaasSubaccountInput,
@@ -307,6 +319,18 @@ export async function asaasGetCharge(id: string, apiKey?: string): Promise<Asaas
   return asaasFetch<AsaasCharge>(`/payments/${id}`, { apiKey });
 }
 
+export async function asaasUpdateCharge(
+  id: string,
+  input: AsaasChargeUpdateInput,
+  apiKey?: string,
+): Promise<AsaasCharge> {
+  return asaasFetch<AsaasCharge>(`/payments/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(input),
+    apiKey,
+  });
+}
+
 export async function asaasGetChargePix(
   chargeId: string,
   apiKey?: string,
@@ -316,6 +340,22 @@ export async function asaasGetChargePix(
 
 export async function asaasCancelCharge(id: string, apiKey?: string): Promise<AsaasCharge> {
   return asaasFetch<AsaasCharge>(`/payments/${id}`, { method: "DELETE", apiKey });
+}
+
+export async function asaasReceiveChargeInCash(
+  id: string,
+  value: number,
+  apiKey?: string,
+): Promise<AsaasCharge> {
+  return asaasFetch<AsaasCharge>(`/payments/${id}/receiveInCash`, {
+    method: "POST",
+    body: JSON.stringify({
+      paymentDate: new Date().toISOString().slice(0, 10),
+      value,
+      notifyCustomer: true,
+    }),
+    apiKey,
+  });
 }
 
 // ============ SUBSCRIPTIONS ============

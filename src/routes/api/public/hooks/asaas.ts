@@ -18,7 +18,7 @@ export const Route = createFileRoute("/api/public/hooks/asaas")({
       POST: async ({ request }) => {
         const token = request.headers.get("asaas-access-token") ?? "";
         const expected = process.env.ASAAS_WEBHOOK_TOKEN ?? "";
-        if (expected && token !== expected) {
+        if (!expected || token !== expected) {
           return new Response("Invalid token", { status: 401 });
         }
 
@@ -46,7 +46,25 @@ export const Route = createFileRoute("/api/public/hooks/asaas")({
         let studentId: string | null = null;
         let unitId: string | null = null;
 
-        if (subscriptionId) {
+        // Cobranças avulsas criadas pelo sistema carregam o UUID local.
+        if (typeof payment.externalReference === "string") {
+          const invoiceMatch = /^dojo_invoice:([0-9a-fA-F-]{36})$/.exec(payment.externalReference);
+          if (invoiceMatch) {
+            const { data: invoice } = await supabaseAdmin
+              .from("dojo_invoices")
+              .select("id, owner_id, student_id, enrollment_id, unit_id")
+              .eq("id", invoiceMatch[1])
+              .maybeSingle();
+            if (invoice) {
+              enrollmentId = (invoice as any).enrollment_id ?? null;
+              ownerId = (invoice as any).owner_id;
+              studentId = (invoice as any).student_id;
+              unitId = (invoice as any).unit_id ?? null;
+            }
+          }
+        }
+
+        if (!ownerId && subscriptionId) {
           const { data: enr } = await supabaseAdmin
             .from("dojo_enrollments")
             .select("id, owner_id, student_id, student:dojo_students(unit_id)")
@@ -59,7 +77,7 @@ export const Route = createFileRoute("/api/public/hooks/asaas")({
             unitId = (enr as any).student?.unit_id ?? null;
           }
         }
-        if (!enrollmentId && typeof payment.externalReference === "string") {
+        if (!ownerId && typeof payment.externalReference === "string") {
           const m = /^dojo_enrollment:([0-9a-fA-F-]{36})$/.exec(payment.externalReference);
           if (m) {
             const { data: enr } = await supabaseAdmin
@@ -76,8 +94,8 @@ export const Route = createFileRoute("/api/public/hooks/asaas")({
           }
         }
 
-        if (!enrollmentId || !ownerId || !studentId) {
-          return Response.json({ ignored: true, reason: "no-enrollment", event });
+        if (!ownerId || !studentId) {
+          return Response.json({ ignored: true, reason: "no-local-charge", event });
         }
 
         // Mapeia status
