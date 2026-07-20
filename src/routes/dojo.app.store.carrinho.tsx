@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Trash2, ShoppingBag, Truck, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export const Route = createFileRoute("/dojo/app/store/carrinho")({ component: CartPage });
 
