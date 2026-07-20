@@ -457,6 +457,148 @@ function StudentDetail() {
               </SectionCard></div>
             </TabsContent>
 
+            {/* --- Plano atual + Troca de plano --- */}
+            <TabsContent value="plano" className="mt-4 space-y-4">
+              <SectionCard title="Plano atual" icon={Wallet}>
+                {currentEnrollment ? (
+                  <>
+                    <InfoGrid>
+                      <Info label="Plano" value={currentEnrollment.plan?.name ?? "—"} />
+                      <Info
+                        label="Valor mensal"
+                        value={brl(currentEnrollment.custom_amount ?? currentEnrollment.plan?.amount ?? 0)}
+                      />
+                      <Info label="Dia de vencimento" value={`Dia ${currentEnrollment.due_day ?? "—"}`} />
+                      <Info label="Início" value={fmtDate(currentEnrollment.start_date)} />
+                      <Info label="Status" value={<Badge variant="outline">{currentEnrollment.status}</Badge>} />
+                      <Info
+                        label="Recorrência"
+                        value={currentEnrollment.plan?.billing_cycle ?? currentEnrollment.plan?.recurrence ?? "Mensal"}
+                      />
+                    </InfoGrid>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <Button
+                        onClick={() => setChangePlan({
+                          open: true, plan_id: "", custom_amount: "",
+                          due_day: currentEnrollment.due_day ?? 5,
+                          start_date: new Date().toISOString().slice(0, 10),
+                        })}
+                      >
+                        <RefreshCw className="mr-2 h-4 w-4" /> Trocar de plano
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={async () => {
+                          if (!confirm("Cancelar o plano atual do aluno?")) return;
+                          try {
+                            await delEnroll({ data: { id: currentEnrollment.id } });
+                            toast.success("Plano cancelado");
+                            refresh();
+                          } catch (e: any) { toast.error(e.message); }
+                        }}
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" /> Cancelar plano
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="text-sm text-muted-foreground">
+                      Este aluno ainda não possui plano ativo.
+                    </div>
+                    <Button
+                      onClick={() => setChangePlan({
+                        open: true, plan_id: "", custom_amount: "", due_day: 5,
+                        start_date: new Date().toISOString().slice(0, 10),
+                      })}
+                    >
+                      <Wallet className="mr-2 h-4 w-4" /> Matricular em um plano
+                    </Button>
+                  </div>
+                )}
+              </SectionCard>
+
+              {changePlan.open && (
+                <SectionCard title={currentEnrollment ? "Trocar de plano" : "Novo plano"} icon={RefreshCw}>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <div>
+                      <label className="text-xs text-muted-foreground">Novo plano</label>
+                      <select
+                        className="mt-1 h-10 w-full rounded-md border border-input bg-background px-2 text-sm"
+                        value={changePlan.plan_id}
+                        onChange={(e) => setChangePlan({ ...changePlan, plan_id: e.target.value })}
+                      >
+                        <option value="">Selecione um plano</option>
+                        {(plans.data ?? [])
+                          .filter((p: any) => p.id !== currentEnrollment?.plan_id)
+                          .map((p: any) => (
+                            <option key={p.id} value={p.id}>{p.name} · {brl(p.amount)}</option>
+                          ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs text-muted-foreground">Valor personalizado (opcional)</label>
+                      <Input
+                        type="number" step="0.01" placeholder="Deixe em branco para usar valor do plano"
+                        value={changePlan.custom_amount}
+                        onChange={(e) => setChangePlan({ ...changePlan, custom_amount: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs text-muted-foreground">Dia de vencimento</label>
+                      <Input
+                        type="number" min={1} max={28}
+                        value={changePlan.due_day}
+                        onChange={(e) => setChangePlan({ ...changePlan, due_day: Number(e.target.value) })}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs text-muted-foreground">Início da nova vigência</label>
+                      <Input
+                        type="date"
+                        value={changePlan.start_date}
+                        onChange={(e) => setChangePlan({ ...changePlan, start_date: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                  {currentEnrollment && (
+                    <div className="mt-3 rounded-md border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-900 dark:text-amber-200">
+                      <AlertTriangle className="mr-1 inline h-3.5 w-3.5" />
+                      Ao confirmar, o plano atual será encerrado e a nova matrícula passará a gerar as cobranças recorrentes via AMT Pay.
+                    </div>
+                  )}
+                  <div className="mt-4 flex gap-2">
+                    <Button onClick={doChangePlan} disabled={changingPlan || !changePlan.plan_id}>
+                      {changingPlan ? "Processando..." : "Confirmar"}
+                    </Button>
+                    <Button variant="ghost" onClick={() => setChangePlan({ ...changePlan, open: false })}>
+                      Cancelar
+                    </Button>
+                  </div>
+                </SectionCard>
+              )}
+
+              {enrollments.length > 0 && (
+                <SectionCard title="Histórico de planos" icon={ClipboardList}>
+                  <div className="rounded-lg border border-border">
+                    {enrollments.map((e: any) => (
+                      <div key={e.id} className="flex items-center justify-between border-b border-border p-3 text-sm last:border-0">
+                        <div className="min-w-0 flex-1">
+                          <div className="font-medium truncate">{e.plan?.name ?? "—"}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {brl(e.custom_amount ?? e.plan?.amount ?? 0)} · início {fmtDate(e.start_date)} · venc. dia {e.due_day}
+                          </div>
+                        </div>
+                        <Badge variant={e.status === "active" ? "default" : "outline"}>{e.status}</Badge>
+                      </div>
+                    ))}
+                  </div>
+                </SectionCard>
+              )}
+            </TabsContent>
+
+
+
             {/* --- Anamnese --- */}
             <TabsContent value="anamnese" className="mt-4 space-y-4">
               <SectionCard title="Ficha de saúde" icon={Heart}>
