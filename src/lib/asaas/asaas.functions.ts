@@ -292,7 +292,9 @@ export const createMyAsaasSubaccount = createServerFn({ method: "POST" })
     };
   });
 
-/** Consulta o status atual da subconta e atualiza o onboarding_status local. */
+/** Consulta o status atual da subconta e atualiza o onboarding_status local.
+ *  Se a subconta foi encerrada/desativada no Asaas (404 ou status terminal),
+ *  limpa a configuração local para permitir uma nova ativação. */
 export const refreshMyAsaasSubaccount = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -308,22 +310,119 @@ export const refreshMyAsaasSubaccount = createServerFn({ method: "POST" })
       throw new Error("Subconta Asaas ainda não criada.");
     }
 
-    const remote = await asaasGetSubaccount(profile.asaas_subaccount_id);
+    const CLOSED_STATUSES = new Set([
+      "TERMINATED",
+      "DISABLED",
+      "CLOSED",
+      "INACTIVE",
+      "CANCELLED",
+      "CANCELED",
+      "DELETED",
+      "BLOCKED",
+    ]);
 
-    await context.supabase
+    const clearLocalConfig = async (reason: string, meta: Record<string, unknown>) => {
+      await context.supabase
+        .from("dojo_academy_profile")
+        .update({
+          asaas_subaccount_id: null,
+          asaas_wallet_id: null,
+          asaas_onboarding_status: "not_started",
+          asaas_onboarding_url: null,
+          asaas_api_key_encrypted: null,
+        })
+        .eq("owner_id", context.userId);
+
+      await context.supabase.from("dojo_account_audit").insert({
+        owner_id: context.userId,
+        action: "asaas_subaccount_reset_auto",
+        meta: { reason, subaccount_id: profile.asaas_subaccount_id, ...meta },
+      });
+    };
+
+    try {
+      const remote = await asaasGetSubaccount(profile.asaas_subaccount_id);
+      const remoteStatus = String(remote.onboardingStatus || "").toUpperCase();
+
+      if (CLOSED_STATUSES.has(remoteStatus)) {
+        await clearLocalConfig("subaccount_closed", { remote_status: remoteStatus });
+        return {
+          subaccountId: null,
+          walletId: null,
+          onboardingStatus: "not_started",
+          reset: true as const,
+          reason: `Subconta encerrada no Asaas (status: ${remoteStatus}). Configuração redefinida.`,
+        };
+      }
+
+      await context.supabase
+        .from("dojo_academy_profile")
+        .update({
+          asaas_onboarding_status: remote.onboardingStatus || "pending",
+          asaas_wallet_id: remote.walletId,
+        })
+        .eq("owner_id", context.userId);
+
+      return {
+        subaccountId: remote.id,
+        walletId: remote.walletId,
+        onboardingStatus: remote.onboardingStatus || "pending",
+        reset: false as const,
+      };
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      // 404 ou "not found" indicam subconta removida
+      if (/\b404\b/.test(msg) || /not\s*found/i.test(msg) || /inexistente|não encontrad/i.test(msg)) {
+        await clearLocalConfig("subaccount_not_found", { error: msg });
+        return {
+          subaccountId: null,
+          walletId: null,
+          onboardingStatus: "not_started",
+          reset: true as const,
+          reason: "Subconta não encontrada no Asaas. Configuração redefinida — você pode criar uma nova.",
+        };
+      }
+      throw err;
+    }
+  });
+
+/** Reseta manualmente a configuração do AMT Pay (subconta ou wallet vinculada).
+ *  Usado quando o dono do dojo encerrou a conta Asaas ou quer trocar para outra. */
+export const resetMyAsaasConfig = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: profile } = await context.supabase
+      .from("dojo_academy_profile")
+      .select("asaas_subaccount_id, asaas_wallet_id, asaas_onboarding_status")
+      .eq("owner_id", context.userId)
+      .maybeSingle();
+
+    const { error } = await context.supabase
       .from("dojo_academy_profile")
       .update({
-        asaas_onboarding_status: remote.onboardingStatus || "pending",
-        asaas_wallet_id: remote.walletId,
+        asaas_subaccount_id: null,
+        asaas_wallet_id: null,
+        asaas_onboarding_status: "not_started",
+        asaas_onboarding_url: null,
+        asaas_api_key_encrypted: null,
       })
       .eq("owner_id", context.userId);
 
-    return {
-      subaccountId: remote.id,
-      walletId: remote.walletId,
-      onboardingStatus: remote.onboardingStatus || "pending",
-    };
+    if (error) throw new Error(error.message);
+
+    await context.supabase.from("dojo_account_audit").insert({
+      owner_id: context.userId,
+      action: "asaas_config_reset_manual",
+      meta: {
+        previous_subaccount_id: profile?.asaas_subaccount_id ?? null,
+        previous_wallet_id: profile?.asaas_wallet_id ?? null,
+        previous_status: profile?.asaas_onboarding_status ?? null,
+      },
+    });
+
+    return { ok: true as const };
   });
+
 
 /**
  * Vincula uma conta Asaas existente (o dono do dojo já possui conta própria).

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,6 +21,7 @@ import {
   ExternalLink,
   RefreshCw,
   ShieldCheck,
+  RotateCcw,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -29,7 +30,9 @@ import {
   refreshMyAsaasSubaccount,
   setDojoPixKey,
   linkExistingAsaasAccount,
+  resetMyAsaasConfig,
 } from "@/lib/asaas/asaas.functions";
+
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; className: string }> = {
@@ -53,6 +56,7 @@ export function AsaasOnboardingCard() {
   const refreshFn = useServerFn(refreshMyAsaasSubaccount);
   const savePixFn = useServerFn(setDojoPixKey);
   const linkFn = useServerFn(linkExistingAsaasAccount);
+  const resetFn = useServerFn(resetMyAsaasConfig);
 
   const cfg = useQuery({
     queryKey: ["asaas-config"],
@@ -78,8 +82,21 @@ export function AsaasOnboardingCard() {
 
   const refresh = useMutation({
     mutationFn: () => refreshFn({}),
+    onSuccess: (result) => {
+      if (result?.reset) {
+        toast.warning(result.reason || "Subconta encerrada — configuração redefinida.");
+      } else {
+        toast.success("Status atualizado");
+      }
+      qc.invalidateQueries({ queryKey: ["asaas-config"] });
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const reset = useMutation({
+    mutationFn: () => resetFn({}),
     onSuccess: () => {
-      toast.success("Status atualizado");
+      toast.success("Configuração do AMT Pay redefinida. Você pode configurar novamente.");
       qc.invalidateQueries({ queryKey: ["asaas-config"] });
     },
     onError: (err: Error) => toast.error(err.message),
@@ -93,6 +110,19 @@ export function AsaasOnboardingCard() {
     },
     onError: (err: Error) => toast.error(err.message),
   });
+
+  // Auto-check: quando existir subconta, valida com Asaas ao carregar o card
+  // (uma vez por sessão) para detectar encerramentos feitos fora do sistema.
+  const autoCheckedRef = useRef(false);
+  useEffect(() => {
+    if (autoCheckedRef.current) return;
+    if (cfg.isLoading || !cfg.data) return;
+    if (!cfg.data.subaccountId) return;
+    autoCheckedRef.current = true;
+    refresh.mutate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cfg.isLoading, cfg.data?.subaccountId]);
+
 
   const [form, setForm] = useState<{
     birthDate: string;
@@ -197,6 +227,29 @@ export function AsaasOnboardingCard() {
                   split automático para esta wallet.
                 </AlertDescription>
               </Alert>
+              <div className="flex gap-2 flex-wrap">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    if (
+                      confirm(
+                        "Desvincular a conta Asaas atual? Você poderá vincular outra wallet ou criar uma nova subconta em seguida.",
+                      )
+                    ) {
+                      reset.mutate();
+                    }
+                  }}
+                  disabled={reset.isPending}
+                >
+                  {reset.isPending ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <RotateCcw className="h-4 w-4 mr-2" />
+                  )}
+                  Desvincular conta
+                </Button>
+              </div>
             </>
           ) : hasSubaccount ? (
             <>
@@ -255,8 +308,30 @@ export function AsaasOnboardingCard() {
                     </a>
                   </Button>
                 )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    if (
+                      confirm(
+                        "Redefinir a configuração do AMT Pay? Use esta opção se você encerrou a subconta no Asaas ou quer começar do zero. Cobranças já emitidas não serão afetadas.",
+                      )
+                    ) {
+                      reset.mutate();
+                    }
+                  }}
+                  disabled={reset.isPending}
+                >
+                  {reset.isPending ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <RotateCcw className="h-4 w-4 mr-2" />
+                  )}
+                  Redefinir configuração
+                </Button>
               </div>
             </>
+
           ) : missingProfile.length > 0 ? (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
