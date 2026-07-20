@@ -297,7 +297,7 @@ function Filter({ label, children }: { label: string; children: React.ReactNode 
 function DayView({ events, onSelect }: { events: any[]; onSelect: (id: string, d: string) => void }) {
   const sorted = [...events].sort((a, b) => a.item.start.localeCompare(b.item.start));
   return (
-    <div className="border rounded-lg bg-white divide-y">
+    <div className="border border-gray-200 rounded-lg bg-white divide-y divide-gray-100">
       {sorted.length === 0 && <div className="p-6 text-center text-sm text-muted-foreground">Nenhuma aula neste dia.</div>}
       {sorted.map((e, i) => (
         <button
