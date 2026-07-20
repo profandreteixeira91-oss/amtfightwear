@@ -217,7 +217,16 @@ function AnnouncementDetail({ id, onClose }: { id: string; onClose: () => void }
   const delCommentFn = useServerFn(deleteMyComment);
   const [comment, setComment] = useState("");
 
-  const q = useQuery({ queryKey: ["student", "announcement", id], queryFn: () => fn({ data: { id } }) });
+  const qc2 = useQueryClient();
+  const cached: any = (qc2.getQueriesData({ queryKey: ["student", "announcements"] }) as any[])
+    .flatMap(([, v]: any) => v?.items ?? [])
+    .find((it: any) => it?.id === id);
+  const q = useQuery({
+    queryKey: ["student", "announcement", id],
+    queryFn: () => fn({ data: { id } }),
+    placeholderData: cached ? { announcement: cached, comments: [], like_count: 0, liked: false, read: !!cached.is_read, read_at: null, student_id: null } as any : undefined,
+  });
+
 
   const confirmMut = useMutation({
     mutationFn: () => confirmFn({ data: { id, device: navigator.userAgent } }),
