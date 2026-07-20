@@ -93,32 +93,13 @@ export const Route = createFileRoute("/api/public/hooks/mercadopago")({
         if (type && !String(type).includes("payment")) return new Response("ok");
 
         // ============================================================
-        // FLUXO B: Pagamentos avulsos (loja + Pix de mensalidades)
+        // FLUXO B: Pagamentos avulsos (loja + Pix/mensalidades)
+        // AMT Pay v2 — todos os pagamentos passam pela conta MP central.
         // ============================================================
-        // Descobre qual token usar: se o external_reference for de dojo_invoice,
-        // busca o token do dono; senão usa o accessToken global (loja AMT).
-        let effectiveToken = accessToken;
-        // Primeiro tenta identificar a fatura pelo payment_id local (para descobrir o dono)
-        const { data: preInv } = await supabaseAdmin
-          .from("dojo_invoices")
-          .select("owner_id")
-          .eq("payment_id", paymentId)
-          .maybeSingle();
-        if (preInv?.owner_id) {
-          const { data: gw } = await supabaseAdmin
-            .from("dojo_payment_gateways")
-            .select("access_token")
-            .eq("owner_id", preInv.owner_id)
-            .eq("provider", "mercadopago")
-            .eq("active", true)
-            .maybeSingle();
-          if (gw?.access_token) effectiveToken = gw.access_token;
-        }
-        if (!effectiveToken) return new Response("ok");
+        if (!accessToken) return new Response("ok");
 
-        // Busca o pagamento na API para obter status e externalReference
         const res = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
-          headers: { Authorization: `Bearer ${effectiveToken}` },
+          headers: { Authorization: `Bearer ${accessToken}` },
         });
         if (!res.ok) return new Response("ok");
         const payment = await res.json();
@@ -141,9 +122,8 @@ export const Route = createFileRoute("/api/public/hooks/mercadopago")({
           patch.payment_status = "pending";
         }
 
-        let updatedOrderId: string | null = orderId && !String(orderId).startsWith("dojo_invoice:")
-          ? String(orderId)
-          : null;
+        let updatedOrderId: string | null =
+          orderId && !String(orderId).startsWith("dojo_invoice:") ? String(orderId) : null;
 
         // Fluxo 1: pedidos da loja
         if (updatedOrderId) {
@@ -165,9 +145,11 @@ export const Route = createFileRoute("/api/public/hooks/mercadopago")({
           await createOrderNotification(updatedOrderId, "paid");
         }
 
-        // Fluxo 2: mensalidades do Dojo Manager (dojo_invoices)
+        // Fluxo 2: mensalidades do Dojo Manager (dojo_invoices) — SPLIT
         const isDojoInvoice = String(orderId ?? "").startsWith("dojo_invoice:");
-        const invoiceId = isDojoInvoice ? String(orderId).slice("dojo_invoice:".length) : null;
+        const invoiceId = isDojoInvoice
+          ? String(orderId).slice("dojo_invoice:".length)
+          : null;
         let matchedInvoiceId: string | null = invoiceId;
         if (!matchedInvoiceId) {
           const { data: invRow } = await supabaseAdmin
@@ -177,6 +159,7 @@ export const Route = createFileRoute("/api/public/hooks/mercadopago")({
             .maybeSingle();
           matchedInvoiceId = (invRow as { id: string } | null)?.id ?? null;
         }
+
         if (matchedInvoiceId) {
           const invPatch: Record<string, any> = {};
           if (status === "approved") {
@@ -194,17 +177,93 @@ export const Route = createFileRoute("/api/public/hooks/mercadopago")({
               .maybeSingle();
 
             if (invRow && invPatch.status === "paid") {
+              const ownerId = (invRow as any).owner_id as string;
+              const gross = Number(payment.transaction_amount ?? (invRow as any).amount ?? 0);
+              const mpFee = Number(
+                payment?.fee_details?.reduce?.((s: number, f: any) => s + Number(f?.amount ?? 0), 0) ??
+                  0,
+              );
+
+              // Split idempotente: só processa se ainda não existir
+              const { data: existingSplit } = await supabaseAdmin
+                .from("dojo_split_transactions")
+                .select("id")
+                .eq("mp_payment_id", paymentId)
+                .maybeSingle();
+
+              if (!existingSplit) {
+                // Carrega config de split (padrão: 5% + R$ 0 para AMT)
+                const { data: cfg } = await supabaseAdmin
+                  .from("dojo_split_config")
+                  .select("*")
+                  .eq("owner_id", ownerId)
+                  .maybeSingle();
+                const platformPct = Number((cfg as any)?.platform_fee_percent ?? 5);
+                const platformFixed = Number((cfg as any)?.platform_fee_fixed ?? 0);
+
+                const platformFee = Number(
+                  (gross * (platformPct / 100) + platformFixed).toFixed(2),
+                );
+                const dojoNet = Number((gross - mpFee - platformFee).toFixed(2));
+
+                const { data: splitRow } = await supabaseAdmin
+                  .from("dojo_split_transactions")
+                  .insert({
+                    owner_id: ownerId,
+                    invoice_id: matchedInvoiceId,
+                    mp_payment_id: paymentId,
+                    gross_amount: gross,
+                    mp_fee_amount: mpFee,
+                    platform_fee_amount: platformFee,
+                    dojo_net_amount: dojoNet,
+                    platform_fee_percent: platformPct,
+                    platform_fee_fixed: platformFixed,
+                    status: "approved",
+                    paid_at: new Date().toISOString(),
+                    payload: payment,
+                  } as never)
+                  .select("id")
+                  .single();
+
+                // Credita carteira interna do dojo
+                const method = (() => {
+                  const t = String(payment.payment_type_id ?? "").toLowerCase();
+                  if (t.includes("pix")) return "pix";
+                  if (t.includes("credit") || t.includes("debit") || t.includes("card"))
+                    return "card";
+                  if (t.includes("ticket") || t.includes("boleto")) return "boleto";
+                  return "link";
+                })();
+
+                await supabaseAdmin.from("dojo_wallet_transactions").insert({
+                  owner_id: ownerId,
+                  student_id: (invRow as any).student_id,
+                  kind: "receipt",
+                  method,
+                  status: "available",
+                  amount: gross,
+                  direction: 1,
+                  fee_amount: mpFee + platformFee,
+                  net_amount: dojoNet,
+                  description: `Mensalidade ${(invRow as any).description ?? ""}`.trim(),
+                  reference_type: "invoice",
+                  reference_id: matchedInvoiceId,
+                  provider: "amt_pay",
+                  provider_tx_id: paymentId,
+                  split_transaction_id: (splitRow as any)?.id ?? null,
+                } as never);
+              }
+
               // Notificação in-app
               await supabaseAdmin
                 .from("dojo_student_notifications")
                 .insert({
                   student_id: (invRow as any).student_id,
-                  owner_id: (invRow as any).owner_id,
+                  owner_id,
                   type: "invoice_paid",
                   title: "Pagamento confirmado",
                   body: `Recebemos R$ ${Number((invRow as any).amount).toFixed(2)} — ${(invRow as any).description ?? "Mensalidade"}.`,
                 } as never);
-              // Push
               try {
                 const { sendPushToStudent } = await import("@/lib/push/push.server");
                 await sendPushToStudent((invRow as any).student_id, {
