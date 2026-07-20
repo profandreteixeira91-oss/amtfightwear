@@ -14,7 +14,7 @@ export type ShippingCalcItem = {
 type Props = {
   items: ShippingCalcItem[];
   initialZip?: string;
-  onSelect?: (option: ShippingOption) => void;
+  onSelect?: (option: ShippingOption, zip: string) => void;
   selectedId?: number | null;
   compact?: boolean;
 };
@@ -100,7 +100,7 @@ export function ShippingCalculator({ items, initialZip, onSelect, selectedId, co
                 type="button"
                 key={o.id}
                 disabled={disabled}
-                onClick={() => !disabled && onSelect?.(o)}
+                onClick={() => !disabled && onSelect?.(o, zip.replace(/\D/g, ""))}
                 className={`flex w-full items-center gap-3 rounded-md border p-3 text-left text-sm transition ${
                   selected ? "border-primary bg-primary/5" : "border-input hover:border-primary/50"
                 } ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}

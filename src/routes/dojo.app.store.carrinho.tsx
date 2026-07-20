@@ -14,6 +14,8 @@ import { Button } from "@/components/ui/button";
 import { Trash2, ShoppingBag, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useRef, useState } from "react";
+import { ShippingCalculator } from "@/components/store/ShippingCalculator";
+import type { ShippingOption } from "@/lib/store/shipping.functions";
 
 export const Route = createFileRoute("/dojo/app/store/carrinho")({ component: CartPage });
 
@@ -48,6 +50,8 @@ function CartPage() {
   const timers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
   const pending = useRef<Record<string, number>>({});
   const [draft, setDraft] = useState<Record<string, string>>({});
+  const [shipping, setShipping] = useState<ShippingOption | null>(null);
+  const [shipZip, setShipZip] = useState<string>("");
   useEffect(() => () => { Object.values(timers.current).forEach(clearTimeout); }, []);
 
   const commitQty = (id: string, next: number) => {
@@ -77,10 +81,11 @@ function CartPage() {
     mutationFn: () => handoffFn(),
     onSuccess: (r: any) => {
       // Subdomínios diferentes (dojomanager x loja) não compartilham
-      // localStorage, então o carrinho é enviado via URL para a rota
-      // /loja/carrinho, que faz o import e segue para /loja/checkout.
-      // O frete é calculado lá no checkout oficial.
-      const payload = { items: r.items };
+      // localStorage — enviamos itens + frete via URL para /loja/carrinho,
+      // que grava a seleção no sessionStorage e segue para /loja/checkout.
+      const payload: Record<string, unknown> = { items: r.items };
+      if (shipping) payload.shipping = shipping;
+      if (shipZip) payload.zip = shipZip;
       const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
       refresh();
       const url = `https://loja.amtfightwear.com.br/loja/carrinho?checkout=1&import=${encodeURIComponent(b64)}`;
@@ -88,11 +93,12 @@ function CartPage() {
       if (!win) {
         toast.error("Ative pop-ups para abrir o checkout ou clique novamente.");
       } else {
-        toast.success("Checkout aberto em nova janela. O frete será calculado lá.");
+        toast.success(shipping ? "Checkout aberto com o frete escolhido." : "Checkout aberto em nova janela.");
       }
     },
     onError: (e: any) => toast.error(e?.message ?? "Falha ao finalizar"),
   });
+
 
   if (isLoading) return <div className="text-sm text-muted-foreground">Carregando…</div>;
   if (!data?.items.length) {
@@ -105,7 +111,8 @@ function CartPage() {
     );
   }
 
-  const total = data.subtotal;
+  const shippingPrice = shipping?.price ?? 0;
+  const total = data.subtotal + shippingPrice;
 
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
@@ -262,14 +269,27 @@ function CartPage() {
               <span>💰 Você economizou</span><span className="font-bold">{brl(data.savings)}</span>
             </div>
           )}
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Frete {shipping ? `(${shipping.company} ${shipping.name})` : ""}</span>
+            <span className={shipping ? "font-medium" : "text-muted-foreground"}>{shipping ? brl(shippingPrice) : "Informe o CEP"}</span>
+          </div>
           <div className="flex justify-between border-t pt-2 text-base">
             <span className="font-semibold">Total</span>
             <span className="font-bold text-primary">{brl(total)}</span>
           </div>
-          <div className="rounded-md bg-muted/50 px-2 py-1.5 text-[11px] text-muted-foreground">
-            🚚 O frete será calculado na próxima etapa (checkout AMT Fight Wear).
-          </div>
         </div>
+
+        <ShippingCalculator
+          items={data.items.map((it: any) => ({ product_id: it.product_id, variant_id: it.variant_id ?? null, quantity: it.quantity }))}
+          initialZip={shipZip}
+          selectedId={shipping?.id ?? null}
+          onSelect={(opt, z) => { setShipping(opt); if (z) setShipZip(z); }}
+          compact
+        />
+        <div className="text-[11px] text-muted-foreground">
+          Você pode alterar o CEP no checkout, se preferir.
+        </div>
+
 
         <Button className="w-full" size="lg" disabled={checkout.isPending} onClick={() => checkout.mutate()}>
           {checkout.isPending ? "Processando…" : (<>Finalizar Compra <ArrowRight className="ml-2 h-4 w-4" /></>)}

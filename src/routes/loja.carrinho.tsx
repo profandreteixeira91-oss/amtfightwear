@@ -4,8 +4,12 @@ import { StoreShell } from "@/components/store/StoreShell";
 import { ProductImage } from "@/components/store/ProductImage";
 import { listStoreCategories } from "@/lib/store/store.functions";
 import { useCart, formatBRL } from "@/lib/store/cart-store";
+import { ShippingCalculator } from "@/components/store/ShippingCalculator";
+import type { ShippingOption } from "@/lib/store/shipping.functions";
 import { Trash2, ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
+
+const SHIPPING_KEY = "amt-checkout-shipping";
 
 export const Route = createFileRoute("/loja/carrinho")({
   loader: async ({ context }) => {
@@ -25,7 +29,36 @@ function CartPage() {
   const addCart = useCart((s) => s.add);
   const clearCart = useCart((s) => s.clear);
   const [mounted, setMounted] = useState(false);
+  const [shipping, setShipping] = useState<ShippingOption | null>(null);
+  const [zip, setZip] = useState<string>("");
   useEffect(() => setMounted(true), []);
+
+  // Restaura seleção de frete do sessionStorage (persiste entre carrinho ↔ checkout).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = sessionStorage.getItem(SHIPPING_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw) as { zip?: string; option?: ShippingOption };
+        if (parsed.zip) setZip(parsed.zip);
+        if (parsed.option) setShipping(parsed.option);
+      }
+    } catch { /* ignore */ }
+  }, []);
+
+  // Persiste seleção para o checkout usar automaticamente.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (shipping) {
+      sessionStorage.setItem(SHIPPING_KEY, JSON.stringify({ zip, option: shipping }));
+    }
+  }, [shipping, zip]);
+
+  const handleShippingSelect = (opt: ShippingOption, selectedZip: string) => {
+    setShipping(opt);
+    if (selectedZip) setZip(selectedZip);
+  };
+
 
   // Handoff vindo do AMT Dojo Manager (subdomínio diferente ⇒ localStorage separado).
   // Aceita ?import=<base64(JSON)> e/ou ?checkout=1 para pular direto ao checkout.
@@ -52,6 +85,14 @@ function CartPage() {
             });
           }
         }
+        // Aceita frete + CEP vindos do carrinho de origem (dojo).
+        if (json?.shipping || json?.zip) {
+          if (json.zip) setZip(String(json.zip));
+          if (json.shipping) setShipping(json.shipping as ShippingOption);
+          try {
+            sessionStorage.setItem(SHIPPING_KEY, JSON.stringify({ zip: json.zip, option: json.shipping }));
+          } catch { /* ignore */ }
+        }
       } catch { /* ignore */ }
       const goCheckout = params.get("checkout") === "1";
       const url = new URL(window.location.href);
@@ -62,7 +103,12 @@ function CartPage() {
     }
   }, [addCart, clearCart]);
 
+
   const subtotal = items.reduce((a, i) => a + i.quantity * i.unit_price, 0);
+  const FREE_SHIPPING_THRESHOLD = 399;
+  const shippingCost = shipping?.price ?? 0;
+  const freeShipping = subtotal >= FREE_SHIPPING_THRESHOLD && !!shipping;
+  const total = subtotal + (freeShipping ? 0 : shippingCost);
 
   if (!mounted) return <StoreShell categories={categories}><div className="p-16" /></StoreShell>;
 
@@ -119,28 +165,52 @@ function CartPage() {
             </div>
 
 
-            <div className="h-fit rounded-lg border bg-card p-5">
-              <h2 className="mb-3 text-lg font-bold">Resumo</h2>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span>Subtotal</span>
-                  <span className="font-semibold">{formatBRL(subtotal)}</span>
+            <div className="h-fit space-y-4">
+              <div className="rounded-lg border bg-card p-5">
+                <h2 className="mb-3 text-lg font-bold">Calcular frete</h2>
+                <ShippingCalculator
+                  items={items.map((i) => ({ product_id: i.product_id, variant_id: i.variant_id ?? null, quantity: i.quantity }))}
+                  initialZip={zip}
+                  selectedId={shipping?.id ?? null}
+                  onSelect={handleShippingSelect}
+                  compact
+                />
+                <div className="mt-2 text-[11px] text-muted-foreground">
+                  Você poderá alterar o CEP no checkout, se quiser.
                 </div>
-                <div className="flex justify-between text-muted-foreground">
-                  <span>Frete</span>
-                  <span>Calculado no checkout</span>
-                </div>
-                <div className="my-3 border-t pt-3 flex justify-between text-base font-black">
-                  <span>Total</span>
-                  <span>{formatBRL(subtotal)}</span>
-                </div>
-                <div className="text-xs text-muted-foreground">ou 10x de <strong>{formatBRL(subtotal / 10)}</strong> sem juros</div>
               </div>
-              <Link to="/loja/checkout" className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 font-bold text-primary-foreground hover:opacity-90">
-                Finalizar compra <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link to="/" className="mt-2 block text-center text-sm text-muted-foreground hover:text-primary">Continuar comprando</Link>
+
+              <div className="rounded-lg border bg-card p-5">
+                <h2 className="mb-3 text-lg font-bold">Resumo</h2>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span>Subtotal</span>
+                    <span className="font-semibold">{formatBRL(subtotal)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">
+                      Frete {shipping ? `(${shipping.company} ${shipping.name})` : ""}
+                    </span>
+                    <span className={shipping ? "font-semibold" : "text-muted-foreground"}>
+                      {shipping ? (freeShipping ? <><span className="line-through mr-1">{formatBRL(shippingCost)}</span><span className="text-emerald-600">Grátis</span></> : formatBRL(shippingCost)) : "Informe o CEP"}
+                    </span>
+                  </div>
+                  {freeShipping && shipping && (
+                    <div className="text-[11px] text-emerald-600">🎉 Frete grátis desbloqueado</div>
+                  )}
+                  <div className="my-3 border-t pt-3 flex justify-between text-base font-black">
+                    <span>Total</span>
+                    <span>{formatBRL(total)}</span>
+                  </div>
+                  <div className="text-xs text-muted-foreground">ou 10x de <strong>{formatBRL(total / 10)}</strong> sem juros</div>
+                </div>
+                <Link to="/loja/checkout" className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 font-bold text-primary-foreground hover:opacity-90">
+                  Finalizar compra <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link to="/" className="mt-2 block text-center text-sm text-muted-foreground hover:text-primary">Continuar comprando</Link>
+              </div>
             </div>
+
           </div>
         )}
       </div>
