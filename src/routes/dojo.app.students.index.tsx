@@ -128,6 +128,8 @@ function StudentsPage() {
   const delFn = useServerFn(deleteDojoStudent);
   const beltsFn = useServerFn(listDojoBelts);
   const unitsFn = useServerFn(listDojoUnits);
+  const plansFn = useServerFn(listDojoPlans);
+  const enrollFn = useServerFn(enrollStudentWithPlan);
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
@@ -136,10 +138,20 @@ function StudentsPage() {
   const [cityFilter, setCityFilter] = useState("");
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<StudentForm>(emptyForm);
+  const [enrollment, setEnrollment] = useState({
+    plan_id: "",
+    due_day: 5,
+    start_date: new Date().toISOString().slice(0, 10),
+    first_due_date: new Date().toISOString().slice(0, 10),
+    include_enrollment_fee: true,
+    payment_method: "manual" as "manual" | "mp_link",
+    custom_amount: "" as string,
+  });
 
   const q = useQuery({ queryKey: ["dojo-students"], queryFn: () => listFn() });
   const belts = useQuery({ queryKey: ["dojo-belts"], queryFn: () => beltsFn() });
   const units = useQuery({ queryKey: ["dojo-units"], queryFn: () => unitsFn() });
+  const plans = useQuery({ queryKey: ["dojo-plans"], queryFn: () => plansFn() });
 
   useEffect(() => {
     if (!q.data) return;
