@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Handshake, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { PageHeader } from "@/components/common/PageHeader";
+import { PageShell } from "@/components/common/PageShell";
 import { SectionCard } from "@/components/common/SectionCard";
 import { EmptyState } from "@/components/common/EmptyState";
 import { Button } from "@/components/ui/button";
@@ -54,8 +54,7 @@ function CrmPage() {
   const totalPipeline = (deals ?? []).reduce((s, d) => s + Number(d.value ?? 0), 0);
 
   return (
-    <>
-      <PageHeader
+    <PageShell
         eyebrow="MarketEngine"
         title="CRM & E-mail"
         description="Pipeline de negociações reais. Adicione, arraste entre estágios e acompanhe o valor total."
@@ -67,7 +66,7 @@ function CrmPage() {
             <NewDealDialog onSubmit={(v) => create.mutate(v)} loading={create.isPending} />
           </Dialog>
         }
-      />
+      >
 
       <div className="mb-4 flex items-center gap-4 text-sm">
         <Badge variant="secondary" className="gap-1"><Handshake className="h-3 w-3" /> Pipeline: {brl(totalPipeline)}</Badge>
@@ -119,7 +118,7 @@ function CrmPage() {
           })}
         </div>
       )}
-    </>
+    </PageShell>
   );
 }
 

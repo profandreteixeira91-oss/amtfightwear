@@ -5,7 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Radar, Loader2, Swords, MapPin, X, CalendarClock } from "lucide-react";
-import { PageHeader } from "@/components/common/PageHeader";
+import { PageShell } from "@/components/common/PageShell";
 import { SectionCard } from "@/components/common/SectionCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,16 +35,12 @@ function SearchPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="mx-auto max-w-5xl">
-      <div className="flex items-start justify-between gap-4">
-        <PageHeader
-          eyebrow="Prospect Engine"
-          title="Nova Busca"
-          description="Escolha entre a busca guiada por segmento livre ou o Modo Artes Marciais — varredura automatizada por academias, escolas, professores e projetos sociais de judô e jiu-jitsu."
-        />
-        <PurgeAllButton />
-      </div>
-
+    <PageShell
+      eyebrow="Prospect Engine"
+      title="Nova Busca"
+      description="Escolha entre a busca guiada por segmento livre ou o Modo Artes Marciais — varredura automatizada por academias, escolas, professores e projetos sociais de judô e jiu-jitsu."
+      actions={<PurgeAllButton />}
+    >
       <Tabs defaultValue="martial" className="w-full">
         <TabsList className="mb-4">
           <TabsTrigger value="martial">
@@ -63,9 +59,10 @@ function SearchPage() {
           <GuidedSearchPanel onDone={() => navigate({ to: "/prospect/leads" })} />
         </TabsContent>
       </Tabs>
-    </div>
+    </PageShell>
   );
 }
+
 
 function PurgeAllButton() {
   const purgeFn = useServerFn(purgeAllProspectData);

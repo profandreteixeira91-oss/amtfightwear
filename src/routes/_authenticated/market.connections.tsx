@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Facebook, Instagram, ExternalLink, Copy, Check, Loader2, ShieldCheck, Unplug } from "lucide-react";
-import { PageHeader } from "@/components/common/PageHeader";
+import { PageShell } from "@/components/common/PageShell";
 import { SectionCard } from "@/components/common/SectionCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -58,12 +58,11 @@ function ConnectionsPage() {
     : null;
 
   return (
-    <>
-      <PageHeader
+    <PageShell
         eyebrow="MarketEngine"
         title="Conexões e APIs"
         description="Integre o AMT MarketEngine com Meta (Facebook + Instagram) via Graph API."
-      />
+      >
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <SectionCard title="Meta Business (Facebook & Instagram)">
@@ -158,6 +157,6 @@ function ConnectionsPage() {
           </div>
         </SectionCard>
       </div>
-    </>
+    </PageShell>
   );
 }

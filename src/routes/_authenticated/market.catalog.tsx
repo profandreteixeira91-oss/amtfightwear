@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { BarChart4, Package, AlertTriangle } from "lucide-react";
-import { PageHeader } from "@/components/common/PageHeader";
+import { PageShell } from "@/components/common/PageShell";
 import { SectionCard } from "@/components/common/SectionCard";
 import { StatCard } from "@/components/common/StatCard";
 import { EmptyState } from "@/components/common/EmptyState";
@@ -35,12 +35,11 @@ function CatalogPage() {
   const cats = Array.from(byCategory.entries()).sort((a, b) => b[1] - a[1]);
 
   return (
-    <>
-      <PageHeader
+    <PageShell
         eyebrow="MarketEngine"
         title="Analytics Catálogo"
         description="Métricas reais do catálogo AMT Fight Wear sincronizado com amtfightwear.com.br."
-      />
+      >
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {isLoading ? Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-28" />) : (
@@ -114,6 +113,6 @@ function CatalogPage() {
           )}
         </SectionCard>
       </div>
-    </>
+    </PageShell>
   );
 }

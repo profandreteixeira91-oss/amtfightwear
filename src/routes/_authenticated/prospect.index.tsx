@@ -6,7 +6,7 @@ import {
   Users, Sparkles, Mail, MessageCircle, Instagram, TrendingUp,
   Radar, Handshake, Target, MapPin,
 } from "lucide-react";
-import { PageHeader } from "@/components/common/PageHeader";
+import { PageShell } from "@/components/common/PageShell";
 import { StatCard } from "@/components/common/StatCard";
 import { SectionCard } from "@/components/common/SectionCard";
 import { ErrorState } from "@/components/common/ErrorState";
@@ -35,8 +35,7 @@ function ProspectDashboardPage() {
   });
 
   return (
-    <div className="mx-auto max-w-7xl">
-      <PageHeader
+    <PageShell
         eyebrow="Prospect Engine"
         title="Central de Prospecção"
         description="Motor de busca, enriquecimento e pipeline de leads B2B com IA."
@@ -50,7 +49,7 @@ function ProspectDashboardPage() {
             </Button>
           </>
         }
-      />
+      >
 
       {error && <ErrorState message={String(error)} onRetry={() => refetch()} />}
 
@@ -132,7 +131,7 @@ function ProspectDashboardPage() {
           </div>
         </>
       )}
-    </div>
+    </PageShell>
   );
 }
 

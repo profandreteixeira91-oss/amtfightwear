@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Rocket, Package, Users, Handshake, Radar } from "lucide-react";
-import { PageHeader } from "@/components/common/PageHeader";
+import { PageShell } from "@/components/common/PageShell";
 import { StatCard } from "@/components/common/StatCard";
 import { SectionCard } from "@/components/common/SectionCard";
 import { EmptyState } from "@/components/common/EmptyState";
@@ -39,13 +39,12 @@ function OverviewPage() {
   });
 
   return (
-    <>
-      <PageHeader
+    <PageShell
         eyebrow="MarketEngine"
         title="Painel Geral"
         description="Visão consolidada do motor de vendas AMT Fight Wear com dados reais."
         actions={<Badge variant="secondary" className="gap-1"><Rocket className="h-3 w-3" /> Ao vivo</Badge>}
-      />
+      >
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {isLoading ? (
@@ -85,6 +84,6 @@ function OverviewPage() {
       </div>
 
       <SocialInsights />
-    </>
+    </PageShell>
   );
 }

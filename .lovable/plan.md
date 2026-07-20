@@ -1,57 +1,71 @@
-# Auditoria de UI/UX AMT Fight Wear — Plano em Fases
+# Fase 2 — Auditoria UX/UI (Prospect · Marketing Engine · Instagram)
 
-O sistema tem 80+ rotas entre loja, painel administrativo, Dojo Manager, app do aluno e landing pages. Uma varredura única entregaria mudanças rasas e inconsistentes. A proposta é criar uma **fundação de design tokens/primitivas** e depois aplicar por área, com você validando cada fase.
+Fase 1 já unificou todo o `/store/*` no `PageShell`. Fase 2 estende o mesmo
+padrão aos módulos operacionais restantes e limpa inconsistências que hoje
+quebram o "sentimento" de sistema único.
 
-## Fase 0 — Fundação (sem mudança visível, base para o resto)
+## Escopo desta fase (14 rotas)
 
-Padroniza os tokens que hoje variam de página para página:
+Prospect Engine
+- `prospect.index` · `prospect.leads` · `prospect.qualified` · `prospect.pipeline`
+- `prospect.search` · `prospect.logs` · `prospect.settings` · `prospect.$id`
 
-- **Espaçamentos** em `src/styles.css`: tokens `--space-section` (24px), `--space-card` (16px), `--space-field` (12px), `--space-inline` (8px) + utilitários `space-y-section`, `gap-cards`.
-- **Escala tipográfica** consistente: `text-page-title` (28/32), `text-section-title` (18/20), `text-card-title` (15/16), `text-body` (14), `text-meta` (12) — hoje cada tela usa tamanhos ad-hoc.
-- **Container padrão** `<PageShell>` com `max-w-7xl mx-auto px-4 md:px-6 py-6 space-y-6` para eliminar as margens inconsistentes entre `p-4`, `p-6`, `p-8` que aparecem misturadas.
-- **Grid responsivo padrão**: helper `.grid-cards` que resolve `1 → 2 → 3` (nunca 4+ em desktop) automaticamente. Substitui as ~30 variações de `grid-cols-*` espalhadas.
-- **Wrapper de tabela** `<DataTable>` com scroll horizontal isolado (`overflow-x-auto` na tabela, não na página), cabeçalho sticky e larguras mínimas de coluna.
-- **Card com padding confortável** por padrão: `p-6` (não `p-3`/`p-4` que aperta conteúdo).
+Marketing Engine
+- `market.overview` · `market.catalog` · `market.content`
+- `market.crm` · `market.pricing` · `market.connections`
 
-## Fase 1 — Painel administrativo da loja (mais crítico)
+Instagram Suite (opcional se sobrar orçamento)
+- `instagram.dashboard` · `instagram.inbox` · `instagram.comments`
+  · `instagram.automations` · `instagram.crm` · `instagram.account` · `instagram.admin`
 
-Rotas: `store.index`, `store.orders`, `store.products`, `store.customers`, `store.wholesale`, `store.faixa-calc`, `store.sizes`, `store.import`, `store.chat`, `store.imagens`, `store.shipping`.
+## O que muda em cada rota
 
-Aplicações:
-- Header padronizado com título + subtítulo + ações à direita (agrupa botões em "Mais ações" quando >2).
-- Filtros globais em barra dedicada, não misturados com KPIs.
-- Tabelas com colunas proporcionais, ações em dropdown ao invés de 4-5 botões inline.
-- Formulários com campos longos (descrição, endereço) em full-width; campos curtos lado a lado.
-- Modais com largura mínima decente (`max-w-2xl` para forms, `max-w-4xl` para detalhes).
+1. **PageShell obrigatório** — remove containers ad-hoc (`max-w-*`, `py-*`,
+   `<h1>` soltos) e passa `title`, `description`, `eyebrow` e `actions` para
+   o header padrão. Filtros ficam em `actions`.
+2. **Header responsivo** — botões primários viram `size="sm"` no header;
+   agrupados em `<div className="flex flex-wrap gap-2">` para não estourar
+   no mobile.
+3. **Consistência tipográfica** — títulos passam a herdar de `PageHeader`
+   (28px bold desktop / 22px mobile). Nada de `text-3xl font-black` avulso.
+4. **Tokens de cor** — substituir `text-gray-*`, `bg-white`, `text-black`
+   por `text-foreground`, `text-muted-foreground`, `bg-card`, `bg-muted`.
+5. **Estados vazios/erro** — todos os módulos passam a usar
+   `EmptyState` e `ErrorState` de `@/components/common`.
+6. **Acessibilidade** — `aria-label` em botões apenas-ícone (ex.: apagar,
+   enriquecer, atalhos de estágio), `role="status"` em skeletons e
+   `<main>` único garantido pelo layout `_authenticated`.
+7. **Cards padronizados** — mesma sombra (`shadow-sm`), radius (`rounded-xl`),
+   e header interno (`CardHeader` com título medium + descrição muted).
+8. **Mobile-first no header** — aplica o padrão
+   `grid-cols-[minmax(0,1fr)_auto]` + `min-w-0` + `truncate` do guia de
+   layout responsivo, evitando o "estouro" atual em telas < 640px.
 
-## Fase 2 — Dojo Manager
+## Detalhes técnicos
 
-Rotas: `dojo.app.*` (alunos, financeiro, agenda, avaliações, graduações, check-in, competições, quadro-de-avisos, store).
+- Manter 100% da lógica de dados: apenas envelopar retorno JSX no
+  `PageShell` e mover controles de topo para `actions`.
+- Onde já existe `PageHeader`, remover a chamada direta e usar `PageShell`
+  para unificar padding lateral.
+- Onde há tabs no topo (ex.: Prospect com Leads/Qualificados/Pipeline),
+  renderizar `<Tabs>` como primeiro filho do PageShell, não dentro do
+  header — mantém o breadcrumb visível.
+- Marketing Engine `market.overview` recebe grid de KPIs no mesmo estilo
+  da dashboard da loja (Recharts, 4 cards + 1 gráfico principal).
+- Nenhuma mudança de rota, schema ou server function.
 
-Reorganiza dashboards que hoje têm KPIs em linhas de 6-7 cards; quebra em blocos temáticos (Financeiro / Alunos / Aulas) com no máximo 4 por linha.
+## Entregáveis
 
-## Fase 3 — Loja pública e app do aluno
+- 14 rotas com `PageShell` uniforme.
+- Zero `<h1>` avulso ou `max-w-*` duplicado nessas páginas.
+- Screenshots antes/depois para as 3 rotas mais críticas (leads,
+  qualified, market.overview) via Playwright headless.
 
-Rotas: `/loja/*`, `atacado-lp`, `app.*` (portal do aluno PWA).
+## Fora do escopo (fica para Fase 3)
 
-Foco em respiração vertical, hierarquia entre título de seção e conteúdo, densidade mobile.
+- Redesign visual do Dojo Manager (`/dojo/app/*`).
+- Landing pages públicas (`/loja`, `/atacado-lp`).
+- Refatoração dos modais compartilhados (LeadDrawer, IGComposer).
 
-## Fase 4 — Landing pages e páginas institucionais
-
-Rotas: `/`, `dojo/index`, `privacy`, `terms`, `data-deletion`, `auth`, `reset-password`.
-
-Passe final de espaçamento/tipografia.
-
----
-
-## O que NÃO muda
-
-- Nenhuma regra de negócio, fluxo, banco ou funcionalidade.
-- Nenhum componente é removido — só reorganizado, reagrupado ou tem padding/grid ajustado.
-- Cores da marca (vermelho AMT + preto/branco) mantidas — só melhora contraste e hierarquia onde estiver ruim.
-
-## Como quero prosseguir
-
-Preciso que você confirme **qual fase começar primeiro** (recomendo Fase 0 + Fase 1 no próximo turno — a fundação sozinha já melhora tudo, e a Fase 1 tem o maior impacto operacional).
-
-Se quiser priorizar telas específicas em vez de áreas inteiras (ex: "só a dashboard e a página de pedidos"), me diga quais.
+Confirma que sigo com esse recorte, ou prefere reordenar (ex.: Instagram
+antes de Marketing Engine)?

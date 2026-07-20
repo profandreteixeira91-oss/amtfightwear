@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { motion } from "framer-motion";
 import { AlertCircle, CheckCircle2, Info, XCircle } from "lucide-react";
-import { PageHeader } from "@/components/common/PageHeader";
+import { PageShell } from "@/components/common/PageShell";
 import { SectionCard } from "@/components/common/SectionCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -28,12 +28,11 @@ function LogsPage() {
   const logs = (data ?? []) as Log[];
 
   return (
-    <div className="mx-auto max-w-5xl">
-      <PageHeader
+    <PageShell
         eyebrow="Prospect Engine"
         title="Logs de Automação"
         description="Auditoria completa das ações do motor de prospecção. Atualiza a cada 15 segundos."
-      />
+      >
 
       <SectionCard title={`${logs.length} eventos`} description="Do mais recente ao mais antigo">
         {isLoading ? (
@@ -65,6 +64,6 @@ function LogsPage() {
           </ul>
         )}
       </SectionCard>
-    </div>
+    </PageShell>
   );
 }

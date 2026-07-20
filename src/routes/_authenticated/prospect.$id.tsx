@@ -7,7 +7,7 @@ import {
   ArrowLeft, Mail, MessageCircle, Instagram, Globe, Phone, MapPin,
   Sparkles, Star, Wand2, Building2,
 } from "lucide-react";
-import { PageHeader } from "@/components/common/PageHeader";
+import { PageShell } from "@/components/common/PageShell";
 import { SectionCard } from "@/components/common/SectionCard";
 import { ErrorState } from "@/components/common/ErrorState";
 import { Button } from "@/components/ui/button";
@@ -79,8 +79,7 @@ function LeadDetailPage() {
   const phone = contacts.find((c) => c.channel === "phone")?.value ?? (company.phone as string | undefined);
 
   return (
-    <div className="mx-auto max-w-5xl">
-      <PageHeader
+    <PageShell
         eyebrow={<Link to="/prospect/leads" className="inline-flex items-center gap-1 hover:text-primary"><ArrowLeft className="h-3 w-3" />Voltar aos leads</Link>}
         title={String(company.name)}
         description={<span className="inline-flex items-center gap-1"><Building2 className="h-3.5 w-3.5" />{String(company.category ?? "sem categoria")} · {String(company.city ?? "-")} {company.state ? `— ${company.state}` : ""}</span>}
@@ -94,7 +93,7 @@ function LeadDetailPage() {
             </Button>
           </>
         }
-      />
+      >
 
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="grid gap-4 lg:col-span-2">
@@ -202,7 +201,7 @@ function LeadDetailPage() {
           </SectionCard>
         </div>
       </div>
-    </div>
+    </PageShell>
   );
 }
 

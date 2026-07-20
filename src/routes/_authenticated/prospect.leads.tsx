@@ -7,7 +7,7 @@ import {
   Search, Filter, Mail, MessageCircle, Instagram, Globe, Sparkles,
   ChevronLeft, ChevronRight, Star, ExternalLink, Radar, Trash2, Wand2, Loader2,
 } from "lucide-react";
-import { PageHeader } from "@/components/common/PageHeader";
+import { PageShell } from "@/components/common/PageShell";
 import { ErrorState } from "@/components/common/ErrorState";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -184,8 +184,7 @@ function LeadsPage() {
   const selectedIds = useMemo(() => Array.from(selected), [selected]);
 
   return (
-    <div className="mx-auto max-w-7xl">
-      <PageHeader
+    <PageShell
         eyebrow="Prospect Engine"
         title="Leads"
         description={`${total} leads na base — selecione múltiplos para excluir, editar ou enriquecer em lote.`}
@@ -205,7 +204,7 @@ function LeadsPage() {
             </Button>
           </div>
         }
-      />
+      >
 
       <Card className="mb-4">
         <CardContent className="p-4">
@@ -507,6 +506,6 @@ function LeadsPage() {
           </Button>
         </div>
       )}
-    </div>
+    </PageShell>
   );
 }
