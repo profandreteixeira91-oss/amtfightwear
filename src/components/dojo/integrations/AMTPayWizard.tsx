@@ -26,7 +26,7 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { upsertMyGateway } from "@/lib/dojo/gateways.functions";
 
-type GatewayId = "asaas" | "mercadopago" | "stripe" | "pagseguro" | "inter";
+type GatewayId = "asaas" | "mercadopago" | "stripe" | "pagseguro" | "inter" | "pagarme";
 
 type GatewayCard = {
   id: GatewayId;
@@ -44,6 +44,7 @@ const GATEWAYS: GatewayCard[] = [
   { id: "stripe", name: "Stripe", tagline: "Global, cartões internacionais", icon: CreditCard, comingSoon: true, color: "from-violet-500/20 to-violet-500/5" },
   { id: "pagseguro", name: "PagSeguro", tagline: "Marketplace e antecipação", icon: ShieldCheck, comingSoon: true, color: "from-orange-500/20 to-orange-500/5" },
   { id: "inter", name: "Banco Inter", tagline: "Conta digital e cobrança PJ", icon: Building2, comingSoon: true, color: "from-amber-500/20 to-amber-500/5" },
+  { id: "pagarme", name: "Pagar.me", tagline: "Split de pagamentos e recorrência", icon: CreditCard, comingSoon: true, color: "from-pink-500/20 to-pink-500/5" },
 ];
 
 type Profile = {

@@ -28,7 +28,7 @@ import { testIntegrationConnection, getIntegrationsMetrics, getMyOwnerId } from 
 import { autoProvisionApiSuite } from "@/lib/dojo/apis.functions";
 
 export const Route = createFileRoute("/dojo/app/integrations")({
-  head: () => ({ meta: [{ title: "Central de Integrações — AMT Dojo Manager" }] }),
+  head: () => ({ meta: [{ title: "AMT Pay — Central financeira" }] }),
   component: IntegrationsHub,
   errorComponent: ({ error }) => <div className="p-6 text-red-500">{error.message}</div>,
   notFoundComponent: () => <div className="p-6">Não encontrado</div>,
@@ -149,12 +149,18 @@ function IntegrationsHub() {
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 md:gap-7">
-      {/* Header + busca */}
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold tracking-tight">Integrações</h1>
-          <p className="text-muted-foreground text-sm max-w-2xl mt-1">
-            Configure recebimentos, parceiros e serviços externos do AMT Dojo Manager.
+          <div className="flex items-center gap-2 mb-1">
+            <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Wallet className="h-5 w-5 text-primary" />
+            </div>
+            <h1 className="text-xl md:text-2xl font-bold tracking-tight">AMT Pay</h1>
+            <Badge variant="outline" className="text-[10px]">Central financeira</Badge>
+          </div>
+          <p className="text-muted-foreground text-sm max-w-2xl">
+            Configure sua forma de recebimento para começar a emitir cobranças automaticamente. Todas as mensalidades da sua academia são processadas pelo gateway conectado aqui.
           </p>
         </div>
       </div>
@@ -188,11 +194,11 @@ function IntegrationsHub() {
           </div>
           <div>
             <div className="text-sm font-semibold flex items-center gap-2">
-              Configuração avançada
+              Modo Avançado
               <Badge variant="outline" className="text-[10px] border-amber-500/40 text-amber-600 dark:text-amber-400">Técnico</Badge>
             </div>
             <div className="text-[11px] text-muted-foreground">
-              API Keys, tokens, webhooks e catálogo completo de parceiros. Recomendado apenas para equipes de TI.
+              Utilize esta opção apenas caso solicitado pelo suporte técnico. Aqui ficam API Keys, tokens, webhooks e configurações manuais.
             </div>
           </div>
         </div>
