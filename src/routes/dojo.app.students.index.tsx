@@ -8,6 +8,8 @@ import {
   deleteDojoStudent,
   listDojoBelts,
   listDojoUnits,
+  listDojoPlans,
+  enrollStudentWithPlan,
 } from "@/lib/dojo/dojo.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -126,6 +128,8 @@ function StudentsPage() {
   const delFn = useServerFn(deleteDojoStudent);
   const beltsFn = useServerFn(listDojoBelts);
   const unitsFn = useServerFn(listDojoUnits);
+  const plansFn = useServerFn(listDojoPlans);
+  const enrollFn = useServerFn(enrollStudentWithPlan);
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
@@ -134,10 +138,20 @@ function StudentsPage() {
   const [cityFilter, setCityFilter] = useState("");
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<StudentForm>(emptyForm);
+  const [enrollment, setEnrollment] = useState({
+    plan_id: "",
+    due_day: 5,
+    start_date: new Date().toISOString().slice(0, 10),
+    first_due_date: new Date().toISOString().slice(0, 10),
+    include_enrollment_fee: true,
+    payment_method: "manual" as "manual" | "mp_link",
+    custom_amount: "" as string,
+  });
 
   const q = useQuery({ queryKey: ["dojo-students"], queryFn: () => listFn() });
   const belts = useQuery({ queryKey: ["dojo-belts"], queryFn: () => beltsFn() });
   const units = useQuery({ queryKey: ["dojo-units"], queryFn: () => unitsFn() });
+  const plans = useQuery({ queryKey: ["dojo-plans"], queryFn: () => plansFn() });
 
   useEffect(() => {
     if (!q.data) return;
@@ -176,6 +190,15 @@ function StudentsPage() {
 
   function openNew() {
     setForm(emptyForm);
+    setEnrollment({
+      plan_id: "",
+      due_day: 5,
+      start_date: new Date().toISOString().slice(0, 10),
+      first_due_date: new Date().toISOString().slice(0, 10),
+      include_enrollment_fee: true,
+      payment_method: "manual",
+      custom_amount: "",
+    });
     setOpen(true);
   }
   function openEdit(s: any) {
@@ -199,30 +222,56 @@ function StudentsPage() {
       toast.error("É necessário registrar o consentimento LGPD e o aceite dos termos");
       return;
     }
+    // Ao criar novo aluno, exigir plano
+    const isNew = !form.id;
+    if (isNew && !enrollment.plan_id) {
+      toast.error("Selecione um plano para o aluno na aba Plano & Cobrança");
+      return;
+    }
     try {
       const payload: any = { ...form, current_degree: Number(form.current_degree || 0) };
-      // convert empty strings to null (except booleans/anamnesis/status)
       const skip = new Set([
-        "anamnesis",
-        "status",
-        "lgpd_consent",
-        "image_rights_consent",
-        "terms_accepted",
-        "has_medical_clearance",
-        "current_degree",
+        "anamnesis", "status", "lgpd_consent", "image_rights_consent",
+        "terms_accepted", "has_medical_clearance", "current_degree",
       ]);
       Object.keys(payload).forEach((k) => {
         if (!skip.has(k) && payload[k] === "") payload[k] = null;
       });
-      await saveFn({ data: payload });
-      toast.success("Aluno salvo");
+      const saved: any = await saveFn({ data: payload });
+      const studentId = saved?.id ?? form.id;
+
+      if (isNew && studentId && enrollment.plan_id) {
+        const customAmt = enrollment.custom_amount.trim() === "" ? null : Number(enrollment.custom_amount);
+        const res: any = await enrollFn({
+          data: {
+            student_id: studentId,
+            plan_id: enrollment.plan_id,
+            due_day: enrollment.due_day,
+            start_date: enrollment.start_date,
+            first_due_date: enrollment.first_due_date,
+            include_enrollment_fee: enrollment.include_enrollment_fee,
+            payment_method: enrollment.payment_method,
+            custom_amount: Number.isFinite(customAmt as number) ? customAmt : null,
+          },
+        });
+        toast.success("Aluno matriculado e 1ª mensalidade gerada");
+        if (res?.payment_url) {
+          window.open(res.payment_url, "_blank", "noopener,noreferrer");
+          toast.info("Link de pagamento aberto em nova aba");
+        }
+      } else {
+        toast.success("Aluno salvo");
+      }
       setOpen(false);
       setForm(emptyForm);
       qc.invalidateQueries({ queryKey: ["dojo-students"] });
+      qc.invalidateQueries({ queryKey: ["dojo-invoices"] });
     } catch (e: any) {
       toast.error("Erro ao salvar", { description: e.message });
     }
   };
+
+
 
   const onDelete = async (id: string) => {
     if (!confirm("Excluir aluno? Esta ação apaga histórico de graduações e mensalidades.")) return;
@@ -260,6 +309,7 @@ function StudentsPage() {
                   <TabsTrigger value="endereco">Endereço</TabsTrigger>
                   <TabsTrigger value="contato">Contatos</TabsTrigger>
                   <TabsTrigger value="dojo">Dojo</TabsTrigger>
+                  {!form.id && <TabsTrigger value="plano">Plano & Cobrança</TabsTrigger>}
                   <TabsTrigger value="anamnese">Anamnese</TabsTrigger>
                   <TabsTrigger value="foto">Foto</TabsTrigger>
                   <TabsTrigger value="consent">Consentimentos</TabsTrigger>
@@ -431,6 +481,106 @@ function StudentsPage() {
                     <Textarea rows={3} value={form.notes} onChange={(e) => set("notes", e.target.value)} />
                   </Field>
                 </TabsContent>
+
+                {/* ============ PLANO & COBRANÇA ============ */}
+                {!form.id && (
+                  <TabsContent value="plano" className="mt-4 space-y-4">
+                    <p className="text-xs text-muted-foreground">
+                      Selecione o plano do aluno. Uma matrícula é criada automaticamente e a 1ª mensalidade é gerada com base no plano.
+                      As mensalidades seguintes são criadas mensalmente no Financeiro.
+                    </p>
+                    <div className="grid gap-3 md:grid-cols-2">
+                      <Field label="Plano *" className="md:col-span-2">
+                        <select
+                          className="border rounded p-2 bg-background w-full"
+                          value={enrollment.plan_id}
+                          onChange={(e) => setEnrollment((s) => ({ ...s, plan_id: e.target.value }))}
+                        >
+                          <option value="">— Selecionar plano —</option>
+                          {(plans.data ?? [])
+                            .filter((p: any) => p.active !== false)
+                            .map((p: any) => (
+                              <option key={p.id} value={p.id}>
+                                {p.name} — R$ {Number(p.amount ?? 0).toFixed(2)}
+                                {Number(p.enrollment_fee ?? 0) > 0
+                                  ? ` (+ matrícula R$ ${Number(p.enrollment_fee).toFixed(2)})`
+                                  : ""}
+                              </option>
+                            ))}
+                        </select>
+                        {(plans.data ?? []).length === 0 && (
+                          <p className="text-xs text-destructive mt-1">
+                            Nenhum plano cadastrado.{" "}
+                            <Link to="/dojo/app/plans" className="underline">
+                              Cadastre um plano
+                            </Link>{" "}
+                            antes de matricular o aluno.
+                          </p>
+                        )}
+                      </Field>
+                      <Field label="Data de início">
+                        <Input
+                          type="date"
+                          value={enrollment.start_date}
+                          onChange={(e) => setEnrollment((s) => ({ ...s, start_date: e.target.value }))}
+                        />
+                      </Field>
+                      <Field label="Dia de vencimento (1-28)">
+                        <Input
+                          type="number"
+                          min={1}
+                          max={28}
+                          value={enrollment.due_day}
+                          onChange={(e) =>
+                            setEnrollment((s) => ({ ...s, due_day: Math.max(1, Math.min(28, Number(e.target.value) || 1)) }))
+                          }
+                        />
+                      </Field>
+                      <Field label="Vencimento da 1ª mensalidade">
+                        <Input
+                          type="date"
+                          value={enrollment.first_due_date}
+                          onChange={(e) => setEnrollment((s) => ({ ...s, first_due_date: e.target.value }))}
+                        />
+                      </Field>
+                      <Field label="Valor customizado (opcional)">
+                        <Input
+                          type="number"
+                          step="0.01"
+                          placeholder="Deixe vazio para usar o valor do plano"
+                          value={enrollment.custom_amount}
+                          onChange={(e) => setEnrollment((s) => ({ ...s, custom_amount: e.target.value }))}
+                        />
+                      </Field>
+                      <div className="md:col-span-2">
+                        <BoolChk
+                          label="Cobrar taxa de matrícula na 1ª fatura (se o plano tiver)"
+                          checked={enrollment.include_enrollment_fee}
+                          onChange={(v) => setEnrollment((s) => ({ ...s, include_enrollment_fee: v }))}
+                        />
+                      </div>
+                      <Field label="Forma de pagamento da 1ª mensalidade" className="md:col-span-2">
+                        <select
+                          className="border rounded p-2 bg-background w-full"
+                          value={enrollment.payment_method}
+                          onChange={(e) =>
+                            setEnrollment((s) => ({ ...s, payment_method: e.target.value as "manual" | "mp_link" }))
+                          }
+                        >
+                          <option value="manual">Registrar manualmente (dinheiro/PIX/transferência)</option>
+                          <option value="mp_link">Gerar link de pagamento Mercado Pago (cartão / Pix / boleto)</option>
+                        </select>
+                        {enrollment.payment_method === "mp_link" && (
+                          <p className="text-xs text-muted-foreground mt-1">
+                            O link será aberto em nova aba e enviado ao aluno; a fatura é marcada como paga automaticamente após confirmação do Mercado Pago.
+                          </p>
+                        )}
+                      </Field>
+                    </div>
+                  </TabsContent>
+                )}
+
+
 
                 {/* ============ ANAMNESE ============ */}
                 <TabsContent value="anamnese" className="mt-4 space-y-4">
