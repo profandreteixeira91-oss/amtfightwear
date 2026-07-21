@@ -14,13 +14,12 @@ import { toast } from "sonner";
 import { useUnsavedChanges } from "@/components/common/UnsavedChangesGuard";
 import {
   User as UserIcon, Building2, Palette, CreditCard, Receipt, Shield,
-  Bell, Monitor, Plug, Upload, Trash2, Save, KeyRound, LogOut, History, Loader2, ShieldCheck,
+  Bell, Monitor, Plug, Upload, Trash2, Save, KeyRound, LogOut, History, Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCepLookup } from "@/hooks/useCepLookup";
-import { useServerFn } from "@tanstack/react-start";
-import { createMyAsaasSubaccount, getMyAsaasConfig } from "@/lib/asaas/asaas.functions";
 import { DocumentsTab } from "@/components/dojo/account/DocumentsTab";
+
 
 export const Route = createFileRoute("/dojo/app/account")({
   head: () => ({ meta: [{ title: "Minha Conta — AMT Dojo Manager" }] }),
@@ -126,55 +125,16 @@ function AccountPage() {
     load();
   }
 
-  const createAsaasFn = useServerFn(createMyAsaasSubaccount);
-
-  async function saveAcademy(opts?: { skipAsaas?: boolean }) {
+  async function saveAcademy() {
     if (!user) return;
     const payload = { ...academy, owner_id: user.id };
     const { error } = await supabase.from("dojo_academy_profile").upsert(payload);
     if (error) return toast.error(error.message);
     await logAudit("academy_updated");
     toast.success("Dados da academia salvos");
-
-    // Ativação automática do Asaas assim que os dados fiscais obrigatórios
-    // estiverem preenchidos e a subconta ainda não existir.
-    const hasSubaccount = !!academy?.asaas_subaccount_id;
-    const hasLinkedWallet = !!academy?.asaas_wallet_id;
-    const requiredOk =
-      (academy?.legal_name || academy?.trade_name) &&
-      academy?.cnpj &&
-      academy?.email &&
-      (academy?.whatsapp || academy?.phone) &&
-      academy?.address &&
-      academy?.address_number &&
-      academy?.neighborhood &&
-      academy?.city &&
-      academy?.state &&
-      academy?.zip;
-
-    // Não tentar criar subconta se já existir OU se o dono já vinculou uma
-    // conta Asaas existente pela walletId (mesmo CNPJ).
-    if (!opts?.skipAsaas && !hasSubaccount && !hasLinkedWallet && requiredOk) {
-      try {
-        toast.info("Ativando subconta Asaas…");
-        const res = await createAsaasFn({ data: {} });
-        await logAudit("asaas_subaccount_auto_created", { subaccount_id: res.subaccountId });
-        toast.success("Subconta Asaas ativada automaticamente!");
-      } catch (e: any) {
-        const msg = String(e?.message || "erro desconhecido");
-        if (/CNPJ.*(uso|utiliza|cadastrad)/i.test(msg) || /CPF.*(uso|utiliza|cadastrad)/i.test(msg)) {
-          toast.error(
-            "Este CNPJ/CPF já possui conta no Asaas. Vá em AMT Pay → 'Já tenho uma conta Asaas' e informe seu walletId para receber via split.",
-            { duration: 12000 },
-          );
-        } else {
-          toast.error("Não foi possível ativar a subconta Asaas: " + msg);
-        }
-      }
-    }
-
     load();
   }
+
 
   async function saveNotifs() {
     if (!user) return;
@@ -214,15 +174,14 @@ function AccountPage() {
     <div className="space-y-4 max-w-6xl">
       {onboarding && (
         <Alert className="border-primary/40 bg-primary/5">
-          <ShieldCheck className="h-4 w-4 text-primary" />
           <AlertTitle>Bem-vindo ao AMT Dojo Manager!</AlertTitle>
           <AlertDescription>
-            Para começar a operar, preencha os dados obrigatórios da sua academia
-            (razão social, CNPJ, endereço e contato). Assim que estiverem completos,
-            sua conta financeira (Asaas) será ativada automaticamente.
+            Para começar a operar, preencha os dados da sua academia (razão social,
+            CNPJ, endereço e contato).
           </AlertDescription>
         </Alert>
       )}
+
       <AccountHeader
         user={user}
         profile={profile}
@@ -458,64 +417,22 @@ function AcademyTab({ academy, setAcademy, onSave }: any) {
     toast.success("Endereço preenchido pelo CEP");
   }
 
-  // Requisitos mínimos para ativação automática da subconta Asaas
-  const cnpjDigits = String(academy?.cnpj ?? "").replace(/\D/g, "");
-  const isCpf = cnpjDigits.length === 11;
-  const req = {
-    name: !!(academy?.legal_name || academy?.trade_name),
-    cnpj: cnpjDigits.length === 11 || cnpjDigits.length === 14,
-    email: !!academy?.email,
-    mobile: !!(academy?.whatsapp || academy?.phone),
-    address: !!academy?.address,
-    number: !!academy?.address_number,
-    neighborhood: !!academy?.neighborhood,
-    city: !!academy?.city,
-    state: !!academy?.state,
-    zip: !!academy?.zip,
-    income: typeof academy?.monthly_income === "number" && academy.monthly_income > 0,
-    holder: isCpf ? !!academy?.birth_date : !!academy?.company_type,
-  };
-  const allOk = Object.values(req).every(Boolean);
-  const hasSubaccount = !!academy?.asaas_subaccount_id;
+
+
 
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-start justify-between gap-3 flex-wrap">
-          <CardTitle>Dados da Academia</CardTitle>
-          {hasSubaccount ? (
-            <Badge className="bg-emerald-500/15 text-emerald-600 border-emerald-500/30 border">
-              <ShieldCheck className="h-3 w-3 mr-1" /> Asaas ativo
-            </Badge>
-          ) : allOk ? (
-            <Badge className="bg-blue-500/15 text-blue-600 border-blue-500/30 border">
-              Pronto para ativar Asaas
-            </Badge>
-          ) : (
-            <Badge variant="outline">Complete os dados para ativar Asaas</Badge>
-          )}
-        </div>
+        <CardTitle>Dados da Academia</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {!hasSubaccount && (
-          <Alert>
-            <ShieldCheck className="h-4 w-4" />
-            <AlertTitle>Ativação automática do AMT Pay</AlertTitle>
-            <AlertDescription>
-              Ao salvar com todos os campos marcados com <b>*</b> preenchidos, sua
-              subconta Asaas será criada automaticamente para receber mensalidades
-              via PIX, boleto e cartão.
-            </AlertDescription>
-          </Alert>
-        )}
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <Field label="Razão social / Nome *"><Input required {...bind("legal_name")} /></Field>
+          <Field label="Razão social / Nome"><Input {...bind("legal_name")} /></Field>
           <Field label="Nome fantasia"><Input {...bind("trade_name")} /></Field>
-          <Field label="CPF ou CNPJ *"><Input required {...bind("cnpj")} placeholder="Somente números" /></Field>
+          <Field label="CPF ou CNPJ"><Input {...bind("cnpj")} placeholder="Somente números" /></Field>
           <Field label="Telefone fixo"><Input {...bind("phone")} placeholder="(11) 3333-4444" /></Field>
-          <Field label="Celular / WhatsApp *"><Input required {...bind("whatsapp")} placeholder="(11) 9xxxx-xxxx" /></Field>
-          <Field label="E-mail institucional *"><Input required type="email" {...bind("email")} /></Field>
+          <Field label="Celular / WhatsApp"><Input {...bind("whatsapp")} placeholder="(11) 9xxxx-xxxx" /></Field>
+          <Field label="E-mail institucional"><Input type="email" {...bind("email")} /></Field>
           <Field label="Site"><Input {...bind("website")} /></Field>
           <Field label="Instagram"><Input {...bind("instagram")} placeholder="@usuario" /></Field>
           <Field label="Facebook"><Input {...bind("facebook")} /></Field>
@@ -526,10 +443,9 @@ function AcademyTab({ academy, setAcademy, onSave }: any) {
         <div className="text-sm font-medium">Endereço fiscal</div>
         <div className="grid grid-cols-1 md:grid-cols-6 gap-3">
           <div className="md:col-span-2">
-            <Field label="CEP *">
+            <Field label="CEP">
               <div className="relative">
                 <Input
-                  required
                   value={academy?.zip ?? ""}
                   onChange={(e) => setAcademy({ ...academy, zip: e.target.value })}
                   onBlur={handleCepBlur}
@@ -543,69 +459,23 @@ function AcademyTab({ academy, setAcademy, onSave }: any) {
             </Field>
           </div>
           <div className="md:col-span-4">
-            <Field label="Endereço (rua/avenida) *"><Input required {...bind("address")} /></Field>
+            <Field label="Endereço (rua/avenida)"><Input {...bind("address")} /></Field>
           </div>
           <div className="md:col-span-1">
-            <Field label="Número *"><Input required {...bind("address_number")} /></Field>
+            <Field label="Número"><Input {...bind("address_number")} /></Field>
           </div>
           <div className="md:col-span-2">
             <Field label="Complemento"><Input {...bind("address_complement")} placeholder="Sala, andar…" /></Field>
           </div>
           <div className="md:col-span-3">
-            <Field label="Bairro *"><Input required {...bind("neighborhood")} /></Field>
+            <Field label="Bairro"><Input {...bind("neighborhood")} /></Field>
           </div>
           <div className="md:col-span-4">
-            <Field label="Cidade *"><Input required {...bind("city")} /></Field>
+            <Field label="Cidade"><Input {...bind("city")} /></Field>
           </div>
           <div className="md:col-span-2">
-            <Field label="UF *"><Input required {...bind("state")} maxLength={2} placeholder="SP" /></Field>
+            <Field label="UF"><Input {...bind("state")} maxLength={2} placeholder="SP" /></Field>
           </div>
-        </div>
-
-        <Separator />
-
-        <div className="text-sm font-medium">Informações fiscais (Asaas)</div>
-        <p className="text-xs text-muted-foreground">
-          Preenchendo tudo abaixo, sua subconta é aprovada automaticamente — sem
-          precisar confirmar por e-mail depois.
-        </p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          {!isCpf && (
-            <Field label="Tipo de titular *">
-              <select
-                required
-                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                value={academy?.company_type ?? ""}
-                onChange={(e) => setAcademy({ ...academy, company_type: e.target.value })}
-              >
-                <option value="" disabled>Selecione…</option>
-                <option value="MEI">MEI</option>
-                <option value="LIMITED">LTDA</option>
-                <option value="ASSOCIATION">Associação</option>
-                <option value="INDIVIDUAL">Empresário Individual</option>
-              </select>
-            </Field>
-          )}
-          <Field label="Faturamento mensal estimado (R$) *">
-            <Input
-              required
-              type="number"
-              min={1}
-              value={academy?.monthly_income ?? ""}
-              onChange={(e) => setAcademy({ ...academy, monthly_income: Number(e.target.value) || null })}
-              placeholder="5000"
-            />
-          </Field>
-          {isCpf && (
-            <Field label="Data de nascimento *">
-              <Input
-                required
-                type="date"
-                value={academy?.birth_date ? String(academy.birth_date).slice(0, 10) : ""}
-                onChange={(e) => setAcademy({ ...academy, birth_date: e.target.value || null })}
-              />
-            </Field>
-          )}
         </div>
 
         <Separator />
@@ -620,15 +490,11 @@ function AcademyTab({ academy, setAcademy, onSave }: any) {
 
         <div className="flex flex-wrap items-center gap-3">
           <Button onClick={() => onSave()}><Save className="h-4 w-4 mr-1" />Salvar academia</Button>
-          {!hasSubaccount && !allOk && (
-            <span className="text-xs text-muted-foreground">
-              Preencha os campos marcados com <b>*</b> para ativar o recebimento automaticamente.
-            </span>
-          )}
         </div>
       </CardContent>
     </Card>
   );
+
 }
 
 /* ---------------- Brand / Identidade Visual ---------------- */
