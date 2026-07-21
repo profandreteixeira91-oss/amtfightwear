@@ -4846,6 +4846,13 @@ export type Database = {
           currency: string
           default_gateway: string
           extras: Json
+          invoice_address: string | null
+          invoice_business_name: string | null
+          invoice_document: string | null
+          invoice_email: string | null
+          invoice_footer_note: string | null
+          invoice_logo_url: string | null
+          invoice_phone: string | null
           owner_id: string
           pix_fee_fixed: number
           pix_fee_percent: number
@@ -4865,6 +4872,13 @@ export type Database = {
           currency?: string
           default_gateway?: string
           extras?: Json
+          invoice_address?: string | null
+          invoice_business_name?: string | null
+          invoice_document?: string | null
+          invoice_email?: string | null
+          invoice_footer_note?: string | null
+          invoice_logo_url?: string | null
+          invoice_phone?: string | null
           owner_id: string
           pix_fee_fixed?: number
           pix_fee_percent?: number
@@ -4884,6 +4898,13 @@ export type Database = {
           currency?: string
           default_gateway?: string
           extras?: Json
+          invoice_address?: string | null
+          invoice_business_name?: string | null
+          invoice_document?: string | null
+          invoice_email?: string | null
+          invoice_footer_note?: string | null
+          invoice_logo_url?: string | null
+          invoice_phone?: string | null
           owner_id?: string
           pix_fee_fixed?: number
           pix_fee_percent?: number
