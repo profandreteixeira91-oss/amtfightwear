@@ -194,7 +194,7 @@ function PayrollPage() {
       subtitle: `${kind} · Referência ${ref}`,
       bodyHtml: `
         <div style="margin-top:24px;line-height:1.6">
-          <p>Recebi de <strong>{{academy_name}}</strong> a importância de
+          <p>Recebi da academia a importância de
           <strong>${brl(Number(p.amount))}</strong> referente a <strong>${kind}</strong>
           do período <strong>${ref}</strong>${p.description ? ` — ${p.description}` : ""}.</p>
           ${p.hours_worked ? `<p>Horas trabalhadas: <strong>${p.hours_worked}</strong></p>` : ""}
