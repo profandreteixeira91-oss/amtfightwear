@@ -199,6 +199,82 @@ export const getDojoStudent = createServerFn({ method: "GET" })
     };
   });
 
+// Retorna, para todos os alunos do dojo, o progresso rumo à próxima graduação:
+// - contagem de check-ins desde a última graduação (ou desde sempre, quando não há)
+// - critério efetivo (override do aluno > carência/mín. aulas da faixa atual)
+export const listGraduationProgress = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const [studentsRes, beltsRes, gradsRes, attRes] = await Promise.all([
+      context.supabase.from("dojo_students").select("id, full_name, current_belt_id, current_degree, graduation_criteria_mode, graduation_min_classes, graduation_min_months, created_at"),
+      context.supabase.from("dojo_belts").select("id, name, modality, min_months, min_classes, criteria_mode, sort_order, max_degrees, color_hex, stripe_hex"),
+      context.supabase.from("dojo_graduations").select("student_id, belt_id, graduation_date, degree"),
+      context.supabase.from("dojo_attendance").select("student_id, checked_in_at").not("student_id", "is", null),
+    ]);
+    if (studentsRes.error) throw new Error(studentsRes.error.message);
+    if (beltsRes.error) throw new Error(beltsRes.error.message);
+    if (gradsRes.error) throw new Error(gradsRes.error.message);
+    if (attRes.error) throw new Error(attRes.error.message);
+
+    const belts = beltsRes.data ?? [];
+    const beltById = new Map(belts.map((b: any) => [b.id, b]));
+
+    // última graduação por aluno
+    const lastGradByStudent = new Map<string, any>();
+    for (const g of gradsRes.data ?? []) {
+      const cur = lastGradByStudent.get(g.student_id);
+      if (!cur || new Date(g.graduation_date) > new Date(cur.graduation_date)) {
+        lastGradByStudent.set(g.student_id, g);
+      }
+    }
+
+    // presenças por aluno
+    const attByStudent = new Map<string, string[]>();
+    for (const a of attRes.data ?? []) {
+      if (!a.student_id) continue;
+      const arr = attByStudent.get(a.student_id) ?? [];
+      arr.push(a.checked_in_at);
+      attByStudent.set(a.student_id, arr);
+    }
+
+    return (studentsRes.data ?? []).map((s: any) => {
+      const lastGrad = lastGradByStudent.get(s.id);
+      const currentBelt = lastGrad ? beltById.get(lastGrad.belt_id) : (s.current_belt_id ? beltById.get(s.current_belt_id) : null);
+      const sinceDate = lastGrad?.graduation_date
+        ? new Date(lastGrad.graduation_date)
+        : (s.created_at ? new Date(s.created_at) : new Date(0));
+      const attendance_since = (attByStudent.get(s.id) ?? []).filter((d) => new Date(d) >= sinceDate).length;
+
+      // Critério efetivo: override do aluno tem prioridade
+      const criteria_mode = (s.graduation_criteria_mode ?? (currentBelt as any)?.criteria_mode ?? "time") as string;
+      const min_classes = (s.graduation_min_classes ?? (currentBelt as any)?.min_classes ?? null) as number | null;
+      const min_months = (s.graduation_min_months ?? (currentBelt as any)?.min_months ?? null) as number | null;
+
+      // Meses corridos desde última graduação/matrícula
+      const months_since = Math.floor(
+        (Date.now() - sinceDate.getTime()) / (1000 * 60 * 60 * 24 * 30.4375),
+      );
+
+      return {
+        student_id: s.id,
+        full_name: s.full_name,
+        current_belt: currentBelt ?? null,
+        current_degree: s.current_degree ?? lastGrad?.degree ?? 0,
+        since_date: sinceDate.toISOString(),
+        attendance_since,
+        months_since,
+        criteria_mode,
+        min_classes,
+        min_months,
+        has_override: Boolean(
+          s.graduation_criteria_mode || s.graduation_min_classes != null || s.graduation_min_months != null,
+        ),
+      };
+    });
+  });
+
+
+
 
 export const saveDojoStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
