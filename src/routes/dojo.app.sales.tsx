@@ -37,14 +37,32 @@ type Student = Awaited<ReturnType<typeof listStudentsLite>>[number];
 const brl = (n: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(n || 0);
 
 const PAYMENT_METHOD_LABELS: Record<string, string> = {
+  // AMT Pay (gera cobrança no gateway)
+  pix: "Pix — AMT Pay",
+  credit_card: "Cartão de crédito — AMT Pay",
+  boleto: "Boleto — AMT Pay",
+  debit_card: "Cartão de débito — AMT Pay",
+  payment_link: "Link de pagamento — AMT Pay",
+  // Direto com a academia (apenas registro, marca como pago)
+  pix_direct: "Pix direto com a academia",
+  debit_direct: "Débito direto com a academia",
   cash: "Dinheiro",
-  pix: "Pix (AMT Pay)",
-  boleto: "Boleto (AMT Pay)",
-  credit_card: "Cartão de crédito (AMT Pay)",
-  debit_card: "Cartão de débito (AMT Pay)",
-  payment_link: "Link de pagamento (AMT Pay)",
+  credit_direct: "Crédito direto com a academia",
   manual: "Outro (manual)",
 };
+
+const PAYMENT_METHOD_GROUPS: { label: string; hint: string; options: string[] }[] = [
+  {
+    label: "AMT Pay",
+    hint: "Gera cobrança online (PIX, Cartão ou Boleto). Cliente paga pelo link.",
+    options: ["pix", "credit_card", "boleto"],
+  },
+  {
+    label: "Direto com a academia",
+    hint: "Somente registro da venda — marcada como paga automaticamente.",
+    options: ["pix_direct", "debit_direct", "cash", "credit_direct"],
+  },
+];
 
 const STATUS_LABELS: Record<string, string> = {
   draft: "Rascunho",
