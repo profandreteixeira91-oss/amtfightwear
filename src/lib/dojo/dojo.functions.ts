@@ -294,11 +294,26 @@ export const addDojoGraduation = createServerFn({ method: "POST" })
       })
       .select("id").single();
     if (error) throw new Error(error.message);
-    await context.supabase.from("dojo_students")
-      .update({ current_belt_id: data.belt_id, current_degree: data.degree })
-      .eq("id", data.student_id);
+
+    // Only overwrite the student's "primary" current belt when the new
+    // graduation is in the same modality as the existing one (or when the
+    // student has no current belt yet). Belts from other modalities are
+    // kept in dojo_graduations and surfaced via current_belts per modality.
+    const [{ data: newBelt }, { data: student }] = await Promise.all([
+      context.supabase.from("dojo_belts").select("modality").eq("id", data.belt_id).maybeSingle(),
+      context.supabase.from("dojo_students").select("current_belt_id, belt:dojo_belts(modality)").eq("id", data.student_id).maybeSingle(),
+    ]);
+    const newMod = (newBelt as any)?.modality ?? "jiu-jitsu";
+    const currentMod = (student as any)?.belt?.modality ?? null;
+    const shouldOverwrite = !student?.current_belt_id || currentMod === null || currentMod === newMod;
+    if (shouldOverwrite) {
+      await context.supabase.from("dojo_students")
+        .update({ current_belt_id: data.belt_id, current_degree: data.degree })
+        .eq("id", data.student_id);
+    }
     return { id: row.id };
   });
+
 
 export const deleteDojoGraduation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
