@@ -447,32 +447,12 @@ function PlansPage() {
 
                 {/* Formas de pagamento */}
                 <SectionCard
-                  title="Formas de Pagamento Aceitas"
-                  icon={Sparkles}
-                  right={
-                    enabledCount === 0 ? (
-                      <Badge variant="destructive" className="gap-1">
-                        <XCircle className="h-3 w-3" /> Nenhuma habilitada
-                      </Badge>
-                    ) : (
-                      <Badge className="gap-1 bg-emerald-600 hover:bg-emerald-600">
-                        <CheckCircle2 className="h-3 w-3" /> {enabledCount} ativas
-                      </Badge>
-                    )
-                  }
-                >
                   <p className="mb-3 text-xs text-muted-foreground">
-                    Somente os métodos habilitados aqui aparecerão nas cobranças geradas pelo Financeiro
-                    para alunos com este plano.
+                    Somente os métodos habilitados aqui aparecerão como opções ao registrar manualmente as
+                    mensalidades deste plano.
                   </p>
-                  <div className="mb-3 rounded-md border border-primary/20 bg-primary/[0.04] px-3 py-2 text-[11px] text-muted-foreground">
-                    Todas as cobranças deste plano são processadas pelo <strong>AMT Pay (Asaas)</strong>.
-                    Apenas os métodos aceitos pelo gateway são exibidos abaixo.
-                  </div>
                   <div className="grid gap-3 md:grid-cols-2">
-                    {PAYMENT_METHODS.filter((def) =>
-                      ASAAS_SUPPORTED_METHODS.includes(def.code),
-                    ).map((def) => {
+                    {PAYMENT_METHODS.map((def) => {
                       const state = form.payment_methods.find((m) => m.code === def.code)!;
                       const Icon = def.icon;
                       return (
@@ -494,6 +474,7 @@ function PlansPage() {
                                     ? "bg-primary/10 text-primary"
                                     : "bg-muted text-muted-foreground")
                                 }
+                              >
                               >
                                 <Icon className="h-4 w-4" />
                               </div>
