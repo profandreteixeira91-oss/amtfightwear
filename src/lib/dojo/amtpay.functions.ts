@@ -379,6 +379,48 @@ export const listWalletTransactions = createServerFn({ method: "POST" })
       .parse(i ?? {}),
   )
   .handler(async ({ data, context }) => {
+    // Fase 3 — extrato nativo quando subconta aprovada.
+    const resolved = await resolveWalletMode(context.supabase, context.userId);
+    if (resolved.mode === "native" && resolved.apiKey && !data.studentId) {
+      try {
+        const { asaasListFinancialTransactions } = await import("@/lib/asaas/client.server");
+        const startDate = data.from ? data.from.slice(0, 10) : undefined;
+        const endDate = data.to ? data.to.slice(0, 10) : undefined;
+        const resp = await asaasListFinancialTransactions(
+          { startDate, endDate, limit: Math.min(data.limit ?? 100, 100) },
+          resolved.apiKey,
+        );
+        const list = ((resp as any)?.data ?? []) as any[];
+        return list.map((t) => {
+          const value = Number(t.value ?? 0);
+          const direction = value >= 0 ? 1 : -1;
+          const ev = String(t.type ?? t.event ?? "").toUpperCase();
+          const kind = ev.includes("TRANSFER") || ev.includes("WITHDRAWAL")
+            ? "withdrawal"
+            : ev.includes("FEE") ? "fee"
+            : ev.includes("REFUND") ? "refund"
+            : direction === 1 ? "receipt" : "adjustment";
+          return {
+            id: t.id ?? crypto.randomUUID(),
+            owner_id: context.userId,
+            kind,
+            method: "internal",
+            status: "available",
+            amount: Math.abs(value),
+            direction,
+            fee_amount: 0,
+            net_amount: Math.abs(value),
+            description: String(t.description ?? ev ?? "Movimentação Asaas"),
+            provider: "asaas",
+            provider_source: "native",
+            occurred_at: t.date ?? t.dateCreated ?? new Date().toISOString(),
+          };
+        });
+      } catch (err) {
+        console.warn("[amtpay] fallback extrato interno após falha Asaas", err);
+      }
+    }
+
     let q = context.supabase
       .from("dojo_wallet_transactions")
       .select("*")
