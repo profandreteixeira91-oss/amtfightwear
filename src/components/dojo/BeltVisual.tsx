@@ -143,6 +143,41 @@ export function BeltVisual({
   // === Non-BJJ modalities: Judô / Karatê / Taekwondo / etc. ===
   // Render without the black tip rectangle.
   if (!isJiuJitsu) {
+    // Judô — faixa preta (Dan): corpo totalmente preto, sem ponteira vermelha
+    // nem aparador. Os graus (Dan) são mostrados como listras vermelhas
+    // verticais na extremidade direita, como no jiu-jitsu.
+    const isJudo = /judo|judô/i.test(mod);
+    const isBlackBelt = /^preta/i.test(n);
+    if (isJudo && isBlackBelt) {
+      const dan = Math.max(0, Math.min(degree, maxDegrees || 10));
+      return (
+        <div className={`inline-flex flex-col items-start gap-1 ${className}`}>
+          <div
+            className="relative w-full min-w-[220px] h-8 rounded-sm overflow-hidden border border-black/25 shadow-sm"
+            style={{ background: "#111111" }}
+            aria-label={label ?? `Faixa ${n} ${dan ? `${dan}º Dan` : ""}`.trim()}
+          >
+            {dan > 0 && (
+              <div className="absolute right-2 top-0 h-full flex items-center gap-[3px]">
+                {Array.from({ length: dan }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-[70%] w-[3px] rounded-sm"
+                    style={{
+                      background: "#D32F2F",
+                      boxShadow: "0 0 0 0.5px rgba(0,0,0,0.5)",
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+          {label && <span className="text-xs text-muted-foreground">{label}</span>}
+        </div>
+      );
+    }
+
+
     // Detect "ponta {cor}" pattern in the belt name for Judô-style kohaku/mon belts.
     // Examples: "Branca ponta cinza", "Cinza ponta azul", "Azul ponta amarela".
     const pontaMatch = n.match(/ponta[s]?\s+([a-zç\s]+?)(?:\s+\d.*)?$/i);
