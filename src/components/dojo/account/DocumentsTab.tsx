@@ -25,7 +25,7 @@ import {
   DOC_TYPES,
   type DocType,
 } from "@/lib/dojo/onboarding.functions";
-import { AsaasDocumentsCard } from "@/components/dojo/amtpay/AsaasDocumentsCard";
+
 import { BankAccountDialog } from "@/components/dojo/amtpay/BankAccountDialog";
 import { getPrimaryBankAccount } from "@/lib/dojo/amtpay.functions";
 
