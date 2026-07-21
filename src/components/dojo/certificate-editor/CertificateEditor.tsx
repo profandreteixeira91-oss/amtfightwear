@@ -253,6 +253,130 @@ function downloadDataUrl(dataUrl: string, filename: string) {
   document.body.appendChild(a); a.click(); a.remove();
 }
 
+/* ---------- CANVA-STYLE FONT LIST ---------- */
+
+export const FONT_LIST: { family: string; label: string; group: "Sans" | "Serif" | "Display" | "Script" | "Mono" }[] = [
+  { family: "Inter", label: "Inter", group: "Sans" },
+  { family: "Outfit", label: "Outfit", group: "Sans" },
+  { family: "Figtree", label: "Figtree", group: "Sans" },
+  { family: "Poppins", label: "Poppins", group: "Sans" },
+  { family: "Montserrat", label: "Montserrat", group: "Sans" },
+  { family: "Raleway", label: "Raleway", group: "Sans" },
+  { family: "Bebas Neue", label: "Bebas Neue", group: "Display" },
+  { family: "Playfair Display", label: "Playfair Display", group: "Serif" },
+  { family: "Cormorant Garamond", label: "Cormorant Garamond", group: "Serif" },
+  { family: "EB Garamond", label: "EB Garamond", group: "Serif" },
+  { family: "Lora", label: "Lora", group: "Serif" },
+  { family: "Merriweather", label: "Merriweather", group: "Serif" },
+  { family: "Cinzel", label: "Cinzel", group: "Display" },
+  { family: "Georgia", label: "Georgia", group: "Serif" },
+  { family: "Times New Roman", label: "Times New Roman", group: "Serif" },
+  { family: "Great Vibes", label: "Great Vibes", group: "Script" },
+  { family: "Dancing Script", label: "Dancing Script", group: "Script" },
+  { family: "Allura", label: "Allura", group: "Script" },
+  { family: "Pinyon Script", label: "Pinyon Script", group: "Script" },
+];
+
+const FONT_SIZE_PRESETS = [10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 40, 48, 56, 64, 72, 96, 128];
+
+/* ---------- CANVA-STYLE FLOATING TEXT TOOLBAR ---------- */
+
+function TextContextToolbar({ el, onPatch }: { el: TextElement; onPatch: (p: Partial<TextElement>) => void }) {
+  return (
+    <div className="flex flex-wrap items-center gap-1 border-b border-border bg-gradient-to-r from-primary/[0.06] via-primary/[0.02] to-transparent px-3 py-1.5 text-xs">
+      <select
+        value={el.fontFamily ?? "Inter"}
+        onChange={(e) => onPatch({ fontFamily: e.target.value })}
+        className="h-8 min-w-[160px] rounded-md border border-input bg-background px-2 text-xs"
+        style={{ fontFamily: el.fontFamily ?? "Inter" }}
+        title="Fonte"
+      >
+        {["Sans", "Serif", "Display", "Script"].map((group) => (
+          <optgroup key={group} label={group}>
+            {FONT_LIST.filter((f) => f.group === group).map((f) => (
+              <option key={f.family} value={f.family} style={{ fontFamily: f.family }}>{f.label}</option>
+            ))}
+          </optgroup>
+        ))}
+      </select>
+
+      <div className="flex items-center overflow-hidden rounded-md border border-input bg-background">
+        <button
+          type="button"
+          onClick={() => onPatch({ fontSize: Math.max(6, el.fontSize - 2) })}
+          className="grid h-8 w-7 place-items-center text-muted-foreground hover:bg-muted"
+          title="Diminuir"
+        >−</button>
+        <select
+          value={el.fontSize}
+          onChange={(e) => onPatch({ fontSize: Number(e.target.value) })}
+          className="h-8 w-14 border-x border-input bg-background text-center text-xs outline-none"
+          title="Tamanho"
+        >
+          {FONT_SIZE_PRESETS.includes(el.fontSize) ? null : <option value={el.fontSize}>{el.fontSize}</option>}
+          {FONT_SIZE_PRESETS.map((s) => <option key={s} value={s}>{s}</option>)}
+        </select>
+        <button
+          type="button"
+          onClick={() => onPatch({ fontSize: el.fontSize + 2 })}
+          className="grid h-8 w-7 place-items-center text-muted-foreground hover:bg-muted"
+          title="Aumentar"
+        >+</button>
+      </div>
+
+      <div className="mx-1 h-6 w-px bg-border" />
+
+      <button title="Negrito" onClick={() => onPatch({ bold: !el.bold })} className={`grid h-8 w-8 place-items-center rounded-md border transition ${el.bold ? "border-primary bg-primary/10 text-primary" : "border-transparent text-muted-foreground hover:bg-muted"}`}><Bold className="h-4 w-4" /></button>
+      <button title="Itálico" onClick={() => onPatch({ italic: !el.italic })} className={`grid h-8 w-8 place-items-center rounded-md border transition ${el.italic ? "border-primary bg-primary/10 text-primary" : "border-transparent text-muted-foreground hover:bg-muted"}`}><Italic className="h-4 w-4" /></button>
+      <button title="Sublinhado" onClick={() => onPatch({ underline: !el.underline })} className={`grid h-8 w-8 place-items-center rounded-md border transition ${el.underline ? "border-primary bg-primary/10 text-primary" : "border-transparent text-muted-foreground hover:bg-muted"}`}><Underline className="h-4 w-4" /></button>
+      <button title="Maiúsculas" onClick={() => onPatch({ uppercase: !el.uppercase })} className={`grid h-8 w-8 place-items-center rounded-md border text-[10px] font-bold transition ${el.uppercase ? "border-primary bg-primary/10 text-primary" : "border-transparent text-muted-foreground hover:bg-muted"}`}>AA</button>
+
+      <div className="mx-1 h-6 w-px bg-border" />
+
+      <button title="Alinhar à esquerda" onClick={() => onPatch({ align: "left" })} className={`grid h-8 w-8 place-items-center rounded-md border transition ${el.align === "left" ? "border-primary bg-primary/10 text-primary" : "border-transparent text-muted-foreground hover:bg-muted"}`}><AlignLeft className="h-4 w-4" /></button>
+      <button title="Centralizar" onClick={() => onPatch({ align: "center" })} className={`grid h-8 w-8 place-items-center rounded-md border transition ${el.align === "center" ? "border-primary bg-primary/10 text-primary" : "border-transparent text-muted-foreground hover:bg-muted"}`}><AlignCenter className="h-4 w-4" /></button>
+      <button title="Alinhar à direita" onClick={() => onPatch({ align: "right" })} className={`grid h-8 w-8 place-items-center rounded-md border transition ${el.align === "right" ? "border-primary bg-primary/10 text-primary" : "border-transparent text-muted-foreground hover:bg-muted"}`}><AlignRight className="h-4 w-4" /></button>
+
+      <div className="mx-1 h-6 w-px bg-border" />
+
+      <label className="flex items-center gap-1 rounded-md border border-input bg-background px-1.5 h-8" title="Cor do texto">
+        <span className="text-[10px] text-muted-foreground">Cor</span>
+        <input
+          type="color"
+          value={el.color}
+          onChange={(e) => onPatch({ color: e.target.value })}
+          className="h-5 w-6 cursor-pointer rounded border border-border bg-transparent p-0"
+        />
+      </label>
+
+      <label className="flex items-center gap-1 rounded-md border border-input bg-background px-1.5 h-8" title="Entrelinhas">
+        <span className="text-[10px] text-muted-foreground">↕</span>
+        <input
+          type="number" step="0.05" min="0.8" max="3"
+          value={el.lineHeight ?? 1.2}
+          onChange={(e) => onPatch({ lineHeight: Number(e.target.value) })}
+          className="h-6 w-14 border-none bg-transparent text-xs outline-none"
+        />
+      </label>
+
+      <label className="flex items-center gap-1 rounded-md border border-input bg-background px-1.5 h-8" title="Espaçamento entre letras">
+        <span className="text-[10px] text-muted-foreground">↔</span>
+        <input
+          type="number" step="0.5"
+          value={el.letterSpacing ?? 0}
+          onChange={(e) => onPatch({ letterSpacing: Number(e.target.value) })}
+          className="h-6 w-14 border-none bg-transparent text-xs outline-none"
+        />
+      </label>
+
+      <div className="ml-auto hidden sm:flex items-center gap-1 text-[11px] text-muted-foreground">
+        <span className="rounded bg-muted px-1.5 py-0.5">Duplo-clique</span> para editar
+      </div>
+    </div>
+  );
+}
+
+
 /* ---------- LEFT PALETTE ---------- */
 
 function LeftPalette({ onInsert, onInsertVariable }: { onInsert: (k: AnyElement["kind"], e?: Partial<AnyElement>) => void; onInsertVariable: (k: string) => void }) {
