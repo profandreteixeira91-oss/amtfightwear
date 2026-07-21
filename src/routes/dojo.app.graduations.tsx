@@ -41,12 +41,6 @@ function NewGraduationPage() {
     for (const p of (progress.data ?? []) as any[]) m.set(p.student_id, p);
     return m;
   }, [progress.data]);
-  const progress = useQuery({ queryKey: ["dojo-grad-progress"], queryFn: () => progressFn() });
-  const progressById = useMemo(() => {
-    const m = new Map<string, any>();
-    for (const p of (progress.data ?? []) as any[]) m.set(p.student_id, p);
-    return m;
-  }, [progress.data]);
 
   const [step, setStep] = useState<Step>("select");
   const [selectedStudents, setSelectedStudents] = useState<Set<string>>(new Set());
