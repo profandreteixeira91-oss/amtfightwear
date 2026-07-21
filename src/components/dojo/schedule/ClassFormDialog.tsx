@@ -28,10 +28,12 @@ export function ClassFormDialog({
   const saveFn = useServerFn(saveClass);
   const listSpacesFn = useServerFn(listSpaces);
   const listUnitsFn = useServerFn(listDojoUnits);
+  const listTeamFn = useServerFn(listTeamMembers);
   const qc = useQueryClient();
 
   const spaces = useQuery({ queryKey: ["dojo-spaces"], queryFn: () => listSpacesFn() });
   const units = useQuery({ queryKey: ["dojo-units"], queryFn: () => listUnitsFn() });
+  const team = useQuery({ queryKey: ["dojo-team-members"], queryFn: () => listTeamFn() });
 
   const empty = {
     name: "",
