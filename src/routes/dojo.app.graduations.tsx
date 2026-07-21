@@ -155,15 +155,44 @@ function NewGraduationPage() {
     const student = selectedRows.find((s: any) => s.id === studentId);
     if (!student) return;
     const tpl = (templates.data ?? []).find((t: any) => t.id === templateId);
-    const values: Record<string, string> = {};
-    const fields = Array.isArray(tpl?.fields) ? (tpl.fields as any[]) : [];
-    fields.forEach((f: any) => {
-      if (f.key === "student_name") values[f.key] = student.full_name;
-      else if (f.key === "belt") values[f.key] = effectiveBelt?.name ?? `${selectedBelt?.name}${degree ? ` — ${degree}º grau` : ""}`;
-      else if (f.key === "date") values[f.key] = new Date(date).toLocaleDateString("pt-BR");
-      else if (f.key === "signature") values[f.key] = evaluator || "";
-      else values[f.key] = "";
-    });
+
+    // Build a comprehensive values map covering BOTH new keys (aluno_nome…)
+    // and legacy keys (student_name, belt, date, signature) so any template
+    // — antigo ou novo — preenche corretamente.
+    const beltLabel = effectiveBelt?.name ?? `${selectedBelt?.name ?? ""}${degree ? ` — ${degree}º grau` : ""}`;
+    const dateBr = new Date(date).toLocaleDateString("pt-BR");
+    const dateLong = new Date(date).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
+    const now = new Date();
+    const values: Record<string, string> = {
+      // Aluno
+      aluno_nome: student.full_name ?? "",
+      aluno_nome_social: (student as any).social_name || student.full_name || "",
+      aluno_cpf: (student as any).cpf ?? "",
+      aluno_data_nascimento: (student as any).birth_date ? new Date((student as any).birth_date).toLocaleDateString("pt-BR") : "",
+      aluno_faixa: beltLabel,
+      aluno_grau: String(degree ?? ""),
+      aluno_modalidade: (student as any).modality || (student as any).discipline || modality || "",
+      aluno_foto: (student as any).photo_url ?? "",
+      // Graduação
+      graduacao_atual: beltLabel,
+      graduacao_data: dateLong,
+      graduacao_modalidade: modality || "",
+      graduacao_observacoes: notes || "",
+      // Professor
+      professor_nome: evaluator || "",
+      // Certificado
+      certificado_data: dateLong,
+      certificado_numero: gradId ? gradId.slice(0, 8).toUpperCase() : "",
+      // Sistema
+      data_atual: now.toLocaleDateString("pt-BR"),
+      hora_atual: now.toLocaleTimeString("pt-BR"),
+      ano_atual: String(now.getFullYear()),
+      // Compat (templates legados)
+      student_name: student.full_name ?? "",
+      belt: beltLabel,
+      date: dateBr,
+      signature: evaluator || "",
+    };
     try {
       await issueFn({ data: { student_id: studentId, graduation_id: gradId, template_id: templateId, values } });
       setIssued(prev => {
@@ -176,6 +205,7 @@ function NewGraduationPage() {
       if (registered.length <= 1) setPreviewFor(studentId);
     } catch (e: any) { toast.error(e.message ?? "Erro ao emitir"); }
   };
+
 
   const issueAll = async () => {
     if (!templateId) return toast.error("Selecione um modelo de certificado");

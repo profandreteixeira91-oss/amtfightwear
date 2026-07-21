@@ -13,7 +13,9 @@ type State = {
   snap: boolean;
   favorites: string[];
   recentVars: string[];
+  editingId: string | null;
 };
+
 
 type Actions = {
   init: (schema: EditorSchema, favorites?: string[], recent?: string[]) => void;
@@ -30,7 +32,9 @@ type Actions = {
   redo: () => void;
   setZoom: (z: number) => void;
   toggle: (k: "showGrid" | "showRulers" | "snap") => void;
+  setEditingId: (id: string | null) => void;
 };
+
 
 const emptySchema: EditorSchema = {
   version: 2,
@@ -55,9 +59,11 @@ export const useEditor = create<State & Actions>((set, get) => ({
   snap: true,
   favorites: [],
   recentVars: [],
+  editingId: null,
 
   init: (schema, favorites = [], recent = []) =>
-    set({ schema, history: [], future: [], selectedIds: [], favorites, recentVars: recent }),
+    set({ schema, history: [], future: [], selectedIds: [], favorites, recentVars: recent, editingId: null }),
+
 
   update: (patch) => set((s) => commit(s, { ...s.schema, ...patch })),
 
@@ -121,4 +127,6 @@ export const useEditor = create<State & Actions>((set, get) => ({
 
   setZoom: (zoom) => set({ zoom: Math.max(0.25, Math.min(2, zoom)) }),
   toggle: (k) => set((s) => ({ [k]: !s[k] } as any)),
+  setEditingId: (id) => set({ editingId: id }),
 }));
+
