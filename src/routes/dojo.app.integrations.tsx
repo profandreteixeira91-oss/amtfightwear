@@ -88,6 +88,7 @@ function AMTPayHub() {
             pagamentos manualmente com sua operadora atual.
           </p>
         </div>
+        {activated && <DisconnectAMTPayButton />}
       </header>
 
       {isLoading ? (
