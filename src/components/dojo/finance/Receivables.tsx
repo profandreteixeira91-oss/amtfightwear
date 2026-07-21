@@ -13,7 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Search, CheckCircle2, Trash2, Send, Eye, AlertCircle } from "lucide-react";
+import { Search, CheckCircle2, Trash2, Eye, AlertCircle } from "lucide-react";
 import { brl, daysBetween, isoDate, useInvoices, type InvoiceRow } from "./shared";
 import { EntryDrawer } from "./EntryDrawer";
 import { ShareInvoiceMenu } from "./ShareInvoice";
