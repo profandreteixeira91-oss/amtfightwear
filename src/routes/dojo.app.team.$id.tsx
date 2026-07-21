@@ -15,6 +15,7 @@ import {
   listTeamHistory,
   deleteTeamMember,
 } from "@/lib/dojo/team.functions";
+import { PermissionsTab } from "@/components/dojo/team/PermissionsTab";
 import { DojoPageShell } from "@/components/dojo/DojoPageShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
