@@ -540,3 +540,13 @@
   padding: 1.5rem;
 }
 @media (min-width: 768px) { .card-comfortable { padding: 1.75rem; } }
+
+/* Sombra vermelha inferior ao passar o mouse em qualquer botão do sistema */
+button:not(:disabled):hover,
+[role="button"]:not([aria-disabled="true"]):hover,
+a.btn:hover,
+.btn:hover {
+  box-shadow: 0 6px 16px -4px rgba(220, 38, 38, 0.55), 0 2px 6px -1px rgba(220, 38, 38, 0.35);
+  transition: box-shadow 180ms ease-out;
+}
+
