@@ -401,17 +401,79 @@ function CanvasArea({
   const W = schema.page.width;
   const H = schema.page.height;
   const wrapRef = useRef<HTMLDivElement>(null);
+  const setZoom = useEditor((s) => s.setZoom);
+  const didAutoFit = useRef(false);
+
+  // Compute best-fit zoom for the current wrapper size. Leaves 48px of padding
+  // so handles / rulers don't sit right at the edge.
+  const computeFit = () => {
+    const wrap = wrapRef.current;
+    if (!wrap) return null;
+    const padX = 64 + (showRulers ? 24 : 0);
+    const padY = 64 + (showRulers ? 24 : 0);
+    const availW = Math.max(100, wrap.clientWidth - padX);
+    const availH = Math.max(100, wrap.clientHeight - padY);
+    const z = Math.min(availW / W, availH / H);
+    return Math.max(0.1, Math.min(3, Math.round(z * 100) / 100));
+  };
+
+  const fit = () => {
+    const z = computeFit();
+    if (z != null) setZoom(z);
+  };
+
+  // Auto-fit once on first mount (and when the canvas page size changes).
+  useEffect(() => {
+    if (didAutoFit.current) return;
+    const t = setTimeout(() => {
+      const z = computeFit();
+      if (z != null) { setZoom(z); didAutoFit.current = true; }
+    }, 60);
+    return () => clearTimeout(t);
+  }, [W, H, showRulers]); // eslint-disable-line
+
+  // External "fit" trigger (topbar button).
+  useEffect(() => {
+    const h = () => fit();
+    window.addEventListener("cert-editor:fit", h as any);
+    return () => window.removeEventListener("cert-editor:fit", h as any);
+  }, [W, H, showRulers]); // eslint-disable-line
+
+  // Refit on window resize while the user hasn't manually zoomed too aggressively.
+  useEffect(() => {
+    const onResize = () => { didAutoFit.current = false; };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  // Ctrl/Cmd + wheel zooms the canvas smoothly.
+  const onWheel = (e: React.WheelEvent) => {
+    if (!(e.ctrlKey || e.metaKey)) return;
+    e.preventDefault();
+    const delta = -e.deltaY;
+    const factor = delta > 0 ? 1.1 : 1 / 1.1;
+    const next = Math.max(0.1, Math.min(3, Math.round(zoom * factor * 100) / 100));
+    setZoom(next);
+  };
 
   return (
-    <div ref={wrapRef} className="relative flex-1 overflow-auto bg-[color:var(--dojo-surface-2,#f4f4f5)] p-8">
+    <div
+      ref={wrapRef}
+      onWheel={onWheel}
+      className="relative flex-1 overflow-auto bg-[color:var(--dojo-surface-2,#f4f4f5)]"
+    >
       {showRulers && <Rulers W={W} H={H} zoom={zoom} />}
-      <div className="mx-auto" style={{ paddingLeft: showRulers ? 24 : 0, paddingTop: showRulers ? 24 : 0 }}>
+      {/* Scroll content: uses min-w/min-h + flex so the canvas is centered when it fits,
+          and scrollable when it doesn't. */}
+      <div
+        className="flex min-h-full min-w-full items-center justify-center p-8"
+        style={{ paddingLeft: showRulers ? 32 : 32, paddingTop: showRulers ? 32 : 32 }}
+      >
         <div
           id="cert-canvas-inner"
           onClick={(e) => { if (e.target === e.currentTarget) onSelect([]); }}
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => {
-
             const key = e.dataTransfer.getData("text/x-cert-var");
             if (!key) return;
             const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
@@ -423,7 +485,7 @@ function CanvasArea({
             };
             useEditor.getState().addElement(el);
           }}
-          className="relative shadow-xl"
+          className="relative shadow-xl shrink-0"
           style={{
             width: W * zoom, height: H * zoom,
             background: schema.page.background ?? "#fff",
@@ -449,13 +511,48 @@ function CanvasArea({
               allElements={sortedByZ}
               previewValues={previewValues}
             />
-
           ))}
+        </div>
+      </div>
+
+      {/* Floating zoom / fit overlay — sits above the scroll area. */}
+      <div className="pointer-events-none sticky bottom-3 flex justify-end pr-3">
+        <div className="pointer-events-auto flex items-center gap-1 rounded-full border border-border bg-card/95 px-2 py-1 shadow-lg backdrop-blur">
+          <button
+            onClick={() => setZoom(Math.max(0.1, Math.round((zoom - 0.1) * 100) / 100))}
+            className="grid h-7 w-7 place-items-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+            title="Diminuir zoom"
+          >
+            <ZoomOut className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={fit}
+            className="rounded-full px-2 py-0.5 text-xs font-medium text-foreground hover:bg-muted"
+            title="Encaixar na tela"
+          >
+            {Math.round(zoom * 100)}%
+          </button>
+          <button
+            onClick={() => setZoom(Math.min(3, Math.round((zoom + 0.1) * 100) / 100))}
+            className="grid h-7 w-7 place-items-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+            title="Aumentar zoom"
+          >
+            <ZoomIn className="h-3.5 w-3.5" />
+          </button>
+          <div className="mx-1 h-4 w-px bg-border" />
+          <button
+            onClick={fit}
+            className="flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium text-primary hover:bg-primary/10"
+            title="Encaixar certificado na área visível"
+          >
+            <Maximize2 className="h-3.5 w-3.5" /> Encaixar
+          </button>
         </div>
       </div>
     </div>
   );
 }
+
 
 function Rulers({ W, H, zoom }: { W: number; H: number; zoom: number }) {
   const ticksX = [];
