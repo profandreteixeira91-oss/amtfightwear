@@ -590,37 +590,41 @@ export const saveDojoInvoice = createServerFn({ method: "POST" })
         .eq("owner_id", owner_id)
         .maybeSingle();
       const { resolveDojoAsaasCredentials, syncInvoiceWithAsaas } = await import("@/lib/asaas/enrollment.server");
-      const { apiKey, split } = resolveDojoAsaasCredentials((profile ?? {}) as any);
+      const { apiKey, split, mode } = resolveDojoAsaasCredentials((profile ?? {}) as any);
       const patch: any = { ...rest };
 
-      if ((current as any).asaas_charge_id) {
-        const { asaasUpdateCharge } = await import("@/lib/asaas/client.server");
-        const charge = await asaasUpdateCharge(
-          (current as any).asaas_charge_id,
-          {
-            billingType: "UNDEFINED",
-            value: rest.amount,
-            dueDate: rest.due_date,
-            description: rest.description ?? "Mensalidade",
-            split,
-          },
-          apiKey,
-        );
-        Object.assign(patch, {
-          payment_link: charge.invoiceUrl,
-          asaas_invoice_url: charge.invoiceUrl,
-          split_config: split,
-          provider: "asaas",
-          payment_provider: "asaas",
-        });
-      } else {
-        const asaasData = await syncInvoiceWithAsaas(context.supabase as any, {
-          id,
-          ...rest,
-          owner_id,
-        });
-        Object.assign(patch, asaasData);
+      // AMT Pay desativado → não toca no Asaas. Apenas atualiza a fatura local.
+      if (mode !== "central") {
+        if ((current as any).asaas_charge_id) {
+          const { asaasUpdateCharge } = await import("@/lib/asaas/client.server");
+          const charge = await asaasUpdateCharge(
+            (current as any).asaas_charge_id,
+            {
+              billingType: "UNDEFINED",
+              value: rest.amount,
+              dueDate: rest.due_date,
+              description: rest.description ?? "Mensalidade",
+              split,
+            },
+            apiKey,
+          );
+          Object.assign(patch, {
+            payment_link: charge.invoiceUrl,
+            asaas_invoice_url: charge.invoiceUrl,
+            split_config: split,
+            provider: "asaas",
+            payment_provider: "asaas",
+          });
+        } else {
+          const asaasData = await syncInvoiceWithAsaas(context.supabase as any, {
+            id,
+            ...rest,
+            owner_id,
+          });
+          Object.assign(patch, asaasData);
+        }
       }
+
 
       const { error } = await context.supabase.from("dojo_invoices").update(patch).eq("id", id);
       if (error) throw new Error(error.message);
