@@ -149,7 +149,6 @@ const routeTitles: Array<{ match: (p: string) => boolean; title: string; subtitl
   { match: (p) => p.startsWith("/dojo/app/videos"), title: "Vídeos", subtitle: "Biblioteca de conteúdos da academia" },
   { match: (p) => p.startsWith("/dojo/app/sales"), title: "Vendas", subtitle: "Cobrança avulsa (uma vez) — produtos, taxas e serviços" },
   { match: (p) => p.startsWith("/dojo/app/plans"), title: "Planos", subtitle: "Modelos de mensalidade (recorrência)" },
-  { match: (p) => p.startsWith("/dojo/app/recurring"), title: "Mensalidades", subtitle: "Cobranças recorrentes por aluno — vencimento definido pelo dono" },
   { match: (p) => p.startsWith("/dojo/app/finance"), title: "Financeiro", subtitle: "Recebimentos, contas a receber e a pagar" },
   { match: (p) => p.startsWith("/dojo/app/team"), title: "Equipe", subtitle: "Colaboradores, folha e escalas" },
   { match: (p) => p.startsWith("/dojo/app/corporate-benefits"), title: "Benefícios Corporativos", subtitle: "Gympass, TotalPass e beneficiários" },
