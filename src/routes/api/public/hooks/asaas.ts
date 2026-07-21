@@ -30,6 +30,23 @@ export const Route = createFileRoute("/api/public/hooks/asaas")({
         }
 
         const event: string = String(body?.event ?? "");
+
+        // ------------------------------------------------------------
+        // TRANSFER_* — Fase 6: saques automáticos via Asaas
+        // ------------------------------------------------------------
+        if (event.startsWith("TRANSFER_")) {
+          const transfer = body?.transfer;
+          if (!transfer?.id) {
+            return Response.json({ ignored: true, reason: "no-transfer" });
+          }
+          const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+          const { applyTransferEvent } = await import(
+            "@/lib/dojo/payments/withdrawals.server"
+          );
+          const r = await applyTransferEvent(supabaseAdmin, event, transfer);
+          return Response.json({ ok: true, event, ...r });
+        }
+
         const payment = body?.payment ?? null;
         if (!event || !payment?.id) {
           return Response.json({ ignored: true, reason: "no-payment" });
