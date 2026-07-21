@@ -41,7 +41,7 @@ export const adminGetDashboard = createServerFn({ method: "GET" })
   .handler(async ({ context, data }) => {
     const { data: isAdmin } = await context.supabase.rpc("has_role", {
       _user_id: context.userId,
-      _role: "admin",
+      _role: "amt_admin",
     });
     if (!isAdmin) throw new Error("Forbidden");
 
