@@ -38,6 +38,7 @@ function CertificatesPage() {
   const delFn = useServerFn(deleteCertificateTemplate);
   const studentsFn = useServerFn(listDojoStudents);
   const qc = useQueryClient();
+  const navigate = useNavigate();
 
   const templates = useQuery({ queryKey: ["dojo-templates"], queryFn: () => listFn() });
   const students = useQuery({ queryKey: ["dojo-students-mini"], queryFn: () => studentsFn() });
