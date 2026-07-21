@@ -147,12 +147,15 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
   const count = useCart((s) => s.items.reduce((a, i) => a + i.quantity, 0));
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col">
+    <div className="min-h-screen bg-background text-foreground flex flex-col overflow-x-hidden">
       {/* Top bar */}
-      <div className="bg-foreground text-background text-[11px] uppercase tracking-widest">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2">
-          <span>Frete grátis acima de R$ 399 · Parcelamos em até 10x</span>
-          <a href="https://instagram.com/amtfightwear" target="_blank" rel="noreferrer" className="hidden sm:inline-flex items-center gap-1 hover:text-primary">
+      <div className="bg-foreground text-background text-[10px] sm:text-[11px] uppercase tracking-wider sm:tracking-widest">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-2 sm:px-4">
+          <span className="truncate">
+            <span className="hidden sm:inline">Frete grátis acima de R$ 399 · Parcelamos em até 10x</span>
+            <span className="sm:hidden">Frete grátis · até 10x sem juros</span>
+          </span>
+          <a href="https://instagram.com/amtfightwear" target="_blank" rel="noreferrer" className="hidden sm:inline-flex shrink-0 items-center gap-1 hover:text-primary">
             <Instagram className="h-3 w-3" /> @amtfightwear
           </a>
         </div>
@@ -160,13 +163,18 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
 
       {/* Header */}
       <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-4">
-          <button className="md:hidden">
+        <div className="mx-auto flex max-w-7xl items-center gap-2 px-3 py-3 sm:gap-4 sm:px-4 sm:py-4">
+          <button
+            type="button"
+            aria-label="Abrir menu"
+            onClick={() => setMobileNavOpen(true)}
+            className="md:hidden -ml-1 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md hover:bg-accent"
+          >
             <Menu className="h-5 w-5" />
           </button>
-          <Link to="/" aria-label="Loja AMT Fight Wear — página inicial" className="flex items-center gap-2">
-            <img src={amtLogo} alt="Logotipo da Loja AMT Fight Wear" className="h-9 w-9 rounded object-cover" />
-            <div className="leading-tight">
+          <Link to="/" aria-label="Loja AMT Fight Wear — página inicial" className="flex min-w-0 items-center gap-2">
+            <img src={amtLogo} alt="Logotipo da Loja AMT Fight Wear" className="h-9 w-9 shrink-0 rounded object-cover" />
+            <div className="hidden sm:block leading-tight">
               <div className="text-sm font-black tracking-tight">Loja AMT</div>
               <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Fight Wear</div>
             </div>
@@ -174,20 +182,28 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
 
           <SearchBar />
 
-          <div className="flex items-center gap-1 sm:gap-3">
+          <div className="ml-auto flex items-center gap-0.5 sm:gap-2">
+            <button
+              type="button"
+              aria-label="Buscar"
+              onClick={() => setMobileSearchOpen((v) => !v)}
+              className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-md hover:bg-accent"
+            >
+              <Search className="h-5 w-5" />
+            </button>
             {mounted && isAuthed ? <NotificationsBell authed={isAuthed} /> : null}
             {mounted && isAuthed ? (
               <div ref={accountRef} className="relative">
                 <button
                   type="button"
                   onClick={() => setAccountOpen((v) => !v)}
-                  className="inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-primary"
+                  className="inline-flex items-center gap-1.5 rounded-md px-2 py-2 text-sm hover:bg-accent hover:text-primary sm:px-3"
                   aria-haspopup="menu"
                   aria-expanded={accountOpen}
                 >
                   <User className="h-4 w-4" />
                   <span className="hidden sm:inline">Minha conta</span>
-                  <ChevronDown className="h-3 w-3 opacity-60" />
+                  <ChevronDown className="hidden sm:inline h-3 w-3 opacity-60" />
                 </button>
                 {accountOpen && (
                   <div
@@ -226,17 +242,19 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
               <Link
                 to="/auth"
                 search={{ redirect: "/loja/conta" }}
-                className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+                aria-label="Entrar"
+                className="inline-flex items-center gap-1.5 rounded-md bg-primary px-2.5 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 sm:px-3"
               >
                 <LogIn className="h-4 w-4" />
-                <span>Entrar</span>
+                <span className="hidden sm:inline">Entrar</span>
               </Link>
             )}
 
             <button
               type="button"
               onClick={() => useCart.getState().open()}
-              className="relative inline-flex items-center gap-1 rounded-md px-3 py-2 hover:bg-accent"
+              aria-label="Abrir carrinho"
+              className="relative inline-flex items-center gap-1 rounded-md px-2 py-2 hover:bg-accent sm:px-3"
             >
               <ShoppingBag className="h-5 w-5" />
               <span className="hidden sm:inline text-sm">Carrinho</span>
@@ -248,6 +266,16 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
             </button>
           </div>
         </div>
+
+        {/* Mobile search dropdown */}
+        {mobileSearchOpen && (
+          <div className="md:hidden border-t bg-background px-3 py-3">
+            <div className="[&_.hidden.md\\:flex]:flex [&_.hidden.md\\:flex]:w-full">
+              <SearchBar />
+            </div>
+          </div>
+        )}
+
 
         {/* Categories nav */}
         {topCategories.length > 0 && (
