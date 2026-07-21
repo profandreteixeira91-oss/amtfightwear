@@ -255,16 +255,31 @@ type LibraryRow = {
   source_code: string | null;
 };
 
-function CompetitionCard({ c, onAdd, adding }: { c: LibraryRow; onAdd: () => void; adding: boolean }) {
+function CompetitionCard({ c, onAdd, adding, selected, onToggleSelect }: {
+  c: LibraryRow;
+  onAdd: () => void;
+  adding: boolean;
+  selected?: boolean;
+  onToggleSelect?: () => void;
+}) {
   const scopeColor = c.scope === "international" ? "bg-purple-600"
     : c.scope === "national" ? "bg-emerald-600"
     : c.scope === "regional" ? "bg-blue-600"
     : c.scope === "state" ? "bg-sky-600"
     : "bg-zinc-500";
   return (
-    <Card className="flex flex-col">
+    <Card className={cn("flex flex-col", selected && "ring-2 ring-primary")}>
       <CardContent className="flex flex-1 flex-col gap-2 p-4">
         <div className="flex items-start justify-between gap-2">
+          {onToggleSelect && (
+            <input
+              type="checkbox"
+              checked={!!selected}
+              onChange={onToggleSelect}
+              className="mt-1 h-4 w-4 cursor-pointer"
+              aria-label="Selecionar competição"
+            />
+          )}
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-1">
               <Badge className={cn("text-[10px]", scopeColor)}>{scopeLabel(c.scope)}</Badge>
