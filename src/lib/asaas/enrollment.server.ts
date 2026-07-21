@@ -210,15 +210,23 @@ export async function syncInvoiceWithAsaas(
     apiKey,
   );
 
-  // 4. Cria Cobrança (Payment) no Asaas
+  // 4. Cria Cobrança (Payment) no Asaas — descrição rebranded com identidade do dojo
   const { asaasCreateCharge } = await import("@/lib/asaas/client.server");
+  const { loadInvoiceIdentity, buildBrandedChargeDescription } = await import(
+    "@/lib/dojo/invoice-branding.functions"
+  );
+  const identity = await loadInvoiceIdentity(supabase, invoice.owner_id);
+  const brandedDescription = buildBrandedChargeDescription(
+    identity,
+    invoice.description ?? "Mensalidade",
+  );
   const charge = await asaasCreateCharge(
     {
       customer: customerId,
       billingType: "UNDEFINED", // Permite o aluno escolher (Pix/Boleto/Cartão) no link
       value: invoice.amount,
       dueDate: invoice.due_date,
-      description: invoice.description ?? "Mensalidade",
+      description: brandedDescription,
       externalReference: invoice.id ? `dojo_invoice:${invoice.id}` : undefined,
       split,
     },
