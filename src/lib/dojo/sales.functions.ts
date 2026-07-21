@@ -127,7 +127,18 @@ export const createSale = createServerFn({ method: "POST" })
         customer_document: z.string().max(40).nullable().optional(),
         discount: z.number().min(0).default(0),
         payment_method: z
-          .enum(["cash", "pix", "boleto", "credit_card", "debit_card", "payment_link", "manual"]) 
+          .enum([
+            "cash",
+            "pix",
+            "boleto",
+            "credit_card",
+            "debit_card",
+            "payment_link",
+            "manual",
+            "pix_direct",
+            "debit_direct",
+            "credit_direct",
+          ])
           .default("cash"),
         due_date: z.string().optional(), // yyyy-mm-dd para gateway
         notes: z.string().max(1000).nullable().optional(),
@@ -145,7 +156,7 @@ export const createSale = createServerFn({ method: "POST" })
     // Se for método gateway, exige aluno + gera fatura AMT Pay
     let invoice_id: string | null = null;
     let payment_link: string | null = null;
-    let status: "paid" | "pending" = "cash" === data.payment_method || "manual" === data.payment_method ? "paid" : "pending";
+    let status: "paid" | "pending" = DIRECT_METHODS.has(data.payment_method) ? "paid" : "pending";
 
     if (GATEWAY_METHODS.has(data.payment_method)) {
       if (!data.student_id) throw new Error("Selecione o aluno para cobrar pelo AMT Pay.");
