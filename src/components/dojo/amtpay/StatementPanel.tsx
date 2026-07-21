@@ -56,7 +56,7 @@ export function StatementPanel() {
         t.status,
         (t.description ?? "").replace(/;/g, ","),
         `${sign}${Number(t.net_amount).toFixed(2)}`,
-        t.provider_tx_id ?? "",
+        (t as any).provider_tx_id ?? "",
       ].join(";"));
     }
     const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
