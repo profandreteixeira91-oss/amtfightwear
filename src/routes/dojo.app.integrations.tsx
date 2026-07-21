@@ -24,6 +24,7 @@ import { PaymentSettingsPanel } from "@/components/dojo/amtpay/PaymentSettingsPa
 import { PixKeysPanel } from "@/components/dojo/amtpay/PixKeysPanel";
 import { AuditLogPanel } from "@/components/dojo/amtpay/AuditLogPanel";
 import { RemindersPanel } from "@/components/dojo/amtpay/RemindersPanel";
+import { InvoiceBrandingPanel } from "@/components/dojo/amtpay/InvoiceBrandingPanel";
 
 export const Route = createFileRoute("/dojo/app/integrations")({
   head: () => ({ meta: [{ title: "AMT Pay — Central financeira" }] }),
