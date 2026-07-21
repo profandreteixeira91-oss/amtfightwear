@@ -25,6 +25,7 @@ export function WithdrawalsPanel() {
   const qc = useQueryClient();
   const listFn = useServerFn(listWithdrawals);
   const cancelFn = useServerFn(cancelWithdrawal);
+  const retryFn = useServerFn(retryWithdrawal);
   const bankFn = useServerFn(getPrimaryBankAccount);
   const wQ = useQuery({ queryKey: ["amtpay-withdrawals"], queryFn: () => listFn() });
   const bankQ = useQuery({ queryKey: ["amtpay-bank"], queryFn: () => bankFn() });
