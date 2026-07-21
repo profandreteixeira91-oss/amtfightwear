@@ -250,12 +250,30 @@ function ImagesPanel() {
 
 function LogoPanel() {
   const { addElement } = useStudioStore();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const upload = async (file: File) => {
+    setUploading(true);
+    try {
+      const path = `certificates/logo-${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+      const { error } = await supabase.storage.from("ig-media").upload(path, file, { upsert: true });
+      if (error) throw error;
+      const { data } = supabase.storage.from("ig-media").getPublicUrl(path);
+      addElement(makeImageElement(data.publicUrl, "logo"));
+    } catch (e: any) {
+      toast.error(e.message ?? "Falha ao enviar logo");
+    } finally { setUploading(false); }
+  };
   return (
     <div className="space-y-3">
-      <Button className="w-full" onClick={() => addElement(makeImageElement("", "logo"))}>
-        + Adicionar logo da academia
+      <input ref={inputRef} type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) upload(f); }} />
+      <Button className="w-full" onClick={() => inputRef.current?.click()} disabled={uploading}>
+        <Upload className="mr-2 h-4 w-4" /> {uploading ? "Enviando..." : "Fazer upload do logo"}
       </Button>
-      <p className="text-xs text-neutral-500">O logo puxará automaticamente a URL da academia ao emitir o certificado. Você também pode colar uma URL específica:</p>
+      <Button variant="outline" className="w-full" onClick={() => addElement(makeImageElement("", "logo"))}>
+        + Placeholder (usa logo da academia)
+      </Button>
+      <p className="text-xs text-neutral-500">O placeholder puxa automaticamente a logo cadastrada no dojo ao emitir o certificado. Você também pode colar uma URL:</p>
       <UrlAdd onAdd={(url) => addElement(makeImageElement(url, "logo"))} />
     </div>
   );
