@@ -54,8 +54,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DojoLogo } from "@/components/dojo/DojoLogo";
-import dojoManagerLogoAsset from "@/assets/dojo-manager-logo.png.asset.json";
-const dojoManagerLogoUrl = dojoManagerLogoAsset.url;
 import { TrialBadge } from "@/components/dojo/TrialBadge";
 import { UnsavedChangesProvider } from "@/components/common/UnsavedChangesGuard";
 import { DojoPermissionsProvider, useDojoPermissions } from "@/components/dojo/DojoPermissionsProvider";
@@ -245,9 +243,9 @@ function DojoLayoutInner({
   return (
     <>
       <Sidebar collapsible="icon" className="border-r border-[color:var(--dojo-border)]">
-        <SidebarHeader className="border-b border-[color:var(--dojo-border)]/60">
-          <Link to="/dojo" className="flex items-center gap-2 px-2 py-1.5">
-            <DojoLogo className="h-10 w-auto shrink-0" />
+        <SidebarHeader className="border-b border-[color:var(--dojo-border)]/60 bg-white">
+          <Link to="/dojo" className="flex items-center justify-center px-2 py-2">
+            <DojoLogo className="h-12 w-auto shrink-0 group-data-[collapsible=icon]:h-8" />
             <span className="sr-only">AMT Dojo Manager</span>
           </Link>
         </SidebarHeader>
@@ -316,11 +314,6 @@ function DojoLayoutInner({
       <SidebarInset className="bg-[color:var(--dojo-surface)] min-w-0 overflow-x-hidden">
         <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-red-900/60 bg-red-700 text-white px-3 md:px-6 shadow-[0_4px_18px_-6px_rgba(0,0,0,0.35)]">
           <SidebarTrigger className="-ml-1 text-white hover:bg-white/10" />
-          <Link to="/dojo/app" className="flex items-center gap-2 shrink-0">
-            <div className="h-11 w-40 md:w-48 rounded-lg bg-white ring-2 ring-white/80 shadow-[0_0_0_1px_rgba(255,255,255,0.6),0_8px_24px_-6px_rgba(0,0,0,0.45)] grid place-items-center overflow-hidden px-2">
-              <img src={dojoManagerLogoUrl} alt="Dojo Manager" className="h-full w-full object-contain" />
-            </div>
-          </Link>
           <div className="min-w-0 flex-1">
             <h1 className="font-display text-base md:text-lg font-bold tracking-tight leading-tight truncate text-white">
               {header.title}
