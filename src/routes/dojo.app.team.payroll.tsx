@@ -192,7 +192,7 @@ function PayrollPage() {
     openBrandedPrintDocument({
       title: `Recibo — ${memberName}`,
       subtitle: `${kind} · Referência ${ref}`,
-      body: `
+      bodyHtml: `
         <div style="margin-top:24px;line-height:1.6">
           <p>Recebi de <strong>{{academy_name}}</strong> a importância de
           <strong>${brl(Number(p.amount))}</strong> referente a <strong>${kind}</strong>
