@@ -840,8 +840,55 @@ function ElementView({
 
 
   return (
-    <div style={style} onMouseDown={onMouseDown} onDoubleClick={(e) => { e.stopPropagation(); }}>
-      {renderInner(el, qr, values, zoom, W)}
+    <div
+      style={{ ...style, cursor: isEditing ? "text" : style.cursor }}
+      onMouseDown={onMouseDown}
+      onDoubleClick={(e) => {
+        e.stopPropagation();
+        if (el.kind === "text" && !el.locked) setEditingId(el.id);
+      }}
+    >
+      {isEditing && el.kind === "text" ? (
+        <div
+          contentEditable
+          suppressContentEditableWarning
+          autoFocus
+          onMouseDown={(e) => e.stopPropagation()}
+          onFocus={(e) => {
+            // place caret at end
+            const range = document.createRange();
+            range.selectNodeContents(e.currentTarget);
+            range.collapse(false);
+            const sel = window.getSelection();
+            sel?.removeAllRanges();
+            sel?.addRange(range);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") { e.preventDefault(); setEditingId(null); }
+          }}
+          onBlur={(e) => {
+            const next = e.currentTarget.innerText;
+            if (next !== el.text) onPatch({ text: next } as Partial<AnyElement>);
+            setEditingId(null);
+          }}
+          style={{
+            fontSize: `${el.fontSize * zoom}px`, color: el.color,
+            fontWeight: el.bold ? 700 : 400, fontStyle: el.italic ? "italic" : undefined,
+            textDecoration: el.underline ? "underline" : undefined,
+            textTransform: el.uppercase ? "uppercase" : undefined,
+            textAlign: el.align, fontFamily: el.fontFamily,
+            lineHeight: el.lineHeight ?? 1.2, letterSpacing: el.letterSpacing,
+            whiteSpace: "pre-wrap", padding: "2px 4px",
+            outline: "2px dashed hsl(var(--primary))", outlineOffset: 2,
+            background: "hsl(var(--background) / 0.6)", minWidth: 20, cursor: "text",
+          }}
+        >
+          {el.text}
+        </div>
+      ) : (
+        renderInner(el, qr, values, zoom, W)
+      )}
+
       {selected && !el.locked && (
         <>
           {(["nw","n","ne","e","se","s","sw","w"] as const).map((c) => (
