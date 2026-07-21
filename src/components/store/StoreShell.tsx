@@ -103,6 +103,8 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
   // Track store visits (anon + authed). One record per pathname change per tab.
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   useEffect(() => {
+    setMobileNavOpen(false);
+    setMobileSearchOpen(false);
     if (typeof window === "undefined") return;
     if (!pathname.startsWith("/loja") && pathname !== "/") return;
     let sid = window.sessionStorage.getItem("amt_sid");
