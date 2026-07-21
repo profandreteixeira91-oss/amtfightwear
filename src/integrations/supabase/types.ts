@@ -18,16 +18,21 @@ export type Database = {
         Row: {
           academy_competition_id: string
           age_group: string | null
+          amount_paid: number | null
           belt_id: string | null
           belt_name: string | null
           category: string | null
           created_at: string
+          documents: Json
           id: string
           notes: string | null
           owner_id: string
           paid: boolean
+          payment_method: string | null
+          registration_number: string | null
           status: string
           student_id: string
+          teacher_id: string | null
           updated_at: string
           weight_class: string | null
           weight_kg: number | null
@@ -35,16 +40,21 @@ export type Database = {
         Insert: {
           academy_competition_id: string
           age_group?: string | null
+          amount_paid?: number | null
           belt_id?: string | null
           belt_name?: string | null
           category?: string | null
           created_at?: string
+          documents?: Json
           id?: string
           notes?: string | null
           owner_id: string
           paid?: boolean
+          payment_method?: string | null
+          registration_number?: string | null
           status?: string
           student_id: string
+          teacher_id?: string | null
           updated_at?: string
           weight_class?: string | null
           weight_kg?: number | null
@@ -52,16 +62,21 @@ export type Database = {
         Update: {
           academy_competition_id?: string
           age_group?: string | null
+          amount_paid?: number | null
           belt_id?: string | null
           belt_name?: string | null
           category?: string | null
           created_at?: string
+          documents?: Json
           id?: string
           notes?: string | null
           owner_id?: string
           paid?: boolean
+          payment_method?: string | null
+          registration_number?: string | null
           status?: string
           student_id?: string
+          teacher_id?: string | null
           updated_at?: string
           weight_class?: string | null
           weight_kg?: number | null
@@ -86,6 +101,13 @@ export type Database = {
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "academy_competition_athletes_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_team_members"
             referencedColumns: ["id"]
           },
         ]
@@ -268,8 +290,12 @@ export type Database = {
           academy_competition_id: string
           athlete_id: string | null
           category: string | null
+          certificates: string[]
           created_at: string
+          draws: number
           id: string
+          ippons: number
+          knockouts: number
           losses: number
           matches: number
           medal: string | null
@@ -281,6 +307,7 @@ export type Database = {
           points: number
           student_id: string | null
           submissions: number
+          total_time_seconds: number | null
           updated_at: string
           videos: string[] | null
           wins: number
@@ -289,8 +316,12 @@ export type Database = {
           academy_competition_id: string
           athlete_id?: string | null
           category?: string | null
+          certificates?: string[]
           created_at?: string
+          draws?: number
           id?: string
+          ippons?: number
+          knockouts?: number
           losses?: number
           matches?: number
           medal?: string | null
@@ -302,6 +333,7 @@ export type Database = {
           points?: number
           student_id?: string | null
           submissions?: number
+          total_time_seconds?: number | null
           updated_at?: string
           videos?: string[] | null
           wins?: number
@@ -310,8 +342,12 @@ export type Database = {
           academy_competition_id?: string
           athlete_id?: string | null
           category?: string | null
+          certificates?: string[]
           created_at?: string
+          draws?: number
           id?: string
+          ippons?: number
+          knockouts?: number
           losses?: number
           matches?: number
           medal?: string | null
@@ -323,6 +359,7 @@ export type Database = {
           points?: number
           student_id?: string | null
           submissions?: number
+          total_time_seconds?: number | null
           updated_at?: string
           videos?: string[] | null
           wins?: number
@@ -3387,49 +3424,64 @@ export type Database = {
       dojo_competition_athletes: {
         Row: {
           age_group: string | null
+          amount_paid: number | null
           belt: string | null
           category: string | null
           competition_id: string
           created_at: string
+          documents: Json
           id: string
           notes: string | null
           owner_id: string
+          payment_method: string | null
           registered_at: string
           registered_by: string | null
+          registration_number: string | null
           status: Database["public"]["Enums"]["competition_athlete_status"]
           student_id: string
+          teacher_id: string | null
           updated_at: string
           weight: number | null
         }
         Insert: {
           age_group?: string | null
+          amount_paid?: number | null
           belt?: string | null
           category?: string | null
           competition_id: string
           created_at?: string
+          documents?: Json
           id?: string
           notes?: string | null
           owner_id: string
+          payment_method?: string | null
           registered_at?: string
           registered_by?: string | null
+          registration_number?: string | null
           status?: Database["public"]["Enums"]["competition_athlete_status"]
           student_id: string
+          teacher_id?: string | null
           updated_at?: string
           weight?: number | null
         }
         Update: {
           age_group?: string | null
+          amount_paid?: number | null
           belt?: string | null
           category?: string | null
           competition_id?: string
           created_at?: string
+          documents?: Json
           id?: string
           notes?: string | null
           owner_id?: string
+          payment_method?: string | null
           registered_at?: string
           registered_by?: string | null
+          registration_number?: string | null
           status?: Database["public"]["Enums"]["competition_athlete_status"]
           student_id?: string
+          teacher_id?: string | null
           updated_at?: string
           weight?: number | null
         }
@@ -3446,6 +3498,13 @@ export type Database = {
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_competition_athletes_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_team_members"
             referencedColumns: ["id"]
           },
         ]
@@ -3481,6 +3540,56 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "dojo_competition_attachments_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_competitions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_competition_calendar: {
+        Row: {
+          checklist: Json
+          competition_id: string
+          created_at: string
+          event_ends_at: string | null
+          event_starts_at: string
+          id: string
+          notes: string | null
+          notify_athletes: boolean
+          notify_teachers: boolean
+          owner_id: string
+          updated_at: string
+        }
+        Insert: {
+          checklist?: Json
+          competition_id: string
+          created_at?: string
+          event_ends_at?: string | null
+          event_starts_at: string
+          id?: string
+          notes?: string | null
+          notify_athletes?: boolean
+          notify_teachers?: boolean
+          owner_id: string
+          updated_at?: string
+        }
+        Update: {
+          checklist?: Json
+          competition_id?: string
+          created_at?: string
+          event_ends_at?: string | null
+          event_starts_at?: string
+          id?: string
+          notes?: string | null
+          notify_athletes?: boolean
+          notify_teachers?: boolean
+          owner_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_competition_calendar_competition_id_fkey"
             columns: ["competition_id"]
             isOneToOne: false
             referencedRelation: "dojo_competitions"
@@ -3533,17 +3642,75 @@ export type Database = {
           },
         ]
       }
+      dojo_competition_media: {
+        Row: {
+          athlete_id: string | null
+          caption: string | null
+          competition_id: string
+          created_at: string
+          id: string
+          kind: string
+          owner_id: string
+          uploaded_by: string | null
+          url: string
+        }
+        Insert: {
+          athlete_id?: string | null
+          caption?: string | null
+          competition_id: string
+          created_at?: string
+          id?: string
+          kind: string
+          owner_id: string
+          uploaded_by?: string | null
+          url: string
+        }
+        Update: {
+          athlete_id?: string | null
+          caption?: string | null
+          competition_id?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          owner_id?: string
+          uploaded_by?: string | null
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_competition_media_athlete_id_fkey"
+            columns: ["athlete_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_competition_athletes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_competition_media_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_competitions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dojo_competition_results: {
         Row: {
           athlete_id: string
           competition_id: string
           created_at: string
           id: string
+          ippons: number | null
+          knockouts: number | null
+          matches_drawn: number | null
           matches_lost: number | null
+          matches_total: number | null
           matches_won: number | null
           notes: string | null
           owner_id: string
           placement: number | null
+          submissions: number | null
+          total_points: number | null
+          total_time_seconds: number | null
           updated_at: string
         }
         Insert: {
@@ -3551,11 +3718,18 @@ export type Database = {
           competition_id: string
           created_at?: string
           id?: string
+          ippons?: number | null
+          knockouts?: number | null
+          matches_drawn?: number | null
           matches_lost?: number | null
+          matches_total?: number | null
           matches_won?: number | null
           notes?: string | null
           owner_id: string
           placement?: number | null
+          submissions?: number | null
+          total_points?: number | null
+          total_time_seconds?: number | null
           updated_at?: string
         }
         Update: {
@@ -3563,11 +3737,18 @@ export type Database = {
           competition_id?: string
           created_at?: string
           id?: string
+          ippons?: number | null
+          knockouts?: number | null
+          matches_drawn?: number | null
           matches_lost?: number | null
+          matches_total?: number | null
           matches_won?: number | null
           notes?: string | null
           owner_id?: string
           placement?: number | null
+          submissions?: number | null
+          total_points?: number | null
+          total_time_seconds?: number | null
           updated_at?: string
         }
         Relationships: [
@@ -3591,91 +3772,148 @@ export type Database = {
         Row: {
           address: string | null
           age_groups: Json
+          archived_at: string | null
           banner_url: string | null
           belts: Json
+          calendar_event_id: string | null
+          cancelled_at: string | null
           categories: Json
           city: string | null
+          confederation: string | null
+          contact_email: string | null
+          contact_phone: string | null
           country: string | null
           created_at: string
           currency: string | null
           description: string | null
           ends_at: string | null
           entry_fee: number | null
+          estimated_athletes: number | null
           external_id: string | null
           external_url: string | null
+          facebook: string | null
+          federation: string | null
           id: string
+          instagram: string | null
+          internal: boolean
+          is_free: boolean
+          is_international: boolean
           modality: string | null
           name: string
           organizer: string | null
           owner_id: string
           provider: Database["public"]["Enums"]["competition_provider"]
           registration_deadline: string | null
+          regulation_url: string | null
+          schedule_url: string | null
           source_data: Json
           starts_at: string | null
           state: string | null
           status: string
+          subtitle: string | null
+          tags: Json
           updated_at: string
+          venue_map_url: string | null
           venue_name: string | null
+          website: string | null
           with_gi: boolean | null
         }
         Insert: {
           address?: string | null
           age_groups?: Json
+          archived_at?: string | null
           banner_url?: string | null
           belts?: Json
+          calendar_event_id?: string | null
+          cancelled_at?: string | null
           categories?: Json
           city?: string | null
+          confederation?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
           country?: string | null
           created_at?: string
           currency?: string | null
           description?: string | null
           ends_at?: string | null
           entry_fee?: number | null
+          estimated_athletes?: number | null
           external_id?: string | null
           external_url?: string | null
+          facebook?: string | null
+          federation?: string | null
           id?: string
+          instagram?: string | null
+          internal?: boolean
+          is_free?: boolean
+          is_international?: boolean
           modality?: string | null
           name: string
           organizer?: string | null
           owner_id: string
           provider?: Database["public"]["Enums"]["competition_provider"]
           registration_deadline?: string | null
+          regulation_url?: string | null
+          schedule_url?: string | null
           source_data?: Json
           starts_at?: string | null
           state?: string | null
           status?: string
+          subtitle?: string | null
+          tags?: Json
           updated_at?: string
+          venue_map_url?: string | null
           venue_name?: string | null
+          website?: string | null
           with_gi?: boolean | null
         }
         Update: {
           address?: string | null
           age_groups?: Json
+          archived_at?: string | null
           banner_url?: string | null
           belts?: Json
+          calendar_event_id?: string | null
+          cancelled_at?: string | null
           categories?: Json
           city?: string | null
+          confederation?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
           country?: string | null
           created_at?: string
           currency?: string | null
           description?: string | null
           ends_at?: string | null
           entry_fee?: number | null
+          estimated_athletes?: number | null
           external_id?: string | null
           external_url?: string | null
+          facebook?: string | null
+          federation?: string | null
           id?: string
+          instagram?: string | null
+          internal?: boolean
+          is_free?: boolean
+          is_international?: boolean
           modality?: string | null
           name?: string
           organizer?: string | null
           owner_id?: string
           provider?: Database["public"]["Enums"]["competition_provider"]
           registration_deadline?: string | null
+          regulation_url?: string | null
+          schedule_url?: string | null
           source_data?: Json
           starts_at?: string | null
           state?: string | null
           status?: string
+          subtitle?: string | null
+          tags?: Json
           updated_at?: string
+          venue_map_url?: string | null
           venue_name?: string | null
+          website?: string | null
           with_gi?: boolean | null
         }
         Relationships: []
@@ -10271,6 +10509,22 @@ export type Database = {
           qr_token: string
         }[]
       }
+      get_academy_athlete_ranking: {
+        Args: { _belt?: string; _owner: string }
+        Returns: {
+          belt_id: string
+          bronze: number
+          competitions: number
+          full_name: string
+          gold: number
+          losses: number
+          photo_url: string
+          points: number
+          silver: number
+          student_id: string
+          wins: number
+        }[]
+      }
       get_academy_by_slug: {
         Args: { _slug: string }
         Returns: {
@@ -10282,6 +10536,26 @@ export type Database = {
           slug: string
           state: string
           trade_name: string
+        }[]
+      }
+      get_academy_medal_stats: {
+        Args: { _owner: string }
+        Returns: {
+          bronze: number
+          gold: number
+          participation: number
+          silver: number
+          total: number
+        }[]
+      }
+      get_academy_medal_summary: {
+        Args: { _owner: string }
+        Returns: {
+          bronze: number
+          gold: number
+          participation: number
+          silver: number
+          total: number
         }[]
       }
       get_class_ranking: {
@@ -10311,6 +10585,36 @@ export type Database = {
       }
       get_my_student_id: { Args: never; Returns: string }
       get_my_student_owner_id: { Args: never; Returns: string }
+      get_student_competition_history: {
+        Args: { _student: string }
+        Returns: {
+          academy_competition_id: string
+          age_group: string
+          athlete_id: string
+          belt_name: string
+          category: string
+          certificates: string[]
+          competition_id: string
+          competition_name: string
+          competition_start_at: string
+          draws: number
+          ippons: number
+          knockouts: number
+          losses: number
+          matches: number
+          medal: string
+          notes: string
+          photos: string[]
+          placement: number
+          points: number
+          scope: string
+          submissions: number
+          videos: string[]
+          weight_class: string
+          weight_kg: number
+          wins: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

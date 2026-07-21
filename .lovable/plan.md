@@ -1,87 +1,72 @@
-# Reativação de Subcontas Asaas — AMT Pay v2
+# Refatoração do Módulo Competições
 
-Modelo NextFit-like: cada dojo tem sua própria subconta Asaas. PIX/boleto/cartão são emitidos em nome do CNPJ do dojo, e o split de 2% da AMT é feito nativamente pelo Asaas em cada transação.
+Escopo grande demais para uma única entrega — abaixo está a divisão em 4 fases entregáveis. O schema atual (`dojo_competitions`, `dojo_competition_athletes`, `dojo_competition_medals`, `dojo_competition_results`, `dojo_competition_attachments`, `competition_sources`, `competition_ingest_runs`) já cobre a maior parte dos dados, então a maior parte do trabalho é **UI + funções + expansão de campos**.
 
-## Objetivos
+## Estado atual (reaproveitável)
 
-- PIX e boleto com **CNPJ do dojo** como recebedor (visível no comprovante).
-- **Split automático** de 2% para a wallet AMT em cada cobrança.
-- **Onboarding obrigatório** com KYC antes da 1ª cobrança do dojo.
-- **Fallback seguro**: se subconta não aprovada, bloqueia emissão (não cai mais na conta central "AMT Fightwear").
-- Carteira/saldo/saques puxados da subconta do dojo.
+- Providers já modularizados em `src/lib/dojo/competitions/providers.ts` (arquitetura pronta para RSS/Firecrawl/APIs).
+- Ingest pipeline em `ingest.functions.ts` com dedupe por `(owner_id, provider, external_id)`.
+- Rotas: `dojo.app.competitions.tsx` (lista atual) e `dojo.app.competitions.$id.tsx` (detalhe atual).
+- Aba `Competições` no perfil do aluno já existe (`students.$id.tsx`).
 
-## Fases
+## Fase 1 — Schema & fundação
 
-### Fase 1 — Onboarding de subconta + KYC obrigatório
+Migração única expandindo o schema:
 
-- Nova server fn `activateAsaasSubaccount` que:
-  1. Cria subaccount no Asaas via `POST /v3/accounts` com dados fiscais do dojo (CNPJ, razão social, endereço, celular, faturamento estimado).
-  2. Salva `asaas_subaccount_api_key` (criptografada) e `asaas_wallet_id` em `dojo_academy_profile`.
-  3. Retorna checklist de KYC pendente.
-- Refatorar `dojo.onboarding.tsx` e `AsaasDocumentsCard.tsx` para:
-  - Bloquear acesso ao módulo Carteira/Recebimentos até KYC completo.
-  - Exibir status: `pending` → `awaiting_docs` → `approved` → `active`.
-- Server fn `getAsaasAccountStatus` consulta status atualizado do Asaas (`GET /v3/myAccount/status`).
+- `dojo_competitions`: adicionar `subtitle`, `regulation_url`, `schedule_url`, `venue_map_url`, `contact_phone`, `contact_email`, `instagram`, `facebook`, `website`, `estimated_athletes`, `is_international boolean`, `is_free boolean`, `federation`, `confederation`, `tags jsonb`, `archived_at`, `cancelled_at`, `internal boolean` (competições internas da academia), `calendar_event_id` (link com `dojo_class_occurrences` quando adicionada ao calendário).
+- `dojo_competition_athletes`: adicionar `teacher_id` (FK team_members), `registration_number`, `amount_paid numeric`, `payment_method text`, `documents jsonb` (enviados/pendentes).
+- `dojo_competition_results`: adicionar `matches_total`, `matches_drawn`, `submissions`, `knockouts`, `ippons`, `total_points`, `total_time_seconds`.
+- Nova tabela `dojo_competition_media` (fotos/vídeos por resultado — id, owner_id, athlete_id, competition_id, kind: photo|video|certificate, url, caption).
+- Nova tabela `dojo_competition_calendar` (event_id, competition_id, notify_teachers, notify_athletes, checklist jsonb, notes).
+- RPC `get_academy_medal_stats(_owner uuid)` e `get_student_competition_history(_student uuid)` (security definer).
+- GRANTs + RLS para todas.
 
-### Fase 2 — Emissão em nome do dojo + split nativo
+## Fase 2 — Dashboard & Listagem
 
-Migrar todas as chamadas de criação de cobrança para usar chave da subconta:
+- Nova rota `dojo.app.competitions.tsx` reescrita como **Dashboard** com abas: `Dashboard | Buscador | Minhas competições | Ranking | Estatísticas`.
+- Componentes em `src/components/dojo/competitions/`:
+  - `DashboardOverview.tsx`: cards (Total, Nacionais, Internacionais, Atletas inscritos, medalhas ouro/prata/bronze), calendário mensal, próximas 30 dias, últimas realizadas.
+  - `CompetitionCard.tsx`: banner, nome, modalidade, data, local, prazo, taxa, categorias, status, botões (Ver detalhes / Registrar no calendário / Site oficial / Compartilhar).
+  - `CompetitionsList.tsx`: virtualização + paginação.
 
-- `src/lib/asaas/enrollment.server.ts` → `resolveDojoAsaasCredentials` volta a retornar:
-  - `apiKey`: `asaas_subaccount_api_key` do dojo (descriptografada), OU throw se subconta não aprovada.
-  - `split`: `[{ walletId: ASAAS_WALLET_ID_AMT, percentualValue: 2 }]`.
-  - `mode`: `"subaccount"`.
-- Atualizar `syncInvoiceWithAsaas`, `createSaleCharge`, `enrollStudentWithPlan`, `createSubscription` para passar `split[]` no payload do Asaas.
-- `src/lib/dojo/payments/asaas-gateway.server.ts` → aceitar `apiKey` e `split` como parâmetros, remover uso hardcoded da chave central.
-- `src/lib/dojo/public-payment.functions.ts` → `resolveOwnerAsaasKey` volta a ler a chave da subconta do dojo dono da fatura (comportamento anterior à correção 404), agora que a cobrança é criada na subconta.
+## Fase 3 — Buscador, Filtros, Detalhe & Atletas
 
-### Fase 3 — Carteira, saldo e saques na subconta
+- `CompetitionFinder.tsx`: filtros por modalidade (multi), país, UF, cidade, data, mês/ano, organizador, federação, gratuito/pago, aberto/encerrado, nacional/internacional, próximos 30/90 dias, este ano. Busca client-side sobre `listCompetitions` com debounce; server-side para ranges de data.
+- Rota `dojo.app.competitions.$id.tsx` reescrita com abas: `Info | Programação | Categorias | Local | Anexos | Atletas | Resultados`.
+- `AthleteRegistrationDialog.tsx`: cadastro de aluno com categoria, peso, faixa, professor responsável, nº inscrição, valor pago, forma de pagamento, checklist documentos.
+- `ResultsEditor.tsx`: colocação, lutas (V/D/E), finalizações, ippons, KOs, pontuação, tempo, medalha (auto-cria em `dojo_competition_medals`), upload de fotos/vídeos/certificados.
+- Botão "Adicionar ao calendário" cria evento em `dojo_class_occurrences` via `dojo_competition_calendar`.
+- Botão "Acessar site oficial" apenas redireciona (sem inscrição interna).
 
-- `getWalletBalance` → `GET /v3/finance/balance` usando chave da subconta.
-- `listWalletTransactions` → `GET /v3/financialTransactions` da subconta.
-- `requestPixWithdrawal` → `POST /v3/transfers` da subconta para a chave PIX cadastrada pelo dono.
-- Remover a tabela `dojo_wallet_transactions` como fonte primária de saldo (vira apenas cache/histórico local). A AMT recebe seu 2% direto na wallet dela via split — sem ledger interno.
+## Fase 4 — Ranking, Estatísticas, Perfil do aluno & Cron
+
+- `RankingPanel.tsx`: rankings (geral, por modalidade, por faixa, por categoria) baseado em RPC agregando `medals + results`.
+- `StatsPanel.tsx`: gráficos (recharts) — competições/ano, medalhas/modalidade, aproveitamento, eventos/UF, atletas mais ativos, professores mais premiados.
+- Perfil do aluno (`students.$id.tsx`): expandir aba **Competições** para mostrar histórico completo (data, modalidade, categoria, peso, faixa, resultado, medalha, lutas V/D, fotos, vídeos, certificados, observações).
+- Rota pública `src/routes/api/public/hooks/competitions-ingest.ts` chamada por pg_cron (6h/12h/24h/48h configurável em `competition_sources.schedule_hours`).
+- Notificações (usa `dojo_student_notifications` já existente): nova competição, prazo próximo, adicionada ao calendário, resultado pendente, começa amanhã.
+- Permissões: leitura via `dojoPermissions` — admin controle total, professor cadastra atletas/resultados, aluno só visualiza.
+
+## Regras de negócio
+
+- Sem IA em nenhuma etapa (busca é rule-based por metadata + fontes indexadas).
+- Nenhuma inscrição é feita pelo Dojo Manager — sempre redireciona ao organizador.
+- Resultados salvos criam automaticamente registro em `dojo_competition_medals` e aparecem no histórico do aluno sem duplicação.
+- Nova conta começa zerada (regra core respeitada — sem seed).
 
 ## Detalhes técnicos
 
-**Migração de DB**: nenhuma tabela nova. Reaproveitar campos existentes:
-- `dojo_academy_profile.asaas_subaccount_api_key` (já existe, criptografado)
-- `dojo_academy_profile.asaas_wallet_id` (já existe)
-- Adicionar coluna `asaas_account_status` (`pending|awaiting_docs|approved|active|rejected`).
+- Arquitetura de providers atual (`providers.ts`) mantida; novos providers registrados por linha (CBJJ, IBJJF, CBJ, CBK, CBTKD, CNMT etc.) sem refatorar chamadores.
+- Todos os `createServerFn` autenticados usam `requireSupabaseAuth` — a integração de bearer já está registrada em `src/start.ts`.
+- TanStack Query com `queryOptions` + `useSuspenseQuery` no padrão do projeto.
+- Cache: `staleTime` 60s para listagens, 300s para dashboard.
+- Uploads (fotos/vídeos/certificados) no bucket `dojo-documents` (já existe).
 
-**Split payload Asaas** (aplicado em toda cobrança):
-```json
-{ "split": [{ "walletId": "<ASAAS_WALLET_ID_AMT>", "percentualValue": 2 }] }
-```
+## Estimativa
 
-**Webhook**: `asaas-webhook` continua na conta central AMT? **Não** — cada subconta tem webhook próprio. Configurar webhook por subconta apontando para nossa rota `/api/public/hooks/asaas` já existente, com `apiKey` da subconta no header para identificação. Ajustar handler para resolver `owner_id` via lookup na `asaas_subaccount_api_key` recebida.
+- **Fase 1**: 1 migração grande + regeneração de types (~1 turno).
+- **Fase 2**: ~4 arquivos (~1 turno).
+- **Fase 3**: ~6 arquivos, o mais denso (~1-2 turnos).
+- **Fase 4**: ~5 arquivos + cron SQL + perfil do aluno (~1 turno).
 
-**Dojos existentes com cobranças ativas na conta central**: cobranças antigas continuam sendo consultadas com a chave central (fallback por `mode` armazenado na fatura). Novas cobranças só saem via subconta.
-
-**Fallback removido**: se `asaas_subaccount_api_key` não existe/não aprovada, `resolveDojoAsaasCredentials` faz throw com mensagem clara ("Complete a ativação do AMT Pay em /dojo/onboarding"). Não cai mais silenciosamente na conta AMT central.
-
-## Arquivos afetados (estimativa)
-
-- `src/lib/asaas/enrollment.server.ts` — reescrita de `resolveDojoAsaasCredentials`
-- `src/lib/asaas/asaas.functions.ts` — nova `activateAsaasSubaccount` + `getAsaasAccountStatus`
-- `src/lib/asaas/client.server.ts` — endpoints de account/status/balance/transfers
-- `src/lib/dojo/payments/asaas-gateway.server.ts` — receber apiKey/split como params
-- `src/lib/dojo/public-payment.functions.ts` — reverter `resolveOwnerAsaasKey`
-- `src/lib/dojo/dojo.functions.ts` — wallet balance/transactions/withdrawals
-- `src/lib/dojo/sales.functions.ts` — passar split
-- `src/routes/dojo.onboarding.tsx` — fluxo de ativação
-- `src/routes/dojo.app.subscription.tsx` (Carteira) — gates de KYC
-- `src/components/dojo/amtpay/*` — status da subconta
-- `src/routes/api/public/hooks/asaas.ts` — resolver owner via subconta
-- Migração: `ALTER TABLE dojo_academy_profile ADD COLUMN asaas_account_status text`
-
-## Impacto operacional
-
-- **Todos os dojos ativos hoje** precisam refazer onboarding com KYC antes da próxima cobrança recorrente. Adicionar banner de aviso com prazo (ex: 30 dias).
-- Cobranças já emitidas na conta central continuam funcionando até a próxima renovação.
-
-## Perguntas antes de executar
-
-1. Executo **as 3 fases numa única release**, ou você prefere entregar por fases (Fase 1 → validar onboarding → Fase 2 → Fase 3)?
-2. Prazo para forçar dojos ativos a migrarem: **30 dias**, **60 dias** ou **sem prazo** (só novos dojos usam subconta, antigos continuam na central)?
-3. Confirma **2% fixo** de split AMT em toda transação, ou variável por plano da AMT (ex: dojo free = 3%, dojo pro = 2%)?
+Confirma que sigo por essa divisão? Posso começar pela **Fase 1 (migração + fundação)** logo em seguida — as fases 2-4 dependem dos campos novos.
