@@ -23,7 +23,7 @@ import {
   addCompetitionSource, deleteCompetitionSource,
 } from "@/lib/dojo/competitions/ingest.functions";
 import {
-  addCompetitionToCalendar, listAcademyCompetitions,
+  addCompetitionToCalendar, addCompetitionsBulkToCalendar, listAcademyCompetitions,
   removeAcademyCompetition, getCompetitionsDashboard,
 } from "@/lib/dojo/competitions/academy.functions";
 import { scopeLabel, tierLabel } from "@/lib/dojo/competitions/classifier";
@@ -106,12 +106,14 @@ function LibraryTab() {
   const listFn = useServerFn(listCompetitions);
   const filterFn = useServerFn(listCompetitionFilters);
   const addFn = useServerFn(addCompetitionToCalendar);
+  const bulkFn = useServerFn(addCompetitionsBulkToCalendar);
   const qc = useQueryClient();
 
   const [q, setQ] = useState("");
   const [scope, setScope] = useState<string>("all");
   const [country, setCountry] = useState<string>("all");
   const [state, setState] = useState<string>("all");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const filters = useQuery({ queryKey: ["comp-filters"], queryFn: () => filterFn() });
   const list = useQuery({
@@ -125,14 +127,39 @@ function LibraryTab() {
     } }),
   });
 
+  const invalidateAfterAdd = () => {
+    qc.invalidateQueries({ queryKey: ["comp-academy"] });
+    qc.invalidateQueries({ queryKey: ["comp-dashboard"] });
+  };
+
   const addMut = useMutation({
     mutationFn: (id: string) => addFn({ data: { competition_id: id, visibility: "all" } }),
-    onSuccess: () => {
-      toast.success("Competição adicionada ao seu calendário");
-      qc.invalidateQueries({ queryKey: ["comp-academy"] });
-      qc.invalidateQueries({ queryKey: ["comp-dashboard"] });
+    onSuccess: () => { toast.success("Competição adicionada ao seu calendário"); invalidateAfterAdd(); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const bulkMut = useMutation({
+    mutationFn: (ids: string[]) => bulkFn({ data: { competition_ids: ids, visibility: "all" } }),
+    onSuccess: (r) => {
+      toast.success(`${r.inserted} competições adicionadas ao calendário`);
+      setSelected(new Set());
+      invalidateAfterAdd();
     },
     onError: (e: Error) => toast.error(e.message),
+  });
+
+  const toggle = (id: string) => setSelected((prev) => {
+    const n = new Set(prev);
+    if (n.has(id)) n.delete(id); else n.add(id);
+    return n;
+  });
+  const rows = list.data?.rows ?? [];
+  const allSelected = rows.length > 0 && rows.every((r) => selected.has(r.id));
+  const toggleAll = () => setSelected((prev) => {
+    if (allSelected) return new Set();
+    const n = new Set(prev);
+    for (const r of rows) n.add(r.id);
+    return n;
   });
 
   return (
@@ -169,16 +196,36 @@ function LibraryTab() {
             </SelectContent>
           </Select>
         </div>
-        <div className="text-xs text-muted-foreground">
-          {list.isLoading ? "Carregando..." : `${list.data?.total ?? 0} competições encontradas`}
+        <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+          <span>{list.isLoading ? "Carregando..." : `${list.data?.total ?? 0} competições encontradas`}</span>
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" onClick={toggleAll} disabled={rows.length === 0}>
+              {allSelected ? "Limpar seleção" : "Selecionar todas"}
+            </Button>
+            <Button
+              size="sm"
+              disabled={selected.size === 0 || bulkMut.isPending}
+              onClick={() => bulkMut.mutate(Array.from(selected))}
+            >
+              <Plus className="mr-1 h-3 w-3" />
+              {bulkMut.isPending ? "Adicionando..." : `Adicionar ${selected.size || ""} ao calendário`}
+            </Button>
+          </div>
         </div>
       </CardContent></Card>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {(list.data?.rows ?? []).map((c) => (
-          <CompetitionCard key={c.id} c={c} onAdd={() => addMut.mutate(c.id)} adding={addMut.isPending} />
+        {rows.map((c) => (
+          <CompetitionCard
+            key={c.id}
+            c={c}
+            selected={selected.has(c.id)}
+            onToggleSelect={() => toggle(c.id)}
+            onAdd={() => addMut.mutate(c.id)}
+            adding={addMut.isPending}
+          />
         ))}
-        {!list.isLoading && (list.data?.rows ?? []).length === 0 && (
+        {!list.isLoading && rows.length === 0 && (
           <div className="col-span-full rounded border border-dashed p-8 text-center text-sm text-muted-foreground">
             Nenhuma competição encontrada. Ajuste os filtros ou execute a coleta na aba <b>Fontes</b>.
           </div>
@@ -208,16 +255,31 @@ type LibraryRow = {
   source_code: string | null;
 };
 
-function CompetitionCard({ c, onAdd, adding }: { c: LibraryRow; onAdd: () => void; adding: boolean }) {
+function CompetitionCard({ c, onAdd, adding, selected, onToggleSelect }: {
+  c: LibraryRow;
+  onAdd: () => void;
+  adding: boolean;
+  selected?: boolean;
+  onToggleSelect?: () => void;
+}) {
   const scopeColor = c.scope === "international" ? "bg-purple-600"
     : c.scope === "national" ? "bg-emerald-600"
     : c.scope === "regional" ? "bg-blue-600"
     : c.scope === "state" ? "bg-sky-600"
     : "bg-zinc-500";
   return (
-    <Card className="flex flex-col">
+    <Card className={cn("flex flex-col", selected && "ring-2 ring-primary")}>
       <CardContent className="flex flex-1 flex-col gap-2 p-4">
         <div className="flex items-start justify-between gap-2">
+          {onToggleSelect && (
+            <input
+              type="checkbox"
+              checked={!!selected}
+              onChange={onToggleSelect}
+              className="mt-1 h-4 w-4 cursor-pointer"
+              aria-label="Selecionar competição"
+            />
+          )}
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-1">
               <Badge className={cn("text-[10px]", scopeColor)}>{scopeLabel(c.scope)}</Badge>
