@@ -797,6 +797,54 @@ function StudentsPage() {
               </div>
             </DialogContent>
           </Dialog>
+
+          <Dialog open={importOpen} onOpenChange={(v) => { if (!importing) setImportOpen(v); }}>
+            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Importar alunos ({importRows.length})</DialogTitle>
+              </DialogHeader>
+              <p className="text-xs text-muted-foreground">
+                Revise as primeiras linhas antes de confirmar. Todas serão criadas com status ativo por padrão.
+              </p>
+              <div className="mt-3 overflow-auto rounded border">
+                <table className="w-full text-xs">
+                  <thead className="bg-muted/50">
+                    <tr>
+                      <th className="text-left p-2">Nome</th>
+                      <th className="text-left p-2">CPF</th>
+                      <th className="text-left p-2">Nascimento</th>
+                      <th className="text-left p-2">Telefone</th>
+                      <th className="text-left p-2">E-mail</th>
+                      <th className="text-left p-2">Cidade/UF</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {importRows.slice(0, 25).map((r, i) => (
+                      <tr key={i} className="border-t">
+                        <td className="p-2">{r.full_name}</td>
+                        <td className="p-2">{r.cpf ?? ""}</td>
+                        <td className="p-2">{r.birth_date ?? ""}</td>
+                        <td className="p-2">{r.phone ?? ""}</td>
+                        <td className="p-2">{r.email ?? ""}</td>
+                        <td className="p-2">{[r.city, r.state].filter(Boolean).join("/")}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {importRows.length > 25 && (
+                  <div className="p-2 text-center text-xs text-muted-foreground">
+                    + {importRows.length - 25} linha(s) não exibidas
+                  </div>
+                )}
+              </div>
+              <div className="mt-4 flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setImportOpen(false)} disabled={importing}>Cancelar</Button>
+                <Button onClick={onConfirmImport} disabled={importing}>
+                  {importing ? "Importando…" : `Importar ${importRows.length} aluno(s)`}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
