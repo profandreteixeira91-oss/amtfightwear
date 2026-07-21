@@ -10284,6 +10284,18 @@ export type Database = {
           trade_name: string
         }[]
       }
+      get_class_ranking: {
+        Args: { _class_id: string; _since?: string }
+        Returns: {
+          checkins: number
+          current_belt_id: string
+          current_degree: number
+          full_name: string
+          photo_url: string
+          status: string
+          student_id: string
+        }[]
+      }
       get_latest_apk_by_slug: {
         Args: { _slug: string }
         Returns: {
