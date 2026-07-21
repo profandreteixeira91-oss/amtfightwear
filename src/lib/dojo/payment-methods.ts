@@ -191,7 +191,7 @@ export const PAYMENT_METHODS: PaymentMethodDef[] = [
   },
   {
     code: "recurring",
-    label: "Cobrança Recorrente",
+    label: "Mensalidades",
     icon: Repeat,
     configFields: ["max_installments"],
     gateways: ["manual", "asaas", "mercadopago", "stripe"],

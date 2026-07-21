@@ -385,7 +385,7 @@ function StudentDetail() {
                 <TabsTrigger value="lgpd">LGPD</TabsTrigger>
                 <TabsTrigger value="graduacoes">Graduações</TabsTrigger>
                 <TabsTrigger value="certificados">Certificados</TabsTrigger>
-                <TabsTrigger value="financeiro">Financeiro</TabsTrigger>
+                
                 <TabsTrigger value="competicoes">Competições</TabsTrigger>
                 <TabsTrigger value="frequencia">Frequência</TabsTrigger>
                 <TabsTrigger value="documentos">Documentos</TabsTrigger>
@@ -510,19 +510,6 @@ function StudentDetail() {
                         })}
                       >
                         <RefreshCw className="mr-2 h-4 w-4" /> Trocar de plano
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={async () => {
-                          if (!confirm("Cancelar o plano atual do aluno?")) return;
-                          try {
-                            await delEnroll({ data: { id: currentEnrollment.id } });
-                            toast.success("Plano cancelado");
-                            refresh();
-                          } catch (e: any) { toast.error(e.message); }
-                        }}
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" /> Cancelar plano
                       </Button>
                     </div>
                   </>
@@ -784,35 +771,6 @@ function StudentDetail() {
                         })}
                       </tbody>
                     </table>
-                  </div>
-                )}
-              </SectionCard>
-            </TabsContent>
-
-            {/* --- Financeiro --- */}
-            <TabsContent value="financeiro" className="mt-4 space-y-4">
-              <SectionCard title="Nova cobrança" icon={Wallet}>
-                <div className="grid gap-2 md:grid-cols-5">
-                  <Input placeholder="Descrição" value={inv.description} onChange={(e) => setInv({ ...inv, description: e.target.value })} />
-                  <Input type="number" step="0.01" placeholder="Valor" value={inv.amount} onChange={(e) => setInv({ ...inv, amount: e.target.value })} />
-                  <Input type="date" value={inv.due_date} onChange={(e) => setInv({ ...inv, due_date: e.target.value })} />
-                  <Button onClick={doAddInv} className="md:col-span-2">Criar cobrança</Button>
-                </div>
-              </SectionCard>
-
-              <SectionCard title="Histórico financeiro" icon={ClipboardList}>
-                {invoices.length === 0 ? (
-                  <EmptyState label="Sem cobranças registradas." />
-                ) : (
-                  <div className="space-y-2">
-                    {invoices.map((i: any) => (
-                      <TuitionRow
-                        key={i.id}
-                        inv={i}
-                        onMarkPaid={async (id: string) => { await payInv({ data: { id, method: "cash" } }); toast.success("Mensalidade recebida"); refresh(); }}
-                        onDelete={async (id: string) => { if (!confirm("Excluir esta mensalidade?")) return; await delInv({ data: { id } }); refresh(); }}
-                      />
-                    ))}
                   </div>
                 )}
               </SectionCard>
