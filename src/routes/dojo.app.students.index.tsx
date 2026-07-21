@@ -167,6 +167,10 @@ function StudentsPage() {
   const belts = useQuery({ queryKey: ["dojo-belts"], queryFn: () => beltsFn() });
   const units = useQuery({ queryKey: ["dojo-units"], queryFn: () => unitsFn() });
   const plans = useQuery({ queryKey: ["dojo-plans"], queryFn: () => plansFn() });
+  const amtPayFn = useServerFn(getMyAsaasConfig);
+  const amtPayCfg = useQuery({ queryKey: ["dojo-amtpay-status"], queryFn: () => amtPayFn(), staleTime: 60_000 });
+  const amtPayActive = isAsaasReady((amtPayCfg.data as any)?.onboardingStatus);
+
 
   useEffect(() => {
     if (!q.data) return;
