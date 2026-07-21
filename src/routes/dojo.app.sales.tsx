@@ -565,7 +565,11 @@ function NewSaleDialog({
           <p className="text-xs text-muted-foreground">
             Uma cobrança será gerada no AMT Pay e vinculada ao aluno selecionado. O link de pagamento fica disponível na lista.
           </p>
-        ) : null}
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            Recebimento fora da plataforma — a venda será registrada e marcada como <b>paga</b> automaticamente.
+          </p>
+        )}
       </div>
       <DialogFooter className="px-6 pb-6 pt-2 border-t">
         <Button onClick={submit} disabled={saving}>
