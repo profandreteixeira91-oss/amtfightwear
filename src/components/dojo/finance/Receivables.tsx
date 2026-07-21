@@ -13,9 +13,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Search, CheckCircle2, Trash2, Send, Eye, AlertCircle } from "lucide-react";
+import { Search, CheckCircle2, Trash2, Eye, AlertCircle } from "lucide-react";
 import { brl, daysBetween, isoDate, useInvoices, type InvoiceRow } from "./shared";
 import { EntryDrawer } from "./EntryDrawer";
+import { ShareInvoiceMenu } from "./ShareInvoice";
 
 const STATUS_LABEL: Record<string, string> = {
   paid: "Pago",
@@ -226,16 +227,11 @@ function InvoiceList({
                           <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
                           Receber
                         </Button>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          title="Enviar cobrança"
-                          className="shrink-0 h-8 w-8"
-                          onClick={() => toast.info("Envio de cobrança será integrado ao WhatsApp/e-mail.")}
-                        >
-                          <Send className="h-4 w-4" />
-                        </Button>
+                        <ShareInvoiceMenu invoice={r} />
                       </>
+                    )}
+                    {r.status === "paid" && (
+                      <ShareInvoiceMenu invoice={r} />
                     )}
                     <Button size="icon" variant="ghost" title="Excluir" onClick={() => onDelete(r.id)} className="shrink-0 h-8 w-8">
                       <Trash2 className="h-4 w-4 text-destructive" />

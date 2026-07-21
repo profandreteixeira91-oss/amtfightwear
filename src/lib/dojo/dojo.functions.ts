@@ -459,7 +459,7 @@ export const listDojoInvoices = createServerFn({ method: "GET" })
   }).parse(i ?? {}))
   .handler(async ({ data, context }) => {
     let q = context.supabase.from("dojo_invoices")
-      .select("*, student:dojo_students(full_name)")
+      .select("*, student:dojo_students(full_name, phone, email, guardian_phone)")
       .order("due_date", { ascending: false }).limit(500);
     if (data.status && data.status !== "all") q = q.eq("status", data.status);
     if (data.from) q = q.gte("due_date", data.from);
