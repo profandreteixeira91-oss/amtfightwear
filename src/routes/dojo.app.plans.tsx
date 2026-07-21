@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { listDojoPlans, saveDojoPlan, deleteDojoPlan, listDojoUnits } from "@/lib/dojo/dojo.functions";
 import {
   PAYMENT_METHODS,
-  ASAAS_SUPPORTED_METHODS,
+  
   defaultPlanPaymentMethods,
   defaultPlanRules,
   normalizePlanPaymentMethods,
