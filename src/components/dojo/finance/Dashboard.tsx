@@ -124,47 +124,48 @@ export function FinanceDashboard() {
     data;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 min-w-0">
       {/* Carteira AMT Pay */}
-      <Card className="p-5 border border-[color:var(--dojo-border)] bg-gradient-to-br from-primary/5 via-transparent to-transparent">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
+      <Card className="p-5 border border-[color:var(--dojo-border)] bg-gradient-to-br from-primary/5 via-transparent to-transparent min-w-0 overflow-hidden">
+        <div className="flex flex-wrap items-start justify-between gap-4 min-w-0">
+          <div className="min-w-0">
             <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-muted-foreground font-medium">
-              <Wallet className="h-3.5 w-3.5" />
+              <Wallet className="h-3.5 w-3.5 shrink-0" />
               Carteira AMT Pay
             </div>
-            <div className="mt-1 font-display text-3xl md:text-4xl font-bold tracking-tight">
+            <div className="mt-1 font-display text-3xl md:text-4xl font-bold tracking-tight truncate">
               {brl(wallet.available)}
             </div>
             <div className="text-xs text-muted-foreground mt-1">
               Saldo disponível para saque
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-4 text-right">
-            <div>
+          <div className="flex flex-wrap justify-end gap-x-6 gap-y-3 text-right">
+            <div className="min-w-0">
               <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
                 A liberar
               </div>
-              <div className="font-semibold text-amber-600">{brl(wallet.pending)}</div>
+              <div className="font-semibold text-amber-600 truncate">{brl(wallet.pending)}</div>
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
                 Bloqueado
               </div>
-              <div className="font-semibold text-red-600">{brl(wallet.blocked)}</div>
+              <div className="font-semibold text-red-600 truncate">{brl(wallet.blocked)}</div>
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
                 Total
               </div>
-              <div className="font-semibold">{brl(wallet.total)}</div>
+              <div className="font-semibold truncate">{brl(wallet.total)}</div>
             </div>
           </div>
         </div>
       </Card>
 
       {/* KPI grid */}
-      <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6">
+      <div className="grid gap-3 grid-cols-[repeat(auto-fill,minmax(180px,1fr))] 2xl:grid-cols-6">
+
         <Kpi
           icon={TrendingUp}
           label="Receita bruta (mês)"
