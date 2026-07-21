@@ -366,7 +366,7 @@ function CertificatesPage() {
                 <div className="text-[11px] text-muted-foreground">{elCount} elemento{elCount === 1 ? "" : "s"}</div>
               </CardHeader>
               <CardContent className="flex gap-2 pt-0">
-                <Button size="sm" onClick={() => openTemplate(t)} className="flex-1">Editar</Button>
+                <Button size="sm" onClick={() => navigate({ to: "/dojo/certificate-editor/$id", params: { id: t.id } })} className="flex-1">Editar</Button>
                 <Button size="icon" variant="outline" title="Duplicar" onClick={() => duplicate(t)}><Copy className="h-4 w-4" /></Button>
                 <Button size="icon" variant="ghost" title="Excluir" onClick={async () => {
                   if (confirm(`Excluir modelo "${t.name}"?`)) {
