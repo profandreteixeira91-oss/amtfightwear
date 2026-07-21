@@ -656,10 +656,34 @@ function StudentsPage() {
                           const selectedPlan = (plans.data as any[] | undefined)?.find(
                             (p) => p.id === enrollment.plan_id,
                           );
-                          const methods = selectedPlan
+                          const planMethods = selectedPlan
                             ? normalizePlanPaymentMethods(selectedPlan.payment_methods).filter((m) => m.enabled)
                             : [];
                           const gatewayCodes = new Set(["pix", "boleto", "credit_card", "debit_card", "payment_link", "recurring"]);
+
+                          // AMT Pay desativado → tudo é manual, esconde os demais métodos.
+                          if (!amtPayActive) {
+                            if (enrollment.payment_method !== "manual") {
+                              setTimeout(() => setEnrollment((s) => ({ ...s, payment_method: "manual" })), 0);
+                            }
+                            return (
+                              <>
+                                <select
+                                  className="border rounded p-2 bg-background w-full"
+                                  value="manual"
+                                  disabled
+                                >
+                                  <option value="manual">Registrar manualmente</option>
+                                </select>
+                                <p className="text-xs text-amber-600 mt-1">
+                                  AMT Pay desativado — todas as cobranças deste dojo são registradas manualmente.
+                                  Ative o AMT Pay em Menu → AMT Pay para emitir PIX, boleto e cartão automaticamente.
+                                </p>
+                              </>
+                            );
+                          }
+
+                          // AMT Pay ativo → mostra métodos habilitados no plano.
                           const isGateway = gatewayCodes.has(enrollment.payment_method);
                           return (
                             <>
@@ -670,10 +694,10 @@ function StudentsPage() {
                                   setEnrollment((s) => ({ ...s, payment_method: e.target.value }))
                                 }
                               >
-                                {methods.length === 0 && (
+                                {planMethods.length === 0 && (
                                   <option value="manual">Registrar manualmente</option>
                                 )}
-                                {methods.map((m) => (
+                                {planMethods.map((m) => (
                                   <option key={m.code} value={m.code}>
                                     {paymentMethodLabel(m.code)}
                                   </option>
@@ -681,19 +705,20 @@ function StudentsPage() {
                               </select>
                               {isGateway && (
                                 <p className="text-xs text-muted-foreground mt-1">
-                                  Uma assinatura será criada no Asaas e emitirá as cobranças automaticamente no ciclo do plano.
-                                  O aluno recebe a fatura por e-mail; as cobranças aparecem no Financeiro conforme o Asaas confirma.
+                                  AMT Pay ativo — o Asaas emitirá as cobranças automaticamente no ciclo do plano.
+                                  O aluno recebe a fatura por e-mail e as cobranças aparecem no Financeiro.
                                 </p>
                               )}
                               {!isGateway && (
                                 <p className="text-xs text-muted-foreground mt-1">
-                                  Cobranças manuais: a 1ª fatura é criada no sistema e as próximas são geradas mensalmente.
+                                  Cobrança manual: a 1ª fatura é criada no sistema e as próximas são geradas conforme a frequência do plano.
                                 </p>
                               )}
                             </>
                           );
                         })()}
                       </Field>
+
                     </div>
                   </TabsContent>
                 )}
