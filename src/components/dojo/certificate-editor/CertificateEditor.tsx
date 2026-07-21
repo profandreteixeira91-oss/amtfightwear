@@ -149,7 +149,7 @@ export function CertificateEditor(props: Props) {
   const selectedEl = schema.elements.find((e) => e.id === selectedIds[0]);
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] flex-col overflow-hidden rounded-lg border border-border bg-background">
+    <div className="flex h-[calc(100vh-5rem)] flex-col overflow-hidden rounded-lg border border-border bg-background">
       {/* TOPBAR */}
       <div className="flex flex-wrap items-center gap-1 border-b border-border bg-card px-3 py-2 text-sm">
         <Input value={props.name} onChange={(e) => props.onNameChange(e.target.value)} className="h-8 w-56" placeholder="Nome do modelo" />
