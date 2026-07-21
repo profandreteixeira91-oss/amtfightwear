@@ -54,8 +54,21 @@ import {
   type RecurringFrequency,
 } from "@/lib/dojo/recurring.functions";
 
+const recurringQueryOptions = (listFn: () => Promise<any>) => ({
+  queryKey: ["dojo-recurring"] as const,
+  queryFn: () => listFn(),
+  staleTime: 60_000,
+  gcTime: 5 * 60_000,
+  refetchOnWindowFocus: false,
+  placeholderData: (prev: any) => prev,
+});
+
 export const Route = createFileRoute("/dojo/app/recurring")({
   head: () => ({ meta: [{ title: "Mensalidades — AMT Dojo Manager" }] }),
+  loader: ({ context }) => {
+    // Prime the cache before the component mounts to remove the initial waterfall.
+    context.queryClient.prefetchQuery(recurringQueryOptions(() => listRecurringCharges()));
+  },
   component: RecurringPage,
 });
 
@@ -81,10 +94,7 @@ function RecurringPage() {
   const generateFn = useServerFn(generateNextInvoice);
   const updateFn = useServerFn(updateRecurringCharge);
 
-  const { data = [], isLoading } = useQuery({
-    queryKey: ["dojo-recurring"],
-    queryFn: () => listFn(),
-  });
+  const { data = [], isLoading } = useQuery(recurringQueryOptions(listFn));
 
   const [q, setQ] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
