@@ -234,7 +234,24 @@ export async function syncInvoiceWithAsaas(
     .eq("owner_id", invoice.owner_id)
     .maybeSingle();
 
-  const { apiKey, split } = resolveDojoAsaasCredentials((profile ?? {}) as any);
+  const { apiKey, split, mode } = resolveDojoAsaasCredentials((profile ?? {}) as any);
+
+  // AMT Pay desativado (nenhuma subconta aprovada e nenhuma wallet vinculada):
+  // fluxo 100% manual — apenas grava a fatura local, sem criar cobrança no
+  // Asaas. O dono do dojo cobra fora do sistema (Pix próprio, cartão na
+  // maquininha, dinheiro etc.) e depois marca como paga manualmente.
+  if (mode === "central") {
+    return {} as {
+      asaas_charge_id?: string;
+      payment_id?: string;
+      payment_link?: string;
+      asaas_invoice_url?: string;
+      payment_provider?: string;
+      provider?: string;
+      split_config?: unknown;
+    };
+  }
+
 
   // 2. Carrega aluno
   const { data: student } = await supabase
