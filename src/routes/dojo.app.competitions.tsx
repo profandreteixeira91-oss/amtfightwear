@@ -5,8 +5,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   Trophy, RefreshCw, Search, ExternalLink, MapPin, Calendar as CalIcon,
-  Globe2, Flag, Plus, Settings2, BarChart3, CalendarDays,
+  Globe2, Flag, Plus, Settings2, BarChart3, CalendarDays, Medal, PieChart as PieIcon,
 } from "lucide-react";
+import { RankingPanel, StatsPanel } from "@/components/dojo/competitions/RankingStatsPanels";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -45,12 +46,16 @@ function CompetitionsPage() {
           <TabsTrigger value="dashboard"><BarChart3 className="mr-2 h-4 w-4" /> Dashboard</TabsTrigger>
           <TabsTrigger value="library"><Search className="mr-2 h-4 w-4" /> Biblioteca</TabsTrigger>
           <TabsTrigger value="calendar"><CalendarDays className="mr-2 h-4 w-4" /> Meu Calendário</TabsTrigger>
+          <TabsTrigger value="ranking"><Medal className="mr-2 h-4 w-4" /> Ranking</TabsTrigger>
+          <TabsTrigger value="stats"><PieIcon className="mr-2 h-4 w-4" /> Estatísticas</TabsTrigger>
           <TabsTrigger value="sources"><Settings2 className="mr-2 h-4 w-4" /> Fontes</TabsTrigger>
         </TabsList>
 
         <TabsContent value="dashboard"><DashboardTab /></TabsContent>
         <TabsContent value="library"><LibraryTab /></TabsContent>
         <TabsContent value="calendar"><CalendarTab /></TabsContent>
+        <TabsContent value="ranking"><RankingPanel /></TabsContent>
+        <TabsContent value="stats"><StatsPanel /></TabsContent>
         <TabsContent value="sources"><SourcesTab /></TabsContent>
       </Tabs>
     </div>
