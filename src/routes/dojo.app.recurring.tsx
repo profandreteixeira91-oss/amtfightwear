@@ -356,7 +356,7 @@ function EditRecurringDialog({
   row: any | null;
   onOpenChange: (o: boolean) => void;
   onSaved: () => void;
-  updateFn: ReturnType<typeof useServerFn<typeof updateRecurringCharge>>;
+  updateFn: (args: { data: any }) => Promise<any>;
 }) {
   const [frequency, setFrequency] = useState<RecurringFrequency>("monthly");
   const [customDays, setCustomDays] = useState<string>("");
