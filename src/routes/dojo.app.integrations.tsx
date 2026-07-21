@@ -25,6 +25,8 @@ import { PixKeysPanel } from "@/components/dojo/amtpay/PixKeysPanel";
 import { AuditLogPanel } from "@/components/dojo/amtpay/AuditLogPanel";
 import { RemindersPanel } from "@/components/dojo/amtpay/RemindersPanel";
 import { InvoiceBrandingPanel } from "@/components/dojo/amtpay/InvoiceBrandingPanel";
+import { AsaasStatusBanner } from "@/components/dojo/amtpay/AsaasStatusBanner";
+import { AsaasGate } from "@/components/dojo/amtpay/AsaasGate";
 
 export const Route = createFileRoute("/dojo/app/integrations")({
   head: () => ({ meta: [{ title: "AMT Pay — Central financeira" }] }),
@@ -50,6 +52,8 @@ function AMTPayHub() {
           </p>
         </div>
       </header>
+
+      <AsaasStatusBanner />
 
       <Tabs defaultValue="dashboard" className="w-full">
         <TabsList className="flex flex-wrap md:w-fit">
@@ -92,13 +96,19 @@ function AMTPayHub() {
           <AMTPayDashboard />
         </TabsContent>
         <TabsContent value="wallet" className="mt-6">
-          <WalletPanel />
+          <AsaasGate title="A carteira fica disponível após ativar o AMT Pay">
+            <WalletPanel />
+          </AsaasGate>
         </TabsContent>
         <TabsContent value="withdrawals" className="mt-6">
-          <WithdrawalsPanel />
+          <AsaasGate title="Saques exigem subconta AMT Pay aprovada">
+            <WithdrawalsPanel />
+          </AsaasGate>
         </TabsContent>
         <TabsContent value="statement" className="mt-6">
-          <StatementPanel />
+          <AsaasGate title="O extrato aparece após a primeira cobrança emitida">
+            <StatementPanel />
+          </AsaasGate>
         </TabsContent>
         <TabsContent value="fees" className="mt-6">
           <PaymentSettingsPanel />
