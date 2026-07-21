@@ -17,7 +17,7 @@ import { AMTPayDashboard } from "@/components/dojo/amtpay/AMTPayDashboard";
 import { WalletPanel } from "@/components/dojo/amtpay/WalletPanel";
 import { WithdrawalsPanel } from "@/components/dojo/amtpay/WithdrawalsPanel";
 import { StatementPanel } from "@/components/dojo/amtpay/StatementPanel";
-import { AsaasOnboardingCard } from "@/components/dojo/amtpay/AsaasOnboardingCard";
+import { AMTPayReceivingCard } from "@/components/dojo/amtpay/AMTPayReceivingCard";
 import { AMTPayInfoPanel } from "@/components/dojo/amtpay/AMTPayInfoPanel";
 import { PaymentSettingsPanel } from "@/components/dojo/amtpay/PaymentSettingsPanel";
 import { PixKeysPanel } from "@/components/dojo/amtpay/PixKeysPanel";
@@ -108,7 +108,7 @@ function AMTPayHub() {
           <AuditLogPanel />
         </TabsContent>
         <TabsContent value="onboarding" className="mt-6">
-          <AsaasOnboardingCard />
+          <AMTPayReceivingCard />
         </TabsContent>
         <TabsContent value="about" className="mt-6">
           <AMTPayInfoPanel />

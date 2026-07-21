@@ -44,13 +44,10 @@ function mapAsaasTransferStatus(status: string | undefined | null):
   return "processing";
 }
 
-async function loadOwnerKey(admin: Admin, ownerId: string): Promise<string | null> {
-  const { data } = await admin
-    .from("dojo_academy_profile")
-    .select("asaas_api_key_encrypted")
-    .eq("owner_id", ownerId)
-    .maybeSingle();
-  const key = (data as any)?.asaas_api_key_encrypted?.trim?.() || null;
+async function loadOwnerKey(_admin: Admin, _ownerId: string): Promise<string | null> {
+  // Modelo central AMT Pay: todas as transferências saem da conta Asaas da AMT.
+  // A chave PIX de destino identifica o dono; a API key é sempre a central.
+  const key = process.env.ASAAS_PRODUCTION_API_KEY?.trim();
   return key || null;
 }
 

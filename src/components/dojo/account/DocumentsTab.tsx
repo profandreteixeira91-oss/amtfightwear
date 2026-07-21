@@ -25,7 +25,7 @@ import {
   DOC_TYPES,
   type DocType,
 } from "@/lib/dojo/onboarding.functions";
-import { AsaasDocumentsCard } from "@/components/dojo/amtpay/AsaasDocumentsCard";
+
 import { BankAccountDialog } from "@/components/dojo/amtpay/BankAccountDialog";
 import { getPrimaryBankAccount } from "@/lib/dojo/amtpay.functions";
 
@@ -187,8 +187,7 @@ export function DocumentsTab() {
         </CardContent>
       </Card>
 
-      {/* --- Bloco 2: KYC Asaas com envio direto + reenvio de rejeitados --- */}
-      <AsaasDocumentsCard />
+      {/* KYC Asaas descontinuado: AMT Pay opera em conta central única, sem subcontas. */}
 
       {/* --- Bloco 3: Dados bancários (obrigatórios para ativação) --- */}
       <Card>
