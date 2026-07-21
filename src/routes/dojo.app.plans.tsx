@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { listDojoPlans, saveDojoPlan, deleteDojoPlan, listDojoUnits } from "@/lib/dojo/dojo.functions";
 import {
   PAYMENT_METHODS,
-  ASAAS_SUPPORTED_METHODS,
+  
   defaultPlanPaymentMethods,
   defaultPlanRules,
   normalizePlanPaymentMethods,
@@ -18,8 +18,6 @@ import {
   type PaymentMethodConfig,
 } from "@/lib/dojo/payment-methods";
 import { DojoPageShell } from "@/components/dojo/DojoPageShell";
-import { getMyAsaasConfig } from "@/lib/asaas/asaas.functions";
-import { isAsaasReady } from "@/lib/dojo/amt-pay-status";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -106,9 +104,6 @@ function PlansPage() {
 
   const plans = useQuery({ queryKey: ["dojo-plans"], queryFn: () => listFn() });
   const units = useQuery({ queryKey: ["dojo-units"], queryFn: () => unitsFn() });
-  const amtPayFn = useServerFn(getMyAsaasConfig);
-  const amtPayCfg = useQuery({ queryKey: ["dojo-amtpay-status"], queryFn: () => amtPayFn(), staleTime: 60_000 });
-  const amtPayActive = isAsaasReady((amtPayCfg.data as any)?.onboardingStatus);
 
 
   const [selectedId, setSelectedId] = useState<string | "new" | null>(null);
@@ -239,26 +234,6 @@ function PlansPage() {
       <DojoPageShell
         description="Fonte única de configuração comercial: valores, formas de pagamento e regras usadas por todo o sistema."
       >
-        <div
-          className={`mb-4 rounded-lg border p-3 text-sm ${
-            amtPayActive
-              ? "border-emerald-200 bg-emerald-50 text-emerald-900 dark:border-emerald-900/40 dark:bg-emerald-950/40 dark:text-emerald-100"
-              : "border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/40 dark:text-amber-100"
-          }`}
-        >
-          {amtPayActive ? (
-            <>
-              <strong>AMT Pay ativo:</strong> as formas de pagamento marcadas abaixo (PIX, boleto, cartão) serão
-              emitidas automaticamente pelo Asaas na frequência do plano.
-            </>
-          ) : (
-            <>
-              <strong>AMT Pay desativado:</strong> todas as mensalidades e matrículas deste dojo são registradas
-              manualmente, independentemente das formas marcadas abaixo. Ative o AMT Pay em{" "}
-              <em>Menu → AMT Pay</em> para emitir PIX, boleto e cartão automaticamente.
-            </>
-          )}
-        </div>
         <div className="grid gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
 
           {/* ============ SIDEBAR ============ */}
@@ -482,17 +457,11 @@ function PlansPage() {
                   }
                 >
                   <p className="mb-3 text-xs text-muted-foreground">
-                    Somente os métodos habilitados aqui aparecerão nas cobranças geradas pelo Financeiro
-                    para alunos com este plano.
+                    Somente os métodos habilitados aqui aparecerão como opções ao registrar manualmente as
+                    mensalidades deste plano.
                   </p>
-                  <div className="mb-3 rounded-md border border-primary/20 bg-primary/[0.04] px-3 py-2 text-[11px] text-muted-foreground">
-                    Todas as cobranças deste plano são processadas pelo <strong>AMT Pay (Asaas)</strong>.
-                    Apenas os métodos aceitos pelo gateway são exibidos abaixo.
-                  </div>
                   <div className="grid gap-3 md:grid-cols-2">
-                    {PAYMENT_METHODS.filter((def) =>
-                      ASAAS_SUPPORTED_METHODS.includes(def.code),
-                    ).map((def) => {
+                    {PAYMENT_METHODS.map((def) => {
                       const state = form.payment_methods.find((m) => m.code === def.code)!;
                       const Icon = def.icon;
                       return (
@@ -519,20 +488,15 @@ function PlansPage() {
                               </div>
                               <div className="min-w-0">
                                 <div className="truncate text-sm font-medium">{def.label}</div>
-                                {state.enabled && (
-                                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                                    Processado por Asaas
-                                  </div>
-                                )}
                               </div>
                             </div>
                             <Switch
                               checked={state.enabled}
-                              onCheckedChange={(v) =>
-                                patchMethod(def.code, { enabled: v, gateway: "asaas" })
-                              }
+                              onCheckedChange={(v) => patchMethod(def.code, { enabled: v })}
                             />
                           </div>
+
+
 
                           {state.enabled && def.configFields.length > 0 && (
                             <div className="mt-3 space-y-2 border-t border-dashed pt-3">
