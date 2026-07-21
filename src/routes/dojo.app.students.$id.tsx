@@ -117,19 +117,21 @@ function StudentDetail() {
     if (!changePlan.plan_id) return toast.error("Escolha o novo plano");
     setChangingPlan(true);
     try {
-      // Encerra matrícula ativa atual
-      for (const e of enrollments) {
-        if (e.status === "active") {
-          try { await delEnroll({ data: { id: e.id } }); } catch {}
-        }
-      }
-      // Cria a nova matrícula
-      await saveEnroll({ data: {
-        student_id: id, plan_id: changePlan.plan_id,
+      const res = await doChangePlanFn({ data: {
+        student_id: id,
+        plan_id: changePlan.plan_id,
         custom_amount: changePlan.custom_amount ? Number(changePlan.custom_amount) : null,
-        due_day: Number(changePlan.due_day), start_date: changePlan.start_date, status: "active",
+        due_day: Number(changePlan.due_day),
+        start_date: changePlan.start_date,
       }});
-      toast.success("Plano alterado com sucesso");
+      const nextDate = (res as any)?.next_billing_date
+        ? new Date((res as any).next_billing_date + "T00:00:00").toLocaleDateString("pt-BR")
+        : null;
+      toast.success(
+        nextDate
+          ? `Plano alterado. Novo valor entra em vigor em ${nextDate}.`
+          : "Plano alterado. Novo valor entra em vigor na próxima cobrança."
+      );
       setChangePlan({ ...changePlan, open: false, plan_id: "", custom_amount: "" });
       refresh();
     } catch (e: any) {
@@ -138,6 +140,8 @@ function StudentDetail() {
       setChangingPlan(false);
     }
   };
+
+
 
 
   const doAddInv = async () => {
