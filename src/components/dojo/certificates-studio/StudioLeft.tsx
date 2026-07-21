@@ -41,6 +41,8 @@ export function StudioLeft() {
         {tab === "text" && <TextsPanel />}
         {tab === "vars" && <VariablesPanel />}
         {tab === "images" && <ImagesPanel />}
+        {tab === "icons" && <IconsPanel />}
+        {tab === "ornaments" && <OrnamentsPanel />}
         {tab === "logo" && <LogoPanel />}
         {tab === "sig" && <SignaturePanel />}
         {tab === "qr" && <QrPanel />}
@@ -50,6 +52,22 @@ export function StudioLeft() {
       </div>
     </aside>
   );
+}
+
+/** Insert an SVG ornament/icon as an image element with a colored data URL. */
+function insertSvgAsset(asset: SvgAsset, color: string, addElement: (el: any) => void, size: { w: number; h: number }) {
+  const url = svgToDataUrl(asset.svg(color), color);
+  addElement({
+    id: makeId(),
+    kind: "image",
+    imageUrl: url,
+    x: 50,
+    y: 50,
+    w: size.w,
+    h: size.h,
+    fit: "contain",
+    name: asset.label,
+  });
 }
 
 function TextsPanel() {
