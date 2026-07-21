@@ -1,18 +1,22 @@
 import { useMemo, useRef, useState } from "react";
 import { useStudioStore, CERT_FONTS, PAGE_PRESETS, type PagePreset } from "@/lib/dojo/certificates/studio-store";
 import { VARIABLE_MENU } from "@/lib/dojo/certificates/export";
+import { ORNAMENTS, svgToDataUrl, FONT_PAIRINGS, type SvgAsset } from "@/lib/dojo/certificates/ornaments";
 import { makeTextElement, makeVariableElement, makeShapeElement, makeImageElement, makeQrElement } from "./StudioCanvas";
 import { supabase } from "@/integrations/supabase/client";
-import { Type, Variable, Image as ImageIcon, Shapes, QrCode, Signature, BadgeCheck, Layout, Search, Upload, Circle, Square, Minus } from "lucide-react";
+import { Type, Variable, Image as ImageIcon, Shapes, QrCode, Signature, BadgeCheck, Layout, Search, Upload, Circle, Square, Minus, Sparkles, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { makeId } from "@/components/dojo/certificate-editor/types";
 
 const SECTIONS = [
   { id: "templates", label: "Modelos", icon: Layout },
   { id: "text", label: "Textos", icon: Type },
   { id: "vars", label: "Variáveis", icon: Variable },
   { id: "images", label: "Imagens", icon: ImageIcon },
+  { id: "icons", label: "Ícones", icon: Star },
+  { id: "ornaments", label: "Ornamentos", icon: Sparkles },
   { id: "logo", label: "Logo", icon: BadgeCheck },
   { id: "sig", label: "Assinaturas", icon: Signature },
   { id: "qr", label: "QR Code", icon: QrCode },
