@@ -366,7 +366,7 @@ function EditRecurringDialog({
   const [nextRun, setNextRun] = useState<string>("");
   const [notes, setNotes] = useState<string>("");
 
-  useMemo(() => {
+  useEffect(() => {
     if (row) {
       setFrequency((row.frequency ?? "monthly") as RecurringFrequency);
       setCustomDays(row.custom_days ? String(row.custom_days) : "");
