@@ -1335,3 +1335,56 @@ export const deleteDojoEvaluation = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+// ============ BULK IMPORT STUDENTS ============
+const bulkStudentRow = z.object({
+  full_name: z.string().min(1).max(200),
+  cpf: z.string().max(20).optional().nullable(),
+  rg: z.string().max(30).optional().nullable(),
+  birth_date: z.string().optional().nullable(),
+  gender: z.string().max(30).optional().nullable(),
+  email: z.string().max(200).optional().nullable(),
+  phone: z.string().max(40).optional().nullable(),
+  zip: z.string().max(20).optional().nullable(),
+  street: z.string().max(200).optional().nullable(),
+  address_number: z.string().max(20).optional().nullable(),
+  neighborhood: z.string().max(120).optional().nullable(),
+  city: z.string().max(120).optional().nullable(),
+  state: z.string().max(2).optional().nullable(),
+  guardian_name: z.string().max(200).optional().nullable(),
+  guardian_phone: z.string().max(40).optional().nullable(),
+  emergency_contact_name: z.string().max(200).optional().nullable(),
+  emergency_contact_phone: z.string().max(40).optional().nullable(),
+  emergency_contact_relationship: z.string().max(60).optional().nullable(),
+  blood_type: z.string().max(10).optional().nullable(),
+  profession: z.string().max(120).optional().nullable(),
+  notes: z.string().max(2000).optional().nullable(),
+  status: z.enum(["active", "inactive", "frozen"]).optional(),
+});
+
+export const bulkImportDojoStudents = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({ rows: z.array(bulkStudentRow).min(1).max(500) }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const owner = ownerId(context);
+    const results: { inserted: number; errors: Array<{ index: number; full_name: string; message: string }> } = {
+      inserted: 0,
+      errors: [],
+    };
+    for (let idx = 0; idx < data.rows.length; idx++) {
+      const raw = data.rows[idx];
+      const payload: any = { ...raw, owner_id: owner, status: raw.status ?? "active" };
+      if (payload.email === "") payload.email = null;
+      if (payload.birth_date === "") payload.birth_date = null;
+      Object.keys(payload).forEach((k) => (payload[k] === undefined || payload[k] === "") && delete payload[k]);
+      const { error } = await context.supabase.from("dojo_students").insert(payload);
+      if (error) {
+        results.errors.push({ index: idx + 2, full_name: raw.full_name, message: error.message });
+      } else {
+        results.inserted++;
+      }
+    }
+    return results;
+  });
