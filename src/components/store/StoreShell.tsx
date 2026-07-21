@@ -431,6 +431,97 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
       </footer>
 
       <CartSheet />
+
+      {/* Mobile navigation drawer */}
+      {mobileNavOpen && (
+        <div className="md:hidden fixed inset-0 z-50">
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setMobileNavOpen(false)}
+            aria-hidden
+          />
+          <aside
+            role="dialog"
+            aria-label="Menu"
+            className="absolute inset-y-0 left-0 flex w-[85%] max-w-[320px] flex-col bg-background shadow-2xl"
+          >
+            <div className="flex items-center justify-between border-b px-4 py-3">
+              <div className="flex items-center gap-2">
+                <img src={amtLogo} alt="" className="h-8 w-8 rounded object-cover" />
+                <div className="text-sm font-black tracking-tight">Loja AMT</div>
+              </div>
+              <button
+                type="button"
+                aria-label="Fechar menu"
+                onClick={() => setMobileNavOpen(false)}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-accent"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <nav className="flex-1 overflow-y-auto px-2 py-3">
+              <Link to="/" className="block rounded-md px-3 py-2.5 text-sm font-semibold hover:bg-accent">
+                Início
+              </Link>
+              <Link to="/loja/custom-shop" className="block rounded-md px-3 py-2.5 text-sm font-bold text-primary hover:bg-accent">
+                ✨ Custom Shop
+              </Link>
+              <Link to="/loja/atacado" className="block rounded-md px-3 py-2.5 text-sm font-bold hover:bg-accent">
+                Atacado
+              </Link>
+              <Link to="/" hash="dojo-manager" className="block rounded-md px-3 py-2.5 text-sm font-bold hover:bg-accent">
+                AMT Dojo Manager
+              </Link>
+              {topCategories.length > 0 && (
+                <>
+                  <div className="mt-4 mb-1 px-3 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+                    Categorias
+                  </div>
+                  {topCategories.map((c) => {
+                    const subs = c.id ? childrenByParent.get(c.id) ?? [] : [];
+                    return (
+                      <div key={c.slug} className="py-0.5">
+                        <Link
+                          to="/loja/categoria/$slug"
+                          params={{ slug: c.slug }}
+                          className="block rounded-md px-3 py-2.5 text-sm font-semibold hover:bg-accent"
+                        >
+                          {c.name}
+                        </Link>
+                        {subs.length > 0 && (
+                          <div className="ml-3 border-l pl-2">
+                            {subs.map((s) => (
+                              <Link
+                                key={s.slug}
+                                to="/loja/categoria/$slug"
+                                params={{ slug: s.slug }}
+                                className="block rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-foreground"
+                              >
+                                {s.name}
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </>
+              )}
+            </nav>
+            <div className="border-t px-4 py-3">
+              <a
+                href="https://instagram.com/amtfightwear"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 text-xs font-semibold text-muted-foreground hover:text-primary"
+              >
+                <Instagram className="h-4 w-4" /> @amtfightwear
+              </a>
+            </div>
+          </aside>
+        </div>
+      )}
+
     </div>
   );
 }
