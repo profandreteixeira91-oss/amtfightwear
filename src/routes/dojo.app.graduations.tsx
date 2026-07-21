@@ -202,6 +202,31 @@ function NewGraduationPage() {
         {step !== "select" && <Button variant="ghost" onClick={reset}>Recomeçar</Button>}
       </div>
 
+      {step === "select" && (
+        <Card className="border-primary/20 bg-primary/5">
+          <CardContent className="py-4 text-xs sm:text-sm text-muted-foreground space-y-2">
+            <div className="flex items-center gap-2 font-medium text-foreground">
+              <CheckCircle2 className="h-4 w-4 text-primary" />
+              Critérios de graduação
+            </div>
+            <p>
+              Cada aluno abaixo exibe seu progresso em relação ao critério configurado:
+              <span className="font-mono"> aulas feitas / mínimo</span> e
+              <span className="font-mono"> meses de carência</span>. Alunos com etiqueta
+              <span className="mx-1 inline-flex items-center rounded bg-amber-100 text-amber-800 px-1.5 py-0.5 text-[10px]">critério individual</span>
+              possuem regra personalizada.
+            </p>
+            <p>
+              Defina os critérios padrão em <a href="/dojo/app/belts" className="underline font-medium">Graduações → Faixas</a>
+              {" "}(tempo mínimo, número de aulas, avaliação ou mérito). Para regras caso a caso, edite o aluno em
+              {" "}<a href="/dojo/app/students" className="underline font-medium">Alunos</a>.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+
+
 
 
 
@@ -251,27 +276,41 @@ function NewGraduationPage() {
                       {(() => {
                         const p = progressById.get(s.id);
                         if (!p) return null;
-                        const badges: string[] = [];
+                        const badges: Array<{ text: string; ok?: boolean }> = [];
+                        const modeLabel =
+                          p.criteria_mode === "classes" ? "por aulas"
+                          : p.criteria_mode === "time" ? "por tempo"
+                          : p.criteria_mode === "evaluation" ? "por avaliação"
+                          : "por mérito";
+                        badges.push({ text: modeLabel });
+
                         if (p.criteria_mode === "classes" || p.criteria_mode === "time") {
                           if (p.min_classes != null) {
                             const ok = p.attendance_since >= p.min_classes;
-                            badges.push(`${ok ? "✓ " : ""}${p.attendance_since}/${p.min_classes} aulas`);
+                            badges.push({ text: `${ok ? "✓ " : ""}${p.attendance_since}/${p.min_classes} aulas`, ok });
+                          } else {
+                            badges.push({ text: `${p.attendance_since} aulas desde a última graduação` });
                           }
                           if (p.min_months != null) {
                             const ok = p.months_since >= p.min_months;
-                            badges.push(`${ok ? "✓ " : ""}${p.months_since}/${p.min_months} meses`);
+                            badges.push({ text: `${ok ? "✓ " : ""}${p.months_since}/${p.min_months} meses`, ok });
+                          } else {
+                            badges.push({ text: `${p.months_since} ${p.months_since === 1 ? "mês" : "meses"} de carência` });
                           }
-                        } else if (p.criteria_mode === "evaluation") {
-                          badges.push("por avaliação");
-                        } else if (p.criteria_mode === "merit") {
-                          badges.push("por mérito");
+                          if (p.min_classes == null && p.min_months == null) {
+                            badges.push({ text: "sem meta definida" });
+                          }
                         }
-                        if (badges.length === 0) return null;
                         return (
                           <div className="mt-1 flex flex-wrap gap-1">
                             {badges.map((b, i) => (
-                              <span key={i} className="inline-flex items-center rounded bg-muted px-1.5 py-0.5 text-[10px] font-mono">
-                                {b}
+                              <span
+                                key={i}
+                                className={`inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-mono ${
+                                  b.ok === true ? "bg-emerald-100 text-emerald-800" : "bg-muted text-muted-foreground"
+                                }`}
+                              >
+                                {b.text}
                               </span>
                             ))}
                             {p.has_override && (
