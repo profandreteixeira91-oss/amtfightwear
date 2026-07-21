@@ -86,15 +86,12 @@ export async function dispatchInvoiceReminder(
     return { status: "skipped", reason: "recipient_suppressed" };
   }
 
-  // Descobre nome do dojo (usa profile do owner).
+  // Descobre nome do dojo — prioriza a identidade personalizada no AMT Pay.
   let dojoName = args.dojoName ?? "Sua academia";
   if (!args.dojoName) {
-    const { data: profile } = await supabase
-      .from("dojo_academy_profile")
-      .select("academy_name")
-      .eq("owner_id", invoice.owner_id)
-      .maybeSingle();
-    if (profile?.academy_name) dojoName = profile.academy_name;
+    const { loadInvoiceIdentity } = await import("@/lib/dojo/invoice-branding.functions");
+    const identity = await loadInvoiceIdentity(supabase, invoice.owner_id);
+    if (identity?.name) dojoName = identity.name;
   }
 
   const templateData = {
