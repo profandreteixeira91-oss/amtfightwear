@@ -117,7 +117,6 @@ const nav: { label: string; items: NavItem[] }[] = [
     label: "Recorrência & Financeiro",
     items: [
       { to: "/dojo/app/plans", label: "Planos", icon: ScrollText },
-      { to: "/dojo/app/recurring", label: "Mensalidades", icon: Wallet },
       { to: "/dojo/app/finance", label: "Financeiro", icon: Wallet },
       { to: "/dojo/app/integrations", label: "AMT Pay", icon: CreditCard },
     ],
