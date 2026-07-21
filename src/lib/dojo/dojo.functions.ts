@@ -241,6 +241,9 @@ export const saveDojoStudent = createServerFn({ method: "POST" })
     lgpd_consent: z.boolean().optional(),
     image_rights_consent: z.boolean().optional(),
     terms_accepted: z.boolean().optional(),
+    graduation_criteria_mode: z.enum(["time","classes","evaluation","merit"]).nullable().optional(),
+    graduation_min_classes: z.number().int().min(0).max(10000).nullable().optional(),
+    graduation_min_months: z.number().int().min(0).max(240).nullable().optional(),
   }).parse(i))
   .handler(async ({ data, context }) => {
     const { id, ...rest } = data;
