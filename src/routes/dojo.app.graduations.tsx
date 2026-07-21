@@ -80,7 +80,10 @@ function NewGraduationPage() {
     () => (belts.data ?? []).find((b: any) => b.id === beltId),
     [belts.data, beltId]
   );
-  const isPretaBase = /^preta$/i.test(selectedBelt?.name ?? "");
+  // Preta-base BJJ selector: só aplicável ao jiu-jitsu. Em judô/karatê/etc., a
+  // faixa preta é única e o grau vai como "Xº Dan" no select de grau padrão.
+  const selectedIsBJJ = (selectedBelt?.modality ?? "jiu-jitsu") === "jiu-jitsu";
+  const isPretaBase = selectedIsBJJ && /^preta$/i.test(selectedBelt?.name ?? "");
   // Preta variant: 'plain' | 'aparador' | 1..6
   const [pretaVariant, setPretaVariant] = useState<string>("plain");
 
