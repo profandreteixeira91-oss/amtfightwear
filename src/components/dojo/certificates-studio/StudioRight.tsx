@@ -73,8 +73,20 @@ function labelForKind(k: string) {
 }
 
 function TextProps({ el }: { el: TextElement }) {
-  const { updateElement, pushHistory } = useStudioStore();
+  const { doc, updateElement, pushHistory } = useStudioStore();
   const commit = () => pushHistory();
+  const autoContrast = () => {
+    // Detect page bg luminance and set text color for readability
+    const bg = doc.page.background || "#ffffff";
+    const hex = bg.replace("#", "");
+    const r = parseInt(hex.slice(0, 2) || "ff", 16);
+    const g = parseInt(hex.slice(2, 4) || "ff", 16);
+    const b = parseInt(hex.slice(4, 6) || "ff", 16);
+    const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    const next = lum > 0.6 ? "#0f172a" : "#ffffff";
+    updateElement(el.id, { color: next } as any);
+    commit();
+  };
   return (
     <div className="space-y-3">
       <div>
@@ -107,7 +119,7 @@ function TextProps({ el }: { el: TextElement }) {
       </div>
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="text-xs text-neutral-600">Cor</label>
+          <label className="text-xs text-neutral-600">Cor do texto</label>
           <Input type="color" value={el.color} onChange={(e) => updateElement(el.id, { color: e.target.value } as any)} onBlur={commit} />
         </div>
         <div>
@@ -118,6 +130,48 @@ function TextProps({ el }: { el: TextElement }) {
       <div>
         <label className="text-xs text-neutral-600">Altura de linha</label>
         <Input type="number" step={0.05} value={el.lineHeight ?? 1.25} onChange={(e) => updateElement(el.id, { lineHeight: Number(e.target.value) } as any)} onBlur={commit} />
+      </div>
+      <button onClick={autoContrast} className="w-full text-xs py-2 rounded-lg border border-dashed border-neutral-300 hover:bg-neutral-50">
+        Ajustar cor automaticamente ao fundo da página
+      </button>
+
+      <hr className="border-neutral-200" />
+      <div className="text-xs font-semibold text-neutral-500 uppercase tracking-wide">Caixa de texto</div>
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="text-xs text-neutral-600">Fundo</label>
+          <div className="flex gap-1">
+            <Input type="color" value={el.background || "#ffffff"} onChange={(e) => updateElement(el.id, { background: e.target.value } as any)} onBlur={commit} />
+            <button title="Sem fundo" onClick={() => { updateElement(el.id, { background: "" } as any); commit(); }}
+              className="h-9 px-2 text-xs rounded-md border border-neutral-200 hover:bg-neutral-50">✕</button>
+          </div>
+        </div>
+        <div>
+          <label className="text-xs text-neutral-600">Alinh. vertical</label>
+          <select className="w-full h-9 rounded-md border border-neutral-200 px-2 text-sm"
+            value={el.verticalAlign || "middle"}
+            onChange={(e) => { updateElement(el.id, { verticalAlign: e.target.value } as any); commit(); }}>
+            <option value="top">Topo</option>
+            <option value="middle">Meio</option>
+            <option value="bottom">Base</option>
+          </select>
+        </div>
+        <div>
+          <label className="text-xs text-neutral-600">Padding (px)</label>
+          <Input type="number" value={el.padding ?? 0} onChange={(e) => updateElement(el.id, { padding: Number(e.target.value) } as any)} onBlur={commit} />
+        </div>
+        <div>
+          <label className="text-xs text-neutral-600">Cantos (px)</label>
+          <Input type="number" value={el.borderRadius ?? 0} onChange={(e) => updateElement(el.id, { borderRadius: Number(e.target.value) } as any)} onBlur={commit} />
+        </div>
+        <div>
+          <label className="text-xs text-neutral-600">Borda</label>
+          <Input type="color" value={el.borderColor || "#000000"} onChange={(e) => updateElement(el.id, { borderColor: e.target.value } as any)} onBlur={commit} />
+        </div>
+        <div>
+          <label className="text-xs text-neutral-600">Espessura</label>
+          <Input type="number" value={el.borderWidth ?? 0} onChange={(e) => updateElement(el.id, { borderWidth: Number(e.target.value) } as any)} onBlur={commit} />
+        </div>
       </div>
     </div>
   );
