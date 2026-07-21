@@ -105,7 +105,7 @@ function FinancePage() {
   const current = sections.find((s) => s.id === active)!;
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 min-w-0 max-w-full overflow-x-hidden">
       {/* Sub-navegação horizontal (topo) */}
       <div className="rounded-xl border border-[color:var(--dojo-border)] bg-white p-2">
         <div className="flex gap-1 overflow-x-auto pb-1">
