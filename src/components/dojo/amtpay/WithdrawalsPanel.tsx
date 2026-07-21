@@ -5,8 +5,8 @@ import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowDownRight, X } from "lucide-react";
-import { listWithdrawals, cancelWithdrawal, getPrimaryBankAccount } from "@/lib/dojo/amtpay.functions";
+import { ArrowDownRight, X, RefreshCw } from "lucide-react";
+import { listWithdrawals, cancelWithdrawal, getPrimaryBankAccount, retryWithdrawal } from "@/lib/dojo/amtpay.functions";
 import { WithdrawDialog } from "./WithdrawDialog";
 import { BankAccountDialog } from "./BankAccountDialog";
 
