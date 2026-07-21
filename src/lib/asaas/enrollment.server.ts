@@ -150,35 +150,23 @@ export async function ensureAsaasCustomerForStudent(
 }
 
 /**
- * Resolve a API key + split a usar para as cobranças de um dojo.
+ * Modelo AMT Pay (2025): TODA cobrança é processada na conta central da AMT
+ * (chave `ASAAS_PRODUCTION_API_KEY`). O valor bruto entra na AMT; a taxa AMT
+ * (2%) é aplicada no ledger interno (`dojo_wallet_transactions`), não como
+ * split do Asaas. Saques vão via PIX transfer da conta central para a chave
+ * PIX cadastrada pelo dono.
  *
- * - Se criou subconta: usa a API key da subconta (`asaas_subaccount_api_key`)
- *   e aplica split de 2% para a wallet AMT.
- * - Se vinculou conta existente: usa a conta AMT central e envia 98% para a
- *   wallet do dojo, mantendo 2% na operação AMT.
+ * Legado: campos `asaas_subaccount_api_key` e `asaas_wallet_id` no perfil são
+ * ignorados — permanecem no schema apenas para histórico.
  */
-export function resolveDojoAsaasCredentials(profile: {
+export function resolveDojoAsaasCredentials(_profile: {
   asaas_subaccount_api_key?: string | null;
   asaas_wallet_id?: string | null;
-}): { apiKey: string | undefined; split: AsaasSplit[]; mode: "subaccount" | "linked_wallet" } {
-  const subaccountKey = profile.asaas_subaccount_api_key?.trim();
-  if (subaccountKey) {
-    const walletId = process.env.ASAAS_WALLET_ID_AMT?.trim();
-    const split: AsaasSplit[] = walletId
-      ? [{ walletId, percentualValue: 2 }]
-      : [];
-    return { apiKey: subaccountKey, split, mode: "subaccount" };
-  }
-
-  const dojoWalletId = profile.asaas_wallet_id?.trim();
-  if (!dojoWalletId) {
-    return { apiKey: undefined, split: [], mode: "linked_wallet" };
-  }
-
+}): { apiKey: string | undefined; split: AsaasSplit[]; mode: "central" } {
   return {
     apiKey: process.env.ASAAS_PRODUCTION_API_KEY,
-    split: [{ walletId: dojoWalletId, percentualValue: 98 }],
-    mode: "linked_wallet",
+    split: [],
+    mode: "central",
   };
 }
 
