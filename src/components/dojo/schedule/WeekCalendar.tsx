@@ -48,32 +48,27 @@ export function WeekCalendar({
   }, [events]);
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+    <div className="overflow-hidden rounded-xl bg-white">
       <div className="overflow-x-auto">
         <div className="min-w-[900px]">
           {/* Day header */}
-          <div className="sticky top-0 z-20 grid grid-cols-[72px_repeat(7,1fr)] border-b-2 border-border bg-muted/60 backdrop-blur">
-            <div className="border-r border-border" />
-            {days.map((d, i) => {
+          <div className="sticky top-0 z-20 grid grid-cols-[72px_repeat(7,1fr)] border-b border-gray-100 bg-white">
+            <div />
+            {days.map((d) => {
               const isToday = ymd(d) === todayKey;
-              const isWeekend = d.getDay() === 0 || d.getDay() === 6;
               return (
-                <div
-                  key={d.toISOString()}
-                  className={`px-2 py-2.5 text-center ${i > 0 ? "border-l border-border" : ""} ${
-                    isToday ? "bg-primary/10" : isWeekend ? "bg-muted/40" : ""
-                  }`}
-                >
-                  <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                <div key={d.toISOString()} className="px-2 py-3 text-center">
+                  <div className="text-[10px] font-medium uppercase tracking-wider text-gray-400">
                     {WEEKDAYS[d.getDay()].short}
                   </div>
-                  <div
-                    className={`mt-0.5 text-sm font-bold tabular-nums ${
-                      isToday ? "text-primary" : "text-foreground"
-                    }`}
-                  >
-                    {d.getDate().toString().padStart(2, "0")}/
-                    {(d.getMonth() + 1).toString().padStart(2, "0")}
+                  <div className="mt-1 flex justify-center">
+                    <span
+                      className={`inline-flex h-8 min-w-8 items-center justify-center rounded-full px-2 text-sm font-medium tabular-nums ${
+                        isToday ? "bg-primary text-primary-foreground" : "text-gray-700"
+                      }`}
+                    >
+                      {d.getDate()}
+                    </span>
                   </div>
                 </div>
               );
@@ -83,11 +78,11 @@ export function WeekCalendar({
           {/* Body */}
           <div className="grid grid-cols-[72px_repeat(7,1fr)]">
             {/* Hours column */}
-            <div className="border-r border-border bg-muted/20">
+            <div>
               {hours.map((h) => (
                 <div
                   key={h}
-                  className="flex items-start justify-end border-b border-border/70 pr-2 pt-1 text-[10px] font-semibold tabular-nums text-muted-foreground"
+                  className="flex items-start justify-end pr-2 pt-1 text-[10px] font-medium tabular-nums text-gray-400"
                   style={{ height: ROW_H }}
                 >
                   {String(h).padStart(2, "0")}:00
@@ -99,26 +94,17 @@ export function WeekCalendar({
             {days.map((d, dayIdx) => {
               const dateKey = ymd(d);
               const items = byDay[dateKey] ?? [];
-              const isToday = dateKey === todayKey;
-              const isWeekend = d.getDay() === 0 || d.getDay() === 6;
               return (
                 <div
                   key={dateKey}
-                  className={`relative ${dayIdx > 0 ? "border-l border-border" : ""} ${
-                    isToday ? "bg-primary/5" : isWeekend ? "bg-muted/20" : "bg-background"
-                  }`}
+                  className={`relative ${dayIdx > 0 ? "border-l border-gray-100" : ""} bg-white`}
                 >
-                  {hours.map((h, i) => (
+                  {hours.map((h) => (
                     <div
                       key={h}
-                      className={`relative border-b ${
-                        i % 2 === 0 ? "border-border/60" : "border-border/40"
-                      }`}
+                      className="border-b border-gray-100"
                       style={{ height: ROW_H }}
-                    >
-                      {/* half-hour dashed guide */}
-                      <div className="pointer-events-none absolute inset-x-0 top-1/2 border-t border-dashed border-border/40" />
-                    </div>
+                    />
                   ))}
                   {items.map((it, idx) => {
                     const [sh, sm] = it.start.split(":").map(Number);
@@ -131,13 +117,13 @@ export function WeekCalendar({
                       <button
                         key={idx}
                         onClick={() => onSelect(it.classId, dateKey)}
-                        className={`absolute left-1 right-1 overflow-hidden rounded-md border border-black/5 px-2 py-1 text-left text-[11px] leading-tight shadow-sm ring-1 ring-black/5 transition-all hover:z-10 hover:shadow-md ${
+                        className={`absolute left-1 right-1 overflow-hidden rounded-md px-2 py-1 text-left text-[11px] leading-tight transition-all hover:z-10 hover:brightness-95 ${
                           it.cancelled ? "line-through opacity-60" : ""
                         }`}
                         style={{
                           top,
                           height,
-                          background: `${it.color}22`,
+                          background: `${it.color}1f`,
                           borderLeft: `3px solid ${it.color}`,
                           color: "var(--dojo-fg, #0a0a0a)",
                         }}
