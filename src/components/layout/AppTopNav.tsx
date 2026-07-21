@@ -191,7 +191,7 @@ export function AppTopNav() {
     : groups;
 
   return (
-    <div className="sticky top-0 z-40 border-b border-red-800/60 bg-red-700 text-white backdrop-blur-xl supports-[backdrop-filter]:bg-red-700/90 [--muted-foreground:theme(colors.red.100)] [&_*]:border-red-500/40">
+    <div className="sticky top-0 z-40 border-b border-red-800/70 bg-red-700 text-white backdrop-blur-xl supports-[backdrop-filter]:bg-red-700/90">
       <div className="flex h-14 items-center gap-2 px-3 sm:px-4">
         <Link to={inStore ? "/store" : "/dashboard"} className="group flex items-center gap-2.5 shrink-0">
           <div className="relative grid h-10 w-10 place-items-center overflow-hidden rounded-lg bg-primary ring-1 ring-primary/40 shadow-[0_0_0_1px_color-mix(in_oklab,var(--primary)_30%,transparent),0_8px_24px_-8px_color-mix(in_oklab,var(--primary)_50%,transparent)] transition-transform group-hover:scale-[1.03]">
