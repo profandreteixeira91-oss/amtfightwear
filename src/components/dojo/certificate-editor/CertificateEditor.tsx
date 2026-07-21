@@ -1072,9 +1072,16 @@ function PropsPanel({ el, onPatch, onMoveLayer, onRemove }: { el: AnyElement; on
 
       {el.kind === "text" && <>
         <Field label="Texto"><Textarea value={el.text} onChange={(e) => onPatch({ text: e.target.value } as any)} rows={3} className="text-xs" /></Field>
-        <Field label="Fonte"><select value={el.fontFamily ?? "Inter"} onChange={(e) => onPatch({ fontFamily: e.target.value } as any)} className="h-8 w-full rounded-md border border-input bg-background px-2">
-          {["Inter","Outfit","Figtree","Georgia","Times New Roman","serif","cursive"].map(f => <option key={f} value={f}>{f}</option>)}
+        <Field label="Fonte"><select value={el.fontFamily ?? "Inter"} onChange={(e) => onPatch({ fontFamily: e.target.value } as any)} className="h-8 w-full rounded-md border border-input bg-background px-2" style={{ fontFamily: el.fontFamily ?? "Inter" }}>
+          {["Sans","Serif","Display","Script"].map((g) => (
+            <optgroup key={g} label={g}>
+              {FONT_LIST.filter((f) => f.group === g).map((f) => (
+                <option key={f.family} value={f.family} style={{ fontFamily: f.family }}>{f.label}</option>
+              ))}
+            </optgroup>
+          ))}
         </select></Field>
+
         <Field label="Tamanho"><Input type="number" value={el.fontSize} onChange={(e) => onPatch({ fontSize: Number(e.target.value) } as any)} className="h-8" /></Field>
         <Field label="Cor"><input type="color" value={el.color} onChange={(e) => onPatch({ color: e.target.value } as any)} className="h-8 w-full rounded border" /></Field>
         <Field label="Estilo">
