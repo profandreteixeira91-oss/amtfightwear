@@ -121,9 +121,11 @@ function AMTPayLanding() {
     <div className="space-y-6">
       <Card className="border-2 border-red-600/20 bg-gradient-to-br from-red-50/50 to-transparent dark:from-red-950/20">
         <CardContent className="p-8 md:p-10 flex flex-col md:flex-row items-start gap-6">
-          <div className="h-14 w-14 shrink-0 rounded-2xl bg-red-600 text-white grid place-items-center shadow-lg">
-            <CreditCard className="h-7 w-7" />
-          </div>
+          <img
+            src={amtPayLogoUrl}
+            alt="AMT Pay"
+            className="h-28 w-28 md:h-36 md:w-36 object-contain shrink-0 drop-shadow-lg"
+          />
           <div className="flex-1 space-y-4">
             <div>
               <h2 className="text-2xl font-bold tracking-tight">
