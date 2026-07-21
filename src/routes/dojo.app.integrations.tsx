@@ -74,6 +74,9 @@ function AMTPayHub() {
           <TabsTrigger value="reminders" className="gap-2">
             <Bell className="h-4 w-4" /> Lembretes
           </TabsTrigger>
+          <TabsTrigger value="branding" className="gap-2">
+            <Sparkles className="h-4 w-4" /> Identidade da cobrança
+          </TabsTrigger>
           <TabsTrigger value="audit" className="gap-2">
             <ScrollText className="h-4 w-4" /> Auditoria
           </TabsTrigger>
