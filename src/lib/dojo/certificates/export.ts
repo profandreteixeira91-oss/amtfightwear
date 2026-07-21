@@ -100,11 +100,20 @@ export async function exportCanvasAsPdf(node: HTMLElement, filename: string, doc
 }
 export async function printCanvas(node: HTMLElement, doc: EditorSchema, title: string) {
   const dataUrl = await toPng(node, { pixelRatio: 2, cacheBust: true, width: doc.page.width, height: doc.page.height });
+  const landscape = doc.page.width >= doc.page.height;
   const w = window.open("", "_blank");
   if (!w) return;
   w.document.write(`<!doctype html><html><head><title>${title}</title>
-    <style>@page{size:${doc.page.width}px ${doc.page.height}px;margin:0}html,body{margin:0;padding:0;background:#fff}img{width:100%;height:auto;display:block}</style>
-    </head><body><img src="${dataUrl}" onload="setTimeout(()=>{window.print();window.close();},200)"/></body></html>`);
+    <style>
+      @page { size: A4 ${landscape ? "landscape" : "portrait"}; margin: 0; }
+      html, body { margin: 0; padding: 0; background: #fff; width: 100%; height: 100%; overflow: hidden; }
+      .sheet { width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; page-break-after: avoid; }
+      img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; display: block; page-break-inside: avoid; }
+      @media print {
+        html, body, .sheet { width: 100%; height: 100%; }
+      }
+    </style>
+    </head><body><div class="sheet"><img src="${dataUrl}" onload="setTimeout(()=>{window.print();window.close();},250)"/></div></body></html>`);
   w.document.close();
 }
 
