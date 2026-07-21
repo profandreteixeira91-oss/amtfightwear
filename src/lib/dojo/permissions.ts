@@ -32,7 +32,7 @@ export const PERMISSION_MODULES: PermissionModule[] = [
   { key: "sales", label: "Vendas", description: "Registro de vendas internas de produtos e serviços", routes: ["/dojo/app/sales"] },
   { key: "team", label: "Equipe", description: "Colaboradores, folha, escalas", routes: ["/dojo/app/team"] },
   { key: "plans", label: "Planos", description: "Mensalidades e contratos", routes: ["/dojo/app/plans"] },
-  { key: "recurring", label: "Mensalidades", description: "Regras de cobrança automática", routes: ["/dojo/app/recurring"] },
+  
   { key: "finance", label: "Financeiro", description: "Receitas, despesas e faturas", routes: ["/dojo/app/finance"] },
   { key: "corporate_benefits", label: "Benefícios Corporativos", description: "Gympass, TotalPass e parceiros", routes: ["/dojo/app/corporate-benefits"] },
   { key: "units", label: "Unidades", description: "Dojos e polos", routes: ["/dojo/app/units"] },
