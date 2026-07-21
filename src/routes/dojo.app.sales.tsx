@@ -514,13 +514,26 @@ function NewSaleDialog({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {Object.entries(PAYMENT_METHOD_LABELS).map(([k, v]) => (
-                  <SelectItem key={k} value={k}>
-                    {v}
-                  </SelectItem>
+                {PAYMENT_METHOD_GROUPS.map((g, gi) => (
+                  <div key={g.label}>
+                    {gi > 0 ? <div className="my-1 border-t" /> : null}
+                    <div className="px-2 pb-1 pt-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      {g.label}
+                    </div>
+                    {g.options.map((k) => (
+                      <SelectItem key={k} value={k}>
+                        {PAYMENT_METHOD_LABELS[k] ?? k}
+                      </SelectItem>
+                    ))}
+                  </div>
                 ))}
               </SelectContent>
             </Select>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              {isGateway
+                ? PAYMENT_METHOD_GROUPS[0].hint
+                : PAYMENT_METHOD_GROUPS[1].hint}
+            </p>
           </div>
           {isGateway ? (
             <div>
