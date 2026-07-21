@@ -315,7 +315,7 @@ function DojoLayoutInner({
         </SidebarFooter>
       </Sidebar>
 
-      <SidebarInset className="bg-[color:var(--dojo-surface)]">
+      <SidebarInset className="bg-[color:var(--dojo-surface)] min-w-0 overflow-x-hidden">
         <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-red-900/60 bg-red-700 text-white px-3 md:px-6 shadow-[0_4px_18px_-6px_rgba(0,0,0,0.35)]">
           <SidebarTrigger className="-ml-1 text-white hover:bg-white/10" />
           <Link to="/dojo/app" className="flex items-center gap-2 shrink-0">
