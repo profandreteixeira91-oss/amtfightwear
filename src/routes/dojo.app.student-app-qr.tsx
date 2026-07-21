@@ -43,7 +43,7 @@ function StudentAppQrPage() {
   // QR aponta direto para o login online do app — sem etapa de download.
   const fullPath = slug ? `/app/login?dojo=${encodeURIComponent(slug)}` : `/app/login`;
   const rawBase = (cfg?.public_url || origin || "").replace(/\/$/, "");
-  const base = rawBase.includes("dojomanager.amtfightwear.com.br") ? "https://loja.amtfightwear.com.br" : rawBase;
+  const base = rawBase.includes("dojomanager.amtfightwear.com.br") ? "https://amtfightwear.com.br" : rawBase;
   const url = base ? `${base}${fullPath}` : "";
   const academyName = branding?.trade_name ?? branding?.legal_name ?? "Sua academia";
   const brandColor = branding?.brand_primary ?? "#dc2626";
@@ -53,7 +53,7 @@ function StudentAppQrPage() {
     // O subdomínio dojomanager redireciona qualquer rota fora de /dojo/* para /dojo/*,
     // o que quebra /app/login. O portal do aluno vive no domínio principal.
     const host = window.location.hostname;
-    if (host === "dojomanager.amtfightwear.com.br") setOrigin("https://loja.amtfightwear.com.br");
+    if (host === "dojomanager.amtfightwear.com.br") setOrigin("https://amtfightwear.com.br");
     else setOrigin(window.location.origin);
   }, []);
 

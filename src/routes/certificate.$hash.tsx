@@ -34,7 +34,7 @@ export const Route = createFileRoute("/certificate/$hash")({
     const origin =
       typeof window !== "undefined"
         ? window.location.origin
-        : (location as unknown as { origin?: string }).origin ?? "https://loja.amtfightwear.com.br";
+        : (location as unknown as { origin?: string }).origin ?? "https://amtfightwear.com.br";
     const cert = await fetchCertificate(params.hash, origin);
     if (!cert) throw notFound();
     return { cert };

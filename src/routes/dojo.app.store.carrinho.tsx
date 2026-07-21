@@ -88,7 +88,7 @@ function CartPage() {
       if (shipZip) payload.zip = shipZip;
       const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
       refresh();
-      const url = `https://loja.amtfightwear.com.br/loja/carrinho?checkout=1&import=${encodeURIComponent(b64)}`;
+      const url = `https://amtfightwear.com.br/loja/carrinho?checkout=1&import=${encodeURIComponent(b64)}`;
       const win = window.open(url, "_blank", "noopener,noreferrer");
       if (!win) {
         toast.error("Ative pop-ups para abrir o checkout ou clique novamente.");

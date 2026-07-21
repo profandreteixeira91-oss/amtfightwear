@@ -3,7 +3,7 @@ import { DojoLogo } from "@/components/dojo/DojoLogo";
 
 const groups = [
   { title: "Produto", links: [{ label: "Recursos", href: "#recursos" }, { label: "Módulos", href: "#modulos" }, { label: "Planos", href: "#planos" }] },
-  { title: "Empresa", links: [{ label: "AMT Fight Wear", href: "https://loja.amtfightwear.com.br" }, { label: "Contato", href: "mailto:contato@amtfightwear.com.br" }] },
+  { title: "Empresa", links: [{ label: "AMT Fight Wear", href: "https://amtfightwear.com.br" }, { label: "Contato", href: "mailto:contato@amtfightwear.com.br" }] },
   { title: "Legal", links: [{ label: "Política de Privacidade", href: "/privacy" }, { label: "Termos de Uso", href: "/terms" }] },
 ];
 

@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
-const REDIRECT_URI = "https://loja.amtfightwear.com.br/api/public/meta/callback";
+const REDIRECT_URI = "https://amtfightwear.com.br/api/public/meta/callback";
 const SCOPES = [
   "pages_show_list",
   "pages_read_engagement",

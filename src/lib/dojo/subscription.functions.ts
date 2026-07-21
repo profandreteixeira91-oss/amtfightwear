@@ -76,7 +76,7 @@ export const startMySubscription = createServerFn({ method: "POST" })
 
     const origin = "https://dojomanager.amtfightwear.com.br";
     const backUrl = `${origin}/dojo/app/subscription`;
-    const notification = "https://loja.amtfightwear.com.br/api/public/hooks/mercadopago";
+    const notification = "https://amtfightwear.com.br/api/public/hooks/mercadopago";
 
     const preapproval = await mpAmt<any>("/preapproval", {
       method: "POST",
