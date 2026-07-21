@@ -185,11 +185,13 @@ function AMTPayLanding({ onActivate }: { onActivate: () => void }) {
             </div>
 
             <div className="flex flex-wrap gap-3 pt-2">
-              <Button asChild size="lg" className="bg-red-600 hover:bg-red-700">
-                <Link to="/dojo/onboarding">
-                  Ativar AMT Pay
-                  <ArrowRight className="ml-1.5 h-4 w-4" />
-                </Link>
+              <Button
+                size="lg"
+                className="bg-red-600 hover:bg-red-700"
+                onClick={onActivate}
+              >
+                Ativar AMT Pay
+                <ArrowRight className="ml-1.5 h-4 w-4" />
               </Button>
               <div className="text-xs text-muted-foreground self-center max-w-sm">
                 Sem ativar? Sem problema. Você pode continuar usando o sistema
