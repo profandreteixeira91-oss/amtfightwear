@@ -77,6 +77,13 @@ function SalesPage() {
 
   return (
     <div className="space-y-6 p-4 md:p-6">
+      <div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200">
+        <ShoppingCart className="mt-0.5 h-4 w-4 shrink-0" />
+        <div>
+          <div className="font-medium">Cobrança avulsa (uma vez)</div>
+          <div className="text-xs opacity-90">Vendas geram uma única cobrança. Para mensalidades e planos recorrentes, use <b>Mensalidades</b> ou <b>Planos</b> no menu.</div>
+        </div>
+      </div>
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
           <TabsTrigger value="sales">
