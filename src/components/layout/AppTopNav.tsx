@@ -176,6 +176,7 @@ export function AppTopNav() {
 
   // /store é um sistema independente do Dojo Manager — não exibir nada de dojo aqui.
   const inStore = pathname === "/store" || pathname.startsWith("/store/");
+  const inDojo = pathname === "/dojo" || pathname.startsWith("/dojo/");
 
   const brandingFn = useServerFn(getMyAcademyBranding);
   const { data: dojo } = useQuery({
@@ -192,22 +193,41 @@ export function AppTopNav() {
     : groups;
 
   return (
-    <div className="sticky top-0 z-40 border-b border-red-800/70 bg-red-700 text-white backdrop-blur-xl supports-[backdrop-filter]:bg-red-700/90">
+    <div
+      className={cn(
+        "sticky top-0 z-40 border-b backdrop-blur-xl",
+        inDojo
+          ? "border-red-800/70 bg-red-700 text-white supports-[backdrop-filter]:bg-red-700/90"
+          : "border-border/60 bg-background/80 supports-[backdrop-filter]:bg-background/60",
+      )}
+    >
       <div className="flex h-14 items-center gap-2 px-3 sm:px-4">
         <Link to={inStore ? "/store" : "/dashboard"} className="group flex items-center gap-2.5 shrink-0">
-          <div className="relative grid h-12 w-12 place-items-center overflow-hidden rounded-xl bg-white ring-2 ring-white/80 shadow-[0_0_0_1px_rgba(255,255,255,0.6),0_10px_30px_-6px_rgba(0,0,0,0.45)] transition-transform group-hover:scale-[1.05]">
-            <img src={dojoLogo || amtLogo} alt={dojoName || "AMT"} className="h-full w-full object-contain p-1" />
+          <div
+            className={cn(
+              "relative grid place-items-center overflow-hidden transition-transform group-hover:scale-[1.05]",
+              inDojo
+                ? "h-12 w-12 rounded-xl bg-white ring-2 ring-white/80 shadow-[0_0_0_1px_rgba(255,255,255,0.6),0_10px_30px_-6px_rgba(0,0,0,0.45)]"
+                : "h-9 w-9 rounded-lg bg-gradient-to-br from-primary/90 to-primary shadow-lg shadow-primary/20 ring-1 ring-primary/40",
+            )}
+          >
+            <img
+              src={dojoLogo || amtLogo}
+              alt={dojoName || "AMT"}
+              className={cn("h-full w-full object-contain", inDojo ? "p-1" : "p-1.5")}
+            />
             <span className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-white/40 opacity-0 transition-opacity group-hover:opacity-100" />
           </div>
           <div className="hidden leading-tight sm:block">
-            <div className="text-sm font-bold tracking-tight truncate max-w-[220px]">
+            <div className={cn("text-sm font-bold tracking-tight truncate max-w-[220px]", !inDojo && "text-foreground")}>
               {inStore ? "AMT Fight Wear" : (dojoName || "AMT Growth")}
             </div>
-            <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+            <div className={cn("text-[10px] font-medium uppercase tracking-[0.18em]", inDojo ? "text-white/70" : "text-muted-foreground")}>
               {inStore ? "Loja" : (dojoName ? "Dojo Manager" : "Engine")}
             </div>
           </div>
         </Link>
+
 
 
         <nav className="ml-4 hidden flex-1 items-center gap-0.5 overflow-x-auto lg:flex">
