@@ -415,8 +415,16 @@ function CertificatesPage() {
       </div>
 
       <p className="text-xs text-muted-foreground">
-        Para emitir um certificado a partir de um modelo, use a página do aluno na aba <strong>Certificados</strong>.
+        Para emitir um certificado a partir de um modelo, use o botão <strong>Emitir</strong> acima ou a aba <strong>Emitidos</strong>.
       </p>
+        </TabsContent>
+
+        <TabsContent value="emitidos" className="mt-4">
+          <IssuedList />
+        </TabsContent>
+      </Tabs>
+
+      <IssuePanel open={issueOpen} onOpenChange={setIssueOpen} />
     </div>
   );
 }
