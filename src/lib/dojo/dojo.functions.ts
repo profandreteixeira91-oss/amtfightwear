@@ -578,7 +578,7 @@ export const saveDojoInvoice = createServerFn({ method: "POST" })
       const owner_id = ownerId(context);
       const { data: profile } = await context.supabase
         .from("dojo_academy_profile")
-        .select("asaas_api_key_encrypted, asaas_wallet_id")
+        .select("asaas_subaccount_id, asaas_api_key_encrypted, asaas_wallet_id, asaas_onboarding_status")
         .eq("owner_id", owner_id)
         .maybeSingle();
       const { resolveDojoAsaasCredentials, syncInvoiceWithAsaas } = await import("@/lib/asaas/enrollment.server");
@@ -653,7 +653,7 @@ export const markDojoInvoicePaid = createServerFn({ method: "POST" })
     }
     const { data: profile } = await context.supabase
       .from("dojo_academy_profile")
-      .select("asaas_api_key_encrypted, asaas_wallet_id")
+      .select("asaas_subaccount_id, asaas_api_key_encrypted, asaas_wallet_id, asaas_onboarding_status")
       .eq("owner_id", ownerId(context))
       .maybeSingle();
     const { resolveDojoAsaasCredentials } = await import("@/lib/asaas/enrollment.server");
@@ -689,7 +689,7 @@ export const deleteDojoInvoice = createServerFn({ method: "POST" })
     }
     const { data: profile } = await context.supabase
       .from("dojo_academy_profile")
-      .select("asaas_api_key_encrypted, asaas_wallet_id")
+      .select("asaas_subaccount_id, asaas_api_key_encrypted, asaas_wallet_id, asaas_onboarding_status")
       .eq("owner_id", ownerId(context))
       .maybeSingle();
     const { resolveDojoAsaasCredentials } = await import("@/lib/asaas/enrollment.server");
@@ -791,7 +791,7 @@ export const enrollStudentWithPlan = createServerFn({ method: "POST" })
       // Carrega profile do dojo (para chave/subconta Asaas)
       const { data: profile } = await context.supabase
         .from("dojo_academy_profile")
-        .select("asaas_api_key_encrypted, asaas_wallet_id, trade_name")
+        .select("asaas_subaccount_id, asaas_api_key_encrypted, asaas_wallet_id, asaas_onboarding_status, trade_name")
         .eq("owner_id", ownerId(context))
         .maybeSingle();
 
@@ -923,7 +923,7 @@ export const cancelEnrollment = createServerFn({ method: "POST" })
     if ((enr as any).asaas_subscription_id) {
       const { data: profile } = await context.supabase
         .from("dojo_academy_profile")
-        .select("asaas_api_key_encrypted, asaas_wallet_id")
+        .select("asaas_subaccount_id, asaas_api_key_encrypted, asaas_wallet_id, asaas_onboarding_status")
         .eq("owner_id", ownerId(context))
         .maybeSingle();
       const { resolveDojoAsaasCredentials } = await import("@/lib/asaas/enrollment.server");
@@ -981,7 +981,7 @@ export const changeStudentPlan = createServerFn({ method: "POST" })
     if (actives && actives.length > 0) {
       const { data: profile } = await context.supabase
         .from("dojo_academy_profile")
-        .select("asaas_api_key_encrypted, asaas_wallet_id")
+        .select("asaas_subaccount_id, asaas_api_key_encrypted, asaas_wallet_id, asaas_onboarding_status")
         .eq("owner_id", ownerId(context))
         .maybeSingle();
 

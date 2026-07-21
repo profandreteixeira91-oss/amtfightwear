@@ -12,18 +12,26 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 /**
- * Todas as cobranças do AMT Pay são criadas na conta central da AMT
- * (`ASAAS_PRODUCTION_API_KEY`) — ver `resolveDojoAsaasCredentials` em
- * `src/lib/asaas/enrollment.server.ts`. Portanto, para consultar/receber a
- * mesma cobrança precisamos usar a mesma credencial central. Usar a chave
- * do dojo (`asaas_api_key_encrypted`) provoca `Asaas API 404: Not Found`
- * porque o charge não existe naquela subconta.
+ * Resolve a credencial correta para operar sobre uma cobrança existente.
+ * A cobrança é criada em `resolveDojoAsaasCredentials` (subconta do dojo se
+ * aprovada, senão conta central AMT); aqui replicamos a mesma decisão a
+ * partir do perfil para garantir que consultas/receipts atinjam o mesmo
+ * escopo do Asaas em que o charge vive.
  */
 async function resolveOwnerAsaasKey(
-  _supabaseAdmin: any,
-  _ownerId: string,
+  supabaseAdmin: any,
+  ownerId: string,
 ): Promise<string | undefined> {
-  return process.env.ASAAS_PRODUCTION_API_KEY;
+  const { data: profile } = await supabaseAdmin
+    .from("dojo_academy_profile")
+    .select(
+      "asaas_subaccount_id, asaas_api_key_encrypted, asaas_wallet_id, asaas_onboarding_status",
+    )
+    .eq("owner_id", ownerId)
+    .maybeSingle();
+  const { resolveDojoAsaasCredentials } = await import("@/lib/asaas/enrollment.server");
+  const { apiKey } = resolveDojoAsaasCredentials((profile ?? {}) as any);
+  return apiKey;
 }
 
 async function loadInvoiceForPayment(supabaseAdmin: any, invoiceId: string) {
