@@ -143,6 +143,8 @@ function BeltsPage() {
           ...form,
           stripe_hex: form.stripe_hex?.trim() ? form.stripe_hex : null,
           min_months: form.min_months?.toString().trim() === "" ? null : Number(form.min_months),
+          min_classes: form.min_classes?.toString().trim() === "" ? null : Number(form.min_classes),
+          criteria_mode: form.criteria_mode,
         } as any,
       });
       toast.success("Faixa salva");
