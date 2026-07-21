@@ -71,6 +71,7 @@ import { Route as DojoAppGraduationsRouteImport } from './routes/dojo.app.gradua
 import { Route as DojoAppFinanceRouteImport } from './routes/dojo.app.finance'
 import { Route as DojoAppEvaluationsRouteImport } from './routes/dojo.app.evaluations'
 import { Route as DojoAppCorporateBenefitsRouteImport } from './routes/dojo.app.corporate-benefits'
+import { Route as DojoAppCompetitionsRouteImport } from './routes/dojo.app.competitions'
 import { Route as DojoAppCheckinRouteImport } from './routes/dojo.app.checkin'
 import { Route as DojoAppCertificatesRouteImport } from './routes/dojo.app.certificates'
 import { Route as DojoAppBeltsRouteImport } from './routes/dojo.app.belts'
@@ -513,6 +514,11 @@ const DojoAppCorporateBenefitsRoute =
     path: '/corporate-benefits',
     getParentRoute: () => DojoAppRoute,
   } as any)
+const DojoAppCompetitionsRoute = DojoAppCompetitionsRouteImport.update({
+  id: '/competitions',
+  path: '/competitions',
+  getParentRoute: () => DojoAppRoute,
+} as any)
 const DojoAppCheckinRoute = DojoAppCheckinRouteImport.update({
   id: '/checkin',
   path: '/checkin',
@@ -925,9 +931,9 @@ const DojoAppEvaluationsIndexRoute = DojoAppEvaluationsIndexRouteImport.update({
 } as any)
 const DojoAppCompetitionsIndexRoute =
   DojoAppCompetitionsIndexRouteImport.update({
-    id: '/competitions/',
-    path: '/competitions/',
-    getParentRoute: () => DojoAppRoute,
+    id: '/',
+    path: '/',
+    getParentRoute: () => DojoAppCompetitionsRoute,
   } as any)
 const LovableEmailTransactionalSendRoute =
   LovableEmailTransactionalSendRouteImport.update({
@@ -1040,9 +1046,9 @@ const DojoAppEvaluationsCategoriesRoute =
     getParentRoute: () => DojoAppEvaluationsRoute,
   } as any)
 const DojoAppCompetitionsIdRoute = DojoAppCompetitionsIdRouteImport.update({
-  id: '/competitions/$id',
-  path: '/competitions/$id',
-  getParentRoute: () => DojoAppRoute,
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => DojoAppCompetitionsRoute,
 } as any)
 const AppStudentInvoiceIdRoute = AppStudentInvoiceIdRouteImport.update({
   id: '/invoice/$id',
@@ -1344,6 +1350,7 @@ export interface FileRoutesByFullPath {
   '/dojo/app/belts': typeof DojoAppBeltsRoute
   '/dojo/app/certificates': typeof DojoAppCertificatesRoute
   '/dojo/app/checkin': typeof DojoAppCheckinRoute
+  '/dojo/app/competitions': typeof DojoAppCompetitionsRouteWithChildren
   '/dojo/app/corporate-benefits': typeof DojoAppCorporateBenefitsRoute
   '/dojo/app/evaluations': typeof DojoAppEvaluationsRouteWithChildren
   '/dojo/app/finance': typeof DojoAppFinanceRoute
@@ -1724,6 +1731,7 @@ export interface FileRoutesById {
   '/dojo/app/belts': typeof DojoAppBeltsRoute
   '/dojo/app/certificates': typeof DojoAppCertificatesRoute
   '/dojo/app/checkin': typeof DojoAppCheckinRoute
+  '/dojo/app/competitions': typeof DojoAppCompetitionsRouteWithChildren
   '/dojo/app/corporate-benefits': typeof DojoAppCorporateBenefitsRoute
   '/dojo/app/evaluations': typeof DojoAppEvaluationsRouteWithChildren
   '/dojo/app/finance': typeof DojoAppFinanceRoute
@@ -1919,6 +1927,7 @@ export interface FileRouteTypes {
     | '/dojo/app/belts'
     | '/dojo/app/certificates'
     | '/dojo/app/checkin'
+    | '/dojo/app/competitions'
     | '/dojo/app/corporate-benefits'
     | '/dojo/app/evaluations'
     | '/dojo/app/finance'
@@ -2298,6 +2307,7 @@ export interface FileRouteTypes {
     | '/dojo/app/belts'
     | '/dojo/app/certificates'
     | '/dojo/app/checkin'
+    | '/dojo/app/competitions'
     | '/dojo/app/corporate-benefits'
     | '/dojo/app/evaluations'
     | '/dojo/app/finance'
@@ -2882,6 +2892,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DojoAppCorporateBenefitsRouteImport
       parentRoute: typeof DojoAppRoute
     }
+    '/dojo/app/competitions': {
+      id: '/dojo/app/competitions'
+      path: '/competitions'
+      fullPath: '/dojo/app/competitions'
+      preLoaderRoute: typeof DojoAppCompetitionsRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
     '/dojo/app/checkin': {
       id: '/dojo/app/checkin'
       path: '/checkin'
@@ -3409,10 +3426,10 @@ declare module '@tanstack/react-router' {
     }
     '/dojo/app/competitions/': {
       id: '/dojo/app/competitions/'
-      path: '/competitions'
+      path: '/'
       fullPath: '/dojo/app/competitions/'
       preLoaderRoute: typeof DojoAppCompetitionsIndexRouteImport
-      parentRoute: typeof DojoAppRoute
+      parentRoute: typeof DojoAppCompetitionsRoute
     }
     '/lovable/email/transactional/send': {
       id: '/lovable/email/transactional/send'
@@ -3556,10 +3573,10 @@ declare module '@tanstack/react-router' {
     }
     '/dojo/app/competitions/$id': {
       id: '/dojo/app/competitions/$id'
-      path: '/competitions/$id'
+      path: '/$id'
       fullPath: '/dojo/app/competitions/$id'
       preLoaderRoute: typeof DojoAppCompetitionsIdRouteImport
-      parentRoute: typeof DojoAppRoute
+      parentRoute: typeof DojoAppCompetitionsRoute
     }
     '/app/_student/invoice/$id': {
       id: '/app/_student/invoice/$id'
@@ -4029,6 +4046,19 @@ const AppRouteChildren: AppRouteChildren = {
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
+interface DojoAppCompetitionsRouteChildren {
+  DojoAppCompetitionsIdRoute: typeof DojoAppCompetitionsIdRoute
+  DojoAppCompetitionsIndexRoute: typeof DojoAppCompetitionsIndexRoute
+}
+
+const DojoAppCompetitionsRouteChildren: DojoAppCompetitionsRouteChildren = {
+  DojoAppCompetitionsIdRoute: DojoAppCompetitionsIdRoute,
+  DojoAppCompetitionsIndexRoute: DojoAppCompetitionsIndexRoute,
+}
+
+const DojoAppCompetitionsRouteWithChildren =
+  DojoAppCompetitionsRoute._addFileChildren(DojoAppCompetitionsRouteChildren)
+
 interface DojoAppEvaluationsSessionsRouteChildren {
   DojoAppEvaluationsSessionsIdRoute: typeof DojoAppEvaluationsSessionsIdRoute
   DojoAppEvaluationsSessionsIndexRoute: typeof DojoAppEvaluationsSessionsIndexRoute
@@ -4163,6 +4193,7 @@ interface DojoAppRouteChildren {
   DojoAppBeltsRoute: typeof DojoAppBeltsRoute
   DojoAppCertificatesRoute: typeof DojoAppCertificatesRoute
   DojoAppCheckinRoute: typeof DojoAppCheckinRoute
+  DojoAppCompetitionsRoute: typeof DojoAppCompetitionsRouteWithChildren
   DojoAppCorporateBenefitsRoute: typeof DojoAppCorporateBenefitsRoute
   DojoAppEvaluationsRoute: typeof DojoAppEvaluationsRouteWithChildren
   DojoAppFinanceRoute: typeof DojoAppFinanceRoute
@@ -4180,11 +4211,9 @@ interface DojoAppRouteChildren {
   DojoAppUnitsRoute: typeof DojoAppUnitsRoute
   DojoAppVideosRoute: typeof DojoAppVideosRouteWithChildren
   DojoAppIndexRoute: typeof DojoAppIndexRoute
-  DojoAppCompetitionsIdRoute: typeof DojoAppCompetitionsIdRoute
   DojoAppTeamIdRoute: typeof DojoAppTeamIdRoute
   DojoAppTeamPayrollRoute: typeof DojoAppTeamPayrollRoute
   DojoAppTeamSchedulesRoute: typeof DojoAppTeamSchedulesRoute
-  DojoAppCompetitionsIndexRoute: typeof DojoAppCompetitionsIndexRoute
   DojoAppTeamIndexRoute: typeof DojoAppTeamIndexRoute
 }
 
@@ -4195,6 +4224,7 @@ const DojoAppRouteChildren: DojoAppRouteChildren = {
   DojoAppBeltsRoute: DojoAppBeltsRoute,
   DojoAppCertificatesRoute: DojoAppCertificatesRoute,
   DojoAppCheckinRoute: DojoAppCheckinRoute,
+  DojoAppCompetitionsRoute: DojoAppCompetitionsRouteWithChildren,
   DojoAppCorporateBenefitsRoute: DojoAppCorporateBenefitsRoute,
   DojoAppEvaluationsRoute: DojoAppEvaluationsRouteWithChildren,
   DojoAppFinanceRoute: DojoAppFinanceRoute,
@@ -4212,11 +4242,9 @@ const DojoAppRouteChildren: DojoAppRouteChildren = {
   DojoAppUnitsRoute: DojoAppUnitsRoute,
   DojoAppVideosRoute: DojoAppVideosRouteWithChildren,
   DojoAppIndexRoute: DojoAppIndexRoute,
-  DojoAppCompetitionsIdRoute: DojoAppCompetitionsIdRoute,
   DojoAppTeamIdRoute: DojoAppTeamIdRoute,
   DojoAppTeamPayrollRoute: DojoAppTeamPayrollRoute,
   DojoAppTeamSchedulesRoute: DojoAppTeamSchedulesRoute,
-  DojoAppCompetitionsIndexRoute: DojoAppCompetitionsIndexRoute,
   DojoAppTeamIndexRoute: DojoAppTeamIndexRoute,
 }
 
