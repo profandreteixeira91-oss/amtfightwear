@@ -3872,12 +3872,22 @@ export type Database = {
         Row: {
           asaas_subscription_id: string | null
           billing_type: string | null
+          cancelled_at: string | null
           created_at: string
           custom_amount: number | null
+          custom_days: number | null
           due_day: number
           end_date: string | null
+          frequency: string
           id: string
+          installments_generated: number
+          installments_total: number | null
+          last_run_at: string | null
+          next_run_at: string | null
+          notes: string | null
           owner_id: string
+          paused_from: string | null
+          paused_until: string | null
           payment_method_code: string | null
           plan_id: string
           start_date: string
@@ -3888,12 +3898,22 @@ export type Database = {
         Insert: {
           asaas_subscription_id?: string | null
           billing_type?: string | null
+          cancelled_at?: string | null
           created_at?: string
           custom_amount?: number | null
+          custom_days?: number | null
           due_day?: number
           end_date?: string | null
+          frequency?: string
           id?: string
+          installments_generated?: number
+          installments_total?: number | null
+          last_run_at?: string | null
+          next_run_at?: string | null
+          notes?: string | null
           owner_id: string
+          paused_from?: string | null
+          paused_until?: string | null
           payment_method_code?: string | null
           plan_id: string
           start_date?: string
@@ -3904,12 +3924,22 @@ export type Database = {
         Update: {
           asaas_subscription_id?: string | null
           billing_type?: string | null
+          cancelled_at?: string | null
           created_at?: string
           custom_amount?: number | null
+          custom_days?: number | null
           due_day?: number
           end_date?: string | null
+          frequency?: string
           id?: string
+          installments_generated?: number
+          installments_total?: number | null
+          last_run_at?: string | null
+          next_run_at?: string | null
+          notes?: string | null
           owner_id?: string
+          paused_from?: string | null
+          paused_until?: string | null
           payment_method_code?: string | null
           plan_id?: string
           start_date?: string
