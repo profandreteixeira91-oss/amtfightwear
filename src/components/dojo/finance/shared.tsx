@@ -142,7 +142,14 @@ export type InvoiceRow = {
   method?: string | null;
   description?: string | null;
   student_id?: string | null;
-  student?: { full_name?: string | null } | null;
+  payment_link?: string | null;
+  asaas_invoice_url?: string | null;
+  student?: {
+    full_name?: string | null;
+    phone?: string | null;
+    email?: string | null;
+    guardian_phone?: string | null;
+  } | null;
 };
 export type ExpenseRow = {
   id: string;
