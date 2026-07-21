@@ -312,47 +312,47 @@ function DojoLayoutInner({
         <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-red-900/60 bg-red-700 text-white px-3 md:px-6 shadow-[0_4px_18px_-6px_rgba(0,0,0,0.35)]">
           <SidebarTrigger className="-ml-1 text-white hover:bg-white/10" />
           <Link to="/dojo/app" className="flex items-center gap-2 shrink-0">
-            <div className="h-11 w-32 rounded-lg bg-white ring-2 ring-white/80 shadow-[0_0_0_1px_rgba(255,255,255,0.6),0_8px_24px_-6px_rgba(0,0,0,0.45)] grid place-items-center overflow-hidden">
-              <img src={amtLogoUrl} alt="AMT Dojo Manager" className="h-full w-full object-contain p-1" />
+            <div className="h-11 w-40 md:w-48 rounded-lg bg-white ring-2 ring-white/80 shadow-[0_0_0_1px_rgba(255,255,255,0.6),0_8px_24px_-6px_rgba(0,0,0,0.45)] grid place-items-center overflow-hidden px-2">
+              <img src={dojoManagerLogoUrl} alt="Dojo Manager" className="h-full w-full object-contain" />
             </div>
           </Link>
           <div className="min-w-0 flex-1">
             <h1 className="font-display text-base md:text-lg font-bold tracking-tight leading-tight truncate text-white">
-              {header.title}
+              {dojoName ?? header.title}
             </h1>
             {header.subtitle && (
               <p className="text-[11px] md:text-xs text-white/75 leading-tight truncate">
-                {header.subtitle}
+                {header.title} · {header.subtitle}
               </p>
             )}
           </div>
           <TrialBadge />
           <div className="hidden md:flex items-center gap-2">
             <div className="relative">
-              <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-neutral-500" />
               <input
                 type="search"
                 placeholder="Buscar aluno, plano, unidade…"
-                className="h-9 w-64 rounded-lg border border-[color:var(--dojo-border)] bg-[color:var(--dojo-surface-2)] pl-8 pr-3 text-sm outline-none transition-colors focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/15"
+                className="h-9 w-64 rounded-lg border border-[color:var(--dojo-border)] bg-white text-black placeholder:text-neutral-500 pl-8 pr-3 text-sm outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/15"
               />
             </div>
             <button
               title="Notificações"
-              className="grid h-9 w-9 place-items-center rounded-lg border border-[color:var(--dojo-border)] bg-white text-muted-foreground hover:text-foreground hover:border-[color:var(--dojo-border-strong)] transition-colors"
+              className="grid h-9 w-9 place-items-center rounded-lg border border-[color:var(--dojo-border)] bg-white text-black hover:border-[color:var(--dojo-border-strong)] transition-colors"
             >
               <Bell className="h-4 w-4" />
             </button>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-2 rounded-lg border border-[color:var(--dojo-border)] bg-white px-2 py-1.5 hover:border-[color:var(--dojo-border-strong)] hover:shadow-sm transition-all">
+              <button className="flex items-center gap-2 rounded-lg border border-[color:var(--dojo-border)] bg-white text-black px-2 py-1.5 hover:border-[color:var(--dojo-border-strong)] hover:shadow-sm transition-all">
                 <div className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
                   {initial}
                 </div>
-                <span className="hidden sm:inline max-w-[160px] truncate text-sm font-medium">
+                <span className="hidden sm:inline max-w-[160px] truncate text-sm font-medium text-black">
                   {email ?? "Conta"}
                 </span>
-                <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                <ChevronDown className="h-3.5 w-3.5 text-black" />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
