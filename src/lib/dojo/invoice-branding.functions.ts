@@ -39,7 +39,7 @@ export const getInvoiceBranding = createServerFn({ method: "GET" })
     const { data: profile } = await context.supabase
       .from("dojo_academy_profile")
       .select(
-        "academy_name, trade_name, legal_name, logo_url, cnpj, phone, email, address, city, state",
+        "trade_name, legal_name, logo_url, cnpj, phone, email, address, city, state",
       )
       .eq("owner_id", context.userId)
       .maybeSingle();
@@ -55,11 +55,7 @@ export const getInvoiceBranding = createServerFn({ method: "GET" })
         invoice_footer_note: row.invoice_footer_note ?? null,
       },
       defaults: {
-        name:
-          profile?.trade_name ??
-          profile?.academy_name ??
-          profile?.legal_name ??
-          "",
+        name: profile?.trade_name ?? profile?.legal_name ?? "",
         document: profile?.cnpj ?? "",
         logo_url: profile?.logo_url ?? "",
         phone: profile?.phone ?? "",
@@ -76,12 +72,12 @@ export const updateInvoiceBranding = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => brandingSchema.parse(i))
   .handler(async ({ data, context }) => {
     await ensureRow(context.supabase, context.userId);
-    const normalized = Object.fromEntries(
-      Object.entries(data).map(([k, v]) => [k, v === "" ? null : v]),
+    const normalized: Record<string, string | null> = Object.fromEntries(
+      Object.entries(data).map(([k, v]) => [k, v === "" ? null : (v as any)]),
     );
     const { error } = await context.supabase
       .from("dojo_payment_settings")
-      .update(normalized)
+      .update(normalized as any)
       .eq("owner_id", context.userId);
     if (error) throw new Error(error.message);
     return { ok: true };
