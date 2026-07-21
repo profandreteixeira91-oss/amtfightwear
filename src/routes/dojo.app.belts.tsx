@@ -85,7 +85,8 @@ function BeltsPage() {
 
   const q = useQuery({ queryKey: ["dojo-belts"], queryFn: () => listFn() });
   const adminQ = useQuery({ queryKey: ["is-admin"], queryFn: () => adminFn() });
-  const isAdmin = Boolean(adminQ.data?.isAdmin);
+  const isAmtAdmin = Boolean((adminQ.data as any)?.isAmtAdmin);
+  const isAdmin = isAmtAdmin;
 
   const [modality, setModality] = useState("jiu-jitsu");
   const [customModality, setCustomModality] = useState("");
@@ -211,7 +212,9 @@ function BeltsPage() {
           <h1 className="text-xl font-semibold">Modalidades e Faixas</h1>
           <p className="text-sm text-muted-foreground">
             Gerencie as graduações de cada modalidade. Arraste pelo <GripVertical className="inline h-3 w-3" /> para reordenar.
-            {isAdmin && " Como administrador AMT, suas alterações em faixas globais propagam para todos os usuários."}
+            {isAmtAdmin
+              ? " Como administrador AMT, suas alterações em faixas globais propagam para todos os usuários do sistema."
+              : " Faixas globais AMT são somente leitura; as faixas que você criar ficam salvas apenas no seu login."}
           </p>
         </div>
       </div>
@@ -261,7 +264,7 @@ function BeltsPage() {
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
               <SortableContext items={localBelts.map((b) => b.id)} strategy={verticalListSortingStrategy}>
                 {localBelts.map((b) => (
-                  <SortableBeltRow key={b.id} belt={b} onEdit={openEdit} onRemove={remove} />
+                  <SortableBeltRow key={b.id} belt={b} onEdit={openEdit} onRemove={remove} canEdit={isAmtAdmin || Boolean(b.owner_id)} />
                 ))}
               </SortableContext>
             </DndContext>
@@ -423,10 +426,12 @@ function SortableBeltRow({
   belt: b,
   onEdit,
   onRemove,
+  canEdit = true,
 }: {
   belt: BeltRow;
   onEdit: (b: BeltRow) => void;
   onRemove: (id: string) => void;
+  canEdit?: boolean;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: b.id });
   const style = {
@@ -467,11 +472,11 @@ function SortableBeltRow({
           }`}
         </div>
       </div>
-      <Button size="sm" variant="ghost" onClick={() => onEdit(b)}>
+      <Button size="sm" variant="ghost" onClick={() => onEdit(b)} disabled={!canEdit} title={canEdit ? "Editar" : "Faixa global AMT — somente leitura"}>
         <Pencil className="h-4 w-4" />
       </Button>
-      <Button size="sm" variant="ghost" onClick={() => onRemove(b.id)}>
-        <Trash2 className="h-4 w-4 text-red-600" />
+      <Button size="sm" variant="ghost" onClick={() => onRemove(b.id)} disabled={!canEdit} title={canEdit ? "Excluir" : "Faixa global AMT — somente leitura"}>
+        <Trash2 className={`h-4 w-4 ${canEdit ? "text-red-600" : "text-muted-foreground"}`} />
       </Button>
     </div>
   );
