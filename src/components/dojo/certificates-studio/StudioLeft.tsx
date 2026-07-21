@@ -371,9 +371,13 @@ function PagePanel() {
         <label className="text-xs text-neutral-600">Cor de fundo</label>
         <Input type="color" value={doc.page.background || "#ffffff"} onChange={(e) => setPage({ background: e.target.value })} />
       </div>
-      <div>
-        <label className="text-xs text-neutral-600">Imagem de fundo (URL)</label>
+      <div className="space-y-2">
+        <label className="text-xs text-neutral-600">Imagem de fundo</label>
         <Input value={doc.page.backgroundUrl || ""} onChange={(e) => setPage({ backgroundUrl: e.target.value })} placeholder="https://..." />
+        <PageBgUpload onDone={(url) => setPage({ backgroundUrl: url })} />
+        {doc.page.backgroundUrl && (
+          <button onClick={() => setPage({ backgroundUrl: "" })} className="text-[11px] text-red-700 hover:underline">Remover imagem de fundo</button>
+        )}
       </div>
     </div>
   );
