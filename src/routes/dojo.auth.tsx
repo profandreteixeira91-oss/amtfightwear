@@ -26,19 +26,9 @@ export const Route = createFileRoute("/dojo/auth")({
   component: DojoAuthPage,
 });
 
-async function resolveDestination(userId: string, requested?: string): Promise<string> {
-  const safe = requested && requested.startsWith("/dojo") ? requested : "/dojo/app";
-  try {
-    const { data } = await supabase
-      .from("dojo_academy_profile")
-      .select("onboarding_completed")
-      .eq("owner_id", userId)
-      .maybeSingle();
-    if (!data?.onboarding_completed) return "/dojo/onboarding";
-    return safe;
-  } catch {
-    return safe;
-  }
+async function resolveDestination(_userId: string, requested?: string): Promise<string> {
+  // Onboarding é opcional — acesso total ao painel desde o primeiro login.
+  return requested && requested.startsWith("/dojo") ? requested : "/dojo/app";
 }
 
 function DojoAuthPage() {
@@ -94,8 +84,8 @@ function DojoAuthPage() {
     setLoading(false);
     if (error) return toast.error("Falha ao criar conta", { description: error.message });
     if (data.session) {
-      toast.success("Conta criada! Vamos configurar seu dojo.");
-      window.location.assign("/dojo/onboarding");
+      toast.success("Conta criada! Bem-vindo ao AMT Dojo Manager.");
+      window.location.assign("/dojo/app");
     } else {
       toast.success("Conta criada! Confirme seu e-mail para continuar.");
       setMode("signin");
