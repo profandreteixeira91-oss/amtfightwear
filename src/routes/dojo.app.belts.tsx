@@ -56,6 +56,8 @@ type BeltRow = {
   modality: string;
   owner_id: string | null;
   min_months: number | null;
+  min_classes: number | null;
+  criteria_mode: "time" | "classes" | "evaluation" | "merit";
 };
 
 const emptyForm = {
@@ -68,6 +70,8 @@ const emptyForm = {
   max_degrees: 0,
   category: "adult",
   min_months: "" as string,
+  min_classes: "" as string,
+  criteria_mode: "time" as "time" | "classes" | "evaluation" | "merit",
   scope: "own" as "own" | "global",
 };
 
@@ -124,6 +128,8 @@ function BeltsPage() {
       max_degrees: b.max_degrees,
       category: b.category ?? "adult",
       min_months: b.min_months != null ? String(b.min_months) : "",
+      min_classes: b.min_classes != null ? String(b.min_classes) : "",
+      criteria_mode: (b.criteria_mode ?? "time") as any,
       scope: b.owner_id ? "own" : "global",
     });
     setOpen(true);
@@ -137,6 +143,8 @@ function BeltsPage() {
           ...form,
           stripe_hex: form.stripe_hex?.trim() ? form.stripe_hex : null,
           min_months: form.min_months?.toString().trim() === "" ? null : Number(form.min_months),
+          min_classes: form.min_classes?.toString().trim() === "" ? null : Number(form.min_classes),
+          criteria_mode: form.criteria_mode,
         } as any,
       });
       toast.success("Faixa salva");
@@ -322,18 +330,52 @@ function BeltsPage() {
                 onChange={(e) => setForm((f) => ({ ...f, max_degrees: Number(e.target.value) }))}
               />
             </div>
-            <div className="col-span-2">
-              <label className="text-xs text-muted-foreground">
-                Carência (opcional) — tempo mínimo em meses antes da próxima graduação
-              </label>
-              <Input
-                type="number"
-                min={0}
-                max={240}
-                placeholder="Ex.: 6, 12, 24… (deixe vazio para sem carência)"
-                value={form.min_months}
-                onChange={(e) => setForm((f) => ({ ...f, min_months: e.target.value }))}
-              />
+            <div className="col-span-2 rounded-md border border-dashed p-3 space-y-3">
+              <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Critério para próxima graduação
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">Modo</label>
+                <select
+                  className="border rounded p-2 bg-background w-full"
+                  value={form.criteria_mode}
+                  onChange={(e) => setForm((f) => ({ ...f, criteria_mode: e.target.value as any }))}
+                >
+                  <option value="time">Tempo mínimo de permanência</option>
+                  <option value="classes">Mínimo de aulas (check-ins)</option>
+                  <option value="evaluation">Mediante avaliação</option>
+                  <option value="merit">Mérito (decisão do instrutor)</option>
+                </select>
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  Este é o critério <strong>universal</strong> para todos os alunos nesta faixa. Pode ser sobrescrito aluno a aluno na ficha individual.
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-muted-foreground">Meses mínimos</label>
+                  <Input
+                    type="number"
+                    min={0}
+                    max={240}
+                    placeholder="Ex.: 6, 12, 24…"
+                    value={form.min_months}
+                    onChange={(e) => setForm((f) => ({ ...f, min_months: e.target.value }))}
+                    disabled={form.criteria_mode !== "time" && form.criteria_mode !== "classes"}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground">Aulas mínimas</label>
+                  <Input
+                    type="number"
+                    min={0}
+                    max={10000}
+                    placeholder="Ex.: 60, 120…"
+                    value={form.min_classes}
+                    onChange={(e) => setForm((f) => ({ ...f, min_classes: e.target.value }))}
+                    disabled={form.criteria_mode !== "classes" && form.criteria_mode !== "time"}
+                  />
+                </div>
+              </div>
             </div>
             <div className="col-span-2">
               <label className="text-xs text-muted-foreground">Visibilidade</label>
@@ -417,7 +459,12 @@ function SortableBeltRow({
         <div className="text-sm font-medium">{b.name}</div>
         <div className="text-xs text-muted-foreground">
           {b.max_degrees > 0 ? `${b.max_degrees} graus` : "sem graus"} · {b.owner_id ? "própria" : "global"}
-          {b.min_months != null && ` · carência ${b.min_months} ${b.min_months === 1 ? "mês" : "meses"}`}
+          {b.min_months != null && ` · ${b.min_months} ${b.min_months === 1 ? "mês" : "meses"}`}
+          {b.min_classes != null && ` · ${b.min_classes} aulas`}
+          {b.criteria_mode && b.criteria_mode !== "time" && ` · ${
+            b.criteria_mode === "classes" ? "por aulas" :
+            b.criteria_mode === "evaluation" ? "por avaliação" : "por mérito"
+          }`}
         </div>
       </div>
       <Button size="sm" variant="ghost" onClick={() => onEdit(b)}>

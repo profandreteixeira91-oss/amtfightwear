@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import {
   listDojoStudents, listDojoBelts, addBulkGraduation,
   listCertificateTemplates, issueCertificate,
+  listGraduationProgress,
 } from "@/lib/dojo/dojo.functions";
 import { BeltVisual } from "@/components/dojo/BeltVisual";
 import { CertificatePreviewDialog, openCertificatePrint, type CertificateTemplate } from "@/components/dojo/CertificatePreview";
@@ -33,6 +34,13 @@ function NewGraduationPage() {
   const students = useQuery({ queryKey: ["dojo-students"], queryFn: () => studentsFn() });
   const belts = useQuery({ queryKey: ["dojo-belts"], queryFn: () => beltsFn() });
   const templates = useQuery({ queryKey: ["dojo-templates"], queryFn: () => templatesFn() });
+  const progressFn = useServerFn(listGraduationProgress);
+  const progress = useQuery({ queryKey: ["dojo-grad-progress"], queryFn: () => progressFn() });
+  const progressById = useMemo(() => {
+    const m = new Map<string, any>();
+    for (const p of (progress.data ?? []) as any[]) m.set(p.student_id, p);
+    return m;
+  }, [progress.data]);
 
   const [step, setStep] = useState<Step>("select");
   const [selectedStudents, setSelectedStudents] = useState<Set<string>>(new Set());
@@ -240,6 +248,40 @@ function NewGraduationPage() {
                           ? "Sem faixa"
                           : belts.map((b: any) => `${b.belt.name}${b.degree ? ` · ${b.degree}º grau` : ""}`).join(" • ")}
                       </div>
+                      {(() => {
+                        const p = progressById.get(s.id);
+                        if (!p) return null;
+                        const badges: string[] = [];
+                        if (p.criteria_mode === "classes" || p.criteria_mode === "time") {
+                          if (p.min_classes != null) {
+                            const ok = p.attendance_since >= p.min_classes;
+                            badges.push(`${ok ? "✓ " : ""}${p.attendance_since}/${p.min_classes} aulas`);
+                          }
+                          if (p.min_months != null) {
+                            const ok = p.months_since >= p.min_months;
+                            badges.push(`${ok ? "✓ " : ""}${p.months_since}/${p.min_months} meses`);
+                          }
+                        } else if (p.criteria_mode === "evaluation") {
+                          badges.push("por avaliação");
+                        } else if (p.criteria_mode === "merit") {
+                          badges.push("por mérito");
+                        }
+                        if (badges.length === 0) return null;
+                        return (
+                          <div className="mt-1 flex flex-wrap gap-1">
+                            {badges.map((b, i) => (
+                              <span key={i} className="inline-flex items-center rounded bg-muted px-1.5 py-0.5 text-[10px] font-mono">
+                                {b}
+                              </span>
+                            ))}
+                            {p.has_override && (
+                              <span className="inline-flex items-center rounded bg-amber-100 text-amber-800 px-1.5 py-0.5 text-[10px]">
+                                critério individual
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
                     <div className="hidden sm:flex shrink-0 flex-col gap-1 items-end">
                       {belts.slice(0, 3).map((b: any, i: number) => (
