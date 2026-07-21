@@ -119,15 +119,50 @@ export const checkIsAdmin = createServerFn({ method: "GET" })
   });
 
 // ============ STUDENTS ============
+// Compute the most recent graduation per modality for each student.
+// A graduation only overrides another when they share the same modality.
+async function attachCurrentBeltsByModality(
+  supabase: any,
+  students: any[],
+): Promise<any[]> {
+  if (!students || students.length === 0) return students ?? [];
+  const ids = students.map((s) => s.id);
+  const { data: grads } = await supabase
+    .from("dojo_graduations")
+    .select("student_id, degree, graduation_date, belt:dojo_belts(id,name,color_hex,stripe_hex,max_degrees,modality)")
+    .in("student_id", ids)
+    .order("graduation_date", { ascending: false });
+  const byStudent = new Map<string, Map<string, any>>();
+  for (const g of grads ?? []) {
+    if (!g.belt) continue;
+    const modality = (g.belt as any).modality ?? "jiu-jitsu";
+    let m = byStudent.get(g.student_id);
+    if (!m) { m = new Map(); byStudent.set(g.student_id, m); }
+    // First occurrence wins because rows are ordered by graduation_date DESC.
+    if (!m.has(modality)) {
+      m.set(modality, {
+        modality,
+        belt: g.belt,
+        degree: g.degree ?? 0,
+        graduation_date: g.graduation_date,
+      });
+    }
+  }
+  return students.map((s) => ({
+    ...s,
+    current_belts: Array.from((byStudent.get(s.id) ?? new Map()).values()),
+  }));
+}
+
 export const listDojoStudents = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("dojo_students")
-      .select("*, unit:dojo_units(name), belt:dojo_belts(name,color_hex,stripe_hex,max_degrees)")
+      .select("*, unit:dojo_units(name), belt:dojo_belts(name,color_hex,stripe_hex,max_degrees,modality)")
       .order("full_name");
     if (error) throw new Error(error.message);
-    return data ?? [];
+    return await attachCurrentBeltsByModality(context.supabase, data ?? []);
   });
 
 export const getDojoStudent = createServerFn({ method: "GET" })
@@ -138,13 +173,30 @@ export const getDojoStudent = createServerFn({ method: "GET" })
       .from("dojo_students").select("*").eq("id", data.id).single();
     if (error) throw new Error(error.message);
     const [grads, enrolls, invoices, certs] = await Promise.all([
-      context.supabase.from("dojo_graduations").select("*, belt:dojo_belts(name,color_hex,stripe_hex,max_degrees)").eq("student_id", data.id).order("graduation_date", { ascending: false }),
+      context.supabase.from("dojo_graduations").select("*, belt:dojo_belts(name,color_hex,stripe_hex,max_degrees,modality)").eq("student_id", data.id).order("graduation_date", { ascending: false }),
       context.supabase.from("dojo_enrollments").select("*, plan:dojo_plans(name,amount)").eq("student_id", data.id),
       context.supabase.from("dojo_invoices").select("*").eq("student_id", data.id).order("due_date", { ascending: false }).limit(50),
       context.supabase.from("dojo_certificates").select("*, template:dojo_certificate_templates(*), graduation:dojo_graduations(graduation_date, degree, belt:dojo_belts(name))").eq("student_id", data.id).order("issued_at", { ascending: false }),
     ]);
-    return { student, graduations: grads.data ?? [], enrollments: enrolls.data ?? [], invoices: invoices.data ?? [], certificates: certs.data ?? [] };
+    // Derive current belt per modality from ordered graduations (latest per modality wins).
+    const currentByModality = new Map<string, any>();
+    for (const g of grads.data ?? []) {
+      if (!g.belt) continue;
+      const mod = (g.belt as any).modality ?? "jiu-jitsu";
+      if (!currentByModality.has(mod)) {
+        currentByModality.set(mod, { modality: mod, belt: g.belt, degree: g.degree ?? 0, graduation_date: g.graduation_date });
+      }
+    }
+    return {
+      student,
+      graduations: grads.data ?? [],
+      enrollments: enrolls.data ?? [],
+      invoices: invoices.data ?? [],
+      certificates: certs.data ?? [],
+      current_belts: Array.from(currentByModality.values()),
+    };
   });
+
 
 export const saveDojoStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -242,11 +294,26 @@ export const addDojoGraduation = createServerFn({ method: "POST" })
       })
       .select("id").single();
     if (error) throw new Error(error.message);
-    await context.supabase.from("dojo_students")
-      .update({ current_belt_id: data.belt_id, current_degree: data.degree })
-      .eq("id", data.student_id);
+
+    // Only overwrite the student's "primary" current belt when the new
+    // graduation is in the same modality as the existing one (or when the
+    // student has no current belt yet). Belts from other modalities are
+    // kept in dojo_graduations and surfaced via current_belts per modality.
+    const [{ data: newBelt }, { data: student }] = await Promise.all([
+      context.supabase.from("dojo_belts").select("modality").eq("id", data.belt_id).maybeSingle(),
+      context.supabase.from("dojo_students").select("current_belt_id, belt:dojo_belts(modality)").eq("id", data.student_id).maybeSingle(),
+    ]);
+    const newMod = (newBelt as any)?.modality ?? "jiu-jitsu";
+    const currentMod = (student as any)?.belt?.modality ?? null;
+    const shouldOverwrite = !student?.current_belt_id || currentMod === null || currentMod === newMod;
+    if (shouldOverwrite) {
+      await context.supabase.from("dojo_students")
+        .update({ current_belt_id: data.belt_id, current_degree: data.degree })
+        .eq("id", data.student_id);
+    }
     return { id: row.id };
   });
+
 
 export const deleteDojoGraduation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -1054,12 +1121,35 @@ export const addBulkGraduation = createServerFn({ method: "POST" })
     const { data: inserted, error } = await context.supabase
       .from("dojo_graduations").insert(rows).select("id, student_id");
     if (error) throw new Error(error.message);
-    await context.supabase
-      .from("dojo_students")
-      .update({ current_belt_id: data.belt_id, current_degree: data.degree })
-      .in("id", data.student_ids);
+
+    // Modality-aware overwrite: only students whose current belt is null or
+    // shares the new belt's modality receive an update on current_belt_id /
+    // current_degree. Others keep their primary belt intact — the graduation
+    // stays in dojo_graduations and shows up via current_belts per modality.
+    const [{ data: newBelt }, { data: studentsRows }] = await Promise.all([
+      context.supabase.from("dojo_belts").select("modality").eq("id", data.belt_id).maybeSingle(),
+      context.supabase
+        .from("dojo_students")
+        .select("id, current_belt_id, belt:dojo_belts(modality)")
+        .in("id", data.student_ids),
+    ]);
+    const newMod = (newBelt as any)?.modality ?? "jiu-jitsu";
+    const eligible: string[] = [];
+    for (const s of studentsRows ?? []) {
+      const currentMod = (s as any).belt?.modality ?? null;
+      if (!s.current_belt_id || currentMod === null || currentMod === newMod) {
+        eligible.push(s.id);
+      }
+    }
+    if (eligible.length > 0) {
+      await context.supabase
+        .from("dojo_students")
+        .update({ current_belt_id: data.belt_id, current_degree: data.degree })
+        .in("id", eligible);
+    }
     return { count: inserted?.length ?? 0, graduations: inserted ?? [] };
   });
+
 
 // ============ EVALUATIONS ============
 const evalItemSchema = z.object({

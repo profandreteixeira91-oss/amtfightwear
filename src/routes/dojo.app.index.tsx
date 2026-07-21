@@ -141,15 +141,40 @@ function DojoDashboard() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="text-sm font-medium truncate">{s.full_name}</div>
-                  <div className="text-xs text-muted-foreground truncate">
-                    {s.belt?.name ?? "Sem faixa"}{s.current_degree ? ` · ${s.current_degree}º grau` : ""}
-                  </div>
+                  {(() => {
+                    const belts = (s.current_belts && s.current_belts.length > 0)
+                      ? s.current_belts
+                      : (s.belt ? [{ modality: s.belt.modality, belt: s.belt, degree: s.current_degree ?? 0 }] : []);
+                    if (belts.length === 0) {
+                      return <div className="text-xs text-muted-foreground truncate">Sem faixa</div>;
+                    }
+                    return (
+                      <div className="text-xs text-muted-foreground truncate">
+                        {belts.map((b: any) => `${b.belt.name}${b.degree ? ` · ${b.degree}º` : ""}`).join(" • ")}
+                      </div>
+                    );
+                  })()}
                 </div>
-                {s.belt?.color_hex && (
-                  <div className="hidden sm:block shrink-0">
-                    <BeltVisual modality={s.belt.modality} name={s.belt.name} colorHex={s.belt.color_hex} stripeHex={s.belt.stripe_hex} degree={s.current_degree ?? 0} maxDegrees={s.belt?.max_degrees ?? 4} className="min-w-[140px]" />
-                  </div>
-                )}
+                <div className="hidden sm:flex shrink-0 flex-col gap-1 items-end">
+                  {(() => {
+                    const belts = (s.current_belts && s.current_belts.length > 0)
+                      ? s.current_belts
+                      : (s.belt?.color_hex ? [{ modality: s.belt.modality, belt: s.belt, degree: s.current_degree ?? 0 }] : []);
+                    return belts.slice(0, 3).map((b: any, i: number) => (
+                      <BeltVisual
+                        key={i}
+                        modality={b.belt.modality}
+                        name={b.belt.name}
+                        colorHex={b.belt.color_hex}
+                        stripeHex={b.belt.stripe_hex}
+                        degree={b.degree ?? 0}
+                        maxDegrees={b.belt?.max_degrees ?? 4}
+                        className="w-[220px]"
+                      />
+                    ));
+                  })()}
+                </div>
+
                 <span className={`text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded shrink-0 ${
                   s.status === "active" ? "bg-emerald-100 text-emerald-700" : "bg-muted text-muted-foreground"
                 }`}>

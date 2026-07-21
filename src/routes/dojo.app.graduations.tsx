@@ -226,20 +226,39 @@ function NewGraduationPage() {
               <Button variant="ghost" size="sm" onClick={() => setSelectedStudents(new Set())}>Limpar</Button>
             </div>
             <div className="border rounded max-h-[420px] overflow-y-auto divide-y">
-              {filteredStudents.map((s: any) => (
-                <label key={s.id} className="flex items-center gap-3 p-3 hover:bg-muted cursor-pointer">
-                  <input type="checkbox" checked={selectedStudents.has(s.id)} onChange={() => toggleStudent(s.id)} />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium truncate">{s.full_name}</div>
-                    <div className="text-xs text-muted-foreground truncate">
-                      Graduação atual: {s.belt?.name ?? "Sem faixa"}{s.current_degree ? ` · ${s.current_degree}º grau` : ""}
+              {filteredStudents.map((s: any) => {
+                const belts = (s.current_belts && s.current_belts.length > 0)
+                  ? s.current_belts
+                  : (s.belt ? [{ modality: s.belt.modality, belt: s.belt, degree: s.current_degree ?? 0 }] : []);
+                return (
+                  <label key={s.id} className="flex items-center gap-3 p-3 hover:bg-muted cursor-pointer">
+                    <input type="checkbox" checked={selectedStudents.has(s.id)} onChange={() => toggleStudent(s.id)} />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium truncate">{s.full_name}</div>
+                      <div className="text-xs text-muted-foreground truncate">
+                        {belts.length === 0
+                          ? "Sem faixa"
+                          : belts.map((b: any) => `${b.belt.name}${b.degree ? ` · ${b.degree}º grau` : ""}`).join(" • ")}
+                      </div>
                     </div>
-                  </div>
-                  {s.belt?.color_hex && (
-                    <BeltVisual modality={s.belt.modality} name={s.belt.name} colorHex={s.belt.color_hex} stripeHex={s.belt.stripe_hex} degree={s.current_degree ?? 0} maxDegrees={s.belt?.max_degrees ?? 4} />
-                  )}
-                </label>
-              ))}
+                    <div className="hidden sm:flex shrink-0 flex-col gap-1 items-end">
+                      {belts.slice(0, 3).map((b: any, i: number) => (
+                        <BeltVisual
+                          key={i}
+                          modality={b.belt.modality}
+                          name={b.belt.name}
+                          colorHex={b.belt.color_hex}
+                          stripeHex={b.belt.stripe_hex}
+                          degree={b.degree ?? 0}
+                          maxDegrees={b.belt?.max_degrees ?? 4}
+                          className="w-[220px]"
+                        />
+                      ))}
+                    </div>
+                  </label>
+                );
+              })}
+
               {filteredStudents.length === 0 && <div className="p-4 text-sm text-muted-foreground">Nenhum aluno.</div>}
             </div>
             <div className="flex justify-end">
@@ -254,15 +273,26 @@ function NewGraduationPage() {
           <CardHeader><CardTitle className="text-base">Nova graduação · {selectedStudents.size} aluno(s)</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div className="border rounded p-3 bg-muted/30 space-y-1 max-h-40 overflow-y-auto">
-              {selectedRows.map((s: any) => (
-                <div key={s.id} className="text-sm flex items-center justify-between">
-                  <span>{s.full_name}</span>
-                  <span className="text-xs text-muted-foreground">
-                    Atual: {s.belt?.name ?? "Sem faixa"}{s.current_degree ? ` · ${s.current_degree}º` : ""}
-                  </span>
-                </div>
-              ))}
+              {selectedRows.map((s: any) => {
+                const belts = (s.current_belts && s.current_belts.length > 0)
+                  ? s.current_belts
+                  : (s.belt ? [{ belt: s.belt, degree: s.current_degree ?? 0 }] : []);
+                const matchesModality = belts.find((b: any) => (b.belt.modality ?? "jiu-jitsu") === modality);
+                return (
+                  <div key={s.id} className="text-sm flex items-center justify-between gap-2">
+                    <span className="truncate">{s.full_name}</span>
+                    <span className="text-xs text-muted-foreground text-right">
+                      {belts.length === 0
+                        ? "Sem faixa"
+                        : matchesModality
+                        ? `Atual (${modality}): ${matchesModality.belt.name}${matchesModality.degree ? ` · ${matchesModality.degree}º` : ""}`
+                        : `Sem faixa em ${modality}`}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
+
             <div className="grid md:grid-cols-2 gap-3">
               <div>
                 <label className="text-xs text-muted-foreground">Modalidade</label>
