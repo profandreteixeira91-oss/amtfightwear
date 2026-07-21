@@ -89,12 +89,26 @@ export function StudioCanvas() {
     <div ref={wrapRef} className="relative flex-1 overflow-auto bg-neutral-100 dark:bg-neutral-900">
       {showRulers && <RulerH />}
       {showRulers && <RulerV />}
-      <div className="min-h-full min-w-full flex items-center justify-center p-10">
+      <div
+        className="flex items-center justify-center"
+        style={{
+          minWidth: `calc(100% - ${showRulers ? 24 : 0}px)`,
+          minHeight: `calc(100% - ${showRulers ? 24 : 0}px)`,
+          padding: 40,
+          paddingLeft: (showRulers ? 24 : 0) + 40,
+          paddingTop: (showRulers ? 24 : 0) + 40,
+          width: doc.page.width * zoom + 120,
+          height: doc.page.height * zoom + 120,
+          boxSizing: "border-box",
+        }}
+      >
         <div
-          className="relative shadow-2xl bg-white ring-1 ring-black/5"
+          className="relative shadow-2xl ring-1 ring-black/5"
           style={{
             width: doc.page.width * zoom,
             height: doc.page.height * zoom,
+            background: doc.page.background || "#ffffff",
+            flexShrink: 0,
           }}
           onMouseDown={(e) => { if (e.target === e.currentTarget) clearSelection(); }}
         >
