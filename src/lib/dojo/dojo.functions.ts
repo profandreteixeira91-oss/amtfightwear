@@ -758,15 +758,12 @@ export const enrollStudentWithPlan = createServerFn({ method: "POST" })
     if (!student) throw new Error("Aluno não encontrado");
 
     // Valida método vs plano
-    const methodCode = data.payment_method;
+    let methodCode = data.payment_method;
     const enabledMethods = Array.isArray((plan as any).payment_methods)
       ? ((plan as any).payment_methods as any[])
           .filter((m) => m && (m.enabled === true || m.enabled === undefined))
           .map((m) => String(m.code))
       : [];
-    if (enabledMethods.length > 0 && !enabledMethods.includes(methodCode)) {
-      throw new Error(`Método "${methodCode}" não está habilitado no plano.`);
-    }
 
     // Import lazy dos helpers server-only
     const {
@@ -776,6 +773,22 @@ export const enrollStudentWithPlan = createServerFn({ method: "POST" })
       ensureAsaasCustomerForStudent,
       resolveDojoAsaasCredentials,
     } = await import("@/lib/asaas/enrollment.server");
+
+    // AMT Pay OFF (mode = "central") → todas as cobranças do dojo são manuais,
+    // independentemente do que estiver marcado no plano. Coerção para "manual"
+    // antes da validação para evitar bloqueio quando o dono ainda não ajustou
+    // o plano após desativar o AMT Pay.
+    const { data: profileForMode } = await context.supabase
+      .from("dojo_academy_profile")
+      .select("asaas_subaccount_id, asaas_api_key_encrypted, asaas_wallet_id, asaas_onboarding_status, trade_name")
+      .eq("owner_id", ownerId(context))
+      .maybeSingle();
+    const amtPayMode = resolveDojoAsaasCredentials((profileForMode ?? {}) as any).mode;
+    if (amtPayMode === "central") {
+      methodCode = "manual";
+    } else if (enabledMethods.length > 0 && !enabledMethods.includes(methodCode)) {
+      throw new Error(`Método "${methodCode}" não está habilitado no plano.`);
+    }
 
     // 3) Cria matrícula (base)
     const baseAmount = Number(data.custom_amount ?? plan.amount ?? 0);
@@ -798,8 +811,9 @@ export const enrollStudentWithPlan = createServerFn({ method: "POST" })
       .single();
     if (enrErr) throw new Error(enrErr.message);
 
-    // 4a) Fluxo GATEWAY (Asaas Subscription)
-    if (isGatewayPaymentMethod(methodCode)) {
+    // 4a) Fluxo GATEWAY (Asaas Subscription) — só quando AMT Pay ativo.
+    if (amtPayMode !== "central" && isGatewayPaymentMethod(methodCode)) {
+
       // Carrega profile do dojo (para chave/subconta Asaas)
       const { data: profile } = await context.supabase
         .from("dojo_academy_profile")
