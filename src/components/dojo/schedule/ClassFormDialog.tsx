@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Trash2 } from "lucide-react";
 import { saveClass, listSpaces } from "@/lib/dojo/schedule.functions";
 import { listDojoUnits } from "@/lib/dojo/dojo.functions";
+import { listTeamMembers } from "@/lib/dojo/team.functions";
 import { WEEKDAYS, MODALITIES, LEVELS, CLASS_COLORS } from "./constants";
 
 type Schedule = { weekday: number; start_time: string; end_time: string };
