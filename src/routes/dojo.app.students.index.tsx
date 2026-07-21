@@ -13,6 +13,9 @@ import {
   bulkImportDojoStudents,
 } from "@/lib/dojo/dojo.functions";
 import { paymentMethodLabel, normalizePlanPaymentMethods } from "@/lib/dojo/payment-methods";
+import { getMyAsaasConfig } from "@/lib/asaas/asaas.functions";
+import { isAsaasReady } from "@/lib/dojo/amt-pay-status";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
