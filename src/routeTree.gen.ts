@@ -182,6 +182,7 @@ import { Route as ApiPublicHooksIgWebhookRouteImport } from './routes/api/public
 import { Route as ApiPublicHooksIgSyncRouteImport } from './routes/api/public/hooks/ig-sync'
 import { Route as ApiPublicHooksGenerateDojoInvoicesRouteImport } from './routes/api/public/hooks/generate-dojo-invoices'
 import { Route as ApiPublicHooksEnrichPendingLeadsRouteImport } from './routes/api/public/hooks/enrich-pending-leads'
+import { Route as ApiPublicHooksDojoWalletReconcileRouteImport } from './routes/api/public/hooks/dojo-wallet-reconcile'
 import { Route as ApiPublicHooksCompetitionsIngestRouteImport } from './routes/api/public/hooks/competitions-ingest'
 import { Route as ApiPublicHooksAutoInstagramPostRouteImport } from './routes/api/public/hooks/auto-instagram-post'
 import { Route as ApiPublicHooksAsaasRouteImport } from './routes/api/public/hooks/asaas'
@@ -1120,6 +1121,12 @@ const ApiPublicHooksEnrichPendingLeadsRoute =
     path: '/api/public/hooks/enrich-pending-leads',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksDojoWalletReconcileRoute =
+  ApiPublicHooksDojoWalletReconcileRouteImport.update({
+    id: '/api/public/hooks/dojo-wallet-reconcile',
+    path: '/api/public/hooks/dojo-wallet-reconcile',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksCompetitionsIngestRoute =
   ApiPublicHooksCompetitionsIngestRouteImport.update({
     id: '/api/public/hooks/competitions-ingest',
@@ -1350,6 +1357,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/asaas': typeof ApiPublicHooksAsaasRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/competitions-ingest': typeof ApiPublicHooksCompetitionsIngestRoute
+  '/api/public/hooks/dojo-wallet-reconcile': typeof ApiPublicHooksDojoWalletReconcileRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
   '/api/public/hooks/generate-dojo-invoices': typeof ApiPublicHooksGenerateDojoInvoicesRoute
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
@@ -1532,6 +1540,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/asaas': typeof ApiPublicHooksAsaasRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/competitions-ingest': typeof ApiPublicHooksCompetitionsIngestRoute
+  '/api/public/hooks/dojo-wallet-reconcile': typeof ApiPublicHooksDojoWalletReconcileRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
   '/api/public/hooks/generate-dojo-invoices': typeof ApiPublicHooksGenerateDojoInvoicesRoute
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
@@ -1722,6 +1731,7 @@ export interface FileRoutesById {
   '/api/public/hooks/asaas': typeof ApiPublicHooksAsaasRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/competitions-ingest': typeof ApiPublicHooksCompetitionsIngestRoute
+  '/api/public/hooks/dojo-wallet-reconcile': typeof ApiPublicHooksDojoWalletReconcileRoute
   '/api/public/hooks/enrich-pending-leads': typeof ApiPublicHooksEnrichPendingLeadsRoute
   '/api/public/hooks/generate-dojo-invoices': typeof ApiPublicHooksGenerateDojoInvoicesRoute
   '/api/public/hooks/ig-sync': typeof ApiPublicHooksIgSyncRoute
@@ -1913,6 +1923,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/asaas'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/competitions-ingest'
+    | '/api/public/hooks/dojo-wallet-reconcile'
     | '/api/public/hooks/enrich-pending-leads'
     | '/api/public/hooks/generate-dojo-invoices'
     | '/api/public/hooks/ig-sync'
@@ -2095,6 +2106,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/asaas'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/competitions-ingest'
+    | '/api/public/hooks/dojo-wallet-reconcile'
     | '/api/public/hooks/enrich-pending-leads'
     | '/api/public/hooks/generate-dojo-invoices'
     | '/api/public/hooks/ig-sync'
@@ -2284,6 +2296,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/asaas'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/competitions-ingest'
+    | '/api/public/hooks/dojo-wallet-reconcile'
     | '/api/public/hooks/enrich-pending-leads'
     | '/api/public/hooks/generate-dojo-invoices'
     | '/api/public/hooks/ig-sync'
@@ -2372,6 +2385,7 @@ export interface RootRouteChildren {
   ApiPublicHooksAsaasRoute: typeof ApiPublicHooksAsaasRoute
   ApiPublicHooksAutoInstagramPostRoute: typeof ApiPublicHooksAutoInstagramPostRoute
   ApiPublicHooksCompetitionsIngestRoute: typeof ApiPublicHooksCompetitionsIngestRoute
+  ApiPublicHooksDojoWalletReconcileRoute: typeof ApiPublicHooksDojoWalletReconcileRoute
   ApiPublicHooksEnrichPendingLeadsRoute: typeof ApiPublicHooksEnrichPendingLeadsRoute
   ApiPublicHooksGenerateDojoInvoicesRoute: typeof ApiPublicHooksGenerateDojoInvoicesRoute
   ApiPublicHooksIgSyncRoute: typeof ApiPublicHooksIgSyncRoute
@@ -3607,6 +3621,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksEnrichPendingLeadsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/dojo-wallet-reconcile': {
+      id: '/api/public/hooks/dojo-wallet-reconcile'
+      path: '/api/public/hooks/dojo-wallet-reconcile'
+      fullPath: '/api/public/hooks/dojo-wallet-reconcile'
+      preLoaderRoute: typeof ApiPublicHooksDojoWalletReconcileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/competitions-ingest': {
       id: '/api/public/hooks/competitions-ingest'
       path: '/api/public/hooks/competitions-ingest'
@@ -4202,6 +4223,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksAsaasRoute: ApiPublicHooksAsaasRoute,
   ApiPublicHooksAutoInstagramPostRoute: ApiPublicHooksAutoInstagramPostRoute,
   ApiPublicHooksCompetitionsIngestRoute: ApiPublicHooksCompetitionsIngestRoute,
+  ApiPublicHooksDojoWalletReconcileRoute:
+    ApiPublicHooksDojoWalletReconcileRoute,
   ApiPublicHooksEnrichPendingLeadsRoute: ApiPublicHooksEnrichPendingLeadsRoute,
   ApiPublicHooksGenerateDojoInvoicesRoute:
     ApiPublicHooksGenerateDojoInvoicesRoute,
