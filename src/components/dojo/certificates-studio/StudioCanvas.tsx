@@ -44,16 +44,32 @@ export function StudioCanvas() {
       const tgt = e.target as HTMLElement;
       if (tgt && (tgt.tagName === "INPUT" || tgt.tagName === "TEXTAREA" || tgt.isContentEditable)) return;
       const s = useStudioStore.getState();
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
+      const mod = e.ctrlKey || e.metaKey;
+      if (mod && e.key.toLowerCase() === "z") {
         e.preventDefault(); e.shiftKey ? s.redo() : s.undo();
-      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "y") {
+      } else if (mod && e.key.toLowerCase() === "y") {
         e.preventDefault(); s.redo();
-      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "d") {
+      } else if (mod && e.key.toLowerCase() === "d") {
         e.preventDefault(); s.duplicateSelected();
-      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "c") {
+      } else if (mod && e.key.toLowerCase() === "c") {
         s.copy();
-      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "v") {
+      } else if (mod && e.key.toLowerCase() === "v") {
         e.preventDefault(); s.paste();
+      } else if (mod && e.key.toLowerCase() === "a") {
+        e.preventDefault(); s.select(s.doc.elements.filter((el) => !el.locked && !el.hidden).map((el) => el.id));
+      } else if (mod && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        document.dispatchEvent(new CustomEvent("cert-studio:save"));
+      } else if (mod && e.key === "]") {
+        e.preventDefault(); s.selection.forEach((id) => s.bringForward(id));
+      } else if (mod && e.key === "[") {
+        e.preventDefault(); s.selection.forEach((id) => s.sendBackward(id));
+      } else if (e.key === "F11") {
+        e.preventDefault();
+        document.dispatchEvent(new CustomEvent("cert-studio:toggle-presentation"));
+      } else if (e.key === "Escape") {
+        document.dispatchEvent(new CustomEvent("cert-studio:exit-presentation"));
+        s.clearSelection();
       } else if (e.key === "Delete" || e.key === "Backspace") {
         if (s.selection.length) { e.preventDefault(); s.deleteSelected(); }
       } else if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {

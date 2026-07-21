@@ -1,18 +1,22 @@
 import { useMemo, useRef, useState } from "react";
 import { useStudioStore, CERT_FONTS, PAGE_PRESETS, type PagePreset } from "@/lib/dojo/certificates/studio-store";
 import { VARIABLE_MENU } from "@/lib/dojo/certificates/export";
+import { ORNAMENTS, svgToDataUrl, FONT_PAIRINGS, type SvgAsset } from "@/lib/dojo/certificates/ornaments";
 import { makeTextElement, makeVariableElement, makeShapeElement, makeImageElement, makeQrElement } from "./StudioCanvas";
 import { supabase } from "@/integrations/supabase/client";
-import { Type, Variable, Image as ImageIcon, Shapes, QrCode, Signature, BadgeCheck, Layout, Search, Upload, Circle, Square, Minus } from "lucide-react";
+import { Type, Variable, Image as ImageIcon, Shapes, QrCode, Signature, BadgeCheck, Layout, Search, Upload, Circle, Square, Minus, Sparkles, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { makeId } from "@/components/dojo/certificate-editor/types";
 
 const SECTIONS = [
   { id: "templates", label: "Modelos", icon: Layout },
   { id: "text", label: "Textos", icon: Type },
   { id: "vars", label: "Variáveis", icon: Variable },
   { id: "images", label: "Imagens", icon: ImageIcon },
+  { id: "icons", label: "Ícones", icon: Star },
+  { id: "ornaments", label: "Ornamentos", icon: Sparkles },
   { id: "logo", label: "Logo", icon: BadgeCheck },
   { id: "sig", label: "Assinaturas", icon: Signature },
   { id: "qr", label: "QR Code", icon: QrCode },
@@ -37,6 +41,8 @@ export function StudioLeft() {
         {tab === "text" && <TextsPanel />}
         {tab === "vars" && <VariablesPanel />}
         {tab === "images" && <ImagesPanel />}
+        {tab === "icons" && <IconsPanel />}
+        {tab === "ornaments" && <OrnamentsPanel />}
         {tab === "logo" && <LogoPanel />}
         {tab === "sig" && <SignaturePanel />}
         {tab === "qr" && <QrPanel />}
@@ -46,6 +52,22 @@ export function StudioLeft() {
       </div>
     </aside>
   );
+}
+
+/** Insert an SVG ornament/icon as an image element with a colored data URL. */
+function insertSvgAsset(asset: SvgAsset, color: string, addElement: (el: any) => void, size: { w: number; h: number }) {
+  const url = svgToDataUrl(asset.svg(color), color);
+  addElement({
+    id: makeId(),
+    kind: "image",
+    imageUrl: url,
+    x: 50,
+    y: 50,
+    w: size.w,
+    h: size.h,
+    fit: "contain",
+    name: asset.label,
+  });
 }
 
 function TextsPanel() {
@@ -59,20 +81,106 @@ function TextsPanel() {
     { label: "Legenda", opts: { fontSize: 14, fontFamily: "Inter", color: "#64748b", text: "Legenda" } },
   ];
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       <Button className="w-full" onClick={() => addElement(makeTextElement("Digite aqui"))}>+ Adicionar texto</Button>
-      <div className="pt-2 space-y-2">
-        {presets.map((p) => (
-          <button key={p.label} onClick={() => addElement(makeTextElement(p.opts.text, p.opts as any))}
-            className="w-full text-left p-3 rounded-lg border border-neutral-200 hover:border-red-700 hover:bg-red-50 transition">
-            <div className="text-xs text-neutral-500">{p.label}</div>
-            <div style={{ fontFamily: p.opts.fontFamily, fontWeight: p.opts.bold ? 800 : 400, textTransform: (p.opts as any).uppercase ? "uppercase" : "none" }}
-              className="text-lg truncate">
-              {p.opts.text}
-            </div>
+
+      <div>
+        <div className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-1">Combinações de fontes</div>
+        <div className="grid grid-cols-1 gap-1.5">
+          {FONT_PAIRINGS.map((p) => (
+            <button key={p.id}
+              onClick={() => {
+                addElement(makeTextElement("CERTIFICADO", { fontFamily: p.title, fontSize: 72, bold: true, uppercase: true, x: 50, y: 25 } as any));
+                setTimeout(() => addElement(makeTextElement("Texto do certificado", { fontFamily: p.body, fontSize: 22, x: 50, y: 55 } as any)), 30);
+              }}
+              className="w-full text-left p-2.5 rounded-lg border border-neutral-200 hover:border-red-700 hover:bg-red-50 transition">
+              <div className="text-[10px] text-neutral-500 uppercase tracking-wide">{p.label}</div>
+              <div style={{ fontFamily: p.title }} className="text-base font-bold leading-tight">{p.title}</div>
+              <div style={{ fontFamily: p.body }} className="text-xs text-neutral-600">{p.body}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="pt-2">
+        <div className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-1">Presets</div>
+        <div className="space-y-2">
+          {presets.map((p) => (
+            <button key={p.label} onClick={() => addElement(makeTextElement(p.opts.text, p.opts as any))}
+              className="w-full text-left p-3 rounded-lg border border-neutral-200 hover:border-red-700 hover:bg-red-50 transition">
+              <div className="text-xs text-neutral-500">{p.label}</div>
+              <div style={{ fontFamily: p.opts.fontFamily, fontWeight: p.opts.bold ? 800 : 400, textTransform: (p.opts as any).uppercase ? "uppercase" : "none" }}
+                className="text-lg truncate">
+                {p.opts.text}
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function IconsPanel() {
+  const { addElement } = useStudioStore();
+  const [q, setQ] = useState("");
+  const [color, setColor] = useState("#b91c1c");
+  const items = ORNAMENTS.filter((a) => a.category === "icon" && (!q || a.label.toLowerCase().includes(q.toLowerCase())));
+  return (
+    <div className="space-y-3">
+      <div className="relative">
+        <Search className="absolute left-2 top-2.5 h-4 w-4 text-neutral-400" />
+        <Input placeholder="Buscar ícone..." className="pl-8" value={q} onChange={(e) => setQ(e.target.value)} />
+      </div>
+      <div className="flex items-center gap-2">
+        <label className="text-xs text-neutral-600">Cor</label>
+        <input type="color" value={color} onChange={(e) => setColor(e.target.value)} className="h-8 w-12 rounded border border-neutral-200" />
+      </div>
+      <div className="grid grid-cols-3 gap-2">
+        {items.map((a) => (
+          <button key={a.id} title={a.label}
+            onClick={() => insertSvgAsset(a, color, addElement, { w: 10, h: 10 })}
+            className="aspect-square rounded-lg border border-neutral-200 hover:border-red-700 hover:bg-red-50 flex items-center justify-center p-2">
+            <div style={{ color, width: "100%", height: "100%" }} dangerouslySetInnerHTML={{ __html: a.svg(color) }} />
           </button>
         ))}
       </div>
+    </div>
+  );
+}
+
+function OrnamentsPanel() {
+  const { addElement } = useStudioStore();
+  const [color, setColor] = useState("#0f172a");
+  const groups = [
+    { key: "divider", label: "Divisores", size: { w: 45, h: 4 } },
+    { key: "ornament", label: "Ornamentos", size: { w: 40, h: 6 } },
+    { key: "frame", label: "Molduras", size: { w: 85, h: 60 } },
+  ] as const;
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2">
+        <label className="text-xs text-neutral-600">Cor</label>
+        <input type="color" value={color} onChange={(e) => setColor(e.target.value)} className="h-8 w-12 rounded border border-neutral-200" />
+      </div>
+      {groups.map((g) => {
+        const items = ORNAMENTS.filter((a) => a.category === g.key);
+        return (
+          <div key={g.key}>
+            <div className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-1">{g.label}</div>
+            <div className="space-y-2">
+              {items.map((a) => (
+                <button key={a.id}
+                  onClick={() => insertSvgAsset(a, color, addElement, g.size)}
+                  className="w-full rounded-lg border border-neutral-200 hover:border-red-700 hover:bg-red-50 p-2 flex items-center gap-2">
+                  <div style={{ color, width: 80, height: g.key === "frame" ? 44 : 20, flexShrink: 0 }} dangerouslySetInnerHTML={{ __html: a.svg(color) }} />
+                  <span className="text-xs text-neutral-600 truncate">{a.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }

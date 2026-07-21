@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useStudioStore, ZOOM_STEPS } from "@/lib/dojo/certificates/studio-store";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Undo2, Redo2, ZoomIn, ZoomOut, Save, FileDown, Image as ImageIcon, Printer, Eye, Grid3x3, Ruler, ChevronLeft, Copy, FilePlus, History } from "lucide-react";
+import { Undo2, Redo2, ZoomIn, ZoomOut, Save, FileDown, Image as ImageIcon, Printer, Eye, Grid3x3, Ruler, ChevronLeft, Copy, FilePlus, History, Play } from "lucide-react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Input } from "@/components/ui/input";
 import { exportCanvasAsPdf, exportCanvasAsPng, exportCanvasAsJpeg, printCanvas } from "@/lib/dojo/certificates/export";
@@ -10,7 +10,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { saveCertificateTemplate } from "@/lib/dojo/dojo.functions";
 import { toLegacyFields } from "@/components/dojo/certificate-editor/types";
 
-export function StudioTopbar({ onSave, saving, onPreview }: { onSave: () => Promise<void>; saving: boolean; onPreview: () => void }) {
+export function StudioTopbar({ onSave, saving, onPreview, onPresentation }: { onSave: () => Promise<void>; saving: boolean; onPreview: () => void; onPresentation?: () => void }) {
   const { doc, zoom, setZoom, undo, redo, history, historyIndex, name, setName, dirty, lastSavedAt, showGrid, toggleGrid, showRulers, toggleRulers, duplicateSelected } = useStudioStore();
   const navigate = useNavigate();
 
@@ -61,6 +61,9 @@ export function StudioTopbar({ onSave, saving, onPreview }: { onSave: () => Prom
 
       <div className="ml-auto flex items-center gap-2">
         <Button variant="outline" size="sm" onClick={onPreview}><Eye className="h-4 w-4 mr-1" /> Visualizar</Button>
+        {onPresentation && (
+          <Button variant="outline" size="sm" onClick={onPresentation} title="Modo apresentação (F11)"><Play className="h-4 w-4 mr-1" /> Apresentar</Button>
+        )}
         <div className="relative group">
           <Button variant="outline" size="sm"><FileDown className="h-4 w-4 mr-1" /> Exportar</Button>
           <div className="absolute right-0 top-full hidden group-hover:block bg-white border border-neutral-200 rounded-md shadow-lg py-1 min-w-[160px] z-20">

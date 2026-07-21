@@ -83,12 +83,25 @@ function alignToJustify(a: "left" | "center" | "right") {
 }
 
 function ImageView({ el, style }: { el: ImageElement; style: React.CSSProperties }) {
+  const f = el.filters ?? {};
+  const filterStr = [
+    f.brightness != null ? `brightness(${f.brightness}%)` : null,
+    f.contrast != null ? `contrast(${f.contrast}%)` : null,
+    f.saturate != null ? `saturate(${f.saturate}%)` : null,
+    f.grayscale != null ? `grayscale(${f.grayscale}%)` : null,
+    f.sepia != null ? `sepia(${f.sepia}%)` : null,
+    f.blur ? `blur(${f.blur}px)` : null,
+  ].filter(Boolean).join(" ") || undefined;
+  const maskRadius =
+    el.mask === "circle" ? "50%" :
+    el.mask === "rounded" ? "16px" :
+    el.mask === "squircle" ? "28%" : undefined;
   if (!el.imageUrl) {
-    return <div style={{ ...style, background: "rgba(0,0,0,.05)", border: "2px dashed rgba(0,0,0,.15)", display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(0,0,0,.35)", fontSize: 14, borderRadius: 8 }}>Sem imagem</div>;
+    return <div style={{ ...style, background: "rgba(0,0,0,.05)", border: "2px dashed rgba(0,0,0,.15)", display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(0,0,0,.35)", fontSize: 14, borderRadius: maskRadius ?? 8 }}>Sem imagem</div>;
   }
   return (
     <img src={el.imageUrl} alt="" crossOrigin="anonymous"
-      style={{ ...style, objectFit: el.fit || "contain", pointerEvents: "none" }} />
+      style={{ ...style, objectFit: el.fit || "contain", pointerEvents: "none", filter: filterStr, borderRadius: maskRadius, boxShadow: el.shadow }} />
   );
 }
 
