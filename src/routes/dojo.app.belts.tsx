@@ -472,11 +472,11 @@ function SortableBeltRow({
           }`}
         </div>
       </div>
-      <Button size="sm" variant="ghost" onClick={() => onEdit(b)}>
+      <Button size="sm" variant="ghost" onClick={() => onEdit(b)} disabled={!canEdit} title={canEdit ? "Editar" : "Faixa global AMT — somente leitura"}>
         <Pencil className="h-4 w-4" />
       </Button>
-      <Button size="sm" variant="ghost" onClick={() => onRemove(b.id)}>
-        <Trash2 className="h-4 w-4 text-red-600" />
+      <Button size="sm" variant="ghost" onClick={() => onRemove(b.id)} disabled={!canEdit} title={canEdit ? "Excluir" : "Faixa global AMT — somente leitura"}>
+        <Trash2 className={`h-4 w-4 ${canEdit ? "text-red-600" : "text-muted-foreground"}`} />
       </Button>
     </div>
   );
