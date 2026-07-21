@@ -791,7 +791,7 @@ export const enrollStudentWithPlan = createServerFn({ method: "POST" })
       // Carrega profile do dojo (para chave/subconta Asaas)
       const { data: profile } = await context.supabase
         .from("dojo_academy_profile")
-        .select("asaas_api_key_encrypted, asaas_wallet_id, trade_name")
+        .select("asaas_subaccount_id, asaas_api_key_encrypted, asaas_wallet_id, asaas_onboarding_status, trade_name")
         .eq("owner_id", ownerId(context))
         .maybeSingle();
 
