@@ -10356,7 +10356,7 @@ export type Database = {
         | "paid"
         | "cancelled"
         | "rejected"
-      app_role: "admin" | "moderator" | "user"
+      app_role: "admin" | "moderator" | "user" | "amt_admin"
       competition_athlete_status:
         | "pre_registered"
         | "registered"
@@ -10565,7 +10565,7 @@ export const Constants = {
         "cancelled",
         "rejected",
       ],
-      app_role: ["admin", "moderator", "user"],
+      app_role: ["admin", "moderator", "user", "amt_admin"],
       competition_athlete_status: [
         "pre_registered",
         "registered",
