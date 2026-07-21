@@ -318,27 +318,6 @@ function DojoLayoutInner({
       <SidebarInset className="bg-[color:var(--dojo-surface)] min-w-0 overflow-x-hidden">
         <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-red-900/60 bg-red-700 text-white px-3 md:px-6 shadow-[0_4px_18px_-6px_rgba(0,0,0,0.35)]">
           <SidebarTrigger className="-ml-1 text-white hover:bg-white/10" />
-          {(branding?.logo_url || dojoName) && (
-            <div className="flex items-center gap-2 pr-3 mr-1 border-r border-white/20 max-w-[45%]">
-              {branding?.logo_url ? (
-                <img
-                  src={branding.logo_url}
-                  alt={dojoName ?? "Logo do dojo"}
-                  className="h-9 w-9 rounded-md object-cover bg-white/95 p-0.5 shadow-sm shrink-0"
-                  draggable={false}
-                />
-              ) : (
-                <div className="grid h-9 w-9 place-items-center rounded-md bg-white/95 text-red-700 text-sm font-bold shrink-0">
-                  {(dojoName?.[0] ?? "D").toUpperCase()}
-                </div>
-              )}
-              {dojoName && (
-                <span className="hidden sm:inline font-display text-sm md:text-base font-semibold truncate text-white">
-                  {dojoName}
-                </span>
-              )}
-            </div>
-          )}
           <div className="min-w-0 flex-1">
             <h1 className="font-display text-base md:text-lg font-bold tracking-tight leading-tight truncate text-white">
               {header.title}
@@ -369,18 +348,33 @@ function DojoLayoutInner({
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-2 rounded-lg border border-[color:var(--dojo-border)] bg-white text-black px-2 py-1.5 hover:border-[color:var(--dojo-border-strong)] hover:shadow-sm transition-all">
-                <div className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
-                  {initial}
-                </div>
-                <span className="hidden sm:inline max-w-[160px] truncate text-sm font-medium text-black">
-                  {email ?? "Conta"}
+              <button
+                title={dojoName ?? "Academia"}
+                className="flex items-center gap-2 rounded-lg border border-[color:var(--dojo-border)] bg-white text-black px-2 py-1.5 hover:border-[color:var(--dojo-border-strong)] hover:shadow-sm transition-all"
+              >
+                {branding?.logo_url ? (
+                  <img
+                    src={branding.logo_url}
+                    alt={dojoName ?? "Logo do dojo"}
+                    className="h-7 w-7 shrink-0 rounded-full object-cover bg-white"
+                    draggable={false}
+                  />
+                ) : (
+                  <div className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
+                    {(dojoName?.[0] ?? initial).toUpperCase()}
+                  </div>
+                )}
+                <span className="hidden sm:inline max-w-[180px] truncate text-sm font-semibold text-black">
+                  {dojoName ?? "Minha academia"}
                 </span>
                 <ChevronDown className="h-3.5 w-3.5 text-black" />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel className="truncate">{email ?? "Conta"}</DropdownMenuLabel>
+              <DropdownMenuLabel className="truncate">
+                <div className="font-semibold truncate">{dojoName ?? "Minha academia"}</div>
+                {email && <div className="text-[11px] font-normal text-muted-foreground truncate">{email}</div>}
+              </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <Link to="/dojo/app/account">
@@ -395,6 +389,7 @@ function DojoLayoutInner({
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
         </header>
 
         <main className="min-w-0 max-w-full overflow-x-hidden p-4 md:p-6">
