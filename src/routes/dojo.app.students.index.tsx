@@ -296,6 +296,55 @@ function StudentsPage() {
     qc.invalidateQueries({ queryKey: ["dojo-students"] });
   };
 
+  const onPickFile = async (file: File) => {
+    try {
+      const rows = await parseStudentsFile(file);
+      if (rows.length === 0) {
+        toast.error("Nenhum aluno encontrado na planilha", {
+          description: "Confira se a coluna 'Nome completo' está preenchida.",
+        });
+        return;
+      }
+      setImportRows(rows);
+      setImportOpen(true);
+    } catch (e: any) {
+      toast.error("Falha ao ler planilha", { description: e?.message ?? String(e) });
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const onConfirmImport = async () => {
+    if (!importRows.length) return;
+    setImporting(true);
+    try {
+      const result = await bulkImportFn({ data: { rows: importRows as any } });
+      if (result.inserted > 0) toast.success(`${result.inserted} aluno(s) importado(s)`);
+      if (result.errors.length) {
+        toast.error(`${result.errors.length} linha(s) com erro`, {
+          description: result.errors.slice(0, 3).map((e) => `${e.full_name}: ${e.message}`).join(" · "),
+        });
+      }
+      setImportOpen(false);
+      setImportRows([]);
+      qc.invalidateQueries({ queryKey: ["dojo-students"] });
+    } catch (e: any) {
+      toast.error("Erro na importação", { description: e?.message ?? String(e) });
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const onPrintAll = () => {
+    const list = filtered;
+    if (!list.length) {
+      toast.error("Nenhum aluno para imprimir");
+      return;
+    }
+    printAllStudentSummaries(list, branding);
+  };
+
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
