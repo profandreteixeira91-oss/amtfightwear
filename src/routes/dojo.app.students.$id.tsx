@@ -63,6 +63,7 @@ function StudentDetail() {
   const delGrad = useServerFn(deleteDojoGraduation);
   const saveEnroll = useServerFn(saveDojoEnrollment);
   const delEnroll = useServerFn(deleteDojoEnrollment);
+  const doChangePlanFn = useServerFn(changeStudentPlan);
   const saveInv = useServerFn(saveDojoInvoice);
   const payInv = useServerFn(markDojoInvoicePaid);
   const delInv = useServerFn(deleteDojoInvoice);
