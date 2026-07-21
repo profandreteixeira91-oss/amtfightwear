@@ -244,8 +244,9 @@ function RecurringPage() {
             </Select>
           </div>
 
-          <div className="rounded-md border overflow-x-auto">
-            <Table>
+          <div className="rounded-md border overflow-x-auto max-w-full">
+            <Table className="min-w-[900px]">
+
               <TableHeader>
                 <TableRow>
                   <TableHead>Aluno</TableHead>
