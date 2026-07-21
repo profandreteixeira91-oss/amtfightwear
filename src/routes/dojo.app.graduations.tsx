@@ -273,15 +273,26 @@ function NewGraduationPage() {
           <CardHeader><CardTitle className="text-base">Nova graduação · {selectedStudents.size} aluno(s)</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div className="border rounded p-3 bg-muted/30 space-y-1 max-h-40 overflow-y-auto">
-              {selectedRows.map((s: any) => (
-                <div key={s.id} className="text-sm flex items-center justify-between">
-                  <span>{s.full_name}</span>
-                  <span className="text-xs text-muted-foreground">
-                    Atual: {s.belt?.name ?? "Sem faixa"}{s.current_degree ? ` · ${s.current_degree}º` : ""}
-                  </span>
-                </div>
-              ))}
+              {selectedRows.map((s: any) => {
+                const belts = (s.current_belts && s.current_belts.length > 0)
+                  ? s.current_belts
+                  : (s.belt ? [{ belt: s.belt, degree: s.current_degree ?? 0 }] : []);
+                const matchesModality = belts.find((b: any) => (b.belt.modality ?? "jiu-jitsu") === modality);
+                return (
+                  <div key={s.id} className="text-sm flex items-center justify-between gap-2">
+                    <span className="truncate">{s.full_name}</span>
+                    <span className="text-xs text-muted-foreground text-right">
+                      {belts.length === 0
+                        ? "Sem faixa"
+                        : matchesModality
+                        ? `Atual (${modality}): ${matchesModality.belt.name}${matchesModality.degree ? ` · ${matchesModality.degree}º` : ""}`
+                        : `Sem faixa em ${modality}`}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
+
             <div className="grid md:grid-cols-2 gap-3">
               <div>
                 <label className="text-xs text-muted-foreground">Modalidade</label>
