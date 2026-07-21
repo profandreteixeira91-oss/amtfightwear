@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { ShoppingBag, User, Menu, Instagram, Truck, ShieldCheck, CreditCard, LogIn, ChevronDown, LogOut, Package } from "lucide-react";
+import { ShoppingBag, User, Menu, Instagram, Truck, ShieldCheck, CreditCard, LogIn, ChevronDown, LogOut, Package, Search, X } from "lucide-react";
 import { useCart } from "@/lib/store/cart-store";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -81,6 +81,8 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
   const [mounted, setMounted] = useState(false);
   const [isAuthed, setIsAuthed] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const accountRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     setMounted(true);
@@ -101,6 +103,8 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
   // Track store visits (anon + authed). One record per pathname change per tab.
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   useEffect(() => {
+    setMobileNavOpen(false);
+    setMobileSearchOpen(false);
     if (typeof window === "undefined") return;
     if (!pathname.startsWith("/loja") && pathname !== "/") return;
     let sid = window.sessionStorage.getItem("amt_sid");
@@ -143,12 +147,15 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
   const count = useCart((s) => s.items.reduce((a, i) => a + i.quantity, 0));
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col">
+    <div className="min-h-screen bg-background text-foreground flex flex-col overflow-x-hidden">
       {/* Top bar */}
-      <div className="bg-foreground text-background text-[11px] uppercase tracking-widest">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2">
-          <span>Frete grátis acima de R$ 399 · Parcelamos em até 10x</span>
-          <a href="https://instagram.com/amtfightwear" target="_blank" rel="noreferrer" className="hidden sm:inline-flex items-center gap-1 hover:text-primary">
+      <div className="bg-foreground text-background text-[10px] sm:text-[11px] uppercase tracking-wider sm:tracking-widest">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-2 sm:px-4">
+          <span className="truncate">
+            <span className="hidden sm:inline">Frete grátis acima de R$ 399 · Parcelamos em até 10x</span>
+            <span className="sm:hidden">Frete grátis · até 10x sem juros</span>
+          </span>
+          <a href="https://instagram.com/amtfightwear" target="_blank" rel="noreferrer" className="hidden sm:inline-flex shrink-0 items-center gap-1 hover:text-primary">
             <Instagram className="h-3 w-3" /> @amtfightwear
           </a>
         </div>
@@ -156,13 +163,18 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
 
       {/* Header */}
       <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-4">
-          <button className="md:hidden">
+        <div className="mx-auto flex max-w-7xl items-center gap-2 px-3 py-3 sm:gap-4 sm:px-4 sm:py-4">
+          <button
+            type="button"
+            aria-label="Abrir menu"
+            onClick={() => setMobileNavOpen(true)}
+            className="md:hidden -ml-1 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md hover:bg-accent"
+          >
             <Menu className="h-5 w-5" />
           </button>
-          <Link to="/" aria-label="Loja AMT Fight Wear — página inicial" className="flex items-center gap-2">
-            <img src={amtLogo} alt="Logotipo da Loja AMT Fight Wear" className="h-9 w-9 rounded object-cover" />
-            <div className="leading-tight">
+          <Link to="/" aria-label="Loja AMT Fight Wear — página inicial" className="flex min-w-0 items-center gap-2">
+            <img src={amtLogo} alt="Logotipo da Loja AMT Fight Wear" className="h-9 w-9 shrink-0 rounded object-cover" />
+            <div className="hidden sm:block leading-tight">
               <div className="text-sm font-black tracking-tight">Loja AMT</div>
               <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Fight Wear</div>
             </div>
@@ -170,20 +182,28 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
 
           <SearchBar />
 
-          <div className="flex items-center gap-1 sm:gap-3">
+          <div className="ml-auto flex items-center gap-0.5 sm:gap-2">
+            <button
+              type="button"
+              aria-label="Buscar"
+              onClick={() => setMobileSearchOpen((v) => !v)}
+              className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-md hover:bg-accent"
+            >
+              <Search className="h-5 w-5" />
+            </button>
             {mounted && isAuthed ? <NotificationsBell authed={isAuthed} /> : null}
             {mounted && isAuthed ? (
               <div ref={accountRef} className="relative">
                 <button
                   type="button"
                   onClick={() => setAccountOpen((v) => !v)}
-                  className="inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-primary"
+                  className="inline-flex items-center gap-1.5 rounded-md px-2 py-2 text-sm hover:bg-accent hover:text-primary sm:px-3"
                   aria-haspopup="menu"
                   aria-expanded={accountOpen}
                 >
                   <User className="h-4 w-4" />
                   <span className="hidden sm:inline">Minha conta</span>
-                  <ChevronDown className="h-3 w-3 opacity-60" />
+                  <ChevronDown className="hidden sm:inline h-3 w-3 opacity-60" />
                 </button>
                 {accountOpen && (
                   <div
@@ -222,17 +242,19 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
               <Link
                 to="/auth"
                 search={{ redirect: "/loja/conta" }}
-                className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+                aria-label="Entrar"
+                className="inline-flex items-center gap-1.5 rounded-md bg-primary px-2.5 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 sm:px-3"
               >
                 <LogIn className="h-4 w-4" />
-                <span>Entrar</span>
+                <span className="hidden sm:inline">Entrar</span>
               </Link>
             )}
 
             <button
               type="button"
               onClick={() => useCart.getState().open()}
-              className="relative inline-flex items-center gap-1 rounded-md px-3 py-2 hover:bg-accent"
+              aria-label="Abrir carrinho"
+              className="relative inline-flex items-center gap-1 rounded-md px-2 py-2 hover:bg-accent sm:px-3"
             >
               <ShoppingBag className="h-5 w-5" />
               <span className="hidden sm:inline text-sm">Carrinho</span>
@@ -245,9 +267,18 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
           </div>
         </div>
 
+        {/* Mobile search dropdown */}
+        {mobileSearchOpen && (
+          <div className="md:hidden border-t bg-background px-3 py-3">
+            <SearchBar className="relative flex w-full" />
+          </div>
+        )}
+
+
+
         {/* Categories nav */}
         {topCategories.length > 0 && (
-          <nav className="border-t bg-background">
+          <nav className="hidden md:block border-t bg-background">
             <div className="mx-auto flex max-w-7xl items-stretch gap-1 overflow-x-auto px-4 text-sm font-medium [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               <Link to="/" className="whitespace-nowrap px-3 py-3 text-foreground hover:text-primary">
                 Início
@@ -399,6 +430,97 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
       </footer>
 
       <CartSheet />
+
+      {/* Mobile navigation drawer */}
+      {mobileNavOpen && (
+        <div className="md:hidden fixed inset-0 z-50">
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setMobileNavOpen(false)}
+            aria-hidden
+          />
+          <aside
+            role="dialog"
+            aria-label="Menu"
+            className="absolute inset-y-0 left-0 flex w-[85%] max-w-[320px] flex-col bg-background shadow-2xl"
+          >
+            <div className="flex items-center justify-between border-b px-4 py-3">
+              <div className="flex items-center gap-2">
+                <img src={amtLogo} alt="" className="h-8 w-8 rounded object-cover" />
+                <div className="text-sm font-black tracking-tight">Loja AMT</div>
+              </div>
+              <button
+                type="button"
+                aria-label="Fechar menu"
+                onClick={() => setMobileNavOpen(false)}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-accent"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <nav className="flex-1 overflow-y-auto px-2 py-3">
+              <Link to="/" className="block rounded-md px-3 py-2.5 text-sm font-semibold hover:bg-accent">
+                Início
+              </Link>
+              <Link to="/loja/custom-shop" className="block rounded-md px-3 py-2.5 text-sm font-bold text-primary hover:bg-accent">
+                ✨ Custom Shop
+              </Link>
+              <Link to="/loja/atacado" className="block rounded-md px-3 py-2.5 text-sm font-bold hover:bg-accent">
+                Atacado
+              </Link>
+              <Link to="/" hash="dojo-manager" className="block rounded-md px-3 py-2.5 text-sm font-bold hover:bg-accent">
+                AMT Dojo Manager
+              </Link>
+              {topCategories.length > 0 && (
+                <>
+                  <div className="mt-4 mb-1 px-3 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+                    Categorias
+                  </div>
+                  {topCategories.map((c) => {
+                    const subs = c.id ? childrenByParent.get(c.id) ?? [] : [];
+                    return (
+                      <div key={c.slug} className="py-0.5">
+                        <Link
+                          to="/loja/categoria/$slug"
+                          params={{ slug: c.slug }}
+                          className="block rounded-md px-3 py-2.5 text-sm font-semibold hover:bg-accent"
+                        >
+                          {c.name}
+                        </Link>
+                        {subs.length > 0 && (
+                          <div className="ml-3 border-l pl-2">
+                            {subs.map((s) => (
+                              <Link
+                                key={s.slug}
+                                to="/loja/categoria/$slug"
+                                params={{ slug: s.slug }}
+                                className="block rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-foreground"
+                              >
+                                {s.name}
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </>
+              )}
+            </nav>
+            <div className="border-t px-4 py-3">
+              <a
+                href="https://instagram.com/amtfightwear"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 text-xs font-semibold text-muted-foreground hover:text-primary"
+              >
+                <Instagram className="h-4 w-4" /> @amtfightwear
+              </a>
+            </div>
+          </aside>
+        </div>
+      )}
+
     </div>
   );
 }
