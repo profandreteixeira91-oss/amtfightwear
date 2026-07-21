@@ -15,14 +15,6 @@
 
 import { calcFees, type FeeBreakdown } from "@/lib/dojo/payment-settings.functions";
 
-type SupaAdmin = Awaited<
-  ReturnType<
-    typeof import("@/integrations/supabase/client.server")
-  >["supabaseAdmin"] extends infer T
-    ? T
-    : never
->;
-
 type Method = "pix" | "boleto" | "card" | "link";
 
 export interface RecordPaymentInput {
