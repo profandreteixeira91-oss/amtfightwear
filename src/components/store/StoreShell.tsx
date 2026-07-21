@@ -270,11 +270,10 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
         {/* Mobile search dropdown */}
         {mobileSearchOpen && (
           <div className="md:hidden border-t bg-background px-3 py-3">
-            <div className="[&_.hidden.md\\:flex]:flex [&_.hidden.md\\:flex]:w-full">
-              <SearchBar />
-            </div>
+            <SearchBar className="relative flex w-full" />
           </div>
         )}
+
 
 
         {/* Categories nav */}
