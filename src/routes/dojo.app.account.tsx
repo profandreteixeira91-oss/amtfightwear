@@ -14,13 +14,12 @@ import { toast } from "sonner";
 import { useUnsavedChanges } from "@/components/common/UnsavedChangesGuard";
 import {
   User as UserIcon, Building2, Palette, CreditCard, Receipt, Shield,
-  Bell, Monitor, Plug, Upload, Trash2, Save, KeyRound, LogOut, History, Loader2, ShieldCheck,
+  Bell, Monitor, Plug, Upload, Trash2, Save, KeyRound, LogOut, History, Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCepLookup } from "@/hooks/useCepLookup";
-import { useServerFn } from "@tanstack/react-start";
-import { createMyAsaasSubaccount, getMyAsaasConfig } from "@/lib/asaas/asaas.functions";
 import { DocumentsTab } from "@/components/dojo/account/DocumentsTab";
+
 
 export const Route = createFileRoute("/dojo/app/account")({
   head: () => ({ meta: [{ title: "Minha Conta — AMT Dojo Manager" }] }),
