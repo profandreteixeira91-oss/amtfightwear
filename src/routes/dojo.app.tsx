@@ -67,14 +67,6 @@ export const Route = createFileRoute("/dojo/app")({
     if (error || !data.user) {
       throw redirect({ to: "/dojo/auth", search: { redirect: location.href } });
     }
-    const { data: profile } = await supabase
-      .from("dojo_academy_profile")
-      .select("onboarding_completed")
-      .eq("owner_id", data.user.id)
-      .maybeSingle();
-    if (!profile?.onboarding_completed) {
-      throw redirect({ to: "/dojo/onboarding" });
-    }
     return { user: data.user };
   },
   component: DojoLayout,
