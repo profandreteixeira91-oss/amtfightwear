@@ -1,4 +1,4 @@
-import logoAsset from "@/assets/dojo-manager-logo.png.asset.json";
+import logoAsset from "@/assets/amt-dojo-manager-logo.png.asset.json";
 import { cn } from "@/lib/utils";
 
 interface DojoLogoProps {
