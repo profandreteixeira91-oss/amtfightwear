@@ -758,8 +758,10 @@ function ElementView({
 
   const onMouseDown = (e: React.MouseEvent) => {
     if (el.locked) return;
+    if (isEditing) return; // let inline editor receive events
     e.stopPropagation();
     onSelect(el.id, e.shiftKey);
+
     const parent = (e.currentTarget as HTMLElement).parentElement!.getBoundingClientRect();
     const startX = e.clientX; const startY = e.clientY;
     const origX = el.x; const origY = el.y;
