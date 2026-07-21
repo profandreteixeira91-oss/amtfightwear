@@ -121,8 +121,12 @@ export const reorderDojoBelts = createServerFn({ method: "POST" })
 export const checkIsAdmin = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
-    return { isAdmin: Boolean(data) };
+    const [{ data: isAdmin }, { data: isAmtAdmin }] = await Promise.all([
+      context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" }),
+      context.supabase.rpc("has_role", { _user_id: context.userId, _role: "amt_admin" as any }),
+    ]);
+    return { isAdmin: Boolean(isAdmin), isAmtAdmin: Boolean(isAmtAdmin) };
+  });
   });
 
 // ============ STUDENTS ============
