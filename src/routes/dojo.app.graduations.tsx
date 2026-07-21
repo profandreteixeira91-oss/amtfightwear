@@ -202,6 +202,31 @@ function NewGraduationPage() {
         {step !== "select" && <Button variant="ghost" onClick={reset}>Recomeçar</Button>}
       </div>
 
+      {step === "select" && (
+        <Card className="border-primary/20 bg-primary/5">
+          <CardContent className="py-4 text-xs sm:text-sm text-muted-foreground space-y-2">
+            <div className="flex items-center gap-2 font-medium text-foreground">
+              <CheckCircle2 className="h-4 w-4 text-primary" />
+              Critérios de graduação
+            </div>
+            <p>
+              Cada aluno abaixo exibe seu progresso em relação ao critério configurado:
+              <span className="font-mono"> aulas feitas / mínimo</span> e
+              <span className="font-mono"> meses de carência</span>. Alunos com etiqueta
+              <span className="mx-1 inline-flex items-center rounded bg-amber-100 text-amber-800 px-1.5 py-0.5 text-[10px]">critério individual</span>
+              possuem regra personalizada.
+            </p>
+            <p>
+              Defina os critérios padrão em <a href="/dojo/app/belts" className="underline font-medium">Graduações → Faixas</a>
+              {" "}(tempo mínimo, número de aulas, avaliação ou mérito). Para regras caso a caso, edite o aluno em
+              {" "}<a href="/dojo/app/students" className="underline font-medium">Alunos</a>.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+
+
 
 
 
