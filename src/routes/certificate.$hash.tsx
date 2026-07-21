@@ -1,3 +1,4 @@
+import { formatDegree, degreeSuffix, degreeUnit } from "@/lib/dojo/degree-label";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { CheckCircle2, XCircle, Download, ArrowLeft, ShieldCheck } from "lucide-react";
 
