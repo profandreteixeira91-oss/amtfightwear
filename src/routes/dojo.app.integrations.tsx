@@ -54,6 +54,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useState } from "react";
 import { Unplug } from "lucide-react";
+import amtPayLogoAsset from "@/assets/amt-pay-logo.png.asset.json";
+const amtPayLogoUrl = amtPayLogoAsset.url;
 
 export const Route = createFileRoute("/dojo/app/integrations")({
   head: () => ({ meta: [{ title: "AMT Pay — Central financeira" }] }),
@@ -74,19 +76,26 @@ function AMTPayHub() {
 
   return (
     <div className="mx-auto max-w-7xl w-full p-4 md:p-6 space-y-6">
-      <header className="flex items-start justify-between flex-wrap gap-3">
-        <div>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground uppercase tracking-wide">
-            <CreditCard className="h-3.5 w-3.5" /> AMT Pay
+      <header className="flex items-start justify-between flex-wrap gap-4">
+        <div className="flex items-start gap-4">
+          <img
+            src={amtPayLogoUrl}
+            alt="AMT Pay"
+            className="h-20 w-20 md:h-24 md:w-24 object-contain drop-shadow-md shrink-0"
+          />
+          <div>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground uppercase tracking-wide">
+              <CreditCard className="h-3.5 w-3.5" /> AMT Pay
+            </div>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight mt-1">
+              Central financeira do seu dojo
+            </h1>
+            <p className="text-sm text-muted-foreground max-w-2xl mt-1">
+              Motor financeiro opcional do Dojo Manager. Ative para emitir cobranças com
+              PIX, Boleto e Cartão em nome do seu dojo — ou continue registrando
+              pagamentos manualmente com sua operadora atual.
+            </p>
           </div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight mt-1">
-            Central financeira do seu dojo
-          </h1>
-          <p className="text-sm text-muted-foreground max-w-2xl mt-1">
-            Motor financeiro opcional do Dojo Manager. Ative para emitir cobranças com
-            PIX, Boleto e Cartão em nome do seu dojo — ou continue registrando
-            pagamentos manualmente com sua operadora atual.
-          </p>
         </div>
         {activated && <DisconnectAMTPayButton />}
       </header>
@@ -112,9 +121,11 @@ function AMTPayLanding() {
     <div className="space-y-6">
       <Card className="border-2 border-red-600/20 bg-gradient-to-br from-red-50/50 to-transparent dark:from-red-950/20">
         <CardContent className="p-8 md:p-10 flex flex-col md:flex-row items-start gap-6">
-          <div className="h-14 w-14 shrink-0 rounded-2xl bg-red-600 text-white grid place-items-center shadow-lg">
-            <CreditCard className="h-7 w-7" />
-          </div>
+          <img
+            src={amtPayLogoUrl}
+            alt="AMT Pay"
+            className="h-28 w-28 md:h-36 md:w-36 object-contain shrink-0 drop-shadow-lg"
+          />
           <div className="flex-1 space-y-4">
             <div>
               <h2 className="text-2xl font-bold tracking-tight">
