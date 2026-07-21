@@ -251,27 +251,41 @@ function NewGraduationPage() {
                       {(() => {
                         const p = progressById.get(s.id);
                         if (!p) return null;
-                        const badges: string[] = [];
+                        const badges: Array<{ text: string; ok?: boolean }> = [];
+                        const modeLabel =
+                          p.criteria_mode === "classes" ? "por aulas"
+                          : p.criteria_mode === "time" ? "por tempo"
+                          : p.criteria_mode === "evaluation" ? "por avaliação"
+                          : "por mérito";
+                        badges.push({ text: modeLabel });
+
                         if (p.criteria_mode === "classes" || p.criteria_mode === "time") {
                           if (p.min_classes != null) {
                             const ok = p.attendance_since >= p.min_classes;
-                            badges.push(`${ok ? "✓ " : ""}${p.attendance_since}/${p.min_classes} aulas`);
+                            badges.push({ text: `${ok ? "✓ " : ""}${p.attendance_since}/${p.min_classes} aulas`, ok });
+                          } else {
+                            badges.push({ text: `${p.attendance_since} aulas desde a última graduação` });
                           }
                           if (p.min_months != null) {
                             const ok = p.months_since >= p.min_months;
-                            badges.push(`${ok ? "✓ " : ""}${p.months_since}/${p.min_months} meses`);
+                            badges.push({ text: `${ok ? "✓ " : ""}${p.months_since}/${p.min_months} meses`, ok });
+                          } else {
+                            badges.push({ text: `${p.months_since} ${p.months_since === 1 ? "mês" : "meses"} de carência` });
                           }
-                        } else if (p.criteria_mode === "evaluation") {
-                          badges.push("por avaliação");
-                        } else if (p.criteria_mode === "merit") {
-                          badges.push("por mérito");
+                          if (p.min_classes == null && p.min_months == null) {
+                            badges.push({ text: "sem meta definida" });
+                          }
                         }
-                        if (badges.length === 0) return null;
                         return (
                           <div className="mt-1 flex flex-wrap gap-1">
                             {badges.map((b, i) => (
-                              <span key={i} className="inline-flex items-center rounded bg-muted px-1.5 py-0.5 text-[10px] font-mono">
-                                {b}
+                              <span
+                                key={i}
+                                className={`inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-mono ${
+                                  b.ok === true ? "bg-emerald-100 text-emerald-800" : "bg-muted text-muted-foreground"
+                                }`}
+                              >
+                                {b.text}
                               </span>
                             ))}
                             {p.has_override && (
