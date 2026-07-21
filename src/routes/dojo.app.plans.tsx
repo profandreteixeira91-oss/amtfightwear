@@ -447,6 +447,20 @@ function PlansPage() {
 
                 {/* Formas de pagamento */}
                 <SectionCard
+                  title="Formas de Pagamento Aceitas"
+                  icon={Sparkles}
+                  right={
+                    enabledCount === 0 ? (
+                      <Badge variant="destructive" className="gap-1">
+                        <XCircle className="h-3 w-3" /> Nenhuma habilitada
+                      </Badge>
+                    ) : (
+                      <Badge className="gap-1 bg-emerald-600 hover:bg-emerald-600">
+                        <CheckCircle2 className="h-3 w-3" /> {enabledCount} ativas
+                      </Badge>
+                    )
+                  }
+                >
                   <p className="mb-3 text-xs text-muted-foreground">
                     Somente os métodos habilitados aqui aparecerão como opções ao registrar manualmente as
                     mensalidades deste plano.
@@ -475,17 +489,18 @@ function PlansPage() {
                                     : "bg-muted text-muted-foreground")
                                 }
                               >
-                              >
                                 <Icon className="h-4 w-4" />
                               </div>
                               <div className="min-w-0">
                                 <div className="truncate text-sm font-medium">{def.label}</div>
-                                {state.enabled && (
-                                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                                    Processado por Asaas
-                                  </div>
-                                )}
                               </div>
+                            </div>
+                            <Switch
+                              checked={state.enabled}
+                              onCheckedChange={(v) => patchMethod(def.code, { enabled: v })}
+                            />
+                          </div>
+
                             </div>
                             <Switch
                               checked={state.enabled}
