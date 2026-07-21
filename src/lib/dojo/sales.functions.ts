@@ -80,6 +80,7 @@ export const deleteSalesProduct = createServerFn({ method: "POST" })
 // ============ VENDAS ============
 
 const GATEWAY_METHODS = new Set(["pix", "boleto", "credit_card", "debit_card", "payment_link"]);
+const DIRECT_METHODS = new Set(["cash", "manual", "pix_direct", "debit_direct", "credit_direct"]);
 
 export const listSales = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
