@@ -136,6 +136,12 @@ function StudentsPage() {
   const unitsFn = useServerFn(listDojoUnits);
   const plansFn = useServerFn(listDojoPlans);
   const enrollFn = useServerFn(enrollStudentWithPlan);
+  const bulkImportFn = useServerFn(bulkImportDojoStudents);
+  const { data: branding } = useDojoBranding();
+  const [importOpen, setImportOpen] = useState(false);
+  const [importRows, setImportRows] = useState<ParsedStudentRow[]>([]);
+  const [importing, setImporting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
