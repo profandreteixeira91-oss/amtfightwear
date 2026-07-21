@@ -239,7 +239,28 @@ function PlansPage() {
       <DojoPageShell
         description="Fonte única de configuração comercial: valores, formas de pagamento e regras usadas por todo o sistema."
       >
+        <div
+          className={`mb-4 rounded-lg border p-3 text-sm ${
+            amtPayActive
+              ? "border-emerald-200 bg-emerald-50 text-emerald-900 dark:border-emerald-900/40 dark:bg-emerald-950/40 dark:text-emerald-100"
+              : "border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/40 dark:text-amber-100"
+          }`}
+        >
+          {amtPayActive ? (
+            <>
+              <strong>AMT Pay ativo:</strong> as formas de pagamento marcadas abaixo (PIX, boleto, cartão) serão
+              emitidas automaticamente pelo Asaas na frequência do plano.
+            </>
+          ) : (
+            <>
+              <strong>AMT Pay desativado:</strong> todas as mensalidades e matrículas deste dojo são registradas
+              manualmente, independentemente das formas marcadas abaixo. Ative o AMT Pay em{" "}
+              <em>Menu → AMT Pay</em> para emitir PIX, boleto e cartão automaticamente.
+            </>
+          )}
+        </div>
         <div className="grid gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
+
           {/* ============ SIDEBAR ============ */}
           <aside className="space-y-2 lg:sticky lg:top-4 lg:self-start">
             <Card className="dojo-card overflow-hidden">
