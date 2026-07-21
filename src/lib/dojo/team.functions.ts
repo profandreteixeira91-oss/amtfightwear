@@ -250,6 +250,158 @@ export const deletePayment = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+// ============ PAYROLL CLOSING ============
+
+function monthBounds(month: string) {
+  const [y, m] = month.split("-").map(Number);
+  const start = new Date(Date.UTC(y, m - 1, 1)).toISOString().slice(0, 10);
+  const end = new Date(Date.UTC(y, m, 1)).toISOString().slice(0, 10);
+  return { start, end };
+}
+
+export const computePayrollPreview = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ month: z.string().regex(/^\d{4}-\d{2}$/) }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { start, end } = monthBounds(data.month);
+    const [{ data: members }, { data: configs }, { data: occs }, { data: att }, { data: existing }] =
+      await Promise.all([
+        context.supabase
+          .from("dojo_team_members")
+          .select("id, full_name, role, status")
+          .in("status", ["active", "leave", "vacation"]),
+        context.supabase.from("dojo_team_payroll_config").select("*"),
+        context.supabase
+          .from("dojo_class_occurrences")
+          .select("id, original_teacher_id, substitute_teacher_id, status")
+          .gte("occurrence_date", start)
+          .lt("occurrence_date", end)
+          .neq("status", "canceled"),
+        context.supabase
+          .from("dojo_team_attendance")
+          .select("member_id, hours_worked")
+          .gte("work_date", start)
+          .lt("work_date", end),
+        context.supabase
+          .from("dojo_team_payments")
+          .select("member_id, kind, amount, status")
+          .eq("reference_month", start),
+      ]);
+
+    const configByMember = new Map((configs ?? []).map((c: any) => [c.member_id, c]));
+    const rows = (members ?? []).map((m: any) => {
+      const cfg: any = configByMember.get(m.id) ?? {};
+      const classes = (occs ?? []).filter(
+        (o: any) =>
+          o.substitute_teacher_id === m.id ||
+          (!o.substitute_teacher_id && o.original_teacher_id === m.id),
+      ).length;
+      const hours = (att ?? [])
+        .filter((a: any) => a.member_id === m.id)
+        .reduce((s: number, a: any) => s + Number(a.hours_worked || 0), 0);
+
+      const base = Number(cfg.base_salary || 0);
+      const hourly = Number(cfg.hourly_rate || 0) * hours;
+      const perClass = Number(cfg.per_class_rate || 0) * classes;
+      const proposed = base + hourly + perClass;
+
+      const rowsForMember = (existing ?? []).filter((e: any) => e.member_id === m.id);
+      const advances = rowsForMember
+        .filter((e: any) => e.kind === "advance" && e.status !== "canceled")
+        .reduce((s: number, e: any) => s + Number(e.amount || 0), 0);
+      const discounts = rowsForMember
+        .filter((e: any) => e.kind === "discount" && e.status !== "canceled")
+        .reduce((s: number, e: any) => s + Number(e.amount || 0), 0);
+      const bonuses = rowsForMember
+        .filter(
+          (e: any) =>
+            ["bonus", "commission", "overtime", "reimbursement"].includes(e.kind) &&
+            e.status !== "canceled",
+        )
+        .reduce((s: number, e: any) => s + Number(e.amount || 0), 0);
+      const alreadyClosed = rowsForMember.some(
+        (e: any) => e.kind === "salary" && e.status !== "canceled",
+      );
+
+      const net = Math.max(0, proposed + bonuses - advances - discounts);
+
+      return {
+        member_id: m.id,
+        full_name: m.full_name,
+        role: m.role,
+        status: m.status,
+        payment_type: cfg.payment_type ?? null,
+        base,
+        hourly_rate: Number(cfg.hourly_rate || 0),
+        per_class_rate: Number(cfg.per_class_rate || 0),
+        hours,
+        classes,
+        earnings: proposed,
+        bonuses,
+        advances,
+        discounts,
+        net,
+        already_closed: alreadyClosed,
+        has_config: Object.keys(cfg).length > 0,
+      };
+    });
+
+    return rows;
+  });
+
+export const closePayrollMonth = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z
+      .object({
+        month: z.string().regex(/^\d{4}-\d{2}$/),
+        entries: z
+          .array(
+            z.object({
+              member_id: uuid,
+              amount: z.number().nonnegative(),
+              description: z.string().optional(),
+              hours_worked: z.number().nullable().optional(),
+              classes_count: z.number().int().nullable().optional(),
+              due_date: z.string().nullable().optional(),
+            }),
+          )
+          .min(1),
+      })
+      .parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { start } = monthBounds(data.month);
+    const { data: existing } = await context.supabase
+      .from("dojo_team_payments")
+      .select("member_id")
+      .eq("reference_month", start)
+      .eq("kind", "salary")
+      .neq("status", "canceled");
+    const closedSet = new Set((existing ?? []).map((r: any) => r.member_id));
+
+    const rows = data.entries
+      .filter((e) => !closedSet.has(e.member_id) && e.amount > 0)
+      .map((e) => ({
+        owner_id: context.userId,
+        member_id: e.member_id,
+        kind: "salary" as const,
+        reference_month: start,
+        description: e.description ?? `Folha ${data.month}`,
+        amount: e.amount,
+        hours_worked: e.hours_worked ?? null,
+        classes_count: e.classes_count ?? null,
+        due_date: e.due_date ?? null,
+        status: "pending" as const,
+      }));
+
+    if (rows.length === 0) return { created: 0, skipped: data.entries.length };
+
+    const { error } = await context.supabase.from("dojo_team_payments").insert(rows);
+    if (error) throw new Error(error.message);
+    return { created: rows.length, skipped: data.entries.length - rows.length };
+  });
+
 // ============ ATTENDANCE ============
 
 export const listTeamAttendance = createServerFn({ method: "GET" })
