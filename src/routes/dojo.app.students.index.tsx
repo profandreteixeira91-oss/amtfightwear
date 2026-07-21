@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   listDojoStudents,
   saveDojoStudent,
@@ -10,6 +10,7 @@ import {
   listDojoUnits,
   listDojoPlans,
   enrollStudentWithPlan,
+  bulkImportDojoStudents,
 } from "@/lib/dojo/dojo.functions";
 import { paymentMethodLabel, normalizePlanPaymentMethods } from "@/lib/dojo/payment-methods";
 import { Button } from "@/components/ui/button";
@@ -20,8 +21,12 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StudentPhotoCapture } from "@/components/dojo/StudentPhotoCapture";
+import { useDojoBranding } from "@/hooks/useDojoBranding";
+import { downloadStudentsTemplate, parseStudentsFile, type ParsedStudentRow } from "@/lib/dojo/students-xlsx";
+import { printAllStudentSummaries } from "@/lib/dojo/students-bulk-print";
 import { toast } from "sonner";
-import { Trash2, Pencil, UserPlus } from "lucide-react";
+import { Trash2, Pencil, UserPlus, FileDown, Upload, Printer } from "lucide-react";
+
 
 export const Route = createFileRoute("/dojo/app/students/")({
   head: () => ({ meta: [{ title: "Alunos — AMT Dojo Manager" }] }),
@@ -131,6 +136,12 @@ function StudentsPage() {
   const unitsFn = useServerFn(listDojoUnits);
   const plansFn = useServerFn(listDojoPlans);
   const enrollFn = useServerFn(enrollStudentWithPlan);
+  const bulkImportFn = useServerFn(bulkImportDojoStudents);
+  const { data: branding } = useDojoBranding();
+  const [importOpen, setImportOpen] = useState(false);
+  const [importRows, setImportRows] = useState<ParsedStudentRow[]>([]);
+  const [importing, setImporting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
@@ -285,6 +296,55 @@ function StudentsPage() {
     qc.invalidateQueries({ queryKey: ["dojo-students"] });
   };
 
+  const onPickFile = async (file: File) => {
+    try {
+      const rows = await parseStudentsFile(file);
+      if (rows.length === 0) {
+        toast.error("Nenhum aluno encontrado na planilha", {
+          description: "Confira se a coluna 'Nome completo' está preenchida.",
+        });
+        return;
+      }
+      setImportRows(rows);
+      setImportOpen(true);
+    } catch (e: any) {
+      toast.error("Falha ao ler planilha", { description: e?.message ?? String(e) });
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const onConfirmImport = async () => {
+    if (!importRows.length) return;
+    setImporting(true);
+    try {
+      const result = await bulkImportFn({ data: { rows: importRows as any } });
+      if (result.inserted > 0) toast.success(`${result.inserted} aluno(s) importado(s)`);
+      if (result.errors.length) {
+        toast.error(`${result.errors.length} linha(s) com erro`, {
+          description: result.errors.slice(0, 3).map((e) => `${e.full_name}: ${e.message}`).join(" · "),
+        });
+      }
+      setImportOpen(false);
+      setImportRows([]);
+      qc.invalidateQueries({ queryKey: ["dojo-students"] });
+    } catch (e: any) {
+      toast.error("Erro na importação", { description: e?.message ?? String(e) });
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const onPrintAll = () => {
+    const list = filtered;
+    if (!list.length) {
+      toast.error("Nenhum aluno para imprimir");
+      return;
+    }
+    printAllStudentSummaries(list, branding);
+  };
+
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -296,7 +356,25 @@ function StudentsPage() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".xlsx,.xls,.csv"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) onPickFile(f);
+            }}
+          />
+          <Button variant="outline" onClick={() => downloadStudentsTemplate()}>
+            <FileDown className="h-4 w-4 mr-1" /> Modelo XLSX
+          </Button>
+          <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
+            <Upload className="h-4 w-4 mr-1" /> Importar planilha
+          </Button>
+          <Button variant="outline" onClick={onPrintAll}>
+            <Printer className="h-4 w-4 mr-1" /> Imprimir fichas
+          </Button>
 
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
@@ -304,6 +382,7 @@ function StudentsPage() {
                 <UserPlus className="h-4 w-4 mr-1" /> Novo aluno
               </Button>
             </DialogTrigger>
+
             <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{form.id ? "Editar" : "Novo"} aluno</DialogTitle>
@@ -715,6 +794,54 @@ function StudentsPage() {
               <div className="mt-4 flex justify-end gap-2 border-t pt-3">
                 <Button variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
                 <Button onClick={onSave}>Salvar aluno</Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          <Dialog open={importOpen} onOpenChange={(v) => { if (!importing) setImportOpen(v); }}>
+            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Importar alunos ({importRows.length})</DialogTitle>
+              </DialogHeader>
+              <p className="text-xs text-muted-foreground">
+                Revise as primeiras linhas antes de confirmar. Todas serão criadas com status ativo por padrão.
+              </p>
+              <div className="mt-3 overflow-auto rounded border">
+                <table className="w-full text-xs">
+                  <thead className="bg-muted/50">
+                    <tr>
+                      <th className="text-left p-2">Nome</th>
+                      <th className="text-left p-2">CPF</th>
+                      <th className="text-left p-2">Nascimento</th>
+                      <th className="text-left p-2">Telefone</th>
+                      <th className="text-left p-2">E-mail</th>
+                      <th className="text-left p-2">Cidade/UF</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {importRows.slice(0, 25).map((r, i) => (
+                      <tr key={i} className="border-t">
+                        <td className="p-2">{r.full_name}</td>
+                        <td className="p-2">{r.cpf ?? ""}</td>
+                        <td className="p-2">{r.birth_date ?? ""}</td>
+                        <td className="p-2">{r.phone ?? ""}</td>
+                        <td className="p-2">{r.email ?? ""}</td>
+                        <td className="p-2">{[r.city, r.state].filter(Boolean).join("/")}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {importRows.length > 25 && (
+                  <div className="p-2 text-center text-xs text-muted-foreground">
+                    + {importRows.length - 25} linha(s) não exibidas
+                  </div>
+                )}
+              </div>
+              <div className="mt-4 flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setImportOpen(false)} disabled={importing}>Cancelar</Button>
+                <Button onClick={onConfirmImport} disabled={importing}>
+                  {importing ? "Importando…" : `Importar ${importRows.length} aluno(s)`}
+                </Button>
               </div>
             </DialogContent>
           </Dialog>
