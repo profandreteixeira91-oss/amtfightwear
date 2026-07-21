@@ -125,55 +125,16 @@ function AccountPage() {
     load();
   }
 
-  const createAsaasFn = useServerFn(createMyAsaasSubaccount);
-
-  async function saveAcademy(opts?: { skipAsaas?: boolean }) {
+  async function saveAcademy() {
     if (!user) return;
     const payload = { ...academy, owner_id: user.id };
     const { error } = await supabase.from("dojo_academy_profile").upsert(payload);
     if (error) return toast.error(error.message);
     await logAudit("academy_updated");
     toast.success("Dados da academia salvos");
-
-    // Ativação automática do Asaas assim que os dados fiscais obrigatórios
-    // estiverem preenchidos e a subconta ainda não existir.
-    const hasSubaccount = !!academy?.asaas_subaccount_id;
-    const hasLinkedWallet = !!academy?.asaas_wallet_id;
-    const requiredOk =
-      (academy?.legal_name || academy?.trade_name) &&
-      academy?.cnpj &&
-      academy?.email &&
-      (academy?.whatsapp || academy?.phone) &&
-      academy?.address &&
-      academy?.address_number &&
-      academy?.neighborhood &&
-      academy?.city &&
-      academy?.state &&
-      academy?.zip;
-
-    // Não tentar criar subconta se já existir OU se o dono já vinculou uma
-    // conta Asaas existente pela walletId (mesmo CNPJ).
-    if (!opts?.skipAsaas && !hasSubaccount && !hasLinkedWallet && requiredOk) {
-      try {
-        toast.info("Ativando subconta Asaas…");
-        const res = await createAsaasFn({ data: {} });
-        await logAudit("asaas_subaccount_auto_created", { subaccount_id: res.subaccountId });
-        toast.success("Subconta Asaas ativada automaticamente!");
-      } catch (e: any) {
-        const msg = String(e?.message || "erro desconhecido");
-        if (/CNPJ.*(uso|utiliza|cadastrad)/i.test(msg) || /CPF.*(uso|utiliza|cadastrad)/i.test(msg)) {
-          toast.error(
-            "Este CNPJ/CPF já possui conta no Asaas. Vá em AMT Pay → 'Já tenho uma conta Asaas' e informe seu walletId para receber via split.",
-            { duration: 12000 },
-          );
-        } else {
-          toast.error("Não foi possível ativar a subconta Asaas: " + msg);
-        }
-      }
-    }
-
     load();
   }
+
 
   async function saveNotifs() {
     if (!user) return;
