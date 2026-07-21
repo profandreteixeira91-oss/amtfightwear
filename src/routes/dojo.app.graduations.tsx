@@ -159,7 +159,7 @@ function NewGraduationPage() {
     // Build a comprehensive values map covering BOTH new keys (aluno_nome…)
     // and legacy keys (student_name, belt, date, signature) so any template
     // — antigo ou novo — preenche corretamente.
-    const beltLabel = effectiveBelt?.name ?? `${selectedBelt?.name ?? ""}${degree ? ` — ${degree}º grau` : ""}`;
+    const beltLabel = effectiveBelt?.name ?? `${selectedBelt?.name ?? ""}${degree ? ` — ${degree}º ${degreeUnit(selectedBelt?.modality)}` : ""}`;
     const dateBr = new Date(date).toLocaleDateString("pt-BR");
     const dateLong = new Date(date).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
     const now = new Date();
@@ -301,7 +301,7 @@ function NewGraduationPage() {
                       <div className="text-xs text-muted-foreground truncate">
                         {belts.length === 0
                           ? "Sem faixa"
-                          : belts.map((b: any) => `${b.belt.name}${b.degree ? ` · ${b.degree}º grau` : ""}`).join(" • ")}
+                          : belts.map((b: any) => `${b.belt.name}${degreeSuffix(b.degree, b.belt?.modality)}`).join(" • ")}
                       </div>
                       {(() => {
                         const p = progressById.get(s.id);
@@ -423,19 +423,19 @@ function NewGraduationPage() {
                 </select>
               </div>
               <div>
-                <label className="text-xs text-muted-foreground">Grau</label>
+                <label className="text-xs text-muted-foreground">{degreeUnit(selectedBelt?.modality) === "Dan" ? "Dan" : "Grau"}</label>
                 {isPretaBase ? (
                   <select className="border rounded p-2 bg-background w-full" value={pretaVariant} onChange={(e) => setPretaVariant(e.target.value)}>
-                    <option value="plain">Sem grau</option>
+                    <option value="plain">{formatDegree(0, selectedBelt?.modality)}</option>
                     <option value="aparador">Com aparador</option>
-                    {[1,2,3,4,5,6].map(n => <option key={n} value={n}>{n}º grau</option>)}
+                    {[1,2,3,4,5,6].map(n => <option key={n} value={n}>{formatDegree(n, selectedBelt?.modality)}</option>)}
                   </select>
                 ) : (
                   <select className="border rounded p-2 bg-background w-full" value={degree} onChange={(e) => setDegree(Number(e.target.value))} disabled={!selectedBelt || isFixedDegree}>
                     {isFixedDegree ? (
-                      <option value={fixedDegreeName as number}>{fixedDegreeName}º grau (obrigatório)</option>
+                      <option value={fixedDegreeName as number}>{fixedDegreeName}º {degreeUnit(selectedBelt?.modality)} (obrigatório)</option>
                     ) : (
-                      Array.from({ length: maxDeg + 1 }).map((_, i) => <option key={i} value={i}>{i === 0 ? "Sem grau" : `${i}º grau`}</option>)
+                      Array.from({ length: maxDeg + 1 }).map((_, i) => <option key={i} value={i}>{formatDegree(i, selectedBelt?.modality)}</option>)
                     )}
                   </select>
                 )}
@@ -460,7 +460,7 @@ function NewGraduationPage() {
                 <BeltVisual modality={effectiveBelt.modality} name={effectiveBelt.name} colorHex={effectiveBelt.color_hex} stripeHex={effectiveBelt.stripe_hex} degree={isPretaBase ? 0 : degree} maxDegrees={effectiveBelt.max_degrees ?? maxDeg} className="min-w-[220px]" />
                 <div className="text-sm">
                   <div className="font-medium">{effectiveBelt.name}</div>
-                  <div className="text-muted-foreground">{isPretaBase ? "" : (degree === 0 ? "Sem grau" : `${degree}º grau`)}</div>
+                  <div className="text-muted-foreground">{isPretaBase ? "" : formatDegree(degree, effectiveBelt?.modality)}</div>
                 </div>
               </div>
             )}
@@ -501,7 +501,7 @@ function NewGraduationPage() {
                   <div key={g.id} className="flex items-center gap-3 p-3">
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-medium truncate">{s?.full_name}</div>
-                      <div className="text-xs text-muted-foreground">{selectedBelt?.name}{degree ? ` · ${degree}º grau` : ""}</div>
+                      <div className="text-xs text-muted-foreground">{selectedBelt?.name}{degreeSuffix(degree, selectedBelt?.modality)}</div>
                     </div>
                     {done ? (
                       <div className="flex items-center gap-2">

@@ -100,7 +100,7 @@ function CertificateValidationPage() {
           <span className="inline-flex items-center gap-2">
             <span className="inline-block h-4 w-4 rounded-full ring-1 ring-neutral-200" style={{ background: beltColor }} />
             {cert.belt?.name ?? "—"}
-            {cert.degree != null && cert.degree > 0 ? ` · ${cert.degree}º grau` : ""}
+            {cert.degree != null && cert.degree > 0 ? ` · ${cert.degree}º ${degreeUnit((cert as any).belt?.modality)}` : ""}
           </span>
         </Row>
         {gradDate && <Row label="Data da graduação">{gradDate}</Row>}

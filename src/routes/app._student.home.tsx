@@ -211,7 +211,7 @@ function BlockRenderer({
                     style={{ background: belt.color_hex }}
                   >
                     {belt.name}
-                    {student?.current_degree ? ` · ${student.current_degree}º grau` : ""}
+                    {degreeSuffix(student?.current_degree, (belt as any)?.modality)}
                   </span>
                 </div>
               )}

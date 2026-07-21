@@ -110,7 +110,7 @@ function DigitalCardPage() {
                 <div className="flex items-center gap-2">
                   <BeltBadge color={beltColor} stripe={beltStripe} />
                   <span className="text-[11px]">
-                    {beltName} {s.current_degree ? `· ${s.current_degree}º grau` : ""}
+                    {beltName} {s.current_degree ? `· ${s.current_degree}º ${degreeUnit((s as any).belt?.modality ?? (data as any).belt?.modality)}` : ""}
                   </span>
                 </div>
               )}
