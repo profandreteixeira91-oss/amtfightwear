@@ -133,6 +133,14 @@ export const removeAcademyCompetition = createServerFn({ method: "POST" })
 
 // ============ Atletas ============
 
+const documentSchema = z.object({
+  key: z.string(),
+  label: z.string(),
+  provided: z.boolean().default(false),
+  file_url: z.string().url().nullable().optional(),
+  notes: z.string().nullable().optional(),
+});
+
 const athleteSchema = z.object({
   id: uuid.optional(),
   academy_competition_id: uuid,
@@ -146,6 +154,11 @@ const athleteSchema = z.object({
   status: z.enum(["interested", "confirmed", "registered", "weigh_in", "competing", "finished", "cancelled"]).optional(),
   paid: z.boolean().optional(),
   notes: z.string().optional().nullable(),
+  teacher_id: uuid.optional().nullable(),
+  registration_number: z.string().optional().nullable(),
+  amount_paid: z.number().optional().nullable(),
+  payment_method: z.enum(["pix", "cash", "credit_card", "debit_card", "boleto", "bank_transfer", "other"]).optional().nullable(),
+  documents: z.array(documentSchema).optional(),
 });
 
 export const upsertCompetitionAthlete = createServerFn({ method: "POST" })
