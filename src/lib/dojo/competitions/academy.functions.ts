@@ -166,6 +166,18 @@ export const upsertCompetitionAthlete = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => athleteSchema.parse(i))
   .handler(async ({ data, context }) => {
     const payload = { ...data, owner_id: context.userId };
+
+    // Status anterior para detectar transições
+    let prevStatus: string | null = null;
+    if (data.id) {
+      const { data: prev } = await context.supabase
+        .from("academy_competition_athletes")
+        .select("status")
+        .eq("id", data.id)
+        .maybeSingle();
+      prevStatus = (prev as { status: string | null } | null)?.status ?? null;
+    }
+
     const { data: row, error } = data.id
       ? await context.supabase
           .from("academy_competition_athletes")
@@ -180,6 +192,52 @@ export const upsertCompetitionAthlete = createServerFn({ method: "POST" })
           .select("*")
           .single();
     if (error) throw new Error(error.message);
+
+    // ==== Notificação automática ao atleta ====
+    // Dispara ao inserir OU quando o status muda para confirmed/registered/cancelled.
+    try {
+      const newStatus = (row as { status: string | null }).status ?? data.status ?? null;
+      const isNew = !data.id;
+      const changed = prevStatus !== newStatus;
+      const notifyStatuses = new Set(["confirmed", "registered", "cancelled"]);
+      if (isNew || (changed && newStatus && notifyStatuses.has(newStatus))) {
+        const { data: ac } = await context.supabase
+          .from("academy_competitions")
+          .select("competition:competitions(name, start_at, city, state)")
+          .eq("id", data.academy_competition_id)
+          .maybeSingle();
+        const comp = (ac as { competition: { name: string; start_at: string | null; city: string | null; state: string | null } | null } | null)?.competition;
+        const compName = comp?.name ?? "competição";
+        const when = comp?.start_at ? new Date(comp.start_at).toLocaleDateString("pt-BR") : null;
+        const where = [comp?.city, comp?.state].filter(Boolean).join("/") || null;
+        const regNum = (row as { registration_number: string | null }).registration_number;
+
+        let title = "Inscrição em competição";
+        let body = `Você foi inscrito em ${compName}.`;
+        if (newStatus === "confirmed") {
+          title = "Presença confirmada";
+          body = `Sua presença em ${compName} foi confirmada.`;
+        } else if (newStatus === "registered") {
+          title = "Inscrição efetivada";
+          body = `Sua inscrição em ${compName} foi efetivada${regNum ? ` (nº ${regNum})` : ""}.`;
+        } else if (newStatus === "cancelled") {
+          title = "Inscrição cancelada";
+          body = `Sua participação em ${compName} foi cancelada.`;
+        }
+        if (when || where) body += ` ${[when, where].filter(Boolean).join(" · ")}.`;
+
+        await context.supabase.from("dojo_student_notifications").insert({
+          owner_id: context.userId,
+          student_id: data.student_id,
+          title,
+          body,
+          kind: "competition",
+        } as never);
+      }
+    } catch (e) {
+      console.warn("notify athlete failed", e);
+    }
+
     return row;
   });
 
