@@ -501,14 +501,7 @@ function PlansPage() {
                             />
                           </div>
 
-                            </div>
-                            <Switch
-                              checked={state.enabled}
-                              onCheckedChange={(v) =>
-                                patchMethod(def.code, { enabled: v, gateway: "asaas" })
-                              }
-                            />
-                          </div>
+
 
                           {state.enabled && def.configFields.length > 0 && (
                             <div className="mt-3 space-y-2 border-t border-dashed pt-3">
