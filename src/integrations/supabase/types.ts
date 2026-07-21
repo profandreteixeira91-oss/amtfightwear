@@ -5985,6 +5985,7 @@ export type Database = {
           modalities: Json
           notes: string | null
           owner_id: string
+          permissions: Json
           phone: string | null
           photo_url: string | null
           professional_photo_url: string | null
@@ -6023,6 +6024,7 @@ export type Database = {
           modalities?: Json
           notes?: string | null
           owner_id: string
+          permissions?: Json
           phone?: string | null
           photo_url?: string | null
           professional_photo_url?: string | null
@@ -6061,6 +6063,7 @@ export type Database = {
           modalities?: Json
           notes?: string | null
           owner_id?: string
+          permissions?: Json
           phone?: string | null
           photo_url?: string | null
           professional_photo_url?: string | null
@@ -9788,6 +9791,20 @@ export type Database = {
       dojo_announcement_visible_to_student: {
         Args: { _ann: string; _student: string }
         Returns: boolean
+      }
+      dojo_link_team_member_by_email: {
+        Args: { _email: string; _member_id: string }
+        Returns: string
+      }
+      dojo_my_team_permissions: {
+        Args: never
+        Returns: {
+          full_name: string
+          member_id: string
+          owner_id: string
+          permissions: Json
+          role: string
+        }[]
       }
       dojo_slugify: { Args: { input: string }; Returns: string }
       email_queue_dispatch: { Args: never; Returns: undefined }

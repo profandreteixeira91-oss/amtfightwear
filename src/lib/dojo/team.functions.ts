@@ -137,6 +137,74 @@ export const deleteTeamMember = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+// ============ PERMISSIONS ============
+
+const permissionLevel = z.enum(["none", "read", "write"]);
+const permissionMap = z.record(z.string().min(1).max(50), permissionLevel);
+
+export const updateTeamMemberPermissions = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: uuid, permissions: permissionMap }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("dojo_team_members")
+      .update({ permissions: data.permissions as never })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    await context.supabase.from("dojo_team_history").insert({
+      owner_id: context.userId,
+      member_id: data.id,
+      event_type: "profile_change",
+      description: "Permissões atualizadas",
+      after_data: data.permissions as never,
+      actor_user_id: context.userId,
+    });
+    return { ok: true };
+  });
+
+export const linkTeamMemberUser = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: uuid, email: z.string().email() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { data: userId, error } = await context.supabase.rpc("dojo_link_team_member_by_email", {
+      _member_id: data.id,
+      _email: data.email,
+    });
+    if (error) throw new Error(error.message);
+    return { user_id: userId as string };
+  });
+
+export const unlinkTeamMemberUser = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: uuid }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("dojo_team_members")
+      .update({ user_id: null })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const getMyTeamPermissions = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    // Se o usuário é dono de um dojo (dojo_academy_profile.owner_id = auth.uid),
+    // liberamos tudo. Caso contrário, retornamos permissões do team_member vinculado.
+    const [{ data: ownerProfile }, { data: rows }] = await Promise.all([
+      context.supabase.from("dojo_academy_profile").select("owner_id").eq("owner_id", context.userId).maybeSingle(),
+      context.supabase.rpc("dojo_my_team_permissions"),
+    ]);
+    if (ownerProfile) return { isOwner: true as const, permissions: null, member: null };
+    const row = Array.isArray(rows) ? rows[0] : null;
+    if (!row) return { isOwner: false as const, permissions: null, member: null };
+    return {
+      isOwner: false as const,
+      permissions: (row.permissions ?? {}) as Record<string, "none" | "read" | "write">,
+      member: { id: row.member_id, role: row.role, full_name: row.full_name },
+    };
+  });
+
 // ============ PAYROLL CONFIG ============
 
 const payrollSchema = z.object({

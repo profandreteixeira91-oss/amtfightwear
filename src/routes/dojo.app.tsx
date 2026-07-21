@@ -54,6 +54,8 @@ import {
 import { DojoLogo } from "@/components/dojo/DojoLogo";
 import { TrialBadge } from "@/components/dojo/TrialBadge";
 import { UnsavedChangesProvider } from "@/components/common/UnsavedChangesGuard";
+import { DojoPermissionsProvider, useDojoPermissions } from "@/components/dojo/DojoPermissionsProvider";
+import { findModuleForPath } from "@/lib/dojo/permissions";
 
 export const Route = createFileRoute("/dojo/app")({
   head: () => ({ meta: [{ title: "Painel — AMT Dojo Manager" }] }),
@@ -190,23 +192,66 @@ function DojoLayout() {
   return (
     <div className="dojo-theme min-h-screen">
       <SidebarProvider>
-        <Sidebar collapsible="icon" className="border-r border-[color:var(--dojo-border)]">
-          <SidebarHeader className="border-b border-[color:var(--dojo-border)]/60">
-            <Link to="/dojo" className="flex items-center gap-2 px-2 py-1.5">
-              <DojoLogo className="h-10 w-auto shrink-0" />
-              <span className="sr-only">AMT Dojo Manager</span>
-            </Link>
-          </SidebarHeader>
+        <DojoPermissionsProvider>
+          <DojoLayoutInner
+            pathname={pathname}
+            email={email}
+            initial={initial}
+            header={header}
+            onLogout={handleLogout}
+            isActive={isActive}
+          />
+        </DojoPermissionsProvider>
+      </SidebarProvider>
+    </div>
+  );
+}
 
-          <SidebarContent>
-            {nav.map((group) => (
+function DojoLayoutInner({
+  pathname,
+  email,
+  initial,
+  header,
+  onLogout,
+  isActive,
+}: {
+  pathname: string;
+  email: string | null;
+  initial: string;
+  header: { title: string; subtitle?: string };
+  onLogout: () => void;
+  isActive: (to: string, exact?: boolean) => boolean;
+}) {
+  const { can, isOwner, loading } = useDojoPermissions();
+  const currentModule = findModuleForPath(pathname);
+  const blocked = !loading && !isOwner && currentModule ? !can(currentModule.key, "read") : false;
+
+  return (
+    <>
+      <Sidebar collapsible="icon" className="border-r border-[color:var(--dojo-border)]">
+        <SidebarHeader className="border-b border-[color:var(--dojo-border)]/60">
+          <Link to="/dojo" className="flex items-center gap-2 px-2 py-1.5">
+            <DojoLogo className="h-10 w-auto shrink-0" />
+            <span className="sr-only">AMT Dojo Manager</span>
+          </Link>
+        </SidebarHeader>
+
+        <SidebarContent>
+          {nav.map((group) => {
+            const visible = group.items.filter((item) => {
+              const mod = findModuleForPath(item.to);
+              if (!mod) return true;
+              return can(mod.key, "read");
+            });
+            if (visible.length === 0) return null;
+            return (
               <SidebarGroup key={group.label}>
                 <SidebarGroupLabel className="text-[10px] uppercase tracking-widest text-muted-foreground/70">
                   {group.label}
                 </SidebarGroupLabel>
                 <SidebarGroupContent>
                   <SidebarMenu>
-                    {group.items.map((item) => {
+                    {visible.map((item) => {
                       const active = isActive(item.to, item.exact);
                       const Icon = item.icon;
                       return (
@@ -228,97 +273,105 @@ function DojoLayout() {
                   </SidebarMenu>
                 </SidebarGroupContent>
               </SidebarGroup>
-            ))}
-          </SidebarContent>
+            );
+          })}
+        </SidebarContent>
 
-          <SidebarFooter className="border-t border-[color:var(--dojo-border)]/60">
-            <div className="flex items-center gap-2 px-2 py-1.5">
-              <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
-                {initial}
-              </div>
-              <div className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
-                <div className="text-xs font-medium truncate">{email ?? "Instrutor"}</div>
-                <div className="text-[10px] text-muted-foreground">Conta ativa</div>
-              </div>
-              <button
-                onClick={handleLogout}
-                title="Sair"
-                className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors group-data-[collapsible=icon]:hidden"
-              >
-                <LogOut className="h-4 w-4" />
-              </button>
+        <SidebarFooter className="border-t border-[color:var(--dojo-border)]/60">
+          <div className="flex items-center gap-2 px-2 py-1.5">
+            <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
+              {initial}
             </div>
-          </SidebarFooter>
-        </Sidebar>
+            <div className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
+              <div className="text-xs font-medium truncate">{email ?? "Instrutor"}</div>
+              <div className="text-[10px] text-muted-foreground">Conta ativa</div>
+            </div>
+            <button
+              onClick={onLogout}
+              title="Sair"
+              className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors group-data-[collapsible=icon]:hidden"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
+          </div>
+        </SidebarFooter>
+      </Sidebar>
 
-        <SidebarInset className="bg-[color:var(--dojo-surface)]">
-          <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-[color:var(--dojo-border)] bg-white/85 backdrop-blur-md px-3 md:px-6 shadow-[0_1px_0_0_oklch(0.92_0.006_250)]">
-            <SidebarTrigger className="-ml-1" />
-            <div className="min-w-0 flex-1">
-              <h1 className="font-display text-base md:text-lg font-bold tracking-tight leading-tight truncate">
-                {header.title}
-              </h1>
-              {header.subtitle && (
-                <p className="text-[11px] md:text-xs text-muted-foreground leading-tight truncate">
-                  {header.subtitle}
+      <SidebarInset className="bg-[color:var(--dojo-surface)]">
+        <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-[color:var(--dojo-border)] bg-white/85 backdrop-blur-md px-3 md:px-6 shadow-[0_1px_0_0_oklch(0.92_0.006_250)]">
+          <SidebarTrigger className="-ml-1" />
+          <div className="min-w-0 flex-1">
+            <h1 className="font-display text-base md:text-lg font-bold tracking-tight leading-tight truncate">
+              {header.title}
+            </h1>
+            {header.subtitle && (
+              <p className="text-[11px] md:text-xs text-muted-foreground leading-tight truncate">
+                {header.subtitle}
+              </p>
+            )}
+          </div>
+          <TrialBadge />
+          <div className="hidden md:flex items-center gap-2">
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <input
+                type="search"
+                placeholder="Buscar aluno, plano, unidade…"
+                className="h-9 w-64 rounded-lg border border-[color:var(--dojo-border)] bg-[color:var(--dojo-surface-2)] pl-8 pr-3 text-sm outline-none transition-colors focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/15"
+              />
+            </div>
+            <button
+              title="Notificações"
+              className="grid h-9 w-9 place-items-center rounded-lg border border-[color:var(--dojo-border)] bg-white text-muted-foreground hover:text-foreground hover:border-[color:var(--dojo-border-strong)] transition-colors"
+            >
+              <Bell className="h-4 w-4" />
+            </button>
+          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-2 rounded-lg border border-[color:var(--dojo-border)] bg-white px-2 py-1.5 hover:border-[color:var(--dojo-border-strong)] hover:shadow-sm transition-all">
+                <div className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
+                  {initial}
+                </div>
+                <span className="hidden sm:inline max-w-[160px] truncate text-sm font-medium">
+                  {email ?? "Conta"}
+                </span>
+                <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel className="truncate">{email ?? "Conta"}</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link to="/dojo/app/account">
+                  <UserCircle className="mr-2 h-4 w-4" />
+                  Minha conta
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={onLogout} className="text-destructive focus:text-destructive">
+                <LogOut className="mr-2 h-4 w-4" />
+                Sair
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </header>
+
+        <main className="min-w-0 max-w-full overflow-x-hidden p-4 md:p-6">
+          <UnsavedChangesProvider>
+            {blocked ? (
+              <div className="mx-auto mt-16 max-w-md rounded-xl border border-[color:var(--dojo-border)] bg-white p-8 text-center shadow-sm">
+                <div className="text-2xl font-bold mb-2">Sem permissão</div>
+                <p className="text-sm text-muted-foreground">
+                  Você não tem acesso ao módulo <b>{currentModule?.label}</b>. Fale com o administrador do dojo para liberar.
                 </p>
-              )}
-            </div>
-            <TrialBadge />
-            <div className="hidden md:flex items-center gap-2">
-
-              <div className="relative">
-                <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                <input
-                  type="search"
-                  placeholder="Buscar aluno, plano, unidade…"
-                  className="h-9 w-64 rounded-lg border border-[color:var(--dojo-border)] bg-[color:var(--dojo-surface-2)] pl-8 pr-3 text-sm outline-none transition-colors focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/15"
-                />
               </div>
-              <button
-                title="Notificações"
-                className="grid h-9 w-9 place-items-center rounded-lg border border-[color:var(--dojo-border)] bg-white text-muted-foreground hover:text-foreground hover:border-[color:var(--dojo-border-strong)] transition-colors"
-              >
-                <Bell className="h-4 w-4" />
-              </button>
-            </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 rounded-lg border border-[color:var(--dojo-border)] bg-white px-2 py-1.5 hover:border-[color:var(--dojo-border-strong)] hover:shadow-sm transition-all">
-                  <div className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
-                    {initial}
-                  </div>
-                  <span className="hidden sm:inline max-w-[160px] truncate text-sm font-medium">
-                    {email ?? "Conta"}
-                  </span>
-                  <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel className="truncate">{email ?? "Conta"}</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link to="/dojo/app/account">
-                    <UserCircle className="mr-2 h-4 w-4" />
-                    Minha conta
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Sair
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </header>
-
-          <main className="min-w-0 max-w-full overflow-x-hidden p-4 md:p-6">
-            <UnsavedChangesProvider>
+            ) : (
               <Outlet />
-            </UnsavedChangesProvider>
-          </main>
-        </SidebarInset>
-      </SidebarProvider>
-    </div>
+            )}
+          </UnsavedChangesProvider>
+        </main>
+      </SidebarInset>
+    </>
   );
 }

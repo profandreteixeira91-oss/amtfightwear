@@ -15,6 +15,7 @@ import {
   listTeamHistory,
   deleteTeamMember,
 } from "@/lib/dojo/team.functions";
+import { PermissionsTab } from "@/components/dojo/team/PermissionsTab";
 import { DojoPageShell } from "@/components/dojo/DojoPageShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -237,18 +238,13 @@ function TeamMemberDetail() {
 
         {/* PERMISSIONS */}
         <TabsContent value="permissions" className="mt-4">
-          <Card><CardContent className="space-y-3 p-4">
-            <p className="text-sm text-muted-foreground">
-              Este colaborador utiliza o sistema de permissões do AMT Dojo Manager. Para conceder acesso ao painel administrativo, associe primeiro uma conta de usuário e depois defina o perfil desejado na área de gerenciamento de usuários.
-            </p>
-            <div className="rounded-md border p-3">
-              <div className="text-xs text-muted-foreground">Conta vinculada</div>
-              <div className="mt-1 font-mono text-sm">{m.user_id ?? "— nenhuma conta vinculada —"}</div>
-            </div>
-            <Button variant="outline" asChild>
-              <Link to="/users">Gerenciar usuários e perfis</Link>
-            </Button>
-          </CardContent></Card>
+          <PermissionsTab
+            memberId={id}
+            role={m.role}
+            email={m.email}
+            linkedUserId={m.user_id}
+            initialPermissions={(m.permissions ?? {}) as Record<string, "none" | "read" | "write">}
+          />
         </TabsContent>
 
         {/* SCHEDULE */}
