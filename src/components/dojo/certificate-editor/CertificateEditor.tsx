@@ -199,6 +199,14 @@ export function CertificateEditor(props: Props) {
         </Button>
       </div>
 
+      {/* CONTEXTUAL TEXT TOOLBAR (Canva-style) — shown when a text element is selected */}
+      {selectedEl && selectedEl.kind === "text" && (
+        <TextContextToolbar
+          el={selectedEl as TextElement}
+          onPatch={(patch) => patchElement(selectedEl.id, patch)}
+        />
+      )}
+
       {/* MAIN */}
       <div className="flex flex-1 overflow-hidden">
         {/* LEFT PALETTE */}
@@ -224,6 +232,7 @@ export function CertificateEditor(props: Props) {
     </div>
   );
 }
+
 
 function TB({ icon: Icon, label, onClick, active, disabled }: { icon: any; label: string; onClick: () => void; active?: boolean; disabled?: boolean }) {
   return (
