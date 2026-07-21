@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import {
   listDojoStudents, listDojoBelts, addBulkGraduation,
   listCertificateTemplates, issueCertificate,
+  listGraduationProgress,
 } from "@/lib/dojo/dojo.functions";
 import { BeltVisual } from "@/components/dojo/BeltVisual";
 import { CertificatePreviewDialog, openCertificatePrint, type CertificateTemplate } from "@/components/dojo/CertificatePreview";
