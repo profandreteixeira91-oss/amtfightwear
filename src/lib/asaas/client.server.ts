@@ -422,6 +422,52 @@ export async function asaasReceiveChargeInCash(
   });
 }
 
+// ============ CREDIT CARD (charge on existing payment) ============
+export type AsaasCreditCardInput = {
+  holderName: string;
+  number: string;
+  expiryMonth: string;
+  expiryYear: string;
+  ccv: string;
+};
+
+export type AsaasCreditCardHolderInfo = {
+  name: string;
+  email: string;
+  cpfCnpj: string;
+  postalCode: string;
+  addressNumber: string;
+  addressComplement?: string;
+  phone?: string;
+  mobilePhone?: string;
+};
+
+export type AsaasCardChargeResult = {
+  id: string;
+  status: string;
+  invoiceUrl?: string;
+  value?: number;
+  creditCard?: { creditCardToken?: string; creditCardBrand?: string; creditCardNumber?: string };
+  errorCode?: string;
+  errorDescription?: string;
+};
+
+export async function asaasChargeCreditCard(
+  chargeId: string,
+  input: {
+    creditCard: AsaasCreditCardInput;
+    creditCardHolderInfo: AsaasCreditCardHolderInfo;
+    remoteIp?: string;
+  },
+  apiKey?: string,
+): Promise<AsaasCardChargeResult> {
+  return asaasFetch<AsaasCardChargeResult>(`/payments/${chargeId}/payWithCreditCard`, {
+    method: "POST",
+    body: JSON.stringify(input),
+    apiKey,
+  });
+}
+
 // ============ SUBSCRIPTIONS ============
 export async function asaasCreateSubscription(
   input: AsaasSubscriptionInput,
