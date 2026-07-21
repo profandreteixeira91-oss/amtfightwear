@@ -60,6 +60,7 @@ import { Route as DojoAppStudentsRouteImport } from './routes/dojo.app.students'
 import { Route as DojoAppStudentAppQrRouteImport } from './routes/dojo.app.student-app-qr'
 import { Route as DojoAppStoreRouteImport } from './routes/dojo.app.store'
 import { Route as DojoAppScheduleRouteImport } from './routes/dojo.app.schedule'
+import { Route as DojoAppSalesRouteImport } from './routes/dojo.app.sales'
 import { Route as DojoAppRecurringRouteImport } from './routes/dojo.app.recurring'
 import { Route as DojoAppPlansRouteImport } from './routes/dojo.app.plans'
 import { Route as DojoAppIntegrationsRouteImport } from './routes/dojo.app.integrations'
@@ -452,6 +453,11 @@ const DojoAppStoreRoute = DojoAppStoreRouteImport.update({
 const DojoAppScheduleRoute = DojoAppScheduleRouteImport.update({
   id: '/schedule',
   path: '/schedule',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppSalesRoute = DojoAppSalesRouteImport.update({
+  id: '/sales',
+  path: '/sales',
   getParentRoute: () => DojoAppRoute,
 } as any)
 const DojoAppRecurringRoute = DojoAppRecurringRouteImport.update({
@@ -1333,6 +1339,7 @@ export interface FileRoutesByFullPath {
   '/dojo/app/integrations': typeof DojoAppIntegrationsRoute
   '/dojo/app/plans': typeof DojoAppPlansRoute
   '/dojo/app/recurring': typeof DojoAppRecurringRoute
+  '/dojo/app/sales': typeof DojoAppSalesRoute
   '/dojo/app/schedule': typeof DojoAppScheduleRoute
   '/dojo/app/store': typeof DojoAppStoreRouteWithChildren
   '/dojo/app/student-app-qr': typeof DojoAppStudentAppQrRoute
@@ -1519,6 +1526,7 @@ export interface FileRoutesByTo {
   '/dojo/app/integrations': typeof DojoAppIntegrationsRoute
   '/dojo/app/plans': typeof DojoAppPlansRoute
   '/dojo/app/recurring': typeof DojoAppRecurringRoute
+  '/dojo/app/sales': typeof DojoAppSalesRoute
   '/dojo/app/schedule': typeof DojoAppScheduleRoute
   '/dojo/app/student-app-qr': typeof DojoAppStudentAppQrRoute
   '/dojo/app/subscription': typeof DojoAppSubscriptionRoute
@@ -1707,6 +1715,7 @@ export interface FileRoutesById {
   '/dojo/app/integrations': typeof DojoAppIntegrationsRoute
   '/dojo/app/plans': typeof DojoAppPlansRoute
   '/dojo/app/recurring': typeof DojoAppRecurringRoute
+  '/dojo/app/sales': typeof DojoAppSalesRoute
   '/dojo/app/schedule': typeof DojoAppScheduleRoute
   '/dojo/app/store': typeof DojoAppStoreRouteWithChildren
   '/dojo/app/student-app-qr': typeof DojoAppStudentAppQrRoute
@@ -1899,6 +1908,7 @@ export interface FileRouteTypes {
     | '/dojo/app/integrations'
     | '/dojo/app/plans'
     | '/dojo/app/recurring'
+    | '/dojo/app/sales'
     | '/dojo/app/schedule'
     | '/dojo/app/store'
     | '/dojo/app/student-app-qr'
@@ -2085,6 +2095,7 @@ export interface FileRouteTypes {
     | '/dojo/app/integrations'
     | '/dojo/app/plans'
     | '/dojo/app/recurring'
+    | '/dojo/app/sales'
     | '/dojo/app/schedule'
     | '/dojo/app/student-app-qr'
     | '/dojo/app/subscription'
@@ -2272,6 +2283,7 @@ export interface FileRouteTypes {
     | '/dojo/app/integrations'
     | '/dojo/app/plans'
     | '/dojo/app/recurring'
+    | '/dojo/app/sales'
     | '/dojo/app/schedule'
     | '/dojo/app/store'
     | '/dojo/app/student-app-qr'
@@ -2765,6 +2777,13 @@ declare module '@tanstack/react-router' {
       path: '/schedule'
       fullPath: '/dojo/app/schedule'
       preLoaderRoute: typeof DojoAppScheduleRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/sales': {
+      id: '/dojo/app/sales'
+      path: '/sales'
+      fullPath: '/dojo/app/sales'
+      preLoaderRoute: typeof DojoAppSalesRouteImport
       parentRoute: typeof DojoAppRoute
     }
     '/dojo/app/recurring': {
@@ -4124,6 +4143,7 @@ interface DojoAppRouteChildren {
   DojoAppIntegrationsRoute: typeof DojoAppIntegrationsRoute
   DojoAppPlansRoute: typeof DojoAppPlansRoute
   DojoAppRecurringRoute: typeof DojoAppRecurringRoute
+  DojoAppSalesRoute: typeof DojoAppSalesRoute
   DojoAppScheduleRoute: typeof DojoAppScheduleRoute
   DojoAppStoreRoute: typeof DojoAppStoreRouteWithChildren
   DojoAppStudentAppQrRoute: typeof DojoAppStudentAppQrRoute
@@ -4154,6 +4174,7 @@ const DojoAppRouteChildren: DojoAppRouteChildren = {
   DojoAppIntegrationsRoute: DojoAppIntegrationsRoute,
   DojoAppPlansRoute: DojoAppPlansRoute,
   DojoAppRecurringRoute: DojoAppRecurringRoute,
+  DojoAppSalesRoute: DojoAppSalesRoute,
   DojoAppScheduleRoute: DojoAppScheduleRoute,
   DojoAppStoreRoute: DojoAppStoreRouteWithChildren,
   DojoAppStudentAppQrRoute: DojoAppStudentAppQrRoute,
