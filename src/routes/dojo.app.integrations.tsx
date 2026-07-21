@@ -108,7 +108,7 @@ function AMTPayHub() {
           <AuditLogPanel />
         </TabsContent>
         <TabsContent value="onboarding" className="mt-6">
-          <AsaasOnboardingCard />
+          <AMTPayReceivingCard />
         </TabsContent>
         <TabsContent value="about" className="mt-6">
           <AMTPayInfoPanel />
