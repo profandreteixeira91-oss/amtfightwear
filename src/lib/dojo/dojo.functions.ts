@@ -127,7 +127,6 @@ export const checkIsAdmin = createServerFn({ method: "GET" })
     ]);
     return { isAdmin: Boolean(isAdmin), isAmtAdmin: Boolean(isAmtAdmin) };
   });
-  });
 
 // ============ STUDENTS ============
 // Compute the most recent graduation per modality for each student.
