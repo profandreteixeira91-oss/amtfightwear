@@ -184,11 +184,10 @@ function RecurringPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Regras de cobrança recorrente</CardTitle>
+          <CardTitle>Regras de mensalidade</CardTitle>
           <CardDescription>
-            Unificação de mensalidades e assinaturas. Toda matrícula ativa gera cobranças
-            automaticamente conforme a frequência configurada. Pause, retome ou cancele quando
-            necessário.
+            Toda matrícula ativa gera cobranças automaticamente conforme a frequência
+            configurada. Pause, retome ou cancele quando necessário.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
