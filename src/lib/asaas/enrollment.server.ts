@@ -228,7 +228,9 @@ export async function syncInvoiceWithAsaas(
   // 1. Carrega profile do dojo (para chave Asaas)
   const { data: profile } = await supabase
     .from("dojo_academy_profile")
-    .select("asaas_api_key_encrypted, asaas_wallet_id, trade_name")
+    .select(
+      "asaas_subaccount_id, asaas_api_key_encrypted, asaas_wallet_id, asaas_onboarding_status, trade_name",
+    )
     .eq("owner_id", invoice.owner_id)
     .maybeSingle();
 
