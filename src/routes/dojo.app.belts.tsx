@@ -264,7 +264,7 @@ function BeltsPage() {
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
               <SortableContext items={localBelts.map((b) => b.id)} strategy={verticalListSortingStrategy}>
                 {localBelts.map((b) => (
-                  <SortableBeltRow key={b.id} belt={b} onEdit={openEdit} onRemove={remove} />
+                  <SortableBeltRow key={b.id} belt={b} onEdit={openEdit} onRemove={remove} canEdit={isAmtAdmin || Boolean(b.owner_id)} />
                 ))}
               </SortableContext>
             </DndContext>
