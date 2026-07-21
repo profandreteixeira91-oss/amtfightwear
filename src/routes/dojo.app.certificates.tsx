@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -38,6 +38,7 @@ function CertificatesPage() {
   const delFn = useServerFn(deleteCertificateTemplate);
   const studentsFn = useServerFn(listDojoStudents);
   const qc = useQueryClient();
+  const navigate = useNavigate();
 
   const templates = useQuery({ queryKey: ["dojo-templates"], queryFn: () => listFn() });
   const students = useQuery({ queryKey: ["dojo-students-mini"], queryFn: () => studentsFn() });
@@ -261,7 +262,7 @@ function CertificatesPage() {
             <option value="">Todas as categorias</option>
             {CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
           </select>
-          <Button onClick={startNew}><Plus className="h-4 w-4 mr-1" /> Novo modelo</Button>
+          <Button onClick={() => navigate({ to: "/dojo/certificate-editor/$id", params: { id: "new" } })}><Plus className="h-4 w-4 mr-1" /> Novo modelo</Button>
         </div>
       </div>
 
@@ -365,7 +366,7 @@ function CertificatesPage() {
                 <div className="text-[11px] text-muted-foreground">{elCount} elemento{elCount === 1 ? "" : "s"}</div>
               </CardHeader>
               <CardContent className="flex gap-2 pt-0">
-                <Button size="sm" onClick={() => openTemplate(t)} className="flex-1">Editar</Button>
+                <Button size="sm" onClick={() => navigate({ to: "/dojo/certificate-editor/$id", params: { id: t.id } })} className="flex-1">Editar</Button>
                 <Button size="icon" variant="outline" title="Duplicar" onClick={() => duplicate(t)}><Copy className="h-4 w-4" /></Button>
                 <Button size="icon" variant="ghost" title="Excluir" onClick={async () => {
                   if (confirm(`Excluir modelo "${t.name}"?`)) {

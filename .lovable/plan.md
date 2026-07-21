@@ -1,72 +1,135 @@
-# Refatoração do Módulo Competições
+## Escopo
 
-Escopo grande demais para uma única entrega — abaixo está a divisão em 4 fases entregáveis. O schema atual (`dojo_competitions`, `dojo_competition_athletes`, `dojo_competition_medals`, `dojo_competition_results`, `dojo_competition_attachments`, `competition_sources`, `competition_ingest_runs`) já cobre a maior parte dos dados, então a maior parte do trabalho é **UI + funções + expansão de campos**.
+Refatorar completamente o módulo **Gerador de Certificados** (`/dojo/app/certificates`) em um editor visual profissional inspirado no Canva, focado em certificados de artes marciais. Nenhum outro módulo será tocado.
 
-## Estado atual (reaproveitável)
+Dado o tamanho da especificação (mais de 200 itens funcionais), proponho entregar em **3 fases sequenciais**, cada uma auto-contida e utilizável. Você aprova a Fase 1 e vamos avançando.
 
-- Providers já modularizados em `src/lib/dojo/competitions/providers.ts` (arquitetura pronta para RSS/Firecrawl/APIs).
-- Ingest pipeline em `ingest.functions.ts` com dedupe por `(owner_id, provider, external_id)`.
-- Rotas: `dojo.app.competitions.tsx` (lista atual) e `dojo.app.competitions.$id.tsx` (detalhe atual).
-- Aba `Competições` no perfil do aluno já existe (`students.$id.tsx`).
+## Arquitetura geral
 
-## Fase 1 — Schema & fundação
+- **Canvas SVG/HTML customizado** (sem depender de bibliotecas pesadas como Fabric.js/Konva no bundle inicial) — mais leve, aderente ao design do Dojo Manager e responsivo.
+- **Estado central em Zustand** com histórico (undo/redo) e autosave debounced.
+- **Modelo de dados** `TemplateDoc` versionado em JSON, salvo em `dojo_certificate_templates.fields`.
+- **Renderização unificada** entre editor, preview público (`/certificate/$hash`) e PDF, usando o mesmo componente de camadas.
 
-Migração única expandindo o schema:
+### Schema (migration única na Fase 1)
 
-- `dojo_competitions`: adicionar `subtitle`, `regulation_url`, `schedule_url`, `venue_map_url`, `contact_phone`, `contact_email`, `instagram`, `facebook`, `website`, `estimated_athletes`, `is_international boolean`, `is_free boolean`, `federation`, `confederation`, `tags jsonb`, `archived_at`, `cancelled_at`, `internal boolean` (competições internas da academia), `calendar_event_id` (link com `dojo_class_occurrences` quando adicionada ao calendário).
-- `dojo_competition_athletes`: adicionar `teacher_id` (FK team_members), `registration_number`, `amount_paid numeric`, `payment_method text`, `documents jsonb` (enviados/pendentes).
-- `dojo_competition_results`: adicionar `matches_total`, `matches_drawn`, `submissions`, `knockouts`, `ippons`, `total_points`, `total_time_seconds`.
-- Nova tabela `dojo_competition_media` (fotos/vídeos por resultado — id, owner_id, athlete_id, competition_id, kind: photo|video|certificate, url, caption).
-- Nova tabela `dojo_competition_calendar` (event_id, competition_id, notify_teachers, notify_athletes, checklist jsonb, notes).
-- RPC `get_academy_medal_stats(_owner uuid)` e `get_student_competition_history(_student uuid)` (security definer).
-- GRANTs + RLS para todas.
+Expandir tabelas existentes sem quebrar dados:
+- `dojo_certificate_templates`: adicionar `document jsonb` (novo doc), `page_size text`, `orientation text`, `tags text[]`, `favorite bool`, `preview_url text`, `version int`.
+- Nova tabela `dojo_certificate_template_versions` para histórico.
+- Nova tabela `dojo_certificate_assets` para logos/assinaturas/selos reutilizáveis.
+- `dojo_certificates`: adicionar `validation_code text unique`, `hash_signature text`, `serial_number text`, `pdf_url` já existe.
 
-## Fase 2 — Dashboard & Listagem
+## Fase 1 — Editor visual profissional (núcleo)
 
-- Nova rota `dojo.app.competitions.tsx` reescrita como **Dashboard** com abas: `Dashboard | Buscador | Minhas competições | Ranking | Estatísticas`.
-- Componentes em `src/components/dojo/competitions/`:
-  - `DashboardOverview.tsx`: cards (Total, Nacionais, Internacionais, Atletas inscritos, medalhas ouro/prata/bronze), calendário mensal, próximas 30 dias, últimas realizadas.
-  - `CompetitionCard.tsx`: banner, nome, modalidade, data, local, prazo, taxa, categorias, status, botões (Ver detalhes / Registrar no calendário / Site oficial / Compartilhar).
-  - `CompetitionsList.tsx`: virtualização + paginação.
+Entregável: um editor funcional que substitui o atual, com fluxo salvar/exportar completo.
 
-## Fase 3 — Buscador, Filtros, Detalhe & Atletas
+**Rotas:**
+- `/dojo/app/certificates` — dashboard com abas: **Modelos**, **Emitidos**, **Lote**.
+- `/dojo/app/certificates/editor/$id` — editor em tela cheia.
+- `/dojo/app/certificates/editor/new` — criação a partir de template ou em branco.
 
-- `CompetitionFinder.tsx`: filtros por modalidade (multi), país, UF, cidade, data, mês/ano, organizador, federação, gratuito/pago, aberto/encerrado, nacional/internacional, próximos 30/90 dias, este ano. Busca client-side sobre `listCompetitions` com debounce; server-side para ranges de data.
-- Rota `dojo.app.competitions.$id.tsx` reescrita com abas: `Info | Programação | Categorias | Local | Anexos | Atletas | Resultados`.
-- `AthleteRegistrationDialog.tsx`: cadastro de aluno com categoria, peso, faixa, professor responsável, nº inscrição, valor pago, forma de pagamento, checklist documentos.
-- `ResultsEditor.tsx`: colocação, lutas (V/D/E), finalizações, ippons, KOs, pontuação, tempo, medalha (auto-cria em `dojo_competition_medals`), upload de fotos/vídeos/certificados.
-- Botão "Adicionar ao calendário" cria evento em `dojo_class_occurrences` via `dojo_competition_calendar`.
-- Botão "Acessar site oficial" apenas redireciona (sem inscrição interna).
+**Editor (`CertificateStudio`):**
+- Layout 3 colunas: sidebar esquerda (biblioteca), canvas central, painel direito (propriedades).
+- Topbar: Novo, Salvar, Salvar como modelo, Duplicar, Desfazer, Refazer, Zoom (25/50/75/100/150/200%), Visualizar, Exportar PDF, Exportar PNG, Imprimir, Histórico.
+- Canvas: réguas, grid opcional, snap a guias, margens visíveis, drag & drop, seleção múltipla, resize handles, rotação, alinhamento inteligente entre elementos (linhas magenta ao arrastar).
+- Painel de camadas com renomear, ocultar, bloquear, reordenar, agrupar.
+- Autosave debounced (2s) + indicador "Salvo às HH:mm".
+- Undo/redo com limite de 100 estados.
 
-## Fase 4 — Ranking, Estatísticas, Perfil do aluno & Cron
+**Elementos suportados (Fase 1):**
+- **Texto** (com editor rich: fonte, tamanho, peso, itálico, sublinhado, cor, alinhamento, espaçamento, altura de linha, sombra, contorno, rotação, opacidade, caixa alta/baixa).
+- **Variáveis** (chip inserido no texto: `{{nome_aluno}}`, `{{faixa_atual}}`, `{{nova_faixa}}`, `{{academia}}`, `{{data_emissao}}`, `{{numero_certificado}}`, `{{codigo_validacao}}`, +30 outras da lista).
+- **Imagem** (upload para bucket `dojo-certificates`, crop básico, opacidade, brilho/contraste via CSS filter).
+- **Logo da academia** (auto-vinculado ao `dojo_academy_profile.logo_url`).
+- **Assinatura** (upload PNG ou galeria salva em `dojo_certificate_assets`).
+- **QR Code** (gerado via `qrcode` package, aponta para `/certificate/$hash` ou URL custom).
+- **Formas** (retângulo, círculo, elipse, linha, seta) com fill/stroke/border-radius.
+- **Fundo da página** (cor, imagem, marca d'água).
 
-- `RankingPanel.tsx`: rankings (geral, por modalidade, por faixa, por categoria) baseado em RPC agregando `medals + results`.
-- `StatsPanel.tsx`: gráficos (recharts) — competições/ano, medalhas/modalidade, aproveitamento, eventos/UF, atletas mais ativos, professores mais premiados.
-- Perfil do aluno (`students.$id.tsx`): expandir aba **Competições** para mostrar histórico completo (data, modalidade, categoria, peso, faixa, resultado, medalha, lutas V/D, fotos, vídeos, certificados, observações).
-- Rota pública `src/routes/api/public/hooks/competitions-ingest.ts` chamada por pg_cron (6h/12h/24h/48h configurável em `competition_sources.schedule_hours`).
-- Notificações (usa `dojo_student_notifications` já existente): nova competição, prazo próximo, adicionada ao calendário, resultado pendente, começa amanhã.
-- Permissões: leitura via `dojoPermissions` — admin controle total, professor cadastra atletas/resultados, aluno só visualiza.
+**Página:**
+- A4 retrato/paisagem, Carta, Ofício, Personalizado. Margens e sangria configuráveis.
 
-## Regras de negócio
+**Tipografia:**
+- Fontes web pré-carregadas: Inter, Playfair Display, Cormorant, Cinzel, Great Vibes, Montserrat, Bebas Neue, Merriweather, Poppins, Roboto, DM Serif, Libre Baskerville (12 fontes profissionais para certificados). Busca e favoritos.
 
-- Sem IA em nenhuma etapa (busca é rule-based por metadata + fontes indexadas).
-- Nenhuma inscrição é feita pelo Dojo Manager — sempre redireciona ao organizador.
-- Resultados salvos criam automaticamente registro em `dojo_competition_medals` e aparecem no histórico do aluno sem duplicação.
-- Nova conta começa zerada (regra core respeitada — sem seed).
+**Exportação:**
+- **PDF**: renderiza doc em SVG → `svg2pdf.js` ou HTML → `html2canvas + jsPDF` em alta resolução (300 DPI).
+- **PNG/JPEG**: `html-to-image`.
+- **Imprimir**: usa `openBrandedPrintDocument` (já existe no projeto) com o SVG renderizado.
+
+**Modelos iniciais (seed via migration):**
+- 6 templates prontos: Graduação Faixa, Graduação Grau, Participação Evento, Curso, Seminário, Reconhecimento — em duas variações visuais cada (clássico e moderno).
+
+## Fase 2 — Geração, validação e lote
+
+Entregável: emissão real de certificados com validação pública robusta.
+
+- **Substituição de variáveis** ao emitir: contexto do aluno + academia + graduação, com fallbacks.
+- **Numeração automática** (`serial_number` sequencial por owner) e `validation_code` (nanoid 12 chars).
+- **Hash de integridade** (SHA-256 dos valores + template).
+- **Página pública `/certificate/$hash`**: reformulada com preview renderizado idêntico ao editor + selo "Autêntico" + dados de validação.
+- **Geração em lote**: modal para selecionar turma, faixa, graduação ou lista de alunos → gera N certificados em paralelo, com progress bar, salva em `dojo_certificates`, oferece download em ZIP.
+- **Histórico de versões** do template (autosave grava snapshot a cada N alterações).
+
+## Fase 3 — Recursos avançados
+
+Entregável: paridade com editores profissionais.
+
+- Máscaras e recortes de imagem, filtros avançados.
+- Biblioteca de ícones (Lucide como catálogo pesquisável).
+- Biblioteca de elementos gráficos (molduras, divisores, ornamentos SVG).
+- Combinações de fontes sugeridas.
+- Compartilhar template com outros dojos (marketplace interno opcional).
+- Estrutura para "Remover fundo" de imagens (endpoint stub aguardando integração futura).
+- Modo apresentação (F11, tela cheia).
+- Atalhos de teclado completos (Ctrl+Z, Ctrl+D duplicar, Ctrl+G agrupar, Del, setas, etc.).
 
 ## Detalhes técnicos
 
-- Arquitetura de providers atual (`providers.ts`) mantida; novos providers registrados por linha (CBJJ, IBJJF, CBJ, CBK, CBTKD, CNMT etc.) sem refatorar chamadores.
-- Todos os `createServerFn` autenticados usam `requireSupabaseAuth` — a integração de bearer já está registrada em `src/start.ts`.
-- TanStack Query com `queryOptions` + `useSuspenseQuery` no padrão do projeto.
-- Cache: `staleTime` 60s para listagens, 300s para dashboard.
-- Uploads (fotos/vídeos/certificados) no bucket `dojo-documents` (já existe).
+```text
+src/routes/
+  dojo.app.certificates.tsx                (dashboard - refatorado)
+  dojo.app.certificates.editor.$id.tsx     (editor full-screen)
+  certificate.$hash.tsx                    (público - refatorado na Fase 2)
 
-## Estimativa
+src/components/dojo/certificates/
+  studio/
+    CertificateStudio.tsx        (root do editor)
+    Canvas.tsx                   (área de edição + réguas + grid)
+    LayerRenderer.tsx            (renderiza cada tipo de elemento)
+    Topbar.tsx
+    LeftSidebar.tsx              (biblioteca de elementos)
+    RightPanel.tsx               (propriedades do selecionado)
+    LayersPanel.tsx
+    PageSetup.tsx
+    VariableChip.tsx
+    QRCodeElement.tsx
+    ...
+  useStudioStore.ts              (Zustand: doc, selection, history, zoom)
+  serializer.ts                  (doc <-> DB JSON)
+  variables.ts                   (catálogo de {{variáveis}} + resolver)
+  exporter.ts                    (PDF/PNG/JPEG)
+  renderer.tsx                   (SSR-safe, usado no preview público)
 
-- **Fase 1**: 1 migração grande + regeneração de types (~1 turno).
-- **Fase 2**: ~4 arquivos (~1 turno).
-- **Fase 3**: ~6 arquivos, o mais denso (~1-2 turnos).
-- **Fase 4**: ~5 arquivos + cron SQL + perfil do aluno (~1 turno).
+src/lib/dojo/certificates/
+  templates.functions.ts         (CRUD templates + versões)
+  issue.functions.ts             (emissão individual + lote + validação)
+  assets.functions.ts            (logos/assinaturas reutilizáveis)
+```
 
-Confirma que sigo por essa divisão? Posso começar pela **Fase 1 (migração + fundação)** logo em seguida — as fases 2-4 dependem dos campos novos.
+Bibliotecas a adicionar: `zustand`, `qrcode`, `html-to-image`, `jspdf`, `nanoid` (verificar já instaladas antes).
+
+## Migração de dados
+
+- Templates existentes (`fields` no formato antigo) recebem migração one-shot para o novo `document` mantendo compatibilidade — o editor detecta versão e converte on-the-fly na primeira abertura.
+- Certificados já emitidos continuam válidos; recebem `validation_code` gerado se estiver nulo.
+
+## O que fica de fora (fase futura, se pedir)
+
+- Colaboração em tempo real multi-usuário.
+- Marketplace público de templates entre academias diferentes.
+- IA generativa de layouts (usuário já vetou IA no módulo Avaliações; confirmar se quer aqui).
+
+## Próximo passo
+
+Aprove esta fase 1 e eu já começo pela migration + `CertificateStudio` funcional (Topbar, Canvas, Textos, Variáveis, Imagens, Logo, QR Code, Formas, Exportação PDF/PNG, Salvar). Fases 2 e 3 seguem em turnos subsequentes.
