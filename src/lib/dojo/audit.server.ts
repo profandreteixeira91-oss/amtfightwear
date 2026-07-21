@@ -28,7 +28,7 @@ export async function recordAudit(input: AuditInput): Promise<void> {
       message: input.message ?? null,
       ip: input.ip ?? null,
       payload: (input.payload ?? {}) as any,
-      metadata: input.metadata ?? {},
+      metadata: (input.metadata ?? {}) as any,
     });
   } catch (err) {
     // Auditoria nunca deve derrubar a operação principal
