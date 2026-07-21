@@ -55,7 +55,7 @@ import {
 } from "@/lib/dojo/recurring.functions";
 
 export const Route = createFileRoute("/dojo/app/recurring")({
-  head: () => ({ meta: [{ title: "Cobrança Recorrente — AMT Dojo Manager" }] }),
+  head: () => ({ meta: [{ title: "Mensalidades — AMT Dojo Manager" }] }),
   component: RecurringPage,
 });
 

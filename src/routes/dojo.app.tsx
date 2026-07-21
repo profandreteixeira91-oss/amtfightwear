@@ -115,7 +115,7 @@ const nav: { label: string; items: NavItem[] }[] = [
     items: [
       { to: "/dojo/app/team", label: "Equipe", icon: UsersRound },
       { to: "/dojo/app/plans", label: "Planos", icon: ScrollText },
-      { to: "/dojo/app/recurring", label: "Cobrança Recorrente", icon: Wallet },
+      { to: "/dojo/app/recurring", label: "Mensalidades", icon: Wallet },
       { to: "/dojo/app/finance", label: "Financeiro", icon: Wallet },
       { to: "/dojo/app/corporate-benefits", label: "Benefícios Corporativos", icon: HeartHandshake },
       { to: "/dojo/app/units", label: "Unidades", icon: Building2 },
@@ -141,7 +141,7 @@ const routeTitles: Array<{ match: (p: string) => boolean; title: string; subtitl
   { match: (p) => p.startsWith("/dojo/app/competitions"), title: "Competições", subtitle: "Calendário, atletas e histórico" },
   { match: (p) => p.startsWith("/dojo/app/videos"), title: "Vídeos", subtitle: "Biblioteca de conteúdos da academia" },
   { match: (p) => p.startsWith("/dojo/app/plans"), title: "Planos", subtitle: "Mensalidades e contratos" },
-  { match: (p) => p.startsWith("/dojo/app/recurring"), title: "Cobrança Recorrente", subtitle: "Regras unificadas de cobrança automática" },
+  { match: (p) => p.startsWith("/dojo/app/recurring"), title: "Mensalidades", subtitle: "Regras unificadas de cobrança automática" },
   { match: (p) => p.startsWith("/dojo/app/finance"), title: "Financeiro", subtitle: "Recebimentos e a receber" },
   { match: (p) => p.startsWith("/dojo/app/team"), title: "Equipe", subtitle: "Colaboradores, folha e escalas" },
   { match: (p) => p.startsWith("/dojo/app/corporate-benefits"), title: "Benefícios Corporativos", subtitle: "Gympass, TotalPass e beneficiários" },
