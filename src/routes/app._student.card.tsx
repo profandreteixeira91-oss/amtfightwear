@@ -1,3 +1,4 @@
+import { formatDegree, degreeSuffix, degreeUnit } from "@/lib/dojo/degree-label";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -110,7 +111,7 @@ function DigitalCardPage() {
                 <div className="flex items-center gap-2">
                   <BeltBadge color={beltColor} stripe={beltStripe} />
                   <span className="text-[11px]">
-                    {beltName} {s.current_degree ? `· ${s.current_degree}º grau` : ""}
+                    {beltName} {s.current_degree ? `· ${s.current_degree}º ${degreeUnit((s as any).belt?.modality ?? (data as any).belt?.modality)}` : ""}
                   </span>
                 </div>
               )}

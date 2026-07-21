@@ -1,3 +1,4 @@
+import { formatDegree, degreeSuffix, degreeUnit } from "@/lib/dojo/degree-label";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -314,7 +315,7 @@ function StudentDetail() {
                             </div>
                             <div className="font-medium text-sm">{b.belt.name}</div>
                             <div className="text-xs text-muted-foreground">
-                              {b.degree ? `${b.degree}º grau` : "Sem grau"}
+                              {formatDegree(b.degree, b.belt?.modality)}
                             </div>
                           </div>
                         </div>
@@ -703,7 +704,7 @@ function StudentDetail() {
                     return (
                       <select className="h-10 rounded-md border border-input bg-background px-2 text-sm" value={grad.degree} onChange={(e) => setGrad({ ...grad, degree: Number(e.target.value) })} disabled={!selBelt}>
                         {Array.from({ length: maxDeg + 1 }).map((_, i) => (
-                          <option key={i} value={i}>{i === 0 ? "Sem grau" : `${i}º grau`}</option>
+                          <option key={i} value={i}>{formatDegree(i, selBelt?.modality)}</option>
                         ))}
                       </select>
                     );
@@ -729,7 +730,7 @@ function StudentDetail() {
                           )}
                           <div className="min-w-0 flex-1">
                             <div className="font-medium">
-                              {g.belt?.name} <span className="text-muted-foreground font-normal">· {g.degree === 0 ? "Sem grau" : `${g.degree}º grau`}</span>
+                              {g.belt?.name} <span className="text-muted-foreground font-normal">· {formatDegree(g.degree, g.belt?.modality)}</span>
                             </div>
                             <div className="text-xs text-muted-foreground">
                               {fmtDate(g.graduation_date)} · {g.evaluator ?? "Avaliador não informado"}
@@ -767,7 +768,7 @@ function StudentDetail() {
                         {certificates.map((c: any) => {
                           const hasTemplate = !!c.template?.background_url;
                           const beltLabel = c.graduation?.belt?.name
-                            ? `${c.graduation.belt.name}${c.graduation.degree ? ` · ${c.graduation.degree}º grau` : ""}`
+                            ? `${c.graduation.belt.name}${degreeSuffix(c.graduation.degree, c.graduation.belt?.modality)}`
                             : (c.values?.belt ?? "—");
                           return (
                             <tr key={c.id} className="border-b border-border last:border-0">
@@ -1190,7 +1191,7 @@ function buildTimeline({ graduations, invoices, certificates, attendanceRows, st
   for (const g of graduations) {
     events.push({
       date: g.graduation_date,
-      title: `Graduação · ${g.belt?.name ?? "faixa"}${g.degree ? ` (${g.degree}º grau)` : ""}`,
+      title: `Graduação · ${g.belt?.name ?? "faixa"}${g.degree ? ` (${g.degree}º ${degreeUnit(g.belt?.modality)})` : ""}`,
       description: g.evaluator ? `Avaliador: ${g.evaluator}` : undefined,
       Icon: GraduationCap,
     });
@@ -1292,7 +1293,7 @@ function printStudentReport(p: {
     ["Graduações", graduations.length],
     ["Certificados", certificates.length],
     ["Última presença", metrics.lastAttendance ? fmtDate(metrics.lastAttendance) : "—"],
-    ["Faixa atual", belt ? `${belt.name}${s.current_degree ? ` · ${s.current_degree}º grau` : ""}` : "—"],
+    ["Faixa atual", belt ? `${belt.name}${degreeSuffix(s.current_degree, belt?.modality)}` : "—"],
   ]
     .map(([l, v]) => `<div class="kpi"><div class="label">${escapeHtml(String(l))}</div><div class="value">${escapeHtml(String(v))}</div></div>`)
     .join("");
@@ -1301,7 +1302,7 @@ function printStudentReport(p: {
     ? graduations
         .map(
           (g: any) =>
-            `<tr><td>${escapeHtml(fmtDate(g.graduation_date))}</td><td>${escapeHtml(g.belt?.name ?? "—")}</td><td>${escapeHtml(g.degree ? `${g.degree}º grau` : "Sem grau")}</td><td>${escapeHtml(g.evaluator ?? "—")}</td></tr>`,
+            `<tr><td>${escapeHtml(fmtDate(g.graduation_date))}</td><td>${escapeHtml(g.belt?.name ?? "—")}</td><td>${escapeHtml(formatDegree(g.degree, g.belt?.modality))}</td><td>${escapeHtml(g.evaluator ?? "—")}</td></tr>`,
         )
         .join("")
     : `<tr><td colspan="4" style="text-align:center;color:#94a3b8">Sem graduações registradas</td></tr>`;

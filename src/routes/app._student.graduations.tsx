@@ -1,3 +1,4 @@
+import { formatDegree, degreeSuffix, degreeUnit } from "@/lib/dojo/degree-label";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -25,7 +26,7 @@ function GraduationsPage() {
             style={{ background: data.current.color_hex }}
           />
           <div className="mt-3 text-lg font-bold">{data.current.name}</div>
-          {data.current.degree ? <div className="text-sm text-neutral-500">{data.current.degree}º grau</div> : null}
+          {data.current.degree ? <div className="text-sm text-neutral-500">{data.current.degree}º {degreeUnit((data.current as any).modality)}</div> : null}
         </section>
       )}
 
@@ -34,13 +35,13 @@ function GraduationsPage() {
       </h2>
       <ul className="space-y-2">
         {(data?.history ?? []).map((g) => {
-          const b = (g as { dojo_belts?: { name?: string; color_hex?: string } }).dojo_belts;
+          const b = (g as { dojo_belts?: { name?: string; color_hex?: string; modality?: string | null } }).dojo_belts;
           return (
             <li key={g.id} className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-neutral-100">
               <div className="flex items-center gap-3">
                 <div className="h-8 w-2 rounded-full" style={{ background: b?.color_hex ?? "#000" }} />
                 <div className="min-w-0 flex-1">
-                  <div className="text-sm font-semibold">{b?.name ?? "Faixa"}{g.degree ? ` · ${g.degree}º grau` : ""}</div>
+                  <div className="text-sm font-semibold">{b?.name ?? "Faixa"}{degreeSuffix(g.degree, b?.modality)}</div>
                   <div className="text-xs text-neutral-500">
                     {new Date(g.graduation_date).toLocaleDateString("pt-BR")} {g.evaluator ? `· ${g.evaluator}` : ""}
                   </div>

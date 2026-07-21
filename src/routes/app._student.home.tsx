@@ -1,3 +1,4 @@
+import { formatDegree, degreeSuffix, degreeUnit } from "@/lib/dojo/degree-label";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -211,7 +212,7 @@ function BlockRenderer({
                     style={{ background: belt.color_hex }}
                   >
                     {belt.name}
-                    {student?.current_degree ? ` · ${student.current_degree}º grau` : ""}
+                    {degreeSuffix(student?.current_degree, (belt as any)?.modality)}
                   </span>
                 </div>
               )}
