@@ -578,10 +578,15 @@ function StudentDetail() {
                       />
                     </div>
                   </div>
+                  <div className="mt-3 rounded-md border border-primary/30 bg-primary/5 p-3 text-xs text-primary">
+                    <AlertTriangle className="mr-1 inline h-3.5 w-3.5" />
+                    O novo valor <strong>entra em vigor na próxima cobrança</strong>. Faturas já emitidas
+                    do ciclo atual mantêm o valor anterior. Assinaturas em vigor no gateway são canceladas automaticamente.
+                  </div>
                   {currentEnrollment && (
-                    <div className="mt-3 rounded-md border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-900 dark:text-amber-200">
+                    <div className="mt-2 rounded-md border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-900 dark:text-amber-200">
                       <AlertTriangle className="mr-1 inline h-3.5 w-3.5" />
-                      Ao confirmar, o plano atual será encerrado e a nova matrícula passará a gerar as cobranças recorrentes via AMT Pay.
+                      A matrícula atual será encerrada (histórico preservado) e a nova passará a gerar as cobranças recorrentes via AMT Pay.
                     </div>
                   )}
                   <div className="mt-4 flex gap-2">
