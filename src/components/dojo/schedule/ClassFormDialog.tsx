@@ -66,6 +66,7 @@ export function ClassFormDialog({
           status: initial.status ?? "active",
           space_id: initial.space_id ?? null,
           unit_id: initial.unit_id ?? null,
+          teacher_id: initial.teacher_id ?? null,
           teacher_name: initial.teacher_name ?? "",
           schedules:
             (initial.schedules ?? []).map((s: any) => ({
