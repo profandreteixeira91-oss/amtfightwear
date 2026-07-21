@@ -18,7 +18,7 @@ import {
   CheckCircle2,
   AlertCircle,
   Loader2,
-  ExternalLink,
+  
   RefreshCw,
   ShieldCheck,
   RotateCcw,
