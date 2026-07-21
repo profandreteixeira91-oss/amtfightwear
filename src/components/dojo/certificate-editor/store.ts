@@ -127,4 +127,6 @@ export const useEditor = create<State & Actions>((set, get) => ({
 
   setZoom: (zoom) => set({ zoom: Math.max(0.25, Math.min(2, zoom)) }),
   toggle: (k) => set((s) => ({ [k]: !s[k] } as any)),
+  setEditingId: (id) => set({ editingId: id }),
 }));
+
