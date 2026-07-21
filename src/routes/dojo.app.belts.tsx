@@ -459,7 +459,12 @@ function SortableBeltRow({
         <div className="text-sm font-medium">{b.name}</div>
         <div className="text-xs text-muted-foreground">
           {b.max_degrees > 0 ? `${b.max_degrees} graus` : "sem graus"} · {b.owner_id ? "própria" : "global"}
-          {b.min_months != null && ` · carência ${b.min_months} ${b.min_months === 1 ? "mês" : "meses"}`}
+          {b.min_months != null && ` · ${b.min_months} ${b.min_months === 1 ? "mês" : "meses"}`}
+          {b.min_classes != null && ` · ${b.min_classes} aulas`}
+          {b.criteria_mode && b.criteria_mode !== "time" && ` · ${
+            b.criteria_mode === "classes" ? "por aulas" :
+            b.criteria_mode === "evaluation" ? "por avaliação" : "por mérito"
+          }`}
         </div>
       </div>
       <Button size="sm" variant="ghost" onClick={() => onEdit(b)}>
