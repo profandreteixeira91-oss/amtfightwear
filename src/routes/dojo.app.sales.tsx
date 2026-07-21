@@ -377,11 +377,11 @@ function NewSaleDialog({
   };
 
   return (
-    <DialogContent className="max-w-3xl">
-      <DialogHeader>
+    <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden flex flex-col p-0">
+      <DialogHeader className="px-6 pt-6">
         <DialogTitle>Nova venda</DialogTitle>
       </DialogHeader>
-      <div className="space-y-4">
+      <div className="space-y-4 overflow-y-auto px-6 py-4 flex-1 min-h-0">
         <div className="grid gap-3 md:grid-cols-2">
           <div>
             <Label>Aluno (opcional)</Label>
@@ -529,7 +529,7 @@ function NewSaleDialog({
           </p>
         ) : null}
       </div>
-      <DialogFooter>
+      <DialogFooter className="px-6 pb-6 pt-2 border-t">
         <Button onClick={submit} disabled={saving}>
           {saving ? "Salvando..." : "Registrar venda"}
         </Button>

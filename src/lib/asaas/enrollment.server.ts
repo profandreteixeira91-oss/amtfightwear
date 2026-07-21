@@ -233,10 +233,19 @@ export async function syncInvoiceWithAsaas(
     apiKey,
   );
 
+  // Link de pagamento BRANDED: exibe a página do Dojo Manager em vez de asaas.com.
+  // A URL branded requer o id da fatura — caller deve pré-gerar o UUID (crypto.randomUUID()).
+  const siteUrl = (
+    process.env.PUBLIC_SITE_URL ||
+    process.env.SITE_URL ||
+    "https://dojomanager.amtfightwear.com.br"
+  ).replace(/\/$/, "");
+  const brandedUrl = invoice.id ? `${siteUrl}/pay/${invoice.id}` : charge.invoiceUrl;
+
   return {
     asaas_charge_id: charge.id,
     payment_id: charge.id,
-    payment_link: charge.invoiceUrl,
+    payment_link: brandedUrl,
     asaas_invoice_url: charge.invoiceUrl,
     payment_provider: "asaas",
     provider: "asaas",
