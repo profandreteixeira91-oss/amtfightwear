@@ -145,7 +145,7 @@ export function SearchBar({ className }: { className?: string } = {}) {
   const selectedLabel = selectedCatId ? catById.get(selectedCatId)?.name ?? "Todas" : "Todas";
 
   return (
-    <div ref={wrapRef} className="relative hidden md:flex flex-1">
+    <div ref={wrapRef} className={className ?? "relative hidden md:flex flex-1"}>
       <div className="flex flex-1 items-stretch rounded-md border bg-muted/40">
         {/* Category selector */}
         <div className="relative">
