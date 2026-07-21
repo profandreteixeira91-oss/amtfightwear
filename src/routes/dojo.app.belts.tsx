@@ -212,7 +212,9 @@ function BeltsPage() {
           <h1 className="text-xl font-semibold">Modalidades e Faixas</h1>
           <p className="text-sm text-muted-foreground">
             Gerencie as graduações de cada modalidade. Arraste pelo <GripVertical className="inline h-3 w-3" /> para reordenar.
-            {isAdmin && " Como administrador AMT, suas alterações em faixas globais propagam para todos os usuários."}
+            {isAmtAdmin
+              ? " Como administrador AMT, suas alterações em faixas globais propagam para todos os usuários do sistema."
+              : " Faixas globais AMT são somente leitura; as faixas que você criar ficam salvas apenas no seu login."}
           </p>
         </div>
       </div>
