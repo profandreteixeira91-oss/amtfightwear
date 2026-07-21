@@ -112,7 +112,7 @@ Trabalhamos com produção personalizada, excelente acabamento, materiais de alt
 
 Se vocês buscam um fornecedor confiável para fortalecer a marca da academia ou ampliar o portfólio de produtos, acredito que podemos construir uma parceria de longo prazo.
 
-Conheça nossos produtos e condições especiais para professores e academias através do nosso site: https://loja.amtfightwear.com.br`;
+Conheça nossos produtos e condições especiais para professores e academias através do nosso site: https://amtfightwear.com.br`;
 }
 
 

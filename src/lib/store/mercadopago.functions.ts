@@ -130,7 +130,7 @@ export const createMercadopagoPayment = createServerFn({ method: "POST" })
       description: `Pedido ${order.order_number}`,
       external_reference: order.id,
       statement_descriptor: "AMTFIGHTWEAR",
-      notification_url: `https://loja.amtfightwear.com.br/api/public/hooks/mercadopago`,
+      notification_url: `https://amtfightwear.com.br/api/public/hooks/mercadopago`,
       payer: {
         email: order.customer_email,
         first_name: firstName,

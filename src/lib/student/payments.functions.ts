@@ -93,7 +93,7 @@ export const payMyInvoicePix = createServerFn({ method: "POST" })
         external_reference: `dojo_invoice:${invoice.id}`,
         payment_method_id: "pix",
         date_of_expiration: expires.toISOString(),
-        notification_url: "https://loja.amtfightwear.com.br/api/public/hooks/mercadopago",
+        notification_url: "https://amtfightwear.com.br/api/public/hooks/mercadopago",
         payer: {
           email: student.email || "aluno@amtfightwear.com.br",
           first_name: firstName,
