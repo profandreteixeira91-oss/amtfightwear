@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   listDojoStudents,
   saveDojoStudent,
@@ -10,6 +10,7 @@ import {
   listDojoUnits,
   listDojoPlans,
   enrollStudentWithPlan,
+  bulkImportDojoStudents,
 } from "@/lib/dojo/dojo.functions";
 import { paymentMethodLabel, normalizePlanPaymentMethods } from "@/lib/dojo/payment-methods";
 import { Button } from "@/components/ui/button";
@@ -20,8 +21,12 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StudentPhotoCapture } from "@/components/dojo/StudentPhotoCapture";
+import { useDojoBranding } from "@/hooks/useDojoBranding";
+import { downloadStudentsTemplate, parseStudentsFile, type ParsedStudentRow } from "@/lib/dojo/students-xlsx";
+import { printAllStudentSummaries } from "@/lib/dojo/students-bulk-print";
 import { toast } from "sonner";
-import { Trash2, Pencil, UserPlus } from "lucide-react";
+import { Trash2, Pencil, UserPlus, FileDown, Upload, Printer } from "lucide-react";
+
 
 export const Route = createFileRoute("/dojo/app/students/")({
   head: () => ({ meta: [{ title: "Alunos — AMT Dojo Manager" }] }),
