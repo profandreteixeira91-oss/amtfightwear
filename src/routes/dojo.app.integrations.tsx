@@ -37,8 +37,23 @@ import { AuditLogPanel } from "@/components/dojo/amtpay/AuditLogPanel";
 import { RemindersPanel } from "@/components/dojo/amtpay/RemindersPanel";
 import { InvoiceBrandingPanel } from "@/components/dojo/amtpay/InvoiceBrandingPanel";
 import { AsaasStatusBanner } from "@/components/dojo/amtpay/AsaasStatusBanner";
-import { getMyAsaasConfig } from "@/lib/asaas/asaas.functions";
+import { getMyAsaasConfig, resetMyAsaasConfig } from "@/lib/asaas/asaas.functions";
 import { isAsaasReady, classifyAsaasStatus } from "@/lib/dojo/amt-pay-status";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useState } from "react";
+import { Unplug } from "lucide-react";
 
 export const Route = createFileRoute("/dojo/app/integrations")({
   head: () => ({ meta: [{ title: "AMT Pay — Central financeira" }] }),
@@ -73,6 +88,7 @@ function AMTPayHub() {
             pagamentos manualmente com sua operadora atual.
           </p>
         </div>
+        {activated && <DisconnectAMTPayButton />}
       </header>
 
       {isLoading ? (
@@ -188,6 +204,63 @@ function FeatureItem({
         <div className="text-xs text-muted-foreground">{text}</div>
       </div>
     </div>
+  );
+}
+
+function DisconnectAMTPayButton() {
+  const qc = useQueryClient();
+  const resetFn = useServerFn(resetMyAsaasConfig);
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  async function handleDisconnect() {
+    setLoading(true);
+    try {
+      await resetFn();
+      toast.success("AMT Pay desconectado. Você pode reativar quando quiser.");
+      await qc.invalidateQueries({ queryKey: ["amtpay"] });
+      await qc.invalidateQueries({ queryKey: ["amtpay-dashboard"] });
+      await qc.invalidateQueries({ queryKey: ["amtpay-caps"] });
+      setOpen(false);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Falha ao desconectar");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger asChild>
+        <Button variant="outline" size="sm" className="text-red-600 border-red-200 hover:bg-red-50 dark:hover:bg-red-950/30">
+          <Unplug className="h-4 w-4 mr-2" /> Desconectar AMT Pay
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Desconectar AMT Pay?</AlertDialogTitle>
+          <AlertDialogDescription>
+            A ativação, subconta vinculada e chaves de acesso serão removidas do
+            Dojo Manager. Cobranças recorrentes já emitidas continuam válidas no
+            gateway, mas novas cobranças voltarão ao modo manual até que você
+            reative o AMT Pay. Você pode reconectar a qualquer momento.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={loading}>Cancelar</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={(e) => {
+              e.preventDefault();
+              handleDisconnect();
+            }}
+            disabled={loading}
+            className="bg-red-600 hover:bg-red-700"
+          >
+            {loading ? "Desconectando…" : "Desconectar"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 
