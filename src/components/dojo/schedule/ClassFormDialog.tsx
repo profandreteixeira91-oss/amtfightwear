@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Trash2 } from "lucide-react";
 import { saveClass, listSpaces } from "@/lib/dojo/schedule.functions";
 import { listDojoUnits } from "@/lib/dojo/dojo.functions";
+import { listTeamMembers } from "@/lib/dojo/team.functions";
 import { WEEKDAYS, MODALITIES, LEVELS, CLASS_COLORS } from "./constants";
 
 type Schedule = { weekday: number; start_time: string; end_time: string };
@@ -27,10 +28,12 @@ export function ClassFormDialog({
   const saveFn = useServerFn(saveClass);
   const listSpacesFn = useServerFn(listSpaces);
   const listUnitsFn = useServerFn(listDojoUnits);
+  const listTeamFn = useServerFn(listTeamMembers);
   const qc = useQueryClient();
 
   const spaces = useQuery({ queryKey: ["dojo-spaces"], queryFn: () => listSpacesFn() });
   const units = useQuery({ queryKey: ["dojo-units"], queryFn: () => listUnitsFn() });
+  const team = useQuery({ queryKey: ["dojo-team-members"], queryFn: () => listTeamFn() });
 
   const empty = {
     name: "",
@@ -42,6 +45,7 @@ export function ClassFormDialog({
     status: "active" as const,
     space_id: null as string | null,
     unit_id: null as string | null,
+    teacher_id: null as string | null,
     teacher_name: "",
     schedules: [{ weekday: 1, start_time: "19:00", end_time: "20:00" }] as Schedule[],
   };
@@ -62,6 +66,7 @@ export function ClassFormDialog({
           status: initial.status ?? "active",
           space_id: initial.space_id ?? null,
           unit_id: initial.unit_id ?? null,
+          teacher_id: initial.teacher_id ?? null,
           teacher_name: initial.teacher_name ?? "",
           schedules:
             (initial.schedules ?? []).map((s: any) => ({
@@ -238,14 +243,46 @@ export function ClassFormDialog({
               </div>
               <div className="sm:col-span-2">
                 <Label>Professor principal</Label>
-                <Input
-                  placeholder="Nome do professor"
-                  value={form.teacher_name ?? ""}
-                  onChange={(e) => setForm({ ...form, teacher_name: e.target.value })}
-                />
+                <Select
+                  value={form.teacher_id ?? "none"}
+                  onValueChange={(v) => {
+                    if (v === "none") {
+                      setForm({ ...form, teacher_id: null, teacher_name: "" });
+                    } else {
+                      const member = (team.data ?? []).find((m: any) => m.id === v);
+                      setForm({
+                        ...form,
+                        teacher_id: v,
+                        teacher_name: member?.full_name ?? "",
+                      });
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione um colaborador da Equipe" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Sem professor</SelectItem>
+                    {(team.data ?? [])
+                      .filter((m: any) => m.status !== "inactive" && m.status !== "terminated")
+                      .map((m: any) => (
+                        <SelectItem key={m.id} value={m.id}>
+                          {m.full_name}
+                          {m.role ? ` · ${m.role}` : ""}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Arquitetura preparada para múltiplos professores (auxiliar/visitante) em versões futuras.
+                  Somente colaboradores cadastrados no módulo{" "}
+                  <span className="font-medium">Equipe</span> podem ser designados. Os horários da turma
+                  aparecerão automaticamente na escala do professor.
                 </p>
+                {(team.data ?? []).length === 0 && (
+                  <p className="mt-1 text-xs text-amber-600">
+                    Nenhum colaborador cadastrado. Cadastre em Equipe → Novo colaborador.
+                  </p>
+                )}
               </div>
             </div>
           </section>

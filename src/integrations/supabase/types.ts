@@ -3372,7 +3372,7 @@ export type Database = {
             foreignKeyName: "dojo_classes_teacher_id_fkey"
             columns: ["teacher_id"]
             isOneToOne: false
-            referencedRelation: "dojo_students"
+            referencedRelation: "dojo_team_members"
             referencedColumns: ["id"]
           },
           {
@@ -10211,7 +10211,7 @@ export type Database = {
             foreignKeyName: "dojo_classes_teacher_id_fkey"
             columns: ["class_teacher_id"]
             isOneToOne: false
-            referencedRelation: "dojo_students"
+            referencedRelation: "dojo_team_members"
             referencedColumns: ["id"]
           },
           {
