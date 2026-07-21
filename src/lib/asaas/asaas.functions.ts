@@ -90,7 +90,7 @@ export const getMyAsaasConfig = createServerFn({ method: "GET" })
       subaccountId: data?.asaas_subaccount_id ?? null,
       walletId: data?.asaas_wallet_id ?? null,
       onboardingStatus: data?.asaas_onboarding_status ?? "not_started",
-      onboardingUrl: data?.asaas_onboarding_url ?? null,
+      onboardingUrl: null,
       pixKey: data?.pix_key ?? null,
       pixKeyType: data?.pix_key_type ?? null,
       hasSplit: !!data?.asaas_wallet_id,
