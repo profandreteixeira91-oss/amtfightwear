@@ -91,30 +91,41 @@ export async function exportCanvasAsJpeg(node: HTMLElement, filename: string, do
   const dataUrl = await toJpeg(node, { pixelRatio: 2, quality: 0.95, cacheBust: true, width: doc.page.width, height: doc.page.height });
   triggerDownload(dataUrl, `${filename}.jpg`);
 }
-export async function exportCanvasAsPdf(node: HTMLElement, filename: string, doc: EditorSchema) {
-  const dataUrl = await toPng(node, { pixelRatio: 2, cacheBust: true, width: doc.page.width, height: doc.page.height });
-  const orientation = doc.page.width >= doc.page.height ? "landscape" : "portrait";
-  const pdf = new jsPDF({ orientation, unit: "px", format: [doc.page.width, doc.page.height], compress: true });
-  pdf.addImage(dataUrl, "PNG", 0, 0, doc.page.width, doc.page.height, undefined, "FAST");
-  pdf.save(`${filename}.pdf`);
-}
-export async function printCanvas(node: HTMLElement, doc: EditorSchema, title: string) {
+/** Render the canvas node into a properly-sized A4 PDF (fit contained, centered). */
+async function buildA4Pdf(node: HTMLElement, doc: EditorSchema): Promise<jsPDF> {
   const dataUrl = await toPng(node, { pixelRatio: 2, cacheBust: true, width: doc.page.width, height: doc.page.height });
   const landscape = doc.page.width >= doc.page.height;
-  const w = window.open("", "_blank");
+  const pdf = new jsPDF({ orientation: landscape ? "landscape" : "portrait", unit: "mm", format: "a4", compress: true });
+  const pageW = pdf.internal.pageSize.getWidth();
+  const pageH = pdf.internal.pageSize.getHeight();
+  // Fit image inside A4 preserving aspect ratio
+  const imgAspect = doc.page.width / doc.page.height;
+  const pageAspect = pageW / pageH;
+  let w = pageW, h = pageH;
+  if (imgAspect > pageAspect) { w = pageW; h = pageW / imgAspect; }
+  else { h = pageH; w = pageH * imgAspect; }
+  const x = (pageW - w) / 2;
+  const y = (pageH - h) / 2;
+  pdf.addImage(dataUrl, "PNG", x, y, w, h, undefined, "FAST");
+  return pdf;
+}
+
+export async function exportCanvasAsPdf(node: HTMLElement, filename: string, doc: EditorSchema) {
+  const pdf = await buildA4Pdf(node, doc);
+  pdf.save(`${filename}.pdf`);
+}
+
+export async function printCanvas(node: HTMLElement, doc: EditorSchema, _title: string) {
+  const pdf = await buildA4Pdf(node, doc);
+  // Open the PDF blob in a new tab so the browser renders it at correct A4 proportions,
+  // then auto-trigger print. Avoids @page CSS being overridden by user paper settings.
+  const blobUrl = pdf.output("bloburl") as unknown as string;
+  const w = window.open(blobUrl, "_blank");
   if (!w) return;
-  w.document.write(`<!doctype html><html><head><title>${title}</title>
-    <style>
-      @page { size: A4 ${landscape ? "landscape" : "portrait"}; margin: 0; }
-      html, body { margin: 0; padding: 0; background: #fff; width: 100%; height: 100%; overflow: hidden; }
-      .sheet { width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; page-break-after: avoid; }
-      img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; display: block; page-break-inside: avoid; }
-      @media print {
-        html, body, .sheet { width: 100%; height: 100%; }
-      }
-    </style>
-    </head><body><div class="sheet"><img src="${dataUrl}" onload="setTimeout(()=>{window.print();window.close();},250)"/></div></body></html>`);
-  w.document.close();
+  // Some browsers block programmatic print(); user can hit Ctrl+P if needed.
+  try {
+    w.addEventListener("load", () => setTimeout(() => { try { w.print(); } catch {} }, 400));
+  } catch {}
 }
 
 function triggerDownload(dataUrl: string, filename: string) {
