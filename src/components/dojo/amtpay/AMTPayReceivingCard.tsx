@@ -41,9 +41,9 @@ export function AMTPayReceivingCard() {
 
           <Alert>
             <ShieldCheck className="h-4 w-4" />
-            <AlertTitle>Sem KYC nem subconta</AlertTitle>
+            <AlertTitle>Recebimento centralizado, sem burocracia</AlertTitle>
             <AlertDescription>
-              Você não precisa abrir conta no Asaas, enviar documentos de KYC
+              Você não precisa abrir conta em gateway, enviar documentos de KYC
               nem manter dados bancários adicionais. Basta cadastrar sua chave
               PIX na aba <strong>Chaves PIX</strong>.
             </AlertDescription>
