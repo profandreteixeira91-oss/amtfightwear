@@ -653,7 +653,7 @@ export const markDojoInvoicePaid = createServerFn({ method: "POST" })
     }
     const { data: profile } = await context.supabase
       .from("dojo_academy_profile")
-      .select("asaas_api_key_encrypted, asaas_wallet_id")
+      .select("asaas_subaccount_id, asaas_api_key_encrypted, asaas_wallet_id, asaas_onboarding_status")
       .eq("owner_id", ownerId(context))
       .maybeSingle();
     const { resolveDojoAsaasCredentials } = await import("@/lib/asaas/enrollment.server");
