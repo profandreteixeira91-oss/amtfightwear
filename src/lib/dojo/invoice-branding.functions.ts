@@ -122,7 +122,6 @@ export async function loadInvoiceIdentity(
 
   const name =
     pick(settings?.invoice_business_name, profile?.trade_name) ??
-    pick(null, profile?.academy_name) ??
     pick(null, profile?.legal_name) ??
     "Academia";
 
