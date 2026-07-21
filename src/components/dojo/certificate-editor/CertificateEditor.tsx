@@ -722,7 +722,10 @@ function ElementView({
   selected: boolean; onSelect: (id: string, additive: boolean) => void;
   onPatch: (patch: Partial<AnyElement>) => void; allElements: AnyElement[];
   previewValues?: Record<string, string>;
-}) {
+  const editingId = useEditor((s) => s.editingId);
+  const setEditingId = useEditor((s) => s.setEditingId);
+  const isEditing = editingId === el.id && el.kind === "text";
+
 
   if (el.hidden) return null;
 
