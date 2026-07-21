@@ -66,6 +66,8 @@ export const Route = createFileRoute("/dojo/app/integrations")({
 
 function AMTPayHub() {
   const fn = useServerFn(getMyAsaasConfig);
+  const queryClient = useQueryClient();
+  const [showActivation, setShowActivation] = useState(false);
   const { data, isLoading } = useQuery({
     queryKey: ["amtpay", "asaas-config"],
     queryFn: () => fn(),
