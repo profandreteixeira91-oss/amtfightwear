@@ -185,6 +185,8 @@ export function CertificateEditor(props: Props) {
           {[0.25, 0.5, 0.75, 1, 1.25, 1.5, 2].map((z) => <option key={z} value={z}>{Math.round(z * 100)}%</option>)}
         </select>
         <TB icon={ZoomIn} label="Mais zoom" onClick={() => setZoom(zoom + 0.1)} />
+        <TB icon={Maximize2} label="Encaixar na tela" onClick={() => window.dispatchEvent(new CustomEvent("cert-editor:fit"))} />
+
 
         <div className="flex-1" />
 
