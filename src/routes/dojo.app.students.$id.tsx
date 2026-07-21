@@ -273,28 +273,53 @@ function StudentDetail() {
 
             <Separator />
 
-            {/* Faixa atual */}
+            {/* Faixas atuais (uma por modalidade) */}
             <div className="p-4 space-y-3 text-sm">
-              {s.current_belt_id ? (
-                <div>
-                  <div className="mb-1 text-[10px] uppercase tracking-widest text-muted-foreground">Faixa atual</div>
-                  {(() => {
-                    const belt = (belts.data ?? []).find((b: any) => b.id === s.current_belt_id);
-                    return belt ? (
-                      <div className="flex flex-col items-center gap-2">
-                        <BeltVisual modality={belt.modality} name={belt.name} colorHex={belt.color_hex} stripeHex={belt.stripe_hex} degree={s.current_degree ?? 0} maxDegrees={belt.max_degrees ?? 4} />
-                        <div className="min-w-0 text-center">
-                          <div className="font-medium">{belt.name}</div>
-                          <div className="text-xs text-muted-foreground">{s.current_degree ? `${s.current_degree}º grau` : "Sem grau"}</div>
+              {(() => {
+                const currentBelts: any[] = (q.data as any)?.current_belts ?? [];
+                if (currentBelts.length === 0 && s.current_belt_id) {
+                  const belt = (belts.data ?? []).find((b: any) => b.id === s.current_belt_id);
+                  if (belt) {
+                    currentBelts.push({ modality: belt.modality, belt, degree: s.current_degree ?? 0 });
+                  }
+                }
+                if (currentBelts.length === 0) {
+                  return <div className="text-xs text-muted-foreground">Faixa ainda não registrada.</div>;
+                }
+                return (
+                  <div>
+                    <div className="mb-2 text-[10px] uppercase tracking-widest text-muted-foreground">
+                      {currentBelts.length > 1 ? "Faixas atuais" : "Faixa atual"}
+                    </div>
+                    <div className="flex flex-col items-center gap-3">
+                      {currentBelts.map((b: any, i: number) => (
+                        <div key={i} className="flex flex-col items-center gap-1.5">
+                          <BeltVisual
+                            modality={b.belt.modality}
+                            name={b.belt.name}
+                            colorHex={b.belt.color_hex}
+                            stripeHex={b.belt.stripe_hex}
+                            degree={b.degree ?? 0}
+                            maxDegrees={b.belt?.max_degrees ?? 4}
+                            className="w-[220px]"
+                          />
+                          <div className="min-w-0 text-center">
+                            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                              {b.belt.modality ?? "jiu-jitsu"}
+                            </div>
+                            <div className="font-medium text-sm">{b.belt.name}</div>
+                            <div className="text-xs text-muted-foreground">
+                              {b.degree ? `${b.degree}º grau` : "Sem grau"}
+                            </div>
+                          </div>
                         </div>
-                      </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
 
-                    ) : null;
-                  })()}
-                </div>
-              ) : (
-                <div className="text-xs text-muted-foreground">Faixa ainda não registrada.</div>
-              )}
+
 
               <SidebarField icon={MapPin} label="Unidade" value={s.unit?.name} />
               <SidebarField icon={UserIcon} label="Modalidade" value={anamn.modality ?? "—"} />
