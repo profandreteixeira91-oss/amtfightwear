@@ -115,6 +115,7 @@ const nav: { label: string; items: NavItem[] }[] = [
     items: [
       { to: "/dojo/app/team", label: "Equipe", icon: UsersRound },
       { to: "/dojo/app/plans", label: "Planos", icon: ScrollText },
+      { to: "/dojo/app/recurring", label: "Cobrança Recorrente", icon: Wallet },
       { to: "/dojo/app/finance", label: "Financeiro", icon: Wallet },
       { to: "/dojo/app/corporate-benefits", label: "Benefícios Corporativos", icon: HeartHandshake },
       { to: "/dojo/app/units", label: "Unidades", icon: Building2 },
