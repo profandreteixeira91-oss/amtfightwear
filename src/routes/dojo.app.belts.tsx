@@ -56,6 +56,8 @@ type BeltRow = {
   modality: string;
   owner_id: string | null;
   min_months: number | null;
+  min_classes: number | null;
+  criteria_mode: "time" | "classes" | "evaluation" | "merit";
 };
 
 const emptyForm = {
@@ -68,6 +70,8 @@ const emptyForm = {
   max_degrees: 0,
   category: "adult",
   min_months: "" as string,
+  min_classes: "" as string,
+  criteria_mode: "time" as "time" | "classes" | "evaluation" | "merit",
   scope: "own" as "own" | "global",
 };
 
