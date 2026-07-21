@@ -31,6 +31,16 @@ export type ImageElement = ElementBase & {
   kind: "image" | "logo" | "signature";
   imageUrl: string;
   fit?: "contain" | "cover";
+  filters?: {
+    brightness?: number; // 0-200 (100 = normal)
+    contrast?: number;   // 0-200
+    saturate?: number;   // 0-200
+    grayscale?: number;  // 0-100
+    blur?: number;       // 0-20 px
+    sepia?: number;      // 0-100
+  };
+  mask?: "none" | "circle" | "rounded" | "squircle"; // clip shape
+  shadow?: string;       // CSS box-shadow
 };
 
 export type ShapeElement = ElementBase & {
