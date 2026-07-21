@@ -400,3 +400,28 @@ function UrlAdd({ onAdd }: { onAdd: (url: string) => void }) {
     </div>
   );
 }
+
+function PageBgUpload({ onDone }: { onDone: (url: string) => void }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const upload = async (file: File) => {
+    setUploading(true);
+    try {
+      const path = `certificates/bg-${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+      const { error } = await supabase.storage.from("ig-media").upload(path, file, { upsert: true });
+      if (error) throw error;
+      const { data } = supabase.storage.from("ig-media").getPublicUrl(path);
+      onDone(data.publicUrl);
+    } catch (e: any) {
+      toast.error(e.message ?? "Falha ao enviar imagem");
+    } finally { setUploading(false); }
+  };
+  return (
+    <>
+      <input ref={inputRef} type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) upload(f); }} />
+      <Button variant="outline" size="sm" className="w-full" onClick={() => inputRef.current?.click()} disabled={uploading}>
+        <Upload className="mr-2 h-4 w-4" /> {uploading ? "Enviando..." : "Fazer upload"}
+      </Button>
+    </>
+  );
+}
