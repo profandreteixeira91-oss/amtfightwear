@@ -59,9 +59,11 @@ export const useEditor = create<State & Actions>((set, get) => ({
   snap: true,
   favorites: [],
   recentVars: [],
+  editingId: null,
 
   init: (schema, favorites = [], recent = []) =>
-    set({ schema, history: [], future: [], selectedIds: [], favorites, recentVars: recent }),
+    set({ schema, history: [], future: [], selectedIds: [], favorites, recentVars: recent, editingId: null }),
+
 
   update: (patch) => set((s) => commit(s, { ...s.schema, ...patch })),
 
