@@ -2,7 +2,8 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import amtLogo from "@/assets/amt-logo.jpg";
+import amtLogoAsset from "@/assets/amt-logo.png.asset.json";
+const amtLogo = amtLogoAsset.url;
 import { getMyAcademyBranding } from "@/lib/dojo/academy-public.functions";
 import {
   LayoutDashboard,
@@ -194,9 +195,9 @@ export function AppTopNav() {
     <div className="sticky top-0 z-40 border-b border-red-800/70 bg-red-700 text-white backdrop-blur-xl supports-[backdrop-filter]:bg-red-700/90">
       <div className="flex h-14 items-center gap-2 px-3 sm:px-4">
         <Link to={inStore ? "/store" : "/dashboard"} className="group flex items-center gap-2.5 shrink-0">
-          <div className="relative grid h-10 w-10 place-items-center overflow-hidden rounded-lg bg-primary ring-1 ring-primary/40 shadow-[0_0_0_1px_color-mix(in_oklab,var(--primary)_30%,transparent),0_8px_24px_-8px_color-mix(in_oklab,var(--primary)_50%,transparent)] transition-transform group-hover:scale-[1.03]">
-            <img src={dojoLogo || amtLogo} alt={dojoName || "AMT"} className="h-full w-full object-cover" />
-            <span className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-white/30 opacity-0 transition-opacity group-hover:opacity-100" />
+          <div className="relative grid h-12 w-12 place-items-center overflow-hidden rounded-xl bg-white ring-2 ring-white/80 shadow-[0_0_0_1px_rgba(255,255,255,0.6),0_10px_30px_-6px_rgba(0,0,0,0.45)] transition-transform group-hover:scale-[1.05]">
+            <img src={dojoLogo || amtLogo} alt={dojoName || "AMT"} className="h-full w-full object-contain p-1" />
+            <span className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-white/40 opacity-0 transition-opacity group-hover:opacity-100" />
           </div>
           <div className="hidden leading-tight sm:block">
             <div className="text-sm font-bold tracking-tight truncate max-w-[220px]">
