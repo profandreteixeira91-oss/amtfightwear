@@ -1,0 +1,117 @@
+import { useEffect, useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { useNavigate } from "@tanstack/react-router";
+import { useStudioStore, emptyDoc, starterDoc } from "@/lib/dojo/certificates/studio-store";
+import { StudioTopbar } from "./StudioTopbar";
+import { StudioLeft } from "./StudioLeft";
+import { StudioRight } from "./StudioRight";
+import { StudioCanvas } from "./StudioCanvas";
+import { CertificateRenderer } from "./CertificateRenderer";
+import { toLegacyFields, type EditorSchema, migrateLegacyFields } from "@/components/dojo/certificate-editor/types";
+import { listCertificateTemplates, saveCertificateTemplate } from "@/lib/dojo/dojo.functions";
+import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+
+type Props = { templateId: string | "new" };
+
+export function CertificateStudio({ templateId }: Props) {
+  const listFn = useServerFn(listCertificateTemplates);
+  const saveFn = useServerFn(saveCertificateTemplate);
+  const navigate = useNavigate();
+  const { doc, name, category, templateId: storeId, loadDoc, markSaved, dirty, setTemplateId } = useStudioStore();
+  const [saving, setSaving] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+
+  // Load template
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (templateId === "new") {
+        loadDoc(starterDoc(), { id: null, name: "Novo modelo", category: "graduacao" });
+        setLoaded(true);
+        return;
+      }
+      try {
+        const list = await listFn();
+        const found = (list ?? []).find((t: any) => t.id === templateId);
+        if (cancelled) return;
+        if (!found) {
+          toast.error("Modelo não encontrado");
+          navigate({ to: "/dojo/app/certificates" });
+          return;
+        }
+        const schema: EditorSchema = found.variables?.editor_schema ?? migrateLegacyFields(found);
+        loadDoc(schema, { id: found.id, name: found.name, category: found.category || "graduacao" });
+        setLoaded(true);
+      } catch (e: any) {
+        toast.error(e.message ?? "Falha ao carregar modelo");
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [templateId]);
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      const legacy = toLegacyFields(doc);
+      const payload: any = {
+        id: storeId ?? undefined,
+        name,
+        background_url: legacy.background_url,
+        width: legacy.width,
+        height: legacy.height,
+        fields: legacy.fields,
+        variables: { editor_schema: doc },
+        category,
+        active: true,
+      };
+      const res = await saveFn({ data: payload });
+      if (!storeId && res?.id) setTemplateId(res.id);
+      markSaved();
+      toast.success("Modelo salvo");
+    } catch (e: any) {
+      toast.error("Falha ao salvar: " + (e.message || e));
+    } finally { setSaving(false); }
+  };
+
+  // Autosave (debounced 4s)
+  useEffect(() => {
+    if (!loaded || !dirty) return;
+    const t = setTimeout(() => { save().catch(() => {}); }, 4000);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [doc, name, category, dirty, loaded]);
+
+  // Warn before leaving with unsaved changes
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (dirty) { e.preventDefault(); e.returnValue = ""; }
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [dirty]);
+
+  return (
+    <div className="fixed inset-0 flex flex-col bg-neutral-50">
+      <StudioTopbar onSave={save} saving={saving} onPreview={() => setPreviewOpen(true)} />
+      <div className="flex flex-1 min-h-0">
+        <StudioLeft />
+        <StudioCanvas />
+        <StudioRight />
+      </div>
+
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent className="max-w-5xl">
+          <DialogHeader><DialogTitle>Pré-visualização</DialogTitle></DialogHeader>
+          <div className="overflow-auto rounded-lg bg-neutral-100 p-4">
+            <div style={{ transform: `scale(${Math.min(1, 900 / doc.page.width)})`, transformOrigin: "top left" }}>
+              <CertificateRenderer doc={doc} className="shadow-lg ring-1 ring-black/5" />
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
