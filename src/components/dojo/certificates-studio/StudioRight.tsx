@@ -126,6 +126,9 @@ function TextProps({ el }: { el: TextElement }) {
 function ImageProps({ el }: { el: ImageElement }) {
   const { updateElement, pushHistory } = useStudioStore();
   const commit = () => pushHistory();
+  const f = el.filters ?? {};
+  const setFilter = (k: string, v: number) => updateElement(el.id, { filters: { ...f, [k]: v } } as any);
+  const resetFilters = () => { updateElement(el.id, { filters: {} } as any); commit(); };
   return (
     <div className="space-y-3">
       <div>
@@ -140,8 +143,53 @@ function ImageProps({ el }: { el: ImageElement }) {
           <option value="cover">Preencher</option>
         </select>
       </div>
+      <div>
+        <label className="text-xs text-neutral-600">Máscara</label>
+        <select className="w-full h-9 rounded-md border border-neutral-200 px-2 text-sm"
+          value={el.mask || "none"} onChange={(e) => { updateElement(el.id, { mask: e.target.value } as any); commit(); }}>
+          <option value="none">Nenhuma</option>
+          <option value="rounded">Cantos arredondados</option>
+          <option value="squircle">Squircle</option>
+          <option value="circle">Círculo</option>
+        </select>
+      </div>
+      <div className="pt-1 space-y-2">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wide">Filtros</span>
+          <button onClick={resetFilters} className="text-[10px] text-red-700 hover:underline">Redefinir</button>
+        </div>
+        <FilterSlider label="Brilho" value={f.brightness ?? 100} min={0} max={200} onChange={(v) => setFilter("brightness", v)} onCommit={commit} />
+        <FilterSlider label="Contraste" value={f.contrast ?? 100} min={0} max={200} onChange={(v) => setFilter("contrast", v)} onCommit={commit} />
+        <FilterSlider label="Saturação" value={f.saturate ?? 100} min={0} max={200} onChange={(v) => setFilter("saturate", v)} onCommit={commit} />
+        <FilterSlider label="Escala de cinza" value={f.grayscale ?? 0} min={0} max={100} onChange={(v) => setFilter("grayscale", v)} onCommit={commit} />
+        <FilterSlider label="Sépia" value={f.sepia ?? 0} min={0} max={100} onChange={(v) => setFilter("sepia", v)} onCommit={commit} />
+        <FilterSlider label="Desfoque" value={f.blur ?? 0} min={0} max={20} onChange={(v) => setFilter("blur", v)} onCommit={commit} />
+      </div>
+      <div>
+        <label className="text-xs text-neutral-600">Sombra (CSS box-shadow)</label>
+        <Input value={el.shadow || ""} placeholder="0 4px 20px rgba(0,0,0,.2)"
+          onChange={(e) => updateElement(el.id, { shadow: e.target.value } as any)} onBlur={commit} />
+      </div>
+      <button
+        onClick={() => toastRemoveBg()}
+        className="w-full text-xs py-2 rounded-lg border border-dashed border-neutral-300 text-neutral-600 hover:bg-neutral-50">
+        Remover fundo (em breve)
+      </button>
     </div>
   );
+}
+
+function FilterSlider({ label, value, min, max, onChange, onCommit }: { label: string; value: number; min: number; max: number; onChange: (v: number) => void; onCommit: () => void }) {
+  return (
+    <div>
+      <div className="flex justify-between text-[10px] text-neutral-500"><span>{label}</span><span>{value}</span></div>
+      <Slider value={[value]} min={min} max={max} step={1} onValueChange={(v) => onChange(v[0])} onValueCommit={onCommit} />
+    </div>
+  );
+}
+
+function toastRemoveBg() {
+  import("sonner").then(({ toast }) => toast.info("Remoção de fundo será integrada em breve."));
 }
 
 function ShapeProps({ el }: { el: ShapeElement }) {
