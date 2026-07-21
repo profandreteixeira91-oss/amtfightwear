@@ -356,7 +356,25 @@ function StudentsPage() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".xlsx,.xls,.csv"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) onPickFile(f);
+            }}
+          />
+          <Button variant="outline" onClick={() => downloadStudentsTemplate()}>
+            <FileDown className="h-4 w-4 mr-1" /> Modelo XLSX
+          </Button>
+          <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
+            <Upload className="h-4 w-4 mr-1" /> Importar planilha
+          </Button>
+          <Button variant="outline" onClick={onPrintAll}>
+            <Printer className="h-4 w-4 mr-1" /> Imprimir fichas
+          </Button>
 
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
@@ -364,6 +382,7 @@ function StudentsPage() {
                 <UserPlus className="h-4 w-4 mr-1" /> Novo aluno
               </Button>
             </DialogTrigger>
+
             <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{form.id ? "Editar" : "Novo"} aluno</DialogTitle>
