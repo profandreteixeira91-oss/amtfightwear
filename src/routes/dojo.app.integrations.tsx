@@ -54,6 +54,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useState } from "react";
 import { Unplug } from "lucide-react";
+import amtPayLogoAsset from "@/assets/amt-pay-logo.png.asset.json";
+const amtPayLogoUrl = amtPayLogoAsset.url;
 
 export const Route = createFileRoute("/dojo/app/integrations")({
   head: () => ({ meta: [{ title: "AMT Pay — Central financeira" }] }),
