@@ -32,7 +32,9 @@ type Actions = {
   redo: () => void;
   setZoom: (z: number) => void;
   toggle: (k: "showGrid" | "showRulers" | "snap") => void;
+  setEditingId: (id: string | null) => void;
 };
+
 
 const emptySchema: EditorSchema = {
   version: 2,
