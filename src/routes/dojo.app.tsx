@@ -54,6 +54,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DojoLogo } from "@/components/dojo/DojoLogo";
+import amtLogoAsset from "@/assets/amt-logo.png.asset.json";
+const amtLogoUrl = amtLogoAsset.url;
 import { TrialBadge } from "@/components/dojo/TrialBadge";
 import { UnsavedChangesProvider } from "@/components/common/UnsavedChangesGuard";
 import { DojoPermissionsProvider, useDojoPermissions } from "@/components/dojo/DojoPermissionsProvider";
@@ -304,14 +306,19 @@ function DojoLayoutInner({
       </Sidebar>
 
       <SidebarInset className="bg-[color:var(--dojo-surface)]">
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-[color:var(--dojo-border)] bg-white/85 backdrop-blur-md px-3 md:px-6 shadow-[0_1px_0_0_oklch(0.92_0.006_250)]">
-          <SidebarTrigger className="-ml-1" />
+        <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-red-900/60 bg-red-700 text-white px-3 md:px-6 shadow-[0_4px_18px_-6px_rgba(0,0,0,0.35)]">
+          <SidebarTrigger className="-ml-1 text-white hover:bg-white/10" />
+          <Link to="/dojo/app" className="flex items-center gap-2 shrink-0">
+            <div className="h-11 w-32 rounded-lg bg-white ring-2 ring-white/80 shadow-[0_0_0_1px_rgba(255,255,255,0.6),0_8px_24px_-6px_rgba(0,0,0,0.45)] grid place-items-center overflow-hidden">
+              <img src={amtLogoUrl} alt="AMT Dojo Manager" className="h-full w-full object-contain p-1" />
+            </div>
+          </Link>
           <div className="min-w-0 flex-1">
-            <h1 className="font-display text-base md:text-lg font-bold tracking-tight leading-tight truncate">
+            <h1 className="font-display text-base md:text-lg font-bold tracking-tight leading-tight truncate text-white">
               {header.title}
             </h1>
             {header.subtitle && (
-              <p className="text-[11px] md:text-xs text-muted-foreground leading-tight truncate">
+              <p className="text-[11px] md:text-xs text-white/75 leading-tight truncate">
                 {header.subtitle}
               </p>
             )}
