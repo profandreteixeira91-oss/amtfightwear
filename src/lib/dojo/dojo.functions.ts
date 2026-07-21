@@ -981,7 +981,7 @@ export const changeStudentPlan = createServerFn({ method: "POST" })
     if (actives && actives.length > 0) {
       const { data: profile } = await context.supabase
         .from("dojo_academy_profile")
-        .select("asaas_api_key_encrypted, asaas_wallet_id")
+        .select("asaas_subaccount_id, asaas_api_key_encrypted, asaas_wallet_id, asaas_onboarding_status")
         .eq("owner_id", ownerId(context))
         .maybeSingle();
 
