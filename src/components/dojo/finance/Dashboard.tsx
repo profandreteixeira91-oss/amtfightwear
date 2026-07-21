@@ -1,9 +1,9 @@
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   ResponsiveContainer,
-  AreaChart,
-  Area,
   BarChart,
   Bar,
   LineChart,
@@ -16,6 +16,8 @@ import {
   Tooltip,
   CartesianGrid,
   Legend,
+  ComposedChart,
+  Area,
 } from "recharts";
 import {
   Wallet,
@@ -30,8 +32,12 @@ import {
   PieChart as PieIcon,
   LineChart as LineIcon,
   Calculator,
+  Percent,
+  Clock,
+  Sparkles,
 } from "lucide-react";
-import { brl, pct, useFinanceKpis } from "./shared";
+import { dojoFinanceDashboard } from "@/lib/dojo/finance-dashboard.functions";
+import { brl, pct } from "./shared";
 
 const chartColors = ["#dc2626", "#0a0a0a", "#f59e0b", "#10b981", "#3b82f6", "#8b5cf6"];
 
@@ -52,10 +58,10 @@ function Kpi({
     tone === "positive"
       ? "text-emerald-600"
       : tone === "negative"
-      ? "text-red-600"
-      : tone === "warning"
-      ? "text-amber-600"
-      : "text-foreground";
+        ? "text-red-600"
+        : tone === "warning"
+          ? "text-amber-600"
+          : "text-foreground";
   return (
     <Card className="p-4 border border-[color:var(--dojo-border)] hover:border-[color:var(--dojo-border-strong)] transition-colors min-w-0">
       <div className="flex items-center justify-between gap-2 mb-2 min-w-0">
@@ -66,71 +72,265 @@ function Kpi({
           <Icon className="h-4 w-4 text-muted-foreground" />
         </div>
       </div>
-      <div className={`font-display text-xl md:text-2xl font-bold tracking-tight truncate ${toneClass}`}>{value}</div>
-      {hint && <div className="text-[11px] text-muted-foreground mt-1 truncate">{hint}</div>}
+      <div
+        className={`font-display text-xl md:text-2xl font-bold tracking-tight truncate ${toneClass}`}
+      >
+        {value}
+      </div>
+      {hint && (
+        <div className="text-[11px] text-muted-foreground mt-1 truncate">{hint}</div>
+      )}
+    </Card>
+  );
+}
+
+function SkeletonCard() {
+  return (
+    <Card className="p-4 border border-[color:var(--dojo-border)] min-w-0">
+      <div className="h-3 w-24 bg-muted rounded animate-pulse mb-3" />
+      <div className="h-6 w-32 bg-muted rounded animate-pulse" />
     </Card>
   );
 }
 
 export function FinanceDashboard() {
-  const k = useFinanceKpis();
+  const fn = useServerFn(dojoFinanceDashboard);
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["dojo-finance-dashboard"],
+    queryFn: () => fn({ data: {} }),
+    staleTime: 30_000,
+    refetchOnWindowFocus: false,
+  });
+
+  if (error) {
+    return (
+      <Card className="p-6 border border-red-200 bg-red-50 text-red-700 text-sm">
+        Erro ao carregar dashboard financeiro: {String((error as Error).message)}
+      </Card>
+    );
+  }
+
+  if (isLoading || !data) {
+    return (
+      <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <SkeletonCard key={i} />
+        ))}
+      </div>
+    );
+  }
+
+  const { wallet, month, pipeline, mrr, months, projection, paymentMethods, topStudents } =
+    data;
 
   return (
     <div className="space-y-6">
+      {/* Carteira AMT Pay */}
+      <Card className="p-5 border border-[color:var(--dojo-border)] bg-gradient-to-br from-primary/5 via-transparent to-transparent">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-muted-foreground font-medium">
+              <Wallet className="h-3.5 w-3.5" />
+              Carteira AMT Pay
+            </div>
+            <div className="mt-1 font-display text-3xl md:text-4xl font-bold tracking-tight">
+              {brl(wallet.available)}
+            </div>
+            <div className="text-xs text-muted-foreground mt-1">
+              Saldo disponível para saque
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-4 text-right">
+            <div>
+              <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                A liberar
+              </div>
+              <div className="font-semibold text-amber-600">{brl(wallet.pending)}</div>
+            </div>
+            <div>
+              <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                Bloqueado
+              </div>
+              <div className="font-semibold text-red-600">{brl(wallet.blocked)}</div>
+            </div>
+            <div>
+              <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                Total
+              </div>
+              <div className="font-semibold">{brl(wallet.total)}</div>
+            </div>
+          </div>
+        </div>
+      </Card>
+
       {/* KPI grid */}
       <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6">
-        <Kpi icon={Wallet} label="Saldo disponível" value={brl(k.netProfit)} tone={k.netProfit >= 0 ? "positive" : "negative"} />
-        <Kpi icon={TrendingUp} label="Receitas do mês" value={brl(k.paidThisMonth)} tone="positive" />
-        <Kpi icon={TrendingDown} label="Despesas do mês" value={brl(k.expensesThisMonth)} tone="negative" />
-        <Kpi icon={CircleDollarSign} label="Lucro líquido" value={brl(k.netProfit)} tone={k.netProfit >= 0 ? "positive" : "negative"} />
-        <Kpi icon={Receipt} label="Mensalidades recebidas" value={brl(k.paidThisMonth)} hint="Faturas pagas no mês" />
-        <Kpi icon={AlertTriangle} label="Em atraso" value={brl(k.overdueAmount)} tone="warning" hint={`${k.overdueCount} cobrança(s)`} />
-        <Kpi icon={ArrowDownRight} label="A receber" value={brl(k.pendingReceivables)} tone="warning" />
-        <Kpi icon={ArrowUpRight} label="A pagar" value={brl(k.pendingPayables)} tone="warning" />
-        <Kpi icon={Users} label="Ticket médio" value={brl(k.avgTicket)} hint="Por aluno pagante" />
-        <Kpi icon={AlertTriangle} label="Inadimplência" value={pct(k.overdueRate)} tone={k.overdueRate > 10 ? "negative" : "default"} />
-        <Kpi icon={LineIcon} label="MRR" value={brl(k.mrr)} hint="Últimos 30 dias" />
-        <Kpi icon={Calculator} label="Fluxo projetado" value={brl(k.projectedCashflow)} tone={k.projectedCashflow >= 0 ? "positive" : "negative"} />
+        <Kpi
+          icon={TrendingUp}
+          label="Receita bruta (mês)"
+          value={brl(month.gross)}
+          tone="positive"
+          hint={`${month.payersCount} pagante(s)`}
+        />
+        <Kpi
+          icon={CircleDollarSign}
+          label="Receita líquida"
+          value={brl(month.net)}
+          tone="positive"
+          hint="Após taxas gateway + AMT"
+        />
+        <Kpi
+          icon={Percent}
+          label="Taxas totais"
+          value={brl(month.totalFees)}
+          tone="warning"
+          hint={`${pct(month.feeRate)} do bruto`}
+        />
+        <Kpi
+          icon={TrendingDown}
+          label="Despesas (mês)"
+          value={brl(month.expenses)}
+          tone="negative"
+        />
+        <Kpi
+          icon={Calculator}
+          label="Lucro líquido"
+          value={brl(month.profit)}
+          tone={month.profit >= 0 ? "positive" : "negative"}
+          hint="Líquido − despesas"
+        />
+        <Kpi
+          icon={LineIcon}
+          label="MRR"
+          value={brl(mrr)}
+          hint="Recorrências ativas"
+        />
+        <Kpi
+          icon={ArrowDownRight}
+          label="A receber"
+          value={brl(pipeline.pendingReceivables)}
+          tone="warning"
+          hint={`${pipeline.openCount} fatura(s)`}
+        />
+        <Kpi
+          icon={AlertTriangle}
+          label="Em atraso"
+          value={brl(pipeline.overdueAmount)}
+          tone="warning"
+          hint={`${pipeline.overdueCount} cobrança(s)`}
+        />
+        <Kpi
+          icon={Users}
+          label="Ticket médio"
+          value={brl(month.avgTicket)}
+          hint="Por aluno pagante"
+        />
+        <Kpi
+          icon={AlertTriangle}
+          label="Inadimplência"
+          value={pct(pipeline.overdueRate)}
+          tone={pipeline.overdueRate > 10 ? "negative" : "default"}
+        />
+        <Kpi
+          icon={Receipt}
+          label="Taxa gateway"
+          value={brl(month.gatewayFees)}
+          hint="Asaas / Mercado Pago"
+        />
+        <Kpi
+          icon={Sparkles}
+          label="Taxa AMT (2%)"
+          value={brl(month.platformFees)}
+          hint="Split plataforma"
+        />
       </div>
 
-      {/* Charts row 1 */}
+      {/* Projeção de fluxo de caixa */}
+      <Card className="p-4 border border-[color:var(--dojo-border)] min-w-0">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <h3 className="font-display font-bold text-sm">Projeção de recebíveis</h3>
+            <p className="text-xs text-muted-foreground">
+              Faturas em aberto + recorrências agendadas
+            </p>
+          </div>
+          <Clock className="h-4 w-4 text-muted-foreground" />
+        </div>
+        <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
+          {projection.map((p) => (
+            <div
+              key={p.label}
+              className="rounded-lg border border-[color:var(--dojo-border)] p-3"
+            >
+              <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-medium">
+                Próximos {p.days} dias
+              </div>
+              <div className="font-display text-lg font-bold tracking-tight text-emerald-700 mt-1">
+                {brl(p.amount)}
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      {/* Bruto × Líquido × Taxas × Despesas */}
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="p-4 border border-[color:var(--dojo-border)] lg:col-span-2 min-w-0 overflow-hidden">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <h3 className="font-display font-bold text-sm">Receitas × Despesas</h3>
+              <h3 className="font-display font-bold text-sm">
+                Bruto × Líquido × Despesas
+              </h3>
               <p className="text-xs text-muted-foreground">Últimos 12 meses</p>
             </div>
-            <Badge variant="outline" className="text-[10px]">R$</Badge>
+            <Badge variant="outline" className="text-[10px]">
+              R$
+            </Badge>
           </div>
-          <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={k.months}>
+          <ResponsiveContainer width="100%" height={300}>
+            <ComposedChart data={months}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--dojo-border)" />
               <XAxis dataKey="label" fontSize={11} />
               <YAxis fontSize={11} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
               <Tooltip formatter={(v: number) => brl(v)} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Bar dataKey="receitas" name="Receitas" fill="#10b981" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="despesas" name="Despesas" fill="#dc2626" radius={[4, 4, 0, 0]} />
-            </BarChart>
+              <Bar dataKey="gross" name="Bruto" fill="#10b981" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="expenses" name="Despesas" fill="#dc2626" radius={[4, 4, 0, 0]} />
+              <Line
+                type="monotone"
+                dataKey="net"
+                name="Líquido"
+                stroke="#0a0a0a"
+                strokeWidth={2}
+                dot={{ r: 3 }}
+              />
+            </ComposedChart>
           </ResponsiveContainer>
         </Card>
 
         <Card className="p-4 border border-[color:var(--dojo-border)] min-w-0 overflow-hidden">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <h3 className="font-display font-bold text-sm">Formas de pagamento</h3>
-              <p className="text-xs text-muted-foreground">Faturas recebidas</p>
+              <h3 className="font-display font-bold text-sm">Métodos de pagamento</h3>
+              <p className="text-xs text-muted-foreground">Recebido no mês</p>
             </div>
             <PieIcon className="h-4 w-4 text-muted-foreground" />
           </div>
-          {k.paymentMethods.length === 0 ? (
-            <div className="grid place-items-center h-[240px] text-xs text-muted-foreground">Sem dados</div>
+          {paymentMethods.length === 0 ? (
+            <div className="grid place-items-center h-[260px] text-xs text-muted-foreground">
+              Sem recebimentos no mês
+            </div>
           ) : (
-            <ResponsiveContainer width="100%" height={240}>
+            <ResponsiveContainer width="100%" height={260}>
               <PieChart>
-                <Pie data={k.paymentMethods} dataKey="value" nameKey="name" innerRadius={55} outerRadius={90}>
-                  {k.paymentMethods.map((_, i) => (
+                <Pie
+                  data={paymentMethods}
+                  dataKey="value"
+                  nameKey="name"
+                  innerRadius={55}
+                  outerRadius={90}
+                >
+                  {paymentMethods.map((_, i) => (
                     <Cell key={i} fill={chartColors[i % chartColors.length]} />
                   ))}
                 </Pie>
@@ -142,20 +342,24 @@ export function FinanceDashboard() {
         </Card>
       </div>
 
-      {/* Charts row 2 */}
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Card className="p-4 border border-[color:var(--dojo-border)] min-w-0 overflow-hidden">
+      {/* Fluxo de caixa + Top alunos */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Card className="p-4 border border-[color:var(--dojo-border)] lg:col-span-2 min-w-0 overflow-hidden">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <h3 className="font-display font-bold text-sm">Evolução do saldo</h3>
-              <p className="text-xs text-muted-foreground">Receitas − despesas por mês</p>
+              <h3 className="font-display font-bold text-sm">
+                Saldo líquido acumulado
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                Líquido − despesas por mês
+              </p>
             </div>
           </div>
-          <ResponsiveContainer width="100%" height={240}>
-            <AreaChart data={k.months}>
+          <ResponsiveContainer width="100%" height={260}>
+            <LineChart data={months}>
               <defs>
-                <linearGradient id="gSaldo" x1="0" x2="0" y1="0" y2="1">
-                  <stop offset="0%" stopColor="#dc2626" stopOpacity={0.35} />
+                <linearGradient id="gBalance" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0%" stopColor="#dc2626" stopOpacity={0.25} />
                   <stop offset="100%" stopColor="#dc2626" stopOpacity={0} />
                 </linearGradient>
               </defs>
@@ -163,29 +367,57 @@ export function FinanceDashboard() {
               <XAxis dataKey="label" fontSize={11} />
               <YAxis fontSize={11} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
               <Tooltip formatter={(v: number) => brl(v)} />
-              <Area type="monotone" dataKey="saldo" stroke="#dc2626" strokeWidth={2} fill="url(#gSaldo)" />
-            </AreaChart>
+              <Legend wrapperStyle={{ fontSize: 11 }} />
+              <Area
+                type="monotone"
+                dataKey="balance"
+                name="Saldo"
+                stroke="#dc2626"
+                strokeWidth={2}
+                fill="url(#gBalance)"
+              />
+              <Line
+                type="monotone"
+                dataKey="fees"
+                name="Taxas"
+                stroke="#f59e0b"
+                strokeWidth={2}
+                dot={false}
+              />
+            </LineChart>
           </ResponsiveContainer>
         </Card>
 
-        <Card className="p-4 border border-[color:var(--dojo-border)] min-w-0 overflow-hidden">
+        <Card className="p-4 border border-[color:var(--dojo-border)] min-w-0">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <h3 className="font-display font-bold text-sm">Fluxo de caixa</h3>
-              <p className="text-xs text-muted-foreground">Entradas × Saídas consolidadas</p>
+              <h3 className="font-display font-bold text-sm">Top alunos (mês)</h3>
+              <p className="text-xs text-muted-foreground">Maiores receitas líquidas</p>
             </div>
+            <Users className="h-4 w-4 text-muted-foreground" />
           </div>
-          <ResponsiveContainer width="100%" height={240}>
-            <LineChart data={k.months}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--dojo-border)" />
-              <XAxis dataKey="label" fontSize={11} />
-              <YAxis fontSize={11} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
-              <Tooltip formatter={(v: number) => brl(v)} />
-              <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Line type="monotone" dataKey="receitas" name="Entradas" stroke="#10b981" strokeWidth={2} />
-              <Line type="monotone" dataKey="despesas" name="Saídas" stroke="#dc2626" strokeWidth={2} />
-            </LineChart>
-          </ResponsiveContainer>
+          {topStudents.length === 0 ? (
+            <div className="grid place-items-center h-[220px] text-xs text-muted-foreground">
+              Nenhum pagamento no mês
+            </div>
+          ) : (
+            <ul className="space-y-2">
+              {topStudents.map((s, i) => (
+                <li
+                  key={s.id}
+                  className="flex items-center justify-between gap-3 text-sm border-b border-[color:var(--dojo-border)] last:border-0 pb-2 last:pb-0"
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="grid place-items-center h-6 w-6 rounded-full bg-primary/10 text-primary text-[10px] font-bold shrink-0">
+                      {i + 1}
+                    </span>
+                    <span className="truncate">{s.name}</span>
+                  </div>
+                  <span className="font-semibold shrink-0">{brl(s.amount)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </Card>
       </div>
     </div>
