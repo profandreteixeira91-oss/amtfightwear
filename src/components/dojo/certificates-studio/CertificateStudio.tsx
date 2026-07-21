@@ -41,7 +41,7 @@ export function CertificateStudio({ templateId }: Props) {
           navigate({ to: "/dojo/app/certificates" });
           return;
         }
-        const schema: EditorSchema = found.variables?.editor_schema ?? migrateLegacyFields(found);
+        const schema: EditorSchema = ((found.variables as any)?.editor_schema as EditorSchema | undefined) ?? migrateLegacyFields(found);
         loadDoc(schema, { id: found.id, name: found.name, category: found.category || "graduacao" });
         setLoaded(true);
       } catch (e: any) {
