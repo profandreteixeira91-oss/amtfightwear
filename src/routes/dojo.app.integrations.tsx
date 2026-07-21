@@ -106,13 +106,21 @@ function AMTPayHub() {
         <div className="flex items-center justify-center py-16 text-muted-foreground">
           <Loader2 className="h-5 w-5 animate-spin" />
         </div>
-      ) : !activated ? (
-        <AMTPayLanding />
-      ) : (
+      ) : activated ? (
         <>
           <AsaasStatusBanner />
           <FullHub />
         </>
+      ) : showActivation ? (
+        <AMTPayActivationForm
+          showIntro={false}
+          onCompleted={async () => {
+            await queryClient.invalidateQueries({ queryKey: ["amtpay", "asaas-config"] });
+            setShowActivation(false);
+          }}
+        />
+      ) : (
+        <AMTPayLanding onActivate={() => setShowActivation(true)} />
       )}
     </div>
   );
