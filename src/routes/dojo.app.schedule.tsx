@@ -297,13 +297,13 @@ function Filter({ label, children }: { label: string; children: React.ReactNode 
 function DayView({ events, onSelect }: { events: any[]; onSelect: (id: string, d: string) => void }) {
   const sorted = [...events].sort((a, b) => a.item.start.localeCompare(b.item.start));
   return (
-    <div className="border border-gray-200 rounded-lg bg-white divide-y divide-gray-100">
+    <div className="rounded-xl bg-white divide-y divide-gray-100">
       {sorted.length === 0 && <div className="p-6 text-center text-sm text-muted-foreground">Nenhuma aula neste dia.</div>}
       {sorted.map((e, i) => (
         <button
           key={i}
           onClick={() => onSelect(e.classId, e.date)}
-          className={`w-full flex items-center gap-3 p-3 text-left hover:bg-gray-50 transition-colors ${e.item.cancelled ? "opacity-60" : ""}`}
+          className={`w-full flex items-center gap-3 p-3 text-left hover:bg-gray-50/70 transition-colors ${e.item.cancelled ? "opacity-60" : ""}`}
         >
           <span className="h-10 w-1.5 rounded-full" style={{ background: e.item.color }} />
           <div className="w-24 text-sm font-semibold">{fmtTime(e.item.start)}–{fmtTime(e.item.end)}</div>
@@ -335,10 +335,10 @@ function MonthView({ cursor, events, onSelect }: { cursor: Date; events: any[]; 
   for (const e of events) { (byDay[e.date] = byDay[e.date] ?? []).push(e); }
 
   return (
-    <div className="border border-gray-200 rounded-lg bg-white overflow-hidden">
-      <div className="grid grid-cols-7 border-b border-gray-200 bg-gray-50">
+    <div className="rounded-xl bg-white overflow-hidden">
+      <div className="grid grid-cols-7 border-b border-gray-100">
         {WEEKDAYS.map((d) => (
-          <div key={d.value} className="p-2 text-[10px] uppercase text-center text-muted-foreground border-l border-gray-100 first:border-l-0">
+          <div key={d.value} className="p-2 text-[10px] uppercase text-center text-gray-400 font-medium tracking-wider">
             {d.short}
           </div>
         ))}
@@ -352,25 +352,28 @@ function MonthView({ cursor, events, onSelect }: { cursor: Date; events: any[]; 
           return (
             <div
               key={i}
-              className={`min-h-[92px] p-1.5 border-b border-l border-gray-100 first:border-l-0 ${inMonth ? "bg-white" : "bg-gray-50/60"}`}
+              className={`min-h-[96px] p-1.5 border-b border-l border-gray-100 first:border-l-0 bg-white ${inMonth ? "" : "text-gray-300"}`}
             >
-
-              <div className={`text-[11px] font-semibold mb-1 ${isToday ? "text-primary" : inMonth ? "" : "text-muted-foreground"}`}>
-                {d.getDate()}
+              <div className="mb-1 flex justify-start">
+                <span className={`inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-[11px] font-medium tabular-nums ${
+                  isToday ? "bg-primary text-primary-foreground" : inMonth ? "text-gray-700" : "text-gray-300"
+                }`}>
+                  {d.getDate()}
+                </span>
               </div>
               <div className="space-y-0.5">
                 {items.slice(0, 3).map((e, idx) => (
                   <button
                     key={idx}
                     onClick={() => onSelect(e.classId, e.date)}
-                    className={`w-full text-left text-[10px] px-1 py-0.5 rounded truncate ${e.item.cancelled ? "line-through opacity-60" : ""}`}
-                    style={{ background: `${e.item.color}22`, borderLeft: `2px solid ${e.item.color}` }}
+                    className={`w-full text-left text-[10px] px-1.5 py-0.5 rounded truncate hover:brightness-95 ${e.item.cancelled ? "line-through opacity-60" : ""}`}
+                    style={{ background: `${e.item.color}1f`, borderLeft: `2px solid ${e.item.color}` }}
                   >
                     {fmtTime(e.item.start)} {e.item.name}
                   </button>
                 ))}
                 {items.length > 3 && (
-                  <div className="text-[10px] text-muted-foreground pl-1">+{items.length - 3}</div>
+                  <div className="text-[10px] text-gray-400 pl-1">+{items.length - 3}</div>
                 )}
               </div>
             </div>
