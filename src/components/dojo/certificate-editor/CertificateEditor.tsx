@@ -15,7 +15,9 @@ import {
   Minus, QrCode, Calendar as CalIcon, PenLine, Trash2, Lock, Unlock, Eye as EyeIcon, EyeOff,
   ChevronsUp, ChevronsDown, ArrowUp, ArrowDown, Star, Search, LayoutTemplate, Bold, Italic,
   Underline, AlignLeft, AlignCenter, AlignRight, ChevronDown, ChevronRight, Upload, Variable,
+  Maximize2,
 } from "lucide-react";
+
 
 type Props = {
   initialSchema: EditorSchema;
