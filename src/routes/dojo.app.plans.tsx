@@ -104,9 +104,6 @@ function PlansPage() {
 
   const plans = useQuery({ queryKey: ["dojo-plans"], queryFn: () => listFn() });
   const units = useQuery({ queryKey: ["dojo-units"], queryFn: () => unitsFn() });
-  const amtPayFn = useServerFn(getMyAsaasConfig);
-  const amtPayCfg = useQuery({ queryKey: ["dojo-amtpay-status"], queryFn: () => amtPayFn(), staleTime: 60_000 });
-  const amtPayActive = isAsaasReady((amtPayCfg.data as any)?.onboardingStatus);
 
 
   const [selectedId, setSelectedId] = useState<string | "new" | null>(null);
