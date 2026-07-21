@@ -245,9 +245,9 @@ function DojoLayoutInner({
   return (
     <>
       <Sidebar collapsible="icon" className="border-r border-[color:var(--dojo-border)]">
-        <SidebarHeader className="border-b border-[color:var(--dojo-border)]/60">
-          <Link to="/dojo" className="flex items-center gap-2 px-2 py-1.5">
-            <DojoLogo className="h-10 w-auto shrink-0" />
+        <SidebarHeader className="border-b border-[color:var(--dojo-border)]/60 bg-white">
+          <Link to="/dojo" className="flex items-center justify-center px-2 py-2">
+            <DojoLogo className="h-12 w-auto shrink-0 group-data-[collapsible=icon]:h-8" />
             <span className="sr-only">AMT Dojo Manager</span>
           </Link>
         </SidebarHeader>
