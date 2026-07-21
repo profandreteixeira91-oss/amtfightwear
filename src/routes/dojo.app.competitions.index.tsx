@@ -28,7 +28,7 @@ import {
 } from "@/lib/dojo/competitions/academy.functions";
 import { scopeLabel, tierLabel } from "@/lib/dojo/competitions/classifier";
 
-export const Route = createFileRoute("/dojo/app/competitions")({
+export const Route = createFileRoute("/dojo/app/competitions/")({
   head: () => ({ meta: [{ title: "Competições — AMT Dojo Manager" }] }),
   component: CompetitionsPage,
 });
