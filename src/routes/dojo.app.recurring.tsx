@@ -155,6 +155,13 @@ function RecurringPage() {
 
   return (
     <div className="space-y-6">
+      <div className="flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900 dark:border-blue-900/50 dark:bg-blue-950/30 dark:text-blue-200">
+        <span className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">R</span>
+        <div>
+          <div className="font-medium">Cobrança recorrente</div>
+          <div className="text-xs opacity-90">Mensalidades são geradas automaticamente todo mês, com o <b>dia de vencimento</b> definido por você em cada matrícula. Para uma cobrança única (produto, taxa), use <b>Vendas</b>.</div>
+        </div>
+      </div>
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
