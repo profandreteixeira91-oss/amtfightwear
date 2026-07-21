@@ -2918,8 +2918,10 @@ export type Database = {
           category: string
           color_hex: string
           created_at: string
+          criteria_mode: string
           id: string
           max_degrees: number
+          min_classes: number | null
           min_months: number | null
           modality: string
           name: string
@@ -2931,8 +2933,10 @@ export type Database = {
           category?: string
           color_hex?: string
           created_at?: string
+          criteria_mode?: string
           id?: string
           max_degrees?: number
+          min_classes?: number | null
           min_months?: number | null
           modality?: string
           name: string
@@ -2944,8 +2948,10 @@ export type Database = {
           category?: string
           color_hex?: string
           created_at?: string
+          criteria_mode?: string
           id?: string
           max_degrees?: number
+          min_classes?: number | null
           min_months?: number | null
           modality?: string
           name?: string
@@ -6059,6 +6065,9 @@ export type Database = {
           emergency_contact_relationship: string | null
           full_name: string
           gender: string | null
+          graduation_criteria_mode: string | null
+          graduation_min_classes: number | null
+          graduation_min_months: number | null
           guardian_name: string | null
           guardian_phone: string | null
           has_medical_clearance: boolean
@@ -6108,6 +6117,9 @@ export type Database = {
           emergency_contact_relationship?: string | null
           full_name: string
           gender?: string | null
+          graduation_criteria_mode?: string | null
+          graduation_min_classes?: number | null
+          graduation_min_months?: number | null
           guardian_name?: string | null
           guardian_phone?: string | null
           has_medical_clearance?: boolean
@@ -6157,6 +6169,9 @@ export type Database = {
           emergency_contact_relationship?: string | null
           full_name?: string
           gender?: string | null
+          graduation_criteria_mode?: string | null
+          graduation_min_classes?: number | null
+          graduation_min_months?: number | null
           guardian_name?: string | null
           guardian_phone?: string | null
           has_medical_clearance?: boolean
