@@ -18,6 +18,9 @@ import {
   type PaymentMethodConfig,
 } from "@/lib/dojo/payment-methods";
 import { DojoPageShell } from "@/components/dojo/DojoPageShell";
+import { getMyAsaasConfig } from "@/lib/asaas/asaas.functions";
+import { isAsaasReady } from "@/lib/dojo/amt-pay-status";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
