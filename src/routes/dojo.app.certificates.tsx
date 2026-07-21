@@ -11,12 +11,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { Trash2, Copy, Plus, Star, Search, Upload, ImageOff } from "lucide-react";
+import { Trash2, Copy, Plus, Star, Search, Upload, ImageOff, Send, FileCheck } from "lucide-react";
 import { CertificateEditor } from "@/components/dojo/certificate-editor/CertificateEditor";
 import { migrateLegacyFields, toLegacyFields, type EditorSchema } from "@/components/dojo/certificate-editor/types";
 import { CertificatePreviewDialog, type CertificateTemplate } from "@/components/dojo/CertificatePreview";
 import { ALL_VARIABLES } from "@/components/dojo/certificate-editor/types";
 import { systemValues } from "@/components/dojo/certificate-editor/qr";
+import { IssuePanel } from "@/components/dojo/certificates-studio/IssuePanel";
+import { IssuedList } from "@/components/dojo/certificates-studio/IssuedList";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/dojo/app/certificates")({
   head: () => ({ meta: [{ title: "Editor de Certificados — AMT Dojo Manager" }] }),
@@ -49,6 +52,8 @@ function CertificatesPage() {
   const [previewStudentId, setPreviewStudentId] = useState<string>("");
   const [q, setQ] = useState("");
   const [category, setCategory] = useState<string>("");
+  const [issueOpen, setIssueOpen] = useState(false);
+  const [tab, setTab] = useState<"modelos" | "emitidos">("modelos");
 
   const filteredTemplates = useMemo(() => {
     return (templates.data ?? []).filter((t: any) => {
@@ -251,20 +256,41 @@ function CertificatesPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 md:gap-7">
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <p className="text-sm text-muted-foreground max-w-2xl">Modelos de certificado disponíveis para emissão.</p>
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar modelo…" className="h-9 w-56 pl-7 text-sm" />
+      <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <TabsList>
+            <TabsTrigger value="modelos"><FileCheck className="mr-1 h-4 w-4" /> Modelos</TabsTrigger>
+            <TabsTrigger value="emitidos"><FileCheck className="mr-1 h-4 w-4" /> Emitidos</TabsTrigger>
+          </TabsList>
+          <div className="flex items-center gap-2">
+            {tab === "modelos" && (
+              <>
+                <div className="relative">
+                  <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                  <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar modelo…" className="h-9 w-56 pl-7 text-sm" />
+                </div>
+                <select value={category} onChange={(e) => setCategory(e.target.value)} className="h-9 rounded-md border border-input bg-background px-2 text-sm">
+                  <option value="">Todas as categorias</option>
+                  {CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
+                </select>
+                <Button variant="outline" onClick={() => setIssueOpen(true)}>
+                  <Send className="h-4 w-4 mr-1" /> Emitir
+                </Button>
+                <Button onClick={() => navigate({ to: "/dojo/certificate-editor/$id", params: { id: "new" } })}>
+                  <Plus className="h-4 w-4 mr-1" /> Novo modelo
+                </Button>
+              </>
+            )}
+            {tab === "emitidos" && (
+              <Button onClick={() => setIssueOpen(true)} className="bg-red-700 hover:bg-red-800">
+                <Send className="h-4 w-4 mr-1" /> Emitir certificado
+              </Button>
+            )}
           </div>
-          <select value={category} onChange={(e) => setCategory(e.target.value)} className="h-9 rounded-md border border-input bg-background px-2 text-sm">
-            <option value="">Todas as categorias</option>
-            {CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
-          </select>
-          <Button onClick={() => navigate({ to: "/dojo/certificate-editor/$id", params: { id: "new" } })}><Plus className="h-4 w-4 mr-1" /> Novo modelo</Button>
         </div>
-      </div>
+
+        <TabsContent value="modelos" className="mt-4">
+          <p className="mb-3 text-sm text-muted-foreground">Modelos de certificado disponíveis para emissão.</p>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {filteredTemplates.map((t: any) => {
@@ -389,8 +415,16 @@ function CertificatesPage() {
       </div>
 
       <p className="text-xs text-muted-foreground">
-        Para emitir um certificado a partir de um modelo, use a página do aluno na aba <strong>Certificados</strong>.
+        Para emitir um certificado a partir de um modelo, use o botão <strong>Emitir</strong> acima ou a aba <strong>Emitidos</strong>.
       </p>
+        </TabsContent>
+
+        <TabsContent value="emitidos" className="mt-4">
+          <IssuedList />
+        </TabsContent>
+      </Tabs>
+
+      <IssuePanel open={issueOpen} onOpenChange={setIssueOpen} />
     </div>
   );
 }

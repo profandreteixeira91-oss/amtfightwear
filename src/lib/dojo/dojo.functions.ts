@@ -1267,6 +1267,7 @@ export const issueCertificate = createServerFn({ method: "POST" })
     graduation_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido").optional().nullable(),
     template_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido"),
     values: z.record(z.string(), z.string()),
+    pdf_url: z.string().url().max(2000).optional().nullable(),
   }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase.from("dojo_certificates").insert({
@@ -1274,10 +1275,68 @@ export const issueCertificate = createServerFn({ method: "POST" })
       graduation_id: data.graduation_id ?? null,
       template_id: data.template_id,
       values: data.values,
+      pdf_url: data.pdf_url ?? null,
       owner_id: ownerId(context),
     }).select("*").single();
     if (error) throw new Error(error.message);
     return row;
+  });
+
+// ============ ISSUED CERTIFICATES (Phase 2) ============
+const uuidRx = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+
+export const listIssuedCertificates = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
+      .from("dojo_certificates")
+      .select("*, student:dojo_students(id, full_name, photo_url), template:dojo_certificate_templates(id, name, category), graduation:dojo_graduations(graduation_date, degree, belt:dojo_belts(name, modality))")
+      .order("issued_at", { ascending: false })
+      .limit(500);
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+export const deleteIssuedCertificate = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().regex(uuidRx, "UUID inválido") }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase.from("dojo_certificates").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const updateIssuedCertificatePdf = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({
+    id: z.string().regex(uuidRx, "UUID inválido"),
+    pdf_url: z.string().url().max(2000),
+  }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("dojo_certificates")
+      .update({ pdf_url: data.pdf_url })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const getCertificateIssueContext = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ student_id: z.string().regex(uuidRx, "UUID inválido") }).parse(i))
+  .handler(async ({ data, context }) => {
+    const [s, a, g] = await Promise.all([
+      context.supabase.from("dojo_students")
+        .select("*, belt:dojo_belts(name,modality,color_hex,stripe_hex)")
+        .eq("id", data.student_id).maybeSingle(),
+      context.supabase.from("dojo_academy_profile").select("*").eq("owner_id", context.userId).maybeSingle(),
+      context.supabase.from("dojo_graduations")
+        .select("*, belt:dojo_belts(name,modality,color_hex,stripe_hex)")
+        .eq("student_id", data.student_id)
+        .order("graduation_date", { ascending: false })
+        .limit(1).maybeSingle(),
+    ]);
+    return { student: s.data, academy: a.data, latest_graduation: g.data };
   });
 
 // ============ GRADUATION SETTINGS ============
