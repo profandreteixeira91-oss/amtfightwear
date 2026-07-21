@@ -77,7 +77,12 @@ export const saveDojoBelt = createServerFn({ method: "POST" })
   }).parse(i))
   .handler(async ({ data, context }) => {
     const { id, scope, ...rest } = data;
-    const payload: any = { ...rest, owner_id: scope === "global" ? null : context.userId };
+    // Global belts (owner_id NULL) só podem ser gerenciadas pelo AMT admin.
+    const { data: isAmtAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId, _role: "amt_admin" as any,
+    });
+    const effectiveScope = scope === "global" && isAmtAdmin ? "global" : "own";
+    const payload: any = { ...rest, owner_id: effectiveScope === "global" ? null : context.userId };
     if (id) {
       const { data: upd, error } = await context.supabase
         .from("dojo_belts").update(payload).eq("id", id).select().single();
