@@ -245,6 +245,9 @@ function TeamPage() {
         <Button variant="outline" asChild>
           <Link to="/dojo/app/team/schedules">Escalas</Link>
         </Button>
+        <Button variant="outline" asChild>
+          <Link to="/dojo/app/team/payroll">Folha</Link>
+        </Button>
 
       </div>
 

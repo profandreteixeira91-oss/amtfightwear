@@ -151,6 +151,7 @@ import { Route as DojoAppVideosFavoritosRouteImport } from './routes/dojo.app.vi
 import { Route as DojoAppVideosCategoriasRouteImport } from './routes/dojo.app.videos.categorias'
 import { Route as DojoAppVideosIdRouteImport } from './routes/dojo.app.videos.$id'
 import { Route as DojoAppTeamSchedulesRouteImport } from './routes/dojo.app.team.schedules'
+import { Route as DojoAppTeamPayrollRouteImport } from './routes/dojo.app.team.payroll'
 import { Route as DojoAppTeamIdRouteImport } from './routes/dojo.app.team.$id'
 import { Route as DojoAppStudentsIdRouteImport } from './routes/dojo.app.students.$id'
 import { Route as DojoAppStorePedidosRouteImport } from './routes/dojo.app.store.pedidos'
@@ -944,6 +945,11 @@ const DojoAppTeamSchedulesRoute = DojoAppTeamSchedulesRouteImport.update({
   path: '/team/schedules',
   getParentRoute: () => DojoAppRoute,
 } as any)
+const DojoAppTeamPayrollRoute = DojoAppTeamPayrollRouteImport.update({
+  id: '/team/payroll',
+  path: '/team/payroll',
+  getParentRoute: () => DojoAppRoute,
+} as any)
 const DojoAppTeamIdRoute = DojoAppTeamIdRouteImport.update({
   id: '/team/$id',
   path: '/team/$id',
@@ -1358,6 +1364,7 @@ export interface FileRoutesByFullPath {
   '/dojo/app/store/pedidos': typeof DojoAppStorePedidosRouteWithChildren
   '/dojo/app/students/$id': typeof DojoAppStudentsIdRoute
   '/dojo/app/team/$id': typeof DojoAppTeamIdRoute
+  '/dojo/app/team/payroll': typeof DojoAppTeamPayrollRoute
   '/dojo/app/team/schedules': typeof DojoAppTeamSchedulesRoute
   '/dojo/app/videos/$id': typeof DojoAppVideosIdRoute
   '/dojo/app/videos/categorias': typeof DojoAppVideosCategoriasRoute
@@ -1535,6 +1542,7 @@ export interface FileRoutesByTo {
   '/dojo/app/store/pedidos': typeof DojoAppStorePedidosRouteWithChildren
   '/dojo/app/students/$id': typeof DojoAppStudentsIdRoute
   '/dojo/app/team/$id': typeof DojoAppTeamIdRoute
+  '/dojo/app/team/payroll': typeof DojoAppTeamPayrollRoute
   '/dojo/app/team/schedules': typeof DojoAppTeamSchedulesRoute
   '/dojo/app/videos/$id': typeof DojoAppVideosIdRoute
   '/dojo/app/videos/categorias': typeof DojoAppVideosCategoriasRoute
@@ -1724,6 +1732,7 @@ export interface FileRoutesById {
   '/dojo/app/store/pedidos': typeof DojoAppStorePedidosRouteWithChildren
   '/dojo/app/students/$id': typeof DojoAppStudentsIdRoute
   '/dojo/app/team/$id': typeof DojoAppTeamIdRoute
+  '/dojo/app/team/payroll': typeof DojoAppTeamPayrollRoute
   '/dojo/app/team/schedules': typeof DojoAppTeamSchedulesRoute
   '/dojo/app/videos/$id': typeof DojoAppVideosIdRoute
   '/dojo/app/videos/categorias': typeof DojoAppVideosCategoriasRoute
@@ -1912,6 +1921,7 @@ export interface FileRouteTypes {
     | '/dojo/app/store/pedidos'
     | '/dojo/app/students/$id'
     | '/dojo/app/team/$id'
+    | '/dojo/app/team/payroll'
     | '/dojo/app/team/schedules'
     | '/dojo/app/videos/$id'
     | '/dojo/app/videos/categorias'
@@ -2089,6 +2099,7 @@ export interface FileRouteTypes {
     | '/dojo/app/store/pedidos'
     | '/dojo/app/students/$id'
     | '/dojo/app/team/$id'
+    | '/dojo/app/team/payroll'
     | '/dojo/app/team/schedules'
     | '/dojo/app/videos/$id'
     | '/dojo/app/videos/categorias'
@@ -2277,6 +2288,7 @@ export interface FileRouteTypes {
     | '/dojo/app/store/pedidos'
     | '/dojo/app/students/$id'
     | '/dojo/app/team/$id'
+    | '/dojo/app/team/payroll'
     | '/dojo/app/team/schedules'
     | '/dojo/app/videos/$id'
     | '/dojo/app/videos/categorias'
@@ -3352,6 +3364,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DojoAppTeamSchedulesRouteImport
       parentRoute: typeof DojoAppRoute
     }
+    '/dojo/app/team/payroll': {
+      id: '/dojo/app/team/payroll'
+      path: '/team/payroll'
+      fullPath: '/dojo/app/team/payroll'
+      preLoaderRoute: typeof DojoAppTeamPayrollRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
     '/dojo/app/team/$id': {
       id: '/dojo/app/team/$id'
       path: '/team/$id'
@@ -4052,6 +4071,7 @@ interface DojoAppRouteChildren {
   DojoAppVideosRoute: typeof DojoAppVideosRouteWithChildren
   DojoAppIndexRoute: typeof DojoAppIndexRoute
   DojoAppTeamIdRoute: typeof DojoAppTeamIdRoute
+  DojoAppTeamPayrollRoute: typeof DojoAppTeamPayrollRoute
   DojoAppTeamSchedulesRoute: typeof DojoAppTeamSchedulesRoute
   DojoAppTeamIndexRoute: typeof DojoAppTeamIndexRoute
 }
@@ -4080,6 +4100,7 @@ const DojoAppRouteChildren: DojoAppRouteChildren = {
   DojoAppVideosRoute: DojoAppVideosRouteWithChildren,
   DojoAppIndexRoute: DojoAppIndexRoute,
   DojoAppTeamIdRoute: DojoAppTeamIdRoute,
+  DojoAppTeamPayrollRoute: DojoAppTeamPayrollRoute,
   DojoAppTeamSchedulesRoute: DojoAppTeamSchedulesRoute,
   DojoAppTeamIndexRoute: DojoAppTeamIndexRoute,
 }
@@ -4166,13 +4187,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
