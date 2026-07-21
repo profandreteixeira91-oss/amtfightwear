@@ -128,6 +128,8 @@ function BeltsPage() {
       max_degrees: b.max_degrees,
       category: b.category ?? "adult",
       min_months: b.min_months != null ? String(b.min_months) : "",
+      min_classes: b.min_classes != null ? String(b.min_classes) : "",
+      criteria_mode: (b.criteria_mode ?? "time") as any,
       scope: b.owner_id ? "own" : "global",
     });
     setOpen(true);
