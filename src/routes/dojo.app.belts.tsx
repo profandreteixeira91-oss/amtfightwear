@@ -85,7 +85,8 @@ function BeltsPage() {
 
   const q = useQuery({ queryKey: ["dojo-belts"], queryFn: () => listFn() });
   const adminQ = useQuery({ queryKey: ["is-admin"], queryFn: () => adminFn() });
-  const isAdmin = Boolean(adminQ.data?.isAdmin);
+  const isAmtAdmin = Boolean((adminQ.data as any)?.isAmtAdmin);
+  const isAdmin = isAmtAdmin;
 
   const [modality, setModality] = useState("jiu-jitsu");
   const [customModality, setCustomModality] = useState("");
