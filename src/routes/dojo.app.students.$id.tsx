@@ -682,6 +682,15 @@ function StudentDetail() {
 
             {/* --- Graduações --- */}
             <TabsContent value="graduacoes" className="mt-4 space-y-4">
+              <GraduationCriteriaCard
+                student={s}
+                belts={belts.data ?? []}
+                graduations={graduations}
+                attendanceRows={attendanceRows}
+                onSaved={refresh}
+                saveStudent={saveStudent}
+              />
+
               <SectionCard title="Nova graduação" icon={GraduationCap}>
                 <div className="grid gap-2 md:grid-cols-6">
                   <select className="h-10 rounded-md border border-input bg-background px-2 text-sm" value={grad.belt_id} onChange={(e) => setGrad({ ...grad, belt_id: e.target.value, degree: 0 })}>
