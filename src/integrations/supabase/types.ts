@@ -5074,6 +5074,180 @@ export type Database = {
           },
         ]
       }
+      dojo_sale_items: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          name: string
+          product_id: string | null
+          quantity: number
+          sale_id: string
+          subtotal: number
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind?: string
+          name: string
+          product_id?: string | null
+          quantity?: number
+          sale_id: string
+          subtotal?: number
+          unit_price?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          name?: string
+          product_id?: string | null
+          quantity?: number
+          sale_id?: string
+          subtotal?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_sale_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_sales_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_sale_items_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_sales"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_sales: {
+        Row: {
+          created_at: string
+          customer_document: string | null
+          customer_name: string | null
+          discount: number
+          id: string
+          invoice_id: string | null
+          notes: string | null
+          owner_id: string
+          payment_link: string | null
+          payment_method: string
+          sold_at: string
+          status: string
+          student_id: string | null
+          subtotal: number
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_document?: string | null
+          customer_name?: string | null
+          discount?: number
+          id?: string
+          invoice_id?: string | null
+          notes?: string | null
+          owner_id: string
+          payment_link?: string | null
+          payment_method?: string
+          sold_at?: string
+          status?: string
+          student_id?: string | null
+          subtotal?: number
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_document?: string | null
+          customer_name?: string | null
+          discount?: number
+          id?: string
+          invoice_id?: string | null
+          notes?: string | null
+          owner_id?: string
+          payment_link?: string | null
+          payment_method?: string
+          sold_at?: string
+          status?: string
+          student_id?: string | null
+          subtotal?: number
+          total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_sales_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_sales_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_sales_products: {
+        Row: {
+          active: boolean
+          cost: number | null
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          kind: string
+          name: string
+          owner_id: string
+          price: number
+          sku: string | null
+          stock: number | null
+          track_stock: boolean
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          cost?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          kind?: string
+          name: string
+          owner_id: string
+          price?: number
+          sku?: string | null
+          stock?: number | null
+          track_stock?: boolean
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          cost?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          kind?: string
+          name?: string
+          owner_id?: string
+          price?: number
+          sku?: string | null
+          stock?: number | null
+          track_stock?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       dojo_spaces: {
         Row: {
           active: boolean
