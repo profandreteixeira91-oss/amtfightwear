@@ -529,7 +529,7 @@ function NewSaleDialog({
           </p>
         ) : null}
       </div>
-      <DialogFooter>
+      <DialogFooter className="px-6 pb-6 pt-2 border-t">
         <Button onClick={submit} disabled={saving}>
           {saving ? "Salvando..." : "Registrar venda"}
         </Button>
