@@ -201,20 +201,22 @@ export function AppTopNav() {
           : "border-border/60 bg-background/80 supports-[backdrop-filter]:bg-background/60",
       )}
     >
-      <div className="flex h-14 items-center gap-2 px-3 sm:px-4">
-        <Link to={inStore ? "/store" : "/dashboard"} className="group flex items-center gap-2.5 shrink-0">
+      <div className={cn("flex items-center gap-2 px-3 sm:px-4", inDojo ? "h-16" : "h-14")}>
+        <Link to={inStore ? "/store" : "/dashboard"} className="group flex items-center gap-3 shrink-0">
           <div
             className={cn(
               "relative grid place-items-center overflow-hidden transition-transform group-hover:scale-[1.05]",
               inDojo
-                ? "h-12 w-12 rounded-xl bg-white ring-2 ring-white/80 shadow-[0_0_0_1px_rgba(255,255,255,0.6),0_10px_30px_-6px_rgba(0,0,0,0.45)]"
+                ? (dojoLogo
+                    ? "h-14 w-14 rounded-xl bg-white ring-2 ring-white/80 shadow-[0_0_0_1px_rgba(255,255,255,0.6),0_10px_30px_-6px_rgba(0,0,0,0.45)]"
+                    : "h-14 w-40 rounded-xl bg-white ring-2 ring-white/80 shadow-[0_0_0_1px_rgba(255,255,255,0.6),0_10px_30px_-6px_rgba(0,0,0,0.45)]")
                 : "h-9 w-9 rounded-lg bg-gradient-to-br from-primary/90 to-primary shadow-lg shadow-primary/20 ring-1 ring-primary/40",
             )}
           >
             <img
               src={dojoLogo || amtLogo}
               alt={dojoName || "AMT"}
-              className={cn("h-full w-full object-contain", inDojo ? "p-1" : "p-1.5")}
+              className={cn("h-full w-full object-contain", inDojo ? "p-1.5" : "p-1.5")}
             />
             <span className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-white/40 opacity-0 transition-opacity group-hover:opacity-100" />
           </div>
