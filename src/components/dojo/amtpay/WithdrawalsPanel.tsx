@@ -46,6 +46,18 @@ export function WithdrawalsPanel() {
     }
   }
 
+  async function onRetry(id: string) {
+    try {
+      const r = await retryFn({ data: { id } });
+      toast.success(r.status === "paid" ? "Transferência confirmada!" : "Saque enviado ao Asaas.");
+      qc.invalidateQueries({ queryKey: ["amtpay-withdrawals"] });
+      qc.invalidateQueries({ queryKey: ["amtpay-balance"] });
+      qc.invalidateQueries({ queryKey: ["amtpay-dashboard"] });
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  }
+
   const rows = wQ.data ?? [];
 
   return (
