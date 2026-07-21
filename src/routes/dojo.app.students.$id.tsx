@@ -511,19 +511,6 @@ function StudentDetail() {
                       >
                         <RefreshCw className="mr-2 h-4 w-4" /> Trocar de plano
                       </Button>
-                      <Button
-                        variant="outline"
-                        onClick={async () => {
-                          if (!confirm("Cancelar o plano atual do aluno?")) return;
-                          try {
-                            await delEnroll({ data: { id: currentEnrollment.id } });
-                            toast.success("Plano cancelado");
-                            refresh();
-                          } catch (e: any) { toast.error(e.message); }
-                        }}
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" /> Cancelar plano
-                      </Button>
                     </div>
                   </>
                 ) : (
