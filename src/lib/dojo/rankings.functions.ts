@@ -43,7 +43,7 @@ export const getClassRanking = createServerFn({ method: "GET" })
     // esconda alunos com owner_id divergente.
     const { data: rows, error } = await supabase.rpc("get_class_ranking", {
       _class_id: data.classId,
-      _since: sinceIso,
+      _since: sinceIso ?? undefined,
     });
     if (error) throw new Error(error.message);
 
