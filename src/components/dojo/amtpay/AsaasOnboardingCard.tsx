@@ -301,14 +301,6 @@ export function AsaasOnboardingCard() {
                   )}
                   Atualizar status
                 </Button>
-                {data.onboardingUrl && (
-                  <Button variant="outline" size="sm" asChild>
-                    <a href={data.onboardingUrl} target="_blank" rel="noreferrer">
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      Completar cadastro Asaas
-                    </a>
-                  </Button>
-                )}
                 <Button
                   variant="ghost"
                   size="sm"
