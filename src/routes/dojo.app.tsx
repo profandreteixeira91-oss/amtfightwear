@@ -236,6 +236,13 @@ function DojoLayoutInner({
   const { can, isOwner, loading } = useDojoPermissions();
   const currentModule = findModuleForPath(pathname);
   const blocked = !loading && !isOwner && currentModule ? !can(currentModule.key, "read") : false;
+  const fetchBranding = useServerFn(getMyAcademyBranding);
+  const { data: branding } = useQuery({
+    queryKey: ["dojo", "branding", "me"],
+    queryFn: () => fetchBranding(),
+    staleTime: 5 * 60 * 1000,
+  });
+  const dojoName = branding?.trade_name || branding?.legal_name || null;
 
   return (
     <>
