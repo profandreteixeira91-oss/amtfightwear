@@ -126,7 +126,7 @@ function AMTPayHub() {
   );
 }
 
-function AMTPayLanding() {
+function AMTPayLanding({ onActivate }: { onActivate: () => void }) {
   return (
     <div className="space-y-6">
       <Card className="border-2 border-red-600/20 bg-gradient-to-br from-red-50/50 to-transparent dark:from-red-950/20">
