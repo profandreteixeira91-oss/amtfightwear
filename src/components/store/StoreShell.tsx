@@ -81,6 +81,8 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
   const [mounted, setMounted] = useState(false);
   const [isAuthed, setIsAuthed] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const accountRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     setMounted(true);
