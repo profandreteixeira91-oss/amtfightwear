@@ -51,11 +51,25 @@ function TextView({ el, values, style }: { el: TextElement | DateElement; values
   let display = resolveText(raw, values);
   if (isText && (el as TextElement).uppercase) display = display.toUpperCase();
   const t = el as TextElement;
-  const cssShadow = t.kind === "text" && (t as any).shadow ? (t as any).shadow : undefined;
-  const stroke = (t as any).stroke as string | undefined;
-  const strokeWidth = (t as any).strokeWidth as number | undefined;
+  const bg = t.background && t.background !== "transparent" ? t.background : undefined;
+  const padding = t.padding ?? 0;
+  const borderWidth = t.borderWidth ?? 0;
+  const border = borderWidth > 0 ? `${borderWidth}px solid ${t.borderColor || "#000"}` : undefined;
+  const vAlign = t.verticalAlign ?? "middle";
+  const alignItems = vAlign === "top" ? "flex-start" : vAlign === "bottom" ? "flex-end" : "center";
   return (
-    <div style={{ ...style, display: "flex", alignItems: "center", justifyContent: alignToJustify(el.align) }}>
+    <div style={{
+      ...style,
+      display: "flex",
+      alignItems,
+      justifyContent: alignToJustify(el.align),
+      background: bg,
+      padding,
+      border,
+      borderRadius: t.borderRadius ?? 0,
+      boxShadow: t.shadow,
+      boxSizing: "border-box",
+    }}>
       <div style={{
         fontFamily: (el as any).fontFamily || "Inter, sans-serif",
         fontSize: el.fontSize,
@@ -69,8 +83,6 @@ function TextView({ el, values, style }: { el: TextElement | DateElement; values
         width: "100%",
         whiteSpace: "pre-wrap",
         wordBreak: "break-word",
-        textShadow: cssShadow,
-        WebkitTextStroke: stroke && strokeWidth ? `${strokeWidth}px ${stroke}` : undefined,
       }}>
         {display}
       </div>

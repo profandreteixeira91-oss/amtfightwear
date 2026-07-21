@@ -250,12 +250,30 @@ function ImagesPanel() {
 
 function LogoPanel() {
   const { addElement } = useStudioStore();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const upload = async (file: File) => {
+    setUploading(true);
+    try {
+      const path = `certificates/logo-${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+      const { error } = await supabase.storage.from("ig-media").upload(path, file, { upsert: true });
+      if (error) throw error;
+      const { data } = supabase.storage.from("ig-media").getPublicUrl(path);
+      addElement(makeImageElement(data.publicUrl, "logo"));
+    } catch (e: any) {
+      toast.error(e.message ?? "Falha ao enviar logo");
+    } finally { setUploading(false); }
+  };
   return (
     <div className="space-y-3">
-      <Button className="w-full" onClick={() => addElement(makeImageElement("", "logo"))}>
-        + Adicionar logo da academia
+      <input ref={inputRef} type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) upload(f); }} />
+      <Button className="w-full" onClick={() => inputRef.current?.click()} disabled={uploading}>
+        <Upload className="mr-2 h-4 w-4" /> {uploading ? "Enviando..." : "Fazer upload do logo"}
       </Button>
-      <p className="text-xs text-neutral-500">O logo puxará automaticamente a URL da academia ao emitir o certificado. Você também pode colar uma URL específica:</p>
+      <Button variant="outline" className="w-full" onClick={() => addElement(makeImageElement("", "logo"))}>
+        + Placeholder (usa logo da academia)
+      </Button>
+      <p className="text-xs text-neutral-500">O placeholder puxa automaticamente a logo cadastrada no dojo ao emitir o certificado. Você também pode colar uma URL:</p>
       <UrlAdd onAdd={(url) => addElement(makeImageElement(url, "logo"))} />
     </div>
   );
@@ -353,9 +371,13 @@ function PagePanel() {
         <label className="text-xs text-neutral-600">Cor de fundo</label>
         <Input type="color" value={doc.page.background || "#ffffff"} onChange={(e) => setPage({ background: e.target.value })} />
       </div>
-      <div>
-        <label className="text-xs text-neutral-600">Imagem de fundo (URL)</label>
+      <div className="space-y-2">
+        <label className="text-xs text-neutral-600">Imagem de fundo</label>
         <Input value={doc.page.backgroundUrl || ""} onChange={(e) => setPage({ backgroundUrl: e.target.value })} placeholder="https://..." />
+        <PageBgUpload onDone={(url) => setPage({ backgroundUrl: url })} />
+        {doc.page.backgroundUrl && (
+          <button onClick={() => setPage({ backgroundUrl: "" })} className="text-[11px] text-red-700 hover:underline">Remover imagem de fundo</button>
+        )}
       </div>
     </div>
   );
@@ -376,5 +398,30 @@ function UrlAdd({ onAdd }: { onAdd: (url: string) => void }) {
       <Input placeholder="https://..." value={url} onChange={(e) => setUrl(e.target.value)} />
       <Button variant="outline" onClick={() => { if (url.trim()) { onAdd(url.trim()); setUrl(""); } }}>Adicionar</Button>
     </div>
+  );
+}
+
+function PageBgUpload({ onDone }: { onDone: (url: string) => void }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const upload = async (file: File) => {
+    setUploading(true);
+    try {
+      const path = `certificates/bg-${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+      const { error } = await supabase.storage.from("ig-media").upload(path, file, { upsert: true });
+      if (error) throw error;
+      const { data } = supabase.storage.from("ig-media").getPublicUrl(path);
+      onDone(data.publicUrl);
+    } catch (e: any) {
+      toast.error(e.message ?? "Falha ao enviar imagem");
+    } finally { setUploading(false); }
+  };
+  return (
+    <>
+      <input ref={inputRef} type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) upload(f); }} />
+      <Button variant="outline" size="sm" className="w-full" onClick={() => inputRef.current?.click()} disabled={uploading}>
+        <Upload className="mr-2 h-4 w-4" /> {uploading ? "Enviando..." : "Fazer upload"}
+      </Button>
+    </>
   );
 }
