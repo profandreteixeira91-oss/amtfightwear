@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { AMTPayActivationForm } from "@/components/dojo/amtpay/AMTPayActivationForm";
 import {
   LayoutDashboard,
   Wallet,
@@ -66,6 +66,8 @@ export const Route = createFileRoute("/dojo/app/integrations")({
 
 function AMTPayHub() {
   const fn = useServerFn(getMyAsaasConfig);
+  const queryClient = useQueryClient();
+  const [showActivation, setShowActivation] = useState(false);
   const { data, isLoading } = useQuery({
     queryKey: ["amtpay", "asaas-config"],
     queryFn: () => fn(),
@@ -104,19 +106,27 @@ function AMTPayHub() {
         <div className="flex items-center justify-center py-16 text-muted-foreground">
           <Loader2 className="h-5 w-5 animate-spin" />
         </div>
-      ) : !activated ? (
-        <AMTPayLanding />
-      ) : (
+      ) : activated ? (
         <>
           <AsaasStatusBanner />
           <FullHub />
         </>
+      ) : showActivation ? (
+        <AMTPayActivationForm
+          showIntro={false}
+          onCompleted={async () => {
+            await queryClient.invalidateQueries({ queryKey: ["amtpay", "asaas-config"] });
+            setShowActivation(false);
+          }}
+        />
+      ) : (
+        <AMTPayLanding onActivate={() => setShowActivation(true)} />
       )}
     </div>
   );
 }
 
-function AMTPayLanding() {
+function AMTPayLanding({ onActivate }: { onActivate: () => void }) {
   return (
     <div className="space-y-6">
       <Card className="border-2 border-red-600/20 bg-gradient-to-br from-red-50/50 to-transparent dark:from-red-950/20">
@@ -175,11 +185,13 @@ function AMTPayLanding() {
             </div>
 
             <div className="flex flex-wrap gap-3 pt-2">
-              <Button asChild size="lg" className="bg-red-600 hover:bg-red-700">
-                <Link to="/dojo/onboarding">
-                  Ativar AMT Pay
-                  <ArrowRight className="ml-1.5 h-4 w-4" />
-                </Link>
+              <Button
+                size="lg"
+                className="bg-red-600 hover:bg-red-700"
+                onClick={onActivate}
+              >
+                Ativar AMT Pay
+                <ArrowRight className="ml-1.5 h-4 w-4" />
               </Button>
               <div className="text-xs text-muted-foreground self-center max-w-sm">
                 Sem ativar? Sem problema. Você pode continuar usando o sistema
