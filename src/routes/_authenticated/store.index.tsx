@@ -18,6 +18,7 @@ import {
   BarChart, Bar, PieChart, Pie, Cell, Legend,
 } from "recharts";
 import { adminGetDashboard } from "@/lib/store/dashboard.functions";
+import { VisitorsPanel } from "@/components/store/VisitorsPanel";
 
 type Range = "today" | "yesterday" | "7d" | "30d" | "90d" | "year";
 
@@ -148,8 +149,12 @@ function StoreDashboard() {
         />
       </div>
 
+      {/* Visitors analytics */}
+      <VisitorsPanel />
+
       {/* Financial + chart */}
       <div className="grid gap-4 lg:grid-cols-3">
+
         <Card className="lg:col-span-2 shadow-sm">
           <CardHeader className="pb-2">
             <div className="flex items-start justify-between gap-2">
