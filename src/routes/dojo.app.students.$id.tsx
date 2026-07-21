@@ -32,6 +32,7 @@ import { openBrandedPrintDocument, escapeHtml, kvTable } from "@/lib/dojo/print-
 import { useDojoBranding } from "@/hooks/useDojoBranding";
 import { StudentCorporateBenefitsSection } from "@/components/dojo/corporate-benefits/StudentCorporateBenefitsSection";
 import { TuitionRow } from "@/components/dojo/finance/TuitionList";
+import { StudentCompetitionHistory } from "@/components/dojo/competitions/StudentCompetitionHistory";
 
 export const Route = createFileRoute("/dojo/app/students/$id")({
   head: () => ({ meta: [{ title: "Aluno — AMT Dojo Manager" }] }),
@@ -799,32 +800,7 @@ function StudentDetail() {
             {/* --- Competições --- */}
             <TabsContent value="competicoes" className="mt-4 space-y-4">
               <SectionCard title="Competições" icon={Trophy}>
-                <div className="rounded-lg border border-dashed border-border p-6 text-center">
-                  <Trophy className="mx-auto mb-2 h-6 w-6 text-muted-foreground" />
-                  <div className="text-sm text-muted-foreground">
-                    Consulta ao vivo das competições e inscrições feitas diretamente nos sites dos organizadores.
-                  </div>
-                  <Link to="/dojo/app/competitions" className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
-                    Ver todas as competições <ExternalLink className="h-3 w-3" />
-                  </Link>
-                </div>
-                <div className="mt-3 grid grid-cols-3 gap-2 text-center text-xs">
-                  <div className="rounded-lg border border-border p-3">
-                    <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Disputadas</div>
-                    <div className="mt-1 text-lg font-semibold">0</div>
-                  </div>
-                  <div className="rounded-lg border border-border p-3">
-                    <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Medalhas</div>
-                    <div className="mt-1 text-lg font-semibold">0</div>
-                  </div>
-                  <div className="rounded-lg border border-border p-3">
-                    <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Ranking</div>
-                    <div className="mt-1 text-lg font-semibold">—</div>
-                  </div>
-                </div>
-                <p className="mt-3 text-[11px] text-muted-foreground">
-                  Estrutura preparada para receber resultados e medalhas conforme forem sincronizados dos organizadores.
-                </p>
+                <StudentCompetitionHistory studentId={id} />
               </SectionCard>
             </TabsContent>
 
