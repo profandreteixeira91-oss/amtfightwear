@@ -262,7 +262,7 @@ function CertificatesPage() {
             <option value="">Todas as categorias</option>
             {CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
           </select>
-          <Button onClick={startNew}><Plus className="h-4 w-4 mr-1" /> Novo modelo</Button>
+          <Button onClick={() => navigate({ to: "/dojo/certificate-editor/$id", params: { id: "new" } })}><Plus className="h-4 w-4 mr-1" /> Novo modelo</Button>
         </div>
       </div>
 
