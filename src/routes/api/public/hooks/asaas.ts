@@ -153,25 +153,92 @@ export const Route = createFileRoute("/api/public/hooks/asaas")({
           paid_at: paidAt,
         };
 
+        let invoiceIdForLedger: string | null = null;
         if (existing) {
           await supabaseAdmin
             .from("dojo_invoices")
             .update(patch as never)
             .eq("id", (existing as any).id);
-          return Response.json({ ok: true, action: "updated", event, status });
+          invoiceIdForLedger = (existing as any).id;
+        } else {
+          const { data: inserted } = await supabaseAdmin
+            .from("dojo_invoices")
+            .insert({
+              student_id: studentId,
+              enrollment_id: enrollmentId,
+              unit_id: unitId,
+              owner_id: ownerId,
+              asaas_charge_id: chargeId,
+              asaas_subscription_id: subscriptionId,
+              ...patch,
+            } as never)
+            .select("id")
+            .single();
+          invoiceIdForLedger = (inserted as any)?.id ?? null;
         }
 
-        await supabaseAdmin.from("dojo_invoices").insert({
-          student_id: studentId,
-          enrollment_id: enrollmentId,
-          unit_id: unitId,
-          owner_id: ownerId,
-          asaas_charge_id: chargeId,
-          asaas_subscription_id: subscriptionId,
-          ...patch,
-        } as never);
+        // ------------------------------------------------------------
+        // Fase 3: conciliação automática — grava ledger + líquido
+        // ------------------------------------------------------------
+        if (invoiceIdForLedger && (status === "paid" || status === "canceled")) {
+          try {
+            const installments = Number(payment.installmentNumber ?? payment.installmentCount ?? 1);
+            const ledgerMethod: "pix" | "boleto" | "card" | "link" =
+              method === "pix" || method === "boleto" || method === "credit_card"
+                ? method === "credit_card"
+                  ? "card"
+                  : (method as "pix" | "boleto")
+                : "link";
+            const paidAtDate = paidAt ? new Date(paidAt) : new Date();
 
-        return Response.json({ ok: true, action: "created", event, status });
+            if (status === "paid") {
+              const { recordInvoicePaymentToLedger } = await import(
+                "@/lib/dojo/payments/ledger.server"
+              );
+              await recordInvoicePaymentToLedger(supabaseAdmin, {
+                ownerId,
+                invoiceId: invoiceIdForLedger,
+                studentId,
+                gross: Number(payment.value ?? 0),
+                method: ledgerMethod,
+                installments,
+                provider: "asaas",
+                providerTxId: chargeId,
+                description: payment.description ?? null,
+                paidAt: paidAtDate,
+              });
+            } else if (
+              event === "PAYMENT_REFUNDED" ||
+              event === "PAYMENT_CHARGEBACK_REQUESTED" ||
+              event === "PAYMENT_REFUND_IN_PROGRESS"
+            ) {
+              const { recordInvoiceRefundToLedger } = await import(
+                "@/lib/dojo/payments/ledger.server"
+              );
+              await recordInvoiceRefundToLedger(supabaseAdmin, {
+                ownerId,
+                invoiceId: invoiceIdForLedger,
+                studentId,
+                gross: Number(payment.value ?? 0),
+                method: ledgerMethod,
+                provider: "asaas",
+                providerTxId: chargeId,
+                description: `Estorno — ${payment.description ?? ""}`.trim(),
+                paidAt: new Date(),
+              });
+            }
+          } catch (err) {
+            // Não bloqueia o webhook; loga para auditoria
+            console.error("[asaas-webhook] ledger error", err);
+          }
+        }
+
+        return Response.json({
+          ok: true,
+          action: existing ? "updated" : "created",
+          event,
+          status,
+        });
       },
     },
   },
