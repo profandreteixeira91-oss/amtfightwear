@@ -111,7 +111,7 @@ export async function loadInvoiceIdentity(
     supabase
       .from("dojo_academy_profile")
       .select(
-        "academy_name, trade_name, legal_name, logo_url, cnpj, phone, email, address, city, state",
+        "trade_name, legal_name, logo_url, cnpj, phone, email, address, city, state",
       )
       .eq("owner_id", ownerId)
       .maybeSingle(),
