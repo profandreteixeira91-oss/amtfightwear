@@ -161,6 +161,41 @@ export const saveClass = createServerFn({ method: "POST" })
       const { error: err2 } = await context.supabase.from("dojo_class_schedules").insert(rows);
       if (err2) throw new Error(err2.message);
     }
+
+    // Materializa ocorrências para as próximas ~8 semanas para que a escala do
+    // professor apareça imediatamente no módulo Equipe após salvar a turma.
+    if (schedules.length && (rest.status ?? "active") === "active") {
+      const today = new Date();
+      const end = new Date();
+      end.setUTCDate(end.getUTCDate() + 56);
+      const occRows: any[] = [];
+      const scheduleIdRows = await context.supabase
+        .from("dojo_class_schedules")
+        .select("id, weekday, start_time, end_time")
+        .eq("class_id", classRow.id);
+      const sList = scheduleIdRows.data ?? [];
+      for (let d = new Date(today); d <= end; d.setUTCDate(d.getUTCDate() + 1)) {
+        const wd = d.getUTCDay();
+        for (const s of sList) {
+          if (Number(s.weekday) !== wd) continue;
+          occRows.push({
+            owner_id: context.userId,
+            class_id: classRow.id,
+            schedule_id: s.id,
+            occurrence_date: d.toISOString().slice(0, 10),
+            start_time: s.start_time,
+            end_time: s.end_time,
+            status: "scheduled",
+          });
+        }
+      }
+      if (occRows.length) {
+        await context.supabase
+          .from("dojo_class_occurrences")
+          .upsert(occRows, { onConflict: "class_id,occurrence_date,schedule_id", ignoreDuplicates: true });
+      }
+    }
+
     return classRow;
   });
 
