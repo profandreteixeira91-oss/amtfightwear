@@ -417,7 +417,8 @@ function AcademyTab({ academy, setAcademy, onSave }: any) {
     toast.success("Endereço preenchido pelo CEP");
   }
 
-  const cnpjDigits = String(academy?.cnpj ?? "").replace(/\D/g, "");
+
+
 
   return (
     <Card>
