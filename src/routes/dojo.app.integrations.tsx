@@ -11,6 +11,7 @@ import {
   Percent,
   KeyRound,
   ScrollText,
+  Bell,
 } from "lucide-react";
 import { AMTPayDashboard } from "@/components/dojo/amtpay/AMTPayDashboard";
 import { WalletPanel } from "@/components/dojo/amtpay/WalletPanel";

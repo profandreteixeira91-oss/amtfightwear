@@ -18,7 +18,9 @@ export interface TemplateEntry {
  *   // then add to TEMPLATES: 'welcome': welcomeTemplate
  */
 import { template as outreachB2B } from './outreach-b2b'
+import { template as dojoInvoiceReminder } from './dojo-invoice-reminder'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'outreach-b2b': outreachB2B,
+  'dojo-invoice-reminder': dojoInvoiceReminder,
 }
