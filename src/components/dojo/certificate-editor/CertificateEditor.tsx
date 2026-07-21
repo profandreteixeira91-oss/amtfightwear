@@ -387,7 +387,7 @@ function LeftPalette({ onInsert, onInsertVariable }: { onInsert: (k: AnyElement[
         <TabBtn active={tab === "elements"} onClick={() => setTab("elements")}><LayoutTemplate className="h-3.5 w-3.5" /> Elementos</TabBtn>
         <TabBtn active={tab === "vars"} onClick={() => setTab("vars")}><Variable className="h-3.5 w-3.5" /> Variáveis</TabBtn>
       </div>
-      <div className="max-h-[calc(100vh-14rem)] overflow-y-auto p-2">
+      <div className="max-h-[calc(100vh-11rem)] overflow-y-auto p-2">
         {tab === "elements" ? <ElementsPalette onInsert={onInsert} /> : <VariablesPalette onInsert={onInsertVariable} />}
       </div>
     </div>
@@ -1006,7 +1006,7 @@ function RightInspector({
         <TabBtn active={tab === "layers"} onClick={() => setTab("layers")}>Camadas</TabBtn>
         <TabBtn active={tab === "page"} onClick={() => setTab("page")}>Página</TabBtn>
       </div>
-      <div className="max-h-[calc(100vh-14rem)] overflow-y-auto p-3 text-xs">
+      <div className="max-h-[calc(100vh-11rem)] overflow-y-auto p-3 text-xs">
         {tab === "props" && (selectedEl ? <PropsPanel el={selectedEl} onPatch={onPatch} onMoveLayer={onMoveLayer} onRemove={() => onRemove([selectedEl.id])} /> : <div className="py-6 text-center text-muted-foreground">Selecione um elemento para editar</div>)}
         {tab === "layers" && <LayersPanel elements={sortedByZ} selectedIds={selectedIds} onSelect={onSelect} onPatch={onPatch as any} onMoveLayer={onMoveLayer} />}
         {tab === "page" && <PagePanel page={page} onChange={onPageChange} />}
