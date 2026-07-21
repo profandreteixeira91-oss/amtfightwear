@@ -29,6 +29,7 @@ export const PERMISSION_MODULES: PermissionModule[] = [
   { key: "announcements", label: "Quadro de Avisos", description: "Comunicados internos", routes: ["/dojo/app/announcements"] },
   { key: "videos", label: "Vídeos", description: "Biblioteca de conteúdo", routes: ["/dojo/app/videos"] },
   { key: "store", label: "AMT Store", description: "Vendas de produtos aos alunos", routes: ["/dojo/app/store"] },
+  { key: "sales", label: "Vendas", description: "Registro de vendas internas de produtos e serviços", routes: ["/dojo/app/sales"] },
   { key: "team", label: "Equipe", description: "Colaboradores, folha, escalas", routes: ["/dojo/app/team"] },
   { key: "plans", label: "Planos", description: "Mensalidades e contratos", routes: ["/dojo/app/plans"] },
   { key: "recurring", label: "Mensalidades", description: "Regras de cobrança automática", routes: ["/dojo/app/recurring"] },
