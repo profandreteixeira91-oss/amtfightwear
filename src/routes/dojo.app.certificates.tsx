@@ -11,12 +11,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { Trash2, Copy, Plus, Star, Search, Upload, ImageOff } from "lucide-react";
+import { Trash2, Copy, Plus, Star, Search, Upload, ImageOff, Send, FileCheck } from "lucide-react";
 import { CertificateEditor } from "@/components/dojo/certificate-editor/CertificateEditor";
 import { migrateLegacyFields, toLegacyFields, type EditorSchema } from "@/components/dojo/certificate-editor/types";
 import { CertificatePreviewDialog, type CertificateTemplate } from "@/components/dojo/CertificatePreview";
 import { ALL_VARIABLES } from "@/components/dojo/certificate-editor/types";
 import { systemValues } from "@/components/dojo/certificate-editor/qr";
+import { IssuePanel } from "@/components/dojo/certificates-studio/IssuePanel";
+import { IssuedList } from "@/components/dojo/certificates-studio/IssuedList";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/dojo/app/certificates")({
   head: () => ({ meta: [{ title: "Editor de Certificados — AMT Dojo Manager" }] }),
@@ -49,6 +52,8 @@ function CertificatesPage() {
   const [previewStudentId, setPreviewStudentId] = useState<string>("");
   const [q, setQ] = useState("");
   const [category, setCategory] = useState<string>("");
+  const [issueOpen, setIssueOpen] = useState(false);
+  const [tab, setTab] = useState<"modelos" | "emitidos">("modelos");
 
   const filteredTemplates = useMemo(() => {
     return (templates.data ?? []).filter((t: any) => {
