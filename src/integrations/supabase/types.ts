@@ -4492,6 +4492,53 @@ export type Database = {
           },
         ]
       }
+      dojo_invoice_reminders: {
+        Row: {
+          channel: string
+          created_at: string
+          error_message: string | null
+          id: string
+          invoice_id: string
+          message_id: string | null
+          offset_days: number
+          owner_id: string
+          sent_at: string
+          status: string
+        }
+        Insert: {
+          channel?: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          invoice_id: string
+          message_id?: string | null
+          offset_days: number
+          owner_id: string
+          sent_at?: string
+          status?: string
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          invoice_id?: string
+          message_id?: string | null
+          offset_days?: number
+          owner_id?: string
+          sent_at?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_invoice_reminders_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dojo_invoices: {
         Row: {
           amount: number
