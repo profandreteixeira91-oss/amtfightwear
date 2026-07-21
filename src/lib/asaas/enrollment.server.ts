@@ -240,7 +240,9 @@ export async function syncInvoiceWithAsaas(
     process.env.SITE_URL ||
     "https://dojomanager.amtfightwear.com.br"
   ).replace(/\/$/, "");
-  const brandedUrl = invoice.id ? `${siteUrl}/pay/${invoice.id}` : charge.invoiceUrl;
+  // Usa /dojo/pay/... porque o subdomínio dojomanager redireciona qualquer rota
+  // fora de /dojo/* para /dojo/*, e a rota pública branded existe em ambos os prefixos.
+  const brandedUrl = invoice.id ? `${siteUrl}/dojo/pay/${invoice.id}` : charge.invoiceUrl;
 
   return {
     asaas_charge_id: charge.id,
