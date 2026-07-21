@@ -207,6 +207,63 @@ function FeatureItem({
   );
 }
 
+function DisconnectAMTPayButton() {
+  const qc = useQueryClient();
+  const resetFn = useServerFn(resetMyAsaasConfig);
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  async function handleDisconnect() {
+    setLoading(true);
+    try {
+      await resetFn();
+      toast.success("AMT Pay desconectado. Você pode reativar quando quiser.");
+      await qc.invalidateQueries({ queryKey: ["amtpay"] });
+      await qc.invalidateQueries({ queryKey: ["amtpay-dashboard"] });
+      await qc.invalidateQueries({ queryKey: ["amtpay-caps"] });
+      setOpen(false);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Falha ao desconectar");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger asChild>
+        <Button variant="outline" size="sm" className="text-red-600 border-red-200 hover:bg-red-50 dark:hover:bg-red-950/30">
+          <Unplug className="h-4 w-4 mr-2" /> Desconectar AMT Pay
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Desconectar AMT Pay?</AlertDialogTitle>
+          <AlertDialogDescription>
+            A ativação, subconta vinculada e chaves de acesso serão removidas do
+            Dojo Manager. Cobranças recorrentes já emitidas continuam válidas no
+            gateway, mas novas cobranças voltarão ao modo manual até que você
+            reative o AMT Pay. Você pode reconectar a qualquer momento.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={loading}>Cancelar</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={(e) => {
+              e.preventDefault();
+              handleDisconnect();
+            }}
+            disabled={loading}
+            className="bg-red-600 hover:bg-red-700"
+          >
+            {loading ? "Desconectando…" : "Desconectar"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
 function FullHub() {
   return (
     <Tabs defaultValue="dashboard" className="w-full">
