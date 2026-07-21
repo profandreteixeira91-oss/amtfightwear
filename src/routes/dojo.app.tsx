@@ -325,11 +325,11 @@ function DojoLayoutInner({
           </Link>
           <div className="min-w-0 flex-1">
             <h1 className="font-display text-base md:text-lg font-bold tracking-tight leading-tight truncate text-white">
-              {dojoName ?? header.title}
+              {header.title}
             </h1>
             {header.subtitle && (
               <p className="text-[11px] md:text-xs text-white/75 leading-tight truncate">
-                {header.title} · {header.subtitle}
+                {header.subtitle}
               </p>
             )}
           </div>
