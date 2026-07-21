@@ -164,7 +164,7 @@ export function FinanceDashboard() {
       </Card>
 
       {/* KPI grid */}
-      <div className="grid gap-3 grid-cols-[repeat(auto-fill,minmax(180px,1fr))] 2xl:grid-cols-6">
+      <div className="grid gap-3 grid-cols-2 sm:grid-cols-[repeat(auto-fill,minmax(180px,1fr))] 2xl:grid-cols-6 min-w-0">
 
         <Kpi
           icon={TrendingUp}
