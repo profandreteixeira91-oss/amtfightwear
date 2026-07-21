@@ -43,9 +43,13 @@ export const getAcademyBySlug = createServerFn({ method: "GET" })
 export const getMyAcademySlug = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    // Filtrar explicitamente por owner_id: a RLS também expõe a linha da
+    // academia onde o usuário é aluno (policy "Student reads own academy
+    // branding"), o que pode retornar a academia errada em .maybeSingle().
     const { data, error } = await context.supabase
       .from("dojo_academy_profile")
       .select("slug, trade_name, legal_name")
+      .eq("owner_id", context.userId)
       .limit(1)
       .maybeSingle();
     if (error) throw new Error(error.message);
@@ -56,9 +60,11 @@ export const getMyAcademySlug = createServerFn({ method: "GET" })
 export const getMyAcademyBranding = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    // Mesmo motivo: garantir a linha da PRÓPRIA academia do usuário logado.
     const { data, error } = await context.supabase
       .from("dojo_academy_profile")
       .select("slug, trade_name, legal_name, logo_url, brand_primary, brand_secondary")
+      .eq("owner_id", context.userId)
       .limit(1)
       .maybeSingle();
     if (error) throw new Error(error.message);

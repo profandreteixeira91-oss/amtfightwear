@@ -85,9 +85,23 @@ export const getMyDigitalCard = createServerFn({ method: "GET" })
 export const getMyBranding = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    // Resolver o owner_id correto: dono do dojo (auth.uid()) OU, se o usuário
+    // for aluno, o owner do dojo dele. Evita cruzamento quando o mesmo e-mail
+    // aparece como aluno em outra academia.
+    const { data: ownerRow } = await context.supabase
+      .from("dojo_academy_profile")
+      .select("trade_name, legal_name, logo_url, brand_primary, brand_secondary, phone, whatsapp, email, city, state")
+      .eq("owner_id", context.userId)
+      .limit(1)
+      .maybeSingle();
+    if (ownerRow) return ownerRow;
+
+    const { data: studentOwnerId } = await context.supabase.rpc("get_my_student_owner_id");
+    if (!studentOwnerId) return null;
     const { data, error } = await context.supabase
       .from("dojo_academy_profile")
       .select("trade_name, legal_name, logo_url, brand_primary, brand_secondary, phone, whatsapp, email, city, state")
+      .eq("owner_id", studentOwnerId as string)
       .limit(1)
       .maybeSingle();
     if (error) throw new Error(error.message);
