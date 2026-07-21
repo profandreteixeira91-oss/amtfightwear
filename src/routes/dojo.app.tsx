@@ -54,7 +54,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DojoLogo } from "@/components/dojo/DojoLogo";
-import { DojoLogo } from "@/components/dojo/DojoLogo";
 import { TrialBadge } from "@/components/dojo/TrialBadge";
 import { UnsavedChangesProvider } from "@/components/common/UnsavedChangesGuard";
 import { DojoPermissionsProvider, useDojoPermissions } from "@/components/dojo/DojoPermissionsProvider";
