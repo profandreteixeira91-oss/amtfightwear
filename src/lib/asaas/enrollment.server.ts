@@ -150,21 +150,61 @@ export async function ensureAsaasCustomerForStudent(
 }
 
 /**
- * Modelo AMT Pay (2025): TODA cobrança é processada na conta central da AMT
- * (chave `ASAAS_PRODUCTION_API_KEY`). O valor bruto entra na AMT; a taxa AMT
- * (2%) é aplicada no ledger interno (`dojo_wallet_transactions`), não como
- * split do Asaas. Saques vão via PIX transfer da conta central para a chave
- * PIX cadastrada pelo dono.
+ * AMT Pay v2 (Fase 2 — Subcontas com split nativo).
  *
- * Legado: campos `asaas_subaccount_api_key` e `asaas_wallet_id` no perfil são
- * ignorados — permanecem no schema apenas para histórico.
+ * Se o dojo tem subconta Asaas APROVADA (com API key própria), as cobranças
+ * são criadas na subconta e o Asaas aplica um split de 2% para a carteira
+ * central AMT (`ASAAS_WALLET_ID_AMT`). Nesse cenário PIX/Boleto saem em nome
+ * do CNPJ do dojo.
+ *
+ * Se o dojo apenas vinculou uma wallet externa (sem subconta), as cobranças
+ * saem da conta central AMT com split de 98% para a wallet do dojo (a AMT
+ * fica com 2%).
+ *
+ * Caso contrário, mantemos o modo central (todo o valor cai na AMT e o
+ * repasse é feito pelo ledger interno + PIX transfer).
  */
-export function resolveDojoAsaasCredentials(_profile: {
+export function resolveDojoAsaasCredentials(profile: {
+  asaas_subaccount_id?: string | null;
   asaas_subaccount_api_key?: string | null;
+  asaas_api_key_encrypted?: string | null;
   asaas_wallet_id?: string | null;
-}): { apiKey: string | undefined; split: AsaasSplit[]; mode: "central" } {
+  asaas_onboarding_status?: string | null;
+}): {
+  apiKey: string | undefined;
+  split: AsaasSplit[];
+  mode: "central" | "subaccount" | "external_wallet";
+} {
+  const central = process.env.ASAAS_PRODUCTION_API_KEY;
+  const subKey = (profile.asaas_subaccount_api_key ?? profile.asaas_api_key_encrypted ?? "").trim();
+  const walletId = (profile.asaas_wallet_id ?? "").trim();
+  const status = (profile.asaas_onboarding_status ?? "").toUpperCase();
+  const approved = status === "APPROVED" || status === "ACTIVE";
+  const amtWalletId = process.env.ASAAS_WALLET_ID_AMT?.trim();
+
+  // Modo 1 — subconta aprovada com API key própria: cobrança na subconta,
+  // split de 2% para a AMT.
+  if (approved && subKey && profile.asaas_subaccount_id && amtWalletId) {
+    return {
+      apiKey: subKey,
+      split: [{ walletId: amtWalletId, percentualValue: 2 }],
+      mode: "subaccount",
+    };
+  }
+
+  // Modo 2 — wallet externa vinculada (sem subconta): cobrança na conta
+  // central AMT, split de 98% para a wallet do dojo.
+  if (walletId && !profile.asaas_subaccount_id) {
+    return {
+      apiKey: central,
+      split: [{ walletId, percentualValue: 98 }],
+      mode: "external_wallet",
+    };
+  }
+
+  // Modo 3 — fallback central (dojo sem AMT Pay ativado ou pendente).
   return {
-    apiKey: process.env.ASAAS_PRODUCTION_API_KEY,
+    apiKey: central,
     split: [],
     mode: "central",
   };
