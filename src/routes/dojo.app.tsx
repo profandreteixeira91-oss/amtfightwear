@@ -143,6 +143,7 @@ const routeTitles: Array<{ match: (p: string) => boolean; title: string; subtitl
   { match: (p) => p.startsWith("/dojo/app/certificates"), title: "Certificados", subtitle: "Modelos e emissões" },
   { match: (p) => p.startsWith("/dojo/app/competitions"), title: "Competições", subtitle: "Calendário, atletas e histórico" },
   { match: (p) => p.startsWith("/dojo/app/videos"), title: "Vídeos", subtitle: "Biblioteca de conteúdos da academia" },
+  { match: (p) => p.startsWith("/dojo/app/sales"), title: "Vendas", subtitle: "Registro de vendas de produtos e serviços" },
   { match: (p) => p.startsWith("/dojo/app/plans"), title: "Planos", subtitle: "Mensalidades e contratos" },
   { match: (p) => p.startsWith("/dojo/app/recurring"), title: "Mensalidades", subtitle: "Gestão automática das mensalidades dos alunos" },
   { match: (p) => p.startsWith("/dojo/app/finance"), title: "Financeiro", subtitle: "Recebimentos e a receber" },
