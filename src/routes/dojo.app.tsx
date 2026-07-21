@@ -108,21 +108,29 @@ const nav: { label: string; items: NavItem[] }[] = [
     label: "Loja",
     items: [
       { to: "/dojo/app/store", label: "AMT Store", icon: ShoppingBag },
+    ],
+  },
+  {
+    label: "Cobrança avulsa",
+    items: [
       { to: "/dojo/app/sales", label: "Vendas", icon: ShoppingCart },
     ],
   },
-
-
+  {
+    label: "Recorrência & Financeiro",
+    items: [
+      { to: "/dojo/app/plans", label: "Planos", icon: ScrollText },
+      { to: "/dojo/app/recurring", label: "Mensalidades", icon: Wallet },
+      { to: "/dojo/app/finance", label: "Financeiro", icon: Wallet },
+      { to: "/dojo/app/integrations", label: "Carteira", icon: CreditCard },
+    ],
+  },
   {
     label: "Gestão",
     items: [
       { to: "/dojo/app/team", label: "Equipe", icon: UsersRound },
-      { to: "/dojo/app/plans", label: "Planos", icon: ScrollText },
-      { to: "/dojo/app/recurring", label: "Mensalidades", icon: Wallet },
-      { to: "/dojo/app/finance", label: "Financeiro", icon: Wallet },
       { to: "/dojo/app/corporate-benefits", label: "Benefícios Corporativos", icon: HeartHandshake },
       { to: "/dojo/app/units", label: "Unidades", icon: Building2 },
-      { to: "/dojo/app/integrations", label: "Carteira", icon: CreditCard },
     ],
   },
   {
@@ -143,10 +151,10 @@ const routeTitles: Array<{ match: (p: string) => boolean; title: string; subtitl
   { match: (p) => p.startsWith("/dojo/app/certificates"), title: "Certificados", subtitle: "Modelos e emissões" },
   { match: (p) => p.startsWith("/dojo/app/competitions"), title: "Competições", subtitle: "Calendário, atletas e histórico" },
   { match: (p) => p.startsWith("/dojo/app/videos"), title: "Vídeos", subtitle: "Biblioteca de conteúdos da academia" },
-  { match: (p) => p.startsWith("/dojo/app/sales"), title: "Vendas", subtitle: "Registro de vendas de produtos e serviços" },
-  { match: (p) => p.startsWith("/dojo/app/plans"), title: "Planos", subtitle: "Mensalidades e contratos" },
-  { match: (p) => p.startsWith("/dojo/app/recurring"), title: "Mensalidades", subtitle: "Gestão automática das mensalidades dos alunos" },
-  { match: (p) => p.startsWith("/dojo/app/finance"), title: "Financeiro", subtitle: "Recebimentos e a receber" },
+  { match: (p) => p.startsWith("/dojo/app/sales"), title: "Vendas", subtitle: "Cobrança avulsa (uma vez) — produtos, taxas e serviços" },
+  { match: (p) => p.startsWith("/dojo/app/plans"), title: "Planos", subtitle: "Modelos de mensalidade (recorrência)" },
+  { match: (p) => p.startsWith("/dojo/app/recurring"), title: "Mensalidades", subtitle: "Cobranças recorrentes por aluno — vencimento definido pelo dono" },
+  { match: (p) => p.startsWith("/dojo/app/finance"), title: "Financeiro", subtitle: "Recebimentos, contas a receber e a pagar" },
   { match: (p) => p.startsWith("/dojo/app/team"), title: "Equipe", subtitle: "Colaboradores, folha e escalas" },
   { match: (p) => p.startsWith("/dojo/app/corporate-benefits"), title: "Benefícios Corporativos", subtitle: "Gympass, TotalPass e beneficiários" },
   { match: (p) => p.startsWith("/dojo/app/units"), title: "Unidades", subtitle: "Dojos e polos" },
