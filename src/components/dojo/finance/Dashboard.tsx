@@ -346,8 +346,9 @@ export function FinanceDashboard() {
       </div>
 
       {/* Fluxo de caixa + Top alunos */}
-      <div className="grid gap-4 lg:grid-cols-3">
-        <Card className="p-4 border border-[color:var(--dojo-border)] lg:col-span-2 min-w-0 overflow-hidden">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] min-w-0">
+        <Card className="p-4 border border-[color:var(--dojo-border)] min-w-0 overflow-hidden">
+
           <div className="flex items-center justify-between mb-3">
             <div>
               <h3 className="font-display font-bold text-sm">
