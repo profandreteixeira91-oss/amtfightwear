@@ -1,113 +1,87 @@
-# Refatoração AMT Pay — Motor Financeiro do Dojo Manager
+# Reativação de Subcontas Asaas — AMT Pay v2
 
-O escopo é grande demais para uma única entrega. Proponho 6 fases incrementais, cada uma **entregável e testável isoladamente**. O sistema atual continua funcionando enquanto migramos.
+Modelo NextFit-like: cada dojo tem sua própria subconta Asaas. PIX/boleto/cartão são emitidos em nome do CNPJ do dojo, e o split de 2% da AMT é feito nativamente pelo Asaas em cada transação.
 
-## Princípios arquiteturais
+## Objetivos
 
-- **Asaas vira apenas gateway** (PIX/boleto/cartão/transferência PIX/webhook). Toda regra financeira vive no AMT Pay.
-- **Camada de abstração `PaymentGateway`** (interface única) — hoje `AsaasGateway`, amanhã Mercado Pago / EFI / PagBank / Stripe / Pagar.me sem mexer no core.
-- **Ledger append-only** (`dojo_ledger_entries`) — saldo nunca é gravado, sempre derivado por `SUM()`. Nenhum ajuste manual.
-- **Idempotência** em toda operação (chave: `gateway`+`external_id`+`event_type`).
-- **Nada é considerado pago sem webhook confirmado**.
-- **"Mensalidades" e "Assinaturas" fundem em `dojo_recurring_billings`** (novo conceito único: Cobrança Recorrente). As telas antigas continuam funcionando durante a transição via views.
-
-## Modelo de dados (novo)
-
-```text
-dojo_recurring_billings        # 1 registro por plano contratado
-  ├─ recurring_cycles          # cada ciclo/vencimento gerado
-  │   └─ payment_attempts      # tentativas de cobrança no gateway
-  │       └─ webhook_logs      # payloads recebidos
-  └─ billing_events (audit)
-
-dojo_wallets                   # 1 por dojo (owner_id)
-  ├─ ledger_entries            # append-only, tipado
-  │    types: charge_gross | gateway_fee | platform_fee (2%)
-  │           | refund | withdrawal | adjustment | correction
-  └─ withdrawals               # solicitações de saque
-       └─ withdrawal_logs
-
-payment_settings               # taxas parametrizáveis por dojo
-  pix_fee, boleto_fee,
-  card_upfront_fee, card_installment_fee, card_per_installment,
-  fixed_cost, percent_cost
-
-pix_keys                       # chaves PIX do dojo para saque
-billing_templates              # editor visual + variáveis
-reminder_settings              # lembretes automáticos
-reminder_schedules             # -X, 0, +X dias
-audit_logs                     # centraliza tudo (quem/quando/IP/payload)
-reconciliation_queue           # divergências para revisão manual
-```
-
-Saldo disponível = `SUM(ledger_entries WHERE status='cleared')` — nunca cacheado.
-
-## Fluxo canônico (todas as fases seguem)
-
-```text
-Plano → Matrícula → RecurringBilling → Cycle → PaymentAttempt (gateway)
-  → Webhook → validar → ledger_entries (bruto - gateway_fee - 2% AMT)
-  → wallet atualiza → dashboard atualiza → audit_log
-```
+- PIX e boleto com **CNPJ do dojo** como recebedor (visível no comprovante).
+- **Split automático** de 2% para a wallet AMT em cada cobrança.
+- **Onboarding obrigatório** com KYC antes da 1ª cobrança do dojo.
+- **Fallback seguro**: se subconta não aprovada, bloqueia emissão (não cai mais na conta central "AMT Fightwear").
+- Carteira/saldo/saques puxados da subconta do dojo.
 
 ## Fases
 
-### Fase 1 — Fundação (Ledger + Wallet + Gateway abstrato)
-- Migração: `dojo_wallets`, `dojo_ledger_entries`, `payment_settings`, `pix_keys`, `audit_logs`.
-- Interface TS `PaymentGateway` + `AsaasGateway` (extrai o que já existe em `src/lib/asaas/*`).
-- Server fns: `getWalletBalance`, `listLedger`, `savePaymentSettings`.
-- UI: aba **Carteira** no AMT Pay já lendo do ledger real (extrato + saldo bruto/pendente/líquido).
-- **Migração de dados**: script que reconstrói o ledger a partir de `dojo_invoices` já pagas.
+### Fase 1 — Onboarding de subconta + KYC obrigatório
 
-### Fase 2 — Cobrança Recorrente unificada
-- Migração: `dojo_recurring_billings`, `recurring_cycles`, `payment_attempts`.
-- `RecurringBillingEngine`: cria/edita/suspende/reativa/cancela/altera vencimento/valor/método.
-- Views de compatibilidade: telas atuais de "Mensalidades" continuam funcionando (apontam para as novas tabelas).
-- Vínculo automático `dojo_enrollments.plan_id` → cria `recurring_billing` no ato da matrícula.
-- **Regra**: alterar plano regenera ciclos futuros (não retroativo).
+- Nova server fn `activateAsaasSubaccount` que:
+  1. Cria subaccount no Asaas via `POST /v3/accounts` com dados fiscais do dojo (CNPJ, razão social, endereço, celular, faturamento estimado).
+  2. Salva `asaas_subaccount_api_key` (criptografada) e `asaas_wallet_id` em `dojo_academy_profile`.
+  3. Retorna checklist de KYC pendente.
+- Refatorar `dojo.onboarding.tsx` e `AsaasDocumentsCard.tsx` para:
+  - Bloquear acesso ao módulo Carteira/Recebimentos até KYC completo.
+  - Exibir status: `pending` → `awaiting_docs` → `approved` → `active`.
+- Server fn `getAsaasAccountStatus` consulta status atualizado do Asaas (`GET /v3/myAccount/status`).
 
-### Fase 3 — Webhook + Ledger automático + Taxas
-- Refactor `src/routes/api/public/hooks/asaas.ts` para gravar em `payment_attempts` + `webhook_logs` e disparar `LedgerService.creditPayment(attempt)`.
-- `LedgerService.creditPayment` calcula em transação única:
-  - `charge_gross` (+valor bruto)
-  - `gateway_fee` (-taxa parametrizada em `payment_settings`)
-  - `platform_fee` (-2% AMT)
-  - Resultado líquido = disponível para saque.
-- Idempotência via `UNIQUE (gateway, external_id, event_type)` em `webhook_logs`.
-- UI: tela de **Configuração de Taxas** (PIX/Boleto/Cartão à vista/Parcelado/Por parcela/Fixo/%).
+### Fase 2 — Emissão em nome do dojo + split nativo
 
-### Fase 4 — Dashboard Financeiro completo
-- Server fns: KPIs (saldo disponível/pendente, recebimentos dia/mês, aberto/vencido/pago, recorrências ativas, bruto vs líquido, taxas totais).
-- Gráficos: evolução mensal, fluxo de caixa 12 meses, taxas × líquido.
-- Últimas movimentações + drill-down por cobrança.
+Migrar todas as chamadas de criação de cobrança para usar chave da subconta:
 
-### Fase 5 — Lembretes automáticos + Editor de cobranças
-- `reminder_settings` + `reminder_schedules` por dojo (habilitar cada -X/0/+X dia).
-- `pg_cron` diário → server route `/api/public/hooks/dispatch-reminders` → resolve destinatários e enfileira via canal (e-mail agora; WhatsApp/SMS = flag preparado).
-- Templates com variáveis `{{aluno}} {{valor}} {{plano}} {{vencimento}} {{academia}} {{professor}} {{link}} {{pix_qr}}`.
-- Editor visual do boleto/cobrança (`billing_templates`): logo/endereço/mensagem/multa/juros/desconto/rodapé + preview lado a lado.
+- `src/lib/asaas/enrollment.server.ts` → `resolveDojoAsaasCredentials` volta a retornar:
+  - `apiKey`: `asaas_subaccount_api_key` do dojo (descriptografada), OU throw se subconta não aprovada.
+  - `split`: `[{ walletId: ASAAS_WALLET_ID_AMT, percentualValue: 2 }]`.
+  - `mode`: `"subaccount"`.
+- Atualizar `syncInvoiceWithAsaas`, `createSaleCharge`, `enrollStudentWithPlan`, `createSubscription` para passar `split[]` no payload do Asaas.
+- `src/lib/dojo/payments/asaas-gateway.server.ts` → aceitar `apiKey` e `split` como parâmetros, remover uso hardcoded da chave central.
+- `src/lib/dojo/public-payment.functions.ts` → `resolveOwnerAsaasKey` volta a ler a chave da subconta do dojo dono da fatura (comportamento anterior à correção 404), agora que a cobrança é criada na subconta.
 
-### Fase 6 — Saques + Conciliação + Auditoria
-- `WithdrawalService`: valida saldo → registra `withdrawals` (pending) → `Gateway.transferPix()` → webhook confirma → ledger `withdrawal` + status final. Falha reverte e permite retry.
-- `PixKeyService`: cadastro e validação (CPF/CNPJ/aleatória/telefone/e-mail).
-- Job diário de **conciliação**: percorre `payment_attempts` × extrato do gateway, aponta divergências em `reconciliation_queue` sem alterar registros.
-- Painel de **Logs** (filtros: data, aluno, dojo, cobrança, webhook, saque, gateway, erro).
+### Fase 3 — Carteira, saldo e saques na subconta
+
+- `getWalletBalance` → `GET /v3/finance/balance` usando chave da subconta.
+- `listWalletTransactions` → `GET /v3/financialTransactions` da subconta.
+- `requestPixWithdrawal` → `POST /v3/transfers` da subconta para a chave PIX cadastrada pelo dono.
+- Remover a tabela `dojo_wallet_transactions` como fonte primária de saldo (vira apenas cache/histórico local). A AMT recebe seu 2% direto na wallet dela via split — sem ledger interno.
 
 ## Detalhes técnicos
 
-- **Não altera** o AMT Dojo Manager fora do AMT Pay / Planos. Módulo Planos ganha apenas o gancho de matrícula → `RecurringBillingEngine`.
-- **RLS**: tudo por `owner_id = auth.uid()`; `audit_logs` e `webhook_logs` também tem policy de leitura só pelo dono. Service role escreve via server functions.
-- **Grants**: cada tabela ganha `authenticated` + `service_role` na mesma migration.
-- **Backward compat**: `dojo_invoices` e `dojo_subscriptions` continuam existindo mas viram views apontando para o novo modelo; a UI antiga não quebra.
-- **Testes de aceitação por fase** (script Playwright + queries): cada fase é validada antes de seguir.
-- **Taxa AMT fixa 2%** já registrada nas memórias do projeto.
+**Migração de DB**: nenhuma tabela nova. Reaproveitar campos existentes:
+- `dojo_academy_profile.asaas_subaccount_api_key` (já existe, criptografado)
+- `dojo_academy_profile.asaas_wallet_id` (já existe)
+- Adicionar coluna `asaas_account_status` (`pending|awaiting_docs|approved|active|rejected`).
 
-## Decisões que preciso confirmar antes de começar
+**Split payload Asaas** (aplicado em toda cobrança):
+```json
+{ "split": [{ "walletId": "<ASAAS_WALLET_ID_AMT>", "percentualValue": 2 }] }
+```
 
-1. **Ordem de execução**: começar pela **Fase 1** (Fundação) já nesta rodada? Cada fase leva 1 iteração grande.
-2. **Migração de histórico**: quando reconstruir o ledger a partir das `dojo_invoices` pagas, mantemos as taxas antigas (se conhecidas) ou marcamos tudo como `legacy_import` sem detalhar taxa/AMT nas históricas?
-3. **Compat "Mensalidades"**: manter a tela antiga acessível durante a transição ou remover imediatamente após Fase 2?
-4. **Lembretes canal padrão**: começar apenas por **e-mail** (infra pronta) e deixar WhatsApp/SMS como toggles desabilitados até integração futura — confirma?
-5. **Conciliação**: rodada **diária às 03:00** ou intervalo menor?
+**Webhook**: `asaas-webhook` continua na conta central AMT? **Não** — cada subconta tem webhook próprio. Configurar webhook por subconta apontando para nossa rota `/api/public/hooks/asaas` já existente, com `apiKey` da subconta no header para identificação. Ajustar handler para resolver `owner_id` via lookup na `asaas_subaccount_api_key` recebida.
 
-Confirme (ou ajuste) esses 5 pontos e eu executo a Fase 1 já em seguida.
+**Dojos existentes com cobranças ativas na conta central**: cobranças antigas continuam sendo consultadas com a chave central (fallback por `mode` armazenado na fatura). Novas cobranças só saem via subconta.
+
+**Fallback removido**: se `asaas_subaccount_api_key` não existe/não aprovada, `resolveDojoAsaasCredentials` faz throw com mensagem clara ("Complete a ativação do AMT Pay em /dojo/onboarding"). Não cai mais silenciosamente na conta AMT central.
+
+## Arquivos afetados (estimativa)
+
+- `src/lib/asaas/enrollment.server.ts` — reescrita de `resolveDojoAsaasCredentials`
+- `src/lib/asaas/asaas.functions.ts` — nova `activateAsaasSubaccount` + `getAsaasAccountStatus`
+- `src/lib/asaas/client.server.ts` — endpoints de account/status/balance/transfers
+- `src/lib/dojo/payments/asaas-gateway.server.ts` — receber apiKey/split como params
+- `src/lib/dojo/public-payment.functions.ts` — reverter `resolveOwnerAsaasKey`
+- `src/lib/dojo/dojo.functions.ts` — wallet balance/transactions/withdrawals
+- `src/lib/dojo/sales.functions.ts` — passar split
+- `src/routes/dojo.onboarding.tsx` — fluxo de ativação
+- `src/routes/dojo.app.subscription.tsx` (Carteira) — gates de KYC
+- `src/components/dojo/amtpay/*` — status da subconta
+- `src/routes/api/public/hooks/asaas.ts` — resolver owner via subconta
+- Migração: `ALTER TABLE dojo_academy_profile ADD COLUMN asaas_account_status text`
+
+## Impacto operacional
+
+- **Todos os dojos ativos hoje** precisam refazer onboarding com KYC antes da próxima cobrança recorrente. Adicionar banner de aviso com prazo (ex: 30 dias).
+- Cobranças já emitidas na conta central continuam funcionando até a próxima renovação.
+
+## Perguntas antes de executar
+
+1. Executo **as 3 fases numa única release**, ou você prefere entregar por fases (Fase 1 → validar onboarding → Fase 2 → Fase 3)?
+2. Prazo para forçar dojos ativos a migrarem: **30 dias**, **60 dias** ou **sem prazo** (só novos dojos usam subconta, antigos continuam na central)?
+3. Confirma **2% fixo** de split AMT em toda transação, ou variável por plano da AMT (ex: dojo free = 3%, dojo pro = 2%)?
