@@ -37,8 +37,23 @@ import { AuditLogPanel } from "@/components/dojo/amtpay/AuditLogPanel";
 import { RemindersPanel } from "@/components/dojo/amtpay/RemindersPanel";
 import { InvoiceBrandingPanel } from "@/components/dojo/amtpay/InvoiceBrandingPanel";
 import { AsaasStatusBanner } from "@/components/dojo/amtpay/AsaasStatusBanner";
-import { getMyAsaasConfig } from "@/lib/asaas/asaas.functions";
+import { getMyAsaasConfig, resetMyAsaasConfig } from "@/lib/asaas/asaas.functions";
 import { isAsaasReady, classifyAsaasStatus } from "@/lib/dojo/amt-pay-status";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useState } from "react";
+import { Unplug } from "lucide-react";
 
 export const Route = createFileRoute("/dojo/app/integrations")({
   head: () => ({ meta: [{ title: "AMT Pay — Central financeira" }] }),
