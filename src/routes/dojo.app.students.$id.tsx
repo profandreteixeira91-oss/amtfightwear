@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import {
   getDojoStudent, listDojoBelts, listDojoPlans, listDojoUnits,
   addDojoGraduation, deleteDojoGraduation,
-  saveDojoEnrollment, deleteDojoEnrollment,
+  saveDojoEnrollment, deleteDojoEnrollment, changeStudentPlan,
   saveDojoInvoice, markDojoInvoicePaid, deleteDojoInvoice,
   deleteDojoStudent, saveDojoStudent,
 } from "@/lib/dojo/dojo.functions";
