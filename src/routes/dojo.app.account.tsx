@@ -174,15 +174,14 @@ function AccountPage() {
     <div className="space-y-4 max-w-6xl">
       {onboarding && (
         <Alert className="border-primary/40 bg-primary/5">
-          <ShieldCheck className="h-4 w-4 text-primary" />
           <AlertTitle>Bem-vindo ao AMT Dojo Manager!</AlertTitle>
           <AlertDescription>
-            Para começar a operar, preencha os dados obrigatórios da sua academia
-            (razão social, CNPJ, endereço e contato). Assim que estiverem completos,
-            sua conta financeira (Asaas) será ativada automaticamente.
+            Para começar a operar, preencha os dados da sua academia (razão social,
+            CNPJ, endereço e contato).
           </AlertDescription>
         </Alert>
       )}
+
       <AccountHeader
         user={user}
         profile={profile}
