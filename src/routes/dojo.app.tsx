@@ -40,6 +40,8 @@ import {
   ShoppingBag,
   UsersRound,
   HeartHandshake,
+  ShoppingCart,
+
 
 } from "lucide-react";
 import { useEffect, useState } from "react";
