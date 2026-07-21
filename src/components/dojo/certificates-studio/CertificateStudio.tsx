@@ -21,6 +21,7 @@ export function CertificateStudio({ templateId }: Props) {
   const { doc, name, category, templateId: storeId, loadDoc, markSaved, dirty, setTemplateId } = useStudioStore();
   const [saving, setSaving] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [presentation, setPresentation] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
   // Load template
