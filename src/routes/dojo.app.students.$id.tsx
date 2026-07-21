@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import {
   getDojoStudent, listDojoBelts, listDojoPlans, listDojoUnits,
   addDojoGraduation, deleteDojoGraduation,
-  saveDojoEnrollment, deleteDojoEnrollment,
+  saveDojoEnrollment, deleteDojoEnrollment, changeStudentPlan,
   saveDojoInvoice, markDojoInvoicePaid, deleteDojoInvoice,
   deleteDojoStudent, saveDojoStudent,
 } from "@/lib/dojo/dojo.functions";
@@ -63,6 +63,7 @@ function StudentDetail() {
   const delGrad = useServerFn(deleteDojoGraduation);
   const saveEnroll = useServerFn(saveDojoEnrollment);
   const delEnroll = useServerFn(deleteDojoEnrollment);
+  const doChangePlanFn = useServerFn(changeStudentPlan);
   const saveInv = useServerFn(saveDojoInvoice);
   const payInv = useServerFn(markDojoInvoicePaid);
   const delInv = useServerFn(deleteDojoInvoice);
@@ -116,19 +117,21 @@ function StudentDetail() {
     if (!changePlan.plan_id) return toast.error("Escolha o novo plano");
     setChangingPlan(true);
     try {
-      // Encerra matrícula ativa atual
-      for (const e of enrollments) {
-        if (e.status === "active") {
-          try { await delEnroll({ data: { id: e.id } }); } catch {}
-        }
-      }
-      // Cria a nova matrícula
-      await saveEnroll({ data: {
-        student_id: id, plan_id: changePlan.plan_id,
+      const res = await doChangePlanFn({ data: {
+        student_id: id,
+        plan_id: changePlan.plan_id,
         custom_amount: changePlan.custom_amount ? Number(changePlan.custom_amount) : null,
-        due_day: Number(changePlan.due_day), start_date: changePlan.start_date, status: "active",
+        due_day: Number(changePlan.due_day),
+        start_date: changePlan.start_date,
       }});
-      toast.success("Plano alterado com sucesso");
+      const nextDate = (res as any)?.next_billing_date
+        ? new Date((res as any).next_billing_date + "T00:00:00").toLocaleDateString("pt-BR")
+        : null;
+      toast.success(
+        nextDate
+          ? `Plano alterado. Novo valor entra em vigor em ${nextDate}.`
+          : "Plano alterado. Novo valor entra em vigor na próxima cobrança."
+      );
       setChangePlan({ ...changePlan, open: false, plan_id: "", custom_amount: "" });
       refresh();
     } catch (e: any) {
@@ -137,6 +140,8 @@ function StudentDetail() {
       setChangingPlan(false);
     }
   };
+
+
 
 
   const doAddInv = async () => {
@@ -573,10 +578,15 @@ function StudentDetail() {
                       />
                     </div>
                   </div>
+                  <div className="mt-3 rounded-md border border-primary/30 bg-primary/5 p-3 text-xs text-primary">
+                    <AlertTriangle className="mr-1 inline h-3.5 w-3.5" />
+                    O novo valor <strong>entra em vigor na próxima cobrança</strong>. Faturas já emitidas
+                    do ciclo atual mantêm o valor anterior. Assinaturas em vigor no gateway são canceladas automaticamente.
+                  </div>
                   {currentEnrollment && (
-                    <div className="mt-3 rounded-md border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-900 dark:text-amber-200">
+                    <div className="mt-2 rounded-md border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-900 dark:text-amber-200">
                       <AlertTriangle className="mr-1 inline h-3.5 w-3.5" />
-                      Ao confirmar, o plano atual será encerrado e a nova matrícula passará a gerar as cobranças recorrentes via AMT Pay.
+                      A matrícula atual será encerrada (histórico preservado) e a nova passará a gerar as cobranças recorrentes via AMT Pay.
                     </div>
                   )}
                   <div className="mt-4 flex gap-2">

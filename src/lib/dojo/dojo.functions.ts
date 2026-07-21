@@ -860,6 +860,126 @@ export const cancelEnrollment = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+/**
+ * Troca o plano de um aluno.
+ *
+ * Regra: o novo valor entra em vigor a partir da PRÓXIMA cobrança. Faturas
+ * já emitidas (do ciclo atual) permanecem inalteradas — o aluno honra o
+ * valor que já foi cobrado. A partir do próximo ciclo, o gerador de faturas
+ * usa o `custom_amount`/`plan.amount` da nova matrícula.
+ */
+export const changeStudentPlan = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({
+    student_id: z.string().uuid(),
+    plan_id: z.string().uuid(),
+    due_day: z.number().int().min(1).max(28),
+    start_date: z.string(),
+    custom_amount: z.number().min(0).nullable().optional(),
+    next_billing_date: z.string().optional(),
+    notes: z.string().max(500).optional().nullable(),
+  }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { data: plan, error: planErr } = await context.supabase
+      .from("dojo_plans")
+      .select("id, name, amount, frequency, custom_months")
+      .eq("id", data.plan_id)
+      .maybeSingle();
+    if (planErr) throw new Error(planErr.message);
+    if (!plan) throw new Error("Plano não encontrado");
+
+    // Cancela matrículas ativas (preserva histórico)
+    const { data: actives } = await context.supabase
+      .from("dojo_enrollments")
+      .select("id, asaas_subscription_id, plan_id")
+      .eq("student_id", data.student_id)
+      .eq("owner_id", ownerId(context))
+      .in("status", ["active", "paused"]);
+
+    const today = new Date().toISOString().slice(0, 10);
+    if (actives && actives.length > 0) {
+      const { data: profile } = await context.supabase
+        .from("dojo_academy_profile")
+        .select("asaas_api_key_encrypted, asaas_wallet_id")
+        .eq("owner_id", ownerId(context))
+        .maybeSingle();
+
+      for (const enr of actives as any[]) {
+        if (enr.plan_id === data.plan_id) {
+          throw new Error("O aluno já possui uma matrícula ativa neste plano.");
+        }
+        if (enr.asaas_subscription_id) {
+          try {
+            const { resolveDojoAsaasCredentials } = await import("@/lib/asaas/enrollment.server");
+            const { apiKey } = resolveDojoAsaasCredentials((profile ?? {}) as any);
+            const { asaasCancelSubscription } = await import("@/lib/asaas/client.server");
+            await asaasCancelSubscription(enr.asaas_subscription_id, apiKey);
+          } catch (err) {
+            console.warn("[changeStudentPlan] falha ao cancelar subscription Asaas", err);
+          }
+        }
+        await context.supabase
+          .from("dojo_enrollments")
+          .update({ status: "canceled", end_date: today } as never)
+          .eq("id", enr.id);
+      }
+    }
+
+    // Calcula próxima data de cobrança se não informada
+    const startISO = data.start_date;
+    let nextRunAt = data.next_billing_date;
+    if (!nextRunAt) {
+      const [sy, sm] = startISO.split("-").map(Number);
+      const dueDay = Math.min(data.due_day, 28);
+      const startDay = Number(startISO.slice(8, 10));
+      const targetMonthOffset = startDay > dueDay ? 1 : 0;
+      const dt = new Date(Date.UTC(sy, (sm - 1) + targetMonthOffset, dueDay));
+      nextRunAt = dt.toISOString().slice(0, 10);
+    }
+
+    const freqMap: Record<string, string> = {
+      monthly: "monthly",
+      bimonthly: "bimonthly",
+      quarterly: "quarterly",
+      quadrimestral: "custom",
+      semiannual: "semiannual",
+      annual: "annual",
+      custom: "custom",
+    };
+    const enrollFrequency = freqMap[(plan as any).frequency ?? "monthly"] ?? "monthly";
+    const customDays = enrollFrequency === "custom"
+      ? Math.max(30, Number((plan as any).custom_months ?? 1) * 30)
+      : null;
+
+    const { data: row, error } = await context.supabase
+      .from("dojo_enrollments")
+      .insert({
+        student_id: data.student_id,
+        plan_id: data.plan_id,
+        custom_amount: data.custom_amount ?? null,
+        due_day: data.due_day,
+        start_date: startISO,
+        status: "active",
+        frequency: enrollFrequency,
+        custom_days: customDays,
+        next_run_at: nextRunAt,
+        notes: data.notes ?? null,
+        owner_id: ownerId(context),
+      } as never)
+      .select("id")
+      .single();
+    if (error) throw new Error(error.message);
+
+    return {
+      enrollment_id: (row as any).id,
+      next_billing_date: nextRunAt,
+      amount: data.custom_amount ?? Number((plan as any).amount ?? 0),
+      message: "Plano alterado. O novo valor entrará em vigor na próxima cobrança.",
+    };
+  });
+
+
+
 
 export const generateMonthlyInvoices = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
