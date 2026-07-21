@@ -91,6 +91,8 @@ const nav: { label: string; items: NavItem[] }[] = [
       { to: "/dojo/app/schedule", label: "Agenda", icon: CalendarDays },
       { to: "/dojo/app/checkin", label: "Check-in", icon: QrCode },
       { to: "/dojo/app/graduations", label: "Graduações", icon: Award },
+      { to: "/dojo/app/ranking", label: "Ranking", icon: Trophy },
+
       { to: "/dojo/app/belts", label: "Modalidades e Faixas", icon: Award },
       { to: "/dojo/app/evaluations", label: "Avaliações", icon: ClipboardList },
       { to: "/dojo/app/certificates", label: "Certificados", icon: FileBadge },

@@ -63,6 +63,7 @@ import { Route as DojoAppStudentAppQrRouteImport } from './routes/dojo.app.stude
 import { Route as DojoAppStoreRouteImport } from './routes/dojo.app.store'
 import { Route as DojoAppScheduleRouteImport } from './routes/dojo.app.schedule'
 import { Route as DojoAppSalesRouteImport } from './routes/dojo.app.sales'
+import { Route as DojoAppRankingRouteImport } from './routes/dojo.app.ranking'
 import { Route as DojoAppPlansRouteImport } from './routes/dojo.app.plans'
 import { Route as DojoAppIntegrationsRouteImport } from './routes/dojo.app.integrations'
 import { Route as DojoAppInstallRouteImport } from './routes/dojo.app.install'
@@ -469,6 +470,11 @@ const DojoAppScheduleRoute = DojoAppScheduleRouteImport.update({
 const DojoAppSalesRoute = DojoAppSalesRouteImport.update({
   id: '/sales',
   path: '/sales',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppRankingRoute = DojoAppRankingRouteImport.update({
+  id: '/ranking',
+  path: '/ranking',
   getParentRoute: () => DojoAppRoute,
 } as any)
 const DojoAppPlansRoute = DojoAppPlansRouteImport.update({
@@ -1345,6 +1351,7 @@ export interface FileRoutesByFullPath {
   '/dojo/app/install': typeof DojoAppInstallRoute
   '/dojo/app/integrations': typeof DojoAppIntegrationsRoute
   '/dojo/app/plans': typeof DojoAppPlansRoute
+  '/dojo/app/ranking': typeof DojoAppRankingRoute
   '/dojo/app/sales': typeof DojoAppSalesRoute
   '/dojo/app/schedule': typeof DojoAppScheduleRoute
   '/dojo/app/store': typeof DojoAppStoreRouteWithChildren
@@ -1533,6 +1540,7 @@ export interface FileRoutesByTo {
   '/dojo/app/install': typeof DojoAppInstallRoute
   '/dojo/app/integrations': typeof DojoAppIntegrationsRoute
   '/dojo/app/plans': typeof DojoAppPlansRoute
+  '/dojo/app/ranking': typeof DojoAppRankingRoute
   '/dojo/app/sales': typeof DojoAppSalesRoute
   '/dojo/app/schedule': typeof DojoAppScheduleRoute
   '/dojo/app/student-app-qr': typeof DojoAppStudentAppQrRoute
@@ -1723,6 +1731,7 @@ export interface FileRoutesById {
   '/dojo/app/install': typeof DojoAppInstallRoute
   '/dojo/app/integrations': typeof DojoAppIntegrationsRoute
   '/dojo/app/plans': typeof DojoAppPlansRoute
+  '/dojo/app/ranking': typeof DojoAppRankingRoute
   '/dojo/app/sales': typeof DojoAppSalesRoute
   '/dojo/app/schedule': typeof DojoAppScheduleRoute
   '/dojo/app/store': typeof DojoAppStoreRouteWithChildren
@@ -1917,6 +1926,7 @@ export interface FileRouteTypes {
     | '/dojo/app/install'
     | '/dojo/app/integrations'
     | '/dojo/app/plans'
+    | '/dojo/app/ranking'
     | '/dojo/app/sales'
     | '/dojo/app/schedule'
     | '/dojo/app/store'
@@ -2105,6 +2115,7 @@ export interface FileRouteTypes {
     | '/dojo/app/install'
     | '/dojo/app/integrations'
     | '/dojo/app/plans'
+    | '/dojo/app/ranking'
     | '/dojo/app/sales'
     | '/dojo/app/schedule'
     | '/dojo/app/student-app-qr'
@@ -2294,6 +2305,7 @@ export interface FileRouteTypes {
     | '/dojo/app/install'
     | '/dojo/app/integrations'
     | '/dojo/app/plans'
+    | '/dojo/app/ranking'
     | '/dojo/app/sales'
     | '/dojo/app/schedule'
     | '/dojo/app/store'
@@ -2811,6 +2823,13 @@ declare module '@tanstack/react-router' {
       path: '/sales'
       fullPath: '/dojo/app/sales'
       preLoaderRoute: typeof DojoAppSalesRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/ranking': {
+      id: '/dojo/app/ranking'
+      path: '/ranking'
+      fullPath: '/dojo/app/ranking'
+      preLoaderRoute: typeof DojoAppRankingRouteImport
       parentRoute: typeof DojoAppRoute
     }
     '/dojo/app/plans': {
@@ -4162,6 +4181,7 @@ interface DojoAppRouteChildren {
   DojoAppInstallRoute: typeof DojoAppInstallRoute
   DojoAppIntegrationsRoute: typeof DojoAppIntegrationsRoute
   DojoAppPlansRoute: typeof DojoAppPlansRoute
+  DojoAppRankingRoute: typeof DojoAppRankingRoute
   DojoAppSalesRoute: typeof DojoAppSalesRoute
   DojoAppScheduleRoute: typeof DojoAppScheduleRoute
   DojoAppStoreRoute: typeof DojoAppStoreRouteWithChildren
@@ -4192,6 +4212,7 @@ const DojoAppRouteChildren: DojoAppRouteChildren = {
   DojoAppInstallRoute: DojoAppInstallRoute,
   DojoAppIntegrationsRoute: DojoAppIntegrationsRoute,
   DojoAppPlansRoute: DojoAppPlansRoute,
+  DojoAppRankingRoute: DojoAppRankingRoute,
   DojoAppSalesRoute: DojoAppSalesRoute,
   DojoAppScheduleRoute: DojoAppScheduleRoute,
   DojoAppStoreRoute: DojoAppStoreRouteWithChildren,
