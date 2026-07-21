@@ -426,10 +426,12 @@ function SortableBeltRow({
   belt: b,
   onEdit,
   onRemove,
+  canEdit = true,
 }: {
   belt: BeltRow;
   onEdit: (b: BeltRow) => void;
   onRemove: (id: string) => void;
+  canEdit?: boolean;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: b.id });
   const style = {
