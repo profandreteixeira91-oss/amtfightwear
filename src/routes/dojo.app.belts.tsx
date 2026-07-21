@@ -276,11 +276,11 @@ function BeltsPage() {
       </Card>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{form.id ? "Editar faixa" : "Nova faixa"}</DialogTitle>
           </DialogHeader>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 min-w-0">
             <div className="col-span-2">
               <label className="text-xs text-muted-foreground">Modalidade</label>
               <Input
@@ -379,25 +379,6 @@ function BeltsPage() {
                   />
                 </div>
               </div>
-            </div>
-            <div className="col-span-2">
-              <label className="text-xs text-muted-foreground">Visibilidade</label>
-              <select
-                className="border rounded p-2 bg-background w-full"
-                value={form.scope}
-                onChange={(e) => setForm((f) => ({ ...f, scope: e.target.value as "own" | "global" }))}
-                disabled={!isAdmin && form.scope !== "own"}
-              >
-                <option value="own">Somente meu dojo</option>
-                <option value="global" disabled={!isAdmin}>
-                  Global (todos os usuários){!isAdmin ? " — apenas admin AMT" : ""}
-                </option>
-              </select>
-              {isAdmin && (
-                <p className="text-[11px] text-muted-foreground mt-1">
-                  Faixas globais são fixas e propagam para toda a base de dojos.
-                </p>
-              )}
             </div>
             <div className="col-span-2 flex items-center gap-3 bg-muted/40 p-3 rounded">
               <BeltVisual
