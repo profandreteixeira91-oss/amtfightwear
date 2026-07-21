@@ -270,8 +270,11 @@ export function AsaasOnboardingCard() {
                   <AlertCircle className="h-4 w-4" />
                   <AlertTitle>Subconta em análise</AlertTitle>
                   <AlertDescription>
-                    O Asaas está verificando seus dados. Assim que aprovada, o split de
-                    pagamento e os saques automáticos serão liberados.
+                    A ativação é conduzida pela conta-mãe AMT Pay diretamente
+                    junto ao Asaas. Envie os documentos de KYC pela seção abaixo
+                    (sem precisar acessar o painel do Asaas ou confirmar e-mail).
+                    Assim que o Asaas aprovar, o split e os saques automáticos
+                    serão liberados.
                   </AlertDescription>
                 </Alert>
               )}
