@@ -4504,13 +4504,18 @@ export type Database = {
           description: string | null
           due_date: string
           enrollment_id: string | null
+          fees_breakdown: Json | null
+          gateway_fee_amount: number | null
+          gross_amount: number | null
           id: string
           method: string | null
+          net_amount: number | null
           owner_id: string
           paid_at: string | null
           payment_id: string | null
           payment_link: string | null
           payment_provider: string | null
+          platform_fee_amount: number | null
           provider: string | null
           split_config: Json | null
           status: string
@@ -4529,13 +4534,18 @@ export type Database = {
           description?: string | null
           due_date: string
           enrollment_id?: string | null
+          fees_breakdown?: Json | null
+          gateway_fee_amount?: number | null
+          gross_amount?: number | null
           id?: string
           method?: string | null
+          net_amount?: number | null
           owner_id: string
           paid_at?: string | null
           payment_id?: string | null
           payment_link?: string | null
           payment_provider?: string | null
+          platform_fee_amount?: number | null
           provider?: string | null
           split_config?: Json | null
           status?: string
@@ -4554,13 +4564,18 @@ export type Database = {
           description?: string | null
           due_date?: string
           enrollment_id?: string | null
+          fees_breakdown?: Json | null
+          gateway_fee_amount?: number | null
+          gross_amount?: number | null
           id?: string
           method?: string | null
+          net_amount?: number | null
           owner_id?: string
           paid_at?: string | null
           payment_id?: string | null
           payment_link?: string | null
           payment_provider?: string | null
+          platform_fee_amount?: number | null
           provider?: string | null
           split_config?: Json | null
           status?: string
