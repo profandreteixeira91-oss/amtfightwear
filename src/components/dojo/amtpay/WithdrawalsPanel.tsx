@@ -104,7 +104,12 @@ export function WithdrawalsPanel() {
                     <td className="pr-3 text-xs font-mono truncate max-w-[140px]">{r.pix_key ?? "—"}</td>
                     <td className="pr-3"><Badge className={st.color}>{st.label}</Badge></td>
                     <td className="pr-3 text-xs font-mono">{r.provider_tx_id ?? "—"}</td>
-                    <td className="pr-3 text-right">
+                    <td className="pr-3 text-right space-x-1">
+                      {r.status === "requested" && (
+                        <Button size="sm" variant="outline" onClick={() => onRetry(r.id)}>
+                          <RefreshCw className="h-3.5 w-3.5 mr-1" /> Reenviar
+                        </Button>
+                      )}
                       {["requested", "in_review"].includes(r.status) && (
                         <Button size="sm" variant="ghost" onClick={() => onCancel(r.id)}>
                           <X className="h-3.5 w-3.5 mr-1" /> Cancelar
