@@ -109,6 +109,9 @@ function AMTPayHub() {
         <TabsContent value="reminders" className="mt-6">
           <RemindersPanel />
         </TabsContent>
+        <TabsContent value="branding" className="mt-6">
+          <InvoiceBrandingPanel />
+        </TabsContent>
         <TabsContent value="audit" className="mt-6">
           <AuditLogPanel />
         </TabsContent>
