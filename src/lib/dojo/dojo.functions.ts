@@ -119,15 +119,50 @@ export const checkIsAdmin = createServerFn({ method: "GET" })
   });
 
 // ============ STUDENTS ============
+// Compute the most recent graduation per modality for each student.
+// A graduation only overrides another when they share the same modality.
+async function attachCurrentBeltsByModality(
+  supabase: any,
+  students: any[],
+): Promise<any[]> {
+  if (!students || students.length === 0) return students ?? [];
+  const ids = students.map((s) => s.id);
+  const { data: grads } = await supabase
+    .from("dojo_graduations")
+    .select("student_id, degree, graduation_date, belt:dojo_belts(id,name,color_hex,stripe_hex,max_degrees,modality)")
+    .in("student_id", ids)
+    .order("graduation_date", { ascending: false });
+  const byStudent = new Map<string, Map<string, any>>();
+  for (const g of grads ?? []) {
+    if (!g.belt) continue;
+    const modality = (g.belt as any).modality ?? "jiu-jitsu";
+    let m = byStudent.get(g.student_id);
+    if (!m) { m = new Map(); byStudent.set(g.student_id, m); }
+    // First occurrence wins because rows are ordered by graduation_date DESC.
+    if (!m.has(modality)) {
+      m.set(modality, {
+        modality,
+        belt: g.belt,
+        degree: g.degree ?? 0,
+        graduation_date: g.graduation_date,
+      });
+    }
+  }
+  return students.map((s) => ({
+    ...s,
+    current_belts: Array.from((byStudent.get(s.id) ?? new Map()).values()),
+  }));
+}
+
 export const listDojoStudents = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("dojo_students")
-      .select("*, unit:dojo_units(name), belt:dojo_belts(name,color_hex,stripe_hex,max_degrees)")
+      .select("*, unit:dojo_units(name), belt:dojo_belts(name,color_hex,stripe_hex,max_degrees,modality)")
       .order("full_name");
     if (error) throw new Error(error.message);
-    return data ?? [];
+    return await attachCurrentBeltsByModality(context.supabase, data ?? []);
   });
 
 export const getDojoStudent = createServerFn({ method: "GET" })
@@ -138,13 +173,30 @@ export const getDojoStudent = createServerFn({ method: "GET" })
       .from("dojo_students").select("*").eq("id", data.id).single();
     if (error) throw new Error(error.message);
     const [grads, enrolls, invoices, certs] = await Promise.all([
-      context.supabase.from("dojo_graduations").select("*, belt:dojo_belts(name,color_hex,stripe_hex,max_degrees)").eq("student_id", data.id).order("graduation_date", { ascending: false }),
+      context.supabase.from("dojo_graduations").select("*, belt:dojo_belts(name,color_hex,stripe_hex,max_degrees,modality)").eq("student_id", data.id).order("graduation_date", { ascending: false }),
       context.supabase.from("dojo_enrollments").select("*, plan:dojo_plans(name,amount)").eq("student_id", data.id),
       context.supabase.from("dojo_invoices").select("*").eq("student_id", data.id).order("due_date", { ascending: false }).limit(50),
       context.supabase.from("dojo_certificates").select("*, template:dojo_certificate_templates(*), graduation:dojo_graduations(graduation_date, degree, belt:dojo_belts(name))").eq("student_id", data.id).order("issued_at", { ascending: false }),
     ]);
-    return { student, graduations: grads.data ?? [], enrollments: enrolls.data ?? [], invoices: invoices.data ?? [], certificates: certs.data ?? [] };
+    // Derive current belt per modality from ordered graduations (latest per modality wins).
+    const currentByModality = new Map<string, any>();
+    for (const g of grads.data ?? []) {
+      if (!g.belt) continue;
+      const mod = (g.belt as any).modality ?? "jiu-jitsu";
+      if (!currentByModality.has(mod)) {
+        currentByModality.set(mod, { modality: mod, belt: g.belt, degree: g.degree ?? 0, graduation_date: g.graduation_date });
+      }
+    }
+    return {
+      student,
+      graduations: grads.data ?? [],
+      enrollments: enrolls.data ?? [],
+      invoices: invoices.data ?? [],
+      certificates: certs.data ?? [],
+      current_belts: Array.from(currentByModality.values()),
+    };
   });
+
 
 export const saveDojoStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
