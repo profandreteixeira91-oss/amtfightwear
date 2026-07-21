@@ -385,7 +385,7 @@ function StudentDetail() {
                 <TabsTrigger value="lgpd">LGPD</TabsTrigger>
                 <TabsTrigger value="graduacoes">Graduações</TabsTrigger>
                 <TabsTrigger value="certificados">Certificados</TabsTrigger>
-                <TabsTrigger value="financeiro">Financeiro</TabsTrigger>
+                
                 <TabsTrigger value="competicoes">Competições</TabsTrigger>
                 <TabsTrigger value="frequencia">Frequência</TabsTrigger>
                 <TabsTrigger value="documentos">Documentos</TabsTrigger>
