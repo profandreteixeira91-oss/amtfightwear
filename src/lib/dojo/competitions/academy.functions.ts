@@ -66,6 +66,58 @@ export const addCompetitionToCalendar = createServerFn({ method: "POST" })
     return row;
   });
 
+// ============ Importação em massa ============
+
+export const addCompetitionsBulkToCalendar = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({
+      competition_ids: z.array(uuid).min(1).max(200),
+      visibility: z.enum(["all", "class", "belt", "custom"]).default("all"),
+      notes: z.string().optional().nullable(),
+    }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const rows = data.competition_ids.map((cid) => ({
+      owner_id: context.userId,
+      competition_id: cid,
+      visibility: data.visibility,
+      notes: data.notes ?? null,
+      target_class_ids: [],
+      target_belt_ids: [],
+      added_by: context.userId,
+    }));
+    const { data: inserted, error } = await context.supabase
+      .from("academy_competitions")
+      .upsert(rows as never, { onConflict: "owner_id,competition_id", ignoreDuplicates: false })
+      .select("id, competition_id");
+    if (error) throw new Error(error.message);
+
+    // Broadcast único para alunos ativos
+    try {
+      const { data: students } = await context.supabase
+        .from("dojo_students")
+        .select("id")
+        .eq("owner_id", context.userId)
+        .eq("status", "active");
+      if (students && students.length) {
+        const count = data.competition_ids.length;
+        const notifRows = students.map((s) => ({
+          owner_id: context.userId,
+          student_id: s.id,
+          title: count > 1 ? `${count} novas competições` : "Nova competição no calendário",
+          body: data.notes ?? `Sua academia adicionou ${count} ${count > 1 ? "competições" : "competição"} ao calendário.`,
+          kind: "competition",
+        }));
+        await context.supabase.from("dojo_student_notifications").insert(notifRows as never);
+      }
+    } catch (e) {
+      console.warn("bulk notify failed", e);
+    }
+
+    return { inserted: inserted?.length ?? 0 };
+  });
+
 export const listAcademyCompetitions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
