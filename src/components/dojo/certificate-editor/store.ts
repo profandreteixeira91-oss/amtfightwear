@@ -13,7 +13,9 @@ type State = {
   snap: boolean;
   favorites: string[];
   recentVars: string[];
+  editingId: string | null;
 };
+
 
 type Actions = {
   init: (schema: EditorSchema, favorites?: string[], recent?: string[]) => void;
