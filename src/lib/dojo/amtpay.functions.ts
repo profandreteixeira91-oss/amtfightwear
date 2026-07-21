@@ -186,9 +186,35 @@ export const saveBankAccount = createServerFn({ method: "POST" })
   });
 
 // ------------------------------------------------------------
-// Saldo interno — soma de dojo_wallet_transactions
+// Modo de operação da carteira
+//   - "native": dojo tem subconta Asaas aprovada → saldo e extrato vêm
+//     diretamente da API do Asaas (endpoint /finance/balance e
+//     /financialTransactions da subconta).
+//   - "internal": mantém o ledger interno em `dojo_wallet_transactions`
+//     (dojos sem subconta / com wallet externa / em onboarding).
 // ------------------------------------------------------------
-async function computeBalance(supabase: any, ownerId: string): Promise<WalletBalance> {
+async function resolveWalletMode(supabase: any, ownerId: string): Promise<{
+  mode: "native" | "internal";
+  apiKey?: string;
+}> {
+  const { data: profile } = await supabase
+    .from("dojo_academy_profile")
+    .select(
+      "asaas_subaccount_id, asaas_subaccount_api_key, asaas_api_key_encrypted, asaas_wallet_id, asaas_onboarding_status",
+    )
+    .eq("owner_id", ownerId)
+    .maybeSingle();
+  if (!profile) return { mode: "internal" };
+  const { resolveDojoAsaasCredentials } = await import("@/lib/asaas/enrollment.server");
+  const { apiKey, mode } = resolveDojoAsaasCredentials(profile as any);
+  if (mode === "subaccount" && apiKey) return { mode: "native", apiKey };
+  return { mode: "internal" };
+}
+
+// ------------------------------------------------------------
+// Saldo — nativo (subconta Asaas) ou interno (ledger)
+// ------------------------------------------------------------
+async function computeInternalBalance(supabase: any, ownerId: string): Promise<WalletBalance> {
   const { data } = await supabase
     .from("dojo_wallet_transactions")
     .select("direction, status, net_amount")
@@ -211,6 +237,28 @@ async function computeBalance(supabase: any, ownerId: string): Promise<WalletBal
     currency: "BRL",
     fetchedAt: new Date().toISOString(),
   };
+}
+
+async function computeBalance(supabase: any, ownerId: string): Promise<WalletBalance> {
+  const resolved = await resolveWalletMode(supabase, ownerId);
+  if (resolved.mode === "native" && resolved.apiKey) {
+    try {
+      const { asaasGetBalance } = await import("@/lib/asaas/client.server");
+      const b = await asaasGetBalance(resolved.apiKey);
+      const total = Number((b as any)?.totalBalance ?? 0);
+      return {
+        available: Math.max(0, Number(total.toFixed(2))),
+        pending: 0,
+        blocked: 0,
+        total: Math.max(0, Number(total.toFixed(2))),
+        currency: "BRL",
+        fetchedAt: new Date().toISOString(),
+      };
+    } catch (err) {
+      console.warn("[amtpay] fallback saldo interno após falha Asaas", err);
+    }
+  }
+  return computeInternalBalance(supabase, ownerId);
 }
 
 export const getWalletBalance = createServerFn({ method: "GET" })
@@ -331,6 +379,48 @@ export const listWalletTransactions = createServerFn({ method: "POST" })
       .parse(i ?? {}),
   )
   .handler(async ({ data, context }) => {
+    // Fase 3 — extrato nativo quando subconta aprovada.
+    const resolved = await resolveWalletMode(context.supabase, context.userId);
+    if (resolved.mode === "native" && resolved.apiKey && !data.studentId) {
+      try {
+        const { asaasListFinancialTransactions } = await import("@/lib/asaas/client.server");
+        const startDate = data.from ? data.from.slice(0, 10) : undefined;
+        const endDate = data.to ? data.to.slice(0, 10) : undefined;
+        const resp = await asaasListFinancialTransactions(
+          { startDate, endDate, limit: Math.min(data.limit ?? 100, 100) },
+          resolved.apiKey,
+        );
+        const list = ((resp as any)?.data ?? []) as any[];
+        return list.map((t) => {
+          const value = Number(t.value ?? 0);
+          const direction = value >= 0 ? 1 : -1;
+          const ev = String(t.type ?? t.event ?? "").toUpperCase();
+          const kind = ev.includes("TRANSFER") || ev.includes("WITHDRAWAL")
+            ? "withdrawal"
+            : ev.includes("FEE") ? "fee"
+            : ev.includes("REFUND") ? "refund"
+            : direction === 1 ? "receipt" : "adjustment";
+          return {
+            id: t.id ?? crypto.randomUUID(),
+            owner_id: context.userId,
+            kind,
+            method: "internal",
+            status: "available",
+            amount: Math.abs(value),
+            direction,
+            fee_amount: 0,
+            net_amount: Math.abs(value),
+            description: String(t.description ?? ev ?? "Movimentação Asaas"),
+            provider: "asaas",
+            provider_source: "native",
+            occurred_at: t.date ?? t.dateCreated ?? new Date().toISOString(),
+          };
+        });
+      } catch (err) {
+        console.warn("[amtpay] fallback extrato interno após falha Asaas", err);
+      }
+    }
+
     let q = context.supabase
       .from("dojo_wallet_transactions")
       .select("*")

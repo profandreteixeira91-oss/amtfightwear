@@ -44,11 +44,26 @@ function mapAsaasTransferStatus(status: string | undefined | null):
   return "processing";
 }
 
-async function loadOwnerKey(_admin: Admin, _ownerId: string): Promise<string | null> {
-  // Modelo central AMT Pay: todas as transferências saem da conta Asaas da AMT.
-  // A chave PIX de destino identifica o dono; a API key é sempre a central.
-  const key = process.env.ASAAS_PRODUCTION_API_KEY?.trim();
-  return key || null;
+async function loadOwnerKey(admin: Admin, ownerId: string): Promise<string | null> {
+  // Fase 3 — Carteira nativa: se o dojo tem subconta Asaas aprovada, o saque
+  // sai da subconta do próprio dono. Caso contrário, cai no fluxo central AMT.
+  try {
+    const { data: profile } = await admin
+      .from("dojo_academy_profile")
+      .select(
+        "asaas_subaccount_id, asaas_subaccount_api_key, asaas_api_key_encrypted, asaas_wallet_id, asaas_onboarding_status",
+      )
+      .eq("owner_id", ownerId)
+      .maybeSingle();
+    if (profile) {
+      const { resolveDojoAsaasCredentials } = await import("@/lib/asaas/enrollment.server");
+      const { apiKey } = resolveDojoAsaasCredentials(profile as any);
+      if (apiKey) return apiKey;
+    }
+  } catch (err) {
+    console.warn("[withdrawals] falha ao resolver chave da subconta", err);
+  }
+  return process.env.ASAAS_PRODUCTION_API_KEY?.trim() || null;
 }
 
 async function insertReversal(admin: Admin, wd: any, reason: string) {
