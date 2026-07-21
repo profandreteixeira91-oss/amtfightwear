@@ -1,0 +1,212 @@
+// Server-only: dispara um lembrete de fatura via infra transacional (React Email + fila).
+// Reaproveita o pipeline /lovable/email/transactional/send para renderizar + enfileirar.
+import * as React from "react";
+import { render } from "react-email";
+import { template as reminderTemplate } from "@/lib/email-templates/dojo-invoice-reminder";
+
+const SITE_NAME = "AMT Dojo Manager";
+const SENDER_DOMAIN = "notify.marketing.amtfightwear.com.br";
+const FROM_DOMAIN = "marketing.amtfightwear.com.br";
+
+function generateToken(): string {
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes)
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+function formatBRL(value: number): string {
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  }).format(Number(value ?? 0));
+}
+
+function formatDateBR(iso: string | null | undefined): string {
+  if (!iso) return "";
+  const d = new Date(`${iso}T00:00:00Z`);
+  return d.toLocaleDateString("pt-BR", { timeZone: "UTC" });
+}
+
+export type ReminderInvoice = {
+  id: string;
+  owner_id: string;
+  description: string | null;
+  amount: number;
+  due_date: string;
+  status: string;
+  payment_link: string | null;
+  asaas_invoice_url: string | null;
+  asaas_pix_copypaste: string | null;
+  student: { full_name: string | null; email: string | null } | null;
+};
+
+export async function dispatchInvoiceReminder(
+  supabase: any,
+  args: {
+    invoice: ReminderInvoice;
+    offsetDays: number;
+    channel?: "email";
+    manual?: boolean;
+    dojoName?: string;
+  },
+): Promise<{ status: "sent" | "skipped" | "failed"; reason?: string }> {
+  const { invoice, offsetDays } = args;
+  const channel = args.channel ?? "email";
+
+  const recipient = invoice.student?.email?.trim();
+  if (!recipient) return { status: "skipped", reason: "no_email" };
+
+  // Idempotência: pula se já enviamos para (invoice, offset, channel).
+  const { data: existing } = await supabase
+    .from("dojo_invoice_reminders")
+    .select("id")
+    .eq("invoice_id", invoice.id)
+    .eq("offset_days", offsetDays)
+    .eq("channel", channel)
+    .maybeSingle();
+  if (existing) return { status: "skipped", reason: "already_sent" };
+
+  // Verifica suppression list.
+  const { data: suppressed } = await supabase
+    .from("suppressed_emails")
+    .select("id")
+    .eq("email", recipient.toLowerCase())
+    .maybeSingle();
+  if (suppressed) {
+    await supabase.from("dojo_invoice_reminders").insert({
+      owner_id: invoice.owner_id,
+      invoice_id: invoice.id,
+      offset_days: offsetDays,
+      channel,
+      status: "skipped",
+      error_message: "recipient_suppressed",
+    });
+    return { status: "skipped", reason: "recipient_suppressed" };
+  }
+
+  // Descobre nome do dojo (usa profile do owner).
+  let dojoName = args.dojoName ?? "Sua academia";
+  if (!args.dojoName) {
+    const { data: profile } = await supabase
+      .from("dojo_academy_profile")
+      .select("academy_name")
+      .eq("owner_id", invoice.owner_id)
+      .maybeSingle();
+    if (profile?.academy_name) dojoName = profile.academy_name;
+  }
+
+  const templateData = {
+    studentName: invoice.student?.full_name ?? "aluno(a)",
+    dojoName,
+    amount: formatBRL(Number(invoice.amount)),
+    dueDate: formatDateBR(invoice.due_date),
+    daysOffset: offsetDays,
+    paymentLink:
+      invoice.payment_link ?? invoice.asaas_invoice_url ?? undefined,
+    pixCopyPaste: invoice.asaas_pix_copypaste ?? undefined,
+    invoiceDescription: invoice.description ?? "Mensalidade",
+  };
+
+  // Renderiza template.
+  const element = React.createElement(reminderTemplate.component as any, templateData);
+  const html = await render(element);
+  const text = await render(element, { plainText: true });
+  const subject =
+    typeof reminderTemplate.subject === "function"
+      ? reminderTemplate.subject(templateData)
+      : reminderTemplate.subject;
+
+  // Prepara token de unsubscribe (uma vez por email).
+  const normalizedEmail = recipient.toLowerCase();
+  let unsubscribeToken: string | null = null;
+  const { data: existingToken } = await supabase
+    .from("email_unsubscribe_tokens")
+    .select("token, used_at")
+    .eq("email", normalizedEmail)
+    .maybeSingle();
+  if (existingToken && !existingToken.used_at) {
+    unsubscribeToken = existingToken.token;
+  } else if (!existingToken) {
+    unsubscribeToken = generateToken();
+    await supabase
+      .from("email_unsubscribe_tokens")
+      .upsert(
+        { token: unsubscribeToken, email: normalizedEmail },
+        { onConflict: "email", ignoreDuplicates: true },
+      );
+    const { data: stored } = await supabase
+      .from("email_unsubscribe_tokens")
+      .select("token")
+      .eq("email", normalizedEmail)
+      .maybeSingle();
+    unsubscribeToken = stored?.token ?? unsubscribeToken;
+  } else {
+    await supabase.from("dojo_invoice_reminders").insert({
+      owner_id: invoice.owner_id,
+      invoice_id: invoice.id,
+      offset_days: offsetDays,
+      channel,
+      status: "skipped",
+      error_message: "unsubscribed",
+    });
+    return { status: "skipped", reason: "unsubscribed" };
+  }
+
+  const messageId = crypto.randomUUID();
+  const idempotencyKey = `dojo-reminder-${invoice.id}-${offsetDays}-${channel}`;
+
+  await supabase.from("email_send_log").insert({
+    message_id: messageId,
+    template_name: "dojo-invoice-reminder",
+    recipient_email: recipient,
+    status: "pending",
+  });
+
+  const { error: enqueueError } = await supabase.rpc("enqueue_email", {
+    queue_name: "transactional_emails",
+    payload: {
+      message_id: messageId,
+      to: recipient,
+      from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
+      sender_domain: SENDER_DOMAIN,
+      subject,
+      html,
+      text,
+      purpose: "transactional",
+      label: "dojo-invoice-reminder",
+      idempotency_key: idempotencyKey,
+      unsubscribe_token: unsubscribeToken,
+      queued_at: new Date().toISOString(),
+    },
+  });
+
+  if (enqueueError) {
+    await supabase.from("dojo_invoice_reminders").insert({
+      owner_id: invoice.owner_id,
+      invoice_id: invoice.id,
+      offset_days: offsetDays,
+      channel,
+      status: "failed",
+      error_message: enqueueError.message,
+      message_id: messageId,
+    });
+    return { status: "failed", reason: enqueueError.message };
+  }
+
+  // Registra o disparo (idempotência garantida pela unique index).
+  const { error: logErr } = await supabase.from("dojo_invoice_reminders").insert({
+    owner_id: invoice.owner_id,
+    invoice_id: invoice.id,
+    offset_days: offsetDays,
+    channel,
+    status: "sent",
+    message_id: messageId,
+  });
+  if (logErr && !logErr.message.includes("duplicate")) {
+    console.warn("[reminders] falha ao logar envio", logErr);
+  }
+
+  return { status: "sent" };
+}
