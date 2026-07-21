@@ -923,7 +923,7 @@ export const cancelEnrollment = createServerFn({ method: "POST" })
     if ((enr as any).asaas_subscription_id) {
       const { data: profile } = await context.supabase
         .from("dojo_academy_profile")
-        .select("asaas_api_key_encrypted, asaas_wallet_id")
+        .select("asaas_subaccount_id, asaas_api_key_encrypted, asaas_wallet_id, asaas_onboarding_status")
         .eq("owner_id", ownerId(context))
         .maybeSingle();
       const { resolveDojoAsaasCredentials } = await import("@/lib/asaas/enrollment.server");
