@@ -314,6 +314,27 @@ function DojoLayoutInner({
       <SidebarInset className="bg-[color:var(--dojo-surface)] min-w-0 overflow-x-hidden">
         <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-red-900/60 bg-red-700 text-white px-3 md:px-6 shadow-[0_4px_18px_-6px_rgba(0,0,0,0.35)]">
           <SidebarTrigger className="-ml-1 text-white hover:bg-white/10" />
+          {(branding?.logo_url || dojoName) && (
+            <div className="flex items-center gap-2 pr-3 mr-1 border-r border-white/20 max-w-[45%]">
+              {branding?.logo_url ? (
+                <img
+                  src={branding.logo_url}
+                  alt={dojoName ?? "Logo do dojo"}
+                  className="h-9 w-9 rounded-md object-cover bg-white/95 p-0.5 shadow-sm shrink-0"
+                  draggable={false}
+                />
+              ) : (
+                <div className="grid h-9 w-9 place-items-center rounded-md bg-white/95 text-red-700 text-sm font-bold shrink-0">
+                  {(dojoName?.[0] ?? "D").toUpperCase()}
+                </div>
+              )}
+              {dojoName && (
+                <span className="hidden sm:inline font-display text-sm md:text-base font-semibold truncate text-white">
+                  {dojoName}
+                </span>
+              )}
+            </div>
+          )}
           <div className="min-w-0 flex-1">
             <h1 className="font-display text-base md:text-lg font-bold tracking-tight leading-tight truncate text-white">
               {header.title}
@@ -324,6 +345,7 @@ function DojoLayoutInner({
               </p>
             )}
           </div>
+
           <TrialBadge />
           <div className="hidden md:flex items-center gap-2">
             <div className="relative">
