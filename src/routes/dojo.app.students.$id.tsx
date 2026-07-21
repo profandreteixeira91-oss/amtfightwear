@@ -232,7 +232,7 @@ function StudentDetail() {
             student: s, branding, belts: belts.data ?? [], graduations, enrollments, invoices, certificates, attendanceRows,
             metrics: { daysTraining, attendanceThisMonth, paidInvoices, pendingInvoices, age, enrollmentDate, lastAttendance },
           })}>
-            <Printer className="h-4 w-4 mr-1.5" /> Imprimir
+            <Printer className="h-4 w-4 mr-1.5" /> Imprimir / PDF
           </Button>
           {whatsappLink && (
             <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
