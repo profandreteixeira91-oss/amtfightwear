@@ -8,6 +8,9 @@ import {
   CreditCard,
   ShieldCheck,
   Info,
+  Percent,
+  KeyRound,
+  ScrollText,
 } from "lucide-react";
 import { AMTPayDashboard } from "@/components/dojo/amtpay/AMTPayDashboard";
 import { WalletPanel } from "@/components/dojo/amtpay/WalletPanel";
@@ -15,6 +18,9 @@ import { WithdrawalsPanel } from "@/components/dojo/amtpay/WithdrawalsPanel";
 import { StatementPanel } from "@/components/dojo/amtpay/StatementPanel";
 import { AsaasOnboardingCard } from "@/components/dojo/amtpay/AsaasOnboardingCard";
 import { AMTPayInfoPanel } from "@/components/dojo/amtpay/AMTPayInfoPanel";
+import { PaymentSettingsPanel } from "@/components/dojo/amtpay/PaymentSettingsPanel";
+import { PixKeysPanel } from "@/components/dojo/amtpay/PixKeysPanel";
+import { AuditLogPanel } from "@/components/dojo/amtpay/AuditLogPanel";
 
 export const Route = createFileRoute("/dojo/app/integrations")({
   head: () => ({ meta: [{ title: "AMT Pay — Central financeira" }] }),
@@ -35,21 +41,14 @@ function AMTPayHub() {
             Central financeira do seu dojo
           </h1>
           <p className="text-sm text-muted-foreground max-w-2xl mt-1">
-            Recebimento de mensalidades via Asaas com split automático. Ative sua
-            subconta, cadastre a chave PIX e acompanhe saldo, saques e extrato — tudo
-            neste painel.
+            Motor financeiro do Dojo Manager. O gateway (Asaas) apenas processa os
+            pagamentos — toda a lógica de cobranças, saldos, taxas e saques vive aqui.
           </p>
         </div>
       </header>
 
-      <Tabs defaultValue="about" className="w-full">
+      <Tabs defaultValue="dashboard" className="w-full">
         <TabsList className="flex flex-wrap md:w-fit">
-          <TabsTrigger value="about" className="gap-2">
-            <Info className="h-4 w-4" /> Sobre & Taxas
-          </TabsTrigger>
-          <TabsTrigger value="onboarding" className="gap-2">
-            <ShieldCheck className="h-4 w-4" /> Recebimento
-          </TabsTrigger>
           <TabsTrigger value="dashboard" className="gap-2">
             <LayoutDashboard className="h-4 w-4" /> Visão geral
           </TabsTrigger>
@@ -62,14 +61,23 @@ function AMTPayHub() {
           <TabsTrigger value="statement" className="gap-2">
             <FileText className="h-4 w-4" /> Extrato
           </TabsTrigger>
+          <TabsTrigger value="fees" className="gap-2">
+            <Percent className="h-4 w-4" /> Taxas
+          </TabsTrigger>
+          <TabsTrigger value="pix" className="gap-2">
+            <KeyRound className="h-4 w-4" /> Chaves PIX
+          </TabsTrigger>
+          <TabsTrigger value="audit" className="gap-2">
+            <ScrollText className="h-4 w-4" /> Auditoria
+          </TabsTrigger>
+          <TabsTrigger value="onboarding" className="gap-2">
+            <ShieldCheck className="h-4 w-4" /> Recebimento
+          </TabsTrigger>
+          <TabsTrigger value="about" className="gap-2">
+            <Info className="h-4 w-4" /> Sobre
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="about" className="mt-6">
-          <AMTPayInfoPanel />
-        </TabsContent>
-        <TabsContent value="onboarding" className="mt-6">
-          <AsaasOnboardingCard />
-        </TabsContent>
         <TabsContent value="dashboard" className="mt-6">
           <AMTPayDashboard />
         </TabsContent>
@@ -81,6 +89,21 @@ function AMTPayHub() {
         </TabsContent>
         <TabsContent value="statement" className="mt-6">
           <StatementPanel />
+        </TabsContent>
+        <TabsContent value="fees" className="mt-6">
+          <PaymentSettingsPanel />
+        </TabsContent>
+        <TabsContent value="pix" className="mt-6">
+          <PixKeysPanel />
+        </TabsContent>
+        <TabsContent value="audit" className="mt-6">
+          <AuditLogPanel />
+        </TabsContent>
+        <TabsContent value="onboarding" className="mt-6">
+          <AsaasOnboardingCard />
+        </TabsContent>
+        <TabsContent value="about" className="mt-6">
+          <AMTPayInfoPanel />
         </TabsContent>
       </Tabs>
     </div>

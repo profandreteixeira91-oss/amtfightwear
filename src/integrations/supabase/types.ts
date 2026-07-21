@@ -2796,6 +2796,54 @@ export type Database = {
           },
         ]
       }
+      dojo_audit_logs: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          entity_id: string | null
+          entity_type: string | null
+          event_type: string
+          gateway: string | null
+          id: string
+          ip: string | null
+          message: string | null
+          metadata: Json
+          owner_id: string
+          payload: Json
+          status: string | null
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          event_type: string
+          gateway?: string | null
+          id?: string
+          ip?: string | null
+          message?: string | null
+          metadata?: Json
+          owner_id: string
+          payload?: Json
+          status?: string | null
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          event_type?: string
+          gateway?: string | null
+          id?: string
+          ip?: string | null
+          message?: string | null
+          metadata?: Json
+          owner_id?: string
+          payload?: Json
+          status?: string | null
+        }
+        Relationships: []
+      }
       dojo_bank_accounts: {
         Row: {
           account_digit: string | null
@@ -4690,6 +4738,108 @@ export type Database = {
           public_key?: string | null
           updated_at?: string
           webhook_secret?: string | null
+        }
+        Relationships: []
+      }
+      dojo_payment_settings: {
+        Row: {
+          boleto_fee_fixed: number
+          boleto_fee_percent: number
+          card_extra_per_inst: number
+          card_inst_fixed: number
+          card_inst_percent: number
+          card_upfront_fixed: number
+          card_upfront_percent: number
+          created_at: string
+          currency: string
+          default_gateway: string
+          extras: Json
+          owner_id: string
+          pix_fee_fixed: number
+          pix_fee_percent: number
+          platform_fee_fixed: number
+          platform_fee_percent: number
+          updated_at: string
+        }
+        Insert: {
+          boleto_fee_fixed?: number
+          boleto_fee_percent?: number
+          card_extra_per_inst?: number
+          card_inst_fixed?: number
+          card_inst_percent?: number
+          card_upfront_fixed?: number
+          card_upfront_percent?: number
+          created_at?: string
+          currency?: string
+          default_gateway?: string
+          extras?: Json
+          owner_id: string
+          pix_fee_fixed?: number
+          pix_fee_percent?: number
+          platform_fee_fixed?: number
+          platform_fee_percent?: number
+          updated_at?: string
+        }
+        Update: {
+          boleto_fee_fixed?: number
+          boleto_fee_percent?: number
+          card_extra_per_inst?: number
+          card_inst_fixed?: number
+          card_inst_percent?: number
+          card_upfront_fixed?: number
+          card_upfront_percent?: number
+          created_at?: string
+          currency?: string
+          default_gateway?: string
+          extras?: Json
+          owner_id?: string
+          pix_fee_fixed?: number
+          pix_fee_percent?: number
+          platform_fee_fixed?: number
+          platform_fee_percent?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      dojo_pix_keys: {
+        Row: {
+          active: boolean
+          created_at: string
+          holder_document: string | null
+          holder_name: string
+          id: string
+          is_default: boolean
+          key_type: string
+          key_value: string
+          metadata: Json
+          owner_id: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          holder_document?: string | null
+          holder_name: string
+          id?: string
+          is_default?: boolean
+          key_type: string
+          key_value: string
+          metadata?: Json
+          owner_id: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          holder_document?: string | null
+          holder_name?: string
+          id?: string
+          is_default?: boolean
+          key_type?: string
+          key_value?: string
+          metadata?: Json
+          owner_id?: string
+          updated_at?: string
         }
         Relationships: []
       }
