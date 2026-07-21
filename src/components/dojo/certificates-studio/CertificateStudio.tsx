@@ -85,6 +85,22 @@ export function CertificateStudio({ templateId }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [doc, name, category, dirty, loaded]);
 
+  // Ctrl+S save + presentation-mode global events
+  useEffect(() => {
+    const onSaveEvt = () => { save().catch(() => {}); };
+    const onTogglePres = () => setPresentation((p) => !p);
+    const onExitPres = () => setPresentation(false);
+    document.addEventListener("cert-studio:save", onSaveEvt);
+    document.addEventListener("cert-studio:toggle-presentation", onTogglePres);
+    document.addEventListener("cert-studio:exit-presentation", onExitPres);
+    return () => {
+      document.removeEventListener("cert-studio:save", onSaveEvt);
+      document.removeEventListener("cert-studio:toggle-presentation", onTogglePres);
+      document.removeEventListener("cert-studio:exit-presentation", onExitPres);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [doc, name, category]);
+
   // Warn before leaving with unsaved changes
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
@@ -94,9 +110,28 @@ export function CertificateStudio({ templateId }: Props) {
     return () => window.removeEventListener("beforeunload", handler);
   }, [dirty]);
 
+  if (presentation) {
+    const scale = Math.min(
+      (typeof window !== "undefined" ? window.innerWidth - 60 : 1400) / doc.page.width,
+      (typeof window !== "undefined" ? window.innerHeight - 60 : 800) / doc.page.height,
+    );
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-950">
+        <button
+          onClick={() => setPresentation(false)}
+          className="absolute top-4 right-4 text-white/70 hover:text-white text-xs px-3 py-1.5 rounded-md bg-white/10 backdrop-blur">
+          Sair (Esc)
+        </button>
+        <div style={{ transform: `scale(${scale})`, transformOrigin: "center center" }}>
+          <CertificateRenderer doc={doc} className="shadow-2xl ring-1 ring-white/10" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="fixed inset-0 flex flex-col bg-neutral-50">
-      <StudioTopbar onSave={save} saving={saving} onPreview={() => setPreviewOpen(true)} />
+      <StudioTopbar onSave={save} saving={saving} onPreview={() => setPreviewOpen(true)} onPresentation={() => setPresentation(true)} />
       <div className="flex flex-1 min-h-0">
         <StudioLeft />
         <StudioCanvas />
