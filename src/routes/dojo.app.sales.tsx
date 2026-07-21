@@ -37,14 +37,32 @@ type Student = Awaited<ReturnType<typeof listStudentsLite>>[number];
 const brl = (n: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(n || 0);
 
 const PAYMENT_METHOD_LABELS: Record<string, string> = {
+  // AMT Pay (gera cobrança no gateway)
+  pix: "Pix — AMT Pay",
+  credit_card: "Cartão de crédito — AMT Pay",
+  boleto: "Boleto — AMT Pay",
+  debit_card: "Cartão de débito — AMT Pay",
+  payment_link: "Link de pagamento — AMT Pay",
+  // Direto com a academia (apenas registro, marca como pago)
+  pix_direct: "Pix direto com a academia",
+  debit_direct: "Débito direto com a academia",
   cash: "Dinheiro",
-  pix: "Pix (AMT Pay)",
-  boleto: "Boleto (AMT Pay)",
-  credit_card: "Cartão de crédito (AMT Pay)",
-  debit_card: "Cartão de débito (AMT Pay)",
-  payment_link: "Link de pagamento (AMT Pay)",
+  credit_direct: "Crédito direto com a academia",
   manual: "Outro (manual)",
 };
+
+const PAYMENT_METHOD_GROUPS: { label: string; hint: string; options: string[] }[] = [
+  {
+    label: "AMT Pay",
+    hint: "Gera cobrança online (PIX, Cartão ou Boleto). Cliente paga pelo link.",
+    options: ["pix", "credit_card", "boleto"],
+  },
+  {
+    label: "Direto com a academia",
+    hint: "Somente registro da venda — marcada como paga automaticamente.",
+    options: ["pix_direct", "debit_direct", "cash", "credit_direct"],
+  },
+];
 
 const STATUS_LABELS: Record<string, string> = {
   draft: "Rascunho",
@@ -496,13 +514,26 @@ function NewSaleDialog({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {Object.entries(PAYMENT_METHOD_LABELS).map(([k, v]) => (
-                  <SelectItem key={k} value={k}>
-                    {v}
-                  </SelectItem>
+                {PAYMENT_METHOD_GROUPS.map((g, gi) => (
+                  <div key={g.label}>
+                    {gi > 0 ? <div className="my-1 border-t" /> : null}
+                    <div className="px-2 pb-1 pt-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      {g.label}
+                    </div>
+                    {g.options.map((k) => (
+                      <SelectItem key={k} value={k}>
+                        {PAYMENT_METHOD_LABELS[k] ?? k}
+                      </SelectItem>
+                    ))}
+                  </div>
                 ))}
               </SelectContent>
             </Select>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              {isGateway
+                ? PAYMENT_METHOD_GROUPS[0].hint
+                : PAYMENT_METHOD_GROUPS[1].hint}
+            </p>
           </div>
           {isGateway ? (
             <div>
@@ -534,7 +565,11 @@ function NewSaleDialog({
           <p className="text-xs text-muted-foreground">
             Uma cobrança será gerada no AMT Pay e vinculada ao aluno selecionado. O link de pagamento fica disponível na lista.
           </p>
-        ) : null}
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            Recebimento fora da plataforma — a venda será registrada e marcada como <b>paga</b> automaticamente.
+          </p>
+        )}
       </div>
       <DialogFooter className="px-6 pb-6 pt-2 border-t">
         <Button onClick={submit} disabled={saving}>
