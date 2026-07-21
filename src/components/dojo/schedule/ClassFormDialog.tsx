@@ -45,6 +45,7 @@ export function ClassFormDialog({
     status: "active" as const,
     space_id: null as string | null,
     unit_id: null as string | null,
+    teacher_id: null as string | null,
     teacher_name: "",
     schedules: [{ weekday: 1, start_time: "19:00", end_time: "20:00" }] as Schedule[],
   };
