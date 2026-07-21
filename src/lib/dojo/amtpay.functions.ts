@@ -466,7 +466,7 @@ export const requestWithdrawal = createServerFn({ method: "POST" })
         destination: bankAccount ?? null,
         pix_key: pixKey,
         pix_key_type: pixKeyType,
-        provider: "amt_pay",
+        provider: "asaas",
         provider_tx_id: null,
         status: "requested",
         notes: data.notes ?? null,
@@ -475,7 +475,7 @@ export const requestWithdrawal = createServerFn({ method: "POST" })
       .single();
     if (error) throw new Error(error.message);
 
-    // Debita saldo (kind=withdrawal, direction=-1, status=available)
+    // Debita saldo imediatamente (kind=withdrawal, direction=-1, status=available)
     await supabase.from("dojo_wallet_transactions").insert({
       owner_id: ownerId,
       kind: "withdrawal",
@@ -488,19 +488,70 @@ export const requestWithdrawal = createServerFn({ method: "POST" })
       description: `Solicitação de saque #${(wd as any).id.slice(0, 8)}`,
       reference_type: "withdrawal",
       reference_id: (wd as any).id,
-      provider: "amt_pay",
+      provider: "asaas",
     } as never);
 
+    // Dispara a transferência via Asaas (subconta do dono).
+    // Erros aqui não bloqueiam a solicitação; ela pode ser retentada.
+    let dispatchResult: any = null;
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { dispatchWithdrawal } = await import("@/lib/dojo/payments/withdrawals.server");
+      dispatchResult = await dispatchWithdrawal(supabaseAdmin, (wd as any).id);
+    } catch (err) {
+      console.error("[amtpay] dispatchWithdrawal error", err);
+    }
+
+    // Recarrega o saque para retornar o estado atual (pode ter virado processing).
+    const { data: fresh } = await supabase
+      .from("dojo_withdrawals")
+      .select("*")
+      .eq("id", (wd as any).id)
+      .maybeSingle();
+    const final = (fresh ?? wd) as any;
+
     return {
-      id: (wd as any).id,
-      provider_tx_id: null,
-      amount: Number((wd as any).amount),
-      status: (wd as any).status,
-      requested_at: (wd as any).requested_at,
-      pix_key: (wd as any).pix_key,
-      pix_key_type: (wd as any).pix_key_type,
-      bank_account: (wd as any).destination,
+      id: final.id,
+      provider_tx_id: final.provider_tx_id ?? final.asaas_transfer_id ?? null,
+      amount: Number(final.amount),
+      status: final.status,
+      requested_at: final.requested_at,
+      pix_key: final.pix_key,
+      pix_key_type: final.pix_key_type,
+      bank_account: final.destination,
+      dispatch: dispatchResult,
     };
+  });
+
+/**
+ * Retenta o envio ao Asaas de um saque que ficou em `requested`
+ * (por exemplo por falta de chave Asaas configurada na hora da solicitação).
+ */
+export const retryWithdrawal = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { data: wd } = await context.supabase
+      .from("dojo_withdrawals")
+      .select("id, owner_id, status")
+      .eq("id", data.id)
+      .eq("owner_id", context.userId)
+      .maybeSingle();
+    if (!wd) throw new Error("Saque não encontrado");
+    if ((wd as any).status !== "requested") {
+      throw new Error("Este saque já está em processamento ou foi finalizado.");
+    }
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { dispatchWithdrawal } = await import("@/lib/dojo/payments/withdrawals.server");
+    const r = await dispatchWithdrawal(supabaseAdmin, data.id);
+    if (!r.dispatched) {
+      throw new Error(
+        r.reason === "no-asaas-key"
+          ? "Ative o AMT Pay (subconta Asaas) antes de reenviar."
+          : `Não foi possível enviar ao Asaas: ${r.reason ?? "erro desconhecido"}`,
+      );
+    }
+    return { ok: true, status: r.asaasStatus };
   });
 
 export const cancelWithdrawal = createServerFn({ method: "POST" })

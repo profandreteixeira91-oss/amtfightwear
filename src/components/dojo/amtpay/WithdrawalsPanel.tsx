@@ -5,8 +5,8 @@ import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowDownRight, X } from "lucide-react";
-import { listWithdrawals, cancelWithdrawal, getPrimaryBankAccount } from "@/lib/dojo/amtpay.functions";
+import { ArrowDownRight, X, RefreshCw } from "lucide-react";
+import { listWithdrawals, cancelWithdrawal, getPrimaryBankAccount, retryWithdrawal } from "@/lib/dojo/amtpay.functions";
 import { WithdrawDialog } from "./WithdrawDialog";
 import { BankAccountDialog } from "./BankAccountDialog";
 
@@ -25,6 +25,7 @@ export function WithdrawalsPanel() {
   const qc = useQueryClient();
   const listFn = useServerFn(listWithdrawals);
   const cancelFn = useServerFn(cancelWithdrawal);
+  const retryFn = useServerFn(retryWithdrawal);
   const bankFn = useServerFn(getPrimaryBankAccount);
   const wQ = useQuery({ queryKey: ["amtpay-withdrawals"], queryFn: () => listFn() });
   const bankQ = useQuery({ queryKey: ["amtpay-bank"], queryFn: () => bankFn() });
@@ -37,6 +38,18 @@ export function WithdrawalsPanel() {
     try {
       await cancelFn({ data: { id } });
       toast.success("Saque cancelado.");
+      qc.invalidateQueries({ queryKey: ["amtpay-withdrawals"] });
+      qc.invalidateQueries({ queryKey: ["amtpay-balance"] });
+      qc.invalidateQueries({ queryKey: ["amtpay-dashboard"] });
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  }
+
+  async function onRetry(id: string) {
+    try {
+      const r = await retryFn({ data: { id } });
+      toast.success(r.status === "paid" ? "Transferência confirmada!" : "Saque enviado ao Asaas.");
       qc.invalidateQueries({ queryKey: ["amtpay-withdrawals"] });
       qc.invalidateQueries({ queryKey: ["amtpay-balance"] });
       qc.invalidateQueries({ queryKey: ["amtpay-dashboard"] });
@@ -91,7 +104,12 @@ export function WithdrawalsPanel() {
                     <td className="pr-3 text-xs font-mono truncate max-w-[140px]">{r.pix_key ?? "—"}</td>
                     <td className="pr-3"><Badge className={st.color}>{st.label}</Badge></td>
                     <td className="pr-3 text-xs font-mono">{r.provider_tx_id ?? "—"}</td>
-                    <td className="pr-3 text-right">
+                    <td className="pr-3 text-right space-x-1">
+                      {r.status === "requested" && (
+                        <Button size="sm" variant="outline" onClick={() => onRetry(r.id)}>
+                          <RefreshCw className="h-3.5 w-3.5 mr-1" /> Reenviar
+                        </Button>
+                      )}
                       {["requested", "in_review"].includes(r.status) && (
                         <Button size="sm" variant="ghost" onClick={() => onCancel(r.id)}>
                           <X className="h-3.5 w-3.5 mr-1" /> Cancelar
