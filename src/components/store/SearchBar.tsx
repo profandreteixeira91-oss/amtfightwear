@@ -15,7 +15,7 @@ type Suggestion = {
 
 type Cat = { id: string; slug: string; name: string; parent_id: string | null };
 
-export function SearchBar() {
+export function SearchBar({ className }: { className?: string } = {}) {
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
