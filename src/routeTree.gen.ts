@@ -54,6 +54,7 @@ import { Route as LojaPedidoIdRouteImport } from './routes/loja.pedido.$id'
 import { Route as LojaCustomShopKindRouteImport } from './routes/loja.custom-shop.$kind'
 import { Route as LojaContaPedidosRouteImport } from './routes/loja.conta.pedidos'
 import { Route as LojaCategoriaSlugRouteImport } from './routes/loja.categoria.$slug'
+import { Route as DojoPayInvoiceIdRouteImport } from './routes/dojo.pay.$invoiceId'
 import { Route as DojoAppVideosRouteImport } from './routes/dojo.app.videos'
 import { Route as DojoAppUnitsRouteImport } from './routes/dojo.app.units'
 import { Route as DojoAppSubscriptionRouteImport } from './routes/dojo.app.subscription'
@@ -425,6 +426,11 @@ const LojaCategoriaSlugRoute = LojaCategoriaSlugRouteImport.update({
   id: '/loja/categoria/$slug',
   path: '/loja/categoria/$slug',
   getParentRoute: () => rootRouteImport,
+} as any)
+const DojoPayInvoiceIdRoute = DojoPayInvoiceIdRouteImport.update({
+  id: '/pay/$invoiceId',
+  path: '/pay/$invoiceId',
+  getParentRoute: () => DojoRoute,
 } as any)
 const DojoAppVideosRoute = DojoAppVideosRouteImport.update({
   id: '/videos',
@@ -1354,6 +1360,7 @@ export interface FileRoutesByFullPath {
   '/dojo/app/subscription': typeof DojoAppSubscriptionRoute
   '/dojo/app/units': typeof DojoAppUnitsRoute
   '/dojo/app/videos': typeof DojoAppVideosRouteWithChildren
+  '/dojo/pay/$invoiceId': typeof DojoPayInvoiceIdRoute
   '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
   '/loja/conta/pedidos': typeof LojaContaPedidosRoute
   '/loja/custom-shop/$kind': typeof LojaCustomShopKindRoute
@@ -1539,6 +1546,7 @@ export interface FileRoutesByTo {
   '/dojo/app/student-app-qr': typeof DojoAppStudentAppQrRoute
   '/dojo/app/subscription': typeof DojoAppSubscriptionRoute
   '/dojo/app/units': typeof DojoAppUnitsRoute
+  '/dojo/pay/$invoiceId': typeof DojoPayInvoiceIdRoute
   '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
   '/loja/conta/pedidos': typeof LojaContaPedidosRoute
   '/loja/custom-shop/$kind': typeof LojaCustomShopKindRoute
@@ -1732,6 +1740,7 @@ export interface FileRoutesById {
   '/dojo/app/subscription': typeof DojoAppSubscriptionRoute
   '/dojo/app/units': typeof DojoAppUnitsRoute
   '/dojo/app/videos': typeof DojoAppVideosRouteWithChildren
+  '/dojo/pay/$invoiceId': typeof DojoPayInvoiceIdRoute
   '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
   '/loja/conta/pedidos': typeof LojaContaPedidosRoute
   '/loja/custom-shop/$kind': typeof LojaCustomShopKindRoute
@@ -1926,6 +1935,7 @@ export interface FileRouteTypes {
     | '/dojo/app/subscription'
     | '/dojo/app/units'
     | '/dojo/app/videos'
+    | '/dojo/pay/$invoiceId'
     | '/loja/categoria/$slug'
     | '/loja/conta/pedidos'
     | '/loja/custom-shop/$kind'
@@ -2111,6 +2121,7 @@ export interface FileRouteTypes {
     | '/dojo/app/student-app-qr'
     | '/dojo/app/subscription'
     | '/dojo/app/units'
+    | '/dojo/pay/$invoiceId'
     | '/loja/categoria/$slug'
     | '/loja/conta/pedidos'
     | '/loja/custom-shop/$kind'
@@ -2303,6 +2314,7 @@ export interface FileRouteTypes {
     | '/dojo/app/subscription'
     | '/dojo/app/units'
     | '/dojo/app/videos'
+    | '/dojo/pay/$invoiceId'
     | '/loja/categoria/$slug'
     | '/loja/conta/pedidos'
     | '/loja/custom-shop/$kind'
@@ -2749,6 +2761,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/loja/categoria/$slug'
       preLoaderRoute: typeof LojaCategoriaSlugRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/dojo/pay/$invoiceId': {
+      id: '/dojo/pay/$invoiceId'
+      path: '/pay/$invoiceId'
+      fullPath: '/dojo/pay/$invoiceId'
+      preLoaderRoute: typeof DojoPayInvoiceIdRouteImport
+      parentRoute: typeof DojoRoute
     }
     '/dojo/app/videos': {
       id: '/dojo/app/videos'
@@ -4218,6 +4237,7 @@ interface DojoRouteChildren {
   DojoCheckoutRoute: typeof DojoCheckoutRoute
   DojoOnboardingRoute: typeof DojoOnboardingRoute
   DojoIndexRoute: typeof DojoIndexRoute
+  DojoPayInvoiceIdRoute: typeof DojoPayInvoiceIdRoute
 }
 
 const DojoRouteChildren: DojoRouteChildren = {
@@ -4226,6 +4246,7 @@ const DojoRouteChildren: DojoRouteChildren = {
   DojoCheckoutRoute: DojoCheckoutRoute,
   DojoOnboardingRoute: DojoOnboardingRoute,
   DojoIndexRoute: DojoIndexRoute,
+  DojoPayInvoiceIdRoute: DojoPayInvoiceIdRoute,
 }
 
 const DojoRouteWithChildren = DojoRoute._addFileChildren(DojoRouteChildren)
