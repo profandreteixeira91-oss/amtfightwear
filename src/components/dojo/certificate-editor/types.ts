@@ -23,8 +23,16 @@ export type TextElement = ElementBase & {
   underline?: boolean;
   uppercase?: boolean;
   align: "left" | "center" | "right";
+  verticalAlign?: "top" | "middle" | "bottom";
   lineHeight?: number;
   letterSpacing?: number;
+  // Text-box styling
+  background?: string;     // solid color behind text; empty/transparent = none
+  padding?: number;        // px, inside the text box
+  borderColor?: string;
+  borderWidth?: number;
+  borderRadius?: number;
+  shadow?: string;         // CSS text-shadow / box-shadow
 };
 
 export type ImageElement = ElementBase & {
