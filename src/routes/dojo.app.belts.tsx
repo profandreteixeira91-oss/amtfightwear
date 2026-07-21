@@ -276,11 +276,11 @@ function BeltsPage() {
       </Card>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{form.id ? "Editar faixa" : "Nova faixa"}</DialogTitle>
           </DialogHeader>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 min-w-0">
             <div className="col-span-2">
               <label className="text-xs text-muted-foreground">Modalidade</label>
               <Input
