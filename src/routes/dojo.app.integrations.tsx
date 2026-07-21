@@ -11,6 +11,7 @@ import {
   Percent,
   KeyRound,
   ScrollText,
+  Bell,
 } from "lucide-react";
 import { AMTPayDashboard } from "@/components/dojo/amtpay/AMTPayDashboard";
 import { WalletPanel } from "@/components/dojo/amtpay/WalletPanel";
@@ -21,6 +22,7 @@ import { AMTPayInfoPanel } from "@/components/dojo/amtpay/AMTPayInfoPanel";
 import { PaymentSettingsPanel } from "@/components/dojo/amtpay/PaymentSettingsPanel";
 import { PixKeysPanel } from "@/components/dojo/amtpay/PixKeysPanel";
 import { AuditLogPanel } from "@/components/dojo/amtpay/AuditLogPanel";
+import { RemindersPanel } from "@/components/dojo/amtpay/RemindersPanel";
 
 export const Route = createFileRoute("/dojo/app/integrations")({
   head: () => ({ meta: [{ title: "AMT Pay — Central financeira" }] }),
@@ -67,6 +69,9 @@ function AMTPayHub() {
           <TabsTrigger value="pix" className="gap-2">
             <KeyRound className="h-4 w-4" /> Chaves PIX
           </TabsTrigger>
+          <TabsTrigger value="reminders" className="gap-2">
+            <Bell className="h-4 w-4" /> Lembretes
+          </TabsTrigger>
           <TabsTrigger value="audit" className="gap-2">
             <ScrollText className="h-4 w-4" /> Auditoria
           </TabsTrigger>
@@ -95,6 +100,9 @@ function AMTPayHub() {
         </TabsContent>
         <TabsContent value="pix" className="mt-6">
           <PixKeysPanel />
+        </TabsContent>
+        <TabsContent value="reminders" className="mt-6">
+          <RemindersPanel />
         </TabsContent>
         <TabsContent value="audit" className="mt-6">
           <AuditLogPanel />

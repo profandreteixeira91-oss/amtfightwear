@@ -171,6 +171,7 @@ import { Route as ApiPublicSalesMessagesRouteImport } from './routes/api/public/
 import { Route as ApiPublicSalesChatRouteImport } from './routes/api/public/sales/chat'
 import { Route as ApiPublicMetaCallbackRouteImport } from './routes/api/public/meta/callback'
 import { Route as ApiPublicHooksSyncAdsInsightsRouteImport } from './routes/api/public/hooks/sync-ads-insights'
+import { Route as ApiPublicHooksSendDojoRemindersRouteImport } from './routes/api/public/hooks/send-dojo-reminders'
 import { Route as ApiPublicHooksScaleWinnersRouteImport } from './routes/api/public/hooks/scale-winners'
 import { Route as ApiPublicHooksRunAdsOptimizationRouteImport } from './routes/api/public/hooks/run-ads-optimization'
 import { Route as ApiPublicHooksPublishScheduledPostsRouteImport } from './routes/api/public/hooks/publish-scheduled-posts'
@@ -1055,6 +1056,12 @@ const ApiPublicHooksSyncAdsInsightsRoute =
     path: '/api/public/hooks/sync-ads-insights',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksSendDojoRemindersRoute =
+  ApiPublicHooksSendDojoRemindersRouteImport.update({
+    id: '/api/public/hooks/send-dojo-reminders',
+    path: '/api/public/hooks/send-dojo-reminders',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksScaleWinnersRoute =
   ApiPublicHooksScaleWinnersRouteImport.update({
     id: '/api/public/hooks/scale-winners',
@@ -1353,6 +1360,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/hooks/run-ads-optimization': typeof ApiPublicHooksRunAdsOptimizationRoute
   '/api/public/hooks/scale-winners': typeof ApiPublicHooksScaleWinnersRoute
+  '/api/public/hooks/send-dojo-reminders': typeof ApiPublicHooksSendDojoRemindersRoute
   '/api/public/hooks/sync-ads-insights': typeof ApiPublicHooksSyncAdsInsightsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
@@ -1534,6 +1542,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/hooks/run-ads-optimization': typeof ApiPublicHooksRunAdsOptimizationRoute
   '/api/public/hooks/scale-winners': typeof ApiPublicHooksScaleWinnersRoute
+  '/api/public/hooks/send-dojo-reminders': typeof ApiPublicHooksSendDojoRemindersRoute
   '/api/public/hooks/sync-ads-insights': typeof ApiPublicHooksSyncAdsInsightsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
@@ -1723,6 +1732,7 @@ export interface FileRoutesById {
   '/api/public/hooks/publish-scheduled-posts': typeof ApiPublicHooksPublishScheduledPostsRoute
   '/api/public/hooks/run-ads-optimization': typeof ApiPublicHooksRunAdsOptimizationRoute
   '/api/public/hooks/scale-winners': typeof ApiPublicHooksScaleWinnersRoute
+  '/api/public/hooks/send-dojo-reminders': typeof ApiPublicHooksSendDojoRemindersRoute
   '/api/public/hooks/sync-ads-insights': typeof ApiPublicHooksSyncAdsInsightsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
@@ -1913,6 +1923,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/hooks/run-ads-optimization'
     | '/api/public/hooks/scale-winners'
+    | '/api/public/hooks/send-dojo-reminders'
     | '/api/public/hooks/sync-ads-insights'
     | '/api/public/meta/callback'
     | '/api/public/sales/chat'
@@ -2094,6 +2105,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/hooks/run-ads-optimization'
     | '/api/public/hooks/scale-winners'
+    | '/api/public/hooks/send-dojo-reminders'
     | '/api/public/hooks/sync-ads-insights'
     | '/api/public/meta/callback'
     | '/api/public/sales/chat'
@@ -2282,6 +2294,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/publish-scheduled-posts'
     | '/api/public/hooks/run-ads-optimization'
     | '/api/public/hooks/scale-winners'
+    | '/api/public/hooks/send-dojo-reminders'
     | '/api/public/hooks/sync-ads-insights'
     | '/api/public/meta/callback'
     | '/api/public/sales/chat'
@@ -2369,6 +2382,7 @@ export interface RootRouteChildren {
   ApiPublicHooksPublishScheduledPostsRoute: typeof ApiPublicHooksPublishScheduledPostsRoute
   ApiPublicHooksRunAdsOptimizationRoute: typeof ApiPublicHooksRunAdsOptimizationRoute
   ApiPublicHooksScaleWinnersRoute: typeof ApiPublicHooksScaleWinnersRoute
+  ApiPublicHooksSendDojoRemindersRoute: typeof ApiPublicHooksSendDojoRemindersRoute
   ApiPublicHooksSyncAdsInsightsRoute: typeof ApiPublicHooksSyncAdsInsightsRoute
   ApiPublicMetaCallbackRoute: typeof ApiPublicMetaCallbackRoute
   ApiPublicSalesChatRoute: typeof ApiPublicSalesChatRoute
@@ -3516,6 +3530,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksSyncAdsInsightsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/send-dojo-reminders': {
+      id: '/api/public/hooks/send-dojo-reminders'
+      path: '/api/public/hooks/send-dojo-reminders'
+      fullPath: '/api/public/hooks/send-dojo-reminders'
+      preLoaderRoute: typeof ApiPublicHooksSendDojoRemindersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/scale-winners': {
       id: '/api/public/hooks/scale-winners'
       path: '/api/public/hooks/scale-winners'
@@ -4194,6 +4215,7 @@ const rootRouteChildren: RootRouteChildren = {
     ApiPublicHooksPublishScheduledPostsRoute,
   ApiPublicHooksRunAdsOptimizationRoute: ApiPublicHooksRunAdsOptimizationRoute,
   ApiPublicHooksScaleWinnersRoute: ApiPublicHooksScaleWinnersRoute,
+  ApiPublicHooksSendDojoRemindersRoute: ApiPublicHooksSendDojoRemindersRoute,
   ApiPublicHooksSyncAdsInsightsRoute: ApiPublicHooksSyncAdsInsightsRoute,
   ApiPublicMetaCallbackRoute: ApiPublicMetaCallbackRoute,
   ApiPublicSalesChatRoute: ApiPublicSalesChatRoute,
