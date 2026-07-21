@@ -23,7 +23,7 @@ import {
   addCompetitionSource, deleteCompetitionSource,
 } from "@/lib/dojo/competitions/ingest.functions";
 import {
-  addCompetitionToCalendar, listAcademyCompetitions,
+  addCompetitionToCalendar, addCompetitionsBulkToCalendar, listAcademyCompetitions,
   removeAcademyCompetition, getCompetitionsDashboard,
 } from "@/lib/dojo/competitions/academy.functions";
 import { scopeLabel, tierLabel } from "@/lib/dojo/competitions/classifier";
