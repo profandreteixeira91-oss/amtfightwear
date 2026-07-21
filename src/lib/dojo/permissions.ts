@@ -51,7 +51,7 @@ export function defaultPermissionsForRole(role?: string | null): PermissionMap {
     case "manager":
       return all("write");
     case "finance":
-      return { ...all("none"), dashboard: "read", finance: "write", plans: "write", recurring: "write", amtpay: "write", students: "read" };
+      return { ...all("none"), dashboard: "read", finance: "write", plans: "write", amtpay: "write", students: "read" };
     case "receptionist":
       return { ...all("none"), dashboard: "read", students: "write", checkin: "write", schedule: "read", announcements: "write", plans: "read" };
     case "teacher":
