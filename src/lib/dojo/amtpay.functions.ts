@@ -547,7 +547,7 @@ export const retryWithdrawal = createServerFn({ method: "POST" })
     if (!r.dispatched) {
       throw new Error(
         r.reason === "no-asaas-key"
-          ? "Ative o AMT Pay (subconta Asaas) antes de reenviar."
+          ? "Configuração AMT Pay indisponível. Contate o suporte."
           : `Não foi possível enviar ao Asaas: ${r.reason ?? "erro desconhecido"}`,
       );
     }
