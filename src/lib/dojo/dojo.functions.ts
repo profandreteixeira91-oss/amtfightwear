@@ -141,7 +141,7 @@ async function attachCurrentBeltsByModality(
   const ids = students.map((s) => s.id);
   const { data: grads } = await supabase
     .from("dojo_graduations")
-    .select("student_id, degree, graduation_date, belt:dojo_belts(id,name,color_hex,stripe_hex,max_degrees,modality)")
+    .select("student_id, degree, graduation_date, belt:dojo_belts(id,name,color_hex,stripe_hex,max_degrees,modality,visual,variants)")
     .in("student_id", ids)
     .order("graduation_date", { ascending: false });
   const byStudent = new Map<string, Map<string, any>>();
@@ -171,7 +171,7 @@ export const listDojoStudents = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("dojo_students")
-      .select("*, unit:dojo_units(name), belt:dojo_belts(name,color_hex,stripe_hex,max_degrees,modality)")
+      .select("*, unit:dojo_units(name), belt:dojo_belts(name,color_hex,stripe_hex,max_degrees,modality,visual,variants)")
       .order("full_name");
     if (error) throw new Error(error.message);
     return await attachCurrentBeltsByModality(context.supabase, data ?? []);
@@ -185,7 +185,7 @@ export const getDojoStudent = createServerFn({ method: "GET" })
       .from("dojo_students").select("*").eq("id", data.id).single();
     if (error) throw new Error(error.message);
     const [grads, enrolls, invoices, certs] = await Promise.all([
-      context.supabase.from("dojo_graduations").select("*, belt:dojo_belts(name,color_hex,stripe_hex,max_degrees,modality)").eq("student_id", data.id).order("graduation_date", { ascending: false }),
+      context.supabase.from("dojo_graduations").select("*, belt:dojo_belts(name,color_hex,stripe_hex,max_degrees,modality,visual,variants)").eq("student_id", data.id).order("graduation_date", { ascending: false }),
       context.supabase.from("dojo_enrollments").select("*, plan:dojo_plans(name,amount)").eq("student_id", data.id),
       context.supabase.from("dojo_invoices").select("*").eq("student_id", data.id).order("due_date", { ascending: false }).limit(50),
       context.supabase.from("dojo_certificates").select("*, template:dojo_certificate_templates(*), graduation:dojo_graduations(graduation_date, degree, belt:dojo_belts(name))").eq("student_id", data.id).order("issued_at", { ascending: false }),
@@ -1329,11 +1329,11 @@ export const getCertificateIssueContext = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => {
     const [s, a, g] = await Promise.all([
       context.supabase.from("dojo_students")
-        .select("*, belt:dojo_belts(name,modality,color_hex,stripe_hex)")
+        .select("*, belt:dojo_belts(name,modality,color_hex,stripe_hex,max_degrees,visual,variants)")
         .eq("id", data.student_id).maybeSingle(),
       context.supabase.from("dojo_academy_profile").select("*").eq("owner_id", context.userId).maybeSingle(),
       context.supabase.from("dojo_graduations")
-        .select("*, belt:dojo_belts(name,modality,color_hex,stripe_hex)")
+        .select("*, belt:dojo_belts(name,modality,color_hex,stripe_hex,max_degrees,visual,variants)")
         .eq("student_id", data.student_id)
         .order("graduation_date", { ascending: false })
         .limit(1).maybeSingle(),
@@ -1452,7 +1452,7 @@ export const listDojoEvaluations = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("dojo_evaluations")
-      .select("*, belt:dojo_belts(name,color_hex,stripe_hex,max_degrees)")
+      .select("*, belt:dojo_belts(name,color_hex,stripe_hex,max_degrees,modality,visual,variants)")
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
     return data ?? [];
