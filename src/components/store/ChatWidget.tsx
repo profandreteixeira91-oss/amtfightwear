@@ -245,7 +245,7 @@ export function ChatWidget(props: ChatWidgetProps = {}) {
                 {status === "human" ? <Headset className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
               </div>
               <div className="leading-tight">
-                <div className="text-sm font-bold">Atendimento AMT</div>
+                <div className="text-sm font-bold">{headerTitle}</div>
                 <div className="text-[11px] text-background/70">
                   {status === "human" ? "Falando com um atendente" : "Assistente automático · online"}
                 </div>
