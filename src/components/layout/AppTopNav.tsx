@@ -133,15 +133,30 @@ const groups: { label: string; items: Item[] }[] = [
     ],
   },
   {
-    label: "Gestão",
+    label: "Pessoas",
     items: [
       { title: "Alunos", url: "/dojo/app/students", icon: Users },
-      { title: "Equipe", url: "/dojo/app/team", icon: Users },
-      { title: "Unidades", url: "/dojo/app/units", icon: UserSquare2 },
+      { title: "Equipe", url: "/dojo/app/team", icon: UserSquare2 },
+    ],
+  },
+  {
+    label: "Rotina",
+    items: [
       { title: "Turmas", url: "/dojo/app/schedule", icon: GraduationCap },
       { title: "Agenda", url: "/dojo/app/schedule", icon: CalendarDays },
       { title: "Quadro de Avisos", url: "/dojo/app/announcements", icon: Megaphone },
-      { title: "Benefícios Corporativos", url: "/dojo/app/corporate-benefits", icon: Building2 },
+    ],
+  },
+  {
+    label: "Estrutura",
+    items: [
+      { title: "Unidades", url: "/dojo/app/units", icon: Building2 },
+      { title: "Benefícios Corporativos", url: "/dojo/app/corporate-benefits", icon: Handshake },
+    ],
+  },
+  {
+    label: "Comercial",
+    items: [
       { title: "AMT Store", url: "/dojo/app/store", icon: Store },
     ],
   },
@@ -188,10 +203,11 @@ export function AppTopNav() {
   const dojoName = !inStore ? (dojo?.trade_name || dojo?.legal_name) : undefined;
   const dojoLogo = !inStore ? dojo?.logo_url : undefined;
 
-  // "Gestão" pertence ao AMT Dojo Manager — só exibir dentro de /dojo.
+  // Grupos exclusivos do Dojo Manager — só aparecem dentro de /dojo.
+  const dojoOnlyLabels = new Set(["Pessoas", "Rotina", "Estrutura", "Comercial"]);
   const visibleGroups = inDojo
     ? groups
-    : groups.filter((g) => g.label !== "Gestão");
+    : groups.filter((g) => !dojoOnlyLabels.has(g.label));
 
   return (
     <div
