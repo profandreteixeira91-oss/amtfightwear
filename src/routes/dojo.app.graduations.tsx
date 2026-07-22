@@ -116,20 +116,73 @@ function NewGraduationPage() {
     });
   };
 
+  const beltById = useMemo(() => {
+    const m = new Map<string, any>();
+    for (const b of (belts.data ?? []) as any[]) m.set(b.id, b);
+    return m;
+  }, [belts.data]);
+
+  const resolveStudentGrad = (studentId: string) => {
+    const p = perStudent[studentId] ?? { beltId, degree };
+    return { beltId: p.beltId, degree: p.degree, belt: beltById.get(p.beltId) };
+  };
+
   const goToGrad = () => {
     if (selectedStudents.size === 0) return toast.error("Selecione ao menos um aluno");
+    // Inicializa entradas por aluno sem sobrescrever escolhas prévias
+    setPerStudent(prev => {
+      const next = { ...prev };
+      for (const id of selectedStudents) {
+        if (!next[id]) next[id] = { beltId: "", degree: 0 };
+      }
+      return next;
+    });
     setStep("grad");
   };
 
+  const applyDefaultsToAll = () => {
+    if (!beltId) return toast.error("Selecione uma faixa padrão");
+    setPerStudent(prev => {
+      const next = { ...prev };
+      for (const id of selectedStudents) next[id] = { beltId, degree };
+      return next;
+    });
+    toast.success("Faixa aplicada a todos os alunos");
+  };
+
+  const setStudentBelt = (studentId: string, newBeltId: string) => {
+    setPerStudent(prev => ({ ...prev, [studentId]: { beltId: newBeltId, degree: 0 } }));
+  };
+  const setStudentDegree = (studentId: string, newDegree: number) => {
+    setPerStudent(prev => ({
+      ...prev,
+      [studentId]: { beltId: prev[studentId]?.beltId ?? "", degree: newDegree },
+    }));
+  };
+
   const submitGrad = async () => {
-    if (!beltId) return toast.error("Selecione a faixa");
-    if (degree < 0 || degree > maxDeg) return toast.error(`Grau entre 0 e ${maxDeg}`);
+    const items = Array.from(selectedStudents).map(sid => {
+      const p = perStudent[sid] ?? { beltId, degree };
+      return { student_id: sid, belt_id: p.beltId, degree: p.degree };
+    });
+    const missing = items.filter(i => !i.belt_id);
+    if (missing.length > 0) {
+      return toast.error(`Selecione a faixa de ${missing.length} aluno(s) pendente(s)`);
+    }
+    for (const it of items) {
+      const b = beltById.get(it.belt_id);
+      const max = b?.max_degrees ?? 4;
+      if (it.degree < 0 || it.degree > max) {
+        return toast.error(`Grau inválido para ${b?.name ?? "faixa"}`);
+      }
+    }
 
     try {
       const res = await bulkFn({ data: {
-        student_ids: Array.from(selectedStudents),
-        belt_id: beltId, degree, graduation_date: date,
-        evaluator: evaluator || null, notes: notes || null,
+        items,
+        graduation_date: date,
+        evaluator: evaluator || null,
+        notes: notes || null,
       }});
 
       toast.success(`${res.count} graduação(ões) registrada(s)`);
@@ -145,10 +198,12 @@ function NewGraduationPage() {
     if (!student) return;
     const tpl = (templates.data ?? []).find((t: any) => t.id === templateId);
 
-    // Build a comprehensive values map covering BOTH new keys (aluno_nome…)
-    // and legacy keys (student_name, belt, date, signature) so any template
-    // — antigo ou novo — preenche corretamente.
-    const beltLabel = effectiveBelt?.name ?? `${selectedBelt?.name ?? ""}${degree ? ` — ${degree}º ${degreeUnit(selectedBelt?.modality)}` : ""}`;
+    const { belt: studentBelt, degree: studentDeg } = resolveStudentGrad(studentId);
+    const studentMod = studentBelt?.modality ?? modality;
+
+    const beltLabel = studentBelt?.name
+      ? `${studentBelt.name}${studentDeg ? ` — ${studentDeg}º ${degreeUnit(studentMod)}` : ""}`
+      : "";
     const dateBr = new Date(date).toLocaleDateString("pt-BR");
     const dateLong = new Date(date).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
     const now = new Date();
@@ -159,13 +214,13 @@ function NewGraduationPage() {
       aluno_cpf: (student as any).cpf ?? "",
       aluno_data_nascimento: (student as any).birth_date ? new Date((student as any).birth_date).toLocaleDateString("pt-BR") : "",
       aluno_faixa: beltLabel,
-      aluno_grau: String(degree ?? ""),
-      aluno_modalidade: (student as any).modality || (student as any).discipline || modality || "",
+      aluno_grau: String(studentDeg ?? ""),
+      aluno_modalidade: (student as any).modality || (student as any).discipline || studentMod || "",
       aluno_foto: (student as any).photo_url ?? "",
       // Graduação
       graduacao_atual: beltLabel,
       graduacao_data: dateLong,
-      graduacao_modalidade: modality || "",
+      graduacao_modalidade: studentMod || "",
       graduacao_observacoes: notes || "",
       // Professor
       professor_nome: evaluator || "",
@@ -190,7 +245,6 @@ function NewGraduationPage() {
         return next;
       });
       toast.success(`Certificado emitido: ${student.full_name}`);
-      // Auto-open preview for a single-student flow
       if (registered.length <= 1) setPreviewFor(studentId);
     } catch (e: any) { toast.error(e.message ?? "Erro ao emitir"); }
   };
@@ -210,7 +264,9 @@ function NewGraduationPage() {
   const reset = () => {
     setStep("select"); setSelectedStudents(new Set()); setBeltId(""); setDegree(0);
     setEvaluator(""); setNotes(""); setRegistered([]); setTemplateId(""); setIssued(new Map()); setPreviewFor(null);
+    setPerStudent({});
   };
+
 
   const stepMeta: Record<Step, { label: string; icon: any; hint: string }> = {
     select: { label: "Alunos", icon: Users, hint: "Escolha quem será graduado" },
