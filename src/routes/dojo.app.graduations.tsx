@@ -59,20 +59,14 @@ function NewGraduationPage() {
   const [issued, setIssued] = useState<Map<string, { template: CertificateTemplate; values: Record<string, string>; studentName: string }>>(new Map());
   const [previewFor, setPreviewFor] = useState<string | null>(null);
 
-  // Hide Preta variants from the belt dropdown — they are chosen via the "Grau" selector below.
   const modalities = useMemo(() => {
     const set = new Set<string>();
     (belts.data ?? []).forEach((b: any) => set.add(b.modality ?? "jiu-jitsu"));
     return Array.from(set);
   }, [belts.data]);
 
-  // Hide Preta variants from the belt dropdown — they are chosen via the "Grau" selector below.
   const visibleBelts = useMemo(
-    () => (belts.data ?? []).filter((b: any) => {
-      if ((b.modality ?? "jiu-jitsu") !== modality) return false;
-      const n = b.name as string;
-      return !/^preta\s+com\s+aparador$/i.test(n) && !/^preta\s+\d+\s+grau$/i.test(n);
-    }),
+    () => (belts.data ?? []).filter((b: any) => (b.modality ?? "jiu-jitsu") === modality),
     [belts.data, modality]
   );
 
@@ -80,22 +74,10 @@ function NewGraduationPage() {
     () => (belts.data ?? []).find((b: any) => b.id === beltId),
     [belts.data, beltId]
   );
-  // Preta-base BJJ selector: só aplicável ao jiu-jitsu. Em judô/karatê/etc., a
-  // faixa preta é única e o grau vai como "Xº Dan" no select de grau padrão.
   const selectedIsBJJ = (selectedBelt?.modality ?? "jiu-jitsu") === "jiu-jitsu";
   const isPretaBase = selectedIsBJJ && /^preta$/i.test(selectedBelt?.name ?? "");
-  // Preta variant: 'plain' | 'aparador' | 1..6
-  const [pretaVariant, setPretaVariant] = useState<string>("plain");
-
-  // Resolve the actual belt row to submit when Preta base is chosen.
-  const effectiveBelt = useMemo(() => {
-    if (!isPretaBase) return selectedBelt;
-    const all = belts.data ?? [];
-    if (pretaVariant === "aparador") return all.find((b: any) => /^preta\s+com\s+aparador$/i.test(b.name)) ?? selectedBelt;
-    const n = Number(pretaVariant);
-    if (n >= 1 && n <= 6) return all.find((b: any) => new RegExp(`^preta\\s+${n}\\s+grau$`, "i").test(b.name)) ?? selectedBelt;
-    return selectedBelt;
-  }, [isPretaBase, pretaVariant, selectedBelt, belts.data]);
+  // BJJ Preta usa max_degrees=7 codificados como: 0 base, 1 aparador, 2..7 = 1º..6º grau.
+  const effectiveBelt = selectedBelt;
 
   const maxDeg = selectedBelt?.max_degrees ?? 4;
   const fixedDegreeName = /^vermelha e preta$/i.test(selectedBelt?.name ?? "")
@@ -106,10 +88,10 @@ function NewGraduationPage() {
     ? 9
     : null;
   const isFixedDegree = fixedDegreeName !== null;
-  // Force degree to mandatory value when a fixed-degree belt is selected
   if (isFixedDegree && degree !== fixedDegreeName) {
     setTimeout(() => setDegree(fixedDegreeName as number), 0);
   }
+
 
 
   const selectedRows = useMemo(
