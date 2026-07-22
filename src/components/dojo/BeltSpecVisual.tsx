@@ -140,6 +140,11 @@ export function BeltSpecVisual({
  * Preferimos o spec quando existe; caso contrário caímos na renderização
  * automática do BeltVisual (baseada em nome/modalidade). Assim faixas
  * antigas continuam funcionando sem alteração.
+ *
+ * Quando a faixa tem `variants` com override específico para o grau atual
+ * (kind === "degree"), o visual do grau prevalece — assim edições feitas no
+ * Belt Studio (modalidades, faixas e graus) são propagadas para todo o
+ * sistema: perfil do aluno, graduações, certificados e dashboard.
  */
 export function BeltAuto({
   belt, degree = 0, className,
@@ -150,11 +155,18 @@ export function BeltAuto({
     color_hex?: string;
     stripe_hex?: string | null;
     visual?: BeltSpec | null;
+    variants?: Array<{ id?: string; name?: string; degree: number; kind?: "degree" | "variant"; visual?: BeltSpec | null }> | null;
     max_degrees?: number;
   };
   degree?: number;
   className?: string;
 }) {
+  const degreeOverride = (belt.variants ?? []).find(
+    (v) => v && v.kind === "degree" && Number(v.degree) === Number(degree) && !beltSpecIsEmpty(v.visual),
+  );
+  if (degreeOverride && !beltSpecIsEmpty(degreeOverride.visual)) {
+    return <BeltSpecVisual spec={degreeOverride.visual!} degree={degree} className={className} />;
+  }
   if (!beltSpecIsEmpty(belt.visual)) {
     return <BeltSpecVisual spec={belt.visual!} degree={degree} className={className} />;
   }
