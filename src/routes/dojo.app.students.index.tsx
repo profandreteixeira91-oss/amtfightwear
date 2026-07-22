@@ -1159,15 +1159,20 @@ function Field({
   label,
   className,
   children,
+  hint,
 }: {
   label: string;
   className?: string;
   children: React.ReactNode;
+  hint?: string;
 }) {
   return (
     <div className={className}>
-      <Label className="mb-1 block text-xs font-medium">{label}</Label>
+      <Label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+        {label}
+      </Label>
       {children}
+      {hint && <p className="mt-1 text-[11px] text-muted-foreground">{hint}</p>}
     </div>
   );
 }
@@ -1182,9 +1187,9 @@ function BoolChk({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <label className="flex items-start gap-2 text-sm">
+    <label className="flex items-start gap-2.5 text-sm rounded-md border border-transparent hover:border-border hover:bg-muted/40 px-2 py-1.5 -mx-2 transition-colors cursor-pointer">
       <Checkbox checked={checked} onCheckedChange={(v) => onChange(v === true)} className="mt-0.5" />
-      <span>{label}</span>
+      <span className="leading-snug">{label}</span>
     </label>
   );
 }
