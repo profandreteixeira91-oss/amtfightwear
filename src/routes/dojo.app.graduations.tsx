@@ -124,7 +124,7 @@ function NewGraduationPage() {
     try {
       const res = await bulkFn({ data: {
         student_ids: Array.from(selectedStudents),
-        belt_id: submitBeltId, degree: submitDegree, graduation_date: date,
+        belt_id: beltId, degree, graduation_date: date,
         evaluator: evaluator || null, notes: notes || null,
       }});
 
