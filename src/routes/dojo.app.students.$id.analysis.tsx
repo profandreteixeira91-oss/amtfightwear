@@ -25,6 +25,7 @@ import {
 import { PerformanceGauge } from "@/components/dojo/athlete-analysis/PerformanceGauge";
 import { AttendanceHeatmap } from "@/components/dojo/athlete-analysis/AttendanceHeatmap";
 import { TechnicalRadar } from "@/components/dojo/athlete-analysis/TechnicalRadar";
+import { TechnicalTab } from "@/components/dojo/athlete-analysis/TechnicalTab";
 import { InsightCard } from "@/components/dojo/athlete-analysis/InsightCard";
 import { GoalsTab } from "@/components/dojo/athlete-analysis/GoalsTab";
 import { formatDegree, degreeUnit } from "@/lib/dojo/degree-label";
@@ -214,12 +215,8 @@ function AnalysisPage() {
         </TabsContent>
 
         <TabsContent value="tecnico" className="mt-4 space-y-4">
-          <SectionCard title="Radar Técnico" description="Última avaliação técnica registrada">
-            {technical.isLoading ? <Skeleton className="h-72" /> :
-              (technical.data?.radar?.length ?? 0) > 0 ? <TechnicalRadar data={technical.data!.radar} /> :
-              <EmptyState title="Sem avaliações concluídas" description="Registre avaliações técnicas no módulo Avaliações." icon={Target} />}
-          </SectionCard>
-          <SectionCard title="Histórico de avaliações">
+          <TechnicalTab studentId={id} />
+          <SectionCard title="Avaliações formais (histórico)" description="Sessões concluídas no módulo Avaliações">
             {(technical.data?.sessions?.length ?? 0) === 0 ? (
               <div className="text-sm text-muted-foreground">Nenhuma avaliação concluída.</div>
             ) : (
@@ -237,6 +234,7 @@ function AnalysisPage() {
             )}
           </SectionCard>
         </TabsContent>
+
 
         <TabsContent value="graduacoes" className="mt-4">
           <SectionCard title="Timeline de Graduações" description={grads.data?.nextForecast ? `Próxima prevista: ${fmtDate(grads.data.nextForecast)}` : undefined}>
