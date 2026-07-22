@@ -233,7 +233,7 @@ export function ChatWidget(props: ChatWidgetProps = {}) {
             {hasUnread && <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-primary" />}
             <MessageCircle className="h-6 w-6" strokeWidth={2.4} />
           </span>
-          <span className="hidden text-sm font-semibold sm:inline">Chat com a AMT</span>
+          <span className="hidden text-sm font-semibold sm:inline">{buttonLabel}</span>
         </button>
       )}
 
