@@ -1,5 +1,5 @@
 import { formatDegree, degreeSuffix, degreeUnit } from "@/lib/dojo/degree-label";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -53,6 +53,10 @@ function StudentDetail() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isChildRoute = pathname !== `/dojo/app/students/${id}`;
+
+
 
   const getFn = useServerFn(getDojoStudent);
   const beltsFn = useServerFn(listDojoBelts);
@@ -190,6 +194,7 @@ function StudentDetail() {
     [graduations, invoices, certificates, attendanceRows, s],
   );
 
+  if (isChildRoute) return <Outlet />;
   if (q.isLoading || !q.data || !s) return <LoadingState />;
 
 
@@ -218,6 +223,7 @@ function StudentDetail() {
 
   return (
     <div className="space-y-4">
+
       {/* Barra topo */}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <Link to="/dojo/app/students" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
