@@ -371,6 +371,7 @@ function MacroPage() {
     const res = await sendViaExtension(handle, msg);
     if (res.ok) {
       logMut.mutate(lead.id);
+      if (manualActive) removeFromMacroQueue(lead.id);
       setSessionCount((v) => v + 1);
       setCounter((c) => ({ date: todayKey(), count: c.count + 1 }));
       setSkippedIds((s) => new Set(s).add(lead.id));
@@ -378,6 +379,7 @@ function MacroPage() {
       return true;
     }
     toast.error(`Falha em @${handle}: ${res.error || "erro desconhecido"}`);
+    if (manualActive) removeFromMacroQueue(lead.id);
     setSkippedIds((s) => new Set(s).add(lead.id));
     return false;
   }
