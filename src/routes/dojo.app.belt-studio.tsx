@@ -153,6 +153,7 @@ function BeltStudio() {
       });
       toast.success(isNew ? "Faixa criada." : "Alterações salvas.");
       await qc.invalidateQueries({ queryKey: ["belt-studio-list"] });
+      await qc.invalidateQueries({ queryKey: ["dojo", "belts", "term-sync"] });
       if (saved?.id) setSelectedId(saved.id);
     } catch (e: any) {
       toast.error(e?.message ?? "Erro ao salvar");
