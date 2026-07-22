@@ -7,7 +7,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const MP_BASE = "https://api.mercadopago.com";
 
-export const PLAN_AMOUNT = 69.9;
+export const PLAN_AMOUNT = 99.9;
 export const TRIAL_DAYS = 14;
 
 async function mpAmt<T = any>(path: string, init?: RequestInit): Promise<T> {
