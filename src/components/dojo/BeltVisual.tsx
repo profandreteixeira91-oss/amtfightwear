@@ -43,11 +43,11 @@ export function BeltVisual({
 
   // Preta family variants — BJJ only.
   const isPretaPlain = /^preta$/i.test(n);
-  const isPretaAparador = /^preta\s+com\s+aparador/i.test(n);
-  const pretaGrauMatch = n.match(/^preta\s+(\d)\s*grau/i);
-  const pretaGrau = pretaGrauMatch ? parseInt(pretaGrauMatch[1], 10) : 0;
-  const isPretaGrau = pretaGrau > 0;
-  const isPretaFamily = isJiuJitsu && (isPretaPlain || isPretaAparador || isPretaGrau);
+  const isPretaAparadorLegacy = /^preta\s+com\s+aparador/i.test(n);
+  const pretaGrauLegacyMatch = n.match(/^preta\s+(\d)\s*grau/i);
+  const pretaGrauLegacy = pretaGrauLegacyMatch ? parseInt(pretaGrauLegacyMatch[1], 10) : 0;
+  const isPretaGrauLegacy = pretaGrauLegacy > 0;
+  const isPretaFamily = isJiuJitsu && (isPretaPlain || isPretaAparadorLegacy || isPretaGrauLegacy);
 
   const isRedBlack = isJiuJitsu && /^vermelha e preta$/i.test(n);
   const isRedWhite = isJiuJitsu && /^vermelha e branca$/i.test(n);
@@ -57,8 +57,13 @@ export function BeltVisual({
 
   // Preta family layout — black body, red tip, optional white aparador borders, N white stripes.
   if (isPretaFamily) {
-    const showAparador = isPretaAparador || isPretaGrau;
-    const stripes = pretaGrau;
+    // New encoding: when the belt is the consolidated "Preta" row, the degree encodes the variant:
+    //   0 = plain preta   |   1 = com aparador   |   2..7 = 1º..6º grau
+    const encodedGrau = isPretaPlain ? Math.max(0, (Number(degree) || 0) - 1) : pretaGrauLegacy;
+    const encodedAparador = isPretaPlain && (Number(degree) || 0) >= 1;
+    const showAparador = isPretaAparadorLegacy || isPretaGrauLegacy || encodedAparador;
+    const stripes = pretaGrauLegacy > 0 ? pretaGrauLegacy : encodedGrau;
+
     return (
       <div className={`inline-flex flex-col items-start gap-1 ${className}`}>
         <div
