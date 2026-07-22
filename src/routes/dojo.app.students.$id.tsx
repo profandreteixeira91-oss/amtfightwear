@@ -1269,7 +1269,7 @@ function printStudentReport(p: {
     ["Graduações", graduations.length],
     ["Certificados", certificates.length],
     ["Última presença", metrics.lastAttendance ? fmtDate(metrics.lastAttendance) : "—"],
-    ["Faixa atual", belt ? `${belt.name}${degreeSuffix(s.current_degree, belt?.modality)}` : "—"],
+    ["Faixa atual", belt ? `${belt.name}${degreeSuffix(s.current_degree, belt?.modality, " · ", belt?.name)}` : "—"],
   ]
     .map(([l, v]) => `<div class="kpi"><div class="label">${escapeHtml(String(l))}</div><div class="value">${escapeHtml(String(v))}</div></div>`)
     .join("");
@@ -1278,7 +1278,7 @@ function printStudentReport(p: {
     ? graduations
         .map(
           (g: any) =>
-            `<tr><td>${escapeHtml(fmtDate(g.graduation_date))}</td><td>${escapeHtml(g.belt?.name ?? "—")}</td><td>${escapeHtml(formatDegree(g.degree, g.belt?.modality))}</td><td>${escapeHtml(g.evaluator ?? "—")}</td></tr>`,
+            `<tr><td>${escapeHtml(fmtDate(g.graduation_date))}</td><td>${escapeHtml(g.belt?.name ?? "—")}</td><td>${escapeHtml(formatDegree(g.degree, g.belt?.modality, g.belt?.name))}</td><td>${escapeHtml(g.evaluator ?? "—")}</td></tr>`,
         )
         .join("")
     : `<tr><td colspan="4" style="text-align:center;color:#94a3b8">Sem graduações registradas</td></tr>`;
