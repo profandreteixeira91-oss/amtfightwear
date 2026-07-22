@@ -333,7 +333,15 @@ function NewSaleDialog({
   const [dueDate, setDueDate] = useState<string>(new Date().toISOString().slice(0, 10));
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
+  const [amtPayReady, setAmtPayReady] = useState<boolean | null>(null);
   const save = useServerFn(createSale);
+  const fetchAsaas = useServerFn(getMyAsaasConfig);
+
+  useEffect(() => {
+    fetchAsaas()
+      .then((cfg) => setAmtPayReady(isAsaasReady(cfg?.onboardingStatus)))
+      .catch(() => setAmtPayReady(false));
+  }, [fetchAsaas]);
 
   const subtotal = lines.reduce((a, l) => a + l.quantity * l.unit_price, 0);
   const total = Math.max(0, subtotal - (discount || 0));
