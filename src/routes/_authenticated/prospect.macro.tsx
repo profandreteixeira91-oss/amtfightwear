@@ -141,6 +141,37 @@ function MacroPage() {
   const [editedMessage, setEditedMessage] = useState<string | null>(null);
   const currentIdRef = useRef<string | null>(null);
 
+  // ---- Extensão AMT Macro DM ----
+  const [extensionReady, setExtensionReady] = useState(false);
+  const [autoMode, setAutoMode] = useState(false);
+  const [autoBusy, setAutoBusy] = useState(false);
+  const [autoStatus, setAutoStatus] = useState<string>("");
+  const pendingJobRef = useRef<{
+    jobId: string;
+    resolve: (ok: boolean, err?: string | null) => void;
+  } | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const onMsg = (event: MessageEvent) => {
+      if (event.source !== window) return;
+      const d = event.data as Record<string, unknown> | null;
+      if (!d || d.source !== "amt-macro-ext") return;
+      if (d.type === "ready") setExtensionReady(true);
+      if (d.type === "result" && pendingJobRef.current) {
+        const p = pendingJobRef.current;
+        if (d.jobId === p.jobId) {
+          pendingJobRef.current = null;
+          p.resolve(!!d.ok, (d.error as string | null) ?? null);
+        }
+      }
+    };
+    window.addEventListener("message", onMsg);
+    // Pergunta se a extensão está viva (caso o "ready" tenha sido postado antes)
+    window.postMessage({ source: "amt-macro-page", type: "who" }, "*");
+    return () => window.removeEventListener("message", onMsg);
+  }, []);
+
   useEffect(() => { savePrefs(prefs); }, [prefs]);
   useEffect(() => { saveCounter(counter); }, [counter]);
 
