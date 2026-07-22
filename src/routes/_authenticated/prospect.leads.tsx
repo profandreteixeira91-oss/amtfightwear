@@ -312,6 +312,20 @@ function LeadsPage() {
               {bulkEnrichMut.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
               Enriquecer selecionados
             </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                const added = addToMacroQueue(selectedIds);
+                toast.success(
+                  added > 0
+                    ? `${added} lead(s) adicionado(s) ao Macro DM`
+                    : "Todos já estavam na fila do Macro DM",
+                );
+              }}
+            >
+              <Send className="mr-2 h-4 w-4" />Enviar p/ Macro
+            </Button>
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button size="sm" variant="destructive">
