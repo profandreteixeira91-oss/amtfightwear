@@ -27,7 +27,7 @@ const SECTIONS = [
 ] as const;
 
 export function StudioLeft() {
-  const [tab, setTab] = useState<typeof SECTIONS[number]["id"]>("text");
+  const [tab, setTab] = useState<typeof SECTIONS[number]["id"]>("templates");
   return (
     <aside className="hidden md:flex h-full w-[320px] shrink-0 border-r border-neutral-200 bg-white">
       <nav className="flex flex-col w-16 border-r border-neutral-200 bg-neutral-50">
