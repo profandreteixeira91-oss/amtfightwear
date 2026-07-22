@@ -299,6 +299,107 @@ function MacroPage() {
     setCooldownUntil(null);
   }
 
+  // ---- Envio via extensão (100% automático) ----
+  function sendViaExtension(username: string, msg: string): Promise<{ ok: boolean; error?: string | null }> {
+    return new Promise((resolve) => {
+      if (!extensionReady) {
+        resolve({ ok: false, error: "Extensão não instalada" });
+        return;
+      }
+      const jobId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      pendingJobRef.current = {
+        jobId,
+        resolve: (ok, error) => resolve({ ok, error }),
+      };
+      window.postMessage(
+        {
+          source: "amt-macro-page",
+          reqId: jobId,
+          payload: { type: "send-dm", payload: { username, message: msg, jobId } },
+        },
+        "*",
+      );
+      // Timeout de segurança: 90s
+      setTimeout(() => {
+        if (pendingJobRef.current?.jobId === jobId) {
+          pendingJobRef.current = null;
+          resolve({ ok: false, error: "Timeout aguardando resposta do Instagram" });
+        }
+      }, 90000);
+    });
+  }
+
+  async function runOneAuto(lead: LeadRow, msg: string): Promise<boolean> {
+    const ig = lead.contacts.find((c) => c.channel === "instagram")?.value;
+    const handle = normalizeIgHandle(ig);
+    if (!handle) {
+      setSkippedIds((s) => new Set(s).add(lead.id));
+      return false;
+    }
+    setAutoStatus(`Enviando para @${handle}…`);
+    const res = await sendViaExtension(handle, msg);
+    if (res.ok) {
+      logMut.mutate(lead.id);
+      setSessionCount((v) => v + 1);
+      setCounter((c) => ({ date: todayKey(), count: c.count + 1 }));
+      setSkippedIds((s) => new Set(s).add(lead.id));
+      toast.success(`DM enviado para @${handle}`);
+      return true;
+    }
+    toast.error(`Falha em @${handle}: ${res.error || "erro desconhecido"}`);
+    setSkippedIds((s) => new Set(s).add(lead.id));
+    return false;
+  }
+
+  // Loop automático: processa a fila respeitando cooldown e limites
+  useEffect(() => {
+    if (!autoMode || autoBusy) return;
+    if (!current || paused) return;
+    if (cooldownLeft > 0) return;
+    if (sessionCount >= prefs.sessionCap || counter.count >= prefs.dailyCap) {
+      setAutoMode(false);
+      setAutoStatus("Limite atingido — modo automático desativado.");
+      return;
+    }
+    if (!extensionReady) {
+      setAutoMode(false);
+      toast.error("Instale a extensão para usar o modo automático.");
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      setAutoBusy(true);
+      try {
+        await runOneAuto(current, message);
+      } finally {
+        if (!cancelled) {
+          setAutoBusy(false);
+          startCooldown();
+        }
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoMode, autoBusy, current?.id, cooldownLeft, paused, sessionCount, counter.count, extensionReady]);
+
+  function downloadExtension() {
+    fetch("/amt-macro-dm.zip")
+      .then((res) => {
+        if (!res.ok) throw new Error(`Download falhou: ${res.status}`);
+        return res.blob();
+      })
+      .then((blob) => {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "amt-macro-dm.zip";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      })
+      .catch((err) => toast.error(err.message));
+  }
+
   const cooldownAvg = Math.round((prefs.cooldownMinSec + prefs.cooldownMaxSec) / 2);
   const nextLead = queue[1];
 
