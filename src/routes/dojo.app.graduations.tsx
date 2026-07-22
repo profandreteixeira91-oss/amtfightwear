@@ -48,11 +48,15 @@ function NewGraduationPage() {
   const [search, setSearch] = useState("");
   const [modality, setModality] = useState<string>("jiu-jitsu");
 
+  // Defaults ("aplicar a todos")
   const [beltId, setBeltId] = useState("");
   const [degree, setDegree] = useState(0);
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [evaluator, setEvaluator] = useState("");
   const [notes, setNotes] = useState("");
+
+  // Graduação individual por aluno
+  const [perStudent, setPerStudent] = useState<Record<string, { beltId: string; degree: number }>>({});
 
   const [registered, setRegistered] = useState<Array<{ id: string; student_id: string }>>([]);
   const [templateId, setTemplateId] = useState("");
