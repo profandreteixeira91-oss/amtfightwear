@@ -49,8 +49,10 @@ export function degreeUnit(modality?: string | null): "Dan" | "grau" {
 }
 
 /** Prefixo do nome da faixa conforme modalidade.
- *  Muay Thai usa "Grau"; demais modalidades usam "Faixa". */
+ *  Prioridade: registry do Belt Studio > Muay Thai ("Grau") > default ("Faixa"). */
 export function beltNamePrefix(modality?: string | null): "Grau" | "Faixa" {
+  const override = getModalityTerm(modality);
+  if (override) return override;
   return isMuayThaiModality(modality) ? "Grau" : "Faixa";
 }
 
