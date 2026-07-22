@@ -443,7 +443,7 @@ function SortableBeltRow({
         className="min-w-[220px]"
       />
       <div className="flex-1 min-w-[160px]">
-        <div className="text-sm font-medium">{b.name}</div>
+        <div className="text-sm font-medium">{formatBeltName(b.name, b.modality)}</div>
         <div className="text-xs text-muted-foreground">
           {b.max_degrees > 0 ? `${b.max_degrees} graus` : "sem graus"} · {b.owner_id ? "própria" : "global"}
           {b.min_months != null && ` · ${b.min_months} ${b.min_months === 1 ? "mês" : "meses"}`}
