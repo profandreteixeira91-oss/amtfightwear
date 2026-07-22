@@ -553,26 +553,27 @@ function StudentsPage() {
                 {/* ============ ENDEREÇO ============ */}
                 <TabsContent value="endereco" className="mt-4 grid gap-3 md:grid-cols-6">
                   <Field label="CEP" className="md:col-span-2">
-                    <Input value={form.zip} onChange={(e) => set("zip", e.target.value)} />
+                    <Input name="cep" placeholder="00000-000" value={form.zip} onChange={(e) => set("zip", e.target.value)} />
                   </Field>
                   <Field label="Rua" className="md:col-span-4">
-                    <Input value={form.street} onChange={(e) => set("street", e.target.value)} />
+                    <Input name="logradouro" value={form.street} onChange={(e) => set("street", e.target.value)} />
                   </Field>
                   <Field label="Número" className="md:col-span-1">
                     <Input value={form.address_number} onChange={(e) => set("address_number", e.target.value)} />
                   </Field>
                   <Field label="Complemento" className="md:col-span-3">
-                    <Input value={form.address_complement} onChange={(e) => set("address_complement", e.target.value)} />
+                    <Input name="complemento" value={form.address_complement} onChange={(e) => set("address_complement", e.target.value)} />
                   </Field>
                   <Field label="Bairro" className="md:col-span-2">
-                    <Input value={form.neighborhood} onChange={(e) => set("neighborhood", e.target.value)} />
+                    <Input name="bairro" value={form.neighborhood} onChange={(e) => set("neighborhood", e.target.value)} />
                   </Field>
                   <Field label="Cidade" className="md:col-span-4">
-                    <Input value={form.city} onChange={(e) => set("city", e.target.value)} />
+                    <Input name="cidade" value={form.city} onChange={(e) => set("city", e.target.value)} />
                   </Field>
                   <Field label="UF" className="md:col-span-2">
-                    <Input value={form.state} onChange={(e) => set("state", e.target.value)} maxLength={2} />
+                    <Input name="uf" value={form.state} onChange={(e) => set("state", e.target.value)} maxLength={2} />
                   </Field>
+
                 </TabsContent>
 
                 {/* ============ CONTATOS ============ */}
