@@ -52,9 +52,12 @@ type BeltVariant = {
   name: string;
   /** grau associado (0 = base, 1..N) */
   degree: number;
+  /** "degree" marca overrides gerados pela seção "Graus" (edição individual). */
+  kind?: "degree" | "variant";
   /** override visual — quando vazio, herda o spec da faixa pai */
   visual?: BeltSpec | null;
 };
+
 
 const MODALITY_OPTIONS = [
   { id: "jiu-jitsu", label: "Jiu-Jitsu" },
