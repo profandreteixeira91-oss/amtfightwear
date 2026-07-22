@@ -199,30 +199,45 @@ function MacroPage() {
     queryFn: () => fetchSettings(),
   });
 
+  const manualActive = useManualOnly && manualIds.length > 0;
   const queueQ = useQuery({
-    queryKey: ["prospect", "macro-queue", prefs.stageFilter],
+    queryKey: ["prospect", "macro-queue", prefs.stageFilter, manualActive ? manualIds.join(",") : "auto"],
     queryFn: () =>
       fetchList({
-        data: {
-          hasInstagram: true,
-          pipeline_stage: prefs.stageFilter || undefined,
-          limit: 100,
-          offset: 0,
-          orderBy: "score",
-          orderDir: "desc",
-        },
+        data: manualActive
+          ? {
+              ids: manualIds,
+              limit: Math.min(500, Math.max(1, manualIds.length)),
+              offset: 0,
+              orderBy: "created_at",
+              orderDir: "desc",
+            }
+          : {
+              hasInstagram: true,
+              pipeline_stage: prefs.stageFilter || undefined,
+              limit: 100,
+              offset: 0,
+              orderBy: "score",
+              orderDir: "desc",
+            },
       }),
   });
 
   const rawRows = (queueQ.data?.rows ?? []) as LeadRow[];
+  const orderedRows = useMemo(() => {
+    if (!manualActive) return rawRows;
+    // Preserva a ordem em que o usuário adicionou os leads na fila
+    const pos = new Map(manualIds.map((id, i) => [id, i]));
+    return [...rawRows].sort((a, b) => (pos.get(a.id) ?? 0) - (pos.get(b.id) ?? 0));
+  }, [rawRows, manualActive, manualIds]);
   const queue = useMemo(
     () =>
-      rawRows.filter((r) => {
+      orderedRows.filter((r) => {
         if (skippedIds.has(r.id)) return false;
         const ig = r.contacts.find((c) => c.channel === "instagram")?.value;
         return !!normalizeIgHandle(ig);
       }),
-    [rawRows, skippedIds],
+    [orderedRows, skippedIds],
   );
 
   const current = queue[0] ?? null;
