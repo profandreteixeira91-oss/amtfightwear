@@ -422,7 +422,6 @@ function MacroPage() {
       return;
     }
 
-    let cancelled = false;
     const leadSnapshot = current;
     const msgSnapshot = message;
     (async () => {
@@ -431,20 +430,20 @@ function MacroPage() {
       try {
         await runOneAuto(leadSnapshot, msgSnapshot);
       } finally {
-        if (!cancelled) {
-          startCooldown();
-          setAutoBusy(false);
-          autoBusyRef.current = false;
-          // Garante um "kick" após liberar autoBusy para o próximo agendamento.
-          setTimeout(() => {
-            if (autoModeRef.current && !autoBusyRef.current) {
-              setKick((k) => k + 1);
-            }
-          }, 50);
-        }
+        // runOneAuto remove o lead concluído da fila e isso muda current.id.
+        // A versão anterior tratava essa mudança normal como cancelamento do efeito,
+        // deixando autoBusy=true para sempre após o primeiro envio.
+        startCooldown();
+        setAutoBusy(false);
+        autoBusyRef.current = false;
+        // Garante um "kick" após liberar autoBusy para o próximo agendamento.
+        setTimeout(() => {
+          if (autoModeRef.current && !autoBusyRef.current) {
+            setKick((k) => k + 1);
+          }
+        }, 50);
       }
     })();
-    return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoMode, autoBusy, current?.id, cooldownUntil, paused, sessionCount, counter.count, extensionReady, kick]);
 
