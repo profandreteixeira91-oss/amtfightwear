@@ -199,6 +199,9 @@ function LeadsPage() {
               {bulkEnrichMut.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
               Enriquecer pendentes
             </Button>
+            <Button asChild variant="outline" size="sm">
+              <Link to="/prospect/macro"><Instagram className="mr-2 h-4 w-4" />Macro DM</Link>
+            </Button>
             <Button asChild size="sm">
               <Link to="/prospect/search"><Radar className="mr-2 h-4 w-4" />Nova busca</Link>
             </Button>
