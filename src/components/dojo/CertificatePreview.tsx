@@ -64,29 +64,36 @@ export function CertificateCanvas({
   const H = template.height;
   const editorSchema: EditorSchema | undefined = template.variables?.editor_schema;
 
+  // Prefer the studio renderer for v2 schemas — guarantees the profile view
+  // matches exactly what the editor / print produce.
+  if (editorSchema) {
+    return (
+      <div style={{ width: W * scale, height: H * scale, overflow: "hidden" }}>
+        <div style={{ width: W, height: H, transform: `scale(${scale})`, transformOrigin: "top left" }}>
+          <CertificateRenderer doc={editorSchema} values={values} />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       style={{
         position: "relative",
         width: `${W * scale}px`,
         height: `${H * scale}px`,
-        background: editorSchema?.page.background ?? "#fff",
+        background: "#fff",
         overflow: "hidden",
       }}
     >
-      {(template.background_url || editorSchema?.page.backgroundUrl) && (
+      {template.background_url && (
         <img
-          src={editorSchema?.page.backgroundUrl || template.background_url}
+          src={template.background_url}
           alt=""
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain" }}
         />
       )}
-
-      {editorSchema
-        ? [...editorSchema.elements].sort((a, b) => (a.z ?? 0) - (b.z ?? 0)).map((el) => (
-            el.hidden ? null : <EditorElementRender key={el.id} el={el} values={values} scale={scale} W={W} H={H} />
-          ))
-        : (template.fields ?? []).map((f, i) => renderLegacy(f, i, values, scale, W, H))}
+      {(template.fields ?? []).map((f, i) => renderLegacy(f, i, values, scale, W, H))}
     </div>
   );
 }
