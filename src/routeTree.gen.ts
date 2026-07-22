@@ -113,6 +113,7 @@ import { Route as AuthenticatedProspectSettingsRouteImport } from './routes/_aut
 import { Route as AuthenticatedProspectSearchRouteImport } from './routes/_authenticated/prospect.search'
 import { Route as AuthenticatedProspectQualifiedRouteImport } from './routes/_authenticated/prospect.qualified'
 import { Route as AuthenticatedProspectPipelineRouteImport } from './routes/_authenticated/prospect.pipeline'
+import { Route as AuthenticatedProspectMacroRouteImport } from './routes/_authenticated/prospect.macro'
 import { Route as AuthenticatedProspectLogsRouteImport } from './routes/_authenticated/prospect.logs'
 import { Route as AuthenticatedProspectLeadsRouteImport } from './routes/_authenticated/prospect.leads'
 import { Route as AuthenticatedProspectIdRouteImport } from './routes/_authenticated/prospect.$id'
@@ -739,6 +740,12 @@ const AuthenticatedProspectPipelineRoute =
     path: '/prospect/pipeline',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedProspectMacroRoute =
+  AuthenticatedProspectMacroRouteImport.update({
+    id: '/prospect/macro',
+    path: '/prospect/macro',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedProspectLogsRoute =
   AuthenticatedProspectLogsRouteImport.update({
     id: '/prospect/logs',
@@ -1330,6 +1337,7 @@ export interface FileRoutesByFullPath {
   '/prospect/$id': typeof AuthenticatedProspectIdRoute
   '/prospect/leads': typeof AuthenticatedProspectLeadsRoute
   '/prospect/logs': typeof AuthenticatedProspectLogsRoute
+  '/prospect/macro': typeof AuthenticatedProspectMacroRoute
   '/prospect/pipeline': typeof AuthenticatedProspectPipelineRoute
   '/prospect/qualified': typeof AuthenticatedProspectQualifiedRoute
   '/prospect/search': typeof AuthenticatedProspectSearchRoute
@@ -1524,6 +1532,7 @@ export interface FileRoutesByTo {
   '/prospect/$id': typeof AuthenticatedProspectIdRoute
   '/prospect/leads': typeof AuthenticatedProspectLeadsRoute
   '/prospect/logs': typeof AuthenticatedProspectLogsRoute
+  '/prospect/macro': typeof AuthenticatedProspectMacroRoute
   '/prospect/pipeline': typeof AuthenticatedProspectPipelineRoute
   '/prospect/qualified': typeof AuthenticatedProspectQualifiedRoute
   '/prospect/search': typeof AuthenticatedProspectSearchRoute
@@ -1717,6 +1726,7 @@ export interface FileRoutesById {
   '/_authenticated/prospect/$id': typeof AuthenticatedProspectIdRoute
   '/_authenticated/prospect/leads': typeof AuthenticatedProspectLeadsRoute
   '/_authenticated/prospect/logs': typeof AuthenticatedProspectLogsRoute
+  '/_authenticated/prospect/macro': typeof AuthenticatedProspectMacroRoute
   '/_authenticated/prospect/pipeline': typeof AuthenticatedProspectPipelineRoute
   '/_authenticated/prospect/qualified': typeof AuthenticatedProspectQualifiedRoute
   '/_authenticated/prospect/search': typeof AuthenticatedProspectSearchRoute
@@ -1916,6 +1926,7 @@ export interface FileRouteTypes {
     | '/prospect/$id'
     | '/prospect/leads'
     | '/prospect/logs'
+    | '/prospect/macro'
     | '/prospect/pipeline'
     | '/prospect/qualified'
     | '/prospect/search'
@@ -2110,6 +2121,7 @@ export interface FileRouteTypes {
     | '/prospect/$id'
     | '/prospect/leads'
     | '/prospect/logs'
+    | '/prospect/macro'
     | '/prospect/pipeline'
     | '/prospect/qualified'
     | '/prospect/search'
@@ -2302,6 +2314,7 @@ export interface FileRouteTypes {
     | '/_authenticated/prospect/$id'
     | '/_authenticated/prospect/leads'
     | '/_authenticated/prospect/logs'
+    | '/_authenticated/prospect/macro'
     | '/_authenticated/prospect/pipeline'
     | '/_authenticated/prospect/qualified'
     | '/_authenticated/prospect/search'
@@ -3223,6 +3236,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProspectPipelineRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/prospect/macro': {
+      id: '/_authenticated/prospect/macro'
+      path: '/prospect/macro'
+      fullPath: '/prospect/macro'
+      preLoaderRoute: typeof AuthenticatedProspectMacroRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/prospect/logs': {
       id: '/_authenticated/prospect/logs'
       path: '/prospect/logs'
@@ -3947,6 +3967,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProspectIdRoute: typeof AuthenticatedProspectIdRoute
   AuthenticatedProspectLeadsRoute: typeof AuthenticatedProspectLeadsRoute
   AuthenticatedProspectLogsRoute: typeof AuthenticatedProspectLogsRoute
+  AuthenticatedProspectMacroRoute: typeof AuthenticatedProspectMacroRoute
   AuthenticatedProspectPipelineRoute: typeof AuthenticatedProspectPipelineRoute
   AuthenticatedProspectQualifiedRoute: typeof AuthenticatedProspectQualifiedRoute
   AuthenticatedProspectSearchRoute: typeof AuthenticatedProspectSearchRoute
@@ -3995,6 +4016,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProspectIdRoute: AuthenticatedProspectIdRoute,
   AuthenticatedProspectLeadsRoute: AuthenticatedProspectLeadsRoute,
   AuthenticatedProspectLogsRoute: AuthenticatedProspectLogsRoute,
+  AuthenticatedProspectMacroRoute: AuthenticatedProspectMacroRoute,
   AuthenticatedProspectPipelineRoute: AuthenticatedProspectPipelineRoute,
   AuthenticatedProspectQualifiedRoute: AuthenticatedProspectQualifiedRoute,
   AuthenticatedProspectSearchRoute: AuthenticatedProspectSearchRoute,
@@ -4409,13 +4431,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
