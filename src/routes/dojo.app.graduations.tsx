@@ -48,11 +48,15 @@ function NewGraduationPage() {
   const [search, setSearch] = useState("");
   const [modality, setModality] = useState<string>("jiu-jitsu");
 
+  // Defaults ("aplicar a todos")
   const [beltId, setBeltId] = useState("");
   const [degree, setDegree] = useState(0);
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [evaluator, setEvaluator] = useState("");
   const [notes, setNotes] = useState("");
+
+  // Graduação individual por aluno
+  const [perStudent, setPerStudent] = useState<Record<string, { beltId: string; degree: number }>>({});
 
   const [registered, setRegistered] = useState<Array<{ id: string; student_id: string }>>([]);
   const [templateId, setTemplateId] = useState("");
@@ -112,20 +116,73 @@ function NewGraduationPage() {
     });
   };
 
+  const beltById = useMemo(() => {
+    const m = new Map<string, any>();
+    for (const b of (belts.data ?? []) as any[]) m.set(b.id, b);
+    return m;
+  }, [belts.data]);
+
+  const resolveStudentGrad = (studentId: string) => {
+    const p = perStudent[studentId] ?? { beltId, degree };
+    return { beltId: p.beltId, degree: p.degree, belt: beltById.get(p.beltId) };
+  };
+
   const goToGrad = () => {
     if (selectedStudents.size === 0) return toast.error("Selecione ao menos um aluno");
+    // Inicializa entradas por aluno sem sobrescrever escolhas prévias
+    setPerStudent(prev => {
+      const next = { ...prev };
+      for (const id of selectedStudents) {
+        if (!next[id]) next[id] = { beltId: "", degree: 0 };
+      }
+      return next;
+    });
     setStep("grad");
   };
 
+  const applyDefaultsToAll = () => {
+    if (!beltId) return toast.error("Selecione uma faixa padrão");
+    setPerStudent(prev => {
+      const next = { ...prev };
+      for (const id of selectedStudents) next[id] = { beltId, degree };
+      return next;
+    });
+    toast.success("Faixa aplicada a todos os alunos");
+  };
+
+  const setStudentBelt = (studentId: string, newBeltId: string) => {
+    setPerStudent(prev => ({ ...prev, [studentId]: { beltId: newBeltId, degree: 0 } }));
+  };
+  const setStudentDegree = (studentId: string, newDegree: number) => {
+    setPerStudent(prev => ({
+      ...prev,
+      [studentId]: { beltId: prev[studentId]?.beltId ?? "", degree: newDegree },
+    }));
+  };
+
   const submitGrad = async () => {
-    if (!beltId) return toast.error("Selecione a faixa");
-    if (degree < 0 || degree > maxDeg) return toast.error(`Grau entre 0 e ${maxDeg}`);
+    const items = Array.from(selectedStudents).map(sid => {
+      const p = perStudent[sid] ?? { beltId, degree };
+      return { student_id: sid, belt_id: p.beltId, degree: p.degree };
+    });
+    const missing = items.filter(i => !i.belt_id);
+    if (missing.length > 0) {
+      return toast.error(`Selecione a faixa de ${missing.length} aluno(s) pendente(s)`);
+    }
+    for (const it of items) {
+      const b = beltById.get(it.belt_id);
+      const max = b?.max_degrees ?? 4;
+      if (it.degree < 0 || it.degree > max) {
+        return toast.error(`Grau inválido para ${b?.name ?? "faixa"}`);
+      }
+    }
 
     try {
       const res = await bulkFn({ data: {
-        student_ids: Array.from(selectedStudents),
-        belt_id: beltId, degree, graduation_date: date,
-        evaluator: evaluator || null, notes: notes || null,
+        items,
+        graduation_date: date,
+        evaluator: evaluator || null,
+        notes: notes || null,
       }});
 
       toast.success(`${res.count} graduação(ões) registrada(s)`);
@@ -141,10 +198,12 @@ function NewGraduationPage() {
     if (!student) return;
     const tpl = (templates.data ?? []).find((t: any) => t.id === templateId);
 
-    // Build a comprehensive values map covering BOTH new keys (aluno_nome…)
-    // and legacy keys (student_name, belt, date, signature) so any template
-    // — antigo ou novo — preenche corretamente.
-    const beltLabel = effectiveBelt?.name ?? `${selectedBelt?.name ?? ""}${degree ? ` — ${degree}º ${degreeUnit(selectedBelt?.modality)}` : ""}`;
+    const { belt: studentBelt, degree: studentDeg } = resolveStudentGrad(studentId);
+    const studentMod = studentBelt?.modality ?? modality;
+
+    const beltLabel = studentBelt?.name
+      ? `${studentBelt.name}${studentDeg ? ` — ${studentDeg}º ${degreeUnit(studentMod)}` : ""}`
+      : "";
     const dateBr = new Date(date).toLocaleDateString("pt-BR");
     const dateLong = new Date(date).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
     const now = new Date();
@@ -155,13 +214,13 @@ function NewGraduationPage() {
       aluno_cpf: (student as any).cpf ?? "",
       aluno_data_nascimento: (student as any).birth_date ? new Date((student as any).birth_date).toLocaleDateString("pt-BR") : "",
       aluno_faixa: beltLabel,
-      aluno_grau: String(degree ?? ""),
-      aluno_modalidade: (student as any).modality || (student as any).discipline || modality || "",
+      aluno_grau: String(studentDeg ?? ""),
+      aluno_modalidade: (student as any).modality || (student as any).discipline || studentMod || "",
       aluno_foto: (student as any).photo_url ?? "",
       // Graduação
       graduacao_atual: beltLabel,
       graduacao_data: dateLong,
-      graduacao_modalidade: modality || "",
+      graduacao_modalidade: studentMod || "",
       graduacao_observacoes: notes || "",
       // Professor
       professor_nome: evaluator || "",
@@ -186,7 +245,6 @@ function NewGraduationPage() {
         return next;
       });
       toast.success(`Certificado emitido: ${student.full_name}`);
-      // Auto-open preview for a single-student flow
       if (registered.length <= 1) setPreviewFor(studentId);
     } catch (e: any) { toast.error(e.message ?? "Erro ao emitir"); }
   };
@@ -206,7 +264,9 @@ function NewGraduationPage() {
   const reset = () => {
     setStep("select"); setSelectedStudents(new Set()); setBeltId(""); setDegree(0);
     setEvaluator(""); setNotes(""); setRegistered([]); setTemplateId(""); setIssued(new Map()); setPreviewFor(null);
+    setPerStudent({});
   };
+
 
   const stepMeta: Record<Step, { label: string; icon: any; hint: string }> = {
     select: { label: "Alunos", icon: Users, hint: "Escolha quem será graduado" },
@@ -501,40 +561,18 @@ function NewGraduationPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-5 md:p-6 space-y-6">
-            {/* Lista de selecionados */}
-            <section className="space-y-2">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Alunos selecionados</div>
-              <div className="max-h-44 space-y-1 overflow-y-auto rounded-xl border bg-muted/20 p-3">
-                {selectedRows.map((s: any) => {
-                  const belts = (s.current_belts && s.current_belts.length > 0)
-                    ? s.current_belts
-                    : (s.belt ? [{ belt: s.belt, degree: s.current_degree ?? 0 }] : []);
-                  const matchesModality = belts.find((b: any) => (b.belt.modality ?? "jiu-jitsu") === modality);
-                  return (
-                    <div key={s.id} className="flex items-center justify-between gap-3 rounded-lg bg-background/70 px-3 py-2 text-sm ring-1 ring-border/50">
-                      <div className="flex min-w-0 items-center gap-2.5">
-                        <div className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">
-                          {initials(s.full_name)}
-                        </div>
-                        <span className="truncate font-medium">{s.full_name}</span>
-                      </div>
-                      <span className="shrink-0 text-right text-xs text-muted-foreground">
-                        {belts.length === 0
-                          ? "Sem faixa"
-                          : matchesModality
-                          ? `Atual (${modality}): ${matchesModality.belt.name}${matchesModality.degree ? ` · ${matchesModality.degree}º` : ""}`
-                          : `Sem faixa em ${modality}`}
-                      </span>
-                    </div>
-                  );
-                })}
+            {/* Padrões — aplicar a todos (opcional) */}
+            <section className="space-y-3 rounded-xl border border-dashed bg-muted/20 p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Padrão (opcional)</div>
+                  <p className="text-xs text-muted-foreground">Defina uma faixa e grau para aplicar em massa. Cada aluno pode ser editado individualmente abaixo.</p>
+                </div>
+                <Button size="sm" variant="outline" onClick={applyDefaultsToAll} disabled={!beltId}>
+                  Aplicar a todos
+                </Button>
               </div>
-            </section>
-
-            {/* Formulário */}
-            <section className="space-y-3">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Detalhes da graduação</div>
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-3 md:grid-cols-3">
                 <div className="space-y-1.5">
                   <label className="text-xs font-medium text-foreground">Modalidade</label>
                   <select
@@ -546,7 +584,7 @@ function NewGraduationPage() {
                   </select>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-foreground">Faixa</label>
+                  <label className="text-xs font-medium text-foreground">Faixa padrão</label>
                   <select
                     className="h-10 w-full rounded-lg border bg-background px-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
                     value={beltId}
@@ -574,8 +612,108 @@ function NewGraduationPage() {
                       ))
                     )}
                   </select>
-                  {isFixedDegree && <p className="text-[11px] text-muted-foreground">Esta faixa possui grau fixo.</p>}
                 </div>
+              </div>
+            </section>
+
+            {/* Graduação individual por aluno */}
+            <section className="space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                  Graduação por aluno
+                </div>
+                <span className="text-[11px] text-muted-foreground">
+                  Cada aluno pode receber uma faixa/grau diferente
+                </span>
+              </div>
+              <div className="divide-y divide-border overflow-hidden rounded-xl border bg-background">
+                {selectedRows.map((s: any) => {
+                  const entry = perStudent[s.id] ?? { beltId: "", degree: 0 };
+                  const chosenBelt = beltById.get(entry.beltId);
+                  const chosenMod = chosenBelt?.modality ?? modality;
+                  const chosenMax = chosenBelt?.max_degrees ?? 4;
+                  const chosenFixed = /^vermelha e preta$/i.test(chosenBelt?.name ?? "")
+                    ? 7
+                    : /^vermelha e branca$/i.test(chosenBelt?.name ?? "")
+                    ? 8
+                    : /^vermelha$/i.test(chosenBelt?.name ?? "")
+                    ? 9
+                    : null;
+                  const beltOptions = (belts.data ?? []).filter(
+                    (b: any) => (b.modality ?? "jiu-jitsu") === chosenMod
+                  );
+                  const current = (s.current_belts && s.current_belts.length > 0)
+                    ? s.current_belts
+                    : (s.belt ? [{ belt: s.belt, degree: s.current_degree ?? 0 }] : []);
+                  const currentMatch = current.find((b: any) => (b.belt?.modality ?? "jiu-jitsu") === chosenMod);
+
+                  return (
+                    <div key={s.id} className="grid gap-3 p-4 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] md:items-center">
+                      <div className="flex min-w-0 items-center gap-3">
+                        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary/10 text-[11px] font-bold text-primary">
+                          {initials(s.full_name)}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="truncate text-sm font-semibold">{s.full_name}</div>
+                          <div className="truncate text-[11px] text-muted-foreground">
+                            {currentMatch
+                              ? `Atual: ${currentMatch.belt.name}${currentMatch.degree ? ` · ${currentMatch.degree}º` : ""}`
+                              : "Sem faixa nesta modalidade"}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">Faixa</label>
+                        <select
+                          className="h-9 w-full rounded-md border bg-background px-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                          value={entry.beltId}
+                          onChange={(e) => setStudentBelt(s.id, e.target.value)}
+                        >
+                          <option value="">Selecione…</option>
+                          {beltOptions.map((b: any) => (
+                            <option key={b.id} value={b.id}>{b.name}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                          {degreeUnit(chosenBelt?.modality) === "Dan" ? "Dan" : "Grau"}
+                        </label>
+                        <select
+                          className="h-9 w-full rounded-md border bg-background px-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:opacity-60"
+                          value={entry.degree}
+                          onChange={(e) => setStudentDegree(s.id, Number(e.target.value))}
+                          disabled={!entry.beltId || chosenFixed !== null}
+                        >
+                          {chosenFixed !== null ? (
+                            <option value={chosenFixed}>{chosenFixed}º {degreeUnit(chosenBelt?.modality)}</option>
+                          ) : (
+                            Array.from({ length: chosenMax + 1 }).map((_, i) => (
+                              <option key={i} value={i}>{formatDegree(i, chosenBelt?.modality, chosenBelt?.name)}</option>
+                            ))
+                          )}
+                        </select>
+                      </div>
+
+                      <div className="flex items-center justify-end">
+                        {chosenBelt ? (
+                          <BeltAuto belt={chosenBelt as any} degree={entry.degree} className="w-full max-w-[220px]" />
+                        ) : (
+                          <span className="text-[11px] text-muted-foreground">Selecione a faixa</span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+
+            {/* Dados comuns */}
+            <section className="space-y-3">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Dados da cerimônia</div>
+              <div className="grid gap-4 md:grid-cols-3">
                 <div className="space-y-1.5">
                   <label className="text-xs font-medium text-foreground">Data</label>
                   <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
@@ -584,26 +722,13 @@ function NewGraduationPage() {
                   <label className="text-xs font-medium text-foreground">Avaliador</label>
                   <Input value={evaluator} onChange={(e) => setEvaluator(e.target.value)} placeholder="Ex.: Prof. André Teixeira" />
                 </div>
-                <div className="space-y-1.5 md:col-span-2">
+                <div className="space-y-1.5">
                   <label className="text-xs font-medium text-foreground">Observações</label>
                   <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Opcional" />
                 </div>
               </div>
             </section>
 
-            {/* Preview */}
-            {selectedBelt && effectiveBelt && (
-              <section className="space-y-2">
-                <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Prévia da faixa</div>
-                <div className="flex items-center gap-5 rounded-xl border bg-gradient-to-br from-muted/50 to-muted/20 p-5">
-                  <BeltAuto belt={effectiveBelt as any} degree={degree} className="min-w-[240px]" />
-                  <div>
-                    <div className="text-base font-semibold text-foreground">{effectiveBelt.name}</div>
-                    <div className="text-sm text-muted-foreground">{formatDegree(degree, effectiveBelt?.modality, effectiveBelt?.name)}</div>
-                  </div>
-                </div>
-              </section>
-            )}
 
             <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-4">
               <Button variant="ghost" onClick={() => setStep("select")}>
@@ -661,7 +786,10 @@ function NewGraduationPage() {
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-sm font-semibold">{s?.full_name}</div>
                       <div className="truncate text-xs text-muted-foreground">
-                        {selectedBelt?.name}{degreeSuffix(degree, selectedBelt?.modality, " · ", selectedBelt?.name)}
+                        {(() => {
+                          const rg = resolveStudentGrad(g.student_id);
+                          return `${rg.belt?.name ?? ""}${degreeSuffix(rg.degree, rg.belt?.modality, " · ", rg.belt?.name)}`;
+                        })()}
                       </div>
                     </div>
                     {done ? (

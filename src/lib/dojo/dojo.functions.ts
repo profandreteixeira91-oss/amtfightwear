@@ -1388,19 +1388,39 @@ export const saveGraduationSettings = createServerFn({ method: "POST" })
 // ============ BULK GRADUATION ============
 export const addBulkGraduation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
-    student_ids: z.array(z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido")).min(1),
-    belt_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido"),
-    degree: z.number().int().min(0).max(10).default(0),
-    graduation_date: z.string(),
-    evaluator: z.string().max(200).optional().nullable(),
-    notes: z.string().max(2000).optional().nullable(),
-  }).parse(i))
+  .inputValidator((i: unknown) => {
+    const uuid = z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido");
+    return z.object({
+      // Legado: mesma faixa/grau para todos
+      student_ids: z.array(uuid).min(1).optional(),
+      belt_id: uuid.optional(),
+      degree: z.number().int().min(0).max(10).optional(),
+      // Novo: graduação individual por aluno
+      items: z.array(z.object({
+        student_id: uuid,
+        belt_id: uuid,
+        degree: z.number().int().min(0).max(10).default(0),
+      })).optional(),
+      graduation_date: z.string(),
+      evaluator: z.string().max(200).optional().nullable(),
+      notes: z.string().max(2000).optional().nullable(),
+    }).refine(v => (v.items && v.items.length > 0) || (v.student_ids && v.belt_id), {
+      message: "Informe items[] ou student_ids + belt_id",
+    }).parse(i);
+  })
   .handler(async ({ data, context }) => {
-    const rows = data.student_ids.map(sid => ({
-      student_id: sid,
-      belt_id: data.belt_id,
-      degree: data.degree,
+    const items = data.items && data.items.length > 0
+      ? data.items
+      : (data.student_ids ?? []).map(sid => ({
+          student_id: sid,
+          belt_id: data.belt_id!,
+          degree: data.degree ?? 0,
+        }));
+
+    const rows = items.map(it => ({
+      student_id: it.student_id,
+      belt_id: it.belt_id,
+      degree: it.degree,
       graduation_date: data.graduation_date,
       evaluator: data.evaluator ?? null,
       notes: data.notes ?? null,
@@ -1410,30 +1430,32 @@ export const addBulkGraduation = createServerFn({ method: "POST" })
       .from("dojo_graduations").insert(rows).select("id, student_id");
     if (error) throw new Error(error.message);
 
-    // Modality-aware overwrite: only students whose current belt is null or
-    // shares the new belt's modality receive an update on current_belt_id /
-    // current_degree. Others keep their primary belt intact — the graduation
-    // stays in dojo_graduations and shows up via current_belts per modality.
-    const [{ data: newBelt }, { data: studentsRows }] = await Promise.all([
-      context.supabase.from("dojo_belts").select("modality").eq("id", data.belt_id).maybeSingle(),
+    // Modality-aware overwrite por aluno.
+    const beltIds = Array.from(new Set(items.map(i => i.belt_id)));
+    const studentIds = Array.from(new Set(items.map(i => i.student_id)));
+    const [{ data: beltRows }, { data: studentsRows }] = await Promise.all([
+      context.supabase.from("dojo_belts").select("id, modality").in("id", beltIds),
       context.supabase
         .from("dojo_students")
         .select("id, current_belt_id, belt:dojo_belts(modality)")
-        .in("id", data.student_ids),
+        .in("id", studentIds),
     ]);
-    const newMod = (newBelt as any)?.modality ?? "jiu-jitsu";
-    const eligible: string[] = [];
-    for (const s of studentsRows ?? []) {
+    const beltModById = new Map<string, string>();
+    for (const b of (beltRows ?? []) as any[]) beltModById.set(b.id, b.modality ?? "jiu-jitsu");
+    const studentById = new Map<string, any>();
+    for (const s of (studentsRows ?? []) as any[]) studentById.set(s.id, s);
+
+    for (const it of items) {
+      const s = studentById.get(it.student_id);
+      if (!s) continue;
       const currentMod = (s as any).belt?.modality ?? null;
+      const newMod = beltModById.get(it.belt_id) ?? "jiu-jitsu";
       if (!s.current_belt_id || currentMod === null || currentMod === newMod) {
-        eligible.push(s.id);
+        await context.supabase
+          .from("dojo_students")
+          .update({ current_belt_id: it.belt_id, current_degree: it.degree })
+          .eq("id", it.student_id);
       }
-    }
-    if (eligible.length > 0) {
-      await context.supabase
-        .from("dojo_students")
-        .update({ current_belt_id: data.belt_id, current_degree: data.degree })
-        .in("id", eligible);
     }
     return { count: inserted?.length ?? 0, graduations: inserted ?? [] };
   });
