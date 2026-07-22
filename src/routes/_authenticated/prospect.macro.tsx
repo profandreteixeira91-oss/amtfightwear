@@ -298,6 +298,7 @@ function MacroPage() {
     try { await navigator.clipboard.writeText(message); } catch { /* ignore */ }
     window.open(`https://instagram.com/${handle}`, "_blank", "noopener,noreferrer");
     logMut.mutate(current.id);
+    if (manualActive) removeFromMacroQueue(current.id);
     setSessionCount((v) => v + 1);
     setCounter((c) => ({ date: todayKey(), count: c.count + 1 }));
     startCooldown();
