@@ -303,7 +303,7 @@ function EditableOverlay({ el, selected, onSelect, onCommit, zoom }: { el: AnyEl
             }}
             onPointerMove={onPointerMove}
             onPointerUp={endGesture}
-            style={{ position: "absolute", top: -28, left: "50%", transform: "translateX(-50%)", width: 14, height: 14, borderRadius: 999, background: "#0f172a", border: "2px solid #fff", cursor: "grab" }}
+            style={{ position: "absolute", top: -28, left: "50%", transform: "translateX(-50%)", width: 14, height: 14, borderRadius: 999, background: "#000000", border: "2px solid #fff", cursor: "grab" }}
             title="Rotacionar"
           />
         </>
@@ -323,13 +323,13 @@ function autoHeight(el: AnyElement) {
 
 /** Add-element helpers used by the left sidebar. */
 export function makeTextElement(text = "Texto", opts?: Partial<AnyElement>): AnyElement {
-  return { id: makeId(), kind: "text", text, x: 50, y: 50, fontSize: 32, color: "#0f172a", align: "center", fontFamily: "Inter", ...(opts as any) } as any;
+  return { id: makeId(), kind: "text", text, x: 50, y: 50, fontSize: 32, color: "#000000", align: "center", fontFamily: "Inter", ...(opts as any) } as any;
 }
 export function makeVariableElement(key: string): AnyElement {
-  return { id: makeId(), kind: "text", text: `{{${key}}}`, x: 50, y: 50, fontSize: 32, color: "#0f172a", align: "center", fontFamily: "Inter", name: `Variável: ${key}` } as any;
+  return { id: makeId(), kind: "text", text: `{{${key}}}`, x: 50, y: 50, fontSize: 32, color: "#000000", align: "center", fontFamily: "Inter", name: `Variável: ${key}` } as any;
 }
 export function makeShapeElement(kind: "rect" | "circle" | "line"): AnyElement {
-  if (kind === "line") return { id: makeId(), kind: "line", x: 50, y: 50, w: 30, h: 0.3, fill: "#0f172a" } as any;
+  if (kind === "line") return { id: makeId(), kind: "line", x: 50, y: 50, w: 30, h: 0.3, fill: "#000000" } as any;
   if (kind === "circle") return { id: makeId(), kind: "circle", x: 50, y: 50, w: 15, h: 15, fill: "#b91c1c", stroke: "", strokeWidth: 0 } as any;
   return { id: makeId(), kind: "rect", x: 50, y: 50, w: 20, h: 12, fill: "#b91c1c", radius: 8 } as any;
 }
