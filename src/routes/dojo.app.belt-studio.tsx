@@ -99,6 +99,9 @@ function BeltStudio() {
   const adminQ = useQuery({ queryKey: ["belt-studio-admin"], queryFn: () => adminFn() });
 
   const belts = beltsQ.data ?? [];
+  // Propaga o termo (Faixa/Grau) para todo o sistema conforme os nomes
+  // definidos aqui no Belt Studio.
+  useEffect(() => { if (belts.length) syncBeltTerms(belts); }, [belts]);
   const [modality, setModality] = useState("jiu-jitsu");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [draft, setDraft] = useState<BeltRow | null>(null);
