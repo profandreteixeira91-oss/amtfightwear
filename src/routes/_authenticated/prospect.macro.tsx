@@ -631,37 +631,44 @@ function MacroPage() {
                 {extensionReady ? (
                   <>
                     <Button
-                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+                      className={
+                        autoMode
+                          ? "w-full bg-red-600 hover:bg-red-700 text-white"
+                          : "w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+                      }
                       size="lg"
-                      disabled={!canAct || autoBusy}
-                      onClick={async () => {
-                        if (!current) return;
-                        setAutoBusy(true);
-                        try {
-                          await runOneAuto(current, message);
-                        } finally {
-                          setAutoBusy(false);
-                          startCooldown();
+                      disabled={!current || paused || sessionReached || dailyReached}
+                      onClick={() => {
+                        if (autoMode) {
+                          setAutoMode(false);
+                          setAutoStatus("Automação interrompida.");
+                          toast("Automação parada.");
+                        } else {
+                          setAutoMode(true);
+                          setAutoStatus("Iniciando fluxo automático…");
+                          toast.success("Automação iniciada — percorrendo a fila.");
                         }
                       }}
                     >
                       <Zap className="mr-2 h-4 w-4" />
-                      {autoBusy ? "Enviando…" : "Rodar (envio automático)"}
+                      {autoMode
+                        ? (autoBusy ? "Enviando… (clique para parar)" : "Parar automação")
+                        : `Iniciar automação (${queue.length} lead${queue.length === 1 ? "" : "s"})`}
                     </Button>
-                    <div className="flex items-center justify-between rounded-lg border border-border/60 bg-muted/30 px-3 py-2 text-xs">
-                      <label className="flex items-center gap-2 cursor-pointer">
-                        <Switch checked={autoMode} onCheckedChange={setAutoMode} id="automode" />
-                        <span className="font-medium">Modo contínuo</span>
-                      </label>
-                      <span className="text-muted-foreground">
-                        {autoMode ? (autoStatus || "Aguardando…") : "Processa a fila sozinho, respeitando cooldown."}
-                      </span>
+                    <div className="rounded-lg border border-border/60 bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+                      <div className="mb-0.5 font-medium text-foreground">Fluxo automático</div>
+                      Abre o Instagram do lead → cola a mensagem → envia → fecha a aba → aguarda o cooldown → repete com o próximo perfil da fila até acabar (ou até o limite diário/sessão).
+                      {autoMode && (
+                        <div className="mt-1 font-medium text-emerald-700 dark:text-emerald-300">
+                          {autoStatus || "Aguardando cooldown…"}
+                        </div>
+                      )}
                     </div>
                     <Button
                       variant="outline"
                       className="w-full"
                       size="sm"
-                      disabled={!canAct}
+                      disabled={!canAct || autoMode || autoBusy}
                       onClick={doSend}
                     >
                       <Copy className="mr-2 h-4 w-4" />
@@ -669,6 +676,7 @@ function MacroPage() {
                       Modo manual (só copiar e abrir)
                     </Button>
                   </>
+
                 ) : (
                   <>
                     <Button
