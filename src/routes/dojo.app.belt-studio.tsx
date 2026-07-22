@@ -536,6 +536,9 @@ function BeltEditor({
         </CardContent>
       </Card>
 
+      {/* Graus — edição individual */}
+      <DegreesSection draft={draft} setDraft={setDraft} parentSpec={spec} />
+
       {/* Variações / subvariações */}
       <Card>
         <CardHeader className="pb-2 flex-row items-center justify-between space-y-0">
