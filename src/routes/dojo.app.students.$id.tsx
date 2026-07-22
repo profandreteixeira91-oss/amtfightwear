@@ -194,6 +194,7 @@ function StudentDetail() {
     [graduations, invoices, certificates, attendanceRows, s],
   );
 
+  if (isChildRoute) return <Outlet />;
   if (q.isLoading || !q.data || !s) return <LoadingState />;
 
 
