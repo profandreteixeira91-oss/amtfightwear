@@ -324,7 +324,7 @@ function AnalysisPage() {
         </TabsContent>
 
         <TabsContent value="metas" className="mt-4">
-          <ComingSoon icon={Dumbbell} title="Metas individuais" description="Módulo de metas com prazo, responsável e progresso será liberado em breve." />
+          <GoalsTab studentId={id} />
         </TabsContent>
 
         <TabsContent value="lesoes" className="mt-4">
