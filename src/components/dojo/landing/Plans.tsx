@@ -57,68 +57,56 @@ export function Plans() {
       id="planos"
       eyebrow="Plano único · sem pegadinhas"
       title="Um plano. Todos os módulos. Alunos ilimitados."
-      description="Sem faixas por volume, sem upsell, sem módulo pago à parte. Escolha a precificação que faz sentido para a sua estratégia de entrada no mercado."
+      description="Um único plano, todos os módulos inclusos, alunos ilimitados. Oferta de lançamento por tempo limitado."
       className="bg-white"
     >
       <FadeIn>
-        <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
+        <div className="mx-auto grid max-w-xl gap-6">
           {suggestions.map((s) => (
             <div
               key={s.label}
-              className={
-                s.highlight
-                  ? "relative flex flex-col rounded-3xl border-2 border-[#C1121F] bg-[#111111] p-7 text-white shadow-[0_30px_60px_-25px_rgba(193,18,31,0.55)]"
-                  : "relative flex flex-col rounded-3xl border border-[#111111]/10 bg-white p-7 text-[#111111] shadow-sm"
-              }
+              className="relative flex flex-col rounded-3xl border-2 border-[#C1121F] bg-[#111111] p-8 text-white shadow-[0_30px_60px_-25px_rgba(193,18,31,0.55)]"
             >
-              {s.highlight && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[#C1121F] px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow">
-                  <Sparkles className="mr-1 inline h-3 w-3" /> Recomendado
-                </span>
+              <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[#C1121F] px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow">
+                <Sparkles className="mr-1 inline h-3 w-3" /> {s.label}
+              </span>
+
+              <h3 className="mt-2 text-lg font-semibold text-white">{s.positioning}</h3>
+
+              {s.originalPrice && (
+                <div className="mt-5 flex items-center gap-2">
+                  <span className="text-sm font-medium text-white/50 line-through">
+                    De R$ {s.originalPrice.toFixed(2).replace(".", ",")}
+                  </span>
+                  <span className="rounded-full bg-[#C1121F]/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#ff8a95]">
+                    -44%
+                  </span>
+                </div>
               )}
 
-              <p
-                className={
-                  s.highlight
-                    ? "text-[10px] font-bold uppercase tracking-wider text-white/70"
-                    : "text-[10px] font-bold uppercase tracking-wider text-[#C1121F]"
-                }
-              >
-                {s.label}
-              </p>
-              <h3 className={s.highlight ? "mt-2 text-lg font-semibold text-white" : "mt-2 text-lg font-semibold"}>
-                {s.positioning}
-              </h3>
-
-              <div className="mt-5 flex items-baseline gap-1">
-                <span className={s.highlight ? "text-sm font-medium text-white/60" : "text-sm font-medium text-[#111111]/60"}>
-                  R$
+              <div className="mt-2 flex items-baseline gap-1">
+                <span className="text-sm font-medium text-white/60">R$</span>
+                <span className="text-6xl font-bold tracking-tight">
+                  {Math.floor(s.price)}
+                  <span className="text-3xl">,{String(s.price.toFixed(2)).split(".")[1]}</span>
                 </span>
-                <span className="text-5xl font-bold tracking-tight">{s.price}</span>
-                <span className={s.highlight ? "text-sm font-medium text-white/60" : "text-sm font-medium text-[#111111]/60"}>
-                  /mês
-                </span>
+                <span className="text-sm font-medium text-white/60">/mês</span>
               </div>
-              <p className={s.highlight ? "mt-1 text-xs text-white/50" : "mt-1 text-xs text-[#111111]/50"}>
-                No plano anual · mensal +20%
-              </p>
+              <p className="mt-1 text-xs text-white/50">Cobrança recorrente · cancele quando quiser</p>
 
-              <p className={s.highlight ? "mt-5 text-sm leading-relaxed text-white/80" : "mt-5 text-sm leading-relaxed text-[#111111]/70"}>
-                {s.rationale}
-              </p>
+              <p className="mt-5 text-sm leading-relaxed text-white/80">{s.rationale}</p>
 
-              {s.highlight && (
-                <Button
-                  asChild
-                  className="mt-6 w-full rounded-full bg-[#C1121F] text-white hover:bg-[#a30f1a]"
-                >
-                  <a href="#cta">Testar 14 dias grátis</a>
-                </Button>
-              )}
+              <Button
+                asChild
+                className="mt-6 w-full rounded-full bg-[#C1121F] text-white hover:bg-[#a30f1a]"
+              >
+                <a href="#cta">Testar 14 dias grátis</a>
+              </Button>
             </div>
           ))}
         </div>
       </FadeIn>
+
 
       <FadeIn>
         <div className="mx-auto mt-10 grid max-w-5xl gap-4 rounded-3xl border border-[#111111]/10 bg-[#FAFAFA] p-6 sm:grid-cols-2 md:grid-cols-4 md:p-8">
