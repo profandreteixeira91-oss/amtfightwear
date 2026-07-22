@@ -293,6 +293,32 @@ function DojoDashboard() {
   const att = useQuery({ queryKey: ["dojo-att-stats"], queryFn: () => attFn() });
   const classes = useQuery({ queryKey: ["dojo-classes-list"], queryFn: () => classesFn() });
 
+  const meQ = useQuery({
+    queryKey: ["dojo-hero-me"],
+    queryFn: async () => {
+      const { data: u } = await supabase.auth.getUser();
+      const uid = u.user?.id;
+      if (!uid) return { userName: null, academyName: null, logoUrl: null };
+      const [{ data: profile }, { data: academy }] = await Promise.all([
+        supabase.from("profiles").select("full_name").eq("id", uid).maybeSingle(),
+        supabase
+          .from("dojo_academy_profile")
+          .select("trade_name, legal_name, logo_url")
+          .eq("owner_id", uid)
+          .maybeSingle(),
+      ]);
+      return {
+        userName:
+          profile?.full_name ||
+          (u.user?.user_metadata as any)?.full_name ||
+          (u.user?.email ? u.user.email.split("@")[0] : null),
+        academyName: academy?.trade_name || academy?.legal_name || null,
+        logoUrl: academy?.logo_url || null,
+      };
+    },
+    staleTime: 60_000,
+  });
+
   const students = stu.data ?? [];
   const active = students.filter((s: any) => s.status === "active").length;
   const inactive = students.length - active;
