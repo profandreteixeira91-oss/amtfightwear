@@ -24,6 +24,9 @@ import {
   updateSaleStatus,
   listStudentsLite,
 } from "@/lib/dojo/sales.functions";
+import { getMyAsaasConfig } from "@/lib/asaas/asaas.functions";
+import { isAsaasReady } from "@/lib/dojo/amt-pay-status";
+import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/dojo/app/sales")({
   head: () => ({ meta: [{ title: "Vendas — AMT Dojo Manager" }] }),
