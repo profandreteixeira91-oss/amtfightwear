@@ -296,7 +296,7 @@ function SectionHeading({
           <span
             className={`inline-flex items-center rounded-full px-3.5 py-1.5 text-[10.5px] font-semibold uppercase tracking-[0.2em] ${
               invert
-                ? "bg-white/10 text-white/80 ring-1 ring-white/15"
+                ? "bg-white/15 text-white ring-1 ring-white/25"
                 : "bg-primary/[0.08] text-primary ring-1 ring-primary/20"
             }`}
           >
@@ -314,7 +314,7 @@ function SectionHeading({
       {subtitle && (
         <p
           className={`mx-auto mt-5 max-w-xl text-[15px] leading-relaxed md:text-base ${
-            invert ? "text-white/60" : "text-muted-foreground"
+            invert ? "text-white/80" : "text-muted-foreground"
           }`}
         >
           {subtitle}
@@ -531,15 +531,15 @@ function AtacadoLandingPage() {
         </div>
       </section>
 
-      {/* BARRA DE BENEFÍCIOS */}
-      <section className="border-y border-border/60 bg-foreground text-background">
+      {/* BARRA DE BENEFÍCIOS — fundo escuro, elementos claros */}
+      <section className="border-y border-white/10 bg-foreground text-background">
         <div className="mx-auto grid max-w-6xl grid-cols-2 gap-4 px-5 py-5 sm:grid-cols-4 md:gap-8 md:py-6 lg:px-6">
           {benefits.map((b) => (
-            <div key={b} className="flex items-center gap-2.5 text-[12.5px] font-medium tracking-tight sm:text-sm">
-              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-primary/15 ring-1 ring-primary/30">
-                <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
+            <div key={b} className="flex items-center gap-2.5 text-[12.5px] font-medium tracking-tight text-background sm:text-sm">
+              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-background/10 ring-1 ring-background/25">
+                <CheckCircle2 className="h-3.5 w-3.5 text-background" />
               </span>
-              <span className="min-w-0">{b}</span>
+              <span className="min-w-0 text-background/90">{b}</span>
             </div>
           ))}
         </div>
@@ -687,8 +687,8 @@ function AtacadoLandingPage() {
         </div>
       </section>
 
-      {/* QUALIDADE + GALERIA */}
-      <section id="qualidade" className="scroll-mt-24 border-y border-border/60 bg-foreground text-background">
+      {/* QUALIDADE + GALERIA — fundo escuro, elementos claros */}
+      <section id="qualidade" className="scroll-mt-24 border-y border-white/10 bg-foreground text-background">
         <div className="mx-auto max-w-6xl px-5 py-20 md:py-28 lg:px-6">
           <SectionHeading
             eyebrow="Qualidade"
@@ -710,7 +710,7 @@ function AtacadoLandingPage() {
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true, margin: "-60px" }}
                   transition={{ duration: 0.5, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
-                  className="group overflow-hidden rounded-2xl border border-white/10 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.5)] ring-1 ring-white/5"
+                  className="group overflow-hidden rounded-2xl border border-white/15 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.5)] ring-1 ring-white/10"
                 >
                   <div className="aspect-square overflow-hidden bg-white/5">
                     <img
@@ -732,14 +732,14 @@ function AtacadoLandingPage() {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true, margin: "-60px" }}
                   transition={{ duration: 0.5, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
-                  className="group flex gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/30 hover:bg-white/[0.07]"
+                  className="group flex gap-4 rounded-2xl border border-white/15 bg-white/[0.06] p-5 backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-white/30 hover:bg-white/[0.10]"
                 >
-                  <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary/20 text-primary ring-1 ring-primary/40 transition-transform duration-300 group-hover:scale-110">
+                  <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-[0_8px_24px_-10px_hsl(var(--primary)/0.7)] ring-1 ring-primary/50 transition-transform duration-300 group-hover:scale-110">
                     <q.icon className="h-5 w-5" strokeWidth={2} />
                   </div>
                   <div className="min-w-0">
-                    <div className="text-[15.5px] font-semibold tracking-tight">{q.title}</div>
-                    <div className="mt-1.5 text-[14px] leading-relaxed text-white/65">{q.desc}</div>
+                    <div className="text-[15.5px] font-semibold tracking-tight text-white">{q.title}</div>
+                    <div className="mt-1.5 text-[14px] leading-relaxed text-white/75">{q.desc}</div>
                   </div>
                 </motion.li>
               ))}
