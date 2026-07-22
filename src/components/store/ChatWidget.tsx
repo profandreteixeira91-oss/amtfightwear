@@ -3,15 +3,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 type Msg = { id: string; role: "user" | "assistant" | "system"; text: string; source?: "human" | "bot"; created_at: string };
 
-const STORAGE_KEY = "amt_chat_external_id";
-const STORAGE_MSGS = "amt_chat_msgs_v1";
-
-function getExternalId(): string {
+function getExternalId(storageKey: string, prefix: string): string {
   if (typeof window === "undefined") return "server";
-  let id = window.localStorage.getItem(STORAGE_KEY);
+  let id = window.localStorage.getItem(storageKey);
   if (!id) {
-    id = `web_${crypto.randomUUID?.() ?? Date.now().toString(36) + Math.random().toString(36).slice(2)}`;
-    window.localStorage.setItem(STORAGE_KEY, id);
+    id = `${prefix}_${crypto.randomUUID?.() ?? Date.now().toString(36) + Math.random().toString(36).slice(2)}`;
+    window.localStorage.setItem(storageKey, id);
   }
   return id;
 }
