@@ -122,7 +122,7 @@ export function GoalsTab({ studentId }: { studentId: string }) {
       <SectionCard
         title="Metas & Objetivos"
         description="Defina metas de frequência, graduação, competições ou personalizadas. Progresso calculado automaticamente."
-        headerRight={
+        action={
           <Button size="sm" onClick={openNew}>
             <Plus className="mr-1 h-4 w-4" /> Nova meta
           </Button>
