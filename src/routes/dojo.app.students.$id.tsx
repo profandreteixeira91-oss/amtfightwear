@@ -316,7 +316,7 @@ function StudentDetail() {
                             </div>
                             <div className="font-medium text-sm">{b.belt.name}</div>
                             <div className="text-xs text-muted-foreground">
-                              {formatDegree(b.degree, b.belt?.modality)}
+                              {formatDegree(b.degree, b.belt?.modality, b.belt?.name)}
                             </div>
                           </div>
                         </div>
