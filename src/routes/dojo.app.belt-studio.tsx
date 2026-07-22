@@ -9,8 +9,9 @@ import {
   reorderDojoBelts,
   checkIsAdmin,
 } from "@/lib/dojo/dojo.functions";
-import { BeltAuto, BeltSpecVisual, type BeltSpec } from "@/components/dojo/BeltSpecVisual";
+import { BeltAuto, BeltSpecVisual, beltSpecIsEmpty, type BeltSpec } from "@/components/dojo/BeltSpecVisual";
 import { syncBeltTerms } from "@/lib/dojo/belt-terms";
+import { deriveBeltSpec } from "@/lib/dojo/derive-belt-spec";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -118,9 +119,14 @@ function BeltStudio() {
     if (!selectedId) { setDraft(null); return; }
     const found = belts.find((b) => b.id === selectedId);
     if (found) {
+      const storedVisual = (found.visual ?? {}) as BeltSpec;
+      // Se ainda não houver `visual` salvo, carrega o estado atual (derivado
+      // do render legado) para o editor abrir com a ilustração vigente em
+      // vez de "zerado".
+      const visual = beltSpecIsEmpty(storedVisual) ? deriveBeltSpec(found) : storedVisual;
       setDraft({
         ...found,
-        visual: (found.visual ?? {}) as BeltSpec,
+        visual,
         variants: (found.variants ?? []) as BeltVariant[],
       });
     }
@@ -379,11 +385,22 @@ function BeltEditor({
 
       {/* Ilustração — spec estruturada */}
       <Card>
-        <CardHeader className="pb-2"><CardTitle className="text-sm">Ilustração</CardTitle></CardHeader>
+        <CardHeader className="pb-2 flex-row items-center justify-between space-y-0">
+          <CardTitle className="text-sm">Ilustração</CardTitle>
+          <Button
+            size="sm"
+            variant="ghost"
+            title="Recarrega a ilustração a partir do estado atual (nome, cor, modalidade)."
+            onClick={() => setDraft({ ...draft, visual: deriveBeltSpec(draft) })}
+          >
+            Restaurar visual atual
+          </Button>
+        </CardHeader>
         <CardContent>
           <SpecEditor spec={spec} onChange={(next) => setDraft({ ...draft, visual: next })} />
         </CardContent>
       </Card>
+
 
 
       {/* Graus — edição individual */}
