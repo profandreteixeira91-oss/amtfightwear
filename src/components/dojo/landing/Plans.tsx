@@ -1,75 +1,185 @@
-import { Check } from "lucide-react";
+import { Check, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Section, FadeIn } from "./Section";
 
-const features = [
-  "Alunos ilimitados",
-  "Unidades ilimitadas",
-  "Gestão financeira completa (PIX, cartão, boleto)",
-  "Graduações e certificados automáticos",
-  "App do Aluno com carteirinha digital",
-  "Agenda de aulas e presença",
-  "Competições e eventos",
-  "Integração GymPass e TotalPass",
-  "Integração com AMT Fight Wear",
-  "WhatsApp, e-mail e API REST",
-  "Relatórios e automações",
-  "Backup em nuvem e segurança",
-  "Suporte dedicado",
-  "Atualizações constantes",
+const allModules = [
+  "Alunos e matrículas ilimitadas",
+  "Financeiro completo (PIX, cartão, boleto)",
+  "AMT Pay — split e carteira digital",
+  "Graduações, faixas e critérios automáticos",
+  "Editor de certificados (estilo Canva) + PDF A4",
+  "Belt Studio — ilustrações de faixas por modalidade",
+  "Agenda, turmas, presença e check-in geolocalizado",
+  "Ranking por check-ins e engajamento",
+  "Módulo Equipe (professores, escalas, folha)",
+  "Competições, cartel e resultados",
+  "Avaliações físicas e técnicas por fundamento",
+  "Análise Individual do Atleta (score, radar, heatmap)",
+  "Metas & objetivos com progresso automático",
+  "Vídeos técnicos e biblioteca por categoria",
+  "App do Aluno (PWA) com carteirinha digital",
+  "Comunicados, push notifications e e-mail",
+  "AMT Store integrada (varejo + atacado 25%)",
+  "Integração GymPass, TotalPass e parceiros",
+  "Melhor Envio, WhatsApp e API REST",
+  "Multi-unidades e multi-modalidades",
+  "Relatórios, exportações e automações",
+  "Backup em nuvem, LGPD e RLS por conta",
+  "Suporte dedicado e atualizações contínuas",
+];
+
+type Plan = {
+  name: string;
+  tagline: string;
+  price: number;
+  students: string;
+  highlight?: boolean;
+  extras?: string[];
+};
+
+const plans: Plan[] = [
+  {
+    name: "Starter",
+    tagline: "Para dojos começando a digitalizar",
+    price: 99,
+    students: "Até 50 alunos ativos",
+    extras: ["1 unidade", "1 modalidade principal", "Suporte por e-mail"],
+  },
+  {
+    name: "Pro",
+    tagline: "O plano preferido das academias",
+    price: 179,
+    students: "Até 150 alunos ativos",
+    highlight: true,
+    extras: ["Até 2 unidades", "Modalidades ilimitadas", "Suporte prioritário via WhatsApp"],
+  },
+  {
+    name: "Elite",
+    tagline: "Para equipes em crescimento",
+    price: 279,
+    students: "Até 300 alunos ativos",
+    extras: ["Até 5 unidades", "Onboarding assistido", "Gerente de conta"],
+  },
+  {
+    name: "Federação",
+    tagline: "Redes, franquias e federações",
+    price: 449,
+    students: "Alunos ilimitados",
+    extras: ["Unidades ilimitadas", "SLA dedicado", "API e integrações sob medida"],
+  },
 ];
 
 export function Plans() {
   return (
     <Section
       id="planos"
-      eyebrow="Plano único"
-      title="Um plano. Todos os recursos."
-      description="Sem pegadinhas, sem upsell. Sua academia tem acesso completo à plataforma por uma mensalidade única."
+      eyebrow="Planos e preços"
+      title="Todos os módulos. Todos os planos."
+      description="Você escolhe pelo tamanho da sua academia — não pelos recursos. Cada plano inclui 100% da plataforma, com 14 dias grátis e sem taxa de setup."
       className="bg-white"
     >
       <FadeIn>
-        <div className="mx-auto max-w-2xl">
-          <div className="relative overflow-hidden rounded-3xl border border-[#C1121F]/20 bg-[#111111] p-8 text-white shadow-[0_40px_80px_-30px_rgba(193,18,31,0.45)] md:p-12">
-            <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-[#C1121F]/20 blur-3xl" />
+        <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-2 lg:grid-cols-4">
+          {plans.map((p) => (
+            <div
+              key={p.name}
+              className={
+                p.highlight
+                  ? "relative flex flex-col rounded-3xl border-2 border-[#C1121F] bg-[#111111] p-7 text-white shadow-[0_30px_60px_-25px_rgba(193,18,31,0.55)]"
+                  : "relative flex flex-col rounded-3xl border border-[#111111]/10 bg-white p-7 text-[#111111] shadow-sm"
+              }
+            >
+              {p.highlight && (
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[#C1121F] px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow">
+                  <Sparkles className="mr-1 inline h-3 w-3" /> Mais escolhido
+                </span>
+              )}
 
-            <div className="relative flex flex-col items-center text-center">
-              <span className="rounded-full border border-[#C1121F]/40 bg-[#C1121F]/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[#C1121F]">
-                AMT Dojo Manager · Completo
-              </span>
-              <h3 className="mt-5 text-2xl font-semibold text-white/90">Acesso completo à plataforma</h3>
-
-              <div className="mt-6 flex items-baseline gap-2">
-                <span className="text-lg font-medium text-white/60">R$</span>
-                <span className="text-6xl font-bold tracking-tight md:text-7xl">69,90</span>
-                <span className="text-lg font-medium text-white/60">/mês</span>
+              <div>
+                <h3 className={p.highlight ? "text-lg font-semibold text-white" : "text-lg font-semibold"}>
+                  {p.name}
+                </h3>
+                <p className={p.highlight ? "mt-1 text-sm text-white/60" : "mt-1 text-sm text-[#111111]/60"}>
+                  {p.tagline}
+                </p>
               </div>
-              <p className="mt-2 text-sm text-white/50">Mensalidade única — sem taxa de setup.</p>
 
-              <Button
-                asChild
-                size="lg"
-                className="mt-8 w-full max-w-sm rounded-full bg-[#C1121F] text-white shadow-lg shadow-[#C1121F]/30 hover:bg-[#a30f1a]"
-              >
-                <a href="#cta">Começar agora</a>
-              </Button>
-              <p className="mt-3 text-xs text-white/40">Teste grátis por 14 dias · Cancele quando quiser.</p>
-            </div>
-
-            <div className="relative mt-10 border-t border-white/10 pt-8">
-              <p className="mb-5 text-center text-xs font-semibold uppercase tracking-wider text-white/50">
-                Tudo incluso
+              <div className="mt-5 flex items-baseline gap-1">
+                <span className={p.highlight ? "text-sm font-medium text-white/60" : "text-sm font-medium text-[#111111]/60"}>
+                  R$
+                </span>
+                <span className="text-5xl font-bold tracking-tight">{p.price}</span>
+                <span className={p.highlight ? "text-sm font-medium text-white/60" : "text-sm font-medium text-[#111111]/60"}>
+                  /mês
+                </span>
+              </div>
+              <p className={p.highlight ? "mt-1 text-xs text-white/50" : "mt-1 text-xs text-[#111111]/50"}>
+                No plano anual · mensal +20%
               </p>
-              <ul className="grid gap-3 text-sm text-white/80 sm:grid-cols-2">
-                {features.map((f) => (
-                  <li key={f} className="flex items-start gap-2">
+
+              <div
+                className={
+                  p.highlight
+                    ? "mt-5 rounded-xl bg-white/10 px-3 py-2 text-sm font-semibold text-white"
+                    : "mt-5 rounded-xl bg-[#111111]/[0.04] px-3 py-2 text-sm font-semibold text-[#111111]"
+                }
+              >
+                {p.students}
+              </div>
+
+              <ul className={p.highlight ? "mt-4 space-y-2 text-sm text-white/80" : "mt-4 space-y-2 text-sm text-[#111111]/80"}>
+                {p.extras?.map((e) => (
+                  <li key={e} className="flex items-start gap-2">
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#C1121F]" />
-                    {f}
+                    {e}
                   </li>
                 ))}
               </ul>
+
+              <Button
+                asChild
+                className={
+                  p.highlight
+                    ? "mt-6 w-full rounded-full bg-[#C1121F] text-white hover:bg-[#a30f1a]"
+                    : "mt-6 w-full rounded-full bg-[#111111] text-white hover:bg-[#111111]/90"
+                }
+              >
+                <a href="#cta">Testar 14 dias grátis</a>
+              </Button>
+            </div>
+          ))}
+        </div>
+      </FadeIn>
+
+      <FadeIn>
+        <div className="mx-auto mt-12 max-w-5xl rounded-3xl border border-[#111111]/10 bg-[#FAFAFA] p-8 md:p-10">
+          <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wider text-[#C1121F]">
+                Tudo incluso em todos os planos
+              </p>
+              <h3 className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">
+                Sem módulos pagos à parte. Sem upsell.
+              </h3>
+              <p className="mt-2 max-w-2xl text-sm text-[#111111]/60">
+                A diferença entre os planos é apenas o volume de alunos e unidades. Todos os {allModules.length} módulos abaixo estão disponíveis desde o Starter.
+              </p>
+            </div>
+            <div className="rounded-2xl bg-white px-5 py-4 text-center shadow-sm ring-1 ring-[#111111]/5">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#111111]/50">AMT Pay</p>
+              <p className="mt-1 text-sm font-semibold">Taxa 2% por transação</p>
+              <p className="text-xs text-[#111111]/50">Split automático via Asaas</p>
             </div>
           </div>
+
+          <ul className="mt-8 grid gap-3 text-sm text-[#111111]/80 sm:grid-cols-2 lg:grid-cols-3">
+            {allModules.map((m) => (
+              <li key={m} className="flex items-start gap-2">
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#C1121F]" />
+                {m}
+              </li>
+            ))}
+          </ul>
         </div>
       </FadeIn>
     </Section>
