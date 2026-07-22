@@ -26,6 +26,7 @@ import { PerformanceGauge } from "@/components/dojo/athlete-analysis/Performance
 import { AttendanceHeatmap } from "@/components/dojo/athlete-analysis/AttendanceHeatmap";
 import { TechnicalRadar } from "@/components/dojo/athlete-analysis/TechnicalRadar";
 import { InsightCard } from "@/components/dojo/athlete-analysis/InsightCard";
+import { GoalsTab } from "@/components/dojo/athlete-analysis/GoalsTab";
 import { formatDegree, degreeUnit } from "@/lib/dojo/degree-label";
 
 export const Route = createFileRoute("/dojo/app/students/$id/analysis")({
@@ -324,7 +325,7 @@ function AnalysisPage() {
         </TabsContent>
 
         <TabsContent value="metas" className="mt-4">
-          <ComingSoon icon={Dumbbell} title="Metas individuais" description="Módulo de metas com prazo, responsável e progresso será liberado em breve." />
+          <GoalsTab studentId={id} />
         </TabsContent>
 
         <TabsContent value="lesoes" className="mt-4">
