@@ -531,15 +531,15 @@ function AtacadoLandingPage() {
         </div>
       </section>
 
-      {/* BARRA DE BENEFÍCIOS */}
-      <section className="border-y border-border/60 bg-foreground text-background">
+      {/* BARRA DE BENEFÍCIOS — fundo escuro, elementos claros */}
+      <section className="border-y border-white/10 bg-foreground text-background">
         <div className="mx-auto grid max-w-6xl grid-cols-2 gap-4 px-5 py-5 sm:grid-cols-4 md:gap-8 md:py-6 lg:px-6">
           {benefits.map((b) => (
-            <div key={b} className="flex items-center gap-2.5 text-[12.5px] font-medium tracking-tight sm:text-sm">
-              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-primary/15 ring-1 ring-primary/30">
-                <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
+            <div key={b} className="flex items-center gap-2.5 text-[12.5px] font-medium tracking-tight text-background sm:text-sm">
+              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-background/10 ring-1 ring-background/25">
+                <CheckCircle2 className="h-3.5 w-3.5 text-background" />
               </span>
-              <span className="min-w-0">{b}</span>
+              <span className="min-w-0 text-background/90">{b}</span>
             </div>
           ))}
         </div>
