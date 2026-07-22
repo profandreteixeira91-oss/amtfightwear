@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "AMT Macro DM",
+  "version": "1.0.0",
+  "description": "Automatiza o envio de DMs no Instagram para o AMT Prospect Engine (Dojo Manager).",
+  "permissions": ["tabs", "storage", "scripting"],
+  "host_permissions": [
+    "https://www.instagram.com/*",
+    "https://instagram.com/*"
+  ],
+  "background": { "service_worker": "background.js" },
+  "action": { "default_popup": "popup.html", "default_icon": "icon.png" },
+  "icons": { "48": "icon.png", "128": "icon.png" },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.instagram.com/*",
+        "https://instagram.com/*"
+      ],
+      "js": ["content-ig.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://dojomanager.amtfightwear.com.br/*",
+        "https://amtfightwear.com.br/*",
+        "https://www.amtfightwear.com.br/*",
+        "https://bright-spark-echo.lovable.app/*",
+        "https://*.lovable.app/*"
+      ],
+      "js": ["content-bridge.js"],
+      "run_at": "document_start"
+    }
+  ]
+}
