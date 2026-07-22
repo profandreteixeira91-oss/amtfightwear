@@ -24,6 +24,9 @@ import {
   updateSaleStatus,
   listStudentsLite,
 } from "@/lib/dojo/sales.functions";
+import { getMyAsaasConfig } from "@/lib/asaas/asaas.functions";
+import { isAsaasReady } from "@/lib/dojo/amt-pay-status";
+import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/dojo/app/sales")({
   head: () => ({ meta: [{ title: "Vendas — AMT Dojo Manager" }] }),
@@ -330,7 +333,15 @@ function NewSaleDialog({
   const [dueDate, setDueDate] = useState<string>(new Date().toISOString().slice(0, 10));
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
+  const [amtPayReady, setAmtPayReady] = useState<boolean | null>(null);
   const save = useServerFn(createSale);
+  const fetchAsaas = useServerFn(getMyAsaasConfig);
+
+  useEffect(() => {
+    fetchAsaas()
+      .then((cfg) => setAmtPayReady(isAsaasReady(cfg?.onboardingStatus)))
+      .catch(() => setAmtPayReady(false));
+  }, [fetchAsaas]);
 
   const subtotal = lines.reduce((a, l) => a + l.quantity * l.unit_price, 0);
   const total = Math.max(0, subtotal - (discount || 0));
@@ -368,6 +379,10 @@ function NewSaleDialog({
       }));
     if (!validItems.length) {
       toast.error("Adicione ao menos um item válido.");
+      return;
+    }
+    if (isGateway && !amtPayReady) {
+      toast.error("Ative o AMT Pay para gerar cobranças online. Use uma forma direta com a academia.");
       return;
     }
     if (isGateway && !studentId) {
@@ -514,19 +529,28 @@ function NewSaleDialog({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {PAYMENT_METHOD_GROUPS.map((g, gi) => (
-                  <div key={g.label}>
-                    {gi > 0 ? <div className="my-1 border-t" /> : null}
-                    <div className="px-2 pb-1 pt-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                      {g.label}
+                {PAYMENT_METHOD_GROUPS.map((g, gi) => {
+                  const isAmtPayGroup = g.label === "AMT Pay";
+                  const disableGroup = isAmtPayGroup && !amtPayReady;
+                  return (
+                    <div key={g.label}>
+                      {gi > 0 ? <div className="my-1 border-t" /> : null}
+                      <div className="flex items-center justify-between px-2 pb-1 pt-1.5">
+                        <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                          {g.label}
+                        </span>
+                        {disableGroup ? (
+                          <span className="text-[10px] font-medium text-amber-600">Não ativado</span>
+                        ) : null}
+                      </div>
+                      {g.options.map((k) => (
+                        <SelectItem key={k} value={k} disabled={disableGroup}>
+                          {PAYMENT_METHOD_LABELS[k] ?? k}
+                        </SelectItem>
+                      ))}
                     </div>
-                    {g.options.map((k) => (
-                      <SelectItem key={k} value={k}>
-                        {PAYMENT_METHOD_LABELS[k] ?? k}
-                      </SelectItem>
-                    ))}
-                  </div>
-                ))}
+                  );
+                })}
               </SelectContent>
             </Select>
             <p className="mt-1 text-[11px] text-muted-foreground">
@@ -534,6 +558,15 @@ function NewSaleDialog({
                 ? PAYMENT_METHOD_GROUPS[0].hint
                 : PAYMENT_METHOD_GROUPS[1].hint}
             </p>
+            {amtPayReady === false ? (
+              <p className="mt-1 text-[11px] text-amber-600">
+                AMT Pay ainda não está ativado. {" "}
+                <Link to="/dojo/app/integrations" className="underline font-medium">
+                  Ativar agora
+                </Link>{" "}
+                — enquanto isso, use uma forma direta com a academia.
+              </p>
+            ) : null}
           </div>
           {isGateway ? (
             <div>
