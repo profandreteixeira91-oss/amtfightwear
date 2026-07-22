@@ -161,14 +161,10 @@ function DojoDashboard() {
                       ? s.current_belts
                       : (s.belt?.color_hex ? [{ modality: s.belt.modality, belt: s.belt, degree: s.current_degree ?? 0 }] : []);
                     return belts.slice(0, 3).map((b: any, i: number) => (
-                      <BeltVisual
+                      <BeltAuto
                         key={i}
-                        modality={b.belt.modality}
-                        name={b.belt.name}
-                        colorHex={b.belt.color_hex}
-                        stripeHex={b.belt.stripe_hex}
+                        belt={b.belt}
                         degree={b.degree ?? 0}
-                        maxDegrees={b.belt?.max_degrees ?? 4}
                         className="w-[220px]"
                       />
                     ));
