@@ -131,7 +131,7 @@ export const upsertAthleteGoal = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const owner = await assertOwnership(supabase, userId, data.studentId);
 
-    const payload: Record<string, unknown> = {
+    const payload: any = {
       owner_id: owner.owner_id,
       student_id: data.studentId,
       title: data.title,
@@ -181,7 +181,7 @@ export const setGoalStatus = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!g) throw new Error("Meta não encontrada");
     await assertOwnership(supabase, userId, g.student_id);
-    const patch: Record<string, unknown> = { status: data.status };
+    const patch: any = { status: data.status };
     if (data.status === "completed") patch.completed_at = new Date().toISOString();
     if (data.status !== "completed") patch.completed_at = null;
     const { error } = await supabase.from("dojo_athlete_goals").update(patch).eq("id", data.id);
@@ -203,7 +203,7 @@ export const updateGoalProgress = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!g) throw new Error("Meta não encontrada");
     await assertOwnership(supabase, userId, g.student_id);
-    const patch: Record<string, unknown> = { current_value: data.currentValue, auto_progress: false };
+    const patch: any = { current_value: data.currentValue, auto_progress: false };
     if (g.status === "active" && data.currentValue >= Number(g.target_value || 0)) {
       patch.status = "completed";
       patch.completed_at = new Date().toISOString();
