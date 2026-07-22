@@ -180,6 +180,7 @@ export async function discoverCompanies(input: {
       if (isForeignDomain(domain)) continue;
       if (isJunkUrl(r.url)) continue;
       if (isJunkTitle(r.title)) continue;
+      if (isJunkTitle(r.description ?? "")) continue;
 
       // Filtro de relevância geográfica: se o usuário informou cidade/UF,
       // exige que o token apareça no título, descrição ou URL do resultado.
@@ -197,10 +198,15 @@ export async function discoverCompanies(input: {
         if (!looksLikeBusinessHandle(handle)) continue;
         const meta = `${r.title ?? ""} ${r.description ?? ""}`;
         if (!hasNicheSignal(meta, input.segment)) continue;
+        if (!looksLikeBusinessProfile(meta)) continue;
         const dedupeKey = `instagram:${handle}`;
         if (seen.has(dedupeKey)) continue;
         seen.add(dedupeKey);
-        const displayName = cleanCompanyName(r.title) || `@${handle}`;
+        const cleaned = cleanCompanyName(r.title);
+        // Nome muito curto ou fragmento (ex: "JIU", "Escola de Jiu") = ruim.
+        const displayName = cleaned && cleaned.length >= 4 && !isFragmentName(cleaned)
+          ? cleaned
+          : `@${handle}`;
         companies.push({
           name: displayName,
           normalized_name: normalizeName(displayName),
@@ -215,16 +221,20 @@ export async function discoverCompanies(input: {
         continue;
       }
 
+      // Sites: exige homepage/institucional. Rejeita URLs profundas (artigo/página interna).
+      if (!looksLikeHomepageOrContact(r.url)) continue;
+
       const dedupeKey = domain;
       if (seen.has(dedupeKey)) continue;
       seen.add(dedupeKey);
 
       const name = cleanCompanyName(r.title);
-      if (!name) continue;
+      if (!name || name.length < 4 || isFragmentName(name)) continue;
 
       // Para sites: exige sinal de nicho para descartar blog/notícia aleatória.
       const meta = `${r.title ?? ""} ${r.description ?? ""} ${r.url}`;
       if (!hasNicheSignal(meta, input.segment)) continue;
+      if (!looksLikeBusinessProfile(meta)) continue;
 
       companies.push({
         name,
