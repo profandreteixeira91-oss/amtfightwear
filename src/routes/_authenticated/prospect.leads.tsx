@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import {
   Search, Filter, Mail, MessageCircle, Instagram, Globe, Sparkles,
   ChevronLeft, ChevronRight, Star, ExternalLink, Radar, Trash2, Wand2, Loader2,
+  MapPin, Phone,
 } from "lucide-react";
 import { PageShell } from "@/components/common/PageShell";
 import { ErrorState } from "@/components/common/ErrorState";
