@@ -2,6 +2,8 @@ import { toPng } from "html-to-image";
 import jsPDF from "jspdf";
 import type { EditorSchema } from "@/components/dojo/certificate-editor/types";
 import { supabase } from "@/integrations/supabase/client";
+import { formatBeltFull, formatBjjPretaVariant, isBjjBlackBelt } from "@/lib/dojo/degree-label";
+
 
 function fmtBR(d: string | Date | null | undefined): string {
   if (!d) return "";
@@ -25,6 +27,15 @@ export function buildIssueValues(opts: {
   const validationUrl = `${origin}/certificate/${publicHash}`;
   const grBelt = graduation?.belt ?? student?.belt ?? null;
   const gradDate = graduation?.graduation_date ?? null;
+  const gradDegree = graduation?.degree ?? student?.current_degree ?? 0;
+
+  // Nome completo da faixa considerando modalidade + grau (ex.: "Faixa Preta com aparador",
+  // "Faixa Preta 3º grau", "Faixa Roxa · 2º grau", "Faixa Preta · 2º Dan" para Judô).
+  const beltFull = formatBeltFull(grBelt?.name, grBelt?.modality, gradDegree);
+  const isBjjPreta = isBjjBlackBelt(grBelt?.name, grBelt?.modality);
+  // Para o campo puro "aluno_grau" no BJJ Preta, expor a variação humana ("com aparador",
+  // "3º grau"). Para as demais faixas, manter o número do grau/Dan.
+  const grauValue = isBjjPreta ? formatBjjPretaVariant(gradDegree) : String(gradDegree ?? "");
 
   const values: Record<string, string> = {
     // Aluno
@@ -36,16 +47,17 @@ export function buildIssueValues(opts: {
     aluno_idade: student?.birth_date
       ? String(Math.max(0, Math.floor((Date.now() - new Date(student.birth_date).getTime()) / (365.25 * 864e5))))
       : "",
-    aluno_faixa: grBelt?.name ?? "",
-    aluno_grau: String(graduation?.degree ?? student?.current_degree ?? ""),
+    aluno_faixa: beltFull,
+    aluno_grau: grauValue,
     aluno_modalidade: grBelt?.modality ?? student?.discipline ?? "",
     aluno_foto: student?.photo_url ?? "",
 
     // Graduação
-    graduacao_atual: grBelt?.name ?? "",
+    graduacao_atual: beltFull,
     graduacao_data: fmtBR(gradDate),
     graduacao_modalidade: grBelt?.modality ?? "",
     data_graduacao: fmtBR(gradDate),
+
 
     // Academia
     academia_nome: academy?.trade_name || academy?.legal_name || "",
@@ -72,7 +84,7 @@ export function buildIssueValues(opts: {
 
     // Compat
     student_name: student?.full_name ?? "",
-    belt: grBelt?.name ?? "",
+    belt: beltFull,
     date: fmtBR(gradDate || now),
     signature: academy?.signature_url ?? "",
   };
