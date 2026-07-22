@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Area,
   AreaChart,
@@ -139,22 +140,45 @@ function DeltaBadge({ value }: { value: number }) {
 
 /* --------------------------- HERO ---------------------------- */
 
+function greetingFor(date = new Date()): string {
+  const h = date.getHours();
+  if (h < 12) return "Bom dia";
+  if (h < 18) return "Boa tarde";
+  return "Boa noite";
+}
+
 function HeroHeader({
   studentsCount,
   activeCount,
   balance,
   overdueCount,
+  userName,
+  academyName,
+  logoUrl,
 }: {
   studentsCount: number;
   activeCount: number;
   balance: number;
   overdueCount: number;
+  userName?: string | null;
+  academyName?: string | null;
+  logoUrl?: string | null;
 }) {
   const today = new Date().toLocaleDateString("pt-BR", {
     weekday: "long",
     day: "2-digit",
     month: "long",
   });
+  const greeting = greetingFor();
+  const firstName = (userName ?? "").trim().split(/\s+/)[0] || "";
+  const initials =
+    (academyName || userName || "A")
+      .split(/\s+/)
+      .map((p) => p[0])
+      .filter(Boolean)
+      .slice(0, 2)
+      .join("")
+      .toUpperCase();
   return (
     <div className="relative overflow-hidden rounded-2xl border border-[color:var(--dojo-border)] bg-gradient-to-br from-neutral-950 via-neutral-900 to-red-950 text-white shadow-lg">
       <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-red-600/40 blur-3xl" />
@@ -164,10 +188,38 @@ function HeroHeader({
           <div className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur px-3 py-1 text-[11px] uppercase tracking-widest">
             <Sparkles className="h-3 w-3" /> Painel executivo
           </div>
-          <h1 className="mt-3 font-display text-2xl md:text-3xl font-black leading-tight">
-            Bom te ver por aqui.
-          </h1>
-          <p className="mt-1 text-sm text-white/70 capitalize">{today}</p>
+          <p className="mt-3 text-sm md:text-base text-white/85 font-medium">
+            {greeting}
+            {firstName ? <>, <span className="text-white">{firstName}</span></> : null}
+          </p>
+          <div className="mt-2 flex items-center gap-3 md:gap-4">
+            <Link
+              to="/dojo/app/account"
+              className="relative shrink-0 group"
+              aria-label="Editar logotipo em Minha conta"
+              title={academyName ?? "Minha conta"}
+            >
+              <div className="h-14 w-14 md:h-16 md:w-16 rounded-2xl bg-white/95 ring-2 ring-white/40 shadow-xl overflow-hidden flex items-center justify-center transition group-hover:ring-white/70">
+                {logoUrl ? (
+                  <img
+                    src={logoUrl}
+                    alt={academyName ?? "Logotipo da academia"}
+                    className="h-full w-full object-contain p-1"
+                  />
+                ) : (
+                  <span className="font-display font-black text-neutral-900 text-lg md:text-xl">
+                    {initials}
+                  </span>
+                )}
+              </div>
+            </Link>
+            <div className="min-w-0">
+              <h1 className="font-display text-2xl md:text-3xl font-black leading-tight truncate">
+                Bom te ver por aqui.
+              </h1>
+              <p className="mt-1 text-sm text-white/70 capitalize">{today}</p>
+            </div>
+          </div>
         </div>
         <div className="grid grid-cols-3 gap-3 md:gap-4">
           <div className="rounded-xl bg-white/8 backdrop-blur border border-white/10 px-3 py-2.5 min-w-[92px]">
@@ -194,6 +246,7 @@ function HeroHeader({
     </div>
   );
 }
+
 
 /* ------------------------ Chart tooltip ---------------------- */
 
@@ -240,6 +293,32 @@ function DojoDashboard() {
   const att = useQuery({ queryKey: ["dojo-att-stats"], queryFn: () => attFn() });
   const classes = useQuery({ queryKey: ["dojo-classes-list"], queryFn: () => classesFn() });
 
+  const meQ = useQuery({
+    queryKey: ["dojo-hero-me"],
+    queryFn: async () => {
+      const { data: u } = await supabase.auth.getUser();
+      const uid = u.user?.id;
+      if (!uid) return { userName: null, academyName: null, logoUrl: null };
+      const [{ data: profile }, { data: academy }] = await Promise.all([
+        supabase.from("profiles").select("full_name").eq("id", uid).maybeSingle(),
+        supabase
+          .from("dojo_academy_profile")
+          .select("trade_name, legal_name, logo_url")
+          .eq("owner_id", uid)
+          .maybeSingle(),
+      ]);
+      return {
+        userName:
+          profile?.full_name ||
+          (u.user?.user_metadata as any)?.full_name ||
+          (u.user?.email ? u.user.email.split("@")[0] : null),
+        academyName: academy?.trade_name || academy?.legal_name || null,
+        logoUrl: academy?.logo_url || null,
+      };
+    },
+    staleTime: 60_000,
+  });
+
   const students = stu.data ?? [];
   const active = students.filter((s: any) => s.status === "active").length;
   const inactive = students.length - active;
@@ -281,6 +360,9 @@ function DojoDashboard() {
         activeCount={active}
         balance={dash?.wallet.total ?? 0}
         overdueCount={dash?.pipeline.overdueCount ?? 0}
+        userName={meQ.data?.userName ?? null}
+        academyName={meQ.data?.academyName ?? null}
+        logoUrl={meQ.data?.logoUrl ?? null}
       />
 
       {/* Bento grid */}
