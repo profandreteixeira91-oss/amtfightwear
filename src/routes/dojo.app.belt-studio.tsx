@@ -99,7 +99,7 @@ function BeltStudio() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [draft, setDraft] = useState<BeltRow | null>(null);
   const [saving, setSaving] = useState(false);
-  const [showJson, setShowJson] = useState(false);
+  
 
   const scoped = useMemo(
     () => belts.filter((b) => b.modality === modality).sort((a, b) => a.sort_order - b.sort_order),
