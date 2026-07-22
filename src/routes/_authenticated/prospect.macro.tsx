@@ -27,6 +27,9 @@ import {
   listLeads, logContactAction, updateLead, getSettings,
 } from "@/lib/prospect/prospect.functions";
 import { PIPELINE_STAGES } from "@/features/prospect/types";
+import {
+  getMacroQueue, subscribeMacroQueue, removeFromMacroQueue, clearMacroQueue,
+} from "@/features/prospect/utils/macro-queue";
 
 export const Route = createFileRoute("/_authenticated/prospect/macro")({
   head: () => ({
