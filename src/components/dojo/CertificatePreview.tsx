@@ -190,15 +190,20 @@ function buildPrintHtml(items: Array<{ template: CertificateTemplate; values: Re
     const W = template.width, H = template.height;
     const editorSchema: EditorSchema | undefined = template.variables?.editor_schema;
     let elementsHtml = "";
+    let canvasBg = "#fff";
+    let canvasBgImg = "";
     if (editorSchema) {
+      canvasBg = editorSchema.page.background || "#fff";
+      const bgUrl = editorSchema.page.backgroundUrl || template.background_url;
+      if (bgUrl) canvasBgImg = `background-image:url('${bgUrl}');background-size:cover;background-position:center;`;
       const sorted = [...editorSchema.elements].sort((a, b) => (a.z ?? 0) - (b.z ?? 0));
       elementsHtml = sorted.filter((e) => !e.hidden).map((e) => renderElementHtml(e, values)).join("");
     } else {
+      if (template.background_url) canvasBgImg = `background-image:url('${template.background_url}');background-size:contain;background-position:center;background-repeat:no-repeat;`;
       elementsHtml = (template.fields ?? []).map((f) => renderLegacyHtml(f, values)).join("");
     }
     return `<section class="page">
-      <div class="canvas" style="width:${W}px;height:${H}px;">
-        ${template.background_url ? `<img class="bg" src="${template.background_url}" crossorigin="anonymous" />` : ""}
+      <div class="canvas" style="width:${W}px;height:${H}px;background:${canvasBg};${canvasBgImg}">
         ${elementsHtml}
       </div>
     </section>`;
@@ -212,8 +217,7 @@ function buildPrintHtml(items: Array<{ template: CertificateTemplate; values: Re
     body { font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
     .page { display: flex; align-items: center; justify-content: center; width: 100vw; min-height: 100vh; page-break-after: always; }
     .page:last-child { page-break-after: auto; }
-    .canvas { position: relative; background: #fff; box-shadow: 0 8px 24px rgba(0,0,0,.08); transform-origin: center; transform: scale(var(--fit, 1)); }
-    .canvas .bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+    .canvas { position: relative; box-shadow: 0 8px 24px rgba(0,0,0,.08); transform-origin: center; transform: scale(var(--fit, 1)); overflow: hidden; }
     @media print { html, body { background: #fff; } .page { min-height: auto; height: 100vh; } .canvas { box-shadow: none; } }
   </style>
   </head><body>
