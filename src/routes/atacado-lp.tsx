@@ -687,8 +687,8 @@ function AtacadoLandingPage() {
         </div>
       </section>
 
-      {/* QUALIDADE + GALERIA */}
-      <section id="qualidade" className="scroll-mt-24 border-y border-border/60 bg-foreground text-background">
+      {/* QUALIDADE + GALERIA — fundo escuro, elementos claros */}
+      <section id="qualidade" className="scroll-mt-24 border-y border-white/10 bg-foreground text-background">
         <div className="mx-auto max-w-6xl px-5 py-20 md:py-28 lg:px-6">
           <SectionHeading
             eyebrow="Qualidade"
@@ -710,7 +710,7 @@ function AtacadoLandingPage() {
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true, margin: "-60px" }}
                   transition={{ duration: 0.5, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
-                  className="group overflow-hidden rounded-2xl border border-white/10 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.5)] ring-1 ring-white/5"
+                  className="group overflow-hidden rounded-2xl border border-white/15 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.5)] ring-1 ring-white/10"
                 >
                   <div className="aspect-square overflow-hidden bg-white/5">
                     <img
@@ -732,14 +732,14 @@ function AtacadoLandingPage() {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true, margin: "-60px" }}
                   transition={{ duration: 0.5, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
-                  className="group flex gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/30 hover:bg-white/[0.07]"
+                  className="group flex gap-4 rounded-2xl border border-white/15 bg-white/[0.06] p-5 backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-white/30 hover:bg-white/[0.10]"
                 >
-                  <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary/20 text-primary ring-1 ring-primary/40 transition-transform duration-300 group-hover:scale-110">
+                  <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-[0_8px_24px_-10px_hsl(var(--primary)/0.7)] ring-1 ring-primary/50 transition-transform duration-300 group-hover:scale-110">
                     <q.icon className="h-5 w-5" strokeWidth={2} />
                   </div>
                   <div className="min-w-0">
-                    <div className="text-[15.5px] font-semibold tracking-tight">{q.title}</div>
-                    <div className="mt-1.5 text-[14px] leading-relaxed text-white/65">{q.desc}</div>
+                    <div className="text-[15.5px] font-semibold tracking-tight text-white">{q.title}</div>
+                    <div className="mt-1.5 text-[14px] leading-relaxed text-white/75">{q.desc}</div>
                   </div>
                 </motion.li>
               ))}
