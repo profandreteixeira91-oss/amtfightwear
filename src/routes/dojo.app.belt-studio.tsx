@@ -430,12 +430,18 @@ function VariantRow({
   onChange: (v: BeltVariant) => void;
   onRemove: () => void;
 }) {
-  const effective: BeltSpec = variant.visual && Object.keys(variant.visual).length > 0 ? variant.visual : parentSpec;
+  const hasOverride = !!variant.visual && Object.keys(variant.visual).length > 0;
+  const effective: BeltSpec = hasOverride ? (variant.visual as BeltSpec) : parentSpec;
   const [showEditor, setShowEditor] = useState(false);
   return (
     <div className="border rounded-lg p-3 space-y-2">
-      <div className="flex items-center gap-2">
-        <Input className="flex-1" value={variant.name} onChange={(e) => onChange({ ...variant, name: e.target.value })} />
+      <div className="flex items-center gap-2 flex-wrap">
+        <Input
+          className="flex-1 min-w-[160px]"
+          placeholder="Nome da variação"
+          value={variant.name}
+          onChange={(e) => onChange({ ...variant, name: e.target.value })}
+        />
         <div className="flex items-center gap-1">
           <span className="text-xs text-muted-foreground">grau</span>
           <Input type="number" className="w-16 h-8" value={variant.degree}
@@ -454,28 +460,21 @@ function VariantRow({
         />
       </div>
       {showEditor && (
-        <div className="mt-2 pt-3 border-t">
-          <div className="flex items-center gap-2 mb-2">
+        <div className="mt-2 pt-3 border-t space-y-3">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="text-xs text-muted-foreground">
-              Cole/edite o spec JSON. Deixe vazio (<code>{"{}"}</code>) para herdar da faixa pai.
+              {hasOverride ? "Editando visual próprio desta variação." : "Sem visual próprio — herdando da faixa pai."}
             </span>
             <Button size="sm" variant="outline" onClick={() => onChange({ ...variant, visual: { ...parentSpec } })}>
-              Copiar do pai
+              Copiar da faixa pai
             </Button>
             <Button size="sm" variant="ghost" onClick={() => onChange({ ...variant, visual: null })}>
               Limpar (herdar)
             </Button>
           </div>
-          <textarea
-            className="w-full h-32 font-mono text-[11px] p-2 border rounded"
-            value={JSON.stringify(variant.visual ?? {}, null, 2)}
-            onChange={(e) => {
-              try {
-                const parsed = JSON.parse(e.target.value);
-                onChange({ ...variant, visual: parsed });
-              } catch { /* aguarda JSON válido */ }
-            }}
-          />
+          {hasOverride && (
+            <SpecEditor spec={variant.visual as BeltSpec} onChange={(next) => onChange({ ...variant, visual: next })} />
+          )}
         </div>
       )}
     </div>
@@ -498,27 +497,33 @@ function DegreesSection({
 
   const setMax = (n: number) => {
     const next = Math.max(0, Math.min(20, n));
-    // Remove overrides acima do novo máximo
-    const filtered = variants.filter((v) => v.degree <= next);
+    const filtered = variants.filter((v) => !(v.kind === "degree" && v.degree > next));
     setDraft({ ...draft, max_degrees: next, variants: filtered });
   };
 
-  const findVariant = (degree: number) =>
-    variants.find((v) => v.degree === degree && (v.name?.startsWith("Grau ") || v.name?.startsWith("Grau")));
+  const findIndexFor = (degree: number) =>
+    variants.findIndex((v) => v.kind === "degree" && v.degree === degree);
 
-  const upsertVariant = (degree: number, visual: BeltSpec | null) => {
+  const upsertOverride = (degree: number, patch: Partial<BeltVariant>) => {
     const arr = [...variants];
-    const idx = arr.findIndex((v) => v.degree === degree && v.name?.startsWith("Grau"));
+    const idx = findIndexFor(degree);
     if (idx >= 0) {
-      arr[idx] = { ...arr[idx], visual };
+      arr[idx] = { ...arr[idx], ...patch };
     } else {
-      arr.push({ id: crypto.randomUUID(), name: `Grau ${degree}`, degree, visual });
+      arr.push({
+        id: crypto.randomUUID(),
+        name: `Grau ${degree}`,
+        degree,
+        kind: "degree",
+        visual: null,
+        ...patch,
+      });
     }
     setDraft({ ...draft, variants: arr });
   };
 
-  const removeVariant = (degree: number) => {
-    const arr = variants.filter((v) => !(v.degree === degree && v.name?.startsWith("Grau")));
+  const removeOverride = (degree: number) => {
+    const arr = variants.filter((v) => !(v.kind === "degree" && v.degree === degree));
     setDraft({ ...draft, variants: arr });
   };
 
@@ -540,19 +545,24 @@ function DegreesSection({
         )}
         {Array.from({ length: max }).map((_, i) => {
           const degree = i + 1;
-          const override = findVariant(degree);
-          const hasOverride = !!override?.visual && Object.keys(override.visual).length > 0;
-          const effective: BeltSpec = hasOverride ? (override!.visual as BeltSpec) : parentSpec;
+          const idx = findIndexFor(degree);
+          const override = idx >= 0 ? variants[idx] : null;
+          const hasVisual = !!override?.visual && Object.keys(override.visual as object).length > 0;
+          const effective: BeltSpec = hasVisual ? (override!.visual as BeltSpec) : parentSpec;
           return (
             <DegreeRow
               key={degree}
               degree={degree}
+              name={override?.name ?? `Grau ${degree}`}
               effective={effective}
-              hasOverride={hasOverride}
+              hasVisual={hasVisual}
+              hasOverride={!!override}
               parentBelt={draft}
-              onCustomize={() => upsertVariant(degree, { ...parentSpec })}
-              onReset={() => removeVariant(degree)}
-              onChange={(next) => upsertVariant(degree, next)}
+              onRename={(name) => upsertOverride(degree, { name })}
+              onCustomize={() => upsertOverride(degree, { visual: { ...parentSpec } })}
+              onResetVisual={() => upsertOverride(degree, { visual: null })}
+              onRemove={() => removeOverride(degree)}
+              onChangeSpec={(next) => upsertOverride(degree, { visual: next })}
             />
           );
         })}
@@ -562,60 +572,221 @@ function DegreesSection({
 }
 
 function DegreeRow({
-  degree, effective, hasOverride, parentBelt, onCustomize, onReset, onChange,
+  degree, name, effective, hasVisual, hasOverride, parentBelt,
+  onRename, onCustomize, onResetVisual, onRemove, onChangeSpec,
 }: {
   degree: number;
+  name: string;
   effective: BeltSpec;
+  hasVisual: boolean;
   hasOverride: boolean;
   parentBelt: BeltRow;
+  onRename: (name: string) => void;
   onCustomize: () => void;
-  onReset: () => void;
-  onChange: (spec: BeltSpec) => void;
+  onResetVisual: () => void;
+  onRemove: () => void;
+  onChangeSpec: (spec: BeltSpec) => void;
 }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="border rounded-lg p-3 space-y-2">
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 flex-wrap">
         <div className="text-xs font-semibold w-16 shrink-0">Grau {degree}</div>
-        <div className="flex-1 min-w-0">
-          <BeltSpecVisual
-            spec={effective}
-            degree={degree}
-            fallback={<BeltAuto belt={parentBelt as any} degree={degree} />}
-          />
-        </div>
+        <Input
+          className="flex-1 min-w-[160px] h-8"
+          placeholder={`Grau ${degree}`}
+          value={name}
+          onChange={(e) => onRename(e.target.value)}
+        />
         <div className="flex items-center gap-1">
-          {hasOverride ? (
+          {hasVisual ? (
             <>
               <Button size="sm" variant="outline" onClick={() => setOpen(!open)}>
-                {open ? "Fechar" : "Editar"}
+                {open ? "Fechar" : "Editar visual"}
               </Button>
-              <Button size="sm" variant="ghost" onClick={onReset} title="Voltar ao padrão da faixa">
+              <Button size="sm" variant="ghost" onClick={onResetVisual} title="Voltar ao padrão da faixa">
                 <Trash2 className="h-3 w-3" />
               </Button>
             </>
           ) : (
             <Button size="sm" variant="outline" onClick={() => { onCustomize(); setOpen(true); }}>
-              Personalizar
+              Personalizar visual
+            </Button>
+          )}
+          {hasOverride && !hasVisual && (
+            <Button size="sm" variant="ghost" onClick={onRemove} title="Remover nome personalizado">
+              <Trash2 className="h-3 w-3" />
             </Button>
           )}
         </div>
       </div>
-      {open && hasOverride && (
-        <div className="pt-2 border-t space-y-2">
-          <div className="text-[11px] text-muted-foreground">
-            Ajuste o spec JSON deste grau. Salve para persistir.
+      <div>
+        <BeltSpecVisual
+          spec={effective}
+          degree={degree}
+          fallback={<BeltAuto belt={parentBelt as any} degree={degree} />}
+        />
+      </div>
+      {open && hasVisual && (
+        <div className="pt-2 border-t">
+          <SpecEditor spec={effective} onChange={onChangeSpec} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ============================================================ */
+/* Editor visual do spec (segmentos, ponteira, aparador, faixa) */
+/* ============================================================ */
+
+function SpecEditor({ spec, onChange }: { spec: BeltSpec; onChange: (next: BeltSpec) => void }) {
+  const patch = (p: Partial<BeltSpec>) => onChange({ ...spec, ...p });
+  return (
+    <div className="space-y-4">
+      {/* Segmentos */}
+      <SectionHeader
+        title="Segmentos do corpo (esquerda → direita)"
+        action={
+          <Button size="sm" variant="outline"
+            onClick={() => patch({ segments: [...(spec.segments ?? []), { color: "#F5F5F5", flex: 1 }] })}>
+            <Plus className="h-3 w-3 mr-1" /> Segmento
+          </Button>
+        }
+      />
+      <div className="space-y-2">
+        {(spec.segments ?? []).length === 0 && (
+          <div className="text-xs text-muted-foreground">Sem segmentos: será usada a cor base sólida.</div>
+        )}
+        {(spec.segments ?? []).map((seg, i) => (
+          <div key={i} className="flex items-center gap-2 p-2 border rounded flex-wrap">
+            <Input type="color" className="w-12 p-1 h-8" value={seg.color}
+              onChange={(e) => {
+                const arr = [...(spec.segments ?? [])];
+                arr[i] = { ...arr[i], color: e.target.value };
+                patch({ segments: arr });
+              }} />
+            <Input value={seg.color} className="w-28 h-8 text-xs" onChange={(e) => {
+              const arr = [...(spec.segments ?? [])]; arr[i] = { ...arr[i], color: e.target.value }; patch({ segments: arr });
+            }} />
+            <div className="text-xs text-muted-foreground w-10">flex</div>
+            <Input type="number" className="w-16 h-8" value={seg.flex ?? 1}
+              onChange={(e) => {
+                const arr = [...(spec.segments ?? [])];
+                arr[i] = { ...arr[i], flex: parseFloat(e.target.value || "1"), widthPct: undefined };
+                patch({ segments: arr });
+              }} />
+            <div className="text-xs text-muted-foreground w-8">ou %</div>
+            <Input type="number" className="w-20 h-8" value={seg.widthPct ?? ""}
+              onChange={(e) => {
+                const v = e.target.value ? parseFloat(e.target.value) : undefined;
+                const arr = [...(spec.segments ?? [])];
+                arr[i] = { ...arr[i], widthPct: v, flex: v ? undefined : (arr[i].flex ?? 1) };
+                patch({ segments: arr });
+              }} />
+            <Button size="sm" variant="ghost" onClick={() => {
+              const arr = [...(spec.segments ?? [])]; arr.splice(i, 1); patch({ segments: arr });
+            }}><Trash2 className="h-3 w-3" /></Button>
           </div>
-          <textarea
-            className="w-full h-32 font-mono text-[11px] p-2 border rounded"
-            value={JSON.stringify(effective, null, 2)}
-            onChange={(e) => {
-              try {
-                const parsed = JSON.parse(e.target.value);
-                onChange(parsed);
-              } catch { /* aguarda JSON válido */ }
-            }}
-          />
+        ))}
+      </div>
+
+      {/* Ponteira */}
+      <SectionHeader
+        title="Ponteira (segmento direito que carrega os graus)"
+        action={
+          <div className="flex gap-2">
+            {!spec.tip && (
+              <Button size="sm" variant="outline"
+                onClick={() => patch({ tip: { color: "#111111", widthPct: 38, stripeColor: "#FFFFFF" } })}>
+                <Plus className="h-3 w-3 mr-1" /> Adicionar
+              </Button>
+            )}
+            {spec.tip && (
+              <Button size="sm" variant="ghost" onClick={() => patch({ tip: null })}><Trash2 className="h-3 w-3" /></Button>
+            )}
+          </div>
+        }
+      />
+      {spec.tip && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+          <Field label="Cor">
+            <div className="flex gap-1">
+              <Input type="color" className="w-12 p-1 h-8" value={spec.tip.color}
+                onChange={(e) => patch({ tip: { ...spec.tip!, color: e.target.value } })} />
+              <Input className="h-8 text-xs" value={spec.tip.color}
+                onChange={(e) => patch({ tip: { ...spec.tip!, color: e.target.value } })} />
+            </div>
+          </Field>
+          <Field label="Largura %">
+            <Input type="number" className="h-8" value={spec.tip.widthPct}
+              onChange={(e) => patch({ tip: { ...spec.tip!, widthPct: parseFloat(e.target.value || "0") } })} />
+          </Field>
+          <Field label="Cor da listra">
+            <div className="flex gap-1">
+              <Input type="color" className="w-12 p-1 h-8" value={spec.tip.stripeColor ?? "#FFFFFF"}
+                onChange={(e) => patch({ tip: { ...spec.tip!, stripeColor: e.target.value } })} />
+              <Input className="h-8 text-xs" value={spec.tip.stripeColor ?? "#FFFFFF"}
+                onChange={(e) => patch({ tip: { ...spec.tip!, stripeColor: e.target.value } })} />
+            </div>
+          </Field>
+          <Field label="Listras fixas (opc.)">
+            <Input type="number" className="h-8" value={spec.tip.forcedStripes ?? ""}
+              placeholder="usa grau"
+              onChange={(e) => patch({ tip: { ...spec.tip!, forcedStripes: e.target.value ? parseInt(e.target.value, 10) : undefined } })} />
+          </Field>
+        </div>
+      )}
+
+      {/* Aparador */}
+      <SectionHeader
+        title="Aparador (borda topo/base)"
+        action={
+          !spec.aparador
+            ? <Button size="sm" variant="outline" onClick={() => patch({ aparador: { color: "#FFFFFF", sizePct: 15 } })}><Plus className="h-3 w-3 mr-1" /> Adicionar</Button>
+            : <Button size="sm" variant="ghost" onClick={() => patch({ aparador: null })}><Trash2 className="h-3 w-3" /></Button>
+        }
+      />
+      {spec.aparador && (
+        <div className="grid grid-cols-2 gap-2">
+          <Field label="Cor">
+            <div className="flex gap-1">
+              <Input type="color" className="w-12 p-1 h-8" value={spec.aparador.color}
+                onChange={(e) => patch({ aparador: { ...spec.aparador!, color: e.target.value } })} />
+              <Input className="h-8 text-xs" value={spec.aparador.color}
+                onChange={(e) => patch({ aparador: { ...spec.aparador!, color: e.target.value } })} />
+            </div>
+          </Field>
+          <Field label="Tamanho %">
+            <Input type="number" className="h-8" value={spec.aparador.sizePct ?? 15}
+              onChange={(e) => patch({ aparador: { ...spec.aparador!, sizePct: parseFloat(e.target.value || "0") } })} />
+          </Field>
+        </div>
+      )}
+
+      {/* Faixa central */}
+      <SectionHeader
+        title="Faixa central (dupla cor horizontal)"
+        action={
+          !spec.centerBand
+            ? <Button size="sm" variant="outline" onClick={() => patch({ centerBand: { color: "#000000", heightPct: 33 } })}><Plus className="h-3 w-3 mr-1" /> Adicionar</Button>
+            : <Button size="sm" variant="ghost" onClick={() => patch({ centerBand: null })}><Trash2 className="h-3 w-3" /></Button>
+        }
+      />
+      {spec.centerBand && (
+        <div className="grid grid-cols-2 gap-2">
+          <Field label="Cor">
+            <div className="flex gap-1">
+              <Input type="color" className="w-12 p-1 h-8" value={spec.centerBand.color}
+                onChange={(e) => patch({ centerBand: { ...spec.centerBand!, color: e.target.value } })} />
+              <Input className="h-8 text-xs" value={spec.centerBand.color}
+                onChange={(e) => patch({ centerBand: { ...spec.centerBand!, color: e.target.value } })} />
+            </div>
+          </Field>
+          <Field label="Altura %">
+            <Input type="number" className="h-8" value={spec.centerBand.heightPct ?? 33}
+              onChange={(e) => patch({ centerBand: { ...spec.centerBand!, heightPct: parseFloat(e.target.value || "0") } })} />
+          </Field>
         </div>
       )}
     </div>
@@ -639,3 +810,4 @@ function SectionHeader({ title, action }: { title: string; action?: React.ReactN
     </div>
   );
 }
+
