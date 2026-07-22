@@ -175,6 +175,7 @@ export const listLeads = createServerFn({ method: "POST" })
       range: (a: number, b: number) => Promise<{ data: unknown[] | null; count: number | null }>;
     };
     q = q.eq("owner_id", context.userId);
+    if (data.ids && data.ids.length > 0) q = q.in("id", data.ids);
     if (data.search) q = q.ilike("name", `%${data.search}%`);
     if (data.state) q = q.eq("state", data.state);
     if (data.city) q = q.ilike("city", `%${data.city}%`);
