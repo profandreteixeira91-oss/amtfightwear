@@ -62,6 +62,8 @@ import { findModuleForPath } from "@/lib/dojo/permissions";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getMyAcademyBranding } from "@/lib/dojo/academy-public.functions";
+import { listDojoBelts } from "@/lib/dojo/dojo.functions";
+import { syncBeltTerms } from "@/lib/dojo/belt-terms";
 
 export const Route = createFileRoute("/dojo/app")({
   head: () => ({ meta: [{ title: "Painel — AMT Dojo Manager" }] }),
