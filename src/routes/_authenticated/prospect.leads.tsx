@@ -404,7 +404,7 @@ function LeadsPage() {
                           <div className="mt-0.5 inline-flex items-center gap-1 text-[11px] text-muted-foreground">
                             <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
                             <span className="font-semibold text-foreground">{Number(r.rating).toFixed(1)}</span>
-                            <span>({r.rating_count ?? 0})</span>
+                            <span>({Number(r.rating_count ?? 0)})</span>
                           </div>
                         ) : null}
                       </TableCell>
