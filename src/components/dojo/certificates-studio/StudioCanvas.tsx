@@ -104,8 +104,8 @@ export function StudioCanvas() {
           padding: 40,
           paddingLeft: (showRulers ? 24 : 0) + 40,
           paddingTop: (showRulers ? 24 : 0) + 40,
-          width: doc.page.width * zoom + 120,
-          height: doc.page.height * zoom + 120,
+          width: doc.page.width * zoom + (showRulers ? 24 : 0) + 80,
+          height: doc.page.height * zoom + (showRulers ? 24 : 0) + 80,
           boxSizing: "border-box",
         }}
       >
