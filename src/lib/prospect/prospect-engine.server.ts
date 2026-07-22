@@ -178,6 +178,8 @@ export async function discoverCompanies(input: {
       if (!domain) continue;
       if (isNoiseDomain(domain, { allowInstagram: input.allowInstagram })) continue;
       if (isForeignDomain(domain)) continue;
+      if (isJunkUrl(r.url)) continue;
+      if (isJunkTitle(r.title)) continue;
 
       // Filtro de relevância geográfica: se o usuário informou cidade/UF,
       // exige que o token apareça no título, descrição ou URL do resultado.
@@ -192,6 +194,9 @@ export async function discoverCompanies(input: {
       if (isIg) {
         const handle = extractInstagramProfile(r.url);
         if (!handle) continue;
+        if (!looksLikeBusinessHandle(handle)) continue;
+        const meta = `${r.title ?? ""} ${r.description ?? ""}`;
+        if (!hasNicheSignal(meta, input.segment)) continue;
         const dedupeKey = `instagram:${handle}`;
         if (seen.has(dedupeKey)) continue;
         seen.add(dedupeKey);
@@ -216,6 +221,10 @@ export async function discoverCompanies(input: {
 
       const name = cleanCompanyName(r.title);
       if (!name) continue;
+
+      // Para sites: exige sinal de nicho para descartar blog/notícia aleatória.
+      const meta = `${r.title ?? ""} ${r.description ?? ""} ${r.url}`;
+      if (!hasNicheSignal(meta, input.segment)) continue;
 
       companies.push({
         name,
@@ -327,8 +336,67 @@ function safeDomain(u: string): string | null {
 }
 function isNoiseDomain(d: string, opts?: { allowInstagram?: boolean }): boolean {
   if (opts?.allowInstagram && /^instagram\.com$/i.test(d)) return false;
-  return /(google|bing|yahoo|wikipedia|youtube|facebook|instagram|linkedin|twitter|tiktok|glassdoor|reclameaqui|jusbrasil|yelp|tripadvisor|guiamais|apontador|solucoesindustriais|econodata|econofinder)\./i.test(d);
+  // Buscadores, redes sociais (exceto IG opt-in), agregadores, marketplaces,
+  // portais de notícia, blogs de reviews, wikis, diretórios genéricos e conteúdo.
+  return /(google|bing|yahoo|duckduckgo|wikipedia|wikimedia|youtube|vimeo|facebook|instagram|linkedin|twitter|x\.com|tiktok|pinterest|reddit|medium|substack|blogspot|wordpress\.com|glassdoor|reclameaqui|jusbrasil|yelp|tripadvisor|guiamais|apontador|solucoesindustriais|econodata|econofinder|mercadolivre|mercadolibre|americanas|magazineluiza|amazon|aliexpress|shopee|olx|enjoei|elo7|shoptime|casasbahia|extra\.com|submarino|kabum|netshoes|globo\.com|g1\.globo|uol\.com|terra\.com|r7\.com|ig\.com\.br|folha\.uol|estadao|veja\.abril|exame|band\.uol|sbt\.com|record\.com|metropoles|correiobraziliense|prefeitura|gov\.br|jusbrasil|diariooficial|conjur|migalhas|jota|infomoney|valor\.globo|istoe|cnnbrasil|bbc\.com|elpais|rtp\.pt|pt\.wikipedia)\./i.test(d);
 }
+
+/** Rejeita URLs que claramente são conteúdo (posts, artigos, PDFs, buscas). */
+function isJunkUrl(u: string): boolean {
+  try {
+    const url = new URL(u);
+    const p = url.pathname.toLowerCase();
+    if (/\.(pdf|docx?|pptx?|xlsx?|zip|rar|jpg|jpeg|png|gif|mp4|mp3)$/i.test(p)) return true;
+    if (/\/(blog|noticia|noticias|news|post|posts|artigo|artigos|category|categoria|tag|search|busca|forum|topic|thread|comments?)\//i.test(p)) return true;
+    // Padrão de datas em URL costuma ser post: /2024/03/, /2023-11-...
+    if (/\/(19|20)\d{2}\/\d{1,2}\//.test(p)) return true;
+    if (url.searchParams.has("q") || url.searchParams.has("s") || url.searchParams.has("search")) return true;
+    return false;
+  } catch { return true; }
+}
+
+/** Rejeita títulos típicos de blog/notícia/lista, não de negócio. */
+function isJunkTitle(t: string): boolean {
+  const s = t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  if (/(^|\s)(como|por que|porque|o que e|significa|significado|passo a passo|guia definitivo|dicas|top\s?\d+|melhores|ranking|historia|origem)\b/.test(s)) return true;
+  if (/(noticia|notícia|reportagem|entrevista|analise|opinião|opiniao|coluna|editorial|comentario)/.test(s)) return true;
+  if (/(video|vídeo|assista|veja o video|reels?|shorts?)/.test(s)) return true;
+  return false;
+}
+
+/** Handles IG que parecem conta pessoal genérica / spam. */
+function looksLikeBusinessHandle(h: string): boolean {
+  const s = h.toLowerCase();
+  // muito curto → provavelmente handle famoso irrelevante
+  if (s.length < 4) return false;
+  // ratio de dígitos alto → conta pessoal / spam
+  const digits = (s.match(/\d/g) ?? []).length;
+  if (digits > 0 && digits / s.length > 0.5) return false;
+  // sequências suspeitas
+  if (/^(user|admin|test|fake|spam|conta|perfil)\d*$/.test(s)) return false;
+  return true;
+}
+
+/**
+ * Palavras-chave que indicam que o resultado é do nicho correto (BJJ / Judô /
+ * outras artes marciais). Deriva palavras extras do `segment` passado.
+ */
+function hasNicheSignal(text: string, segment: string): boolean {
+  const t = (text || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  const CORE = [
+    "jiu-jitsu","jiu jitsu","jiujitsu","bjj","judo","judô","dojo","dojô",
+    "academia","escola","clube","team","gym","cta","associacao","associação",
+    "faixa preta","faixa","sensei","professor","mestre","instrutor",
+    "kimono","gi","tatame","projeto social","instituto","federacao","federação",
+    "graciemag","checkmat","alliance","gracie","atos","cbjj","ibjjf","cbj",
+    "muay thai","boxe","mma","karate","karatê","taekwondo","aikido","kung fu",
+    "artes marciais","luta","lutas","combate","escola de luta","matriculas","matrículas",
+  ];
+  const segTokens = segment.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").split(/\s+/).filter((w) => w.length > 3);
+  const all = [...CORE, ...segTokens];
+  return all.some((k) => t.includes(k));
+}
+
 function cleanCompanyName(title: string): string {
   return title
     .split(/[\|\-–—•·:]/)[0]
