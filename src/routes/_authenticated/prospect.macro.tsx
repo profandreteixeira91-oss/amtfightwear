@@ -165,7 +165,6 @@ function MacroPage() {
   const autoModeRef = useRef(false);
   const autoBusyRef = useRef(false);
   const nextRunTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const kickRef = useRef(0);
   const [kick, setKick] = useState(0);
   useEffect(() => { autoModeRef.current = autoMode; }, [autoMode]);
   useEffect(() => { autoBusyRef.current = autoBusy; }, [autoBusy]);
