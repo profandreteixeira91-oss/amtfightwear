@@ -786,7 +786,10 @@ function NewGraduationPage() {
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-sm font-semibold">{s?.full_name}</div>
                       <div className="truncate text-xs text-muted-foreground">
-                        {selectedBelt?.name}{degreeSuffix(degree, selectedBelt?.modality, " · ", selectedBelt?.name)}
+                        {(() => {
+                          const rg = resolveStudentGrad(g.student_id);
+                          return `${rg.belt?.name ?? ""}${degreeSuffix(rg.degree, rg.belt?.modality, " · ", rg.belt?.name)}`;
+                        })()}
                       </div>
                     </div>
                     {done ? (
