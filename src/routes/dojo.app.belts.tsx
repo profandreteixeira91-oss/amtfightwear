@@ -10,6 +10,7 @@ import {
   checkIsAdmin,
 } from "@/lib/dojo/dojo.functions";
 import { BeltVisual } from "@/components/dojo/BeltVisual";
+import { formatBeltName } from "@/lib/dojo/degree-label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
