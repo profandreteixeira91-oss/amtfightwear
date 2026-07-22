@@ -487,6 +487,41 @@ function MacroPage() {
         />
       </div>
 
+      {manualIds.length > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-primary/30 bg-primary/5 p-4">
+          <div className="flex items-start gap-3">
+            <ListChecks className="mt-0.5 h-5 w-5 text-primary" />
+            <div>
+              <div className="text-sm font-semibold">
+                Fila manual: {manualIds.length} lead{manualIds.length === 1 ? "" : "s"} adicionado{manualIds.length === 1 ? "" : "s"} de Leads Engine
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {useManualOnly
+                  ? "Rodando apenas leads escolhidos manualmente — a ordem segue a seleção."
+                  : "Ative para trabalhar somente os leads que você selecionou manualmente."}
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="flex items-center gap-2 text-xs font-medium cursor-pointer">
+              <Switch
+                id="manual-only"
+                checked={useManualOnly}
+                onCheckedChange={setUseManualOnly}
+              />
+              Usar somente esta fila
+            </label>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => { clearMacroQueue(); toast("Fila manual esvaziada"); }}
+            >
+              <Trash2 className="mr-2 h-4 w-4" />Esvaziar
+            </Button>
+          </div>
+        </div>
+      )}
+
       {showSettings && (
         <SectionCard
           title="Ajustes do macro"
