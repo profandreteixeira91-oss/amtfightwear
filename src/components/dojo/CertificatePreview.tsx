@@ -2,6 +2,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Printer, FileDown, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { createRoot } from "react-dom/client";
+import { toPng } from "html-to-image";
 import QRCode from "qrcode";
 import { CertificateRenderer } from "@/components/dojo/certificates-studio/CertificateRenderer";
 
