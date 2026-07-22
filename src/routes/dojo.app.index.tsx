@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { dojoFinanceOverview, listDojoStudents } from "@/lib/dojo/dojo.functions";
-import { BeltVisual } from "@/components/dojo/BeltVisual";
+import { BeltAuto } from "@/components/dojo/BeltSpecVisual";
 import { Users, TrendingUp, TrendingDown, Wallet, Award, UserPlus, QrCode, ClipboardList, ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/dojo/app/")({
@@ -161,14 +161,10 @@ function DojoDashboard() {
                       ? s.current_belts
                       : (s.belt?.color_hex ? [{ modality: s.belt.modality, belt: s.belt, degree: s.current_degree ?? 0 }] : []);
                     return belts.slice(0, 3).map((b: any, i: number) => (
-                      <BeltVisual
+                      <BeltAuto
                         key={i}
-                        modality={b.belt.modality}
-                        name={b.belt.name}
-                        colorHex={b.belt.color_hex}
-                        stripeHex={b.belt.stripe_hex}
+                        belt={b.belt}
                         degree={b.degree ?? 0}
-                        maxDegrees={b.belt?.max_degrees ?? 4}
                         className="w-[220px]"
                       />
                     ));

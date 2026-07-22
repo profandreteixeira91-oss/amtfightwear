@@ -9,7 +9,7 @@ import {
   reorderDojoBelts,
   checkIsAdmin,
 } from "@/lib/dojo/dojo.functions";
-import { BeltVisual } from "@/components/dojo/BeltVisual";
+import { BeltAuto } from "@/components/dojo/BeltSpecVisual";
 import { formatBeltName } from "@/lib/dojo/degree-label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -382,13 +382,15 @@ function BeltsPage() {
               </div>
             </div>
             <div className="col-span-2 flex items-center gap-3 bg-muted/40 p-3 rounded">
-              <BeltVisual
-                modality={form.modality}
-                name={form.name}
-                colorHex={form.color_hex}
-                stripeHex={form.stripe_hex || null}
+              <BeltAuto
+                belt={{
+                  name: form.name,
+                  modality: form.modality,
+                  color_hex: form.color_hex,
+                  stripe_hex: form.stripe_hex || null,
+                  max_degrees: form.max_degrees,
+                }}
                 degree={0}
-                maxDegrees={form.max_degrees}
                 className="min-w-[220px]"
               />
               <div className="text-xs text-muted-foreground">Pré-visualização</div>
@@ -433,13 +435,9 @@ function SortableBeltRow({
         <GripVertical className="h-4 w-4" />
       </button>
       <div className="w-8 text-xs text-muted-foreground">{b.sort_order}</div>
-      <BeltVisual
-        modality={b.modality}
-        name={b.name}
-        colorHex={b.color_hex}
-        stripeHex={b.stripe_hex}
+      <BeltAuto
+        belt={b as any}
         degree={0}
-        maxDegrees={b.max_degrees}
         className="min-w-[220px]"
       />
       <div className="flex-1 min-w-[160px]">

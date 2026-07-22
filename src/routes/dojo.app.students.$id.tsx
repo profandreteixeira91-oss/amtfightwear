@@ -26,7 +26,7 @@ import {
   Activity, Heart, User as UserIcon, MapPin, Phone, ClipboardList, Upload,
   QrCode, RefreshCw, TrendingUp, ExternalLink, Sparkles, AlertTriangle,
 } from "lucide-react";
-import { BeltVisual } from "@/components/dojo/BeltVisual";
+import { BeltAuto } from "@/components/dojo/BeltSpecVisual";
 import { CertificatePreviewDialog, openCertificatePrint, type CertificateTemplate } from "@/components/dojo/CertificatePreview";
 import { openBrandedPrintDocument, escapeHtml, kvTable } from "@/lib/dojo/print-document";
 import { useDojoBranding } from "@/hooks/useDojoBranding";
@@ -301,13 +301,9 @@ function StudentDetail() {
                     <div className="flex flex-col items-center gap-3">
                       {currentBelts.map((b: any, i: number) => (
                         <div key={i} className="flex flex-col items-center gap-1.5">
-                          <BeltVisual
-                            modality={b.belt.modality}
-                            name={b.belt.name}
-                            colorHex={b.belt.color_hex}
-                            stripeHex={b.belt.stripe_hex}
+                          <BeltAuto
+                            belt={b.belt}
                             degree={b.degree ?? 0}
-                            maxDegrees={b.belt?.max_degrees ?? 4}
                             className="w-[220px]"
                           />
                           <div className="min-w-0 text-center">
@@ -727,7 +723,7 @@ function StudentDetail() {
                         <span className="absolute -left-[21px] top-1.5 h-3 w-3 rounded-full border-2 border-primary bg-card" />
                         <div className="flex flex-wrap items-center gap-3">
                           {g.belt?.color_hex && (
-                            <BeltVisual modality={g.belt.modality} name={g.belt.name} colorHex={g.belt.color_hex} stripeHex={g.belt.stripe_hex} degree={g.degree} maxDegrees={g.belt?.max_degrees ?? 4} />
+                            <BeltAuto belt={g.belt} degree={g.degree} />
                           )}
                           <div className="min-w-0 flex-1">
                             <div className="font-medium">

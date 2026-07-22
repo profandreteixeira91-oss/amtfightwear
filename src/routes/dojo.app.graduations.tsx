@@ -8,7 +8,7 @@ import {
   listCertificateTemplates, issueCertificate,
   listGraduationProgress,
 } from "@/lib/dojo/dojo.functions";
-import { BeltVisual } from "@/components/dojo/BeltVisual";
+import { BeltAuto } from "@/components/dojo/BeltSpecVisual";
 import { CertificatePreviewDialog, openCertificatePrint, type CertificateTemplate } from "@/components/dojo/CertificatePreview";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -339,14 +339,10 @@ function NewGraduationPage() {
                     </div>
                     <div className="hidden sm:flex shrink-0 flex-col gap-1 items-end">
                       {belts.slice(0, 3).map((b: any, i: number) => (
-                        <BeltVisual
+                        <BeltAuto
                           key={i}
-                          modality={b.belt.modality}
-                          name={b.belt.name}
-                          colorHex={b.belt.color_hex}
-                          stripeHex={b.belt.stripe_hex}
+                          belt={b.belt}
                           degree={b.degree ?? 0}
-                          maxDegrees={b.belt?.max_degrees ?? 4}
                           className="w-[220px]"
                         />
                       ))}
@@ -436,7 +432,7 @@ function NewGraduationPage() {
 
             {selectedBelt && effectiveBelt && (
               <div className="flex items-center gap-4 p-3 bg-muted/40 rounded">
-                <BeltVisual modality={effectiveBelt.modality} name={effectiveBelt.name} colorHex={effectiveBelt.color_hex} stripeHex={effectiveBelt.stripe_hex} degree={degree} maxDegrees={effectiveBelt.max_degrees ?? maxDeg} className="min-w-[220px]" />
+                <BeltAuto belt={effectiveBelt as any} degree={degree} className="min-w-[220px]" />
                 <div className="text-sm">
                   <div className="font-medium">{effectiveBelt.name}</div>
                   <div className="text-muted-foreground">{formatDegree(degree, effectiveBelt?.modality, effectiveBelt?.name)}</div>
