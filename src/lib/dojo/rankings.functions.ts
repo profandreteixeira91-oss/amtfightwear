@@ -25,7 +25,20 @@ export const getClassRanking = createServerFn({ method: "GET" })
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
+
+    // Confirma que o usuário é dono da turma (ou admin)
+    const { data: cls, error: clsErr } = await supabase
+      .from("dojo_classes")
+      .select("id, owner_id")
+      .eq("id", data.classId)
+      .maybeSingle();
+    if (clsErr) throw new Error(clsErr.message);
+    if (!cls) throw new Error("Turma não encontrada");
+    if (cls.owner_id !== userId) {
+      const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
+      if (!isAdmin) throw new Error("Sem permissão para esta turma");
+    }
 
     // Janela temporal
     let sinceIso: string | null = null;
@@ -38,25 +51,52 @@ export const getClassRanking = createServerFn({ method: "GET" })
       const d = new Date(now); d.setFullYear(d.getFullYear() - 1); sinceIso = d.toISOString();
     }
 
-    // Usa RPC SECURITY DEFINER: retorna TODOS os alunos matriculados na turma
-    // (a autorização é "ser dono da turma"), evitando que a RLS de dojo_students
-    // esconda alunos com owner_id divergente.
-    const { data: rows, error } = await supabase.rpc("get_class_ranking", {
-      _class_id: data.classId,
-      _since: sinceIso ?? undefined,
-    });
-    if (error) throw new Error(error.message);
+    // Busca matrículas da turma (sem RLS bloqueando: o owner sempre vê seus alunos).
+    // Usamos service-role para garantir que alunos com owner_id divergente por bug
+    // histórico também apareçam no ranking do dono da turma.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const students = (rows ?? []).map((r: any) => ({
-      id: r.student_id,
-      full_name: r.full_name,
-      photo_url: r.photo_url,
-      current_belt_id: r.current_belt_id,
-      current_degree: r.current_degree,
-      status: r.status,
-    }));
+    const { data: enrollments, error: enrErr } = await supabaseAdmin
+      .from("dojo_class_students")
+      .select("student_id")
+      .eq("class_id", data.classId);
+    if (enrErr) throw new Error(enrErr.message);
+
+    const studentIds = (enrollments ?? []).map((r: any) => r.student_id).filter(Boolean);
+    if (studentIds.length === 0) return { students: [], counts: {} };
+
+    const { data: studentRows, error: stErr } = await supabaseAdmin
+      .from("dojo_students")
+      .select("id, full_name, photo_url, current_belt_id, current_degree, status")
+      .in("id", studentIds);
+    if (stErr) throw new Error(stErr.message);
+
+    // Conta check-ins (status=present) por aluno na turma
+    let attQuery = supabaseAdmin
+      .from("dojo_attendance")
+      .select("student_id, checked_in_at, status")
+      .eq("class_id", data.classId)
+      .eq("status", "present")
+      .in("student_id", studentIds);
+    if (sinceIso) attQuery = attQuery.gte("checked_in_at", sinceIso);
+    const { data: attendance, error: attErr } = await attQuery;
+    if (attErr) throw new Error(attErr.message);
+
     const counts: Record<string, number> = {};
-    for (const r of rows ?? []) counts[(r as any).student_id] = Number((r as any).checkins ?? 0);
+    for (const id of studentIds) counts[id] = 0;
+    for (const a of attendance ?? []) {
+      const sid = (a as any).student_id as string;
+      counts[sid] = (counts[sid] ?? 0) + 1;
+    }
+
+    const students = (studentRows ?? []).map((s: any) => ({
+      id: s.id,
+      full_name: s.full_name,
+      photo_url: s.photo_url,
+      current_belt_id: s.current_belt_id,
+      current_degree: s.current_degree,
+      status: s.status,
+    }));
 
     return { students, counts };
   });
