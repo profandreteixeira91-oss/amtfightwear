@@ -93,10 +93,31 @@
     el.dispatchEvent(new InputEvent("input", { bubbles: true, data: text }));
   }
 
+  function findFollowButton() {
+    // Procura por botão "Seguir"/"Follow" exato — evita "Seguindo"/"Following"/"Solicitado"
+    const skip = ["seguindo", "following", "solicitado", "requested", "message", "mensagem"];
+    const nodes = document.querySelectorAll('div[role="button"], button');
+    for (const n of nodes) {
+      const t = (n.innerText || n.textContent || "").trim().toLowerCase();
+      if (!t || t.length > 20) continue;
+      if (skip.some((s) => t.includes(s))) continue;
+      if (t === "seguir" || t === "follow") return n;
+    }
+    return null;
+  }
+
   async function runDm(message) {
     if (!message) throw new Error("Mensagem vazia");
 
-    // 1) Botão "Mensagem" no perfil (pode ter cooldown de carregamento)
+    // 1) Seguir o perfil (se ainda não segue)
+    await sleep(1200);
+    const followBtn = findFollowButton();
+    if (followBtn) {
+      try { followBtn.click(); } catch { /* ignore */ }
+      await sleep(1200 + Math.floor(Math.random() * 800));
+    }
+
+    // 2) Botão "Mensagem" no perfil (pode ter cooldown de carregamento)
     const msgBtn = await waitFor(
       () =>
         findClickable([
