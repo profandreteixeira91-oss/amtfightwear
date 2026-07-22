@@ -991,12 +991,21 @@ function StudentsPage() {
                     Os consentimentos são registrados com data e hora conforme exigido pela LGPD.
                   </p>
                 </TabsContent>
+                </div>
               </Tabs>
 
-              <div className="mt-4 flex justify-end gap-2 border-t pt-3">
-                <Button variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
-                <Button onClick={onSave}>Salvar aluno</Button>
+              <div className="flex items-center justify-between gap-2 border-t px-6 py-3 bg-muted/30">
+                <p className="text-[11px] text-muted-foreground hidden sm:block">
+                  {form.id ? "Alterações salvas ao clicar em Salvar." : "Ao salvar, o aluno será matriculado no plano selecionado."}
+                </p>
+                <div className="flex gap-2 ml-auto">
+                  <Button variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
+                  <Button onClick={onSave}>
+                    {form.id ? "Salvar alterações" : "Cadastrar aluno"}
+                  </Button>
+                </div>
               </div>
+
             </DialogContent>
           </Dialog>
 
