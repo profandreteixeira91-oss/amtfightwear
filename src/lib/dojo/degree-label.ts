@@ -6,8 +6,28 @@ export function isJudoModality(modality?: string | null): boolean {
   return m === "judo" || m === "judô" || m.startsWith("judo") || m.startsWith("judô");
 }
 
+export function isMuayThaiModality(modality?: string | null): boolean {
+  const m = (modality ?? "").toString().toLowerCase().trim();
+  return m.includes("muay");
+}
+
 export function degreeUnit(modality?: string | null): "Dan" | "grau" {
   return isJudoModality(modality) ? "Dan" : "grau";
+}
+
+/** Prefixo do nome da faixa conforme modalidade.
+ *  Muay Thai usa "Grau"; demais modalidades usam "Faixa". */
+export function beltNamePrefix(modality?: string | null): "Grau" | "Faixa" {
+  return isMuayThaiModality(modality) ? "Grau" : "Faixa";
+}
+
+/** Nome completo formatado: "Faixa Roxa" ou "Grau Verde". */
+export function formatBeltName(name: string | null | undefined, modality?: string | null): string {
+  const n = (name ?? "").trim();
+  if (!n) return "";
+  const lower = n.toLowerCase();
+  if (lower.startsWith("faixa ") || lower.startsWith("grau ")) return n;
+  return `${beltNamePrefix(modality)} ${n}`;
 }
 
 /**
