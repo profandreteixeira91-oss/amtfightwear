@@ -144,6 +144,15 @@ function MacroPage() {
   const [editedMessage, setEditedMessage] = useState<string | null>(null);
   const currentIdRef = useRef<string | null>(null);
 
+  // ---- Fila manual (adicionada em /prospect/leads) ----
+  const [manualIds, setManualIds] = useState<string[]>(() => getMacroQueue());
+  const [useManualOnly, setUseManualOnly] = useState<boolean>(() => getMacroQueue().length > 0);
+  useEffect(() => subscribeMacroQueue(() => {
+    const next = getMacroQueue();
+    setManualIds(next);
+    if (next.length === 0) setUseManualOnly(false);
+  }), []);
+
   // ---- Extensão AMT Macro DM ----
   const [extensionReady, setExtensionReady] = useState(false);
   const [autoMode, setAutoMode] = useState(false);
