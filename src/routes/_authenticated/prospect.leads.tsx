@@ -458,6 +458,24 @@ function LeadsPage() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="inline-flex gap-1">
+                          {r.google_maps_url ? (
+                            <Button
+                              asChild size="sm" variant="ghost" title="Abrir no Google Maps"
+                            >
+                              <a href={String(r.google_maps_url)} target="_blank" rel="noopener noreferrer">
+                                <MapPin className="h-4 w-4" />
+                              </a>
+                            </Button>
+                          ) : null}
+                          {r.phone ? (
+                            <Button
+                              asChild size="sm" variant="ghost" title={`Ligar ${String(r.phone)}`}
+                            >
+                              <a href={`tel:${String(r.phone).replace(/[^\d+]/g,"")}`}>
+                                <Phone className="h-4 w-4" />
+                              </a>
+                            </Button>
+                          ) : null}
                           {ig && (
                             <Button
                               size="sm"
