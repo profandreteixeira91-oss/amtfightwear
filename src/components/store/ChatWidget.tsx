@@ -3,39 +3,53 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 type Msg = { id: string; role: "user" | "assistant" | "system"; text: string; source?: "human" | "bot"; created_at: string };
 
-const STORAGE_KEY = "amt_chat_external_id";
-const STORAGE_MSGS = "amt_chat_msgs_v1";
-
-function getExternalId(): string {
+function getExternalId(storageKey: string, prefix: string): string {
   if (typeof window === "undefined") return "server";
-  let id = window.localStorage.getItem(STORAGE_KEY);
+  let id = window.localStorage.getItem(storageKey);
   if (!id) {
-    id = `web_${crypto.randomUUID?.() ?? Date.now().toString(36) + Math.random().toString(36).slice(2)}`;
-    window.localStorage.setItem(STORAGE_KEY, id);
+    id = `${prefix}_${crypto.randomUUID?.() ?? Date.now().toString(36) + Math.random().toString(36).slice(2)}`;
+    window.localStorage.setItem(storageKey, id);
   }
   return id;
 }
 
-function loadCached(): Msg[] {
+function loadCached(storageMsgs: string): Msg[] {
   if (typeof window === "undefined") return [];
   try {
-    const raw = window.localStorage.getItem(STORAGE_MSGS);
+    const raw = window.localStorage.getItem(storageMsgs);
     return raw ? (JSON.parse(raw) as Msg[]) : [];
   } catch {
     return [];
   }
 }
 
-function saveCached(m: Msg[]) {
+function saveCached(storageMsgs: string, m: Msg[]) {
   try {
-    window.localStorage.setItem(STORAGE_MSGS, JSON.stringify(m.slice(-50)));
+    window.localStorage.setItem(storageMsgs, JSON.stringify(m.slice(-50)));
   } catch {
     /* ignore */
   }
 }
 
-export function ChatWidget() {
-  const externalId = useMemo(() => getExternalId(), []);
+export type ChatWidgetProps = {
+  storageKey?: string;
+  storageMsgs?: string;
+  externalIdPrefix?: string;
+  buttonLabel?: string;
+  headerTitle?: string;
+  greeting?: string;
+};
+
+export function ChatWidget(props: ChatWidgetProps = {}) {
+  const storageKey = props.storageKey ?? "amt_chat_external_id";
+  const storageMsgs = props.storageMsgs ?? "amt_chat_msgs_v1";
+  const externalIdPrefix = props.externalIdPrefix ?? "web";
+  const buttonLabel = props.buttonLabel ?? "Chat com a AMT";
+  const headerTitle = props.headerTitle ?? "Atendimento AMT";
+  const greeting =
+    props.greeting ??
+    "Olá! Sou o assistente da AMT Fight Wear. Como posso ajudar? Posso indicar produtos, tirar dúvidas sobre tamanhos, frete e pagamento. Se preferir, clique em \"Falar com atendente\" a qualquer momento. 🥋";
+  const externalId = useMemo(() => getExternalId(storageKey, externalIdPrefix), [storageKey, externalIdPrefix]);
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
@@ -47,7 +61,7 @@ export function ChatWidget() {
 
   // Hidrata cache local
   useEffect(() => {
-    const cached = loadCached();
+    const cached = loadCached(storageMsgs);
     if (cached.length) {
       setMessages(cached);
       lastSeenRef.current = cached[cached.length - 1]?.created_at ?? null;
@@ -55,18 +69,18 @@ export function ChatWidget() {
       const greet: Msg = {
         id: "greet",
         role: "assistant",
-        text: "Olá! Sou o assistente da AMT Fight Wear. Como posso ajudar? Posso indicar produtos, tirar dúvidas sobre tamanhos, frete e pagamento. Se preferir, clique em \"Falar com atendente\" a qualquer momento. 🥋",
+        text: greeting,
         source: "bot",
         created_at: new Date().toISOString(),
       };
       setMessages([greet]);
     }
-  }, []);
+  }, [storageMsgs, greeting]);
 
   useEffect(() => {
-    saveCached(messages);
+    saveCached(storageMsgs, messages);
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages]);
+  }, [messages, storageMsgs]);
 
   // Polling — busca respostas do admin e status
   useEffect(() => {
@@ -219,7 +233,7 @@ export function ChatWidget() {
             {hasUnread && <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-primary" />}
             <MessageCircle className="h-6 w-6" strokeWidth={2.4} />
           </span>
-          <span className="hidden text-sm font-semibold sm:inline">Chat com a AMT</span>
+          <span className="hidden text-sm font-semibold sm:inline">{buttonLabel}</span>
         </button>
       )}
 
@@ -231,7 +245,7 @@ export function ChatWidget() {
                 {status === "human" ? <Headset className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
               </div>
               <div className="leading-tight">
-                <div className="text-sm font-bold">Atendimento AMT</div>
+                <div className="text-sm font-bold">{headerTitle}</div>
                 <div className="text-[11px] text-background/70">
                   {status === "human" ? "Falando com um atendente" : "Assistente automático · online"}
                 </div>

@@ -15,6 +15,7 @@ import {
   SidebarTrigger,
   SidebarInset,
 } from "@/components/ui/sidebar";
+import { ChatWidget } from "@/components/store/ChatWidget";
 import {
   LayoutDashboard,
   Users,
@@ -407,6 +408,14 @@ function DojoLayoutInner({
           </UnsavedChangesProvider>
         </main>
       </SidebarInset>
+      <ChatWidget
+        storageKey="amt_dojo_support_external_id"
+        storageMsgs="amt_dojo_support_msgs_v1"
+        externalIdPrefix="dojo"
+        buttonLabel="Suporte"
+        headerTitle="Suporte AMT Dojo"
+        greeting="Olá! Aqui é o suporte do AMT Dojo Manager. Como podemos ajudar? Envie sua dúvida e um atendente responderá por aqui."
+      />
     </>
   );
 }
