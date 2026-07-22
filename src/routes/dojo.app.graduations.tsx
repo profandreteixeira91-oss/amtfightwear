@@ -8,7 +8,7 @@ import {
   listCertificateTemplates, issueCertificate,
   listGraduationProgress,
 } from "@/lib/dojo/dojo.functions";
-import { BeltVisual } from "@/components/dojo/BeltVisual";
+import { BeltAuto } from "@/components/dojo/BeltSpecVisual";
 import { CertificatePreviewDialog, openCertificatePrint, type CertificateTemplate } from "@/components/dojo/CertificatePreview";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
