@@ -180,6 +180,7 @@ export async function discoverCompanies(input: {
       if (isForeignDomain(domain)) continue;
       if (isJunkUrl(r.url)) continue;
       if (isJunkTitle(r.title)) continue;
+      if (isJunkTitle(r.description ?? "")) continue;
 
       // Filtro de relevância geográfica: se o usuário informou cidade/UF,
       // exige que o token apareça no título, descrição ou URL do resultado.
@@ -197,10 +198,15 @@ export async function discoverCompanies(input: {
         if (!looksLikeBusinessHandle(handle)) continue;
         const meta = `${r.title ?? ""} ${r.description ?? ""}`;
         if (!hasNicheSignal(meta, input.segment)) continue;
+        if (!looksLikeBusinessProfile(meta)) continue;
         const dedupeKey = `instagram:${handle}`;
         if (seen.has(dedupeKey)) continue;
         seen.add(dedupeKey);
-        const displayName = cleanCompanyName(r.title) || `@${handle}`;
+        const cleaned = cleanCompanyName(r.title);
+        // Nome muito curto ou fragmento (ex: "JIU", "Escola de Jiu") = ruim.
+        const displayName = cleaned && cleaned.length >= 4 && !isFragmentName(cleaned)
+          ? cleaned
+          : `@${handle}`;
         companies.push({
           name: displayName,
           normalized_name: normalizeName(displayName),
@@ -215,16 +221,20 @@ export async function discoverCompanies(input: {
         continue;
       }
 
+      // Sites: exige homepage/institucional. Rejeita URLs profundas (artigo/página interna).
+      if (!looksLikeHomepageOrContact(r.url)) continue;
+
       const dedupeKey = domain;
       if (seen.has(dedupeKey)) continue;
       seen.add(dedupeKey);
 
       const name = cleanCompanyName(r.title);
-      if (!name) continue;
+      if (!name || name.length < 4 || isFragmentName(name)) continue;
 
       // Para sites: exige sinal de nicho para descartar blog/notícia aleatória.
       const meta = `${r.title ?? ""} ${r.description ?? ""} ${r.url}`;
       if (!hasNicheSignal(meta, input.segment)) continue;
+      if (!looksLikeBusinessProfile(meta)) continue;
 
       companies.push({
         name,
@@ -332,13 +342,72 @@ export async function fetchInstagramProfileName(handle: string): Promise<string 
 }
 
 function safeDomain(u: string): string | null {
-  try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return null; }
+  try { return new URL(u).hostname.replace(/^www\./, "").toLowerCase(); } catch { return null; }
 }
+
+/**
+ * Domínios de ruído. Retorna true quando o domínio pertence a portais de
+ * notícia, redes sociais, marketplaces, agregadores, órgãos públicos,
+ * plataformas de docs/PDFs, sindicatos, etc.
+ * Usa correspondência por SUFIXO ou por substring de token para não falhar
+ * quando o domínio termina exatamente no padrão (bug anterior: `gov\.br)\./`
+ * exigia um ponto depois e nunca casava com `x.gov.br`).
+ */
+const NOISE_SUFFIXES = [
+  // sufixos institucionais brasileiros
+  ".gov.br", ".jus.br", ".leg.br", ".mp.br", ".mil.br", ".edu.br",
+  // portais de notícia e imprensa
+  "globo.com", "g1.globo.com", "uol.com.br", "folha.uol.com.br", "terra.com.br",
+  "r7.com", "ig.com.br", "estadao.com.br", "veja.abril.com.br", "exame.com",
+  "band.uol.com.br", "sbt.com.br", "record.com.br", "metropoles.com",
+  "correiobraziliense.com.br", "cnnbrasil.com.br", "istoe.com.br",
+  "infomoney.com.br", "valor.globo.com", "bbc.com", "elpais.com", "rtp.pt",
+  "gauchazh.clicrbs.com.br", "clicrbs.com.br", "atarde.com.br", "diariodonordeste.com.br",
+  "jcce.com.br", "opovo.com.br", "correiodopovo.com.br", "portaldatransparencia.gov.br",
+  // redes sociais (Instagram opt-in)
+  "facebook.com", "linkedin.com", "twitter.com", "x.com", "tiktok.com",
+  "pinterest.com", "reddit.com", "youtube.com", "vimeo.com",
+  // buscadores / wikis / blog platforms
+  "google.com", "bing.com", "yahoo.com", "duckduckgo.com",
+  "wikipedia.org", "wikimedia.org", "medium.com", "substack.com",
+  "blogspot.com", "wordpress.com",
+  // marketplaces
+  "mercadolivre.com.br", "mercadolibre.com", "amazon.com.br", "amazon.com",
+  "americanas.com.br", "magazineluiza.com.br", "casasbahia.com.br",
+  "submarino.com.br", "shoptime.com.br", "extra.com.br", "kabum.com.br",
+  "netshoes.com.br", "aliexpress.com", "shopee.com.br", "olx.com.br",
+  "enjoei.com.br", "elo7.com.br",
+  // diretórios / avaliações / plataformas de docs
+  "glassdoor.com.br", "reclameaqui.com.br", "jusbrasil.com.br", "yelp.com",
+  "tripadvisor.com.br", "tripadvisor.com", "guiamais.com.br", "apontador.com.br",
+  "solucoesindustriais.com.br", "econodata.com.br", "econofinder.com.br",
+  "telepesquisa.com", "telelistas.net", "listasamarelas.com.br",
+  "scribd.com", "pt.scribd.com", "issuu.com", "slideshare.net",
+  "academia.edu", "researchgate.net", "fotop.com", "flickr.com",
+  // plataformas de academias/fitness (não é lead, é agregador)
+  "wellhub.com", "gympass.com", "totalpass.com.br", "gymrats.com",
+  // outros portais judiciais / prefeituras
+  "prefeitura.sp.gov.br", "conjur.com.br", "migalhas.com.br", "jota.info",
+  // referências jurídicas / oficiais que aparecem em buscas
+  "diariooficial.com.br", "in.gov.br",
+];
+
+const NOISE_TOKENS = [
+  "prefeitura", "camara", "câmara", "senado", "assembleia", "ministerio",
+  "ministério", "sindicato", "tribunal", "conselho", "ordem",
+];
+
 function isNoiseDomain(d: string, opts?: { allowInstagram?: boolean }): boolean {
-  if (opts?.allowInstagram && /^instagram\.com$/i.test(d)) return false;
-  // Buscadores, redes sociais (exceto IG opt-in), agregadores, marketplaces,
-  // portais de notícia, blogs de reviews, wikis, diretórios genéricos e conteúdo.
-  return /(google|bing|yahoo|duckduckgo|wikipedia|wikimedia|youtube|vimeo|facebook|instagram|linkedin|twitter|x\.com|tiktok|pinterest|reddit|medium|substack|blogspot|wordpress\.com|glassdoor|reclameaqui|jusbrasil|yelp|tripadvisor|guiamais|apontador|solucoesindustriais|econodata|econofinder|mercadolivre|mercadolibre|americanas|magazineluiza|amazon|aliexpress|shopee|olx|enjoei|elo7|shoptime|casasbahia|extra\.com|submarino|kabum|netshoes|globo\.com|g1\.globo|uol\.com|terra\.com|r7\.com|ig\.com\.br|folha\.uol|estadao|veja\.abril|exame|band\.uol|sbt\.com|record\.com|metropoles|correiobraziliense|prefeitura|gov\.br|jusbrasil|diariooficial|conjur|migalhas|jota|infomoney|valor\.globo|istoe|cnnbrasil|bbc\.com|elpais|rtp\.pt|pt\.wikipedia)\./i.test(d);
+  if (opts?.allowInstagram && d === "instagram.com") return false;
+  // Instagram sempre é ruído a menos que allowInstagram esteja true
+  if (d === "instagram.com" || d.endsWith(".instagram.com")) return true;
+  for (const suf of NOISE_SUFFIXES) {
+    if (d === suf || d.endsWith("." + suf) || d.endsWith(suf)) return true;
+  }
+  for (const t of NOISE_TOKENS) {
+    if (d.includes(t)) return true;
+  }
+  return false;
 }
 
 /** Rejeita URLs que claramente são conteúdo (posts, artigos, PDFs, buscas). */
@@ -346,35 +415,91 @@ function isJunkUrl(u: string): boolean {
   try {
     const url = new URL(u);
     const p = url.pathname.toLowerCase();
-    if (/\.(pdf|docx?|pptx?|xlsx?|zip|rar|jpg|jpeg|png|gif|mp4|mp3)$/i.test(p)) return true;
-    if (/\/(blog|noticia|noticias|news|post|posts|artigo|artigos|category|categoria|tag|search|busca|forum|topic|thread|comments?)\//i.test(p)) return true;
+    // Arquivos/mídias
+    if (/\.(pdf|docx?|pptx?|xlsx?|csv|txt|zip|rar|7z|tar|gz|jpe?g|png|gif|webp|svg|mp4|mp3|wav|mov|avi)(\?|$)/i.test(p)) return true;
+    // Diretórios de conteúdo
+    if (/\/(blog|noticia|noticias|news|post|posts|artigo|artigos|category|categoria|tag|search|busca|forum|topic|thread|comments?|midia|media|imprensa|press|events?|eventos?|galeria|gallery|album|coluna|opiniao|editorial|entrevista|reportagem|programa|programas|episode|episodes?)\//i.test(p)) return true;
+    // Uploads / assets / documentos
+    if (/\/(wp-content|wp-uploads|wp-admin|uploads?|downloads?|arquivos?|documentos?|files?|attachments?|cdn|assets?|resources?|midia|photos?|images?)\//i.test(p)) return true;
+    // Diretórios de agregadores/parceiros
+    if (/\/(associado|associados|parceiro|parceiros|estabelecimento|estabelecimentos|empresa|empresas|filiais?|unidades?|academias?|academia|instrutor|instrutores|professor|professores|profissional|profissionais|listagem)\//i.test(p)) return true;
     // Padrão de datas em URL costuma ser post: /2024/03/, /2023-11-...
     if (/\/(19|20)\d{2}\/\d{1,2}\//.test(p)) return true;
-    if (url.searchParams.has("q") || url.searchParams.has("s") || url.searchParams.has("search")) return true;
+    if (/\/(19|20)\d{2}-\d{1,2}-\d{1,2}/.test(p)) return true;
+    // URLs com muitos segmentos = página profunda (não homepage)
+    const segs = p.split("/").filter(Boolean);
+    if (segs.length > 3) return true;
+    // Query de busca
+    if (url.searchParams.has("q") || url.searchParams.has("s") || url.searchParams.has("search") || url.searchParams.has("query")) return true;
     return false;
   } catch { return true; }
 }
 
+/** Aceita apenas homepage ou páginas típicas de instituição/contato. */
+function looksLikeHomepageOrContact(u: string): boolean {
+  try {
+    const url = new URL(u);
+    const segs = url.pathname.split("/").filter(Boolean);
+    if (segs.length === 0) return true; // homepage
+    if (segs.length > 2) return false;
+    // páginas institucionais aceitas
+    const ok = /^(contato|contact|contatos|fale-conosco|sobre|about|quem-somos|institucional|home|inicio|início|matriculas?|matrículas?|academia|dojo|dojô|escola|unidades?|localizacao|localização|equipe|professores|instrutores)$/i;
+    return segs.every((s) => ok.test(s));
+  } catch { return false; }
+}
+
 /** Rejeita títulos típicos de blog/notícia/lista, não de negócio. */
 function isJunkTitle(t: string): boolean {
-  const s = t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  if (/(^|\s)(como|por que|porque|o que e|significa|significado|passo a passo|guia definitivo|dicas|top\s?\d+|melhores|ranking|historia|origem)\b/.test(s)) return true;
-  if (/(noticia|notícia|reportagem|entrevista|analise|opinião|opiniao|coluna|editorial|comentario)/.test(s)) return true;
-  if (/(video|vídeo|assista|veja o video|reels?|shorts?)/.test(s)) return true;
+  const s = (t || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  if (!s) return false;
+  if (/(^|\s)(como|por que|porque|o que e|significa|significado|passo a passo|guia definitivo|dicas|top\s?\d+|melhores|ranking|historia|origem|conheca|saiba|aprenda|entenda)\b/.test(s)) return true;
+  if (/(noticia|notícia|reportagem|entrevista|analise|opinião|opiniao|coluna|editorial|comentario|artigo|reflexao)/.test(s)) return true;
+  if (/(video|vídeo|assista|veja o video|reels?|shorts?|podcast|episodio|episódio)/.test(s)) return true;
+  if (/(edital|resultado parcial|resultado final|regulamento|convocacao|convocação|nota tecnica|nota técnica|comunicado|portaria|decreto|lei\s+n[oº\.]|voto\s+de\s+aplauso|termo\s+de\s+matricula|termo\s+de\s+matrícula|ata\s+da|ata\s+de)/.test(s)) return true;
+  if (/^photos?\s+/.test(s) || /\bphotos?\s+de\b/.test(s)) return true;
+  if (/(campanha|custear|arrecadar|vaquinha|premiac[aã]o|premiaç)/.test(s)) return true;
   return false;
 }
 
 /** Handles IG que parecem conta pessoal genérica / spam. */
 function looksLikeBusinessHandle(h: string): boolean {
   const s = h.toLowerCase();
-  // muito curto → provavelmente handle famoso irrelevante
   if (s.length < 4) return false;
-  // ratio de dígitos alto → conta pessoal / spam
   const digits = (s.match(/\d/g) ?? []).length;
   if (digits > 0 && digits / s.length > 0.5) return false;
-  // sequências suspeitas
   if (/^(user|admin|test|fake|spam|conta|perfil)\d*$/.test(s)) return false;
   return true;
+}
+
+/**
+ * Descarta bio/título/description que evidenciam pessoa aleatória, mídia, evento pontual etc.
+ * Aceita quando aparecem termos claros de negócio: academia, escola, clube, team, gracie, dojo,
+ * projeto, instituto, federacao, gym, cta, associacao, associação, ct.
+ */
+function looksLikeBusinessProfile(text: string): boolean {
+  const t = (text || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  if (!t) return false;
+  const BUSINESS = [
+    "academia", "escola", "clube", "dojo", "team", "gracie", "checkmat", "alliance", "atos",
+    "gym", "cta", " ct ", "ct.", "ct-", "associac", "instituto", "federac", "confederac",
+    "projeto social", "ong ", "liga ", "casa do", "casa de", "esporte clube", "esporte e",
+    "centro de treinamento", "centro esportivo", "clube esportivo",
+  ];
+  if (BUSINESS.some((k) => t.includes(k))) return true;
+  // Bio de atleta com "faixa preta" + academia costuma ser válido
+  if (/(faixa preta|coral|sensei|mestre)/.test(t) && /(academia|professor|instrutor|coach)/.test(t)) return true;
+  return false;
+}
+
+/** Nome pescado é fragmento sem valor (ex: "JIU", "Escola de Jiu", "Judô"). */
+function isFragmentName(n: string): boolean {
+  const s = n.trim().toLowerCase();
+  if (s.length < 5) return true;
+  if (/^(jiu|jiu-?jitsu|judo|judô|muay|thai|boxe|mma|karate|karatê)$/i.test(s)) return true;
+  if (/^escola\s+de\s+jiu$/i.test(s)) return true;
+  if (/^academia\s+de\s+jiu$/i.test(s)) return true;
+  if (/^federacao\s+.{0,10}\s+jiu$/i.test(s)) return true;
+  return false;
 }
 
 /**
