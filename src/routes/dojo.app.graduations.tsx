@@ -481,7 +481,7 @@ function NewGraduationPage() {
                   <div key={g.id} className="flex items-center gap-3 p-3">
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-medium truncate">{s?.full_name}</div>
-                      <div className="text-xs text-muted-foreground">{selectedBelt?.name}{degreeSuffix(degree, selectedBelt?.modality)}</div>
+                      <div className="text-xs text-muted-foreground">{selectedBelt?.name}{degreeSuffix(degree, selectedBelt?.modality, " · ", selectedBelt?.name)}</div>
                     </div>
                     {done ? (
                       <div className="flex items-center gap-2">
