@@ -307,17 +307,20 @@ function MacroPage() {
 
   function doSkip() {
     if (!current) return;
+    if (manualActive) removeFromMacroQueue(current.id);
     setSkippedIds((s) => new Set(s).add(current.id));
   }
   function doMarkReplied() {
     if (!current) return;
     updateMut.mutate({ id: current.id, patch: { pipeline_stage: "resposta_recebida" } });
+    if (manualActive) removeFromMacroQueue(current.id);
     setSkippedIds((s) => new Set(s).add(current.id));
     toast.success("Lead movido para 'Resposta recebida'.");
   }
   function doDiscard() {
     if (!current) return;
     updateMut.mutate({ id: current.id, patch: { pipeline_stage: "descartado" } });
+    if (manualActive) removeFromMacroQueue(current.id);
     setSkippedIds((s) => new Set(s).add(current.id));
     toast("Lead descartado.");
   }
