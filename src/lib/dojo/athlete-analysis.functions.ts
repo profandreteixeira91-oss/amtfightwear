@@ -345,12 +345,14 @@ export const getAthleteVideos = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await assertStudentOwnership(supabase, userId, data.studentId);
-    // Progresso e favoritos do aluno em vídeos do dojo
+    // Vincula por user_id do aluno em dojo_video_progress
+    const { data: student } = await supabase.from("dojo_students").select("user_id").eq("id", data.studentId).maybeSingle();
+    if (!student?.user_id) return { progress: [] };
     const { data: progress } = await supabase
       .from("dojo_video_progress")
-      .select("video_id, progress_seconds, updated_at, dojo_videos(id, title, thumbnail_url, duration_seconds)")
-      .eq("student_id", data.studentId)
-      .order("updated_at", { ascending: false })
+      .select("video_id, watched_seconds, percent, completed, last_seen_at, dojo_videos(id, title, thumbnail_url, duration_seconds)")
+      .eq("user_id", student.user_id)
+      .order("last_seen_at", { ascending: false })
       .limit(50);
     return { progress: progress ?? [] };
   });
