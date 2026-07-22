@@ -203,10 +203,11 @@ export function AppTopNav() {
   const dojoName = !inStore ? (dojo?.trade_name || dojo?.legal_name) : undefined;
   const dojoLogo = !inStore ? dojo?.logo_url : undefined;
 
-  // "Gestão" pertence ao AMT Dojo Manager — só exibir dentro de /dojo.
+  // Grupos exclusivos do Dojo Manager — só aparecem dentro de /dojo.
+  const dojoOnlyLabels = new Set(["Pessoas", "Rotina", "Estrutura", "Comercial"]);
   const visibleGroups = inDojo
     ? groups
-    : groups.filter((g) => g.label !== "Gestão");
+    : groups.filter((g) => !dojoOnlyLabels.has(g.label));
 
   return (
     <div
