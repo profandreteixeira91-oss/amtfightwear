@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import {
   Instagram, Copy, ExternalLink, SkipForward, CheckCircle2, Pause, Play,
   RefreshCw, Timer, Shield, Users, Settings2, ArrowLeft, XCircle,
-  Bot, Download, Zap,
+  Bot, Download, Zap, ListChecks, Trash2,
 } from "lucide-react";
 import { PageShell } from "@/components/common/PageShell";
 import { SectionCard } from "@/components/common/SectionCard";
@@ -27,6 +27,9 @@ import {
   listLeads, logContactAction, updateLead, getSettings,
 } from "@/lib/prospect/prospect.functions";
 import { PIPELINE_STAGES } from "@/features/prospect/types";
+import {
+  getMacroQueue, subscribeMacroQueue, removeFromMacroQueue, clearMacroQueue,
+} from "@/features/prospect/utils/macro-queue";
 
 export const Route = createFileRoute("/_authenticated/prospect/macro")({
   head: () => ({
@@ -141,6 +144,15 @@ function MacroPage() {
   const [editedMessage, setEditedMessage] = useState<string | null>(null);
   const currentIdRef = useRef<string | null>(null);
 
+  // ---- Fila manual (adicionada em /prospect/leads) ----
+  const [manualIds, setManualIds] = useState<string[]>(() => getMacroQueue());
+  const [useManualOnly, setUseManualOnly] = useState<boolean>(() => getMacroQueue().length > 0);
+  useEffect(() => subscribeMacroQueue(() => {
+    const next = getMacroQueue();
+    setManualIds(next);
+    if (next.length === 0) setUseManualOnly(false);
+  }), []);
+
   // ---- Extensão AMT Macro DM ----
   const [extensionReady, setExtensionReady] = useState(false);
   const [autoMode, setAutoMode] = useState(false);
@@ -187,30 +199,45 @@ function MacroPage() {
     queryFn: () => fetchSettings(),
   });
 
+  const manualActive = useManualOnly && manualIds.length > 0;
   const queueQ = useQuery({
-    queryKey: ["prospect", "macro-queue", prefs.stageFilter],
+    queryKey: ["prospect", "macro-queue", prefs.stageFilter, manualActive ? manualIds.join(",") : "auto"],
     queryFn: () =>
       fetchList({
-        data: {
-          hasInstagram: true,
-          pipeline_stage: prefs.stageFilter || undefined,
-          limit: 100,
-          offset: 0,
-          orderBy: "score",
-          orderDir: "desc",
-        },
+        data: manualActive
+          ? {
+              ids: manualIds,
+              limit: Math.min(500, Math.max(1, manualIds.length)),
+              offset: 0,
+              orderBy: "created_at",
+              orderDir: "desc",
+            }
+          : {
+              hasInstagram: true,
+              pipeline_stage: prefs.stageFilter || undefined,
+              limit: 100,
+              offset: 0,
+              orderBy: "score",
+              orderDir: "desc",
+            },
       }),
   });
 
   const rawRows = (queueQ.data?.rows ?? []) as LeadRow[];
+  const orderedRows = useMemo(() => {
+    if (!manualActive) return rawRows;
+    // Preserva a ordem em que o usuário adicionou os leads na fila
+    const pos = new Map(manualIds.map((id, i) => [id, i]));
+    return [...rawRows].sort((a, b) => (pos.get(a.id) ?? 0) - (pos.get(b.id) ?? 0));
+  }, [rawRows, manualActive, manualIds]);
   const queue = useMemo(
     () =>
-      rawRows.filter((r) => {
+      orderedRows.filter((r) => {
         if (skippedIds.has(r.id)) return false;
         const ig = r.contacts.find((c) => c.channel === "instagram")?.value;
         return !!normalizeIgHandle(ig);
       }),
-    [rawRows, skippedIds],
+    [orderedRows, skippedIds],
   );
 
   const current = queue[0] ?? null;
@@ -271,6 +298,7 @@ function MacroPage() {
     try { await navigator.clipboard.writeText(message); } catch { /* ignore */ }
     window.open(`https://instagram.com/${handle}`, "_blank", "noopener,noreferrer");
     logMut.mutate(current.id);
+    if (manualActive) removeFromMacroQueue(current.id);
     setSessionCount((v) => v + 1);
     setCounter((c) => ({ date: todayKey(), count: c.count + 1 }));
     startCooldown();
@@ -279,17 +307,20 @@ function MacroPage() {
 
   function doSkip() {
     if (!current) return;
+    if (manualActive) removeFromMacroQueue(current.id);
     setSkippedIds((s) => new Set(s).add(current.id));
   }
   function doMarkReplied() {
     if (!current) return;
     updateMut.mutate({ id: current.id, patch: { pipeline_stage: "resposta_recebida" } });
+    if (manualActive) removeFromMacroQueue(current.id);
     setSkippedIds((s) => new Set(s).add(current.id));
     toast.success("Lead movido para 'Resposta recebida'.");
   }
   function doDiscard() {
     if (!current) return;
     updateMut.mutate({ id: current.id, patch: { pipeline_stage: "descartado" } });
+    if (manualActive) removeFromMacroQueue(current.id);
     setSkippedIds((s) => new Set(s).add(current.id));
     toast("Lead descartado.");
   }
@@ -340,6 +371,7 @@ function MacroPage() {
     const res = await sendViaExtension(handle, msg);
     if (res.ok) {
       logMut.mutate(lead.id);
+      if (manualActive) removeFromMacroQueue(lead.id);
       setSessionCount((v) => v + 1);
       setCounter((c) => ({ date: todayKey(), count: c.count + 1 }));
       setSkippedIds((s) => new Set(s).add(lead.id));
@@ -347,6 +379,7 @@ function MacroPage() {
       return true;
     }
     toast.error(`Falha em @${handle}: ${res.error || "erro desconhecido"}`);
+    if (manualActive) removeFromMacroQueue(lead.id);
     setSkippedIds((s) => new Set(s).add(lead.id));
     return false;
   }
@@ -453,6 +486,41 @@ function MacroPage() {
           hint={cooldownLeft > 0 ? "Aguardando próximo envio" : `Aleatório ${prefs.cooldownMinSec}–${prefs.cooldownMaxSec}s`}
         />
       </div>
+
+      {manualIds.length > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-primary/30 bg-primary/5 p-4">
+          <div className="flex items-start gap-3">
+            <ListChecks className="mt-0.5 h-5 w-5 text-primary" />
+            <div>
+              <div className="text-sm font-semibold">
+                Fila manual: {manualIds.length} lead{manualIds.length === 1 ? "" : "s"} adicionado{manualIds.length === 1 ? "" : "s"} de Leads Engine
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {useManualOnly
+                  ? "Rodando apenas leads escolhidos manualmente — a ordem segue a seleção."
+                  : "Ative para trabalhar somente os leads que você selecionou manualmente."}
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="flex items-center gap-2 text-xs font-medium cursor-pointer">
+              <Switch
+                id="manual-only"
+                checked={useManualOnly}
+                onCheckedChange={setUseManualOnly}
+              />
+              Usar somente esta fila
+            </label>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => { clearMacroQueue(); toast("Fila manual esvaziada"); }}
+            >
+              <Trash2 className="mr-2 h-4 w-4" />Esvaziar
+            </Button>
+          </div>
+        </div>
+      )}
 
       {showSettings && (
         <SectionCard

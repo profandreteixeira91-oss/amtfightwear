@@ -141,7 +141,8 @@ const listInput = z.object({
   hasWhatsapp: z.boolean().optional(),
   hasInstagram: z.boolean().optional(),
   onlyEnriched: z.boolean().optional(),
-  limit: z.number().int().min(1).max(200).default(50),
+  ids: z.array(z.string().uuid()).max(500).optional(),
+  limit: z.number().int().min(1).max(500).default(50),
   offset: z.number().int().min(0).default(0),
   orderBy: z.enum(["created_at","score","name","last_contacted_at"]).default("created_at"),
   orderDir: z.enum(["asc","desc"]).default("desc"),
@@ -174,6 +175,7 @@ export const listLeads = createServerFn({ method: "POST" })
       range: (a: number, b: number) => Promise<{ data: unknown[] | null; count: number | null }>;
     };
     q = q.eq("owner_id", context.userId);
+    if (data.ids && data.ids.length > 0) q = q.in("id", data.ids);
     if (data.search) q = q.ilike("name", `%${data.search}%`);
     if (data.state) q = q.eq("state", data.state);
     if (data.city) q = q.ilike("city", `%${data.city}%`);

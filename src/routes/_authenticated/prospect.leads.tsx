@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import {
   Search, Filter, Mail, MessageCircle, Instagram, Globe, Sparkles,
   ChevronLeft, ChevronRight, Star, ExternalLink, Radar, Trash2, Wand2, Loader2,
-  MapPin, Phone,
+  MapPin, Phone, Send,
 } from "lucide-react";
 import { PageShell } from "@/components/common/PageShell";
 import { ErrorState } from "@/components/common/ErrorState";
@@ -33,6 +33,10 @@ import {
 } from "@/lib/prospect/prospect.functions";
 import { PIPELINE_STAGES, BR_STATES } from "@/features/prospect/types";
 import { fmtDate, scoreToStars } from "@/features/prospect/utils";
+import {
+  addToMacroQueue, isInMacroQueue, removeFromMacroQueue,
+  subscribeMacroQueue, getMacroQueue,
+} from "@/features/prospect/utils/macro-queue";
 
 export const Route = createFileRoute("/_authenticated/prospect/leads")({
   head: () => ({ meta: [{ title: "Leads — Prospect Engine" }] }),
@@ -60,6 +64,9 @@ function LeadsPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkStage, setBulkStage] = useState<string>("");
   const focusedRowRef = useRef<HTMLTableRowElement | null>(null);
+  const [macroQueue, setMacroQueue] = useState<string[]>(() => getMacroQueue());
+  useEffect(() => subscribeMacroQueue(() => setMacroQueue(getMacroQueue())), []);
+  const macroSet = useMemo(() => new Set(macroQueue), [macroQueue]);
 
   const qc = useQueryClient();
   const fetchList = useServerFn(listLeads);
@@ -201,7 +208,14 @@ function LeadsPage() {
               Enriquecer pendentes
             </Button>
             <Button asChild variant="outline" size="sm">
-              <Link to="/prospect/macro"><Instagram className="mr-2 h-4 w-4" />Macro DM</Link>
+              <Link to="/prospect/macro">
+                <Instagram className="mr-2 h-4 w-4" />Macro DM
+                {macroQueue.length > 0 && (
+                  <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-[10px]">
+                    {macroQueue.length}
+                  </Badge>
+                )}
+              </Link>
             </Button>
             <Button asChild size="sm">
               <Link to="/prospect/search"><Radar className="mr-2 h-4 w-4" />Nova busca</Link>
@@ -297,6 +311,20 @@ function LeadsPage() {
             >
               {bulkEnrichMut.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
               Enriquecer selecionados
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                const added = addToMacroQueue(selectedIds);
+                toast.success(
+                  added > 0
+                    ? `${added} lead(s) adicionado(s) ao Macro DM`
+                    : "Todos já estavam na fila do Macro DM",
+                );
+              }}
+            >
+              <Send className="mr-2 h-4 w-4" />Enviar p/ Macro
             </Button>
             <AlertDialog>
               <AlertDialogTrigger asChild>
@@ -492,6 +520,29 @@ function LeadsPage() {
                             >
                               <Instagram className="h-4 w-4" />
                             </Button>
+                          )}
+                          {ig && (
+                            (() => {
+                              const inQueue = macroSet.has(r.id);
+                              return (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  title={inQueue ? "Remover do Macro DM" : "Adicionar ao Macro DM"}
+                                  onClick={() => {
+                                    if (inQueue) {
+                                      removeFromMacroQueue(r.id);
+                                      toast("Removido do Macro DM");
+                                    } else {
+                                      addToMacroQueue(r.id);
+                                      toast.success("Adicionado ao Macro DM");
+                                    }
+                                  }}
+                                >
+                                  <Send className={`h-4 w-4 ${inQueue ? "text-primary" : ""}`} />
+                                </Button>
+                              );
+                            })()
                           )}
                           <Button
                             size="sm"
