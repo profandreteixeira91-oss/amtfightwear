@@ -84,7 +84,7 @@ export function buildIssueValues(opts: {
 
     // Compat
     student_name: student?.full_name ?? "",
-    belt: grBelt?.name ?? "",
+    belt: beltFull,
     date: fmtBR(gradDate || now),
     signature: academy?.signature_url ?? "",
   };
