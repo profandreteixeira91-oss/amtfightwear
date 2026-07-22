@@ -328,20 +328,9 @@ function BeltEditor({
               </div>
             )}
           </div>
-          {showJson && (
-            <textarea
-              className="w-full h-40 font-mono text-[11px] p-2 border rounded"
-              value={JSON.stringify({ visual: draft.visual, variants: draft.variants }, null, 2)}
-              onChange={(e) => {
-                try {
-                  const parsed = JSON.parse(e.target.value);
-                  setDraft({ ...draft, visual: parsed.visual ?? {}, variants: parsed.variants ?? [] });
-                } catch { /* ignorar até JSON válido */ }
-              }}
-            />
-          )}
         </CardContent>
       </Card>
+
 
       {/* Campos base */}
       <Card>
