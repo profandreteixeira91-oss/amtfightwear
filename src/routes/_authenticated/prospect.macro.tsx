@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import {
   Instagram, Copy, ExternalLink, SkipForward, CheckCircle2, Pause, Play,
   RefreshCw, Timer, Shield, Users, Settings2, ArrowLeft, XCircle,
+  Bot, Download, Zap,
 } from "lucide-react";
 import { PageShell } from "@/components/common/PageShell";
 import { SectionCard } from "@/components/common/SectionCard";
