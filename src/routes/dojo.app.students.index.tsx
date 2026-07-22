@@ -262,7 +262,16 @@ function StudentsPage() {
       return;
     }
     try {
-      const payload: any = { ...form, current_degree: Number(form.current_degree || 0) };
+      // Multi-modalidade: a primeira linha vira a faixa "principal" do aluno;
+      // as demais são registradas como graduações adicionais.
+      const validMods = (form.modalities ?? []).filter((m) => m.modality && m.belt_id);
+      const primary = validMods[0] ?? null;
+      const payload: any = {
+        ...form,
+        current_belt_id: primary?.belt_id ?? form.current_belt_id ?? null,
+        current_degree: Number(primary?.degree ?? form.current_degree ?? 0),
+      };
+      delete payload.modalities;
       const skip = new Set([
         "anamnesis", "status", "lgpd_consent", "image_rights_consent",
         "terms_accepted", "has_medical_clearance", "current_degree",
@@ -272,6 +281,27 @@ function StudentsPage() {
       });
       const saved: any = await saveFn({ data: payload });
       const studentId = saved?.id ?? form.id;
+
+      // Registrar graduações para modalidades adicionais (apenas em novo aluno)
+      if (isNew && studentId && validMods.length > 1) {
+        const today = new Date().toISOString().slice(0, 10);
+        for (const m of validMods.slice(1)) {
+          try {
+            await addGradFn({
+              data: {
+                student_id: studentId,
+                belt_id: m.belt_id,
+                degree: Number(m.degree ?? 0),
+                graduation_date: today,
+                evaluator: null,
+                notes: "Cadastro inicial (modalidade adicional)",
+              },
+            });
+          } catch (e: any) {
+            toast.error("Falha ao registrar modalidade adicional", { description: e?.message });
+          }
+        }
+      }
 
       if (isNew && studentId && enrollment.plan_id) {
         const customAmt = enrollment.custom_amount.trim() === "" ? null : Number(enrollment.custom_amount);
