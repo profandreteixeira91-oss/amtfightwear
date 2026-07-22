@@ -536,6 +536,9 @@ function BeltEditor({
         </CardContent>
       </Card>
 
+      {/* Graus — edição individual */}
+      <DegreesSection draft={draft} setDraft={setDraft} parentSpec={spec} />
+
       {/* Variações / subvariações */}
       <Card>
         <CardHeader className="pb-2 flex-row items-center justify-between space-y-0">
@@ -625,6 +628,146 @@ function VariantRow({
               try {
                 const parsed = JSON.parse(e.target.value);
                 onChange({ ...variant, visual: parsed });
+              } catch { /* aguarda JSON válido */ }
+            }}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ============================================================ */
+/* Edição grau-a-grau                                           */
+/* ============================================================ */
+
+function DegreesSection({
+  draft, setDraft, parentSpec,
+}: {
+  draft: BeltRow;
+  setDraft: (b: BeltRow) => void;
+  parentSpec: BeltSpec;
+}) {
+  const max = Math.max(0, Number(draft.max_degrees) || 0);
+  const variants = draft.variants ?? [];
+
+  const setMax = (n: number) => {
+    const next = Math.max(0, Math.min(20, n));
+    // Remove overrides acima do novo máximo
+    const filtered = variants.filter((v) => v.degree <= next);
+    setDraft({ ...draft, max_degrees: next, variants: filtered });
+  };
+
+  const findVariant = (degree: number) =>
+    variants.find((v) => v.degree === degree && (v.name?.startsWith("Grau ") || v.name?.startsWith("Grau")));
+
+  const upsertVariant = (degree: number, visual: BeltSpec | null) => {
+    const arr = [...variants];
+    const idx = arr.findIndex((v) => v.degree === degree && v.name?.startsWith("Grau"));
+    if (idx >= 0) {
+      arr[idx] = { ...arr[idx], visual };
+    } else {
+      arr.push({ id: crypto.randomUUID(), name: `Grau ${degree}`, degree, visual });
+    }
+    setDraft({ ...draft, variants: arr });
+  };
+
+  const removeVariant = (degree: number) => {
+    const arr = variants.filter((v) => !(v.degree === degree && v.name?.startsWith("Grau")));
+    setDraft({ ...draft, variants: arr });
+  };
+
+  return (
+    <Card>
+      <CardHeader className="pb-2 flex-row items-center justify-between space-y-0">
+        <CardTitle className="text-sm">Graus (edição individual)</CardTitle>
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="outline" onClick={() => setMax(max - 1)} disabled={max <= 0}>−</Button>
+          <div className="text-xs w-16 text-center tabular-nums">{max} {max === 1 ? "grau" : "graus"}</div>
+          <Button size="sm" variant="outline" onClick={() => setMax(max + 1)} disabled={max >= 20}>+</Button>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        {max === 0 && (
+          <div className="text-xs text-muted-foreground">
+            Esta faixa não tem graus. Use os botões acima para adicionar.
+          </div>
+        )}
+        {Array.from({ length: max }).map((_, i) => {
+          const degree = i + 1;
+          const override = findVariant(degree);
+          const hasOverride = !!override?.visual && Object.keys(override.visual).length > 0;
+          const effective: BeltSpec = hasOverride ? (override!.visual as BeltSpec) : parentSpec;
+          return (
+            <DegreeRow
+              key={degree}
+              degree={degree}
+              effective={effective}
+              hasOverride={hasOverride}
+              parentBelt={draft}
+              onCustomize={() => upsertVariant(degree, { ...parentSpec })}
+              onReset={() => removeVariant(degree)}
+              onChange={(next) => upsertVariant(degree, next)}
+            />
+          );
+        })}
+      </CardContent>
+    </Card>
+  );
+}
+
+function DegreeRow({
+  degree, effective, hasOverride, parentBelt, onCustomize, onReset, onChange,
+}: {
+  degree: number;
+  effective: BeltSpec;
+  hasOverride: boolean;
+  parentBelt: BeltRow;
+  onCustomize: () => void;
+  onReset: () => void;
+  onChange: (spec: BeltSpec) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="border rounded-lg p-3 space-y-2">
+      <div className="flex items-center gap-3">
+        <div className="text-xs font-semibold w-16 shrink-0">Grau {degree}</div>
+        <div className="flex-1 min-w-0">
+          <BeltSpecVisual
+            spec={effective}
+            degree={degree}
+            fallback={<BeltAuto belt={parentBelt as any} degree={degree} />}
+          />
+        </div>
+        <div className="flex items-center gap-1">
+          {hasOverride ? (
+            <>
+              <Button size="sm" variant="outline" onClick={() => setOpen(!open)}>
+                {open ? "Fechar" : "Editar"}
+              </Button>
+              <Button size="sm" variant="ghost" onClick={onReset} title="Voltar ao padrão da faixa">
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            </>
+          ) : (
+            <Button size="sm" variant="outline" onClick={() => { onCustomize(); setOpen(true); }}>
+              Personalizar
+            </Button>
+          )}
+        </div>
+      </div>
+      {open && hasOverride && (
+        <div className="pt-2 border-t space-y-2">
+          <div className="text-[11px] text-muted-foreground">
+            Ajuste o spec JSON deste grau. Salve para persistir.
+          </div>
+          <textarea
+            className="w-full h-32 font-mono text-[11px] p-2 border rounded"
+            value={JSON.stringify(effective, null, 2)}
+            onChange={(e) => {
+              try {
+                const parsed = JSON.parse(e.target.value);
+                onChange(parsed);
               } catch { /* aguarda JSON válido */ }
             }}
           />
