@@ -386,9 +386,53 @@ function PagePanel() {
 }
 
 function TemplatesPanel() {
+  const { loadDoc, templateId, name, category, dirty } = useStudioStore();
+  const [q, setQ] = useState("");
+  const items = CERTIFICATE_PRESETS.filter((p) => !q || p.name.toLowerCase().includes(q.toLowerCase()) || p.description.toLowerCase().includes(q.toLowerCase()));
+
+  const applyPreset = (preset: typeof CERTIFICATE_PRESETS[number]) => {
+    if (dirty && !confirm("Aplicar este modelo irá substituir o design atual. Continuar?")) return;
+    const doc = preset.build();
+    loadDoc(doc, { id: templateId, name: name && name !== "Novo modelo" ? name : preset.name, category: category || preset.category });
+    toast.success(`Modelo "${preset.name}" carregado`);
+  };
+
   return (
-    <div className="text-sm text-neutral-600 space-y-2">
-      <p>Voltar à página inicial para escolher outro modelo, ou salvar o documento atual como novo modelo.</p>
+    <div className="space-y-3">
+      <div>
+        <div className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-1">Modelos prontos</div>
+        <p className="text-[11px] text-neutral-500 mb-2">Escolha um design de partida. Você pode personalizar tudo depois.</p>
+      </div>
+      <div className="relative">
+        <Search className="absolute left-2 top-2.5 h-4 w-4 text-neutral-400" />
+        <Input placeholder="Buscar modelo..." className="pl-8" value={q} onChange={(e) => setQ(e.target.value)} />
+      </div>
+      <div className="grid grid-cols-1 gap-2.5">
+        {items.map((p) => {
+          const doc = useMemo(() => p.build(), []);
+          const scale = 280 / doc.page.width;
+          return (
+            <button
+              key={p.id}
+              onClick={() => applyPreset(p)}
+              className="text-left rounded-lg border border-neutral-200 hover:border-red-700 hover:shadow-sm transition overflow-hidden bg-white group"
+            >
+              <div className="relative w-full bg-neutral-100 overflow-hidden" style={{ height: doc.page.height * scale }}>
+                <div style={{ transform: `scale(${scale})`, transformOrigin: "top left", width: doc.page.width, height: doc.page.height }}>
+                  <CertificateRenderer doc={doc} />
+                </div>
+              </div>
+              <div className="px-3 py-2 flex items-center gap-2 border-t border-neutral-100">
+                <span className="inline-block h-2.5 w-2.5 rounded-full shrink-0" style={{ background: p.accent }} />
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-semibold text-neutral-900 truncate">{p.name}</div>
+                  <div className="text-[11px] text-neutral-500 truncate">{p.description}</div>
+                </div>
+              </div>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
