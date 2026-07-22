@@ -144,6 +144,7 @@ function StudentsPage() {
   const plansFn = useServerFn(listDojoPlans);
   const enrollFn = useServerFn(enrollStudentWithPlan);
   const bulkImportFn = useServerFn(bulkImportDojoStudents);
+  const addGradFn = useServerFn(addDojoGraduation);
   const { data: branding } = useDojoBranding();
   const [importOpen, setImportOpen] = useState(false);
   const [importRows, setImportRows] = useState<ParsedStudentRow[]>([]);
