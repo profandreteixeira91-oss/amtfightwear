@@ -28,44 +28,39 @@ const allModules = [
   "Suporte dedicado e atualizações contínuas",
 ];
 
-type Plan = {
-  name: string;
-  tagline: string;
+// Sugestões de precificação para um ÚNICO plano com todos os módulos inclusos.
+// Baseado em benchmark do mercado brasileiro (Tatame, Evo, W12, Pacto) considerando
+// que concorrentes cobram por módulos separados e o Dojo Manager entrega tudo incluso.
+type PriceSuggestion = {
+  label: string;
   price: number;
-  students: string;
+  positioning: string;
+  rationale: string;
   highlight?: boolean;
-  extras?: string[];
 };
 
-const plans: Plan[] = [
+const suggestions: PriceSuggestion[] = [
   {
-    name: "Starter",
-    tagline: "Para dojos começando a digitalizar",
-    price: 99,
-    students: "Até 50 alunos ativos",
-    extras: ["1 unidade", "1 modalidade principal", "Suporte por e-mail"],
+    label: "Entrada agressiva",
+    price: 149,
+    positioning: "Ganhar mercado rápido",
+    rationale:
+      "Abaixo dos concorrentes diretos. Ideal para os primeiros 6 meses, gerar volume, provar valor e coletar cases.",
   },
   {
-    name: "Pro",
-    tagline: "O plano preferido das academias",
-    price: 179,
-    students: "Até 150 alunos ativos",
+    label: "Preço recomendado",
+    price: 199,
+    positioning: "Valor justo × mercado",
+    rationale:
+      "Alinhado com Tatame/Evo básico, mas entregando 3× mais módulos. Melhor equilíbrio entre conversão e margem.",
     highlight: true,
-    extras: ["Até 2 unidades", "Modalidades ilimitadas", "Suporte prioritário via WhatsApp"],
   },
   {
-    name: "Elite",
-    tagline: "Para equipes em crescimento",
+    label: "Premium",
     price: 279,
-    students: "Até 300 alunos ativos",
-    extras: ["Até 5 unidades", "Onboarding assistido", "Gerente de conta"],
-  },
-  {
-    name: "Federação",
-    tagline: "Redes, franquias e federações",
-    price: 449,
-    students: "Alunos ilimitados",
-    extras: ["Unidades ilimitadas", "SLA dedicado", "API e integrações sob medida"],
+    positioning: "Posicionamento aspiracional",
+    rationale:
+      "Reflete o valor real da plataforma completa (AMT Pay, Store, Análise Individual). Para dojos que enxergam software como investimento.",
   },
 ];
 
@@ -73,102 +68,105 @@ export function Plans() {
   return (
     <Section
       id="planos"
-      eyebrow="Planos e preços"
-      title="Todos os módulos. Todos os planos."
-      description="Você escolhe pelo tamanho da sua academia — não pelos recursos. Cada plano inclui 100% da plataforma, com 14 dias grátis e sem taxa de setup."
+      eyebrow="Plano único · sem pegadinhas"
+      title="Um plano. Todos os módulos. Alunos ilimitados."
+      description="Sem faixas por volume, sem upsell, sem módulo pago à parte. Escolha a precificação que faz sentido para a sua estratégia de entrada no mercado."
       className="bg-white"
     >
       <FadeIn>
-        <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {plans.map((p) => (
+        <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
+          {suggestions.map((s) => (
             <div
-              key={p.name}
+              key={s.label}
               className={
-                p.highlight
+                s.highlight
                   ? "relative flex flex-col rounded-3xl border-2 border-[#C1121F] bg-[#111111] p-7 text-white shadow-[0_30px_60px_-25px_rgba(193,18,31,0.55)]"
                   : "relative flex flex-col rounded-3xl border border-[#111111]/10 bg-white p-7 text-[#111111] shadow-sm"
               }
             >
-              {p.highlight && (
+              {s.highlight && (
                 <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[#C1121F] px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow">
-                  <Sparkles className="mr-1 inline h-3 w-3" /> Mais escolhido
+                  <Sparkles className="mr-1 inline h-3 w-3" /> Recomendado
                 </span>
               )}
 
-              <div>
-                <h3 className={p.highlight ? "text-lg font-semibold text-white" : "text-lg font-semibold"}>
-                  {p.name}
-                </h3>
-                <p className={p.highlight ? "mt-1 text-sm text-white/60" : "mt-1 text-sm text-[#111111]/60"}>
-                  {p.tagline}
-                </p>
-              </div>
+              <p
+                className={
+                  s.highlight
+                    ? "text-[10px] font-bold uppercase tracking-wider text-white/70"
+                    : "text-[10px] font-bold uppercase tracking-wider text-[#C1121F]"
+                }
+              >
+                {s.label}
+              </p>
+              <h3 className={s.highlight ? "mt-2 text-lg font-semibold text-white" : "mt-2 text-lg font-semibold"}>
+                {s.positioning}
+              </h3>
 
               <div className="mt-5 flex items-baseline gap-1">
-                <span className={p.highlight ? "text-sm font-medium text-white/60" : "text-sm font-medium text-[#111111]/60"}>
+                <span className={s.highlight ? "text-sm font-medium text-white/60" : "text-sm font-medium text-[#111111]/60"}>
                   R$
                 </span>
-                <span className="text-5xl font-bold tracking-tight">{p.price}</span>
-                <span className={p.highlight ? "text-sm font-medium text-white/60" : "text-sm font-medium text-[#111111]/60"}>
+                <span className="text-5xl font-bold tracking-tight">{s.price}</span>
+                <span className={s.highlight ? "text-sm font-medium text-white/60" : "text-sm font-medium text-[#111111]/60"}>
                   /mês
                 </span>
               </div>
-              <p className={p.highlight ? "mt-1 text-xs text-white/50" : "mt-1 text-xs text-[#111111]/50"}>
+              <p className={s.highlight ? "mt-1 text-xs text-white/50" : "mt-1 text-xs text-[#111111]/50"}>
                 No plano anual · mensal +20%
               </p>
 
-              <div
-                className={
-                  p.highlight
-                    ? "mt-5 rounded-xl bg-white/10 px-3 py-2 text-sm font-semibold text-white"
-                    : "mt-5 rounded-xl bg-[#111111]/[0.04] px-3 py-2 text-sm font-semibold text-[#111111]"
-                }
-              >
-                {p.students}
-              </div>
+              <p className={s.highlight ? "mt-5 text-sm leading-relaxed text-white/80" : "mt-5 text-sm leading-relaxed text-[#111111]/70"}>
+                {s.rationale}
+              </p>
 
-              <ul className={p.highlight ? "mt-4 space-y-2 text-sm text-white/80" : "mt-4 space-y-2 text-sm text-[#111111]/80"}>
-                {p.extras?.map((e) => (
-                  <li key={e} className="flex items-start gap-2">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#C1121F]" />
-                    {e}
-                  </li>
-                ))}
-              </ul>
-
-              <Button
-                asChild
-                className={
-                  p.highlight
-                    ? "mt-6 w-full rounded-full bg-[#C1121F] text-white hover:bg-[#a30f1a]"
-                    : "mt-6 w-full rounded-full bg-[#111111] text-white hover:bg-[#111111]/90"
-                }
-              >
-                <a href="#cta">Testar 14 dias grátis</a>
-              </Button>
+              {s.highlight && (
+                <Button
+                  asChild
+                  className="mt-6 w-full rounded-full bg-[#C1121F] text-white hover:bg-[#a30f1a]"
+                >
+                  <a href="#cta">Testar 14 dias grátis</a>
+                </Button>
+              )}
             </div>
           ))}
         </div>
       </FadeIn>
 
       <FadeIn>
-        <div className="mx-auto mt-12 max-w-5xl rounded-3xl border border-[#111111]/10 bg-[#FAFAFA] p-8 md:p-10">
+        <div className="mx-auto mt-10 grid max-w-5xl gap-4 rounded-3xl border border-[#111111]/10 bg-[#FAFAFA] p-6 sm:grid-cols-2 md:grid-cols-4 md:p-8">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#111111]/50">Alunos</p>
+            <p className="mt-1 text-lg font-semibold">Ilimitados</p>
+          </div>
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#111111]/50">Unidades</p>
+            <p className="mt-1 text-lg font-semibold">Ilimitadas</p>
+          </div>
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#111111]/50">Modalidades</p>
+            <p className="mt-1 text-lg font-semibold">Ilimitadas</p>
+          </div>
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#C1121F]">AMT Pay</p>
+            <p className="mt-1 text-lg font-semibold">2% por transação</p>
+          </div>
+        </div>
+      </FadeIn>
+
+      <FadeIn>
+        <div className="mx-auto mt-8 max-w-5xl rounded-3xl border border-[#111111]/10 bg-white p-8 md:p-10">
           <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
             <div>
               <p className="text-xs font-bold uppercase tracking-wider text-[#C1121F]">
-                Tudo incluso em todos os planos
+                O que está incluso
               </p>
               <h3 className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">
-                Sem módulos pagos à parte. Sem upsell.
+                {allModules.length} módulos. Zero módulos pagos à parte.
               </h3>
               <p className="mt-2 max-w-2xl text-sm text-[#111111]/60">
-                A diferença entre os planos é apenas o volume de alunos e unidades. Todos os {allModules.length} módulos abaixo estão disponíveis desde o Starter.
+                Concorrentes cobram por módulo (financeiro, app, avaliações, loja). O Dojo Manager entrega tudo em um único preço, com 14 dias grátis e sem taxa de setup.
               </p>
-            </div>
-            <div className="rounded-2xl bg-white px-5 py-4 text-center shadow-sm ring-1 ring-[#111111]/5">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-[#111111]/50">AMT Pay</p>
-              <p className="mt-1 text-sm font-semibold">Taxa 2% por transação</p>
-              <p className="text-xs text-[#111111]/50">Split automático via Asaas</p>
             </div>
           </div>
 
