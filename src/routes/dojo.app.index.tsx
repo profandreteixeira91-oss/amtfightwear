@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { dojoFinanceOverview, listDojoStudents } from "@/lib/dojo/dojo.functions";
-import { BeltVisual } from "@/components/dojo/BeltVisual";
+import { BeltAuto } from "@/components/dojo/BeltSpecVisual";
 import { Users, TrendingUp, TrendingDown, Wallet, Award, UserPlus, QrCode, ClipboardList, ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/dojo/app/")({
