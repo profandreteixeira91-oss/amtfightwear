@@ -64,6 +64,9 @@ function LeadsPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkStage, setBulkStage] = useState<string>("");
   const focusedRowRef = useRef<HTMLTableRowElement | null>(null);
+  const [macroQueue, setMacroQueue] = useState<string[]>(() => getMacroQueue());
+  useEffect(() => subscribeMacroQueue(() => setMacroQueue(getMacroQueue())), []);
+  const macroSet = useMemo(() => new Set(macroQueue), [macroQueue]);
 
   const qc = useQueryClient();
   const fetchList = useServerFn(listLeads);
