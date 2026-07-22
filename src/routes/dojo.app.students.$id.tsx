@@ -220,8 +220,11 @@ function StudentDetail() {
   const whatsappLink = s.phone ? `https://wa.me/${String(s.phone).replace(/\D/g, "")}` : null;
   const emailLink = s.email ? `mailto:${s.email}` : null;
 
+  if (isChildRoute) return <Outlet />;
+
   return (
     <div className="space-y-4">
+
       {/* Barra topo */}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <Link to="/dojo/app/students" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
