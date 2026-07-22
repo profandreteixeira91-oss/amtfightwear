@@ -394,11 +394,11 @@ function MacroPage() {
     return false;
   }
 
-  // Loop automático: processa a fila respeitando cooldown e limites
+  // Loop automático: processa a fila respeitando cooldown e limites.
+  // Usa setTimeout explícito (imune a throttling de tab em background).
   useEffect(() => {
     if (!autoMode || autoBusy) return;
     if (!current || paused) return;
-    if (cooldownLeft > 0) return;
     if (sessionCount >= prefs.sessionCap || counter.count >= prefs.dailyCap) {
       setAutoMode(false);
       setAutoStatus("Limite atingido — modo automático desativado.");
@@ -409,21 +409,45 @@ function MacroPage() {
       toast.error("Instale a extensão para usar o modo automático.");
       return;
     }
+
+    // Se ainda estamos em cooldown, agenda o próximo disparo exatamente quando terminar.
+    const remaining = cooldownUntil ? cooldownUntil - Date.now() : 0;
+    if (remaining > 0) {
+      setAutoStatus(`Aguardando cooldown (${Math.ceil(remaining / 1000)}s)…`);
+      if (nextRunTimerRef.current) clearTimeout(nextRunTimerRef.current);
+      nextRunTimerRef.current = setTimeout(() => {
+        nextRunTimerRef.current = null;
+        // Força re-execução do efeito
+        setKick((k) => k + 1);
+      }, remaining + 150);
+      return;
+    }
+
     let cancelled = false;
+    const leadSnapshot = current;
+    const msgSnapshot = message;
     (async () => {
       setAutoBusy(true);
+      autoBusyRef.current = true;
       try {
-        await runOneAuto(current, message);
+        await runOneAuto(leadSnapshot, msgSnapshot);
       } finally {
         if (!cancelled) {
-          setAutoBusy(false);
           startCooldown();
+          setAutoBusy(false);
+          autoBusyRef.current = false;
+          // Garante um "kick" após liberar autoBusy para o próximo agendamento.
+          setTimeout(() => {
+            if (autoModeRef.current && !autoBusyRef.current) {
+              setKick((k) => k + 1);
+            }
+          }, 50);
         }
       }
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoMode, autoBusy, current?.id, cooldownLeft, paused, sessionCount, counter.count, extensionReady]);
+  }, [autoMode, autoBusy, current?.id, cooldownUntil, paused, sessionCount, counter.count, extensionReady, kick]);
 
   function downloadExtension() {
     fetch("/amt-macro-dm.zip")
