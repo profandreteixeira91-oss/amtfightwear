@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Printer, FileDown, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
+import { CertificateRenderer } from "@/components/dojo/certificates-studio/CertificateRenderer";
 
 export type CertificateField = {
   key: string; label?: string;
