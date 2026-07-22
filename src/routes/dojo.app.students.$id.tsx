@@ -54,11 +54,8 @@ function StudentDetail() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  // Esta rota é pai de sub-rotas (ex.: /analysis). Quando um filho estiver
-  // ativo, delega totalmente para o <Outlet /> em vez de renderizar a ficha.
-  if (pathname !== `/dojo/app/students/${id}`) {
-    return <Outlet />;
-  }
+  const isChildRoute = pathname !== `/dojo/app/students/${id}`;
+
 
 
   const getFn = useServerFn(getDojoStudent);
