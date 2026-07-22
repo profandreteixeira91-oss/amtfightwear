@@ -61,7 +61,7 @@ export function ChatWidget(props: ChatWidgetProps = {}) {
 
   // Hidrata cache local
   useEffect(() => {
-    const cached = loadCached();
+    const cached = loadCached(storageMsgs);
     if (cached.length) {
       setMessages(cached);
       lastSeenRef.current = cached[cached.length - 1]?.created_at ?? null;
@@ -69,18 +69,18 @@ export function ChatWidget(props: ChatWidgetProps = {}) {
       const greet: Msg = {
         id: "greet",
         role: "assistant",
-        text: "Olá! Sou o assistente da AMT Fight Wear. Como posso ajudar? Posso indicar produtos, tirar dúvidas sobre tamanhos, frete e pagamento. Se preferir, clique em \"Falar com atendente\" a qualquer momento. 🥋",
+        text: greeting,
         source: "bot",
         created_at: new Date().toISOString(),
       };
       setMessages([greet]);
     }
-  }, []);
+  }, [storageMsgs, greeting]);
 
   useEffect(() => {
-    saveCached(messages);
+    saveCached(storageMsgs, messages);
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages]);
+  }, [messages, storageMsgs]);
 
   // Polling — busca respostas do admin e status
   useEffect(() => {
