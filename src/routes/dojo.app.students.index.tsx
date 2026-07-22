@@ -12,6 +12,7 @@ import {
   listDojoPlans,
   enrollStudentWithPlan,
   bulkImportDojoStudents,
+  addDojoGraduation,
 } from "@/lib/dojo/dojo.functions";
 import { paymentMethodLabel, normalizePlanPaymentMethods } from "@/lib/dojo/payment-methods";
 import { getMyAsaasConfig } from "@/lib/asaas/asaas.functions";
@@ -66,6 +67,7 @@ type StudentForm = {
   unit_id: string | null;
   current_belt_id: string | null;
   current_degree: number | string;
+  modalities: Array<{ modality: string; belt_id: string; degree: number }>;
   status: "active" | "inactive" | "frozen";
   notes: string;
   photo_url: string | null;
@@ -130,6 +132,7 @@ const emptyForm: StudentForm = {
   image_rights_consent: false,
   terms_accepted: false,
   anamnesis: {},
+  modalities: [],
 };
 
 function StudentsPage() {
@@ -141,6 +144,7 @@ function StudentsPage() {
   const plansFn = useServerFn(listDojoPlans);
   const enrollFn = useServerFn(enrollStudentWithPlan);
   const bulkImportFn = useServerFn(bulkImportDojoStudents);
+  const addGradFn = useServerFn(addDojoGraduation);
   const { data: branding } = useDojoBranding();
   const [importOpen, setImportOpen] = useState(false);
   const [importRows, setImportRows] = useState<ParsedStudentRow[]>([]);
@@ -222,6 +226,14 @@ function StudentsPage() {
     setOpen(true);
   }
   function openEdit(s: any) {
+    const modalities: StudentForm["modalities"] = [];
+    if (s.current_belt_id) {
+      modalities.push({
+        modality: s.belt?.modality ?? "jiu-jitsu",
+        belt_id: s.current_belt_id,
+        degree: Number(s.current_degree ?? 0),
+      });
+    }
     setForm({
       ...emptyForm,
       ...s,
@@ -229,6 +241,7 @@ function StudentsPage() {
       anamnesis: s.anamnesis ?? {},
       medical_clearance_date: s.medical_clearance_date ?? "",
       birth_date: s.birth_date ?? "",
+      modalities,
     });
     setOpen(true);
   }
@@ -249,7 +262,16 @@ function StudentsPage() {
       return;
     }
     try {
-      const payload: any = { ...form, current_degree: Number(form.current_degree || 0) };
+      // Multi-modalidade: a primeira linha vira a faixa "principal" do aluno;
+      // as demais são registradas como graduações adicionais.
+      const validMods = (form.modalities ?? []).filter((m) => m.modality && m.belt_id);
+      const primary = validMods[0] ?? null;
+      const payload: any = {
+        ...form,
+        current_belt_id: primary?.belt_id ?? form.current_belt_id ?? null,
+        current_degree: Number(primary?.degree ?? form.current_degree ?? 0),
+      };
+      delete payload.modalities;
       const skip = new Set([
         "anamnesis", "status", "lgpd_consent", "image_rights_consent",
         "terms_accepted", "has_medical_clearance", "current_degree",
@@ -259,6 +281,27 @@ function StudentsPage() {
       });
       const saved: any = await saveFn({ data: payload });
       const studentId = saved?.id ?? form.id;
+
+      // Registrar graduações para modalidades adicionais (apenas em novo aluno)
+      if (isNew && studentId && validMods.length > 1) {
+        const today = new Date().toISOString().slice(0, 10);
+        for (const m of validMods.slice(1)) {
+          try {
+            await addGradFn({
+              data: {
+                student_id: studentId,
+                belt_id: m.belt_id,
+                degree: Number(m.degree ?? 0),
+                graduation_date: today,
+                evaluator: null,
+                notes: "Cadastro inicial (modalidade adicional)",
+              },
+            });
+          } catch (e: any) {
+            toast.error("Falha ao registrar modalidade adicional", { description: e?.message });
+          }
+        }
+      }
 
       if (isNew && studentId && enrollment.plan_id) {
         const customAmt = enrollment.custom_amount.trim() === "" ? null : Number(enrollment.custom_amount);
@@ -526,7 +569,7 @@ function StudentsPage() {
 
                 {/* ============ DOJO ============ */}
                 <TabsContent value="dojo" className="mt-4 grid gap-3 md:grid-cols-2">
-                  <Field label="Unidade">
+                  <Field label="Unidade" className="md:col-span-2">
                     <select
                       className="border rounded p-2 bg-background w-full"
                       value={form.unit_id ?? ""}
@@ -538,27 +581,118 @@ function StudentsPage() {
                       ))}
                     </select>
                   </Field>
-                  <Field label="Faixa atual">
-                    <select
-                      className="border rounded p-2 bg-background w-full"
-                      value={form.current_belt_id ?? ""}
-                      onChange={(e) => set("current_belt_id", e.target.value || null)}
-                    >
-                      <option value="">— Selecionar —</option>
-                      {(belts.data ?? []).map((b: any) => (
-                        <option key={b.id} value={b.id}>{b.name}</option>
-                      ))}
-                    </select>
-                  </Field>
-                  <Field label="Grau">
-                    <Input
-                      type="number"
-                      min={0}
-                      max={10}
-                      value={form.current_degree}
-                      onChange={(e) => set("current_degree", e.target.value)}
-                    />
-                  </Field>
+
+                  <div className="md:col-span-2 rounded-md border border-dashed p-3 space-y-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <div>
+                        <div className="text-sm font-semibold">Modalidades e faixas</div>
+                        <p className="text-[11px] text-muted-foreground">
+                          Selecione a modalidade e a faixa atual do aluno. Adicione linhas para cadastrar em mais de uma modalidade.
+                        </p>
+                      </div>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          const modalitiesAvail = Array.from(
+                            new Set(((belts.data ?? []) as any[]).map((b) => b.modality).filter(Boolean)),
+                          );
+                          const firstMod = form.modalities[0]?.modality ?? modalitiesAvail[0] ?? "jiu-jitsu";
+                          set("modalities", [
+                            ...form.modalities,
+                            { modality: firstMod, belt_id: "", degree: 0 },
+                          ]);
+                        }}
+                      >
+                        + Adicionar modalidade
+                      </Button>
+                    </div>
+
+                    {form.modalities.length === 0 && (
+                      <div className="text-xs text-muted-foreground border rounded p-3 bg-muted/40">
+                        Nenhuma modalidade selecionada. Clique em <strong>Adicionar modalidade</strong> para vincular a faixa atual do aluno.
+                      </div>
+                    )}
+
+                    {form.modalities.map((m, idx) => {
+                      const modalitiesAvail = Array.from(
+                        new Set(((belts.data ?? []) as any[]).map((b) => b.modality).filter(Boolean)),
+                      );
+                      const beltsForMod = ((belts.data ?? []) as any[])
+                        .filter((b) => b.modality === m.modality)
+                        .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+                      const selectedBelt = beltsForMod.find((b) => b.id === m.belt_id);
+                      const maxDeg = Number(selectedBelt?.max_degrees ?? 10);
+                      const update = (patch: Partial<typeof m>) => {
+                        const next = form.modalities.slice();
+                        next[idx] = { ...next[idx], ...patch };
+                        set("modalities", next);
+                      };
+                      return (
+                        <div key={idx} className="grid gap-2 md:grid-cols-12 items-end border rounded p-2 bg-background">
+                          <div className="md:col-span-4">
+                            <label className="text-[11px] text-muted-foreground">Modalidade</label>
+                            <select
+                              className="border rounded p-2 bg-background w-full"
+                              value={m.modality}
+                              onChange={(e) => update({ modality: e.target.value, belt_id: "" })}
+                            >
+                              {modalitiesAvail.map((mod) => (
+                                <option key={mod} value={mod}>{mod}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="md:col-span-5">
+                            <label className="text-[11px] text-muted-foreground">Graduação atual</label>
+                            <select
+                              className="border rounded p-2 bg-background w-full"
+                              value={m.belt_id}
+                              onChange={(e) => update({ belt_id: e.target.value, degree: 0 })}
+                            >
+                              <option value="">— Selecionar faixa —</option>
+                              {beltsForMod.map((b: any) => (
+                                <option key={b.id} value={b.id}>{b.name}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="md:col-span-2">
+                            <label className="text-[11px] text-muted-foreground">
+                              {selectedBelt ? degreeUnit(selectedBelt.modality) : "Grau"}
+                            </label>
+                            <Input
+                              type="number"
+                              min={0}
+                              max={maxDeg}
+                              value={m.degree}
+                              onChange={(e) => update({ degree: Number(e.target.value) || 0 })}
+                            />
+                          </div>
+                          <div className="md:col-span-1 flex justify-end">
+                            <Button
+                              type="button"
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => {
+                                const next = form.modalities.slice();
+                                next.splice(idx, 1);
+                                set("modalities", next);
+                              }}
+                              title="Remover"
+                            >
+                              <Trash2 className="h-4 w-4 text-red-600" />
+                            </Button>
+                          </div>
+                          {idx === 0 && form.modalities.length > 1 && (
+                            <p className="md:col-span-12 text-[11px] text-muted-foreground">
+                              A primeira modalidade é considerada a <strong>faixa principal</strong> do aluno e aparecerá no cabeçalho da ficha.
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+
                   <Field label="Status">
                     <select
                       className="border rounded p-2 bg-background w-full"
