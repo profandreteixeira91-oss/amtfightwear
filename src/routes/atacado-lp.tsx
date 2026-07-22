@@ -203,7 +203,9 @@ function BuyButton({
   href?: string;
 }) {
   const sizing =
-    size === "lg" ? "px-8 py-4 text-base md:px-10 md:py-5 md:text-lg" : "px-6 py-3 text-sm md:text-base";
+    size === "lg"
+      ? "h-14 px-8 text-[15px] md:h-[60px] md:px-10 md:text-base"
+      : "h-11 px-6 text-[13px] md:text-sm";
   return (
     <a
       href={href}
@@ -211,10 +213,11 @@ function BuyButton({
         trackCTA(`buy_${from}`);
         fbqTrack("InitiateCheckout", { source: from });
       }}
-      className={`group inline-flex items-center justify-center gap-2 rounded-lg bg-primary font-black uppercase tracking-wide text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/40 ${sizing} ${className}`}
+      className={`group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-primary font-bold tracking-tight text-primary-foreground shadow-[0_10px_30px_-10px_hsl(var(--primary)/0.6)] ring-1 ring-primary/60 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-12px_hsl(var(--primary)/0.7)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background active:translate-y-0 ${sizing} ${className}`}
     >
-      {label}
-      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1 md:h-5 md:w-5" />
+      <span className="absolute inset-0 bg-gradient-to-b from-white/15 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+      <span className="relative">{label}</span>
+      <ArrowRight className="relative h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 md:h-[18px] md:w-[18px]" />
     </a>
   );
 }
@@ -231,7 +234,9 @@ function WhatsAppButton({
   label?: string;
 }) {
   const sizing =
-    size === "lg" ? "px-8 py-4 text-base md:px-10 md:py-5 md:text-lg" : "px-6 py-3 text-sm md:text-base";
+    size === "lg"
+      ? "h-14 px-8 text-[15px] md:h-[60px] md:px-10 md:text-base"
+      : "h-11 px-6 text-[13px] md:text-sm";
   return (
     <a
       href={whatsappHref(from)}
@@ -241,9 +246,9 @@ function WhatsAppButton({
         trackCTA(`whatsapp_${from}`);
         fbqCustom("ClickWhatsApp", { source: from });
       }}
-      className={`inline-flex items-center justify-center gap-2 rounded-lg border-2 border-foreground/20 bg-background font-black uppercase tracking-wide text-foreground transition-all hover:-translate-y-0.5 hover:border-emerald-500/60 hover:bg-emerald-500/5 hover:text-emerald-600 ${sizing} ${className}`}
+      className={`group inline-flex items-center justify-center gap-2 rounded-full border border-border/70 bg-background/60 font-semibold tracking-tight text-foreground backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-500/60 hover:bg-emerald-500/5 hover:text-emerald-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background ${sizing} ${className}`}
     >
-      <MessageCircle className="h-4 w-4 md:h-5 md:w-5" />
+      <MessageCircle className="h-[18px] w-[18px] transition-transform duration-300 group-hover:scale-110" />
       {label}
     </a>
   );
@@ -261,6 +266,61 @@ function MetaPixelNoscript() {
         alt=""
       />
     </noscript>
+  );
+}
+
+// ============ Small primitives ============
+function EyebrowTag({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/[0.07] px-3.5 py-1.5 text-[10.5px] font-semibold uppercase tracking-[0.18em] text-primary">
+      {children}
+    </div>
+  );
+}
+
+function SectionHeading({
+  eyebrow,
+  title,
+  subtitle,
+  invert = false,
+}: {
+  eyebrow?: string;
+  title: React.ReactNode;
+  subtitle?: React.ReactNode;
+  invert?: boolean;
+}) {
+  return (
+    <div className="mx-auto mb-14 max-w-2xl text-center md:mb-20">
+      {eyebrow && (
+        <div className="mb-4 inline-flex">
+          <span
+            className={`inline-flex items-center rounded-full px-3.5 py-1.5 text-[10.5px] font-semibold uppercase tracking-[0.2em] ${
+              invert
+                ? "bg-white/10 text-white/80 ring-1 ring-white/15"
+                : "bg-primary/[0.08] text-primary ring-1 ring-primary/20"
+            }`}
+          >
+            {eyebrow}
+          </span>
+        </div>
+      )}
+      <h2
+        className={`text-balance text-[28px] font-semibold leading-[1.1] tracking-[-0.02em] sm:text-[36px] md:text-[44px] ${
+          invert ? "text-white" : "text-foreground"
+        }`}
+      >
+        {title}
+      </h2>
+      {subtitle && (
+        <p
+          className={`mx-auto mt-5 max-w-xl text-[15px] leading-relaxed md:text-base ${
+            invert ? "text-white/60" : "text-muted-foreground"
+          }`}
+        >
+          {subtitle}
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -297,26 +357,26 @@ function AtacadoLandingPage() {
   ];
 
   return (
-    <div className="min-h-screen scroll-smooth overflow-x-hidden bg-background text-foreground">
+    <div className="min-h-screen scroll-smooth overflow-x-hidden bg-background text-foreground antialiased [font-feature-settings:'ss01','cv11']">
       <MetaPixelNoscript />
 
       {/* HEADER FIXO */}
-      <header className="sticky top-0 z-40 border-b border-border/60 bg-background/90 backdrop-blur-md">
-        <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3">
-          <a href="#top" className="flex min-w-0 items-center gap-2">
+      <header className="sticky top-0 z-40 border-b border-border/50 bg-background/75 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
+        <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-5 py-3.5 lg:px-6">
+          <a href="#top" className="flex min-w-0 items-center gap-2.5">
             <img src={amtLogo} alt="AMT Fight Wear" className="h-9 w-auto shrink-0 rounded-md object-contain" />
-            <span className="truncate text-xs font-black uppercase tracking-widest sm:text-sm">
+            <span className="truncate text-[12.5px] font-semibold tracking-[0.02em] sm:text-sm">
               AMT Fight Wear
             </span>
           </a>
 
-          <div className="flex shrink-0 items-center gap-2">
-            <nav className="hidden md:flex md:items-center md:gap-5">
+          <div className="flex shrink-0 items-center gap-3">
+            <nav className="hidden md:flex md:items-center md:gap-7">
               {navLinks.map((l) => (
                 <a
                   key={l.href}
                   href={l.href}
-                  className="text-xs font-semibold uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground"
+                  className="relative text-[13px] font-medium text-muted-foreground transition-colors duration-200 hover:text-foreground"
                 >
                   {l.label}
                 </a>
@@ -329,26 +389,26 @@ function AtacadoLandingPage() {
               type="button"
               onClick={() => setMenuOpen((v) => !v)}
               aria-label="Abrir menu"
-              className="grid h-10 w-10 place-items-center rounded-md border border-border/60 md:hidden"
+              className="grid h-10 w-10 place-items-center rounded-full border border-border/60 transition-colors hover:bg-card md:hidden"
             >
-              {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {menuOpen ? <X className="h-4.5 w-4.5" /> : <Menu className="h-4.5 w-4.5" />}
             </button>
           </div>
         </div>
         {menuOpen && (
-          <div className="border-t border-border/60 bg-background md:hidden">
-            <nav className="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-3">
+          <div className="animate-fade-in border-t border-border/50 bg-background md:hidden">
+            <nav className="mx-auto flex max-w-6xl flex-col gap-1 px-5 py-4">
               {navLinks.map((l) => (
                 <a
                   key={l.href}
                   href={l.href}
                   onClick={() => setMenuOpen(false)}
-                  className="rounded-md px-3 py-2 text-sm font-semibold hover:bg-card"
+                  className="rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:bg-card"
                 >
                   {l.label}
                 </a>
               ))}
-              <div className="mt-2 grid grid-cols-1 gap-2 pt-2">
+              <div className="mt-3 grid grid-cols-1 gap-2 border-t border-border/50 pt-3">
                 <BuyButton from="mobile_menu" label="Comprar Faixas" href={FAIXAS_HREF} />
                 <WhatsAppButton from="mobile_menu" label="Solicitar Atendimento" />
               </div>
@@ -359,51 +419,64 @@ function AtacadoLandingPage() {
 
       {/* HERO */}
       <section id="top" className="relative overflow-hidden">
+        {/* Ambient background */}
         <div
-          className="absolute inset-0 -z-10 bg-cover bg-center opacity-[0.08]"
+          className="absolute inset-0 -z-10 bg-cover bg-center opacity-[0.05]"
           style={{ backgroundImage: `url(${f1})` }}
           aria-hidden
         />
+        <div
+          className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-[600px] w-[900px] -translate-x-1/2 rounded-full bg-primary/20 opacity-30 blur-[120px]"
+          aria-hidden
+        />
         <div className="absolute inset-0 -z-10 bg-gradient-to-b from-background via-background/95 to-background" />
-        <div className="mx-auto max-w-6xl px-4 py-12 md:py-20">
-          <div className="grid gap-10 md:grid-cols-2 md:items-center">
+
+        <div className="mx-auto max-w-6xl px-5 py-16 md:py-24 lg:px-6 lg:py-32">
+          <div className="grid gap-14 md:grid-cols-2 md:items-center md:gap-10 lg:gap-16">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             >
-              <div className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-[11px] font-black uppercase tracking-widest text-primary">
-                <Factory className="h-3.5 w-3.5" /> Fabricação própria · Direto da fábrica
-              </div>
-              <h1 className="mt-4 text-3xl font-black leading-[1.05] tracking-tight sm:text-4xl md:text-5xl lg:text-[3.4rem]">
+              <EyebrowTag>
+                <Factory className="h-3 w-3" /> Fabricação própria · Direto da fábrica
+              </EyebrowTag>
+
+              <h1 className="mt-6 text-balance text-[38px] font-semibold leading-[1.02] tracking-[-0.025em] sm:text-[46px] md:text-[54px] lg:text-[64px]">
                 Equipe sua academia com produtos{" "}
-                <span className="text-primary">personalizados de fabricação própria</span>.
+                <span className="bg-gradient-to-br from-primary to-primary/70 bg-clip-text text-transparent">
+                  personalizados de fabricação própria
+                </span>
+                <span className="text-primary">.</span>
               </h1>
-              <p className="mt-4 max-w-lg text-sm text-muted-foreground sm:text-base md:text-lg">
+
+              <p className="mt-6 max-w-lg text-[15px] leading-relaxed text-muted-foreground md:text-lg">
                 Faixas, Kimonos e Patches personalizados para academias de Jiu-Jitsu e Judô.
               </p>
 
               {/* Bloco de oferta */}
-              <div className="mt-6 flex items-stretch overflow-hidden rounded-xl border-2 border-primary/60 bg-gradient-to-r from-primary/15 via-primary/5 to-transparent shadow-lg shadow-primary/10">
-                <div className="grid shrink-0 place-items-center bg-primary px-4 py-3 text-primary-foreground">
+              <div className="mt-8 flex items-stretch overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/[0.08] via-primary/[0.04] to-transparent shadow-[0_20px_50px_-25px_hsl(var(--primary)/0.35)] ring-1 ring-primary/10">
+                <div className="grid shrink-0 place-items-center bg-primary px-5 py-4 text-primary-foreground">
                   <span className="text-2xl md:text-3xl">🥋</span>
                 </div>
-                <div className="flex min-w-0 flex-1 items-center gap-3 px-4 py-3">
-                  <div className="text-3xl font-black leading-none text-primary md:text-4xl">25% OFF</div>
-                  <div className="text-xs leading-tight text-foreground/85 sm:text-sm">
-                    em pedidos acima de <b>10 unidades</b>
+                <div className="flex min-w-0 flex-1 items-center gap-4 px-5 py-4">
+                  <div className="text-[32px] font-semibold leading-none tracking-tight text-primary md:text-[38px]">
+                    25% OFF
+                  </div>
+                  <div className="text-[13px] leading-tight text-foreground/80 sm:text-sm">
+                    em pedidos acima de <b className="font-semibold text-foreground">10 unidades</b>
                     <br className="hidden sm:block" /> do mesmo modelo.
                   </div>
                 </div>
               </div>
 
               {/* CTAs */}
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <BuyButton from="hero" size="lg" label="Comprar Faixas" href={FAIXAS_HREF} className="w-full sm:w-auto" />
                 <WhatsAppButton from="hero" size="lg" label="Solicitar Atendimento" className="w-full sm:w-auto" />
               </div>
 
-              <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
+              <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12.5px] text-muted-foreground">
                 <span className="inline-flex items-center gap-1.5">
                   <ShieldCheck className="h-4 w-4 text-emerald-500" /> Pagamento seguro
                 </span>
@@ -417,32 +490,38 @@ function AtacadoLandingPage() {
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
+              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
               className="relative"
             >
-              <div className="relative overflow-hidden rounded-2xl border border-border/60 shadow-2xl">
+              {/* Soft glow behind image */}
+              <div
+                className="pointer-events-none absolute -inset-6 -z-10 rounded-[2rem] bg-gradient-to-br from-primary/20 via-primary/5 to-transparent blur-2xl"
+                aria-hidden
+              />
+              <div className="group relative overflow-hidden rounded-[1.75rem] border border-border/60 shadow-2xl ring-1 ring-black/5">
                 <img
                   src={f1}
                   alt="Faixas personalizadas AMT Fight Wear"
-                  className="h-full w-full object-cover"
+                  className="h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.03]"
                   fetchPriority="high"
                 />
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-black/25 via-transparent to-transparent" />
                 <motion.div
                   initial={{ scale: 0, rotate: -20 }}
                   animate={{ scale: 1, rotate: -8 }}
-                  transition={{ delay: 0.4, type: "spring", stiffness: 180, damping: 12 }}
+                  transition={{ delay: 0.5, type: "spring", stiffness: 180, damping: 12 }}
                   className="absolute -left-3 -top-3 md:-left-6 md:-top-6"
                 >
                   <div className="relative">
                     <div className="absolute inset-0 animate-ping rounded-full bg-primary/40" />
-                    <div className="relative flex h-24 w-24 flex-col items-center justify-center rounded-full bg-gradient-to-br from-primary via-primary to-primary/80 text-primary-foreground shadow-[0_0_40px_hsl(var(--primary)/0.6)] ring-4 ring-background md:h-36 md:w-36">
-                      <span className="text-[9px] font-bold uppercase tracking-widest opacity-90 md:text-xs">
+                    <div className="relative flex h-24 w-24 flex-col items-center justify-center rounded-full bg-gradient-to-br from-primary via-primary to-primary/80 text-primary-foreground shadow-[0_0_50px_hsl(var(--primary)/0.55)] ring-4 ring-background md:h-36 md:w-36">
+                      <span className="text-[9px] font-semibold uppercase tracking-[0.2em] opacity-90 md:text-[11px]">
                         Atacado
                       </span>
-                      <span className="text-3xl font-black leading-none md:text-5xl">25%</span>
-                      <span className="text-xs font-black uppercase tracking-wider md:text-base">OFF</span>
+                      <span className="text-[32px] font-semibold leading-none tracking-tight md:text-[52px]">25%</span>
+                      <span className="text-xs font-bold uppercase tracking-[0.2em] md:text-sm">OFF</span>
                     </div>
                   </div>
                 </motion.div>
@@ -454,10 +533,12 @@ function AtacadoLandingPage() {
 
       {/* BARRA DE BENEFÍCIOS */}
       <section className="border-y border-border/60 bg-foreground text-background">
-        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-3 px-4 py-4 sm:grid-cols-4 md:gap-6">
+        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-4 px-5 py-5 sm:grid-cols-4 md:gap-8 md:py-6 lg:px-6">
           {benefits.map((b) => (
-            <div key={b} className="flex items-center gap-2 text-xs font-semibold sm:text-sm">
-              <CheckCircle2 className="h-4 w-4 shrink-0 text-primary" />
+            <div key={b} className="flex items-center gap-2.5 text-[12.5px] font-medium tracking-tight sm:text-sm">
+              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-primary/15 ring-1 ring-primary/30">
+                <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
+              </span>
               <span className="min-w-0">{b}</span>
             </div>
           ))}
@@ -465,45 +546,48 @@ function AtacadoLandingPage() {
       </section>
 
       {/* PRODUTOS */}
-      <section id="produtos" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-14 md:py-20">
-        <div className="mb-10 text-center">
-          <h2 className="text-2xl font-black tracking-tight md:text-4xl">
-            Nossos produtos <span className="text-primary">personalizados</span>
-          </h2>
-          <p className="mt-2 text-sm text-muted-foreground md:text-base">
-            Fabricação própria com identidade da sua academia em cada peça.
-          </p>
-        </div>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <section id="produtos" className="mx-auto max-w-6xl scroll-mt-24 px-5 py-20 md:py-28 lg:px-6">
+        <SectionHeading
+          eyebrow="Catálogo"
+          title={
+            <>
+              Nossos produtos <span className="text-primary">personalizados</span>
+            </>
+          }
+          subtitle="Fabricação própria com identidade da sua academia em cada peça."
+        />
+
+        <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
           {products.map((p, i) => (
             <motion.article
               key={p.id}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: i * 0.08 }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.5, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
               onViewportEnter={() => trackViewContent(p.name)}
-              className="group flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl"
+              className="group relative flex flex-col overflow-hidden rounded-3xl border border-border/60 bg-card/40 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all duration-500 hover:-translate-y-1.5 hover:border-primary/30 hover:shadow-[0_30px_60px_-25px_rgba(0,0,0,0.15)]"
             >
               <div className="relative aspect-[4/3] overflow-hidden bg-muted">
                 <img
                   src={p.image}
                   alt={p.name}
                   loading="lazy"
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.06]"
                 />
-                <div className="absolute left-3 top-3 rounded-full bg-primary px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-primary-foreground">
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                <div className="absolute left-4 top-4 inline-flex items-center rounded-full bg-primary px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-primary-foreground shadow-md ring-1 ring-primary/40">
                   25% OFF
                 </div>
               </div>
-              <div className="flex flex-1 flex-col p-5">
-                <h3 className="text-lg font-black">{p.name}</h3>
-                <p className="mt-1.5 flex-1 text-sm text-muted-foreground">{p.desc}</p>
-                <div className="mt-4 grid grid-cols-2 gap-2">
+              <div className="flex flex-1 flex-col p-6 md:p-7">
+                <h3 className="text-[19px] font-semibold tracking-[-0.01em] md:text-xl">{p.name}</h3>
+                <p className="mt-2 flex-1 text-[14.5px] leading-relaxed text-muted-foreground">{p.desc}</p>
+                <div className="mt-6 grid grid-cols-2 gap-2.5">
                   <Link
                     to={p.href}
                     onClick={() => trackCTA(`view_${p.id}`)}
-                    className="inline-flex items-center justify-center gap-1 rounded-md border border-border/70 px-3 py-2 text-xs font-bold uppercase tracking-wide transition-colors hover:border-foreground/50 hover:bg-background"
+                    className="inline-flex h-11 items-center justify-center gap-1 rounded-full border border-border/70 bg-background px-4 text-[12px] font-semibold tracking-tight transition-all duration-200 hover:-translate-y-0.5 hover:border-foreground/40 hover:bg-card"
                   >
                     Ver Produto
                   </Link>
@@ -513,7 +597,7 @@ function AtacadoLandingPage() {
                       trackCTA(`buy_${p.id}`);
                       fbqTrack("AddToCart", { content_name: p.name, content_category: "atacado" });
                     }}
-                    className="inline-flex items-center justify-center gap-1 rounded-md bg-primary px-3 py-2 text-xs font-black uppercase tracking-wide text-primary-foreground transition-transform hover:-translate-y-0.5"
+                    className="inline-flex h-11 items-center justify-center gap-1 rounded-full bg-primary px-4 text-[12px] font-semibold tracking-tight text-primary-foreground shadow-md shadow-primary/25 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/35"
                   >
                     Comprar
                   </Link>
@@ -525,32 +609,33 @@ function AtacadoLandingPage() {
       </section>
 
       {/* POR QUE A AMT */}
-      <section className="border-y border-border/60 bg-card/40">
-        <div className="mx-auto max-w-6xl px-4 py-14 md:py-20">
-          <div className="mb-10 text-center">
-            <h2 className="text-2xl font-black tracking-tight md:text-4xl">
-              Por que escolher a <span className="text-primary">AMT Fight Wear</span>
-            </h2>
-            <p className="mt-2 text-sm text-muted-foreground md:text-base">
-              Fábrica nacional pensada para academias sérias.
-            </p>
-          </div>
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <section className="border-y border-border/60 bg-gradient-to-b from-card/30 to-card/60">
+        <div className="mx-auto max-w-6xl px-5 py-20 md:py-28 lg:px-6">
+          <SectionHeading
+            eyebrow="Diferenciais"
+            title={
+              <>
+                Por que escolher a <span className="text-primary">AMT Fight Wear</span>
+              </>
+            }
+            subtitle="Fábrica nacional pensada para academias sérias."
+          />
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
             {whyUs.map((w, i) => (
               <motion.div
                 key={w.title}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: i * 0.06 }}
-                className="flex gap-4 rounded-xl border border-border/60 bg-background p-5"
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.5, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
+                className="group relative flex gap-4 rounded-2xl border border-border/60 bg-background/80 p-6 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/25 hover:bg-background hover:shadow-lg"
               >
-                <div className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/20">
-                  <w.icon className="h-5 w-5" />
+                <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 text-primary ring-1 ring-primary/20 transition-transform duration-300 group-hover:scale-110">
+                  <w.icon className="h-5 w-5" strokeWidth={2} />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="text-base font-black">{w.title}</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">{w.desc}</p>
+                  <h3 className="text-[15.5px] font-semibold tracking-tight">{w.title}</h3>
+                  <p className="mt-1.5 text-[14px] leading-relaxed text-muted-foreground">{w.desc}</p>
                 </div>
               </motion.div>
             ))}
@@ -559,88 +644,102 @@ function AtacadoLandingPage() {
       </section>
 
       {/* PERSONALIZAÇÃO — 4 PASSOS */}
-      <section id="personalizacao" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-14 md:py-20">
-        <div className="mb-10 text-center">
-          <h2 className="text-2xl font-black tracking-tight md:text-4xl">
-            Como funciona a <span className="text-primary">personalização</span>
-          </h2>
-          <p className="mt-2 text-sm text-muted-foreground md:text-base">
-            Em 4 passos simples, do envio da arte à entrega na sua academia.
-          </p>
+      <section id="personalizacao" className="mx-auto max-w-6xl scroll-mt-24 px-5 py-20 md:py-28 lg:px-6">
+        <SectionHeading
+          eyebrow="Processo"
+          title={
+            <>
+              Como funciona a <span className="text-primary">personalização</span>
+            </>
+          }
+          subtitle="Em 4 passos simples, do envio da arte à entrega na sua academia."
+        />
+
+        {/* Steps with connecting line on desktop */}
+        <div className="relative">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute left-[calc(12.5%)] right-[calc(12.5%)] top-[46px] hidden h-px bg-gradient-to-r from-transparent via-border to-transparent lg:block"
+          />
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+            {steps.map((s, i) => (
+              <motion.div
+                key={s.n}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.5, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+                className="group relative flex flex-col rounded-2xl border border-border/60 bg-card/50 p-6 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/25 hover:bg-card hover:shadow-lg"
+              >
+                <div className="mb-5 grid h-12 w-12 place-items-center rounded-full border border-primary/25 bg-background text-[13px] font-semibold tracking-[0.05em] text-primary shadow-sm">
+                  {s.n}
+                </div>
+                <h3 className="text-[15.5px] font-semibold tracking-tight">{s.title}</h3>
+                <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">{s.desc}</p>
+              </motion.div>
+            ))}
+          </div>
         </div>
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {steps.map((s, i) => (
-            <motion.div
-              key={s.n}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: i * 0.08 }}
-              className="relative rounded-xl border border-border/60 bg-card p-5"
-            >
-              <div className="absolute right-4 top-3 text-4xl font-black text-primary/15">{s.n}</div>
-              <h3 className="text-base font-black">{s.title}</h3>
-              <p className="mt-1.5 text-sm text-muted-foreground">{s.desc}</p>
-            </motion.div>
-          ))}
-        </div>
-        <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+
+        <div className="mt-14 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <BuyButton from="personalizacao" size="lg" label="Personalizar Agora" />
           <WhatsAppButton from="personalizacao" size="lg" label="Falar com Especialista" />
         </div>
       </section>
 
       {/* QUALIDADE + GALERIA */}
-      <section id="qualidade" className="scroll-mt-20 border-y border-border/60 bg-foreground text-background">
-        <div className="mx-auto max-w-6xl px-4 py-14 md:py-20">
-          <div className="mb-10 text-center">
-            <h2 className="text-2xl font-black tracking-tight md:text-4xl">
-              Qualidade que <span className="text-primary">se vê e se sente</span>
-            </h2>
-            <p className="mt-2 text-sm text-background/70 md:text-base">
-              Cada detalhe é pensado para durar temporadas inteiras de treino.
-            </p>
-          </div>
+      <section id="qualidade" className="scroll-mt-24 border-y border-border/60 bg-foreground text-background">
+        <div className="mx-auto max-w-6xl px-5 py-20 md:py-28 lg:px-6">
+          <SectionHeading
+            eyebrow="Qualidade"
+            title={
+              <>
+                Qualidade que <span className="text-primary">se vê e se sente</span>
+              </>
+            }
+            subtitle="Cada detalhe é pensado para durar temporadas inteiras de treino."
+            invert
+          />
 
-          <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
-            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+          <div className="grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-16">
+            <div className="grid grid-cols-2 gap-3.5 sm:gap-4">
               {galleryImages.slice(0, 4).map((src, i) => (
                 <motion.div
                   key={i}
                   initial={{ opacity: 0, scale: 0.95 }}
                   whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: i * 0.06 }}
-                  className="overflow-hidden rounded-xl border border-background/10 shadow-lg"
+                  viewport={{ once: true, margin: "-60px" }}
+                  transition={{ duration: 0.5, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+                  className="group overflow-hidden rounded-2xl border border-white/10 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.5)] ring-1 ring-white/5"
                 >
-                  <div className="aspect-square overflow-hidden bg-background/5">
+                  <div className="aspect-square overflow-hidden bg-white/5">
                     <img
                       src={src}
                       alt={`Detalhe de produção AMT ${i + 1}`}
                       loading="lazy"
-                      className="h-full w-full object-cover"
+                      className="h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.06]"
                     />
                   </div>
                 </motion.div>
               ))}
             </div>
 
-            <ul className="grid list-none gap-4 pl-0">
+            <ul className="grid list-none gap-3.5 pl-0">
               {qualityPoints.map((q, i) => (
                 <motion.li
                   key={q.title}
-                  initial={{ opacity: 0, x: 20 }}
+                  initial={{ opacity: 0, x: 24 }}
                   whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: i * 0.06 }}
-                  className="flex gap-4 rounded-xl border border-background/10 bg-background/5 p-4"
+                  viewport={{ once: true, margin: "-60px" }}
+                  transition={{ duration: 0.5, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+                  className="group flex gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/30 hover:bg-white/[0.07]"
                 >
-                  <div className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-primary/20 text-primary ring-1 ring-primary/40">
-                    <q.icon className="h-5 w-5" />
+                  <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary/20 text-primary ring-1 ring-primary/40 transition-transform duration-300 group-hover:scale-110">
+                    <q.icon className="h-5 w-5" strokeWidth={2} />
                   </div>
                   <div className="min-w-0">
-                    <div className="text-base font-black">{q.title}</div>
-                    <div className="mt-1 text-sm text-background/70">{q.desc}</div>
+                    <div className="text-[15.5px] font-semibold tracking-tight">{q.title}</div>
+                    <div className="mt-1.5 text-[14px] leading-relaxed text-white/65">{q.desc}</div>
                   </div>
                 </motion.li>
               ))}
@@ -652,33 +751,35 @@ function AtacadoLandingPage() {
       {/* PARA ACADEMIAS */}
       <section className="relative overflow-hidden">
         <div
-          className="absolute inset-0 -z-10 bg-cover bg-center opacity-10"
+          className="absolute inset-0 -z-10 bg-cover bg-center opacity-[0.07]"
           style={{ backgroundImage: `url(${f5})` }}
           aria-hidden
         />
+        <div
+          className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[500px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/15 opacity-30 blur-[120px]"
+          aria-hidden
+        />
         <div className="absolute inset-0 -z-10 bg-gradient-to-b from-background via-background/95 to-background" />
-        <div className="mx-auto max-w-4xl px-4 py-14 text-center md:py-20">
-          <div className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-[11px] font-black uppercase tracking-widest text-primary">
-            Para academias e equipes
-          </div>
-          <h2 className="mt-4 text-3xl font-black tracking-tight md:text-5xl">
+        <div className="mx-auto max-w-4xl px-5 py-20 text-center md:py-28 lg:px-6">
+          <EyebrowTag>Para academias e equipes</EyebrowTag>
+          <h2 className="mt-6 text-balance text-[32px] font-semibold leading-[1.05] tracking-[-0.025em] sm:text-[42px] md:text-[54px]">
             Sua academia merece uma <span className="text-primary">identidade forte</span>.
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-sm text-muted-foreground md:text-lg">
+          <p className="mx-auto mt-6 max-w-2xl text-[15px] leading-relaxed text-muted-foreground md:text-lg">
             Personalizamos faixas, kimonos e patches para fortalecer a identidade visual da sua equipe —
             do detalhe da etiqueta ao bordado do nome de cada aluno.
           </p>
-          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
               to="/loja/atacado"
               onClick={() => {
                 trackCTA("equip_academy");
                 fbqTrack("InitiateCheckout", { source: "equip_academy" });
               }}
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-8 py-4 text-base font-black uppercase tracking-wide text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:-translate-y-0.5 md:px-10 md:py-5 md:text-lg"
+              className="group inline-flex h-14 items-center justify-center gap-2 rounded-full bg-primary px-8 text-[15px] font-bold tracking-tight text-primary-foreground shadow-[0_15px_40px_-15px_hsl(var(--primary)/0.7)] ring-1 ring-primary/60 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_22px_50px_-15px_hsl(var(--primary)/0.8)] md:h-[60px] md:px-10 md:text-base"
             >
               Equipar Minha Academia
-              <ArrowRight className="h-5 w-5" />
+              <ArrowRight className="h-[18px] w-[18px] transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
             <WhatsAppButton from="equip_academy" size="lg" label="Solicitar Atendimento" />
           </div>
@@ -686,67 +787,69 @@ function AtacadoLandingPage() {
       </section>
 
       {/* PROVA SOCIAL — estrutura pronta */}
-      <section className="border-y border-border/60 bg-card/40">
-        <div className="mx-auto max-w-6xl px-4 py-14 md:py-20">
-          <div className="mb-10 text-center">
-            <h2 className="text-2xl font-black tracking-tight md:text-4xl">
-              Academias que já confiam na <span className="text-primary">AMT</span>
-            </h2>
-            <p className="mt-2 text-sm text-muted-foreground md:text-base">
-              Novos depoimentos verificados serão publicados aqui em breve.
-            </p>
-          </div>
+      <section className="border-y border-border/60 bg-gradient-to-b from-card/30 to-card/60">
+        <div className="mx-auto max-w-6xl px-5 py-20 md:py-28 lg:px-6">
+          <SectionHeading
+            eyebrow="Prova social"
+            title={
+              <>
+                Academias que já confiam na <span className="text-primary">AMT</span>
+              </>
+            }
+            subtitle="Novos depoimentos verificados serão publicados aqui em breve."
+          />
           <div className="grid gap-6 md:grid-cols-3">
             {[0, 1, 2].map((i) => (
               <div
                 key={i}
-                className="flex flex-col rounded-xl border border-dashed border-border/70 bg-background p-6 text-center"
+                className="flex flex-col rounded-2xl border border-dashed border-border/70 bg-background/80 p-8 text-center transition-colors hover:border-primary/30"
               >
-                <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-muted text-muted-foreground">
-                  <Star className="h-6 w-6" />
+                <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-primary/10 text-primary ring-1 ring-primary/20">
+                  <Star className="h-5 w-5" />
                 </div>
-                <div className="mt-4 text-sm font-semibold text-muted-foreground">
+                <div className="mt-5 text-[14px] font-medium text-muted-foreground">
                   Espaço reservado para depoimento
                 </div>
-                <div className="mt-1 text-xs text-muted-foreground/70">
+                <div className="mt-1.5 text-[12px] text-muted-foreground/70">
                   Foto · Nome · Academia · Avaliação
                 </div>
               </div>
             ))}
           </div>
-          <div className="mt-8 flex justify-center">
+          <div className="mt-10 flex justify-center">
             <BuyButton from="social_proof" label="Quero fazer parte" />
           </div>
         </div>
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="scroll-mt-20 bg-background">
-        <div className="mx-auto max-w-3xl px-4 py-14 md:py-20">
-          <div className="mb-8 text-center">
-            <h2 className="text-2xl font-black tracking-tight md:text-4xl">Perguntas frequentes</h2>
-            <p className="mt-2 text-sm text-muted-foreground md:text-base">
-              Tudo o que você precisa saber antes de comprar no atacado.
-            </p>
-          </div>
+      <section id="faq" className="scroll-mt-24 bg-background">
+        <div className="mx-auto max-w-3xl px-5 py-20 md:py-28 lg:px-6">
+          <SectionHeading
+            eyebrow="Suporte"
+            title="Perguntas frequentes"
+            subtitle="Tudo o que você precisa saber antes de comprar no atacado."
+          />
           <div className="space-y-3">
             {faqs.map((item, i) => {
               const open = openFaq === i;
               return (
                 <div
                   key={item.q}
-                  className="overflow-hidden rounded-xl border border-border/60 bg-card"
+                  className={`overflow-hidden rounded-2xl border bg-card/50 transition-all duration-300 ${
+                    open ? "border-primary/30 bg-card shadow-[0_8px_24px_-16px_rgba(0,0,0,0.15)]" : "border-border/60 hover:border-border"
+                  }`}
                 >
                   <button
                     onClick={() => {
                       setOpenFaq(open ? null : i);
                       if (!open) fbqCustom("FAQ_Open", { question: item.q });
                     }}
-                    className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition-colors hover:bg-card/60"
+                    className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left transition-colors"
                   >
-                    <span className="text-sm font-bold md:text-base">{item.q}</span>
+                    <span className="text-[14.5px] font-semibold tracking-tight md:text-[15.5px]">{item.q}</span>
                     <span
-                      className={`grid h-6 w-6 shrink-0 place-items-center rounded-full bg-primary/10 text-primary transition-transform ${
+                      className={`grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary/10 text-primary transition-transform duration-300 ${
                         open ? "rotate-45" : ""
                       }`}
                       aria-hidden
@@ -754,7 +857,11 @@ function AtacadoLandingPage() {
                       +
                     </span>
                   </button>
-                  {open && <div className="px-5 pb-5 text-sm text-muted-foreground">{item.a}</div>}
+                  {open && (
+                    <div className="animate-fade-in px-6 pb-6 text-[14px] leading-relaxed text-muted-foreground">
+                      {item.a}
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -764,19 +871,26 @@ function AtacadoLandingPage() {
 
       {/* CTA FINAL */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 -z-10 bg-gradient-to-br from-primary/25 via-background to-background" />
-        <div className="mx-auto max-w-3xl px-4 py-16 text-center md:py-24">
-          <h2 className="text-3xl font-black tracking-tight md:text-5xl">
+        <div
+          className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-br from-primary/25 via-background to-background"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-[600px] w-[900px] -translate-x-1/2 rounded-full bg-primary/25 opacity-40 blur-[120px]"
+          aria-hidden
+        />
+        <div className="mx-auto max-w-3xl px-5 py-24 text-center md:py-32 lg:px-6">
+          <h2 className="text-balance text-[32px] font-semibold leading-[1.05] tracking-[-0.025em] sm:text-[42px] md:text-[54px]">
             Pronto para <span className="text-primary">equipar sua academia</span>?
           </h2>
-          <p className="mx-auto mt-4 max-w-xl text-sm text-muted-foreground md:text-lg">
+          <p className="mx-auto mt-6 max-w-xl text-[15px] leading-relaxed text-muted-foreground md:text-lg">
             Solicite agora mesmo seu pedido com desconto exclusivo para atacado.
           </p>
-          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <BuyButton from="final_cta" size="lg" />
             <WhatsAppButton from="final_cta" size="lg" />
           </div>
-          <p className="mt-6 text-xs text-muted-foreground">
+          <p className="mt-8 text-[12.5px] text-muted-foreground">
             25% OFF acima de 10 unidades · Pagamento 100% seguro · Envio para todo o Brasil
           </p>
         </div>
@@ -784,8 +898,8 @@ function AtacadoLandingPage() {
 
       {/* FOOTER */}
       <footer className="border-t border-border/60 bg-card/40 pb-24 sm:pb-6">
-        <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 px-4 py-6 text-center text-xs text-muted-foreground sm:flex-row sm:justify-between sm:text-left">
-          <div className="flex items-center gap-2">
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 px-5 py-8 text-center text-[12px] text-muted-foreground sm:flex-row sm:justify-between sm:text-left lg:px-6">
+          <div className="flex items-center gap-2.5">
             <img src={amtLogo} alt="AMT Fight Wear" className="h-6 w-auto rounded object-contain" />
             <span>© {new Date().getFullYear()} AMT Fight Wear · Fábrica nacional de artigos esportivos</span>
           </div>
@@ -802,7 +916,7 @@ function AtacadoLandingPage() {
           fbqCustom("ClickWhatsApp", { source: "float" });
         }}
         aria-label="Falar no WhatsApp"
-        className="fixed right-4 z-50 flex items-center gap-2 rounded-full bg-[#25D366] px-4 py-3 text-white shadow-lg shadow-emerald-500/30 transition-transform hover:scale-105 sm:right-6"
+        className="fixed right-4 z-50 flex items-center gap-2 rounded-full bg-[#25D366] px-4 py-3 text-white shadow-lg shadow-emerald-500/30 ring-1 ring-emerald-400/40 transition-transform duration-300 hover:scale-105 sm:right-6"
         style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 80px)" }}
       >
         <span className="relative flex h-6 w-6 items-center justify-center">
@@ -813,8 +927,8 @@ function AtacadoLandingPage() {
       </a>
 
       {/* MOBILE STICKY BAR */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border/60 bg-background/95 backdrop-blur-md sm:hidden">
-        <div className="px-3 py-2" style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 8px)" }}>
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border/60 bg-background/95 backdrop-blur-xl sm:hidden">
+        <div className="px-3 py-2.5" style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 10px)" }}>
           <BuyButton from="sticky_mobile" label="Comprar Faixas" href={FAIXAS_HREF} className="w-full" />
         </div>
       </div>
