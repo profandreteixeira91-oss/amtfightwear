@@ -164,28 +164,65 @@ function StoreHomePage() {
             }
           />
           <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-6">
-            {topCategories.map((c, idx) => (
-              <Link
-                key={c.slug}
-                to="/loja/categoria/$slug"
-                params={{ slug: c.slug }}
-                className="group relative flex aspect-[4/5] flex-col justify-end overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-neutral-100 via-neutral-50 to-white p-5 transition-all duration-500 hover:-translate-y-1 hover:border-foreground/20 hover:shadow-[0_18px_40px_-16px_rgba(0,0,0,0.25)]"
-              >
-                <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_80%_at_100%_0%,rgba(220,38,38,0.10),transparent_60%)] opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-                <div className="absolute right-4 top-4 text-[10px] font-bold tracking-[0.28em] text-muted-foreground/70">
-                  {String(idx + 1).padStart(2, "0")}
+            {topCategories.map((c, idx) => {
+              const subs = categories.filter((s) => s.parent_id === c.id);
+              return (
+                <div key={c.slug} className="group relative">
+                  <Link
+                    to="/loja/categoria/$slug"
+                    params={{ slug: c.slug }}
+                    className="relative flex aspect-[4/5] flex-col justify-end overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-neutral-100 via-neutral-50 to-white p-5 transition-all duration-500 hover:-translate-y-1 hover:border-foreground/20 hover:shadow-[0_18px_40px_-16px_rgba(0,0,0,0.25)]"
+                  >
+                    <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_80%_at_100%_0%,rgba(220,38,38,0.10),transparent_60%)] opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                    <div className="absolute right-4 top-4 text-[10px] font-bold tracking-[0.28em] text-muted-foreground/70">
+                      {String(idx + 1).padStart(2, "0")}
+                    </div>
+                    <div className="relative z-10">
+                      <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-primary">Categoria</div>
+                      <div className="mt-1.5 text-base font-black uppercase leading-tight tracking-tight text-foreground sm:text-lg">
+                        {c.name}
+                      </div>
+                      <div className="mt-4 inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-foreground/70 transition-colors group-hover:text-primary">
+                        {subs.length > 0 ? "Ver subcategorias" : "Explorar"} <ArrowRight className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-0.5" />
+                      </div>
+                    </div>
+                  </Link>
+
+                  {subs.length > 0 && (
+                    <div className="pointer-events-none absolute left-0 right-0 top-full z-30 hidden pt-2 group-hover:pointer-events-auto md:block">
+                      <div className="pointer-events-auto invisible translate-y-1 rounded-2xl border border-border bg-background/95 p-3 opacity-0 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.35)] backdrop-blur-md transition-all duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
+                        <div className="mb-2 px-2 text-[10px] font-bold uppercase tracking-[0.28em] text-muted-foreground">
+                          Subcategorias
+                        </div>
+                        <ul className="flex flex-col">
+                          {subs.map((s) => (
+                            <li key={s.id}>
+                              <Link
+                                to="/loja/categoria/$slug"
+                                params={{ slug: s.slug }}
+                                className="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-sm font-medium text-foreground/80 transition-colors hover:bg-muted hover:text-foreground"
+                              >
+                                <span className="truncate">{s.name}</span>
+                                <ArrowRight className="h-3 w-3 shrink-0 opacity-40" />
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                        <div className="mt-2 border-t border-border pt-2">
+                          <Link
+                            to="/loja/categoria/$slug"
+                            params={{ slug: c.slug }}
+                            className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-[11px] font-bold uppercase tracking-widest text-primary hover:bg-primary/5"
+                          >
+                            Ver tudo em {c.name} <ArrowRight className="h-3 w-3" />
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <div className="relative z-10">
-                  <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-primary">Categoria</div>
-                  <div className="mt-1.5 text-base font-black uppercase leading-tight tracking-tight text-foreground sm:text-lg">
-                    {c.name}
-                  </div>
-                  <div className="mt-4 inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-foreground/70 transition-colors group-hover:text-primary">
-                    Explorar <ArrowRight className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-0.5" />
-                  </div>
-                </div>
-              </Link>
-            ))}
+              );
+            })}
           </div>
         </section>
       )}
