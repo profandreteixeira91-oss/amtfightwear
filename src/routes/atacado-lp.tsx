@@ -296,7 +296,7 @@ function SectionHeading({
           <span
             className={`inline-flex items-center rounded-full px-3.5 py-1.5 text-[10.5px] font-semibold uppercase tracking-[0.2em] ${
               invert
-                ? "bg-white/10 text-white/80 ring-1 ring-white/15"
+                ? "bg-white/15 text-white ring-1 ring-white/25"
                 : "bg-primary/[0.08] text-primary ring-1 ring-primary/20"
             }`}
           >
@@ -314,7 +314,7 @@ function SectionHeading({
       {subtitle && (
         <p
           className={`mx-auto mt-5 max-w-xl text-[15px] leading-relaxed md:text-base ${
-            invert ? "text-white/60" : "text-muted-foreground"
+            invert ? "text-white/80" : "text-muted-foreground"
           }`}
         >
           {subtitle}
