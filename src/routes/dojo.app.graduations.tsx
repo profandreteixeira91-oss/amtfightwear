@@ -286,7 +286,7 @@ function NewGraduationPage() {
                       <div className="text-xs text-muted-foreground truncate">
                         {belts.length === 0
                           ? "Sem faixa"
-                          : belts.map((b: any) => `${b.belt.name}${degreeSuffix(b.degree, b.belt?.modality)}`).join(" • ")}
+                          : belts.map((b: any) => `${b.belt.name}${degreeSuffix(b.degree, b.belt?.modality, " · ", b.belt?.name)}`).join(" • ")}
                       </div>
                       {(() => {
                         const p = progressById.get(s.id);
