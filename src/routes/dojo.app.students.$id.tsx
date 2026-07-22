@@ -705,7 +705,7 @@ function StudentDetail() {
                     return (
                       <select className="h-10 rounded-md border border-input bg-background px-2 text-sm" value={grad.degree} onChange={(e) => setGrad({ ...grad, degree: Number(e.target.value) })} disabled={!selBelt}>
                         {Array.from({ length: maxDeg + 1 }).map((_, i) => (
-                          <option key={i} value={i}>{formatDegree(i, selBelt?.modality)}</option>
+                          <option key={i} value={i}>{formatDegree(i, selBelt?.modality, selBelt?.name)}</option>
                         ))}
                       </select>
                     );
@@ -731,7 +731,7 @@ function StudentDetail() {
                           )}
                           <div className="min-w-0 flex-1">
                             <div className="font-medium">
-                              {g.belt?.name} <span className="text-muted-foreground font-normal">· {formatDegree(g.degree, g.belt?.modality)}</span>
+                              {g.belt?.name} <span className="text-muted-foreground font-normal">· {formatDegree(g.degree, g.belt?.modality, g.belt?.name)}</span>
                             </div>
                             <div className="text-xs text-muted-foreground">
                               {fmtDate(g.graduation_date)} · {g.evaluator ?? "Avaliador não informado"}
@@ -769,7 +769,7 @@ function StudentDetail() {
                         {certificates.map((c: any) => {
                           const hasTemplate = !!c.template?.background_url;
                           const beltLabel = c.graduation?.belt?.name
-                            ? `${c.graduation.belt.name}${degreeSuffix(c.graduation.degree, c.graduation.belt?.modality)}`
+                            ? `${c.graduation.belt.name}${degreeSuffix(c.graduation.degree, c.graduation.belt?.modality, " · ", c.graduation.belt?.name)}`
                             : (c.values?.belt ?? "—");
                           return (
                             <tr key={c.id} className="border-b border-border last:border-0">
