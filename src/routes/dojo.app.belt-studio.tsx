@@ -119,9 +119,14 @@ function BeltStudio() {
     if (!selectedId) { setDraft(null); return; }
     const found = belts.find((b) => b.id === selectedId);
     if (found) {
+      const storedVisual = (found.visual ?? {}) as BeltSpec;
+      // Se ainda não houver `visual` salvo, carrega o estado atual (derivado
+      // do render legado) para o editor abrir com a ilustração vigente em
+      // vez de "zerado".
+      const visual = beltSpecIsEmpty(storedVisual) ? deriveBeltSpec(found) : storedVisual;
       setDraft({
         ...found,
-        visual: (found.visual ?? {}) as BeltSpec,
+        visual,
         variants: (found.variants ?? []) as BeltVariant[],
       });
     }
