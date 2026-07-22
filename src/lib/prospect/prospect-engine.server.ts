@@ -178,6 +178,8 @@ export async function discoverCompanies(input: {
       if (!domain) continue;
       if (isNoiseDomain(domain, { allowInstagram: input.allowInstagram })) continue;
       if (isForeignDomain(domain)) continue;
+      if (isJunkUrl(r.url)) continue;
+      if (isJunkTitle(r.title)) continue;
 
       // Filtro de relevância geográfica: se o usuário informou cidade/UF,
       // exige que o token apareça no título, descrição ou URL do resultado.
@@ -192,6 +194,9 @@ export async function discoverCompanies(input: {
       if (isIg) {
         const handle = extractInstagramProfile(r.url);
         if (!handle) continue;
+        if (!looksLikeBusinessHandle(handle)) continue;
+        const meta = `${r.title ?? ""} ${r.description ?? ""}`;
+        if (!hasNicheSignal(meta, input.segment)) continue;
         const dedupeKey = `instagram:${handle}`;
         if (seen.has(dedupeKey)) continue;
         seen.add(dedupeKey);
@@ -216,6 +221,10 @@ export async function discoverCompanies(input: {
 
       const name = cleanCompanyName(r.title);
       if (!name) continue;
+
+      // Para sites: exige sinal de nicho para descartar blog/notícia aleatória.
+      const meta = `${r.title ?? ""} ${r.description ?? ""} ${r.url}`;
+      if (!hasNicheSignal(meta, input.segment)) continue;
 
       companies.push({
         name,
