@@ -97,7 +97,7 @@ export function TechnicalTab({ studentId }: { studentId: string }) {
       <SectionCard
         title="Notas Técnicas por Fundamento"
         description="Avalie o desempenho por técnica/fundamento da modalidade selecionada"
-        actions={
+        action={
           <div className="flex items-center gap-2">
             <Select value={effectiveModality} onValueChange={setModality}>
               <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
