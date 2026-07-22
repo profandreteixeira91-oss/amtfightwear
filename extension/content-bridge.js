@@ -5,7 +5,7 @@
   if (window.__amtMacroBridge) return;
   window.__amtMacroBridge = true;
 
-  const EXT_VERSION = "1.0.0";
+  const EXT_VERSION = "1.0.1";
 
   // Anúncio de presença — a página escuta este evento para habilitar o modo auto.
   const announce = () => {

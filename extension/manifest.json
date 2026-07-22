@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "AMT Macro DM",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Automatiza o envio de DMs no Instagram para o AMT Prospect Engine (Dojo Manager).",
   "permissions": ["tabs", "storage", "scripting"],
   "host_permissions": [

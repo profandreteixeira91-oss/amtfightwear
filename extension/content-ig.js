@@ -5,19 +5,49 @@
   if (window.__amtMacroIg) return;
   window.__amtMacroIg = true;
 
+  const activeJobs = new Set();
+  const completedJobs = new Map();
+
+  function reportResult(result, attempt = 0) {
+    chrome.runtime.sendMessage(result, () => {
+      const failed = !!chrome.runtime.lastError;
+      if (failed && attempt < 3) {
+        setTimeout(() => reportResult(result, attempt + 1), 700 * (attempt + 1));
+      }
+    });
+  }
+
   chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     if (msg?.type === "run-dm") {
+      const jobId = String(msg.jobId || "legacy-job");
+      const completed = completedJobs.get(jobId);
+      if (completed) {
+        reportResult(completed);
+        sendResponse({ ok: true, duplicate: true, completed: true });
+        return;
+      }
+      if (activeJobs.has(jobId)) {
+        sendResponse({ ok: true, duplicate: true, running: true });
+        return;
+      }
+      activeJobs.add(jobId);
       runDm(String(msg.message || ""))
-        .then(() =>
-          chrome.runtime.sendMessage({ type: "job-result", ok: true }),
-        )
-        .catch((err) =>
-          chrome.runtime.sendMessage({
+        .then(() => {
+          const result = { type: "job-result", jobId, ok: true };
+          completedJobs.set(jobId, result);
+          reportResult(result);
+        })
+        .catch((err) => {
+          const result = {
             type: "job-result",
+            jobId,
             ok: false,
             error: String(err?.message || err),
-          }),
-        );
+          };
+          completedJobs.set(jobId, result);
+          reportResult(result);
+        })
+        .finally(() => activeJobs.delete(jobId));
       sendResponse({ ok: true });
     }
   });
