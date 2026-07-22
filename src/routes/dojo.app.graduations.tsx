@@ -119,9 +119,8 @@ function NewGraduationPage() {
 
   const submitGrad = async () => {
     if (!beltId) return toast.error("Selecione a faixa");
-    const submitBeltId = effectiveBelt?.id ?? beltId;
-    const submitDegree = isPretaBase ? 0 : degree;
-    if (!isPretaBase && (degree < 0 || degree > maxDeg)) return toast.error(`Grau entre 0 e ${maxDeg}`);
+    if (degree < 0 || degree > maxDeg) return toast.error(`Grau entre 0 e ${maxDeg}`);
+
     try {
       const res = await bulkFn({ data: {
         student_ids: Array.from(selectedStudents),
