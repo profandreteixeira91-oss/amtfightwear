@@ -112,6 +112,185 @@ export function extractContactsFromText(text: string): ExtractedContacts {
   };
 }
 
+// ============= Google Places API (New) — PRIMARY SOURCE =============
+
+const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_maps";
+
+interface GPlace {
+  id: string;
+  displayName?: { text?: string };
+  formattedAddress?: string;
+  location?: { latitude: number; longitude: number };
+  rating?: number;
+  userRatingCount?: number;
+  internationalPhoneNumber?: string;
+  nationalPhoneNumber?: string;
+  websiteUri?: string;
+  googleMapsUri?: string;
+  types?: string[];
+  businessStatus?: string;
+  primaryTypeDisplayName?: { text?: string };
+  addressComponents?: Array<{ longText?: string; shortText?: string; types?: string[] }>;
+}
+
+const PLACES_FIELD_MASK = [
+  "places.id","places.displayName","places.formattedAddress","places.location",
+  "places.rating","places.userRatingCount","places.internationalPhoneNumber",
+  "places.nationalPhoneNumber","places.websiteUri","places.googleMapsUri",
+  "places.types","places.businessStatus","places.primaryTypeDisplayName",
+  "places.addressComponents",
+].join(",");
+
+export async function googlePlacesSearchText(query: string, opts?: { region?: string; language?: string; maxResults?: number }): Promise<GPlace[]> {
+  const lovable = process.env.LOVABLE_API_KEY;
+  const key = process.env.GOOGLE_MAPS_API_KEY;
+  if (!lovable || !key) return [];
+  try {
+    const res = await fetch(`${GATEWAY_URL}/places/v1/places:searchText`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${lovable}`,
+        "X-Connection-Api-Key": key,
+        "Content-Type": "application/json",
+        "X-Goog-FieldMask": PLACES_FIELD_MASK,
+      },
+      body: JSON.stringify({
+        textQuery: query,
+        languageCode: opts?.language ?? "pt-BR",
+        regionCode: opts?.region ?? "BR",
+        pageSize: Math.min(opts?.maxResults ?? 20, 20),
+      }),
+    });
+    if (!res.ok) {
+      console.error(`[places] ${res.status}`, await res.text().catch(() => ""));
+      return [];
+    }
+    const json = (await res.json()) as { places?: GPlace[] };
+    return json.places ?? [];
+  } catch (e) {
+    console.error("[places] fail", e);
+    return [];
+  }
+}
+
+function pickAddressComponent(place: GPlace, type: string): string | null {
+  const c = place.addressComponents?.find((a) => a.types?.includes(type));
+  return c?.longText ?? c?.shortText ?? null;
+}
+
+function stateAbbrevFromLong(name: string | null): string | null {
+  if (!name) return null;
+  const entry = Object.entries(STATE_NAMES).find(([, v]) => normalizeLoc(v) === normalizeLoc(name));
+  return entry?.[0] ?? null;
+}
+
+function placeToCompany(place: GPlace, segment: string, category: string): DiscoveredCompany | null {
+  const name = place.displayName?.text?.trim();
+  if (!name || name.length < 3) return null;
+  if (place.businessStatus && place.businessStatus !== "OPERATIONAL") return null;
+
+  const city = pickAddressComponent(place, "administrative_area_level_2")
+    ?? pickAddressComponent(place, "locality")
+    ?? null;
+  const stateLong = pickAddressComponent(place, "administrative_area_level_1");
+  const state = stateAbbrevFromLong(stateLong);
+
+  return {
+    name,
+    normalized_name: normalizeName(name),
+    website: place.websiteUri ?? null,
+    source_url: place.googleMapsUri ?? place.websiteUri ?? `https://www.google.com/maps/place/?q=place_id:${place.id}`,
+    description: place.primaryTypeDisplayName?.text ?? null,
+    city,
+    state,
+    category,
+    address: place.formattedAddress ?? null,
+    phone: place.internationalPhoneNumber ?? place.nationalPhoneNumber ?? null,
+    rating: place.rating ?? null,
+    rating_count: place.userRatingCount ?? null,
+    google_place_id: place.id,
+    google_maps_url: place.googleMapsUri ?? null,
+    lat: place.location?.latitude ?? null,
+    lng: place.location?.longitude ?? null,
+  };
+}
+
+/** Gera variações inteligentes de consulta a partir de segmento + localidade. */
+export function buildIntelligentQueries(segment: string, city?: string | null, state?: string | null): string[] {
+  const seg = segment.toLowerCase();
+  const loc = [city, state ? STATE_NAMES[state.toUpperCase()] ?? state : null].filter(Boolean).join(" ");
+  const base = loc ? ` em ${loc}` : "";
+  const isBjj = /jiu|bjj|jitsu/i.test(seg);
+  const isJudo = /jud/i.test(seg);
+  const isKids = /kids|infantil|crian/i.test(seg);
+  const variants = new Set<string>();
+  const addAll = (arr: string[]) => arr.forEach((v) => variants.add(v));
+
+  if (isBjj) {
+    addAll([
+      `academia de jiu-jitsu${base}`, `escola de jiu-jitsu${base}`,
+      `equipe de jiu-jitsu${base}`, `dojo de jiu-jitsu${base}`,
+      `centro de treinamento jiu-jitsu${base}`,
+      `BJJ academy${base}`, `Brazilian Jiu-Jitsu${base}`,
+      `Gracie jiu-jitsu${base}`, `academia jiu jitsu${base}`,
+    ]);
+    if (isKids) addAll([`jiu-jitsu infantil${base}`, `jiu-jitsu kids${base}`]);
+  }
+  if (isJudo) {
+    addAll([
+      `academia de judô${base}`, `escola de judô${base}`,
+      `dojo de judô${base}`, `clube de judô${base}`,
+      `associação de judô${base}`, `centro de judô${base}`,
+      `judo club${base}`, `judo academy${base}`,
+    ]);
+    if (isKids) addAll([`judô infantil${base}`, `judô kids${base}`]);
+  }
+  if (!isBjj && !isJudo) {
+    addAll([
+      `academia ${segment}${base}`, `escola de ${segment}${base}`,
+      `${segment} academia${base}`, `dojo ${segment}${base}`,
+      `centro de treinamento ${segment}${base}`, `${segment} school${base}`,
+    ]);
+  }
+  variants.add(`${segment}${base}`);
+  return Array.from(variants).slice(0, 10);
+}
+
+async function discoverViaGooglePlaces(input: {
+  segment: string; city?: string | null; state?: string | null;
+  keywords?: string | null; queries?: string[]; limit: number; category: string;
+}): Promise<DiscoveredCompany[]> {
+  const queries = input.queries && input.queries.length
+    ? input.queries
+    : buildIntelligentQueries(input.segment + (input.keywords ? ` ${input.keywords}` : ""), input.city, input.state);
+
+  const seenPlace = new Set<string>();
+  const seenName = new Set<string>();
+  const out: DiscoveredCompany[] = [];
+
+  for (const q of queries) {
+    if (out.length >= input.limit) break;
+    const places = await googlePlacesSearchText(q, { maxResults: 20 });
+    for (const p of places) {
+      if (seenPlace.has(p.id)) continue;
+      const company = placeToCompany(p, input.segment, input.category);
+      if (!company) continue;
+
+      const typeStr = (p.types ?? []).join(" ").toLowerCase();
+      const nameHay = normalizeLoc(`${company.name} ${company.description ?? ""} ${typeStr}`);
+      if (!hasNicheSignal(nameHay, input.segment) && !hasNicheSignal(typeStr, input.segment)) continue;
+
+      const nkey = `${company.normalized_name}|${company.city ?? ""}`;
+      if (seenName.has(nkey)) continue;
+      seenPlace.add(p.id);
+      seenName.add(nkey);
+      out.push(company);
+      if (out.length >= input.limit) break;
+    }
+  }
+  return out;
+}
+
 // ============= Motor de busca de empresas =============
 
 export interface DiscoveredCompany {
@@ -123,6 +302,15 @@ export interface DiscoveredCompany {
   city: string | null;
   state: string | null;
   category: string | null;
+  // Rich fields (populated by Google Places when available)
+  address?: string | null;
+  phone?: string | null;
+  rating?: number | null;
+  rating_count?: number | null;
+  google_place_id?: string | null;
+  google_maps_url?: string | null;
+  lat?: number | null;
+  lng?: number | null;
 }
 
 export async function discoverCompanies(input: {
@@ -131,19 +319,31 @@ export async function discoverCompanies(input: {
   state?: string | null;
   keywords?: string | null;
   limit: number;
-  /** Se fornecido, ignora `segment`+`keywords` e roda cada query da lista. */
   queries?: string[];
-  /** Permite resultados do Instagram (útil para professores / projetos sociais). */
   allowInstagram?: boolean;
+  category?: string;
 }): Promise<DiscoveredCompany[]> {
+  const category = input.category ?? input.segment;
+
+  // 1) FONTE PRIMÁRIA: Google Places (New) — empresas reais e enriquecidas
+  const gplaces = await discoverViaGooglePlaces({
+    segment: input.segment, city: input.city, state: input.state,
+    keywords: input.keywords, queries: input.queries, limit: input.limit, category,
+  });
+
+  if (gplaces.length >= input.limit) return gplaces.slice(0, input.limit);
+
+  // 2) COMPLEMENTO: Firecrawl (sites institucionais + Instagram opcional)
+  const remaining = input.limit - gplaces.length;
+  const seenNames = new Set(gplaces.map((c) => c.normalized_name));
+
   const buildDefault = () => {
     const parts = [
       input.segment,
       input.city ? `"${input.city}"` : null,
       input.state ? `"${input.state}"` : null,
       input.keywords ?? null,
-      "Brasil",
-      "contato",
+      "Brasil", "contato",
     ].filter(Boolean).join(" ");
     const base = input.allowInstagram
       ? parts
@@ -151,14 +351,11 @@ export async function discoverCompanies(input: {
     return [base];
   };
 
-  const queries = (input.queries && input.queries.length ? input.queries : buildDefault())
-    .slice(0, 12);
-
-  const perQuery = Math.max(3, Math.ceil((input.limit * 2) / queries.length));
+  const queries = (input.queries && input.queries.length ? input.queries : buildDefault()).slice(0, 12);
+  const perQuery = Math.max(3, Math.ceil((remaining * 2) / queries.length));
   const seen = new Set<string>();
   const companies: DiscoveredCompany[] = [];
 
-  // Tokens de localidade para filtro pós-busca (title + description + url).
   const locTokens: string[] = [];
   if (input.city) locTokens.push(normalizeLoc(input.city));
   if (input.state) locTokens.push(input.state.toLowerCase());
@@ -166,7 +363,7 @@ export async function discoverCompanies(input: {
   if (stateFull) locTokens.push(normalizeLoc(stateFull));
 
   for (const q of queries) {
-    if (companies.length >= input.limit) break;
+    if (companies.length >= remaining) break;
     let results: FcSearchResult[] = [];
     try {
       results = await firecrawlSearch(q, Math.min(perQuery, 20));
@@ -182,8 +379,6 @@ export async function discoverCompanies(input: {
       if (isJunkTitle(r.title)) continue;
       if (isJunkTitle(r.description ?? "")) continue;
 
-      // Filtro de relevância geográfica: se o usuário informou cidade/UF,
-      // exige que o token apareça no título, descrição ou URL do resultado.
       if (locTokens.length > 0) {
         const hay = normalizeLoc(`${r.title ?? ""} ${r.description ?? ""} ${r.url}`);
         const hit = locTokens.some((t) => t && hay.includes(t));
@@ -191,7 +386,6 @@ export async function discoverCompanies(input: {
       }
 
       const isIg = /instagram\.com$/i.test(domain);
-      // Instagram: aceitar SOMENTE perfis (/{handle}), rejeitar posts/reels/stories/etc.
       if (isIg) {
         const handle = extractInstagramProfile(r.url);
         if (!handle) continue;
@@ -203,54 +397,67 @@ export async function discoverCompanies(input: {
         if (seen.has(dedupeKey)) continue;
         seen.add(dedupeKey);
         const cleaned = cleanCompanyName(r.title);
-        // Nome muito curto ou fragmento (ex: "JIU", "Escola de Jiu") = ruim.
         const displayName = cleaned && cleaned.length >= 4 && !isFragmentName(cleaned)
-          ? cleaned
-          : `@${handle}`;
+          ? cleaned : `@${handle}`;
+        const nn = normalizeName(displayName);
+        if (seenNames.has(nn)) continue;
+        seenNames.add(nn);
         companies.push({
-          name: displayName,
-          normalized_name: normalizeName(displayName),
-          website: null,
-          source_url: `https://instagram.com/${handle}`,
+          name: displayName, normalized_name: nn,
+          website: null, source_url: `https://instagram.com/${handle}`,
           description: r.description ?? null,
-          city: input.city ?? null,
-          state: input.state ?? null,
-          category: input.segment,
+          city: input.city ?? null, state: input.state ?? null, category,
         });
-        if (companies.length >= input.limit) break;
+        if (companies.length >= remaining) break;
         continue;
       }
 
-      // Sites: exige homepage/institucional. Rejeita URLs profundas (artigo/página interna).
       if (!looksLikeHomepageOrContact(r.url)) continue;
-
       const dedupeKey = domain;
       if (seen.has(dedupeKey)) continue;
       seen.add(dedupeKey);
 
       const name = cleanCompanyName(r.title);
       if (!name || name.length < 4 || isFragmentName(name)) continue;
-
-      // Para sites: exige sinal de nicho para descartar blog/notícia aleatória.
       const meta = `${r.title ?? ""} ${r.description ?? ""} ${r.url}`;
       if (!hasNicheSignal(meta, input.segment)) continue;
       if (!looksLikeBusinessProfile(meta)) continue;
 
-      companies.push({
-        name,
-        normalized_name: normalizeName(name),
-        website: `https://${domain}`,
-        source_url: r.url,
-        description: r.description ?? null,
-        city: input.city ?? null,
-        state: input.state ?? null,
-        category: input.segment,
-      });
+      const nn = normalizeName(name);
+      if (seenNames.has(nn)) continue;
+      seenNames.add(nn);
 
-      if (companies.length >= input.limit) break;
+      companies.push({
+        name, normalized_name: nn,
+        website: `https://${domain}`, source_url: r.url,
+        description: r.description ?? null,
+        city: input.city ?? null, state: input.state ?? null, category,
+      });
+      if (companies.length >= remaining) break;
     }
   }
-  return companies;
+  return [...gplaces, ...companies];
+}
+
+/** Classifica um lead em tier de qualidade a partir dos sinais coletados. */
+export function computeQualityTier(c: {
+  website?: string | null; phone?: string | null; address?: string | null;
+  google_place_id?: string | null; rating?: number | null; rating_count?: number | null;
+  source_url?: string | null;
+}): { tier: "excelente" | "bom" | "regular" | "descartar"; score: number } {
+  let s = 0;
+  if (c.google_place_id) s += 55; // Google Business + Maps
+  if (c.website) s += 20;
+  if (c.phone) s += 10;
+  if (c.address) s += 10;
+  if ((c.rating_count ?? 0) >= 10) s += 5;
+  if ((c.rating ?? 0) >= 4.3) s += 5;
+  if (!c.google_place_id && c.source_url && /instagram\.com/i.test(c.source_url)) s += 15;
+  let tier: "excelente" | "bom" | "regular" | "descartar" = "descartar";
+  if (s >= 70) tier = "excelente";
+  else if (s >= 50) tier = "bom";
+  else if (s >= 30) tier = "regular";
+  return { tier, score: Math.min(100, s) };
 }
 
 function normalizeLoc(s: string): string {
