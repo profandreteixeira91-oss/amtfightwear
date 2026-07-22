@@ -13,26 +13,43 @@ function getExternalId(storageKey: string, prefix: string): string {
   return id;
 }
 
-function loadCached(): Msg[] {
+function loadCached(storageMsgs: string): Msg[] {
   if (typeof window === "undefined") return [];
   try {
-    const raw = window.localStorage.getItem(STORAGE_MSGS);
+    const raw = window.localStorage.getItem(storageMsgs);
     return raw ? (JSON.parse(raw) as Msg[]) : [];
   } catch {
     return [];
   }
 }
 
-function saveCached(m: Msg[]) {
+function saveCached(storageMsgs: string, m: Msg[]) {
   try {
-    window.localStorage.setItem(STORAGE_MSGS, JSON.stringify(m.slice(-50)));
+    window.localStorage.setItem(storageMsgs, JSON.stringify(m.slice(-50)));
   } catch {
     /* ignore */
   }
 }
 
-export function ChatWidget() {
-  const externalId = useMemo(() => getExternalId(), []);
+export type ChatWidgetProps = {
+  storageKey?: string;
+  storageMsgs?: string;
+  externalIdPrefix?: string;
+  buttonLabel?: string;
+  headerTitle?: string;
+  greeting?: string;
+};
+
+export function ChatWidget(props: ChatWidgetProps = {}) {
+  const storageKey = props.storageKey ?? "amt_chat_external_id";
+  const storageMsgs = props.storageMsgs ?? "amt_chat_msgs_v1";
+  const externalIdPrefix = props.externalIdPrefix ?? "web";
+  const buttonLabel = props.buttonLabel ?? "Chat com a AMT";
+  const headerTitle = props.headerTitle ?? "Atendimento AMT";
+  const greeting =
+    props.greeting ??
+    "Olá! Sou o assistente da AMT Fight Wear. Como posso ajudar? Posso indicar produtos, tirar dúvidas sobre tamanhos, frete e pagamento. Se preferir, clique em \"Falar com atendente\" a qualquer momento. 🥋";
+  const externalId = useMemo(() => getExternalId(storageKey, externalIdPrefix), [storageKey, externalIdPrefix]);
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
