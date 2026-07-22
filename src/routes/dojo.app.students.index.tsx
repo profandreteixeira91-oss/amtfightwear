@@ -132,6 +132,7 @@ const emptyForm: StudentForm = {
   image_rights_consent: false,
   terms_accepted: false,
   anamnesis: {},
+  modalities: [],
 };
 
 function StudentsPage() {
