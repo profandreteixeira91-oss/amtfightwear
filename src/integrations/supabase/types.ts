@@ -2745,6 +2745,83 @@ export type Database = {
         }
         Relationships: []
       }
+      dojo_athlete_goals: {
+        Row: {
+          auto_progress: boolean
+          completed_at: string | null
+          created_at: string
+          current_value: number
+          description: string | null
+          due_date: string | null
+          goal_type: string
+          id: string
+          metadata: Json
+          owner_id: string
+          priority: string
+          start_date: string
+          status: string
+          student_id: string
+          target_belt_id: string | null
+          target_degree: number | null
+          target_value: number
+          title: string
+          unit: string | null
+          updated_at: string
+        }
+        Insert: {
+          auto_progress?: boolean
+          completed_at?: string | null
+          created_at?: string
+          current_value?: number
+          description?: string | null
+          due_date?: string | null
+          goal_type?: string
+          id?: string
+          metadata?: Json
+          owner_id: string
+          priority?: string
+          start_date?: string
+          status?: string
+          student_id: string
+          target_belt_id?: string | null
+          target_degree?: number | null
+          target_value?: number
+          title: string
+          unit?: string | null
+          updated_at?: string
+        }
+        Update: {
+          auto_progress?: boolean
+          completed_at?: string | null
+          created_at?: string
+          current_value?: number
+          description?: string | null
+          due_date?: string | null
+          goal_type?: string
+          id?: string
+          metadata?: Json
+          owner_id?: string
+          priority?: string
+          start_date?: string
+          status?: string
+          student_id?: string
+          target_belt_id?: string | null
+          target_degree?: number | null
+          target_value?: number
+          title?: string
+          unit?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_athlete_goals_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dojo_attendance: {
         Row: {
           checked_in_at: string
