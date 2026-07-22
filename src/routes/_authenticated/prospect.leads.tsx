@@ -521,6 +521,29 @@ function LeadsPage() {
                               <Instagram className="h-4 w-4" />
                             </Button>
                           )}
+                          {ig && (
+                            (() => {
+                              const inQueue = macroSet.has(r.id);
+                              return (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  title={inQueue ? "Remover do Macro DM" : "Adicionar ao Macro DM"}
+                                  onClick={() => {
+                                    if (inQueue) {
+                                      removeFromMacroQueue(r.id);
+                                      toast("Removido do Macro DM");
+                                    } else {
+                                      addToMacroQueue(r.id);
+                                      toast.success("Adicionado ao Macro DM");
+                                    }
+                                  }}
+                                >
+                                  <Send className={`h-4 w-4 ${inQueue ? "text-primary" : ""}`} />
+                                </Button>
+                              );
+                            })()
+                          )}
                           <Button
                             size="sm"
                             variant="ghost"
