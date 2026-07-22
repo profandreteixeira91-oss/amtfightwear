@@ -256,6 +256,19 @@ function DojoLayoutInner({
   });
   const dojoName = branding?.trade_name || branding?.legal_name || null;
 
+  // Sincroniza o termo (Faixa/Grau) por modalidade a partir do Belt Studio.
+  // Assim que as faixas são renomeadas lá, o termo passa a valer em todo o sistema.
+  const fetchBelts = useServerFn(listDojoBelts);
+  const { data: allBelts } = useQuery<any[]>({
+    queryKey: ["dojo", "belts", "term-sync"],
+    queryFn: () => fetchBelts() as any,
+    staleTime: 5 * 60 * 1000,
+  });
+  useEffect(() => {
+    if (allBelts?.length) syncBeltTerms(allBelts);
+  }, [allBelts]);
+
+
   return (
     <>
       <Sidebar collapsible="icon" className="border-r border-[color:var(--dojo-border)]">
