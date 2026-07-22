@@ -535,37 +535,40 @@ export function ProductCard({ product }: { product: { id: string; name: string; 
     <Link
       to="/loja/produto/$slug"
       params={{ slug: product.slug ?? product.id }}
-      className="group flex flex-col overflow-hidden rounded-md border border-border bg-card transition-all duration-200 hover:border-foreground hover:shadow-[0_8px_24px_-12px_rgba(0,0,0,0.18)]"
+      className="group flex flex-col overflow-hidden rounded-2xl border border-border/70 bg-card transition-all duration-300 hover:-translate-y-0.5 hover:border-foreground/20 hover:shadow-[0_16px_40px_-20px_rgba(0,0,0,0.25)]"
     >
-      <div className="relative overflow-hidden border-b border-border bg-muted">
+      <div className="relative overflow-hidden bg-neutral-50">
         <ProductImage
           src={product.image_url}
           alt={product.name}
           aspect="square"
-          imgClassName="transition-transform duration-500 group-hover:scale-[1.04]"
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
+          imgClassName="transition-transform duration-[600ms] ease-out group-hover:scale-[1.06]"
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
         />
         {hasDiscount && (
-          <div className="absolute left-0 top-3 bg-primary px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-primary-foreground shadow-sm">
+          <div className="absolute left-3 top-3 rounded-full bg-primary px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-primary-foreground shadow-[0_4px_12px_-4px_rgba(220,38,38,0.6)]">
             −{Math.round(((compareAt! - price) / compareAt!) * 100)}%
           </div>
         )}
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
       </div>
-      <div className="flex flex-1 flex-col gap-1 p-4">
-        <h3 className="line-clamp-2 min-h-[2.5rem] text-sm font-semibold uppercase tracking-tight text-foreground group-hover:text-primary">
+      <div className="flex flex-1 flex-col gap-2 p-5">
+        <h3 className="line-clamp-2 min-h-[2.6rem] text-sm font-semibold leading-snug tracking-tight text-foreground transition-colors group-hover:text-primary">
           {product.name}
         </h3>
-        <div className="mt-auto pt-2">
+        <div className="mt-auto pt-3">
           {hasDiscount && (
             <div className="text-xs text-muted-foreground line-through">
               {compareAt!.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
             </div>
           )}
-          <div className="text-lg font-black tracking-tight text-foreground">
+          <div className="text-xl font-black tracking-tight text-foreground">
             {price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
           </div>
-          <div className="text-[11px] text-muted-foreground">ou 10x de <span className="font-semibold text-foreground">{installments}</span></div>
-          <div className="mt-3 flex w-full items-center justify-center rounded-md bg-primary px-3 py-2 text-xs font-black uppercase tracking-widest text-primary-foreground transition-colors group-hover:bg-primary/90">
+          <div className="mt-0.5 text-[11px] text-muted-foreground">
+            ou 10x de <span className="font-semibold text-foreground">{installments}</span>
+          </div>
+          <div className="mt-4 flex w-full items-center justify-center rounded-full bg-foreground px-3 py-2.5 text-[11px] font-bold uppercase tracking-[0.2em] text-background transition-all duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
             Comprar
           </div>
         </div>
