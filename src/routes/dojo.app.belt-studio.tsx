@@ -285,7 +285,7 @@ function BeltStudio() {
 /* ============================================================ */
 
 function BeltEditor({
-  draft, setDraft, saving, onSave, onDelete, onClone, canDelete, showJson, setShowJson,
+  draft, setDraft, saving, onSave, onDelete, onClone, canDelete,
 }: {
   draft: BeltRow;
   setDraft: (b: BeltRow) => void;
@@ -294,11 +294,9 @@ function BeltEditor({
   onDelete: () => void;
   onClone: () => void;
   canDelete: boolean;
-  showJson: boolean;
-  setShowJson: (v: boolean) => void;
 }) {
   const spec: BeltSpec = draft.visual ?? {};
-  const patchSpec = (p: Partial<BeltSpec>) => setDraft({ ...draft, visual: { ...spec, ...p } });
+
 
   return (
     <>
