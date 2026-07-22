@@ -385,11 +385,22 @@ function BeltEditor({
 
       {/* Ilustração — spec estruturada */}
       <Card>
-        <CardHeader className="pb-2"><CardTitle className="text-sm">Ilustração</CardTitle></CardHeader>
+        <CardHeader className="pb-2 flex-row items-center justify-between space-y-0">
+          <CardTitle className="text-sm">Ilustração</CardTitle>
+          <Button
+            size="sm"
+            variant="ghost"
+            title="Recarrega a ilustração a partir do estado atual (nome, cor, modalidade)."
+            onClick={() => setDraft({ ...draft, visual: deriveBeltSpec(draft) })}
+          >
+            Restaurar visual atual
+          </Button>
+        </CardHeader>
         <CardContent>
           <SpecEditor spec={spec} onChange={(next) => setDraft({ ...draft, visual: next })} />
         </CardContent>
       </Card>
+
 
 
       {/* Graus — edição individual */}
