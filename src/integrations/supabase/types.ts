@@ -6365,6 +6365,60 @@ export type Database = {
           },
         ]
       }
+      dojo_student_technical_scores: {
+        Row: {
+          assessed_at: string
+          assessor: string | null
+          created_at: string
+          fundamental_id: string
+          id: string
+          notes: string | null
+          owner_id: string
+          score: number
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          assessed_at?: string
+          assessor?: string | null
+          created_at?: string
+          fundamental_id: string
+          id?: string
+          notes?: string | null
+          owner_id: string
+          score?: number
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          assessed_at?: string
+          assessor?: string | null
+          created_at?: string
+          fundamental_id?: string
+          id?: string
+          notes?: string | null
+          owner_id?: string
+          score?: number
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_student_technical_scores_fundamental_id_fkey"
+            columns: ["fundamental_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_technical_fundamentals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_student_technical_scores_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dojo_students: {
         Row: {
           address: string | null
@@ -7147,6 +7201,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      dojo_technical_fundamentals: {
+        Row: {
+          archived: boolean
+          created_at: string
+          description: string | null
+          id: string
+          modality: string
+          name: string
+          order_index: number
+          owner_id: string
+          updated_at: string
+        }
+        Insert: {
+          archived?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          modality: string
+          name: string
+          order_index?: number
+          owner_id: string
+          updated_at?: string
+        }
+        Update: {
+          archived?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          modality?: string
+          name?: string
+          order_index?: number
+          owner_id?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       dojo_units: {
         Row: {
