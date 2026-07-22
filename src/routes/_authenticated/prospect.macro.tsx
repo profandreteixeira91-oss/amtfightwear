@@ -413,6 +413,15 @@ function MacroPage() {
           <Button asChild variant="outline" size="sm">
             <Link to="/prospect/leads"><ArrowLeft className="mr-2 h-4 w-4" />Leads</Link>
           </Button>
+          {extensionReady ? (
+            <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
+              <Bot className="mr-1 h-3 w-3" />Extensão conectada
+            </Badge>
+          ) : (
+            <Button variant="outline" size="sm" onClick={downloadExtension}>
+              <Download className="mr-2 h-4 w-4" />Baixar extensão
+            </Button>
+          )}
           <Button variant="outline" size="sm" onClick={() => setShowSettings((v) => !v)}>
             <Settings2 className="mr-2 h-4 w-4" />
             {showSettings ? "Fechar ajustes" : "Ajustes"}
@@ -551,16 +560,77 @@ function MacroPage() {
               </div>
 
               <div className="mt-6 space-y-2">
-                <Button
-                  className="w-full"
-                  size="lg"
-                  disabled={!canAct}
-                  onClick={doSend}
-                >
-                  <Copy className="mr-2 h-4 w-4" />
-                  <ExternalLink className="mr-2 h-4 w-4" />
-                  Copiar e abrir Instagram
-                </Button>
+                {extensionReady ? (
+                  <>
+                    <Button
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+                      size="lg"
+                      disabled={!canAct || autoBusy}
+                      onClick={async () => {
+                        if (!current) return;
+                        setAutoBusy(true);
+                        try {
+                          await runOneAuto(current, message);
+                        } finally {
+                          setAutoBusy(false);
+                          startCooldown();
+                        }
+                      }}
+                    >
+                      <Zap className="mr-2 h-4 w-4" />
+                      {autoBusy ? "Enviando…" : "Rodar (envio automático)"}
+                    </Button>
+                    <div className="flex items-center justify-between rounded-lg border border-border/60 bg-muted/30 px-3 py-2 text-xs">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <Switch checked={autoMode} onCheckedChange={setAutoMode} id="automode" />
+                        <span className="font-medium">Modo contínuo</span>
+                      </label>
+                      <span className="text-muted-foreground">
+                        {autoMode ? (autoStatus || "Aguardando…") : "Processa a fila sozinho, respeitando cooldown."}
+                      </span>
+                    </div>
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      size="sm"
+                      disabled={!canAct}
+                      onClick={doSend}
+                    >
+                      <Copy className="mr-2 h-4 w-4" />
+                      <ExternalLink className="mr-2 h-4 w-4" />
+                      Modo manual (só copiar e abrir)
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      className="w-full"
+                      size="lg"
+                      disabled={!canAct}
+                      onClick={doSend}
+                    >
+                      <Copy className="mr-2 h-4 w-4" />
+                      <ExternalLink className="mr-2 h-4 w-4" />
+                      Copiar e abrir Instagram
+                    </Button>
+                    <div className="rounded-md border border-dashed border-amber-500/40 bg-amber-500/5 p-3 text-xs text-amber-800 dark:text-amber-200">
+                      <div className="font-semibold mb-1 flex items-center gap-1">
+                        <Bot className="h-3 w-3" /> Automação 100% disponível
+                      </div>
+                      Instale a extensão <strong>AMT Macro DM</strong> para o Dojo Manager clicar,
+                      colar e enviar o DM sozinho no seu navegador.
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="mt-2 w-full"
+                        onClick={downloadExtension}
+                      >
+                        <Download className="mr-2 h-3 w-3" />
+                        Baixar extensão (.zip)
+                      </Button>
+                    </div>
+                  </>
+                )}
                 {cooldownLeft > 0 && (
                   <div className="space-y-1">
                     <div className="flex items-center justify-between text-xs text-muted-foreground">
