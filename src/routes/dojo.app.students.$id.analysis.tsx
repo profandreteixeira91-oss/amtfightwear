@@ -26,6 +26,7 @@ import { PerformanceGauge } from "@/components/dojo/athlete-analysis/Performance
 import { AttendanceHeatmap } from "@/components/dojo/athlete-analysis/AttendanceHeatmap";
 import { TechnicalRadar } from "@/components/dojo/athlete-analysis/TechnicalRadar";
 import { InsightCard } from "@/components/dojo/athlete-analysis/InsightCard";
+import { GoalsTab } from "@/components/dojo/athlete-analysis/GoalsTab";
 import { formatDegree, degreeUnit } from "@/lib/dojo/degree-label";
 
 export const Route = createFileRoute("/dojo/app/students/$id/analysis")({
