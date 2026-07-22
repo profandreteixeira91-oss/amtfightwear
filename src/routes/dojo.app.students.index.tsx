@@ -225,6 +225,14 @@ function StudentsPage() {
     setOpen(true);
   }
   function openEdit(s: any) {
+    const modalities: StudentForm["modalities"] = [];
+    if (s.current_belt_id) {
+      modalities.push({
+        modality: s.belt?.modality ?? "jiu-jitsu",
+        belt_id: s.current_belt_id,
+        degree: Number(s.current_degree ?? 0),
+      });
+    }
     setForm({
       ...emptyForm,
       ...s,
@@ -232,6 +240,7 @@ function StudentsPage() {
       anamnesis: s.anamnesis ?? {},
       medical_clearance_date: s.medical_clearance_date ?? "",
       birth_date: s.birth_date ?? "",
+      modalities,
     });
     setOpen(true);
   }
