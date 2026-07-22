@@ -308,12 +308,12 @@ function BeltEditor({
           <CardTitle className="text-sm">Pré-visualização</CardTitle>
           <div className="flex items-center gap-2">
             <Button size="sm" variant="outline" onClick={onClone}><Copy className="h-4 w-4 mr-1" /> Duplicar</Button>
-            <Button size="sm" variant="outline" onClick={() => setShowJson(!showJson)}>{showJson ? "Ocultar JSON" : "Ver JSON"}</Button>
             {canDelete && (
               <Button size="sm" variant="destructive" onClick={onDelete}><Trash2 className="h-4 w-4 mr-1" /> Excluir</Button>
             )}
             <Button size="sm" onClick={onSave} disabled={saving}><Save className="h-4 w-4 mr-1" /> {saving ? "Salvando..." : "Salvar"}</Button>
           </div>
+
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="bg-neutral-100 rounded-lg p-6 flex flex-col items-center gap-3">
