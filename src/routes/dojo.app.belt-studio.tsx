@@ -10,6 +10,7 @@ import {
   checkIsAdmin,
 } from "@/lib/dojo/dojo.functions";
 import { BeltAuto, BeltSpecVisual, type BeltSpec } from "@/components/dojo/BeltSpecVisual";
+import { syncBeltTerms } from "@/lib/dojo/belt-terms";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
