@@ -208,7 +208,14 @@ function LeadsPage() {
               Enriquecer pendentes
             </Button>
             <Button asChild variant="outline" size="sm">
-              <Link to="/prospect/macro"><Instagram className="mr-2 h-4 w-4" />Macro DM</Link>
+              <Link to="/prospect/macro">
+                <Instagram className="mr-2 h-4 w-4" />Macro DM
+                {macroQueue.length > 0 && (
+                  <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-[10px]">
+                    {macroQueue.length}
+                  </Badge>
+                )}
+              </Link>
             </Button>
             <Button asChild size="sm">
               <Link to="/prospect/search"><Radar className="mr-2 h-4 w-4" />Nova busca</Link>
