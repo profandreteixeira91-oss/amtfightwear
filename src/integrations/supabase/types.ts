@@ -9065,6 +9065,8 @@ export type Database = {
           created_at: string
           description: string | null
           enriched_at: string | null
+          google_maps_url: string | null
+          google_place_id: string | null
           id: string
           last_contacted_at: string | null
           lat: number | null
@@ -9078,6 +9080,9 @@ export type Database = {
           phone: string | null
           pipeline_stage: Database["public"]["Enums"]["prospect_pipeline_stage"]
           postal_code: string | null
+          quality_tier: string | null
+          rating: number | null
+          rating_count: number | null
           responsible_name: string | null
           score: number
           segment: string | null
@@ -9102,6 +9107,8 @@ export type Database = {
           created_at?: string
           description?: string | null
           enriched_at?: string | null
+          google_maps_url?: string | null
+          google_place_id?: string | null
           id?: string
           last_contacted_at?: string | null
           lat?: number | null
@@ -9115,6 +9122,9 @@ export type Database = {
           phone?: string | null
           pipeline_stage?: Database["public"]["Enums"]["prospect_pipeline_stage"]
           postal_code?: string | null
+          quality_tier?: string | null
+          rating?: number | null
+          rating_count?: number | null
           responsible_name?: string | null
           score?: number
           segment?: string | null
@@ -9139,6 +9149,8 @@ export type Database = {
           created_at?: string
           description?: string | null
           enriched_at?: string | null
+          google_maps_url?: string | null
+          google_place_id?: string | null
           id?: string
           last_contacted_at?: string | null
           lat?: number | null
@@ -9152,6 +9164,9 @@ export type Database = {
           phone?: string | null
           pipeline_stage?: Database["public"]["Enums"]["prospect_pipeline_stage"]
           postal_code?: string | null
+          quality_tier?: string | null
+          rating?: number | null
+          rating_count?: number | null
           responsible_name?: string | null
           score?: number
           segment?: string | null
