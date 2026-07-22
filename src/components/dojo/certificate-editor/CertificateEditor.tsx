@@ -95,7 +95,7 @@ export function CertificateEditor(props: Props) {
     let el: AnyElement;
     switch (kind) {
       case "text":
-        el = { ...common, kind: "text", text: "Certificamos que", fontSize: 32, color: "#111", align: "center", ...extra } as TextElement; break;
+        el = { ...common, kind: "text", text: "Certificamos que", fontSize: 32, color: "#000000", align: "center", ...extra } as TextElement; break;
       case "image":
       case "logo":
       case "signature":
@@ -105,13 +105,13 @@ export function CertificateEditor(props: Props) {
       case "circle":
         el = { ...common, kind: "circle", w: 10, h: 10, fill: "#dc2626", ...extra } as ShapeElement; break;
       case "line":
-        el = { ...common, kind: "line", w: 30, h: 0.4, fill: "#111", ...extra } as ShapeElement; break;
+        el = { ...common, kind: "line", w: 30, h: 0.4, fill: "#000000", ...extra } as ShapeElement; break;
       case "qr":
         el = { ...common, kind: "qr", qrValue: "{{certificado_validacao}}", w: 10, h: 15, color: "#000", bg: "#fff", ...extra } as QrElement; break;
       case "date":
-        el = { ...common, kind: "date", format: "long", fontSize: 22, color: "#111", align: "center", ...extra } as DateElement; break;
+        el = { ...common, kind: "date", format: "long", fontSize: 22, color: "#000000", align: "center", ...extra } as DateElement; break;
       case "signature-block":
-        el = { ...common, kind: "signature-block", w: 25, h: 12, personName: "Nome do Professor", personRole: "Faixa Preta 2º grau", showLine: true, color: "#111", ...extra } as SigBlockElement; break;
+        el = { ...common, kind: "signature-block", w: 25, h: 12, personName: "Nome do Professor", personRole: "Faixa Preta 2º grau", showLine: true, color: "#000000", ...extra } as SigBlockElement; break;
       default:
         return;
     }
@@ -613,7 +613,7 @@ function CanvasArea({
             const x = ((e.clientX - rect.left) / rect.width) * 100;
             const y = ((e.clientY - rect.top) / rect.height) * 100;
             const el: TextElement = {
-              id: makeId(), kind: "text", text: `{{${key}}}`, fontSize: 28, color: "#111",
+              id: makeId(), kind: "text", text: `{{${key}}}`, fontSize: 28, color: "#000000",
               align: "left", x, y, rotation: 0, opacity: 1,
             };
             useEditor.getState().addElement(el);
