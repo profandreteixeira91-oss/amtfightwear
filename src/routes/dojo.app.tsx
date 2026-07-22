@@ -86,36 +86,46 @@ const nav: { label: string; items: NavItem[] }[] = [
     ],
   },
   {
-    label: "Academia",
+    label: "Pessoas",
     items: [
       { to: "/dojo/app/students", label: "Alunos", icon: Users },
+      { to: "/dojo/app/team", label: "Equipe", icon: UsersRound },
+    ],
+  },
+  {
+    label: "Rotina",
+    items: [
       { to: "/dojo/app/schedule", label: "Agenda", icon: CalendarDays },
       { to: "/dojo/app/checkin", label: "Check-in", icon: QrCode },
-      { to: "/dojo/app/graduations", label: "Graduações", icon: Award },
       { to: "/dojo/app/ranking", label: "Ranking", icon: Trophy },
-
+      { to: "/dojo/app/announcements", label: "Quadro de Avisos", icon: Megaphone },
+    ],
+  },
+  {
+    label: "Ensino & Graduação",
+    items: [
       { to: "/dojo/app/belts", label: "Modalidades e Faixas", icon: Award },
+      { to: "/dojo/app/graduations", label: "Graduações", icon: Award },
       { to: "/dojo/app/evaluations", label: "Avaliações", icon: ClipboardList },
       { to: "/dojo/app/certificates", label: "Certificados", icon: FileBadge },
-      { to: "/dojo/app/competitions", label: "Competições", icon: Trophy },
-      { to: "/dojo/app/announcements", label: "Quadro de Avisos", icon: Megaphone },
       { to: "/dojo/app/videos", label: "Vídeos", icon: Film },
     ],
   },
   {
-    label: "Loja",
+    label: "Competitivo",
+    items: [
+      { to: "/dojo/app/competitions", label: "Competições", icon: Trophy },
+    ],
+  },
+  {
+    label: "Comercial",
     items: [
       { to: "/dojo/app/store", label: "AMT Store", icon: ShoppingBag },
+      { to: "/dojo/app/sales", label: "Vendas avulsas", icon: ShoppingCart },
     ],
   },
   {
-    label: "Cobrança avulsa",
-    items: [
-      { to: "/dojo/app/sales", label: "Vendas", icon: ShoppingCart },
-    ],
-  },
-  {
-    label: "Recorrência & Financeiro",
+    label: "Financeiro",
     items: [
       { to: "/dojo/app/plans", label: "Planos", icon: ScrollText },
       { to: "/dojo/app/finance", label: "Financeiro", icon: Wallet },
@@ -123,11 +133,10 @@ const nav: { label: string; items: NavItem[] }[] = [
     ],
   },
   {
-    label: "Gestão",
+    label: "Estrutura",
     items: [
-      { to: "/dojo/app/team", label: "Equipe", icon: UsersRound },
-      { to: "/dojo/app/corporate-benefits", label: "Benefícios Corporativos", icon: HeartHandshake },
       { to: "/dojo/app/units", label: "Unidades", icon: Building2 },
+      { to: "/dojo/app/corporate-benefits", label: "Benefícios Corporativos", icon: HeartHandshake },
     ],
   },
   {
