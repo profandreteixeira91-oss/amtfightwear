@@ -221,8 +221,6 @@ function StudentDetail() {
   const whatsappLink = s.phone ? `https://wa.me/${String(s.phone).replace(/\D/g, "")}` : null;
   const emailLink = s.email ? `mailto:${s.email}` : null;
 
-  if (isChildRoute) return <Outlet />;
-
   return (
     <div className="space-y-4">
 
