@@ -279,7 +279,7 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
         {/* Categories nav */}
         {topCategories.length > 0 && (
           <nav className="hidden md:block border-t bg-background">
-            <div className="mx-auto flex max-w-7xl items-stretch gap-1 overflow-x-auto px-4 text-sm font-medium [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div className="mx-auto flex max-w-7xl flex-wrap items-stretch gap-1 px-4 text-sm font-medium">
               <Link to="/" className="whitespace-nowrap px-3 py-3 text-foreground hover:text-primary">
                 Início
               </Link>
