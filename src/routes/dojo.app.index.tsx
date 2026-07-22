@@ -360,6 +360,9 @@ function DojoDashboard() {
         activeCount={active}
         balance={dash?.wallet.total ?? 0}
         overdueCount={dash?.pipeline.overdueCount ?? 0}
+        userName={meQ.data?.userName ?? null}
+        academyName={meQ.data?.academyName ?? null}
+        logoUrl={meQ.data?.logoUrl ?? null}
       />
 
       {/* Bento grid */}
