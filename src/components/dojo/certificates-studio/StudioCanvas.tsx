@@ -11,18 +11,25 @@ export function StudioCanvas() {
   const wrapRef = useRef<HTMLDivElement>(null);
   const values = useMemo(() => sampleValues(), []);
 
-  // Fit-on-mount
+  // Fit-on-mount and on resize / page-size change
   useEffect(() => {
-    if (!wrapRef.current) return;
-    const el = wrapRef.current;
-    const rect = el.getBoundingClientRect();
-    const targetW = rect.width - 80;
-    const targetH = rect.height - 80;
-    const zx = targetW / doc.page.width;
-    const zy = targetH / doc.page.height;
-    setZoom(Math.max(0.15, Math.min(1, Math.min(zx, zy))));
+    const fit = () => {
+      if (!wrapRef.current) return;
+      const rect = wrapRef.current.getBoundingClientRect();
+      const rulerOffset = showRulers ? 24 : 0;
+      const padding = 80; // 40px on each side
+      const targetW = rect.width - rulerOffset - padding;
+      const targetH = rect.height - rulerOffset - padding;
+      if (targetW <= 0 || targetH <= 0) return;
+      const zx = targetW / doc.page.width;
+      const zy = targetH / doc.page.height;
+      setZoom(Math.max(0.1, Math.min(1, Math.min(zx, zy))));
+    };
+    fit();
+    window.addEventListener("resize", fit);
+    return () => window.removeEventListener("resize", fit);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [doc.page.width, doc.page.height, showRulers]);
 
   // Ctrl+wheel zoom
   useEffect(() => {
