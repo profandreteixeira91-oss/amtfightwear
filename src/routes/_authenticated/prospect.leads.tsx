@@ -33,6 +33,10 @@ import {
 } from "@/lib/prospect/prospect.functions";
 import { PIPELINE_STAGES, BR_STATES } from "@/features/prospect/types";
 import { fmtDate, scoreToStars } from "@/features/prospect/utils";
+import {
+  addToMacroQueue, isInMacroQueue, removeFromMacroQueue,
+  subscribeMacroQueue, getMacroQueue,
+} from "@/features/prospect/utils/macro-queue";
 
 export const Route = createFileRoute("/_authenticated/prospect/leads")({
   head: () => ({ meta: [{ title: "Leads — Prospect Engine" }] }),
