@@ -402,28 +402,22 @@ function NewGraduationPage() {
               </div>
               <div>
                 <label className="text-xs text-muted-foreground">Faixa</label>
-                <select className="border rounded p-2 bg-background w-full" value={beltId} onChange={(e) => { setBeltId(e.target.value); setDegree(0); setPretaVariant("plain"); }}>
+                <select className="border rounded p-2 bg-background w-full" value={beltId} onChange={(e) => { setBeltId(e.target.value); setDegree(0); }}>
                   <option value="">Selecione…</option>
                   {visibleBelts.map((b: any) => <option key={b.id} value={b.id}>{b.name}</option>)}
                 </select>
               </div>
               <div>
-                <label className="text-xs text-muted-foreground">{degreeUnit(selectedBelt?.modality) === "Dan" ? "Dan" : "Grau"}</label>
-                {isPretaBase ? (
-                  <select className="border rounded p-2 bg-background w-full" value={pretaVariant} onChange={(e) => setPretaVariant(e.target.value)}>
-                    <option value="plain">{formatDegree(0, selectedBelt?.modality)}</option>
-                    <option value="aparador">Com aparador</option>
-                    {[1,2,3,4,5,6].map(n => <option key={n} value={n}>{formatDegree(n, selectedBelt?.modality)}</option>)}
-                  </select>
-                ) : (
-                  <select className="border rounded p-2 bg-background w-full" value={degree} onChange={(e) => setDegree(Number(e.target.value))} disabled={!selectedBelt || isFixedDegree}>
-                    {isFixedDegree ? (
-                      <option value={fixedDegreeName as number}>{fixedDegreeName}º {degreeUnit(selectedBelt?.modality)} (obrigatório)</option>
-                    ) : (
-                      Array.from({ length: maxDeg + 1 }).map((_, i) => <option key={i} value={i}>{formatDegree(i, selectedBelt?.modality)}</option>)
-                    )}
-                  </select>
-                )}
+                <label className="text-xs text-muted-foreground">{isPretaBase ? "Variação" : (degreeUnit(selectedBelt?.modality) === "Dan" ? "Dan" : "Grau")}</label>
+                <select className="border rounded p-2 bg-background w-full" value={degree} onChange={(e) => setDegree(Number(e.target.value))} disabled={!selectedBelt || isFixedDegree}>
+                  {isFixedDegree ? (
+                    <option value={fixedDegreeName as number}>{fixedDegreeName}º {degreeUnit(selectedBelt?.modality)} (obrigatório)</option>
+                  ) : (
+                    Array.from({ length: maxDeg + 1 }).map((_, i) => (
+                      <option key={i} value={i}>{formatDegree(i, selectedBelt?.modality, selectedBelt?.name)}</option>
+                    ))
+                  )}
+                </select>
                 {isFixedDegree && <p className="text-[11px] text-muted-foreground mt-1">Esta faixa possui grau fixo.</p>}
               </div>
               <div>
@@ -442,13 +436,14 @@ function NewGraduationPage() {
 
             {selectedBelt && effectiveBelt && (
               <div className="flex items-center gap-4 p-3 bg-muted/40 rounded">
-                <BeltVisual modality={effectiveBelt.modality} name={effectiveBelt.name} colorHex={effectiveBelt.color_hex} stripeHex={effectiveBelt.stripe_hex} degree={isPretaBase ? 0 : degree} maxDegrees={effectiveBelt.max_degrees ?? maxDeg} className="min-w-[220px]" />
+                <BeltVisual modality={effectiveBelt.modality} name={effectiveBelt.name} colorHex={effectiveBelt.color_hex} stripeHex={effectiveBelt.stripe_hex} degree={degree} maxDegrees={effectiveBelt.max_degrees ?? maxDeg} className="min-w-[220px]" />
                 <div className="text-sm">
                   <div className="font-medium">{effectiveBelt.name}</div>
-                  <div className="text-muted-foreground">{isPretaBase ? "" : formatDegree(degree, effectiveBelt?.modality)}</div>
+                  <div className="text-muted-foreground">{formatDegree(degree, effectiveBelt?.modality, effectiveBelt?.name)}</div>
                 </div>
               </div>
             )}
+
 
 
             <div className="flex justify-between">
