@@ -1,0 +1,159 @@
+// AMT Macro DM — content script no instagram.com
+// Executa o fluxo: perfil -> botão Mensagem -> compositor -> envia.
+
+(() => {
+  if (window.__amtMacroIg) return;
+  window.__amtMacroIg = true;
+
+  chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+    if (msg?.type === "run-dm") {
+      runDm(String(msg.message || ""))
+        .then(() =>
+          chrome.runtime.sendMessage({ type: "job-result", ok: true }),
+        )
+        .catch((err) =>
+          chrome.runtime.sendMessage({
+            type: "job-result",
+            ok: false,
+            error: String(err?.message || err),
+          }),
+        );
+      sendResponse({ ok: true });
+    }
+  });
+
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  async function waitFor(fn, { timeout = 20000, interval = 300 } = {}) {
+    const start = Date.now();
+    while (Date.now() - start < timeout) {
+      try {
+        const el = fn();
+        if (el) return el;
+      } catch {
+        /* ignore */
+      }
+      await sleep(interval);
+    }
+    throw new Error("Timeout esperando elemento do Instagram");
+  }
+
+  function textMatches(node, terms) {
+    const t = (node.innerText || node.textContent || "").trim().toLowerCase();
+    if (!t || t.length > 60) return false;
+    return terms.some((x) => t === x || t.includes(x));
+  }
+
+  function findClickable(terms) {
+    const nodes = document.querySelectorAll(
+      'div[role="button"], button, a[role="button"], a',
+    );
+    for (const n of nodes) {
+      if (textMatches(n, terms)) return n;
+      // Aria-label
+      const aria = (n.getAttribute("aria-label") || "").toLowerCase();
+      if (aria && terms.some((x) => aria.includes(x))) return n;
+    }
+    return null;
+  }
+
+  async function typeIntoComposer(el, text) {
+    el.focus();
+    // 1) Tentativa via ClipboardEvent (React captura como paste)
+    try {
+      const dt = new DataTransfer();
+      dt.setData("text/plain", text);
+      const evt = new ClipboardEvent("paste", {
+        clipboardData: dt,
+        bubbles: true,
+        cancelable: true,
+      });
+      el.dispatchEvent(evt);
+    } catch {
+      /* ignore */
+    }
+
+    await sleep(200);
+    const current = (el.innerText || el.textContent || "").trim();
+    if (current.length >= Math.min(10, text.length)) return;
+
+    // 2) Fallback via execCommand
+    try {
+      document.execCommand("insertText", false, text);
+    } catch {
+      /* ignore */
+    }
+
+    await sleep(200);
+    const after = (el.innerText || el.textContent || "").trim();
+    if (after.length >= Math.min(10, text.length)) return;
+
+    // 3) Último fallback: setar textContent + input event
+    el.textContent = text;
+    el.dispatchEvent(new InputEvent("input", { bubbles: true, data: text }));
+  }
+
+  async function runDm(message) {
+    if (!message) throw new Error("Mensagem vazia");
+
+    // 1) Botão "Mensagem" no perfil (pode ter cooldown de carregamento)
+    const msgBtn = await waitFor(
+      () =>
+        findClickable([
+          "message",
+          "mensagem",
+          "enviar mensagem",
+          "send message",
+        ]),
+      { timeout: 20000 },
+    );
+    msgBtn.click();
+
+    // 2) Se abrir modal "Ativar notificações", fecha com "Agora não"
+    await sleep(1500);
+    const notNow = findClickable([
+      "not now",
+      "agora não",
+      "agora nao",
+      "cancel",
+      "cancelar",
+    ]);
+    if (notNow) {
+      try {
+        notNow.click();
+      } catch {
+        /* ignore */
+      }
+      await sleep(800);
+    }
+
+    // 3) Compositor de mensagem
+    const composer = await waitFor(
+      () =>
+        document.querySelector(
+          'div[contenteditable="true"][role="textbox"], textarea[placeholder*="essage" i], textarea[placeholder*="ensagem" i]',
+        ),
+      { timeout: 25000 },
+    );
+
+    await typeIntoComposer(composer, message);
+    await sleep(600 + Math.floor(Math.random() * 500));
+
+    // 4) Botão Enviar
+    const sendBtn = await waitFor(
+      () => {
+        // Botões dentro do painel de chat
+        const byAria = document.querySelector(
+          'div[role="button"][aria-label*="Send" i], div[role="button"][aria-label*="Enviar" i], button[aria-label*="Send" i], button[aria-label*="Enviar" i]',
+        );
+        if (byAria && !byAria.hasAttribute("disabled")) return byAria;
+        return findClickable(["send", "enviar"]);
+      },
+      { timeout: 10000 },
+    );
+
+    sendBtn.click();
+    // Aguarda o envio persistir
+    await sleep(2000);
+  }
+})();
