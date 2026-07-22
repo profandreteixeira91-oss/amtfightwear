@@ -144,8 +144,8 @@ export function GoalsTab({ studentId }: { studentId: string }) {
                 key={g.id}
                 goal={g}
                 onEdit={() => openEdit(g)}
-                onToggleStatus={(status) => setStatus.mutate({ id: g.id, status })}
-                onUpdateProgress={(v) => updateProg.mutate({ id: g.id, currentValue: v })}
+                onToggleStatus={(status: any) => setStatus.mutate({ id: g.id, status })}
+                onUpdateProgress={(v: any) => updateProg.mutate({ id: g.id, currentValue: v })}
                 onDelete={() => { if (confirm(`Excluir a meta "${g.title}"?`)) remove.mutate(g.id); }}
               />
             ))}
@@ -159,7 +159,7 @@ export function GoalsTab({ studentId }: { studentId: string }) {
         studentId={studentId}
         editing={editing}
         belts={belts.data ?? []}
-        onSubmit={(data) => upsert.mutate(data)}
+        onSubmit={(data: any) => upsert.mutate(data)}
         submitting={upsert.isPending}
       />
     </div>
