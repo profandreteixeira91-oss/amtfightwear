@@ -3,6 +3,8 @@ import { useStudioStore, CERT_FONTS, PAGE_PRESETS, type PagePreset } from "@/lib
 import { VARIABLE_MENU } from "@/lib/dojo/certificates/export";
 import { ORNAMENTS, svgToDataUrl, FONT_PAIRINGS, type SvgAsset } from "@/lib/dojo/certificates/ornaments";
 import { makeTextElement, makeVariableElement, makeShapeElement, makeImageElement, makeQrElement } from "./StudioCanvas";
+import { CertificateRenderer } from "./CertificateRenderer";
+import { CERTIFICATE_PRESETS } from "@/lib/dojo/certificates/presets";
 import { supabase } from "@/integrations/supabase/client";
 import { Type, Variable, Image as ImageIcon, Shapes, QrCode, Signature, BadgeCheck, Layout, Search, Upload, Circle, Square, Minus, Sparkles, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
