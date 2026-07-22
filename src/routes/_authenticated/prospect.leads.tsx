@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import {
   Search, Filter, Mail, MessageCircle, Instagram, Globe, Sparkles,
   ChevronLeft, ChevronRight, Star, ExternalLink, Radar, Trash2, Wand2, Loader2,
+  MapPin, Phone,
 } from "lucide-react";
 import { PageShell } from "@/components/common/PageShell";
 import { ErrorState } from "@/components/common/ErrorState";
@@ -379,15 +380,39 @@ function LeadsPage() {
                         />
                       </TableCell>
                       <TableCell className="min-w-0">
-                        <Link to="/prospect/$id" params={{ id: r.id }} className="truncate font-semibold hover:text-primary">
-                          {String(r.name)}
-                        </Link>
+                        <div className="flex items-center gap-2">
+                          <Link to="/prospect/$id" params={{ id: r.id }} className="truncate font-semibold hover:text-primary">
+                            {String(r.name)}
+                          </Link>
+                          {r.quality_tier ? (
+                            <Badge
+                              variant="outline"
+                              className={
+                                r.quality_tier === "excelente" ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-[10px] px-1.5 h-4" :
+                                r.quality_tier === "bom" ? "border-sky-500/40 bg-sky-500/10 text-sky-700 dark:text-sky-300 text-[10px] px-1.5 h-4" :
+                                "border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300 text-[10px] px-1.5 h-4"
+                              }
+                            >
+                              {r.quality_tier === "excelente" ? "★ Excelente" : r.quality_tier === "bom" ? "Bom" : "Regular"}
+                            </Badge>
+                          ) : null}
+                        </div>
                         {r.category ? (
                           <div className="mt-0.5 text-xs text-muted-foreground line-clamp-1">{String(r.category)}</div>
+                        ) : null}
+                        {r.rating ? (
+                          <div className="mt-0.5 inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+                            <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                            <span className="font-semibold text-foreground">{Number(r.rating).toFixed(1)}</span>
+                            <span>({Number(r.rating_count ?? 0)})</span>
+                          </div>
                         ) : null}
                       </TableCell>
                       <TableCell className="hidden text-xs text-muted-foreground md:table-cell">
                         {r.city ? `${r.city}${r.state ? " — " + r.state : ""}` : (r.state ? String(r.state) : "—")}
+                        {r.address ? (
+                          <div className="mt-0.5 line-clamp-1 text-[11px] opacity-70">{String(r.address)}</div>
+                        ) : null}
                       </TableCell>
                       <TableCell className="hidden lg:table-cell">
                         <Select
@@ -433,6 +458,24 @@ function LeadsPage() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="inline-flex gap-1">
+                          {r.google_maps_url ? (
+                            <Button
+                              asChild size="sm" variant="ghost" title="Abrir no Google Maps"
+                            >
+                              <a href={String(r.google_maps_url)} target="_blank" rel="noopener noreferrer">
+                                <MapPin className="h-4 w-4" />
+                              </a>
+                            </Button>
+                          ) : null}
+                          {r.phone ? (
+                            <Button
+                              asChild size="sm" variant="ghost" title={`Ligar ${String(r.phone)}`}
+                            >
+                              <a href={`tel:${String(r.phone).replace(/[^\d+]/g,"")}`}>
+                                <Phone className="h-4 w-4" />
+                              </a>
+                            </Button>
+                          ) : null}
                           {ig && (
                             <Button
                               size="sm"

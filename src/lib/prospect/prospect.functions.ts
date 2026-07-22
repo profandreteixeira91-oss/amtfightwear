@@ -292,7 +292,7 @@ export const runSearch = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => runSearchInput.parse(i))
   .handler(async ({ data, context }) => {
-    const { discoverCompanies } = await import("./prospect-engine.server");
+    const { discoverCompanies, computeQualityTier } = await import("./prospect-engine.server");
     const supa = context.supabase as unknown as {
       from: (t: string) => {
         insert: (v: unknown, o?: unknown) => { select: (c: string) => { single: () => Promise<{ data: { id: string } | null }> } } & Promise<{ data: unknown[] | null; error: unknown }>;
@@ -324,7 +324,8 @@ export const runSearch = createServerFn({ method: "POST" })
       });
 
       for (const c of companies) {
-
+        const q = computeQualityTier(c);
+        if (q.tier === "descartar") continue;
 
         const { data: row } = await supa.from("prospect_companies").insert({
           owner_id: context.userId,
@@ -332,7 +333,17 @@ export const runSearch = createServerFn({ method: "POST" })
           category: c.category, segment: data.segment,
           city: c.city, state: c.state, country: data.country,
           website: c.website, description: c.description, source_url: c.source_url,
-          origin: "search",
+          address: c.address ?? null,
+          phone: c.phone ?? null,
+          lat: c.lat ?? null,
+          lng: c.lng ?? null,
+          google_place_id: c.google_place_id ?? null,
+          google_maps_url: c.google_maps_url ?? null,
+          rating: c.rating ?? null,
+          rating_count: c.rating_count ?? null,
+          quality_tier: q.tier,
+          score: q.score,
+          origin: c.google_place_id ? "google_places" : "search",
           pipeline_stage: "novo",
         }).select("id").single();
 
@@ -343,7 +354,6 @@ export const runSearch = createServerFn({ method: "POST" })
           });
           await logEvent(context.supabase, context.userId, row.id, "lead_created", `Lead capturado via busca: ${data.name}`);
         }
-        
       }
 
       if (searchId) {
@@ -382,7 +392,7 @@ export const runMartialArtsSweep = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => sweepInput.parse(i))
   .handler(async ({ data, context }) => {
-    const { discoverCompanies, buildMartialArtsQueries } = await import("./prospect-engine.server");
+    const { discoverCompanies, buildMartialArtsQueries, computeQualityTier } = await import("./prospect-engine.server");
     const supa = context.supabase as unknown as {
       from: (t: string) => {
         insert: (v: unknown) => { select: (c: string) => { single: () => Promise<{ data: { id: string } | null }> } } & Promise<{ data: unknown[] | null; error: unknown }>;
@@ -390,7 +400,6 @@ export const runMartialArtsSweep = createServerFn({ method: "POST" })
       };
     };
 
-    // Localidades: cidades OU UFs; se nada, roda sem localidade (Brasil todo).
     const locations: Array<{ city: string | null; state: string | null }> = [];
     for (const c of data.cities) locations.push({ city: c, state: null });
     for (const s of data.states) locations.push({ city: null, state: s });
@@ -430,12 +439,16 @@ export const runMartialArtsSweep = createServerFn({ method: "POST" })
             queries,
             allowInstagram,
             limit: data.per_preset,
+            category,
           });
 
           for (const c of companies) {
-            const dedupeKey = c.website ?? c.source_url;
+            const dedupeKey = c.google_place_id ?? c.website ?? c.source_url;
             if (globalSeen.has(dedupeKey)) continue;
             globalSeen.add(dedupeKey);
+
+            const q = computeQualityTier(c);
+            if (q.tier === "descartar") continue;
 
             const { data: row } = await supa.from("prospect_companies").insert({
               owner_id: context.userId,
@@ -443,7 +456,17 @@ export const runMartialArtsSweep = createServerFn({ method: "POST" })
               category: c.category, segment: preset,
               city: c.city, state: c.state, country: "BR",
               website: c.website, description: c.description, source_url: c.source_url,
-              origin: "search_martial_arts",
+              address: c.address ?? null,
+              phone: c.phone ?? null,
+              lat: c.lat ?? null,
+              lng: c.lng ?? null,
+              google_place_id: c.google_place_id ?? null,
+              google_maps_url: c.google_maps_url ?? null,
+              rating: c.rating ?? null,
+              rating_count: c.rating_count ?? null,
+              quality_tier: q.tier,
+              score: q.score,
+              origin: c.google_place_id ? "google_places" : "search_martial_arts",
               pipeline_stage: "novo",
             }).select("id").single();
 
