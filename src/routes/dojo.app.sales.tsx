@@ -381,6 +381,10 @@ function NewSaleDialog({
       toast.error("Adicione ao menos um item válido.");
       return;
     }
+    if (isGateway && !amtPayReady) {
+      toast.error("Ative o AMT Pay para gerar cobranças online. Use uma forma direta com a academia.");
+      return;
+    }
     if (isGateway && !studentId) {
       toast.error("Selecione o aluno para cobrar pelo AMT Pay.");
       return;
