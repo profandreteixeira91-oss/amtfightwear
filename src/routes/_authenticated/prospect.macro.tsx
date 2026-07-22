@@ -716,6 +716,23 @@ function MacroPage() {
         )}
       </SectionCard>
 
+      <SectionCard
+        title="Como instalar a extensão AMT Macro DM"
+        description="Ative a automação 100% (Chrome, Edge, Brave, Arc, Opera)."
+      >
+        <ol className="grid gap-2 text-sm text-muted-foreground md:grid-cols-2">
+          <li>1. Baixe o arquivo <code className="rounded bg-muted px-1">amt-macro-dm.zip</code> pelo botão no topo desta página.</li>
+          <li>2. Descompacte em uma pasta permanente (não apague depois).</li>
+          <li>3. Abra <code className="rounded bg-muted px-1">chrome://extensions</code> no seu navegador.</li>
+          <li>4. Ative o <strong>Modo do desenvolvedor</strong> (canto superior direito).</li>
+          <li>5. Clique em <strong>Carregar sem compactação</strong> e selecione a pasta.</li>
+          <li>6. Recarregue esta página — o badge <em>“Extensão conectada”</em> deve aparecer no topo.</li>
+        </ol>
+        <div className="mt-4 rounded-lg border border-border/60 bg-muted/30 p-3 text-xs text-muted-foreground">
+          A extensão só age quando você clica <strong>Rodar</strong>. Ela abre o Instagram (usando sua sessão atual), cola a mensagem no DM, envia, fecha a aba e aplica o cooldown antes do próximo lead.
+        </div>
+      </SectionCard>
+
       <SectionCard title="Boas práticas anti-spam" description="Cadência humana &gt; volume.">
         <ul className="grid gap-2 text-sm text-muted-foreground md:grid-cols-2">
           <li>• Personalize 1–2 frases antes de enviar cada mensagem — evita padrão robótico.</li>
