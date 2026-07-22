@@ -76,6 +76,7 @@ import { Route as DojoAppCompetitionsRouteImport } from './routes/dojo.app.compe
 import { Route as DojoAppCheckinRouteImport } from './routes/dojo.app.checkin'
 import { Route as DojoAppCertificatesRouteImport } from './routes/dojo.app.certificates'
 import { Route as DojoAppBeltsRouteImport } from './routes/dojo.app.belts'
+import { Route as DojoAppBeltStudioRouteImport } from './routes/dojo.app.belt-studio'
 import { Route as DojoAppApkVersionsRouteImport } from './routes/dojo.app.apk-versions'
 import { Route as DojoAppAnnouncementsRouteImport } from './routes/dojo.app.announcements'
 import { Route as DojoAppAccountRouteImport } from './routes/dojo.app.account'
@@ -538,6 +539,11 @@ const DojoAppCertificatesRoute = DojoAppCertificatesRouteImport.update({
 const DojoAppBeltsRoute = DojoAppBeltsRouteImport.update({
   id: '/belts',
   path: '/belts',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppBeltStudioRoute = DojoAppBeltStudioRouteImport.update({
+  id: '/belt-studio',
+  path: '/belt-studio',
   getParentRoute: () => DojoAppRoute,
 } as any)
 const DojoAppApkVersionsRoute = DojoAppApkVersionsRouteImport.update({
@@ -1353,6 +1359,7 @@ export interface FileRoutesByFullPath {
   '/dojo/app/account': typeof DojoAppAccountRoute
   '/dojo/app/announcements': typeof DojoAppAnnouncementsRoute
   '/dojo/app/apk-versions': typeof DojoAppApkVersionsRoute
+  '/dojo/app/belt-studio': typeof DojoAppBeltStudioRoute
   '/dojo/app/belts': typeof DojoAppBeltsRoute
   '/dojo/app/certificates': typeof DojoAppCertificatesRoute
   '/dojo/app/checkin': typeof DojoAppCheckinRoute
@@ -1545,6 +1552,7 @@ export interface FileRoutesByTo {
   '/dojo/app/account': typeof DojoAppAccountRoute
   '/dojo/app/announcements': typeof DojoAppAnnouncementsRoute
   '/dojo/app/apk-versions': typeof DojoAppApkVersionsRoute
+  '/dojo/app/belt-studio': typeof DojoAppBeltStudioRoute
   '/dojo/app/belts': typeof DojoAppBeltsRoute
   '/dojo/app/certificates': typeof DojoAppCertificatesRoute
   '/dojo/app/checkin': typeof DojoAppCheckinRoute
@@ -1736,6 +1744,7 @@ export interface FileRoutesById {
   '/dojo/app/account': typeof DojoAppAccountRoute
   '/dojo/app/announcements': typeof DojoAppAnnouncementsRoute
   '/dojo/app/apk-versions': typeof DojoAppApkVersionsRoute
+  '/dojo/app/belt-studio': typeof DojoAppBeltStudioRoute
   '/dojo/app/belts': typeof DojoAppBeltsRoute
   '/dojo/app/certificates': typeof DojoAppCertificatesRoute
   '/dojo/app/checkin': typeof DojoAppCheckinRoute
@@ -1933,6 +1942,7 @@ export interface FileRouteTypes {
     | '/dojo/app/account'
     | '/dojo/app/announcements'
     | '/dojo/app/apk-versions'
+    | '/dojo/app/belt-studio'
     | '/dojo/app/belts'
     | '/dojo/app/certificates'
     | '/dojo/app/checkin'
@@ -2125,6 +2135,7 @@ export interface FileRouteTypes {
     | '/dojo/app/account'
     | '/dojo/app/announcements'
     | '/dojo/app/apk-versions'
+    | '/dojo/app/belt-studio'
     | '/dojo/app/belts'
     | '/dojo/app/certificates'
     | '/dojo/app/checkin'
@@ -2315,6 +2326,7 @@ export interface FileRouteTypes {
     | '/dojo/app/account'
     | '/dojo/app/announcements'
     | '/dojo/app/apk-versions'
+    | '/dojo/app/belt-studio'
     | '/dojo/app/belts'
     | '/dojo/app/certificates'
     | '/dojo/app/checkin'
@@ -2937,6 +2949,13 @@ declare module '@tanstack/react-router' {
       path: '/belts'
       fullPath: '/dojo/app/belts'
       preLoaderRoute: typeof DojoAppBeltsRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/belt-studio': {
+      id: '/dojo/app/belt-studio'
+      path: '/belt-studio'
+      fullPath: '/dojo/app/belt-studio'
+      preLoaderRoute: typeof DojoAppBeltStudioRouteImport
       parentRoute: typeof DojoAppRoute
     }
     '/dojo/app/apk-versions': {
@@ -4209,6 +4228,7 @@ interface DojoAppRouteChildren {
   DojoAppAccountRoute: typeof DojoAppAccountRoute
   DojoAppAnnouncementsRoute: typeof DojoAppAnnouncementsRoute
   DojoAppApkVersionsRoute: typeof DojoAppApkVersionsRoute
+  DojoAppBeltStudioRoute: typeof DojoAppBeltStudioRoute
   DojoAppBeltsRoute: typeof DojoAppBeltsRoute
   DojoAppCertificatesRoute: typeof DojoAppCertificatesRoute
   DojoAppCheckinRoute: typeof DojoAppCheckinRoute
@@ -4240,6 +4260,7 @@ const DojoAppRouteChildren: DojoAppRouteChildren = {
   DojoAppAccountRoute: DojoAppAccountRoute,
   DojoAppAnnouncementsRoute: DojoAppAnnouncementsRoute,
   DojoAppApkVersionsRoute: DojoAppApkVersionsRoute,
+  DojoAppBeltStudioRoute: DojoAppBeltStudioRoute,
   DojoAppBeltsRoute: DojoAppBeltsRoute,
   DojoAppCertificatesRoute: DojoAppCertificatesRoute,
   DojoAppCheckinRoute: DojoAppCheckinRoute,

@@ -74,6 +74,8 @@ export const saveDojoBelt = createServerFn({ method: "POST" })
     min_classes: z.number().int().min(0).max(10000).nullable().optional(),
     criteria_mode: z.enum(["time","classes","evaluation","merit"]).optional().default("time"),
     scope: z.enum(["global", "own"]).default("own"),
+    visual: z.any().optional(),
+    variants: z.array(z.any()).optional(),
   }).parse(i))
   .handler(async ({ data, context }) => {
     const { id, scope, ...rest } = data;

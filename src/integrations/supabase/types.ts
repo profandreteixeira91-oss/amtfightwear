@@ -2965,6 +2965,8 @@ export type Database = {
           owner_id: string | null
           sort_order: number
           stripe_hex: string | null
+          variants: Json
+          visual: Json
         }
         Insert: {
           category?: string
@@ -2980,6 +2982,8 @@ export type Database = {
           owner_id?: string | null
           sort_order: number
           stripe_hex?: string | null
+          variants?: Json
+          visual?: Json
         }
         Update: {
           category?: string
@@ -2995,6 +2999,8 @@ export type Database = {
           owner_id?: string | null
           sort_order?: number
           stripe_hex?: string | null
+          variants?: Json
+          visual?: Json
         }
         Relationships: []
       }
