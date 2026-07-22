@@ -224,6 +224,11 @@ function StudentDetail() {
           <ArrowLeft className="h-4 w-4" /> Alunos
         </Link>
         <div className="flex flex-wrap gap-1.5">
+          <Button size="sm" asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
+            <Link to="/dojo/app/students/$id/analysis" params={{ id }}>
+              <Activity className="h-4 w-4 mr-1.5" /> Análise de Performance
+            </Link>
+          </Button>
           <Button size="sm" variant="outline" onClick={() => {
             try { sessionStorage.setItem("dojo-edit-student", id); } catch {}
             navigate({ to: "/dojo/app/students" });
