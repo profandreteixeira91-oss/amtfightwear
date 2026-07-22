@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Printer, FileDown, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
+import { CertificateRenderer } from "@/components/dojo/certificates-studio/CertificateRenderer";
 
 export type CertificateField = {
   key: string; label?: string;
@@ -63,29 +64,36 @@ export function CertificateCanvas({
   const H = template.height;
   const editorSchema: EditorSchema | undefined = template.variables?.editor_schema;
 
+  // Prefer the studio renderer for v2 schemas — guarantees the profile view
+  // matches exactly what the editor / print produce.
+  if (editorSchema) {
+    return (
+      <div style={{ width: W * scale, height: H * scale, overflow: "hidden" }}>
+        <div style={{ width: W, height: H, transform: `scale(${scale})`, transformOrigin: "top left" }}>
+          <CertificateRenderer doc={editorSchema} values={values} />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       style={{
         position: "relative",
         width: `${W * scale}px`,
         height: `${H * scale}px`,
-        background: editorSchema?.page.background ?? "#fff",
+        background: "#fff",
         overflow: "hidden",
       }}
     >
-      {(template.background_url || editorSchema?.page.backgroundUrl) && (
+      {template.background_url && (
         <img
-          src={editorSchema?.page.backgroundUrl || template.background_url}
+          src={template.background_url}
           alt=""
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain" }}
         />
       )}
-
-      {editorSchema
-        ? [...editorSchema.elements].sort((a, b) => (a.z ?? 0) - (b.z ?? 0)).map((el) => (
-            el.hidden ? null : <EditorElementRender key={el.id} el={el} values={values} scale={scale} W={W} H={H} />
-          ))
-        : (template.fields ?? []).map((f, i) => renderLegacy(f, i, values, scale, W, H))}
+      {(template.fields ?? []).map((f, i) => renderLegacy(f, i, values, scale, W, H))}
     </div>
   );
 }
@@ -182,15 +190,20 @@ function buildPrintHtml(items: Array<{ template: CertificateTemplate; values: Re
     const W = template.width, H = template.height;
     const editorSchema: EditorSchema | undefined = template.variables?.editor_schema;
     let elementsHtml = "";
+    let canvasBg = "#fff";
+    let canvasBgImg = "";
     if (editorSchema) {
+      canvasBg = editorSchema.page.background || "#fff";
+      const bgUrl = editorSchema.page.backgroundUrl || template.background_url;
+      if (bgUrl) canvasBgImg = `background-image:url('${bgUrl}');background-size:cover;background-position:center;`;
       const sorted = [...editorSchema.elements].sort((a, b) => (a.z ?? 0) - (b.z ?? 0));
       elementsHtml = sorted.filter((e) => !e.hidden).map((e) => renderElementHtml(e, values)).join("");
     } else {
+      if (template.background_url) canvasBgImg = `background-image:url('${template.background_url}');background-size:contain;background-position:center;background-repeat:no-repeat;`;
       elementsHtml = (template.fields ?? []).map((f) => renderLegacyHtml(f, values)).join("");
     }
     return `<section class="page">
-      <div class="canvas" style="width:${W}px;height:${H}px;">
-        ${template.background_url ? `<img class="bg" src="${template.background_url}" crossorigin="anonymous" />` : ""}
+      <div class="canvas" style="width:${W}px;height:${H}px;background:${canvasBg};${canvasBgImg}">
         ${elementsHtml}
       </div>
     </section>`;
@@ -204,8 +217,7 @@ function buildPrintHtml(items: Array<{ template: CertificateTemplate; values: Re
     body { font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
     .page { display: flex; align-items: center; justify-content: center; width: 100vw; min-height: 100vh; page-break-after: always; }
     .page:last-child { page-break-after: auto; }
-    .canvas { position: relative; background: #fff; box-shadow: 0 8px 24px rgba(0,0,0,.08); transform-origin: center; transform: scale(var(--fit, 1)); }
-    .canvas .bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+    .canvas { position: relative; box-shadow: 0 8px 24px rgba(0,0,0,.08); transform-origin: center; transform: scale(var(--fit, 1)); overflow: hidden; }
     @media print { html, body { background: #fff; } .page { min-height: auto; height: 100vh; } .canvas { box-shadow: none; } }
   </style>
   </head><body>
@@ -246,29 +258,45 @@ function renderLegacyHtml(f: CertificateField, values: Record<string, string>): 
 }
 
 function renderElementHtml(el: any, values: Record<string, string>): string {
-  const isText = el.kind === "text" || el.kind === "date";
+  // Match CertificateRenderer's box model exactly so print output matches the editor.
+  const hasW = el.w != null;
+  const hasH = el.h != null;
+  const sizingBox = `width:${el.w ?? 20}%;height:${el.h ?? 10}%;`;
   const common = `position:absolute;left:${el.x}%;top:${el.y}%;transform:translate(-50%,-50%) rotate(${el.rotation || 0}deg);opacity:${el.opacity ?? 1};z-index:${el.z ?? 0};`;
-  const sizing = isText ? "" : `width:${el.w ?? 20}%;height:${el.h ?? 10}%;`;
+
   if (el.kind === "text") {
-    return `<div style="${common}${sizing}font-size:${el.fontSize}px;color:${el.color};font-weight:${el.bold ? 700 : 400};${el.italic ? "font-style:italic;" : ""}${el.underline ? "text-decoration:underline;" : ""}${el.uppercase ? "text-transform:uppercase;" : ""}text-align:${el.align};${el.fontFamily ? `font-family:${el.fontFamily};` : ""}line-height:${el.lineHeight ?? 1.2};white-space:pre-wrap;">${esc(subst(el.text, values))}</div>`;
+    const vAlign = el.verticalAlign ?? "middle";
+    const alignItems = vAlign === "top" ? "flex-start" : vAlign === "bottom" ? "flex-end" : "center";
+    const justify = el.align === "left" ? "flex-start" : el.align === "right" ? "flex-end" : "center";
+    const bg = el.background && el.background !== "transparent" ? `background:${el.background};` : "";
+    const padding = el.padding ? `padding:${el.padding}px;` : "";
+    const border = (el.borderWidth ?? 0) > 0 ? `border:${el.borderWidth}px solid ${el.borderColor || "#000"};` : "";
+    const radius = el.borderRadius ? `border-radius:${el.borderRadius}px;` : "";
+    const width = hasW ? `width:${el.w}%;` : "";
+    const height = hasH ? `height:${el.h}%;` : "";
+    const boxStyle = `${common}${width}${height}display:flex;align-items:${alignItems};justify-content:${justify};${bg}${padding}${border}${radius}box-sizing:border-box;`;
+    const textStyle = `font-size:${el.fontSize}px;color:${el.color};font-weight:${el.bold ? 800 : 400};${el.italic ? "font-style:italic;" : ""}${el.underline ? "text-decoration:underline;" : ""}${el.uppercase ? "text-transform:uppercase;" : ""}text-align:${el.align};${el.fontFamily ? `font-family:'${el.fontFamily}',serif;` : ""}line-height:${el.lineHeight ?? 1.25};${el.letterSpacing != null ? `letter-spacing:${el.letterSpacing}px;` : ""}${hasW ? "width:100%;" : ""}white-space:pre-wrap;word-break:break-word;`;
+    const raw = el.uppercase ? String(subst(el.text, values)).toUpperCase() : subst(el.text, values);
+    return `<div style="${boxStyle}"><div style="${textStyle}">${esc(raw)}</div></div>`;
   }
   if (el.kind === "date") {
     const now = new Date();
     const s = el.format === "long" ? now.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" }) : el.format === "iso" ? now.toISOString().slice(0, 10) : now.toLocaleDateString("pt-BR");
-    return `<div style="${common}font-size:${el.fontSize}px;color:${el.color};font-weight:${el.bold ? 700 : 400};text-align:${el.align};${el.fontFamily ? `font-family:${el.fontFamily};` : ""}">${esc(s)}</div>`;
+    return `<div style="${common}font-size:${el.fontSize}px;color:${el.color};font-weight:${el.bold ? 800 : 400};text-align:${el.align};${el.fontFamily ? `font-family:'${el.fontFamily}',serif;` : ""}">${esc(s)}</div>`;
   }
   if (el.kind === "image" || el.kind === "logo" || el.kind === "signature") {
-    return el.imageUrl ? `<img src="${el.imageUrl}" crossorigin="anonymous" style="${common}${sizing}object-fit:${el.fit ?? "contain"};" />` : "";
+    return el.imageUrl ? `<img src="${el.imageUrl}" crossorigin="anonymous" style="${common}${sizingBox}object-fit:${el.fit ?? "contain"};" />` : "";
   }
-  if (el.kind === "rect") return `<div style="${common}${sizing}background:${el.fill};border:${el.strokeWidth ?? 0}px solid ${el.stroke ?? "transparent"};border-radius:${el.radius ?? 0}px;"></div>`;
-  if (el.kind === "circle") return `<div style="${common}${sizing}background:${el.fill};border:${el.strokeWidth ?? 0}px solid ${el.stroke ?? "transparent"};border-radius:9999px;"></div>`;
-  if (el.kind === "line") return `<div style="${common}${sizing}background:${el.fill ?? "#111"};"></div>`;
+  if (el.kind === "rect") return `<div style="${common}${sizingBox}background:${el.fill && el.fill !== "transparent" ? el.fill : "transparent"};${el.stroke ? `border:${el.strokeWidth ?? 2}px solid ${el.stroke};` : ""}border-radius:${el.radius ?? 0}px;box-sizing:border-box;"></div>`;
+  if (el.kind === "circle") return `<div style="${common}${sizingBox}background:${el.fill && el.fill !== "transparent" ? el.fill : "transparent"};${el.stroke ? `border:${el.strokeWidth ?? 2}px solid ${el.stroke};` : ""}border-radius:50%;box-sizing:border-box;"></div>`;
+  if (el.kind === "line") {
+    return `<div style="${common}width:${el.w ?? 20}%;height:${Math.max(2, el.h ?? 0.3)}px;background:${el.fill ?? "#111"};"></div>`;
+  }
   if (el.kind === "qr") {
-    // Generate QR synchronously via a data URL is not possible here; leave placeholder — main preview uses live QR
-    return `<div style="${common}${sizing}background:#eee;display:flex;align-items:center;justify-content:center;font-size:10px;color:#666;">QR: ${esc(subst(el.qrValue, values))}</div>`;
+    return `<div style="${common}${sizingBox}background:#eee;display:flex;align-items:center;justify-content:center;font-size:10px;color:#666;">QR: ${esc(subst(el.qrValue, values))}</div>`;
   }
   if (el.kind === "signature-block") {
-    return `<div style="${common}${sizing}color:${el.color ?? "#111"};display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;text-align:center;">
+    return `<div style="${common}${sizingBox}color:${el.color ?? "#111"};display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;text-align:center;">
       ${el.imageUrl ? `<img src="${el.imageUrl}" crossorigin="anonymous" style="max-height:55%;max-width:100%;object-fit:contain;" />` : ""}
       ${el.showLine !== false ? `<div style="width:100%;border-top:1px solid currentColor;"></div>` : ""}
       <div style="font-size:16px;font-weight:600;">${esc(el.personName ?? "")}</div>
