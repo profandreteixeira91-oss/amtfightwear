@@ -408,32 +408,35 @@ function TemplatesPanel() {
         <Input placeholder="Buscar modelo..." className="pl-8" value={q} onChange={(e) => setQ(e.target.value)} />
       </div>
       <div className="grid grid-cols-1 gap-2.5">
-        {items.map((p) => {
-          const doc = useMemo(() => p.build(), []);
-          const scale = 280 / doc.page.width;
-          return (
-            <button
-              key={p.id}
-              onClick={() => applyPreset(p)}
-              className="text-left rounded-lg border border-neutral-200 hover:border-red-700 hover:shadow-sm transition overflow-hidden bg-white group"
-            >
-              <div className="relative w-full bg-neutral-100 overflow-hidden" style={{ height: doc.page.height * scale }}>
-                <div style={{ transform: `scale(${scale})`, transformOrigin: "top left", width: doc.page.width, height: doc.page.height }}>
-                  <CertificateRenderer doc={doc} />
-                </div>
-              </div>
-              <div className="px-3 py-2 flex items-center gap-2 border-t border-neutral-100">
-                <span className="inline-block h-2.5 w-2.5 rounded-full shrink-0" style={{ background: p.accent }} />
-                <div className="min-w-0 flex-1">
-                  <div className="text-sm font-semibold text-neutral-900 truncate">{p.name}</div>
-                  <div className="text-[11px] text-neutral-500 truncate">{p.description}</div>
-                </div>
-              </div>
-            </button>
-          );
-        })}
+        {items.map((p) => (
+          <PresetCard key={p.id} preset={p} onSelect={applyPreset} />
+        ))}
       </div>
     </div>
+  );
+}
+
+function PresetCard({ preset, onSelect }: { preset: typeof CERTIFICATE_PRESETS[number]; onSelect: (p: typeof CERTIFICATE_PRESETS[number]) => void }) {
+  const doc = useMemo(() => preset.build(), [preset]);
+  const scale = 280 / doc.page.width;
+  return (
+    <button
+      onClick={() => onSelect(preset)}
+      className="text-left rounded-lg border border-neutral-200 hover:border-red-700 hover:shadow-sm transition overflow-hidden bg-white group"
+    >
+      <div className="relative w-full bg-neutral-100 overflow-hidden" style={{ height: doc.page.height * scale }}>
+        <div style={{ transform: `scale(${scale})`, transformOrigin: "top left", width: doc.page.width, height: doc.page.height }}>
+          <CertificateRenderer doc={doc} />
+        </div>
+      </div>
+      <div className="px-3 py-2 flex items-center gap-2 border-t border-neutral-100">
+        <span className="inline-block h-2.5 w-2.5 rounded-full shrink-0" style={{ background: preset.accent }} />
+        <div className="min-w-0 flex-1">
+          <div className="text-sm font-semibold text-neutral-900 truncate">{preset.name}</div>
+          <div className="text-[11px] text-neutral-500 truncate">{preset.description}</div>
+        </div>
+      </div>
+    </button>
   );
 }
 
