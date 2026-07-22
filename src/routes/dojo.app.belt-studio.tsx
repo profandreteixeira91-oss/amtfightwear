@@ -270,8 +270,6 @@ function BeltStudio() {
               onDelete={doDelete}
               onClone={doClone}
               canDelete={!!draft.id}
-              showJson={showJson}
-              setShowJson={setShowJson}
             />
           )}
         </div>
