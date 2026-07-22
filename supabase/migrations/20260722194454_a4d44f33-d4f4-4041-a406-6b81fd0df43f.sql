@@ -1,0 +1,5 @@
+DELETE FROM prospect_timeline WHERE company_id IN (SELECT id FROM prospect_companies WHERE owner_id = (SELECT id FROM profiles WHERE email='profandreteixeira91@gmail.com'));
+DELETE FROM prospect_enrichment_jobs WHERE company_id IN (SELECT id FROM prospect_companies WHERE owner_id = (SELECT id FROM profiles WHERE email='profandreteixeira91@gmail.com'));
+DELETE FROM prospect_contacts WHERE company_id IN (SELECT id FROM prospect_companies WHERE owner_id = (SELECT id FROM profiles WHERE email='profandreteixeira91@gmail.com'));
+DELETE FROM prospect_sequence_runs WHERE company_id IN (SELECT id FROM prospect_companies WHERE owner_id = (SELECT id FROM profiles WHERE email='profandreteixeira91@gmail.com'));
+DELETE FROM prospect_companies WHERE owner_id = (SELECT id FROM profiles WHERE email='profandreteixeira91@gmail.com');
