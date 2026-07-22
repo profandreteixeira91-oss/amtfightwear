@@ -258,29 +258,45 @@ function renderLegacyHtml(f: CertificateField, values: Record<string, string>): 
 }
 
 function renderElementHtml(el: any, values: Record<string, string>): string {
-  const isText = el.kind === "text" || el.kind === "date";
+  // Match CertificateRenderer's box model exactly so print output matches the editor.
+  const hasW = el.w != null;
+  const hasH = el.h != null;
+  const sizingBox = `width:${el.w ?? 20}%;height:${el.h ?? 10}%;`;
   const common = `position:absolute;left:${el.x}%;top:${el.y}%;transform:translate(-50%,-50%) rotate(${el.rotation || 0}deg);opacity:${el.opacity ?? 1};z-index:${el.z ?? 0};`;
-  const sizing = isText ? "" : `width:${el.w ?? 20}%;height:${el.h ?? 10}%;`;
+
   if (el.kind === "text") {
-    return `<div style="${common}${sizing}font-size:${el.fontSize}px;color:${el.color};font-weight:${el.bold ? 700 : 400};${el.italic ? "font-style:italic;" : ""}${el.underline ? "text-decoration:underline;" : ""}${el.uppercase ? "text-transform:uppercase;" : ""}text-align:${el.align};${el.fontFamily ? `font-family:${el.fontFamily};` : ""}line-height:${el.lineHeight ?? 1.2};white-space:pre-wrap;">${esc(subst(el.text, values))}</div>`;
+    const vAlign = el.verticalAlign ?? "middle";
+    const alignItems = vAlign === "top" ? "flex-start" : vAlign === "bottom" ? "flex-end" : "center";
+    const justify = el.align === "left" ? "flex-start" : el.align === "right" ? "flex-end" : "center";
+    const bg = el.background && el.background !== "transparent" ? `background:${el.background};` : "";
+    const padding = el.padding ? `padding:${el.padding}px;` : "";
+    const border = (el.borderWidth ?? 0) > 0 ? `border:${el.borderWidth}px solid ${el.borderColor || "#000"};` : "";
+    const radius = el.borderRadius ? `border-radius:${el.borderRadius}px;` : "";
+    const width = hasW ? `width:${el.w}%;` : "";
+    const height = hasH ? `height:${el.h}%;` : "";
+    const boxStyle = `${common}${width}${height}display:flex;align-items:${alignItems};justify-content:${justify};${bg}${padding}${border}${radius}box-sizing:border-box;`;
+    const textStyle = `font-size:${el.fontSize}px;color:${el.color};font-weight:${el.bold ? 800 : 400};${el.italic ? "font-style:italic;" : ""}${el.underline ? "text-decoration:underline;" : ""}${el.uppercase ? "text-transform:uppercase;" : ""}text-align:${el.align};${el.fontFamily ? `font-family:'${el.fontFamily}',serif;` : ""}line-height:${el.lineHeight ?? 1.25};${el.letterSpacing != null ? `letter-spacing:${el.letterSpacing}px;` : ""}${hasW ? "width:100%;" : ""}white-space:pre-wrap;word-break:break-word;`;
+    const raw = el.uppercase ? String(subst(el.text, values)).toUpperCase() : subst(el.text, values);
+    return `<div style="${boxStyle}"><div style="${textStyle}">${esc(raw)}</div></div>`;
   }
   if (el.kind === "date") {
     const now = new Date();
     const s = el.format === "long" ? now.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" }) : el.format === "iso" ? now.toISOString().slice(0, 10) : now.toLocaleDateString("pt-BR");
-    return `<div style="${common}font-size:${el.fontSize}px;color:${el.color};font-weight:${el.bold ? 700 : 400};text-align:${el.align};${el.fontFamily ? `font-family:${el.fontFamily};` : ""}">${esc(s)}</div>`;
+    return `<div style="${common}font-size:${el.fontSize}px;color:${el.color};font-weight:${el.bold ? 800 : 400};text-align:${el.align};${el.fontFamily ? `font-family:'${el.fontFamily}',serif;` : ""}">${esc(s)}</div>`;
   }
   if (el.kind === "image" || el.kind === "logo" || el.kind === "signature") {
-    return el.imageUrl ? `<img src="${el.imageUrl}" crossorigin="anonymous" style="${common}${sizing}object-fit:${el.fit ?? "contain"};" />` : "";
+    return el.imageUrl ? `<img src="${el.imageUrl}" crossorigin="anonymous" style="${common}${sizingBox}object-fit:${el.fit ?? "contain"};" />` : "";
   }
-  if (el.kind === "rect") return `<div style="${common}${sizing}background:${el.fill};border:${el.strokeWidth ?? 0}px solid ${el.stroke ?? "transparent"};border-radius:${el.radius ?? 0}px;"></div>`;
-  if (el.kind === "circle") return `<div style="${common}${sizing}background:${el.fill};border:${el.strokeWidth ?? 0}px solid ${el.stroke ?? "transparent"};border-radius:9999px;"></div>`;
-  if (el.kind === "line") return `<div style="${common}${sizing}background:${el.fill ?? "#111"};"></div>`;
+  if (el.kind === "rect") return `<div style="${common}${sizingBox}background:${el.fill && el.fill !== "transparent" ? el.fill : "transparent"};${el.stroke ? `border:${el.strokeWidth ?? 2}px solid ${el.stroke};` : ""}border-radius:${el.radius ?? 0}px;box-sizing:border-box;"></div>`;
+  if (el.kind === "circle") return `<div style="${common}${sizingBox}background:${el.fill && el.fill !== "transparent" ? el.fill : "transparent"};${el.stroke ? `border:${el.strokeWidth ?? 2}px solid ${el.stroke};` : ""}border-radius:50%;box-sizing:border-box;"></div>`;
+  if (el.kind === "line") {
+    return `<div style="${common}width:${el.w ?? 20}%;height:${Math.max(2, el.h ?? 0.3)}px;background:${el.fill ?? "#111"};"></div>`;
+  }
   if (el.kind === "qr") {
-    // Generate QR synchronously via a data URL is not possible here; leave placeholder — main preview uses live QR
-    return `<div style="${common}${sizing}background:#eee;display:flex;align-items:center;justify-content:center;font-size:10px;color:#666;">QR: ${esc(subst(el.qrValue, values))}</div>`;
+    return `<div style="${common}${sizingBox}background:#eee;display:flex;align-items:center;justify-content:center;font-size:10px;color:#666;">QR: ${esc(subst(el.qrValue, values))}</div>`;
   }
   if (el.kind === "signature-block") {
-    return `<div style="${common}${sizing}color:${el.color ?? "#111"};display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;text-align:center;">
+    return `<div style="${common}${sizingBox}color:${el.color ?? "#111"};display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;text-align:center;">
       ${el.imageUrl ? `<img src="${el.imageUrl}" crossorigin="anonymous" style="max-height:55%;max-width:100%;object-fit:contain;" />` : ""}
       ${el.showLine !== false ? `<div style="width:100%;border-top:1px solid currentColor;"></div>` : ""}
       <div style="font-size:16px;font-weight:600;">${esc(el.personName ?? "")}</div>
