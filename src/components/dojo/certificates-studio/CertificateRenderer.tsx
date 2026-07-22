@@ -46,6 +46,7 @@ function elementBoxStyle(el: AnyElement, pageW: number, pageH: number): React.CS
 }
 
 function TextView({ el, values, style }: { el: TextElement | DateElement; values: Record<string, string>; style: React.CSSProperties }) {
+  const { doc } = useStudioStore();
   const isText = el.kind === "text";
   const raw = isText ? (el as TextElement).text : formatDate((el as DateElement).format ?? "long", values.data_atual);
   let display = resolveText(raw, values);
@@ -57,6 +58,8 @@ function TextView({ el, values, style }: { el: TextElement | DateElement; values
   const border = borderWidth > 0 ? `${borderWidth}px solid ${t.borderColor || "#000"}` : undefined;
   const vAlign = t.verticalAlign ?? "middle";
   const alignItems = vAlign === "top" ? "flex-start" : vAlign === "bottom" ? "flex-end" : "center";
+  const effectiveBg = bg ?? (doc.page.backgroundUrl ? undefined : doc.page.background) ?? "#ffffff";
+  const safeColor = ensureReadableTextColor(el.color, effectiveBg);
   return (
     <div style={{
       ...style,
@@ -73,7 +76,7 @@ function TextView({ el, values, style }: { el: TextElement | DateElement; values
       <div style={{
         fontFamily: (el as any).fontFamily || "Inter, sans-serif",
         fontSize: el.fontSize,
-        color: el.color,
+        color: safeColor,
         fontWeight: (el as any).bold ? 800 : 400,
         fontStyle: (el as TextElement).italic ? "italic" : "normal",
         textDecoration: (el as TextElement).underline ? "underline" : "none",
@@ -89,6 +92,41 @@ function TextView({ el, values, style }: { el: TextElement | DateElement; values
     </div>
   );
 }
+
+/** Luminance relative (0=preto, 1=branco) de uma cor hex/rgb. */
+function relLuminance(hex?: string): number | null {
+  if (!hex) return null;
+  const s = hex.trim();
+  let r = 0, g = 0, b = 0;
+  if (s.startsWith("#")) {
+    const h = s.slice(1);
+    const full = h.length === 3 ? h.split("").map((c) => c + c).join("") : h.slice(0, 6);
+    if (full.length < 6) return null;
+    r = parseInt(full.slice(0, 2), 16);
+    g = parseInt(full.slice(2, 4), 16);
+    b = parseInt(full.slice(4, 6), 16);
+  } else if (s.startsWith("rgb")) {
+    const m = s.match(/\d+/g);
+    if (!m || m.length < 3) return null;
+    r = +m[0]; g = +m[1]; b = +m[2];
+  } else return null;
+  const toLin = (v: number) => { const n = v / 255; return n <= 0.03928 ? n / 12.92 : Math.pow((n + 0.055) / 1.055, 2.4); };
+  return 0.2126 * toLin(r) + 0.7152 * toLin(g) + 0.0722 * toLin(b);
+}
+
+/** Se texto claro cair sobre fundo claro (baixo contraste), força um cinza escuro legível. */
+function ensureReadableTextColor(color: string | undefined, bg: string | undefined): string | undefined {
+  const lc = relLuminance(color);
+  const lb = relLuminance(bg);
+  if (lc == null || lb == null) return color;
+  // Contraste WCAG simplificado
+  const contrast = (Math.max(lc, lb) + 0.05) / (Math.min(lc, lb) + 0.05);
+  if (contrast >= 3) return color; // legível o bastante
+  // Fundo claro + texto claro → escurece; caso contrário deixa (ex.: escuro/escuro é raro em presets)
+  if (lb > 0.5) return "#111827";
+  return "#f8fafc";
+}
+
 
 function alignToJustify(a: "left" | "center" | "right") {
   return a === "left" ? "flex-start" : a === "right" ? "flex-end" : "center";
