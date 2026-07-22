@@ -28,12 +28,12 @@ const allModules = [
   "Suporte dedicado e atualizações contínuas",
 ];
 
-// Sugestões de precificação para um ÚNICO plano com todos os módulos inclusos.
-// Baseado em benchmark do mercado brasileiro (Tatame, Evo, W12, Pacto) considerando
-// que concorrentes cobram por módulos separados e o Dojo Manager entrega tudo incluso.
+// Plano único com preço promocional de lançamento.
+// De R$ 179,90 por R$ 99,90/mês — todos os módulos inclusos, alunos ilimitados.
 type PriceSuggestion = {
   label: string;
   price: number;
+  originalPrice?: number;
   positioning: string;
   rationale: string;
   highlight?: boolean;
@@ -41,26 +41,13 @@ type PriceSuggestion = {
 
 const suggestions: PriceSuggestion[] = [
   {
-    label: "Entrada agressiva",
-    price: 149,
-    positioning: "Ganhar mercado rápido",
+    label: "Oferta de lançamento",
+    price: 99.9,
+    originalPrice: 179.9,
+    positioning: "Plano único · tudo incluso",
     rationale:
-      "Abaixo dos concorrentes diretos. Ideal para os primeiros 6 meses, gerar volume, provar valor e coletar cases.",
-  },
-  {
-    label: "Preço recomendado",
-    price: 199,
-    positioning: "Valor justo × mercado",
-    rationale:
-      "Alinhado com Tatame/Evo básico, mas entregando 3× mais módulos. Melhor equilíbrio entre conversão e margem.",
+      "De R$ 179,90 por R$ 99,90/mês. Alunos, unidades e modalidades ilimitados. AMT Pay com apenas 2% por transação. 14 dias grátis, sem cartão e sem taxa de setup.",
     highlight: true,
-  },
-  {
-    label: "Premium",
-    price: 279,
-    positioning: "Posicionamento aspiracional",
-    rationale:
-      "Reflete o valor real da plataforma completa (AMT Pay, Store, Análise Individual). Para dojos que enxergam software como investimento.",
   },
 ];
 
