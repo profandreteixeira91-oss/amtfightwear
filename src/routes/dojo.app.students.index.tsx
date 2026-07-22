@@ -434,22 +434,57 @@ function StudentsPage() {
               </Button>
             </DialogTrigger>
 
-            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>{form.id ? "Editar" : "Novo"} aluno</DialogTitle>
+            <DialogContent className="max-w-5xl w-[calc(100vw-2rem)] p-0 gap-0 overflow-hidden">
+              <DialogHeader className="px-6 pt-5 pb-4 border-b bg-gradient-to-br from-primary/5 via-background to-background">
+                <div className="flex items-start gap-3">
+                  <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                    <UserPlus className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <DialogTitle className="text-lg font-semibold leading-tight">
+                      {form.id ? "Editar aluno" : "Cadastrar novo aluno"}
+                    </DialogTitle>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Preencha os dados nas abas abaixo. Campos com <span className="text-destructive">*</span> são obrigatórios.
+                    </p>
+                  </div>
+                </div>
               </DialogHeader>
 
-              <Tabs defaultValue="dados" className="w-full">
-                <TabsList className="flex w-full flex-wrap">
-                  <TabsTrigger value="dados">Dados pessoais</TabsTrigger>
-                  <TabsTrigger value="endereco">Endereço</TabsTrigger>
-                  <TabsTrigger value="contato">Contatos</TabsTrigger>
-                  <TabsTrigger value="dojo">Dojo</TabsTrigger>
-                  {!form.id && <TabsTrigger value="plano">Plano & Cobrança</TabsTrigger>}
-                  <TabsTrigger value="anamnese">Anamnese</TabsTrigger>
-                  <TabsTrigger value="foto">Foto</TabsTrigger>
-                  <TabsTrigger value="consent">Consentimentos</TabsTrigger>
-                </TabsList>
+              <Tabs defaultValue="dados" className="w-full flex flex-col max-h-[calc(90vh-9rem)]">
+                <div className="px-6 pt-4 border-b bg-muted/20">
+                  <TabsList className="h-auto w-full flex-wrap justify-start bg-transparent p-0 gap-1">
+                    <TabsTrigger value="dados" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md px-3 py-2">
+                      <User className="h-3.5 w-3.5" /> Dados
+                    </TabsTrigger>
+                    <TabsTrigger value="endereco" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md px-3 py-2">
+                      <MapPin className="h-3.5 w-3.5" /> Endereço
+                    </TabsTrigger>
+                    <TabsTrigger value="contato" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md px-3 py-2">
+                      <Phone className="h-3.5 w-3.5" /> Contatos
+                    </TabsTrigger>
+                    <TabsTrigger value="dojo" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md px-3 py-2">
+                      <Award className="h-3.5 w-3.5" /> Dojo
+                    </TabsTrigger>
+                    {!form.id && (
+                      <TabsTrigger value="plano" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md px-3 py-2">
+                        <Wallet className="h-3.5 w-3.5" /> Plano
+                      </TabsTrigger>
+                    )}
+                    <TabsTrigger value="anamnese" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md px-3 py-2">
+                      <HeartPulse className="h-3.5 w-3.5" /> Anamnese
+                    </TabsTrigger>
+                    <TabsTrigger value="foto" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md px-3 py-2">
+                      <Camera className="h-3.5 w-3.5" /> Foto
+                    </TabsTrigger>
+                    <TabsTrigger value="consent" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md px-3 py-2">
+                      <ShieldCheck className="h-3.5 w-3.5" /> Consentimentos
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
+
+                <div className="overflow-y-auto px-6 py-5 flex-1">
+
 
                 {/* ============ DADOS PESSOAIS ============ */}
                 <TabsContent value="dados" className="mt-4 grid gap-3 md:grid-cols-2">
