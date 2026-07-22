@@ -41,7 +41,7 @@ function GraduationsPage() {
               <div className="flex items-center gap-3">
                 <div className="h-8 w-2 rounded-full" style={{ background: b?.color_hex ?? "#000" }} />
                 <div className="min-w-0 flex-1">
-                  <div className="text-sm font-semibold">{b?.name ?? "Faixa"}{degreeSuffix(g.degree, b?.modality)}</div>
+                  <div className="text-sm font-semibold">{b?.name ?? "Faixa"}{degreeSuffix(g.degree, b?.modality, " · ", b?.name)}</div>
                   <div className="text-xs text-neutral-500">
                     {new Date(g.graduation_date).toLocaleDateString("pt-BR")} {g.evaluator ? `· ${g.evaluator}` : ""}
                   </div>

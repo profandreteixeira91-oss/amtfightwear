@@ -17,8 +17,9 @@ export function printAllStudentSummaries(students: any[], branding: any) {
         .join(", ");
       const belt = s.belt ?? null;
       const currentBeltLabel = belt
-        ? `${belt.name}${degreeSuffix(s.current_degree, belt?.modality)}`
+        ? `${belt.name}${degreeSuffix(s.current_degree, belt?.modality, " · ", belt?.name)}`
         : "—";
+
       const breakStyle = idx < students.length - 1 ? "page-break-after: always;" : "";
       return `<section class="doc-section" style="${breakStyle}">
         <h2>${escapeHtml(s.full_name)}</h2>

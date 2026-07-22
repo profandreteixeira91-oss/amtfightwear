@@ -212,7 +212,7 @@ function BlockRenderer({
                     style={{ background: belt.color_hex }}
                   >
                     {belt.name}
-                    {degreeSuffix(student?.current_degree, (belt as any)?.modality)}
+                    {degreeSuffix(student?.current_degree, (belt as any)?.modality, " · ", belt?.name)}
                   </span>
                 </div>
               )}

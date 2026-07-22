@@ -933,7 +933,7 @@ function StudentsPage() {
                 <div className="truncate font-medium">{s.full_name}</div>
                 <div className="truncate text-xs text-muted-foreground">
                   {[
-                    s.belt?.name && `${s.belt.name}${degreeSuffix(s.current_degree, s.belt?.modality)}`,
+                    s.belt?.name && `${s.belt.name}${degreeSuffix(s.current_degree, s.belt?.modality, " · ", s.belt?.name)}`,
                     s.unit?.name,
                     s.email ?? s.phone,
                   ].filter(Boolean).join(" · ") || "Sem dados adicionais"}
