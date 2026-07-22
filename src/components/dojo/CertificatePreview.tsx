@@ -308,12 +308,113 @@ function renderElementHtml(el: any, values: Record<string, string>): string {
   return "";
 }
 
-export function openCertificatePrint(items: Array<{ template: CertificateTemplate; values: Record<string, string> }>) {
-  const html = buildPrintHtml(items);
+/**
+ * Render each certificate to a PNG (rasterizando o mesmo componente da
+ * pré-visualização) e abre uma janela A4 contendo apenas as imagens. Isso
+ * evita divergências entre preview e impressão: o que você vê é literalmente
+ * o que sai — a diagramação e o tamanho de todos os elementos ficam
+ * "achatados" em uma única imagem.
+ */
+export async function openCertificatePrint(
+  items: Array<{ template: CertificateTemplate; values: Record<string, string> }>,
+) {
+  if (!items.length) return;
+
+  // Container invisível — renderiza cada certificado no tamanho natural.
+  const host = document.createElement("div");
+  host.style.cssText =
+    "position:fixed;left:-100000px;top:0;pointer-events:none;opacity:0;z-index:-1;";
+  document.body.appendChild(host);
+
+  const pages: Array<{ dataUrl: string; W: number; H: number }> = [];
+
+  try {
+    for (const it of items) {
+      const W = it.template.width;
+      const H = it.template.height;
+
+      const cell = document.createElement("div");
+      cell.style.cssText = `width:${W}px;height:${H}px;background:#fff;`;
+      host.appendChild(cell);
+
+      const root = createRoot(cell);
+      root.render(<CertificateCanvas template={it.template} values={it.values} scale={1} />);
+
+      // Aguarda React montar + imagens carregarem (fontes/QR/backgrounds).
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      const imgs = Array.from(cell.querySelectorAll("img")) as HTMLImageElement[];
+      await Promise.all(
+        imgs.map(
+          (img) =>
+            new Promise<void>((res) => {
+              if (img.complete && img.naturalWidth > 0) return res();
+              img.addEventListener("load", () => res(), { once: true });
+              img.addEventListener("error", () => res(), { once: true });
+            }),
+        ),
+      );
+      // pequena folga para renderização final
+      await new Promise((r) => setTimeout(r, 120));
+
+      const dataUrl = await toPng(cell, {
+        width: W,
+        height: H,
+        pixelRatio: 2,
+        cacheBust: true,
+        backgroundColor: "#ffffff",
+      });
+
+      pages.push({ dataUrl, W, H });
+      root.unmount();
+      host.removeChild(cell);
+    }
+  } catch (err) {
+    console.error("[certificate print] falha ao rasterizar:", err);
+    alert("Não foi possível gerar a imagem do certificado para impressão.");
+    document.body.removeChild(host);
+    return;
+  }
+
+  document.body.removeChild(host);
+
+  const orientation = pages[0].W >= pages[0].H ? "landscape" : "portrait";
+  const pagesHtml = pages
+    .map(
+      (p) => `<section class="page"><img src="${p.dataUrl}" alt="Certificado" /></section>`,
+    )
+    .join("");
+
+  const html = `<!doctype html><html><head><meta charset="utf-8"/>
+<title>Certificado</title>
+<style>
+  @page { size: A4 ${orientation}; margin: 0; }
+  html, body { margin: 0; padding: 0; background: #f4f4f4; }
+  .page { display: flex; align-items: center; justify-content: center; width: 100vw; height: 100vh; page-break-after: always; }
+  .page:last-child { page-break-after: auto; }
+  .page img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; display: block; box-shadow: 0 8px 24px rgba(0,0,0,.08); }
+  @media print { html, body { background: #fff; } .page img { box-shadow: none; } }
+</style>
+</head><body>
+${pagesHtml}
+<script>
+  window.addEventListener('load', function() {
+    var imgs = Array.from(document.images);
+    Promise.all(imgs.map(function(img) { if (img.complete) return Promise.resolve(); return new Promise(function(res) { img.onload = img.onerror = res; }); }))
+      .then(function() { setTimeout(function(){ window.focus(); window.print(); }, 200); });
+  });
+</script>
+</body></html>`;
+
   const w = window.open("", "_blank", "width=1100,height=800");
-  if (!w) { alert("Permita janelas pop-up para imprimir/salvar como PDF."); return; }
-  w.document.open(); w.document.write(html); w.document.close();
+  if (!w) {
+    alert("Permita janelas pop-up para imprimir/salvar como PDF.");
+    return;
+  }
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
 }
+
 
 export function CertificatePreviewDialog({
   open, onOpenChange, template, values, title,
