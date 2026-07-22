@@ -10,6 +10,7 @@ import {
   checkIsAdmin,
 } from "@/lib/dojo/dojo.functions";
 import { BeltAuto, BeltSpecVisual, type BeltSpec } from "@/components/dojo/BeltSpecVisual";
+import { syncBeltTerms } from "@/lib/dojo/belt-terms";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -98,6 +99,9 @@ function BeltStudio() {
   const adminQ = useQuery({ queryKey: ["belt-studio-admin"], queryFn: () => adminFn() });
 
   const belts = beltsQ.data ?? [];
+  // Propaga o termo (Faixa/Grau) para todo o sistema conforme os nomes
+  // definidos aqui no Belt Studio.
+  useEffect(() => { if (belts.length) syncBeltTerms(belts); }, [belts]);
   const [modality, setModality] = useState("jiu-jitsu");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [draft, setDraft] = useState<BeltRow | null>(null);
@@ -149,6 +153,7 @@ function BeltStudio() {
       });
       toast.success(isNew ? "Faixa criada." : "Alterações salvas.");
       await qc.invalidateQueries({ queryKey: ["belt-studio-list"] });
+      await qc.invalidateQueries({ queryKey: ["dojo", "belts", "term-sync"] });
       if (saved?.id) setSelectedId(saved.id);
     } catch (e: any) {
       toast.error(e?.message ?? "Erro ao salvar");

@@ -62,6 +62,8 @@ import { findModuleForPath } from "@/lib/dojo/permissions";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getMyAcademyBranding } from "@/lib/dojo/academy-public.functions";
+import { listDojoBelts } from "@/lib/dojo/dojo.functions";
+import { syncBeltTerms } from "@/lib/dojo/belt-terms";
 
 export const Route = createFileRoute("/dojo/app")({
   head: () => ({ meta: [{ title: "Painel — AMT Dojo Manager" }] }),
@@ -253,6 +255,19 @@ function DojoLayoutInner({
     staleTime: 5 * 60 * 1000,
   });
   const dojoName = branding?.trade_name || branding?.legal_name || null;
+
+  // Sincroniza o termo (Faixa/Grau) por modalidade a partir do Belt Studio.
+  // Assim que as faixas são renomeadas lá, o termo passa a valer em todo o sistema.
+  const fetchBelts = useServerFn(listDojoBelts);
+  const { data: allBelts } = useQuery<any[]>({
+    queryKey: ["dojo", "belts", "term-sync"],
+    queryFn: () => fetchBelts() as any,
+    staleTime: 5 * 60 * 1000,
+  });
+  useEffect(() => {
+    if (allBelts?.length) syncBeltTerms(allBelts);
+  }, [allBelts]);
+
 
   return (
     <>

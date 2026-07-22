@@ -1,5 +1,13 @@
 // Helpers para exibir grau/Dan de acordo com a modalidade.
 // Judô usa "Dan"; demais modalidades usam "grau".
+//
+// O prefixo do nome da faixa ("Faixa" ou "Grau") vem, em ordem:
+//   1) do próprio `name` (se já começar com "Faixa "/"Grau ");
+//   2) do registry sincronizado com o Belt Studio (`belt-terms`);
+//   3) do fallback por modalidade (Muay Thai => "Grau", outros => "Faixa").
+// Assim, renomear as faixas no Belt Studio propaga o termo em todo o sistema.
+
+import { getModalityTerm } from "@/lib/dojo/belt-terms";
 
 export function isJudoModality(modality?: string | null): boolean {
   const m = (modality ?? "").toString().toLowerCase().trim();
@@ -41,8 +49,10 @@ export function degreeUnit(modality?: string | null): "Dan" | "grau" {
 }
 
 /** Prefixo do nome da faixa conforme modalidade.
- *  Muay Thai usa "Grau"; demais modalidades usam "Faixa". */
+ *  Prioridade: registry do Belt Studio > Muay Thai ("Grau") > default ("Faixa"). */
 export function beltNamePrefix(modality?: string | null): "Grau" | "Faixa" {
+  const override = getModalityTerm(modality);
+  if (override) return override;
   return isMuayThaiModality(modality) ? "Grau" : "Faixa";
 }
 
