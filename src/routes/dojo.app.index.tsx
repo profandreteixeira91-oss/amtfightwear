@@ -79,19 +79,23 @@ const PIE_COLORS = ["#dc2626", "#f97316", "#f59e0b", "#10b981", "#3b82f6", "#8b5
 
 function BentoCard({
   className = "",
+  style,
   children,
 }: {
   className?: string;
+  style?: React.CSSProperties;
   children: React.ReactNode;
 }) {
   return (
     <div
       className={`dojo-card relative overflow-hidden p-4 md:p-5 flex flex-col gap-3 ${className}`}
+      style={style}
     >
       {children}
     </div>
   );
 }
+
 
 function SectionHead({
   eyebrow,
@@ -371,7 +375,15 @@ function DojoDashboard() {
       {/* Bento grid */}
       <section className="grid gap-3 md:gap-4 grid-cols-1 md:grid-cols-6 auto-rows-[minmax(140px,auto)]">
         {/* MRR — hero KPI */}
-        <BentoCard className="md:col-span-2 md:row-span-2 bg-gradient-to-br from-red-600 to-red-700 text-white border-transparent">
+        <BentoCard
+          className="md:col-span-2 md:row-span-2 text-white border-transparent"
+          style={{
+            background: "linear-gradient(135deg, #dc2626 0%, #991b1b 100%)",
+            color: "#fff",
+            borderColor: "transparent",
+          }}
+        >
+
           <div className="flex items-center justify-between">
             <div className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-white/80 font-semibold">
               <Repeat2 className="h-3 w-3" /> MRR estimado
