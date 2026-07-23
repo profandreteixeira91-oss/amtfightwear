@@ -429,6 +429,7 @@ function DojoLayoutInner({
                 {email && <div className="text-[11px] font-normal text-muted-foreground truncate">{email}</div>}
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
+              <TrialDropdownCard />
               <DropdownMenuItem asChild>
                 <Link to="/dojo/app/account" className="flex items-center gap-2">
                   <UserCircle className="mr-2 h-4 w-4" />
