@@ -138,30 +138,65 @@ function SchedulePage() {
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 md:gap-7">
-      {/* Header ações */}
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <p className="text-sm text-muted-foreground max-w-2xl">
-          Gerencie turmas, horários, professores e alunos da academia.
-        </p>
-        <Button onClick={openNew} className="bg-primary hover:bg-primary/90">
-          <Plus className="h-4 w-4 mr-1" /> Nova turma
-        </Button>
+      {/* Premium Hero */}
+      <div className="relative overflow-hidden rounded-3xl border border-red-950/40 bg-gradient-to-br from-[#1a0508] via-[#0f0304] to-black text-white shadow-2xl">
+        <div
+          className="absolute inset-0 opacity-[0.08] pointer-events-none"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)",
+            backgroundSize: "44px 44px",
+          }}
+        />
+        <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-red-600/25 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-red-900/30 blur-3xl pointer-events-none" />
+
+        <div className="relative grid gap-6 p-6 md:p-8 md:grid-cols-[1fr_auto] md:items-center">
+          <div className="flex items-start gap-4 min-w-0">
+            <div className="relative shrink-0">
+              <div className="absolute inset-0 rounded-2xl bg-red-500/40 blur-xl" />
+              <div className="relative grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-red-500 to-red-800 shadow-lg shadow-red-950/50 ring-1 ring-white/10">
+                <CalendarRange className="h-7 w-7 text-white" />
+              </div>
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-red-300/80">
+                <Sparkles className="h-3 w-3" /> Agenda inteligente
+              </div>
+              <h1 className="mt-1 font-display text-3xl md:text-4xl font-black tracking-tight text-white">
+                Agenda de Aulas
+              </h1>
+              <p className="mt-2 max-w-2xl text-sm text-white/70">
+                Comande turmas, horários, professores e ocupação da academia com uma visão executiva do seu dojo.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex md:justify-end">
+            <Button
+              onClick={openNew}
+              className="h-11 rounded-full bg-white px-5 font-semibold text-red-700 shadow-lg shadow-red-950/40 hover:bg-white/95 hover:shadow-red-900/50 transition-all"
+            >
+              <Plus className="h-4 w-4 mr-1.5" /> Nova turma
+            </Button>
+          </div>
+        </div>
       </div>
 
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Kpi icon={Activity} label="Turmas ativas" value={stats.data?.activeClasses ?? 0} />
-        <Kpi icon={CalendarDays} label="Aulas hoje" value={stats.data?.classesToday ?? 0} />
-        <Kpi icon={Users} label="Alunos matriculados" value={stats.data?.enrolledStudents ?? 0} />
-        <Kpi icon={Percent} label="Taxa de ocupação" value={`${stats.data?.occupancyRate ?? 0}%`} />
+        <Kpi icon={Activity} label="Turmas ativas" value={stats.data?.activeClasses ?? 0} accent="from-red-500 to-red-700" />
+        <Kpi icon={CalendarDays} label="Aulas hoje" value={stats.data?.classesToday ?? 0} accent="from-amber-500 to-orange-600" />
+        <Kpi icon={Users} label="Alunos matriculados" value={stats.data?.enrolledStudents ?? 0} accent="from-emerald-500 to-teal-600" />
+        <Kpi icon={Percent} label="Taxa de ocupação" value={`${stats.data?.occupancyRate ?? 0}%`} accent="from-violet-500 to-fuchsia-600" />
       </div>
 
 
       <Tabs defaultValue="calendar" className="w-full">
-        <TabsList>
-          <TabsTrigger value="calendar">Agenda</TabsTrigger>
-          <TabsTrigger value="classes">Turmas</TabsTrigger>
-          <TabsTrigger value="spaces">Espaços</TabsTrigger>
+        <TabsList className="bg-neutral-100/70 p-1 rounded-full border border-neutral-200/70">
+          <TabsTrigger value="calendar" className="rounded-full px-4 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-red-700">Agenda</TabsTrigger>
+          <TabsTrigger value="classes" className="rounded-full px-4 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-red-700">Turmas</TabsTrigger>
+          <TabsTrigger value="spaces" className="rounded-full px-4 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-red-700">Espaços</TabsTrigger>
         </TabsList>
 
         <TabsContent value="calendar" className="space-y-3">
