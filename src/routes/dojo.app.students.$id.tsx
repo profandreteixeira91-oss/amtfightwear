@@ -787,8 +787,9 @@ function StudentDetail() {
                         {certificates.map((c: any) => {
                           const hasTemplate = !!c.template?.background_url;
                           const beltLabel = c.graduation?.belt?.name
-                            ? `${c.graduation.belt.name}${degreeSuffix(c.graduation.degree, c.graduation.belt?.modality, " · ", c.graduation.belt?.name)}`
+                            ? formatBeltFull(c.graduation.belt.name, c.graduation.belt?.modality, c.graduation.degree)
                             : (c.values?.belt ?? "—");
+
                           return (
                             <tr key={c.id} className="border-b border-border last:border-0">
                               <td className="p-2 font-medium">{c.template?.name ?? "Certificado"}</td>
