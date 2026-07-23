@@ -253,7 +253,7 @@ function DisconnectAMTPayButton() {
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
-        <Button variant="outline" size="sm" className="text-red-600 border-red-200 hover:bg-red-50 dark:hover:bg-red-950/30">
+        <Button size="sm" className="bg-white/10 text-white border border-white/25 hover:bg-red-600 hover:text-white hover:border-red-600 backdrop-blur shadow-sm">
           <Unplug className="h-4 w-4 mr-2" /> Desconectar AMT Pay
         </Button>
       </AlertDialogTrigger>
