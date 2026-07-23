@@ -30,6 +30,9 @@ const templateSchema = z.object({
   margin_mm: z.number().int().min(5).max(40).default(18),
   show_page_numbers: z.boolean().default(true),
   is_default: z.boolean().optional(),
+  category: z
+    .enum(["student","affiliate","teacher","employee","partnership","event","competition","lgpd","legal","other"])
+    .optional(),
 });
 
 export const listContractTemplates = createServerFn({ method: "GET" })
