@@ -26,6 +26,8 @@ export function FinancePayables() {
     amount: "",
     due_date: isoDate(),
     category: "",
+    recurrence: "none" as "none" | "monthly" | "quarterly" | "yearly",
+    installments: "12",
   });
 
   const exps = useExpenses();
