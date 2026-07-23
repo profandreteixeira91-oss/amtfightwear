@@ -86,6 +86,12 @@ function StudentDetail() {
     queryKey: ["dojo-attendance", id],
     queryFn: () => attendanceFn({ data: { studentId: id, limit: 200 } }),
   });
+  const compHistoryFn = useServerFn(getStudentCompetitionHistory);
+  const competitionHistory = useQuery({
+    queryKey: ["dojo-student-comp-history", id],
+    queryFn: () => compHistoryFn({ data: { student_id: id } }),
+    staleTime: 60_000,
+  });
 
   const [grad, setGrad] = useState({ belt_id: "", degree: 0, graduation_date: new Date().toISOString().slice(0, 10), evaluator: "", notes: "" });
   const [enroll, setEnroll] = useState({ plan_id: "", custom_amount: "", due_day: 5, start_date: new Date().toISOString().slice(0, 10), status: "active" as const });
