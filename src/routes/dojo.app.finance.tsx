@@ -37,8 +37,6 @@ export const Route = createFileRoute("/dojo/app/finance")({
 
 type SectionId =
   | "dashboard"
-  | "revenue"
-  | "expenses"
   | "tuition"
   | "charges"
   | "cashflow"
@@ -59,14 +57,12 @@ type Section = {
 const sections: Section[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, group: "Visão geral" },
 
-  { id: "revenue", label: "Receitas", icon: TrendingUp, group: "Movimentações" },
-  { id: "expenses", label: "Despesas", icon: TrendingDown, group: "Movimentações" },
+  { id: "receivables", label: "Contas a receber", icon: ArrowDownRight, group: "Movimentações" },
+  { id: "payables", label: "Contas a pagar", icon: ArrowUpRight, group: "Movimentações" },
   { id: "tuition", label: "Mensalidades", icon: Users, group: "Movimentações" },
   { id: "charges", label: "Cobranças", icon: Receipt, group: "Movimentações" },
 
   { id: "cashflow", label: "Fluxo de caixa", icon: Wallet, group: "Consolidados" },
-  { id: "receivables", label: "Contas a receber", icon: ArrowDownRight, group: "Consolidados" },
-  { id: "payables", label: "Contas a pagar", icon: ArrowUpRight, group: "Consolidados" },
 
   { id: "categories", label: "Categorias e centros", icon: Tags, group: "Cadastros" },
   { id: "reports", label: "Relatórios", icon: FileBarChart, group: "Cadastros" },
@@ -83,11 +79,9 @@ function FinancePage() {
     switch (active) {
       case "dashboard":
         return <FinanceDashboard />;
-      case "revenue":
       case "charges":
       case "receivables":
         return <FinanceReceivables />;
-      case "expenses":
       case "payables":
         return <FinancePayables />;
       case "tuition":
