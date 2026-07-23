@@ -23,6 +23,12 @@ const templateSchema = z.object({
   name: z.string().min(1).max(200),
   description: z.string().nullable().optional(),
   content: z.string().default(""),
+  header_html: z.string().default(""),
+  footer_html: z.string().default(""),
+  page_size: z.enum(["A4", "Letter"]).default("A4"),
+  page_orientation: z.enum(["portrait", "landscape"]).default("portrait"),
+  margin_mm: z.number().int().min(5).max(40).default(18),
+  show_page_numbers: z.boolean().default(true),
   is_default: z.boolean().optional(),
 });
 
