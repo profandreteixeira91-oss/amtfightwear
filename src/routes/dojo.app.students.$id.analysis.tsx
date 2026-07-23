@@ -548,11 +548,11 @@ function CompareTab({ currentId, currentName }: { currentId: string; currentName
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-border/40 text-left text-xs uppercase tracking-widest text-muted-foreground">
-                    <th className="py-2">Indicador</th>
-                    <th className="text-center">{(cmp.data.a as any).student?.full_name ?? "A"}</th>
-                    <th className="text-center">{(cmp.data.b as any).student?.full_name ?? "B"}</th>
-                    <th className="text-center">Vantagem</th>
+                  <tr className="border-b border-border/40 text-left text-xs uppercase tracking-[0.15em] text-muted-foreground">
+                    <th className="py-3 pr-4">Indicador</th>
+                    <th className="py-3 px-2 text-center">{(cmp.data.a as any).student?.full_name ?? "A"}</th>
+                    <th className="py-3 px-2 text-center">{(cmp.data.b as any).student?.full_name ?? "B"}</th>
+                    <th className="py-3 pl-2 text-center">Vantagem</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/40">
@@ -571,7 +571,8 @@ function CompareTab({ currentId, currentName }: { currentId: string; currentName
                     const winner = va === vb ? "=" : va > vb ? "A" : "B";
                     return (
                       <tr key={key} className="hover:bg-muted/30">
-                        <td className="py-2 font-medium">{label}</td>
+                        <td className="py-3 pr-4 font-medium">{label}</td>
+
                         <td className={`text-center tabular-nums ${winner === "A" ? "font-bold text-primary" : ""}`}>{key === "ultimaAvaliacao" ? va.toFixed(1) : va}</td>
                         <td className={`text-center tabular-nums ${winner === "B" ? "font-bold text-primary" : ""}`}>{key === "ultimaAvaliacao" ? vb.toFixed(1) : vb}</td>
                         <td className="text-center text-xs">
