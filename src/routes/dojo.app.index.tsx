@@ -79,19 +79,23 @@ const PIE_COLORS = ["#dc2626", "#f97316", "#f59e0b", "#10b981", "#3b82f6", "#8b5
 
 function BentoCard({
   className = "",
+  style,
   children,
 }: {
   className?: string;
+  style?: React.CSSProperties;
   children: React.ReactNode;
 }) {
   return (
     <div
       className={`dojo-card relative overflow-hidden p-4 md:p-5 flex flex-col gap-3 ${className}`}
+      style={style}
     >
       {children}
     </div>
   );
 }
+
 
 function SectionHead({
   eyebrow,
