@@ -108,53 +108,71 @@ function AnalysisPage() {
         </Button>
       }
     >
-      {/* HERO premium */}
-      <div className="relative overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/15 via-background to-background p-6 shadow-[0_20px_60px_-30px_color-mix(in_oklab,var(--primary)_60%,transparent)] sm:p-8 md:p-10">
-        <div className="pointer-events-none absolute -right-16 -top-16 h-72 w-72 rounded-full bg-primary/20 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-24 -left-10 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
+      {/* HERO premium — Ruby Noir */}
+      <div className="relative overflow-hidden rounded-[2rem] border border-red-500/25 bg-gradient-to-br from-neutral-950 via-neutral-950 to-black p-6 shadow-[0_30px_80px_-30px_rgba(239,68,68,0.45)] sm:p-8 md:p-10">
+        <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-red-600/25 blur-[120px]" />
+        <div className="pointer-events-none absolute -bottom-32 -left-16 h-96 w-96 rounded-full bg-red-500/15 blur-[120px]" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-red-500/60 to-transparent" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(255,255,255,0.04),transparent_40%)]" />
         <div className="relative grid gap-6 md:grid-cols-[auto_minmax(0,1fr)_auto] md:items-center md:gap-10">
           {s?.photo_url ? (
-            <img src={s.photo_url} alt={s.full_name} className="h-28 w-28 shrink-0 rounded-2xl object-cover shadow-xl ring-4 ring-primary/25 sm:h-32 sm:w-32" />
+            <div className="relative shrink-0">
+              <div className="absolute -inset-1 rounded-2xl bg-gradient-to-br from-red-500 via-red-600 to-amber-500 opacity-70 blur-md" />
+              <img src={s.photo_url} alt={s.full_name} className="relative h-28 w-28 rounded-2xl object-cover shadow-2xl ring-2 ring-white/10 sm:h-32 sm:w-32" />
+            </div>
           ) : (
-            <div className="grid h-28 w-28 shrink-0 place-items-center rounded-2xl bg-muted text-3xl font-bold text-muted-foreground ring-4 ring-primary/10 sm:h-32 sm:w-32">
-              {s?.full_name?.slice(0, 2).toUpperCase() ?? "—"}
+            <div className="relative shrink-0">
+              <div className="absolute -inset-1 rounded-2xl bg-gradient-to-br from-red-500 to-amber-500 opacity-60 blur-md" />
+              <div className="relative grid h-28 w-28 place-items-center rounded-2xl bg-neutral-900 text-3xl font-black text-red-200 ring-2 ring-white/10 sm:h-32 sm:w-32">
+                {s?.full_name?.slice(0, 2).toUpperCase() ?? "—"}
+              </div>
             </div>
           )}
           <div className="min-w-0">
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-red-300">
+              <Sparkles className="h-3 w-3" /> Centro de Performance
+            </div>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-              <h2 className="min-w-0 truncate text-2xl font-black tracking-tight sm:text-3xl md:text-4xl">{s?.full_name ?? <Skeleton className="h-8 w-56" />}</h2>
+              <h2 className="min-w-0 bg-gradient-to-br from-white via-white to-red-200 bg-clip-text text-2xl font-black tracking-tight text-transparent sm:text-3xl md:text-4xl">
+                {s?.full_name ?? <Skeleton className="h-8 w-56" />}
+              </h2>
               {s?.status && (
-                <Badge variant={s.status === "active" ? "default" : "outline"} className="uppercase tracking-widest">
+                <Badge className={`uppercase tracking-widest ${s.status === "active" ? "border-emerald-500/30 bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/20" : "border-white/10 bg-white/5 text-white/70"}`}>
                   {s.status === "active" ? "Ativo" : s.status}
                 </Badge>
               )}
               {score.data && (
-                <Badge className="bg-primary/15 uppercase tracking-widest text-primary hover:bg-primary/20">
+                <Badge className="border border-amber-500/30 bg-amber-500/15 uppercase tracking-widest text-amber-200 hover:bg-amber-500/20">
                   <Sparkles className="mr-1 h-3 w-3" /> {score.data.label}
                 </Badge>
               )}
             </div>
-            <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
-              {age(s?.birth_date) != null && <span className="inline-flex items-center gap-1.5"><HeartPulse className="h-4 w-4 text-primary/70" />{age(s?.birth_date)} anos</span>}
+            <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/70">
+              {age(s?.birth_date) != null && <span className="inline-flex items-center gap-1.5"><HeartPulse className="h-4 w-4 text-red-400" />{age(s?.birth_date)} anos</span>}
               {s?.gender && <span className="capitalize">{s.gender}</span>}
-              {belt && <span className="inline-flex items-center gap-1.5"><Award className="h-4 w-4 text-primary/70" />{formatBeltName(belt.name, belt.modality)} · {formatDegree(s?.current_degree ?? 0, belt.modality, belt.name)}</span>}
-              {overview.data?.classes?.[0]?.dojo_classes && <span className="inline-flex items-center gap-1.5"><Users2 className="h-4 w-4 text-primary/70" />{(overview.data.classes[0] as any).dojo_classes.name}</span>}
-              <span className="inline-flex items-center gap-1.5"><CalendarDays className="h-4 w-4 text-primary/70" />Matrícula {fmtDate(s?.created_at)}</span>
+              {belt && <span className="inline-flex items-center gap-1.5"><Award className="h-4 w-4 text-amber-400" />{formatBeltName(belt.name, belt.modality)} · {formatDegree(s?.current_degree ?? 0, belt.modality, belt.name)}</span>}
+              {overview.data?.classes?.[0]?.dojo_classes && <span className="inline-flex items-center gap-1.5"><Users2 className="h-4 w-4 text-red-400" />{(overview.data.classes[0] as any).dojo_classes.name}</span>}
+              <span className="inline-flex items-center gap-1.5"><CalendarDays className="h-4 w-4 text-red-400" />Matrícula {fmtDate(s?.created_at)}</span>
             </div>
             {score.data && (
-              <div className="mt-6 max-w-xl">
-                <div className="mb-2 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                  <span>Índice geral de performance</span>
-                  <span className="text-foreground">{score.data.score}<span className="text-muted-foreground">/100</span></span>
+              <div className="mt-6 max-w-xl rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur">
+                <div className="mb-2 flex items-center justify-between text-[11px] font-bold uppercase tracking-[0.22em]">
+                  <span className="text-white/60">Índice geral de performance</span>
+                  <span className="text-white">{score.data.score}<span className="text-white/40">/100</span></span>
                 </div>
-                <Progress value={score.data.score} className="h-2.5" />
+                <div className="h-2.5 overflow-hidden rounded-full bg-white/10">
+                  <div className="h-full rounded-full bg-gradient-to-r from-red-500 via-red-400 to-amber-400 shadow-[0_0_20px_rgba(239,68,68,0.6)] transition-all" style={{ width: `${Math.min(100, score.data.score)}%` }} />
+                </div>
               </div>
             )}
           </div>
           {belt && (
-            <div className="w-full max-w-[220px] justify-self-center md:justify-self-end">
-              <BeltAuto belt={belt} degree={s?.current_degree ?? 0} />
-              {s?.current_degree ? <div className="mt-3 text-center text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">{s.current_degree}º {degreeUnit(belt.modality)}</div> : null}
+            <div className="relative w-full max-w-[220px] justify-self-center md:justify-self-end">
+              <div className="absolute -inset-2 rounded-2xl bg-gradient-to-br from-red-500/30 to-amber-500/20 blur-xl" />
+              <div className="relative rounded-2xl border border-white/10 bg-black/40 p-3 backdrop-blur">
+                <BeltAuto belt={belt} degree={s?.current_degree ?? 0} />
+                {s?.current_degree ? <div className="mt-3 text-center text-xs font-bold uppercase tracking-[0.22em] text-amber-300">{s.current_degree}º {degreeUnit(belt.modality)}</div> : null}
+              </div>
             </div>
           )}
         </div>
