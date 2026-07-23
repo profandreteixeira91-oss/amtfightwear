@@ -180,13 +180,20 @@ function LessonEditorPage() {
 
   const removeBlock = (bid: string) => patch({ blocks: form.blocks.filter((b) => b.id !== bid) });
 
-  const moveBlock = (bid: string, dir: -1 | 1) => {
-    const idx = form.blocks.findIndex((b) => b.id === bid);
-    const to = idx + dir;
-    if (idx < 0 || to < 0 || to >= form.blocks.length) return;
-    const next = [...form.blocks];
-    [next[idx], next[to]] = [next[to], next[idx]];
-    patch({ blocks: next });
+  const reorderBlocks = (activeId: string, overId: string) => {
+    const oldIdx = form.blocks.findIndex((b) => b.id === activeId);
+    const newIdx = form.blocks.findIndex((b) => b.id === overId);
+    if (oldIdx < 0 || newIdx < 0 || oldIdx === newIdx) return;
+    patch({ blocks: arrayMove(form.blocks, oldIdx, newIdx) });
+  };
+
+  const reorderItems = (bid: string, activeId: string, overId: string) => {
+    const block = form.blocks.find((b) => b.id === bid);
+    if (!block) return;
+    const oldIdx = block.items.findIndex((i) => i.id === activeId);
+    const newIdx = block.items.findIndex((i) => i.id === overId);
+    if (oldIdx < 0 || newIdx < 0 || oldIdx === newIdx) return;
+    updateBlock(bid, { items: arrayMove(block.items, oldIdx, newIdx) });
   };
 
   const addItem = (bid: string) =>
