@@ -1,6 +1,6 @@
 // Regras de idade para faixas de Jiu-Jitsu.
-// - Alunos com idade ≤ 15 anos: somente faixas infantis (cinza/amarela/laranja/verde e variantes).
-// - Alunos com idade ≥ 16 anos: somente faixas adultas (branca, azul, roxa, marrom, preta).
+// - Alunos com idade < 15 anos: somente faixas infantis (cinza/amarela/laranja/verde e variantes).
+// - Alunos com idade ≥ 15 anos: somente faixas adultas (branca, azul, roxa, marrom, preta).
 // - Outras modalidades não são filtradas por idade.
 // - Sem data de nascimento cadastrada: não filtra (mostra tudo).
 
@@ -35,6 +35,32 @@ const ADULT_CANON = new Set(
   ["Branca", "Azul", "Roxa", "Marrom", "Preta"].map(canonicalize),
 );
 
+const KIDS_SEQUENCE = [
+  "Cinza com Branco",
+  "Cinza",
+  "Cinza com Preto",
+  "Amarela com Branco",
+  "Amarela",
+  "Amarela com Preto",
+  "Laranja com Branco",
+  "Laranja",
+  "Laranja com Preto",
+  "Verde com Branco",
+  "Verde",
+  "Verde com Preto",
+].map(canonicalize);
+
+const ADULT_SEQUENCE = [
+  "Branca",
+  "Azul",
+  "Roxa",
+  "Marrom",
+  "Preta",
+  "Vermelha e Preta",
+  "Vermelha e Branca",
+  "Vermelha",
+].map(canonicalize);
+
 export type AgeCategory = "kids" | "adult" | "any";
 
 export function computeAge(birthDate?: string | null, ref: Date = new Date()): number | null {
@@ -49,7 +75,7 @@ export function computeAge(birthDate?: string | null, ref: Date = new Date()): n
 
 export function ageCategory(age: number | null): AgeCategory {
   if (age == null) return "any";
-  if (age <= 15) return "kids";
+  if (age < 15) return "kids";
   return "adult";
 }
 
@@ -92,11 +118,21 @@ export function suggestNextBelt(params: {
   age: number | null;
 }): { beltId: string; degree: number } | null {
   const { current, belts, modality, age } = params;
+  const category = modality === "jiu-jitsu" ? ageCategory(age) : "any";
+  const sequence = category === "kids"
+    ? KIDS_SEQUENCE
+    : category === "adult"
+      ? ADULT_SEQUENCE
+      : null;
+  const sequenceIndex = (belt: { name: string; sort_order?: number | null }) => {
+    const index = sequence?.indexOf(canonicalize(belt.name)) ?? -1;
+    return index >= 0 ? index : (sequence?.length ?? 0) + (belt.sort_order ?? 0);
+  };
   const inModality = belts
     .filter((b) => (b.modality ?? "jiu-jitsu") === modality)
     .filter((b) => isBeltAllowedForAge(b, age))
     .slice()
-    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+    .sort((a, b) => sequenceIndex(a) - sequenceIndex(b));
   if (inModality.length === 0) return null;
 
   if (!current || !current.belt) {
@@ -105,29 +141,39 @@ export function suggestNextBelt(params: {
   }
 
   const currentDeg = current.degree ?? 0;
-  // Faixas sem graus (max_degrees = 0 ou não configurado) pulam direto para a próxima faixa.
-  const maxDeg = current.belt.max_degrees ?? 0;
+  const currentCanonical = canonicalize(current.belt.name);
+  const currentInAllowed = inModality.find((b) =>
+    b.id === current.belt.id || canonicalize(b.name) === currentCanonical,
+  );
 
-  // Faixa atual ainda cabe na lista permitida? Se sim e tem grau disponível, avança grau.
-  const currentInAllowed = inModality.find((b) => b.id === current.belt.id);
+  // Um aluno infantil que ainda está na faixa branca entra na primeira faixa
+  // infantil, independentemente do grau registrado na branca.
+  if (category === "kids" && currentCanonical === canonicalize("Branca")) {
+    const firstKidsBelt = inModality[0];
+    return { beltId: firstKidsBelt.id, degree: 0 };
+  }
+
+  // O limite cadastrado na faixa carregada da lista é a fonte principal.
+  // O objeto da graduação atual pode ser antigo/incompleto, então só o usamos
+  // como fallback. Para as faixas regulares do Jiu-Jitsu, o padrão é 4 graus.
+  const defaultMaxDegrees = modality === "jiu-jitsu" && (KIDS_CANON.has(currentCanonical) || ADULT_CANON.has(currentCanonical))
+    ? 4
+    : 0;
+  const maxDeg = currentInAllowed?.max_degrees ?? current.belt.max_degrees ?? defaultMaxDegrees;
+
+  // Enquanto não chegou ao último grau, mantém a faixa e soma exatamente um grau.
   if (currentInAllowed && maxDeg > 0 && currentDeg < maxDeg) {
     return { beltId: currentInAllowed.id, degree: currentDeg + 1 };
   }
 
-  // Localiza a faixa atual entre TODAS as faixas da modalidade para achar a próxima por ordem.
-  const allInMod = belts
-    .filter((b) => (b.modality ?? "jiu-jitsu") === modality)
-    .slice()
-    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
-  const idxAll = allInMod.findIndex((b) => b.id === current.belt.id);
-  if (idxAll >= 0) {
-    for (let i = idxAll + 1; i < allInMod.length; i++) {
-      if (isBeltAllowedForAge(allInMod[i], age)) return { beltId: allInMod[i].id, degree: 0 };
-    }
-    // Sem próxima permitida — fica na atual sem novo grau.
-    return null;
+  // Ao concluir o último grau, avança para a próxima faixa da sequência etária.
+  if (currentInAllowed) {
+    const currentIndex = inModality.findIndex((b) => b.id === currentInAllowed.id);
+    const nextBelt = inModality[currentIndex + 1];
+    return nextBelt ? { beltId: nextBelt.id, degree: 0 } : null;
   }
 
-  // Faixa atual não pertence à modalidade (não deveria acontecer) — primeira permitida.
+  // Faixa atual não pertence à sequência permitida para a idade: começa na
+  // primeira faixa correta da categoria (por exemplo, branca → cinza/branca).
   return { beltId: inModality[0].id, degree: 0 };
 }
