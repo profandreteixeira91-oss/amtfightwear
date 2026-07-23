@@ -109,59 +109,59 @@ function AnalysisPage() {
       }
     >
       {/* HERO premium */}
-      <div className="relative overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/15 via-background to-background p-6 shadow-[0_20px_60px_-30px_color-mix(in_oklab,var(--primary)_60%,transparent)]">
-        <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-primary/20 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-24 -left-10 h-56 w-56 rounded-full bg-primary/10 blur-3xl" />
-        <div className="relative grid gap-6 md:grid-cols-[auto_1fr_auto] md:items-center">
+      <div className="relative overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/15 via-background to-background p-6 shadow-[0_20px_60px_-30px_color-mix(in_oklab,var(--primary)_60%,transparent)] sm:p-8 md:p-10">
+        <div className="pointer-events-none absolute -right-16 -top-16 h-72 w-72 rounded-full bg-primary/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 -left-10 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
+        <div className="relative grid gap-6 md:grid-cols-[auto_minmax(0,1fr)_auto] md:items-center md:gap-10">
           {s?.photo_url ? (
-            <img src={s.photo_url} alt={s.full_name} className="h-28 w-28 rounded-2xl object-cover ring-4 ring-primary/25 shadow-xl" />
+            <img src={s.photo_url} alt={s.full_name} className="h-28 w-28 shrink-0 rounded-2xl object-cover shadow-xl ring-4 ring-primary/25 sm:h-32 sm:w-32" />
           ) : (
-            <div className="grid h-28 w-28 place-items-center rounded-2xl bg-muted text-3xl font-bold text-muted-foreground ring-4 ring-primary/10">
+            <div className="grid h-28 w-28 shrink-0 place-items-center rounded-2xl bg-muted text-3xl font-bold text-muted-foreground ring-4 ring-primary/10 sm:h-32 sm:w-32">
               {s?.full_name?.slice(0, 2).toUpperCase() ?? "—"}
             </div>
           )}
           <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <h2 className="truncate text-3xl font-black tracking-tight">{s?.full_name ?? <Skeleton className="h-8 w-56" />}</h2>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+              <h2 className="min-w-0 truncate text-2xl font-black tracking-tight sm:text-3xl md:text-4xl">{s?.full_name ?? <Skeleton className="h-8 w-56" />}</h2>
               {s?.status && (
                 <Badge variant={s.status === "active" ? "default" : "outline"} className="uppercase tracking-widest">
                   {s.status === "active" ? "Ativo" : s.status}
                 </Badge>
               )}
               {score.data && (
-                <Badge className="bg-primary/15 text-primary hover:bg-primary/20 uppercase tracking-widest">
+                <Badge className="bg-primary/15 uppercase tracking-widest text-primary hover:bg-primary/20">
                   <Sparkles className="mr-1 h-3 w-3" /> {score.data.label}
                 </Badge>
               )}
             </div>
-            <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm text-muted-foreground">
-              {age(s?.birth_date) != null && <span className="inline-flex items-center gap-1"><HeartPulse className="h-3.5 w-3.5" />{age(s?.birth_date)} anos</span>}
+            <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
+              {age(s?.birth_date) != null && <span className="inline-flex items-center gap-1.5"><HeartPulse className="h-4 w-4 text-primary/70" />{age(s?.birth_date)} anos</span>}
               {s?.gender && <span className="capitalize">{s.gender}</span>}
-              {belt && <span className="inline-flex items-center gap-1"><Award className="h-3.5 w-3.5" />{formatBeltName(belt.name, belt.modality)} · {formatDegree(s?.current_degree ?? 0, belt.modality, belt.name)}</span>}
-              {overview.data?.classes?.[0]?.dojo_classes && <span>Turma: {(overview.data.classes[0] as any).dojo_classes.name}</span>}
-              <span>Matrícula: {fmtDate(s?.created_at)}</span>
+              {belt && <span className="inline-flex items-center gap-1.5"><Award className="h-4 w-4 text-primary/70" />{formatBeltName(belt.name, belt.modality)} · {formatDegree(s?.current_degree ?? 0, belt.modality, belt.name)}</span>}
+              {overview.data?.classes?.[0]?.dojo_classes && <span className="inline-flex items-center gap-1.5"><Users2 className="h-4 w-4 text-primary/70" />{(overview.data.classes[0] as any).dojo_classes.name}</span>}
+              <span className="inline-flex items-center gap-1.5"><CalendarDays className="h-4 w-4 text-primary/70" />Matrícula {fmtDate(s?.created_at)}</span>
             </div>
             {score.data && (
-              <div className="mt-4 max-w-xl">
-                <div className="mb-1 flex items-center justify-between text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+              <div className="mt-6 max-w-xl">
+                <div className="mb-2 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                   <span>Índice geral de performance</span>
-                  <span className="text-foreground">{score.data.score}/100</span>
+                  <span className="text-foreground">{score.data.score}<span className="text-muted-foreground">/100</span></span>
                 </div>
-                <Progress value={score.data.score} className="h-2" />
+                <Progress value={score.data.score} className="h-2.5" />
               </div>
             )}
           </div>
           {belt && (
-            <div className="w-full max-w-[220px]">
+            <div className="w-full max-w-[220px] justify-self-center md:justify-self-end">
               <BeltAuto belt={belt} degree={s?.current_degree ?? 0} />
-              {s?.current_degree ? <div className="mt-2 text-center text-xs font-semibold uppercase tracking-widest text-muted-foreground">{s.current_degree}º {degreeUnit(belt.modality)}</div> : null}
+              {s?.current_degree ? <div className="mt-3 text-center text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">{s.current_degree}º {degreeUnit(belt.modality)}</div> : null}
             </div>
           )}
         </div>
       </div>
 
       {/* KPIs principais */}
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard index={0} icon={Activity} label="Check-ins (365d)" value={attendance.data?.totalPresent ?? "—"} hint={`${attendance.data?.distinctDays ?? 0} dias distintos`} loading={attendance.isLoading} />
         <StatCard index={1} icon={Flame} label="Maior sequência" value={attendance.data?.maxStreak ?? "—"} hint="dias consecutivos" loading={attendance.isLoading} />
         <StatCard index={2} icon={GraduationCap} label="Graduações" value={grads.data?.history.length ?? "—"} hint={grads.data?.nextForecast ? `Próxima ~ ${fmtDate(grads.data.nextForecast)}` : "Sem previsão"} loading={grads.isLoading} />
@@ -169,7 +169,7 @@ function AnalysisPage() {
       </div>
 
       {/* Score radial + insights + breakdown */}
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-3">
         <SectionCard title="Índice Geral" description="Score composto de 6 dimensões">
           {score.isLoading ? (
             <Skeleton className="h-56 w-full" />
@@ -180,9 +180,9 @@ function AnalysisPage() {
 
         <SectionCard title="Decomposição do Score" description="Contribuição por dimensão" className="lg:col-span-2">
           {score.isLoading ? (
-            <div className="space-y-3">{[1, 2, 3, 4, 5, 6].map((i) => <Skeleton key={i} className="h-8" />)}</div>
+            <div className="space-y-4">{[1, 2, 3, 4, 5, 6].map((i) => <Skeleton key={i} className="h-8" />)}</div>
           ) : score.data ? (
-            <div className="space-y-3">
+            <div className="space-y-5">
               {Object.entries(score.data.breakdown).map(([k, v]) => {
                 const meta = BREAKDOWN_LABELS[k] ?? { label: k, icon: Activity };
                 const Icon = meta.icon;
@@ -190,14 +190,14 @@ function AnalysisPage() {
                 const color = val >= 80 ? "bg-emerald-500" : val >= 60 ? "bg-primary" : val >= 40 ? "bg-amber-500" : "bg-destructive";
                 return (
                   <div key={k}>
-                    <div className="mb-1 flex items-center justify-between text-xs">
+                    <div className="mb-2 flex items-center justify-between text-sm">
                       <span className="inline-flex items-center gap-2 font-semibold">
-                        <Icon className="h-3.5 w-3.5 text-muted-foreground" />
+                        <Icon className="h-4 w-4 text-muted-foreground" />
                         {meta.label}
                       </span>
-                      <span className="tabular-nums text-muted-foreground">{val}/100</span>
+                      <span className="tabular-nums text-muted-foreground">{val}<span className="text-xs">/100</span></span>
                     </div>
-                    <div className="h-2 overflow-hidden rounded-full bg-muted">
+                    <div className="h-2.5 overflow-hidden rounded-full bg-muted">
                       <div className={`h-full ${color} transition-all`} style={{ width: `${Math.min(100, val)}%` }} />
                     </div>
                   </div>
@@ -209,8 +209,8 @@ function AnalysisPage() {
       </div>
 
       <SectionCard title="Inteligência Analítica" description="Insights automáticos gerados a partir de todos os módulos">
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {insights.isLoading && [1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-16" />)}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {insights.isLoading && [1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-20" />)}
           {insights.data?.insights.map((it, i) => <InsightCard key={i} {...it} />)}
           {insights.data && insights.data.insights.length === 0 && (
             <div className="text-sm text-muted-foreground">Sem alertas no momento. Bom trabalho!</div>
@@ -220,17 +220,19 @@ function AnalysisPage() {
 
       {/* Tabs detalhadas */}
       <Tabs defaultValue="frequencia" className="w-full">
-        <TabsList className="flex w-full flex-wrap justify-start gap-1 rounded-xl bg-muted/40 p-1 backdrop-blur">
-          <TabsTrigger value="frequencia"><CalendarDays className="mr-1 h-4 w-4" />Frequência</TabsTrigger>
-          <TabsTrigger value="tecnico"><Target className="mr-1 h-4 w-4" />Técnico</TabsTrigger>
-          <TabsTrigger value="graduacoes"><GraduationCap className="mr-1 h-4 w-4" />Graduações</TabsTrigger>
-          <TabsTrigger value="competicoes"><Trophy className="mr-1 h-4 w-4" />Competições</TabsTrigger>
-          <TabsTrigger value="fisico"><HeartPulse className="mr-1 h-4 w-4" />Físico</TabsTrigger>
-          <TabsTrigger value="videos"><Video className="mr-1 h-4 w-4" />Vídeos</TabsTrigger>
-          <TabsTrigger value="metas"><Dumbbell className="mr-1 h-4 w-4" />Metas</TabsTrigger>
-          <TabsTrigger value="lesoes"><ClipboardList className="mr-1 h-4 w-4" />Clínico</TabsTrigger>
-          <TabsTrigger value="comparar"><Users2 className="mr-1 h-4 w-4" />Comparar</TabsTrigger>
-        </TabsList>
+        <div className="-mx-4 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <TabsList className="inline-flex h-auto w-max min-w-full gap-1 rounded-2xl bg-muted/40 p-1.5 backdrop-blur">
+            <TabsTrigger value="frequencia" className="gap-1.5 px-3 py-2 text-sm"><CalendarDays className="h-4 w-4" />Frequência</TabsTrigger>
+            <TabsTrigger value="tecnico" className="gap-1.5 px-3 py-2 text-sm"><Target className="h-4 w-4" />Técnico</TabsTrigger>
+            <TabsTrigger value="graduacoes" className="gap-1.5 px-3 py-2 text-sm"><GraduationCap className="h-4 w-4" />Graduações</TabsTrigger>
+            <TabsTrigger value="competicoes" className="gap-1.5 px-3 py-2 text-sm"><Trophy className="h-4 w-4" />Competições</TabsTrigger>
+            <TabsTrigger value="fisico" className="gap-1.5 px-3 py-2 text-sm"><HeartPulse className="h-4 w-4" />Físico</TabsTrigger>
+            <TabsTrigger value="videos" className="gap-1.5 px-3 py-2 text-sm"><Video className="h-4 w-4" />Vídeos</TabsTrigger>
+            <TabsTrigger value="metas" className="gap-1.5 px-3 py-2 text-sm"><Dumbbell className="h-4 w-4" />Metas</TabsTrigger>
+            <TabsTrigger value="lesoes" className="gap-1.5 px-3 py-2 text-sm"><ClipboardList className="h-4 w-4" />Clínico</TabsTrigger>
+            <TabsTrigger value="comparar" className="gap-1.5 px-3 py-2 text-sm"><Users2 className="h-4 w-4" />Comparar</TabsTrigger>
+          </TabsList>
+        </div>
 
         {/* Frequência */}
         <TabsContent value="frequencia" className="mt-4 space-y-4">
