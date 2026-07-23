@@ -153,15 +153,18 @@ export const createSale = createServerFn({ method: "POST" })
       throw new Error("Total inválido para cobrança pelo gateway.");
     }
 
-    // Se for método gateway, exige aluno + gera fatura AMT Pay
+    // Toda venda vira uma linha em dojo_invoices (contas a receber do Financeiro).
+    // - Métodos gateway (pix/boleto/cartão/link): cria fatura pending e sincroniza com AMT Pay.
+    // - Métodos diretos (dinheiro/pix manual/etc.): cria fatura já paga (paid_at = agora).
     let invoice_id: string | null = null;
     let payment_link: string | null = null;
     let status: "paid" | "pending" = DIRECT_METHODS.has(data.payment_method) ? "paid" : "pending";
+    const nowIso = new Date().toISOString();
+    const due = data.due_date ?? nowIso.slice(0, 10);
+    const description = `Venda — ${data.items.map((i) => `${i.quantity}x ${i.name}`).join(", ")}`.slice(0, 400);
 
     if (GATEWAY_METHODS.has(data.payment_method)) {
       if (!data.student_id) throw new Error("Selecione o aluno para cobrar pelo AMT Pay.");
-      const due = data.due_date ?? new Date().toISOString().slice(0, 10);
-      const description = `Venda — ${data.items.map((i) => `${i.quantity}x ${i.name}`).join(", ")}`.slice(0, 400);
       const invPayload: any = {
         id: crypto.randomUUID(),
         student_id: data.student_id,
@@ -169,6 +172,8 @@ export const createSale = createServerFn({ method: "POST" })
         amount: total,
         due_date: due,
         status: "pending",
+        method: data.payment_method,
+        source: "sale",
         owner_id: context.userId,
       };
       const { syncInvoiceWithAsaas } = await import("@/lib/asaas/enrollment.server");
@@ -187,6 +192,25 @@ export const createSale = createServerFn({ method: "POST" })
       invoice_id = (inv as any).id;
       payment_link = (inv as any).payment_link ?? invPayload.payment_link ?? null;
       status = "pending";
+    } else if (total > 0) {
+      // Venda direta: registra fatura já paga em contas a receber
+      const { data: inv, error: invErr } = await context.supabase
+        .from("dojo_invoices")
+        .insert({
+          student_id: data.student_id ?? null,
+          description,
+          amount: total,
+          due_date: due,
+          status: "paid",
+          paid_at: nowIso,
+          method: data.payment_method,
+          source: "sale",
+          owner_id: context.userId,
+        } as never)
+        .select("id")
+        .single();
+      if (invErr) throw new Error(invErr.message);
+      invoice_id = (inv as any).id;
     }
 
     const { data: sale, error: saleErr } = await context.supabase
