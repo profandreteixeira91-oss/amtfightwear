@@ -8,6 +8,9 @@ import {
   deleteLessonPlan,
   bulkDuplicateLessonPlan,
   upsertLessonTemplate,
+  listClassesForPicker,
+  listClassStudentsForAttendance,
+  registerLessonDelivery,
 } from "@/lib/dojo/lesson-plans.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
