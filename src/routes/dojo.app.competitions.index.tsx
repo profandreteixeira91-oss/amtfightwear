@@ -202,6 +202,10 @@ function LibraryTab() {
         <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
           <span>{list.isLoading ? "Carregando..." : `${list.data?.total ?? 0} competições encontradas`}</span>
           <div className="flex items-center gap-2">
+            <NewCompetitionDialog onCreated={() => {
+              qc.invalidateQueries({ queryKey: ["comp-lib"] });
+              qc.invalidateQueries({ queryKey: ["comp-filters"] });
+            }} />
             <Button size="sm" variant="outline" onClick={toggleAll} disabled={rows.length === 0}>
               {allSelected ? "Limpar seleção" : "Selecionar todas"}
             </Button>
