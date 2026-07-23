@@ -456,6 +456,13 @@ function TeamMemberDetail() {
           </div>
         </TabsContent>
 
+        {/* CONTRACTS */}
+        <TabsContent value="contracts" className="mt-4">
+          <TeamContracts teamMemberId={id} member={m} />
+        </TabsContent>
+
+
+
         {/* HISTORY */}
         <TabsContent value="history" className="mt-4">
           <div className="rounded-lg border bg-card">
