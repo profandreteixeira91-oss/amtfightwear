@@ -142,72 +142,56 @@ function AMTPayHub() {
 
 function AMTPayLanding({ onActivate }: { onActivate: () => void }) {
   return (
-    <div className="space-y-6">
-      <Card className="border-2 border-red-600/20 bg-gradient-to-br from-red-50/50 to-transparent dark:from-red-950/20">
-        <CardContent className="p-8 md:p-10 flex flex-col md:flex-row items-start gap-6">
-          <img
-            src={amtPayLogoUrl}
-            alt="AMT Pay"
-            className="h-28 w-28 md:h-36 md:w-36 object-contain shrink-0 drop-shadow-lg"
-          />
-          <div className="flex-1 space-y-4">
+    <div className="space-y-8">
+      <Card className="relative overflow-hidden border-red-600/25 bg-white shadow-[0_18px_48px_-24px_rgba(220,38,38,0.35)]">
+        <div className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-red-500/10 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-16 -left-10 h-48 w-48 rounded-full bg-red-600/10 blur-3xl" />
+        <CardContent className="relative p-8 md:p-10 flex flex-col md:flex-row items-start gap-8">
+          <div className="relative shrink-0">
+            <div className="absolute -inset-3 rounded-3xl bg-gradient-to-br from-red-500/15 to-transparent blur-xl" />
+            <img
+              src={amtPayLogoUrl}
+              alt="AMT Pay"
+              className="relative h-28 w-28 md:h-36 md:w-36 object-contain drop-shadow-[0_10px_25px_rgba(220,38,38,0.25)]"
+            />
+          </div>
+          <div className="flex-1 space-y-5 min-w-0">
             <div>
-              <h2 className="text-2xl font-bold tracking-tight">
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-red-600/25 bg-red-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.18em] text-red-700">
+                <Sparkles className="h-3 w-3" /> Motor de pagamentos oficial
+              </div>
+              <h2 className="mt-3 font-display text-2xl md:text-3xl font-bold tracking-tight">
                 O que é o AMT Pay?
               </h2>
-              <p className="text-muted-foreground mt-2 max-w-3xl">
-                O AMT Pay é o meio de pagamento oficial do Dojo Manager. Com um clique,
-                seu dojo passa a emitir mensalidades e vendas com PIX, Boleto e Cartão
-                de crédito — o dinheiro cai direto na sua conta, com identidade visual
-                do seu dojo e saques automáticos. <b>A ativação é opcional</b>: se
-                preferir usar sua própria operadora, basta continuar registrando os
-                pagamentos manualmente no sistema.
+              <p className="mt-2 text-muted-foreground max-w-3xl leading-relaxed">
+                Com um clique, seu dojo passa a emitir mensalidades e vendas com PIX,
+                Boleto e Cartão de crédito — o dinheiro cai direto na sua conta, com
+                identidade visual do seu dojo e saques automáticos.{" "}
+                <b className="text-foreground">A ativação é opcional</b>: se preferir
+                usar sua própria operadora, basta continuar registrando os pagamentos
+                manualmente no sistema.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
-              <FeatureItem
-                icon={<QrCode className="h-4 w-4" />}
-                title="PIX instantâneo"
-                text="QR Code gerado dentro do sistema, sem redirecionar."
-              />
-              <FeatureItem
-                icon={<Barcode className="h-4 w-4" />}
-                title="Boleto bancário"
-                text="Linha digitável e comprovante branded do dojo."
-              />
-              <FeatureItem
-                icon={<CreditCard className="h-4 w-4" />}
-                title="Cartão de crédito"
-                text="Parcelamento em até 12x, checkout embutido."
-              />
-              <FeatureItem
-                icon={<Receipt className="h-4 w-4" />}
-                title="Recorrência automática"
-                text="Mensalidades emitidas e cobradas sozinhas."
-              />
-              <FeatureItem
-                icon={<Wallet className="h-4 w-4" />}
-                title="Carteira e saques"
-                text="Saldo, extrato e transferência via PIX."
-              />
-              <FeatureItem
-                icon={<Building2 className="h-4 w-4" />}
-                title="Em nome do seu dojo"
-                text="Comprovantes saem com seu CNPJ e logo."
-              />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
+              <FeatureItem icon={<QrCode className="h-4 w-4" />} title="PIX instantâneo" text="QR Code gerado dentro do sistema, sem redirecionar." />
+              <FeatureItem icon={<Barcode className="h-4 w-4" />} title="Boleto bancário" text="Linha digitável e comprovante branded do dojo." />
+              <FeatureItem icon={<CreditCard className="h-4 w-4" />} title="Cartão de crédito" text="Parcelamento em até 12x, checkout embutido." />
+              <FeatureItem icon={<Receipt className="h-4 w-4" />} title="Recorrência automática" text="Mensalidades emitidas e cobradas sozinhas." />
+              <FeatureItem icon={<Wallet className="h-4 w-4" />} title="Carteira e saques" text="Saldo, extrato e transferência via PIX." />
+              <FeatureItem icon={<Building2 className="h-4 w-4" />} title="Em nome do seu dojo" text="Comprovantes saem com seu CNPJ e logo." />
             </div>
 
-            <div className="flex flex-wrap gap-3 pt-2">
+            <div className="flex flex-wrap items-center gap-4 pt-3">
               <Button
                 size="lg"
-                className="bg-red-600 hover:bg-red-700"
+                className="bg-red-600 text-white hover:bg-red-700 hover:text-white shadow-lg shadow-red-600/25 transition-all hover:shadow-red-600/40 hover:-translate-y-0.5"
                 onClick={onActivate}
               >
                 Ativar AMT Pay
                 <ArrowRight className="ml-1.5 h-4 w-4" />
               </Button>
-              <div className="text-xs text-muted-foreground self-center max-w-sm">
+              <div className="text-xs text-muted-foreground max-w-sm leading-relaxed">
                 Sem ativar? Sem problema. Você pode continuar usando o sistema
                 normalmente e registrar mensalidades e vendas como pagas pela sua
                 operadora atual.
@@ -232,13 +216,13 @@ function FeatureItem({
   text: string;
 }) {
   return (
-    <div className="rounded-lg border bg-card p-3 flex gap-3">
-      <div className="h-8 w-8 shrink-0 rounded-md bg-red-600/10 text-red-600 grid place-items-center">
+    <div className="group relative rounded-xl border border-neutral-200 bg-card p-3.5 flex gap-3 transition-all hover:border-red-600/40 hover:shadow-[0_8px_24px_-12px_rgba(220,38,38,0.35)] hover:-translate-y-0.5">
+      <div className="h-9 w-9 shrink-0 rounded-lg bg-gradient-to-br from-red-600 to-red-700 text-white grid place-items-center shadow-sm">
         {icon}
       </div>
       <div className="min-w-0">
-        <div className="text-sm font-medium">{title}</div>
-        <div className="text-xs text-muted-foreground">{text}</div>
+        <div className="text-sm font-semibold">{title}</div>
+        <div className="text-xs text-muted-foreground leading-snug">{text}</div>
       </div>
     </div>
   );
