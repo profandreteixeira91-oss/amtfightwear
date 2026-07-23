@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Plus, ChevronLeft, ChevronRight, Users, CalendarDays, Percent, Activity } from "lucide-react";
+import { Plus, ChevronLeft, ChevronRight, Users, CalendarDays, Percent, Activity, CalendarRange, Sparkles } from "lucide-react";
 import { listClasses, listOccurrences, listSpaces, scheduleStats } from "@/lib/dojo/schedule.functions";
 import { listDojoUnits } from "@/lib/dojo/dojo.functions";
 import { ClassFormDialog } from "@/components/dojo/schedule/ClassFormDialog";
