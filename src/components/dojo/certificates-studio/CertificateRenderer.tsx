@@ -16,7 +16,7 @@ export function ElementView({ el, values, editable = false }: { el: AnyElement; 
     return <TextView el={el as TextElement | DateElement} values={values} style={style} />;
   }
   if (el.kind === "image" || el.kind === "logo" || el.kind === "signature") {
-    return <ImageView el={el as ImageElement} style={style} />;
+    return <ImageView el={el as ImageElement} style={style} values={values} />;
   }
   if (el.kind === "rect" || el.kind === "circle" || el.kind === "line") {
     return <ShapeView el={el as ShapeElement} style={style} />;
@@ -132,7 +132,7 @@ function alignToJustify(a: "left" | "center" | "right") {
   return a === "left" ? "flex-start" : a === "right" ? "flex-end" : "center";
 }
 
-function ImageView({ el, style }: { el: ImageElement; style: React.CSSProperties }) {
+function ImageView({ el, style, values }: { el: ImageElement; style: React.CSSProperties; values?: Record<string, string> }) {
   const f = el.filters ?? {};
   const filterStr = [
     f.brightness != null ? `brightness(${f.brightness}%)` : null,
@@ -146,11 +146,12 @@ function ImageView({ el, style }: { el: ImageElement; style: React.CSSProperties
     el.mask === "circle" ? "50%" :
     el.mask === "rounded" ? "16px" :
     el.mask === "squircle" ? "28%" : undefined;
-  if (!el.imageUrl) {
-    return <div style={{ ...style, background: "rgba(0,0,0,.05)", border: "2px dashed rgba(0,0,0,.15)", display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(0,0,0,.35)", fontSize: 14, borderRadius: maskRadius ?? 8 }}>Sem imagem</div>;
+  const resolvedUrl = el.imageUrl || (el.kind === "logo" ? values?.academia_logo : "") || "";
+  if (!resolvedUrl) {
+    return <div style={{ ...style, background: "rgba(0,0,0,.05)", border: "2px dashed rgba(0,0,0,.15)", display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(0,0,0,.35)", fontSize: 14, borderRadius: maskRadius ?? 8 }}>{el.kind === "logo" ? "Logo da academia (defina em Configurações)" : "Sem imagem"}</div>;
   }
   return (
-    <img src={el.imageUrl} alt="" crossOrigin="anonymous"
+    <img src={resolvedUrl} alt="" crossOrigin="anonymous"
       style={{ ...style, objectFit: el.fit || "contain", pointerEvents: "none", filter: filterStr, borderRadius: maskRadius, boxShadow: el.shadow }} />
   );
 }
@@ -211,7 +212,7 @@ export function CertificateRenderer({ doc, values, className }: { doc: EditorSch
 function ElementViewInline({ el, values, pageW, pageH }: { el: AnyElement; values: Record<string, string>; pageW: number; pageH: number }) {
   const style = elementBoxStyle(el, pageW, pageH);
   if (el.kind === "text" || el.kind === "date") return <TextView el={el as any} values={values} style={style} />;
-  if (el.kind === "image" || el.kind === "logo" || el.kind === "signature") return <ImageView el={el as ImageElement} style={style} />;
+  if (el.kind === "image" || el.kind === "logo" || el.kind === "signature") return <ImageView el={el as ImageElement} style={style} values={values} />;
   if (el.kind === "rect" || el.kind === "circle" || el.kind === "line") return <ShapeView el={el as ShapeElement} style={style} />;
   if (el.kind === "qr") return <QrView el={el as QrElement} values={values} style={style} />;
   return null;
