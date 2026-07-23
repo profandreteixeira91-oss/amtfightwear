@@ -380,8 +380,9 @@ const BeatScene: React.FC<{ beat: Beat }> = ({ beat }) => {
               >
                 <Img
                   src={staticFile(src)}
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  style={{ width: "100%", height: "100%", objectFit: "contain", background: "#ffffff" }}
                 />
+
               </div>
             );
           })}
