@@ -373,7 +373,7 @@ function ContractEditorPage() {
         {/* MAIN — editor */}
         <div className="min-h-0 overflow-y-auto">
           <div className="px-3 md:px-6 pt-2 pb-8 space-y-3">
-            <Tabs defaultValue="body" className="w-full">
+            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="w-full">
               <div className="flex items-center justify-between gap-3 flex-wrap">
                 <TabsList className="bg-neutral-200/60 dark:bg-neutral-800/60">
                   <TabsTrigger value="body"><FileText className="h-3.5 w-3.5 mr-1" />Corpo</TabsTrigger>
