@@ -460,42 +460,43 @@ const BeatScene: React.FC<{ beat: Beat }> = ({ beat }) => {
     );
   }
 
-  // showcase — screenshot on right, text on left
+  // showcase — screenshot dominates, text as compact caption on the left
   const imgSpring = spring({
     frame,
     fps,
     config: { damping: 200 },
-    durationInFrames: 26,
+    durationInFrames: 28,
   });
-  const imgY = interpolate(imgSpring, [0, 1], [40, 0]);
-  const imgScale = interpolate(imgSpring, [0, 1], [0.96, 1]);
-  const kenBurns = interpolate(frame, [0, dur], [1.0, 1.04]);
+  const imgY = interpolate(imgSpring, [0, 1], [50, 0]);
+  const imgScale = interpolate(imgSpring, [0, 1], [0.94, 1]);
+  const kenBurns = interpolate(frame, [0, dur], [1.02, 1.09]);
+  const kenX = interpolate(frame, [0, dur], [0, -1.5]);
 
   return (
     <AbsoluteFill
       style={{
         opacity,
-        padding: "140px 80px 120px",
+        padding: "120px 70px 100px",
         display: "flex",
         alignItems: "center",
-        gap: 60,
+        gap: 48,
       }}
     >
       <div
         style={{
-          flex: "0 0 42%",
+          flex: "0 0 32%",
           transform: `translateY(${y}px)`,
         }}
       >
         <div
           style={{
             fontFamily: sans,
-            fontSize: 13,
+            fontSize: 12,
             fontWeight: 700,
             letterSpacing: 6,
             color: colors.ruby,
             textTransform: "uppercase",
-            marginBottom: 20,
+            marginBottom: 18,
           }}
         >
           {beat.eyebrow}
@@ -503,12 +504,12 @@ const BeatScene: React.FC<{ beat: Beat }> = ({ beat }) => {
         <div
           style={{
             fontFamily: sans,
-            fontSize: 62,
+            fontSize: 48,
             fontWeight: 800,
-            letterSpacing: -1.5,
+            letterSpacing: -1.2,
             color: colors.ink,
-            lineHeight: 1.04,
-            marginBottom: 24,
+            lineHeight: 1.05,
+            marginBottom: 20,
           }}
         >
           {beat.title}
@@ -516,9 +517,9 @@ const BeatScene: React.FC<{ beat: Beat }> = ({ beat }) => {
         <div
           style={{
             fontFamily: sans,
-            fontSize: 24,
+            fontSize: 20,
             color: colors.ink2,
-            lineHeight: 1.45,
+            lineHeight: 1.5,
           }}
         >
           {beat.caption}
@@ -533,23 +534,52 @@ const BeatScene: React.FC<{ beat: Beat }> = ({ beat }) => {
       >
         <div
           style={{
-            borderRadius: 24,
+            borderRadius: 22,
             overflow: "hidden",
             border: `1px solid ${colors.border}`,
-            boxShadow: "0 40px 80px -30px rgba(0,0,0,0.28)",
+            boxShadow:
+              "0 60px 120px -40px rgba(0,0,0,0.45), 0 20px 40px -20px rgba(0,0,0,0.2)",
             background: colors.surface,
           }}
         >
-          {beat.screenshot && (
-            <Img
-              src={staticFile(beat.screenshot)}
+          <div
+            style={{
+              height: 34,
+              background: "#f5f5f7",
+              borderBottom: `1px solid ${colors.border}`,
+              display: "flex",
+              alignItems: "center",
+              padding: "0 14px",
+              gap: 6,
+            }}
+          >
+            <span style={{ width: 10, height: 10, borderRadius: 5, background: "#ff5f57" }} />
+            <span style={{ width: 10, height: 10, borderRadius: 5, background: "#febc2e" }} />
+            <span style={{ width: 10, height: 10, borderRadius: 5, background: "#28c840" }} />
+            <div
               style={{
-                width: "100%",
-                display: "block",
-                transform: `scale(${kenBurns})`,
-                transformOrigin: "center",
+                marginLeft: 16,
+                fontFamily: sans,
+                fontSize: 11,
+                color: colors.inkDim,
+                letterSpacing: 0.5,
               }}
-            />
+            >
+              dojomanager.amtfightwear.com.br
+            </div>
+          </div>
+          {beat.screenshot && (
+            <div style={{ overflow: "hidden" }}>
+              <Img
+                src={staticFile(beat.screenshot)}
+                style={{
+                  width: "100%",
+                  display: "block",
+                  transform: `scale(${kenBurns}) translateX(${kenX}%)`,
+                  transformOrigin: "center",
+                }}
+              />
+            </div>
           )}
         </div>
       </div>
