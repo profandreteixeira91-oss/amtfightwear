@@ -334,16 +334,19 @@ export const generateStudentContract = createServerFn({ method: "POST" })
 /** Atualiza status de um contrato + registra evento. */
 export const updateContractStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { id: string; kind: "student"|"affiliate"; status: string; note?: string }) =>
+  .inputValidator((d: { id: string; kind: "student"|"affiliate"|"team"; status: string; note?: string }) =>
     z.object({
       id: uuid,
-      kind: z.enum(["student","affiliate"]),
+      kind: z.enum(["student","affiliate","team"]),
       status: z.string().min(1),
       note: z.string().optional(),
     }).parse(d))
   .handler(async ({ data, context }) => {
-    const table = data.kind === "student" ? "dojo_student_contracts" : "dojo_affiliate_contracts";
-    const statusCol = data.kind === "student" ? "status" : "signature_status";
+    const table =
+      data.kind === "student" ? "dojo_student_contracts"
+      : data.kind === "team" ? "dojo_team_contracts"
+      : "dojo_affiliate_contracts";
+    const statusCol = data.kind === "affiliate" ? "signature_status" : "status";
     const patch: any = { [statusCol]: data.status };
     const now = new Date().toISOString();
     if (data.status === "signed") patch.signed_at = now;
