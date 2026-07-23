@@ -72,6 +72,7 @@ import { Route as DojoAppGraduationsRouteImport } from './routes/dojo.app.gradua
 import { Route as DojoAppFinanceRouteImport } from './routes/dojo.app.finance'
 import { Route as DojoAppEvaluationsRouteImport } from './routes/dojo.app.evaluations'
 import { Route as DojoAppCorporateBenefitsRouteImport } from './routes/dojo.app.corporate-benefits'
+import { Route as DojoAppContractsRouteImport } from './routes/dojo.app.contracts'
 import { Route as DojoAppCompetitionsRouteImport } from './routes/dojo.app.competitions'
 import { Route as DojoAppCheckinRouteImport } from './routes/dojo.app.checkin'
 import { Route as DojoAppCertificatesRouteImport } from './routes/dojo.app.certificates'
@@ -152,6 +153,7 @@ import { Route as DojoAppStudentsIndexRouteImport } from './routes/dojo.app.stud
 import { Route as DojoAppStoreIndexRouteImport } from './routes/dojo.app.store.index'
 import { Route as DojoAppLessonPlansIndexRouteImport } from './routes/dojo.app.lesson-plans.index'
 import { Route as DojoAppEvaluationsIndexRouteImport } from './routes/dojo.app.evaluations.index'
+import { Route as DojoAppContractsIndexRouteImport } from './routes/dojo.app.contracts.index'
 import { Route as DojoAppContractTemplatesIndexRouteImport } from './routes/dojo.app.contract-templates.index'
 import { Route as DojoAppCompetitionsIndexRouteImport } from './routes/dojo.app.competitions.index'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
@@ -178,6 +180,8 @@ import { Route as DojoAppEvaluationsSessionsRouteImport } from './routes/dojo.ap
 import { Route as DojoAppEvaluationsLibraryRouteImport } from './routes/dojo.app.evaluations.library'
 import { Route as DojoAppEvaluationsHistoryRouteImport } from './routes/dojo.app.evaluations.history'
 import { Route as DojoAppEvaluationsCategoriesRouteImport } from './routes/dojo.app.evaluations.categories'
+import { Route as DojoAppContractsTemplatesRouteImport } from './routes/dojo.app.contracts.templates'
+import { Route as DojoAppContractsIssuedRouteImport } from './routes/dojo.app.contracts.issued'
 import { Route as DojoAppContractTemplatesIdRouteImport } from './routes/dojo.app.contract-templates.$id'
 import { Route as DojoAppCompetitionsIdRouteImport } from './routes/dojo.app.competitions.$id'
 import { Route as AppStudentInvoiceIdRouteImport } from './routes/app._student.invoice.$id'
@@ -216,6 +220,7 @@ import { Route as ApiPublicDojoPartnerCheckinProviderRouteImport } from './route
 import { Route as ApiPublicAppSlugDownloadRouteImport } from './routes/api/public/app/$slug/download'
 import { Route as DojoAppStoreCCategoriaIndexRouteImport } from './routes/dojo.app.store.c.$categoria.index'
 import { Route as DojoAppStoreCCategoriaSubcategoriaRouteImport } from './routes/dojo.app.store.c.$categoria.$subcategoria'
+import { Route as DojoAppContractsIssuedKindIdRouteImport } from './routes/dojo.app.contracts.issued.$kind.$id'
 
 const UnsubscribeRoute = UnsubscribeRouteImport.update({
   id: '/unsubscribe',
@@ -532,6 +537,11 @@ const DojoAppCorporateBenefitsRoute =
     path: '/corporate-benefits',
     getParentRoute: () => DojoAppRoute,
   } as any)
+const DojoAppContractsRoute = DojoAppContractsRouteImport.update({
+  id: '/contracts',
+  path: '/contracts',
+  getParentRoute: () => DojoAppRoute,
+} as any)
 const DojoAppCompetitionsRoute = DojoAppCompetitionsRouteImport.update({
   id: '/competitions',
   path: '/competitions',
@@ -968,6 +978,11 @@ const DojoAppEvaluationsIndexRoute = DojoAppEvaluationsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => DojoAppEvaluationsRoute,
 } as any)
+const DojoAppContractsIndexRoute = DojoAppContractsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DojoAppContractsRoute,
+} as any)
 const DojoAppContractTemplatesIndexRoute =
   DojoAppContractTemplatesIndexRouteImport.update({
     id: '/contract-templates/',
@@ -1113,6 +1128,17 @@ const DojoAppEvaluationsCategoriesRoute =
     path: '/categories',
     getParentRoute: () => DojoAppEvaluationsRoute,
   } as any)
+const DojoAppContractsTemplatesRoute =
+  DojoAppContractsTemplatesRouteImport.update({
+    id: '/templates',
+    path: '/templates',
+    getParentRoute: () => DojoAppContractsRoute,
+  } as any)
+const DojoAppContractsIssuedRoute = DojoAppContractsIssuedRouteImport.update({
+  id: '/issued',
+  path: '/issued',
+  getParentRoute: () => DojoAppContractsRoute,
+} as any)
 const DojoAppContractTemplatesIdRoute =
   DojoAppContractTemplatesIdRouteImport.update({
     id: '/contract-templates/$id',
@@ -1332,6 +1358,12 @@ const DojoAppStoreCCategoriaSubcategoriaRoute =
     path: '/c/$categoria/$subcategoria',
     getParentRoute: () => DojoAppStoreRoute,
   } as any)
+const DojoAppContractsIssuedKindIdRoute =
+  DojoAppContractsIssuedKindIdRouteImport.update({
+    id: '/$kind/$id',
+    path: '/$kind/$id',
+    getParentRoute: () => DojoAppContractsIssuedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -1439,6 +1471,7 @@ export interface FileRoutesByFullPath {
   '/dojo/app/certificates': typeof DojoAppCertificatesRoute
   '/dojo/app/checkin': typeof DojoAppCheckinRoute
   '/dojo/app/competitions': typeof DojoAppCompetitionsRouteWithChildren
+  '/dojo/app/contracts': typeof DojoAppContractsRouteWithChildren
   '/dojo/app/corporate-benefits': typeof DojoAppCorporateBenefitsRoute
   '/dojo/app/evaluations': typeof DojoAppEvaluationsRouteWithChildren
   '/dojo/app/finance': typeof DojoAppFinanceRoute
@@ -1494,6 +1527,8 @@ export interface FileRoutesByFullPath {
   '/app/invoice/$id': typeof AppStudentInvoiceIdRoute
   '/dojo/app/competitions/$id': typeof DojoAppCompetitionsIdRoute
   '/dojo/app/contract-templates/$id': typeof DojoAppContractTemplatesIdRoute
+  '/dojo/app/contracts/issued': typeof DojoAppContractsIssuedRouteWithChildren
+  '/dojo/app/contracts/templates': typeof DojoAppContractsTemplatesRoute
   '/dojo/app/evaluations/categories': typeof DojoAppEvaluationsCategoriesRoute
   '/dojo/app/evaluations/history': typeof DojoAppEvaluationsHistoryRoute
   '/dojo/app/evaluations/library': typeof DojoAppEvaluationsLibraryRoute
@@ -1520,6 +1555,7 @@ export interface FileRoutesByFullPath {
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/dojo/app/competitions/': typeof DojoAppCompetitionsIndexRoute
   '/dojo/app/contract-templates/': typeof DojoAppContractTemplatesIndexRoute
+  '/dojo/app/contracts/': typeof DojoAppContractsIndexRoute
   '/dojo/app/evaluations/': typeof DojoAppEvaluationsIndexRoute
   '/dojo/app/lesson-plans/': typeof DojoAppLessonPlansIndexRoute
   '/dojo/app/store/': typeof DojoAppStoreIndexRoute
@@ -1537,6 +1573,7 @@ export interface FileRoutesByFullPath {
   '/dojo/app/units/affiliates/$id': typeof DojoAppUnitsAffiliatesIdRoute
   '/dojo/app/evaluations/sessions/': typeof DojoAppEvaluationsSessionsIndexRoute
   '/dojo/app/evaluations/templates/': typeof DojoAppEvaluationsTemplatesIndexRoute
+  '/dojo/app/contracts/issued/$kind/$id': typeof DojoAppContractsIssuedKindIdRoute
   '/dojo/app/store/c/$categoria/$subcategoria': typeof DojoAppStoreCCategoriaSubcategoriaRoute
   '/dojo/app/store/c/$categoria/': typeof DojoAppStoreCCategoriaIndexRoute
 }
@@ -1692,6 +1729,8 @@ export interface FileRoutesByTo {
   '/app/invoice/$id': typeof AppStudentInvoiceIdRoute
   '/dojo/app/competitions/$id': typeof DojoAppCompetitionsIdRoute
   '/dojo/app/contract-templates/$id': typeof DojoAppContractTemplatesIdRoute
+  '/dojo/app/contracts/issued': typeof DojoAppContractsIssuedRouteWithChildren
+  '/dojo/app/contracts/templates': typeof DojoAppContractsTemplatesRoute
   '/dojo/app/evaluations/categories': typeof DojoAppEvaluationsCategoriesRoute
   '/dojo/app/evaluations/history': typeof DojoAppEvaluationsHistoryRoute
   '/dojo/app/evaluations/library': typeof DojoAppEvaluationsLibraryRoute
@@ -1716,6 +1755,7 @@ export interface FileRoutesByTo {
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/dojo/app/competitions': typeof DojoAppCompetitionsIndexRoute
   '/dojo/app/contract-templates': typeof DojoAppContractTemplatesIndexRoute
+  '/dojo/app/contracts': typeof DojoAppContractsIndexRoute
   '/dojo/app/evaluations': typeof DojoAppEvaluationsIndexRoute
   '/dojo/app/lesson-plans': typeof DojoAppLessonPlansIndexRoute
   '/dojo/app/store': typeof DojoAppStoreIndexRoute
@@ -1733,6 +1773,7 @@ export interface FileRoutesByTo {
   '/dojo/app/units/affiliates/$id': typeof DojoAppUnitsAffiliatesIdRoute
   '/dojo/app/evaluations/sessions': typeof DojoAppEvaluationsSessionsIndexRoute
   '/dojo/app/evaluations/templates': typeof DojoAppEvaluationsTemplatesIndexRoute
+  '/dojo/app/contracts/issued/$kind/$id': typeof DojoAppContractsIssuedKindIdRoute
   '/dojo/app/store/c/$categoria/$subcategoria': typeof DojoAppStoreCCategoriaSubcategoriaRoute
   '/dojo/app/store/c/$categoria': typeof DojoAppStoreCCategoriaIndexRoute
 }
@@ -1845,6 +1886,7 @@ export interface FileRoutesById {
   '/dojo/app/certificates': typeof DojoAppCertificatesRoute
   '/dojo/app/checkin': typeof DojoAppCheckinRoute
   '/dojo/app/competitions': typeof DojoAppCompetitionsRouteWithChildren
+  '/dojo/app/contracts': typeof DojoAppContractsRouteWithChildren
   '/dojo/app/corporate-benefits': typeof DojoAppCorporateBenefitsRoute
   '/dojo/app/evaluations': typeof DojoAppEvaluationsRouteWithChildren
   '/dojo/app/finance': typeof DojoAppFinanceRoute
@@ -1900,6 +1942,8 @@ export interface FileRoutesById {
   '/app/_student/invoice/$id': typeof AppStudentInvoiceIdRoute
   '/dojo/app/competitions/$id': typeof DojoAppCompetitionsIdRoute
   '/dojo/app/contract-templates/$id': typeof DojoAppContractTemplatesIdRoute
+  '/dojo/app/contracts/issued': typeof DojoAppContractsIssuedRouteWithChildren
+  '/dojo/app/contracts/templates': typeof DojoAppContractsTemplatesRoute
   '/dojo/app/evaluations/categories': typeof DojoAppEvaluationsCategoriesRoute
   '/dojo/app/evaluations/history': typeof DojoAppEvaluationsHistoryRoute
   '/dojo/app/evaluations/library': typeof DojoAppEvaluationsLibraryRoute
@@ -1926,6 +1970,7 @@ export interface FileRoutesById {
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/dojo/app/competitions/': typeof DojoAppCompetitionsIndexRoute
   '/dojo/app/contract-templates/': typeof DojoAppContractTemplatesIndexRoute
+  '/dojo/app/contracts/': typeof DojoAppContractsIndexRoute
   '/dojo/app/evaluations/': typeof DojoAppEvaluationsIndexRoute
   '/dojo/app/lesson-plans/': typeof DojoAppLessonPlansIndexRoute
   '/dojo/app/store/': typeof DojoAppStoreIndexRoute
@@ -1943,6 +1988,7 @@ export interface FileRoutesById {
   '/dojo/app/units/affiliates/$id': typeof DojoAppUnitsAffiliatesIdRoute
   '/dojo/app/evaluations/sessions/': typeof DojoAppEvaluationsSessionsIndexRoute
   '/dojo/app/evaluations/templates/': typeof DojoAppEvaluationsTemplatesIndexRoute
+  '/dojo/app/contracts/issued/$kind/$id': typeof DojoAppContractsIssuedKindIdRoute
   '/dojo/app/store/c/$categoria/$subcategoria': typeof DojoAppStoreCCategoriaSubcategoriaRoute
   '/dojo/app/store/c/$categoria/': typeof DojoAppStoreCCategoriaIndexRoute
 }
@@ -2054,6 +2100,7 @@ export interface FileRouteTypes {
     | '/dojo/app/certificates'
     | '/dojo/app/checkin'
     | '/dojo/app/competitions'
+    | '/dojo/app/contracts'
     | '/dojo/app/corporate-benefits'
     | '/dojo/app/evaluations'
     | '/dojo/app/finance'
@@ -2109,6 +2156,8 @@ export interface FileRouteTypes {
     | '/app/invoice/$id'
     | '/dojo/app/competitions/$id'
     | '/dojo/app/contract-templates/$id'
+    | '/dojo/app/contracts/issued'
+    | '/dojo/app/contracts/templates'
     | '/dojo/app/evaluations/categories'
     | '/dojo/app/evaluations/history'
     | '/dojo/app/evaluations/library'
@@ -2135,6 +2184,7 @@ export interface FileRouteTypes {
     | '/lovable/email/transactional/send'
     | '/dojo/app/competitions/'
     | '/dojo/app/contract-templates/'
+    | '/dojo/app/contracts/'
     | '/dojo/app/evaluations/'
     | '/dojo/app/lesson-plans/'
     | '/dojo/app/store/'
@@ -2152,6 +2202,7 @@ export interface FileRouteTypes {
     | '/dojo/app/units/affiliates/$id'
     | '/dojo/app/evaluations/sessions/'
     | '/dojo/app/evaluations/templates/'
+    | '/dojo/app/contracts/issued/$kind/$id'
     | '/dojo/app/store/c/$categoria/$subcategoria'
     | '/dojo/app/store/c/$categoria/'
   fileRoutesByTo: FileRoutesByTo
@@ -2307,6 +2358,8 @@ export interface FileRouteTypes {
     | '/app/invoice/$id'
     | '/dojo/app/competitions/$id'
     | '/dojo/app/contract-templates/$id'
+    | '/dojo/app/contracts/issued'
+    | '/dojo/app/contracts/templates'
     | '/dojo/app/evaluations/categories'
     | '/dojo/app/evaluations/history'
     | '/dojo/app/evaluations/library'
@@ -2331,6 +2384,7 @@ export interface FileRouteTypes {
     | '/lovable/email/transactional/send'
     | '/dojo/app/competitions'
     | '/dojo/app/contract-templates'
+    | '/dojo/app/contracts'
     | '/dojo/app/evaluations'
     | '/dojo/app/lesson-plans'
     | '/dojo/app/store'
@@ -2348,6 +2402,7 @@ export interface FileRouteTypes {
     | '/dojo/app/units/affiliates/$id'
     | '/dojo/app/evaluations/sessions'
     | '/dojo/app/evaluations/templates'
+    | '/dojo/app/contracts/issued/$kind/$id'
     | '/dojo/app/store/c/$categoria/$subcategoria'
     | '/dojo/app/store/c/$categoria'
   id:
@@ -2459,6 +2514,7 @@ export interface FileRouteTypes {
     | '/dojo/app/certificates'
     | '/dojo/app/checkin'
     | '/dojo/app/competitions'
+    | '/dojo/app/contracts'
     | '/dojo/app/corporate-benefits'
     | '/dojo/app/evaluations'
     | '/dojo/app/finance'
@@ -2514,6 +2570,8 @@ export interface FileRouteTypes {
     | '/app/_student/invoice/$id'
     | '/dojo/app/competitions/$id'
     | '/dojo/app/contract-templates/$id'
+    | '/dojo/app/contracts/issued'
+    | '/dojo/app/contracts/templates'
     | '/dojo/app/evaluations/categories'
     | '/dojo/app/evaluations/history'
     | '/dojo/app/evaluations/library'
@@ -2540,6 +2598,7 @@ export interface FileRouteTypes {
     | '/lovable/email/transactional/send'
     | '/dojo/app/competitions/'
     | '/dojo/app/contract-templates/'
+    | '/dojo/app/contracts/'
     | '/dojo/app/evaluations/'
     | '/dojo/app/lesson-plans/'
     | '/dojo/app/store/'
@@ -2557,6 +2616,7 @@ export interface FileRouteTypes {
     | '/dojo/app/units/affiliates/$id'
     | '/dojo/app/evaluations/sessions/'
     | '/dojo/app/evaluations/templates/'
+    | '/dojo/app/contracts/issued/$kind/$id'
     | '/dojo/app/store/c/$categoria/$subcategoria'
     | '/dojo/app/store/c/$categoria/'
   fileRoutesById: FileRoutesById
@@ -3059,6 +3119,13 @@ declare module '@tanstack/react-router' {
       path: '/corporate-benefits'
       fullPath: '/dojo/app/corporate-benefits'
       preLoaderRoute: typeof DojoAppCorporateBenefitsRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/contracts': {
+      id: '/dojo/app/contracts'
+      path: '/contracts'
+      fullPath: '/dojo/app/contracts'
+      preLoaderRoute: typeof DojoAppContractsRouteImport
       parentRoute: typeof DojoAppRoute
     }
     '/dojo/app/competitions': {
@@ -3621,6 +3688,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DojoAppEvaluationsIndexRouteImport
       parentRoute: typeof DojoAppEvaluationsRoute
     }
+    '/dojo/app/contracts/': {
+      id: '/dojo/app/contracts/'
+      path: '/'
+      fullPath: '/dojo/app/contracts/'
+      preLoaderRoute: typeof DojoAppContractsIndexRouteImport
+      parentRoute: typeof DojoAppContractsRoute
+    }
     '/dojo/app/contract-templates/': {
       id: '/dojo/app/contract-templates/'
       path: '/contract-templates'
@@ -3802,6 +3876,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/dojo/app/evaluations/categories'
       preLoaderRoute: typeof DojoAppEvaluationsCategoriesRouteImport
       parentRoute: typeof DojoAppEvaluationsRoute
+    }
+    '/dojo/app/contracts/templates': {
+      id: '/dojo/app/contracts/templates'
+      path: '/templates'
+      fullPath: '/dojo/app/contracts/templates'
+      preLoaderRoute: typeof DojoAppContractsTemplatesRouteImport
+      parentRoute: typeof DojoAppContractsRoute
+    }
+    '/dojo/app/contracts/issued': {
+      id: '/dojo/app/contracts/issued'
+      path: '/issued'
+      fullPath: '/dojo/app/contracts/issued'
+      preLoaderRoute: typeof DojoAppContractsIssuedRouteImport
+      parentRoute: typeof DojoAppContractsRoute
     }
     '/dojo/app/contract-templates/$id': {
       id: '/dojo/app/contract-templates/$id'
@@ -4069,6 +4157,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DojoAppStoreCCategoriaSubcategoriaRouteImport
       parentRoute: typeof DojoAppStoreRoute
     }
+    '/dojo/app/contracts/issued/$kind/$id': {
+      id: '/dojo/app/contracts/issued/$kind/$id'
+      path: '/$kind/$id'
+      fullPath: '/dojo/app/contracts/issued/$kind/$id'
+      preLoaderRoute: typeof DojoAppContractsIssuedKindIdRouteImport
+      parentRoute: typeof DojoAppContractsIssuedRoute
+    }
   }
 }
 
@@ -4314,6 +4409,35 @@ const DojoAppCompetitionsRouteChildren: DojoAppCompetitionsRouteChildren = {
 const DojoAppCompetitionsRouteWithChildren =
   DojoAppCompetitionsRoute._addFileChildren(DojoAppCompetitionsRouteChildren)
 
+interface DojoAppContractsIssuedRouteChildren {
+  DojoAppContractsIssuedKindIdRoute: typeof DojoAppContractsIssuedKindIdRoute
+}
+
+const DojoAppContractsIssuedRouteChildren: DojoAppContractsIssuedRouteChildren =
+  {
+    DojoAppContractsIssuedKindIdRoute: DojoAppContractsIssuedKindIdRoute,
+  }
+
+const DojoAppContractsIssuedRouteWithChildren =
+  DojoAppContractsIssuedRoute._addFileChildren(
+    DojoAppContractsIssuedRouteChildren,
+  )
+
+interface DojoAppContractsRouteChildren {
+  DojoAppContractsIssuedRoute: typeof DojoAppContractsIssuedRouteWithChildren
+  DojoAppContractsTemplatesRoute: typeof DojoAppContractsTemplatesRoute
+  DojoAppContractsIndexRoute: typeof DojoAppContractsIndexRoute
+}
+
+const DojoAppContractsRouteChildren: DojoAppContractsRouteChildren = {
+  DojoAppContractsIssuedRoute: DojoAppContractsIssuedRouteWithChildren,
+  DojoAppContractsTemplatesRoute: DojoAppContractsTemplatesRoute,
+  DojoAppContractsIndexRoute: DojoAppContractsIndexRoute,
+}
+
+const DojoAppContractsRouteWithChildren =
+  DojoAppContractsRoute._addFileChildren(DojoAppContractsRouteChildren)
+
 interface DojoAppEvaluationsSessionsRouteChildren {
   DojoAppEvaluationsSessionsIdRoute: typeof DojoAppEvaluationsSessionsIdRoute
   DojoAppEvaluationsSessionsIndexRoute: typeof DojoAppEvaluationsSessionsIndexRoute
@@ -4480,6 +4604,7 @@ interface DojoAppRouteChildren {
   DojoAppCertificatesRoute: typeof DojoAppCertificatesRoute
   DojoAppCheckinRoute: typeof DojoAppCheckinRoute
   DojoAppCompetitionsRoute: typeof DojoAppCompetitionsRouteWithChildren
+  DojoAppContractsRoute: typeof DojoAppContractsRouteWithChildren
   DojoAppCorporateBenefitsRoute: typeof DojoAppCorporateBenefitsRoute
   DojoAppEvaluationsRoute: typeof DojoAppEvaluationsRouteWithChildren
   DojoAppFinanceRoute: typeof DojoAppFinanceRoute
@@ -4516,6 +4641,7 @@ const DojoAppRouteChildren: DojoAppRouteChildren = {
   DojoAppCertificatesRoute: DojoAppCertificatesRoute,
   DojoAppCheckinRoute: DojoAppCheckinRoute,
   DojoAppCompetitionsRoute: DojoAppCompetitionsRouteWithChildren,
+  DojoAppContractsRoute: DojoAppContractsRouteWithChildren,
   DojoAppCorporateBenefitsRoute: DojoAppCorporateBenefitsRoute,
   DojoAppEvaluationsRoute: DojoAppEvaluationsRouteWithChildren,
   DojoAppFinanceRoute: DojoAppFinanceRoute,
