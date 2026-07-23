@@ -198,7 +198,7 @@ function TeamPage() {
   const createDialog = (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
+        <Button className="bg-red-600 text-white hover:bg-red-500 shadow-[0_10px_25px_-12px_rgba(220,38,38,0.9)]">
           <Plus className="mr-2 h-4 w-4" /> Novo Colaborador
         </Button>
       </DialogTrigger>
@@ -265,44 +265,92 @@ function TeamPage() {
           <p className="text-xs text-muted-foreground">
             Após criar o cadastro você poderá completar graduação, confederação, documentos, permissões, agenda e financeiro na tela do colaborador.
           </p>
-          <Button onClick={onCreate} className="w-full">Cadastrar colaborador</Button>
+          <Button onClick={onCreate} className="w-full bg-red-600 text-white hover:bg-red-500">
+            Cadastrar colaborador
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
   );
 
   return (
-    <DojoPageShell
-      title="Equipe"
-      description="Central de gestão da sua equipe: professores, instrutores, recepção, administrativo e financeiro."
-      actions={createDialog}
-    >
+    <DojoPageShell>
+      {/* HERO PREMIUM RUBY NOIR */}
+      <section className="relative overflow-hidden rounded-3xl border border-red-500/20 bg-gradient-to-br from-neutral-950 via-neutral-900 to-black text-white shadow-[0_30px_80px_-30px_rgba(220,38,38,0.45)]">
+        <div
+          aria-hidden
+          className="absolute inset-0 opacity-[0.08]"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)",
+            backgroundSize: "44px 44px",
+          }}
+        />
+        <div aria-hidden className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-red-600/40 blur-3xl" />
+        <div aria-hidden className="absolute -bottom-24 left-1/4 h-64 w-64 rounded-full bg-red-500/20 blur-3xl" />
+
+        <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 p-5 sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:p-7 md:p-9">
+          <div className="min-w-0 space-y-3">
+            <div className="inline-flex items-center gap-2 rounded-full border border-red-400/30 bg-red-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-red-200">
+              <Users className="h-3 w-3" /> Equipe
+            </div>
+            <h1 className="font-display text-2xl font-black leading-tight tracking-tight sm:text-3xl md:text-4xl">
+              Sua equipe, com <span className="text-red-400">precisão de tatame</span>
+            </h1>
+            <p className="max-w-2xl text-sm leading-relaxed text-neutral-300 md:text-base">
+              Cadastre professores, instrutores, recepção e administrativo. Gerencie escalas, folha de pagamento, documentos e permissões em um único lugar.
+            </p>
+          </div>
+
+          <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
+            <Button variant="outline" asChild className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
+              <Link to="/dojo/app/team/schedules">Escalas</Link>
+            </Button>
+            <Button variant="outline" asChild className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
+              <Link to="/dojo/app/team/payroll">Folha</Link>
+            </Button>
+            {createDialog}
+          </div>
+        </div>
+      </section>
+
       {/* Dashboard cards */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
         {cards.map((c) => {
           const Icon = c.icon;
           return (
-            <Card key={c.label} className="border">
-              <CardContent className="flex items-center justify-between p-4">
-                <div>
-                  <div className="text-xs text-muted-foreground">{c.label}</div>
-                  <div className="mt-1 text-lg font-semibold">{c.value}</div>
+            <div
+              key={c.label}
+              className={`group relative overflow-hidden rounded-2xl border border-neutral-200/70 bg-white p-4 shadow-sm ring-1 ${c.ring} transition-all hover:-translate-y-0.5 hover:shadow-md`}
+            >
+              <div className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${c.glow} opacity-70`} aria-hidden />
+              <div className="relative flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">{c.label}</div>
+                  <div className="mt-1.5 font-display text-xl font-black leading-none tabular-nums text-neutral-900 md:text-2xl">{c.value}</div>
                 </div>
-                <Icon className={`h-6 w-6 ${c.tone}`} />
-              </CardContent>
-            </Card>
+                <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/70 ring-1 ring-inset ring-neutral-200/70 ${c.iconTone}`}>
+                  <Icon className="h-4 w-4" />
+                </div>
+              </div>
+            </div>
           );
         })}
       </div>
 
       {/* Filters */}
-      <div className="mt-6 flex flex-wrap items-center gap-2">
-        <div className="relative flex-1 min-w-[220px]">
-          <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder="Buscar por nome, e-mail, CPF..." className="pl-8" value={search} onChange={(e) => setSearch(e.target.value)} />
+      <div className="flex flex-col gap-2 rounded-2xl border border-neutral-200/70 bg-white/80 p-3 shadow-sm backdrop-blur sm:flex-row sm:flex-wrap sm:items-center">
+        <div className="relative min-w-[220px] flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Buscar por nome, e-mail, CPF..."
+            className="pl-9 border-neutral-200 bg-white focus-visible:ring-red-500/40"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
         </div>
         <Select value={roleFilter} onValueChange={setRoleFilter}>
-          <SelectTrigger className="w-[180px]"><SelectValue placeholder="Cargo" /></SelectTrigger>
+          <SelectTrigger className="w-[180px] rounded-xl"><SelectValue placeholder="Cargo" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos os cargos</SelectItem>
             {Object.entries(ROLE_LABELS).map(([k, v]) => (
@@ -311,7 +359,7 @@ function TeamPage() {
           </SelectContent>
         </Select>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[160px]"><SelectValue placeholder="Status" /></SelectTrigger>
+          <SelectTrigger className="w-[160px] rounded-xl"><SelectValue placeholder="Status" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos os status</SelectItem>
             {Object.entries(STATUS_LABELS).map(([k, v]) => (
@@ -319,55 +367,62 @@ function TeamPage() {
             ))}
           </SelectContent>
         </Select>
-        <Button variant="outline" asChild>
-          <Link to="/dojo/app/team/schedules">Escalas</Link>
-        </Button>
-        <Button variant="outline" asChild>
-          <Link to="/dojo/app/team/payroll">Folha</Link>
-        </Button>
-
       </div>
 
       {/* List */}
-      <div className="mt-4 rounded-lg border bg-card">
-        {list.isLoading && <div className="p-8 text-center text-sm text-muted-foreground">Carregando...</div>}
+      <div className="overflow-hidden rounded-2xl border border-neutral-200/70 bg-white shadow-sm">
+        {list.isLoading && (
+          <div className="p-10 text-center text-sm text-muted-foreground">Carregando colaboradores…</div>
+        )}
         {!list.isLoading && filtered.length === 0 && (
-          <div className="p-10 text-center text-sm text-muted-foreground">
-            Nenhum colaborador encontrado. Comece cadastrando um novo colaborador.
+          <div className="relative overflow-hidden p-10 text-center">
+            <div aria-hidden className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-red-500/10 blur-2xl" />
+            <div className="relative">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-500/10 ring-1 ring-red-500/30">
+                <Users className="h-6 w-6 text-red-600" />
+              </div>
+              <p className="mt-3 text-sm font-semibold">Nenhum colaborador encontrado</p>
+              <p className="text-xs text-muted-foreground">Comece cadastrando um novo colaborador.</p>
+            </div>
           </div>
         )}
         {filtered.map((m: any) => (
-          <div key={m.id} className="flex flex-wrap items-center gap-3 border-b p-3 last:border-0">
-            <Avatar className="h-10 w-10">
+          <div
+            key={m.id}
+            className="group flex flex-wrap items-center gap-3 border-b border-neutral-200/70 p-3 transition-colors last:border-0 hover:bg-red-50/40"
+          >
+            <Avatar className="h-11 w-11 ring-2 ring-white shadow-sm">
               <AvatarImage src={m.photo_url ?? undefined} />
-              <AvatarFallback>{m.full_name?.slice(0, 2).toUpperCase()}</AvatarFallback>
+              <AvatarFallback className="bg-gradient-to-br from-neutral-900 to-neutral-700 text-white">
+                {m.full_name?.slice(0, 2).toUpperCase()}
+              </AvatarFallback>
             </Avatar>
             <div className="min-w-[180px] flex-1">
               <Link
                 to="/dojo/app/team/$id"
                 params={{ id: m.id }}
-                className="font-medium hover:underline"
+                className="font-semibold tracking-tight text-neutral-900 hover:text-red-600 hover:underline"
               >
                 {m.full_name}
               </Link>
               <div className="text-xs text-muted-foreground">
-                {ROLE_LABELS[m.role] ?? m.role}
+                <span className="font-medium text-neutral-700">{ROLE_LABELS[m.role] ?? m.role}</span>
                 {m.email ? ` · ${m.email}` : ""}
                 {m.phone ? ` · ${m.phone}` : ""}
               </div>
             </div>
-            <Badge variant="outline" className={STATUS_COLORS[m.status]}>
+            <Badge variant="outline" className={`rounded-full ${STATUS_COLORS[m.status]}`}>
               {STATUS_LABELS[m.status] ?? m.status}
             </Badge>
             <Select value={m.status} onValueChange={(v) => onStatusChange(m.id, v)}>
-              <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-[140px] rounded-xl"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {Object.entries(STATUS_LABELS).map(([k, v]) => (
                   <SelectItem key={k} value={k}>{v}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <Button size="sm" variant="outline" asChild>
+            <Button size="sm" className="bg-red-600 text-white hover:bg-red-500" asChild>
               <Link to="/dojo/app/team/$id" params={{ id: m.id }}>Abrir</Link>
             </Button>
           </div>
@@ -376,3 +431,4 @@ function TeamPage() {
     </DojoPageShell>
   );
 }
+
