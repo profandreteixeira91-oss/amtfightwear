@@ -486,3 +486,43 @@ function Info({ label, value, className }: { label: string; value: any; classNam
     </div>
   );
 }
+
+function TemplatePickerContent({
+  templates,
+  loading,
+  onPick,
+}: {
+  templates: any[];
+  loading: boolean;
+  onPick: (id: string) => void;
+}) {
+  return (
+    <DialogContent className="max-w-lg">
+      <DialogHeader>
+        <DialogTitle>Aplicar modelo salvo</DialogTitle>
+      </DialogHeader>
+      <div className="max-h-[60vh] overflow-y-auto space-y-2">
+        {loading && <p className="text-sm text-muted-foreground">Carregando modelos…</p>}
+        {!loading && templates.length === 0 && (
+          <div className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">
+            Você ainda não tem modelos salvos. Abra um plano de aula e clique em <b>Salvar como modelo</b> para
+            reutilizá-lo em outras aulas.
+          </div>
+        )}
+        {templates.map((t) => (
+          <button
+            key={t.id}
+            onClick={() => onPick(t.id)}
+            className="w-full rounded-lg border p-3 text-left hover:border-primary hover:bg-primary/5 transition"
+          >
+            <div className="font-medium">{t.name}</div>
+            <div className="text-xs text-muted-foreground">
+              {t.modality ?? "—"} · {(t.blocks ?? []).length} blocos
+            </div>
+          </button>
+        ))}
+      </div>
+    </DialogContent>
+  );
+}
+
