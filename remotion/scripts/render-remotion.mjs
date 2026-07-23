@@ -26,11 +26,11 @@ await renderMedia({
   composition,
   serveUrl: bundled,
   codec: "h264",
-  outputLocation: "/mnt/documents/dojo-manager-ruby-noir.mp4",
+  outputLocation: "/mnt/documents/dojo-manager-brand.mp4",
   puppeteerInstance: browser,
   muted: true,
   concurrency: 1,
 });
 
 await browser.close({ silent: false });
-console.log("Rendered to /mnt/documents/dojo-manager-ruby-noir.mp4");
+console.log("Rendered to /mnt/documents/dojo-manager-brand.mp4");
