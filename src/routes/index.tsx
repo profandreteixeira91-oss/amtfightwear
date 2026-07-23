@@ -176,26 +176,45 @@ function StoreHomePage() {
           <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-6">
             {topCategories.map((c, idx) => {
               const subs = categories.filter((s) => s.parent_id === c.id);
+              const preview = (c as { preview_image?: string | null }).preview_image ?? null;
               return (
                 <div key={c.slug} className="group relative">
                   <Link
                     to="/loja/categoria/$slug"
                     params={{ slug: c.slug }}
-                    className="relative flex aspect-[4/5] flex-col justify-end overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-neutral-100 via-neutral-50 to-white p-5 transition-all duration-500 hover:-translate-y-1 hover:border-foreground/20 hover:shadow-[0_18px_40px_-16px_rgba(0,0,0,0.25)]"
+                    className="relative flex aspect-[4/5] flex-col justify-end overflow-hidden rounded-2xl border border-border bg-neutral-100 transition-all duration-500 hover:-translate-y-1 hover:border-foreground/30 hover:shadow-[0_24px_50px_-18px_rgba(0,0,0,0.35)]"
                   >
-                    <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_80%_at_100%_0%,rgba(220,38,38,0.10),transparent_60%)] opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-                    <div className="absolute right-4 top-4 text-[10px] font-bold tracking-[0.28em] text-muted-foreground/70">
+                    {/* Product image */}
+                    {preview ? (
+                      <img
+                        src={preview}
+                        alt={c.name}
+                        loading="lazy"
+                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.06]"
+                      />
+                    ) : (
+                      <div aria-hidden className="absolute inset-0 bg-gradient-to-br from-neutral-200 via-neutral-100 to-white" />
+                    )}
+
+                    {/* Darkening gradient for legibility */}
+                    <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-black/10" />
+                    <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_80%_at_100%_0%,rgba(220,38,38,0.28),transparent_60%)] opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+
+                    {/* Index badge */}
+                    <div className="absolute right-4 top-4 text-[10px] font-bold tracking-[0.28em] text-white/80">
                       {String(idx + 1).padStart(2, "0")}
                     </div>
-                    <div className="relative z-10">
-                      <div className="text-[10px] font-semibold uppercase tracking-[0.36em] text-primary">Categoria</div>
+
+                    {/* Content */}
+                    <div className="relative z-10 p-5 text-white">
+                      <div className="text-[10px] font-semibold uppercase tracking-[0.36em] text-white/80">Categoria</div>
                       <div
-                        className="mt-2 text-xl leading-[1.05] tracking-[-0.01em] text-foreground sm:text-2xl"
+                        className="mt-2 text-xl leading-[1.05] tracking-[-0.01em] drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)] sm:text-2xl"
                         style={{ fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 600 }}
                       >
                         {c.name}
                       </div>
-                      <div className="mt-4 inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.32em] text-foreground/60 transition-colors group-hover:text-primary">
+                      <div className="mt-4 inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.32em] text-white/85 transition-colors group-hover:text-white">
                         {subs.length > 0 ? "Ver subcategorias" : "Explorar"} <ArrowRight className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-0.5" />
                       </div>
                     </div>
