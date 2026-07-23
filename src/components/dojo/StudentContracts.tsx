@@ -95,6 +95,12 @@ export function StudentContracts({ studentId, student }: Props) {
           content: current.content ?? "",
           status: current.status ?? "draft",
           signed_at: current.signed_at ?? null,
+          plan_name: current.plan_name ?? null,
+          monthly_value: current.monthly_value != null && current.monthly_value !== "" ? Number(current.monthly_value) : null,
+          payment_method: current.payment_method ?? null,
+          due_day: current.due_day != null && current.due_day !== "" ? Number(current.due_day) : null,
+          start_date: current.start_date || null,
+          end_date: current.end_date || null,
         },
       });
       toast.success("Contrato salvo");
