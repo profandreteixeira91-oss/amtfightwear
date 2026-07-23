@@ -247,17 +247,17 @@ function AdminProductsPage() {
       title="Produtos da loja"
       description={`${filtered.length} produtos${search ? ` (filtrados de ${data?.length ?? 0})` : ""}`}
       actions={
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
           <Input
             placeholder="Buscar produto..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            className="w-56"
+            className="w-full sm:w-56"
           />
           <select
             value={categoryFilter}
             onChange={(e) => { setCategoryFilter(e.target.value); setPage(1); }}
-            className="h-10 rounded-md border bg-background px-2 text-sm min-w-[12rem]"
+            className="h-10 w-full rounded-md border bg-background px-2 text-sm sm:w-auto sm:min-w-[12rem]"
           >
             <option value="">Todas as categorias</option>
             {(() => {
@@ -284,19 +284,21 @@ function AdminProductsPage() {
               return out;
             })()}
           </select>
-          {categoryFilter && (
-            <Button variant="ghost" size="sm" onClick={() => { setCategoryFilter(""); setPage(1); }}>
-              Limpar filtro
+          <div className="flex flex-wrap items-center gap-2">
+            {categoryFilter && (
+              <Button variant="ghost" size="sm" onClick={() => { setCategoryFilter(""); setPage(1); }}>
+                Limpar filtro
+              </Button>
+            )}
+            <Button onClick={() => setCreatingProduct(true)} size="sm">
+              <Plus className="h-4 w-4 mr-1" /> Adicionar
             </Button>
-          )}
-          <Button onClick={() => setCreatingProduct(true)}>
-            <Plus className="h-4 w-4 mr-1" /> Adicionar produto
-          </Button>
-          <Button variant="outline" onClick={() => setManagingCategories(true)}>
-            <Plus className="h-4 w-4 mr-1" /> Categorias
-          </Button>
-          <Link to="/store/wholesale"><Button variant="outline">Atacado</Button></Link>
-          <Link to="/store/import"><Button variant="outline">Importar catálogo</Button></Link>
+            <Button variant="outline" size="sm" onClick={() => setManagingCategories(true)}>
+              <Plus className="h-4 w-4 mr-1" /> Categorias
+            </Button>
+            <Link to="/store/wholesale"><Button variant="outline" size="sm">Atacado</Button></Link>
+            <Link to="/store/import"><Button variant="outline" size="sm">Importar</Button></Link>
+          </div>
         </div>
       }
     >
