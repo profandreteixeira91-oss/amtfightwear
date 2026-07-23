@@ -16,6 +16,10 @@ export const CONTRACT_VARIABLE_MENU = [
       { key: "contrato_dia_vencimento", label: "Dia de vencimento" },
       { key: "contrato_inicio", label: "Data de início" },
       { key: "contrato_fim", label: "Data de término" },
+      { key: "contrato_prazo", label: "Prazo (indeterminado / 12 meses / outro)" },
+      { key: "contrato_prazo_aviso_dias", label: "Dias de aviso prévio para rescisão" },
+      { key: "contrato_foro", label: "Foro (comarca)" },
+      { key: "contrato_autoriza_imagem", label: "Autorização de uso de imagem" },
     ],
   },
   {
