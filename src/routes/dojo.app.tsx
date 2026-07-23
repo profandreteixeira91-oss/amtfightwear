@@ -42,6 +42,7 @@ import {
   UsersRound,
   HeartHandshake,
   ShoppingCart,
+  Gavel,
 
 
 } from "lucide-react";
