@@ -20,6 +20,10 @@ type Props = {
   onChange: (html: string) => void;
   placeholder?: string;
   minHeight?: number;
+  /** Adiciona botões extras (Página X de Y) no toolbar. Útil no editor de rodapé. */
+  showPageNumberTokens?: boolean;
+  /** Reduz altura mínima para uso em header/footer. */
+  compact?: boolean;
 };
 
 const FONT_FAMILIES = [
