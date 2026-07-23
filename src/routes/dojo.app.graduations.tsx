@@ -885,7 +885,7 @@ function NewGraduationPage() {
                   const currentMatch = current.find((b: any) => (b.belt?.modality ?? "jiu-jitsu") === chosenMod);
 
                   return (
-                    <div key={s.id} className="grid gap-3 p-4 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] md:items-center">
+                    <div key={s.id} className="grid gap-3 p-4 md:grid-cols-[minmax(0,1.3fr)_minmax(0,0.9fr)_minmax(0,0.7fr)_minmax(0,0.9fr)_minmax(0,0.8fr)_minmax(0,1fr)] md:items-center">
                       <div className="flex min-w-0 items-center gap-3">
                         <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary/10 text-[11px] font-bold text-primary">
                           {initials(s.full_name)}
