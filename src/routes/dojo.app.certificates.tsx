@@ -385,7 +385,7 @@ function CertificatesPage() {
           };
 
           return (
-            <Card key={t.id} className="dojo-card group overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-md">
+            <Card key={t.id} className="group relative overflow-hidden border-white/10 bg-neutral-950/70 text-white shadow-[0_20px_50px_-30px_rgba(220,38,38,0.5)] backdrop-blur transition-all hover:-translate-y-1 hover:border-red-500/30 hover:shadow-[0_25px_60px_-25px_rgba(220,38,38,0.7)]">
               <div
                 className="relative aspect-[7/5] bg-muted"
                 onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add("ring-2","ring-primary"); }}
