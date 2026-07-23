@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Save, Link2, Unlink, ShieldCheck } from "lucide-react";
+import { Save, KeyRound, Unlink, ShieldCheck, Eye, EyeOff } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,7 +17,7 @@ import {
 } from "@/lib/dojo/permissions";
 import {
   updateTeamMemberPermissions,
-  linkTeamMemberUser,
+  setTeamMemberLogin,
   unlinkTeamMemberUser,
 } from "@/lib/dojo/team.functions";
 
@@ -36,14 +36,15 @@ export function PermissionsTab({
 }) {
   const qc = useQueryClient();
   const saveFn = useServerFn(updateTeamMemberPermissions);
-  const linkFn = useServerFn(linkTeamMemberUser);
+  const setLoginFn = useServerFn(setTeamMemberLogin);
   const unlinkFn = useServerFn(unlinkTeamMemberUser);
 
   const [perms, setPerms] = useState<PermissionMap>(() => {
     if (initialPermissions && Object.keys(initialPermissions).length > 0) return { ...initialPermissions };
     return defaultPermissionsForRole(role);
   });
-  const [linkEmail, setLinkEmail] = useState(email ?? "");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -69,12 +70,20 @@ export function PermissionsTab({
     }
   };
 
-  const link = async () => {
-    if (!linkEmail) { toast.error("Informe o e-mail"); return; }
+  const createOrUpdateLogin = async () => {
+    if (!email) {
+      toast.error("Cadastre um e-mail no perfil do colaborador antes de criar o login");
+      return;
+    }
+    if (password.length < 6) {
+      toast.error("A senha deve ter no mínimo 6 caracteres");
+      return;
+    }
     setBusy(true);
     try {
-      await linkFn({ data: { id: memberId, email: linkEmail } });
-      toast.success("Conta vinculada");
+      await setLoginFn({ data: { id: memberId, password } });
+      toast.success(linkedUserId ? "Senha atualizada" : "Conta criada e vinculada");
+      setPassword("");
       qc.invalidateQueries({ queryKey: ["team-member", memberId] });
     } catch (e: any) {
       toast.error(e.message);
@@ -99,36 +108,58 @@ export function PermissionsTab({
 
   return (
     <div className="space-y-4">
-      {/* Vinculo com conta de login */}
+      {/* Conta de login (criação direta pelo dono do dojo) */}
       <Card>
         <CardContent className="space-y-3 p-4">
           <div className="flex items-center gap-2 text-sm font-semibold">
-            <Link2 className="h-4 w-4" /> Conta de login
+            <KeyRound className="h-4 w-4" /> Conta de login
           </div>
           <p className="text-xs text-muted-foreground">
-            Vincule uma conta de usuário existente (o colaborador precisa se cadastrar primeiro em <b>/dojo/auth</b> com o e-mail informado).
+            Defina uma senha e o sistema criará a conta automaticamente com o e-mail cadastrado no perfil do colaborador. Não é necessário cadastro prévio.
           </p>
-          {linkedUserId ? (
-            <div className="flex items-center justify-between gap-2 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm">
-              <div>
-                <div className="text-xs text-emerald-700">Conta vinculada</div>
-                <div className="font-mono text-xs break-all">{linkedUserId}</div>
+
+          <div className="rounded-md border bg-muted/30 p-2 text-xs">
+            <span className="text-muted-foreground">E-mail: </span>
+            <span className="font-mono">{email || <em className="text-destructive">nenhum e-mail cadastrado</em>}</span>
+          </div>
+
+          {linkedUserId && (
+            <div className="flex items-center justify-between gap-2 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-xs dark:border-emerald-900/40 dark:bg-emerald-950/30">
+              <div className="text-emerald-700 dark:text-emerald-300">
+                Conta ativa — o colaborador já pode acessar o sistema.
               </div>
               <Button variant="outline" size="sm" onClick={unlink} disabled={busy}>
                 <Unlink className="mr-2 h-4 w-4" /> Desvincular
               </Button>
             </div>
-          ) : (
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
-              <div className="flex-1">
-                <Label className="text-xs">E-mail da conta de login</Label>
-                <Input type="email" value={linkEmail} onChange={(e) => setLinkEmail(e.target.value)} placeholder="colaborador@exemplo.com" />
-              </div>
-              <Button onClick={link} disabled={busy}>
-                <Link2 className="mr-2 h-4 w-4" /> Vincular
-              </Button>
-            </div>
           )}
+
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
+            <div className="flex-1">
+              <Label className="text-xs">{linkedUserId ? "Nova senha" : "Senha de acesso"}</Label>
+              <div className="relative">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Mínimo 6 caracteres"
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+            <Button onClick={createOrUpdateLogin} disabled={busy || !email}>
+              <KeyRound className="mr-2 h-4 w-4" />
+              {linkedUserId ? "Atualizar senha" : "Criar login"}
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
