@@ -101,6 +101,7 @@ export const manualCheckin = createServerFn({ method: "POST" })
       .insert({
         student_id: data.studentId,
         unit_id: data.unitId ?? null,
+        class_id: await resolveClassForCheckin(context.supabase, data.studentId),
         method: "manual",
         notes: data.notes ?? null,
         created_by: context.userId,
@@ -113,6 +114,32 @@ export const manualCheckin = createServerFn({ method: "POST" })
   });
 
 export const checkinByCode = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z
+      .object({
+        code: z.string().min(4).max(64),
+        unitId: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido").optional().nullable(),
+      })
+      .parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const code = data.code.trim();
+    const { data: student, error } = await context.supabase
+      .from("dojo_students")
+      .select("id, full_name, unit_id")
+      .or(`checkin_pin.eq.${code},qr_token.eq.${code}`)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!student) throw new Error("Aluno não encontrado para este código");
+
+    const { data: att, error: e2 } = await context.supabase
+      .from("dojo_attendance")
+      .insert({
+        student_id: student.id,
+        unit_id: data.unitId ?? student.unit_id ?? null,
+        class_id: await resolveClassForCheckin(context.supabase, student.id),
+        method: /^\d+$/.test(code) ? "pin" : "qr",
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) =>
     z
