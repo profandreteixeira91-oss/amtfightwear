@@ -403,7 +403,7 @@ function DojoLayoutInner({
             <DropdownMenuTrigger asChild>
               <button
                 title={dojoName ?? "Academia"}
-                className="flex items-center gap-2 rounded-lg border border-[color:var(--dojo-border)] bg-white text-black px-2 py-1.5 hover:border-[color:var(--dojo-border-strong)] hover:shadow-sm transition-all"
+                className="flex shrink-0 items-center gap-1.5 sm:gap-2 rounded-lg border border-[color:var(--dojo-border)] bg-white text-black px-1.5 sm:px-2 py-1 sm:py-1.5 hover:border-[color:var(--dojo-border-strong)] hover:shadow-sm transition-all"
               >
                 {branding?.logo_url ? (
                   <img
@@ -420,7 +420,7 @@ function DojoLayoutInner({
                 <span className="hidden sm:inline max-w-[180px] truncate text-sm font-semibold text-black">
                   {dojoName ?? "Minha academia"}
                 </span>
-                <ChevronDown className="h-3.5 w-3.5 text-black" />
+                <ChevronDown className="hidden sm:block h-3.5 w-3.5 text-black" />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
