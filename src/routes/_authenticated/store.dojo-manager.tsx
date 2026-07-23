@@ -286,11 +286,13 @@ function StoreDojoManagerAdminPage() {
       </div>
 
       <Tabs defaultValue="overview" className="mt-6">
-        <TabsList>
-          <TabsTrigger value="overview">Visão geral</TabsTrigger>
-          <TabsTrigger value="accounts">Contas & Assinaturas</TabsTrigger>
-          <TabsTrigger value="visits">Visitas da landing</TabsTrigger>
-        </TabsList>
+        <div className="-mx-1 overflow-x-auto">
+          <TabsList className="w-max">
+            <TabsTrigger value="overview">Visão geral</TabsTrigger>
+            <TabsTrigger value="accounts">Contas & Assinaturas</TabsTrigger>
+            <TabsTrigger value="visits">Visitas da landing</TabsTrigger>
+          </TabsList>
+        </div>
 
         {/* Overview */}
         <TabsContent value="overview" className="mt-4 space-y-4">
