@@ -2,6 +2,36 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+export type ContentInput = {
+  id?: string;
+  name: string;
+  category?: string | null;
+  modality?: string | null;
+  description?: string | null;
+  image_url?: string | null;
+  video_url?: string | null;
+  pdf_url?: string | null;
+  tags?: string[];
+  avg_time_min?: number | null;
+  recommended_belt?: string | null;
+  recommended_age?: string | null;
+  technical_level?: string | null;
+};
+
+export type TechniqueInput = {
+  id?: string;
+  modality: string;
+  category?: string | null;
+  name: string;
+  description?: string | null;
+  image_url?: string | null;
+  video_url?: string | null;
+  difficulty?: string | null;
+  recommended_belt?: string | null;
+  notes?: string | null;
+};
+
+
 const UUID = z
   .string()
   .regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/);
