@@ -200,105 +200,117 @@ function MemberRow({ member, qc }: { member: any; qc: ReturnType<typeof useQuery
 
   return (
     <Card>
-      <CardContent className="space-y-4 p-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex min-w-0 items-center gap-3">
-            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
-              <UserCircle className="h-5 w-5" />
+      <CardContent className="p-0">
+        <button
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          className="flex w-full items-center gap-3 p-4 text-left hover:bg-accent/30 transition-colors"
+          aria-expanded={expanded}
+        >
+          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
+            <UserCircle className="h-5 w-5" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-sm font-semibold">{member.full_name}</div>
+            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+              <span className="inline-flex items-center gap-1">
+                <Mail className="h-3 w-3" />
+                {member.email || <em className="text-red-600">e-mail não cadastrado</em>}
+              </span>
+              {member.role && (
+                <Badge variant="outline" className="text-[10px] uppercase">
+                  {member.role}
+                </Badge>
+              )}
+              {hasLogin ? (
+                <Badge className="gap-1 bg-emerald-600 text-white">
+                  <CheckCircle2 className="h-3 w-3" /> Login ativo
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="gap-1 text-muted-foreground">
+                  <XCircle className="h-3 w-3" /> Sem login
+                </Badge>
+              )}
             </div>
-            <div className="min-w-0">
-              <div className="truncate text-sm font-semibold">{member.full_name}</div>
-              <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                <span className="inline-flex items-center gap-1">
-                  <Mail className="h-3 w-3" />
-                  {member.email || <em className="text-red-600">e-mail não cadastrado</em>}
-                </span>
-                {member.role && (
-                  <Badge variant="outline" className="text-[10px] uppercase">
-                    {member.role}
-                  </Badge>
-                )}
-                {hasLogin ? (
-                  <Badge className="gap-1 bg-emerald-600 text-white">
-                    <CheckCircle2 className="h-3 w-3" /> Login ativo
-                  </Badge>
-                ) : (
-                  <Badge variant="outline" className="gap-1 text-muted-foreground">
-                    <XCircle className="h-3 w-3" /> Sem login
-                  </Badge>
-                )}
+          </div>
+          <ChevronDown
+            className={`h-5 w-5 shrink-0 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`}
+          />
+        </button>
+
+        {expanded && (
+          <div className="space-y-4 border-t p-4">
+            <div className="flex flex-wrap gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={emailMissing || busy}
+                onClick={() => setPassOpen(true)}
+              >
+                <KeyRound className="mr-2 h-4 w-4" />
+                {hasLogin ? "Trocar senha" : "Criar login"}
+              </Button>
+              {hasLogin && (
+                <Button size="sm" variant="ghost" disabled={busy} onClick={revokeLogin}>
+                  Revogar acesso
+                </Button>
+              )}
+            </div>
+
+            <Separator />
+
+            <div className="space-y-2">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2 text-sm font-semibold">
+                  <ShieldCheck className="h-4 w-4" />
+                  Módulos visíveis para {member.full_name?.split(" ")[0] ?? "o usuário"}
+                </div>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="outline" onClick={() => setAll(true)}>
+                    Marcar todos
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => setAll(false)}>
+                    Desmarcar todos
+                  </Button>
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Só os módulos marcados aparecerão na barra lateral quando este colaborador
+                entrar no sistema.
+              </p>
+              <div className="grid grid-cols-1 gap-2 pt-1 sm:grid-cols-2">
+                {PERMISSION_MODULES.map((mod) => {
+                  const checked = (perms[mod.key] ?? "none") !== "none";
+                  const id = `${member.id}-${mod.key}`;
+                  return (
+                    <label
+                      key={mod.key}
+                      htmlFor={id}
+                      className="flex cursor-pointer items-start gap-2 rounded-md border p-2.5 hover:bg-accent/40"
+                    >
+                      <Checkbox
+                        id={id}
+                        checked={checked}
+                        onCheckedChange={(v) => toggle(mod.key, v === true)}
+                      />
+                      <div className="min-w-0">
+                        <div className="text-sm font-medium leading-tight">{mod.label}</div>
+                        <div className="text-[11px] text-muted-foreground">{mod.description}</div>
+                      </div>
+                    </label>
+                  );
+                })}
+              </div>
+              <div className="flex justify-end pt-1">
+                <Button size="sm" disabled={!dirty || busy} onClick={savePerms}>
+                  <Save className="mr-2 h-4 w-4" /> Salvar permissões
+                </Button>
               </div>
             </div>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={emailMissing || busy}
-              onClick={() => setPassOpen(true)}
-            >
-              <KeyRound className="mr-2 h-4 w-4" />
-              {hasLogin ? "Trocar senha" : "Criar login"}
-            </Button>
-            {hasLogin && (
-              <Button size="sm" variant="ghost" disabled={busy} onClick={revokeLogin}>
-                Revogar acesso
-              </Button>
-            )}
-          </div>
-        </div>
-
-        <Separator />
-
-        <div className="space-y-2">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-2 text-sm font-semibold">
-              <ShieldCheck className="h-4 w-4" />
-              Módulos visíveis para {member.full_name?.split(" ")[0] ?? "o usuário"}
-            </div>
-            <div className="flex gap-2">
-              <Button size="sm" variant="outline" onClick={() => setAll(true)}>
-                Marcar todos
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => setAll(false)}>
-                Desmarcar todos
-              </Button>
-            </div>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Só os módulos marcados aparecerão na barra lateral quando este colaborador
-            entrar no sistema.
-          </p>
-          <div className="grid grid-cols-1 gap-2 pt-1 sm:grid-cols-2">
-            {PERMISSION_MODULES.map((mod) => {
-              const checked = (perms[mod.key] ?? "none") !== "none";
-              const id = `${member.id}-${mod.key}`;
-              return (
-                <label
-                  key={mod.key}
-                  htmlFor={id}
-                  className="flex cursor-pointer items-start gap-2 rounded-md border p-2.5 hover:bg-accent/40"
-                >
-                  <Checkbox
-                    id={id}
-                    checked={checked}
-                    onCheckedChange={(v) => toggle(mod.key, v === true)}
-                  />
-                  <div className="min-w-0">
-                    <div className="text-sm font-medium leading-tight">{mod.label}</div>
-                    <div className="text-[11px] text-muted-foreground">{mod.description}</div>
-                  </div>
-                </label>
-              );
-            })}
-          </div>
-          <div className="flex justify-end pt-1">
-            <Button size="sm" disabled={!dirty || busy} onClick={savePerms}>
-              <Save className="mr-2 h-4 w-4" /> Salvar permissões
-            </Button>
-          </div>
-        </div>
+        )}
       </CardContent>
+
 
       <Dialog open={passOpen} onOpenChange={setPassOpen}>
         <DialogContent>
