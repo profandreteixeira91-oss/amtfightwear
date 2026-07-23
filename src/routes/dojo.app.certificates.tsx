@@ -434,18 +434,24 @@ function CertificatesPage() {
                 </div>
               </div>
               <CardHeader className="pb-2">
-                <CardTitle className="text-base leading-tight">{t.name}</CardTitle>
-                <div className="text-[11px] text-muted-foreground">{elCount} elemento{elCount === 1 ? "" : "s"}</div>
+                <CardTitle className="text-base font-semibold leading-tight text-white">{t.name}</CardTitle>
+                <div className="text-[11px] text-neutral-400">{elCount} elemento{elCount === 1 ? "" : "s"}</div>
               </CardHeader>
               <CardContent className="flex gap-2 pt-0">
-                <Button size="sm" onClick={() => navigate({ to: "/dojo/certificate-editor/$id", params: { id: t.id } })} className="flex-1">Editar</Button>
-                <Button size="icon" variant="outline" title="Duplicar" onClick={() => duplicate(t)}><Copy className="h-4 w-4" /></Button>
+                <Button
+                  size="sm"
+                  onClick={() => navigate({ to: "/dojo/certificate-editor/$id", params: { id: t.id } })}
+                  className="flex-1 bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-400"
+                >
+                  Editar
+                </Button>
+                <Button size="icon" variant="outline" title="Duplicar" onClick={() => duplicate(t)} className="border-white/15 bg-white/5 text-white hover:bg-white/10"><Copy className="h-4 w-4" /></Button>
                 <Button size="icon" variant="ghost" title="Excluir" onClick={async () => {
                   if (confirm(`Excluir modelo "${t.name}"?`)) {
                     await delFn({ data: { id: t.id } });
                     qc.invalidateQueries({ queryKey: ["dojo-templates"] });
                   }
-                }}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                }} className="text-red-300 hover:bg-red-500/10 hover:text-red-200"><Trash2 className="h-4 w-4" /></Button>
               </CardContent>
             </Card>
           );
