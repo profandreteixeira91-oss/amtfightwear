@@ -458,9 +458,9 @@ function CertificatesPage() {
         })}
 
         {filteredTemplates.length === 0 && (
-          <Card className="col-span-full">
-            <CardContent className="p-10 text-center text-sm text-muted-foreground">
-              Nenhum modelo encontrado. Clique em <strong>Novo modelo</strong> para criar seu primeiro certificado.
+          <Card className="col-span-full border-white/10 bg-neutral-950/60 text-white backdrop-blur">
+            <CardContent className="p-10 text-center text-sm text-neutral-300">
+              Nenhum modelo encontrado. Clique em <strong className="text-red-300">Novo modelo</strong> para criar seu primeiro certificado.
             </CardContent>
           </Card>
         )}
