@@ -448,7 +448,7 @@ function StudentDetail() {
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="overflow-x-auto">
-              <TabsList className="flex w-max min-w-full flex-nowrap gap-0.5 rounded-lg border border-border bg-card p-1">
+              <TabsList className="flex w-max min-w-full flex-nowrap gap-0.5 rounded-2xl border border-neutral-200/70 bg-white p-1 shadow-sm ring-1 ring-red-400/10">
                 <TabsTrigger value="pessoal">Dados</TabsTrigger>
                 <TabsTrigger value="academia">Academia</TabsTrigger>
                 <TabsTrigger value="plano">Plano</TabsTrigger>
