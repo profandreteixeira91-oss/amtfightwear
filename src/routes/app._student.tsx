@@ -106,6 +106,7 @@ function StudentShell() {
       <div className="lg:hidden">
         <BottomNav items={config.bottom_nav} features={config.features} />
       </div>
+      <PushActivationPrompt />
     </StudentThemeProvider>
   );
 }
