@@ -71,12 +71,12 @@ export const getClassRanking = createServerFn({ method: "GET" })
       .in("id", studentIds);
     if (stErr) throw new Error(stErr.message);
 
-    // Conta check-ins (status=present) por aluno na turma
+    // Conta TODOS os check-ins do aluno (mesma leitura do perfil do aluno):
+    // não filtra por class_id nem por status — reflete o total exibido em
+    // "Frequência → Total" na ficha individual.
     let attQuery = supabaseAdmin
       .from("dojo_attendance")
-      .select("student_id, checked_in_at, status")
-      .eq("class_id", data.classId)
-      .eq("status", "present")
+      .select("student_id, checked_in_at")
       .in("student_id", studentIds);
     if (sinceIso) attQuery = attQuery.gte("checked_in_at", sinceIso);
     const { data: attendance, error: attErr } = await attQuery;
