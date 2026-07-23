@@ -239,16 +239,16 @@ function AnalysisPage() {
       {/* Tabs detalhadas */}
       <Tabs defaultValue="frequencia" className="w-full">
         <div className="-mx-4 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <TabsList className="inline-flex h-auto w-max min-w-full gap-1 rounded-2xl bg-muted/40 p-1.5 backdrop-blur">
-            <TabsTrigger value="frequencia" className="gap-1.5 px-3 py-2 text-sm"><CalendarDays className="h-4 w-4" />Frequência</TabsTrigger>
-            <TabsTrigger value="tecnico" className="gap-1.5 px-3 py-2 text-sm"><Target className="h-4 w-4" />Técnico</TabsTrigger>
-            <TabsTrigger value="graduacoes" className="gap-1.5 px-3 py-2 text-sm"><GraduationCap className="h-4 w-4" />Graduações</TabsTrigger>
-            <TabsTrigger value="competicoes" className="gap-1.5 px-3 py-2 text-sm"><Trophy className="h-4 w-4" />Competições</TabsTrigger>
-            <TabsTrigger value="fisico" className="gap-1.5 px-3 py-2 text-sm"><HeartPulse className="h-4 w-4" />Físico</TabsTrigger>
-            <TabsTrigger value="videos" className="gap-1.5 px-3 py-2 text-sm"><Video className="h-4 w-4" />Vídeos</TabsTrigger>
-            <TabsTrigger value="metas" className="gap-1.5 px-3 py-2 text-sm"><Dumbbell className="h-4 w-4" />Metas</TabsTrigger>
-            <TabsTrigger value="lesoes" className="gap-1.5 px-3 py-2 text-sm"><ClipboardList className="h-4 w-4" />Clínico</TabsTrigger>
-            <TabsTrigger value="comparar" className="gap-1.5 px-3 py-2 text-sm"><Users2 className="h-4 w-4" />Comparar</TabsTrigger>
+          <TabsList className="inline-flex h-auto w-max min-w-full gap-1 rounded-2xl border border-red-500/20 bg-neutral-950/70 p-1.5 shadow-[0_10px_40px_-20px_rgba(239,68,68,0.4)] backdrop-blur">
+            <TabsTrigger value="frequencia" className="gap-1.5 rounded-xl px-3 py-2 text-sm text-white/60 transition-all data-[state=active]:bg-gradient-to-br data-[state=active]:from-red-500 data-[state=active]:to-red-600 data-[state=active]:text-white data-[state=active]:shadow-[0_8px_24px_-8px_rgba(239,68,68,0.7)]"><CalendarDays className="h-4 w-4" />Frequência</TabsTrigger>
+            <TabsTrigger value="tecnico" className="gap-1.5 rounded-xl px-3 py-2 text-sm text-white/60 transition-all data-[state=active]:bg-gradient-to-br data-[state=active]:from-red-500 data-[state=active]:to-red-600 data-[state=active]:text-white data-[state=active]:shadow-[0_8px_24px_-8px_rgba(239,68,68,0.7)]"><Target className="h-4 w-4" />Técnico</TabsTrigger>
+            <TabsTrigger value="graduacoes" className="gap-1.5 rounded-xl px-3 py-2 text-sm text-white/60 transition-all data-[state=active]:bg-gradient-to-br data-[state=active]:from-red-500 data-[state=active]:to-red-600 data-[state=active]:text-white data-[state=active]:shadow-[0_8px_24px_-8px_rgba(239,68,68,0.7)]"><GraduationCap className="h-4 w-4" />Graduações</TabsTrigger>
+            <TabsTrigger value="competicoes" className="gap-1.5 rounded-xl px-3 py-2 text-sm text-white/60 transition-all data-[state=active]:bg-gradient-to-br data-[state=active]:from-red-500 data-[state=active]:to-red-600 data-[state=active]:text-white data-[state=active]:shadow-[0_8px_24px_-8px_rgba(239,68,68,0.7)]"><Trophy className="h-4 w-4" />Competições</TabsTrigger>
+            <TabsTrigger value="fisico" className="gap-1.5 rounded-xl px-3 py-2 text-sm text-white/60 transition-all data-[state=active]:bg-gradient-to-br data-[state=active]:from-red-500 data-[state=active]:to-red-600 data-[state=active]:text-white data-[state=active]:shadow-[0_8px_24px_-8px_rgba(239,68,68,0.7)]"><HeartPulse className="h-4 w-4" />Físico</TabsTrigger>
+            <TabsTrigger value="videos" className="gap-1.5 rounded-xl px-3 py-2 text-sm text-white/60 transition-all data-[state=active]:bg-gradient-to-br data-[state=active]:from-red-500 data-[state=active]:to-red-600 data-[state=active]:text-white data-[state=active]:shadow-[0_8px_24px_-8px_rgba(239,68,68,0.7)]"><Video className="h-4 w-4" />Vídeos</TabsTrigger>
+            <TabsTrigger value="metas" className="gap-1.5 rounded-xl px-3 py-2 text-sm text-white/60 transition-all data-[state=active]:bg-gradient-to-br data-[state=active]:from-red-500 data-[state=active]:to-red-600 data-[state=active]:text-white data-[state=active]:shadow-[0_8px_24px_-8px_rgba(239,68,68,0.7)]"><Dumbbell className="h-4 w-4" />Metas</TabsTrigger>
+            <TabsTrigger value="lesoes" className="gap-1.5 rounded-xl px-3 py-2 text-sm text-white/60 transition-all data-[state=active]:bg-gradient-to-br data-[state=active]:from-red-500 data-[state=active]:to-red-600 data-[state=active]:text-white data-[state=active]:shadow-[0_8px_24px_-8px_rgba(239,68,68,0.7)]"><ClipboardList className="h-4 w-4" />Clínico</TabsTrigger>
+            <TabsTrigger value="comparar" className="gap-1.5 rounded-xl px-3 py-2 text-sm text-white/60 transition-all data-[state=active]:bg-gradient-to-br data-[state=active]:from-red-500 data-[state=active]:to-red-600 data-[state=active]:text-white data-[state=active]:shadow-[0_8px_24px_-8px_rgba(239,68,68,0.7)]"><Users2 className="h-4 w-4" />Comparar</TabsTrigger>
           </TabsList>
         </div>
 
