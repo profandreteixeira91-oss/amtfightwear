@@ -39,19 +39,35 @@ self.addEventListener("fetch", (event) => {
     return;
 
   if (req.mode === "navigate") {
+    // NetworkFirst com timeout de 2.5s. Se o servidor demorar ou falhar,
+    // servimos a versão em cache imediatamente e revalidamos em background.
+    // Isso elimina a sensação de "app instalado lento" em conexões medianas.
     event.respondWith(
       (async () => {
-        try {
-          const res = await fetch(req);
-          const cache = await caches.open(CACHE_NAV);
-          cache.put(req, res.clone());
-          return res;
-        } catch {
-          const cache = await caches.open(CACHE_NAV);
-          const cached = await cache.match(req);
-          if (cached) return cached;
-          return new Response("Offline", { status: 503, statusText: "Offline" });
+        const cache = await caches.open(CACHE_NAV);
+        const cached = await cache.match(req);
+
+        const networkFetch = fetch(req)
+          .then((res) => {
+            if (res && res.ok) cache.put(req, res.clone()).catch(() => {});
+            return res;
+          })
+          .catch(() => null);
+
+        // Se já temos cache, corremos rede vs timeout curto; o que vier primeiro ganha.
+        if (cached) {
+          const timeout = new Promise((resolve) => setTimeout(() => resolve(null), 2500));
+          const winner = await Promise.race([networkFetch, timeout]);
+          if (winner && winner.ok) return winner;
+          // Rede lenta ou falhou → entrega cache agora e deixa revalidação seguir.
+          event.waitUntil(networkFetch);
+          return cached;
         }
+
+        // Sem cache → esperamos a rede; se falhar, offline.
+        const res = await networkFetch;
+        if (res) return res;
+        return new Response("Offline", { status: 503, statusText: "Offline" });
       })(),
     );
     return;
