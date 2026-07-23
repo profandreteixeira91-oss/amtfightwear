@@ -58,6 +58,7 @@ import { Route as DojoPayInvoiceIdRouteImport } from './routes/dojo.pay.$invoice
 import { Route as DojoCertificateEditorIdRouteImport } from './routes/dojo.certificate-editor.$id'
 import { Route as DojoAppVideosRouteImport } from './routes/dojo.app.videos'
 import { Route as DojoAppSystemUsersRouteImport } from './routes/dojo.app.system-users'
+import { Route as DojoAppSupportRouteImport } from './routes/dojo.app.support'
 import { Route as DojoAppSubscriptionRouteImport } from './routes/dojo.app.subscription'
 import { Route as DojoAppStudentsRouteImport } from './routes/dojo.app.students'
 import { Route as DojoAppStudentAppQrRouteImport } from './routes/dojo.app.student-app-qr'
@@ -209,7 +210,6 @@ import { Route as ApiPublicHooksAutoInstagramPostRouteImport } from './routes/ap
 import { Route as ApiPublicHooksAsaasRouteImport } from './routes/api/public/hooks/asaas'
 import { Route as ApiPublicCertificateHashRouteImport } from './routes/api/public/certificate.$hash'
 import { Route as ApiPublicAppManifestDotwebmanifestRouteImport } from './routes/api/public/app/manifest[.]webmanifest'
-import { Route as AuthenticatedDojoAppSupportRouteImport } from './routes/_authenticated/dojo.app.support'
 import { Route as AuthenticatedAdsCampaignsIdRouteImport } from './routes/_authenticated/ads.campaigns.$id'
 import { Route as DojoAppEvaluationsTemplatesIndexRouteImport } from './routes/dojo.app.evaluations.templates.index'
 import { Route as DojoAppEvaluationsSessionsIndexRouteImport } from './routes/dojo.app.evaluations.sessions.index'
@@ -467,6 +467,11 @@ const DojoAppVideosRoute = DojoAppVideosRouteImport.update({
 const DojoAppSystemUsersRoute = DojoAppSystemUsersRouteImport.update({
   id: '/system-users',
   path: '/system-users',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppSupportRoute = DojoAppSupportRouteImport.update({
+  id: '/support',
+  path: '/support',
   getParentRoute: () => DojoAppRoute,
 } as any)
 const DojoAppSubscriptionRoute = DojoAppSubscriptionRouteImport.update({
@@ -1295,12 +1300,6 @@ const ApiPublicAppManifestDotwebmanifestRoute =
     path: '/api/public/app/manifest.webmanifest',
     getParentRoute: () => rootRouteImport,
   } as any)
-const AuthenticatedDojoAppSupportRoute =
-  AuthenticatedDojoAppSupportRouteImport.update({
-    id: '/dojo/app/support',
-    path: '/dojo/app/support',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedAdsCampaignsIdRoute =
   AuthenticatedAdsCampaignsIdRouteImport.update({
     id: '/$id',
@@ -1508,6 +1507,7 @@ export interface FileRoutesByFullPath {
   '/dojo/app/student-app-qr': typeof DojoAppStudentAppQrRoute
   '/dojo/app/students': typeof DojoAppStudentsRouteWithChildren
   '/dojo/app/subscription': typeof DojoAppSubscriptionRoute
+  '/dojo/app/support': typeof DojoAppSupportRoute
   '/dojo/app/system-users': typeof DojoAppSystemUsersRoute
   '/dojo/app/videos': typeof DojoAppVideosRouteWithChildren
   '/dojo/certificate-editor/$id': typeof DojoCertificateEditorIdRoute
@@ -1524,7 +1524,6 @@ export interface FileRoutesByFullPath {
   '/loja/conta/': typeof LojaContaIndexRoute
   '/loja/custom-shop/': typeof LojaCustomShopIndexRoute
   '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
-  '/dojo/app/support': typeof AuthenticatedDojoAppSupportRoute
   '/api/public/app/manifest.webmanifest': typeof ApiPublicAppManifestDotwebmanifestRoute
   '/api/public/certificate/$hash': typeof ApiPublicCertificateHashRoute
   '/api/public/hooks/asaas': typeof ApiPublicHooksAsaasRoute
@@ -1714,6 +1713,7 @@ export interface FileRoutesByTo {
   '/dojo/app/schedule': typeof DojoAppScheduleRoute
   '/dojo/app/student-app-qr': typeof DojoAppStudentAppQrRoute
   '/dojo/app/subscription': typeof DojoAppSubscriptionRoute
+  '/dojo/app/support': typeof DojoAppSupportRoute
   '/dojo/app/system-users': typeof DojoAppSystemUsersRoute
   '/dojo/certificate-editor/$id': typeof DojoCertificateEditorIdRoute
   '/dojo/pay/$invoiceId': typeof DojoPayInvoiceIdRoute
@@ -1729,7 +1729,6 @@ export interface FileRoutesByTo {
   '/loja/conta': typeof LojaContaIndexRoute
   '/loja/custom-shop': typeof LojaCustomShopIndexRoute
   '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
-  '/dojo/app/support': typeof AuthenticatedDojoAppSupportRoute
   '/api/public/app/manifest.webmanifest': typeof ApiPublicAppManifestDotwebmanifestRoute
   '/api/public/certificate/$hash': typeof ApiPublicCertificateHashRoute
   '/api/public/hooks/asaas': typeof ApiPublicHooksAsaasRoute
@@ -1929,6 +1928,7 @@ export interface FileRoutesById {
   '/dojo/app/student-app-qr': typeof DojoAppStudentAppQrRoute
   '/dojo/app/students': typeof DojoAppStudentsRouteWithChildren
   '/dojo/app/subscription': typeof DojoAppSubscriptionRoute
+  '/dojo/app/support': typeof DojoAppSupportRoute
   '/dojo/app/system-users': typeof DojoAppSystemUsersRoute
   '/dojo/app/videos': typeof DojoAppVideosRouteWithChildren
   '/dojo/certificate-editor/$id': typeof DojoCertificateEditorIdRoute
@@ -1945,7 +1945,6 @@ export interface FileRoutesById {
   '/loja/conta/': typeof LojaContaIndexRoute
   '/loja/custom-shop/': typeof LojaCustomShopIndexRoute
   '/_authenticated/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
-  '/_authenticated/dojo/app/support': typeof AuthenticatedDojoAppSupportRoute
   '/api/public/app/manifest.webmanifest': typeof ApiPublicAppManifestDotwebmanifestRoute
   '/api/public/certificate/$hash': typeof ApiPublicCertificateHashRoute
   '/api/public/hooks/asaas': typeof ApiPublicHooksAsaasRoute
@@ -2146,6 +2145,7 @@ export interface FileRouteTypes {
     | '/dojo/app/student-app-qr'
     | '/dojo/app/students'
     | '/dojo/app/subscription'
+    | '/dojo/app/support'
     | '/dojo/app/system-users'
     | '/dojo/app/videos'
     | '/dojo/certificate-editor/$id'
@@ -2162,7 +2162,6 @@ export interface FileRouteTypes {
     | '/loja/conta/'
     | '/loja/custom-shop/'
     | '/ads/campaigns/$id'
-    | '/dojo/app/support'
     | '/api/public/app/manifest.webmanifest'
     | '/api/public/certificate/$hash'
     | '/api/public/hooks/asaas'
@@ -2352,6 +2351,7 @@ export interface FileRouteTypes {
     | '/dojo/app/schedule'
     | '/dojo/app/student-app-qr'
     | '/dojo/app/subscription'
+    | '/dojo/app/support'
     | '/dojo/app/system-users'
     | '/dojo/certificate-editor/$id'
     | '/dojo/pay/$invoiceId'
@@ -2367,7 +2367,6 @@ export interface FileRouteTypes {
     | '/loja/conta'
     | '/loja/custom-shop'
     | '/ads/campaigns/$id'
-    | '/dojo/app/support'
     | '/api/public/app/manifest.webmanifest'
     | '/api/public/certificate/$hash'
     | '/api/public/hooks/asaas'
@@ -2566,6 +2565,7 @@ export interface FileRouteTypes {
     | '/dojo/app/student-app-qr'
     | '/dojo/app/students'
     | '/dojo/app/subscription'
+    | '/dojo/app/support'
     | '/dojo/app/system-users'
     | '/dojo/app/videos'
     | '/dojo/certificate-editor/$id'
@@ -2582,7 +2582,6 @@ export interface FileRouteTypes {
     | '/loja/conta/'
     | '/loja/custom-shop/'
     | '/_authenticated/ads/campaigns/$id'
-    | '/_authenticated/dojo/app/support'
     | '/api/public/app/manifest.webmanifest'
     | '/api/public/certificate/$hash'
     | '/api/public/hooks/asaas'
@@ -3059,6 +3058,13 @@ declare module '@tanstack/react-router' {
       path: '/system-users'
       fullPath: '/dojo/app/system-users'
       preLoaderRoute: typeof DojoAppSystemUsersRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/support': {
+      id: '/dojo/app/support'
+      path: '/support'
+      fullPath: '/dojo/app/support'
+      preLoaderRoute: typeof DojoAppSupportRouteImport
       parentRoute: typeof DojoAppRoute
     }
     '/dojo/app/subscription': {
@@ -4118,13 +4124,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicAppManifestDotwebmanifestRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/dojo/app/support': {
-      id: '/_authenticated/dojo/app/support'
-      path: '/dojo/app/support'
-      fullPath: '/dojo/app/support'
-      preLoaderRoute: typeof AuthenticatedDojoAppSupportRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/ads/campaigns/$id': {
       id: '/_authenticated/ads/campaigns/$id'
       path: '/$id'
@@ -4314,7 +4313,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreWholesaleRoute: typeof AuthenticatedStoreWholesaleRoute
   AuthenticatedProspectIndexRoute: typeof AuthenticatedProspectIndexRoute
   AuthenticatedStoreIndexRoute: typeof AuthenticatedStoreIndexRoute
-  AuthenticatedDojoAppSupportRoute: typeof AuthenticatedDojoAppSupportRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -4365,7 +4363,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStoreWholesaleRoute: AuthenticatedStoreWholesaleRoute,
   AuthenticatedProspectIndexRoute: AuthenticatedProspectIndexRoute,
   AuthenticatedStoreIndexRoute: AuthenticatedStoreIndexRoute,
-  AuthenticatedDojoAppSupportRoute: AuthenticatedDojoAppSupportRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -4683,6 +4680,7 @@ interface DojoAppRouteChildren {
   DojoAppStudentAppQrRoute: typeof DojoAppStudentAppQrRoute
   DojoAppStudentsRoute: typeof DojoAppStudentsRouteWithChildren
   DojoAppSubscriptionRoute: typeof DojoAppSubscriptionRoute
+  DojoAppSupportRoute: typeof DojoAppSupportRoute
   DojoAppSystemUsersRoute: typeof DojoAppSystemUsersRoute
   DojoAppVideosRoute: typeof DojoAppVideosRouteWithChildren
   DojoAppIndexRoute: typeof DojoAppIndexRoute
@@ -4721,6 +4719,7 @@ const DojoAppRouteChildren: DojoAppRouteChildren = {
   DojoAppStudentAppQrRoute: DojoAppStudentAppQrRoute,
   DojoAppStudentsRoute: DojoAppStudentsRouteWithChildren,
   DojoAppSubscriptionRoute: DojoAppSubscriptionRoute,
+  DojoAppSupportRoute: DojoAppSupportRoute,
   DojoAppSystemUsersRoute: DojoAppSystemUsersRoute,
   DojoAppVideosRoute: DojoAppVideosRouteWithChildren,
   DojoAppIndexRoute: DojoAppIndexRoute,
