@@ -174,7 +174,6 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup>
         {isOwner && (
         <SidebarGroup>
           <SidebarGroupLabel>Growth Intelligence</SidebarGroupLabel>
