@@ -481,7 +481,7 @@ function TemplatePickerDialog({
               >
                 <div className="font-medium">{t.name}</div>
                 <div className="text-xs text-muted-foreground">
-                  {t.modality ?? "Todas as modalidades"} · {t.blocks.length} blocos
+                  {t.category ?? "Todas as modalidades"} · {t.block_count} blocos
                 </div>
               </button>
             ))}
