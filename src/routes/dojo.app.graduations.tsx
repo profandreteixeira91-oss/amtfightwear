@@ -371,12 +371,14 @@ function NewGraduationPage() {
     let paid = 0, pending = 0;
     for (const sid of selectedStudents) {
       const p = perStudent[sid];
-      const v = Number(((p?.fee ?? "").toString().replace(",", ".").trim()) || 0);
+      const raw = (p?.fee ?? "").toString().replace(",", ".").trim();
+      const fallback = p?.beltId && priceByBelt[p.beltId] != null ? Number(priceByBelt[p.beltId]) : 0;
+      const v = raw === "" ? fallback : Number(raw);
       if (Number.isNaN(v)) continue;
       if (p?.paid) paid += v; else pending += v;
     }
     return { paid, pending, total: paid + pending };
-  }, [selectedStudents, perStudent]);
+  }, [selectedStudents, perStudent, priceByBeltKey]);
 
   const submitGrad = async () => {
     const items = Array.from(selectedStudents).map(sid => {
