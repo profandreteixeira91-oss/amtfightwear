@@ -4981,6 +4981,252 @@ export type Database = {
           },
         ]
       }
+      dojo_lesson_content_library: {
+        Row: {
+          avg_time_min: number | null
+          category: string | null
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          is_favorite: boolean
+          last_used_at: string | null
+          modality: string | null
+          name: string
+          owner_id: string
+          pdf_url: string | null
+          recommended_age: string | null
+          recommended_belt: string | null
+          tags: string[] | null
+          technical_level: string | null
+          updated_at: string
+          usage_count: number
+          video_url: string | null
+        }
+        Insert: {
+          avg_time_min?: number | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_favorite?: boolean
+          last_used_at?: string | null
+          modality?: string | null
+          name: string
+          owner_id: string
+          pdf_url?: string | null
+          recommended_age?: string | null
+          recommended_belt?: string | null
+          tags?: string[] | null
+          technical_level?: string | null
+          updated_at?: string
+          usage_count?: number
+          video_url?: string | null
+        }
+        Update: {
+          avg_time_min?: number | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_favorite?: boolean
+          last_used_at?: string | null
+          modality?: string | null
+          name?: string
+          owner_id?: string
+          pdf_url?: string | null
+          recommended_age?: string | null
+          recommended_belt?: string | null
+          tags?: string[] | null
+          technical_level?: string | null
+          updated_at?: string
+          usage_count?: number
+          video_url?: string | null
+        }
+        Relationships: []
+      }
+      dojo_lesson_history: {
+        Row: {
+          applied_content: Json | null
+          class_id: string | null
+          created_at: string
+          date: string
+          duration_min: number | null
+          id: string
+          lesson_plan_id: string | null
+          media_urls: string[] | null
+          notes: string | null
+          owner_id: string
+          students_count: number | null
+          teacher_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          applied_content?: Json | null
+          class_id?: string | null
+          created_at?: string
+          date: string
+          duration_min?: number | null
+          id?: string
+          lesson_plan_id?: string | null
+          media_urls?: string[] | null
+          notes?: string | null
+          owner_id: string
+          students_count?: number | null
+          teacher_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          applied_content?: Json | null
+          class_id?: string | null
+          created_at?: string
+          date?: string
+          duration_min?: number | null
+          id?: string
+          lesson_plan_id?: string | null
+          media_urls?: string[] | null
+          notes?: string | null
+          owner_id?: string
+          students_count?: number | null
+          teacher_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_lesson_history_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_lesson_history_lesson_plan_id_fkey"
+            columns: ["lesson_plan_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_lesson_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_lesson_history_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_lesson_plans: {
+        Row: {
+          age_range: string | null
+          belt_id: string | null
+          blocks: Json
+          category: string | null
+          class_id: string | null
+          color: string | null
+          created_at: string
+          created_by: string | null
+          date: string
+          duration_min: number | null
+          end_time: string | null
+          id: string
+          location: string | null
+          modality: string | null
+          notes: string | null
+          objectives: string | null
+          owner_id: string
+          start_time: string | null
+          status: string
+          teacher_id: string | null
+          template_id: string | null
+          title: string
+          unit_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          age_range?: string | null
+          belt_id?: string | null
+          blocks?: Json
+          category?: string | null
+          class_id?: string | null
+          color?: string | null
+          created_at?: string
+          created_by?: string | null
+          date: string
+          duration_min?: number | null
+          end_time?: string | null
+          id?: string
+          location?: string | null
+          modality?: string | null
+          notes?: string | null
+          objectives?: string | null
+          owner_id: string
+          start_time?: string | null
+          status?: string
+          teacher_id?: string | null
+          template_id?: string | null
+          title: string
+          unit_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          age_range?: string | null
+          belt_id?: string | null
+          blocks?: Json
+          category?: string | null
+          class_id?: string | null
+          color?: string | null
+          created_at?: string
+          created_by?: string | null
+          date?: string
+          duration_min?: number | null
+          end_time?: string | null
+          id?: string
+          location?: string | null
+          modality?: string | null
+          notes?: string | null
+          objectives?: string | null
+          owner_id?: string
+          start_time?: string | null
+          status?: string
+          teacher_id?: string | null
+          template_id?: string | null
+          title?: string
+          unit_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_lesson_plans_belt_id_fkey"
+            columns: ["belt_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_belts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_lesson_plans_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_lesson_plans_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_team_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_lesson_plans_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dojo_onboarding_documents: {
         Row: {
           created_at: string
@@ -7235,6 +7481,54 @@ export type Database = {
           order_index?: number
           owner_id?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      dojo_techniques_bank: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          difficulty: string | null
+          id: string
+          image_url: string | null
+          modality: string
+          name: string
+          notes: string | null
+          owner_id: string
+          recommended_belt: string | null
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          difficulty?: string | null
+          id?: string
+          image_url?: string | null
+          modality: string
+          name: string
+          notes?: string | null
+          owner_id: string
+          recommended_belt?: string | null
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          difficulty?: string | null
+          id?: string
+          image_url?: string | null
+          modality?: string
+          name?: string
+          notes?: string | null
+          owner_id?: string
+          recommended_belt?: string | null
+          updated_at?: string
+          video_url?: string | null
         }
         Relationships: []
       }

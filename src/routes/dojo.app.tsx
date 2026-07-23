@@ -107,12 +107,14 @@ const nav: { label: string; items: NavItem[] }[] = [
     label: "Ensino & Graduação",
     items: [
       { to: "/dojo/app/belts", label: "Modalidades e Faixas", icon: Award },
+      { to: "/dojo/app/lesson-plans", label: "Planos de Aula", icon: ClipboardList },
       { to: "/dojo/app/graduations", label: "Graduações", icon: Award },
       { to: "/dojo/app/evaluations", label: "Avaliações", icon: ClipboardList },
       { to: "/dojo/app/certificates", label: "Certificados", icon: FileBadge },
       { to: "/dojo/app/videos", label: "Vídeos", icon: Film },
     ],
   },
+
   {
     label: "Competitivo",
     items: [
@@ -156,6 +158,8 @@ const routeTitles: Array<{ match: (p: string) => boolean; title: string; subtitl
   { match: (p) => p.startsWith("/dojo/app/checkin"), title: "Check-in", subtitle: "Presenças e frequência" },
   { match: (p) => p.startsWith("/dojo/app/graduations"), title: "Graduações", subtitle: "Nova graduação e certificados" },
   { match: (p) => p.startsWith("/dojo/app/ranking"), title: "Ranking", subtitle: "Classificação de alunos por check-ins em cada turma" },
+  { match: (p) => p.startsWith("/dojo/app/lesson-plans"), title: "Planos de Aula", subtitle: "Planejamento pedagógico, biblioteca e banco de técnicas" },
+
 
   { match: (p) => p.startsWith("/dojo/app/evaluations"), title: "Avaliações", subtitle: "Provas teóricas e práticas" },
   { match: (p) => p.startsWith("/dojo/app/certificates"), title: "Certificados", subtitle: "Modelos e emissões" },

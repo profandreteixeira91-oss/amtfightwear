@@ -66,6 +66,7 @@ import { Route as DojoAppScheduleRouteImport } from './routes/dojo.app.schedule'
 import { Route as DojoAppSalesRouteImport } from './routes/dojo.app.sales'
 import { Route as DojoAppRankingRouteImport } from './routes/dojo.app.ranking'
 import { Route as DojoAppPlansRouteImport } from './routes/dojo.app.plans'
+import { Route as DojoAppLessonPlansRouteImport } from './routes/dojo.app.lesson-plans'
 import { Route as DojoAppIntegrationsRouteImport } from './routes/dojo.app.integrations'
 import { Route as DojoAppInstallRouteImport } from './routes/dojo.app.install'
 import { Route as DojoAppGraduationsRouteImport } from './routes/dojo.app.graduations'
@@ -149,6 +150,7 @@ import { Route as DojoAppVideosIndexRouteImport } from './routes/dojo.app.videos
 import { Route as DojoAppTeamIndexRouteImport } from './routes/dojo.app.team.index'
 import { Route as DojoAppStudentsIndexRouteImport } from './routes/dojo.app.students.index'
 import { Route as DojoAppStoreIndexRouteImport } from './routes/dojo.app.store.index'
+import { Route as DojoAppLessonPlansIndexRouteImport } from './routes/dojo.app.lesson-plans.index'
 import { Route as DojoAppEvaluationsIndexRouteImport } from './routes/dojo.app.evaluations.index'
 import { Route as DojoAppCompetitionsIndexRouteImport } from './routes/dojo.app.competitions.index'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
@@ -164,6 +166,7 @@ import { Route as DojoAppTeamIdRouteImport } from './routes/dojo.app.team.$id'
 import { Route as DojoAppStudentsIdRouteImport } from './routes/dojo.app.students.$id'
 import { Route as DojoAppStorePedidosRouteImport } from './routes/dojo.app.store.pedidos'
 import { Route as DojoAppStoreCarrinhoRouteImport } from './routes/dojo.app.store.carrinho'
+import { Route as DojoAppLessonPlansIdRouteImport } from './routes/dojo.app.lesson-plans.$id'
 import { Route as DojoAppEvaluationsTemplatesRouteImport } from './routes/dojo.app.evaluations.templates'
 import { Route as DojoAppEvaluationsTechniquesRouteImport } from './routes/dojo.app.evaluations.techniques'
 import { Route as DojoAppEvaluationsSettingsRouteImport } from './routes/dojo.app.evaluations.settings'
@@ -490,6 +493,11 @@ const DojoAppRankingRoute = DojoAppRankingRouteImport.update({
 const DojoAppPlansRoute = DojoAppPlansRouteImport.update({
   id: '/plans',
   path: '/plans',
+  getParentRoute: () => DojoAppRoute,
+} as any)
+const DojoAppLessonPlansRoute = DojoAppLessonPlansRouteImport.update({
+  id: '/lesson-plans',
+  path: '/lesson-plans',
   getParentRoute: () => DojoAppRoute,
 } as any)
 const DojoAppIntegrationsRoute = DojoAppIntegrationsRouteImport.update({
@@ -944,6 +952,11 @@ const DojoAppStoreIndexRoute = DojoAppStoreIndexRouteImport.update({
   path: '/',
   getParentRoute: () => DojoAppStoreRoute,
 } as any)
+const DojoAppLessonPlansIndexRoute = DojoAppLessonPlansIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DojoAppLessonPlansRoute,
+} as any)
 const DojoAppEvaluationsIndexRoute = DojoAppEvaluationsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -1022,6 +1035,11 @@ const DojoAppStoreCarrinhoRoute = DojoAppStoreCarrinhoRouteImport.update({
   id: '/carrinho',
   path: '/carrinho',
   getParentRoute: () => DojoAppStoreRoute,
+} as any)
+const DojoAppLessonPlansIdRoute = DojoAppLessonPlansIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => DojoAppLessonPlansRoute,
 } as any)
 const DojoAppEvaluationsTemplatesRoute =
   DojoAppEvaluationsTemplatesRouteImport.update({
@@ -1385,6 +1403,7 @@ export interface FileRoutesByFullPath {
   '/dojo/app/graduations': typeof DojoAppGraduationsRoute
   '/dojo/app/install': typeof DojoAppInstallRoute
   '/dojo/app/integrations': typeof DojoAppIntegrationsRoute
+  '/dojo/app/lesson-plans': typeof DojoAppLessonPlansRouteWithChildren
   '/dojo/app/plans': typeof DojoAppPlansRoute
   '/dojo/app/ranking': typeof DojoAppRankingRoute
   '/dojo/app/sales': typeof DojoAppSalesRoute
@@ -1440,6 +1459,7 @@ export interface FileRoutesByFullPath {
   '/dojo/app/evaluations/settings': typeof DojoAppEvaluationsSettingsRoute
   '/dojo/app/evaluations/techniques': typeof DojoAppEvaluationsTechniquesRoute
   '/dojo/app/evaluations/templates': typeof DojoAppEvaluationsTemplatesRouteWithChildren
+  '/dojo/app/lesson-plans/$id': typeof DojoAppLessonPlansIdRoute
   '/dojo/app/store/carrinho': typeof DojoAppStoreCarrinhoRoute
   '/dojo/app/store/pedidos': typeof DojoAppStorePedidosRouteWithChildren
   '/dojo/app/students/$id': typeof DojoAppStudentsIdRouteWithChildren
@@ -1455,6 +1475,7 @@ export interface FileRoutesByFullPath {
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/dojo/app/competitions/': typeof DojoAppCompetitionsIndexRoute
   '/dojo/app/evaluations/': typeof DojoAppEvaluationsIndexRoute
+  '/dojo/app/lesson-plans/': typeof DojoAppLessonPlansIndexRoute
   '/dojo/app/store/': typeof DojoAppStoreIndexRoute
   '/dojo/app/students/': typeof DojoAppStudentsIndexRoute
   '/dojo/app/team/': typeof DojoAppTeamIndexRoute
@@ -1628,6 +1649,7 @@ export interface FileRoutesByTo {
   '/dojo/app/evaluations/library': typeof DojoAppEvaluationsLibraryRoute
   '/dojo/app/evaluations/settings': typeof DojoAppEvaluationsSettingsRoute
   '/dojo/app/evaluations/techniques': typeof DojoAppEvaluationsTechniquesRoute
+  '/dojo/app/lesson-plans/$id': typeof DojoAppLessonPlansIdRoute
   '/dojo/app/store/carrinho': typeof DojoAppStoreCarrinhoRoute
   '/dojo/app/store/pedidos': typeof DojoAppStorePedidosRouteWithChildren
   '/dojo/app/students/$id': typeof DojoAppStudentsIdRouteWithChildren
@@ -1643,6 +1665,7 @@ export interface FileRoutesByTo {
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/dojo/app/competitions': typeof DojoAppCompetitionsIndexRoute
   '/dojo/app/evaluations': typeof DojoAppEvaluationsIndexRoute
+  '/dojo/app/lesson-plans': typeof DojoAppLessonPlansIndexRoute
   '/dojo/app/store': typeof DojoAppStoreIndexRoute
   '/dojo/app/students': typeof DojoAppStudentsIndexRoute
   '/dojo/app/team': typeof DojoAppTeamIndexRoute
@@ -1774,6 +1797,7 @@ export interface FileRoutesById {
   '/dojo/app/graduations': typeof DojoAppGraduationsRoute
   '/dojo/app/install': typeof DojoAppInstallRoute
   '/dojo/app/integrations': typeof DojoAppIntegrationsRoute
+  '/dojo/app/lesson-plans': typeof DojoAppLessonPlansRouteWithChildren
   '/dojo/app/plans': typeof DojoAppPlansRoute
   '/dojo/app/ranking': typeof DojoAppRankingRoute
   '/dojo/app/sales': typeof DojoAppSalesRoute
@@ -1829,6 +1853,7 @@ export interface FileRoutesById {
   '/dojo/app/evaluations/settings': typeof DojoAppEvaluationsSettingsRoute
   '/dojo/app/evaluations/techniques': typeof DojoAppEvaluationsTechniquesRoute
   '/dojo/app/evaluations/templates': typeof DojoAppEvaluationsTemplatesRouteWithChildren
+  '/dojo/app/lesson-plans/$id': typeof DojoAppLessonPlansIdRoute
   '/dojo/app/store/carrinho': typeof DojoAppStoreCarrinhoRoute
   '/dojo/app/store/pedidos': typeof DojoAppStorePedidosRouteWithChildren
   '/dojo/app/students/$id': typeof DojoAppStudentsIdRouteWithChildren
@@ -1844,6 +1869,7 @@ export interface FileRoutesById {
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/dojo/app/competitions/': typeof DojoAppCompetitionsIndexRoute
   '/dojo/app/evaluations/': typeof DojoAppEvaluationsIndexRoute
+  '/dojo/app/lesson-plans/': typeof DojoAppLessonPlansIndexRoute
   '/dojo/app/store/': typeof DojoAppStoreIndexRoute
   '/dojo/app/students/': typeof DojoAppStudentsIndexRoute
   '/dojo/app/team/': typeof DojoAppTeamIndexRoute
@@ -1974,6 +2000,7 @@ export interface FileRouteTypes {
     | '/dojo/app/graduations'
     | '/dojo/app/install'
     | '/dojo/app/integrations'
+    | '/dojo/app/lesson-plans'
     | '/dojo/app/plans'
     | '/dojo/app/ranking'
     | '/dojo/app/sales'
@@ -2029,6 +2056,7 @@ export interface FileRouteTypes {
     | '/dojo/app/evaluations/settings'
     | '/dojo/app/evaluations/techniques'
     | '/dojo/app/evaluations/templates'
+    | '/dojo/app/lesson-plans/$id'
     | '/dojo/app/store/carrinho'
     | '/dojo/app/store/pedidos'
     | '/dojo/app/students/$id'
@@ -2044,6 +2072,7 @@ export interface FileRouteTypes {
     | '/lovable/email/transactional/send'
     | '/dojo/app/competitions/'
     | '/dojo/app/evaluations/'
+    | '/dojo/app/lesson-plans/'
     | '/dojo/app/store/'
     | '/dojo/app/students/'
     | '/dojo/app/team/'
@@ -2217,6 +2246,7 @@ export interface FileRouteTypes {
     | '/dojo/app/evaluations/library'
     | '/dojo/app/evaluations/settings'
     | '/dojo/app/evaluations/techniques'
+    | '/dojo/app/lesson-plans/$id'
     | '/dojo/app/store/carrinho'
     | '/dojo/app/store/pedidos'
     | '/dojo/app/students/$id'
@@ -2232,6 +2262,7 @@ export interface FileRouteTypes {
     | '/lovable/email/transactional/send'
     | '/dojo/app/competitions'
     | '/dojo/app/evaluations'
+    | '/dojo/app/lesson-plans'
     | '/dojo/app/store'
     | '/dojo/app/students'
     | '/dojo/app/team'
@@ -2362,6 +2393,7 @@ export interface FileRouteTypes {
     | '/dojo/app/graduations'
     | '/dojo/app/install'
     | '/dojo/app/integrations'
+    | '/dojo/app/lesson-plans'
     | '/dojo/app/plans'
     | '/dojo/app/ranking'
     | '/dojo/app/sales'
@@ -2417,6 +2449,7 @@ export interface FileRouteTypes {
     | '/dojo/app/evaluations/settings'
     | '/dojo/app/evaluations/techniques'
     | '/dojo/app/evaluations/templates'
+    | '/dojo/app/lesson-plans/$id'
     | '/dojo/app/store/carrinho'
     | '/dojo/app/store/pedidos'
     | '/dojo/app/students/$id'
@@ -2432,6 +2465,7 @@ export interface FileRouteTypes {
     | '/lovable/email/transactional/send'
     | '/dojo/app/competitions/'
     | '/dojo/app/evaluations/'
+    | '/dojo/app/lesson-plans/'
     | '/dojo/app/store/'
     | '/dojo/app/students/'
     | '/dojo/app/team/'
@@ -2905,6 +2939,13 @@ declare module '@tanstack/react-router' {
       path: '/plans'
       fullPath: '/dojo/app/plans'
       preLoaderRoute: typeof DojoAppPlansRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/lesson-plans': {
+      id: '/dojo/app/lesson-plans'
+      path: '/lesson-plans'
+      fullPath: '/dojo/app/lesson-plans'
+      preLoaderRoute: typeof DojoAppLessonPlansRouteImport
       parentRoute: typeof DojoAppRoute
     }
     '/dojo/app/integrations': {
@@ -3488,6 +3529,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DojoAppStoreIndexRouteImport
       parentRoute: typeof DojoAppStoreRoute
     }
+    '/dojo/app/lesson-plans/': {
+      id: '/dojo/app/lesson-plans/'
+      path: '/'
+      fullPath: '/dojo/app/lesson-plans/'
+      preLoaderRoute: typeof DojoAppLessonPlansIndexRouteImport
+      parentRoute: typeof DojoAppLessonPlansRoute
+    }
     '/dojo/app/evaluations/': {
       id: '/dojo/app/evaluations/'
       path: '/'
@@ -3592,6 +3640,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dojo/app/store/carrinho'
       preLoaderRoute: typeof DojoAppStoreCarrinhoRouteImport
       parentRoute: typeof DojoAppStoreRoute
+    }
+    '/dojo/app/lesson-plans/$id': {
+      id: '/dojo/app/lesson-plans/$id'
+      path: '/$id'
+      fullPath: '/dojo/app/lesson-plans/$id'
+      preLoaderRoute: typeof DojoAppLessonPlansIdRouteImport
+      parentRoute: typeof DojoAppLessonPlansRoute
     }
     '/dojo/app/evaluations/templates': {
       id: '/dojo/app/evaluations/templates'
@@ -4198,6 +4253,19 @@ const DojoAppEvaluationsRouteChildren: DojoAppEvaluationsRouteChildren = {
 const DojoAppEvaluationsRouteWithChildren =
   DojoAppEvaluationsRoute._addFileChildren(DojoAppEvaluationsRouteChildren)
 
+interface DojoAppLessonPlansRouteChildren {
+  DojoAppLessonPlansIdRoute: typeof DojoAppLessonPlansIdRoute
+  DojoAppLessonPlansIndexRoute: typeof DojoAppLessonPlansIndexRoute
+}
+
+const DojoAppLessonPlansRouteChildren: DojoAppLessonPlansRouteChildren = {
+  DojoAppLessonPlansIdRoute: DojoAppLessonPlansIdRoute,
+  DojoAppLessonPlansIndexRoute: DojoAppLessonPlansIndexRoute,
+}
+
+const DojoAppLessonPlansRouteWithChildren =
+  DojoAppLessonPlansRoute._addFileChildren(DojoAppLessonPlansRouteChildren)
+
 interface DojoAppStorePedidosRouteChildren {
   DojoAppStorePedidosIdRoute: typeof DojoAppStorePedidosIdRoute
 }
@@ -4292,6 +4360,7 @@ interface DojoAppRouteChildren {
   DojoAppGraduationsRoute: typeof DojoAppGraduationsRoute
   DojoAppInstallRoute: typeof DojoAppInstallRoute
   DojoAppIntegrationsRoute: typeof DojoAppIntegrationsRoute
+  DojoAppLessonPlansRoute: typeof DojoAppLessonPlansRouteWithChildren
   DojoAppPlansRoute: typeof DojoAppPlansRoute
   DojoAppRankingRoute: typeof DojoAppRankingRoute
   DojoAppSalesRoute: typeof DojoAppSalesRoute
@@ -4324,6 +4393,7 @@ const DojoAppRouteChildren: DojoAppRouteChildren = {
   DojoAppGraduationsRoute: DojoAppGraduationsRoute,
   DojoAppInstallRoute: DojoAppInstallRoute,
   DojoAppIntegrationsRoute: DojoAppIntegrationsRoute,
+  DojoAppLessonPlansRoute: DojoAppLessonPlansRouteWithChildren,
   DojoAppPlansRoute: DojoAppPlansRoute,
   DojoAppRankingRoute: DojoAppRankingRoute,
   DojoAppSalesRoute: DojoAppSalesRoute,
@@ -4431,13 +4501,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
