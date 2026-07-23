@@ -170,6 +170,8 @@ const groups: { label: string; items: Item[] }[] = [
       { title: "Pedidos", url: "/store/orders", icon: ShoppingCart },
       { title: "Chat da loja", url: "/store/chat", icon: MessageCircle },
       { title: "Clientes", url: "/store/customers", icon: UserSquare2 },
+      { title: "AMT Dojo Manager", url: "/store/dojo-manager", icon: GraduationCap },
+
       { title: "Envio (Melhor Envio)", url: "/store/shipping", icon: Truck },
       { title: "Imagens dos produtos", url: "/store/imagens", icon: ImageIcon },
       { title: "Importar catálogo", url: "/store/import", icon: DownloadIcon },
