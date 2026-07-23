@@ -56,16 +56,19 @@ export function FinancePayables() {
   const handleAdd = async () => {
     if (!form.description || !form.amount) return toast.error("Preencha descrição e valor");
     try {
-      await saveFn({
+      const res = await saveFn({
         data: {
           description: form.description,
           amount: Number(form.amount),
           due_date: form.due_date,
           category: form.category || null,
+          recurrence: form.recurrence,
+          installments: form.recurrence === "none" ? 1 : Math.max(1, Number(form.installments) || 12),
         },
       });
-      toast.success("Despesa cadastrada");
-      setForm({ description: "", amount: "", due_date: isoDate(), category: "" });
+      const created = (res as any)?.created ?? 1;
+      toast.success(created > 1 ? `${created} lançamentos criados` : "Despesa cadastrada");
+      setForm({ description: "", amount: "", due_date: isoDate(), category: "", recurrence: "none", installments: "12" });
       setOpen(false);
       refresh();
     } catch (e: any) {
