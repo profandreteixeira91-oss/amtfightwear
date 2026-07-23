@@ -212,9 +212,12 @@ export function AppTopNav() {
 
   // Grupos exclusivos do Dojo Manager — só aparecem dentro de /dojo.
   const dojoOnlyLabels = new Set(["Pessoas", "Rotina", "Estrutura", "Comercial"]);
-  const visibleGroups = inDojo
+  const { isOwner } = useIsOwner();
+  const ownerOnlyLabels = new Set(["Growth"]);
+  const visibleGroups = (inDojo
     ? groups
-    : groups.filter((g) => !dojoOnlyLabels.has(g.label));
+    : groups.filter((g) => !dojoOnlyLabels.has(g.label))
+  ).filter((g) => isOwner || !ownerOnlyLabels.has(g.label));
 
   return (
     <div
