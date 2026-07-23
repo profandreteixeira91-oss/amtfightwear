@@ -3,13 +3,30 @@ import { useStudioStore } from "@/lib/dojo/certificates/studio-store";
 import { CertificateRenderer } from "./CertificateRenderer";
 import { sampleValues } from "@/lib/dojo/certificates/export";
 import { makeId, type AnyElement } from "@/components/dojo/certificate-editor/types";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const CANVAS_ID = "cert-studio-canvas";
 
 export function StudioCanvas() {
   const { doc, zoom, showGrid, showRulers, showGuides, snapEnabled, selection, select, updateElement, clearSelection, pushHistory, setZoom } = useStudioStore();
   const wrapRef = useRef<HTMLDivElement>(null);
-  const values = useMemo(() => sampleValues(), []);
+  const academy = useQuery({
+    queryKey: ["dojo-academy-profile-logo"],
+    queryFn: async () => {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) return null;
+      const { data } = await supabase.from("dojo_academy_profile").select("logo_url,trade_name,legal_name").eq("owner_id", u.user.id).maybeSingle();
+      return data;
+    },
+  });
+  const values = useMemo(() => {
+    const base = sampleValues();
+    const ap: any = academy.data;
+    if (ap?.logo_url) base.academia_logo = ap.logo_url;
+    if (ap?.trade_name || ap?.legal_name) base.academia_nome = ap.trade_name || ap.legal_name;
+    return base;
+  }, [academy.data]);
 
   // Fit-on-mount and on resize / page-size change
   useEffect(() => {
