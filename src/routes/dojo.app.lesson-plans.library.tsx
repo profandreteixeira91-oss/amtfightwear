@@ -164,9 +164,10 @@ function ContentDialog({
   pending,
 }: {
   initial: Content | null;
-  onSubmit: (data: Parameters<ReturnType<typeof useServerFn<typeof upsertContentLibrary>>>[0]["data"]) => void;
+  onSubmit: (data: ContentInput) => void;
   pending: boolean;
 }) {
+
   const [form, setForm] = useState({
     name: initial?.name ?? "",
     category: initial?.category ?? "",
