@@ -43,6 +43,7 @@ import {
   HeartHandshake,
   ShoppingCart,
   Gavel,
+  LifeBuoy,
 
 
 } from "lucide-react";
