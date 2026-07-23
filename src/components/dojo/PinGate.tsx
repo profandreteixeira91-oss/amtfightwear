@@ -14,7 +14,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   InputOTP,
   InputOTPGroup,
-  InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { OTPInputContext } from "input-otp";
 import { cn } from "@/lib/utils";
