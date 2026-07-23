@@ -387,12 +387,12 @@ function CertificatesPage() {
           return (
             <Card key={t.id} className="group relative overflow-hidden border-white/10 bg-neutral-950/70 text-white shadow-[0_20px_50px_-30px_rgba(220,38,38,0.5)] backdrop-blur transition-all hover:-translate-y-1 hover:border-red-500/30 hover:shadow-[0_25px_60px_-25px_rgba(220,38,38,0.7)]">
               <div
-                className="relative aspect-[7/5] bg-muted"
-                onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add("ring-2","ring-primary"); }}
-                onDragLeave={(e) => e.currentTarget.classList.remove("ring-2","ring-primary")}
+                className="relative aspect-[7/5] bg-gradient-to-br from-neutral-900 via-neutral-950 to-black"
+                onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add("ring-2","ring-red-500"); }}
+                onDragLeave={(e) => e.currentTarget.classList.remove("ring-2","ring-red-500")}
                 onDrop={(e) => {
                   e.preventDefault();
-                  e.currentTarget.classList.remove("ring-2","ring-primary");
+                  e.currentTarget.classList.remove("ring-2","ring-red-500");
                   const f = e.dataTransfer.files?.[0];
                   if (f) uploadBackground(f);
                 }}
@@ -400,14 +400,14 @@ function CertificatesPage() {
                 {previewUrl ? (
                   <img src={previewUrl} alt={t.name} className="h-full w-full object-contain" />
                 ) : (
-                  <div className="grid h-full w-full place-items-center text-xs text-muted-foreground">Arraste uma imagem ou use o botão abaixo</div>
+                  <div className="grid h-full w-full place-items-center px-4 text-center text-xs text-neutral-400">Arraste uma imagem ou use o botão abaixo</div>
                 )}
                 {t.is_default && (
-                  <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-yellow-400/95 px-2 py-0.5 text-[10px] font-bold text-yellow-950 shadow">
+                  <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 px-2 py-0.5 text-[10px] font-bold text-yellow-950 shadow-[0_6px_16px_-8px_rgba(245,158,11,0.9)] ring-1 ring-white/30">
                     <Star className="h-3 w-3 fill-current" /> Padrão
                   </span>
                 )}
-                <span className="absolute right-2 top-2 rounded-full bg-background/90 px-2 py-0.5 text-[10px] font-medium text-foreground shadow">{catLabel}</span>
+                <span className="absolute right-2 top-2 rounded-full border border-white/15 bg-neutral-950/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-red-200 backdrop-blur">{catLabel}</span>
 
                 {/* Overlay de ações do fundo */}
                 <div className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-1 bg-gradient-to-t from-black/70 to-transparent p-2 opacity-0 transition group-hover:opacity-100">
