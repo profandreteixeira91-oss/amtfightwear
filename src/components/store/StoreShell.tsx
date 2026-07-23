@@ -276,64 +276,46 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
 
 
 
-        {/* Categories nav */}
-        {topCategories.length > 0 && (
-          <nav className="hidden md:block border-t bg-background">
-            <div className="mx-auto flex max-w-7xl flex-wrap items-stretch gap-1 px-4 text-sm font-medium">
-              <Link to="/" className="whitespace-nowrap px-3 py-3 text-foreground hover:text-primary">
-                Início
-              </Link>
-              <Link to="/loja/custom-shop" className="whitespace-nowrap px-3 py-3 font-bold text-primary hover:opacity-80">
-                ✨ Custom Shop
-              </Link>
-              <Link to="/loja/atacado" className="whitespace-nowrap px-3 py-3 font-bold text-foreground hover:text-primary">
-                Atacado
-              </Link>
-              <Link to="/" hash="dojo-manager" className="whitespace-nowrap px-3 py-3 font-bold text-foreground hover:text-primary">
-                AMT Dojo Manager
-              </Link>
-
-              {topCategories.map((c) => {
-                const subs = c.id ? childrenByParent.get(c.id) ?? [] : [];
-                return (
-                  <div key={c.slug} className="group relative">
+        {/* Categories nav — simplified: single row of main categories */}
+        {topCategories.length > 0 && (() => {
+          const findBy = (re: RegExp) => topCategories.find((c) => re.test(c.name));
+          const kimono = findBy(/kimono/i);
+          const faixa = findBy(/faixa/i);
+          const rash = findBy(/rash|roupa|short|camis/i);
+          const primary: Array<{ label: string; slug?: string; to?: string; highlight?: boolean }> = [
+            { label: "Kimonos", slug: kimono?.slug },
+            { label: "Faixas", slug: faixa?.slug },
+            { label: "Rashguards & Roupas", slug: rash?.slug },
+            { label: "Custom Shop", to: "/loja/custom-shop", highlight: true },
+            { label: "Atacado", to: "/loja/atacado" },
+          ].filter((n) => n.slug || n.to);
+          return (
+            <nav className="hidden md:block border-t bg-background">
+              <div className="mx-auto flex max-w-7xl items-stretch justify-center gap-2 px-4 text-sm font-semibold">
+                {primary.map((n) =>
+                  n.to ? (
                     <Link
-                      to="/loja/categoria/$slug"
-                      params={{ slug: c.slug }}
-                      className="inline-flex h-full items-center whitespace-nowrap px-3 py-3 text-foreground hover:text-primary group-hover:text-primary"
+                      key={n.label}
+                      to={n.to}
+                      className={`whitespace-nowrap px-5 py-3.5 tracking-wide transition-colors ${n.highlight ? "text-primary hover:opacity-80" : "text-foreground hover:text-primary"}`}
                     >
-                      {c.name}
-                      {subs.length > 0 && (
-                        <svg className="ml-1 h-3 w-3 opacity-60" viewBox="0 0 20 20" fill="currentColor" aria-hidden>
-                          <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" clipRule="evenodd" />
-                        </svg>
-                      )}
+                      {n.label}
                     </Link>
-                    {subs.length > 0 && (
-                      <div
-                        className="invisible absolute left-0 top-full z-50 min-w-[220px] translate-y-1 rounded-md border bg-popover p-2 opacity-0 shadow-lg transition-all duration-150 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 focus-within:visible focus-within:translate-y-0 focus-within:opacity-100"
-                        role="menu"
-                      >
-                        <Link
-                          to="/loja/categoria/$slug"
-                          params={{ slug: c.slug }}
-                          className="block rounded px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:bg-accent hover:text-foreground"
-                        >
-                          Ver tudo em {c.name}
-                        </Link>
-                        <div className="my-1 h-px bg-border" />
-                        {subs.map((s) => (
-                          <SubcategoryItem key={s.slug} category={s} childrenByParent={childrenByParent} />
-                        ))}
-
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </nav>
-        )}
+                  ) : (
+                    <Link
+                      key={n.label}
+                      to="/loja/categoria/$slug"
+                      params={{ slug: n.slug! }}
+                      className="whitespace-nowrap px-5 py-3.5 tracking-wide text-foreground transition-colors hover:text-primary"
+                    >
+                      {n.label}
+                    </Link>
+                  ),
+                )}
+              </div>
+            </nav>
+          );
+        })()}
 
       </header>
 
