@@ -385,7 +385,8 @@ function NewGraduationPage() {
 
   const stepMeta: Record<Step, { label: string; icon: any; hint: string }> = {
     select: { label: "Alunos", icon: Users, hint: "Escolha quem será graduado" },
-    grad: { label: "Graduação", icon: GraduationCap, hint: "Defina faixa, grau e data" },
+    grad: { label: "Graduação", icon: GraduationCap, hint: "Defina faixa e grau" },
+    payment: { label: "Pagamento", icon: Award, hint: "Confirme taxas e status" },
     cert: { label: "Certificado", icon: ScrollText, hint: "Emita e imprima os diplomas" },
   };
 
