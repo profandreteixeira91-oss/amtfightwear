@@ -45,6 +45,18 @@ export function AdminPushCard() {
 
   useEffect(() => {
     void registerPwa();
+    // Troca o manifest para o do painel /store para permitir instalação branded.
+    const existing = document.querySelector<HTMLLinkElement>("link[rel='manifest']");
+    const previous = existing?.href ?? null;
+    if (existing) existing.setAttribute("href", "/store-manifest.webmanifest");
+    // Meta theme-color vermelho enquanto o card estiver montado.
+    const theme = document.querySelector<HTMLMetaElement>("meta[name='theme-color']");
+    const prevTheme = theme?.getAttribute("content") ?? null;
+    if (theme) theme.setAttribute("content", "#dc2626");
+    return () => {
+      if (existing && previous) existing.setAttribute("href", previous);
+      if (theme && prevTheme) theme.setAttribute("content", prevTheme);
+    };
   }, []);
 
   useEffect(() => {
