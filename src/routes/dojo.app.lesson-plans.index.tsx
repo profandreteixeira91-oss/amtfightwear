@@ -212,15 +212,7 @@ function LessonPlansDashboardPage() {
                 <Sparkles className="mr-1 h-4 w-4" /> Do modelo
               </Button>
             </DialogTrigger>
-            <TemplatePickerDialog
-              onPick={async (payload) => {
-                const row = await useServerFnRef(createPlanFromTemplate)({
-                  data: { ...payload, date: fmt(new Date()) },
-                });
-                if (row && "id" in row) navigate({ to: "/dojo/app/lesson-plans/$id", params: { id: (row as { id: string }).id } });
-                invalidate();
-              }}
-            />
+            <TemplatePickerDialog onPick={(payload) => createFromTpl.mutate(payload)} />
           </Dialog>
           <Button size="sm" className="ml-1" onClick={() => createDraft.mutate(fmt(new Date()))}>
             <Plus className="mr-1 h-4 w-4" /> Em branco
