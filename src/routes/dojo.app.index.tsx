@@ -732,28 +732,28 @@ function DojoDashboard() {
         </BentoCard>
 
         {/* Alunos recentes */}
-        <div className="md:col-span-4 rounded-2xl border border-zinc-800 bg-zinc-950 shadow-2xl overflow-hidden">
-          <div className="px-6 py-5 flex items-center justify-between border-b border-zinc-900">
+        <div className="dojo-card md:col-span-4 overflow-hidden">
+          <div className="px-6 py-5 flex items-center justify-between border-b border-border">
             <div>
-              <p className="text-[10px] font-bold tracking-[0.2em] text-zinc-500 uppercase">
+              <p className="text-[10px] font-bold tracking-[0.2em] text-muted-foreground uppercase">
                 Últimas matrículas
               </p>
-              <h2 className="text-xl font-semibold text-zinc-100 mt-1">Alunos recentes</h2>
+              <h2 className="text-xl font-semibold mt-1">Alunos recentes</h2>
             </div>
             <Link
               to="/dojo/app/students"
-              className="group flex items-center gap-2 text-sm font-medium text-red-500 hover:text-red-400 transition-colors"
+              className="group flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
             >
               Ver todos
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
           </div>
 
-          <div className="divide-y divide-zinc-900">
+          <div className="divide-y divide-border">
             {recent.length === 0 && (
-              <div className="px-6 py-8 text-sm text-zinc-500 text-center">
+              <div className="px-6 py-8 text-sm text-muted-foreground text-center">
                 Nenhum aluno cadastrado ainda.{" "}
-                <Link to="/dojo/app/students" className="text-red-500 font-medium hover:underline">
+                <Link to="/dojo/app/students" className="text-primary font-medium hover:underline">
                   Cadastrar primeiro aluno
                 </Link>
               </div>
@@ -771,24 +771,27 @@ function DojoDashboard() {
                   key={s.id}
                   to="/dojo/app/students/$id"
                   params={{ id: s.id }}
-                  className="group px-6 py-4 flex items-center gap-4 hover:bg-red-950/10 transition-colors"
+                  className="group grid grid-cols-[auto_1fr_auto_auto] items-center gap-4 px-6 py-4 hover:bg-muted/40 transition-colors"
                 >
+                  {/* Avatar + status dot */}
                   <div className="relative shrink-0">
-                    <div className="grid h-11 w-11 place-items-center rounded-full bg-red-900/30 border border-red-800/50">
-                      <span className="text-red-500 font-bold text-sm">
+                    <div className="grid h-11 w-11 place-items-center rounded-full bg-primary/10 border border-primary/20">
+                      <span className="text-primary font-bold text-sm">
                         {(s.full_name?.[0] ?? "A").toUpperCase()}
                       </span>
                     </div>
                     <span
-                      className={`absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-zinc-950 ${
-                        isActive ? "bg-green-500" : "bg-zinc-600"
+                      title={isActive ? "Ativo" : "Inativo"}
+                      className={`absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-card ${
+                        isActive ? "bg-emerald-500" : "bg-muted-foreground/60"
                       }`}
                     />
                   </div>
 
-                  <div className="min-w-0 flex-1">
-                    <h3 className="text-sm font-semibold text-zinc-100 truncate">{s.full_name}</h3>
-                    <p className="text-xs text-zinc-500 truncate">
+                  {/* Nome + faixa em texto */}
+                  <div className="min-w-0">
+                    <h3 className="text-sm font-semibold truncate">{s.full_name}</h3>
+                    <p className="text-xs text-muted-foreground truncate">
                       {belts.length
                         ? belts
                             .map(
@@ -800,37 +803,35 @@ function DojoDashboard() {
                     </p>
                   </div>
 
-                  <div className="hidden md:flex items-center gap-4 shrink-0">
-                    {belts[0] && (
+                  {/* Ilustração da faixa (tamanho fixo) */}
+                  <div className="hidden sm:flex h-8 w-[120px] items-center justify-center shrink-0">
+                    {belts[0] ? (
                       <BeltAuto
                         belt={belts[0].belt}
                         degree={belts[0].degree ?? 0}
-                        className="w-[140px]"
+                        className="w-[120px] h-8"
                       />
+                    ) : (
+                      <div className="w-[120px] h-6 rounded-sm border border-dashed border-border" />
                     )}
-                    <span
-                      className={`px-2 py-0.5 rounded text-[10px] font-bold border uppercase tracking-wider ${
-                        isActive
-                          ? "bg-green-500/10 text-green-500 border-green-500/20"
-                          : "bg-zinc-800/60 text-zinc-500 border-zinc-700"
-                      }`}
-                    >
-                      {isActive ? "Ativo" : "Inativo"}
-                    </span>
                   </div>
+
+                  {/* Badge de status */}
+                  <span
+                    className={`hidden md:inline-flex px-2 py-0.5 rounded text-[10px] font-bold border uppercase tracking-wider shrink-0 ${
+                      isActive
+                        ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+                        : "bg-muted text-muted-foreground border-border"
+                    }`}
+                  >
+                    {isActive ? "Ativo" : "Inativo"}
+                  </span>
                 </Link>
               );
             })}
           </div>
-
-          {recent.length > 0 && (
-            <div className="bg-red-950/10 px-6 py-3">
-              <p className="text-[10px] text-zinc-500 uppercase tracking-widest text-center">
-                • Atualizado em tempo real •
-              </p>
-            </div>
-          )}
         </div>
+
 
       </section>
 
