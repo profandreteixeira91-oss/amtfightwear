@@ -78,29 +78,42 @@ function AMTPayHub() {
     !!data && (isAsaasReady(data.onboardingStatus) || classifyAsaasStatus(data.onboardingStatus) !== "not_started");
 
   return (
-    <div className="mx-auto max-w-7xl w-full p-4 md:p-6 space-y-6">
-      <header className="flex items-start justify-between flex-wrap gap-4">
-        <div className="flex items-start gap-4">
-          <img
-            src={amtPayLogoUrl}
-            alt="AMT Pay"
-            className="h-20 w-20 md:h-24 md:w-24 object-contain drop-shadow-md shrink-0"
-          />
-          <div>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground uppercase tracking-wide">
-              <CreditCard className="h-3.5 w-3.5" /> AMT Pay
+    <div className="mx-auto max-w-7xl w-full p-4 md:p-6 space-y-8">
+      {/* Hero premium Ruby Noir */}
+      <header className="relative overflow-hidden rounded-2xl border border-red-900/20 bg-gradient-to-br from-neutral-950 via-red-950 to-neutral-900 text-white shadow-[0_20px_60px_-20px_rgba(220,38,38,0.45)]">
+        <div className="pointer-events-none absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_20%_0%,rgba(239,68,68,0.35),transparent_55%),radial-gradient(circle_at_80%_100%,rgba(220,38,38,0.25),transparent_50%)]" />
+        <div className="pointer-events-none absolute inset-0 [background-image:linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:32px_32px]" />
+        <div className="relative flex items-start justify-between flex-wrap gap-6 p-6 md:p-8">
+          <div className="flex items-start gap-5 min-w-0">
+            <div className="relative shrink-0">
+              <div className="absolute -inset-2 rounded-2xl bg-red-500/20 blur-xl" />
+              <img
+                src={amtPayLogoUrl}
+                alt="AMT Pay"
+                className="relative h-20 w-20 md:h-24 md:w-24 object-contain drop-shadow-[0_6px_20px_rgba(0,0,0,0.5)]"
+              />
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight mt-1">
-              Central financeira do seu dojo
-            </h1>
-            <p className="text-sm text-muted-foreground max-w-2xl mt-1">
-              Motor financeiro opcional do Dojo Manager. Ative para emitir cobranças com
-              PIX, Boleto e Cartão em nome do seu dojo — ou continue registrando
-              pagamentos manualmente com sua operadora atual.
-            </p>
+            <div className="min-w-0">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.18em] text-red-200 backdrop-blur">
+                <CreditCard className="h-3 w-3" /> AMT Pay · Central financeira
+              </div>
+              <h1 className="mt-3 font-display text-2xl md:text-4xl font-bold tracking-tight leading-tight">
+                Integrações & motor financeiro
+              </h1>
+              <p className="mt-2 text-sm md:text-base text-white/70 max-w-2xl leading-relaxed">
+                Ative pagamentos com PIX, Boleto e Cartão em nome do seu dojo — ou
+                continue registrando cobranças manualmente pela sua operadora atual.
+              </p>
+              {activated && (
+                <div className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-semibold text-emerald-300">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  AMT Pay ativo
+                </div>
+              )}
+            </div>
           </div>
+          {activated && <DisconnectAMTPayButton />}
         </div>
-        {activated && <DisconnectAMTPayButton />}
       </header>
 
       {isLoading ? (
