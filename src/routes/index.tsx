@@ -292,12 +292,15 @@ function StoreHomePage() {
         <div className="grid gap-5 lg:grid-cols-5">
           <div className="relative overflow-hidden rounded-3xl bg-primary p-10 text-primary-foreground lg:col-span-3">
             <div className="relative z-10 max-w-md">
-              <div className="text-[11px] font-bold uppercase tracking-[0.32em] opacity-80">Cupom de boas-vindas</div>
-              <h3 className="mt-3 text-4xl font-black leading-[1.05] tracking-tight sm:text-5xl">
-                10% OFF na primeira compra
+              <div className="text-[10px] font-semibold uppercase tracking-[0.38em] opacity-80">Cupom de boas-vindas</div>
+              <h3
+                className="mt-4 text-[2.25rem] leading-[1.02] tracking-[-0.025em] sm:text-[3rem]"
+                style={{ fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 600 }}
+              >
+                10% <span className="italic" style={{ fontWeight: 500 }}>off</span> na primeira compra
               </h3>
-              <p className="mt-3 text-sm leading-relaxed opacity-90 sm:text-base">
-                Use o cupom <span className="rounded bg-primary-foreground/15 px-2 py-0.5 font-mono font-bold tracking-wider">AMT10</span> no checkout. Válido em todo o site.
+              <p className="mt-4 text-[15px] leading-[1.65] opacity-90 sm:text-base">
+                Use o cupom <span className="rounded bg-primary-foreground/15 px-2 py-0.5 font-mono text-[13px] font-semibold tracking-wider">AMT10</span> no checkout. Válido em todo o site.
               </p>
               <a
                 href="#destaques"
