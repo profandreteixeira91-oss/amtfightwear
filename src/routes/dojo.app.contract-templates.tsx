@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import {
-  ArrowLeft, FileText, Plus, Pencil, Trash2, Eye, Copy, Printer, X,
+  ArrowLeft, FileText, Plus, Pencil, Trash2, Eye, Copy, Printer, X, Sparkles,
 } from "lucide-react";
 import {
   listContractTemplates,
@@ -20,6 +20,7 @@ import {
 import { buildContractValues, resolveContractHtml } from "@/lib/dojo/contracts-variables";
 import { openBrandedPrintDocument } from "@/lib/dojo/print-document";
 import { useDojoBranding } from "@/hooks/useDojoBranding";
+import { DEFAULT_CONTRACT_PRESET } from "@/lib/dojo/contracts-presets";
 
 export const Route = createFileRoute("/dojo/app/contract-templates")({
   head: () => ({
@@ -70,8 +71,23 @@ function ContractTemplatesPage() {
 
   const [previewOpen, setPreviewOpen] = useState(false);
   const [current, setCurrent] = useState<any | null>(null);
+  const [installing, setInstalling] = useState(false);
 
   const openNew = () => navigate({ to: "/dojo/app/contract-templates/$id", params: { id: "new" } });
+
+  const installDefault = async () => {
+    setInstalling(true);
+    try {
+      const saved: any = await saveFn({ data: { ...DEFAULT_CONTRACT_PRESET } });
+      toast.success("Modelo padrão instalado");
+      qc.invalidateQueries({ queryKey: ["contract-templates"] });
+      if (saved?.id) navigate({ to: "/dojo/app/contract-templates/$id", params: { id: saved.id } });
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setInstalling(false);
+    }
+  };
   const openEdit = (row: any) => navigate({ to: "/dojo/app/contract-templates/$id", params: { id: row.id } });
   const openPreview = (row: any) => { setCurrent(row); setPreviewOpen(true); };
 
@@ -147,7 +163,13 @@ function ContractTemplatesPage() {
             <p className="text-sm text-muted-foreground">Editor profissional com cabeçalho, rodapé e numeração automática.</p>
           </div>
         </div>
-        <Button onClick={openNew}><Plus className="h-4 w-4 mr-1" />Novo modelo</Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={installDefault} disabled={installing}>
+            <Sparkles className="h-4 w-4 mr-1" />
+            {installing ? "Instalando..." : "Instalar modelo padrão"}
+          </Button>
+          <Button onClick={openNew}><Plus className="h-4 w-4 mr-1" />Novo modelo</Button>
+        </div>
       </div>
 
       {list.isLoading ? (

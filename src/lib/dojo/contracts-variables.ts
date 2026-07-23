@@ -16,6 +16,10 @@ export const CONTRACT_VARIABLE_MENU = [
       { key: "contrato_dia_vencimento", label: "Dia de vencimento" },
       { key: "contrato_inicio", label: "Data de início" },
       { key: "contrato_fim", label: "Data de término" },
+      { key: "contrato_prazo", label: "Prazo (indeterminado / 12 meses / outro)" },
+      { key: "contrato_prazo_aviso_dias", label: "Dias de aviso prévio para rescisão" },
+      { key: "contrato_foro", label: "Foro (comarca)" },
+      { key: "contrato_autoriza_imagem", label: "Autorização de uso de imagem" },
     ],
   },
   {
@@ -108,6 +112,7 @@ export function buildContractValues(ctx: ContractContext): Record<string, string
 
     // academia
     academia_nome: a.trade_name ?? a.legal_name ?? "",
+    academia_razao_social: a.legal_name ?? a.trade_name ?? "",
     academia_cnpj: a.cnpj ?? "",
     academia_cidade: a.city ?? "",
     academia_estado: a.state ?? "",
@@ -119,6 +124,8 @@ export function buildContractValues(ctx: ContractContext): Record<string, string
     academia_email: a.email ?? "",
     academia_site: a.website ?? "",
     academia_instagram: a.instagram ?? "",
+    academia_representante: a.legal_representative_name ?? a.owner_name ?? "",
+    academia_representante_cargo: a.legal_representative_role ?? "Representante Legal",
 
     // contrato
     contrato_titulo: c.title ?? "",
@@ -130,6 +137,10 @@ export function buildContractValues(ctx: ContractContext): Record<string, string
     contrato_dia_vencimento: c.due_day ? String(c.due_day) : "",
     contrato_inicio: fmtDate(c.start_date),
     contrato_fim: fmtDate(c.end_date),
+    contrato_prazo: c.term ?? "Indeterminado",
+    contrato_prazo_aviso_dias: c.notice_days ? String(c.notice_days) : "30",
+    contrato_foro: c.forum ?? a.city ?? "",
+    contrato_autoriza_imagem: c.image_authorization ? "AUTORIZO" : "NÃO AUTORIZO",
   };
 }
 
