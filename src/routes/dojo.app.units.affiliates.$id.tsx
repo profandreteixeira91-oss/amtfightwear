@@ -30,9 +30,14 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { RichTextEditor } from "@/components/dojo/RichTextEditor";
+import { openBrandedPrintDocument } from "@/lib/dojo/print-document";
+import { useDojoBranding } from "@/hooks/useDojoBranding";
 import { toast } from "sonner";
 import {
   ArrowLeft, Building2, FileText, DollarSign, Award, Plus, Printer, Save, Trash2, FileBadge,
+  Pencil, Eye, X, CheckCircle2,
+} from "lucide-react";
 } from "lucide-react";
 import { DojoPageShell } from "@/components/dojo/DojoPageShell";
 
