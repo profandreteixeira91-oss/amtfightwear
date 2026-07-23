@@ -51,11 +51,14 @@ const OVERLAY_Z = "z-[130]";
 
 export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, showPageNumberTokens = false, compact = false }: Props) {
   const ref = useRef<HTMLDivElement | null>(null);
+  const surfaceRef = useRef<HTMLDivElement | null>(null);
   const [imgOpen, setImgOpen] = useState(false);
   const [imgUrl, setImgUrl] = useState("");
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement | null>(null);
   const savedRange = useRef<Range | null>(null);
+  const [selectedImg, setSelectedImg] = useState<HTMLImageElement | null>(null);
+  const [imgBox, setImgBox] = useState<{ left: number; top: number; width: number; height: number } | null>(null);
 
   useEffect(() => {
     if (!ref.current) return;
@@ -64,6 +67,54 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
       ref.current.innerHTML = value ?? "";
     }
   }, [value]);
+
+  // Recompute overlay box relative to the surface container.
+  const recomputeImgBox = () => {
+    if (!selectedImg || !surfaceRef.current) { setImgBox(null); return; }
+    if (!surfaceRef.current.contains(selectedImg)) { setSelectedImg(null); setImgBox(null); return; }
+    const s = surfaceRef.current.getBoundingClientRect();
+    const r = selectedImg.getBoundingClientRect();
+    setImgBox({
+      left: r.left - s.left + surfaceRef.current.scrollLeft,
+      top: r.top - s.top + surfaceRef.current.scrollTop,
+      width: r.width,
+      height: r.height,
+    });
+  };
+
+  useEffect(() => {
+    recomputeImgBox();
+    if (!selectedImg) return;
+    const onWinChange = () => recomputeImgBox();
+    window.addEventListener("resize", onWinChange);
+    surfaceRef.current?.addEventListener("scroll", onWinChange);
+    const ro = new ResizeObserver(onWinChange);
+    ro.observe(selectedImg);
+    return () => {
+      window.removeEventListener("resize", onWinChange);
+      surfaceRef.current?.removeEventListener("scroll", onWinChange);
+      ro.disconnect();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedImg]);
+
+  // Click handler inside the editor to select/deselect images.
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+    const onMouseDown = (e: MouseEvent) => {
+      const t = e.target as HTMLElement;
+      if (t && t.tagName === "IMG") {
+        e.preventDefault();
+        setSelectedImg(t as HTMLImageElement);
+      } else {
+        setSelectedImg(null);
+      }
+    };
+    node.addEventListener("mousedown", onMouseDown);
+    return () => node.removeEventListener("mousedown", onMouseDown);
+  }, []);
+
 
   const saveSelection = () => {
     const sel = window.getSelection();
