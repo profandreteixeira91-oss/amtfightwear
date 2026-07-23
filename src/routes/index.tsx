@@ -359,8 +359,8 @@ function StoreHomePage() {
                 className="mt-8 w-full max-w-[220px] rounded-2xl border border-border bg-background object-contain p-4 shadow-sm"
               />
             </div>
-            <div className="space-y-5 text-base leading-relaxed text-muted-foreground md:col-span-3">
-              <p>
+            <div className="space-y-5 text-[15px] leading-[1.75] text-muted-foreground md:col-span-3 sm:text-base">
+              <p className="first-letter:mr-1 first-letter:float-left first-letter:text-5xl first-letter:font-semibold first-letter:leading-[0.9] first-letter:text-foreground" style={{ }}>
                 A <strong className="text-foreground">Loja AMT Fight Wear</strong> é o e-commerce oficial da fabricante brasileira de artigos para artes marciais. O aplicativo permite que praticantes, academias e lojistas <strong className="text-foreground">naveguem pelo catálogo, personalizem peças no Custom Shop, calculem frete, façam pedidos no varejo ou atacado e acompanhem o status de cada compra</strong> em uma conta protegida.
               </p>
               <p>
