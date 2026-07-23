@@ -197,17 +197,18 @@ function LeadsPage() {
         title="Leads"
         description={`${total} leads na base — selecione múltiplos para excluir, editar ou enriquecer em lote.`}
         actions={
-          <div className="flex flex-wrap gap-2">
+          <div className="grid w-full grid-cols-1 gap-2 sm:flex sm:w-auto sm:flex-wrap">
             <Button
               size="sm"
               variant="outline"
+              className="w-full sm:w-auto"
               onClick={() => bulkEnrichMut.mutate(undefined)}
               disabled={bulkEnrichMut.isPending}
             >
               {bulkEnrichMut.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
               Enriquecer pendentes
             </Button>
-            <Button asChild variant="outline" size="sm">
+            <Button asChild variant="outline" size="sm" className="w-full sm:w-auto">
               <Link to="/prospect/macro">
                 <Instagram className="mr-2 h-4 w-4" />Macro DM
                 {macroQueue.length > 0 && (
@@ -217,7 +218,7 @@ function LeadsPage() {
                 )}
               </Link>
             </Button>
-            <Button asChild size="sm">
+            <Button asChild size="sm" className="w-full sm:w-auto">
               <Link to="/prospect/search"><Radar className="mr-2 h-4 w-4" />Nova busca</Link>
             </Button>
           </div>
