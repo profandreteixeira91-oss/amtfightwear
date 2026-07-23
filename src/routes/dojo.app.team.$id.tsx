@@ -1,7 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { listTeamSchedule, generateOccurrences } from "@/lib/dojo/team-schedule.functions";
+import { CalendarClock, RefreshCw } from "lucide-react";
 import {
   getTeamMember,
   upsertTeamMember,
@@ -331,15 +333,9 @@ function TeamMemberDetail() {
 
         {/* SCHEDULE */}
         <TabsContent value="schedule" className="mt-4">
-          <Card><CardContent className="space-y-3 p-4">
-            <p className="text-sm text-muted-foreground">
-              A agenda individual deste colaborador é reflexo direto do módulo Agenda / Turmas. Cadastre horários e turmas centralmente e eles aparecerão automaticamente aqui.
-            </p>
-            <Button variant="outline" asChild>
-              <Link to="/dojo/app/schedule">Abrir Agenda / Turmas</Link>
-            </Button>
-          </CardContent></Card>
+          <TeacherScheduleTab teacherId={id} />
         </TabsContent>
+
 
         {/* FINANCIAL CONFIG */}
         <TabsContent value="financial" className="mt-4">
@@ -579,3 +575,133 @@ function DocumentUpload({ memberId, onSaved, onSave }: {
     </div>
   );
 }
+
+function TeacherScheduleTab({ teacherId }: { teacherId: string }) {
+  const listFn = useServerFn(listTeamSchedule);
+  const genFn = useServerFn(generateOccurrences);
+  const qc = useQueryClient();
+
+  const range = useMemo(() => {
+    const from = new Date();
+    from.setHours(0, 0, 0, 0);
+    const to = new Date(from);
+    to.setDate(to.getDate() + 27);
+    const fmt = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    return { from: fmt(from), to: fmt(to) };
+  }, []);
+
+  const schedule = useQuery({
+    queryKey: ["teacher-schedule", teacherId, range.from, range.to],
+    queryFn: () => listFn({ data: { from: range.from, to: range.to, teacher_id: teacherId } }),
+  });
+
+  async function regenerate() {
+    try {
+      await genFn({ data: { from: range.from, to: range.to, teacher_id: teacherId } });
+      await qc.invalidateQueries({ queryKey: ["teacher-schedule", teacherId] });
+      toast.success("Ocorrências regeneradas.");
+    } catch (e: any) {
+      toast.error(e?.message ?? "Falha ao regenerar.");
+    }
+  }
+
+  const byDay = useMemo(() => {
+    const map = new Map<string, any[]>();
+    for (const o of (schedule.data ?? []) as any[]) {
+      const k = o.occurrence_date as string;
+      if (!k) continue;
+      if (!map.has(k)) map.set(k, []);
+      map.get(k)!.push(o);
+    }
+    return map;
+  }, [schedule.data]);
+
+  const days = useMemo(() => {
+    const arr: string[] = [];
+    const [y, m, d] = range.from.split("-").map(Number);
+    const start = new Date(y, m - 1, d);
+    for (let i = 0; i < 28; i++) {
+      const dt = new Date(start);
+      dt.setDate(start.getDate() + i);
+      arr.push(`${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}-${String(dt.getDate()).padStart(2, "0")}`);
+    }
+    return arr;
+  }, [range.from]);
+
+  const total = (schedule.data ?? []).length;
+
+  return (
+    <Card>
+      <CardContent className="space-y-4 p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-medium">Próximas 4 semanas</p>
+            <p className="text-xs text-muted-foreground">
+              Turmas onde este colaborador é titular ou substituto. {total} ocorrência(s) encontrada(s).
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={regenerate}>
+              <RefreshCw className="mr-1 h-4 w-4" /> Regenerar
+            </Button>
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/dojo/app/schedule">Abrir Agenda</Link>
+            </Button>
+          </div>
+        </div>
+
+        {schedule.isLoading ? (
+          <p className="text-sm text-muted-foreground">Carregando…</p>
+        ) : total === 0 ? (
+          <div className="rounded-md border border-dashed p-6 text-center text-sm text-muted-foreground">
+            Nenhuma turma agendada para este colaborador nas próximas 4 semanas.
+            <br />
+            Se você acabou de designá-lo(a), clique em <strong>Regenerar</strong> para materializar as ocorrências.
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {days
+              .filter((d) => byDay.get(d)?.length)
+              .map((d) => {
+                const items = byDay.get(d) ?? [];
+                const [yy, mm, dd] = d.split("-").map(Number);
+                const dt = new Date(yy, mm - 1, dd);
+                return (
+                  <div key={d} className="rounded-md border">
+                    <div className="border-b bg-muted/40 px-3 py-2 text-sm font-medium">
+                      {dt.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
+                    </div>
+                    <div className="divide-y">
+                      {items.map((o: any) => {
+                        const substituted = !!o.substitute_teacher_id;
+                        return (
+                          <div key={o.occurrence_id} className="flex flex-wrap items-center gap-3 p-3">
+                            <div className="h-8 w-1 rounded" style={{ background: o.color || "hsl(var(--primary))" }} />
+                            <div className="min-w-[80px] font-mono text-sm">
+                              {String(o.start_time).slice(0, 5)}–{String(o.end_time).slice(0, 5)}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="truncate font-medium">{o.class_name}</div>
+                              <div className="truncate text-xs text-muted-foreground">
+                                {o.modality}{o.level ? ` · ${o.level}` : ""}{o.space_name ? ` · ${o.space_name}` : ""}
+                              </div>
+                            </div>
+                            {substituted && (
+                              <Badge variant="secondary" className="gap-1">
+                                <CalendarClock className="h-3 w-3" /> Substituição
+                              </Badge>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
