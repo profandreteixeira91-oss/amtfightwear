@@ -38,6 +38,7 @@ export const PERMISSION_MODULES: PermissionModule[] = [
   { key: "units", label: "Unidades", description: "Dojos e polos", routes: ["/dojo/app/units"] },
   { key: "amtpay", label: "AMT Pay", description: "Central financeira e gateway", routes: ["/dojo/app/integrations"] },
   { key: "student_app", label: "App do Aluno", description: "QR do app e configurações", routes: ["/dojo/app/student-app-qr"] },
+  { key: "system_users", label: "Usuários do Sistema", description: "Logins e permissões da equipe", routes: ["/dojo/app/system-users"] },
 ];
 
 export type PermissionMap = Record<string, AccessLevel>;
