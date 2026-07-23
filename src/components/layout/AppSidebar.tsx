@@ -1,4 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
+import { useIsOwner } from "@/lib/auth/owner-only";
 import amtLogo from "@/assets/amt-logo.jpg";
 import {
   LayoutDashboard,
