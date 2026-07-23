@@ -46,11 +46,12 @@ export const Route = createFileRoute("/dojo/app/lesson-plans/")({
 });
 
 const STATUS_COLORS: Record<string, string> = {
-  planejada: "bg-blue-100 text-blue-700 border-blue-200",
-  ministrada: "bg-emerald-100 text-emerald-700 border-emerald-200",
-  cancelada: "bg-neutral-100 text-neutral-500 border-neutral-200",
-  reagendada: "bg-amber-100 text-amber-700 border-amber-200",
+  planejada: "bg-sky-500/15 text-sky-200 border-sky-400/30",
+  ministrada: "bg-emerald-500/15 text-emerald-200 border-emerald-400/30",
+  cancelada: "bg-neutral-500/15 text-neutral-300 border-neutral-400/30",
+  reagendada: "bg-amber-500/15 text-amber-200 border-amber-400/30",
 };
+
 
 type ViewMode = "week" | "month" | "list";
 
