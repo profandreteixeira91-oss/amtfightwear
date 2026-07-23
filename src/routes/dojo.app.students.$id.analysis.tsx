@@ -512,7 +512,8 @@ function CompareTab({ currentId, currentName }: { currentId: string; currentName
   const others = useMemo(() => (list.data ?? []).filter((s) => s.id !== currentId), [list.data, currentId]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+
       <SectionCard title="Comparar atletas" description={`Comparando ${currentName} com outro aluno lado a lado`}>
         <div className="max-w-md">
           <Select value={otherId} onValueChange={setOtherId}>
