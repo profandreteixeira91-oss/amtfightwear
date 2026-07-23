@@ -201,20 +201,20 @@ function SchedulePage() {
 
         <TabsContent value="calendar" className="space-y-3">
           {/* Filters + view controls */}
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center gap-1 border rounded-md bg-white">
-              <Button size="sm" variant="ghost" onClick={() => shift(-1)}><ChevronLeft className="h-4 w-4" /></Button>
-              <Button size="sm" variant="ghost" onClick={() => setCursor(new Date())}>Hoje</Button>
-              <Button size="sm" variant="ghost" onClick={() => shift(1)}><ChevronRight className="h-4 w-4" /></Button>
+          <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-neutral-200/80 bg-white p-2 shadow-sm">
+            <div className="flex items-center gap-1 rounded-full bg-neutral-100 p-0.5">
+              <Button size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-white" onClick={() => shift(-1)}><ChevronLeft className="h-4 w-4" /></Button>
+              <Button size="sm" variant="ghost" className="h-8 px-3 rounded-full text-xs font-semibold hover:bg-white" onClick={() => setCursor(new Date())}>Hoje</Button>
+              <Button size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-white" onClick={() => shift(1)}><ChevronRight className="h-4 w-4" /></Button>
             </div>
-            <div className="text-sm font-medium capitalize min-w-[180px]">{label}</div>
+            <div className="text-sm font-semibold capitalize min-w-[180px] px-2 text-neutral-800">{label}</div>
 
-            <div className="flex items-center gap-1 border rounded-md bg-white ml-auto p-0.5">
+            <div className="flex items-center gap-1 rounded-full bg-neutral-100 ml-auto p-0.5">
               {(["day", "week", "month"] as ViewMode[]).map((v) => (
                 <button
                   key={v}
                   onClick={() => setView(v)}
-                  className={`px-3 py-1 text-xs rounded ${view === v ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                  className={`px-3.5 py-1.5 text-xs font-semibold rounded-full transition-all ${view === v ? "bg-gradient-to-br from-red-600 to-red-800 text-white shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
                 >
                   {v === "day" ? "Dia" : v === "week" ? "Semana" : "Mês"}
                 </button>
