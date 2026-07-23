@@ -129,10 +129,10 @@ const PersistentNav: React.FC = () => {
 };
 
 export const MainVideo: React.FC = () => {
-  // 30fps composition — target ~30s
-  // Sequences: 105 hero + 8 x 95 spotlights (760) + 110 wall + 90 cta = 1065
-  // Transitions: 8 x 12 = 96 overlap => final ~ 969 frames ≈ 32.3s
-  const spotlightDuration = 95;
+  // 30fps composition
+  // Hero 135 + Problem 165 + 8 x 130 spotlights (1040) + Wall 130 + CTA 110 = 1580
+  // Transitions overlap ~14 frames each (10 transitions) => ~1440 frames ≈ 48s
+  const spotlightDuration = 130;
   return (
     <AbsoluteFill style={{ background: colors.bg }}>
       <Backdrop />
@@ -141,6 +141,15 @@ export const MainVideo: React.FC = () => {
       <TransitionSeries>
         <TransitionSeries.Sequence durationInFrames={135}>
           <SceneHero />
+        </TransitionSeries.Sequence>
+
+        <TransitionSeries.Transition
+          presentation={fade()}
+          timing={linearTiming({ durationInFrames: 14 })}
+        />
+
+        <TransitionSeries.Sequence durationInFrames={165}>
+          <SceneProblem />
         </TransitionSeries.Sequence>
 
         <TransitionSeries.Transition
