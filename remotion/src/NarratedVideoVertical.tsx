@@ -380,8 +380,9 @@ const BeatScene: React.FC<{ beat: Beat }> = ({ beat }) => {
               >
                 <Img
                   src={staticFile(src)}
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  style={{ width: "100%", height: "100%", objectFit: "contain", background: "#ffffff" }}
                 />
+
               </div>
             );
           })}
@@ -559,16 +560,27 @@ const BeatScene: React.FC<{ beat: Beat }> = ({ beat }) => {
             </div>
           </div>
           {beat.screenshot && (
-            <div style={{ flex: 1, overflow: "hidden", display: "flex" }}>
+            <div
+              style={{
+                flex: 1,
+                overflow: "hidden",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: "#ffffff",
+                padding: 12,
+              }}
+            >
               <Img
                 src={staticFile(beat.screenshot)}
                 style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  objectPosition: "top center",
-                  transform: `scale(${kenBurns}) translateX(${kenX}%)`,
-                  transformOrigin: "center top",
+                  maxWidth: "100%",
+                  maxHeight: "100%",
+                  width: "auto",
+                  height: "auto",
+                  objectFit: "contain",
+                  transform: `scale(${interpolate(kenBurns, [1.02, 1.09], [1, 1.03])})`,
+                  transformOrigin: "center center",
                 }}
               />
             </div>
