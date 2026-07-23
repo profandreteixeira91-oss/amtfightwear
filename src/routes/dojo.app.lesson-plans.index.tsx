@@ -223,11 +223,12 @@ function LessonPlansDashboardPage() {
           <Dialog>
             <DialogTrigger asChild>
               <Button size="sm" variant="outline" className="ml-2">
-                <Sparkles className="mr-1 h-4 w-4" /> Do modelo
+                <Sparkles className="mr-1 h-4 w-4" /> Aplicar modelo
               </Button>
             </DialogTrigger>
             <TemplatePickerDialog onPick={(payload) => createFromTpl.mutate(payload)} />
           </Dialog>
+
           <Button size="sm" className="ml-1" onClick={() => createDraft.mutate(fmt(new Date()))}>
             <Plus className="mr-1 h-4 w-4" /> Em branco
           </Button>
