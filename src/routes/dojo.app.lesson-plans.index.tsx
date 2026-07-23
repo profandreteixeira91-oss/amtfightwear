@@ -387,40 +387,50 @@ function MonthView({ anchor, plans, onCreate }: { anchor: Date; plans: PlanRow[]
   const byDay: Record<string, PlanRow[]> = {};
   for (const p of plans) (byDay[p.date as string] ??= []).push(p);
   return (
-    <div className="grid grid-cols-7 gap-1">
-      {["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"].map((w) => (
-        <div key={w} className="pb-1 text-center text-[11px] font-medium uppercase text-muted-foreground">
-          {w}
-        </div>
-      ))}
-      {cells.map((d) => {
-        const key = fmt(d);
-        const items = byDay[key] ?? [];
-        const inMonth = d.getMonth() === anchor.getMonth();
-        return (
-          <div
-            key={key}
-            className={`min-h-[92px] rounded border p-1 text-xs ${inMonth ? "bg-card" : "bg-muted/40 text-muted-foreground"}`}
-            onDoubleClick={() => onCreate(key)}
-          >
-            <div className="mb-1 text-[11px] font-medium">{d.getDate()}</div>
-            {items.slice(0, 3).map((p) => (
-              <Link
-                key={p.id}
-                to="/dojo/app/lesson-plans/$id"
-                params={{ id: p.id as string }}
-                className={`mb-0.5 block truncate rounded border px-1 ${STATUS_COLORS[p.status as string] ?? ""}`}
-              >
-                {p.title}
-              </Link>
-            ))}
-            {items.length > 3 ? <div className="text-[10px] text-muted-foreground">+{items.length - 3}</div> : null}
+    <div className="rounded-2xl border border-white/10 bg-neutral-950/50 p-2 backdrop-blur">
+      <div className="grid grid-cols-7 gap-1">
+        {["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"].map((w) => (
+          <div key={w} className="pb-1 text-center text-[10px] font-bold uppercase tracking-widest text-neutral-400">
+            {w}
           </div>
-        );
-      })}
+        ))}
+        {cells.map((d) => {
+          const key = fmt(d);
+          const items = byDay[key] ?? [];
+          const inMonth = d.getMonth() === anchor.getMonth();
+          const isToday = fmt(new Date()) === key;
+          return (
+            <div
+              key={key}
+              className={`min-h-[92px] rounded-lg border p-1 text-xs transition-colors ${
+                isToday
+                  ? "border-red-500/50 bg-red-950/30"
+                  : inMonth
+                    ? "border-white/10 bg-white/[0.03] hover:bg-white/[0.06]"
+                    : "border-white/5 bg-transparent text-neutral-500"
+              }`}
+              onDoubleClick={() => onCreate(key)}
+            >
+              <div className={`mb-1 text-[11px] font-bold ${isToday ? "text-red-200" : "text-neutral-300"}`}>{d.getDate()}</div>
+              {items.slice(0, 3).map((p) => (
+                <Link
+                  key={p.id}
+                  to="/dojo/app/lesson-plans/$id"
+                  params={{ id: p.id as string }}
+                  className={`mb-0.5 block truncate rounded border px-1 py-0.5 ${STATUS_COLORS[p.status as string] ?? "border-white/10 bg-white/5 text-white"}`}
+                >
+                  {p.title}
+                </Link>
+              ))}
+              {items.length > 3 ? <div className="text-[10px] text-neutral-500">+{items.length - 3}</div> : null}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
+
 
 function ListView({
   plans,
