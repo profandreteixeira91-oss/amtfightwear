@@ -211,7 +211,8 @@ function BlockRenderer({
                     className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold text-white"
                     style={{ background: belt.color_hex }}
                   >
-                    {belt.name}
+                    {formatBeltName(belt.name, (belt as any)?.modality)}
+
                     {degreeSuffix(student?.current_degree, (belt as any)?.modality, " · ", belt?.name)}
                   </span>
                 </div>
