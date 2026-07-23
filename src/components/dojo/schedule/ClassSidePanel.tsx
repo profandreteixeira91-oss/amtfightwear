@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Pencil, Copy, Trash2, Ban, UserPlus, X, Search, BookOpen, Plus, ArrowRight } from "lucide-react";
+import { Pencil, Copy, Trash2, Ban, UserPlus, X, Search, BookOpen, Plus, ArrowRight, Sparkles } from "lucide-react";
 import {
   getClass,
   deleteClass,
@@ -19,7 +19,19 @@ import {
   removeClassStudent,
   searchStudents,
 } from "@/lib/dojo/schedule.functions";
-import { listLessonPlans, upsertLessonPlan } from "@/lib/dojo/lesson-plans.functions";
+import {
+  listLessonPlans,
+  upsertLessonPlan,
+  listLessonTemplates,
+  createPlanFromTemplate,
+} from "@/lib/dojo/lesson-plans.functions";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { WEEKDAYS, CANCEL_REASONS, fmtTime } from "./constants";
 
 export function ClassSidePanel({
