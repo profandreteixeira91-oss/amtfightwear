@@ -23,7 +23,7 @@ export const Route = createFileRoute("/dojo/app/graduations")({
   component: NewGraduationPage,
 });
 
-type Step = "select" | "grad" | "cert";
+type Step = "select" | "grad" | "payment" | "cert";
 
 function NewGraduationPage() {
   const studentsFn = useServerFn(listDojoStudents);
