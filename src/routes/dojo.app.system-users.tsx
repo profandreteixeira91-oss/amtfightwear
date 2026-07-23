@@ -46,6 +46,26 @@ export const Route = createFileRoute("/dojo/app/system-users")({
   component: SystemUsersPage,
 });
 
+const ROLE_LABELS: Record<string, string> = {
+  owner: "Dono",
+  admin: "Administrador",
+  manager: "Gestor",
+  teacher: "Professor",
+  instructor: "Instrutor",
+  assistant: "Assistente",
+  receptionist: "Recepcionista",
+  reception: "Recepção",
+  staff: "Colaborador",
+  student: "Aluno",
+  financial: "Financeiro",
+  coach: "Treinador",
+};
+
+function translateRole(role: string): string {
+  const key = role.trim().toLowerCase();
+  return ROLE_LABELS[key] ?? role;
+}
+
 function SystemUsersPage() {
   const { isOwner, loading } = useDojoPermissions();
   const qc = useQueryClient();
@@ -219,7 +239,7 @@ function MemberRow({ member, qc }: { member: any; qc: ReturnType<typeof useQuery
               </span>
               {member.role && (
                 <Badge variant="outline" className="text-[10px] uppercase">
-                  {member.role}
+                  {translateRole(member.role)}
                 </Badge>
               )}
               {hasLogin ? (
