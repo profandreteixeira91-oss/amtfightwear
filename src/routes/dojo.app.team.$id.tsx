@@ -15,6 +15,7 @@ import {
   listTeamHistory,
   deleteTeamMember,
 } from "@/lib/dojo/team.functions";
+import { listDojoBelts } from "@/lib/dojo/dojo.functions";
 import { PermissionsTab } from "@/components/dojo/team/PermissionsTab";
 import { DojoPageShell } from "@/components/dojo/DojoPageShell";
 import { Button } from "@/components/ui/button";
@@ -25,8 +26,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { BeltAuto } from "@/components/dojo/BeltSpecVisual";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { ArrowLeft, Save, Trash2, FileText, History } from "lucide-react";
+import { ArrowLeft, Save, Trash2, FileText, History, Upload } from "lucide-react";
 
 export const Route = createFileRoute("/dojo/app/team/$id")({
   head: () => ({ meta: [{ title: "Colaborador — Equipe" }] }),
@@ -88,6 +91,8 @@ function TeamMemberDetail() {
   const payments = useQuery({ queryKey: ["team-member-payments", id], queryFn: () => listPayFn({ data: { member_id: id } }) });
   const docs = useQuery({ queryKey: ["team-member-docs", id], queryFn: () => listDocsFn({ data: { member_id: id } }) });
   const history = useQuery({ queryKey: ["team-member-history", id], queryFn: () => historyFn({ data: { member_id: id } }) });
+  const beltsFn = useServerFn(listDojoBelts);
+  const belts = useQuery({ queryKey: ["dojo-belts"], queryFn: () => beltsFn() });
 
   const [profile, setProfile] = useState<any>({});
   const [payroll, setPayroll] = useState<any>({});
@@ -192,6 +197,14 @@ function TeamMemberDetail() {
             <Field label="Cidade"><Input value={profile.city ?? ""} onChange={(e) => setProfile({ ...profile, city: e.target.value })} /></Field>
             <Field label="Estado"><Input value={profile.state ?? ""} onChange={(e) => setProfile({ ...profile, state: e.target.value })} /></Field>
             <Field label="CEP"><Input value={profile.zip_code ?? ""} onChange={(e) => setProfile({ ...profile, zip_code: e.target.value })} /></Field>
+            <Field label="Nacionalidade"><Input value={profile.nationality ?? ""} onChange={(e) => setProfile({ ...profile, nationality: e.target.value })} /></Field>
+            <Field label="Escolaridade"><Input value={profile.education_level ?? ""} onChange={(e) => setProfile({ ...profile, education_level: e.target.value })} placeholder="Ensino Médio, Superior, Pós..." /></Field>
+            <Field label="Nome da mãe"><Input value={profile.mother_name ?? ""} onChange={(e) => setProfile({ ...profile, mother_name: e.target.value })} /></Field>
+            <Field label="Nome do pai"><Input value={profile.father_name ?? ""} onChange={(e) => setProfile({ ...profile, father_name: e.target.value })} /></Field>
+            <div className="md:col-span-2 pt-2 text-xs font-semibold uppercase text-muted-foreground">Contato de emergência</div>
+            <Field label="Nome"><Input value={profile.emergency_contact_name ?? ""} onChange={(e) => setProfile({ ...profile, emergency_contact_name: e.target.value })} /></Field>
+            <Field label="Telefone"><Input value={profile.emergency_contact_phone ?? ""} onChange={(e) => setProfile({ ...profile, emergency_contact_phone: e.target.value })} /></Field>
+            <Field label="Grau de parentesco"><Input value={profile.emergency_contact_relation ?? ""} onChange={(e) => setProfile({ ...profile, emergency_contact_relation: e.target.value })} placeholder="Pai, mãe, cônjuge..." /></Field>
             <div className="md:col-span-2">
               <Field label="Observações"><Textarea rows={3} value={profile.notes ?? ""} onChange={(e) => setProfile({ ...profile, notes: e.target.value })} /></Field>
             </div>
@@ -214,8 +227,7 @@ function TeamMemberDetail() {
             </Field>
             <Field label="Data de admissão"><Input type="date" value={profile.admission_date ?? ""} onChange={(e) => setProfile({ ...profile, admission_date: e.target.value })} /></Field>
             <Field label="Data de desligamento"><Input type="date" value={profile.termination_date ?? ""} onChange={(e) => setProfile({ ...profile, termination_date: e.target.value })} /></Field>
-            <Field label="Registro profissional"><Input value={profile.professional_registry ?? ""} onChange={(e) => setProfile({ ...profile, professional_registry: e.target.value })} /></Field>
-            <Field label="Graduação (faixa)"><Input value={profile.belt_grade ?? ""} onChange={(e) => setProfile({ ...profile, belt_grade: Number(e.target.value) || null })} placeholder="Grau" /></Field>
+            <Field label="CREF / Registro profissional"><Input value={profile.professional_registry ?? ""} onChange={(e) => setProfile({ ...profile, professional_registry: e.target.value })} placeholder="CREF 000000-G/UF" /></Field>
             <Field label="Modalidades (separadas por vírgula)">
               <Input
                 value={Array.isArray(profile.modalities) ? profile.modalities.join(", ") : ""}
@@ -224,6 +236,73 @@ function TeamMemberDetail() {
               />
             </Field>
             <Field label="Especialidades"><Input value={profile.specialties ?? ""} onChange={(e) => setProfile({ ...profile, specialties: e.target.value })} /></Field>
+
+            {(profile.role === "teacher" || profile.role === "instructor") && (
+              <div className="md:col-span-2 rounded-lg border bg-muted/30 p-4 space-y-3">
+                <div className="text-xs font-semibold uppercase text-muted-foreground">
+                  Graduação do professor / instrutor
+                </div>
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                  <Field label="Faixa (fonte: Modalidades & Faixas)">
+                    <Select
+                      value={profile.belt_id ?? "none"}
+                      onValueChange={(v) => setProfile({ ...profile, belt_id: v === "none" ? null : v })}
+                    >
+                      <SelectTrigger><SelectValue placeholder="Selecione a faixa" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">— Nenhuma —</SelectItem>
+                        {(belts.data ?? []).map((b: any) => (
+                          <SelectItem key={b.id} value={b.id}>
+                            {b.modality ? `${b.modality} · ` : ""}{b.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                  <Field label="Grau">
+                    <Input
+                      type="number"
+                      min={0}
+                      max={10}
+                      value={profile.belt_grade ?? ""}
+                      onChange={(e) => setProfile({ ...profile, belt_grade: e.target.value === "" ? null : Number(e.target.value) })}
+                      placeholder="0"
+                    />
+                  </Field>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Prévia</Label>
+                    <div className="rounded border bg-background p-2">
+                      {(() => {
+                        const belt = (belts.data ?? []).find((b: any) => b.id === profile.belt_id);
+                        if (!belt) return <div className="text-xs text-muted-foreground">Selecione uma faixa para visualizar</div>;
+                        return <BeltAuto belt={belt as any} degree={Number(profile.belt_grade ?? 0)} className="h-8" />;
+                      })()}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-2 text-xs font-semibold uppercase text-muted-foreground">
+                  Confederação / Federação
+                </div>
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                  <Field label="Confederação / Federação">
+                    <Input
+                      value={profile.confederation_name ?? ""}
+                      onChange={(e) => setProfile({ ...profile, confederation_name: e.target.value })}
+                      placeholder="Ex.: CBJJ, IBJJF, CBJ, IJF..."
+                    />
+                  </Field>
+                  <Field label="Número de registro">
+                    <Input
+                      value={profile.confederation_number ?? ""}
+                      onChange={(e) => setProfile({ ...profile, confederation_number: e.target.value })}
+                      placeholder="Ex.: 123456"
+                    />
+                  </Field>
+                </div>
+              </div>
+            )}
+
             <div className="md:col-span-2">
               <Field label="Biografia"><Textarea rows={4} value={profile.biography ?? ""} onChange={(e) => setProfile({ ...profile, biography: e.target.value })} /></Field>
             </div>
@@ -235,6 +314,7 @@ function TeamMemberDetail() {
             </div>
           </CardContent></Card>
         </TabsContent>
+
 
         {/* PERMISSIONS */}
         <TabsContent value="permissions" className="mt-4">
@@ -413,35 +493,80 @@ function DocumentUpload({ memberId, onSaved, onSave }: {
   const [title, setTitle] = useState("");
   const [kind, setKind] = useState("other");
   const [url, setUrl] = useState("");
+  const [uploading, setUploading] = useState(false);
+
+  const handleFile = async (file: File | null) => {
+    if (!file) return;
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop() || "bin";
+      const path = `team/${memberId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error } = await supabase.storage.from("ig-media").upload(path, file, { upsert: true });
+      if (error) throw error;
+      const { data } = supabase.storage.from("ig-media").getPublicUrl(path);
+      setUrl(data.publicUrl);
+      if (!title) setTitle(file.name);
+      toast.success("Arquivo enviado. Confirme para anexar.");
+    } catch (e: any) {
+      toast.error(e.message ?? "Falha no upload");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const submit = async () => {
-    if (!title.trim() || !url.trim()) { toast.error("Título e URL são obrigatórios"); return; }
+    if (!title.trim() || !url.trim()) { toast.error("Envie um arquivo ou informe um título e URL"); return; }
     try {
       await onSave({ data: { member_id: memberId, title, kind, file_url: url } });
-      toast.success("Documento adicionado");
+      toast.success("Documento anexado");
       setTitle(""); setUrl(""); setKind("other");
       onSaved();
     } catch (e: any) { toast.error(e.message); }
   };
 
   return (
-    <div className="grid grid-cols-1 gap-2 md:grid-cols-4">
-      <Input placeholder="Título" value={title} onChange={(e) => setTitle(e.target.value)} />
-      <Select value={kind} onValueChange={setKind}>
-        <SelectTrigger><SelectValue /></SelectTrigger>
-        <SelectContent>
-          <SelectItem value="contract">Contrato</SelectItem>
-          <SelectItem value="rg">RG</SelectItem>
-          <SelectItem value="cpf">CPF</SelectItem>
-          <SelectItem value="proof">Comprovante</SelectItem>
-          <SelectItem value="certificate">Certificado</SelectItem>
-          <SelectItem value="course">Curso</SelectItem>
-          <SelectItem value="diploma">Diploma</SelectItem>
-          <SelectItem value="other">Outro</SelectItem>
-        </SelectContent>
-      </Select>
-      <Input placeholder="URL do arquivo" value={url} onChange={(e) => setUrl(e.target.value)} />
-      <Button onClick={submit}>Anexar</Button>
+    <div className="space-y-3">
+      <p className="text-xs text-muted-foreground">
+        Anexo de documentos é opcional. Envie um arquivo direto ou cole uma URL pública.
+      </p>
+      <div className="grid grid-cols-1 gap-2 md:grid-cols-4">
+        <Input placeholder="Título" value={title} onChange={(e) => setTitle(e.target.value)} />
+        <Select value={kind} onValueChange={setKind}>
+          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="contract">Contrato</SelectItem>
+            <SelectItem value="rg">RG</SelectItem>
+            <SelectItem value="cpf">CPF</SelectItem>
+            <SelectItem value="proof">Comprovante</SelectItem>
+            <SelectItem value="certificate">Certificado</SelectItem>
+            <SelectItem value="course">Curso</SelectItem>
+            <SelectItem value="diploma">Diploma</SelectItem>
+            <SelectItem value="other">Outro</SelectItem>
+          </SelectContent>
+        </Select>
+        <label className="flex items-center gap-2 rounded-md border bg-background px-3 py-2 text-sm cursor-pointer hover:bg-accent">
+          <Upload className="h-4 w-4" />
+          <span className="truncate">{uploading ? "Enviando..." : "Escolher arquivo"}</span>
+          <input
+            type="file"
+            className="hidden"
+            accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx"
+            disabled={uploading}
+            onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
+          />
+        </label>
+        <Button onClick={submit} disabled={uploading}>Anexar</Button>
+      </div>
+      {url && (
+        <div className="text-xs text-muted-foreground truncate">
+          Pré-visualização: <a className="underline" href={url} target="_blank" rel="noreferrer">{url}</a>
+        </div>
+      )}
+      <Input
+        placeholder="Ou cole uma URL pública"
+        value={url}
+        onChange={(e) => setUrl(e.target.value)}
+      />
     </div>
   );
 }
