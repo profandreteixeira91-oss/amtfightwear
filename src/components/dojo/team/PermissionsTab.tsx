@@ -36,14 +36,15 @@ export function PermissionsTab({
 }) {
   const qc = useQueryClient();
   const saveFn = useServerFn(updateTeamMemberPermissions);
-  const linkFn = useServerFn(linkTeamMemberUser);
+  const setLoginFn = useServerFn(setTeamMemberLogin);
   const unlinkFn = useServerFn(unlinkTeamMemberUser);
 
   const [perms, setPerms] = useState<PermissionMap>(() => {
     if (initialPermissions && Object.keys(initialPermissions).length > 0) return { ...initialPermissions };
     return defaultPermissionsForRole(role);
   });
-  const [linkEmail, setLinkEmail] = useState(email ?? "");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -69,12 +70,20 @@ export function PermissionsTab({
     }
   };
 
-  const link = async () => {
-    if (!linkEmail) { toast.error("Informe o e-mail"); return; }
+  const createOrUpdateLogin = async () => {
+    if (!email) {
+      toast.error("Cadastre um e-mail no perfil do colaborador antes de criar o login");
+      return;
+    }
+    if (password.length < 6) {
+      toast.error("A senha deve ter no mínimo 6 caracteres");
+      return;
+    }
     setBusy(true);
     try {
-      await linkFn({ data: { id: memberId, email: linkEmail } });
-      toast.success("Conta vinculada");
+      await setLoginFn({ data: { id: memberId, password } });
+      toast.success(linkedUserId ? "Senha atualizada" : "Conta criada e vinculada");
+      setPassword("");
       qc.invalidateQueries({ queryKey: ["team-member", memberId] });
     } catch (e: any) {
       toast.error(e.message);
