@@ -1,7 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { listTeamSchedule, generateOccurrences } from "@/lib/dojo/team-schedule.functions";
+import { CalendarClock, RefreshCw } from "lucide-react";
 import {
   getTeamMember,
   upsertTeamMember,
