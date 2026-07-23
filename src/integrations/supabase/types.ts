@@ -5706,6 +5706,51 @@ export type Database = {
         }
         Relationships: []
       }
+      dojo_owner_push_subscriptions: {
+        Row: {
+          auth: string
+          categories: Json
+          created_at: string
+          device_label: string | null
+          endpoint: string
+          id: string
+          last_error: string | null
+          last_success_at: string | null
+          p256dh: string
+          updated_at: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          categories?: Json
+          created_at?: string
+          device_label?: string | null
+          endpoint: string
+          id?: string
+          last_error?: string | null
+          last_success_at?: string | null
+          p256dh: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          categories?: Json
+          created_at?: string
+          device_label?: string | null
+          endpoint?: string
+          id?: string
+          last_error?: string | null
+          last_success_at?: string | null
+          p256dh?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       dojo_partner_checkins: {
         Row: {
           attendance_id: string | null
