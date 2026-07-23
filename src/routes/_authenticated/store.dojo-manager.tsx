@@ -41,6 +41,7 @@ import {
   CartesianGrid,
 } from "recharts";
 import { PageShell } from "@/components/common/PageShell";
+import { AdminPushCard } from "@/components/store/AdminPushCard";
 import { supabase } from "@/integrations/supabase/client";
 import {
   adminListDojoAccounts,
@@ -245,6 +246,11 @@ function StoreDojoManagerAdminPage() {
             <span>Atualiza a cada 15s + push realtime</span>
           </div>
         </div>
+      </div>
+
+      {/* Instalação PWA + notificações push admin */}
+      <div className="mb-6">
+        <AdminPushCard />
       </div>
 
       {/* KPIs premium */}
