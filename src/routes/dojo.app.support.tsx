@@ -19,7 +19,7 @@ import {
   type SupportTicket,
 } from "@/lib/dojo/support.functions";
 
-export const Route = createFileRoute("/_authenticated/dojo/app/support")({
+export const Route = createFileRoute("/dojo/app/support")({
   head: () => ({
     meta: [
       { title: "Suporte — AMT Dojo Manager" },
