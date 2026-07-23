@@ -331,15 +331,9 @@ function TeamMemberDetail() {
 
         {/* SCHEDULE */}
         <TabsContent value="schedule" className="mt-4">
-          <Card><CardContent className="space-y-3 p-4">
-            <p className="text-sm text-muted-foreground">
-              A agenda individual deste colaborador é reflexo direto do módulo Agenda / Turmas. Cadastre horários e turmas centralmente e eles aparecerão automaticamente aqui.
-            </p>
-            <Button variant="outline" asChild>
-              <Link to="/dojo/app/schedule">Abrir Agenda / Turmas</Link>
-            </Button>
-          </CardContent></Card>
+          <TeacherScheduleTab teacherId={id} />
         </TabsContent>
+
 
         {/* FINANCIAL CONFIG */}
         <TabsContent value="financial" className="mt-4">
