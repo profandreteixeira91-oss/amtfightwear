@@ -22,7 +22,7 @@ import { openBrandedPrintDocument } from "@/lib/dojo/print-document";
 import { useDojoBranding } from "@/hooks/useDojoBranding";
 import { DEFAULT_CONTRACT_PRESET } from "@/lib/dojo/contracts-presets";
 
-export const Route = createFileRoute("/dojo/app/contract-templates")({
+export const Route = createFileRoute("/dojo/app/contract-templates/")({
   head: () => ({
     meta: [
       { title: "Modelos de contrato — AMT Dojo Manager" },
