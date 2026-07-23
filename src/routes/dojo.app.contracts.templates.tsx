@@ -8,9 +8,12 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
-  Plus, Pencil, Copy, Archive, FileText, Sparkles, Search, Filter, RefreshCw,
+  Plus, Pencil, Copy, Archive, FileText, Sparkles, Search, Filter, RefreshCw, ChevronDown,
 } from "lucide-react";
 import { toast } from "sonner";
+import {
+  DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import {
   listTemplatesAdvanced,
   duplicateTemplate,
@@ -18,7 +21,7 @@ import {
   saveContractTemplate,
   CONTRACT_CATEGORY_LABELS,
 } from "@/lib/dojo/contracts.functions";
-import { DEFAULT_CONTRACT_PRESET } from "@/lib/dojo/contracts-presets";
+import { CONTRACT_PRESETS, type ContractPreset } from "@/lib/dojo/contracts-presets";
 
 export const Route = createFileRoute("/dojo/app/contracts/templates")({
   head: () => ({
@@ -74,14 +77,29 @@ function TemplatesLibraryPage() {
     return map;
   }, [list.data]);
 
-  const installDefault = async () => {
+  const installPreset = async (preset: ContractPreset) => {
     setInstalling(true);
     try {
-      const saved: any = await saveFn({ data: { ...DEFAULT_CONTRACT_PRESET } });
-      toast.success("Modelo padrão instalado");
+      const { key: _key, ...payload } = preset;
+      const saved: any = await saveFn({ data: payload });
+      toast.success(`Modelo instalado: ${preset.name}`);
       qc.invalidateQueries({ queryKey: ["contract-templates-advanced"] });
       qc.invalidateQueries({ queryKey: ["contract-templates"] });
       if (saved?.id) navigate({ to: "/dojo/app/contract-templates/$id", params: { id: saved.id } });
+    } catch (e: any) { toast.error(e.message); }
+    finally { setInstalling(false); }
+  };
+
+  const installAllPresets = async () => {
+    setInstalling(true);
+    try {
+      for (const preset of CONTRACT_PRESETS) {
+        const { key: _key, ...payload } = preset;
+        await saveFn({ data: payload });
+      }
+      toast.success(`${CONTRACT_PRESETS.length} modelos prontos instalados`);
+      qc.invalidateQueries({ queryKey: ["contract-templates-advanced"] });
+      qc.invalidateQueries({ queryKey: ["contract-templates"] });
     } catch (e: any) { toast.error(e.message); }
     finally { setInstalling(false); }
   };
@@ -141,10 +159,43 @@ function TemplatesLibraryPage() {
             </Button>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={installDefault} disabled={installing}>
-              <Sparkles className="h-4 w-4 mr-1" />
-              {installing ? "Instalando…" : "Modelo padrão"}
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" disabled={installing}>
+                  <Sparkles className="h-4 w-4 mr-1" />
+                  {installing ? "Instalando…" : "Modelos prontos"}
+                  <ChevronDown className="h-3.5 w-3.5 ml-1 opacity-60" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-[340px] max-h-[70vh] overflow-y-auto">
+                <DropdownMenuLabel className="flex items-center justify-between">
+                  <span>Biblioteca de modelos</span>
+                  <button
+                    className="text-[11px] text-primary hover:underline"
+                    onClick={installAllPresets}
+                    disabled={installing}
+                  >
+                    Instalar todos
+                  </button>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {CONTRACT_PRESETS.map((p) => (
+                  <DropdownMenuItem
+                    key={p.key}
+                    onClick={() => installPreset(p)}
+                    className="flex flex-col items-start gap-0.5 py-2"
+                  >
+                    <div className="flex items-center gap-2 w-full">
+                      <Badge variant="outline" className={`${CATEGORY_COLORS[p.category] ?? ""} text-[10px]`}>
+                        {CONTRACT_CATEGORY_LABELS[p.category] ?? p.category}
+                      </Badge>
+                      <span className="text-sm font-medium truncate">{p.name}</span>
+                    </div>
+                    <span className="text-[11px] text-muted-foreground line-clamp-2">{p.description}</span>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button onClick={createNew}><Plus className="h-4 w-4 mr-1" />Novo modelo</Button>
           </div>
         </CardContent>
@@ -156,9 +207,11 @@ function TemplatesLibraryPage() {
         <Card>
           <CardContent className="p-10 text-center space-y-3">
             <FileText className="h-10 w-10 mx-auto text-muted-foreground" />
-            <div className="text-sm text-muted-foreground">Nenhum modelo encontrado. Comece pelo modelo padrão ou crie um novo.</div>
+            <div className="text-sm text-muted-foreground">Nenhum modelo encontrado. Instale a biblioteca pronta ou crie um novo.</div>
             <div className="flex justify-center gap-2">
-              <Button variant="outline" onClick={installDefault}><Sparkles className="h-4 w-4 mr-1" />Instalar modelo padrão</Button>
+              <Button variant="outline" onClick={installAllPresets} disabled={installing}>
+                <Sparkles className="h-4 w-4 mr-1" />Instalar biblioteca pronta ({CONTRACT_PRESETS.length})
+              </Button>
               <Button onClick={createNew}><Plus className="h-4 w-4 mr-1" />Novo modelo</Button>
             </div>
           </CardContent>
