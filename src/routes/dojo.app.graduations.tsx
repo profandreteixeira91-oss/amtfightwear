@@ -11,6 +11,7 @@ import {
 } from "@/lib/dojo/dojo.functions";
 import { BeltAuto } from "@/components/dojo/BeltSpecVisual";
 import { CertificatePreviewDialog, openCertificatePrint, type CertificateTemplate } from "@/components/dojo/CertificatePreview";
+import { computeAge, ageCategory, filterBeltsByAge, isBeltAllowedForAge, suggestNextBelt } from "@/lib/dojo/belt-age-rules";
 
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -207,11 +208,37 @@ function NewGraduationPage() {
 
   const goToGrad = () => {
     if (selectedStudents.size === 0) return toast.error("Selecione ao menos um aluno");
-    // Inicializa entradas por aluno sem sobrescrever escolhas prévias
+    // Inicializa entradas por aluno com sugestão da próxima graduação (mantém escolhas prévias).
+    const allBelts = (belts.data ?? []) as any[];
+    const studentsList = (students.data ?? []) as any[];
     setPerStudent(prev => {
       const next = { ...prev };
       for (const id of selectedStudents) {
-        if (!next[id]) next[id] = { beltId: "", degree: 0, fee: "", paid: false };
+        if (next[id]?.beltId) continue;
+        const s = studentsList.find((x: any) => x.id === id);
+        const age = computeAge(s?.birth_date);
+        // Faixa atual do aluno na modalidade escolhida (fallback: primeira encontrada).
+        const currents: any[] = (s?.current_belts && s.current_belts.length > 0)
+          ? s.current_belts
+          : (s?.belt ? [{ belt: s.belt, degree: s.current_degree ?? 0 }] : []);
+        const currentInMod = currents.find((b: any) => (b.belt?.modality ?? "jiu-jitsu") === modality) ?? currents[0] ?? null;
+        const targetMod = currentInMod?.belt?.modality ?? modality;
+        const suggestion = suggestNextBelt({
+          current: currentInMod ? { belt: currentInMod.belt, degree: currentInMod.degree ?? 0 } : null,
+          belts: allBelts,
+          modality: targetMod,
+          age,
+        });
+        if (suggestion) {
+          next[id] = {
+            beltId: suggestion.beltId,
+            degree: suggestion.degree,
+            fee: String(priceByBelt[suggestion.beltId] ?? ""),
+            paid: prev[id]?.paid ?? false,
+          };
+        } else if (!next[id]) {
+          next[id] = { beltId: "", degree: 0, fee: "", paid: false };
+        }
       }
       return next;
     });
@@ -245,14 +272,24 @@ function NewGraduationPage() {
 
   const applyDefaultsToAll = () => {
     if (!beltId) return toast.error("Selecione uma faixa padrão");
+    const chosen = beltById.get(beltId);
+    const studentsList = (students.data ?? []) as any[];
+    let skipped = 0;
     setPerStudent(prev => {
       const next = { ...prev };
       for (const id of selectedStudents) {
+        const s = studentsList.find((x: any) => x.id === id);
+        const age = computeAge(s?.birth_date);
+        if (chosen && !isBeltAllowedForAge(chosen, age)) { skipped += 1; continue; }
         next[id] = { beltId, degree, fee: String(priceByBelt[beltId] ?? ""), paid: prev[id]?.paid ?? false };
       }
       return next;
     });
-    toast.success("Faixa aplicada a todos os alunos");
+    if (skipped > 0) {
+      toast.warning(`Faixa aplicada — ${skipped} aluno(s) ignorado(s) por regra de idade`);
+    } else {
+      toast.success("Faixa aplicada a todos os alunos");
+    }
   };
 
   const setStudentBelt = (studentId: string, newBeltId: string) => {
@@ -1033,13 +1070,28 @@ function NewGraduationPage() {
                     : /^vermelha$/i.test(chosenBelt?.name ?? "")
                     ? 9
                     : null;
-                  const beltOptions = (belts.data ?? []).filter(
+                  const studentAge = computeAge(s.birth_date);
+                  const ageCat = ageCategory(studentAge);
+                  const beltOptionsRaw = (belts.data ?? []).filter(
                     (b: any) => (b.modality ?? "jiu-jitsu") === chosenMod
                   );
+                  const beltOptions = filterBeltsByAge(beltOptionsRaw as any[], studentAge) as any[];
+                  // Se a faixa selecionada estiver fora do filtro por idade, mantém no dropdown para não travar o valor.
+                  if (entry.beltId && !beltOptions.some((b: any) => b.id === entry.beltId)) {
+                    const extra = beltOptionsRaw.find((b: any) => b.id === entry.beltId);
+                    if (extra) beltOptions.push(extra);
+                  }
                   const current = (s.current_belts && s.current_belts.length > 0)
                     ? s.current_belts
                     : (s.belt ? [{ belt: s.belt, degree: s.current_degree ?? 0 }] : []);
                   const currentMatch = current.find((b: any) => (b.belt?.modality ?? "jiu-jitsu") === chosenMod);
+                  const nextSuggest = chosenMod === "jiu-jitsu" ? suggestNextBelt({
+                    current: currentMatch ? { belt: currentMatch.belt, degree: currentMatch.degree ?? 0 } : null,
+                    belts: (belts.data ?? []) as any[],
+                    modality: chosenMod,
+                    age: studentAge,
+                  }) : null;
+                  const suggestedBelt = nextSuggest ? beltById.get(nextSuggest.beltId) : null;
 
                   return (
                     <div key={s.id} className="grid gap-3 p-4 md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,1fr)] md:items-center">
@@ -1048,12 +1100,25 @@ function NewGraduationPage() {
                           {initials(s.full_name)}
                         </div>
                         <div className="min-w-0">
-                          <div className="truncate text-sm font-semibold">{s.full_name}</div>
+                          <div className="flex items-center gap-1.5">
+                            <div className="truncate text-sm font-semibold">{s.full_name}</div>
+                            {chosenMod === "jiu-jitsu" && ageCat !== "any" && (
+                              <span className={`shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider ${ageCat === "kids" ? "bg-amber-100 text-amber-800" : "bg-primary/10 text-primary"}`}>
+                                {ageCat === "kids" ? `Infantil${studentAge != null ? ` · ${studentAge}a` : ""}` : `Adulto${studentAge != null ? ` · ${studentAge}a` : ""}`}
+                              </span>
+                            )}
+                          </div>
                           <div className="truncate text-[11px] text-muted-foreground">
                             {currentMatch
                               ? `Atual: ${formatBeltFull(currentMatch.belt.name, currentMatch.belt?.modality, currentMatch.degree)}`
                               : "Sem faixa nesta modalidade"}
                           </div>
+                          {suggestedBelt && (
+                            <div className="truncate text-[11px] text-primary/80">
+                              <Sparkles className="mr-1 inline h-3 w-3 align-text-bottom" />
+                              Sugerida: {formatBeltFull(suggestedBelt.name, suggestedBelt.modality, nextSuggest!.degree)}
+                            </div>
+                          )}
                         </div>
                       </div>
 
