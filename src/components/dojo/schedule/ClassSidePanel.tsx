@@ -62,6 +62,50 @@ export function ClassSidePanel({
   });
 
   const [cancelForm, setCancelForm] = useState<{ reason: string; notes: string } | null>(null);
+  const [creatingPlan, setCreatingPlan] = useState(false);
+
+  const plansForDay = useQuery({
+    queryKey: ["dojo-class-plans", classId, occurrenceDate],
+    queryFn: () =>
+      listPlansFn({
+        data: { classId: classId!, from: occurrenceDate!, to: occurrenceDate!, limit: 20 },
+      }),
+    enabled: !!classId && !!occurrenceDate && open,
+  });
+
+  const handleCreatePlan = async () => {
+    if (!classId || !occurrenceDate || !cls) return;
+    setCreatingPlan(true);
+    try {
+      const schedule = (cls.schedules ?? []).find((s: any) => {
+        const d = new Date(occurrenceDate + "T12:00:00");
+        return s.weekday === d.getDay();
+      });
+      const row: any = await upsertPlanFn({
+        data: {
+          title: `${cls.name} — ${new Date(occurrenceDate + "T12:00:00").toLocaleDateString("pt-BR")}`,
+          date: occurrenceDate,
+          start_time: schedule?.start_time ?? null,
+          end_time: schedule?.end_time ?? null,
+          modality: cls.modality ?? null,
+          color: cls.color ?? null,
+          class_id: classId,
+          teacher_id: cls.teacher_id ?? null,
+          unit_id: cls.unit_id ?? null,
+          status: "planejada",
+          blocks: [],
+        },
+      });
+      toast.success("Plano de aula criado");
+      qc.invalidateQueries({ queryKey: ["dojo-class-plans", classId, occurrenceDate] });
+      navigate({ to: "/dojo/app/lesson-plans/$id", params: { id: row.id } });
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setCreatingPlan(false);
+    }
+  };
+
 
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ["dojo-class", classId] });
