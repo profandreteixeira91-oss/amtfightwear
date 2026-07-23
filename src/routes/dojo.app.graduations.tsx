@@ -39,6 +39,19 @@ function NewGraduationPage() {
   const belts = useQuery({ queryKey: ["dojo-belts"], queryFn: () => beltsFn() });
   const templates = useQuery({ queryKey: ["dojo-templates"], queryFn: () => templatesFn() });
   const settings = useQuery({ queryKey: ["dojo-grad-settings"], queryFn: () => settingsFn() });
+  const academyModalities = useQuery({
+    queryKey: ["dojo-academy-modalities"],
+    queryFn: async () => {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) return [] as string[];
+      const { data } = await supabase
+        .from("dojo_academy_profile")
+        .select("modalities")
+        .eq("owner_id", u.user.id)
+        .maybeSingle();
+      return ((data?.modalities ?? []) as string[]).map((s) => String(s));
+    },
+  });
   const progressFn = useServerFn(listGraduationProgress);
   const progress = useQuery({ queryKey: ["dojo-grad-progress"], queryFn: () => progressFn() });
   const progressById = useMemo(() => {
