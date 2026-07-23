@@ -208,11 +208,37 @@ function NewGraduationPage() {
 
   const goToGrad = () => {
     if (selectedStudents.size === 0) return toast.error("Selecione ao menos um aluno");
-    // Inicializa entradas por aluno sem sobrescrever escolhas prévias
+    // Inicializa entradas por aluno com sugestão da próxima graduação (mantém escolhas prévias).
+    const allBelts = (belts.data ?? []) as any[];
+    const studentsList = (students.data ?? []) as any[];
     setPerStudent(prev => {
       const next = { ...prev };
       for (const id of selectedStudents) {
-        if (!next[id]) next[id] = { beltId: "", degree: 0, fee: "", paid: false };
+        if (next[id]?.beltId) continue;
+        const s = studentsList.find((x: any) => x.id === id);
+        const age = computeAge(s?.birth_date);
+        // Faixa atual do aluno na modalidade escolhida (fallback: primeira encontrada).
+        const currents: any[] = (s?.current_belts && s.current_belts.length > 0)
+          ? s.current_belts
+          : (s?.belt ? [{ belt: s.belt, degree: s.current_degree ?? 0 }] : []);
+        const currentInMod = currents.find((b: any) => (b.belt?.modality ?? "jiu-jitsu") === modality) ?? currents[0] ?? null;
+        const targetMod = currentInMod?.belt?.modality ?? modality;
+        const suggestion = suggestNextBelt({
+          current: currentInMod ? { belt: currentInMod.belt, degree: currentInMod.degree ?? 0 } : null,
+          belts: allBelts,
+          modality: targetMod,
+          age,
+        });
+        if (suggestion) {
+          next[id] = {
+            beltId: suggestion.beltId,
+            degree: suggestion.degree,
+            fee: String(priceByBelt[suggestion.beltId] ?? ""),
+            paid: prev[id]?.paid ?? false,
+          };
+        } else if (!next[id]) {
+          next[id] = { beltId: "", degree: 0, fee: "", paid: false };
+        }
       }
       return next;
     });
