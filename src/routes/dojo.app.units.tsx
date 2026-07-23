@@ -13,7 +13,9 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Trash2, Pencil, Plus, Search, Building2, Users, MapPin, Phone, Mail, ExternalLink } from "lucide-react";
+import { Trash2, Pencil, Plus, Search, Building2, Users, MapPin, Phone, Mail, ExternalLink, Upload, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useRef } from "react";
 import { DojoPageShell } from "@/components/dojo/DojoPageShell";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -214,8 +216,12 @@ function UnitDialog({ form, setForm, onSave }: { form: any; setForm: (f: any) =>
           <Field label="CPF"><Input value={form.manager_cpf ?? ""} onChange={(e) => set("manager_cpf", e.target.value)} /></Field>
         </Section>
         <Section title="Identidade">
-          <Field label="URL do logo" className="md:col-span-2"><Input value={form.logo_url ?? ""} onChange={(e) => set("logo_url", e.target.value)} placeholder="https://..." /></Field>
-          <Field label="URL do banner" className="md:col-span-2"><Input value={form.banner_url ?? ""} onChange={(e) => set("banner_url", e.target.value)} placeholder="https://..." /></Field>
+          <Field label="Logo" className="md:col-span-2">
+            <LogoUploader kind="logo" value={form.logo_url ?? ""} onChange={(url) => set("logo_url", url)} />
+          </Field>
+          <Field label="Banner" className="md:col-span-2">
+            <LogoUploader kind="banner" value={form.banner_url ?? ""} onChange={(url) => set("banner_url", url)} />
+          </Field>
         </Section>
       </div>
       <DialogFooter>
@@ -460,7 +466,9 @@ function AffiliateDialog({ form, setForm, onSave }: { form: any; setForm: (f: an
           <Field label="Site"><Input value={form.website ?? ""} onChange={(e) => set("website", e.target.value)} /></Field>
         </Section>
         <Section title="Identidade">
-          <Field label="URL do logo" className="md:col-span-2"><Input value={form.logo_url ?? ""} onChange={(e) => set("logo_url", e.target.value)} placeholder="https://..." /></Field>
+          <Field label="Logo" className="md:col-span-2">
+            <LogoUploader kind="affiliate-logo" value={form.logo_url ?? ""} onChange={(url) => set("logo_url", url)} />
+          </Field>
         </Section>
         <div className="space-y-1">
           <Label className="text-xs">Anotações</Label>
@@ -471,5 +479,73 @@ function AffiliateDialog({ form, setForm, onSave }: { form: any; setForm: (f: an
         <Button onClick={onSave}>Salvar</Button>
       </DialogFooter>
     </DialogContent>
+  );
+}
+
+function LogoUploader({
+  kind, value, onChange,
+}: { kind: string; value: string; onChange: (url: string) => void }) {
+  const ref = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+
+  const onFile = async (file: File) => {
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Arquivo muito grande (máx. 5MB)");
+      return;
+    }
+    setBusy(true);
+    try {
+      const { data: u } = await supabase.auth.getUser();
+      const uid = u.user?.id;
+      if (!uid) throw new Error("Não autenticado");
+      const ext = (file.name.split(".").pop() || "png").toLowerCase();
+      const path = `${uid}/${kind}-${Date.now()}.${ext}`;
+      const { error } = await supabase.storage
+        .from("dojo-brand")
+        .upload(path, file, { upsert: true, contentType: file.type });
+      if (error) throw error;
+      const { data: pub } = supabase.storage.from("dojo-brand").getPublicUrl(path);
+      onChange(pub.publicUrl);
+      toast.success("Imagem enviada");
+    } catch (e: any) {
+      toast.error(e.message || "Falha no upload");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-2">
+      {value ? (
+        <img src={value} alt="preview" className="h-12 w-12 rounded-lg object-cover border" />
+      ) : (
+        <div className="h-12 w-12 rounded-lg border border-dashed grid place-items-center text-muted-foreground">
+          <Building2 className="h-5 w-5" />
+        </div>
+      )}
+      <Input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="https://... ou faça upload"
+        className="flex-1"
+      />
+      <input
+        ref={ref}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])}
+      />
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        disabled={busy}
+        onClick={() => ref.current?.click()}
+      >
+        {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+      </Button>
+    </div>
   );
 }
