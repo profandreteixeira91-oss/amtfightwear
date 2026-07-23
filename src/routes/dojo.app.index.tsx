@@ -371,7 +371,7 @@ function DojoDashboard() {
       {/* Bento grid */}
       <section className="grid gap-3 md:gap-4 grid-cols-1 md:grid-cols-6 auto-rows-[minmax(140px,auto)]">
         {/* MRR — hero KPI */}
-        <BentoCard className="md:col-span-2 md:row-span-2 bg-gradient-to-br from-red-600 to-red-700 text-white border-transparent">
+        <BentoCard className="md:col-span-2 md:row-span-2 !border-transparent [&]:bg-gradient-to-br [&]:from-red-600 [&]:to-red-800 [&]:text-white [&_*]:!text-white">
           <div className="flex items-center justify-between">
             <div className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-white/80 font-semibold">
               <Repeat2 className="h-3 w-3" /> MRR estimado
