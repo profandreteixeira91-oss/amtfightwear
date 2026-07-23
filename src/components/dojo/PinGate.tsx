@@ -224,7 +224,7 @@ export function PinGate({
                   <InputOTP maxLength={6} value={pin} onChange={setPin} disabled={submitting}>
                     <InputOTPGroup>
                       {Array.from({ length: 6 }).map((_, i) => (
-                        <InputOTPSlot key={i} index={i} />
+                        <MaskedOTPSlot key={i} index={i} />
                       ))}
                     </InputOTPGroup>
                   </InputOTP>
@@ -236,7 +236,7 @@ export function PinGate({
                   <InputOTP maxLength={6} value={confirm} onChange={setConfirm} disabled={submitting}>
                     <InputOTPGroup>
                       {Array.from({ length: 6 }).map((_, i) => (
-                        <InputOTPSlot key={i} index={i} />
+                        <MaskedOTPSlot key={i} index={i} />
                       ))}
                     </InputOTPGroup>
                   </InputOTP>
@@ -273,7 +273,7 @@ export function PinGate({
                 >
                   <InputOTPGroup>
                     {Array.from({ length: 6 }).map((_, i) => (
-                      <InputOTPSlot key={i} index={i} />
+                      <MaskedOTPSlot key={i} index={i} />
                     ))}
                   </InputOTPGroup>
                 </InputOTP>
