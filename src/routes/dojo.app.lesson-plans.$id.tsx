@@ -381,7 +381,7 @@ function LessonEditorPage() {
                   {({ listeners, attributes }) => (
                     <div className="rounded-lg border bg-card p-3">
                       <div className="mb-2 flex items-start gap-2">
-                        <DragHandle listeners={listeners as Record<string, unknown>} attributes={attributes as Record<string, unknown>} />
+                        <DragHandle listeners={listeners as Record<string, unknown>} attributes={attributes as unknown as Record<string, unknown>} />
                         <Select value={b.kind} onValueChange={(v) => updateBlock(b.id, { kind: v as Block["kind"] })}>
                           <SelectTrigger className="w-48">
                             <SelectValue />
@@ -431,7 +431,7 @@ function LessonEditorPage() {
                                 {({ listeners: iL, attributes: iA }) => (
                                   <div className="grid grid-cols-12 items-center gap-2 rounded border bg-muted/30 p-2 text-sm">
                                     <div className="col-span-1 flex justify-center">
-                                      <DragHandle listeners={iL as Record<string, unknown>} attributes={iA as Record<string, unknown>} />
+                                      <DragHandle listeners={iL as Record<string, unknown>} attributes={iA as unknown as Record<string, unknown>} />
                                     </div>
                                     <Input
                                       className="col-span-3"
