@@ -209,6 +209,7 @@ import { Route as ApiPublicHooksDojoWalletReconcileRouteImport } from './routes/
 import { Route as ApiPublicHooksCompetitionsIngestRouteImport } from './routes/api/public/hooks/competitions-ingest'
 import { Route as ApiPublicHooksAutoInstagramPostRouteImport } from './routes/api/public/hooks/auto-instagram-post'
 import { Route as ApiPublicHooksAsaasRouteImport } from './routes/api/public/hooks/asaas'
+import { Route as ApiPublicHooksAdminPushRouteImport } from './routes/api/public/hooks/admin-push'
 import { Route as ApiPublicCertificateHashRouteImport } from './routes/api/public/certificate.$hash'
 import { Route as ApiPublicAppManifestDotwebmanifestRouteImport } from './routes/api/public/app/manifest[.]webmanifest'
 import { Route as AuthenticatedAdsCampaignsIdRouteImport } from './routes/_authenticated/ads.campaigns.$id'
@@ -1295,6 +1296,11 @@ const ApiPublicHooksAsaasRoute = ApiPublicHooksAsaasRouteImport.update({
   path: '/api/public/hooks/asaas',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksAdminPushRoute = ApiPublicHooksAdminPushRouteImport.update({
+  id: '/api/public/hooks/admin-push',
+  path: '/api/public/hooks/admin-push',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicCertificateHashRoute =
   ApiPublicCertificateHashRouteImport.update({
     id: '/api/public/certificate/$hash',
@@ -1534,6 +1540,7 @@ export interface FileRoutesByFullPath {
   '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
   '/api/public/app/manifest.webmanifest': typeof ApiPublicAppManifestDotwebmanifestRoute
   '/api/public/certificate/$hash': typeof ApiPublicCertificateHashRoute
+  '/api/public/hooks/admin-push': typeof ApiPublicHooksAdminPushRoute
   '/api/public/hooks/asaas': typeof ApiPublicHooksAsaasRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/competitions-ingest': typeof ApiPublicHooksCompetitionsIngestRoute
@@ -1740,6 +1747,7 @@ export interface FileRoutesByTo {
   '/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
   '/api/public/app/manifest.webmanifest': typeof ApiPublicAppManifestDotwebmanifestRoute
   '/api/public/certificate/$hash': typeof ApiPublicCertificateHashRoute
+  '/api/public/hooks/admin-push': typeof ApiPublicHooksAdminPushRoute
   '/api/public/hooks/asaas': typeof ApiPublicHooksAsaasRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/competitions-ingest': typeof ApiPublicHooksCompetitionsIngestRoute
@@ -1957,6 +1965,7 @@ export interface FileRoutesById {
   '/_authenticated/ads/campaigns/$id': typeof AuthenticatedAdsCampaignsIdRoute
   '/api/public/app/manifest.webmanifest': typeof ApiPublicAppManifestDotwebmanifestRoute
   '/api/public/certificate/$hash': typeof ApiPublicCertificateHashRoute
+  '/api/public/hooks/admin-push': typeof ApiPublicHooksAdminPushRoute
   '/api/public/hooks/asaas': typeof ApiPublicHooksAsaasRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/competitions-ingest': typeof ApiPublicHooksCompetitionsIngestRoute
@@ -2175,6 +2184,7 @@ export interface FileRouteTypes {
     | '/ads/campaigns/$id'
     | '/api/public/app/manifest.webmanifest'
     | '/api/public/certificate/$hash'
+    | '/api/public/hooks/admin-push'
     | '/api/public/hooks/asaas'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/competitions-ingest'
@@ -2381,6 +2391,7 @@ export interface FileRouteTypes {
     | '/ads/campaigns/$id'
     | '/api/public/app/manifest.webmanifest'
     | '/api/public/certificate/$hash'
+    | '/api/public/hooks/admin-push'
     | '/api/public/hooks/asaas'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/competitions-ingest'
@@ -2597,6 +2608,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ads/campaigns/$id'
     | '/api/public/app/manifest.webmanifest'
     | '/api/public/certificate/$hash'
+    | '/api/public/hooks/admin-push'
     | '/api/public/hooks/asaas'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/competitions-ingest'
@@ -2702,6 +2714,7 @@ export interface RootRouteChildren {
   LojaCustomShopIndexRoute: typeof LojaCustomShopIndexRoute
   ApiPublicAppManifestDotwebmanifestRoute: typeof ApiPublicAppManifestDotwebmanifestRoute
   ApiPublicCertificateHashRoute: typeof ApiPublicCertificateHashRoute
+  ApiPublicHooksAdminPushRoute: typeof ApiPublicHooksAdminPushRoute
   ApiPublicHooksAsaasRoute: typeof ApiPublicHooksAsaasRoute
   ApiPublicHooksAutoInstagramPostRoute: typeof ApiPublicHooksAutoInstagramPostRoute
   ApiPublicHooksCompetitionsIngestRoute: typeof ApiPublicHooksCompetitionsIngestRoute
@@ -4130,6 +4143,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksAsaasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/admin-push': {
+      id: '/api/public/hooks/admin-push'
+      path: '/api/public/hooks/admin-push'
+      fullPath: '/api/public/hooks/admin-push'
+      preLoaderRoute: typeof ApiPublicHooksAdminPushRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/certificate/$hash': {
       id: '/api/public/certificate/$hash'
       path: '/api/public/certificate/$hash'
@@ -4812,6 +4832,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicAppManifestDotwebmanifestRoute:
     ApiPublicAppManifestDotwebmanifestRoute,
   ApiPublicCertificateHashRoute: ApiPublicCertificateHashRoute,
+  ApiPublicHooksAdminPushRoute: ApiPublicHooksAdminPushRoute,
   ApiPublicHooksAsaasRoute: ApiPublicHooksAsaasRoute,
   ApiPublicHooksAutoInstagramPostRoute: ApiPublicHooksAutoInstagramPostRoute,
   ApiPublicHooksCompetitionsIngestRoute: ApiPublicHooksCompetitionsIngestRoute,

@@ -99,20 +99,37 @@ self.addEventListener("push", (event) => {
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
   const targetUrl = (event.notification.data && event.notification.data.url) || "/app";
+  // Escolhe o "scope" da janela para reaproveitar (por ex. /app, /store, /dojo).
+  let targetScope = "/";
+  try {
+    const t = new URL(targetUrl, self.location.origin);
+    targetScope = "/" + (t.pathname.split("/").filter(Boolean)[0] || "");
+  } catch {
+    /* noop */
+  }
   event.waitUntil(
     (async () => {
       const all = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+      // 1) tenta reaproveitar uma janela já no mesmo scope
       for (const client of all) {
         try {
           const u = new URL(client.url);
-          if (u.pathname.startsWith("/app")) {
+          if (targetScope !== "/" && u.pathname.startsWith(targetScope)) {
             await client.focus();
-            await client.navigate(targetUrl);
+            try { await client.navigate(targetUrl); } catch { /* noop */ }
             return;
           }
         } catch {
           /* noop */
         }
+      }
+      // 2) senão, foca qualquer janela e navega
+      if (all[0]) {
+        try {
+          await all[0].focus();
+          await all[0].navigate(targetUrl);
+          return;
+        } catch { /* noop */ }
       }
       await self.clients.openWindow(targetUrl);
     })(),
