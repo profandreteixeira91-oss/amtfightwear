@@ -47,6 +47,10 @@ function NewGraduationPage() {
   const [selectedStudents, setSelectedStudents] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState("");
   const [modality, setModality] = useState<string>("jiu-jitsu");
+  // Filtros da lista de seleção
+  const [filterModality, setFilterModality] = useState<string>("all");
+  const [filterBeltId, setFilterBeltId] = useState<string>("all");
+
 
   // Defaults ("aplicar a todos")
   const [beltId, setBeltId] = useState("");
@@ -105,8 +109,33 @@ function NewGraduationPage() {
 
   const filteredStudents = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return (students.data ?? []).filter((s: any) => !q || s.full_name.toLowerCase().includes(q));
-  }, [students.data, search]);
+    return (students.data ?? []).filter((s: any) => {
+      if (q && !s.full_name.toLowerCase().includes(q)) return false;
+      const beltsOfStudent: Array<{ modality?: string; belt?: any; degree?: number }> =
+        (s.current_belts && s.current_belts.length > 0)
+          ? s.current_belts
+          : (s.belt ? [{ modality: s.belt.modality, belt: s.belt, degree: s.current_degree ?? 0 }] : []);
+      if (filterModality !== "all") {
+        const has = beltsOfStudent.some(
+          (b) => (b.belt?.modality ?? b.modality ?? "jiu-jitsu") === filterModality,
+        );
+        if (!has) return false;
+      }
+      if (filterBeltId !== "all") {
+        const has = beltsOfStudent.some((b) => b.belt?.id === filterBeltId);
+        if (!has) return false;
+      }
+      return true;
+    });
+  }, [students.data, search, filterModality, filterBeltId]);
+
+  // Faixas disponíveis para o filtro (respeita a modalidade escolhida no filtro)
+  const filterBeltOptions = useMemo(() => {
+    return (belts.data ?? []).filter(
+      (b: any) => filterModality === "all" || (b.modality ?? "jiu-jitsu") === filterModality,
+    );
+  }, [belts.data, filterModality]);
+
 
   const toggleStudent = (id: string) => {
     setSelectedStudents(prev => {
@@ -431,6 +460,60 @@ function NewGraduationPage() {
               <Button variant="outline" size="sm" onClick={() => setSelectedStudents(new Set(filteredStudents.map((s: any) => s.id)))}>Todos</Button>
               <Button variant="ghost" size="sm" onClick={() => setSelectedStudents(new Set())}>Limpar</Button>
             </div>
+
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
+              <div>
+                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Modalidade
+                </label>
+                <select
+                  value={filterModality}
+                  onChange={(e) => {
+                    setFilterModality(e.target.value);
+                    setFilterBeltId("all");
+                  }}
+                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm capitalize"
+                >
+                  <option value="all">Todas as modalidades</option>
+                  {modalities.map((m) => (
+                    <option key={m} value={m} className="capitalize">{m}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Graduação atual
+                </label>
+                <select
+                  value={filterBeltId}
+                  onChange={(e) => setFilterBeltId(e.target.value)}
+                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                >
+                  <option value="all">Todas as graduações</option>
+                  {filterBeltOptions.map((b: any) => (
+                    <option key={b.id} value={b.id}>
+                      {b.name}
+                      {filterModality === "all" ? ` (${b.modality ?? "jiu-jitsu"})` : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {(filterModality !== "all" || filterBeltId !== "all") && (
+                <div className="flex items-end">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setFilterModality("all");
+                      setFilterBeltId("all");
+                    }}
+                  >
+                    <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Limpar filtros
+                  </Button>
+                </div>
+              )}
+            </div>
+
 
             <div className="max-h-[520px] divide-y divide-border overflow-y-auto rounded-xl border bg-background">
               {filteredStudents.map((s: any) => {
