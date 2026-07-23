@@ -88,12 +88,13 @@ function NewGraduationPage() {
   // Graduação individual por aluno (faixa/grau + cobrança)
   const [perStudent, setPerStudent] = useState<Record<string, { beltId: string; degree: number; fee?: string; paid?: boolean }>>({});
 
-  // Sincroniza a taxa exibida na etapa de pagamento sempre que os preços por
-  // faixa forem atualizados (ex.: dono ajustou o valor em "Preços de graduação
-  // por faixa" enquanto conferia a confirmação).
+  // Sincroniza a taxa exibida com os preços salvos em "Preços de graduação
+  // por faixa" sempre que os valores mudarem (inclui o caso das settings
+  // carregarem depois da tela já estar montada). Assim os valores
+  // configurados anteriormente aparecem automaticamente na confirmação de
+  // pagamento e são mantidos até o dono ajustar.
   const priceByBeltKey = JSON.stringify(priceByBelt);
   useEffect(() => {
-    if (step !== "payment") return;
     setPerStudent(prev => {
       let changed = false;
       const next: typeof prev = { ...prev };
@@ -102,7 +103,11 @@ function NewGraduationPage() {
         const target = priceByBelt[p.beltId];
         if (target == null) continue;
         const targetStr = String(target);
-        if (p.fee !== targetStr) {
+        const feeStr = (p.fee ?? "").toString().trim();
+        // Só preenche automaticamente quando o campo está vazio — assim
+        // uma edição manual do professor não é sobrescrita, mas os valores
+        // configurados pelo dono do dojo sempre aparecem por padrão.
+        if (feeStr === "") {
           next[sid] = { ...p, fee: targetStr };
           changed = true;
         }
@@ -110,7 +115,7 @@ function NewGraduationPage() {
       return changed ? next : prev;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [priceByBeltKey, step]);
+  }, [priceByBeltKey]);
 
   const [registered, setRegistered] = useState<Array<{ id: string; student_id: string }>>([]);
   const [templateId, setTemplateId] = useState("");
