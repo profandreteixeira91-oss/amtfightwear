@@ -429,3 +429,65 @@ function ListView({
     </div>
   );
 }
+
+function TemplatePickerDialog({
+  onPick,
+}: {
+  onPick: (payload: { templateId?: string; builtInKey?: string }) => void;
+}) {
+  const builtInsFn = useServerFn(getBuiltInLessonTemplates);
+  const listFn = useServerFn(listLessonTemplates);
+  const { data: builtIns } = useQuery({
+    queryKey: ["lesson-plans", "builtin-templates"],
+    queryFn: () => builtInsFn({}),
+  });
+  const { data: custom } = useQuery({
+    queryKey: ["lesson-plans", "custom-templates"],
+    queryFn: () => listFn({}),
+  });
+  return (
+    <DialogContent className="max-w-2xl">
+      <DialogHeader>
+        <DialogTitle>Escolher modelo</DialogTitle>
+      </DialogHeader>
+      <div className="max-h-[60vh] space-y-4 overflow-y-auto pr-1">
+        {custom && custom.length ? (
+          <div>
+            <div className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Meus modelos</div>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {custom.map((t) => (
+                <button
+                  key={t.id as string}
+                  className="rounded-lg border p-3 text-left transition hover:border-primary hover:bg-primary/5"
+                  onClick={() => onPick({ templateId: t.id as string })}
+                >
+                  <div className="font-medium">{t.name as string}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {(t.modality as string) ?? "—"} · {(t.blocks as unknown[])?.length ?? 0} blocos
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : null}
+        <div>
+          <div className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Modelos prontos</div>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {(builtIns ?? []).map((t) => (
+              <button
+                key={t.key}
+                className="rounded-lg border p-3 text-left transition hover:border-primary hover:bg-primary/5"
+                onClick={() => onPick({ builtInKey: t.key })}
+              >
+                <div className="font-medium">{t.name}</div>
+                <div className="text-xs text-muted-foreground">
+                  {t.modality ?? "Todas as modalidades"} · {t.blocks.length} blocos
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </DialogContent>
+  );
+}
