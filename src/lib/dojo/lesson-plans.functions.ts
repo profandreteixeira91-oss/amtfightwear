@@ -225,6 +225,362 @@ export const duplicateLessonPlan = createServerFn({ method: "POST" })
   });
 
 // ================================================================
+// BULK DUPLICATE (semana / mês / trimestre / semestre / ano)
+// ================================================================
+export const bulkDuplicateLessonPlan = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z
+      .object({
+        id: UUID,
+        mode: z.enum(["weekly", "biweekly", "monthly"]).default("weekly"),
+        occurrences: z.number().int().min(1).max(52),
+        classId: UUID.nullable().optional(),
+        teacherId: UUID.nullable().optional(),
+      })
+      .parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: src, error: e1 } = await context.supabase
+      .from("dojo_lesson_plans")
+      .select("*")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (e1) throw new Error(e1.message);
+    if (!src) throw new Error("Plano de origem não encontrado");
+
+    const base = new Date((src.date as string) + "T12:00:00");
+    const rows = [] as Array<Record<string, unknown>>;
+    for (let i = 1; i <= data.occurrences; i++) {
+      const d = new Date(base);
+      if (data.mode === "weekly") d.setDate(base.getDate() + 7 * i);
+      else if (data.mode === "biweekly") d.setDate(base.getDate() + 14 * i);
+      else d.setMonth(base.getMonth() + i);
+      rows.push({
+        owner_id: context.userId,
+        created_by: context.userId,
+        title: src.title,
+        modality: src.modality,
+        category: src.category,
+        age_range: src.age_range,
+        location: src.location,
+        start_time: src.start_time,
+        end_time: src.end_time,
+        duration_min: src.duration_min,
+        color: src.color,
+        objectives: src.objectives,
+        notes: src.notes,
+        blocks: src.blocks,
+        unit_id: src.unit_id,
+        belt_id: src.belt_id,
+        date: d.toISOString().slice(0, 10),
+        status: "planejada",
+        class_id: data.classId ?? src.class_id,
+        teacher_id: data.teacherId ?? src.teacher_id,
+      });
+    }
+    const { data: inserted, error } = await context.supabase
+      .from("dojo_lesson_plans")
+      .insert(rows)
+      .select("id");
+    if (error) throw new Error(error.message);
+    return { created: inserted?.length ?? 0 };
+  });
+
+// ================================================================
+// TEMPLATES (modelos de aula)
+// ================================================================
+const TemplateSchema = z.object({
+  id: UUID.optional(),
+  name: z.string().min(1),
+  description: z.string().nullable().optional(),
+  modality: z.string().nullable().optional(),
+  category: z.string().nullable().optional(),
+  age_range: z.string().nullable().optional(),
+  color: z.string().nullable().optional(),
+  objectives: z.string().nullable().optional(),
+  duration_min: z.number().int().nullable().optional(),
+  blocks: z.array(BlockSchema).default([]),
+});
+
+export const listLessonTemplates = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
+      .from("dojo_lesson_templates")
+      .select("*")
+      .order("updated_at", { ascending: false })
+      .limit(200);
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+export const upsertLessonTemplate = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => TemplateSchema.parse(i))
+  .handler(async ({ data, context }) => {
+    const { id, ...rest } = data;
+    const record = { ...rest, owner_id: context.userId };
+    const { data: row, error } = id
+      ? await context.supabase.from("dojo_lesson_templates").update(record).eq("id", id).select().single()
+      : await context.supabase.from("dojo_lesson_templates").insert(record).select().single();
+    if (error) throw new Error(error.message);
+    return row;
+  });
+
+export const deleteLessonTemplate = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: UUID }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase.from("dojo_lesson_templates").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const createPlanFromTemplate = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z
+      .object({
+        templateId: UUID.optional(),
+        builtInKey: z.string().optional(),
+        date: z.string(),
+        classId: UUID.nullable().optional(),
+        teacherId: UUID.nullable().optional(),
+      })
+      .parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    let tpl:
+      | {
+          name: string;
+          description: string | null;
+          modality: string | null;
+          category: string | null;
+          age_range: string | null;
+          color: string | null;
+          objectives: string | null;
+          duration_min: number | null;
+          blocks: unknown;
+        }
+      | null = null;
+
+    if (data.templateId) {
+      const { data: row, error } = await context.supabase
+        .from("dojo_lesson_templates")
+        .select("*")
+        .eq("id", data.templateId)
+        .maybeSingle();
+      if (error) throw new Error(error.message);
+      tpl = row as typeof tpl;
+    } else if (data.builtInKey) {
+      const built = BUILT_IN_TEMPLATES.find((t) => t.key === data.builtInKey);
+      if (!built) throw new Error("Modelo não encontrado");
+      tpl = {
+        name: built.name,
+        description: built.description,
+        modality: built.modality ?? null,
+        category: built.category ?? null,
+        age_range: built.age_range ?? null,
+        color: built.color ?? null,
+        objectives: built.objectives ?? null,
+        duration_min: built.duration_min ?? null,
+        blocks: built.blocks.map((b) => ({ ...b, id: crypto.randomUUID(), items: b.items ?? [] })),
+      };
+    }
+    if (!tpl) throw new Error("Modelo inválido");
+
+    const { data: row, error } = await context.supabase
+      .from("dojo_lesson_plans")
+      .insert({
+        owner_id: context.userId,
+        created_by: context.userId,
+        title: tpl.name,
+        modality: tpl.modality,
+        category: tpl.category,
+        age_range: tpl.age_range,
+        color: tpl.color,
+        objectives: tpl.objectives,
+        duration_min: tpl.duration_min,
+        blocks: tpl.blocks,
+        date: data.date,
+        status: "planejada",
+        class_id: data.classId ?? null,
+        teacher_id: data.teacherId ?? null,
+      })
+      .select()
+      .single();
+    if (error) throw new Error(error.message);
+    return row;
+  });
+
+// Templates prontos (opt-in, não semeiam banco)
+type BuiltInBlock = {
+  kind:
+    | "warmup"
+    | "stretching"
+    | "fundamentals"
+    | "techniques"
+    | "exercises"
+    | "sparring"
+    | "conditioning"
+    | "closing"
+    | "custom";
+  title: string;
+  duration_min: number;
+  description?: string;
+  items?: { name: string; description?: string }[];
+};
+type BuiltInTemplate = {
+  key: string;
+  name: string;
+  description: string;
+  modality?: string;
+  category?: string;
+  age_range?: string;
+  color?: string;
+  objectives?: string;
+  duration_min?: number;
+  blocks: BuiltInBlock[];
+};
+
+const BUILT_IN_TEMPLATES: BuiltInTemplate[] = [
+  {
+    key: "infantil",
+    name: "Aula Infantil (6–10 anos)",
+    description: "Aula lúdica com foco em coordenação, disciplina e fundamentos básicos.",
+    category: "Infantil",
+    age_range: "6-10 anos",
+    color: "#f59e0b",
+    duration_min: 60,
+    objectives: "Desenvolver coordenação motora, disciplina e prazer pelo treino.",
+    blocks: [
+      { kind: "warmup", title: "Brincadeiras de aquecimento", duration_min: 10 },
+      { kind: "fundamentals", title: "Fundamentos básicos", duration_min: 15 },
+      { kind: "techniques", title: "Técnica lúdica do dia", duration_min: 15 },
+      { kind: "exercises", title: "Circuito recreativo", duration_min: 15 },
+      { kind: "closing", title: "Encerramento e valores", duration_min: 5 },
+    ],
+  },
+  {
+    key: "adulto",
+    name: "Aula Adulto (padrão)",
+    description: "Estrutura clássica para turmas adultas mistas.",
+    category: "Adulto",
+    color: "#2563eb",
+    duration_min: 75,
+    blocks: [
+      { kind: "warmup", title: "Aquecimento", duration_min: 10 },
+      { kind: "stretching", title: "Alongamento", duration_min: 5 },
+      { kind: "fundamentals", title: "Fundamentos", duration_min: 15 },
+      { kind: "techniques", title: "Técnicas principais", duration_min: 25 },
+      { kind: "sparring", title: "Sparring / Randori", duration_min: 15 },
+      { kind: "closing", title: "Encerramento", duration_min: 5 },
+    ],
+  },
+  {
+    key: "competicao",
+    name: "Preparação para Competição",
+    description: "Foco em intensidade, sparring e situações específicas de luta.",
+    category: "Competição",
+    color: "#dc2626",
+    duration_min: 90,
+    blocks: [
+      { kind: "warmup", title: "Aquecimento específico", duration_min: 15 },
+      { kind: "conditioning", title: "Condicionamento", duration_min: 15 },
+      { kind: "techniques", title: "Situações de luta", duration_min: 20 },
+      { kind: "sparring", title: "Sparring competitivo", duration_min: 30 },
+      { kind: "closing", title: "Volta à calma e análise", duration_min: 10 },
+    ],
+  },
+  {
+    key: "exame",
+    name: "Aula de Exame / Graduação",
+    description: "Revisão completa dos conteúdos exigidos para a próxima faixa.",
+    category: "Exame",
+    color: "#7c3aed",
+    duration_min: 90,
+    blocks: [
+      { kind: "warmup", title: "Aquecimento", duration_min: 10 },
+      { kind: "fundamentals", title: "Revisão de fundamentos", duration_min: 20 },
+      { kind: "techniques", title: "Técnicas do programa", duration_min: 30 },
+      { kind: "sparring", title: "Aplicação em sparring", duration_min: 20 },
+      { kind: "closing", title: "Feedback individual", duration_min: 10 },
+    ],
+  },
+  {
+    key: "iniciantes",
+    name: "Turma de Iniciantes",
+    description: "Base técnica, terminologia e etiqueta do dojo.",
+    category: "Iniciantes",
+    color: "#10b981",
+    duration_min: 60,
+    blocks: [
+      { kind: "warmup", title: "Aquecimento leve", duration_min: 10 },
+      { kind: "fundamentals", title: "Postura, quedas e deslocamentos", duration_min: 20 },
+      { kind: "techniques", title: "1 técnica nova (repetição lenta)", duration_min: 20 },
+      { kind: "closing", title: "Encerramento e dúvidas", duration_min: 10 },
+    ],
+  },
+  {
+    key: "avancado",
+    name: "Turma Avançada",
+    description: "Alta intensidade, técnicas encadeadas e sparring temático.",
+    category: "Avançado",
+    color: "#0f172a",
+    duration_min: 90,
+    blocks: [
+      { kind: "warmup", title: "Aquecimento dinâmico", duration_min: 10 },
+      { kind: "techniques", title: "Encadeamentos e combinações", duration_min: 30 },
+      { kind: "sparring", title: "Sparring temático", duration_min: 30 },
+      { kind: "conditioning", title: "Finalizador metabólico", duration_min: 15 },
+      { kind: "closing", title: "Alongamento e fechamento", duration_min: 5 },
+    ],
+  },
+  {
+    key: "feminino",
+    name: "Turma Feminina",
+    description: "Autodefesa aplicada, técnica e condicionamento.",
+    category: "Feminino",
+    color: "#ec4899",
+    duration_min: 60,
+    blocks: [
+      { kind: "warmup", title: "Aquecimento", duration_min: 10 },
+      { kind: "fundamentals", title: "Autodefesa – base", duration_min: 15 },
+      { kind: "techniques", title: "Técnicas aplicadas", duration_min: 20 },
+      { kind: "conditioning", title: "Condicionamento", duration_min: 10 },
+      { kind: "closing", title: "Alongamento e fechamento", duration_min: 5 },
+    ],
+  },
+  {
+    key: "prep-fisica",
+    name: "Preparação Física",
+    description: "Trabalho específico de força, resistência e mobilidade para lutadores.",
+    category: "Prep. Física",
+    color: "#0891b2",
+    duration_min: 60,
+    blocks: [
+      { kind: "warmup", title: "Ativação e mobilidade", duration_min: 10 },
+      { kind: "exercises", title: "Força específica", duration_min: 20 },
+      { kind: "conditioning", title: "Condicionamento (HIIT / circuito)", duration_min: 20 },
+      { kind: "closing", title: "Alongamento e recuperação", duration_min: 10 },
+    ],
+  },
+];
+
+export const getBuiltInLessonTemplates = createServerFn({ method: "GET" }).handler(async () => {
+  return BUILT_IN_TEMPLATES.map((t) => ({
+    key: t.key,
+    name: t.name,
+    description: t.description,
+    category: t.category,
+    color: t.color,
+    duration_min: t.duration_min,
+    block_count: t.blocks.length,
+  }));
+});
+
+// ================================================================
 // DASHBOARD STATS
 // ================================================================
 export const lessonPlansDashboard = createServerFn({ method: "GET" })
