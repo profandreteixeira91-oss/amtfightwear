@@ -366,14 +366,14 @@ function DojoLayoutInner({
       </Sidebar>
 
       <SidebarInset className="bg-[color:var(--dojo-surface)] min-w-0 overflow-x-hidden">
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-red-900/60 bg-red-700 text-white px-3 md:px-6 shadow-[0_4px_18px_-6px_rgba(0,0,0,0.35)]">
-          <SidebarTrigger className="-ml-1 text-white hover:bg-white/10" />
+        <header className="sticky top-0 z-30 flex h-14 md:h-16 items-center gap-2 md:gap-3 border-b border-red-900/60 bg-red-700 text-white px-2 sm:px-3 md:px-6 shadow-[0_4px_18px_-6px_rgba(0,0,0,0.35)]">
+          <SidebarTrigger className="-ml-1 shrink-0 text-white hover:bg-white/10" />
           <div className="min-w-0 flex-1">
-            <h1 className="font-display text-base md:text-lg font-bold tracking-tight leading-tight truncate text-white">
+            <h1 className="font-display text-sm sm:text-base md:text-lg font-bold tracking-tight leading-tight truncate text-white">
               {header.title}
             </h1>
             {header.subtitle && (
-              <p className="text-[11px] md:text-xs text-white/75 leading-tight truncate">
+              <p className="hidden sm:block text-[11px] md:text-xs text-white/75 leading-tight truncate">
                 {header.subtitle}
               </p>
             )}
