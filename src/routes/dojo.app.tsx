@@ -15,7 +15,7 @@ import {
   SidebarTrigger,
   SidebarInset,
 } from "@/components/ui/sidebar";
-import { ChatWidget } from "@/components/store/ChatWidget";
+
 import {
   LayoutDashboard,
   Users,
