@@ -112,6 +112,7 @@ export function buildContractValues(ctx: ContractContext): Record<string, string
 
     // academia
     academia_nome: a.trade_name ?? a.legal_name ?? "",
+    academia_razao_social: a.legal_name ?? a.trade_name ?? "",
     academia_cnpj: a.cnpj ?? "",
     academia_cidade: a.city ?? "",
     academia_estado: a.state ?? "",
@@ -123,6 +124,8 @@ export function buildContractValues(ctx: ContractContext): Record<string, string
     academia_email: a.email ?? "",
     academia_site: a.website ?? "",
     academia_instagram: a.instagram ?? "",
+    academia_representante: a.legal_representative_name ?? a.owner_name ?? "",
+    academia_representante_cargo: a.legal_representative_role ?? "Representante Legal",
 
     // contrato
     contrato_titulo: c.title ?? "",
