@@ -5227,6 +5227,54 @@ export type Database = {
           },
         ]
       }
+      dojo_lesson_templates: {
+        Row: {
+          age_range: string | null
+          blocks: Json
+          category: string | null
+          color: string | null
+          created_at: string
+          description: string | null
+          duration_min: number | null
+          id: string
+          modality: string | null
+          name: string
+          objectives: string | null
+          owner_id: string
+          updated_at: string
+        }
+        Insert: {
+          age_range?: string | null
+          blocks?: Json
+          category?: string | null
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          duration_min?: number | null
+          id?: string
+          modality?: string | null
+          name: string
+          objectives?: string | null
+          owner_id: string
+          updated_at?: string
+        }
+        Update: {
+          age_range?: string | null
+          blocks?: Json
+          category?: string | null
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          duration_min?: number | null
+          id?: string
+          modality?: string | null
+          name?: string
+          objectives?: string | null
+          owner_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       dojo_onboarding_documents: {
         Row: {
           created_at: string
