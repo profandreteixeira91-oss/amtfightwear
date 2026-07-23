@@ -127,7 +127,7 @@ function StoreChatAdmin() {
       title="Chat da loja"
       description="Atenda conversas, configure o agente de IA e mantenha a base de conhecimento."
       actions={
-        <div className="flex items-center gap-1 rounded-lg border bg-card p-1 text-sm">
+        <div className="-mx-1 flex w-full items-center gap-1 overflow-x-auto rounded-lg border bg-card p-1 text-sm sm:w-auto">
           <TabButton active={tab === "conversas"} onClick={() => setTab("conversas")} icon={MessageSquare} label="Conversas" />
           <TabButton active={tab === "config"} onClick={() => setTab("config")} icon={Settings} label="Configurações" />
           <TabButton active={tab === "kb"} onClick={() => setTab("kb")} icon={BookOpen} label="Base de conhecimento" />
