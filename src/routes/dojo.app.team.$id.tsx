@@ -15,6 +15,7 @@ import {
   listTeamHistory,
   deleteTeamMember,
 } from "@/lib/dojo/team.functions";
+import { listDojoBelts } from "@/lib/dojo/dojo.functions";
 import { PermissionsTab } from "@/components/dojo/team/PermissionsTab";
 import { DojoPageShell } from "@/components/dojo/DojoPageShell";
 import { Button } from "@/components/ui/button";
@@ -25,8 +26,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { BeltAuto } from "@/components/dojo/BeltSpecVisual";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { ArrowLeft, Save, Trash2, FileText, History } from "lucide-react";
+import { ArrowLeft, Save, Trash2, FileText, History, Upload } from "lucide-react";
 
 export const Route = createFileRoute("/dojo/app/team/$id")({
   head: () => ({ meta: [{ title: "Colaborador — Equipe" }] }),
