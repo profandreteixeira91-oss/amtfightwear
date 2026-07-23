@@ -195,6 +195,96 @@ export const unlinkTeamMemberUser = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+/**
+ * Cria (ou atualiza a senha de) uma conta de login para um colaborador,
+ * usando o e-mail cadastrado no perfil. Apenas o dono do dojo pode chamar.
+ * - Se o e-mail ainda não tem usuário: cria via admin.createUser (email_confirm=true)
+ * - Se já existe usuário para o e-mail: atualiza a senha via updateUserById
+ * - Vincula o user_id ao dojo_team_members
+ */
+export const setTeamMemberLogin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({
+      id: uuid,
+      password: z.string().min(6).max(72),
+    }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    // 1) valida propriedade do membro
+    const { data: member, error: mErr } = await context.supabase
+      .from("dojo_team_members")
+      .select("id, owner_id, email, full_name, user_id")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (mErr) throw new Error(mErr.message);
+    if (!member) throw new Error("Colaborador não encontrado");
+    if (member.owner_id !== context.userId) {
+      throw new Error("Somente o dono do dojo pode gerenciar logins da equipe");
+    }
+    const email = (member.email ?? "").trim().toLowerCase();
+    if (!email) {
+      throw new Error("Cadastre um e-mail válido para este colaborador antes de criar o login");
+    }
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // 2) cria ou atualiza a senha
+    let userId: string | null = member.user_id ?? null;
+    const create = await supabaseAdmin.auth.admin.createUser({
+      email,
+      password: data.password,
+      email_confirm: true,
+      user_metadata: { full_name: member.full_name ?? undefined },
+    });
+    if (create.error) {
+      const msg = String(create.error.message || "").toLowerCase();
+      const alreadyExists =
+        msg.includes("already registered") ||
+        msg.includes("already been registered") ||
+        msg.includes("user already") ||
+        msg.includes("duplicate");
+      if (!alreadyExists) throw new Error(create.error.message);
+
+      // usuário já existe: localizar e atualizar senha
+      // paginar até achar
+      let found: string | null = null;
+      for (let page = 1; page <= 20 && !found; page++) {
+        const list = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 200 });
+        if (list.error) throw new Error(list.error.message);
+        const hit = list.data.users.find((u) => (u.email ?? "").toLowerCase() === email);
+        if (hit) found = hit.id;
+        if (list.data.users.length < 200) break;
+      }
+      if (!found) throw new Error("Usuário existe mas não foi possível localizá-lo");
+      const upd = await supabaseAdmin.auth.admin.updateUserById(found, { password: data.password });
+      if (upd.error) throw new Error(upd.error.message);
+      userId = found;
+    } else {
+      userId = create.data.user?.id ?? null;
+    }
+
+    if (!userId) throw new Error("Não foi possível resolver o usuário criado");
+
+    // 3) vincula ao team_member
+    const { error: linkErr } = await context.supabase
+      .from("dojo_team_members")
+      .update({ user_id: userId, email })
+      .eq("id", data.id);
+    if (linkErr) throw new Error(linkErr.message);
+
+    await context.supabase.from("dojo_team_history").insert({
+      owner_id: context.userId,
+      member_id: data.id,
+      event_type: "log",
+      description: member.user_id ? "Senha do login atualizada" : "Login de sistema criado",
+      actor_user_id: context.userId,
+    });
+
+    return { ok: true, user_id: userId, email };
+  });
+
+
 export const getMyTeamPermissions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
