@@ -354,6 +354,10 @@ export const createPlanFromTemplate = createServerFn({ method: "POST" })
         date: z.string(),
         classId: UUID.nullable().optional(),
         teacherId: UUID.nullable().optional(),
+        unitId: UUID.nullable().optional(),
+        startTime: z.string().nullable().optional(),
+        endTime: z.string().nullable().optional(),
+        title: z.string().nullable().optional(),
       })
       .parse(i),
   )
@@ -402,7 +406,7 @@ export const createPlanFromTemplate = createServerFn({ method: "POST" })
       .insert({
         owner_id: context.userId,
         created_by: context.userId,
-        title: tpl.name,
+        title: data.title?.trim() || tpl.name,
         modality: tpl.modality,
         category: tpl.category,
         age_range: tpl.age_range,
@@ -411,15 +415,19 @@ export const createPlanFromTemplate = createServerFn({ method: "POST" })
         duration_min: tpl.duration_min,
         blocks: tpl.blocks as never,
         date: data.date,
+        start_time: data.startTime ?? null,
+        end_time: data.endTime ?? null,
         status: "planejada",
         class_id: data.classId ?? null,
         teacher_id: data.teacherId ?? null,
+        unit_id: data.unitId ?? null,
       })
       .select()
       .single();
     if (error) throw new Error(error.message);
     return row;
   });
+
 
 // Templates prontos (opt-in, não semeiam banco)
 type BuiltInBlock = {
