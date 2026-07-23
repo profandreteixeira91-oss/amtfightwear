@@ -170,10 +170,10 @@ export const adminListTickets = createServerFn({ method: "GET" })
     if (ownerIds.length) {
       const { data: profs } = await supabaseAdmin
         .from("dojo_academy_profile")
-        .select("user_id, trade_name, legal_name")
-        .in("user_id", ownerIds);
-      for (const p of profs ?? []) {
-        profiles[p.user_id] = { trade_name: p.trade_name ?? p.legal_name };
+        .select("owner_id, trade_name, legal_name")
+        .in("owner_id", ownerIds);
+      for (const p of (profs ?? []) as Array<{ owner_id: string; trade_name: string | null; legal_name: string | null }>) {
+        profiles[p.owner_id] = { trade_name: p.trade_name ?? p.legal_name };
       }
       const { data: users } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1000 });
       for (const u of users?.users ?? []) {
