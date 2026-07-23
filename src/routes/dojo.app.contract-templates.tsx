@@ -148,7 +148,13 @@ function ContractTemplatesPage() {
             <p className="text-sm text-muted-foreground">Editor profissional com cabeçalho, rodapé e numeração automática.</p>
           </div>
         </div>
-        <Button onClick={openNew}><Plus className="h-4 w-4 mr-1" />Novo modelo</Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={installDefault} disabled={installing}>
+            <Sparkles className="h-4 w-4 mr-1" />
+            {installing ? "Instalando..." : "Instalar modelo padrão"}
+          </Button>
+          <Button onClick={openNew}><Plus className="h-4 w-4 mr-1" />Novo modelo</Button>
+        </div>
       </div>
 
       {list.isLoading ? (
