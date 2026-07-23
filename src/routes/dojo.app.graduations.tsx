@@ -272,14 +272,24 @@ function NewGraduationPage() {
 
   const applyDefaultsToAll = () => {
     if (!beltId) return toast.error("Selecione uma faixa padrão");
+    const chosen = beltById.get(beltId);
+    const studentsList = (students.data ?? []) as any[];
+    let skipped = 0;
     setPerStudent(prev => {
       const next = { ...prev };
       for (const id of selectedStudents) {
+        const s = studentsList.find((x: any) => x.id === id);
+        const age = computeAge(s?.birth_date);
+        if (chosen && !isBeltAllowedForAge(chosen, age)) { skipped += 1; continue; }
         next[id] = { beltId, degree, fee: String(priceByBelt[beltId] ?? ""), paid: prev[id]?.paid ?? false };
       }
       return next;
     });
-    toast.success("Faixa aplicada a todos os alunos");
+    if (skipped > 0) {
+      toast.warning(`Faixa aplicada — ${skipped} aluno(s) ignorado(s) por regra de idade`);
+    } else {
+      toast.success("Faixa aplicada a todos os alunos");
+    }
   };
 
   const setStudentBelt = (studentId: string, newBeltId: string) => {
