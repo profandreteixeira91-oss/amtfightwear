@@ -313,7 +313,7 @@ export const listStorefrontHome = createServerFn({ method: "GET" }).handler(asyn
 
   const [categories, featured, newest, bjjBelts, judoBelts, kimonos] = await Promise.all([
     sb.from("store_categories").select("id, slug, name, image_url, sort_order").eq("active", true).order("sort_order").limit(12),
-    sb.from("products").select(productSel).eq("status", "active").eq("featured", true).limit(12),
+    sb.from("products").select(productSel).eq("status", "active").limit(200),
     sb.from("products").select(productSel).eq("status", "active").order("created_at", { ascending: false }).limit(12),
     bjjBeltIds.length
       ? sb.from("products").select(productSel).eq("status", "active").in("category_id", bjjBeltIds).limit(60)
