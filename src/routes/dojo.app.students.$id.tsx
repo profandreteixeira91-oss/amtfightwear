@@ -11,6 +11,7 @@ import {
   deleteDojoStudent, saveDojoStudent,
 } from "@/lib/dojo/dojo.functions";
 import { listAttendance, regenerateStudentCodes } from "@/lib/dojo/attendance.functions";
+import { getStudentCompetitionHistory } from "@/lib/dojo/competitions/rankings.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -84,6 +85,12 @@ function StudentDetail() {
   const attendance = useQuery({
     queryKey: ["dojo-attendance", id],
     queryFn: () => attendanceFn({ data: { studentId: id, limit: 200 } }),
+  });
+  const compHistoryFn = useServerFn(getStudentCompetitionHistory);
+  const competitionHistory = useQuery({
+    queryKey: ["dojo-student-comp-history", id],
+    queryFn: () => compHistoryFn({ data: { student_id: id } }),
+    staleTime: 60_000,
   });
 
   const [grad, setGrad] = useState({ belt_id: "", degree: 0, graduation_date: new Date().toISOString().slice(0, 10), evaluator: "", notes: "" });
@@ -243,7 +250,9 @@ function StudentDetail() {
             <Pencil className="h-4 w-4 mr-1.5" /> Editar
           </Button>
           <Button size="sm" variant="outline" onClick={() => printStudentReport({
-            student: s, branding, belts: belts.data ?? [], graduations, enrollments, invoices, certificates, attendanceRows,
+            student: s, branding, belts: belts.data ?? [], graduations, enrollments, invoices, certificates,
+            attendanceRows, competitions: competitionHistory.data ?? [],
+            currentBelts: (q.data as any)?.current_belts ?? [],
             metrics: { daysTraining, attendanceThisMonth, paidInvoices, pendingInvoices, age, enrollmentDate, lastAttendance },
           })}>
             <Printer className="h-4 w-4 mr-1.5" /> Imprimir / PDF
@@ -1251,7 +1260,7 @@ function CheckinCodesCard({ student, onUpdated }: { student: any; onUpdated: () 
   );
 }
 
-// ============ Impressão: Ficha do Aluno ============
+// ============ Impressão: Ficha Cadastral do Aluno (padrão A4 premium) ============
 function printStudentReport(p: {
   student: any;
   branding: any;
@@ -1261,6 +1270,8 @@ function printStudentReport(p: {
   invoices: any[];
   certificates: any[];
   attendanceRows: any[];
+  competitions: any[];
+  currentBelts: any[];
   metrics: {
     daysTraining: number;
     attendanceThisMonth: number;
@@ -1271,43 +1282,198 @@ function printStudentReport(p: {
     lastAttendance: string | null;
   };
 }) {
-  const { student: s, branding, belts, graduations, enrollments, invoices, certificates, attendanceRows, metrics } = p;
+  const {
+    student: s, branding, belts, graduations, enrollments, invoices, certificates,
+    attendanceRows, competitions, currentBelts, metrics,
+  } = p;
   const anamn = s?.anamnesis ?? {};
-  const belt = belts.find((b) => b.id === s.current_belt_id);
-  const currentEnroll = enrollments.find((e) => e.status === "active") ?? enrollments[0];
+  const currentEnroll = enrollments.find((e: any) => e.status === "active") ?? enrollments[0];
+  const primary = branding?.brand_primary || "#dc2626";
+  const now = new Date();
+  const printedAt = now.toLocaleString("pt-BR", {
+    day: "2-digit", month: "2-digit", year: "numeric",
+    hour: "2-digit", minute: "2-digit",
+  });
+  const academyName = branding?.trade_name || branding?.legal_name || "AMT Dojo Manager";
+  const cnpj = (branding as any)?.cnpj || (branding as any)?.tax_id || null;
+  const bAddress = [
+    (branding as any)?.address_street, (branding as any)?.address_number,
+    (branding as any)?.address_neighborhood, (branding as any)?.address_city,
+    (branding as any)?.address_state,
+  ].filter(Boolean).join(", ");
+  const bPhone = (branding as any)?.phone;
+  const bEmail = (branding as any)?.email;
+  const studentCode = String(s.id ?? "").slice(0, 8).toUpperCase();
 
-  const kpiHtml = [
-    ["Dias treinando", metrics.daysTraining || "—"],
-    ["Presença no mês", metrics.attendanceThisMonth],
-    ["Mensalidades pagas", metrics.paidInvoices],
-    ["Pendentes", metrics.pendingInvoices],
-    ["Graduações", graduations.length],
-    ["Certificados", certificates.length],
-    ["Última presença", metrics.lastAttendance ? fmtDate(metrics.lastAttendance) : "—"],
-    ["Faixa atual", belt ? `${belt.name}${degreeSuffix(s.current_degree, belt?.modality, " · ", belt?.name)}` : "—"],
+  // ---- Status financeiro ----
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const overdue = invoices.filter((i: any) =>
+    i.status !== "paid" && i.status !== "cancelled" && i.due_date && new Date(i.due_date) < today);
+  const pending = invoices.filter((i: any) =>
+    i.status !== "paid" && i.status !== "cancelled" && (!i.due_date || new Date(i.due_date) >= today));
+  const totalPaid = invoices.filter((i: any) => i.status === "paid").reduce((sum: number, i: any) => sum + Number(i.amount || 0), 0);
+  const totalOverdue = overdue.reduce((sum: number, i: any) => sum + Number(i.amount || 0), 0);
+  const finState: { label: string; tone: "ok" | "warn" | "danger" } =
+    overdue.length > 0 ? { label: "Em atraso", tone: "danger" }
+    : pending.length > 0 ? { label: "Cobrança pendente", tone: "warn" }
+    : { label: "Adimplente", tone: "ok" };
+
+  // ---- Frequência: últimos 6 meses ----
+  const monthBuckets: Array<{ key: string; label: string; count: number }> = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    const label = d.toLocaleDateString("pt-BR", { month: "short" }).replace(".", "");
+    monthBuckets.push({ key, label: label.charAt(0).toUpperCase() + label.slice(1), count: 0 });
+  }
+  attendanceRows.forEach((a: any) => {
+    if (!a.checked_in_at) return;
+    const d = new Date(a.checked_in_at);
+    const k = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    const b = monthBuckets.find((x) => x.key === k);
+    if (b) b.count += 1;
+  });
+  const attMax = Math.max(1, ...monthBuckets.map((b) => b.count));
+  const totalCheckins = attendanceRows.length;
+
+  // ---- Competições: estatísticas ----
+  const compStats = competitions.reduce(
+    (acc: any, r: any) => {
+      acc.total += 1;
+      if (r.medal === "gold") acc.gold += 1;
+      else if (r.medal === "silver") acc.silver += 1;
+      else if (r.medal === "bronze") acc.bronze += 1;
+      acc.wins += Number(r.wins ?? 0);
+      acc.losses += Number(r.losses ?? 0);
+      return acc;
+    },
+    { total: 0, gold: 0, silver: 0, bronze: 0, wins: 0, losses: 0 },
+  );
+
+  // ---- Helpers de linha ----
+  const rowSafe = (label: string, value: any) => {
+    const v = value == null || value === "" ? "—" : String(value);
+    return `<div class="fd"><div class="fd-l">${escapeHtml(label)}</div><div class="fd-v">${escapeHtml(v)}</div></div>`;
+  };
+  const gridBlock = (rows: Array<[string, any]>) =>
+    `<div class="grid-2">${rows.map(([k, v]) => rowSafe(k, v)).join("")}</div>`;
+
+  // ---- Header repetido ----
+  const logoImg = branding?.logo_url
+    ? `<img src="${escapeHtml(branding.logo_url)}" crossorigin="anonymous" alt="${escapeHtml(academyName)}"/>`
+    : `<div class="rh-fallback">${escapeHtml(academyName.slice(0,1).toUpperCase())}</div>`;
+  const headerHtml = `
+    <div class="rh">
+      <div class="rh-brand">
+        <div class="rh-logo">${logoImg}</div>
+        <div>
+          <div class="rh-eyebrow">Ficha Cadastral</div>
+          <div class="rh-name">${escapeHtml(academyName)}</div>
+        </div>
+      </div>
+      <div class="rh-meta">
+        <span class="rh-tag">${escapeHtml(s.full_name)}</span>
+        <span>Cód. ${escapeHtml(studentCode)}</span>
+      </div>
+    </div>`;
+  const footerHtml = `
+    <div class="rf">
+      <span>Documento gerado pelo AMT Dojo Manager</span>
+      <span>${escapeHtml(printedAt)}</span>
+      <span>Página {{pagina_atual}} de {{total_paginas}}</span>
+    </div>`;
+
+  // ---- Cover / hero ----
+  const photo = s.photo_url
+    ? `<img src="${escapeHtml(s.photo_url)}" crossorigin="anonymous" alt="${escapeHtml(s.full_name)}"/>`
+    : `<div class="ph-fallback">${escapeHtml((s.full_name ?? "?").slice(0, 1).toUpperCase())}</div>`;
+
+  const statusTone = s.status === "active" ? "ok" : (s.status === "inactive" ? "muted" : "warn");
+  const statusLabel = s.status === "active" ? "Ativo" : (s.status === "inactive" ? "Inativo" : (s.status ?? "—"));
+
+  const heroChips = [
+    ["Código", studentCode],
+    ["Unidade", s.unit?.name || "—"],
+    ["Modalidade", anamn.modality || "—"],
+    ["Matrícula", fmtDate(metrics.enrollmentDate)],
+    ["Idade", metrics.age != null ? `${metrics.age} anos` : "—"],
   ]
-    .map(([l, v]) => `<div class="kpi"><div class="label">${escapeHtml(String(l))}</div><div class="value">${escapeHtml(String(v))}</div></div>`)
+    .map(([k, v]) => `<div class="chip"><span>${escapeHtml(String(k))}</span><strong>${escapeHtml(String(v ?? "—"))}</strong></div>`)
     .join("");
 
+  // ---- Graduações ----
   const gradsRows = graduations.length
     ? graduations
-        .map(
-          (g: any) =>
-            `<tr><td>${escapeHtml(fmtDate(g.graduation_date))}</td><td>${escapeHtml(g.belt?.name ?? "—")}</td><td>${escapeHtml(formatDegree(g.degree, g.belt?.modality, g.belt?.name))}</td><td>${escapeHtml(g.evaluator ?? "—")}</td></tr>`,
-        )
+        .map((g: any) =>
+          `<tr>
+            <td>${escapeHtml(fmtDate(g.graduation_date))}</td>
+            <td>${escapeHtml(g.belt?.name ?? "—")}</td>
+            <td>${escapeHtml(formatDegree(g.degree, g.belt?.modality, g.belt?.name))}</td>
+            <td>${escapeHtml(g.belt?.modality ?? "—")}</td>
+            <td>${escapeHtml(g.evaluator ?? "—")}</td>
+          </tr>`)
         .join("")
-    : `<tr><td colspan="4" style="text-align:center;color:#94a3b8">Sem graduações registradas</td></tr>`;
+    : `<tr><td colspan="5" class="empty">Sem graduações registradas.</td></tr>`;
 
+  // ---- Competições ----
+  const medalMap: Record<string, string> = { gold: "🥇 Ouro", silver: "🥈 Prata", bronze: "🥉 Bronze", participation: "🎗 Participação" };
+  const compRows = competitions.length
+    ? competitions
+        .map((c: any) => `<tr>
+            <td>${escapeHtml(fmtDate(c.competition_start_at))}</td>
+            <td>${escapeHtml(c.competition_name ?? "—")}</td>
+            <td>${escapeHtml(c.category ?? "—")}</td>
+            <td>${escapeHtml(c.belt_name ?? "—")}</td>
+            <td>${c.medal ? `<span class="pill pill-${c.medal}">${escapeHtml(medalMap[c.medal] ?? c.medal)}</span>` : "—"}</td>
+            <td class="num">${escapeHtml(String(c.wins ?? 0))}–${escapeHtml(String(c.losses ?? 0))}</td>
+          </tr>`)
+        .join("")
+    : `<tr><td colspan="6" class="empty">Sem participações registradas.</td></tr>`;
+
+  // ---- Certificados ----
+  const certRows = certificates.length
+    ? certificates
+        .map((c: any) => `<tr>
+            <td>${escapeHtml(fmtDate(c.issued_at ?? c.created_at))}</td>
+            <td>${escapeHtml(c.title ?? c.template_name ?? "—")}</td>
+            <td>${escapeHtml((c as any).certificate_code ?? c.id?.slice(0, 8)?.toUpperCase() ?? "—")}</td>
+          </tr>`)
+        .join("")
+    : `<tr><td colspan="3" class="empty">Sem certificados emitidos.</td></tr>`;
+
+  // ---- Frequência: últimas presenças ----
+  const attendanceRecent = attendanceRows.slice(0, 12);
+  const attendanceRowsHtml = attendanceRecent.length
+    ? attendanceRecent
+        .map((a: any) => `<tr>
+            <td>${escapeHtml(fmtDate(a.checked_in_at))}</td>
+            <td>${escapeHtml(a.checked_in_at ? new Date(a.checked_in_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "—")}</td>
+            <td>${escapeHtml(a.class_name ?? a.dojo_class?.name ?? "—")}</td>
+          </tr>`)
+        .join("")
+    : `<tr><td colspan="3" class="empty">Sem presenças recentes.</td></tr>`;
+
+  // ---- Financeiro ----
   const invRows = invoices.length
     ? invoices
-        .slice(0, 20)
-        .map(
-          (i: any) =>
-            `<tr><td>${escapeHtml(i.description ?? "—")}</td><td class="num">${escapeHtml(brl(i.amount))}</td><td>${escapeHtml(fmtDate(i.due_date))}</td><td>${escapeHtml(i.paid_at ? fmtDate(i.paid_at) : "—")}</td><td><span class="badge ${i.status === "paid" ? "success" : "warn"}">${escapeHtml(i.status)}</span></td></tr>`,
-        )
+        .slice(0, 24)
+        .map((i: any) => {
+          const isPaid = i.status === "paid";
+          const isOver = !isPaid && i.status !== "cancelled" && i.due_date && new Date(i.due_date) < today;
+          const cls = isPaid ? "pill-ok" : isOver ? "pill-danger" : "pill-warn";
+          const label = isPaid ? "Paga" : isOver ? "Atrasada" : (i.status === "cancelled" ? "Cancelada" : "Pendente");
+          return `<tr>
+            <td>${escapeHtml(i.description ?? "Mensalidade")}</td>
+            <td class="num">${escapeHtml(brl(i.amount))}</td>
+            <td>${escapeHtml(fmtDate(i.due_date))}</td>
+            <td>${escapeHtml(i.paid_at ? fmtDate(i.paid_at) : "—")}</td>
+            <td><span class="pill ${cls}">${label}</span></td>
+          </tr>`;
+        })
         .join("")
-    : `<tr><td colspan="5" style="text-align:center;color:#94a3b8">Sem cobranças</td></tr>`;
+    : `<tr><td colspan="5" class="empty">Sem cobranças lançadas.</td></tr>`;
 
+  // ---- Anamnese: alerts ----
   const alerts = [
     anamn.heart_issues && "Cardíaco",
     anamn.diabetes && "Diabetes",
@@ -1318,92 +1484,372 @@ function printStudentReport(p: {
     anamn.alcohol && "Álcool",
   ].filter(Boolean) as string[];
 
+  // ---- Documentos ----
+  const docItems: Array<{ label: string; status: "ok" | "off" | "muted"; note?: string }> = [
+    { label: "Foto do aluno", status: s.photo_url ? "ok" : "off" },
+    { label: "CPF cadastrado", status: s.cpf ? "ok" : "off" },
+    { label: "RG cadastrado", status: s.rg ? "ok" : "off" },
+    { label: "Atestado médico", status: s.has_medical_clearance ? "ok" : "off",
+      note: s.has_medical_clearance && s.medical_clearance_date ? `Validade ${fmtDate(s.medical_clearance_date)}` : undefined },
+    { label: "Contrato assinado", status: (s as any).contract_signed_at ? "ok" : "muted",
+      note: (s as any).contract_signed_at ? fmtDate((s as any).contract_signed_at) : undefined },
+    { label: "Termo de responsabilidade", status: (s as any).liability_waiver_signed ? "ok" : "muted" },
+  ];
+  const docsHtml = `<div class="doc-list">${docItems.map((d) => `
+    <div class="doc-item">
+      <span class="doc-dot doc-dot-${d.status}"></span>
+      <div class="doc-item-text">
+        <strong>${escapeHtml(d.label)}</strong>
+        ${d.note ? `<span class="doc-item-note">${escapeHtml(d.note)}</span>` : ""}
+      </div>
+      <span class="doc-item-status doc-item-status-${d.status}">${d.status === "ok" ? "Entregue" : d.status === "muted" ? "—" : "Pendente"}</span>
+    </div>`).join("")}</div>`;
+
+  // ---- Faixas atuais / graduação atual ----
+  const beltList = (currentBelts.length ? currentBelts : (s.current_belt_id
+    ? [{ belt: belts.find((b: any) => b.id === s.current_belt_id), degree: s.current_degree ?? 0 }]
+    : []));
+  const currentBeltHtml = beltList.length
+    ? `<div class="belt-list">${beltList.map((b: any) => `
+        <div class="belt-item">
+          <div class="belt-swatch" style="background:${escapeHtml(b.belt?.color ?? "#111827")}"></div>
+          <div>
+            <div class="belt-name">${escapeHtml(b.belt?.name ?? "—")}</div>
+            <div class="belt-sub">${escapeHtml(b.belt?.modality ?? "—")} · ${escapeHtml(formatDegree(b.degree ?? 0, b.belt?.modality, b.belt?.name))}</div>
+          </div>
+        </div>`).join("")}</div>`
+    : `<div class="empty-block">Faixa ainda não registrada.</div>`;
+
+  const attendanceChartHtml = `
+    <div class="chart">
+      ${monthBuckets.map((b) => `
+        <div class="chart-col">
+          <div class="chart-bar-wrap">
+            <div class="chart-bar" style="height:${Math.max(4, Math.round((b.count / attMax) * 100))}%"></div>
+          </div>
+          <div class="chart-label">${escapeHtml(b.label)}</div>
+          <div class="chart-value">${b.count}</div>
+        </div>`).join("")}
+    </div>`;
+
+  // ---- Body HTML ----
+  const section = (title: string, inner: string) => `
+    <section class="ficha-section">
+      <div class="ficha-section-head">
+        <h2>${escapeHtml(title)}</h2>
+        <div class="ficha-section-line"></div>
+      </div>
+      <div class="ficha-section-body">${inner}</div>
+    </section>`;
+
+  const bodyHtml = `
+    <style>
+      /* ============ FICHA CADASTRAL — estilos escopados ============ */
+      main.doc-body { padding: 0 12mm 6mm !important; }
+      .doc-title-block { display:none !important; }
+      .ficha-cover {
+        display:grid; grid-template-columns: 34mm 1fr; gap: 8mm;
+        padding: 6mm 0 6mm; border-bottom: 1px solid #e2e8f0;
+        break-inside: avoid; page-break-inside: avoid;
+      }
+      .ficha-photo {
+        width: 34mm; height: 44mm; border-radius: 4mm; overflow: hidden;
+        background: #f1f5f9; border: 1px solid #e2e8f0; position: relative;
+      }
+      .ficha-photo img { width:100%; height:100%; object-fit: cover; display:block; }
+      .ph-fallback { display:grid; place-items:center; width:100%; height:100%; font-size: 40pt; font-weight: 800; color: ${primary}; background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%); }
+      .ficha-head-main h1 { font-size: 20pt; font-weight: 800; letter-spacing: -0.01em; margin: 0 0 2mm; color: #0f172a; line-height: 1.15; }
+      .ficha-head-main .ficha-doc-title { font-size: 8pt; text-transform: uppercase; letter-spacing: .22em; color: ${primary}; font-weight: 700; margin-bottom: 2mm; }
+      .ficha-head-inst {
+        display:grid; grid-template-columns: 1fr; gap: 1mm;
+        color: #475569; font-size: 8.5pt; margin-top: 1mm;
+      }
+      .ficha-head-inst div { display: flex; gap: 6px; align-items: flex-start; }
+      .ficha-head-inst strong { color:#0f172a; font-weight: 600; }
+      .ficha-chips { display:grid; grid-template-columns: repeat(5, 1fr); gap: 2mm; margin-top: 4mm; }
+      .chip { border:1px solid #e2e8f0; border-radius: 3mm; padding: 2mm 3mm; background: #fafbfc; }
+      .chip span { display:block; font-size: 6.5pt; text-transform: uppercase; letter-spacing: .12em; color: #64748b; font-weight: 600; }
+      .chip strong { display:block; font-size: 9pt; font-weight: 700; color: #0f172a; margin-top: 1px; }
+      .chip.status-ok strong { color: #15803d; }
+      .chip.status-warn strong { color: #a16207; }
+      .chip.status-muted strong { color: #64748b; }
+
+      .ficha-section { margin-top: 5mm; break-inside: avoid; page-break-inside: avoid; }
+      .ficha-section-head { display:flex; align-items:center; gap: 3mm; margin-bottom: 2.5mm; break-after: avoid; page-break-after: avoid; }
+      .ficha-section-head h2 {
+        margin: 0; font-size: 9pt; font-weight: 700; text-transform: uppercase; letter-spacing: .16em;
+        color: ${primary};
+        display:flex; align-items:center; gap: 2mm;
+      }
+      .ficha-section-head h2::before { content:""; width: 6mm; height: 1.2mm; background: ${primary}; border-radius: 1mm; }
+      .ficha-section-line { flex: 1; height: 1px; background: #e2e8f0; }
+      .ficha-section-body { break-inside: avoid; page-break-inside: avoid; }
+      /* seções grandes (tabelas) permitem quebra interna */
+      .ficha-section.flow { break-inside: auto; page-break-inside: auto; }
+
+      .grid-2 { display:grid; grid-template-columns: 1fr 1fr; gap: 2mm 6mm; }
+      .fd { display:grid; grid-template-columns: 30mm 1fr; gap: 2mm; padding: 1.5mm 0; border-bottom: 1px dashed #edf2f7; break-inside: avoid; }
+      .fd-l { font-size: 8pt; text-transform: uppercase; letter-spacing: .1em; color: #64748b; font-weight: 500; padding-top: 1px; }
+      .fd-v { font-size: 9.5pt; color: #0f172a; font-weight: 600; word-break: break-word; }
+
+      /* Tabelas de dados */
+      table.tbl { width: 100%; border-collapse: separate; border-spacing: 0; border: 1px solid #e2e8f0; border-radius: 3mm; overflow: hidden; font-size: 8.5pt; }
+      table.tbl thead th { background: #0f172a; color: #fff; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; font-size: 7pt; padding: 2.4mm 3mm; text-align: left; }
+      table.tbl tbody td { padding: 2.2mm 3mm; border-top: 1px solid #eef2f7; color: #0f172a; }
+      table.tbl tbody tr:nth-child(odd) td { background: #fafbfc; }
+      table.tbl tbody tr:first-child td { border-top: 0; }
+      table.tbl td.num { text-align: right; font-variant-numeric: tabular-nums; }
+      table.tbl td.empty { text-align: center; color: #94a3b8; padding: 4mm; font-style: italic; }
+      table.tbl { break-inside: auto; page-break-inside: auto; }
+      table.tbl thead { display: table-header-group; }
+      table.tbl tr { break-inside: avoid; page-break-inside: avoid; }
+
+      .pill { display:inline-block; padding: 0.6mm 2mm; border-radius: 999px; font-size: 7.5pt; font-weight: 600; border:1px solid transparent; }
+      .pill-ok { background:#dcfce7; color:#166534; border-color:#bbf7d0; }
+      .pill-warn { background:#fef3c7; color:#854d0e; border-color:#fde68a; }
+      .pill-danger { background:#fee2e2; color:#991b1b; border-color:#fecaca; }
+      .pill-gold { background:#fef3c7; color:#854d0e; border-color:#fde68a; }
+      .pill-silver { background:#f1f5f9; color:#334155; border-color:#e2e8f0; }
+      .pill-bronze { background:#fed7aa; color:#9a3412; border-color:#fdba74; }
+      .pill-participation { background:#e0e7ff; color:#3730a3; border-color:#c7d2fe; }
+
+      .fin-status { display:flex; gap: 3mm; padding: 3mm; border-radius: 3mm; margin-bottom: 3mm; align-items:center; }
+      .fin-status-ok { background:#f0fdf4; border:1px solid #bbf7d0; }
+      .fin-status-warn { background:#fffbeb; border:1px solid #fde68a; }
+      .fin-status-danger { background:#fef2f2; border:1px solid #fecaca; }
+      .fin-dot { width: 3mm; height: 3mm; border-radius: 999px; flex:0 0 auto; }
+      .fin-dot-ok { background:#16a34a; } .fin-dot-warn { background:#d97706; } .fin-dot-danger { background:#dc2626; }
+      .fin-status strong { font-size: 10pt; }
+      .fin-status .fin-sub { color:#475569; font-size: 8.5pt; margin-top: 0.5mm; display:block; }
+      .fin-kpis { display:grid; grid-template-columns: repeat(4, 1fr); gap: 2mm; margin-bottom: 3mm; }
+      .fin-kpi { border:1px solid #e2e8f0; border-radius: 3mm; padding: 2.5mm 3mm; background: #fff; }
+      .fin-kpi .l { font-size: 7pt; text-transform: uppercase; letter-spacing: .12em; color: #64748b; font-weight: 600; }
+      .fin-kpi .v { font-size: 12pt; font-weight: 800; color: #0f172a; margin-top: 1mm; letter-spacing: -0.01em; }
+      .fin-kpi.accent .v { color: ${primary}; }
+      .fin-kpi.ok .v { color: #15803d; }
+      .fin-kpi.danger .v { color: #b91c1c; }
+
+      /* Chart de frequência */
+      .att-kpis { display:grid; grid-template-columns: repeat(3, 1fr); gap: 2mm; margin-bottom: 3mm; }
+      .att-kpi { border:1px solid #e2e8f0; border-radius: 3mm; padding: 2.5mm 3mm; background: #fafbfc; }
+      .att-kpi .l { font-size: 7pt; text-transform: uppercase; letter-spacing: .12em; color: #64748b; font-weight: 600; }
+      .att-kpi .v { font-size: 14pt; font-weight: 800; color: #0f172a; margin-top: 1mm; letter-spacing: -0.02em; }
+      .chart { display:grid; grid-template-columns: repeat(6, 1fr); gap: 2mm; height: 32mm; margin-bottom: 3mm; padding: 2mm; border: 1px solid #e2e8f0; border-radius: 3mm; background: #fafbfc; }
+      .chart-col { display:flex; flex-direction: column; justify-content: flex-end; align-items: center; }
+      .chart-bar-wrap { width: 100%; height: 22mm; display:flex; align-items: flex-end; justify-content: center; }
+      .chart-bar { width: 70%; background: linear-gradient(180deg, ${primary} 0%, ${primary}bb 100%); border-radius: 1.5mm 1.5mm 0 0; min-height: 1mm; }
+      .chart-label { font-size: 7pt; color: #64748b; text-transform: uppercase; letter-spacing: .1em; margin-top: 1mm; }
+      .chart-value { font-size: 8pt; font-weight: 700; color: #0f172a; }
+
+      /* Faixas atuais */
+      .belt-list { display:grid; grid-template-columns: repeat(2, 1fr); gap: 2mm; }
+      .belt-item { display:flex; align-items:center; gap: 3mm; border: 1px solid #e2e8f0; border-radius: 3mm; padding: 2.5mm 3mm; background: #fff; }
+      .belt-swatch { width: 8mm; height: 8mm; border-radius: 2mm; border: 1px solid #e2e8f0; flex: 0 0 auto; box-shadow: inset 0 -2px 4px rgba(0,0,0,.1); }
+      .belt-name { font-size: 10pt; font-weight: 700; color: #0f172a; }
+      .belt-sub { font-size: 8pt; color: #64748b; }
+
+      /* Documentos */
+      .doc-list { display:grid; grid-template-columns: 1fr 1fr; gap: 1.5mm 3mm; }
+      .doc-item { display:flex; align-items:center; gap: 3mm; padding: 2mm 3mm; border:1px solid #e2e8f0; border-radius: 2.5mm; background: #fff; }
+      .doc-item-text { flex: 1; }
+      .doc-item-text strong { display:block; font-size: 9pt; color: #0f172a; font-weight: 600; }
+      .doc-item-note { display:block; font-size: 7.5pt; color: #64748b; margin-top: 0.5mm; }
+      .doc-dot { width: 2.5mm; height: 2.5mm; border-radius: 999px; flex: 0 0 auto; }
+      .doc-dot-ok { background:#16a34a; }
+      .doc-dot-off { background:#dc2626; }
+      .doc-dot-muted { background:#cbd5e1; }
+      .doc-item-status { font-size: 7pt; padding: 0.6mm 2mm; border-radius: 999px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+      .doc-item-status-ok { background:#dcfce7; color:#166534; }
+      .doc-item-status-off { background:#fee2e2; color:#991b1b; }
+      .doc-item-status-muted { background:#f1f5f9; color:#64748b; }
+
+      /* Anamnese alerts */
+      .alerts { display:flex; flex-wrap: wrap; gap: 1.5mm; margin-top: 2.5mm; }
+      .alerts .pill { background: #fff7ed; color: #9a3412; border-color: #fed7aa; }
+
+      /* Observações */
+      .notes-box { padding: 3mm 4mm; background: #fafbfc; border: 1px solid #e2e8f0; border-left: 3px solid ${primary}; border-radius: 2mm; font-size: 9pt; color: #0f172a; white-space: pre-wrap; line-height: 1.55; }
+      .empty-block { padding: 4mm; text-align: center; color: #94a3b8; font-style: italic; font-size: 9pt; border: 1px dashed #e2e8f0; border-radius: 2mm; }
+
+      /* Header/Footer repetidos */
+      .rh { display:flex; align-items:center; justify-content: space-between; gap: 4mm; padding: 2mm 0 3mm; border-bottom: 2px solid ${primary}; }
+      .rh-brand { display:flex; align-items:center; gap: 3mm; }
+      .rh-logo { width: 12mm; height: 12mm; border-radius: 2mm; overflow: hidden; background:#fff; border:1px solid #e2e8f0; display:grid; place-items:center; }
+      .rh-logo img { width: 100%; height: 100%; object-fit: contain; }
+      .rh-fallback { font-weight: 800; color: ${primary}; font-size: 14pt; }
+      .rh-eyebrow { font-size: 7pt; text-transform: uppercase; letter-spacing: .22em; color: #64748b; font-weight: 700; }
+      .rh-name { font-size: 11pt; font-weight: 800; color: #0f172a; letter-spacing: -0.01em; }
+      .rh-meta { display:flex; flex-direction: column; align-items: flex-end; gap: 1mm; font-size: 8pt; color: #64748b; }
+      .rh-tag { color: #0f172a; font-weight: 600; }
+      .rf { display:flex; justify-content: space-between; gap: 4mm; padding-top: 2mm; border-top: 1px solid #e2e8f0; font-size: 7.5pt; color: #94a3b8; font-variant-numeric: tabular-nums; }
+
+      /* Print */
+      @media print {
+        main.doc-body { padding: 0 !important; }
+        .ficha-cover { padding-top: 2mm; }
+      }
+    </style>
+
+    <div class="ficha-cover">
+      <div class="ficha-photo">${photo}</div>
+      <div class="ficha-head-main">
+        <div class="ficha-doc-title">Ficha Cadastral do Aluno</div>
+        <h1>${escapeHtml(s.full_name)}</h1>
+        <div class="ficha-head-inst">
+          <div><strong>${escapeHtml(academyName)}</strong>${cnpj ? ` · <span>CNPJ ${escapeHtml(cnpj)}</span>` : ""}</div>
+          ${bAddress ? `<div>${escapeHtml(bAddress)}</div>` : ""}
+          ${(bPhone || bEmail) ? `<div>${bPhone ? escapeHtml(String(bPhone)) : ""}${bPhone && bEmail ? " · " : ""}${bEmail ? escapeHtml(String(bEmail)) : ""}</div>` : ""}
+          <div>Emitido em <strong>${escapeHtml(printedAt)}</strong></div>
+        </div>
+        <div class="ficha-chips">
+          ${heroChips}
+          <div class="chip status-${statusTone}"><span>Status</span><strong>${escapeHtml(statusLabel)}</strong></div>
+        </div>
+      </div>
+    </div>
+
+    ${section("Dados Pessoais", gridBlock([
+      ["Nome completo", s.full_name],
+      ["CPF", s.cpf],
+      ["RG", s.rg],
+      ["Data de nascimento", fmtDate(s.birth_date)],
+      ["Idade", metrics.age != null ? `${metrics.age} anos` : null],
+      ["Sexo", s.gender],
+      ["Nacionalidade", s.nationality],
+      ["Estado civil", s.marital_status],
+      ["Profissão", s.profession],
+      ["Tipo sanguíneo", s.blood_type],
+    ]))}
+
+    ${section("Contato", gridBlock([
+      ["Telefone", s.phone],
+      ["Celular", (s as any).mobile_phone],
+      ["E-mail", s.email],
+      ["Instagram", (s as any).instagram],
+    ]))}
+
+    ${section("Endereço Completo", gridBlock([
+      ["Logradouro", s.street],
+      ["Número", s.address_number],
+      ["Complemento", (s as any).address_complement],
+      ["Bairro", s.neighborhood],
+      ["Cidade", s.city],
+      ["Estado (UF)", s.state],
+      ["CEP", s.zip],
+      ["País", (s as any).country ?? "Brasil"],
+    ]))}
+
+    ${section("Responsáveis", gridBlock([
+      ["Responsável legal", s.guardian_name],
+      ["Telefone do responsável", s.guardian_phone],
+      ["CPF do responsável", (s as any).guardian_cpf],
+      ["Parentesco", (s as any).guardian_relationship],
+      ["Contato de emergência", s.emergency_contact_name],
+      ["Telefone de emergência", s.emergency_contact_phone],
+      ["Parentesco (emergência)", s.emergency_contact_relationship],
+    ]))}
+
+    ${section("Informações da Modalidade", gridBlock([
+      ["Modalidade principal", anamn.modality],
+      ["Unidade", s.unit?.name],
+      ["Plano atual", currentEnroll?.plan?.name],
+      ["Valor mensal", currentEnroll ? brl(currentEnroll.custom_amount ?? currentEnroll.plan?.amount ?? 0) : null],
+      ["Dia de vencimento", currentEnroll?.due_day],
+      ["Data de matrícula", fmtDate(metrics.enrollmentDate)],
+      ["Status atual", statusLabel],
+      ["Dias treinando", metrics.daysTraining],
+    ]))}
+
+    ${section("Graduação Atual", currentBeltHtml)}
+
+    ${section("Histórico Completo de Graduações",
+      `<table class="tbl"><thead><tr>
+          <th>Data</th><th>Faixa</th><th>Grau</th><th>Modalidade</th><th>Avaliador</th>
+        </tr></thead><tbody>${gradsRows}</tbody></table>`)}
+
+    ${section("Histórico de Competições", `
+      <div class="fin-kpis" style="grid-template-columns: repeat(6, 1fr)">
+        <div class="fin-kpi"><div class="l">Total</div><div class="v">${compStats.total}</div></div>
+        <div class="fin-kpi ok"><div class="l">Vitórias</div><div class="v">${compStats.wins}</div></div>
+        <div class="fin-kpi danger"><div class="l">Derrotas</div><div class="v">${compStats.losses}</div></div>
+        <div class="fin-kpi"><div class="l">🥇 Ouro</div><div class="v">${compStats.gold}</div></div>
+        <div class="fin-kpi"><div class="l">🥈 Prata</div><div class="v">${compStats.silver}</div></div>
+        <div class="fin-kpi"><div class="l">🥉 Bronze</div><div class="v">${compStats.bronze}</div></div>
+      </div>
+      <table class="tbl"><thead><tr>
+        <th>Data</th><th>Evento</th><th>Categoria</th><th>Faixa</th><th>Resultado</th><th class="num">V–D</th>
+      </tr></thead><tbody>${compRows}</tbody></table>`)}
+
+    ${section("Certificados Emitidos",
+      `<table class="tbl"><thead><tr>
+          <th>Emitido em</th><th>Título / modelo</th><th>Código</th>
+        </tr></thead><tbody>${certRows}</tbody></table>`)}
+
+    ${section("Frequência", `
+      <div class="att-kpis">
+        <div class="att-kpi"><div class="l">Presenças totais</div><div class="v">${totalCheckins}</div></div>
+        <div class="att-kpi"><div class="l">No mês atual</div><div class="v">${metrics.attendanceThisMonth}</div></div>
+        <div class="att-kpi"><div class="l">Última presença</div><div class="v" style="font-size:11pt">${escapeHtml(metrics.lastAttendance ? fmtDate(metrics.lastAttendance) : "—")}</div></div>
+      </div>
+      ${attendanceChartHtml}
+      <table class="tbl"><thead><tr>
+        <th>Data</th><th>Horário</th><th>Turma</th>
+      </tr></thead><tbody>${attendanceRowsHtml}</tbody></table>`)}
+
+    ${section("Financeiro", `
+      <div class="fin-status fin-status-${finState.tone}">
+        <span class="fin-dot fin-dot-${finState.tone}"></span>
+        <div>
+          <strong>Situação financeira: ${escapeHtml(finState.label)}</strong>
+          <span class="fin-sub">
+            ${overdue.length} em atraso · ${pending.length} pendente(s) · ${metrics.paidInvoices} paga(s)
+          </span>
+        </div>
+      </div>
+      <div class="fin-kpis">
+        <div class="fin-kpi ok"><div class="l">Total pago</div><div class="v">${escapeHtml(brl(totalPaid))}</div></div>
+        <div class="fin-kpi accent"><div class="l">Mensalidade</div><div class="v">${escapeHtml(currentEnroll ? brl(currentEnroll.custom_amount ?? currentEnroll.plan?.amount ?? 0) : "—")}</div></div>
+        <div class="fin-kpi"><div class="l">Pendente</div><div class="v">${pending.length}</div></div>
+        <div class="fin-kpi danger"><div class="l">Em atraso</div><div class="v">${escapeHtml(brl(totalOverdue))}</div></div>
+      </div>
+      <table class="tbl"><thead><tr>
+        <th>Descrição</th><th class="num">Valor</th><th>Vencimento</th><th>Pagamento</th><th>Status</th>
+      </tr></thead><tbody>${invRows}</tbody></table>`)}
+
+    ${section("Anamnese", `
+      ${gridBlock([
+        ["Peso", anamn.weight ? `${anamn.weight} kg` : null],
+        ["Altura", anamn.height ? `${anamn.height} m` : null],
+        ["Plano de saúde", s.health_insurance],
+        ["Atestado médico", s.has_medical_clearance ? `Válido${s.medical_clearance_date ? ` até ${fmtDate(s.medical_clearance_date)}` : ""}` : "Não apresentado"],
+        ["Medicações em uso", anamn.medications],
+        ["Alergias", anamn.allergies],
+        ["Doenças / condições", anamn.medical_conditions],
+        ["Lesões anteriores", anamn.injuries],
+        ["Cirurgias", (anamn as any).surgeries],
+        ["Objetivos", anamn.objectives],
+      ])}
+      ${alerts.length ? `<div class="alerts">${alerts.map((a) => `<span class="pill">${escapeHtml(a)}</span>`).join("")}</div>` : ""}`)}
+
+    ${section("Documentos", docsHtml)}
+
+    ${section("Observações", s.notes
+      ? `<div class="notes-box">${escapeHtml(s.notes)}</div>`
+      : `<div class="empty-block">Nenhuma observação registrada.</div>`)}
+  `;
+
   openBrandedPrintDocument({
     branding,
-    title: "Ficha do Aluno",
+    title: "Ficha Cadastral do Aluno",
     subtitle: s.full_name,
-    documentId: s.id?.slice(0, 8).toUpperCase(),
-    sections: [
-      { title: "Resumo", html: `<div class="kpi-grid" style="grid-template-columns:repeat(4,minmax(0,1fr))">${kpiHtml}</div>` },
-      {
-        title: "Identificação",
-        html: kvTable([
-          ["Nome completo", s.full_name],
-          ["CPF", s.cpf],
-          ["RG", s.rg],
-          ["Nascimento", fmtDate(s.birth_date)],
-          ["Idade", metrics.age != null ? `${metrics.age} anos` : "—"],
-          ["Sexo", s.gender],
-          ["Nacionalidade", s.nationality],
-          ["Estado civil", s.marital_status],
-          ["Profissão", s.profession],
-        ]),
-      },
-      {
-        title: "Contato",
-        html: kvTable([
-          ["Telefone", s.phone],
-          ["E-mail", s.email],
-          ["Endereço", [s.street, s.address_number, s.neighborhood].filter(Boolean).join(", ")],
-          ["Cidade / UF", [s.city, s.state].filter(Boolean).join(" / ")],
-          ["CEP", s.zip],
-        ]),
-      },
-      {
-        title: "Responsável e emergência",
-        html: kvTable([
-          ["Responsável", s.guardian_name],
-          ["Tel. responsável", s.guardian_phone],
-          ["Contato emergência", s.emergency_contact_name],
-          ["Tel. emergência", s.emergency_contact_phone],
-          ["Parentesco", s.emergency_contact_relationship],
-        ]),
-      },
-      {
-        title: "Academia e plano",
-        html: kvTable([
-          ["Matrícula", fmtDate(metrics.enrollmentDate)],
-          ["Unidade", s.unit?.name],
-          ["Plano atual", currentEnroll?.plan?.name],
-          ["Valor mensal", currentEnroll ? brl(currentEnroll.custom_amount ?? currentEnroll.plan?.amount ?? 0) : "—"],
-          ["Dia venc.", currentEnroll?.due_day],
-          ["Status", s.status],
-          ["Modalidade", anamn.modality],
-        ]),
-      },
-      {
-        title: "Anamnese",
-        html: `${kvTable([
-          ["Tipo sanguíneo", s.blood_type],
-          ["Peso", anamn.weight ? `${anamn.weight} kg` : null],
-          ["Altura", anamn.height ? `${anamn.height} m` : null],
-          ["Plano de saúde", s.health_insurance],
-          ["Atestado médico", s.has_medical_clearance ? `Sim (${fmtDate(s.medical_clearance_date)})` : "Não"],
-          ["Medicações", anamn.medications],
-          ["Alergias", anamn.allergies],
-          ["Doenças", anamn.medical_conditions],
-          ["Lesões anteriores", anamn.injuries],
-          ["Objetivos", anamn.objectives],
-        ])}${alerts.length ? `<div style="margin-top:8px" class="badges">${alerts.map((a) => `<span class="badge danger">${escapeHtml(a)}</span>`).join("")}</div>` : ""}`,
-      },
-      {
-        title: "Graduações",
-        html: `<table class="data"><thead><tr><th>Data</th><th>Faixa</th><th>Grau</th><th>Avaliador</th></tr></thead><tbody>${gradsRows}</tbody></table>`,
-      },
-      {
-        title: "Histórico financeiro (últimos 20)",
-        html: `<table class="data"><thead><tr><th>Descrição</th><th class="num">Valor</th><th>Vencimento</th><th>Pagamento</th><th>Status</th></tr></thead><tbody>${invRows}</tbody></table>`,
-      },
-      ...(s.notes
-        ? [{ title: "Observações internas", html: `<div style="white-space:pre-wrap;font-size:11.5px">${escapeHtml(s.notes)}</div>` }]
-        : []),
-    ],
-    footerLeft: `Ficha de ${s.full_name}`,
-    footerRight: "Documento gerado pelo AMT Dojo Manager",
+    documentId: studentCode,
+    headerHtml,
+    footerHtml,
+    bodyHtml,
+    marginMm: 14,
   });
-  // uso para evitar warning quando attendanceRows não é referenciado
-  void attendanceRows;
 }
+
 
 // ============ Critério de graduação (aluno) ============
 function GraduationCriteriaCard({
