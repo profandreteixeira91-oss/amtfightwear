@@ -221,7 +221,7 @@ function HeroHeader({
               </div>
             </Link>
             <div className="min-w-0">
-              <h1 className="font-display text-2xl md:text-3xl font-black leading-tight truncate">
+              <h1 className="font-display text-xl sm:text-2xl md:text-3xl font-black leading-tight truncate">
                 Bom te ver por aqui.
               </h1>
               <p className="mt-1 text-sm text-white/70 capitalize">{today}</p>
