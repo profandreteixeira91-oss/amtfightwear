@@ -88,12 +88,13 @@ function NewGraduationPage() {
   // Graduação individual por aluno (faixa/grau + cobrança)
   const [perStudent, setPerStudent] = useState<Record<string, { beltId: string; degree: number; fee?: string; paid?: boolean }>>({});
 
-  // Sincroniza a taxa exibida na etapa de pagamento sempre que os preços por
-  // faixa forem atualizados (ex.: dono ajustou o valor em "Preços de graduação
-  // por faixa" enquanto conferia a confirmação).
+  // Sincroniza a taxa exibida com os preços salvos em "Preços de graduação
+  // por faixa" sempre que os valores mudarem (inclui o caso das settings
+  // carregarem depois da tela já estar montada). Assim os valores
+  // configurados anteriormente aparecem automaticamente na confirmação de
+  // pagamento e são mantidos até o dono ajustar.
   const priceByBeltKey = JSON.stringify(priceByBelt);
   useEffect(() => {
-    if (step !== "payment") return;
     setPerStudent(prev => {
       let changed = false;
       const next: typeof prev = { ...prev };
@@ -102,7 +103,11 @@ function NewGraduationPage() {
         const target = priceByBelt[p.beltId];
         if (target == null) continue;
         const targetStr = String(target);
-        if (p.fee !== targetStr) {
+        const feeStr = (p.fee ?? "").toString().trim();
+        // Só preenche automaticamente quando o campo está vazio — assim
+        // uma edição manual do professor não é sobrescrita, mas os valores
+        // configurados pelo dono do dojo sempre aparecem por padrão.
+        if (feeStr === "") {
           next[sid] = { ...p, fee: targetStr };
           changed = true;
         }
@@ -110,7 +115,7 @@ function NewGraduationPage() {
       return changed ? next : prev;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [priceByBeltKey, step]);
+  }, [priceByBeltKey]);
 
   const [registered, setRegistered] = useState<Array<{ id: string; student_id: string }>>([]);
   const [templateId, setTemplateId] = useState("");
@@ -366,23 +371,26 @@ function NewGraduationPage() {
     let paid = 0, pending = 0;
     for (const sid of selectedStudents) {
       const p = perStudent[sid];
-      const v = Number(((p?.fee ?? "").toString().replace(",", ".").trim()) || 0);
+      const raw = (p?.fee ?? "").toString().replace(",", ".").trim();
+      const fallback = p?.beltId && priceByBelt[p.beltId] != null ? Number(priceByBelt[p.beltId]) : 0;
+      const v = raw === "" ? fallback : Number(raw);
       if (Number.isNaN(v)) continue;
       if (p?.paid) paid += v; else pending += v;
     }
     return { paid, pending, total: paid + pending };
-  }, [selectedStudents, perStudent]);
+  }, [selectedStudents, perStudent, priceByBeltKey]);
 
   const submitGrad = async () => {
     const items = Array.from(selectedStudents).map(sid => {
       const p = perStudent[sid] ?? { beltId, degree };
       const rawFee = (p.fee ?? "").toString().replace(",", ".").trim();
-      const feeNum = rawFee === "" ? null : Number(rawFee);
+      const fallbackFee = p.beltId && priceByBelt[p.beltId] != null ? Number(priceByBelt[p.beltId]) : NaN;
+      const feeNum = rawFee === "" ? fallbackFee : Number(rawFee);
       return {
         student_id: sid,
         belt_id: p.beltId,
         degree: p.degree,
-        fee_amount: feeNum != null && !Number.isNaN(feeNum) ? feeNum : null,
+        fee_amount: Number.isFinite(feeNum) ? feeNum : null,
         paid: !!p.paid,
       };
     });
@@ -1250,7 +1258,13 @@ function NewGraduationPage() {
                         inputMode="decimal"
                         placeholder="0,00"
                         className="h-9"
-                        value={entry.fee ?? ""}
+                        value={
+                          (entry.fee ?? "").toString().trim() !== ""
+                            ? (entry.fee ?? "")
+                            : entry.beltId && priceByBelt[entry.beltId] != null
+                              ? String(priceByBelt[entry.beltId])
+                              : ""
+                        }
                         onChange={(e) => setStudentFee(s.id, e.target.value)}
                       />
                       {entry.beltId && priceByBelt[entry.beltId] != null && (
@@ -1292,7 +1306,11 @@ function NewGraduationPage() {
                       <div>
                         <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Valor</div>
                         <div className="text-lg font-bold tabular-nums">
-                          R$ {Number((entry.fee ?? "").toString().replace(",", ".") || 0).toFixed(2)}
+                          R$ {(() => {
+                            const raw = (entry.fee ?? "").toString().replace(",", ".").trim();
+                            const fallback = entry.beltId && priceByBelt[entry.beltId] != null ? Number(priceByBelt[entry.beltId]) : 0;
+                            return (raw === "" ? fallback : Number(raw) || 0).toFixed(2);
+                          })()}
                         </div>
                       </div>
                     </div>
