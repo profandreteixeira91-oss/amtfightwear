@@ -6,6 +6,7 @@ import {
   listContentLibrary,
   upsertContentLibrary,
   deleteContentLibrary,
+  type ContentInput,
 } from "@/lib/dojo/lesson-plans.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
