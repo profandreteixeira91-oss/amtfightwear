@@ -1110,14 +1110,42 @@ function SidebarField({ icon: Icon, label, value }: { icon: any; label: string; 
 
 function SectionCard({ title, icon: Icon, children }: { title: string; icon: any; children: React.ReactNode }) {
   return (
-    <Card className="dojo-card">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-sm">
-          <Icon className="h-4 w-4 text-primary" /> {title}
+    <Card className="dojo-card relative overflow-hidden rounded-2xl border-neutral-200/70 bg-white shadow-sm">
+      <div aria-hidden className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-red-500 via-red-400 to-red-600 opacity-80" />
+      <CardHeader className="pb-3 pt-4">
+        <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+          <span className="grid h-7 w-7 place-items-center rounded-lg bg-red-50 text-red-600 ring-1 ring-red-100">
+            <Icon className="h-4 w-4" />
+          </span>
+          <span className="font-display tracking-tight">{title}</span>
         </CardTitle>
       </CardHeader>
       <CardContent>{children}</CardContent>
     </Card>
+  );
+}
+
+function HeroChip({ icon: Icon, children }: { icon?: any; children: React.ReactNode }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-[11px] font-medium text-neutral-200 backdrop-blur">
+      {Icon ? <Icon className="h-3 w-3 text-red-300" /> : null}
+      {children}
+    </span>
+  );
+}
+
+function HeroStatusPill({ status }: { status?: string }) {
+  const map: Record<string, { label: string; cls: string; dot: string }> = {
+    active: { label: "Ativo", cls: "border-emerald-300/40 bg-emerald-500/15 text-emerald-100", dot: "bg-emerald-400" },
+    inactive: { label: "Inativo", cls: "border-white/20 bg-white/5 text-neutral-300", dot: "bg-neutral-400" },
+    frozen: { label: "Trancado", cls: "border-amber-300/40 bg-amber-500/15 text-amber-100", dot: "bg-amber-400" },
+    trial: { label: "Experimental", cls: "border-sky-300/40 bg-sky-500/15 text-sky-100", dot: "bg-sky-400" },
+  };
+  const cfg = map[status ?? ""] ?? map.inactive;
+  return (
+    <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${cfg.cls}`}>
+      <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot} shadow-[0_0_0_3px_rgba(255,255,255,0.06)]`} /> {cfg.label}
+    </span>
   );
 }
 
