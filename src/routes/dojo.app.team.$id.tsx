@@ -85,6 +85,7 @@ function TeamMemberDetail() {
   const listPayFn = useServerFn(listPayments);
   const savePayFn = useServerFn(upsertPayment);
   const markPaidFn = useServerFn(markPaymentPaid);
+  const computeFn = useServerFn(computeMemberEarnings);
   const listDocsFn = useServerFn(listTeamDocuments);
   const addDocFn = useServerFn(addTeamDocument);
   const archiveDocFn = useServerFn(archiveTeamDocument);
@@ -106,7 +107,14 @@ function TeamMemberDetail() {
     if (q.data?.payroll) setPayroll(q.data.payroll);
   }, [q.data]);
 
-  const [newPay, setNewPay] = useState<any>({ kind: "salary", amount: 0, status: "pending", description: "" });
+  const firstOfMonth = new Date().toISOString().slice(0, 8) + "01";
+  const today = new Date().toISOString().slice(0, 10);
+  const [newPay, setNewPay] = useState<any>({
+    kind: "salary", amount: 0, status: "pending", description: "",
+    from: firstOfMonth, to: today, hours_worked: null, classes_count: null,
+    due_date: "", paid_at: "", payment_method: "",
+  });
+  const [calc, setCalc] = useState<any>(null);
 
   const saveProfile = async () => {
     try {
