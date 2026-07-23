@@ -219,7 +219,7 @@ function MemberRow({ member, qc }: { member: any; qc: ReturnType<typeof useQuery
               </span>
               {member.role && (
                 <Badge variant="outline" className="text-[10px] uppercase">
-                  {member.role}
+                  {translateRole(member.role)}
                 </Badge>
               )}
               {hasLogin ? (
