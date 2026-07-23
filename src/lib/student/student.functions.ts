@@ -386,10 +386,13 @@ export const selfCheckin = createServerFn({ method: "POST" })
       }
     }
 
+    const { resolveClassForCheckin } = await import("@/lib/dojo/attendance.functions");
+    const classId = await resolveClassForCheckin(context.supabase, me.id);
     const { error } = await context.supabase.from("dojo_attendance").insert({
       student_id: me.id,
       owner_id: me.owner_id,
       unit_id: me.unit_id ?? null,
+      class_id: classId,
       method: data.method,
       source: "student_app",
       status: "checked_in",

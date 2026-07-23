@@ -10,6 +10,36 @@ function randomToken() {
   return crypto.randomUUID().replace(/-/g, "");
 }
 
+// Resolve which class a check-in belongs to, so ranking-by-class reflects it.
+// Priority: (1) class with a schedule active right now for this student's
+// enrolled classes; (2) if the student is enrolled in exactly one class, use it.
+// Otherwise returns null.
+export async function resolveClassForCheckin(
+  supabase: any,
+  studentId: string,
+): Promise<string | null> {
+  const { data: enrolls } = await supabase
+    .from("dojo_class_students")
+    .select("class_id")
+    .eq("student_id", studentId);
+  const classIds = (enrolls ?? []).map((r: any) => r.class_id).filter(Boolean);
+  if (classIds.length === 0) return null;
+  if (classIds.length === 1) return classIds[0];
+
+  const now = new Date();
+  const weekday = now.getDay();
+  const hhmm = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:00`;
+  const { data: sched } = await supabase
+    .from("dojo_class_schedules")
+    .select("class_id, start_time, end_time, weekday")
+    .in("class_id", classIds)
+    .eq("weekday", weekday)
+    .lte("start_time", hhmm)
+    .gte("end_time", hhmm);
+  const match = (sched ?? [])[0];
+  return match?.class_id ?? null;
+}
+
 // ============ ATTENDANCE ============
 export const listAttendance = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -71,6 +101,7 @@ export const manualCheckin = createServerFn({ method: "POST" })
       .insert({
         student_id: data.studentId,
         unit_id: data.unitId ?? null,
+        class_id: await resolveClassForCheckin(context.supabase, data.studentId),
         method: "manual",
         notes: data.notes ?? null,
         created_by: context.userId,
@@ -107,6 +138,7 @@ export const checkinByCode = createServerFn({ method: "POST" })
       .insert({
         student_id: student.id,
         unit_id: data.unitId ?? student.unit_id ?? null,
+        class_id: await resolveClassForCheckin(context.supabase, student.id),
         method: /^\d+$/.test(code) ? "pin" : "qr",
         created_by: context.userId,
         owner_id: context.userId,
