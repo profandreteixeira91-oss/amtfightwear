@@ -174,9 +174,9 @@ function buildStyles(o: BrandedPrintOptions): string {
   .page-num-current::before { content: counter(page); }
   .page-num-total::before { content: counter(pages); }
   * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  html, body { margin: 0; padding: 0; background: #eef2f7; color: #0f172a; font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif; font-size: 11.5px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
-  body { padding: 28px 16px; }
-  .sheet { max-width: 820px; margin: 0 auto; background: #fff; padding: 0 0 44px; border-radius: 10px; box-shadow: 0 20px 60px rgba(15,23,42,.10); overflow: hidden; }
+  html, body { margin: 0; padding: 0; background: #fff; color: #0f172a; font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif; font-size: 11.5px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  body { padding: 24px 16px; }
+  .sheet { max-width: 820px; margin: 0 auto; background: #fff; padding: 0 0 24px; border-radius: 0; box-shadow: none; overflow: visible; }
   main.doc-body { padding: 0 52px; }
   .doc-title-block { padding: 26px 52px 8px; }
 
