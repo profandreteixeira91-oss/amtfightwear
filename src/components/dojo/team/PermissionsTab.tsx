@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Save, Link2, Unlink, ShieldCheck } from "lucide-react";
+import { Save, KeyRound, Unlink, ShieldCheck, Eye, EyeOff } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,7 +17,7 @@ import {
 } from "@/lib/dojo/permissions";
 import {
   updateTeamMemberPermissions,
-  linkTeamMemberUser,
+  setTeamMemberLogin,
   unlinkTeamMemberUser,
 } from "@/lib/dojo/team.functions";
 
