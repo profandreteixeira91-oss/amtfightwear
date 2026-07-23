@@ -51,11 +51,14 @@ const OVERLAY_Z = "z-[130]";
 
 export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, showPageNumberTokens = false, compact = false }: Props) {
   const ref = useRef<HTMLDivElement | null>(null);
+  const surfaceRef = useRef<HTMLDivElement | null>(null);
   const [imgOpen, setImgOpen] = useState(false);
   const [imgUrl, setImgUrl] = useState("");
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement | null>(null);
   const savedRange = useRef<Range | null>(null);
+  const [selectedImg, setSelectedImg] = useState<HTMLImageElement | null>(null);
+  const [imgBox, setImgBox] = useState<{ left: number; top: number; width: number; height: number } | null>(null);
 
   useEffect(() => {
     if (!ref.current) return;
@@ -64,6 +67,54 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
       ref.current.innerHTML = value ?? "";
     }
   }, [value]);
+
+  // Recompute overlay box relative to the surface container.
+  const recomputeImgBox = () => {
+    if (!selectedImg || !surfaceRef.current) { setImgBox(null); return; }
+    if (!surfaceRef.current.contains(selectedImg)) { setSelectedImg(null); setImgBox(null); return; }
+    const s = surfaceRef.current.getBoundingClientRect();
+    const r = selectedImg.getBoundingClientRect();
+    setImgBox({
+      left: r.left - s.left + surfaceRef.current.scrollLeft,
+      top: r.top - s.top + surfaceRef.current.scrollTop,
+      width: r.width,
+      height: r.height,
+    });
+  };
+
+  useEffect(() => {
+    recomputeImgBox();
+    if (!selectedImg) return;
+    const onWinChange = () => recomputeImgBox();
+    window.addEventListener("resize", onWinChange);
+    surfaceRef.current?.addEventListener("scroll", onWinChange);
+    const ro = new ResizeObserver(onWinChange);
+    ro.observe(selectedImg);
+    return () => {
+      window.removeEventListener("resize", onWinChange);
+      surfaceRef.current?.removeEventListener("scroll", onWinChange);
+      ro.disconnect();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedImg]);
+
+  // Click handler inside the editor to select/deselect images.
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+    const onMouseDown = (e: MouseEvent) => {
+      const t = e.target as HTMLElement;
+      if (t && t.tagName === "IMG") {
+        e.preventDefault();
+        setSelectedImg(t as HTMLImageElement);
+      } else {
+        setSelectedImg(null);
+      }
+    };
+    node.addEventListener("mousedown", onMouseDown);
+    return () => node.removeEventListener("mousedown", onMouseDown);
+  }, []);
+
 
   const saveSelection = () => {
     const sel = window.getSelection();
@@ -362,10 +413,11 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
 
       {/* Editor surface — canvas estilo Google Docs */}
       <div
+        ref={surfaceRef}
         className={
           compact
-            ? "bg-background"
-            : "bg-[#f1f3f4] dark:bg-[#1b1b1f] px-4 py-6 md:py-10 overflow-auto"
+            ? "bg-background relative"
+            : "bg-[#f1f3f4] dark:bg-[#1b1b1f] px-4 py-6 md:py-10 overflow-auto relative"
         }
         style={compact ? undefined : { maxHeight: "calc(100vh - 220px)" }}
       >
@@ -403,7 +455,76 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
             }}
           />
         </div>
+
+        {/* Overlay de redimensionamento livre da imagem selecionada */}
+        {selectedImg && imgBox && (
+          <div
+            className="pointer-events-none absolute"
+            style={{
+              left: imgBox.left,
+              top: imgBox.top,
+              width: imgBox.width,
+              height: imgBox.height,
+              zIndex: 20,
+            }}
+          >
+            <div className="absolute inset-0 border-2 border-primary/70 shadow-[0_0_0_1px_rgba(255,255,255,0.6)]" />
+            {(["nw","n","ne","e","se","s","sw","w"] as const).map((pos) => {
+              const style: React.CSSProperties = { position: "absolute", width: 10, height: 10, background: "white", border: "1.5px solid hsl(var(--primary))", borderRadius: 2 };
+              const cursors: Record<string,string> = { nw:"nwse-resize", n:"ns-resize", ne:"nesw-resize", e:"ew-resize", se:"nwse-resize", s:"ns-resize", sw:"nesw-resize", w:"ew-resize" };
+              if (pos.includes("n")) style.top = -6; if (pos.includes("s")) style.bottom = -6;
+              if (pos.includes("w")) style.left = -6; if (pos.includes("e")) style.right = -6;
+              if (pos === "n" || pos === "s") { style.left = "50%"; style.transform = "translateX(-50%)"; }
+              if (pos === "e" || pos === "w") { style.top = "50%"; style.transform = "translateY(-50%)"; }
+              return (
+                <div
+                  key={pos}
+                  className="pointer-events-auto"
+                  style={{ ...style, cursor: cursors[pos] }}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (!selectedImg) return;
+                    const startX = e.clientX;
+                    const startY = e.clientY;
+                    const startW = selectedImg.getBoundingClientRect().width;
+                    const startH = selectedImg.getBoundingClientRect().height;
+                    const dirX = pos.includes("e") ? 1 : pos.includes("w") ? -1 : 0;
+                    const dirY = pos.includes("s") ? 1 : pos.includes("n") ? -1 : 0;
+                    // Remove max-width restriction to allow free resize.
+                    selectedImg.style.maxWidth = "none";
+                    const onMove = (ev: MouseEvent) => {
+                      const dx = (ev.clientX - startX) * dirX;
+                      const dy = (ev.clientY - startY) * dirY;
+                      let w = startW + dx;
+                      let h = startH + dy;
+                      if (ev.shiftKey && dirX !== 0 && dirY !== 0) {
+                        // Manter proporção quando arrastando pelos cantos com Shift.
+                        const ratio = startW / startH;
+                        if (Math.abs(dx) > Math.abs(dy)) h = w / ratio; else w = h * ratio;
+                      }
+                      w = Math.max(24, w);
+                      h = Math.max(24, h);
+                      if (dirX !== 0) selectedImg.style.width = `${Math.round(w)}px`;
+                      if (dirY !== 0) selectedImg.style.height = `${Math.round(h)}px`;
+                      recomputeImgBox();
+                    };
+                    const onUp = () => {
+                      window.removeEventListener("mousemove", onMove);
+                      window.removeEventListener("mouseup", onUp);
+                      handleInput();
+                      recomputeImgBox();
+                    };
+                    window.addEventListener("mousemove", onMove);
+                    window.addEventListener("mouseup", onUp);
+                  }}
+                />
+              );
+            })}
+          </div>
+        )}
       </div>
+
 
 
       {/* Image dialog */}
