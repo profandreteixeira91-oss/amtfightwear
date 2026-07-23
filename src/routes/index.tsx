@@ -53,12 +53,18 @@ export const Route = createFileRoute("/")({
 
 function SectionHeader({ eyebrow, title, action }: { eyebrow?: string; title: string; action?: React.ReactNode }) {
   return (
-    <div className="mb-10 flex items-end justify-between gap-6 sm:mb-12">
+    <div className="mb-12 flex items-end justify-between gap-6 sm:mb-16">
       <div className="min-w-0">
         {eyebrow ? (
-          <div className="mb-2 text-[11px] font-bold uppercase tracking-[0.32em] text-primary">{eyebrow}</div>
+          <div className="mb-3 flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.38em] text-primary">
+            <span className="h-px w-8 bg-primary/50" />
+            {eyebrow}
+          </div>
         ) : null}
-        <h2 className="text-3xl font-black leading-[1.05] tracking-tight text-foreground sm:text-4xl">
+        <h2
+          className="text-[2rem] leading-[1.02] tracking-[-0.02em] text-foreground sm:text-[2.75rem] lg:text-[3.25rem]"
+          style={{ fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 600 }}
+        >
           {title}
         </h2>
       </div>
