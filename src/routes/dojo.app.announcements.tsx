@@ -94,34 +94,67 @@ function AnnouncementsAdmin() {
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 md:gap-7">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <p className="max-w-2xl text-sm text-muted-foreground">
-          Publique comunicados que aparecem automaticamente no App do Aluno.
-        </p>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" onClick={() => setShowCatMgr(true)}>Categorias</Button>
-          <Button onClick={() => { setEditing(null); setShowEditor(true); }}>
-            <Plus className="mr-1 h-4 w-4" /> Novo aviso
-          </Button>
-        </div>
-      </div>
+      {/* HERO PREMIUM RUBY NOIR */}
+      <section className="relative overflow-hidden rounded-3xl border border-red-500/20 bg-gradient-to-br from-neutral-950 via-neutral-900 to-black text-white shadow-[0_30px_80px_-30px_rgba(220,38,38,0.45)]">
+        <div
+          aria-hidden
+          className="absolute inset-0 opacity-[0.08]"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)",
+            backgroundSize: "44px 44px",
+          }}
+        />
+        <div aria-hidden className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-red-600/40 blur-3xl" />
+        <div aria-hidden className="absolute -bottom-24 left-1/4 h-64 w-64 rounded-full bg-red-500/20 blur-3xl" />
 
+        <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 p-5 sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:p-7 md:p-9">
+          <div className="min-w-0 space-y-3">
+            <div className="inline-flex items-center gap-2 rounded-full border border-red-400/30 bg-red-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-red-200">
+              <Megaphone className="h-3 w-3" />
+              Quadro de Avisos
+            </div>
+            <h1 className="font-display text-2xl font-black leading-tight tracking-tight sm:text-3xl md:text-4xl">
+              Comunique-se com <span className="text-red-400">clareza</span> e impacto
+            </h1>
+            <p className="max-w-2xl text-sm leading-relaxed text-neutral-300 md:text-base">
+              Publique comunicados oficiais direto no App do Aluno com prioridade, categorias, capa, vídeo, confirmação de leitura e agendamento.
+            </p>
+          </div>
+
+          <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
+            <Button
+              variant="outline"
+              onClick={() => setShowCatMgr(true)}
+              className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+            >
+              Categorias
+            </Button>
+            <Button
+              onClick={() => { setEditing(null); setShowEditor(true); }}
+              className="bg-red-600 text-white hover:bg-red-500 shadow-[0_10px_25px_-12px_rgba(220,38,38,0.9)]"
+            >
+              <Plus className="mr-1 h-4 w-4" /> Novo aviso
+            </Button>
+          </div>
+        </div>
+      </section>
 
       {/* Stats */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-5">
-        <StatCard icon={<Megaphone className="h-4 w-4" />} label="Total" value={cards?.total ?? 0} />
-        <StatCard icon={<CheckCircle2 className="h-4 w-4 text-emerald-600" />} label="Ativos" value={cards?.active ?? 0} />
-        <StatCard icon={<Clock className="h-4 w-4 text-blue-600" />} label="Agendados" value={cards?.scheduled ?? 0} />
-        <StatCard icon={<AlertTriangle className="h-4 w-4 text-amber-600" />} label="Expirados" value={cards?.expired ?? 0} />
-        <StatCard icon={<Star className="h-4 w-4 text-yellow-500" />} label="Em destaque" value={cards?.featured ?? 0} />
-        <StatCard icon={<Eye className="h-4 w-4" />} label="Visualizações" value={cards?.totalViews ?? 0} />
-        <StatCard icon={<Star className="h-4 w-4 text-pink-500" />} label="Curtidas" value={cards?.totalLikes ?? 0} />
-        <StatCard icon={<CheckCircle2 className="h-4 w-4" />} label="Leituras" value={cards?.totalReads ?? 0} />
-        <div className="col-span-2 flex flex-col justify-center rounded-xl border bg-card px-4 py-3 md:col-span-2 xl:col-span-2">
-          <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Última publicação</span>
-          <span className="truncate text-sm font-semibold">{cards?.latest?.title ?? "—"}</span>
+        <StatCard icon={<Megaphone className="h-4 w-4 text-red-600" />} label="Total" value={cards?.total ?? 0} ring="ring-red-400/30" glow="from-red-500/20 to-red-500/5" />
+        <StatCard icon={<CheckCircle2 className="h-4 w-4 text-emerald-600" />} label="Ativos" value={cards?.active ?? 0} ring="ring-emerald-400/30" glow="from-emerald-400/20 to-emerald-500/5" />
+        <StatCard icon={<Clock className="h-4 w-4 text-blue-600" />} label="Agendados" value={cards?.scheduled ?? 0} ring="ring-blue-400/30" glow="from-blue-400/20 to-blue-500/5" />
+        <StatCard icon={<AlertTriangle className="h-4 w-4 text-amber-600" />} label="Expirados" value={cards?.expired ?? 0} ring="ring-amber-400/30" glow="from-amber-400/20 to-amber-500/5" />
+        <StatCard icon={<Star className="h-4 w-4 text-yellow-500" />} label="Em destaque" value={cards?.featured ?? 0} ring="ring-yellow-400/30" glow="from-yellow-400/20 to-yellow-500/5" />
+        <StatCard icon={<Eye className="h-4 w-4 text-cyan-600" />} label="Visualizações" value={cards?.totalViews ?? 0} ring="ring-cyan-400/30" glow="from-cyan-400/20 to-cyan-500/5" />
+        <StatCard icon={<Star className="h-4 w-4 text-pink-500" />} label="Curtidas" value={cards?.totalLikes ?? 0} ring="ring-pink-400/30" glow="from-pink-400/20 to-pink-500/5" />
+        <StatCard icon={<CheckCircle2 className="h-4 w-4 text-violet-600" />} label="Leituras" value={cards?.totalReads ?? 0} ring="ring-violet-400/30" glow="from-violet-400/20 to-violet-500/5" />
+        <div className="col-span-2 flex flex-col justify-center rounded-2xl border border-neutral-200/70 bg-gradient-to-br from-neutral-950 to-neutral-900 px-4 py-3 text-white shadow-sm md:col-span-2 xl:col-span-2">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-red-300">Última publicação</span>
+          <span className="mt-1 truncate text-sm font-bold">{cards?.latest?.title ?? "—"}</span>
           {cards?.latest?.publish_at && (
-            <span className="text-xs text-muted-foreground">
+            <span className="text-xs text-neutral-400">
               {new Date(cards.latest.publish_at).toLocaleString("pt-BR")}
             </span>
           )}
@@ -129,20 +162,25 @@ function AnnouncementsAdmin() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col gap-2 rounded-xl border bg-card p-3 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-2 rounded-2xl border border-neutral-200/70 bg-white/80 p-3 shadow-sm backdrop-blur sm:flex-row sm:items-center">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar avisos..." className="pl-9" />
+          <Input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Buscar avisos..."
+            className="pl-9 border-neutral-200 bg-white focus-visible:ring-red-500/40"
+          />
         </div>
         <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger className="sm:w-44"><SelectValue placeholder="Status" /></SelectTrigger>
+          <SelectTrigger className="sm:w-44 rounded-xl"><SelectValue placeholder="Status" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos os status</SelectItem>
             {STATUSES.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select value={priority} onValueChange={setPriority}>
-          <SelectTrigger className="sm:w-44"><SelectValue placeholder="Prioridade" /></SelectTrigger>
+          <SelectTrigger className="sm:w-44 rounded-xl"><SelectValue placeholder="Prioridade" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todas prioridades</SelectItem>
             {PRIORITIES.map((p) => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
@@ -153,40 +191,68 @@ function AnnouncementsAdmin() {
       {/* List */}
       <div className="grid gap-3">
         {list.isLoading ? (
-          <div className="rounded-xl border bg-card p-8 text-center text-muted-foreground">Carregando...</div>
+          <div className="rounded-2xl border border-neutral-200/70 bg-white p-8 text-center text-muted-foreground shadow-sm">
+            <Loader2 className="mx-auto h-6 w-6 animate-spin text-red-500" />
+            <p className="mt-2 text-sm">Carregando avisos…</p>
+          </div>
         ) : rows.length === 0 ? (
-          <div className="rounded-xl border bg-card p-10 text-center">
-            <Megaphone className="mx-auto h-10 w-10 text-muted-foreground/50" />
-            <p className="mt-2 text-sm font-medium">Nenhum aviso publicado ainda</p>
-            <p className="text-xs text-muted-foreground">Clique em "Novo aviso" para começar.</p>
+          <div className="relative overflow-hidden rounded-2xl border border-dashed border-red-300/40 bg-gradient-to-br from-white to-red-50/60 p-10 text-center">
+            <div aria-hidden className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-red-500/10 blur-2xl" />
+            <div className="relative">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-500/10 ring-1 ring-red-500/30">
+                <Megaphone className="h-6 w-6 text-red-600" />
+              </div>
+              <p className="mt-3 text-sm font-semibold">Nenhum aviso publicado ainda</p>
+              <p className="text-xs text-muted-foreground">Clique em "Novo aviso" para começar.</p>
+            </div>
           </div>
         ) : rows.map((a: any) => {
           const pri = PRIORITIES.find((p) => p.value === a.priority);
+          const isUrgent = a.priority === "urgent";
           return (
-            <article key={a.id} className="flex flex-col gap-3 rounded-xl border bg-card p-4 shadow-sm sm:flex-row sm:items-start">
+            <article
+              key={a.id}
+              className={`group relative flex flex-col gap-3 overflow-hidden rounded-2xl border bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg sm:flex-row sm:items-start ${
+                isUrgent ? "border-red-300/60 ring-1 ring-red-400/30" : "border-neutral-200/70"
+              }`}
+            >
+              {isUrgent && (
+                <div aria-hidden className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-red-500 to-red-700" />
+              )}
               {a.cover_image ? (
-                <img src={a.cover_image} alt="" className="h-24 w-full rounded-lg object-cover sm:h-20 sm:w-32" />
+                <img src={a.cover_image} alt="" className="h-24 w-full rounded-xl object-cover ring-1 ring-neutral-200/70 sm:h-24 sm:w-36" />
               ) : (
-                <div className="grid h-24 w-full place-items-center rounded-lg bg-muted sm:h-20 sm:w-32">
-                  <Megaphone className="h-8 w-8 text-muted-foreground/40" />
+                <div className="relative grid h-24 w-full place-items-center overflow-hidden rounded-xl bg-gradient-to-br from-neutral-100 to-neutral-200 sm:h-24 sm:w-36">
+                  <div aria-hidden className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(220,38,38,0.15),transparent_60%)]" />
+                  <Megaphone className="relative h-8 w-8 text-neutral-400" />
                 </div>
               )}
-              <div className="flex-1 min-w-0 space-y-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  {a.pinned && <Badge variant="secondary" className="gap-1"><Pin className="h-3 w-3" /> Fixado</Badge>}
-                  {a.featured && <Badge className="gap-1 bg-yellow-100 text-yellow-800 hover:bg-yellow-100"><Star className="h-3 w-3" /> Destaque</Badge>}
-                  <Badge className={pri?.color} variant="secondary">{pri?.label}</Badge>
-                  <Badge variant="outline">{STATUSES.find((s) => s.value === a.status)?.label}</Badge>
+              <div className="min-w-0 flex-1 space-y-1.5">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {a.pinned && (
+                    <Badge variant="secondary" className="gap-1 rounded-full bg-red-50 text-red-700 hover:bg-red-50">
+                      <Pin className="h-3 w-3" /> Fixado
+                    </Badge>
+                  )}
+                  {a.featured && (
+                    <Badge className="gap-1 rounded-full bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
+                      <Star className="h-3 w-3" /> Destaque
+                    </Badge>
+                  )}
+                  <Badge className={`${pri?.color} rounded-full`} variant="secondary">{pri?.label}</Badge>
+                  <Badge variant="outline" className="rounded-full">{STATUSES.find((s) => s.value === a.status)?.label}</Badge>
                   {a.category && (
-                    <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ring-1"
-                      style={{ background: `${a.category.color}20`, color: a.category.color, borderColor: a.category.color }}>
+                    <span
+                      className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ring-1"
+                      style={{ background: `${a.category.color}20`, color: a.category.color, borderColor: a.category.color }}
+                    >
                       {a.category.name}
                     </span>
                   )}
                 </div>
-                <h3 className="truncate text-base font-semibold">{a.title}</h3>
+                <h3 className="truncate text-base font-bold tracking-tight text-neutral-900">{a.title}</h3>
                 {a.summary && <p className="line-clamp-2 text-sm text-muted-foreground">{a.summary}</p>}
-                <div className="flex flex-wrap items-center gap-3 pt-1 text-xs text-muted-foreground">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-1 text-[11px] text-muted-foreground">
                   <span className="inline-flex items-center gap-1"><Calendar className="h-3 w-3" /> {new Date(a.publish_at).toLocaleString("pt-BR")}</span>
                   {a.expires_at && <span className="inline-flex items-center gap-1"><Clock className="h-3 w-3" /> Expira {new Date(a.expires_at).toLocaleDateString("pt-BR")}</span>}
                   <span className="inline-flex items-center gap-1"><Eye className="h-3 w-3" /> {a.view_count ?? 0}</span>
@@ -195,7 +261,7 @@ function AnnouncementsAdmin() {
               </div>
               <div className="flex flex-wrap items-center gap-1">
                 {a.status !== "published" && (
-                  <Button size="sm" variant="outline" onClick={() => setStatusMut.mutate({ id: a.id, s: "published" })}>
+                  <Button size="sm" className="bg-red-600 text-white hover:bg-red-500" onClick={() => setStatusMut.mutate({ id: a.id, s: "published" })}>
                     <Send className="mr-1 h-3.5 w-3.5" /> Publicar
                   </Button>
                 )}
@@ -234,7 +300,7 @@ function AnnouncementsAdmin() {
       <ReadReportDialog id={showReport} onClose={() => setShowReport(null)} />
 
       <div className="pt-4 text-center">
-        <Link to="/app/announcements" className="text-xs text-muted-foreground underline">
+        <Link to="/app/announcements" className="text-xs text-muted-foreground underline underline-offset-4 hover:text-red-600">
           Visualizar como o aluno vê →
         </Link>
       </div>
@@ -242,16 +308,22 @@ function AnnouncementsAdmin() {
   );
 }
 
-function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: number }) {
+function StatCard({
+  icon, label, value, ring = "ring-neutral-200/70", glow = "from-neutral-100 to-white",
+}: { icon: React.ReactNode; label: string; value: number; ring?: string; glow?: string }) {
   return (
-    <div className="rounded-xl border bg-card px-4 py-3 shadow-sm">
-      <div className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-        {icon} {label}
+    <div className={`group relative overflow-hidden rounded-2xl border border-neutral-200/70 bg-white px-4 py-3 shadow-sm ring-1 ${ring} transition-all hover:-translate-y-0.5 hover:shadow-md`}>
+      <div className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${glow} opacity-70`} aria-hidden />
+      <div className="relative">
+        <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          {icon} {label}
+        </div>
+        <div className="mt-1.5 font-display text-2xl font-black leading-none tabular-nums text-neutral-900 md:text-[1.75rem]">{value}</div>
       </div>
-      <div className="mt-1 text-2xl font-bold">{value}</div>
     </div>
   );
 }
+
 
 // ============ Editor ============
 function AnnouncementEditor({
