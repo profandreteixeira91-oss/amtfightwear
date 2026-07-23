@@ -235,24 +235,24 @@ function AnalysisPage() {
         </div>
 
         {/* Frequência */}
-        <TabsContent value="frequencia" className="mt-4 space-y-4">
-          <div className="grid gap-4 lg:grid-cols-3">
+        <TabsContent value="frequencia" className="mt-6 space-y-6">
+          <div className="grid gap-6 lg:grid-cols-3">
             <SectionCard title="Frequência mensal" description="Últimos 12 meses" className="lg:col-span-2">
               {attendance.isLoading ? <Skeleton className="h-56 w-full" /> :
                 <AttendanceMonthlyChart data={attendance.data?.heatmap ?? []} months={12} />}
             </SectionCard>
             <SectionCard title="Dias da semana" description="Padrão de treino">
-              <div className="grid grid-cols-7 gap-1.5 text-center">
+              <div className="grid grid-cols-7 gap-2 text-center">
                 {["D", "S", "T", "Q", "Q", "S", "S"].map((d, i) => {
                   const v = attendance.data?.weekday?.[i] ?? 0;
                   const max = Math.max(1, ...(attendance.data?.weekday ?? [1]));
                   return (
-                    <div key={i} className="flex flex-col items-center gap-1">
-                      <div className="relative flex h-32 w-full items-end overflow-hidden rounded-md bg-muted/40">
-                        <div className="w-full rounded-md bg-gradient-to-t from-primary to-primary/60 transition-all" style={{ height: `${(v / max) * 100}%` }} />
+                    <div key={i} className="flex flex-col items-center gap-2">
+                      <div className="relative flex h-36 w-full items-end overflow-hidden rounded-lg bg-muted/40">
+                        <div className="w-full rounded-lg bg-gradient-to-t from-primary to-primary/60 transition-all" style={{ height: `${(v / max) * 100}%` }} />
                       </div>
-                      <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">{d}</div>
-                      <div className="text-xs font-bold tabular-nums">{v}</div>
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">{d}</div>
+                      <div className="text-sm font-bold tabular-nums">{v}</div>
                     </div>
                   );
                 })}
@@ -265,6 +265,7 @@ function AnalysisPage() {
               <AttendanceHeatmap data={attendance.data?.heatmap ?? []} />}
           </SectionCard>
         </TabsContent>
+
 
         {/* Técnico */}
         <TabsContent value="tecnico" className="mt-4 space-y-4">
