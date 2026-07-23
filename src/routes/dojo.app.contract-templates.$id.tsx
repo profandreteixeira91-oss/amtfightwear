@@ -118,6 +118,35 @@ function ContractEditorPage() {
     show_page_numbers: true,
   });
   const [loaded, setLoaded] = useState(isNew);
+  const [activeTab, setActiveTab] = useState<"body" | "header" | "footer" | "page">("body");
+  const deleteFn = useServerFn(deleteContractTemplate);
+
+  const exec = (cmd: string, value?: string) => {
+    try { document.execCommand(cmd, false, value); } catch {}
+  };
+  const insertAtCursor = (html: string) => {
+    const sel = window.getSelection();
+    if (sel && sel.rangeCount > 0 && (document.activeElement as HTMLElement)?.isContentEditable) {
+      exec("insertHTML", html);
+      return;
+    }
+    // Fallback: append to current tab content
+    if (activeTab === "body") patch({ content: draft.content + html });
+    else if (activeTab === "header") patch({ header_html: draft.header_html + html });
+    else if (activeTab === "footer") patch({ footer_html: draft.footer_html + html });
+    else patch({ content: draft.content + html });
+    toast.message("Variável inserida no final do documento (clique no editor antes para posicionar).");
+  };
+  const removeTemplate = async () => {
+    if (isNew || !draft.id) { navigate({ to: "/dojo/app/contracts/templates" }); return; }
+    if (!confirm("Excluir este modelo de contrato?")) return;
+    try {
+      await deleteFn({ data: { id: draft.id } });
+      toast.success("Modelo excluído");
+      qc.invalidateQueries({ queryKey: ["contract-templates"] });
+      navigate({ to: "/dojo/app/contracts/templates" });
+    } catch (e: any) { toast.error(e.message); }
+  };
 
   useEffect(() => {
     if (isNew || loaded || !existing.data) return;
