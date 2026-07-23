@@ -197,17 +197,18 @@ function LeadsPage() {
         title="Leads"
         description={`${total} leads na base — selecione múltiplos para excluir, editar ou enriquecer em lote.`}
         actions={
-          <div className="flex flex-wrap gap-2">
+          <div className="grid w-full grid-cols-1 gap-2 sm:flex sm:w-auto sm:flex-wrap">
             <Button
               size="sm"
               variant="outline"
+              className="w-full sm:w-auto"
               onClick={() => bulkEnrichMut.mutate(undefined)}
               disabled={bulkEnrichMut.isPending}
             >
               {bulkEnrichMut.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
               Enriquecer pendentes
             </Button>
-            <Button asChild variant="outline" size="sm">
+            <Button asChild variant="outline" size="sm" className="w-full sm:w-auto">
               <Link to="/prospect/macro">
                 <Instagram className="mr-2 h-4 w-4" />Macro DM
                 {macroQueue.length > 0 && (
@@ -217,7 +218,7 @@ function LeadsPage() {
                 )}
               </Link>
             </Button>
-            <Button asChild size="sm">
+            <Button asChild size="sm" className="w-full sm:w-auto">
               <Link to="/prospect/search"><Radar className="mr-2 h-4 w-4" />Nova busca</Link>
             </Button>
           </div>
@@ -225,8 +226,8 @@ function LeadsPage() {
       >
 
       <Card className="mb-4">
-        <CardContent className="p-4">
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-12">
+        <CardContent className="p-3 sm:p-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-12">
             <div className="relative md:col-span-4">
               <Search className="pointer-events-none absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
@@ -238,7 +239,7 @@ function LeadsPage() {
             </div>
             <div className="md:col-span-2">
               <Select value={state || "all"} onValueChange={(v) => { setState(v === "all" ? "" : v); setPage(0); }}>
-                <SelectTrigger><SelectValue placeholder="UF" /></SelectTrigger>
+                <SelectTrigger className="w-full"><SelectValue placeholder="UF" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos estados</SelectItem>
                   {BR_STATES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
@@ -247,7 +248,7 @@ function LeadsPage() {
             </div>
             <div className="md:col-span-3">
               <Select value={stage || "all"} onValueChange={(v) => { setStage(v === "all" ? "" : v); setPage(0); }}>
-                <SelectTrigger><SelectValue placeholder="Estágio do pipeline" /></SelectTrigger>
+                <SelectTrigger className="w-full"><SelectValue placeholder="Estágio do pipeline" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos estágios</SelectItem>
                   {PIPELINE_STAGES.map((s) => <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>)}
@@ -256,7 +257,7 @@ function LeadsPage() {
             </div>
             <div className="md:col-span-3">
               <Select value={String(minScore)} onValueChange={(v) => { setMinScore(Number(v)); setPage(0); }}>
-                <SelectTrigger><SelectValue placeholder="Score mínimo" /></SelectTrigger>
+                <SelectTrigger className="w-full"><SelectValue placeholder="Score mínimo" /></SelectTrigger>
                 <SelectContent>
                   {[0, 20, 40, 60, 80].map((n) => <SelectItem key={n} value={String(n)}>Score ≥ {n}</SelectItem>)}
                 </SelectContent>
@@ -264,21 +265,21 @@ function LeadsPage() {
             </div>
           </div>
 
-          <div className="mt-3 flex flex-wrap items-center gap-4 text-sm">
-            <span className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+            <span className="inline-flex w-full items-center gap-1 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground sm:w-auto">
               <Filter className="h-3 w-3" />Filtros rápidos:
             </span>
             <label className="inline-flex items-center gap-2">
               <Checkbox checked={hasEmail} onCheckedChange={(v) => { setHasEmail(!!v); setPage(0); }} />
-              <Mail className="h-3.5 w-3.5" /> Com e-mail
+              <Mail className="h-3.5 w-3.5" /> <span className="text-xs sm:text-sm">Com e-mail</span>
             </label>
             <label className="inline-flex items-center gap-2">
               <Checkbox checked={hasWa} onCheckedChange={(v) => { setHasWa(!!v); setPage(0); }} />
-              <MessageCircle className="h-3.5 w-3.5" /> Com WhatsApp
+              <MessageCircle className="h-3.5 w-3.5" /> <span className="text-xs sm:text-sm">Com WhatsApp</span>
             </label>
             <label className="inline-flex items-center gap-2">
               <Checkbox checked={hasIg} onCheckedChange={(v) => { setHasIg(!!v); setPage(0); }} />
-              <Instagram className="h-3.5 w-3.5" /> Com Instagram
+              <Instagram className="h-3.5 w-3.5" /> <span className="text-xs sm:text-sm">Com Instagram</span>
             </label>
           </div>
         </CardContent>
@@ -286,11 +287,14 @@ function LeadsPage() {
 
       {/* Barra de ações em lote */}
       {selected.size > 0 && (
-        <div className="mb-3 flex flex-wrap items-center gap-2 rounded-md border border-primary/30 bg-primary/5 p-3">
-          <span className="text-sm font-semibold">{selected.size} selecionado(s)</span>
-          <div className="ml-auto flex flex-wrap items-center gap-2">
+        <div className="mb-3 rounded-md border border-primary/30 bg-primary/5 p-3">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <span className="text-sm font-semibold">{selected.size} selecionado(s)</span>
+            <Button size="sm" variant="ghost" onClick={() => setSelected(new Set())}>Limpar</Button>
+          </div>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:flex lg:flex-wrap lg:items-center">
             <Select value={bulkStage} onValueChange={setBulkStage}>
-              <SelectTrigger className="h-9 w-[220px]"><SelectValue placeholder="Mover para estágio..." /></SelectTrigger>
+              <SelectTrigger className="h-9 w-full lg:w-[220px]"><SelectValue placeholder="Mover para estágio..." /></SelectTrigger>
               <SelectContent>
                 {PIPELINE_STAGES.map((s) => <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>)}
               </SelectContent>
@@ -298,6 +302,7 @@ function LeadsPage() {
             <Button
               size="sm"
               variant="outline"
+              className="w-full lg:w-auto"
               disabled={!bulkStage || bulkStageMut.isPending}
               onClick={() => bulkStageMut.mutate({ ids: selectedIds, pipeline_stage: bulkStage })}
             >
@@ -306,15 +311,17 @@ function LeadsPage() {
             <Button
               size="sm"
               variant="outline"
+              className="w-full lg:w-auto"
               disabled={bulkEnrichMut.isPending}
               onClick={() => bulkEnrichMut.mutate(selectedIds)}
             >
               {bulkEnrichMut.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
-              Enriquecer selecionados
+              Enriquecer
             </Button>
             <Button
               size="sm"
               variant="outline"
+              className="w-full lg:w-auto"
               onClick={() => {
                 const added = addToMacroQueue(selectedIds);
                 toast.success(
@@ -324,11 +331,11 @@ function LeadsPage() {
                 );
               }}
             >
-              <Send className="mr-2 h-4 w-4" />Enviar p/ Macro
+              <Send className="mr-2 h-4 w-4" />Macro
             </Button>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button size="sm" variant="destructive">
+                <Button size="sm" variant="destructive" className="w-full lg:w-auto">
                   <Trash2 className="mr-2 h-4 w-4" />Excluir
                 </Button>
               </AlertDialogTrigger>
@@ -347,7 +354,6 @@ function LeadsPage() {
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-            <Button size="sm" variant="ghost" onClick={() => setSelected(new Set())}>Limpar</Button>
           </div>
         </div>
       )}
@@ -355,7 +361,8 @@ function LeadsPage() {
       {error && <ErrorState message={String(error)} onRetry={() => refetch()} />}
 
       <Card>
-        <CardContent className="p-0">
+        <CardContent className="p-0 overflow-x-auto">
+          <div className="min-w-[640px] md:min-w-0">
           {isLoading ? (
             <div className="space-y-2 p-4">
               {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-12" />)}
@@ -485,7 +492,8 @@ function LeadsPage() {
                         {fmtDate(String(r.created_at))}
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="inline-flex gap-1">
+                        <div className="flex flex-wrap justify-end gap-0.5">
+
                           {r.google_maps_url ? (
                             <Button
                               asChild size="sm" variant="ghost" title="Abrir no Google Maps"
@@ -587,6 +595,7 @@ function LeadsPage() {
               </TableBody>
             </Table>
           )}
+          </div>
         </CardContent>
       </Card>
 
