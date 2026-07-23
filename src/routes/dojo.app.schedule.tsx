@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Plus, ChevronLeft, ChevronRight, Users, CalendarDays, Percent, Activity } from "lucide-react";
+import { Plus, ChevronLeft, ChevronRight, Users, CalendarDays, Percent, Activity, CalendarRange, Sparkles } from "lucide-react";
 import { listClasses, listOccurrences, listSpaces, scheduleStats } from "@/lib/dojo/schedule.functions";
 import { listDojoUnits } from "@/lib/dojo/dojo.functions";
 import { ClassFormDialog } from "@/components/dojo/schedule/ClassFormDialog";
@@ -138,48 +138,83 @@ function SchedulePage() {
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 md:gap-7">
-      {/* Header ações */}
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <p className="text-sm text-muted-foreground max-w-2xl">
-          Gerencie turmas, horários, professores e alunos da academia.
-        </p>
-        <Button onClick={openNew} className="bg-primary hover:bg-primary/90">
-          <Plus className="h-4 w-4 mr-1" /> Nova turma
-        </Button>
+      {/* Premium Hero */}
+      <div className="relative overflow-hidden rounded-3xl border border-red-950/40 bg-gradient-to-br from-[#1a0508] via-[#0f0304] to-black text-white shadow-2xl">
+        <div
+          className="absolute inset-0 opacity-[0.08] pointer-events-none"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)",
+            backgroundSize: "44px 44px",
+          }}
+        />
+        <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-red-600/25 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-red-900/30 blur-3xl pointer-events-none" />
+
+        <div className="relative grid gap-6 p-6 md:p-8 md:grid-cols-[1fr_auto] md:items-center">
+          <div className="flex items-start gap-4 min-w-0">
+            <div className="relative shrink-0">
+              <div className="absolute inset-0 rounded-2xl bg-red-500/40 blur-xl" />
+              <div className="relative grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-red-500 to-red-800 shadow-lg shadow-red-950/50 ring-1 ring-white/10">
+                <CalendarRange className="h-7 w-7 text-white" />
+              </div>
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-red-300/80">
+                <Sparkles className="h-3 w-3" /> Agenda inteligente
+              </div>
+              <h1 className="mt-1 font-display text-3xl md:text-4xl font-black tracking-tight text-white">
+                Agenda de Aulas
+              </h1>
+              <p className="mt-2 max-w-2xl text-sm text-white/70">
+                Comande turmas, horários, professores e ocupação da academia com uma visão executiva do seu dojo.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex md:justify-end">
+            <Button
+              onClick={openNew}
+              className="h-11 rounded-full bg-white px-5 font-semibold text-red-700 shadow-lg shadow-red-950/40 hover:bg-white/95 hover:shadow-red-900/50 transition-all"
+            >
+              <Plus className="h-4 w-4 mr-1.5" /> Nova turma
+            </Button>
+          </div>
+        </div>
       </div>
 
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Kpi icon={Activity} label="Turmas ativas" value={stats.data?.activeClasses ?? 0} />
-        <Kpi icon={CalendarDays} label="Aulas hoje" value={stats.data?.classesToday ?? 0} />
-        <Kpi icon={Users} label="Alunos matriculados" value={stats.data?.enrolledStudents ?? 0} />
-        <Kpi icon={Percent} label="Taxa de ocupação" value={`${stats.data?.occupancyRate ?? 0}%`} />
+        <Kpi icon={Activity} label="Turmas ativas" value={stats.data?.activeClasses ?? 0} accent="from-red-500 to-red-700" />
+        <Kpi icon={CalendarDays} label="Aulas hoje" value={stats.data?.classesToday ?? 0} accent="from-amber-500 to-orange-600" />
+        <Kpi icon={Users} label="Alunos matriculados" value={stats.data?.enrolledStudents ?? 0} accent="from-emerald-500 to-teal-600" />
+        <Kpi icon={Percent} label="Taxa de ocupação" value={`${stats.data?.occupancyRate ?? 0}%`} accent="from-violet-500 to-fuchsia-600" />
       </div>
 
 
       <Tabs defaultValue="calendar" className="w-full">
-        <TabsList>
-          <TabsTrigger value="calendar">Agenda</TabsTrigger>
-          <TabsTrigger value="classes">Turmas</TabsTrigger>
-          <TabsTrigger value="spaces">Espaços</TabsTrigger>
+        <TabsList className="bg-neutral-100/70 p-1 rounded-full border border-neutral-200/70">
+          <TabsTrigger value="calendar" className="rounded-full px-4 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-red-700">Agenda</TabsTrigger>
+          <TabsTrigger value="classes" className="rounded-full px-4 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-red-700">Turmas</TabsTrigger>
+          <TabsTrigger value="spaces" className="rounded-full px-4 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-red-700">Espaços</TabsTrigger>
         </TabsList>
 
         <TabsContent value="calendar" className="space-y-3">
           {/* Filters + view controls */}
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center gap-1 border rounded-md bg-white">
-              <Button size="sm" variant="ghost" onClick={() => shift(-1)}><ChevronLeft className="h-4 w-4" /></Button>
-              <Button size="sm" variant="ghost" onClick={() => setCursor(new Date())}>Hoje</Button>
-              <Button size="sm" variant="ghost" onClick={() => shift(1)}><ChevronRight className="h-4 w-4" /></Button>
+          <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-neutral-200/80 bg-white p-2 shadow-sm">
+            <div className="flex items-center gap-1 rounded-full bg-neutral-100 p-0.5">
+              <Button size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-white" onClick={() => shift(-1)}><ChevronLeft className="h-4 w-4" /></Button>
+              <Button size="sm" variant="ghost" className="h-8 px-3 rounded-full text-xs font-semibold hover:bg-white" onClick={() => setCursor(new Date())}>Hoje</Button>
+              <Button size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-white" onClick={() => shift(1)}><ChevronRight className="h-4 w-4" /></Button>
             </div>
-            <div className="text-sm font-medium capitalize min-w-[180px]">{label}</div>
+            <div className="text-sm font-semibold capitalize min-w-[180px] px-2 text-neutral-800">{label}</div>
 
-            <div className="flex items-center gap-1 border rounded-md bg-white ml-auto p-0.5">
+            <div className="flex items-center gap-1 rounded-full bg-neutral-100 ml-auto p-0.5">
               {(["day", "week", "month"] as ViewMode[]).map((v) => (
                 <button
                   key={v}
                   onClick={() => setView(v)}
-                  className={`px-3 py-1 text-xs rounded ${view === v ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                  className={`px-3.5 py-1.5 text-xs font-semibold rounded-full transition-all ${view === v ? "bg-gradient-to-br from-red-600 to-red-800 text-white shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
                 >
                   {v === "day" ? "Dia" : v === "week" ? "Semana" : "Mês"}
                 </button>
@@ -271,15 +306,18 @@ function SchedulePage() {
   );
 }
 
-function Kpi({ icon: Icon, label, value }: { icon: any; label: string; value: any }) {
+function Kpi({ icon: Icon, label, value, accent = "from-red-500 to-red-700" }: { icon: any; label: string; value: any; accent?: string }) {
   return (
-    <div className="border rounded-lg bg-white p-3 flex items-center gap-3">
-      <div className="grid h-10 w-10 place-items-center rounded-md bg-primary/10 text-primary">
-        <Icon className="h-5 w-5" />
-      </div>
-      <div>
-        <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
-        <div className="text-xl font-bold">{value}</div>
+    <div className="group relative overflow-hidden rounded-2xl border border-neutral-200/80 bg-white p-4 shadow-sm hover:shadow-md transition-all">
+      <div className={`absolute -top-8 -right-8 h-24 w-24 rounded-full bg-gradient-to-br ${accent} opacity-[0.08] blur-2xl group-hover:opacity-[0.14] transition-opacity`} />
+      <div className="relative flex items-center gap-3">
+        <div className={`grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br ${accent} text-white shadow-md ring-1 ring-white/20`}>
+          <Icon className="h-5 w-5" />
+        </div>
+        <div className="min-w-0">
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">{label}</div>
+          <div className="text-2xl font-black tracking-tight tabular-nums">{value}</div>
+        </div>
       </div>
     </div>
   );
