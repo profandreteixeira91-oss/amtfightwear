@@ -32,7 +32,7 @@ import { CompareRadar } from "@/components/dojo/athlete-analysis/CompareRadar";
 import { TechnicalTab } from "@/components/dojo/athlete-analysis/TechnicalTab";
 import { InsightCard } from "@/components/dojo/athlete-analysis/InsightCard";
 import { GoalsTab } from "@/components/dojo/athlete-analysis/GoalsTab";
-import { formatDegree, degreeUnit } from "@/lib/dojo/degree-label";
+import { formatDegree, degreeUnit, formatBeltName } from "@/lib/dojo/degree-label";
 
 export const Route = createFileRoute("/dojo/app/students/$id/analysis")({
   head: () => ({
