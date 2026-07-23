@@ -30,6 +30,16 @@ export type BrandedPrintOptions = {
   /** Rodapé opcional (direita). Ex.: "Confidencial". */
   footerRight?: string;
   orientation?: "portrait" | "landscape";
+  /** Tamanho de página. Padrão A4. */
+  pageSize?: "A4" | "Letter";
+  /** Margem uniforme em milímetros. */
+  marginMm?: number;
+  /** Substitui o cabeçalho branded padrão por HTML customizado. */
+  headerHtml?: string;
+  /** Substitui o rodapé branded padrão por HTML customizado. Suporta os tokens `{{pagina_atual}}` e `{{total_paginas}}`. */
+  footerHtml?: string;
+  /** Exibir numeração no rodapé branded padrão. */
+  showPageNumbers?: boolean;
   /** Emitido no cabeçalho junto à data. */
   documentId?: string;
   /** Auto-abre o diálogo de impressão. Padrão: true. */
@@ -67,6 +77,13 @@ function fmtNow(): string {
 }
 
 function buildHeader(o: BrandedPrintOptions): string {
+  if (o.headerHtml && o.headerHtml.trim()) {
+    return `<header class="doc-header-custom">${o.headerHtml}</header>
+    <div class="doc-title-block">
+      <h1>${escapeHtml(o.title)}</h1>
+      ${o.subtitle ? `<p class="subtitle">${escapeHtml(o.subtitle)}</p>` : ""}
+    </div>`;
+  }
   const b = o.branding ?? {};
   const name = b.trade_name ?? b.legal_name ?? "AMT Dojo Manager";
   const primary = b.brand_primary || "#dc2626";
@@ -101,13 +118,22 @@ function buildHeader(o: BrandedPrintOptions): string {
 }
 
 function buildFooter(o: BrandedPrintOptions): string {
+  if (o.footerHtml && o.footerHtml.trim()) {
+    // Replace page tokens with CSS-driven counters so the same DOM
+    // renders the current page number in every printed page.
+    const html = o.footerHtml
+      .replace(/\{\{\s*pagina_atual\s*\}\}/g, '<span class="page-num-current"></span>')
+      .replace(/\{\{\s*total_paginas\s*\}\}/g, '<span class="page-num-total"></span>');
+    return `<footer class="doc-footer-custom">${html}</footer>`;
+  }
   const b = o.branding ?? {};
   const name = b.trade_name ?? b.legal_name ?? "AMT Dojo Manager";
   const left = o.footerLeft ?? name;
   const right = o.footerRight ?? "Powered by AMT Dojo Manager";
+  const showNum = o.showPageNumbers !== false;
   return `<footer class="doc-footer">
     <span>${escapeHtml(left)}</span>
-    <span class="page-num"></span>
+    ${showNum ? '<span class="page-num-inline">Página <span class="page-num-current"></span> de <span class="page-num-total"></span></span>' : '<span></span>'}
     <span>${escapeHtml(right)}</span>
   </footer>`;
 }
@@ -129,13 +155,24 @@ function buildStyles(o: BrandedPrintOptions): string {
   const primary = o.branding?.brand_primary || "#dc2626";
   const secondary = o.branding?.brand_secondary || "#0f172a";
   const orientation = o.orientation ?? "portrait";
+  const pageSize = o.pageSize ?? "A4";
+  const margin = Math.max(5, Math.min(40, o.marginMm ?? 16));
+  const hasCustomHeader = !!(o.headerHtml && o.headerHtml.trim());
+  const hasCustomFooter = !!(o.footerHtml && o.footerHtml.trim());
   return `
   :root { color-scheme: light; }
   @page {
-    size: A4 ${orientation};
-    margin: 16mm 14mm 20mm 14mm;
-    @bottom-center { content: "Página " counter(page) " de " counter(pages); font: 400 9pt 'Inter', sans-serif; color: #94a3b8; }
+    size: ${pageSize} ${orientation};
+    margin: ${hasCustomHeader ? Math.max(margin, 25) : margin}mm ${margin}mm ${hasCustomFooter ? Math.max(margin, 25) : Math.max(margin, 18)}mm ${margin}mm;
+    ${hasCustomHeader ? "@top-center { content: element(runningHeader); }" : ""}
+    ${hasCustomFooter ? "@bottom-center { content: element(runningFooter); }" : ""}
   }
+  /* Running elements repeat on every page and support page counters */
+  .doc-header-custom { position: running(runningHeader); font-size: 10pt; color: #0f172a; }
+  .doc-footer-custom { position: running(runningFooter); font-size: 10pt; color: #64748b; }
+  /* CSS counters for page tokens rendered anywhere in the doc */
+  .page-num-current::before { content: counter(page); }
+  .page-num-total::before { content: counter(pages); }
   * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   html, body { margin: 0; padding: 0; background: #eef2f7; color: #0f172a; font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif; font-size: 11.5px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
   body { padding: 28px 16px; }
@@ -204,7 +241,9 @@ function buildStyles(o: BrandedPrintOptions): string {
 
   /* FOOTER */
   .doc-footer { display: flex; justify-content: space-between; align-items: center; margin: 28px 52px 0; padding-top: 14px; border-top: 1px solid #e2e8f0; color: #94a3b8; font-size: 10px; }
-  .doc-footer .page-num { color: #cbd5e1; }
+  .doc-footer .page-num-inline { color: #94a3b8; font-variant-numeric: tabular-nums; }
+  .doc-footer-custom, .doc-header-custom { padding: 4mm 6mm; }
+  .doc-footer-custom img, .doc-header-custom img { max-height: 40px; }
 
   /* ACTION BAR (screen only) */
   .print-actions { position: fixed; top: 16px; right: 16px; display: flex; gap: 8px; z-index: 50; }

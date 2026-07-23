@@ -178,6 +178,7 @@ import { Route as DojoAppEvaluationsSessionsRouteImport } from './routes/dojo.ap
 import { Route as DojoAppEvaluationsLibraryRouteImport } from './routes/dojo.app.evaluations.library'
 import { Route as DojoAppEvaluationsHistoryRouteImport } from './routes/dojo.app.evaluations.history'
 import { Route as DojoAppEvaluationsCategoriesRouteImport } from './routes/dojo.app.evaluations.categories'
+import { Route as DojoAppContractTemplatesIdRouteImport } from './routes/dojo.app.contract-templates.$id'
 import { Route as DojoAppCompetitionsIdRouteImport } from './routes/dojo.app.competitions.$id'
 import { Route as AppStudentInvoiceIdRouteImport } from './routes/app._student.invoice.$id'
 import { Route as AppStudentCompetitionsIdRouteImport } from './routes/app._student.competitions.$id'
@@ -1111,6 +1112,12 @@ const DojoAppEvaluationsCategoriesRoute =
     path: '/categories',
     getParentRoute: () => DojoAppEvaluationsRoute,
   } as any)
+const DojoAppContractTemplatesIdRoute =
+  DojoAppContractTemplatesIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => DojoAppContractTemplatesRoute,
+  } as any)
 const DojoAppCompetitionsIdRoute = DojoAppCompetitionsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -1425,7 +1432,7 @@ export interface FileRoutesByFullPath {
   '/dojo/app/certificates': typeof DojoAppCertificatesRoute
   '/dojo/app/checkin': typeof DojoAppCheckinRoute
   '/dojo/app/competitions': typeof DojoAppCompetitionsRouteWithChildren
-  '/dojo/app/contract-templates': typeof DojoAppContractTemplatesRoute
+  '/dojo/app/contract-templates': typeof DojoAppContractTemplatesRouteWithChildren
   '/dojo/app/corporate-benefits': typeof DojoAppCorporateBenefitsRoute
   '/dojo/app/evaluations': typeof DojoAppEvaluationsRouteWithChildren
   '/dojo/app/finance': typeof DojoAppFinanceRoute
@@ -1481,6 +1488,7 @@ export interface FileRoutesByFullPath {
   '/app/competitions/$id': typeof AppStudentCompetitionsIdRoute
   '/app/invoice/$id': typeof AppStudentInvoiceIdRoute
   '/dojo/app/competitions/$id': typeof DojoAppCompetitionsIdRoute
+  '/dojo/app/contract-templates/$id': typeof DojoAppContractTemplatesIdRoute
   '/dojo/app/evaluations/categories': typeof DojoAppEvaluationsCategoriesRoute
   '/dojo/app/evaluations/history': typeof DojoAppEvaluationsHistoryRoute
   '/dojo/app/evaluations/library': typeof DojoAppEvaluationsLibraryRoute
@@ -1626,7 +1634,7 @@ export interface FileRoutesByTo {
   '/dojo/app/belts': typeof DojoAppBeltsRoute
   '/dojo/app/certificates': typeof DojoAppCertificatesRoute
   '/dojo/app/checkin': typeof DojoAppCheckinRoute
-  '/dojo/app/contract-templates': typeof DojoAppContractTemplatesRoute
+  '/dojo/app/contract-templates': typeof DojoAppContractTemplatesRouteWithChildren
   '/dojo/app/corporate-benefits': typeof DojoAppCorporateBenefitsRoute
   '/dojo/app/finance': typeof DojoAppFinanceRoute
   '/dojo/app/graduations': typeof DojoAppGraduationsRoute
@@ -1677,6 +1685,7 @@ export interface FileRoutesByTo {
   '/app/competitions/$id': typeof AppStudentCompetitionsIdRoute
   '/app/invoice/$id': typeof AppStudentInvoiceIdRoute
   '/dojo/app/competitions/$id': typeof DojoAppCompetitionsIdRoute
+  '/dojo/app/contract-templates/$id': typeof DojoAppContractTemplatesIdRoute
   '/dojo/app/evaluations/categories': typeof DojoAppEvaluationsCategoriesRoute
   '/dojo/app/evaluations/history': typeof DojoAppEvaluationsHistoryRoute
   '/dojo/app/evaluations/library': typeof DojoAppEvaluationsLibraryRoute
@@ -1827,7 +1836,7 @@ export interface FileRoutesById {
   '/dojo/app/certificates': typeof DojoAppCertificatesRoute
   '/dojo/app/checkin': typeof DojoAppCheckinRoute
   '/dojo/app/competitions': typeof DojoAppCompetitionsRouteWithChildren
-  '/dojo/app/contract-templates': typeof DojoAppContractTemplatesRoute
+  '/dojo/app/contract-templates': typeof DojoAppContractTemplatesRouteWithChildren
   '/dojo/app/corporate-benefits': typeof DojoAppCorporateBenefitsRoute
   '/dojo/app/evaluations': typeof DojoAppEvaluationsRouteWithChildren
   '/dojo/app/finance': typeof DojoAppFinanceRoute
@@ -1883,6 +1892,7 @@ export interface FileRoutesById {
   '/app/_student/competitions/$id': typeof AppStudentCompetitionsIdRoute
   '/app/_student/invoice/$id': typeof AppStudentInvoiceIdRoute
   '/dojo/app/competitions/$id': typeof DojoAppCompetitionsIdRoute
+  '/dojo/app/contract-templates/$id': typeof DojoAppContractTemplatesIdRoute
   '/dojo/app/evaluations/categories': typeof DojoAppEvaluationsCategoriesRoute
   '/dojo/app/evaluations/history': typeof DojoAppEvaluationsHistoryRoute
   '/dojo/app/evaluations/library': typeof DojoAppEvaluationsLibraryRoute
@@ -2090,6 +2100,7 @@ export interface FileRouteTypes {
     | '/app/competitions/$id'
     | '/app/invoice/$id'
     | '/dojo/app/competitions/$id'
+    | '/dojo/app/contract-templates/$id'
     | '/dojo/app/evaluations/categories'
     | '/dojo/app/evaluations/history'
     | '/dojo/app/evaluations/library'
@@ -2286,6 +2297,7 @@ export interface FileRouteTypes {
     | '/app/competitions/$id'
     | '/app/invoice/$id'
     | '/dojo/app/competitions/$id'
+    | '/dojo/app/contract-templates/$id'
     | '/dojo/app/evaluations/categories'
     | '/dojo/app/evaluations/history'
     | '/dojo/app/evaluations/library'
@@ -2491,6 +2503,7 @@ export interface FileRouteTypes {
     | '/app/_student/competitions/$id'
     | '/app/_student/invoice/$id'
     | '/dojo/app/competitions/$id'
+    | '/dojo/app/contract-templates/$id'
     | '/dojo/app/evaluations/categories'
     | '/dojo/app/evaluations/history'
     | '/dojo/app/evaluations/library'
@@ -3777,6 +3790,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DojoAppEvaluationsCategoriesRouteImport
       parentRoute: typeof DojoAppEvaluationsRoute
     }
+    '/dojo/app/contract-templates/$id': {
+      id: '/dojo/app/contract-templates/$id'
+      path: '/$id'
+      fullPath: '/dojo/app/contract-templates/$id'
+      preLoaderRoute: typeof DojoAppContractTemplatesIdRouteImport
+      parentRoute: typeof DojoAppContractTemplatesRoute
+    }
     '/dojo/app/competitions/$id': {
       id: '/dojo/app/competitions/$id'
       path: '/$id'
@@ -4274,6 +4294,20 @@ const DojoAppCompetitionsRouteChildren: DojoAppCompetitionsRouteChildren = {
 const DojoAppCompetitionsRouteWithChildren =
   DojoAppCompetitionsRoute._addFileChildren(DojoAppCompetitionsRouteChildren)
 
+interface DojoAppContractTemplatesRouteChildren {
+  DojoAppContractTemplatesIdRoute: typeof DojoAppContractTemplatesIdRoute
+}
+
+const DojoAppContractTemplatesRouteChildren: DojoAppContractTemplatesRouteChildren =
+  {
+    DojoAppContractTemplatesIdRoute: DojoAppContractTemplatesIdRoute,
+  }
+
+const DojoAppContractTemplatesRouteWithChildren =
+  DojoAppContractTemplatesRoute._addFileChildren(
+    DojoAppContractTemplatesRouteChildren,
+  )
+
 interface DojoAppEvaluationsSessionsRouteChildren {
   DojoAppEvaluationsSessionsIdRoute: typeof DojoAppEvaluationsSessionsIdRoute
   DojoAppEvaluationsSessionsIndexRoute: typeof DojoAppEvaluationsSessionsIndexRoute
@@ -4440,7 +4474,7 @@ interface DojoAppRouteChildren {
   DojoAppCertificatesRoute: typeof DojoAppCertificatesRoute
   DojoAppCheckinRoute: typeof DojoAppCheckinRoute
   DojoAppCompetitionsRoute: typeof DojoAppCompetitionsRouteWithChildren
-  DojoAppContractTemplatesRoute: typeof DojoAppContractTemplatesRoute
+  DojoAppContractTemplatesRoute: typeof DojoAppContractTemplatesRouteWithChildren
   DojoAppCorporateBenefitsRoute: typeof DojoAppCorporateBenefitsRoute
   DojoAppEvaluationsRoute: typeof DojoAppEvaluationsRouteWithChildren
   DojoAppFinanceRoute: typeof DojoAppFinanceRoute
@@ -4474,7 +4508,7 @@ const DojoAppRouteChildren: DojoAppRouteChildren = {
   DojoAppCertificatesRoute: DojoAppCertificatesRoute,
   DojoAppCheckinRoute: DojoAppCheckinRoute,
   DojoAppCompetitionsRoute: DojoAppCompetitionsRouteWithChildren,
-  DojoAppContractTemplatesRoute: DojoAppContractTemplatesRoute,
+  DojoAppContractTemplatesRoute: DojoAppContractTemplatesRouteWithChildren,
   DojoAppCorporateBenefitsRoute: DojoAppCorporateBenefitsRoute,
   DojoAppEvaluationsRoute: DojoAppEvaluationsRouteWithChildren,
   DojoAppFinanceRoute: DojoAppFinanceRoute,

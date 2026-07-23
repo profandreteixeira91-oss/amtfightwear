@@ -1,17 +1,14 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { RichTextEditor } from "@/components/dojo/RichTextEditor";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import {
-  ArrowLeft, FileText, Plus, Pencil, Trash2, Eye, Copy, Save, Printer, X,
+  ArrowLeft, FileText, Plus, Pencil, Trash2, Eye, Copy, Printer, X,
 } from "lucide-react";
 import {
   listContractTemplates,
@@ -60,6 +57,7 @@ const DEFAULT_CONTENT = `<h1 style="text-align:center;">Contrato de Prestação 
 
 function ContractTemplatesPage() {
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const branding = useDojoBranding();
 
   const listFn = useServerFn(listContractTemplates);
@@ -70,31 +68,24 @@ function ContractTemplatesPage() {
   const list = useQuery({ queryKey: ["contract-templates"], queryFn: () => listFn() });
   const academy = useQuery({ queryKey: ["dojo-academy-profile"], queryFn: () => academyFn() });
 
-  const [editorOpen, setEditorOpen] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [current, setCurrent] = useState<any | null>(null);
 
-  const openNew = () => {
-    setCurrent({ name: "Novo modelo de contrato", description: "", content: DEFAULT_CONTENT });
-    setEditorOpen(true);
-  };
-  const openEdit = (row: any) => {
-    setCurrent({ ...row });
-    setEditorOpen(true);
-  };
-  const openPreview = (row: any) => {
-    setCurrent(row);
-    setPreviewOpen(true);
-  };
+  const openNew = () => navigate({ to: "/dojo/app/contract-templates/$id", params: { id: "new" } });
+  const openEdit = (row: any) => navigate({ to: "/dojo/app/contract-templates/$id", params: { id: row.id } });
+  const openPreview = (row: any) => { setCurrent(row); setPreviewOpen(true); };
 
   const duplicate = async (row: any) => {
     try {
-      await saveFn({ data: { name: `${row.name} (cópia)`, description: row.description, content: row.content } });
+      await saveFn({ data: {
+        name: `${row.name} (cópia)`, description: row.description, content: row.content,
+        header_html: row.header_html, footer_html: row.footer_html,
+        page_size: row.page_size, page_orientation: row.page_orientation,
+        margin_mm: row.margin_mm, show_page_numbers: row.show_page_numbers,
+      } });
       toast.success("Modelo duplicado");
       qc.invalidateQueries({ queryKey: ["contract-templates"] });
-    } catch (e: any) {
-      toast.error(e.message);
-    }
+    } catch (e: any) { toast.error(e.message); }
   };
 
   const remove = async (row: any) => {
@@ -103,57 +94,32 @@ function ContractTemplatesPage() {
       await delFn({ data: { id: row.id } });
       toast.success("Modelo excluído");
       qc.invalidateQueries({ queryKey: ["contract-templates"] });
-    } catch (e: any) {
-      toast.error(e.message);
-    }
-  };
-
-  const save = async () => {
-    if (!current?.name?.trim()) { toast.error("Informe um nome"); return; }
-    try {
-      await saveFn({
-        data: {
-          id: current.id,
-          name: current.name,
-          description: current.description ?? null,
-          content: current.content ?? "",
-        },
-      });
-      toast.success("Modelo salvo");
-      qc.invalidateQueries({ queryKey: ["contract-templates"] });
-      setEditorOpen(false);
-    } catch (e: any) {
-      toast.error(e.message);
-    }
+    } catch (e: any) { toast.error(e.message); }
   };
 
   const previewValues = useMemo(() => {
     return buildContractValues({
       student: {
         full_name: "João da Silva (exemplo)",
-        cpf: "000.000.000-00",
-        rg: "00.000.000-0",
-        address_street: "Rua Exemplo",
-        address_number: "100",
+        cpf: "000.000.000-00", rg: "00.000.000-0",
+        address_street: "Rua Exemplo", address_number: "100",
         city: (academy.data as any)?.city ?? "Cidade",
         state: (academy.data as any)?.state ?? "UF",
         phone: "(00) 00000-0000",
-        modality: "Jiu-Jitsu",
-        current_belt_name: "Branca",
+        modality: "Jiu-Jitsu", current_belt_name: "Branca",
       },
       academy: academy.data,
       contract: {
         title: current?.name ?? "Contrato",
-        value: 199.9,
-        plan_name: "Mensal",
-        payment_method: "PIX",
-        due_day: 10,
-        start_date: new Date().toISOString(),
+        value: 199.9, plan_name: "Mensal", payment_method: "PIX",
+        due_day: 10, start_date: new Date().toISOString(),
       },
     });
   }, [current, academy.data]);
 
   const previewHtml = current ? resolveContractHtml(current.content ?? "", previewValues) : "";
+  const previewHeader = current ? resolveContractHtml(current.header_html ?? "", previewValues) : "";
+  const previewFooter = current ? resolveContractHtml(current.footer_html ?? "", previewValues) : "";
 
   const printPreview = () => {
     if (!current) return;
@@ -162,8 +128,12 @@ function ContractTemplatesPage() {
       title: current.name,
       subtitle: "Modelo de contrato — dados de exemplo",
       bodyHtml: `<div style="font-family:Georgia,serif;font-size:12pt;line-height:1.6;">${previewHtml}</div>`,
-      footerLeft: "Modelo de contrato",
-      footerRight: (academy.data as any)?.trade_name ?? "",
+      headerHtml: (current.header_html ?? "").trim() ? previewHeader : undefined,
+      footerHtml: (current.footer_html ?? "").trim() ? previewFooter : undefined,
+      showPageNumbers: current.show_page_numbers ?? true,
+      pageSize: current.page_size ?? "A4",
+      orientation: current.page_orientation ?? "portrait",
+      marginMm: current.margin_mm ?? 18,
     });
   };
 
@@ -174,7 +144,7 @@ function ContractTemplatesPage() {
           <Link to="/dojo/app/students"><Button variant="ghost" size="icon"><ArrowLeft className="h-4 w-4" /></Button></Link>
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Modelos de contrato</h1>
-            <p className="text-sm text-muted-foreground">Cadastre modelos reutilizáveis com variáveis dinâmicas.</p>
+            <p className="text-sm text-muted-foreground">Editor profissional com cabeçalho, rodapé e numeração automática.</p>
           </div>
         </div>
         <Button onClick={openNew}><Plus className="h-4 w-4 mr-1" />Novo modelo</Button>
@@ -200,7 +170,7 @@ function ContractTemplatesPage() {
                     <div className="font-semibold truncate">{t.name}</div>
                     {t.description ? <div className="text-xs text-muted-foreground line-clamp-2 mt-1">{t.description}</div> : null}
                   </div>
-                  <Badge variant="outline" className="shrink-0"><FileText className="h-3 w-3 mr-1" />Modelo</Badge>
+                  <Badge variant="outline" className="shrink-0"><FileText className="h-3 w-3 mr-1" />{t.page_size ?? "A4"}</Badge>
                 </div>
                 <div className="text-xs text-muted-foreground">
                   Atualizado {new Date(t.updated_at).toLocaleDateString("pt-BR")}
@@ -217,49 +187,6 @@ function ContractTemplatesPage() {
         </div>
       )}
 
-      {/* Editor Dialog */}
-      <Dialog open={editorOpen} onOpenChange={setEditorOpen}>
-        <DialogContent className="max-w-6xl w-[calc(100vw-2rem)] p-0 gap-0 overflow-hidden max-h-[92vh] flex flex-col">
-          <DialogHeader className="px-6 py-4 border-b bg-muted/30">
-            <div className="flex items-center justify-between gap-3">
-              <DialogTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5 text-primary" />
-                {current?.id ? "Editar modelo" : "Novo modelo de contrato"}
-              </DialogTitle>
-              <button onClick={() => setEditorOpen(false)} className="p-1 rounded hover:bg-accent"><X className="h-4 w-4" /></button>
-            </div>
-          </DialogHeader>
-          <div className="flex-1 overflow-y-auto p-6 space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div className="md:col-span-2">
-                <label className="text-xs font-medium text-muted-foreground">Nome do modelo</label>
-                <Input
-                  value={current?.name ?? ""}
-                  onChange={(e) => setCurrent({ ...current, name: e.target.value })}
-                  placeholder="Ex.: Contrato Mensal Padrão"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-muted-foreground">Descrição interna</label>
-                <Input
-                  value={current?.description ?? ""}
-                  onChange={(e) => setCurrent({ ...current, description: e.target.value })}
-                  placeholder="Opcional"
-                />
-              </div>
-            </div>
-            <RichTextEditor
-              value={current?.content ?? ""}
-              onChange={(html) => setCurrent((c: any) => ({ ...c, content: html }))}
-              placeholder="Escreva o contrato aqui. Use o botão Variáveis para inserir campos dinâmicos."
-            />
-          </div>
-          <DialogFooter className="px-6 py-3 border-t bg-muted/30">
-            <Button variant="outline" onClick={() => setEditorOpen(false)}>Cancelar</Button>
-            <Button onClick={save}><Save className="h-4 w-4 mr-1" />Salvar modelo</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       {/* Preview Dialog */}
       <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
