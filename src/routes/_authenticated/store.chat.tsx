@@ -201,8 +201,8 @@ function StoreChatAdmin() {
             </div>
           ) : (
             <>
-              <div className="flex items-center justify-between gap-2 border-b p-3">
-                <div className="min-w-0">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b p-3">
+                <div className="min-w-0 flex-1">
                   <div className="truncate text-sm font-bold">
                     {active.customer_name?.trim() || active.customer_email || active.external_id}
                   </div>
@@ -210,7 +210,7 @@ function StoreChatAdmin() {
                     {active.channel} · {active.customer_email ?? "sem e-mail"} · {active.customer_phone ?? "sem telefone"}
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   {active.status !== "human" && (
                     <button
                       onClick={() => onSetStatus("human")}
