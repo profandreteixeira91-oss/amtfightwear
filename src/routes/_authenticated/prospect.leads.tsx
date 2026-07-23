@@ -492,7 +492,8 @@ function LeadsPage() {
                         {fmtDate(String(r.created_at))}
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="inline-flex gap-1">
+                        <div className="flex flex-wrap justify-end gap-0.5">
+
                           {r.google_maps_url ? (
                             <Button
                               asChild size="sm" variant="ghost" title="Abrir no Google Maps"
