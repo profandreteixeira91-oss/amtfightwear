@@ -174,6 +174,45 @@ export function FinancePayables() {
                     </SelectContent>
                   </Select>
                 </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="grid gap-1.5">
+                    <Label>Recorrência</Label>
+                    <Select
+                      value={form.recurrence}
+                      onValueChange={(v: "none" | "monthly" | "quarterly" | "yearly") =>
+                        setForm({ ...form, recurrence: v })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">Sem recorrência</SelectItem>
+                        <SelectItem value="monthly">Mensal (ex.: aluguel, imposto)</SelectItem>
+                        <SelectItem value="quarterly">Trimestral</SelectItem>
+                        <SelectItem value="yearly">Anual</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {form.recurrence !== "none" && (
+                    <div className="grid gap-1.5">
+                      <Label>Quantidade de lançamentos</Label>
+                      <Input
+                        type="number"
+                        min={1}
+                        max={60}
+                        value={form.installments}
+                        onChange={(e) => setForm({ ...form, installments: e.target.value })}
+                      />
+                    </div>
+                  )}
+                </div>
+                {form.recurrence !== "none" && (
+                  <p className="text-[11px] text-muted-foreground -mt-1">
+                    Serão gerados {Math.max(1, Number(form.installments) || 1)} lançamentos a partir de {form.due_date}, um por{" "}
+                    {form.recurrence === "monthly" ? "mês" : form.recurrence === "quarterly" ? "trimestre" : "ano"}.
+                  </p>
+                )}
               </div>
               <DialogFooter>
                 <Button variant="ghost" onClick={() => setOpen(false)}>Cancelar</Button>
