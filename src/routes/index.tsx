@@ -345,9 +345,13 @@ function StoreHomePage() {
         <div className="mx-auto max-w-7xl px-6 py-20 sm:px-8 sm:py-24">
           <div className="grid gap-12 md:grid-cols-5">
             <div className="md:col-span-2">
-              <div className="text-[11px] font-bold uppercase tracking-[0.32em] text-primary">Sobre a loja</div>
-              <h2 id="sobre-o-app" className="mt-3 text-3xl font-black leading-[1.05] tracking-tight sm:text-4xl">
-                Para que serve a Loja AMT Fight Wear?
+              <div className="text-[10px] font-semibold uppercase tracking-[0.38em] text-primary">Sobre a loja</div>
+              <h2
+                id="sobre-o-app"
+                className="mt-4 text-[2rem] leading-[1.05] tracking-[-0.02em] sm:text-[2.75rem]"
+                style={{ fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 600 }}
+              >
+                Para que serve a <span className="italic" style={{ fontWeight: 500 }}>Loja AMT Fight Wear</span>?
               </h2>
               <img
                 src={amtLogo}
