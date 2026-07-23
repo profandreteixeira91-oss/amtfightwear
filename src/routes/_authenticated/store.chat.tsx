@@ -127,7 +127,7 @@ function StoreChatAdmin() {
       title="Chat da loja"
       description="Atenda conversas, configure o agente de IA e mantenha a base de conhecimento."
       actions={
-        <div className="flex items-center gap-1 rounded-lg border bg-card p-1 text-sm">
+        <div className="-mx-1 flex w-full items-center gap-1 overflow-x-auto rounded-lg border bg-card p-1 text-sm sm:w-auto">
           <TabButton active={tab === "conversas"} onClick={() => setTab("conversas")} icon={MessageSquare} label="Conversas" />
           <TabButton active={tab === "config"} onClick={() => setTab("config")} icon={Settings} label="Configurações" />
           <TabButton active={tab === "kb"} onClick={() => setTab("kb")} icon={BookOpen} label="Base de conhecimento" />
@@ -201,8 +201,8 @@ function StoreChatAdmin() {
             </div>
           ) : (
             <>
-              <div className="flex items-center justify-between gap-2 border-b p-3">
-                <div className="min-w-0">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b p-3">
+                <div className="min-w-0 flex-1">
                   <div className="truncate text-sm font-bold">
                     {active.customer_name?.trim() || active.customer_email || active.external_id}
                   </div>
@@ -210,7 +210,7 @@ function StoreChatAdmin() {
                     {active.channel} · {active.customer_email ?? "sem e-mail"} · {active.customer_phone ?? "sem telefone"}
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   {active.status !== "human" && (
                     <button
                       onClick={() => onSetStatus("human")}
@@ -332,7 +332,7 @@ function TabButton({ active, onClick, icon: Icon, label }: { active: boolean; on
   return (
     <button
       onClick={onClick}
-      className={`inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition ${active ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}
+      className={`inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition ${active ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}
     >
       <Icon className="h-4 w-4" /> {label}
     </button>

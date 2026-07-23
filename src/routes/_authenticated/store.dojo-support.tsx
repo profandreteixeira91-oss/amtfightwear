@@ -80,10 +80,10 @@ function AdminSupportPage() {
   }, [tickets]);
 
   return (
-    <div className="mx-auto max-w-7xl p-4 md:p-6">
+    <div className="mx-auto max-w-7xl p-3 sm:p-4 md:p-6">
       <div className="mb-6">
-        <h1 className="flex items-center gap-2 text-2xl font-bold">
-          <LifeBuoy className="h-6 w-6 text-primary" /> Suporte AMT Dojo Manager
+        <h1 className="flex items-center gap-2 text-xl font-bold sm:text-2xl">
+          <LifeBuoy className="h-5 w-5 shrink-0 text-primary sm:h-6 sm:w-6" /> Suporte AMT Dojo Manager
         </h1>
         <p className="text-sm text-muted-foreground">Chamados abertos pelos donos de dojo — atendimento humano por chat.</p>
       </div>
@@ -106,13 +106,13 @@ function AdminSupportPage() {
         />
       ) : (
         <div className="rounded-2xl border border-border bg-white shadow-sm">
-          <div className="flex flex-wrap items-center gap-3 border-b border-border p-3">
-            <div className="relative flex-1 min-w-[220px]">
+          <div className="flex flex-col gap-3 border-b border-border p-3 sm:flex-row sm:flex-wrap sm:items-center">
+            <div className="relative min-w-0 flex-1 sm:min-w-[220px]">
               <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar por assunto, e-mail ou nome" className="pl-8" />
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[200px]"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full sm:w-[200px]"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos os status</SelectItem>
                 {Object.entries(STATUS_LABELS).map(([k, v]) => (
@@ -217,11 +217,11 @@ function AdminConversation({
 
   return (
     <div className="rounded-2xl border border-border bg-white shadow-sm">
-      <div className="flex flex-wrap items-center gap-3 border-b border-border px-4 py-3">
+      <div className="flex flex-wrap items-center gap-2 border-b border-border px-3 py-3 sm:gap-3 sm:px-4">
         <Button variant="ghost" size="sm" onClick={onBack} className="gap-1">
           <ArrowLeft className="h-4 w-4" /> Voltar
         </Button>
-        <div className="min-w-0 flex-1">
+        <div className="order-3 min-w-0 flex-1 basis-full sm:order-none sm:basis-0">
           <div className="flex flex-wrap items-center gap-2">
             <span className="font-semibold">{subject}</span>
             <Badge variant="outline" className="text-[10px]">{CATEGORY_LABELS[category] ?? category}</Badge>
@@ -229,7 +229,7 @@ function AdminConversation({
           <div className="text-xs text-muted-foreground">{headerName}</div>
         </div>
         <Select value={status} onValueChange={(s) => changeStatus.mutate(s)}>
-          <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-[160px] sm:w-[180px]"><SelectValue /></SelectTrigger>
           <SelectContent>
             {Object.entries(STATUS_LABELS).map(([k, v]) => (
               <SelectItem key={k} value={k}>{v}</SelectItem>
