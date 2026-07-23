@@ -390,7 +390,7 @@ function NewGraduationPage() {
         student_id: sid,
         belt_id: p.beltId,
         degree: p.degree,
-        fee_amount: feeNum != null && !Number.isNaN(feeNum) ? feeNum : null,
+        fee_amount: Number.isFinite(feeNum) ? feeNum : null,
         paid: !!p.paid,
       };
     });
