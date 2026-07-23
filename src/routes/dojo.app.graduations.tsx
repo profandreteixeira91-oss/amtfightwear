@@ -432,14 +432,13 @@ function NewGraduationPage() {
 
       {/* ============ STEPPER ============ */}
       <nav aria-label="Etapas" className="rounded-2xl border bg-card p-4 md:p-5 shadow-sm">
-        <ol className="grid grid-cols-3 gap-2 md:gap-3">
-          {(["select", "grad", "cert"] as Step[]).map((s, i) => {
+        <ol className="grid grid-cols-4 gap-2 md:gap-3">
+          {(["select", "grad", "payment", "cert"] as Step[]).map((s, i) => {
             const meta = stepMeta[s];
             const Icon = meta.icon;
             const active = step === s;
-            const done =
-              (s === "select" && step !== "select") ||
-              (s === "grad" && step === "cert");
+            const order: Step[] = ["select", "grad", "payment", "cert"];
+            const done = order.indexOf(s) < order.indexOf(step);
             return (
               <li key={s} className="relative">
                 <div
