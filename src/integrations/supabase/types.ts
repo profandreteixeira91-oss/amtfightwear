@@ -2153,6 +2153,8 @@ export type Database = {
           public_url: string | null
           responsible_name: string | null
           seal_url: string | null
+          security_pin_hash: string | null
+          security_pin_updated_at: string | null
           signature_url: string | null
           slug: string | null
           stamp_url: string | null
@@ -2200,6 +2202,8 @@ export type Database = {
           public_url?: string | null
           responsible_name?: string | null
           seal_url?: string | null
+          security_pin_hash?: string | null
+          security_pin_updated_at?: string | null
           signature_url?: string | null
           slug?: string | null
           stamp_url?: string | null
@@ -2247,6 +2251,8 @@ export type Database = {
           public_url?: string | null
           responsible_name?: string | null
           seal_url?: string | null
+          security_pin_hash?: string | null
+          security_pin_updated_at?: string | null
           signature_url?: string | null
           slug?: string | null
           stamp_url?: string | null
