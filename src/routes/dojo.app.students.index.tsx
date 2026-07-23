@@ -427,8 +427,8 @@ function StudentsPage() {
             <Printer className="h-4 w-4 mr-1" /> Imprimir fichas
           </Button>
           <Button variant="outline" asChild>
-            <Link to="/dojo/app/contract-templates">
-              <FileText className="h-4 w-4 mr-1" /> Modelos de contrato
+            <Link to="/dojo/app/contracts">
+              <FileText className="h-4 w-4 mr-1" /> Central de Contratos
             </Link>
           </Button>
 
