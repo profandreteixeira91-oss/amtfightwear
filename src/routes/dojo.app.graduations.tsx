@@ -23,7 +23,7 @@ export const Route = createFileRoute("/dojo/app/graduations")({
   component: NewGraduationPage,
 });
 
-type Step = "select" | "grad" | "cert";
+type Step = "select" | "grad" | "payment" | "cert";
 
 function NewGraduationPage() {
   const studentsFn = useServerFn(listDojoStudents);
@@ -261,6 +261,40 @@ function NewGraduationPage() {
     }));
   };
 
+  const goToPayment = () => {
+    const missing: string[] = [];
+    for (const sid of selectedStudents) {
+      const p = perStudent[sid];
+      if (!p?.beltId) missing.push(sid);
+    }
+    if (missing.length > 0) {
+      return toast.error(`Selecione a faixa de ${missing.length} aluno(s) pendente(s)`);
+    }
+    // pré-preenche taxa padrão para quem ainda não tem valor
+    setPerStudent(prev => {
+      const next = { ...prev };
+      for (const sid of selectedStudents) {
+        const p = next[sid];
+        if (p && (p.fee == null || p.fee === "") && p.beltId && priceByBelt[p.beltId] != null) {
+          next[sid] = { ...p, fee: String(priceByBelt[p.beltId]) };
+        }
+      }
+      return next;
+    });
+    setStep("payment");
+  };
+
+  const paymentTotals = useMemo(() => {
+    let paid = 0, pending = 0;
+    for (const sid of selectedStudents) {
+      const p = perStudent[sid];
+      const v = Number(((p?.fee ?? "").toString().replace(",", ".").trim()) || 0);
+      if (Number.isNaN(v)) continue;
+      if (p?.paid) paid += v; else pending += v;
+    }
+    return { paid, pending, total: paid + pending };
+  }, [selectedStudents, perStudent]);
+
   const submitGrad = async () => {
     const items = Array.from(selectedStudents).map(sid => {
       const p = perStudent[sid] ?? { beltId, degree };
@@ -385,7 +419,8 @@ function NewGraduationPage() {
 
   const stepMeta: Record<Step, { label: string; icon: any; hint: string }> = {
     select: { label: "Alunos", icon: Users, hint: "Escolha quem será graduado" },
-    grad: { label: "Graduação", icon: GraduationCap, hint: "Defina faixa, grau e data" },
+    grad: { label: "Graduação", icon: GraduationCap, hint: "Defina faixa e grau" },
+    payment: { label: "Pagamento", icon: Award, hint: "Confirme taxas e status" },
     cert: { label: "Certificado", icon: ScrollText, hint: "Emita e imprima os diplomas" },
   };
 
@@ -431,14 +466,13 @@ function NewGraduationPage() {
 
       {/* ============ STEPPER ============ */}
       <nav aria-label="Etapas" className="rounded-2xl border bg-card p-4 md:p-5 shadow-sm">
-        <ol className="grid grid-cols-3 gap-2 md:gap-3">
-          {(["select", "grad", "cert"] as Step[]).map((s, i) => {
+        <ol className="grid grid-cols-4 gap-2 md:gap-3">
+          {(["select", "grad", "payment", "cert"] as Step[]).map((s, i) => {
             const meta = stepMeta[s];
             const Icon = meta.icon;
             const active = step === s;
-            const done =
-              (s === "select" && step !== "select") ||
-              (s === "grad" && step === "cert");
+            const order: Step[] = ["select", "grad", "payment", "cert"];
+            const done = order.indexOf(s) < order.indexOf(step);
             return (
               <li key={s} className="relative">
                 <div
@@ -885,7 +919,7 @@ function NewGraduationPage() {
                   const currentMatch = current.find((b: any) => (b.belt?.modality ?? "jiu-jitsu") === chosenMod);
 
                   return (
-                    <div key={s.id} className="grid gap-3 p-4 md:grid-cols-[minmax(0,1.3fr)_minmax(0,0.9fr)_minmax(0,0.7fr)_minmax(0,0.9fr)_minmax(0,0.8fr)_minmax(0,1fr)] md:items-center">
+                    <div key={s.id} className="grid gap-3 p-4 md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,1fr)] md:items-center">
                       <div className="flex min-w-0 items-center gap-3">
                         <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary/10 text-[11px] font-bold text-primary">
                           {initials(s.full_name)}
@@ -934,34 +968,6 @@ function NewGraduationPage() {
                         </select>
                       </div>
 
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">Taxa (R$)</label>
-                        <Input
-                          inputMode="decimal"
-                          placeholder="0,00"
-                          className="h-9"
-                          value={entry.fee ?? ""}
-                          onChange={(e) => setStudentFee(s.id, e.target.value)}
-                        />
-                        {entry.beltId && priceByBelt[entry.beltId] != null && (
-                          <div className="text-[10px] text-muted-foreground">
-                            padrão R$ {Number(priceByBelt[entry.beltId]).toFixed(2)}
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">Pagamento</label>
-                        <label className="flex h-9 items-center gap-2 rounded-md border bg-background px-2 text-xs cursor-pointer select-none">
-                          <input
-                            type="checkbox"
-                            className="h-4 w-4 accent-primary"
-                            checked={!!entry.paid}
-                            onChange={(e) => setStudentPaid(s.id, e.target.checked)}
-                          />
-                          <span>{entry.paid ? "Pago" : "Pendente"}</span>
-                        </label>
-                      </div>
 
                       <div className="flex items-center justify-end">
                         {chosenBelt ? (
@@ -1001,13 +1007,147 @@ function NewGraduationPage() {
               <Button variant="ghost" onClick={() => setStep("select")}>
                 <ArrowLeft className="mr-1.5 h-4 w-4" /> Voltar
               </Button>
-              <Button onClick={submitGrad} size="lg" className="shadow-md shadow-primary/20">
-                Registrar e emitir certificado <ArrowRight className="ml-1.5 h-4 w-4" />
+              <Button onClick={goToPayment} size="lg" className="shadow-md shadow-primary/20">
+                Próximo: pagamento <ArrowRight className="ml-1.5 h-4 w-4" />
               </Button>
             </div>
           </CardContent>
         </Card>
       )}
+
+      {/* ============ STEP 3: PAGAMENTO ============ */}
+      {step === "payment" && (
+        <Card className="overflow-hidden shadow-sm">
+          <CardHeader className="border-b bg-muted/30">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Award className="h-4 w-4 text-primary" />
+              Confirmação de pagamento
+              <span className="ml-2 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                {selectedRows.length} aluno(s)
+              </span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-5 md:p-6 space-y-5">
+            <p className="text-sm text-muted-foreground">
+              Ajuste a taxa de graduação de cada aluno e marque como <b>Pago</b> ou deixe como <b>Pendente</b>.
+              Um lançamento em <b>Contas a receber</b> será criado automaticamente no financeiro.
+            </p>
+
+            <div className="divide-y rounded-xl border bg-card">
+              {selectedRows.map((s: any) => {
+                const entry = perStudent[s.id] ?? { beltId: "", degree: 0, fee: "", paid: false };
+                const belt = beltById.get(entry.beltId);
+                return (
+                  <div
+                    key={s.id}
+                    className="grid gap-3 p-4 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,1fr)] md:items-center"
+                  >
+                    <div className="flex min-w-0 items-center gap-3">
+                      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary/10 text-[11px] font-bold text-primary">
+                        {initials(s.full_name)}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="truncate text-sm font-semibold">{s.full_name}</div>
+                        <div className="truncate text-[11px] text-muted-foreground">
+                          {belt
+                            ? `Nova: ${belt.name}${entry.degree ? ` · ${formatDegree(entry.degree, belt.modality, belt.name)}` : ""}`
+                            : "Sem faixa definida"}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">Taxa (R$)</label>
+                      <Input
+                        inputMode="decimal"
+                        placeholder="0,00"
+                        className="h-9"
+                        value={entry.fee ?? ""}
+                        onChange={(e) => setStudentFee(s.id, e.target.value)}
+                      />
+                      {entry.beltId && priceByBelt[entry.beltId] != null && (
+                        <div className="text-[10px] text-muted-foreground">
+                          padrão R$ {Number(priceByBelt[entry.beltId]).toFixed(2)}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">Status</label>
+                      <div className="flex gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setStudentPaid(s.id, true)}
+                          className={`h-9 flex-1 rounded-md border px-2 text-xs font-semibold transition ${
+                            entry.paid
+                              ? "border-emerald-500 bg-emerald-500/10 text-emerald-700"
+                              : "border-border bg-background text-muted-foreground hover:bg-muted"
+                          }`}
+                        >
+                          Pago
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setStudentPaid(s.id, false)}
+                          className={`h-9 flex-1 rounded-md border px-2 text-xs font-semibold transition ${
+                            !entry.paid
+                              ? "border-amber-500 bg-amber-500/10 text-amber-700"
+                              : "border-border bg-background text-muted-foreground hover:bg-muted"
+                          }`}
+                        >
+                          Pendente
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-end text-right">
+                      <div>
+                        <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Valor</div>
+                        <div className="text-lg font-bold tabular-nums">
+                          R$ {Number((entry.fee ?? "").toString().replace(",", ".") || 0).toFixed(2)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Totais */}
+            <div className="grid gap-3 rounded-xl border bg-muted/30 p-4 md:grid-cols-3">
+              <div>
+                <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Total geral</div>
+                <div className="text-xl font-black tabular-nums">
+                  R$ {paymentTotals.total.toFixed(2)}
+                </div>
+              </div>
+              <div>
+                <div className="text-[10px] uppercase tracking-wide text-emerald-700">Pago</div>
+                <div className="text-xl font-black tabular-nums text-emerald-700">
+                  R$ {paymentTotals.paid.toFixed(2)}
+                </div>
+              </div>
+              <div>
+                <div className="text-[10px] uppercase tracking-wide text-amber-700">A receber</div>
+                <div className="text-xl font-black tabular-nums text-amber-700">
+                  R$ {paymentTotals.pending.toFixed(2)}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-4">
+              <Button variant="ghost" onClick={() => setStep("grad")}>
+                <ArrowLeft className="mr-1.5 h-4 w-4" /> Voltar
+              </Button>
+              <Button onClick={submitGrad} size="lg" className="shadow-md shadow-primary/20">
+                Confirmar e emitir certificados <ArrowRight className="ml-1.5 h-4 w-4" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+
 
       {/* ============ STEP 3: CERTIFICADO ============ */}
       {step === "cert" && (
