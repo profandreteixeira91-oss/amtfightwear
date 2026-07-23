@@ -38,7 +38,6 @@ import {
   ArrowLeft, Building2, FileText, DollarSign, Award, Plus, Printer, Save, Trash2, FileBadge,
   Pencil, Eye, X, CheckCircle2,
 } from "lucide-react";
-} from "lucide-react";
 import { DojoPageShell } from "@/components/dojo/DojoPageShell";
 
 export const Route = createFileRoute("/dojo/app/units/affiliates/$id")({
