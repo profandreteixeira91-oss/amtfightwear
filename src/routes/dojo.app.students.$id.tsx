@@ -286,7 +286,7 @@ function StudentDetail() {
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-1.5 md:justify-end">
+            <div className="grid w-full grid-cols-2 gap-2 md:ml-auto md:w-auto md:shrink-0 md:justify-self-end [&_a]:contents [&_a>button]:w-full [&>button]:w-full">
               <Button size="sm" asChild className="bg-red-600 text-white shadow-[0_10px_25px_-12px_rgba(220,38,38,0.9)] hover:bg-red-500">
                 <Link to="/dojo/app/students/$id/analysis" params={{ id }}>
                   <Activity className="mr-1.5 h-4 w-4" /> Performance
