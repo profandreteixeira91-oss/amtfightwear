@@ -11,6 +11,7 @@ import {
   deleteDojoStudent, saveDojoStudent,
 } from "@/lib/dojo/dojo.functions";
 import { listAttendance, regenerateStudentCodes } from "@/lib/dojo/attendance.functions";
+import { getStudentCompetitionHistory } from "@/lib/dojo/competitions/rankings.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
