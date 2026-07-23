@@ -45,6 +45,7 @@ import {
   X,
   Megaphone,
   GraduationCap,
+  LifeBuoy,
   CalendarDays,
   Building2,
 } from "lucide-react";
