@@ -75,6 +75,7 @@ function NewGraduationPage() {
   const [showPricing, setShowPricing] = useState(false);
   const [priceDraft, setPriceDraft] = useState<Record<string, string>>({});
   const [savingPrices, setSavingPrices] = useState(false);
+  const [pricingModality, setPricingModality] = useState<string>("all");
 
   // Defaults ("aplicar a todos")
   const [beltId, setBeltId] = useState("");
