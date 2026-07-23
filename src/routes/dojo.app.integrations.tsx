@@ -288,41 +288,31 @@ function DisconnectAMTPayButton() {
 function FullHub() {
   return (
     <Tabs defaultValue="dashboard" className="w-full">
-      <TabsList className="flex flex-wrap md:w-fit">
-        <TabsTrigger value="dashboard" className="gap-2">
-          <LayoutDashboard className="h-4 w-4" /> Visão geral
-        </TabsTrigger>
-        <TabsTrigger value="wallet" className="gap-2">
-          <Wallet className="h-4 w-4" /> Carteira
-        </TabsTrigger>
-        <TabsTrigger value="withdrawals" className="gap-2">
-          <ArrowDownRight className="h-4 w-4" /> Saques
-        </TabsTrigger>
-        <TabsTrigger value="statement" className="gap-2">
-          <FileText className="h-4 w-4" /> Extrato
-        </TabsTrigger>
-        <TabsTrigger value="fees" className="gap-2">
-          <Percent className="h-4 w-4" /> Taxas
-        </TabsTrigger>
-        <TabsTrigger value="pix" className="gap-2">
-          <KeyRound className="h-4 w-4" /> Chaves PIX
-        </TabsTrigger>
-        <TabsTrigger value="reminders" className="gap-2">
-          <Bell className="h-4 w-4" /> Lembretes
-        </TabsTrigger>
-        <TabsTrigger value="branding" className="gap-2">
-          <Sparkles className="h-4 w-4" /> Identidade da cobrança
-        </TabsTrigger>
-        <TabsTrigger value="audit" className="gap-2">
-          <ScrollText className="h-4 w-4" /> Auditoria
-        </TabsTrigger>
-        <TabsTrigger value="onboarding" className="gap-2">
-          <ShieldCheck className="h-4 w-4" /> Recebimento
-        </TabsTrigger>
-        <TabsTrigger value="about" className="gap-2">
-          <Info className="h-4 w-4" /> Sobre
-        </TabsTrigger>
-      </TabsList>
+      <div className="overflow-x-auto -mx-1 px-1">
+        <TabsList className="inline-flex h-auto flex-nowrap gap-1 rounded-xl border border-neutral-200 bg-neutral-50/80 p-1.5 shadow-sm backdrop-blur">
+          {[
+            { v: "dashboard", i: <LayoutDashboard className="h-3.5 w-3.5" />, l: "Visão geral" },
+            { v: "wallet", i: <Wallet className="h-3.5 w-3.5" />, l: "Carteira" },
+            { v: "withdrawals", i: <ArrowDownRight className="h-3.5 w-3.5" />, l: "Saques" },
+            { v: "statement", i: <FileText className="h-3.5 w-3.5" />, l: "Extrato" },
+            { v: "fees", i: <Percent className="h-3.5 w-3.5" />, l: "Taxas" },
+            { v: "pix", i: <KeyRound className="h-3.5 w-3.5" />, l: "Chaves PIX" },
+            { v: "reminders", i: <Bell className="h-3.5 w-3.5" />, l: "Lembretes" },
+            { v: "branding", i: <Sparkles className="h-3.5 w-3.5" />, l: "Identidade" },
+            { v: "audit", i: <ScrollText className="h-3.5 w-3.5" />, l: "Auditoria" },
+            { v: "onboarding", i: <ShieldCheck className="h-3.5 w-3.5" />, l: "Recebimento" },
+            { v: "about", i: <Info className="h-3.5 w-3.5" />, l: "Sobre" },
+          ].map((t) => (
+            <TabsTrigger
+              key={t.v}
+              value={t.v}
+              className="gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold whitespace-nowrap data-[state=active]:bg-red-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:shadow-red-600/25 transition-all"
+            >
+              {t.i} {t.l}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </div>
 
       <TabsContent value="dashboard" className="mt-6">
         <AMTPayDashboard />
