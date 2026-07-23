@@ -2,11 +2,12 @@ import { formatDegree, degreeSuffix, degreeUnit } from "@/lib/dojo/degree-label"
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   listDojoStudents, listDojoBelts, addBulkGraduation,
   listCertificateTemplates, issueCertificate,
   listGraduationProgress,
+  getGraduationSettings, saveGraduationSettings,
 } from "@/lib/dojo/dojo.functions";
 import { BeltAuto } from "@/components/dojo/BeltSpecVisual";
 import { CertificatePreviewDialog, openCertificatePrint, type CertificateTemplate } from "@/components/dojo/CertificatePreview";
@@ -15,7 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { CheckCircle2, Award, Eye, Printer, GraduationCap, Users, ScrollText, Search, ArrowRight, ArrowLeft, RotateCcw, Info, Sparkles } from "lucide-react";
+import { CheckCircle2, Award, Eye, Printer, GraduationCap, Users, ScrollText, Search, ArrowRight, ArrowLeft, RotateCcw, Info, Sparkles, DollarSign, Save } from "lucide-react";
 
 export const Route = createFileRoute("/dojo/app/graduations")({
   head: () => ({ meta: [{ title: "Graduações — AMT Dojo Manager" }] }),
@@ -30,11 +31,14 @@ function NewGraduationPage() {
   const bulkFn = useServerFn(addBulkGraduation);
   const templatesFn = useServerFn(listCertificateTemplates);
   const issueFn = useServerFn(issueCertificate);
+  const settingsFn = useServerFn(getGraduationSettings);
+  const saveSettingsFn = useServerFn(saveGraduationSettings);
   const qc = useQueryClient();
 
   const students = useQuery({ queryKey: ["dojo-students"], queryFn: () => studentsFn() });
   const belts = useQuery({ queryKey: ["dojo-belts"], queryFn: () => beltsFn() });
   const templates = useQuery({ queryKey: ["dojo-templates"], queryFn: () => templatesFn() });
+  const settings = useQuery({ queryKey: ["dojo-grad-settings"], queryFn: () => settingsFn() });
   const progressFn = useServerFn(listGraduationProgress);
   const progress = useQuery({ queryKey: ["dojo-grad-progress"], queryFn: () => progressFn() });
   const progressById = useMemo(() => {
@@ -42,6 +46,8 @@ function NewGraduationPage() {
     for (const p of (progress.data ?? []) as any[]) m.set(p.student_id, p);
     return m;
   }, [progress.data]);
+
+  const priceByBelt: Record<string, number> = ((settings.data as any)?.price_by_belt ?? {}) as Record<string, number>;
 
   const [step, setStep] = useState<Step>("select");
   const [selectedStudents, setSelectedStudents] = useState<Set<string>>(new Set());
@@ -51,6 +57,10 @@ function NewGraduationPage() {
   const [filterModality, setFilterModality] = useState<string>("all");
   const [filterBeltId, setFilterBeltId] = useState<string>("all");
 
+  // Preços por faixa (edição local)
+  const [showPricing, setShowPricing] = useState(false);
+  const [priceDraft, setPriceDraft] = useState<Record<string, string>>({});
+  const [savingPrices, setSavingPrices] = useState(false);
 
   // Defaults ("aplicar a todos")
   const [beltId, setBeltId] = useState("");
@@ -59,8 +69,8 @@ function NewGraduationPage() {
   const [evaluator, setEvaluator] = useState("");
   const [notes, setNotes] = useState("");
 
-  // Graduação individual por aluno
-  const [perStudent, setPerStudent] = useState<Record<string, { beltId: string; degree: number }>>({});
+  // Graduação individual por aluno (faixa/grau + cobrança)
+  const [perStudent, setPerStudent] = useState<Record<string, { beltId: string; degree: number; fee?: string; paid?: boolean }>>({});
 
   const [registered, setRegistered] = useState<Array<{ id: string; student_id: string }>>([]);
   const [templateId, setTemplateId] = useState("");
@@ -162,37 +172,107 @@ function NewGraduationPage() {
     setPerStudent(prev => {
       const next = { ...prev };
       for (const id of selectedStudents) {
-        if (!next[id]) next[id] = { beltId: "", degree: 0 };
+        if (!next[id]) next[id] = { beltId: "", degree: 0, fee: "", paid: false };
       }
       return next;
     });
     setStep("grad");
   };
 
+  const savePrices = async () => {
+    try {
+      setSavingPrices(true);
+      const priceMap: Record<string, number> = {};
+      for (const [bid, raw] of Object.entries(priceDraft)) {
+        const v = Number((raw ?? "").toString().replace(",", ".").trim());
+        if (!Number.isNaN(v) && v > 0) priceMap[bid] = v;
+      }
+      await saveSettingsFn({ data: {
+        system: (settings.data as any)?.system ?? "merit",
+        classes_by_belt: (settings.data as any)?.classes_by_belt ?? {},
+        period_months_by_belt: (settings.data as any)?.period_months_by_belt ?? {},
+        default_classes: (settings.data as any)?.default_classes ?? 60,
+        default_period_months: (settings.data as any)?.default_period_months ?? 12,
+        price_by_belt: priceMap,
+      }});
+      toast.success("Preços salvos");
+      qc.invalidateQueries({ queryKey: ["dojo-grad-settings"] });
+    } catch (e: any) {
+      toast.error(e.message ?? "Erro ao salvar preços");
+    } finally {
+      setSavingPrices(false);
+    }
+  };
+
   const applyDefaultsToAll = () => {
     if (!beltId) return toast.error("Selecione uma faixa padrão");
     setPerStudent(prev => {
       const next = { ...prev };
-      for (const id of selectedStudents) next[id] = { beltId, degree };
+      for (const id of selectedStudents) {
+        next[id] = { beltId, degree, fee: String(priceByBelt[beltId] ?? ""), paid: prev[id]?.paid ?? false };
+      }
       return next;
     });
     toast.success("Faixa aplicada a todos os alunos");
   };
 
   const setStudentBelt = (studentId: string, newBeltId: string) => {
-    setPerStudent(prev => ({ ...prev, [studentId]: { beltId: newBeltId, degree: 0 } }));
+    setPerStudent(prev => ({
+      ...prev,
+      [studentId]: {
+        beltId: newBeltId,
+        degree: 0,
+        fee: String(priceByBelt[newBeltId] ?? ""),
+        paid: prev[studentId]?.paid ?? false,
+      },
+    }));
   };
   const setStudentDegree = (studentId: string, newDegree: number) => {
     setPerStudent(prev => ({
       ...prev,
-      [studentId]: { beltId: prev[studentId]?.beltId ?? "", degree: newDegree },
+      [studentId]: {
+        beltId: prev[studentId]?.beltId ?? "",
+        degree: newDegree,
+        fee: prev[studentId]?.fee,
+        paid: prev[studentId]?.paid,
+      },
+    }));
+  };
+  const setStudentFee = (studentId: string, fee: string) => {
+    setPerStudent(prev => ({
+      ...prev,
+      [studentId]: {
+        beltId: prev[studentId]?.beltId ?? "",
+        degree: prev[studentId]?.degree ?? 0,
+        fee,
+        paid: prev[studentId]?.paid ?? false,
+      },
+    }));
+  };
+  const setStudentPaid = (studentId: string, paid: boolean) => {
+    setPerStudent(prev => ({
+      ...prev,
+      [studentId]: {
+        beltId: prev[studentId]?.beltId ?? "",
+        degree: prev[studentId]?.degree ?? 0,
+        fee: prev[studentId]?.fee,
+        paid,
+      },
     }));
   };
 
   const submitGrad = async () => {
     const items = Array.from(selectedStudents).map(sid => {
       const p = perStudent[sid] ?? { beltId, degree };
-      return { student_id: sid, belt_id: p.beltId, degree: p.degree };
+      const rawFee = (p.fee ?? "").toString().replace(",", ".").trim();
+      const feeNum = rawFee === "" ? null : Number(rawFee);
+      return {
+        student_id: sid,
+        belt_id: p.beltId,
+        degree: p.degree,
+        fee_amount: feeNum != null && !Number.isNaN(feeNum) ? feeNum : null,
+        paid: !!p.paid,
+      };
     });
     const missing = items.filter(i => !i.belt_id);
     if (missing.length > 0) {
@@ -214,9 +294,15 @@ function NewGraduationPage() {
         notes: notes || null,
       }});
 
-      toast.success(`${res.count} graduação(ões) registrada(s)`);
+      const invCount = (res as any).invoices?.length ?? 0;
+      toast.success(
+        `${res.count} graduação(ões) registrada(s)` +
+        (invCount > 0 ? ` · ${invCount} cobrança(s) lançada(s) no financeiro` : ""),
+      );
       setRegistered(res.graduations ?? []);
       qc.invalidateQueries({ queryKey: ["dojo-students"] });
+      qc.invalidateQueries({ queryKey: ["dojo-invoices"] });
+      qc.invalidateQueries({ queryKey: ["finance"] });
       setStep("cert");
     } catch (e: any) { toast.error(e.message ?? "Erro ao registrar"); }
   };
@@ -425,6 +511,74 @@ function NewGraduationPage() {
               </div>
             </div>
           </CardContent>
+        </Card>
+      )}
+
+      {/* ============ PREÇOS POR FAIXA ============ */}
+      {step === "select" && (
+        <Card className="overflow-hidden shadow-sm">
+          <CardHeader className="border-b bg-muted/30">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="min-w-0">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <DollarSign className="h-4 w-4 text-primary" />
+                  Preços de graduação por faixa
+                </CardTitle>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Defina o valor fixo cobrado por faixa. O sistema gera automaticamente uma conta a receber no Financeiro para cada aluno graduado.
+                </p>
+              </div>
+              <Button
+                size="sm"
+                variant={showPricing ? "secondary" : "outline"}
+                onClick={() => {
+                  const opening = !showPricing;
+                  setShowPricing(opening);
+                  if (opening) {
+                    const draft: Record<string, string> = {};
+                    for (const [bid, v] of Object.entries(priceByBelt)) draft[bid] = String(v);
+                    setPriceDraft(draft);
+                  }
+                }}
+              >
+                {showPricing ? "Fechar" : "Configurar preços"}
+              </Button>
+            </div>
+          </CardHeader>
+          {showPricing && (
+            <CardContent className="p-4 md:p-5 space-y-3">
+              <div className="max-h-[360px] overflow-y-auto divide-y divide-border rounded-xl border bg-background">
+                {(belts.data ?? []).length === 0 && (
+                  <div className="p-6 text-center text-sm text-muted-foreground">Cadastre faixas primeiro em Graduações → Faixas.</div>
+                )}
+                {(belts.data ?? []).map((b: any) => (
+                  <div key={b.id} className="flex items-center gap-3 p-3">
+                    <BeltAuto belt={b} degree={0} className="w-[160px] shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-semibold">{b.name}</div>
+                      <div className="truncate text-[11px] text-muted-foreground capitalize">{b.modality ?? "jiu-jitsu"}</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground">R$</span>
+                      <Input
+                        inputMode="decimal"
+                        placeholder="0,00"
+                        className="h-9 w-32"
+                        value={priceDraft[b.id] ?? ""}
+                        onChange={(e) => setPriceDraft(prev => ({ ...prev, [b.id]: e.target.value }))}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="flex items-center justify-end gap-2">
+                <Button variant="ghost" size="sm" onClick={() => setShowPricing(false)}>Cancelar</Button>
+                <Button size="sm" onClick={savePrices} disabled={savingPrices}>
+                  <Save className="mr-1.5 h-4 w-4" /> {savingPrices ? "Salvando…" : "Salvar preços"}
+                </Button>
+              </div>
+            </CardContent>
+          )}
         </Card>
       )}
 
@@ -731,7 +885,7 @@ function NewGraduationPage() {
                   const currentMatch = current.find((b: any) => (b.belt?.modality ?? "jiu-jitsu") === chosenMod);
 
                   return (
-                    <div key={s.id} className="grid gap-3 p-4 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] md:items-center">
+                    <div key={s.id} className="grid gap-3 p-4 md:grid-cols-[minmax(0,1.3fr)_minmax(0,0.9fr)_minmax(0,0.7fr)_minmax(0,0.9fr)_minmax(0,0.8fr)_minmax(0,1fr)] md:items-center">
                       <div className="flex min-w-0 items-center gap-3">
                         <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary/10 text-[11px] font-bold text-primary">
                           {initials(s.full_name)}
@@ -780,6 +934,35 @@ function NewGraduationPage() {
                         </select>
                       </div>
 
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">Taxa (R$)</label>
+                        <Input
+                          inputMode="decimal"
+                          placeholder="0,00"
+                          className="h-9"
+                          value={entry.fee ?? ""}
+                          onChange={(e) => setStudentFee(s.id, e.target.value)}
+                        />
+                        {entry.beltId && priceByBelt[entry.beltId] != null && (
+                          <div className="text-[10px] text-muted-foreground">
+                            padrão R$ {Number(priceByBelt[entry.beltId]).toFixed(2)}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">Pagamento</label>
+                        <label className="flex h-9 items-center gap-2 rounded-md border bg-background px-2 text-xs cursor-pointer select-none">
+                          <input
+                            type="checkbox"
+                            className="h-4 w-4 accent-primary"
+                            checked={!!entry.paid}
+                            onChange={(e) => setStudentPaid(s.id, e.target.checked)}
+                          />
+                          <span>{entry.paid ? "Pago" : "Pendente"}</span>
+                        </label>
+                      </div>
+
                       <div className="flex items-center justify-end">
                         {chosenBelt ? (
                           <BeltAuto belt={chosenBelt as any} degree={entry.degree} className="w-full max-w-[220px]" />
@@ -787,6 +970,7 @@ function NewGraduationPage() {
                           <span className="text-[11px] text-muted-foreground">Selecione a faixa</span>
                         )}
                       </div>
+
                     </div>
                   );
                 })}

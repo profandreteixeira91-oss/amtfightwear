@@ -1428,6 +1428,7 @@ export const getGraduationSettings = createServerFn({ method: "GET" })
       period_months_by_belt: {},
       default_classes: 60,
       default_period_months: 12,
+      price_by_belt: {},
     };
   });
 
@@ -1437,6 +1438,7 @@ export const saveGraduationSettings = createServerFn({ method: "POST" })
     system: z.enum(["merit", "classes", "period"]),
     classes_by_belt: z.record(z.string(), z.number()).optional(),
     period_months_by_belt: z.record(z.string(), z.number()).optional(),
+    price_by_belt: z.record(z.string(), z.number().min(0).max(1_000_000)).optional(),
     default_classes: z.number().int().min(0).max(10000).optional(),
     default_period_months: z.number().int().min(0).max(240).optional(),
   }).parse(i))
@@ -1446,6 +1448,7 @@ export const saveGraduationSettings = createServerFn({ method: "POST" })
       system: data.system,
       classes_by_belt: data.classes_by_belt ?? {},
       period_months_by_belt: data.period_months_by_belt ?? {},
+      price_by_belt: data.price_by_belt ?? {},
       default_classes: data.default_classes ?? 60,
       default_period_months: data.default_period_months ?? 12,
     };
@@ -1471,6 +1474,8 @@ export const addBulkGraduation = createServerFn({ method: "POST" })
         student_id: uuid,
         belt_id: uuid,
         degree: z.number().int().min(0).max(10).default(0),
+        fee_amount: z.number().min(0).max(1_000_000).optional().nullable(),
+        paid: z.boolean().optional(),
       })).optional(),
       graduation_date: z.string(),
       evaluator: z.string().max(200).optional().nullable(),
@@ -1486,33 +1491,47 @@ export const addBulkGraduation = createServerFn({ method: "POST" })
           student_id: sid,
           belt_id: data.belt_id!,
           degree: data.degree ?? 0,
+          fee_amount: null as number | null | undefined,
+          paid: false as boolean | undefined,
         }));
 
-    const rows = items.map(it => ({
-      student_id: it.student_id,
-      belt_id: it.belt_id,
-      degree: it.degree,
-      graduation_date: data.graduation_date,
-      evaluator: data.evaluator ?? null,
-      notes: data.notes ?? null,
-      owner_id: ownerId(context),
-    }));
+    // Buscar preços padrão por faixa
+    const { data: settingsRow } = await context.supabase
+      .from("dojo_graduation_settings")
+      .select("price_by_belt")
+      .eq("owner_id", ownerId(context))
+      .maybeSingle();
+    const priceByBelt: Record<string, number> = ((settingsRow as any)?.price_by_belt ?? {}) as Record<string, number>;
+
+    const rows = items.map(it => {
+      const fee = it.fee_amount != null ? Number(it.fee_amount) : Number(priceByBelt[it.belt_id] ?? 0);
+      return {
+        student_id: it.student_id,
+        belt_id: it.belt_id,
+        degree: it.degree,
+        graduation_date: data.graduation_date,
+        evaluator: data.evaluator ?? null,
+        notes: data.notes ?? null,
+        owner_id: ownerId(context),
+        fee_amount: fee > 0 ? fee : null,
+      };
+    });
     const { data: inserted, error } = await context.supabase
-      .from("dojo_graduations").insert(rows).select("id, student_id");
+      .from("dojo_graduations").insert(rows).select("id, student_id, belt_id, fee_amount");
     if (error) throw new Error(error.message);
 
-    // Modality-aware overwrite por aluno.
+    // Modality-aware overwrite por aluno + info da faixa (para descrição da cobrança).
     const beltIds = Array.from(new Set(items.map(i => i.belt_id)));
     const studentIds = Array.from(new Set(items.map(i => i.student_id)));
     const [{ data: beltRows }, { data: studentsRows }] = await Promise.all([
-      context.supabase.from("dojo_belts").select("id, modality").in("id", beltIds),
+      context.supabase.from("dojo_belts").select("id, name, modality").in("id", beltIds),
       context.supabase
         .from("dojo_students")
-        .select("id, current_belt_id, belt:dojo_belts(modality)")
+        .select("id, full_name, current_belt_id, belt:dojo_belts(modality)")
         .in("id", studentIds),
     ]);
-    const beltModById = new Map<string, string>();
-    for (const b of (beltRows ?? []) as any[]) beltModById.set(b.id, b.modality ?? "jiu-jitsu");
+    const beltById = new Map<string, any>();
+    for (const b of (beltRows ?? []) as any[]) beltById.set(b.id, b);
     const studentById = new Map<string, any>();
     for (const s of (studentsRows ?? []) as any[]) studentById.set(s.id, s);
 
@@ -1520,7 +1539,7 @@ export const addBulkGraduation = createServerFn({ method: "POST" })
       const s = studentById.get(it.student_id);
       if (!s) continue;
       const currentMod = (s as any).belt?.modality ?? null;
-      const newMod = beltModById.get(it.belt_id) ?? "jiu-jitsu";
+      const newMod = beltById.get(it.belt_id)?.modality ?? "jiu-jitsu";
       if (!s.current_belt_id || currentMod === null || currentMod === newMod) {
         await context.supabase
           .from("dojo_students")
@@ -1528,7 +1547,40 @@ export const addBulkGraduation = createServerFn({ method: "POST" })
           .eq("id", it.student_id);
       }
     }
-    return { count: inserted?.length ?? 0, graduations: inserted ?? [] };
+
+    // Gera contas a receber (dojo_invoices) para graduações com valor > 0.
+    const paidByStudent = new Map<string, boolean>();
+    for (const it of items) paidByStudent.set(it.student_id, !!it.paid);
+
+    const invoicesCreated: Array<{ graduation_id: string; invoice_id: string; amount: number; status: string }> = [];
+    for (const g of (inserted ?? []) as any[]) {
+      const fee = Number(g.fee_amount ?? 0);
+      if (!fee || fee <= 0) continue;
+      const belt = beltById.get(g.belt_id);
+      const isPaid = paidByStudent.get(g.student_id) === true;
+      const { data: inv, error: invErr } = await context.supabase
+        .from("dojo_invoices")
+        .insert({
+          student_id: g.student_id,
+          owner_id: ownerId(context),
+          amount: fee,
+          due_date: data.graduation_date,
+          description: `Taxa de graduação — ${belt?.name ?? "Faixa"}`,
+          status: isPaid ? "paid" : "pending",
+          paid_at: isPaid ? new Date().toISOString() : null,
+          source: "other",
+        })
+        .select("id, status")
+        .single();
+      if (invErr) throw new Error(invErr.message);
+      await context.supabase
+        .from("dojo_graduations")
+        .update({ invoice_id: inv.id })
+        .eq("id", g.id);
+      invoicesCreated.push({ graduation_id: g.id, invoice_id: inv.id, amount: fee, status: inv.status });
+    }
+
+    return { count: inserted?.length ?? 0, graduations: inserted ?? [], invoices: invoicesCreated };
   });
 
 

@@ -5100,6 +5100,7 @@ export type Database = {
           id: string
           owner_id: string
           period_months_by_belt: Json
+          price_by_belt: Json
           system: string
           updated_at: string
         }
@@ -5111,6 +5112,7 @@ export type Database = {
           id?: string
           owner_id: string
           period_months_by_belt?: Json
+          price_by_belt?: Json
           system?: string
           updated_at?: string
         }
@@ -5122,6 +5124,7 @@ export type Database = {
           id?: string
           owner_id?: string
           period_months_by_belt?: Json
+          price_by_belt?: Json
           system?: string
           updated_at?: string
         }
@@ -5133,8 +5136,10 @@ export type Database = {
           created_at: string
           degree: number
           evaluator: string | null
+          fee_amount: number | null
           graduation_date: string
           id: string
+          invoice_id: string | null
           notes: string | null
           owner_id: string
           student_id: string
@@ -5145,8 +5150,10 @@ export type Database = {
           created_at?: string
           degree?: number
           evaluator?: string | null
+          fee_amount?: number | null
           graduation_date?: string
           id?: string
+          invoice_id?: string | null
           notes?: string | null
           owner_id: string
           student_id: string
@@ -5157,8 +5164,10 @@ export type Database = {
           created_at?: string
           degree?: number
           evaluator?: string | null
+          fee_amount?: number | null
           graduation_date?: string
           id?: string
+          invoice_id?: string | null
           notes?: string | null
           owner_id?: string
           student_id?: string
@@ -5170,6 +5179,13 @@ export type Database = {
             columns: ["belt_id"]
             isOneToOne: false
             referencedRelation: "dojo_belts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_graduations_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_invoices"
             referencedColumns: ["id"]
           },
           {
