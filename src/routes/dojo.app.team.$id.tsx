@@ -133,6 +133,22 @@ function TeamMemberDetail() {
     } catch (e: any) { toast.error(e.message); }
   };
 
+  const recalc = async () => {
+    try {
+      const r: any = await computeFn({ data: { member_id: id, from: newPay.from, to: newPay.to } });
+      setCalc(r);
+      setNewPay((s: any) => ({
+        ...s,
+        amount: r.suggested_amount,
+        hours_worked: r.hours,
+        classes_count: r.classes,
+        description: s.description ||
+          `Referente a ${new Date(newPay.from).toLocaleDateString("pt-BR")}–${new Date(newPay.to).toLocaleDateString("pt-BR")}`,
+      }));
+      toast.success(`Calculado: ${r.classes} aula(s) · ${r.hours}h`);
+    } catch (e: any) { toast.error(e.message); }
+  };
+
   const addPayment = async () => {
     if (!newPay.amount || newPay.amount <= 0) { toast.error("Informe o valor"); return; }
     try {
@@ -143,12 +159,26 @@ function TeamMemberDetail() {
           amount: Number(newPay.amount),
           description: newPay.description || undefined,
           status: newPay.status,
-          reference_month: new Date().toISOString().slice(0, 7) + "-01",
+          reference_month: newPay.from ? newPay.from.slice(0, 8) + "01" : new Date().toISOString().slice(0, 7) + "-01",
+          hours_worked: newPay.hours_worked ?? null,
+          classes_count: newPay.classes_count ?? null,
+          due_date: newPay.due_date || null,
+          paid_at: newPay.status === "paid" ? (newPay.paid_at || new Date().toISOString()) : null,
+          payment_method: newPay.payment_method || null,
         },
       });
-      toast.success("Lançamento registrado");
-      setNewPay({ kind: "salary", amount: 0, status: "pending", description: "" });
+      toast.success(newPay.status === "paid"
+        ? "Pagamento registrado e lançado em Financeiro"
+        : "Lançamento registrado");
+      setNewPay({
+        kind: "salary", amount: 0, status: "pending", description: "",
+        from: firstOfMonth, to: today, hours_worked: null, classes_count: null,
+        due_date: "", paid_at: "", payment_method: "",
+      });
+      setCalc(null);
       qc.invalidateQueries({ queryKey: ["team-member-payments", id] });
+      qc.invalidateQueries({ queryKey: ["dojo-expenses"] });
+      qc.invalidateQueries({ queryKey: ["dojo-finance"] });
     } catch (e: any) { toast.error(e.message); }
   };
 
