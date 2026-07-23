@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import {
-  ArrowLeft, FileText, Plus, Pencil, Trash2, Eye, Copy, Printer, X,
+  ArrowLeft, FileText, Plus, Pencil, Trash2, Eye, Copy, Printer, X, Sparkles,
 } from "lucide-react";
 import {
   listContractTemplates,
@@ -20,6 +20,7 @@ import {
 import { buildContractValues, resolveContractHtml } from "@/lib/dojo/contracts-variables";
 import { openBrandedPrintDocument } from "@/lib/dojo/print-document";
 import { useDojoBranding } from "@/hooks/useDojoBranding";
+import { DEFAULT_CONTRACT_PRESET } from "@/lib/dojo/contracts-presets";
 
 export const Route = createFileRoute("/dojo/app/contract-templates")({
   head: () => ({
