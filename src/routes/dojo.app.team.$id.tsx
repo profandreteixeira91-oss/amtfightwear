@@ -493,35 +493,80 @@ function DocumentUpload({ memberId, onSaved, onSave }: {
   const [title, setTitle] = useState("");
   const [kind, setKind] = useState("other");
   const [url, setUrl] = useState("");
+  const [uploading, setUploading] = useState(false);
+
+  const handleFile = async (file: File | null) => {
+    if (!file) return;
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop() || "bin";
+      const path = `team/${memberId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error } = await supabase.storage.from("ig-media").upload(path, file, { upsert: true });
+      if (error) throw error;
+      const { data } = supabase.storage.from("ig-media").getPublicUrl(path);
+      setUrl(data.publicUrl);
+      if (!title) setTitle(file.name);
+      toast.success("Arquivo enviado. Confirme para anexar.");
+    } catch (e: any) {
+      toast.error(e.message ?? "Falha no upload");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const submit = async () => {
-    if (!title.trim() || !url.trim()) { toast.error("Título e URL são obrigatórios"); return; }
+    if (!title.trim() || !url.trim()) { toast.error("Envie um arquivo ou informe um título e URL"); return; }
     try {
       await onSave({ data: { member_id: memberId, title, kind, file_url: url } });
-      toast.success("Documento adicionado");
+      toast.success("Documento anexado");
       setTitle(""); setUrl(""); setKind("other");
       onSaved();
     } catch (e: any) { toast.error(e.message); }
   };
 
   return (
-    <div className="grid grid-cols-1 gap-2 md:grid-cols-4">
-      <Input placeholder="Título" value={title} onChange={(e) => setTitle(e.target.value)} />
-      <Select value={kind} onValueChange={setKind}>
-        <SelectTrigger><SelectValue /></SelectTrigger>
-        <SelectContent>
-          <SelectItem value="contract">Contrato</SelectItem>
-          <SelectItem value="rg">RG</SelectItem>
-          <SelectItem value="cpf">CPF</SelectItem>
-          <SelectItem value="proof">Comprovante</SelectItem>
-          <SelectItem value="certificate">Certificado</SelectItem>
-          <SelectItem value="course">Curso</SelectItem>
-          <SelectItem value="diploma">Diploma</SelectItem>
-          <SelectItem value="other">Outro</SelectItem>
-        </SelectContent>
-      </Select>
-      <Input placeholder="URL do arquivo" value={url} onChange={(e) => setUrl(e.target.value)} />
-      <Button onClick={submit}>Anexar</Button>
+    <div className="space-y-3">
+      <p className="text-xs text-muted-foreground">
+        Anexo de documentos é opcional. Envie um arquivo direto ou cole uma URL pública.
+      </p>
+      <div className="grid grid-cols-1 gap-2 md:grid-cols-4">
+        <Input placeholder="Título" value={title} onChange={(e) => setTitle(e.target.value)} />
+        <Select value={kind} onValueChange={setKind}>
+          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="contract">Contrato</SelectItem>
+            <SelectItem value="rg">RG</SelectItem>
+            <SelectItem value="cpf">CPF</SelectItem>
+            <SelectItem value="proof">Comprovante</SelectItem>
+            <SelectItem value="certificate">Certificado</SelectItem>
+            <SelectItem value="course">Curso</SelectItem>
+            <SelectItem value="diploma">Diploma</SelectItem>
+            <SelectItem value="other">Outro</SelectItem>
+          </SelectContent>
+        </Select>
+        <label className="flex items-center gap-2 rounded-md border bg-background px-3 py-2 text-sm cursor-pointer hover:bg-accent">
+          <Upload className="h-4 w-4" />
+          <span className="truncate">{uploading ? "Enviando..." : "Escolher arquivo"}</span>
+          <input
+            type="file"
+            className="hidden"
+            accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx"
+            disabled={uploading}
+            onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
+          />
+        </label>
+        <Button onClick={submit} disabled={uploading}>Anexar</Button>
+      </div>
+      {url && (
+        <div className="text-xs text-muted-foreground truncate">
+          Pré-visualização: <a className="underline" href={url} target="_blank" rel="noreferrer">{url}</a>
+        </div>
+      )}
+      <Input
+        placeholder="Ou cole uma URL pública"
+        value={url}
+        onChange={(e) => setUrl(e.target.value)}
+      />
     </div>
   );
 }
