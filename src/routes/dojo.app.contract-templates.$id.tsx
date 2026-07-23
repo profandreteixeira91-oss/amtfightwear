@@ -203,7 +203,7 @@ function ContractEditorPage() {
     : draft.page_size === "Letter" ? "aspect-[8.5/11]" : "aspect-[210/297]";
 
   return (
-    <div className="fixed inset-0 z-40 flex flex-col bg-muted/30">
+    <div className="fixed inset-0 z-[70] flex flex-col bg-muted/30">
       {/* Top bar */}
       <div className="flex items-center justify-between gap-3 border-b bg-background px-4 md:px-6 py-3 shrink-0">
         <div className="flex items-center gap-3 min-w-0">
