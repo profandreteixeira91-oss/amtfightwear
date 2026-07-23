@@ -411,25 +411,76 @@ function TeamMemberDetail() {
         {/* PAYMENTS */}
         <TabsContent value="payments" className="mt-4 space-y-4">
           <Card>
-            <CardHeader><CardTitle className="text-base">Novo lançamento</CardTitle></CardHeader>
-            <CardContent className="grid grid-cols-1 gap-3 md:grid-cols-4">
-              <Select value={newPay.kind} onValueChange={(v) => setNewPay({ ...newPay, kind: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {PAYMENT_KINDS.map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              <Input placeholder="Descrição" value={newPay.description} onChange={(e) => setNewPay({ ...newPay, description: e.target.value })} />
-              <Input type="number" step="0.01" placeholder="Valor" value={newPay.amount} onChange={(e) => setNewPay({ ...newPay, amount: e.target.value })} />
-              <div className="flex gap-2">
-                <Select value={newPay.status} onValueChange={(v) => setNewPay({ ...newPay, status: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="pending">Pendente</SelectItem>
-                    <SelectItem value="paid">Pago</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button onClick={addPayment}>Adicionar</Button>
+            <CardHeader>
+              <CardTitle className="text-base">Novo lançamento</CardTitle>
+              <p className="text-xs text-muted-foreground">
+                Selecione o período — o valor é calculado automaticamente segundo a modalidade de pagamento
+                ({PAYMENT_TYPES.find(([k]) => k === (payroll.payment_type ?? "fixed"))?.[1] ?? "—"})
+                usando a agenda do colaborador. Pagamentos com status <b>Pago</b> geram uma despesa em Financeiro.
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+                <Field label="De"><Input type="date" value={newPay.from} onChange={(e) => setNewPay({ ...newPay, from: e.target.value })} /></Field>
+                <Field label="Até"><Input type="date" value={newPay.to} onChange={(e) => setNewPay({ ...newPay, to: e.target.value })} /></Field>
+                <div className="flex items-end">
+                  <Button variant="outline" onClick={recalc} className="w-full">
+                    <RefreshCw className="mr-2 h-4 w-4" /> Calcular pela agenda
+                  </Button>
+                </div>
+                <Field label="Tipo">
+                  <Select value={newPay.kind} onValueChange={(v) => setNewPay({ ...newPay, kind: v })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {PAYMENT_KINDS.map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </Field>
+              </div>
+
+              {calc && (
+                <div className="rounded-md border border-primary/30 bg-primary/5 p-3 text-xs">
+                  <b>Base:</b> {calc.classes} aula(s) · {calc.hours}h ·
+                  {" "}Hora R$ {calc.hourly_rate.toFixed(2)} · Aula R$ {calc.per_class_rate.toFixed(2)} · Fixo R$ {calc.base_salary.toFixed(2)}
+                  {" "}→ Sugerido <b>R$ {calc.suggested_amount.toFixed(2)}</b>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+                <Field label="Descrição"><Input value={newPay.description} onChange={(e) => setNewPay({ ...newPay, description: e.target.value })} /></Field>
+                <Field label="Valor (R$)"><Input type="number" step="0.01" value={newPay.amount} onChange={(e) => setNewPay({ ...newPay, amount: e.target.value })} /></Field>
+                <Field label="Horas"><Input type="number" step="0.01" value={newPay.hours_worked ?? ""} onChange={(e) => setNewPay({ ...newPay, hours_worked: e.target.value ? Number(e.target.value) : null })} /></Field>
+                <Field label="Nº aulas"><Input type="number" value={newPay.classes_count ?? ""} onChange={(e) => setNewPay({ ...newPay, classes_count: e.target.value ? Number(e.target.value) : null })} /></Field>
+              </div>
+
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+                <Field label="Status">
+                  <Select value={newPay.status} onValueChange={(v) => setNewPay({ ...newPay, status: v })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">Pendente</SelectItem>
+                      <SelectItem value="paid">Pago</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field label="Vencimento"><Input type="date" value={newPay.due_date} onChange={(e) => setNewPay({ ...newPay, due_date: e.target.value })} /></Field>
+                <Field label="Data do pagamento"><Input type="date" value={newPay.paid_at ? newPay.paid_at.slice(0,10) : ""} onChange={(e) => setNewPay({ ...newPay, paid_at: e.target.value ? new Date(e.target.value).toISOString() : "" })} /></Field>
+                <Field label="Forma">
+                  <Select value={newPay.payment_method || "pix"} onValueChange={(v) => setNewPay({ ...newPay, payment_method: v })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pix">PIX</SelectItem>
+                      <SelectItem value="transfer">Transferência</SelectItem>
+                      <SelectItem value="cash">Dinheiro</SelectItem>
+                      <SelectItem value="card">Cartão</SelectItem>
+                      <SelectItem value="other">Outro</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
+              </div>
+
+              <div className="flex justify-end">
+                <Button onClick={addPayment}><Save className="mr-2 h-4 w-4" />Registrar lançamento</Button>
               </div>
             </CardContent>
           </Card>
