@@ -195,6 +195,7 @@ const routeTitles: Array<{ match: (p: string) => boolean; title: string; subtitl
   { match: (p) => p.startsWith("/dojo/app/integrations"), title: "AMT Pay", subtitle: "Central financeira do dojo" },
   { match: (p) => p.startsWith("/dojo/app/student-app-qr"), title: "QR do App do Aluno", subtitle: "Imprima e distribua para os alunos" },
   { match: (p) => p.startsWith("/dojo/app/system-users"), title: "Usuários do Sistema", subtitle: "Logins e permissões da equipe" },
+  { match: (p) => p.startsWith("/dojo/app/notifications"), title: "App & Notificações", subtitle: "Instalação do app e alertas push" },
 ];
 
 function DojoLayout() {
