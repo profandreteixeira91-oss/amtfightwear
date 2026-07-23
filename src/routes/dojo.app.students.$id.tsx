@@ -33,6 +33,7 @@ import { useDojoBranding } from "@/hooks/useDojoBranding";
 import { StudentCorporateBenefitsSection } from "@/components/dojo/corporate-benefits/StudentCorporateBenefitsSection";
 import { TuitionRow } from "@/components/dojo/finance/TuitionList";
 import { StudentCompetitionHistory } from "@/components/dojo/competitions/StudentCompetitionHistory";
+import { StudentContracts } from "@/components/dojo/StudentContracts";
 
 export const Route = createFileRoute("/dojo/app/students/$id")({
   head: () => ({ meta: [{ title: "Aluno — AMT Dojo Manager" }] }),
@@ -807,7 +808,7 @@ function StudentDetail() {
 
             <TabsContent value="contratos" className="mt-4 space-y-4">
               <SectionCard title="Contratos do aluno" icon={FileText}>
-                <StudentContracts studentId={id} student={student} />
+                <StudentContracts studentId={id} student={s} />
               </SectionCard>
             </TabsContent>
 
