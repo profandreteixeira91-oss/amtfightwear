@@ -360,21 +360,51 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
         )}
       </div>
 
-      {/* Editor surface */}
+      {/* Editor surface — canvas estilo Google Docs */}
       <div
-        ref={ref}
-        role="textbox"
-        aria-multiline="true"
-        contentEditable
-        suppressContentEditableWarning
-        onInput={handleInput}
-        onKeyUp={saveSelection}
-        onMouseUp={saveSelection}
-        onBlur={saveSelection}
-        data-placeholder={placeholder ?? "Escreva o contrato..."}
-        className={`prose prose-sm max-w-none focus:outline-none [&_h1]:text-2xl [&_h2]:text-xl [&_h3]:text-lg [&_blockquote]:border-l-4 [&_blockquote]:border-muted [&_blockquote]:pl-3 [&_blockquote]:italic [&_table]:border-collapse [&_table_td]:border [&_table_td]:p-1 empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground ${compact ? "px-3 py-2" : "px-8 py-8"}`}
-        style={{ minHeight: compact ? Math.min(minHeight, 120) : minHeight }}
-      />
+        className={
+          compact
+            ? "bg-background"
+            : "bg-[#f1f3f4] dark:bg-[#1b1b1f] px-4 py-6 md:py-10 overflow-auto"
+        }
+        style={compact ? undefined : { maxHeight: "calc(100vh - 220px)" }}
+      >
+        <div
+          className={
+            compact
+              ? ""
+              : "mx-auto bg-white text-neutral-900 shadow-[0_1px_3px_rgba(60,64,67,0.15),0_4px_10px_rgba(60,64,67,0.12)] rounded-sm"
+          }
+          style={
+            compact
+              ? undefined
+              : {
+                  width: "min(816px, 100%)",
+                  minHeight: `${Math.max(minHeight, 1056)}px`,
+                }
+          }
+        >
+          <div
+            ref={ref}
+            role="textbox"
+            aria-multiline="true"
+            contentEditable
+            suppressContentEditableWarning
+            onInput={handleInput}
+            onKeyUp={saveSelection}
+            onMouseUp={saveSelection}
+            onBlur={saveSelection}
+            data-placeholder={placeholder ?? "Escreva o contrato..."}
+            className={`focus:outline-none prose prose-sm max-w-none text-neutral-900 leading-[1.7] [&_h1]:text-2xl [&_h1]:font-bold [&_h2]:text-xl [&_h2]:font-semibold [&_h3]:text-lg [&_h3]:font-semibold [&_p]:my-2 [&_blockquote]:border-l-4 [&_blockquote]:border-neutral-300 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-neutral-700 [&_table]:border-collapse [&_table_td]:border [&_table_td]:border-neutral-300 [&_table_td]:p-1 [&_a]:text-blue-600 [&_a]:underline empty:before:content-[attr(data-placeholder)] empty:before:text-neutral-400 ${compact ? "px-3 py-2" : "px-[96px] py-[96px]"}`}
+            style={{
+              minHeight: compact ? Math.min(minHeight, 120) : minHeight,
+              fontFamily: "'Arial', 'Helvetica', sans-serif",
+              fontSize: compact ? undefined : "11pt",
+            }}
+          />
+        </div>
+      </div>
+
 
       {/* Image dialog */}
       <Dialog open={imgOpen} onOpenChange={setImgOpen}>
