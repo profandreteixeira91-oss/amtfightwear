@@ -38,3 +38,31 @@ export function TrialBadge() {
     </Link>
   );
 }
+
+export function AccountTrialInline() {
+  const fn = useServerFn(getMySubscription);
+  const { data } = useQuery({
+    queryKey: ["dojo", "my-subscription"],
+    queryFn: () => fn({}),
+    staleTime: 5 * 60 * 1000,
+  });
+  if (!data) return null;
+  const status = (data as any).status as string;
+  const trialEnd = (data as any).trial_ends_at as string | null;
+  if (status !== "trialing" || !trialEnd) return null;
+  const ms = new Date(trialEnd).getTime() - Date.now();
+  const days = Math.max(0, Math.ceil(ms / (1000 * 60 * 60 * 24)));
+  const urgent = days <= 3;
+  return (
+    <span
+      className={`ml-auto inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[10px] font-semibold ${
+        urgent
+          ? "border-destructive/40 bg-destructive/10 text-destructive"
+          : "border-primary/30 bg-primary/10 text-primary"
+      }`}
+    >
+      <Clock className="h-2.5 w-2.5" />
+      {days}d
+    </span>
+  );
+}
