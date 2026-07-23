@@ -5006,6 +5006,7 @@ export type Database = {
           owner_id: string
           paid_at: string | null
           status: string
+          team_payment_id: string | null
           unit_id: string | null
           updated_at: string
         }
@@ -5019,6 +5020,7 @@ export type Database = {
           owner_id: string
           paid_at?: string | null
           status?: string
+          team_payment_id?: string | null
           unit_id?: string | null
           updated_at?: string
         }
@@ -5032,10 +5034,18 @@ export type Database = {
           owner_id?: string
           paid_at?: string | null
           status?: string
+          team_payment_id?: string | null
           unit_id?: string | null
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "dojo_expenses_team_payment_id_fkey"
+            columns: ["team_payment_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_team_payments"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "dojo_expenses_unit_id_fkey"
             columns: ["unit_id"]
