@@ -332,6 +332,44 @@ function LessonEditorPage() {
             <Label>Título</Label>
             <Input value={form.title} onChange={(e) => patch({ title: e.target.value })} />
           </div>
+          <div className="md:col-span-2">
+            <Label>Turma</Label>
+            <Select
+              value={form.class_id ?? "__none"}
+              onValueChange={(v) => {
+                if (v === "__none") {
+                  patch({ class_id: null });
+                  return;
+                }
+                const c = (classes ?? []).find((x) => (x.id as string) === v);
+                patch({
+                  class_id: v,
+                  teacher_id: (c?.teacher_id as string | null) ?? form.teacher_id,
+                  unit_id: (c?.unit_id as string | null) ?? form.unit_id,
+                  modality: form.modality || (c?.modality as string) || "",
+                  color: form.color || (c?.color as string) || "#dc2626",
+                });
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Vincular a uma turma (opcional)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__none">Sem turma</SelectItem>
+                {(classes ?? []).map((c) => (
+                  <SelectItem key={c.id as string} value={c.id as string}>
+                    {c.name as string}
+                    {(c.dojo_team_members as { full_name?: string } | null)?.full_name
+                      ? ` · ${(c.dojo_team_members as { full_name?: string }).full_name}`
+                      : ""}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              Vincular a turma autopreenche professor, unidade e habilita a chamada automática em "Registrar aula".
+            </p>
+          </div>
           <div>
             <Label>Modalidade</Label>
             <Input value={form.modality} onChange={(e) => patch({ modality: e.target.value })} placeholder="Judô, Jiu-Jitsu, Muay Thai…" />
