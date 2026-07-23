@@ -285,12 +285,14 @@ function NewGraduationPage() {
     if (missing.length > 0) {
       return toast.error(`Selecione a faixa de ${missing.length} aluno(s) pendente(s)`);
     }
-    // pré-preenche taxa padrão para quem ainda não tem valor
+    // sincroniza a taxa da faixa selecionada com o valor atual definido em
+    // "Preços de graduação por faixa" — se o dono do dojo acabou de ajustar,
+    // o valor precisa refletir imediatamente na confirmação de pagamento.
     setPerStudent(prev => {
       const next = { ...prev };
       for (const sid of selectedStudents) {
         const p = next[sid];
-        if (p && (p.fee == null || p.fee === "") && p.beltId && priceByBelt[p.beltId] != null) {
+        if (p && p.beltId && priceByBelt[p.beltId] != null) {
           next[sid] = { ...p, fee: String(priceByBelt[p.beltId]) };
         }
       }
