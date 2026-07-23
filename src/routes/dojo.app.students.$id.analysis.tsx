@@ -337,8 +337,8 @@ function AnalysisPage() {
 
 
         {/* Competições */}
-        <TabsContent value="competicoes" className="mt-4 space-y-4">
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <TabsContent value="competicoes" className="mt-6 space-y-6">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard index={0} icon={Trophy} label="Disputadas" value={comps.data?.totals.competitions ?? "—"} />
             <StatCard index={1} icon={TrendingUp} label="Vitórias" value={comps.data?.totals.wins ?? "—"} />
             <StatCard index={2} icon={Activity} label="Finalizações" value={comps.data?.totals.submissions ?? "—"} />
@@ -356,33 +356,33 @@ function AnalysisPage() {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead className="text-left text-xs uppercase tracking-widest text-muted-foreground">
+                  <thead className="text-left text-xs uppercase tracking-[0.15em] text-muted-foreground">
                     <tr className="border-b border-border/40">
-                      <th className="py-2">Competição</th>
-                      <th>Data</th>
-                      <th>Categoria</th>
-                      <th>Peso</th>
-                      <th>Faixa</th>
-                      <th>Resultado</th>
-                      <th className="text-right">V/D/E</th>
+                      <th className="py-3 pr-4">Competição</th>
+                      <th className="py-3 pr-4">Data</th>
+                      <th className="py-3 pr-4">Categoria</th>
+                      <th className="py-3 pr-4">Peso</th>
+                      <th className="py-3 pr-4">Faixa</th>
+                      <th className="py-3 pr-4">Resultado</th>
+                      <th className="py-3 text-right">V/D/E</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border/40">
                     {comps.data!.list.map((c: any) => (
                       <tr key={c.athlete_id} className="hover:bg-muted/30">
-                        <td className="py-2 font-medium">{c.competition_name}</td>
-                        <td className="text-muted-foreground">{fmtDate(c.competition_start_at)}</td>
-                        <td>{c.category ?? "—"}</td>
-                        <td>{c.weight_kg ? `${c.weight_kg} kg` : c.weight_class ?? "—"}</td>
-                        <td>{c.belt_name ?? "—"}</td>
-                        <td>
+                        <td className="py-3 pr-4 font-medium">{c.competition_name}</td>
+                        <td className="py-3 pr-4 text-muted-foreground">{fmtDate(c.competition_start_at)}</td>
+                        <td className="py-3 pr-4">{c.category ?? "—"}</td>
+                        <td className="py-3 pr-4">{c.weight_kg ? `${c.weight_kg} kg` : c.weight_class ?? "—"}</td>
+                        <td className="py-3 pr-4">{c.belt_name ?? "—"}</td>
+                        <td className="py-3 pr-4">
                           {c.medal ? (
                             <Badge className={c.medal === "gold" ? "bg-yellow-500/20 text-yellow-700 dark:text-yellow-300" : c.medal === "silver" ? "bg-slate-400/20 text-slate-700 dark:text-slate-300" : "bg-orange-600/20 text-orange-700 dark:text-orange-300"}>
                               {c.medal === "gold" ? "🥇 Ouro" : c.medal === "silver" ? "🥈 Prata" : "🥉 Bronze"}
                             </Badge>
                           ) : c.placement ? `${c.placement}º` : "—"}
                         </td>
-                        <td className="text-right tabular-nums font-semibold">{c.wins ?? 0}/{c.losses ?? 0}/{c.draws ?? 0}</td>
+                        <td className="py-3 text-right font-semibold tabular-nums">{c.wins ?? 0}/{c.losses ?? 0}/{c.draws ?? 0}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -393,10 +393,10 @@ function AnalysisPage() {
         </TabsContent>
 
         {/* Físico */}
-        <TabsContent value="fisico" className="mt-4 space-y-4">
+        <TabsContent value="fisico" className="mt-6 space-y-6">
           <SectionCard title="Composição corporal" description="Dados atuais do atleta">
             {physical.data ? (
-              <div className="grid gap-3 sm:grid-cols-3">
+              <div className="grid gap-4 sm:grid-cols-3">
                 <MetricBox label="Peso" value={physical.data.current.weight ? `${physical.data.current.weight} kg` : "—"} />
                 <MetricBox label="Altura" value={physical.data.current.height ? `${physical.data.current.height} cm` : "—"} />
                 <MetricBox label="IMC" value={physical.data.current.imc ?? "—"} hint={imcCategory(physical.data.current.imc)} />
@@ -404,32 +404,32 @@ function AnalysisPage() {
             ) : <Skeleton className="h-24" />}
           </SectionCard>
           <SectionCard title="Roadmap de evolução física">
-            <div className="rounded-xl border border-dashed border-border/60 p-6 text-sm text-muted-foreground">
+            <div className="rounded-2xl border border-dashed border-border/60 p-6 text-sm leading-relaxed text-muted-foreground">
               Histórico detalhado (percentual de gordura, circunferências, massa muscular, testes físicos padronizados como VO2, flexões e agilidade) será liberado com o módulo <span className="font-semibold text-foreground">Avaliação Física</span> dedicado.
             </div>
           </SectionCard>
         </TabsContent>
 
         {/* Vídeos */}
-        <TabsContent value="videos" className="mt-4">
+        <TabsContent value="videos" className="mt-6">
           <SectionCard title="Biblioteca de Vídeos" description="Progresso do atleta na plataforma">
             {(videos.data?.progress?.length ?? 0) === 0 ? (
               <EmptyState title="Sem vídeos assistidos" description="O aluno ainda não iniciou nenhum vídeo do dojo." icon={Video} />
             ) : (
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 {videos.data!.progress.map((p: any) => (
-                  <div key={p.video_id} className="overflow-hidden rounded-xl border border-border/40 bg-card transition-all hover:border-primary/40 hover:shadow-md">
+                  <div key={p.video_id} className="overflow-hidden rounded-2xl border border-border/40 bg-card transition-all hover:border-primary/40 hover:shadow-md">
                     {p.dojo_videos?.thumbnail_url ? (
-                      <img src={p.dojo_videos.thumbnail_url} alt="" className="h-32 w-full object-cover" />
-                    ) : <div className="h-32 w-full bg-muted" />}
-                    <div className="p-3">
+                      <img src={p.dojo_videos.thumbnail_url} alt="" className="h-36 w-full object-cover" />
+                    ) : <div className="h-36 w-full bg-muted" />}
+                    <div className="space-y-2.5 p-4">
                       <div className="truncate text-sm font-semibold">{p.dojo_videos?.title ?? "—"}</div>
-                      <div className="mt-2 h-1.5 rounded-full bg-muted overflow-hidden">
+                      <div className="h-1.5 overflow-hidden rounded-full bg-muted">
                         <div className="h-full bg-gradient-to-r from-primary to-primary/60" style={{ width: `${Math.min(100, Number(p.percent) || 0)}%` }} />
                       </div>
-                      <div className="mt-1 flex items-center justify-between text-xs text-muted-foreground">
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
                         <span>{Math.round(Number(p.percent) || 0)}% assistido</span>
-                        {p.completed && <Badge variant="outline" className="h-4 text-[10px]">Completo</Badge>}
+                        {p.completed && <Badge variant="outline" className="text-[10px]">Completo</Badge>}
                       </div>
                     </div>
                   </div>
@@ -439,30 +439,30 @@ function AnalysisPage() {
           </SectionCard>
         </TabsContent>
 
-        <TabsContent value="metas" className="mt-4">
+        <TabsContent value="metas" className="mt-6">
           <GoalsTab studentId={id} />
         </TabsContent>
 
-        <TabsContent value="lesoes" className="mt-4">
+        <TabsContent value="lesoes" className="mt-6">
           <SectionCard title="Ficha clínica & lesões" description="Módulo em desenvolvimento">
-            <div className="rounded-xl border border-dashed border-border/60 p-8">
+            <div className="rounded-2xl border border-dashed border-border/60 p-8">
               <div className="mx-auto max-w-2xl text-center">
-                <div className="mx-auto grid h-12 w-12 place-items-center rounded-xl bg-primary/10 text-primary">
-                  <ClipboardList className="h-6 w-6" />
+                <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary">
+                  <ClipboardList className="h-7 w-7" />
                 </div>
-                <h3 className="mt-3 text-lg font-bold">Registro clínico integrado</h3>
-                <p className="mt-1 text-sm text-muted-foreground">
+                <h3 className="mt-4 text-lg font-bold">Registro clínico integrado</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                   Em breve: histórico de lesões, tempo de afastamento, retorno progressivo, prescrições de fisioterapia e assinatura eletrônica do atleta.
                 </p>
-                <div className="mt-4 grid gap-2 sm:grid-cols-3 text-left text-xs">
+                <div className="mt-6 grid gap-3 text-left text-xs sm:grid-cols-3">
                   {[
                     ["Lesões", "Registro por região corporal, data, gravidade"],
                     ["Recuperação", "Timeline de tratamento e retorno"],
                     ["Anamnese", "Histórico de saúde e condicionamento"],
                   ].map(([t, d]) => (
-                    <div key={t} className="rounded-lg border border-border/40 bg-muted/20 p-3">
-                      <div className="font-semibold">{t}</div>
-                      <div className="text-muted-foreground">{d}</div>
+                    <div key={t} className="rounded-xl border border-border/40 bg-muted/20 p-4">
+                      <div className="mb-1 font-semibold">{t}</div>
+                      <div className="leading-relaxed text-muted-foreground">{d}</div>
                     </div>
                   ))}
                 </div>
@@ -471,8 +471,9 @@ function AnalysisPage() {
           </SectionCard>
         </TabsContent>
 
-        <TabsContent value="comparar" className="mt-4">
+        <TabsContent value="comparar" className="mt-6">
           <CompareTab currentId={id} currentName={s?.full_name ?? "Atleta atual"} />
+
         </TabsContent>
       </Tabs>
     </PageShell>
