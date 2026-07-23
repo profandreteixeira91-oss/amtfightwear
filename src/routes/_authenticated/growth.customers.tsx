@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { OwnerOnly } from "@/lib/auth/owner-only";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -18,7 +19,7 @@ import { brl, intFmt } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/growth/customers")({
   head: () => ({ meta: [{ title: "Clientes — AMT Growth" }] }),
-  component: CustomersPage,
+  component: () => (<OwnerOnly><CustomersPage /></OwnerOnly>),
 });
 
 function CustomersPage() {

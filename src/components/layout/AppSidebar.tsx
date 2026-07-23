@@ -1,4 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
+import { useIsOwner } from "@/lib/auth/owner-only";
 import amtLogo from "@/assets/amt-logo.jpg";
 import {
   LayoutDashboard,
@@ -132,6 +133,7 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isActive = (path: string) => pathname === path || pathname.startsWith(`${path}/`);
+  const { isOwner } = useIsOwner();
 
   return (
     <Sidebar collapsible="icon">
@@ -172,6 +174,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {isOwner && (
         <SidebarGroup>
           <SidebarGroupLabel>Growth Intelligence</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -189,6 +192,7 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        )}
 
         <SidebarGroup>
           <SidebarGroupLabel>MarketEngine</SidebarGroupLabel>

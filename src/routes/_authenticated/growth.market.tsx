@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { OwnerOnly } from "@/lib/auth/owner-only";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -15,7 +16,7 @@ import { intFmt } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/growth/market")({
   head: () => ({ meta: [{ title: "Mercado — AMT Growth" }] }),
-  component: MarketPage,
+  component: () => (<OwnerOnly><MarketPage /></OwnerOnly>),
 });
 
 function MarketPage() {

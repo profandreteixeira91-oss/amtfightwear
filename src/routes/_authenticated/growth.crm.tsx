@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { OwnerOnly } from "@/lib/auth/owner-only";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Handshake, TrendingUp, Target } from "lucide-react";
@@ -15,7 +16,7 @@ import { brl, intFmt } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/growth/crm")({
   head: () => ({ meta: [{ title: "CRM — AMT Growth" }] }),
-  component: CrmPage,
+  component: () => (<OwnerOnly><CrmPage /></OwnerOnly>),
 });
 
 const STAGES = [
