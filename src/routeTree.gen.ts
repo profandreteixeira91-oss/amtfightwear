@@ -73,6 +73,7 @@ import { Route as DojoAppGraduationsRouteImport } from './routes/dojo.app.gradua
 import { Route as DojoAppFinanceRouteImport } from './routes/dojo.app.finance'
 import { Route as DojoAppEvaluationsRouteImport } from './routes/dojo.app.evaluations'
 import { Route as DojoAppCorporateBenefitsRouteImport } from './routes/dojo.app.corporate-benefits'
+import { Route as DojoAppContractTemplatesRouteImport } from './routes/dojo.app.contract-templates'
 import { Route as DojoAppCompetitionsRouteImport } from './routes/dojo.app.competitions'
 import { Route as DojoAppCheckinRouteImport } from './routes/dojo.app.checkin'
 import { Route as DojoAppCertificatesRouteImport } from './routes/dojo.app.certificates'
@@ -532,6 +533,12 @@ const DojoAppCorporateBenefitsRoute =
   DojoAppCorporateBenefitsRouteImport.update({
     id: '/corporate-benefits',
     path: '/corporate-benefits',
+    getParentRoute: () => DojoAppRoute,
+  } as any)
+const DojoAppContractTemplatesRoute =
+  DojoAppContractTemplatesRouteImport.update({
+    id: '/contract-templates',
+    path: '/contract-templates',
     getParentRoute: () => DojoAppRoute,
   } as any)
 const DojoAppCompetitionsRoute = DojoAppCompetitionsRouteImport.update({
@@ -1418,6 +1425,7 @@ export interface FileRoutesByFullPath {
   '/dojo/app/certificates': typeof DojoAppCertificatesRoute
   '/dojo/app/checkin': typeof DojoAppCheckinRoute
   '/dojo/app/competitions': typeof DojoAppCompetitionsRouteWithChildren
+  '/dojo/app/contract-templates': typeof DojoAppContractTemplatesRoute
   '/dojo/app/corporate-benefits': typeof DojoAppCorporateBenefitsRoute
   '/dojo/app/evaluations': typeof DojoAppEvaluationsRouteWithChildren
   '/dojo/app/finance': typeof DojoAppFinanceRoute
@@ -1618,6 +1626,7 @@ export interface FileRoutesByTo {
   '/dojo/app/belts': typeof DojoAppBeltsRoute
   '/dojo/app/certificates': typeof DojoAppCertificatesRoute
   '/dojo/app/checkin': typeof DojoAppCheckinRoute
+  '/dojo/app/contract-templates': typeof DojoAppContractTemplatesRoute
   '/dojo/app/corporate-benefits': typeof DojoAppCorporateBenefitsRoute
   '/dojo/app/finance': typeof DojoAppFinanceRoute
   '/dojo/app/graduations': typeof DojoAppGraduationsRoute
@@ -1818,6 +1827,7 @@ export interface FileRoutesById {
   '/dojo/app/certificates': typeof DojoAppCertificatesRoute
   '/dojo/app/checkin': typeof DojoAppCheckinRoute
   '/dojo/app/competitions': typeof DojoAppCompetitionsRouteWithChildren
+  '/dojo/app/contract-templates': typeof DojoAppContractTemplatesRoute
   '/dojo/app/corporate-benefits': typeof DojoAppCorporateBenefitsRoute
   '/dojo/app/evaluations': typeof DojoAppEvaluationsRouteWithChildren
   '/dojo/app/finance': typeof DojoAppFinanceRoute
@@ -2024,6 +2034,7 @@ export interface FileRouteTypes {
     | '/dojo/app/certificates'
     | '/dojo/app/checkin'
     | '/dojo/app/competitions'
+    | '/dojo/app/contract-templates'
     | '/dojo/app/corporate-benefits'
     | '/dojo/app/evaluations'
     | '/dojo/app/finance'
@@ -2224,6 +2235,7 @@ export interface FileRouteTypes {
     | '/dojo/app/belts'
     | '/dojo/app/certificates'
     | '/dojo/app/checkin'
+    | '/dojo/app/contract-templates'
     | '/dojo/app/corporate-benefits'
     | '/dojo/app/finance'
     | '/dojo/app/graduations'
@@ -2423,6 +2435,7 @@ export interface FileRouteTypes {
     | '/dojo/app/certificates'
     | '/dojo/app/checkin'
     | '/dojo/app/competitions'
+    | '/dojo/app/contract-templates'
     | '/dojo/app/corporate-benefits'
     | '/dojo/app/evaluations'
     | '/dojo/app/finance'
@@ -3027,6 +3040,13 @@ declare module '@tanstack/react-router' {
       path: '/corporate-benefits'
       fullPath: '/dojo/app/corporate-benefits'
       preLoaderRoute: typeof DojoAppCorporateBenefitsRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
+    '/dojo/app/contract-templates': {
+      id: '/dojo/app/contract-templates'
+      path: '/contract-templates'
+      fullPath: '/dojo/app/contract-templates'
+      preLoaderRoute: typeof DojoAppContractTemplatesRouteImport
       parentRoute: typeof DojoAppRoute
     }
     '/dojo/app/competitions': {
@@ -4420,6 +4440,7 @@ interface DojoAppRouteChildren {
   DojoAppCertificatesRoute: typeof DojoAppCertificatesRoute
   DojoAppCheckinRoute: typeof DojoAppCheckinRoute
   DojoAppCompetitionsRoute: typeof DojoAppCompetitionsRouteWithChildren
+  DojoAppContractTemplatesRoute: typeof DojoAppContractTemplatesRoute
   DojoAppCorporateBenefitsRoute: typeof DojoAppCorporateBenefitsRoute
   DojoAppEvaluationsRoute: typeof DojoAppEvaluationsRouteWithChildren
   DojoAppFinanceRoute: typeof DojoAppFinanceRoute
@@ -4453,6 +4474,7 @@ const DojoAppRouteChildren: DojoAppRouteChildren = {
   DojoAppCertificatesRoute: DojoAppCertificatesRoute,
   DojoAppCheckinRoute: DojoAppCheckinRoute,
   DojoAppCompetitionsRoute: DojoAppCompetitionsRouteWithChildren,
+  DojoAppContractTemplatesRoute: DojoAppContractTemplatesRoute,
   DojoAppCorporateBenefitsRoute: DojoAppCorporateBenefitsRoute,
   DojoAppEvaluationsRoute: DojoAppEvaluationsRouteWithChildren,
   DojoAppFinanceRoute: DojoAppFinanceRoute,
