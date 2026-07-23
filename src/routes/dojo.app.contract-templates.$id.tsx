@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -202,8 +203,9 @@ function ContractEditorPage() {
     ? "aspect-[297/210]"
     : draft.page_size === "Letter" ? "aspect-[8.5/11]" : "aspect-[210/297]";
 
-  return (
-    <div className="fixed inset-0 z-[70] flex flex-col bg-muted/30">
+  const editor = (
+    <div className="fixed inset-0 z-[100] flex flex-col bg-muted/30 overflow-hidden">
+
       {/* Top bar */}
       <div className="flex items-center justify-between gap-3 border-b bg-background px-4 md:px-6 py-3 shrink-0">
         <div className="flex items-center gap-3 min-w-0">
@@ -367,4 +369,8 @@ function ContractEditorPage() {
       </div>
     </div>
   );
+
+  if (typeof document === "undefined") return null;
+  return createPortal(editor, document.body);
 }
+
