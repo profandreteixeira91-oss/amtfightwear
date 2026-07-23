@@ -57,7 +57,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DojoLogo } from "@/components/dojo/DojoLogo";
-import { TrialBadge, AccountTrialInline } from "@/components/dojo/TrialBadge";
+import { TrialBadge, AccountTrialInline, TrialDropdownCard } from "@/components/dojo/TrialBadge";
 import { UnsavedChangesProvider } from "@/components/common/UnsavedChangesGuard";
 import { DojoPermissionsProvider, useDojoPermissions } from "@/components/dojo/DojoPermissionsProvider";
 import { findModuleForPath } from "@/lib/dojo/permissions";
@@ -429,6 +429,7 @@ function DojoLayoutInner({
                 {email && <div className="text-[11px] font-normal text-muted-foreground truncate">{email}</div>}
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
+              <TrialDropdownCard />
               <DropdownMenuItem asChild>
                 <Link to="/dojo/app/account" className="flex items-center gap-2">
                   <UserCircle className="mr-2 h-4 w-4" />
