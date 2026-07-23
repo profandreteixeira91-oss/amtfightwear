@@ -120,6 +120,42 @@ export function ClassSidePanel({
     }
   };
 
+  const [tplOpen, setTplOpen] = useState(false);
+  const templatesQ = useQuery({
+    queryKey: ["dojo-lesson-templates-picker"],
+    queryFn: () => listTemplatesFn({}),
+    enabled: tplOpen,
+  });
+
+  const handleApplyTemplate = async (templateId: string) => {
+    if (!classId || !occurrenceDate || !cls) return;
+    const schedule = (cls.schedules ?? []).find((s: any) => {
+      const d = new Date(occurrenceDate + "T12:00:00");
+      return s.weekday === d.getDay();
+    });
+    try {
+      const row: any = await fromTemplateFn({
+        data: {
+          templateId,
+          date: occurrenceDate,
+          classId,
+          teacherId: cls.teacher_id ?? null,
+          unitId: cls.unit_id ?? null,
+          startTime: schedule?.start_time ?? null,
+          endTime: schedule?.end_time ?? null,
+          title: `${cls.name} — ${new Date(occurrenceDate + "T12:00:00").toLocaleDateString("pt-BR")}`,
+        },
+      });
+      toast.success("Modelo aplicado à aula");
+      qc.invalidateQueries({ queryKey: ["dojo-class-plans", classId, occurrenceDate] });
+      setTplOpen(false);
+      navigate({ to: "/dojo/app/lesson-plans/$id", params: { id: row.id } });
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  };
+
+
 
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ["dojo-class", classId] });
