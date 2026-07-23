@@ -30,7 +30,7 @@ import { useDojoBranding } from "@/hooks/useDojoBranding";
 import { downloadStudentsTemplate, parseStudentsFile, type ParsedStudentRow } from "@/lib/dojo/students-xlsx";
 import { printAllStudentSummaries } from "@/lib/dojo/students-bulk-print";
 import { toast } from "sonner";
-import { Trash2, Pencil, UserPlus, FileDown, Upload, Printer, User, MapPin, Phone, Award, Wallet, HeartPulse, Camera, ShieldCheck } from "lucide-react";
+import { Trash2, Pencil, UserPlus, FileDown, Upload, Printer, User, MapPin, Phone, Award, Wallet, HeartPulse, Camera, ShieldCheck, FileText } from "lucide-react";
 
 
 export const Route = createFileRoute("/dojo/app/students/")({
@@ -425,6 +425,11 @@ function StudentsPage() {
           </Button>
           <Button variant="outline" onClick={onPrintAll}>
             <Printer className="h-4 w-4 mr-1" /> Imprimir fichas
+          </Button>
+          <Button variant="outline" asChild>
+            <Link to="/dojo/app/contract-templates">
+              <FileText className="h-4 w-4 mr-1" /> Modelos de contrato
+            </Link>
           </Button>
 
           <Dialog open={open} onOpenChange={setOpen}>

@@ -4001,6 +4001,39 @@ export type Database = {
         }
         Relationships: []
       }
+      dojo_contract_templates: {
+        Row: {
+          content: string
+          created_at: string
+          description: string | null
+          id: string
+          is_default: boolean
+          name: string
+          owner_id: string
+          updated_at: string
+        }
+        Insert: {
+          content?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_default?: boolean
+          name: string
+          owner_id: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_default?: boolean
+          name?: string
+          owner_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       dojo_corporate_beneficiaries: {
         Row: {
           beneficiary_code: string | null
@@ -6614,6 +6647,60 @@ export type Database = {
           version?: number
         }
         Relationships: []
+      }
+      dojo_student_contracts: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          owner_id: string
+          signed_at: string | null
+          status: string
+          student_id: string
+          template_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content?: string
+          created_at?: string
+          id?: string
+          owner_id: string
+          signed_at?: string | null
+          status?: string
+          student_id: string
+          template_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          owner_id?: string
+          signed_at?: string | null
+          status?: string
+          student_id?: string
+          template_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_student_contracts_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_student_contracts_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_contract_templates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       dojo_student_notifications: {
         Row: {
