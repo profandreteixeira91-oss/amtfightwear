@@ -230,76 +230,123 @@ function StudentDetail() {
   const emailLink = s.email ? `mailto:${s.email}` : null;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
 
-      {/* Barra topo */}
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <Link to="/dojo/app/students" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="h-4 w-4" /> Alunos
-        </Link>
-        <div className="flex flex-wrap gap-1.5">
-          <Button size="sm" asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
-            <Link to="/dojo/app/students/$id/analysis" params={{ id }}>
-              <Activity className="h-4 w-4 mr-1.5" /> Análise de Performance
-            </Link>
-          </Button>
-          <Button size="sm" variant="outline" onClick={() => {
-            try { sessionStorage.setItem("dojo-edit-student", id); } catch {}
-            navigate({ to: "/dojo/app/students" });
-          }}>
-            <Pencil className="h-4 w-4 mr-1.5" /> Editar
-          </Button>
-          <Button size="sm" variant="outline" onClick={() => printStudentReport({
-            student: s, branding, belts: belts.data ?? [], graduations, enrollments, invoices, certificates,
-            attendanceRows, competitions: competitionHistory.data ?? [],
-            currentBelts: (q.data as any)?.current_belts ?? [],
-            metrics: { daysTraining, attendanceThisMonth, paidInvoices, pendingInvoices, age, enrollmentDate, lastAttendance },
-          })}>
-            <Printer className="h-4 w-4 mr-1.5" /> Imprimir / PDF
-          </Button>
-          {whatsappLink && (
-            <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-              <Button size="sm" variant="outline"><MessageSquare className="h-4 w-4 mr-1.5" /> WhatsApp</Button>
-            </a>
-          )}
-          {emailLink && (
-            <a href={emailLink}>
-              <Button size="sm" variant="outline"><MailIcon className="h-4 w-4 mr-1.5" /> E-mail</Button>
-            </a>
-          )}
-          <Button size="sm" variant="destructive" onClick={onDeleteStudent}>
-            <Trash2 className="h-4 w-4 mr-1.5" /> Excluir
-          </Button>
+      {/* HERO PREMIUM RUBY NOIR */}
+      <section className="relative overflow-hidden rounded-3xl border border-red-500/20 bg-gradient-to-br from-neutral-950 via-neutral-900 to-black text-white shadow-[0_30px_80px_-30px_rgba(220,38,38,0.45)]">
+        <div
+          aria-hidden
+          className="absolute inset-0 opacity-[0.07]"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)",
+            backgroundSize: "44px 44px",
+          }}
+        />
+        <div aria-hidden className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-red-600/40 blur-3xl" />
+        <div aria-hidden className="absolute -bottom-28 left-1/4 h-64 w-64 rounded-full bg-red-500/20 blur-3xl" />
+
+        <div className="relative flex flex-col gap-5 p-5 sm:p-7 md:p-8">
+          <Link
+            to="/dojo/app/students"
+            className="inline-flex w-fit items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.22em] text-neutral-300 transition hover:border-red-400/40 hover:bg-red-500/10 hover:text-white"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" /> Alunos
+          </Link>
+
+          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+            <div className="flex min-w-0 items-center gap-4 sm:gap-5">
+              <div className="relative shrink-0">
+                <div aria-hidden className="absolute -inset-1 rounded-full bg-gradient-to-br from-red-500/60 to-red-700/10 blur-md" />
+                <div className="relative h-20 w-20 overflow-hidden rounded-full border-2 border-white/30 bg-neutral-800 shadow-[0_10px_30px_-8px_rgba(220,38,38,0.55)] sm:h-24 sm:w-24">
+                  {s.photo_url ? (
+                    <img src={s.photo_url} alt={s.full_name} className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="grid h-full w-full place-items-center text-2xl font-bold text-neutral-300">
+                      {s.full_name?.[0]?.toUpperCase() ?? "?"}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="min-w-0 space-y-2">
+                <div className="inline-flex items-center gap-2 rounded-full border border-red-400/30 bg-red-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-red-200">
+                  <UserIcon className="h-3 w-3" />
+                  Perfil do aluno
+                </div>
+                <h1 className="font-display truncate text-2xl font-black leading-tight tracking-tight sm:text-3xl md:text-4xl">
+                  {s.full_name}
+                </h1>
+                <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-neutral-300">
+                  <HeroChip>{age != null ? `${age} anos` : "Idade não informada"}</HeroChip>
+                  {s.unit?.name && <HeroChip icon={MapPin}>{s.unit.name}</HeroChip>}
+                  {currentEnrollment?.plan?.name && <HeroChip icon={Wallet}>{currentEnrollment.plan.name}</HeroChip>}
+                  <HeroStatusPill status={s.status} />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-1.5 md:justify-end">
+              <Button size="sm" asChild className="bg-red-600 text-white shadow-[0_10px_25px_-12px_rgba(220,38,38,0.9)] hover:bg-red-500">
+                <Link to="/dojo/app/students/$id/analysis" params={{ id }}>
+                  <Activity className="mr-1.5 h-4 w-4" /> Performance
+                </Link>
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+                onClick={() => {
+                  try { sessionStorage.setItem("dojo-edit-student", id); } catch {}
+                  navigate({ to: "/dojo/app/students" });
+                }}
+              >
+                <Pencil className="mr-1.5 h-4 w-4" /> Editar
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+                onClick={() => printStudentReport({
+                  student: s, branding, belts: belts.data ?? [], graduations, enrollments, invoices, certificates,
+                  attendanceRows, competitions: competitionHistory.data ?? [],
+                  currentBelts: (q.data as any)?.current_belts ?? [],
+                  metrics: { daysTraining, attendanceThisMonth, paidInvoices, pendingInvoices, age, enrollmentDate, lastAttendance },
+                })}
+              >
+                <Printer className="mr-1.5 h-4 w-4" /> PDF
+              </Button>
+              {whatsappLink && (
+                <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+                  <Button size="sm" variant="outline" className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
+                    <MessageSquare className="mr-1.5 h-4 w-4" /> WhatsApp
+                  </Button>
+                </a>
+              )}
+              {emailLink && (
+                <a href={emailLink}>
+                  <Button size="sm" variant="outline" className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
+                    <MailIcon className="mr-1.5 h-4 w-4" /> E-mail
+                  </Button>
+                </a>
+              )}
+              <Button size="sm" variant="outline" onClick={onDeleteStudent} className="border-red-400/40 bg-red-500/10 text-red-200 hover:bg-red-500/20 hover:text-white">
+                <Trash2 className="mr-1.5 h-4 w-4" /> Excluir
+              </Button>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
 
       {/* Layout: sidebar / conteúdo (timeline vai como card horizontal abaixo) */}
       <div className="grid gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
 
         {/* ============ SIDEBAR ============ */}
         <aside className="space-y-3 lg:sticky lg:top-4 lg:self-start">
-          <Card className="dojo-card overflow-hidden">
-            <div className="relative h-24 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent" />
-            <div className="-mt-12 flex flex-col items-center px-4 pb-4">
-              <div className="h-24 w-24 shrink-0 overflow-hidden rounded-full border-4 border-card bg-muted shadow-sm">
-                {s.photo_url ? (
-                  <img src={s.photo_url} alt={s.full_name} className="h-full w-full object-cover" />
-                ) : (
-                  <div className="grid h-full w-full place-items-center text-2xl font-semibold text-muted-foreground">
-                    {s.full_name?.[0]?.toUpperCase() ?? "?"}
-                  </div>
-                )}
-              </div>
-              <div className="mt-3 w-full text-center">
-                <div className="truncate font-semibold text-base">{s.full_name}</div>
-                <div className="mt-1 text-xs text-muted-foreground">
-                  {age != null ? `${age} anos` : "Idade não informada"}
-                </div>
-              </div>
-              <StatusBadge status={s.status} className="mt-3" />
-            </div>
+          <Card className="dojo-card relative overflow-hidden border-neutral-200/70 bg-white shadow-sm">
+            <div aria-hidden className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-red-500 via-red-400 to-red-600" />
+            <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-red-500/10 blur-3xl" />
 
-            <Separator />
 
             {/* Faixas atuais (uma por modalidade) */}
             <div className="p-4 space-y-3 text-sm">
@@ -401,7 +448,7 @@ function StudentDetail() {
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="overflow-x-auto">
-              <TabsList className="flex w-max min-w-full flex-nowrap gap-0.5 rounded-lg border border-border bg-card p-1">
+              <TabsList className="flex w-max min-w-full flex-nowrap gap-0.5 rounded-2xl border border-neutral-200/70 bg-white p-1 shadow-sm ring-1 ring-red-400/10">
                 <TabsTrigger value="pessoal">Dados</TabsTrigger>
                 <TabsTrigger value="academia">Academia</TabsTrigger>
                 <TabsTrigger value="plano">Plano</TabsTrigger>
@@ -999,29 +1046,30 @@ function LoadingState() {
 }
 
 function Kpi({ icon: Icon, label, value, tint }: { icon: any; label: string; value: React.ReactNode; tint?: "success" | "warning" }) {
-  const tintCls =
-    tint === "success"
-      ? "text-emerald-600"
-      : tint === "warning"
-        ? "text-amber-600"
-        : "text-foreground";
-  const iconWrap =
-    tint === "success"
-      ? "bg-emerald-50 text-emerald-600 ring-emerald-100"
-      : tint === "warning"
-        ? "bg-amber-50 text-amber-600 ring-amber-100"
-        : "bg-muted text-muted-foreground ring-border";
+  const ring =
+    tint === "success" ? "ring-emerald-400/30" : tint === "warning" ? "ring-amber-400/30" : "ring-red-400/25";
+  const glow =
+    tint === "success" ? "from-emerald-500/20 to-emerald-500/5"
+      : tint === "warning" ? "from-amber-500/20 to-amber-500/5"
+      : "from-red-500/15 to-red-500/5";
+  const iconTone =
+    tint === "success" ? "text-emerald-600 bg-emerald-50"
+      : tint === "warning" ? "text-amber-600 bg-amber-50"
+      : "text-red-600 bg-red-50";
+  const valueTone =
+    tint === "success" ? "text-emerald-700" : tint === "warning" ? "text-amber-700" : "text-neutral-900";
   return (
-    <div className="dojo-card group relative flex flex-col gap-2 rounded-xl border border-border bg-card p-3.5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-foreground/20 hover:shadow-md">
-      <div className="flex items-center justify-between gap-2">
-        <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg ring-1 ${iconWrap}`}>
+    <div className={`group relative overflow-hidden rounded-2xl border border-neutral-200/70 bg-white p-3.5 shadow-sm ring-1 ${ring} transition-all hover:-translate-y-0.5 hover:shadow-md`}>
+      <div aria-hidden className={`pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gradient-to-br ${glow} blur-2xl`} />
+      <div className="relative flex items-center justify-between gap-2">
+        <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${iconTone}`}>
           <Icon className="h-[18px] w-[18px]" />
         </div>
-        <div className={`text-2xl font-bold leading-none tracking-tight ${tintCls}`}>
+        <div className={`font-display text-2xl font-black leading-none tracking-tight ${valueTone}`}>
           {value ?? "—"}
         </div>
       </div>
-      <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground leading-tight">
+      <div className="relative mt-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-neutral-500">
         {label}
       </div>
     </div>
@@ -1062,14 +1110,42 @@ function SidebarField({ icon: Icon, label, value }: { icon: any; label: string; 
 
 function SectionCard({ title, icon: Icon, children }: { title: string; icon: any; children: React.ReactNode }) {
   return (
-    <Card className="dojo-card">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-sm">
-          <Icon className="h-4 w-4 text-primary" /> {title}
+    <Card className="dojo-card relative overflow-hidden rounded-2xl border-neutral-200/70 bg-white shadow-sm">
+      <div aria-hidden className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-red-500 via-red-400 to-red-600 opacity-80" />
+      <CardHeader className="pb-3 pt-4">
+        <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+          <span className="grid h-7 w-7 place-items-center rounded-lg bg-red-50 text-red-600 ring-1 ring-red-100">
+            <Icon className="h-4 w-4" />
+          </span>
+          <span className="font-display tracking-tight">{title}</span>
         </CardTitle>
       </CardHeader>
       <CardContent>{children}</CardContent>
     </Card>
+  );
+}
+
+function HeroChip({ icon: Icon, children }: { icon?: any; children: React.ReactNode }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-[11px] font-medium text-neutral-200 backdrop-blur">
+      {Icon ? <Icon className="h-3 w-3 text-red-300" /> : null}
+      {children}
+    </span>
+  );
+}
+
+function HeroStatusPill({ status }: { status?: string }) {
+  const map: Record<string, { label: string; cls: string; dot: string }> = {
+    active: { label: "Ativo", cls: "border-emerald-300/40 bg-emerald-500/15 text-emerald-100", dot: "bg-emerald-400" },
+    inactive: { label: "Inativo", cls: "border-white/20 bg-white/5 text-neutral-300", dot: "bg-neutral-400" },
+    frozen: { label: "Trancado", cls: "border-amber-300/40 bg-amber-500/15 text-amber-100", dot: "bg-amber-400" },
+    trial: { label: "Experimental", cls: "border-sky-300/40 bg-sky-500/15 text-sky-100", dot: "bg-sky-400" },
+  };
+  const cfg = map[status ?? ""] ?? map.inactive;
+  return (
+    <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${cfg.cls}`}>
+      <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot} shadow-[0_0_0_3px_rgba(255,255,255,0.06)]`} /> {cfg.label}
+    </span>
   );
 }
 
