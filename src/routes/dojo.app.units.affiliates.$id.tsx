@@ -532,9 +532,6 @@ function ContractTab({ affiliate }: { affiliate: any }) {
     </div>
   );
 }
-    </div>
-  );
-}
 
 /* ============ CERTIFICATE ============ */
 function CertificateTab({ affiliate }: { affiliate: any }) {
