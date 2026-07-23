@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Pencil, Copy, Trash2, Ban, UserPlus, X, Search } from "lucide-react";
+import { Pencil, Copy, Trash2, Ban, UserPlus, X, Search, BookOpen, Plus, ArrowRight } from "lucide-react";
 import {
   getClass,
   deleteClass,
@@ -18,6 +19,7 @@ import {
   removeClassStudent,
   searchStudents,
 } from "@/lib/dojo/schedule.functions";
+import { listLessonPlans, upsertLessonPlan } from "@/lib/dojo/lesson-plans.functions";
 import { WEEKDAYS, CANCEL_REASONS, fmtTime } from "./constants";
 
 export function ClassSidePanel({
@@ -40,6 +42,9 @@ export function ClassSidePanel({
   const searchFn = useServerFn(searchStudents);
   const addStudentFn = useServerFn(addClassStudent);
   const removeStudentFn = useServerFn(removeClassStudent);
+  const listPlansFn = useServerFn(listLessonPlans);
+  const upsertPlanFn = useServerFn(upsertLessonPlan);
+  const navigate = useNavigate();
   const qc = useQueryClient();
 
   const q = useQuery({
@@ -57,6 +62,50 @@ export function ClassSidePanel({
   });
 
   const [cancelForm, setCancelForm] = useState<{ reason: string; notes: string } | null>(null);
+  const [creatingPlan, setCreatingPlan] = useState(false);
+
+  const plansForDay = useQuery({
+    queryKey: ["dojo-class-plans", classId, occurrenceDate],
+    queryFn: () =>
+      listPlansFn({
+        data: { classId: classId!, from: occurrenceDate!, to: occurrenceDate!, limit: 20 },
+      }),
+    enabled: !!classId && !!occurrenceDate && open,
+  });
+
+  const handleCreatePlan = async () => {
+    if (!classId || !occurrenceDate || !cls) return;
+    setCreatingPlan(true);
+    try {
+      const schedule = (cls.schedules ?? []).find((s: any) => {
+        const d = new Date(occurrenceDate + "T12:00:00");
+        return s.weekday === d.getDay();
+      });
+      const row: any = await upsertPlanFn({
+        data: {
+          title: `${cls.name} — ${new Date(occurrenceDate + "T12:00:00").toLocaleDateString("pt-BR")}`,
+          date: occurrenceDate,
+          start_time: schedule?.start_time ?? null,
+          end_time: schedule?.end_time ?? null,
+          modality: cls.modality ?? null,
+          color: cls.color ?? null,
+          class_id: classId,
+          teacher_id: cls.teacher_id ?? null,
+          unit_id: cls.unit_id ?? null,
+          status: "planejada",
+          blocks: [],
+        },
+      });
+      toast.success("Plano de aula criado");
+      qc.invalidateQueries({ queryKey: ["dojo-class-plans", classId, occurrenceDate] });
+      navigate({ to: "/dojo/app/lesson-plans/$id", params: { id: row.id } });
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setCreatingPlan(false);
+    }
+  };
+
 
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ["dojo-class", classId] });
@@ -168,6 +217,50 @@ export function ClassSidePanel({
                   ))}
                 </div>
               </section>
+
+              {occurrenceDate && (
+                <section className="rounded-md border bg-muted/30 p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="text-xs uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
+                      <BookOpen className="h-3.5 w-3.5" />
+                      Plano de aula ({new Date(occurrenceDate + "T12:00:00").toLocaleDateString("pt-BR")})
+                    </h4>
+                  </div>
+                  {plansForDay.isLoading ? (
+                    <div className="text-xs text-muted-foreground">Carregando…</div>
+                  ) : (plansForDay.data ?? []).length === 0 ? (
+                    <div className="space-y-2">
+                      <p className="text-xs text-muted-foreground">Nenhum plano vinculado a esta aula.</p>
+                      <Button size="sm" variant="default" onClick={handleCreatePlan} disabled={creatingPlan}>
+                        <Plus className="h-3.5 w-3.5 mr-1" />
+                        {creatingPlan ? "Criando..." : "Criar plano para esta aula"}
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-1.5">
+                      {(plansForDay.data ?? []).map((p: any) => (
+                        <button
+                          key={p.id}
+                          onClick={() => navigate({ to: "/dojo/app/lesson-plans/$id", params: { id: p.id } })}
+                          className="w-full flex items-center gap-2 rounded-md border bg-white p-2 text-left text-sm hover:border-primary hover:bg-primary/5 transition"
+                        >
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium truncate">{p.title}</div>
+                            <div className="text-[11px] text-muted-foreground capitalize">
+                              {p.status} · {(p.blocks ?? []).length} blocos
+                            </div>
+                          </div>
+                          <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                        </button>
+                      ))}
+                      <Button size="sm" variant="outline" onClick={handleCreatePlan} disabled={creatingPlan} className="w-full">
+                        <Plus className="h-3.5 w-3.5 mr-1" /> Novo plano para esta data
+                      </Button>
+                    </div>
+                  )}
+                </section>
+              )}
+
 
               {cls.description && (
                 <section>
