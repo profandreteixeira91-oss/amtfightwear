@@ -1,63 +1,168 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { dsListCategories } from "@/lib/dojo/store/store.functions";
-import { Card } from "@/components/ui/card";
-import { ChevronRight, Package } from "lucide-react";
+import { dsListCategories, dsListProducts } from "@/lib/dojo/store/store.functions";
+import { HeroCarousel } from "@/components/dojo/store/HeroCarousel";
+import { CategoryCard } from "@/components/dojo/store/CategoryCard";
+import { ProductCard, ProductCardSkeleton } from "@/components/dojo/store/ProductCard";
+import { EmptyState } from "@/components/dojo/store/EmptyState";
+import { ArrowRight, PackageOpen } from "lucide-react";
 
-export const Route = createFileRoute("/dojo/app/store/")({ component: CategoriesPage });
+export const Route = createFileRoute("/dojo/app/store/")({ component: StoreHome });
 
 type Cat = { id: string; slug: string; name: string; parent_id: string | null };
 
-function CategoriesPage() {
-  const fn = useServerFn(dsListCategories);
-  const { data, isLoading } = useQuery({
+function StoreHome() {
+  const listCats = useServerFn(dsListCategories);
+  const listProducts = useServerFn(dsListProducts);
+
+  const { data: cats, isLoading: catsLoading } = useQuery({
     queryKey: ["dojo-store", "cats"],
-    queryFn: () => fn(),
+    queryFn: () => listCats(),
+    staleTime: 60_000,
   });
 
-  const parents: Cat[] = (data ?? []).filter((c: Cat) => !c.parent_id);
+  const { data: recent, isLoading: recentLoading } = useQuery({
+    queryKey: ["dojo-store", "products", "recent"],
+    queryFn: () => listProducts({ data: { sort: "recent", limit: 8 } }),
+    staleTime: 30_000,
+  });
+
+  const { data: featured, isLoading: featuredLoading } = useQuery({
+    queryKey: ["dojo-store", "products", "featured"],
+    queryFn: () => listProducts({ data: { featured: true, limit: 8 } }),
+    staleTime: 30_000,
+  });
+
+  const parents: Cat[] = ((cats ?? []) as Cat[]).filter((c) => !c.parent_id);
+  const countBy = new Map<string, number>();
+  for (const c of (cats ?? []) as Cat[]) {
+    if (c.parent_id) countBy.set(c.parent_id, (countBy.get(c.parent_id) ?? 0) + 1);
+  }
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-1">
-        <h1 className="text-2xl font-bold tracking-tight">Escolha uma categoria</h1>
-        <p className="text-sm text-muted-foreground">
-          Comece pela categoria que deseja comprar. As subcategorias aparecem no próximo passo.
-        </p>
-      </div>
+    <div className="space-y-14">
+      <HeroCarousel />
 
-      {isLoading ? (
-        <div className="text-sm text-muted-foreground">Carregando…</div>
-      ) : parents.length === 0 ? (
-        <Card className="p-8 text-center text-sm text-muted-foreground">
-          Nenhuma categoria disponível no momento.
-        </Card>
+      {/* Categorias */}
+      <section className="space-y-6" aria-labelledby="cats-title">
+        <header className="flex items-end justify-between gap-4">
+          <div>
+            <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+              Coleção
+            </div>
+            <h2 id="cats-title" className="mt-1 text-3xl font-bold tracking-tight text-foreground">
+              Compre por categoria
+            </h2>
+          </div>
+        </header>
+
+        {catsLoading ? (
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className="aspect-[4/5] animate-pulse rounded-3xl bg-[color:var(--dojo-surface-3)]"
+              />
+            ))}
+          </div>
+        ) : parents.length === 0 ? (
+          <EmptyState
+            icon={PackageOpen}
+            title="Nenhuma categoria disponível"
+            description="Volte em instantes — nosso catálogo está sendo preparado."
+          />
+        ) : (
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+            {parents.map((c) => (
+              <CategoryCard key={c.id} slug={c.slug} name={c.name} count={countBy.get(c.id)} />
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Recentes */}
+      <ProductRow
+        eyebrow="Chegou agora"
+        title="Novidades da AMT Store"
+        seeAllTo="/dojo/app/store/c/$categoria"
+        seeAllParams={parents[0] ? { categoria: parents[0].slug } : undefined}
+        items={recent?.items ?? []}
+        loading={recentLoading}
+      />
+
+      {/* Destaques */}
+      <ProductRow
+        eyebrow="Selecionados"
+        title="Produtos em destaque"
+        items={featured?.items ?? []}
+        loading={featuredLoading}
+        fallbackMessage="Sem destaques por enquanto — confira as novidades acima."
+      />
+    </div>
+  );
+}
+
+function ProductRow({
+  eyebrow,
+  title,
+  items,
+  loading,
+  seeAllTo,
+  seeAllParams,
+  fallbackMessage,
+}: {
+  eyebrow: string;
+  title: string;
+  items: any[];
+  loading?: boolean;
+  seeAllTo?: string;
+  seeAllParams?: Record<string, string>;
+  fallbackMessage?: string;
+}) {
+  const showFallback = !loading && items.length === 0;
+
+  return (
+    <section className="space-y-5">
+      <header className="flex items-end justify-between gap-4">
+        <div>
+          <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+            {eyebrow}
+          </div>
+          <h2 className="mt-1 text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+            {title}
+          </h2>
+        </div>
+        {seeAllTo && seeAllParams && (
+          <Link
+            to={seeAllTo as any}
+            params={seeAllParams as any}
+            className="hidden items-center gap-1 text-sm font-medium text-foreground hover:opacity-70 md:inline-flex"
+          >
+            Ver tudo <ArrowRight className="h-4 w-4" strokeWidth={1.75} />
+          </Link>
+        )}
+      </header>
+
+      {loading ? (
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <ProductCardSkeleton key={i} />
+          ))}
+        </div>
+      ) : showFallback ? (
+        fallbackMessage ? (
+          <div className="rounded-2xl border border-dashed border-[color:var(--dojo-border)] p-8 text-center text-sm text-muted-foreground">
+            {fallbackMessage}
+          </div>
+        ) : null
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {parents.map((c) => (
-            <Link
-              key={c.id}
-              to="/dojo/app/store/c/$categoria"
-              params={{ categoria: c.slug }}
-              className="group"
-            >
-              <Card className="flex items-center justify-between gap-3 p-6 transition hover:border-primary hover:shadow-md">
-                <div className="flex min-w-0 items-center gap-4">
-                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-                    <Package className="h-6 w-6" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="truncate text-lg font-semibold">{c.name}</div>
-                    <div className="text-xs text-muted-foreground">Ver subcategorias</div>
-                  </div>
-                </div>
-                <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground transition group-hover:translate-x-1 group-hover:text-primary" />
-              </Card>
-            </Link>
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+          {items.slice(0, 8).map((p: any) => (
+            <ProductCard key={p.id} product={p} />
           ))}
         </div>
       )}
-    </div>
+    </section>
   );
 }

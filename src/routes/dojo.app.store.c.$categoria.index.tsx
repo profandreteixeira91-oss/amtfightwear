@@ -2,10 +2,12 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { dsListCategories } from "@/lib/dojo/store/store.functions";
-import { Card } from "@/components/ui/card";
-import { ArrowLeft, ChevronRight, Layers } from "lucide-react";
+import { ArrowLeft, ArrowRight, Layers, PackageOpen } from "lucide-react";
+import { EmptyState } from "@/components/dojo/store/EmptyState";
 
-export const Route = createFileRoute("/dojo/app/store/c/$categoria/")({ component: SubcategoryPage });
+export const Route = createFileRoute("/dojo/app/store/c/$categoria/")({
+  component: SubcategoryPage,
+});
 
 type Cat = { id: string; slug: string; name: string; parent_id: string | null };
 
@@ -13,44 +15,75 @@ function SubcategoryPage() {
   const { categoria } = Route.useParams();
   const nav = useNavigate();
   const fn = useServerFn(dsListCategories);
-  const { data, isLoading } = useQuery({ queryKey: ["dojo-store", "cats"], queryFn: () => fn() });
+  const { data, isLoading } = useQuery({
+    queryKey: ["dojo-store", "cats"],
+    queryFn: () => fn(),
+  });
 
   const list: Cat[] = data ?? [];
   const parent = list.find((c) => c.slug === categoria);
   const subs = parent ? list.filter((c) => c.parent_id === parent.id) : [];
 
   return (
-    <div className="space-y-6">
-      <button
-        onClick={() => nav({ to: "/dojo/app/store" })}
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="h-4 w-4" /> Categorias
-      </button>
-
-      <div className="space-y-1">
-        <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Categoria</div>
-        <h1 className="text-2xl font-bold tracking-tight">{parent?.name ?? categoria}</h1>
-        <p className="text-sm text-muted-foreground">Escolha uma subcategoria para ver os produtos.</p>
+    <div className="space-y-10">
+      <div className="space-y-3">
+        <button
+          onClick={() => nav({ to: "/dojo/app/store" })}
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition hover:text-foreground"
+        >
+          <ArrowLeft className="h-4 w-4" strokeWidth={1.75} /> Todas as categorias
+        </button>
+        <div className="max-w-2xl space-y-1.5">
+          <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+            Categoria
+          </div>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+            {parent?.name ?? categoria}
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Escolha uma subcategoria para explorar os produtos com filtros e ordenação.
+          </p>
+        </div>
       </div>
 
       {isLoading ? (
-        <div className="text-sm text-muted-foreground">Carregando…</div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div
+              key={i}
+              className="h-28 animate-pulse rounded-2xl bg-[color:var(--dojo-surface-3)]"
+            />
+          ))}
+        </div>
       ) : !parent ? (
-        <Card className="p-8 text-center text-sm text-muted-foreground">Categoria não encontrada.</Card>
+        <EmptyState
+          icon={PackageOpen}
+          title="Categoria não encontrada"
+          description="Talvez o link esteja desatualizado. Volte para o início da loja."
+          action={
+            <Link
+              to="/dojo/app/store"
+              className="inline-flex h-10 items-center rounded-full bg-foreground px-4 text-sm font-semibold text-background hover:opacity-90"
+            >
+              Voltar para a loja
+            </Link>
+          }
+        />
       ) : subs.length === 0 ? (
-        <Card className="space-y-3 p-8 text-center">
-          <div className="text-sm text-muted-foreground">
-            Essa categoria não possui subcategorias. Veja todos os produtos.
-          </div>
-          <Link
-            to="/dojo/app/store/c/$categoria/$subcategoria"
-            params={{ categoria: parent.slug, subcategoria: "todos" }}
-            className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-          >
-            Ver produtos <ChevronRight className="h-4 w-4" />
-          </Link>
-        </Card>
+        <EmptyState
+          icon={Layers}
+          title="Sem subcategorias"
+          description="Essa categoria ainda não foi ramificada. Você pode ver todos os produtos abaixo."
+          action={
+            <Link
+              to="/dojo/app/store/c/$categoria/$subcategoria"
+              params={{ categoria: parent.slug, subcategoria: "todos" }}
+              className="inline-flex h-10 items-center gap-1.5 rounded-full bg-foreground px-4 text-sm font-semibold text-background hover:opacity-90"
+            >
+              Ver todos os produtos <ArrowRight className="h-4 w-4" />
+            </Link>
+          }
+        />
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {subs.map((s) => (
@@ -58,22 +91,37 @@ function SubcategoryPage() {
               key={s.id}
               to="/dojo/app/store/c/$categoria/$subcategoria"
               params={{ categoria: parent.slug, subcategoria: s.slug }}
-              className="group"
+              className="group flex items-center gap-4 rounded-2xl border border-[color:var(--dojo-border)] bg-white p-5 shadow-[var(--dojo-shadow-xs)] transition-all duration-300 hover:-translate-y-0.5 hover:border-foreground/20 hover:shadow-[var(--dojo-shadow-md)]"
             >
-              <Card className="flex items-center justify-between gap-3 p-6 transition hover:border-primary hover:shadow-md">
-                <div className="flex min-w-0 items-center gap-4">
-                  <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-                    <Layers className="h-5 w-5" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="truncate text-base font-semibold">{s.name}</div>
-                    <div className="text-xs text-muted-foreground">Ver produtos</div>
-                  </div>
+              <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-foreground/[0.04] text-foreground">
+                <Layers className="h-5 w-5" strokeWidth={1.75} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-base font-semibold tracking-tight text-foreground">
+                  {s.name}
                 </div>
-                <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground transition group-hover:translate-x-1 group-hover:text-primary" />
-              </Card>
+                <div className="text-xs text-muted-foreground">Ver produtos</div>
+              </div>
+              <ArrowRight
+                className="h-5 w-5 shrink-0 text-muted-foreground transition-transform duration-300 group-hover:translate-x-1 group-hover:text-foreground"
+                strokeWidth={1.75}
+              />
             </Link>
           ))}
+          <Link
+            to="/dojo/app/store/c/$categoria/$subcategoria"
+            params={{ categoria: parent.slug, subcategoria: "todos" }}
+            className="group flex items-center gap-4 rounded-2xl border border-dashed border-[color:var(--dojo-border)] bg-transparent p-5 text-foreground/70 transition hover:border-foreground/30 hover:text-foreground"
+          >
+            <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-transparent text-foreground">
+              <PackageOpen className="h-5 w-5" strokeWidth={1.5} />
+            </div>
+            <div className="flex-1">
+              <div className="text-sm font-semibold tracking-tight">Ver todos de {parent.name}</div>
+              <div className="text-xs text-muted-foreground">Sem filtro por subcategoria</div>
+            </div>
+            <ArrowRight className="h-5 w-5 shrink-0" strokeWidth={1.75} />
+          </Link>
         </div>
       )}
     </div>

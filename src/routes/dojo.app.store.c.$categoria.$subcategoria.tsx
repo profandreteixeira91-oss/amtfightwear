@@ -7,27 +7,21 @@ import {
   dsGetProduct,
   dsAddToCart,
 } from "@/lib/dojo/store/store.functions";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   ArrowLeft,
-  ChevronRight,
-  Search,
+  CheckCircle2,
   Minus,
+  PackageSearch,
   Plus,
   ShoppingCart,
-  CheckCircle2,
-  X,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import { ProductCard, ProductCardSkeleton } from "@/components/dojo/store/ProductCard";
+import { FiltersSidebar } from "@/components/dojo/store/FiltersSidebar";
+import { EmptyState } from "@/components/dojo/store/EmptyState";
 
 export const Route = createFileRoute("/dojo/app/store/c/$categoria/$subcategoria")({
   component: ProductListPage,
@@ -53,6 +47,7 @@ function ProductListPage() {
 
   const [search, setSearch] = useState("");
   const [openSlug, setOpenSlug] = useState<string | null>(null);
+  const [sort, setSort] = useState<"name" | "price_asc" | "price_desc" | "recent">("name");
 
   const { data: cats } = useQuery({
     queryKey: ["dojo-store", "cats"],
@@ -67,115 +62,129 @@ function ProductListPage() {
   const activeSlug = sub?.slug ?? parent?.slug;
 
   const { data, isLoading } = useQuery({
-    queryKey: ["dojo-store", "list", activeSlug],
+    queryKey: ["dojo-store", "list", activeSlug, sort],
     queryFn: () =>
-      listFn({ data: { categorySlug: activeSlug, sort: "name", limit: 100 } }),
+      listFn({ data: { categorySlug: activeSlug, sort, limit: 100 } }),
     enabled: !!activeSlug,
   });
 
   const items = data?.items ?? [];
 
+  const prices = items.map((p: any) => Number(p.price));
+  const minPrice = prices.length ? Math.floor(Math.min(...prices)) : 0;
+  const maxPrice = prices.length ? Math.ceil(Math.max(...prices)) : 0;
+  const [priceRange, setPriceRange] = useState<[number, number] | null>(null);
+  const effectiveRange: [number, number] = priceRange ?? [minPrice, maxPrice];
+
   const filtered = useMemo(() => {
     const q = normalize(search.trim());
-    if (!q) return items;
-    const tokens = q.split(/\s+/).filter(Boolean);
-    return items.filter((p) => {
+    const [lo, hi] = effectiveRange;
+    return items.filter((p: any) => {
+      const price = Number(p.price);
+      if (price < lo || price > hi) return false;
+      if (!q) return true;
+      const tokens = q.split(/\s+/).filter(Boolean);
       const hay = normalize(`${p.name} ${p.category_name ?? ""}`);
       return tokens.every((t) => hay.includes(t));
     });
-  }, [items, search]);
+  }, [items, search, effectiveRange]);
+
+  const resetFilters = () => {
+    setSearch("");
+    setPriceRange(null);
+  };
 
   return (
-    <div className="space-y-6">
-      <button
-        onClick={() =>
-          nav({ to: "/dojo/app/store/c/$categoria", params: { categoria } })
-        }
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="h-4 w-4" /> Subcategorias de{" "}
-        {parent?.name ?? categoria}
-      </button>
-
-      <div className="space-y-1">
-        <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          {parent?.name}
-          {sub && sub !== parent ? ` · ${sub.name}` : ""}
-        </div>
-        <h1 className="text-2xl font-bold tracking-tight">Produtos</h1>
-        <p className="text-sm text-muted-foreground">
-          Selecione um produto para escolher tamanhos e quantidades.
-        </p>
-      </div>
-
-      <div className="relative">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Buscar por nome do produto..."
-          className="pl-9"
-        />
-        {search && (
-          <button
-            type="button"
-            onClick={() => setSearch("")}
-            className="absolute right-2 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full text-muted-foreground hover:bg-muted"
-            aria-label="Limpar busca"
-          >
-            <X className="h-3.5 w-3.5" />
-          </button>
-        )}
-      </div>
-
-      {isLoading ? (
-        <div className="text-sm text-muted-foreground">Carregando produtos…</div>
-      ) : filtered.length === 0 ? (
-        <Card className="p-8 text-center text-sm text-muted-foreground">
-          {search
-            ? `Nenhum produto encontrado para "${search}".`
-            : "Nenhum produto encontrado nesta subcategoria."}
-        </Card>
-      ) : (
-        <Card className="divide-y">
-          {filtered.map((p) => (
-            <button
-              key={p.id}
-              type="button"
-              onClick={() => setOpenSlug(p.slug)}
-              className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition hover:bg-muted/40"
+    <div className="space-y-8">
+      <div className="space-y-3">
+        <button
+          onClick={() =>
+            nav({ to: "/dojo/app/store/c/$categoria", params: { categoria } })
+          }
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition hover:text-foreground"
+        >
+          <ArrowLeft className="h-4 w-4" strokeWidth={1.75} /> Subcategorias de{" "}
+          {parent?.name ?? categoria}
+        </button>
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div className="min-w-0 space-y-1">
+            <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+              {parent?.name}
+              {sub && sub !== parent ? ` · ${sub.name}` : sub === parent ? " · Todos" : ""}
+            </div>
+            <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+              Produtos
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              {filtered.length} {filtered.length === 1 ? "produto" : "produtos"} disponíveis
+            </p>
+          </div>
+          <label className="flex items-center gap-2 text-xs text-muted-foreground">
+            <span className="font-semibold uppercase tracking-[0.14em]">Ordenar</span>
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value as any)}
+              className="h-10 rounded-full border border-[color:var(--dojo-border)] bg-white px-3 text-xs text-foreground outline-none focus:border-foreground/40 focus:ring-2 focus:ring-primary/20"
             >
-              <div className="min-w-0 flex-1">
-                <div className="truncate text-base font-medium">{p.name}</div>
-                <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
-                  {p.category_name && <span>{p.category_name}</span>}
-                  {p.compare_at_price && p.compare_at_price > p.price && (
-                    <span className="line-through">
-                      {brl(Number(p.compare_at_price))}
-                    </span>
-                  )}
-                </div>
-              </div>
-              <div className="flex shrink-0 items-center gap-3">
-                <div className="text-right">
-                  <div className="text-base font-bold">
-                    {brl(Number(p.price))}
-                  </div>
-                  <div className="text-[10px] text-muted-foreground">
-                    unidade
-                  </div>
-                </div>
-                <ChevronRight className="h-5 w-5 text-muted-foreground" />
-              </div>
-            </button>
-          ))}
-        </Card>
-      )}
+              <option value="name">Nome (A–Z)</option>
+              <option value="recent">Mais recentes</option>
+              <option value="price_asc">Menor preço</option>
+              <option value="price_desc">Maior preço</option>
+            </select>
+          </label>
+        </div>
+      </div>
 
-      <ProductQuickAdd
-        slug={openSlug}
-        onClose={() => setOpenSlug(null)}
-      />
+      <div className="grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
+        <FiltersSidebar
+          search={search}
+          onSearchChange={setSearch}
+          min={minPrice}
+          max={maxPrice}
+          priceRange={effectiveRange}
+          onPriceChange={setPriceRange}
+          onReset={resetFilters}
+        />
+
+        <div className="min-w-0">
+          {isLoading ? (
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <ProductCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : filtered.length === 0 ? (
+            <EmptyState
+              icon={PackageSearch}
+              title={search ? "Nenhum resultado" : "Sem produtos"}
+              description={
+                search
+                  ? `Não encontramos nada para "${search}". Ajuste os filtros ou limpe a busca.`
+                  : "Essa subcategoria ainda não tem produtos publicados."
+              }
+              action={
+                (search || priceRange) && (
+                  <button
+                    type="button"
+                    onClick={resetFilters}
+                    className="inline-flex h-10 items-center rounded-full bg-foreground px-4 text-sm font-semibold text-background hover:opacity-90"
+                  >
+                    Limpar filtros
+                  </button>
+                )
+              }
+            />
+          ) : (
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
+              {filtered.map((p: any) => (
+                <ProductCard key={p.id} product={p} onClick={() => setOpenSlug(p.slug)} />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <ProductQuickAdd slug={openSlug} onClose={() => setOpenSlug(null)} />
     </div>
   );
 }
@@ -201,7 +210,6 @@ function ProductQuickAdd({
 
   // qty por variant.id (ou "__none__" quando sem variantes)
   const [qty, setQty] = useState<Record<string, number>>({});
-  // reset ao trocar produto
   const productId = data?.product.id;
   const [lastId, setLastId] = useState<string | null>(null);
   if (productId && productId !== lastId) {
@@ -258,26 +266,26 @@ function ProductQuickAdd({
   });
 
   const labelOf = (v: any) => {
-    const raw = String(
-      v.size ?? v.option_label ?? v.color ?? "Único",
-    ).replace(/^tamanho:\s*/i, "").trim();
+    const raw = String(v.size ?? v.option_label ?? v.color ?? "Único")
+      .replace(/^tamanho:\s*/i, "")
+      .trim();
     return raw || "Único";
   };
 
   return (
     <Dialog open={!!slug} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-h-[92vh] max-w-2xl overflow-y-auto p-0">
+      <DialogContent className="max-h-[92vh] max-w-2xl overflow-hidden rounded-3xl p-0">
         <DialogHeader className="sr-only">
           <DialogTitle>{data?.product.name ?? "Produto"}</DialogTitle>
         </DialogHeader>
         {isLoading || !data ? (
-          <div className="p-10 text-center text-sm text-muted-foreground">
-            Carregando produto…
+          <div className="p-16 text-center text-sm text-muted-foreground">
+            Carregando produto...
           </div>
         ) : (
-          <div>
-            <div className="grid gap-4 p-4 md:grid-cols-[220px_1fr] md:p-6">
-              <div className="aspect-square overflow-hidden rounded-lg bg-muted">
+          <div className="flex max-h-[92vh] flex-col">
+            <div className="grid gap-4 p-5 md:grid-cols-[220px_1fr] md:p-6">
+              <div className="aspect-square overflow-hidden rounded-2xl bg-[color:var(--dojo-surface-3)]">
                 {data.product.image_url ? (
                   <img
                     src={data.product.image_url}
@@ -289,10 +297,10 @@ function ProductQuickAdd({
               </div>
               <div className="space-y-3">
                 <div>
-                  <div className="text-xs uppercase tracking-wider text-muted-foreground">
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                     {data.product.category_name}
                   </div>
-                  <h2 className="mt-1 text-xl font-bold leading-tight">
+                  <h2 className="mt-1 text-xl font-bold leading-tight tracking-tight text-foreground">
                     {data.product.name}
                   </h2>
                 </div>
@@ -303,12 +311,10 @@ function ProductQuickAdd({
                         {brl(data.product.compare_at_price)}
                       </span>
                     )}
-                  <span className="text-2xl font-bold text-primary">
+                  <span className="text-2xl font-bold tracking-tight text-foreground">
                     {brl(data.product.price)}
                   </span>
-                  <span className="text-xs text-muted-foreground">
-                    por unidade
-                  </span>
+                  <span className="text-xs text-muted-foreground">por unidade</span>
                 </div>
                 {data.product.short_description && (
                   <p className="text-sm text-muted-foreground">
@@ -318,8 +324,8 @@ function ProductQuickAdd({
               </div>
             </div>
 
-            <div className="border-t px-4 py-4 md:px-6">
-              <div className="mb-3 text-xs font-bold uppercase tracking-widest text-muted-foreground">
+            <div className="flex-1 overflow-y-auto border-t border-[color:var(--dojo-border)] px-5 py-5 md:px-6">
+              <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                 {hasVariants
                   ? `Tamanhos (${variants.length} disponíveis)`
                   : "Quantidade"}
@@ -332,8 +338,10 @@ function ProductQuickAdd({
                     return (
                       <div
                         key={v.id}
-                        className={`flex items-center gap-2 rounded-md border px-3 py-2 text-sm ${
-                          q > 0 ? "border-primary/60 bg-primary/5" : ""
+                        className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-sm transition ${
+                          q > 0
+                            ? "border-foreground/40 bg-foreground/[0.03]"
+                            : "border-[color:var(--dojo-border)]"
                         }`}
                       >
                         <div className="min-w-0 flex-1 truncate font-medium">
@@ -343,27 +351,25 @@ function ProductQuickAdd({
                           type="button"
                           onClick={() => setLine(v.id, q - 1)}
                           disabled={q === 0}
-                          className="grid h-7 w-7 place-items-center rounded border hover:bg-accent disabled:opacity-40"
+                          className="grid h-8 w-8 place-items-center rounded-full border border-[color:var(--dojo-border)] transition hover:bg-black/[0.05] disabled:opacity-40"
                           aria-label="Diminuir"
                         >
-                          <Minus className="h-3.5 w-3.5" />
+                          <Minus className="h-3.5 w-3.5" strokeWidth={1.75} />
                         </button>
                         <input
                           type="number"
                           min={0}
                           value={q}
-                          onChange={(e) =>
-                            setLine(v.id, Number(e.target.value) || 0)
-                          }
-                          className="h-7 w-12 rounded border bg-background text-center text-xs outline-none focus:border-primary"
+                          onChange={(e) => setLine(v.id, Number(e.target.value) || 0)}
+                          className="h-8 w-12 rounded-md border border-[color:var(--dojo-border)] bg-white text-center text-xs outline-none focus:border-foreground/40"
                         />
                         <button
                           type="button"
                           onClick={() => setLine(v.id, q + 1)}
-                          className="grid h-7 w-7 place-items-center rounded border hover:bg-accent"
+                          className="grid h-8 w-8 place-items-center rounded-full border border-[color:var(--dojo-border)] transition hover:bg-black/[0.05]"
                           aria-label="Aumentar"
                         >
-                          <Plus className="h-3.5 w-3.5" />
+                          <Plus className="h-3.5 w-3.5" strokeWidth={1.75} />
                         </button>
                       </div>
                     );
@@ -374,56 +380,54 @@ function ProductQuickAdd({
                   <button
                     type="button"
                     onClick={() => setLine(NONE, (qty[NONE] ?? 0) - 1)}
-                    className="grid h-9 w-9 place-items-center rounded-md border hover:bg-accent disabled:opacity-40"
+                    className="grid h-10 w-10 place-items-center rounded-full border border-[color:var(--dojo-border)] transition hover:bg-black/[0.05] disabled:opacity-40"
                     disabled={(qty[NONE] ?? 0) === 0}
                     aria-label="Diminuir"
                   >
-                    <Minus className="h-4 w-4" />
+                    <Minus className="h-4 w-4" strokeWidth={1.75} />
                   </button>
                   <input
                     type="number"
                     min={0}
                     value={qty[NONE] ?? 0}
-                    onChange={(e) =>
-                      setLine(NONE, Number(e.target.value) || 0)
-                    }
-                    className="h-9 w-20 rounded-md border bg-background text-center text-sm outline-none focus:border-primary"
+                    onChange={(e) => setLine(NONE, Number(e.target.value) || 0)}
+                    className="h-10 w-20 rounded-md border border-[color:var(--dojo-border)] bg-white text-center text-sm outline-none focus:border-foreground/40"
                   />
                   <button
                     type="button"
                     onClick={() => setLine(NONE, (qty[NONE] ?? 0) + 1)}
-                    className="grid h-9 w-9 place-items-center rounded-md border hover:bg-accent"
+                    className="grid h-10 w-10 place-items-center rounded-full border border-[color:var(--dojo-border)] transition hover:bg-black/[0.05]"
                     aria-label="Aumentar"
                   >
-                    <Plus className="h-4 w-4" />
+                    <Plus className="h-4 w-4" strokeWidth={1.75} />
                   </button>
                 </div>
               )}
             </div>
 
-            <div className="sticky bottom-0 flex items-center justify-between gap-3 border-t bg-background/95 px-4 py-3 backdrop-blur md:px-6">
+            <div className="sticky bottom-0 flex items-center justify-between gap-3 border-t border-[color:var(--dojo-border)] bg-white/95 px-5 py-4 backdrop-blur md:px-6">
               <div className="text-sm">
-                <div className="text-xs text-muted-foreground">
+                <div className="text-[11px] text-muted-foreground">
                   {totalQty} un. selecionada{totalQty !== 1 ? "s" : ""}
                 </div>
-                <div className="text-lg font-bold text-primary">
+                <div className="text-lg font-bold tracking-tight text-foreground">
                   {brl(totalPrice)}
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Button variant="outline" onClick={onClose}>
+                <Button variant="outline" onClick={onClose} className="rounded-full">
                   Fechar
                 </Button>
                 <Button
                   onClick={() => add.mutate()}
                   disabled={totalQty === 0 || add.isPending}
-                  className="gap-1.5"
+                  className="gap-1.5 rounded-full bg-foreground text-background hover:opacity-90"
                 >
                   {add.isPending ? (
-                    "Adicionando…"
+                    "Adicionando..."
                   ) : (
                     <>
-                      <ShoppingCart className="h-4 w-4" /> Adicionar
+                      <ShoppingCart className="h-4 w-4" strokeWidth={1.75} /> Adicionar
                     </>
                   )}
                 </Button>
@@ -434,9 +438,9 @@ function ProductQuickAdd({
                       await add.mutateAsync();
                       nav({ to: "/dojo/app/store/carrinho" });
                     }}
-                    className="hidden gap-1.5 sm:inline-flex"
+                    className="hidden gap-1.5 rounded-full sm:inline-flex"
                   >
-                    <CheckCircle2 className="h-4 w-4" /> Ir ao carrinho
+                    <CheckCircle2 className="h-4 w-4" strokeWidth={1.75} /> Ir ao carrinho
                   </Button>
                 )}
               </div>
