@@ -514,6 +514,74 @@ function NewGraduationPage() {
         </Card>
       )}
 
+      {/* ============ PREÇOS POR FAIXA ============ */}
+      {step === "select" && (
+        <Card className="overflow-hidden shadow-sm">
+          <CardHeader className="border-b bg-muted/30">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="min-w-0">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <DollarSign className="h-4 w-4 text-primary" />
+                  Preços de graduação por faixa
+                </CardTitle>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Defina o valor fixo cobrado por faixa. O sistema gera automaticamente uma conta a receber no Financeiro para cada aluno graduado.
+                </p>
+              </div>
+              <Button
+                size="sm"
+                variant={showPricing ? "secondary" : "outline"}
+                onClick={() => {
+                  const opening = !showPricing;
+                  setShowPricing(opening);
+                  if (opening) {
+                    const draft: Record<string, string> = {};
+                    for (const [bid, v] of Object.entries(priceByBelt)) draft[bid] = String(v);
+                    setPriceDraft(draft);
+                  }
+                }}
+              >
+                {showPricing ? "Fechar" : "Configurar preços"}
+              </Button>
+            </div>
+          </CardHeader>
+          {showPricing && (
+            <CardContent className="p-4 md:p-5 space-y-3">
+              <div className="max-h-[360px] overflow-y-auto divide-y divide-border rounded-xl border bg-background">
+                {(belts.data ?? []).length === 0 && (
+                  <div className="p-6 text-center text-sm text-muted-foreground">Cadastre faixas primeiro em Graduações → Faixas.</div>
+                )}
+                {(belts.data ?? []).map((b: any) => (
+                  <div key={b.id} className="flex items-center gap-3 p-3">
+                    <BeltAuto belt={b} degree={0} className="w-[160px] shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-semibold">{b.name}</div>
+                      <div className="truncate text-[11px] text-muted-foreground capitalize">{b.modality ?? "jiu-jitsu"}</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground">R$</span>
+                      <Input
+                        inputMode="decimal"
+                        placeholder="0,00"
+                        className="h-9 w-32"
+                        value={priceDraft[b.id] ?? ""}
+                        onChange={(e) => setPriceDraft(prev => ({ ...prev, [b.id]: e.target.value }))}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="flex items-center justify-end gap-2">
+                <Button variant="ghost" size="sm" onClick={() => setShowPricing(false)}>Cancelar</Button>
+                <Button size="sm" onClick={savePrices} disabled={savingPrices}>
+                  <Save className="mr-1.5 h-4 w-4" /> {savingPrices ? "Salvando…" : "Salvar preços"}
+                </Button>
+              </div>
+            </CardContent>
+          )}
+        </Card>
+      )}
+
       {/* ============ STEP 1: SELECIONAR ALUNOS ============ */}
       {step === "select" && (
         <Card className="overflow-hidden shadow-sm">
