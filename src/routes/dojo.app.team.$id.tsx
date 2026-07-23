@@ -17,6 +17,7 @@ import {
 } from "@/lib/dojo/team.functions";
 import { listDojoBelts } from "@/lib/dojo/dojo.functions";
 import { PermissionsTab } from "@/components/dojo/team/PermissionsTab";
+import { TeamContracts } from "@/components/dojo/TeamContracts";
 import { DojoPageShell } from "@/components/dojo/DojoPageShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -174,6 +175,7 @@ function TeamMemberDetail() {
             <TabsTrigger value="financial">Financeiro</TabsTrigger>
             <TabsTrigger value="payments">Pagamentos</TabsTrigger>
             <TabsTrigger value="documents">Documentos</TabsTrigger>
+            <TabsTrigger value="contracts">Contratos</TabsTrigger>
             <TabsTrigger value="history">Histórico</TabsTrigger>
           </TabsList>
         </div>
@@ -453,6 +455,13 @@ function TeamMemberDetail() {
             ))}
           </div>
         </TabsContent>
+
+        {/* CONTRACTS */}
+        <TabsContent value="contracts" className="mt-4">
+          <TeamContracts teamMemberId={id} member={m} />
+        </TabsContent>
+
+
 
         {/* HISTORY */}
         <TabsContent value="history" className="mt-4">

@@ -42,6 +42,7 @@ import {
   UsersRound,
   HeartHandshake,
   ShoppingCart,
+  Gavel,
 
 
 } from "lucide-react";
@@ -139,6 +140,12 @@ const nav: { label: string; items: NavItem[] }[] = [
     ],
   },
   {
+    label: "Jurídico",
+    items: [
+      { to: "/dojo/app/contracts", label: "Central de Contratos", icon: Gavel },
+    ],
+  },
+  {
     label: "Estrutura",
     items: [
       { to: "/dojo/app/units", label: "Unidades e Filiais", icon: Building2 },
@@ -173,6 +180,7 @@ const routeTitles: Array<{ match: (p: string) => boolean; title: string; subtitl
   { match: (p) => p.startsWith("/dojo/app/team"), title: "Equipe", subtitle: "Colaboradores, folha e escalas" },
   { match: (p) => p.startsWith("/dojo/app/corporate-benefits"), title: "Benefícios Corporativos", subtitle: "Gympass, TotalPass e beneficiários" },
   { match: (p) => p.startsWith("/dojo/app/units"), title: "Unidades e Filiais", subtitle: "Unidades próprias e rede de afiliados" },
+  { match: (p) => p.startsWith("/dojo/app/contracts"), title: "Central de Contratos", subtitle: "Modelos, contratos emitidos e histórico jurídico" },
   
   { match: (p) => p.startsWith("/dojo/app/subscription"), title: "Assinatura AMT", subtitle: "Plano mensal do sistema" },
   { match: (p) => p.startsWith("/dojo/app/integrations"), title: "AMT Pay", subtitle: "Central financeira do dojo" },

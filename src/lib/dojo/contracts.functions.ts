@@ -334,16 +334,19 @@ export const generateStudentContract = createServerFn({ method: "POST" })
 /** Atualiza status de um contrato + registra evento. */
 export const updateContractStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { id: string; kind: "student"|"affiliate"; status: string; note?: string }) =>
+  .inputValidator((d: { id: string; kind: "student"|"affiliate"|"team"; status: string; note?: string }) =>
     z.object({
       id: uuid,
-      kind: z.enum(["student","affiliate"]),
+      kind: z.enum(["student","affiliate","team"]),
       status: z.string().min(1),
       note: z.string().optional(),
     }).parse(d))
   .handler(async ({ data, context }) => {
-    const table = data.kind === "student" ? "dojo_student_contracts" : "dojo_affiliate_contracts";
-    const statusCol = data.kind === "student" ? "status" : "signature_status";
+    const table =
+      data.kind === "student" ? "dojo_student_contracts"
+      : data.kind === "team" ? "dojo_team_contracts"
+      : "dojo_affiliate_contracts";
+    const statusCol = data.kind === "affiliate" ? "signature_status" : "status";
     const patch: any = { [statusCol]: data.status };
     const now = new Date().toISOString();
     if (data.status === "signed") patch.signed_at = now;
@@ -363,8 +366,8 @@ export const updateContractStatus = createServerFn({ method: "POST" })
 /** Timeline de um contrato. */
 export const listContractEvents = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { kind: "student"|"affiliate"; contract_id: string }) =>
-    z.object({ kind: z.enum(["student","affiliate"]), contract_id: uuid }).parse(d))
+  .inputValidator((d: { kind: "student"|"affiliate"|"team"; contract_id: string }) =>
+    z.object({ kind: z.enum(["student","affiliate","team"]), contract_id: uuid }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase
       .from("dojo_contract_events")
@@ -379,15 +382,16 @@ export const listContractEvents = createServerFn({ method: "GET" })
 /** Lista global de contratos emitidos (aluno + filial) + busca. */
 export const listIssuedContracts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { kind?: "student"|"affiliate"|"all"; status?: string; q?: string } | undefined) =>
+  .inputValidator((d: { kind?: "student"|"affiliate"|"team"|"all"; status?: string; q?: string } | undefined) =>
     z.object({
-      kind: z.enum(["student","affiliate","all"]).optional().default("all"),
+      kind: z.enum(["student","affiliate","team","all"]).optional().default("all"),
       status: z.string().optional(),
       q: z.string().optional(),
     }).parse(d ?? {}))
   .handler(async ({ data, context }) => {
     const results: any[] = [];
-    if (data.kind === "student" || data.kind === "all" || !data.kind) {
+    const wantAll = !data.kind || data.kind === "all";
+    if (data.kind === "student" || wantAll) {
       let q = context.supabase.from("dojo_student_contracts")
         .select("id,title,contract_number,status,student_id,created_at,signed_at,monthly_value,dojo_students(full_name,photo_url)")
         .eq("owner_id", context.userId)
@@ -402,7 +406,7 @@ export const listIssuedContracts = createServerFn({ method: "GET" })
         target_id: r.student_id, created_at: r.created_at, signed_at: r.signed_at, value: r.monthly_value,
       }));
     }
-    if (data.kind === "affiliate" || data.kind === "all" || !data.kind) {
+    if (data.kind === "affiliate" || wantAll) {
       let q = context.supabase.from("dojo_affiliate_contracts")
         .select("id,title,contract_number,signature_status,affiliate_id,created_at,signed_at,dojo_affiliates(trade_name,legal_name)")
         .eq("owner_id", context.userId)
@@ -415,6 +419,21 @@ export const listIssuedContracts = createServerFn({ method: "GET" })
         kind: "affiliate", id: r.id, title: r.title, number: r.contract_number,
         status: r.signature_status, target: r.dojo_affiliates?.trade_name ?? r.dojo_affiliates?.legal_name,
         target_id: r.affiliate_id, created_at: r.created_at, signed_at: r.signed_at, value: null,
+      }));
+    }
+    if (data.kind === "team" || wantAll) {
+      let q = context.supabase.from("dojo_team_contracts")
+        .select("id,title,contract_number,status,team_member_id,created_at,signed_at,compensation_value,dojo_team_members(full_name,photo_url,role)")
+        .eq("owner_id", context.userId)
+        .order("created_at", { ascending: false })
+        .limit(300);
+      if (data.status) q = q.eq("status", data.status);
+      if (data.q && data.q.trim()) q = q.or(`title.ilike.%${data.q}%,contract_number.ilike.%${data.q}%`);
+      const { data: rows } = await q;
+      (rows ?? []).forEach((r: any) => results.push({
+        kind: "team", id: r.id, title: r.title, number: r.contract_number,
+        status: r.status, target: r.dojo_team_members?.full_name, target_photo: r.dojo_team_members?.photo_url,
+        target_id: r.team_member_id, created_at: r.created_at, signed_at: r.signed_at, value: r.compensation_value,
       }));
     }
     results.sort((a, b) => (b.created_at || "").localeCompare(a.created_at || ""));
@@ -471,11 +490,11 @@ export const contractsDashboardStats = createServerFn({ method: "GET" })
     };
   });
 
-/** Detalhe de contrato emitido (student ou affiliate) + academia. */
+/** Detalhe de contrato emitido (student, affiliate ou team) + academia. */
 export const getIssuedContract = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { kind: "student"|"affiliate"; id: string }) =>
-    z.object({ kind: z.enum(["student","affiliate"]), id: uuid }).parse(d))
+  .inputValidator((d: { kind: "student"|"affiliate"|"team"; id: string }) =>
+    z.object({ kind: z.enum(["student","affiliate","team"]), id: uuid }).parse(d))
   .handler(async ({ data, context }) => {
     if (data.kind === "student") {
       const { data: row, error } = await context.supabase
@@ -484,6 +503,13 @@ export const getIssuedContract = createServerFn({ method: "GET" })
         .eq("id", data.id).eq("owner_id", context.userId).maybeSingle();
       if (error) throw error;
       return { kind: "student", contract: row };
+    } else if (data.kind === "team") {
+      const { data: row, error } = await context.supabase
+        .from("dojo_team_contracts")
+        .select("*, dojo_team_members(id,full_name,photo_url,email,phone,cpf,role)")
+        .eq("id", data.id).eq("owner_id", context.userId).maybeSingle();
+      if (error) throw error;
+      return { kind: "team", contract: row };
     } else {
       const { data: row, error } = await context.supabase
         .from("dojo_affiliate_contracts")
@@ -493,4 +519,63 @@ export const getIssuedContract = createServerFn({ method: "GET" })
       return { kind: "affiliate", contract: row };
     }
   });
+
+// ============================================================
+// Team contracts — CRUD
+// ============================================================
+
+const teamContractSchema = z.object({
+  id: uuid.optional(),
+  team_member_id: uuid,
+  template_id: uuid.nullable().optional(),
+  title: z.string().min(1).max(200),
+  content: z.string().default(""),
+  status: z.enum(["draft","issued","sent","pending_signature","signed","active","refused","cancelled","expired","terminated","completed"]).default("draft"),
+  signed_at: z.string().nullable().optional(),
+  role: z.string().nullable().optional(),
+  compensation_type: z.string().nullable().optional(),
+  compensation_value: z.number().nullable().optional(),
+  weekly_hours: z.number().int().nullable().optional(),
+  start_date: z.string().nullable().optional(),
+  end_date: z.string().nullable().optional(),
+});
+
+export const listTeamContracts = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { team_member_id: string }) => z.object({ team_member_id: uuid }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: rows, error } = await context.supabase
+      .from("dojo_team_contracts")
+      .select("*")
+      .eq("team_member_id", data.team_member_id)
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    return rows ?? [];
+  });
+
+export const saveTeamContract = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => teamContractSchema.parse(d))
+  .handler(async ({ data, context }) => {
+    const payload = { ...data, owner_id: context.userId };
+    const q = context.supabase.from("dojo_team_contracts");
+    if (data.id) {
+      const { data: row, error } = await q.update(payload).eq("id", data.id).select("*").single();
+      if (error) throw error;
+      return row;
+    }
+    const { data: row, error } = await q.insert(payload).select("*").single();
+    if (error) throw error;
+    return row;
+  });
+
+export const deleteTeamContract = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { id: string }) => z.object({ id: uuid }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase.from("dojo_team_contracts").delete().eq("id", data.id);
+    if (error) throw error;
+    return { ok: true };
+  });
+
 
