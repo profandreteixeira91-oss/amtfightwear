@@ -409,7 +409,7 @@ export const createPlanFromTemplate = createServerFn({ method: "POST" })
         color: tpl.color,
         objectives: tpl.objectives,
         duration_min: tpl.duration_min,
-        blocks: tpl.blocks,
+        blocks: tpl.blocks as never,
         date: data.date,
         status: "planejada",
         class_id: data.classId ?? null,
