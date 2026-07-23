@@ -274,7 +274,7 @@ function StudentDetail() {
                   <UserIcon className="h-3 w-3" />
                   Perfil do aluno
                 </div>
-                <h1 className="font-display truncate text-2xl font-black leading-tight tracking-tight sm:text-3xl md:text-4xl">
+                <h1 className="font-display text-2xl font-black leading-tight tracking-tight break-words sm:text-3xl md:text-4xl">
                   {s.full_name}
                 </h1>
                 <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-neutral-300">
@@ -286,7 +286,7 @@ function StudentDetail() {
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-1.5 md:justify-end">
+            <div className="grid w-full grid-cols-2 gap-2 md:ml-auto md:w-auto md:shrink-0 md:justify-self-end [&_a]:contents [&_a>button]:w-full [&>button]:w-full">
               <Button size="sm" asChild className="bg-red-600 text-white shadow-[0_10px_25px_-12px_rgba(220,38,38,0.9)] hover:bg-red-500">
                 <Link to="/dojo/app/students/$id/analysis" params={{ id }}>
                   <Activity className="mr-1.5 h-4 w-4" /> Performance
