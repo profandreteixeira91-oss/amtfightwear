@@ -2,10 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { Trophy, Medal, Award, Users, Loader2 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Trophy, Medal, Award, Users, Loader2, Flame, Crown, TrendingUp } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { listRankingClasses, getClassRanking } from "@/lib/dojo/rankings.functions";
 
@@ -15,6 +14,8 @@ export const Route = createFileRoute("/dojo/app/ranking")({
     meta: [
       { title: "Ranking por turma — AMT Dojo Manager" },
       { name: "description", content: "Ranking de alunos por check-ins realizados em cada turma." },
+      { property: "og:title", content: "Ranking por turma — AMT Dojo Manager" },
+      { property: "og:description", content: "Classificação Ruby Noir por check-ins realizados." },
     ],
   }),
 });
@@ -67,96 +68,183 @@ function RankingPage() {
   }, [rankingQ.data]);
 
   const totalCheckins = rows.reduce((acc, r) => acc + r.count, 0);
+  const avg = rows.length ? Math.round((totalCheckins / rows.length) * 10) / 10 : 0;
   const podium = rows.slice(0, 3);
+
+  const periodLabel: Record<Period, string> = {
+    all: "Histórico completo",
+    year: "Últimos 12 meses",
+    month: "Últimos 30 dias",
+    week: "Últimos 7 dias",
+  };
 
   return (
     <div className="space-y-6 p-4 md:p-6">
-      {/* Header controls */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <div className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-amber-400 to-red-600 text-white shadow">
-            <Trophy className="h-5 w-5" />
+      {/* ===== HERO ===== */}
+      <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-neutral-950 text-white shadow-[0_30px_80px_-40px_rgba(220,38,38,0.65)]">
+        <div aria-hidden className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-red-600/25 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute -right-24 top-10 h-72 w-72 rounded-full bg-amber-500/15 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(255,255,255,0.06),transparent_40%)]" />
+
+        <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 p-5 sm:p-7 md:grid-cols-[minmax(0,1fr)_minmax(0,auto)]">
+          <div className="flex min-w-0 items-start gap-4">
+            <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-amber-400 via-red-500 to-red-700 text-white shadow-[0_10px_25px_-10px_rgba(220,38,38,0.9)] ring-1 ring-white/20">
+              <Trophy className="h-6 w-6" />
+            </div>
+            <div className="min-w-0">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-red-200 backdrop-blur">
+                <Flame className="h-3 w-3" /> Ranking · Ruby Noir
+              </div>
+              <h1 className="mt-2 font-display text-2xl font-black leading-tight tracking-tight sm:text-3xl md:text-4xl">
+                Quem está mais firme no tatame?
+              </h1>
+              <p className="mt-1 max-w-xl text-sm text-neutral-300">
+                Classificação por check-ins realizados. Selecione a turma e o período para ver o pódio.
+              </p>
+
+              {activeClass && (
+                <div className="mt-3 flex flex-wrap items-center gap-1.5 text-[11px]">
+                  <HeroChip>
+                    <span className="mr-1 inline-block h-2 w-2 rounded-full" style={{ background: activeClass.color || "#dc2626" }} />
+                    {activeClass.name}
+                  </HeroChip>
+                  {activeClass.modality && <HeroChip>{activeClass.modality}</HeroChip>}
+                  <HeroChip icon={TrendingUp}>{periodLabel[period]}</HeroChip>
+                </div>
+              )}
+            </div>
           </div>
-          <div>
-            <h2 className="text-lg font-bold">Ranking por turma</h2>
-            <p className="text-xs text-muted-foreground">Classificação por número de check-ins realizados.</p>
+
+          <div className="flex w-full flex-col gap-2 md:w-auto md:items-end">
+            <Select
+              value={effectiveClassId}
+              onValueChange={(v) => setClassId(v)}
+              disabled={classesQ.isLoading || classes.length === 0}
+            >
+              <SelectTrigger className="w-full border-white/15 bg-white/5 text-white backdrop-blur hover:bg-white/10 md:w-[280px]">
+                <SelectValue placeholder={classesQ.isLoading ? "Carregando turmas…" : "Selecione a turma"} />
+              </SelectTrigger>
+              <SelectContent>
+                {classes.map((c: any) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    <span className="inline-flex items-center gap-2">
+                      <span className="h-2.5 w-2.5 rounded-full" style={{ background: c.color || "#dc2626" }} />
+                      {c.name}
+                      <span className="text-muted-foreground">· {c.modality}</span>
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Tabs value={period} onValueChange={(v) => setPeriod(v as Period)}>
+              <TabsList className="w-full border border-white/15 bg-white/5 text-white backdrop-blur md:w-auto">
+                <TabsTrigger value="all" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">Total</TabsTrigger>
+                <TabsTrigger value="year" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">Ano</TabsTrigger>
+                <TabsTrigger value="month" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">Mês</TabsTrigger>
+                <TabsTrigger value="week" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">Semana</TabsTrigger>
+              </TabsList>
+            </Tabs>
           </div>
         </div>
+      </section>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <Select
-            value={effectiveClassId}
-            onValueChange={(v) => setClassId(v)}
-            disabled={classesQ.isLoading || classes.length === 0}
-          >
-            <SelectTrigger className="w-[260px]">
-              <SelectValue placeholder={classesQ.isLoading ? "Carregando turmas…" : "Selecione a turma"} />
-            </SelectTrigger>
-            <SelectContent>
-              {classes.map((c: any) => (
-                <SelectItem key={c.id} value={c.id}>
-                  <span className="inline-flex items-center gap-2">
-                    <span className="h-2.5 w-2.5 rounded-full" style={{ background: c.color || "#dc2626" }} />
-                    {c.name}
-                    <span className="text-muted-foreground">· {c.modality}</span>
-                  </span>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Tabs value={period} onValueChange={(v) => setPeriod(v as Period)}>
-            <TabsList>
-              <TabsTrigger value="all">Total</TabsTrigger>
-              <TabsTrigger value="year">Ano</TabsTrigger>
-              <TabsTrigger value="month">Mês</TabsTrigger>
-              <TabsTrigger value="week">Semana</TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </div>
-      </div>
-
-      {/* KPIs */}
+      {/* ===== KPIs ===== */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <KpiCard label="Alunos na turma" value={rows.length} icon={<Users className="h-4 w-4" />} />
-        <KpiCard label="Check-ins no período" value={totalCheckins} icon={<Award className="h-4 w-4" />} />
+        <KpiCard
+          label="Alunos na turma"
+          value={rows.length}
+          icon={<Users className="h-4 w-4" />}
+          ringClass="from-sky-500/40 to-sky-500/0"
+          iconClass="bg-sky-500/15 text-sky-600 dark:text-sky-300"
+        />
+        <KpiCard
+          label="Check-ins no período"
+          value={totalCheckins}
+          icon={<Award className="h-4 w-4" />}
+          ringClass="from-emerald-500/40 to-emerald-500/0"
+          iconClass="bg-emerald-500/15 text-emerald-600 dark:text-emerald-300"
+        />
         <KpiCard
           label="Média por aluno"
-          value={rows.length ? Math.round((totalCheckins / rows.length) * 10) / 10 : 0}
+          value={avg}
           icon={<Medal className="h-4 w-4" />}
+          ringClass="from-violet-500/40 to-violet-500/0"
+          iconClass="bg-violet-500/15 text-violet-600 dark:text-violet-300"
         />
         <KpiCard
           label="Líder"
           value={rows[0]?.count ?? 0}
           hint={rows[0]?.full_name}
-          icon={<Trophy className="h-4 w-4" />}
+          icon={<Crown className="h-4 w-4" />}
+          ringClass="from-amber-500/50 to-red-500/0"
+          iconClass="bg-gradient-to-br from-amber-400 to-red-500 text-white"
         />
       </div>
 
-      {/* Podium */}
+      {/* ===== PÓDIO ===== */}
       {podium.length > 0 && (
         <div className="grid gap-3 md:grid-cols-3">
           {[1, 0, 2].map((order, i) => {
             const p = podium[order];
-            if (!p) return <div key={i} />;
-            // Medalha segue a colocação real: empates recebem a mesma medalha.
+            if (!p) return <div key={i} className="hidden md:block" />;
             const medalRank = Math.min(p.rank, 3);
-            const styleByMedal = [
-              { border: "border-amber-400", bg: "bg-gradient-to-br from-amber-100 to-amber-50 dark:from-amber-950/40 dark:to-transparent", label: "text-amber-700 dark:text-amber-300", medal: "🥇" },
-              { border: "border-slate-300", bg: "bg-gradient-to-br from-slate-100 to-slate-50 dark:from-slate-800/40 dark:to-transparent", label: "text-slate-600 dark:text-slate-300", medal: "🥈" },
-              { border: "border-orange-400", bg: "bg-gradient-to-br from-orange-100 to-orange-50 dark:from-orange-950/40 dark:to-transparent", label: "text-orange-700 dark:text-orange-300", medal: "🥉" },
+            const stylesByRank = [
+              {
+                border: "border-amber-300/70",
+                bg: "bg-gradient-to-br from-amber-50 via-white to-amber-50 dark:from-amber-950/50 dark:via-neutral-950 dark:to-neutral-950",
+                ring: "ring-4 ring-amber-300/40",
+                glow: "shadow-[0_25px_60px_-25px_rgba(245,158,11,0.55)]",
+                chip: "bg-amber-400 text-amber-950",
+                gradient: "from-amber-400 via-amber-500 to-yellow-600",
+                medal: "🥇",
+                label: "1º LUGAR",
+              },
+              {
+                border: "border-slate-300/70",
+                bg: "bg-gradient-to-br from-slate-100 via-white to-slate-50 dark:from-slate-800/50 dark:via-neutral-950 dark:to-neutral-950",
+                ring: "ring-4 ring-slate-300/40",
+                glow: "shadow-[0_20px_50px_-25px_rgba(148,163,184,0.55)]",
+                chip: "bg-slate-300 text-slate-900",
+                gradient: "from-slate-300 via-slate-400 to-slate-500",
+                medal: "🥈",
+                label: "2º LUGAR",
+              },
+              {
+                border: "border-orange-300/70",
+                bg: "bg-gradient-to-br from-orange-50 via-white to-orange-50 dark:from-orange-950/50 dark:via-neutral-950 dark:to-neutral-950",
+                ring: "ring-4 ring-orange-300/40",
+                glow: "shadow-[0_20px_50px_-25px_rgba(234,88,12,0.55)]",
+                chip: "bg-orange-400 text-orange-950",
+                gradient: "from-orange-400 via-orange-500 to-amber-700",
+                medal: "🥉",
+                label: "3º LUGAR",
+              },
             ];
-            const styles = styleByMedal[medalRank - 1];
-            const raised = order === 0 ? "md:-translate-y-2" : "";
+            const s = stylesByRank[medalRank - 1];
+            const raised = order === 0 ? "md:-translate-y-3 md:scale-[1.03]" : "";
             return (
-              <Card key={p.id} className={`${styles.border} ${styles.bg} ${raised} border-2 transition`}>
-                <CardContent className="flex flex-col items-center gap-2 py-6 text-center">
-                  <div className="text-3xl">{styles.medal}</div>
-                  <Avatar url={p.photo_url} name={p.full_name} size={64} />
-                  <div className={`text-xs font-semibold uppercase tracking-wide ${styles.label}`}>{p.rank}º lugar</div>
-                  <div className="line-clamp-1 text-sm font-semibold">{p.full_name}</div>
-                  <div className="text-2xl font-black">{p.count}</div>
-                  <div className="text-[11px] text-muted-foreground">check-ins</div>
+              <Card
+                key={p.id}
+                className={`relative overflow-hidden border-2 transition-all ${s.border} ${s.bg} ${s.glow} ${raised}`}
+              >
+                <div aria-hidden className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${s.gradient}`} />
+                <div aria-hidden className={`pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-gradient-to-br ${s.gradient} opacity-20 blur-2xl`} />
+                <CardContent className="relative flex flex-col items-center gap-3 py-7 text-center">
+                  <div className="text-4xl leading-none drop-shadow">{s.medal}</div>
+                  <div className={`rounded-full ${s.ring}`}>
+                    <Avatar url={p.photo_url} name={p.full_name} size={72} />
+                  </div>
+                  <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-[0.14em] ${s.chip}`}>
+                    {s.label}
+                  </span>
+                  <div className="line-clamp-1 max-w-[220px] text-sm font-semibold">{p.full_name}</div>
+                  <div className="flex items-baseline gap-1.5">
+                    <div className={`bg-gradient-to-br bg-clip-text font-display text-4xl font-black leading-none text-transparent ${s.gradient}`}>
+                      {p.count}
+                    </div>
+                    <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">check-ins</div>
+                  </div>
                 </CardContent>
               </Card>
             );
@@ -164,65 +252,99 @@ function RankingPage() {
         </div>
       )}
 
+      {/* ===== CLASSIFICAÇÃO COMPLETA ===== */}
+      <Card className="relative overflow-hidden border-neutral-200/70 bg-white shadow-sm dark:border-white/10 dark:bg-neutral-950">
+        <div aria-hidden className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-red-500 via-red-400 to-amber-400" />
+        <div aria-hidden className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full bg-red-500/10 blur-3xl" />
 
-      {/* Table */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Classificação completa</CardTitle>
-        </CardHeader>
-        <CardContent>
+        <div className="relative flex items-center justify-between border-b border-neutral-200/70 px-5 py-4 dark:border-white/10">
+          <div className="flex items-center gap-2">
+            <div className="grid h-8 w-8 place-items-center rounded-xl bg-red-600/10 text-red-600 dark:text-red-400">
+              <TrendingUp className="h-4 w-4" />
+            </div>
+            <div>
+              <div className="text-sm font-bold">Classificação completa</div>
+              <div className="text-[11px] text-muted-foreground">{periodLabel[period]}</div>
+            </div>
+          </div>
+          {rows.length > 0 && (
+            <span className="rounded-full border border-neutral-200/70 bg-neutral-50 px-2.5 py-0.5 text-[11px] font-semibold text-neutral-600 dark:border-white/10 dark:bg-white/5 dark:text-neutral-300">
+              {rows.length} {rows.length === 1 ? "aluno" : "alunos"}
+            </span>
+          )}
+        </div>
+
+        <CardContent className="relative p-0">
           {rankingQ.isLoading ? (
-            <div className="grid place-items-center py-10 text-muted-foreground">
+            <div className="grid place-items-center py-16 text-muted-foreground">
               <Loader2 className="h-5 w-5 animate-spin" />
             </div>
           ) : !effectiveClassId ? (
-            <p className="py-10 text-center text-sm text-muted-foreground">Selecione uma turma para ver o ranking.</p>
+            <p className="py-16 text-center text-sm text-muted-foreground">Selecione uma turma para ver o ranking.</p>
           ) : rows.length === 0 ? (
-            <p className="py-10 text-center text-sm text-muted-foreground">
-              Nenhum aluno matriculado nesta turma ainda.
-            </p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[520px] text-sm">
-                <thead className="text-left text-[11px] uppercase tracking-wide text-muted-foreground">
-                  <tr className="border-b">
-                    <th className="w-14 py-2">#</th>
-                    <th className="py-2">Aluno</th>
-                    <th className="w-32 py-2 text-right">Check-ins</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map((r) => {
-                    const max = rows[0]?.count || 1;
-                    const pct = Math.max(4, Math.round((r.count / max) * 100));
-                    return (
-                      <tr key={r.id} className="border-b last:border-0 hover:bg-muted/40">
-                        <td className="py-2 font-bold text-muted-foreground">
-                          {r.rank <= 3 ? <RankMedal rank={r.rank} /> : <span className="pl-1">{r.rank}º</span>}
-                        </td>
-                        <td className="py-2">
-                          <div className="flex items-center gap-3">
-                            <Avatar url={r.photo_url} name={r.full_name} size={32} />
-                            <div className="min-w-0 flex-1">
-                              <div className="line-clamp-1 font-medium">{r.full_name}</div>
-                              <div className="mt-1 h-1.5 w-full max-w-[240px] overflow-hidden rounded-full bg-muted">
-                                <div
-                                  className="h-full rounded-full bg-gradient-to-r from-red-500 to-amber-400"
-                                  style={{ width: `${pct}%` }}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="py-2 text-right">
-                          <Badge variant="secondary" className="font-mono">{r.count}</Badge>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+            <div className="grid place-items-center gap-2 py-16 text-center">
+              <div className="grid h-12 w-12 place-items-center rounded-2xl bg-neutral-100 text-neutral-400 dark:bg-white/5">
+                <Users className="h-5 w-5" />
+              </div>
+              <p className="text-sm text-muted-foreground">Nenhum aluno matriculado nesta turma ainda.</p>
             </div>
+          ) : (
+            <ul className="divide-y divide-neutral-200/70 dark:divide-white/5">
+              {rows.map((r) => {
+                const max = rows[0]?.count || 1;
+                const pct = Math.max(4, Math.round((r.count / max) * 100));
+                const isTop = r.rank <= 3;
+                return (
+                  <li
+                    key={r.id}
+                    className={`group grid grid-cols-[52px_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 transition-colors hover:bg-neutral-50 dark:hover:bg-white/5 sm:px-5 ${
+                      isTop ? "bg-gradient-to-r from-red-50/40 via-transparent to-transparent dark:from-red-950/20" : ""
+                    }`}
+                  >
+                    <div className="flex items-center justify-center">
+                      {r.rank <= 3 ? (
+                        <span className="text-2xl leading-none drop-shadow">{r.rank === 1 ? "🥇" : r.rank === 2 ? "🥈" : "🥉"}</span>
+                      ) : (
+                        <span className="grid h-8 w-8 place-items-center rounded-full border border-neutral-200/70 bg-neutral-50 text-xs font-bold text-neutral-600 dark:border-white/10 dark:bg-white/5 dark:text-neutral-300">
+                          {r.rank}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex min-w-0 items-center gap-3">
+                      <Avatar url={r.photo_url} name={r.full_name} size={40} />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <div className="truncate text-sm font-semibold">{r.full_name}</div>
+                          {r.rank === 1 && (
+                            <Crown className="h-3.5 w-3.5 shrink-0 text-amber-500" />
+                          )}
+                        </div>
+                        <div className="mt-1.5 h-1.5 w-full max-w-[280px] overflow-hidden rounded-full bg-neutral-100 dark:bg-white/5">
+                          <div
+                            className={`h-full rounded-full ${
+                              r.rank === 1
+                                ? "bg-gradient-to-r from-amber-400 via-red-500 to-red-600"
+                                : r.rank === 2
+                                ? "bg-gradient-to-r from-slate-300 to-slate-500"
+                                : r.rank === 3
+                                ? "bg-gradient-to-r from-orange-400 to-amber-600"
+                                : "bg-gradient-to-r from-red-500/70 to-red-600/70"
+                            }`}
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="text-right">
+                      <div className="font-display text-lg font-black leading-none">{r.count}</div>
+                      <div className="mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">check-ins</div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
           )}
         </CardContent>
       </Card>
@@ -230,32 +352,55 @@ function RankingPage() {
   );
 }
 
-function KpiCard({ label, value, hint, icon }: { label: string; value: number | string; hint?: string; icon?: React.ReactNode }) {
+/* ============================================================
+   Subcomponentes
+   ============================================================ */
+
+function HeroChip({ children, icon: Icon }: { children: React.ReactNode; icon?: React.ComponentType<{ className?: string }> }) {
   return (
-    <Card>
-      <CardContent className="py-4">
-        <div className="flex items-center justify-between text-muted-foreground">
-          <span className="text-[11px] uppercase tracking-wide">{label}</span>
-          {icon}
+    <span className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/5 px-2 py-0.5 font-semibold text-neutral-100 backdrop-blur">
+      {Icon && <Icon className="h-3 w-3 text-red-300" />}
+      {children}
+    </span>
+  );
+}
+
+function KpiCard({
+  label,
+  value,
+  hint,
+  icon,
+  ringClass,
+  iconClass,
+}: {
+  label: string;
+  value: number | string;
+  hint?: string;
+  icon?: React.ReactNode;
+  ringClass: string;
+  iconClass: string;
+}) {
+  return (
+    <Card className="relative overflow-hidden border-neutral-200/70 bg-white shadow-sm transition-shadow hover:shadow-md dark:border-white/10 dark:bg-neutral-950">
+      <div aria-hidden className={`absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gradient-to-br ${ringClass} blur-2xl`} />
+      <CardContent className="relative flex items-start justify-between gap-3 py-4">
+        <div className="min-w-0">
+          <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{label}</div>
+          <div className="mt-1 font-display text-2xl font-black leading-none">{value}</div>
+          {hint && <div className="mt-1 line-clamp-1 text-[11px] text-muted-foreground">{hint}</div>}
         </div>
-        <div className="mt-1 text-2xl font-bold">{value}</div>
-        {hint && <div className="mt-0.5 line-clamp-1 text-[11px] text-muted-foreground">{hint}</div>}
+        <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${iconClass}`}>{icon}</div>
       </CardContent>
     </Card>
   );
 }
 
-function RankMedal({ rank }: { rank: number }) {
-  const m = rank === 1 ? "🥇" : rank === 2 ? "🥈" : "🥉";
-  return <span className="text-lg">{m}</span>;
-}
-
 function Avatar({ url, name, size }: { url: string | null; name: string; size: number }) {
   const initials = name.split(" ").map(w => w[0]).filter(Boolean).slice(0, 2).join("").toUpperCase();
-  if (url) return <img src={url} alt="" className="rounded-full object-cover" style={{ width: size, height: size }} />;
+  if (url) return <img src={url} alt="" className="rounded-full object-cover ring-2 ring-white shadow-sm dark:ring-neutral-900" style={{ width: size, height: size }} />;
   return (
     <div
-      className="grid place-items-center rounded-full bg-gradient-to-br from-red-500 to-amber-500 font-semibold text-white"
+      className="grid place-items-center rounded-full bg-gradient-to-br from-red-500 via-red-600 to-amber-500 font-bold text-white ring-2 ring-white shadow-sm dark:ring-neutral-900"
       style={{ width: size, height: size, fontSize: size / 2.6 }}
     >
       {initials || "?"}
