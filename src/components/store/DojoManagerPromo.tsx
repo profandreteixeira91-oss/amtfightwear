@@ -32,9 +32,16 @@ export function DojoManagerPromo() {
               Novo · SaaS AMT
             </div>
 
-            <h2 id="dojo-manager-promo" className="mt-5 text-3xl font-black leading-[1.05] tracking-tight text-foreground sm:text-4xl lg:text-5xl">
-              AMT <span className="text-primary">Dojo Manager</span>
-            </h2>
+            <h2 id="dojo-manager-promo" className="sr-only">AMT Dojo Manager</h2>
+            <img
+              src={dojoWordmarkAsset.url}
+              alt="AMT Dojo Manager — Gestão, Disciplina, Evolução"
+              width={1280}
+              height={428}
+              loading="lazy"
+              className="mt-5 h-auto w-full max-w-md"
+            />
+
 
             <p className="mt-4 max-w-xl text-lg font-semibold leading-snug text-foreground/80 sm:text-xl">
               O sistema completo para transformar a gestão da sua academia de Jiu-Jitsu.
