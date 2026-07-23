@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Search, Filter, Users, Building2, FileText } from "lucide-react";
+import { Search, Filter, Users, Building2, FileText, UsersRound } from "lucide-react";
 import { listIssuedContracts, CONTRACT_STATUS_LABELS } from "@/lib/dojo/contracts.functions";
 
 export const Route = createFileRoute("/dojo/app/contracts/issued")({
