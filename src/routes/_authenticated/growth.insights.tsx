@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { OwnerOnly } from "@/lib/auth/owner-only";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Sparkles, AlertTriangle, TrendingUp, Info } from "lucide-react";
@@ -13,7 +14,7 @@ import { growthService } from "@/services/growthService";
 
 export const Route = createFileRoute("/_authenticated/growth/insights")({
   head: () => ({ meta: [{ title: "Insights IA — AMT Growth" }] }),
-  component: InsightsPage,
+  component: () => (<OwnerOnly><InsightsPage /></OwnerOnly>),
 });
 
 const severityMap: Record<string, { label: string; className: string; icon: typeof Info }> = {

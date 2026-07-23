@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { OwnerOnly } from "@/lib/auth/owner-only";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import {
@@ -26,7 +27,7 @@ export const Route = createFileRoute("/_authenticated/growth/intelligence")({
   head: () => ({
     meta: [{ title: "Inteligência Comercial — AMT Growth" }],
   }),
-  component: IntelligencePage,
+  component: () => (<OwnerOnly><IntelligencePage /></OwnerOnly>),
 });
 
 function IntelligencePage() {

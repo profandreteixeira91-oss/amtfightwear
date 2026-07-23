@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { OwnerOnly } from "@/lib/auth/owner-only";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -16,7 +17,7 @@ import { intFmt } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/growth/kpis")({
   head: () => ({ meta: [{ title: "KPIs — AMT Growth" }] }),
-  component: KpisPage,
+  component: () => (<OwnerOnly><KpisPage /></OwnerOnly>),
 });
 
 function KpisPage() {
