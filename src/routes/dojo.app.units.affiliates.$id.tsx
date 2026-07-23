@@ -39,10 +39,15 @@ import {
   Pencil, Eye, X, CheckCircle2,
 } from "lucide-react";
 import { DojoPageShell } from "@/components/dojo/DojoPageShell";
+import { PinGate } from "@/components/dojo/PinGate";
 
 export const Route = createFileRoute("/dojo/app/units/affiliates/$id")({
   head: () => ({ meta: [{ title: "Filial — AMT Dojo Manager" }] }),
-  component: AffiliateDetailPage,
+  component: () => (
+    <PinGate moduleName="Unidades e Filiais">
+      <AffiliateDetailPage />
+    </PinGate>
+  ),
 });
 
 const STATUS_LABEL: Record<string, string> = {

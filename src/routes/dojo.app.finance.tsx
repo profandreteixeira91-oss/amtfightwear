@@ -26,10 +26,15 @@ import {
   FinanceReports,
   FinanceSettings,
 } from "@/components/dojo/finance/Config";
+import { PinGate } from "@/components/dojo/PinGate";
 
 export const Route = createFileRoute("/dojo/app/finance")({
   head: () => ({ meta: [{ title: "Financeiro — AMT Dojo Manager" }] }),
-  component: FinancePage,
+  component: () => (
+    <PinGate moduleName="Financeiro">
+      <FinancePage />
+    </PinGate>
+  ),
 });
 
 type SectionId =

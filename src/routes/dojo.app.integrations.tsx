@@ -55,6 +55,7 @@ import {
 import { useState } from "react";
 import { Unplug } from "lucide-react";
 import amtPayLogoAsset from "@/assets/amt-pay-logo.png.asset.json";
+import { PinGate } from "@/components/dojo/PinGate";
 const amtPayLogoUrl = amtPayLogoAsset.url;
 
 export const Route = createFileRoute("/dojo/app/integrations")({
@@ -107,10 +108,10 @@ function AMTPayHub() {
           <Loader2 className="h-5 w-5 animate-spin" />
         </div>
       ) : activated ? (
-        <>
+        <PinGate moduleName="AMT Pay" description="Após ativado, o AMT Pay exige PIN de 6 dígitos. O acesso permanece liberado por 24 horas ou até você sair da conta.">
           <AsaasStatusBanner />
           <FullHub />
-        </>
+        </PinGate>
       ) : showActivation ? (
         <AMTPayActivationForm
           showIntro={false}

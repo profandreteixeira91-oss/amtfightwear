@@ -22,9 +22,15 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 
+import { PinGate } from "@/components/dojo/PinGate";
+
 export const Route = createFileRoute("/dojo/app/units/")({
   head: () => ({ meta: [{ title: "Unidades e Filiais — AMT Dojo Manager" }] }),
-  component: UnitsAndAffiliatesPage,
+  component: () => (
+    <PinGate moduleName="Unidades e Filiais">
+      <UnitsAndAffiliatesPage />
+    </PinGate>
+  ),
 });
 
 function UnitsAndAffiliatesPage() {
