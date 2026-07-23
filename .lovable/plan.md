@@ -1,74 +1,102 @@
-# Módulo Planos de Aula — AMT Dojo Manager
 
-Novo módulo pedagógico dentro de **Ensino e Graduação**, cobrindo planejamento, biblioteca de conteúdos, banco de técnicas, histórico e analytics — integrado a Turmas, Faixas, Avaliações, Vídeos e Certificados.
+# Refatoração: Unidades e Filiais (revisado)
 
-Dado o tamanho (calendário drag-and-drop, biblioteca, banco de técnicas, templates, histórico, relatórios, dashboard analítico, inteligência pedagógica), proponho entregar em **4 fases**, cada uma utilizável de forma independente. Isso garante qualidade, evita um mega-PR arriscado e permite validar as decisões de UX antes de investir nas camadas mais complexas.
+Renomeia o módulo **Unidades** para **Unidades e Filiais**, com duas abas:
 
----
+```text
+/dojo/app/units
+├─ Unidades Próprias   (integradas: filtram todos os módulos)
+└─ Filiais (Afiliados) (institucional: cadastro + financeiro + contrato + certificado)
+```
 
-## Fase 1 — Fundação (base de dados + CRUD + calendário)
-
-Objetivo: professor já consegue planejar aulas reais.
-
-**Backend (migrations)**
-- `dojo_lesson_plans` (título, modalidade, turma, professor, faixa, categoria, idade, local, data, hora início/fim, carga horária, status, cor, objetivos rich text, notas)
-- `dojo_lesson_blocks` (aquecimento, alongamento, fundamentos, técnicas, exercícios, sparring, condicionamento, encerramento — como blocos ordenáveis JSONB)
-- `dojo_lesson_content_library` (conteúdos reutilizáveis: nome, categoria, modalidade, descrição, mídia, tags, tempo, faixa, idade, nível)
-- `dojo_techniques_bank` (técnicas por modalidade — Judô/BJJ/Karatê/MT/TKD, com seeds só de estrutura, sem popular contas)
-- `dojo_lesson_history` (log automático de aulas ministradas: presença, notas, mídia)
-- Todas com `owner_id`, `unit_id`, RLS por owner, GRANT authenticated/service_role, políticas de leitura/escrita.
-
-**Rotas**
-- `/dojo/app/lesson-plans` (dashboard + calendário)
-- `/dojo/app/lesson-plans/library` (biblioteca de conteúdos)
-- `/dojo/app/lesson-plans/techniques` (banco de técnicas)
-- `/dojo/app/lesson-plans/$id` (editor de plano)
-
-**UI Fase 1**
-- Dashboard com cards: aulas planejadas na semana, realizadas, pendentes, horas planejadas/ministradas, turmas ativas, próxima aula.
-- Calendário Dia/Semana/Mês/Ano (reaproveitando estilo do módulo Agenda).
-- Editor de plano com blocos (aquecimento, fundamentos, técnicas principais, exercícios, sparring, condicionamento, encerramento), autosave, cores e status.
-- Filtros: professor, modalidade, turma, unidade, faixa, período.
-
-**Menu**
-- Adiciona "Planos de Aula" ao grupo Rotina em `AppTopNav.tsx` e ao menu lateral do Dojo.
-
-## Fase 2 — Biblioteca, técnicas e templates
-
-- Biblioteca de conteúdos com upload de imagem/vídeo/PDF (bucket `ig-media`), tags e busca instantânea.
-- Banco de técnicas por modalidade (Judô Nage/Katame/Shime/Kansetsu/Ukemi, BJJ passagens/raspagens/finalizações, Karatê Kihon/Kata/Kumite, Muay Thai chutes/joelhadas/cotoveladas/clinch, TKD Poomsae/chutes/defesas). Adicionar ao plano com 1 clique.
-- Templates de aula (Infantil, Adulto, Competição, Exame, Iniciantes, Avançado, Feminino, Prep Física) + templates personalizados.
-- Drag-and-drop entre blocos, duplicação de aula/semana/mês/semestre/ano com troca de turma/professor/data.
-
-## Fase 3 — Integrações + histórico
-
-- Registro de aula ministrada com presença (integra `dojo_attendance`), fotos/vídeos, observações.
-- Controle de conteúdo aplicado: última aplicação, quantas vezes, sugestão automática.
-- Integração com Turmas (planejamento futuro, últimas aulas, carga horária).
-- Integração com Graduação: conteúdos obrigatórios por faixa, % concluído, aptidão para exame.
-- Integração com Avaliações (vincular aula a exame/simulado/avaliação técnica).
-- Integração com Biblioteca de Vídeos (`dojo_videos`) e Certificados (emissão ao concluir plano).
-
-## Fase 4 — Analytics + inteligência pedagógica
-
-- Dashboard analítico (recharts): planejamento x realizado, conteúdos/técnicas mais usados, horas por professor/modalidade, evolução mensal, distribuição por categoria, aproveitamento, % obrigatórios concluídos, frequência de reuso.
-- Relatórios exportáveis (PDF/Excel/Word) por professor/turma/aluno/modalidade/faixa/período.
-- Inteligência: recomendar conteúdos não ensinados, alertar técnica sem revisão, sugerir sequência lógica, detectar repetição, indicar turmas prontas para avaliação.
+Sem novo dashboard: o dashboard principal (`/dojo/app`) recebe um **seletor de unidade** ("Todas as unidades" ou uma específica) que já reaproveita a arquitetura multi-tenant existente.
 
 ---
 
-## Detalhes técnicos
+## 1) Unidades Próprias
 
-- Server functions em `src/lib/dojo/lesson-plans.functions.ts` (CRUD, autosave, duplicação, sugestões) — `requireSupabaseAuth` + RLS por `owner_id`.
-- Autosave via debounce + `useMutation` + `invalidateQueries`.
-- Calendário reaproveita padrão de `dojo.app.schedule.tsx` (Google-Calendar-like).
-- Blocos da aula como array JSONB ordenável — drag-and-drop com `@dnd-kit`.
-- Uploads no bucket `ig-media` (já público).
-- Nova conta continua **zerada** (memória do projeto): seeds só para catálogo estrutural do banco de técnicas por modalidade, opt-in pelo professor.
-- Terminologia "Faixa/Grau/Dan" vem de `belt-terms` (memória do projeto).
-- **Sem IA** (memória: proibida em Avaliações; aqui aplico o mesmo princípio às "sugestões" da Fase 4 — serão heurísticas determinísticas sobre o histórico, não LLM).
+### Schema — expandir `dojo_units` (backwards-compatible)
+Todas as colunas novas nullable, sem breaking change:
+- Fiscais: `trade_name`, `legal_name`, `cnpj`, `state_registration`, `opened_at`
+- Responsável: `manager_name`, `manager_cpf`, `manager_rg`
+- Endereço: `zip`, `street`, `number`, `complement`, `neighborhood`, `city`, `state`, `country`
+- Contato: `phone2`, `whatsapp`, `email`, `website`, `socials` (jsonb)
+- Mídia: `logo_url`, `banner_url`, `facade_url`, `gallery_urls[]`
+- Operacional: `hours` (jsonb), `modalities[]`, `age_ranges[]`, `coordinator_ids[]`, `admin_ids[]`
+- `metadata` jsonb
 
-## Confirmações antes de começar
+### Escopo por unidade nos módulos
+Já existe `unit_id` em `dojo_students`. Vou:
+- Adicionar `unit_id uuid` opcional (nullable) em: `dojo_classes`, `dojo_invoices`, `dojo_attendance`, `dojo_certificates`, `dojo_graduations`, `dojo_lesson_plans`, `dojo_sales` (não force NOT NULL — dados legados ficam sem unidade)
+- Criar `UnitScopeProvider` (contexto React + persistência localStorage) e `UnitSwitcher` (dropdown "Todas as unidades" + lista) posicionado no topbar do Dojo
+- Hook `useCurrentUnitId()` consumido pelos server fns via novo parâmetro opcional `unitId` — quando presente, adiciona `.eq('unit_id', unitId)` na query; quando ausente, mostra tudo
 
-1. Posso entregar apenas a **Fase 1** neste turno e as demais em turnos seguintes? (Recomendado — evita PR gigante e alto risco.)
-2. As "sugestões automáticas" da Fase 4 podem ser **heurísticas** (sem IA), coerente com a regra do módulo Avaliações?
+### Permissões por unidade
+Nova tabela `dojo_unit_members(user_id, unit_id, role)` + helper SQL `has_unit_access()` + RLS. Dono mantém acesso total.
+
+### UI
+- Wizard de cadastro (4 passos: Dados gerais / Endereço + Contato / Identidade Visual + Operacional / Permissões)
+- Página de detalhe `/dojo/app/units/$id` com abas: Visão geral, Dados, Equipe, Configurações
+- KPIs da unidade específica na página de detalhe (reutilizando queries já existentes com `unitId` fixo)
+
+### Dashboard principal
+Adicionar o `UnitSwitcher` no topo de `/dojo/app` (dashboard principal). Todas as queries do dashboard passam a aceitar `unitId?` opcional, refletindo automaticamente a seleção.
+
+---
+
+## 2) Filiais (Afiliados) — módulo novo
+
+Institucional, **não integra** com students/classes/attendance. Integra com **Financeiro** e reaproveita o **gerador de certificados existente**.
+
+### Schema
+- `dojo_affiliates` — dados da academia + responsável + status (ativo/suspenso/cancelado/em_analise) + `affiliation_number` único por owner + `joined_at`, `expires_at` + mídia + professor responsável (jsonb: nome, modalidade, faixa, dan, tempo, certificações)
+- `dojo_affiliate_contracts` — HTML + variáveis + status assinatura + PDF gerado (preparado para e-sign)
+- **Financeiro integrado:** cobranças de filiação usam a tabela existente `dojo_invoices` com dois campos novos:
+  - `affiliate_id uuid` (FK → `dojo_affiliates`)
+  - `source text` (`'student' | 'affiliate' | 'sale'`) — default `'student'`
+  
+  Assim os pagamentos aparecem automaticamente em Receitas / Contas a receber / Fluxo de caixa do módulo Financeiro, com filtro opcional "Origem: Filiação" quando o usuário quer ver só a rede de afiliados. Zero código novo no ledger — reutiliza `recordInvoicePaymentToLedger`.
+
+### Certificado de Afiliado (reuso total)
+Não crio gerador novo. Em vez disso:
+- Adicionar a categoria `"afiliado"` em `dojo_certificate_templates.category` (já é text livre, sem migração)
+- No **CertificateStudio existente**, expor as variáveis de afiliado (`{{affiliate_name}}`, `{{academy_name}}`, `{{city}}`, `{{state}}`, `{{affiliation_number}}`, `{{issued_at}}`, `{{expires_at}}`, `{{organization_name}}`, `{{qr_code}}`, `{{unique_code}}`) na paleta de tokens quando `category === "afiliado"`
+- Botão **"Emitir certificado"** na página do afiliado abre um dialog para escolher qual template de categoria "afiliado" usar, gera o certificado e persiste em `dojo_certificates` (com `affiliate_id` opcional na tabela, ou usa `student_id = null` + `metadata`)
+
+### Contrato de Filiação
+- Botão "Gerar Contrato de Filiação" com **modelo base fixo** (8 cláusulas: Objeto, Direitos, Obrigações do Afiliado, Obrigações da Organização, Pagamentos, Vigência, Rescisão, Foro) preenchido com variáveis `{{organization_name}}`, `{{affiliate_name}}`, `{{cpf}}`, `{{cnpj}}`, `{{address}}`, `{{city}}`, `{{state}}`, `{{affiliation_number}}`, `{{signed_at}}`
+- Visualizar / Imprimir / PDF / DOCX (docx via `docx` npm ou via HTML→Word)
+- Estrutura preparada para assinatura eletrônica (`signature_data` jsonb reservado)
+
+### UI
+- Lista de afiliados com filtros (cidade, estado, situação, modalidade, professor, data)
+- Detalhe `/dojo/app/units/affiliates/$id` com abas: Dados, Professor Responsável, Identidade Visual, **Financeiro**, Contrato, Certificado, Histórico
+- Aba Financeiro do afiliado: lista de cobranças (via `dojo_invoices where affiliate_id = $id`) com botão "Nova cobrança" (mensal / anual / avulsa) — usa o motor de cobrança existente do AMT Pay
+
+---
+
+## 3) Busca e filtros
+
+Barra de busca em ambas as abas por nome, cidade, estado, professor, responsável, CPF, CNPJ, nº filiação, situação.
+
+---
+
+## Execução
+
+Sequência (sem pausas intermediárias):
+
+1. Migration 1: expandir `dojo_units` + `dojo_unit_members` + `has_unit_access()` + RLS
+2. Migration 2: adicionar `unit_id` nas 7 tabelas core + FK
+3. Migration 3: `dojo_affiliates` + `dojo_affiliate_contracts` + adicionar `affiliate_id` + `source` em `dojo_invoices` + policies + GRANTs
+4. Server fns: `units.functions.ts` (expandido), `affiliates.functions.ts`, `affiliate-contracts.functions.ts`
+5. `UnitScopeProvider` + `UnitSwitcher` + topbar do Dojo + integração no dashboard `/dojo/app`
+6. Rota `/dojo/app/units` com abas + lista + wizard + detalhe da unidade
+7. Rota `/dojo/app/units/affiliates` + detalhe do afiliado (todas as abas incluindo Financeiro reutilizando componentes de invoice)
+8. Presets de token do afiliado no `CertificateStudio` + botão "Emitir certificado" no afiliado
+9. Editor de contrato de afiliação com modelo base + export PDF/DOCX
+10. Filtro "Origem: Filiação" no módulo Financeiro
+
+### Fora de escopo desta rodada
+- Aplicar `useCurrentUnitId()` em **cada** módulo existente (students/finance/schedule/…). Vou preparar a infra (coluna + switcher + hook) e adaptar apenas o **dashboard principal** nesta rodada. Cada módulo restante vira uma tarefa separada quando você quiser propagar. Se preferir que eu propague tudo agora, me diga e ampliamos o escopo.
+
+Aprovar para eu executar?

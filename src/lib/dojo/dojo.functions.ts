@@ -19,34 +19,89 @@ export const listDojoUnits = createServerFn({ method: "GET" })
     return data ?? [];
   });
 
+const unitPayloadSchema = z.object({
+  id: z.string().uuid().optional(),
+  name: z.string().min(1).max(120),
+  address: z.string().max(400).optional().nullable(),
+  phone: z.string().max(40).optional().nullable(),
+  active: z.boolean().optional(),
+  // Fiscais
+  trade_name: z.string().max(160).optional().nullable(),
+  legal_name: z.string().max(200).optional().nullable(),
+  cnpj: z.string().max(32).optional().nullable(),
+  state_registration: z.string().max(40).optional().nullable(),
+  opened_at: z.string().optional().nullable(),
+  // Responsável
+  manager_name: z.string().max(160).optional().nullable(),
+  manager_cpf: z.string().max(20).optional().nullable(),
+  manager_rg: z.string().max(30).optional().nullable(),
+  // Endereço
+  zip: z.string().max(12).optional().nullable(),
+  street: z.string().max(200).optional().nullable(),
+  number: z.string().max(20).optional().nullable(),
+  complement: z.string().max(120).optional().nullable(),
+  neighborhood: z.string().max(120).optional().nullable(),
+  city: z.string().max(120).optional().nullable(),
+  state: z.string().max(4).optional().nullable(),
+  country: z.string().max(4).optional().nullable(),
+  // Contato
+  phone2: z.string().max(40).optional().nullable(),
+  whatsapp: z.string().max(40).optional().nullable(),
+  email: z.string().max(200).optional().nullable(),
+  website: z.string().max(300).optional().nullable(),
+  socials: z.record(z.string(), z.any()).optional().nullable(),
+  // Mídia
+  logo_url: z.string().max(600).optional().nullable(),
+  banner_url: z.string().max(600).optional().nullable(),
+  facade_url: z.string().max(600).optional().nullable(),
+  gallery_urls: z.array(z.string()).optional().nullable(),
+  // Operacional
+  hours: z.record(z.string(), z.any()).optional().nullable(),
+  modalities: z.array(z.string()).optional().nullable(),
+  age_ranges: z.array(z.string()).optional().nullable(),
+  coordinator_ids: z.array(z.string().uuid()).optional().nullable(),
+  admin_ids: z.array(z.string().uuid()).optional().nullable(),
+  metadata: z.record(z.string(), z.any()).optional().nullable(),
+});
+
 export const saveDojoUnit = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
-    id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido").optional(),
-    name: z.string().min(1).max(120),
-    address: z.string().max(400).optional().nullable(),
-    phone: z.string().max(40).optional().nullable(),
-    active: z.boolean().optional(),
-  }).parse(i))
+  .inputValidator((i: unknown) => unitPayloadSchema.parse(i))
   .handler(async ({ data, context }) => {
-    const payload = { name: data.name, address: data.address ?? null, phone: data.phone ?? null, active: data.active ?? true };
-    if (data.id) {
-      const { error } = await context.supabase.from("dojo_units").update(payload).eq("id", data.id);
-      if (error) throw new Error(error.message);
-      return { id: data.id };
+    const { id, ...rest } = data;
+    const payload: Record<string, any> = {};
+    for (const [k, v] of Object.entries(rest)) {
+      if (v !== undefined) payload[k] = v;
     }
-    const { data: row, error } = await context.supabase.from("dojo_units").insert({ ...payload, owner_id: ownerId(context) }).select("id").single();
+    if (payload.active === undefined) payload.active = true;
+    if (id) {
+      const { error } = await (context.supabase.from("dojo_units") as any).update(payload).eq("id", id);
+      if (error) throw new Error(error.message);
+      return { id };
+    }
+    const { data: row, error } = await (context.supabase
+      .from("dojo_units") as any).insert({ ...payload, owner_id: ownerId(context) }).select("id").single();
     if (error) throw new Error(error.message);
     return { id: row.id };
   });
 
 export const deleteDojoUnit = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("dojo_units").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
+  });
+
+export const getDojoUnit = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { data: row, error } = await context.supabase
+      .from("dojo_units").select("*").eq("id", data.id).maybeSingle();
+    if (error) throw new Error(error.message);
+    return row;
   });
 
 // ============ BELTS ============
