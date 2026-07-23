@@ -301,6 +301,18 @@ function LessonEditorPage() {
             </DialogTrigger>
             <BulkDuplicateDialog onConfirm={(input) => bulkDup.mutate(input)} pending={bulkDup.isPending} />
           </Dialog>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button size="sm" variant="default" className="bg-emerald-600 hover:bg-emerald-700">
+                <ClipboardCheck className="mr-1 h-4 w-4" /> Registrar aula ministrada
+              </Button>
+            </DialogTrigger>
+            <RegisterDeliveryDialog
+              classId={form.class_id}
+              pending={register.isPending}
+              onConfirm={(input) => register.mutate(input)}
+            />
+          </Dialog>
           <Button size="sm" onClick={() => save.mutate(form)} disabled={save.isPending}>
             <Save className="mr-1 h-4 w-4" /> Salvar agora
           </Button>
