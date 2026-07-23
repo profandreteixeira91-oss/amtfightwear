@@ -361,7 +361,7 @@ function AdminProductsPage() {
       </Card>
 
       <Card>
-        <CardHeader className="flex-row items-center justify-between">
+        <CardHeader className="flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
           <CardTitle>Catálogo</CardTitle>
           {dirtyCount > 0 && (
             <Button size="sm" onClick={saveAllDirty} disabled={saving}>
