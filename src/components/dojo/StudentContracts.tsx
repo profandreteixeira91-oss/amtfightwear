@@ -268,6 +268,45 @@ export function StudentContracts({ studentId, student }: Props) {
                 </Select>
               </div>
             </div>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3 rounded-md border p-3 bg-muted/20">
+              <div className="col-span-2 md:col-span-2">
+                <label className="text-xs font-medium text-muted-foreground">Plano contratado</label>
+                <Input value={current?.plan_name ?? ""} onChange={(e) => setCurrent({ ...current, plan_name: e.target.value })} placeholder="Ex.: Mensal Ilimitado" />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground">Valor mensal (R$)</label>
+                <Input type="number" step="0.01" min="0" value={current?.monthly_value ?? ""} onChange={(e) => setCurrent({ ...current, monthly_value: e.target.value })} placeholder="199,90" />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground">Dia venc.</label>
+                <Input type="number" min="1" max="31" value={current?.due_day ?? ""} onChange={(e) => setCurrent({ ...current, due_day: e.target.value })} placeholder="10" />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground">Forma de pagamento</label>
+                <Select value={current?.payment_method ?? ""} onValueChange={(v) => setCurrent({ ...current, payment_method: v })}>
+                  <SelectTrigger><SelectValue placeholder="Selecionar..." /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="PIX">PIX</SelectItem>
+                    <SelectItem value="Boleto">Boleto</SelectItem>
+                    <SelectItem value="Cartão de crédito">Cartão de crédito</SelectItem>
+                    <SelectItem value="Débito automático">Débito automático</SelectItem>
+                    <SelectItem value="Dinheiro">Dinheiro</SelectItem>
+                    <SelectItem value="Transferência">Transferência</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground">Início</label>
+                <Input type="date" value={current?.start_date ?? ""} onChange={(e) => setCurrent({ ...current, start_date: e.target.value })} />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground">Término</label>
+                <Input type="date" value={current?.end_date ?? ""} onChange={(e) => setCurrent({ ...current, end_date: e.target.value })} />
+              </div>
+              <div className="col-span-2 md:col-span-5 text-[11px] text-muted-foreground">
+                Estes campos preenchem automaticamente as variáveis <code>{"{{contrato_plano}}"}</code>, <code>{"{{contrato_valor}}"}</code>, <code>{"{{contrato_dia_vencimento}}"}</code>, <code>{"{{contrato_forma_pagamento}}"}</code>, <code>{"{{contrato_inicio}}"}</code> e <code>{"{{contrato_fim}}"}</code>.
+              </div>
+            </div>
             <RichTextEditor
               value={current?.content ?? ""}
               onChange={(html) => setCurrent((c: any) => ({ ...c, content: html }))}
