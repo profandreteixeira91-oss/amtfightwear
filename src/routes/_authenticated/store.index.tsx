@@ -462,38 +462,62 @@ function StoreDashboard() {
             ) : (data?.recent_orders.length ?? 0) === 0 ? (
               <div className="p-6"><EmptyState text="Nenhum pedido recente." /></div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="bg-muted/50 text-left text-xs uppercase tracking-wide text-muted-foreground">
-                    <tr>
-                      <th className="p-3">#</th>
-                      <th className="p-3">Cliente</th>
-                      <th className="p-3">Cidade</th>
-                      <th className="p-3">Pagamento</th>
-                      <th className="p-3">Status</th>
-                      <th className="p-3 text-right">Total</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data?.recent_orders.map((o) => (
-                      <tr key={o.id} className="border-t hover:bg-muted/30">
-                        <td className="p-3 font-mono text-xs">{o.order_number}</td>
-                        <td className="p-3">{o.customer}</td>
-                        <td className="p-3 text-xs text-muted-foreground">{o.city}</td>
-                        <td className="p-3">
+              <>
+                {/* Mobile: lista em cards */}
+                <ul className="divide-y md:hidden">
+                  {data?.recent_orders.map((o) => (
+                    <li key={o.id} className="flex items-center justify-between gap-3 p-3">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-[11px] text-muted-foreground">{o.order_number}</span>
                           <PaymentBadge status={o.payment_status} />
-                        </td>
-                        <td className="p-3">
-                          <Badge variant="outline" className="text-xs">{o.status}</Badge>
-                        </td>
-                        <td className="p-3 text-right font-bold">{BRL(o.total)}</td>
+                        </div>
+                        <div className="mt-0.5 truncate text-sm font-semibold">{o.customer}</div>
+                        <div className="mt-0.5 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                          <span className="truncate">{o.city || "—"}</span>
+                          <span>·</span>
+                          <Badge variant="outline" className="h-4 text-[10px]">{o.status}</Badge>
+                        </div>
+                      </div>
+                      <div className="shrink-0 text-right font-black">{BRL(o.total)}</div>
+                    </li>
+                  ))}
+                </ul>
+                {/* Desktop: tabela */}
+                <div className="hidden overflow-x-auto md:block">
+                  <table className="w-full text-sm">
+                    <thead className="bg-muted/50 text-left text-xs uppercase tracking-wide text-muted-foreground">
+                      <tr>
+                        <th className="p-3">#</th>
+                        <th className="p-3">Cliente</th>
+                        <th className="p-3">Cidade</th>
+                        <th className="p-3">Pagamento</th>
+                        <th className="p-3">Status</th>
+                        <th className="p-3 text-right">Total</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {data?.recent_orders.map((o) => (
+                        <tr key={o.id} className="border-t hover:bg-muted/30">
+                          <td className="p-3 font-mono text-xs">{o.order_number}</td>
+                          <td className="p-3">{o.customer}</td>
+                          <td className="p-3 text-xs text-muted-foreground">{o.city}</td>
+                          <td className="p-3">
+                            <PaymentBadge status={o.payment_status} />
+                          </td>
+                          <td className="p-3">
+                            <Badge variant="outline" className="text-xs">{o.status}</Badge>
+                          </td>
+                          <td className="p-3 text-right font-bold">{BRL(o.total)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             )}
           </CardContent>
+
         </Card>
 
         <Card className="shadow-sm">
