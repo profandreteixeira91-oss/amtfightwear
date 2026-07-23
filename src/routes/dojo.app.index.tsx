@@ -320,7 +320,7 @@ function DojoDashboard() {
     staleTime: 60_000,
   });
 
-  const { unitId, currentUnit } = useUnitScope();
+  const { unitId } = useUnitScope();
   const allStudents = stu.data ?? [];
   const students = unitId ? allStudents.filter((s: any) => s.unit_id === unitId) : allStudents;
   const active = students.filter((s: any) => s.status === "active").length;
