@@ -1050,7 +1050,7 @@ function NewGraduationPage() {
                         <div className="truncate text-sm font-semibold">{s.full_name}</div>
                         <div className="truncate text-[11px] text-muted-foreground">
                           {belt
-                            ? `Nova: ${belt.name}${entry.degree ? ` · ${formatDegree(entry.degree, belt.modality, belt.name)}` : ""}`
+                            ? `Nova: ${formatBeltName(belt.name, belt.modality)}${entry.degree ? ` · ${formatDegree(entry.degree, belt.modality, belt.name)}` : ""}`
                             : "Sem faixa definida"}
                         </div>
                       </div>
