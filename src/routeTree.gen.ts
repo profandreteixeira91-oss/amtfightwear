@@ -166,6 +166,9 @@ import { Route as DojoAppTeamIdRouteImport } from './routes/dojo.app.team.$id'
 import { Route as DojoAppStudentsIdRouteImport } from './routes/dojo.app.students.$id'
 import { Route as DojoAppStorePedidosRouteImport } from './routes/dojo.app.store.pedidos'
 import { Route as DojoAppStoreCarrinhoRouteImport } from './routes/dojo.app.store.carrinho'
+import { Route as DojoAppLessonPlansTechniquesRouteImport } from './routes/dojo.app.lesson-plans.techniques'
+import { Route as DojoAppLessonPlansLibraryRouteImport } from './routes/dojo.app.lesson-plans.library'
+import { Route as DojoAppLessonPlansHistoryRouteImport } from './routes/dojo.app.lesson-plans.history'
 import { Route as DojoAppLessonPlansIdRouteImport } from './routes/dojo.app.lesson-plans.$id'
 import { Route as DojoAppEvaluationsTemplatesRouteImport } from './routes/dojo.app.evaluations.templates'
 import { Route as DojoAppEvaluationsTechniquesRouteImport } from './routes/dojo.app.evaluations.techniques'
@@ -1036,6 +1039,24 @@ const DojoAppStoreCarrinhoRoute = DojoAppStoreCarrinhoRouteImport.update({
   path: '/carrinho',
   getParentRoute: () => DojoAppStoreRoute,
 } as any)
+const DojoAppLessonPlansTechniquesRoute =
+  DojoAppLessonPlansTechniquesRouteImport.update({
+    id: '/techniques',
+    path: '/techniques',
+    getParentRoute: () => DojoAppLessonPlansRoute,
+  } as any)
+const DojoAppLessonPlansLibraryRoute =
+  DojoAppLessonPlansLibraryRouteImport.update({
+    id: '/library',
+    path: '/library',
+    getParentRoute: () => DojoAppLessonPlansRoute,
+  } as any)
+const DojoAppLessonPlansHistoryRoute =
+  DojoAppLessonPlansHistoryRouteImport.update({
+    id: '/history',
+    path: '/history',
+    getParentRoute: () => DojoAppLessonPlansRoute,
+  } as any)
 const DojoAppLessonPlansIdRoute = DojoAppLessonPlansIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -1460,6 +1481,9 @@ export interface FileRoutesByFullPath {
   '/dojo/app/evaluations/techniques': typeof DojoAppEvaluationsTechniquesRoute
   '/dojo/app/evaluations/templates': typeof DojoAppEvaluationsTemplatesRouteWithChildren
   '/dojo/app/lesson-plans/$id': typeof DojoAppLessonPlansIdRoute
+  '/dojo/app/lesson-plans/history': typeof DojoAppLessonPlansHistoryRoute
+  '/dojo/app/lesson-plans/library': typeof DojoAppLessonPlansLibraryRoute
+  '/dojo/app/lesson-plans/techniques': typeof DojoAppLessonPlansTechniquesRoute
   '/dojo/app/store/carrinho': typeof DojoAppStoreCarrinhoRoute
   '/dojo/app/store/pedidos': typeof DojoAppStorePedidosRouteWithChildren
   '/dojo/app/students/$id': typeof DojoAppStudentsIdRouteWithChildren
@@ -1650,6 +1674,9 @@ export interface FileRoutesByTo {
   '/dojo/app/evaluations/settings': typeof DojoAppEvaluationsSettingsRoute
   '/dojo/app/evaluations/techniques': typeof DojoAppEvaluationsTechniquesRoute
   '/dojo/app/lesson-plans/$id': typeof DojoAppLessonPlansIdRoute
+  '/dojo/app/lesson-plans/history': typeof DojoAppLessonPlansHistoryRoute
+  '/dojo/app/lesson-plans/library': typeof DojoAppLessonPlansLibraryRoute
+  '/dojo/app/lesson-plans/techniques': typeof DojoAppLessonPlansTechniquesRoute
   '/dojo/app/store/carrinho': typeof DojoAppStoreCarrinhoRoute
   '/dojo/app/store/pedidos': typeof DojoAppStorePedidosRouteWithChildren
   '/dojo/app/students/$id': typeof DojoAppStudentsIdRouteWithChildren
@@ -1854,6 +1881,9 @@ export interface FileRoutesById {
   '/dojo/app/evaluations/techniques': typeof DojoAppEvaluationsTechniquesRoute
   '/dojo/app/evaluations/templates': typeof DojoAppEvaluationsTemplatesRouteWithChildren
   '/dojo/app/lesson-plans/$id': typeof DojoAppLessonPlansIdRoute
+  '/dojo/app/lesson-plans/history': typeof DojoAppLessonPlansHistoryRoute
+  '/dojo/app/lesson-plans/library': typeof DojoAppLessonPlansLibraryRoute
+  '/dojo/app/lesson-plans/techniques': typeof DojoAppLessonPlansTechniquesRoute
   '/dojo/app/store/carrinho': typeof DojoAppStoreCarrinhoRoute
   '/dojo/app/store/pedidos': typeof DojoAppStorePedidosRouteWithChildren
   '/dojo/app/students/$id': typeof DojoAppStudentsIdRouteWithChildren
@@ -2057,6 +2087,9 @@ export interface FileRouteTypes {
     | '/dojo/app/evaluations/techniques'
     | '/dojo/app/evaluations/templates'
     | '/dojo/app/lesson-plans/$id'
+    | '/dojo/app/lesson-plans/history'
+    | '/dojo/app/lesson-plans/library'
+    | '/dojo/app/lesson-plans/techniques'
     | '/dojo/app/store/carrinho'
     | '/dojo/app/store/pedidos'
     | '/dojo/app/students/$id'
@@ -2247,6 +2280,9 @@ export interface FileRouteTypes {
     | '/dojo/app/evaluations/settings'
     | '/dojo/app/evaluations/techniques'
     | '/dojo/app/lesson-plans/$id'
+    | '/dojo/app/lesson-plans/history'
+    | '/dojo/app/lesson-plans/library'
+    | '/dojo/app/lesson-plans/techniques'
     | '/dojo/app/store/carrinho'
     | '/dojo/app/store/pedidos'
     | '/dojo/app/students/$id'
@@ -2450,6 +2486,9 @@ export interface FileRouteTypes {
     | '/dojo/app/evaluations/techniques'
     | '/dojo/app/evaluations/templates'
     | '/dojo/app/lesson-plans/$id'
+    | '/dojo/app/lesson-plans/history'
+    | '/dojo/app/lesson-plans/library'
+    | '/dojo/app/lesson-plans/techniques'
     | '/dojo/app/store/carrinho'
     | '/dojo/app/store/pedidos'
     | '/dojo/app/students/$id'
@@ -3641,6 +3680,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DojoAppStoreCarrinhoRouteImport
       parentRoute: typeof DojoAppStoreRoute
     }
+    '/dojo/app/lesson-plans/techniques': {
+      id: '/dojo/app/lesson-plans/techniques'
+      path: '/techniques'
+      fullPath: '/dojo/app/lesson-plans/techniques'
+      preLoaderRoute: typeof DojoAppLessonPlansTechniquesRouteImport
+      parentRoute: typeof DojoAppLessonPlansRoute
+    }
+    '/dojo/app/lesson-plans/library': {
+      id: '/dojo/app/lesson-plans/library'
+      path: '/library'
+      fullPath: '/dojo/app/lesson-plans/library'
+      preLoaderRoute: typeof DojoAppLessonPlansLibraryRouteImport
+      parentRoute: typeof DojoAppLessonPlansRoute
+    }
+    '/dojo/app/lesson-plans/history': {
+      id: '/dojo/app/lesson-plans/history'
+      path: '/history'
+      fullPath: '/dojo/app/lesson-plans/history'
+      preLoaderRoute: typeof DojoAppLessonPlansHistoryRouteImport
+      parentRoute: typeof DojoAppLessonPlansRoute
+    }
     '/dojo/app/lesson-plans/$id': {
       id: '/dojo/app/lesson-plans/$id'
       path: '/$id'
@@ -4255,11 +4315,17 @@ const DojoAppEvaluationsRouteWithChildren =
 
 interface DojoAppLessonPlansRouteChildren {
   DojoAppLessonPlansIdRoute: typeof DojoAppLessonPlansIdRoute
+  DojoAppLessonPlansHistoryRoute: typeof DojoAppLessonPlansHistoryRoute
+  DojoAppLessonPlansLibraryRoute: typeof DojoAppLessonPlansLibraryRoute
+  DojoAppLessonPlansTechniquesRoute: typeof DojoAppLessonPlansTechniquesRoute
   DojoAppLessonPlansIndexRoute: typeof DojoAppLessonPlansIndexRoute
 }
 
 const DojoAppLessonPlansRouteChildren: DojoAppLessonPlansRouteChildren = {
   DojoAppLessonPlansIdRoute: DojoAppLessonPlansIdRoute,
+  DojoAppLessonPlansHistoryRoute: DojoAppLessonPlansHistoryRoute,
+  DojoAppLessonPlansLibraryRoute: DojoAppLessonPlansLibraryRoute,
+  DojoAppLessonPlansTechniquesRoute: DojoAppLessonPlansTechniquesRoute,
   DojoAppLessonPlansIndexRoute: DojoAppLessonPlansIndexRoute,
 }
 

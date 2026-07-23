@@ -39,7 +39,7 @@ function LibraryPage() {
   });
 
   const upsert = useMutation({
-    mutationFn: (payload: Parameters<typeof upsertFn>[0]["data"]) => upsertFn({ data: payload }),
+    mutationFn: (payload: ContentInput) => upsertFn({ data: payload }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["lesson-content"] });
       setOpen(false);
@@ -47,6 +47,7 @@ function LibraryPage() {
       toast.success("Conteúdo salvo");
     },
   });
+
 
   const remove = useMutation({
     mutationFn: (id: string) => deleteFn({ data: { id } }),
