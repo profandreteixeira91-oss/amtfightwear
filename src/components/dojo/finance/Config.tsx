@@ -131,33 +131,260 @@ export function FinanceCategories() {
 }
 
 // ============ Relatórios ============
+type ReportDataset = {
+  title: string;
+  subtitle?: string;
+  columns: { key: string; label: string; num?: boolean; money?: boolean }[];
+  rows: Record<string, any>[];
+  summary?: { label: string; value: string }[];
+};
+
+function buildReport(id: string, k: ReturnType<typeof useFinanceKpis>): ReportDataset {
+  const today = new Date();
+  const inv = k.invoices as any[];
+  const exp = k.expenses as any[];
+  const fmtDate = (d: any) =>
+    d ? new Date(d).toLocaleDateString("pt-BR") : "";
+  const statusLabel = (s: string) =>
+    ({ paid: "Paga", pending: "Pendente", overdue: "Atrasada", cancelled: "Cancelada" } as any)[s] ?? s;
+
+  switch (id) {
+    case "receitas": {
+      const rows = inv
+        .filter((r) => r.status === "paid")
+        .map((r) => ({
+          aluno: r.student?.full_name ?? "",
+          descricao: r.description ?? "",
+          valor: Number(r.amount || 0),
+          vencimento: fmtDate(r.due_date),
+          pagamento: fmtDate(r.paid_at),
+          metodo: r.payment_method ?? "",
+        }));
+      return {
+        title: "Relatório de Receitas",
+        subtitle: "Cobranças recebidas",
+        columns: [
+          { key: "aluno", label: "Aluno" },
+          { key: "descricao", label: "Descrição" },
+          { key: "valor", label: "Valor", num: true, money: true },
+          { key: "vencimento", label: "Vencimento" },
+          { key: "pagamento", label: "Pagamento" },
+          { key: "metodo", label: "Método" },
+        ],
+        rows,
+        summary: [
+          { label: "Total recebido", value: brl(rows.reduce((s, r) => s + r.valor, 0)) },
+          { label: "Nº de cobranças", value: String(rows.length) },
+        ],
+      };
+    }
+    case "despesas": {
+      const rows = exp.map((r) => ({
+        descricao: r.description,
+        categoria: r.category ?? "",
+        valor: Number(r.amount || 0),
+        vencimento: fmtDate(r.due_date),
+        status: statusLabel(r.status),
+        pagamento: fmtDate(r.paid_at),
+      }));
+      return {
+        title: "Relatório de Despesas",
+        subtitle: "Saídas por categoria",
+        columns: [
+          { key: "descricao", label: "Descrição" },
+          { key: "categoria", label: "Categoria" },
+          { key: "valor", label: "Valor", num: true, money: true },
+          { key: "vencimento", label: "Vencimento" },
+          { key: "pagamento", label: "Pagamento" },
+          { key: "status", label: "Status" },
+        ],
+        rows,
+        summary: [
+          { label: "Total pago", value: brl(rows.filter((r) => r.status === "Paga").reduce((s, r) => s + r.valor, 0)) },
+          { label: "Total pendente", value: brl(rows.filter((r) => r.status !== "Paga" && r.status !== "Cancelada").reduce((s, r) => s + r.valor, 0)) },
+        ],
+      };
+    }
+    case "fluxo": {
+      const rows = k.months.map((m) => ({
+        mes: m.label,
+        receitas: m.receitas,
+        despesas: m.despesas,
+        saldo: m.saldo,
+      }));
+      return {
+        title: "Fluxo de Caixa",
+        subtitle: "Entradas × saídas nos últimos 12 meses",
+        columns: [
+          { key: "mes", label: "Mês" },
+          { key: "receitas", label: "Receitas", num: true, money: true },
+          { key: "despesas", label: "Despesas", num: true, money: true },
+          { key: "saldo", label: "Saldo", num: true, money: true },
+        ],
+        rows,
+      };
+    }
+    case "inadim": {
+      const rows = inv
+        .filter((r) => r.status !== "paid" && r.status !== "cancelled" && r.due_date && new Date(r.due_date) < today)
+        .map((r) => {
+          const diasAtraso = Math.floor((today.getTime() - new Date(r.due_date).getTime()) / 86400000);
+          return {
+            aluno: r.student?.full_name ?? "",
+            descricao: r.description ?? "",
+            valor: Number(r.amount || 0),
+            vencimento: fmtDate(r.due_date),
+            dias_atraso: diasAtraso,
+          };
+        })
+        .sort((a, b) => b.dias_atraso - a.dias_atraso);
+      return {
+        title: "Inadimplência",
+        subtitle: "Alunos com cobranças em atraso",
+        columns: [
+          { key: "aluno", label: "Aluno" },
+          { key: "descricao", label: "Descrição" },
+          { key: "valor", label: "Valor", num: true, money: true },
+          { key: "vencimento", label: "Vencimento" },
+          { key: "dias_atraso", label: "Dias em atraso", num: true },
+        ],
+        rows,
+        summary: [
+          { label: "Total em atraso", value: brl(rows.reduce((s, r) => s + r.valor, 0)) },
+          { label: "Cobranças atrasadas", value: String(rows.length) },
+          { label: "Índice de inadimplência", value: `${k.overdueRate.toFixed(1)}%` },
+        ],
+      };
+    }
+    case "modalidade":
+    case "professor":
+    case "turma": {
+      const keyMap: any = {
+        modalidade: (r: any) => r.student?.anamnesis?.modality ?? r.plan?.name ?? "—",
+        professor: (r: any) => r.class?.teacher?.full_name ?? r.teacher?.full_name ?? "—",
+        turma: (r: any) => r.class?.name ?? r.enrollment?.class?.name ?? "—",
+      };
+      const label: any = { modalidade: "Modalidade", professor: "Professor", turma: "Turma" };
+      const getKey = keyMap[id];
+      const agg = new Map<string, { total: number; count: number }>();
+      inv.filter((r) => r.status === "paid").forEach((r) => {
+        const k2 = String(getKey(r));
+        const cur = agg.get(k2) ?? { total: 0, count: 0 };
+        cur.total += Number(r.amount || 0);
+        cur.count += 1;
+        agg.set(k2, cur);
+      });
+      const rows = Array.from(agg.entries())
+        .map(([nome, v]) => ({ nome, cobrancas: v.count, total: v.total }))
+        .sort((a, b) => b.total - a.total);
+      return {
+        title: `Receita por ${label[id]}`,
+        subtitle: "Baseado em cobranças pagas",
+        columns: [
+          { key: "nome", label: label[id] },
+          { key: "cobrancas", label: "Cobranças", num: true },
+          { key: "total", label: "Total recebido", num: true, money: true },
+        ],
+        rows,
+      };
+    }
+    case "cc": {
+      const agg = new Map<string, number>();
+      exp.forEach((r) => {
+        const k2 = String((r as any).cost_center ?? r.category ?? "—");
+        agg.set(k2, (agg.get(k2) ?? 0) + Number(r.amount || 0));
+      });
+      const rows = Array.from(agg.entries())
+        .map(([centro, total]) => ({ centro, total }))
+        .sort((a, b) => b.total - a.total);
+      return {
+        title: "Rateio por Centro de Custo",
+        subtitle: "Distribuição de despesas",
+        columns: [
+          { key: "centro", label: "Centro de custo" },
+          { key: "total", label: "Total", num: true, money: true },
+        ],
+        rows,
+      };
+    }
+    default:
+      return { title: "Relatório", columns: [], rows: [] };
+  }
+}
+
+function downloadFile(name: string, content: string | Blob, type: string) {
+  const blob = content instanceof Blob ? content : new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = name;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function csvCell(v: any) {
+  const s = v == null ? "" : String(v);
+  return /[",\n;]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
+function exportReportCsv(ds: ReportDataset, fileName: string) {
+  const header = ds.columns.map((c) => csvCell(c.label)).join(";");
+  const lines = ds.rows.map((r) =>
+    ds.columns
+      .map((c) => {
+        const v = r[c.key];
+        if (c.money && typeof v === "number") return csvCell(v.toFixed(2).replace(".", ","));
+        return csvCell(v);
+      })
+      .join(";"),
+  );
+  const bom = "\uFEFF"; // Excel/BRL friendly
+  downloadFile(`${fileName}.csv`, bom + [header, ...lines].join("\n"), "text/csv;charset=utf-8");
+}
+
+function exportReportPdf(ds: ReportDataset, branding: any) {
+  const summaryHtml = ds.summary?.length
+    ? `<div class="kpi-grid" style="grid-template-columns:repeat(${Math.min(4, ds.summary.length)},minmax(0,1fr))">${ds.summary
+        .map((s) => `<div class="kpi"><div class="label">${escapeHtml(s.label)}</div><div class="value">${escapeHtml(s.value)}</div></div>`)
+        .join("")}</div>`
+    : "";
+  const thead = ds.columns
+    .map((c) => `<th${c.num ? ' class="num"' : ""}>${escapeHtml(c.label)}</th>`)
+    .join("");
+  const tbody = ds.rows.length
+    ? ds.rows
+        .map(
+          (r) =>
+            `<tr>${ds.columns
+              .map((c) => {
+                const v = r[c.key];
+                const disp = c.money && typeof v === "number" ? brl(v) : v == null ? "" : String(v);
+                return `<td${c.num ? ' class="num"' : ""}>${escapeHtml(disp)}</td>`;
+              })
+              .join("")}</tr>`,
+        )
+        .join("")
+    : `<tr><td colspan="${ds.columns.length}" style="text-align:center;color:#94a3b8;padding:12px">Sem registros no período.</td></tr>`;
+
+  openBrandedPrintDocument({
+    branding,
+    title: ds.title,
+    subtitle: ds.subtitle ?? new Date().toLocaleDateString("pt-BR", { month: "long", year: "numeric" }),
+    sections: [
+      ...(summaryHtml ? [{ title: "Resumo", html: summaryHtml }] : []),
+      {
+        title: "Detalhamento",
+        html: `<table class="data"><thead><tr>${thead}</tr></thead><tbody>${tbody}</tbody></table>`,
+      },
+    ],
+    footerLeft: "Relatório financeiro · uso interno",
+    footerRight: "AMT Dojo Manager",
+  });
+}
+
 export function FinanceReports() {
   const k = useFinanceKpis();
   const { data: branding } = useDojoBranding();
-
-  const download = (name: string, content: string, type: string) => {
-    const blob = new Blob([content], { type });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = name;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const exportCsv = (kind: "invoices" | "expenses") => {
-    const rows = kind === "invoices" ? k.invoices : k.expenses;
-    const header = kind === "invoices"
-      ? "aluno,descricao,valor,vencimento,status,pagamento"
-      : "descricao,categoria,valor,vencimento,status,pagamento";
-    const lines = rows.map((r: any) =>
-      kind === "invoices"
-        ? [r.student?.full_name ?? "", r.description ?? "", r.amount, r.due_date, r.status, r.paid_at ?? ""].join(",")
-        : [r.description, r.category ?? "", r.amount, r.due_date, r.status, r.paid_at ?? ""].join(","),
-    );
-    download(`${kind}-${new Date().toISOString().slice(0, 10)}.csv`, [header, ...lines].join("\n"), "text/csv");
-    toast.success("Relatório exportado");
-  };
 
   const reports = [
     { id: "receitas", name: "Receitas", desc: "Cobranças recebidas por período" },
@@ -170,43 +397,93 @@ export function FinanceReports() {
     { id: "cc", name: "Centro de custo", desc: "Rateio entre unidades" },
   ];
 
+  const runReport = (id: string, format: "pdf" | "csv") => {
+    const ds = buildReport(id, k);
+    if (format === "csv") {
+      const fname = `${id}-${new Date().toISOString().slice(0, 10)}`;
+      exportReportCsv(ds, fname);
+      toast.success("CSV exportado");
+    } else {
+      exportReportPdf(ds, branding);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <Card className="p-4 border border-[color:var(--dojo-border)]">
         <div className="flex items-center gap-2 mb-3">
           <Sparkles className="h-4 w-4 text-primary" />
-          <h3 className="font-display font-bold text-sm">Exportar dados</h3>
+          <h3 className="font-display font-bold text-sm">Resumo executivo</h3>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button size="sm" variant="outline" onClick={() => exportCsv("invoices")}>
-            <FileSpreadsheet className="h-4 w-4 mr-1" /> Cobranças (CSV)
-          </Button>
-          <Button size="sm" variant="outline" onClick={() => exportCsv("expenses")}>
-            <FileSpreadsheet className="h-4 w-4 mr-1" /> Despesas (CSV)
-          </Button>
           <Button size="sm" variant="outline" onClick={() => printFinanceReport(k, branding)}>
-            <FileText className="h-4 w-4 mr-1" /> Imprimir / PDF
+            <FileText className="h-4 w-4 mr-1" /> PDF completo
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              const ds: ReportDataset = {
+                title: "Resumo executivo",
+                columns: [
+                  { key: "indicador", label: "Indicador" },
+                  { key: "valor", label: "Valor" },
+                ],
+                rows: [
+                  { indicador: "Receitas do mês", valor: brl(k.paidThisMonth) },
+                  { indicador: "Despesas do mês", valor: brl(k.expensesThisMonth) },
+                  { indicador: "Lucro líquido", valor: brl(k.netProfit) },
+                  { indicador: "MRR (30d)", valor: brl(k.mrr) },
+                  { indicador: "A receber", valor: brl(k.pendingReceivables) },
+                  { indicador: "A pagar", valor: brl(k.pendingPayables) },
+                  { indicador: "Ticket médio", valor: brl(k.avgTicket) },
+                  { indicador: "Inadimplência", valor: `${k.overdueRate.toFixed(1)}%` },
+                ],
+              };
+              exportReportCsv(ds, `resumo-executivo-${new Date().toISOString().slice(0, 10)}`);
+              toast.success("CSV exportado");
+            }}
+          >
+            <FileSpreadsheet className="h-4 w-4 mr-1" /> Resumo (CSV)
           </Button>
         </div>
       </Card>
 
       <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
         {reports.map((r) => (
-          <Card key={r.id} className="p-4 border border-[color:var(--dojo-border)] hover:border-[color:var(--dojo-border-strong)] transition-colors">
+          <Card
+            key={r.id}
+            className="p-4 border border-[color:var(--dojo-border)] hover:border-[color:var(--dojo-border-strong)] transition-colors flex flex-col"
+          >
             <div className="flex items-center justify-between mb-2">
               <h4 className="font-semibold text-sm">{r.name}</h4>
               <Download className="h-3.5 w-3.5 text-muted-foreground" />
             </div>
-            <p className="text-xs text-muted-foreground mb-3">{r.desc}</p>
-            <Button size="sm" variant="outline" className="w-full h-8 text-xs" onClick={() => exportCsv("invoices")}>
-              Gerar relatório
-            </Button>
+            <p className="text-xs text-muted-foreground mb-3 flex-1">{r.desc}</p>
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 text-xs px-2"
+                onClick={() => runReport(r.id, "pdf")}
+              >
+                <FileText className="h-3.5 w-3.5 mr-1" /> PDF
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 text-xs px-2"
+                onClick={() => runReport(r.id, "csv")}
+              >
+                <FileSpreadsheet className="h-3.5 w-3.5 mr-1" /> CSV
+              </Button>
+            </div>
           </Card>
         ))}
       </div>
 
       <Card className="p-4 border border-[color:var(--dojo-border)]">
-        <h3 className="font-display font-bold text-sm mb-3">Resumo executivo</h3>
+        <h3 className="font-display font-bold text-sm mb-3">Indicadores</h3>
         <div className="grid gap-3 md:grid-cols-4">
           <Kv label="Receitas mês" value={brl(k.paidThisMonth)} />
           <Kv label="Despesas mês" value={brl(k.expensesThisMonth)} />
@@ -217,6 +494,7 @@ export function FinanceReports() {
     </div>
   );
 }
+
 function Kv({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg border border-[color:var(--dojo-border)] p-3">
