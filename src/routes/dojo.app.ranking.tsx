@@ -139,12 +139,14 @@ function RankingPage() {
           {[1, 0, 2].map((order, i) => {
             const p = podium[order];
             if (!p) return <div key={i} />;
-            const styleByRank = [
+            // Medalha segue a ordem de exibição (sempre distinta), mesmo em empate.
+            const medalRank = order + 1;
+            const styleByMedal = [
               { border: "border-amber-400", bg: "bg-gradient-to-br from-amber-100 to-amber-50 dark:from-amber-950/40 dark:to-transparent", label: "text-amber-700 dark:text-amber-300", medal: "🥇" },
               { border: "border-slate-300", bg: "bg-gradient-to-br from-slate-100 to-slate-50 dark:from-slate-800/40 dark:to-transparent", label: "text-slate-600 dark:text-slate-300", medal: "🥈" },
               { border: "border-orange-400", bg: "bg-gradient-to-br from-orange-100 to-orange-50 dark:from-orange-950/40 dark:to-transparent", label: "text-orange-700 dark:text-orange-300", medal: "🥉" },
             ];
-            const styles = styleByRank[Math.min(Math.max(p.rank, 1), 3) - 1];
+            const styles = styleByMedal[medalRank - 1];
             const raised = order === 0 ? "md:-translate-y-2" : "";
             return (
               <Card key={p.id} className={`${styles.border} ${styles.bg} ${raised} border-2 transition`}>
@@ -161,6 +163,7 @@ function RankingPage() {
           })}
         </div>
       )}
+
 
       {/* Table */}
       <Card>
