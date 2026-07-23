@@ -1210,17 +1210,33 @@ export const saveDojoExpense = createServerFn({ method: "POST" })
     due_date: z.string(),
     status: z.enum(["pending","paid","overdue"]).optional(),
     paid_at: z.string().optional().nullable(),
+    recurrence: z.enum(["none","monthly","quarterly","yearly"]).optional(),
+    installments: z.number().int().min(1).max(60).optional(),
   }).parse(i))
   .handler(async ({ data, context }) => {
-    const { id, ...rest } = data;
+    const { id, recurrence, installments, ...rest } = data;
     if (id) {
       const { error } = await context.supabase.from("dojo_expenses").update(rest).eq("id", id);
       if (error) throw new Error(error.message);
       return { id };
     }
-    const { data: row, error } = await context.supabase.from("dojo_expenses").insert({ ...rest, owner_id: ownerId(context) }).select("id").single();
+    const rec = recurrence ?? "none";
+    const count = rec === "none" ? 1 : Math.max(1, installments ?? 12);
+    if (count <= 1) {
+      const { data: row, error } = await context.supabase.from("dojo_expenses").insert({ ...rest, owner_id: ownerId(context) }).select("id").single();
+      if (error) throw new Error(error.message);
+      return { id: row.id, created: 1 };
+    }
+    const monthsStep = rec === "monthly" ? 1 : rec === "quarterly" ? 3 : 12;
+    const base = new Date(rest.due_date + "T00:00:00");
+    const rows = Array.from({ length: count }, (_, idx) => {
+      const d = new Date(base);
+      d.setMonth(d.getMonth() + monthsStep * idx);
+      return { ...rest, due_date: d.toISOString().slice(0, 10), owner_id: ownerId(context) };
+    });
+    const { error } = await context.supabase.from("dojo_expenses").insert(rows);
     if (error) throw new Error(error.message);
-    return { id: row.id };
+    return { created: rows.length };
   });
 
 export const deleteDojoExpense = createServerFn({ method: "POST" })
