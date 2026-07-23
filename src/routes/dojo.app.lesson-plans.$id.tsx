@@ -507,3 +507,77 @@ function LessonEditorPage() {
     </div>
   );
 }
+
+function SaveTemplateDialog({ defaultName, onSave }: { defaultName: string; onSave: (name: string) => void }) {
+  const [name, setName] = useState(defaultName || "Novo modelo");
+  return (
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle>Salvar como modelo</DialogTitle>
+      </DialogHeader>
+      <div className="space-y-2">
+        <Label>Nome do modelo</Label>
+        <Input value={name} onChange={(e) => setName(e.target.value)} />
+        <p className="text-xs text-muted-foreground">
+          O modelo copia estrutura de blocos, modalidade, cor e objetivos. Reutilize ao criar novas aulas.
+        </p>
+      </div>
+      <DialogFooter>
+        <Button onClick={() => onSave(name)} disabled={!name.trim()}>
+          Salvar modelo
+        </Button>
+      </DialogFooter>
+    </DialogContent>
+  );
+}
+
+function BulkDuplicateDialog({
+  onConfirm,
+  pending,
+}: {
+  onConfirm: (input: { mode: "weekly" | "biweekly" | "monthly"; occurrences: number }) => void;
+  pending: boolean;
+}) {
+  const [mode, setMode] = useState<"weekly" | "biweekly" | "monthly">("weekly");
+  const [occurrences, setOccurrences] = useState(4);
+  return (
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle>Duplicar em massa</DialogTitle>
+      </DialogHeader>
+      <div className="space-y-3">
+        <div>
+          <Label>Frequência</Label>
+          <Select value={mode} onValueChange={(v) => setMode(v as typeof mode)}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="weekly">Semanal (mesmo dia da semana)</SelectItem>
+              <SelectItem value="biweekly">Quinzenal</SelectItem>
+              <SelectItem value="monthly">Mensal</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label>Quantidade de repetições</Label>
+          <Input
+            type="number"
+            min={1}
+            max={52}
+            value={occurrences}
+            onChange={(e) => setOccurrences(Math.max(1, Math.min(52, Number(e.target.value) || 1)))}
+          />
+          <p className="mt-1 text-xs text-muted-foreground">
+            Cria {occurrences} aulas idênticas a esta, mantendo horário, blocos e turma.
+          </p>
+        </div>
+      </div>
+      <DialogFooter>
+        <Button onClick={() => onConfirm({ mode, occurrences })} disabled={pending}>
+          {pending ? "Duplicando…" : "Duplicar aulas"}
+        </Button>
+      </DialogFooter>
+    </DialogContent>
+  );
+}
