@@ -660,3 +660,116 @@ function BulkDuplicateDialog({
     </DialogContent>
   );
 }
+
+function RegisterDeliveryDialog({
+  classId,
+  pending,
+  onConfirm,
+}: {
+  classId: string | null;
+  pending: boolean;
+  onConfirm: (input: { presentStudentIds: string[]; absentStudentIds: string[]; notes: string; mediaUrls: string[] }) => void;
+}) {
+  const studentsFn = useServerFn(listClassStudentsForAttendance);
+  const { data: students } = useQuery({
+    queryKey: ["lesson-plans", "class-students", classId ?? "none"],
+    queryFn: () => (classId ? studentsFn({ data: { classId } }) : Promise.resolve([])),
+    enabled: !!classId,
+  });
+  const [present, setPresent] = useState<Record<string, boolean>>({});
+  const [notes, setNotes] = useState("");
+  const [media, setMedia] = useState("");
+
+  useEffect(() => {
+    if (students) {
+      const initial: Record<string, boolean> = {};
+      for (const s of students) initial[s.id] = true;
+      setPresent(initial);
+    }
+  }, [students]);
+
+  const toggleAll = (v: boolean) => {
+    const next: Record<string, boolean> = {};
+    for (const s of students ?? []) next[s.id] = v;
+    setPresent(next);
+  };
+
+  const presentIds = Object.entries(present).filter(([, v]) => v).map(([k]) => k);
+  const absentIds = (students ?? []).map((s) => s.id).filter((id) => !present[id]);
+
+  return (
+    <DialogContent className="max-w-2xl">
+      <DialogHeader>
+        <DialogTitle>Registrar aula ministrada</DialogTitle>
+      </DialogHeader>
+      <div className="space-y-4">
+        {!classId ? (
+          <div className="rounded border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
+            Vincule esta aula a uma turma para carregar a lista de alunos. Você ainda pode registrar sem chamada.
+          </div>
+        ) : !students?.length ? (
+          <div className="rounded border border-dashed p-4 text-center text-xs text-muted-foreground">
+            Nenhum aluno matriculado nesta turma.
+          </div>
+        ) : (
+          <div>
+            <div className="mb-2 flex items-center justify-between">
+              <div className="text-sm font-medium">Chamada ({presentIds.length}/{students.length} presentes)</div>
+              <div className="flex gap-1">
+                <Button size="sm" variant="ghost" onClick={() => toggleAll(true)}>Todos</Button>
+                <Button size="sm" variant="ghost" onClick={() => toggleAll(false)}>Ninguém</Button>
+              </div>
+            </div>
+            <div className="max-h-72 divide-y overflow-y-auto rounded border">
+              {students.map((s) => (
+                <label key={s.id} className="flex cursor-pointer items-center gap-3 p-2 hover:bg-muted/50">
+                  <Checkbox
+                    checked={!!present[s.id]}
+                    onCheckedChange={(v) => setPresent({ ...present, [s.id]: !!v })}
+                  />
+                  <div className="flex-1 text-sm">
+                    <div className="font-medium">{s.full_name}</div>
+                    {s.modality ? <div className="text-[11px] text-muted-foreground">{s.modality}</div> : null}
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
+        <div>
+          <Label>Observações da aula</Label>
+          <Textarea
+            rows={3}
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="O que foi trabalhado, destaques, alunos em evolução, tarefas para casa…"
+          />
+        </div>
+        <div>
+          <Label>Mídia (URLs separadas por vírgula)</Label>
+          <Input
+            value={media}
+            onChange={(e) => setMedia(e.target.value)}
+            placeholder="https://…foto1.jpg, https://…video.mp4"
+          />
+        </div>
+      </div>
+      <DialogFooter>
+        <Button
+          onClick={() =>
+            onConfirm({
+              presentStudentIds: presentIds,
+              absentStudentIds: absentIds,
+              notes,
+              mediaUrls: media.split(",").map((s) => s.trim()).filter(Boolean),
+            })
+          }
+          disabled={pending}
+          className="bg-emerald-600 hover:bg-emerald-700"
+        >
+          {pending ? "Registrando…" : "Registrar aula"}
+        </Button>
+      </DialogFooter>
+    </DialogContent>
+  );
+}
