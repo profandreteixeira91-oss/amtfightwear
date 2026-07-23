@@ -226,7 +226,7 @@ export function StudentContracts({ studentId, student }: Props) {
 
       {/* Editor */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-6xl w-[calc(100vw-2rem)] p-0 gap-0 overflow-hidden max-h-[92vh] flex flex-col">
+        <DialogContent className="!max-w-none w-screen h-screen max-h-screen rounded-none border-0 p-0 gap-0 overflow-hidden flex flex-col z-[80] left-0 top-0 translate-x-0 translate-y-0 sm:rounded-none">
           <DialogHeader className="px-6 py-4 border-b bg-muted/30">
             <div className="flex items-center justify-between gap-3">
               <DialogTitle className="flex items-center gap-2">
