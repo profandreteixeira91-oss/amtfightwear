@@ -361,7 +361,8 @@ function LeadsPage() {
       {error && <ErrorState message={String(error)} onRetry={() => refetch()} />}
 
       <Card>
-        <CardContent className="p-0">
+        <CardContent className="p-0 overflow-x-auto">
+          <div className="min-w-[640px] md:min-w-0">
           {isLoading ? (
             <div className="space-y-2 p-4">
               {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-12" />)}
