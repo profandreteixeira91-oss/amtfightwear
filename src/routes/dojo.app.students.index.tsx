@@ -30,7 +30,7 @@ import { useDojoBranding } from "@/hooks/useDojoBranding";
 import { downloadStudentsTemplate, parseStudentsFile, type ParsedStudentRow } from "@/lib/dojo/students-xlsx";
 import { printAllStudentSummaries } from "@/lib/dojo/students-bulk-print";
 import { toast } from "sonner";
-import { Trash2, Pencil, UserPlus, FileDown, Upload, Printer, User, MapPin, Phone, Award, Wallet, HeartPulse, Camera, ShieldCheck, FileText } from "lucide-react";
+import { Trash2, Pencil, UserPlus, FileDown, Upload, Printer, User, MapPin, Phone, Award, Wallet, HeartPulse, Camera, ShieldCheck, FileText, Users, UserCheck, Snowflake, UserX, Search, Sparkles } from "lucide-react";
 
 
 export const Route = createFileRoute("/dojo/app/students/")({
