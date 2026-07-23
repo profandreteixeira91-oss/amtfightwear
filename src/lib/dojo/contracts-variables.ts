@@ -137,6 +137,10 @@ export function buildContractValues(ctx: ContractContext): Record<string, string
     contrato_dia_vencimento: c.due_day ? String(c.due_day) : "",
     contrato_inicio: fmtDate(c.start_date),
     contrato_fim: fmtDate(c.end_date),
+    contrato_prazo: c.term ?? "Indeterminado",
+    contrato_prazo_aviso_dias: c.notice_days ? String(c.notice_days) : "30",
+    contrato_foro: c.forum ?? a.city ?? "",
+    contrato_autoriza_imagem: c.image_authorization ? "AUTORIZO" : "NÃO AUTORIZO",
   };
 }
 
