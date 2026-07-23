@@ -183,26 +183,71 @@ function NewGraduationPage() {
     if (!beltId) return toast.error("Selecione uma faixa padrão");
     setPerStudent(prev => {
       const next = { ...prev };
-      for (const id of selectedStudents) next[id] = { beltId, degree };
+      for (const id of selectedStudents) {
+        next[id] = { beltId, degree, fee: String(priceByBelt[beltId] ?? ""), paid: prev[id]?.paid ?? false };
+      }
       return next;
     });
     toast.success("Faixa aplicada a todos os alunos");
   };
 
   const setStudentBelt = (studentId: string, newBeltId: string) => {
-    setPerStudent(prev => ({ ...prev, [studentId]: { beltId: newBeltId, degree: 0 } }));
+    setPerStudent(prev => ({
+      ...prev,
+      [studentId]: {
+        beltId: newBeltId,
+        degree: 0,
+        fee: String(priceByBelt[newBeltId] ?? ""),
+        paid: prev[studentId]?.paid ?? false,
+      },
+    }));
   };
   const setStudentDegree = (studentId: string, newDegree: number) => {
     setPerStudent(prev => ({
       ...prev,
-      [studentId]: { beltId: prev[studentId]?.beltId ?? "", degree: newDegree },
+      [studentId]: {
+        beltId: prev[studentId]?.beltId ?? "",
+        degree: newDegree,
+        fee: prev[studentId]?.fee,
+        paid: prev[studentId]?.paid,
+      },
+    }));
+  };
+  const setStudentFee = (studentId: string, fee: string) => {
+    setPerStudent(prev => ({
+      ...prev,
+      [studentId]: {
+        beltId: prev[studentId]?.beltId ?? "",
+        degree: prev[studentId]?.degree ?? 0,
+        fee,
+        paid: prev[studentId]?.paid ?? false,
+      },
+    }));
+  };
+  const setStudentPaid = (studentId: string, paid: boolean) => {
+    setPerStudent(prev => ({
+      ...prev,
+      [studentId]: {
+        beltId: prev[studentId]?.beltId ?? "",
+        degree: prev[studentId]?.degree ?? 0,
+        fee: prev[studentId]?.fee,
+        paid,
+      },
     }));
   };
 
   const submitGrad = async () => {
     const items = Array.from(selectedStudents).map(sid => {
       const p = perStudent[sid] ?? { beltId, degree };
-      return { student_id: sid, belt_id: p.beltId, degree: p.degree };
+      const rawFee = (p.fee ?? "").toString().replace(",", ".").trim();
+      const feeNum = rawFee === "" ? null : Number(rawFee);
+      return {
+        student_id: sid,
+        belt_id: p.beltId,
+        degree: p.degree,
+        fee_amount: feeNum != null && !Number.isNaN(feeNum) ? feeNum : null,
+        paid: !!p.paid,
+      };
     });
     const missing = items.filter(i => !i.belt_id);
     if (missing.length > 0) {
@@ -224,9 +269,15 @@ function NewGraduationPage() {
         notes: notes || null,
       }});
 
-      toast.success(`${res.count} graduação(ões) registrada(s)`);
+      const invCount = (res as any).invoices?.length ?? 0;
+      toast.success(
+        `${res.count} graduação(ões) registrada(s)` +
+        (invCount > 0 ? ` · ${invCount} cobrança(s) lançada(s) no financeiro` : ""),
+      );
       setRegistered(res.graduations ?? []);
       qc.invalidateQueries({ queryKey: ["dojo-students"] });
+      qc.invalidateQueries({ queryKey: ["dojo-invoices"] });
+      qc.invalidateQueries({ queryKey: ["finance"] });
       setStep("cert");
     } catch (e: any) { toast.error(e.message ?? "Erro ao registrar"); }
   };
