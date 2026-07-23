@@ -396,48 +396,82 @@ function StudentsPage() {
   };
 
 
-  return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <h2 className="text-lg font-semibold">Alunos</h2>
-          <p className="text-xs text-muted-foreground">
-            {filtered.length} {filtered.length === 1 ? "aluno encontrado" : "alunos encontrados"}
-            {q.data && q.data.length !== filtered.length ? ` · ${q.data.length} no total` : ""}
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".xlsx,.xls,.csv"
-            className="hidden"
-            onChange={(e) => {
-              const f = e.target.files?.[0];
-              if (f) onPickFile(f);
-            }}
-          />
-          <Button variant="outline" onClick={() => downloadStudentsTemplate()}>
-            <FileDown className="h-4 w-4 mr-1" /> Modelo XLSX
-          </Button>
-          <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
-            <Upload className="h-4 w-4 mr-1" /> Importar planilha
-          </Button>
-          <Button variant="outline" onClick={onPrintAll}>
-            <Printer className="h-4 w-4 mr-1" /> Imprimir fichas
-          </Button>
-          <Button variant="outline" asChild>
-            <Link to="/dojo/app/contracts">
-              <FileText className="h-4 w-4 mr-1" /> Central de Contratos
-            </Link>
-          </Button>
+  const allStudents = (q.data ?? []) as any[];
+  const kpiTotal = allStudents.length;
+  const kpiActive = allStudents.filter((s) => s.status === "active").length;
+  const kpiFrozen = allStudents.filter((s) => s.status === "frozen").length;
+  const kpiInactive = allStudents.filter((s) => s.status === "inactive").length;
 
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={openNew}>
-                <UserPlus className="h-4 w-4 mr-1" /> Novo aluno
-              </Button>
-            </DialogTrigger>
+  return (
+    <div className="space-y-6">
+      {/* Premium Hero */}
+      <div className="relative overflow-hidden rounded-3xl border border-red-950/40 bg-gradient-to-br from-[#1a0508] via-[#0f0304] to-black text-white shadow-2xl">
+        <div
+          className="absolute inset-0 opacity-[0.08] pointer-events-none"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)",
+            backgroundSize: "44px 44px",
+          }}
+        />
+        <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-red-600/25 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-red-900/30 blur-3xl pointer-events-none" />
+
+        <div className="relative grid gap-6 p-6 md:p-8 md:grid-cols-[1fr_auto] md:items-start">
+          <div className="flex items-start gap-4 min-w-0">
+            <div className="relative shrink-0">
+              <div className="absolute inset-0 rounded-2xl bg-red-500/40 blur-xl" />
+              <div className="relative grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-red-500 to-red-800 shadow-lg shadow-red-950/50 ring-1 ring-white/10">
+                <Users className="h-7 w-7 text-white" />
+              </div>
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-red-300/80">
+                <Sparkles className="h-3 w-3" /> Gestão de Alunos
+              </div>
+              <h1 className="mt-1 font-display text-3xl md:text-4xl font-black tracking-tight text-white">
+                Alunos do Dojo
+              </h1>
+              <p className="mt-2 max-w-2xl text-sm text-white/70">
+                {filtered.length} {filtered.length === 1 ? "aluno encontrado" : "alunos encontrados"}
+                {q.data && q.data.length !== filtered.length ? ` de ${q.data.length} no total` : ""}
+                {" · "}Cadastro completo, anamnese, graduações e contratos em um único lugar.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2 md:justify-end">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".xlsx,.xls,.csv"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) onPickFile(f);
+              }}
+            />
+            <Button size="sm" variant="outline" className="h-9 rounded-full border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white" onClick={() => downloadStudentsTemplate()}>
+              <FileDown className="h-4 w-4 mr-1" /> Modelo XLSX
+            </Button>
+            <Button size="sm" variant="outline" className="h-9 rounded-full border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white" onClick={() => fileInputRef.current?.click()}>
+              <Upload className="h-4 w-4 mr-1" /> Importar
+            </Button>
+            <Button size="sm" variant="outline" className="h-9 rounded-full border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white" onClick={onPrintAll}>
+              <Printer className="h-4 w-4 mr-1" /> Imprimir fichas
+            </Button>
+            <Button size="sm" variant="outline" className="h-9 rounded-full border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white" asChild>
+              <Link to="/dojo/app/contracts">
+                <FileText className="h-4 w-4 mr-1" /> Contratos
+              </Link>
+            </Button>
+
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm" onClick={openNew} className="h-9 rounded-full bg-white px-4 font-semibold text-red-700 shadow-lg shadow-red-950/40 hover:bg-white/95">
+                  <UserPlus className="h-4 w-4 mr-1" /> Novo aluno
+                </Button>
+              </DialogTrigger>
 
             <DialogContent className="max-w-5xl w-[calc(100vw-2rem)] p-0 gap-0 overflow-hidden">
               <DialogHeader className="px-6 pt-5 pb-4 border-b bg-gradient-to-br from-primary/5 via-background to-background">
