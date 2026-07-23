@@ -1,4 +1,4 @@
-import { formatDegree, degreeSuffix, degreeUnit } from "@/lib/dojo/degree-label";
+import { formatDegree, degreeSuffix, degreeUnit, formatBeltName } from "@/lib/dojo/degree-label";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -211,7 +211,8 @@ function BlockRenderer({
                     className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold text-white"
                     style={{ background: belt.color_hex }}
                   >
-                    {belt.name}
+                    {formatBeltName(belt.name, (belt as any)?.modality)}
+
                     {degreeSuffix(student?.current_degree, (belt as any)?.modality, " · ", belt?.name)}
                   </span>
                 </div>
@@ -351,7 +352,7 @@ function BlockRenderer({
             <div className="text-xs font-semibold uppercase tracking-wider text-neutral-400">Sua faixa</div>
             <div className="mt-1 flex items-center gap-2">
               <span className="inline-block h-3 w-8 rounded-sm" style={{ background: belt.color_hex }} />
-              <span className="text-sm font-semibold" style={{ color: "var(--sa-title)" }}>{belt.name}</span>
+              <span className="text-sm font-semibold" style={{ color: "var(--sa-title)" }}>{formatBeltName(belt.name, (belt as any)?.modality)}</span>
             </div>
           </section>
         </Link>

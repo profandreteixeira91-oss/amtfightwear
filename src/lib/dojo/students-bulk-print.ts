@@ -1,4 +1,4 @@
-import { formatDegree, degreeSuffix, degreeUnit } from "@/lib/dojo/degree-label";
+import { formatDegree, degreeSuffix, degreeUnit, formatBeltFull } from "@/lib/dojo/degree-label";
 import { openBrandedPrintDocument, escapeHtml, kvTable } from "@/lib/dojo/print-document";
 
 function fmtDate(d: string | null | undefined) {
@@ -17,8 +17,9 @@ export function printAllStudentSummaries(students: any[], branding: any) {
         .join(", ");
       const belt = s.belt ?? null;
       const currentBeltLabel = belt
-        ? `${belt.name}${degreeSuffix(s.current_degree, belt?.modality, " · ", belt?.name)}`
+        ? formatBeltFull(belt.name, belt?.modality, s.current_degree)
         : "—";
+
 
       const breakStyle = idx < students.length - 1 ? "page-break-after: always;" : "";
       return `<section class="doc-section" style="${breakStyle}">

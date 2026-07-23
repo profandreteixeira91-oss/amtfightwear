@@ -1,4 +1,4 @@
-import { formatDegree, degreeSuffix, degreeUnit } from "@/lib/dojo/degree-label";
+import { formatDegree, degreeSuffix, degreeUnit, formatBeltName, formatBeltFull } from "@/lib/dojo/degree-label";
 import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -331,7 +331,7 @@ function StudentDetail() {
                             <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
                               {b.belt.modality ?? "jiu-jitsu"}
                             </div>
-                            <div className="font-medium text-sm">{b.belt.name}</div>
+                            <div className="font-medium text-sm">{formatBeltName(b.belt.name, b.belt?.modality)}</div>
                             <div className="text-xs text-muted-foreground">
                               {formatDegree(b.degree, b.belt?.modality, b.belt?.name)}
                             </div>
@@ -787,8 +787,9 @@ function StudentDetail() {
                         {certificates.map((c: any) => {
                           const hasTemplate = !!c.template?.background_url;
                           const beltLabel = c.graduation?.belt?.name
-                            ? `${c.graduation.belt.name}${degreeSuffix(c.graduation.degree, c.graduation.belt?.modality, " · ", c.graduation.belt?.name)}`
+                            ? formatBeltFull(c.graduation.belt.name, c.graduation.belt?.modality, c.graduation.degree)
                             : (c.values?.belt ?? "—");
+
                           return (
                             <tr key={c.id} className="border-b border-border last:border-0">
                               <td className="p-2 font-medium">{c.template?.name ?? "Certificado"}</td>

@@ -24,6 +24,8 @@ import { dojoFinanceDashboard } from "@/lib/dojo/finance-dashboard.functions";
 import { attendanceStats } from "@/lib/dojo/attendance.functions";
 import { listClasses } from "@/lib/dojo/schedule.functions";
 import { BeltAuto } from "@/components/dojo/BeltSpecVisual";
+import { formatBeltFull } from "@/lib/dojo/degree-label";
+
 import { useUnitScope } from "@/components/dojo/UnitScope";
 import {
   Users,
@@ -809,12 +811,10 @@ function DojoDashboard() {
                     <p className="text-xs text-muted-foreground truncate">
                       {belts.length
                         ? belts
-                            .map(
-                              (b: any) =>
-                                `${b.belt.name}${b.degree ? ` · ${b.degree}º` : ""}`,
-                            )
+                            .map((b: any) => formatBeltFull(b.belt.name, b.belt?.modality, b.degree))
                             .join(" • ")
                         : "Sem faixa"}
+
                     </p>
                   </div>
 

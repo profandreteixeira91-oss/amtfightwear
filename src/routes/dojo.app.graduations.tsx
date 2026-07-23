@@ -1,4 +1,4 @@
-import { formatDegree, degreeSuffix, degreeUnit } from "@/lib/dojo/degree-label";
+import { formatDegree, degreeSuffix, degreeUnit, formatBeltName, formatBeltFull } from "@/lib/dojo/degree-label";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -732,7 +732,7 @@ function NewGraduationPage() {
                       <div className="mt-0.5 truncate text-xs text-muted-foreground">
                         {belts.length === 0
                           ? "Sem faixa"
-                          : belts.map((b: any) => `${b.belt.name}${degreeSuffix(b.degree, b.belt?.modality, " · ", b.belt?.name)}`).join(" • ")}
+                          : belts.map((b: any) => formatBeltFull(b.belt.name, b.belt?.modality, b.degree)).join(" • ")}
                       </div>
                       {(() => {
                         const p = progressById.get(s.id);
@@ -928,7 +928,7 @@ function NewGraduationPage() {
                           <div className="truncate text-sm font-semibold">{s.full_name}</div>
                           <div className="truncate text-[11px] text-muted-foreground">
                             {currentMatch
-                              ? `Atual: ${currentMatch.belt.name}${currentMatch.degree ? ` · ${currentMatch.degree}º` : ""}`
+                              ? `Atual: ${formatBeltFull(currentMatch.belt.name, currentMatch.belt?.modality, currentMatch.degree)}`
                               : "Sem faixa nesta modalidade"}
                           </div>
                         </div>
@@ -1050,7 +1050,7 @@ function NewGraduationPage() {
                         <div className="truncate text-sm font-semibold">{s.full_name}</div>
                         <div className="truncate text-[11px] text-muted-foreground">
                           {belt
-                            ? `Nova: ${belt.name}${entry.degree ? ` · ${formatDegree(entry.degree, belt.modality, belt.name)}` : ""}`
+                            ? `Nova: ${formatBeltName(belt.name, belt.modality)}${entry.degree ? ` · ${formatDegree(entry.degree, belt.modality, belt.name)}` : ""}`
                             : "Sem faixa definida"}
                         </div>
                       </div>

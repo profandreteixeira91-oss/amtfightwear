@@ -32,7 +32,7 @@ import { CompareRadar } from "@/components/dojo/athlete-analysis/CompareRadar";
 import { TechnicalTab } from "@/components/dojo/athlete-analysis/TechnicalTab";
 import { InsightCard } from "@/components/dojo/athlete-analysis/InsightCard";
 import { GoalsTab } from "@/components/dojo/athlete-analysis/GoalsTab";
-import { formatDegree, degreeUnit } from "@/lib/dojo/degree-label";
+import { formatDegree, degreeUnit, formatBeltName } from "@/lib/dojo/degree-label";
 
 export const Route = createFileRoute("/dojo/app/students/$id/analysis")({
   head: () => ({
@@ -137,7 +137,7 @@ function AnalysisPage() {
             <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm text-muted-foreground">
               {age(s?.birth_date) != null && <span className="inline-flex items-center gap-1"><HeartPulse className="h-3.5 w-3.5" />{age(s?.birth_date)} anos</span>}
               {s?.gender && <span className="capitalize">{s.gender}</span>}
-              {belt && <span className="inline-flex items-center gap-1"><Award className="h-3.5 w-3.5" />{belt.name} · {formatDegree(s?.current_degree ?? 0, belt.modality, belt.name)}</span>}
+              {belt && <span className="inline-flex items-center gap-1"><Award className="h-3.5 w-3.5" />{formatBeltName(belt.name, belt.modality)} · {formatDegree(s?.current_degree ?? 0, belt.modality, belt.name)}</span>}
               {overview.data?.classes?.[0]?.dojo_classes && <span>Turma: {(overview.data.classes[0] as any).dojo_classes.name}</span>}
               <span>Matrícula: {fmtDate(s?.created_at)}</span>
             </div>
