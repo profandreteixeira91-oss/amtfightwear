@@ -17,6 +17,7 @@ import {
 } from "@/lib/dojo/team.functions";
 import { listDojoBelts } from "@/lib/dojo/dojo.functions";
 import { PermissionsTab } from "@/components/dojo/team/PermissionsTab";
+import { TeamContracts } from "@/components/dojo/TeamContracts";
 import { DojoPageShell } from "@/components/dojo/DojoPageShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
