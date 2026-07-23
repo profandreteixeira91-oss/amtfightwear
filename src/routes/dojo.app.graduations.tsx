@@ -109,8 +109,33 @@ function NewGraduationPage() {
 
   const filteredStudents = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return (students.data ?? []).filter((s: any) => !q || s.full_name.toLowerCase().includes(q));
-  }, [students.data, search]);
+    return (students.data ?? []).filter((s: any) => {
+      if (q && !s.full_name.toLowerCase().includes(q)) return false;
+      const beltsOfStudent: Array<{ modality?: string; belt?: any; degree?: number }> =
+        (s.current_belts && s.current_belts.length > 0)
+          ? s.current_belts
+          : (s.belt ? [{ modality: s.belt.modality, belt: s.belt, degree: s.current_degree ?? 0 }] : []);
+      if (filterModality !== "all") {
+        const has = beltsOfStudent.some(
+          (b) => (b.belt?.modality ?? b.modality ?? "jiu-jitsu") === filterModality,
+        );
+        if (!has) return false;
+      }
+      if (filterBeltId !== "all") {
+        const has = beltsOfStudent.some((b) => b.belt?.id === filterBeltId);
+        if (!has) return false;
+      }
+      return true;
+    });
+  }, [students.data, search, filterModality, filterBeltId]);
+
+  // Faixas disponíveis para o filtro (respeita a modalidade escolhida no filtro)
+  const filterBeltOptions = useMemo(() => {
+    return (belts.data ?? []).filter(
+      (b: any) => filterModality === "all" || (b.modality ?? "jiu-jitsu") === filterModality,
+    );
+  }, [belts.data, filterModality]);
+
 
   const toggleStudent = (id: string) => {
     setSelectedStudents(prev => {
