@@ -2319,42 +2319,84 @@ export type Database = {
       dojo_affiliate_contracts: {
         Row: {
           affiliate_id: string
+          cancelled_at: string | null
+          contract_number: string | null
           created_at: string
+          expires_at: string | null
+          footer_html: string
+          header_html: string
           html_content: string
           id: string
+          issued_by: string | null
+          margin_mm: number
+          notes: string | null
           owner_id: string
+          page_orientation: string
+          page_size: string
           pdf_url: string | null
+          sent_at: string | null
+          show_page_numbers: boolean
           signature_data: Json | null
           signature_status: string
           signed_at: string | null
+          template_id: string | null
+          template_version: number | null
           title: string
           updated_at: string
           variables: Json | null
         }
         Insert: {
           affiliate_id: string
+          cancelled_at?: string | null
+          contract_number?: string | null
           created_at?: string
+          expires_at?: string | null
+          footer_html?: string
+          header_html?: string
           html_content: string
           id?: string
+          issued_by?: string | null
+          margin_mm?: number
+          notes?: string | null
           owner_id: string
+          page_orientation?: string
+          page_size?: string
           pdf_url?: string | null
+          sent_at?: string | null
+          show_page_numbers?: boolean
           signature_data?: Json | null
           signature_status?: string
           signed_at?: string | null
+          template_id?: string | null
+          template_version?: number | null
           title?: string
           updated_at?: string
           variables?: Json | null
         }
         Update: {
           affiliate_id?: string
+          cancelled_at?: string | null
+          contract_number?: string | null
           created_at?: string
+          expires_at?: string | null
+          footer_html?: string
+          header_html?: string
           html_content?: string
           id?: string
+          issued_by?: string | null
+          margin_mm?: number
+          notes?: string | null
           owner_id?: string
+          page_orientation?: string
+          page_size?: string
           pdf_url?: string | null
+          sent_at?: string | null
+          show_page_numbers?: boolean
           signature_data?: Json | null
           signature_status?: string
           signed_at?: string | null
+          template_id?: string | null
+          template_version?: number | null
           title?: string
           updated_at?: string
           variables?: Json | null
@@ -4200,10 +4242,48 @@ export type Database = {
         }
         Relationships: []
       }
+      dojo_contract_events: {
+        Row: {
+          actor_id: string | null
+          contract_id: string
+          contract_kind: string
+          created_at: string
+          event_type: string
+          id: string
+          note: string | null
+          owner_id: string
+          payload: Json
+        }
+        Insert: {
+          actor_id?: string | null
+          contract_id: string
+          contract_kind: string
+          created_at?: string
+          event_type: string
+          id?: string
+          note?: string | null
+          owner_id: string
+          payload?: Json
+        }
+        Update: {
+          actor_id?: string | null
+          contract_id?: string
+          contract_kind?: string
+          created_at?: string
+          event_type?: string
+          id?: string
+          note?: string | null
+          owner_id?: string
+          payload?: Json
+        }
+        Relationships: []
+      }
       dojo_contract_templates: {
         Row: {
+          category: string
           content: string
           created_at: string
+          current_version: number
           description: string | null
           footer_html: string
           header_html: string
@@ -4211,15 +4291,20 @@ export type Database = {
           is_default: boolean
           margin_mm: number
           name: string
-          owner_id: string
+          owner_id: string | null
           page_orientation: string
           page_size: string
           show_page_numbers: boolean
+          status: string
+          tags: string[]
           updated_at: string
+          variables_schema: Json
         }
         Insert: {
+          category?: string
           content?: string
           created_at?: string
+          current_version?: number
           description?: string | null
           footer_html?: string
           header_html?: string
@@ -4227,15 +4312,20 @@ export type Database = {
           is_default?: boolean
           margin_mm?: number
           name: string
-          owner_id: string
+          owner_id?: string | null
           page_orientation?: string
           page_size?: string
           show_page_numbers?: boolean
+          status?: string
+          tags?: string[]
           updated_at?: string
+          variables_schema?: Json
         }
         Update: {
+          category?: string
           content?: string
           created_at?: string
+          current_version?: number
           description?: string | null
           footer_html?: string
           header_html?: string
@@ -4243,11 +4333,14 @@ export type Database = {
           is_default?: boolean
           margin_mm?: number
           name?: string
-          owner_id?: string
+          owner_id?: string | null
           page_orientation?: string
           page_size?: string
           show_page_numbers?: boolean
+          status?: string
+          tags?: string[]
           updated_at?: string
+          variables_schema?: Json
         }
         Relationships: []
       }
@@ -6900,74 +6993,98 @@ export type Database = {
       }
       dojo_student_contracts: {
         Row: {
+          cancelled_at: string | null
           content: string
+          contract_number: string | null
           created_at: string
           due_day: number | null
           end_date: string | null
+          expires_at: string | null
           footer_html: string
           header_html: string
           id: string
+          issued_by: string | null
           margin_mm: number
           monthly_value: number | null
+          notes: string | null
           owner_id: string
           page_orientation: string
           page_size: string
           payment_method: string | null
+          pdf_url: string | null
           plan_name: string | null
+          sent_at: string | null
           show_page_numbers: boolean
           signed_at: string | null
           start_date: string | null
           status: string
           student_id: string
           template_id: string | null
+          template_version: number | null
           title: string
           updated_at: string
         }
         Insert: {
+          cancelled_at?: string | null
           content?: string
+          contract_number?: string | null
           created_at?: string
           due_day?: number | null
           end_date?: string | null
+          expires_at?: string | null
           footer_html?: string
           header_html?: string
           id?: string
+          issued_by?: string | null
           margin_mm?: number
           monthly_value?: number | null
+          notes?: string | null
           owner_id: string
           page_orientation?: string
           page_size?: string
           payment_method?: string | null
+          pdf_url?: string | null
           plan_name?: string | null
+          sent_at?: string | null
           show_page_numbers?: boolean
           signed_at?: string | null
           start_date?: string | null
           status?: string
           student_id: string
           template_id?: string | null
+          template_version?: number | null
           title: string
           updated_at?: string
         }
         Update: {
+          cancelled_at?: string | null
           content?: string
+          contract_number?: string | null
           created_at?: string
           due_day?: number | null
           end_date?: string | null
+          expires_at?: string | null
           footer_html?: string
           header_html?: string
           id?: string
+          issued_by?: string | null
           margin_mm?: number
           monthly_value?: number | null
+          notes?: string | null
           owner_id?: string
           page_orientation?: string
           page_size?: string
           payment_method?: string | null
+          pdf_url?: string | null
           plan_name?: string | null
+          sent_at?: string | null
           show_page_numbers?: boolean
           signed_at?: string | null
           start_date?: string | null
           status?: string
           student_id?: string
           template_id?: string | null
+          template_version?: number | null
           title?: string
           updated_at?: string
         }
@@ -11557,6 +11674,7 @@ export type Database = {
           role: string
         }[]
       }
+      dojo_next_contract_number: { Args: { _owner: string }; Returns: string }
       dojo_slugify: { Args: { input: string }; Returns: string }
       email_queue_dispatch: { Args: never; Returns: undefined }
       enqueue_email: {
