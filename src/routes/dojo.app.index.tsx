@@ -190,7 +190,7 @@ function HeroHeader({
     <div className="relative overflow-hidden rounded-2xl border border-[color:var(--dojo-border)] bg-gradient-to-br from-neutral-950 via-neutral-900 to-red-950 text-white shadow-lg">
       <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-red-600/40 blur-3xl" />
       <div className="absolute -left-16 -bottom-24 h-72 w-72 rounded-full bg-white/5 blur-3xl" />
-      <div className="relative px-5 py-6 md:px-7 md:py-8 grid gap-6 md:grid-cols-[minmax(0,1fr)_auto] items-end">
+      <div className="relative px-4 py-5 sm:px-5 sm:py-6 md:px-7 md:py-8 grid gap-6 md:grid-cols-[minmax(0,1fr)_auto] items-end">
         <div className="min-w-0">
           <div className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur px-3 py-1 text-[11px] uppercase tracking-widest">
             <Sparkles className="h-3 w-3" /> Painel executivo
@@ -221,7 +221,7 @@ function HeroHeader({
               </div>
             </Link>
             <div className="min-w-0">
-              <h1 className="font-display text-2xl md:text-3xl font-black leading-tight truncate">
+              <h1 className="font-display text-xl sm:text-2xl md:text-3xl font-black leading-tight truncate">
                 Bom te ver por aqui.
               </h1>
               <p className="mt-1 text-sm text-white/70 capitalize">{today}</p>
