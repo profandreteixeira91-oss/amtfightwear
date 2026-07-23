@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCepLookup } from "@/hooks/useCepLookup";
+import { useQueryClient } from "@tanstack/react-query";
 import { DocumentsTab } from "@/components/dojo/account/DocumentsTab";
 
 
