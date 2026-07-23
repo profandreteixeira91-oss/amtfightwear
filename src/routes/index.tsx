@@ -53,12 +53,18 @@ export const Route = createFileRoute("/")({
 
 function SectionHeader({ eyebrow, title, action }: { eyebrow?: string; title: string; action?: React.ReactNode }) {
   return (
-    <div className="mb-10 flex items-end justify-between gap-6 sm:mb-12">
+    <div className="mb-12 flex items-end justify-between gap-6 sm:mb-16">
       <div className="min-w-0">
         {eyebrow ? (
-          <div className="mb-2 text-[11px] font-bold uppercase tracking-[0.32em] text-primary">{eyebrow}</div>
+          <div className="mb-3 flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.38em] text-primary">
+            <span className="h-px w-8 bg-primary/50" />
+            {eyebrow}
+          </div>
         ) : null}
-        <h2 className="text-3xl font-black leading-[1.05] tracking-tight text-foreground sm:text-4xl">
+        <h2
+          className="text-[2rem] leading-[1.02] tracking-[-0.02em] text-foreground sm:text-[2.75rem] lg:text-[3.25rem]"
+          style={{ fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 600 }}
+        >
           {title}
         </h2>
       </div>
@@ -93,7 +99,7 @@ function StoreHomePage() {
 
         <div className="relative mx-auto flex min-h-[78vh] max-w-7xl flex-col justify-center px-6 py-24 sm:px-8 sm:py-32 lg:min-h-[86vh]">
           <div className="max-w-3xl motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-4 motion-safe:duration-700">
-            <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 backdrop-blur">
+            <div className="mb-7 inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 backdrop-blur">
               <img
                 src={amtLogo}
                 alt="AMT Fight Wear"
@@ -101,18 +107,22 @@ function StoreHomePage() {
                 height={24}
                 className="h-6 w-6 rounded-full object-cover ring-1 ring-primary/60"
               />
-              <span className="text-[10px] font-bold uppercase tracking-[0.32em] text-white/90">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.38em] text-white/90">
                 AMT Fight Wear · E-commerce oficial
               </span>
             </div>
 
-            <h1 className="text-5xl font-black leading-[0.95] tracking-tight sm:text-7xl lg:text-[5.5rem]">
+            <h1
+              className="text-[3.25rem] leading-[0.95] tracking-[-0.03em] text-white sm:text-[5rem] lg:text-[6.25rem]"
+              style={{ fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 600 }}
+            >
               Feito para
               <br />
-              <span className="text-primary">quem treina</span> de verdade.
+              <span className="italic text-primary" style={{ fontWeight: 500 }}>quem treina</span>
+              <span className="text-white/95"> de verdade.</span>
             </h1>
 
-            <p className="mt-8 max-w-xl text-lg font-medium leading-relaxed text-white/85 sm:text-xl">
+            <p className="mt-8 max-w-xl text-lg font-normal leading-[1.65] text-white/80 sm:text-xl">
               Kimonos, rashguards, faixas e acessórios para jiu-jitsu, judô e artes marciais.
               Direto da fábrica, com envio para todo o Brasil.
             </p>
@@ -178,11 +188,14 @@ function StoreHomePage() {
                       {String(idx + 1).padStart(2, "0")}
                     </div>
                     <div className="relative z-10">
-                      <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-primary">Categoria</div>
-                      <div className="mt-1.5 text-base font-black uppercase leading-tight tracking-tight text-foreground sm:text-lg">
+                      <div className="text-[10px] font-semibold uppercase tracking-[0.36em] text-primary">Categoria</div>
+                      <div
+                        className="mt-2 text-xl leading-[1.05] tracking-[-0.01em] text-foreground sm:text-2xl"
+                        style={{ fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 600 }}
+                      >
                         {c.name}
                       </div>
-                      <div className="mt-4 inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-foreground/70 transition-colors group-hover:text-primary">
+                      <div className="mt-4 inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.32em] text-foreground/60 transition-colors group-hover:text-primary">
                         {subs.length > 0 ? "Ver subcategorias" : "Explorar"} <ArrowRight className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-0.5" />
                       </div>
                     </div>
@@ -265,8 +278,8 @@ function StoreHomePage() {
               <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
                 <Icon className="h-5 w-5" />
               </div>
-              <div className="mt-5 text-base font-black tracking-tight text-foreground">{title}</div>
-              <div className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{desc}</div>
+              <div className="mt-6 text-lg tracking-[-0.01em] text-foreground" style={{ fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 600 }}>{title}</div>
+              <div className="mt-2 text-sm leading-[1.65] text-muted-foreground">{desc}</div>
             </div>
           ))}
         </div>
@@ -279,12 +292,15 @@ function StoreHomePage() {
         <div className="grid gap-5 lg:grid-cols-5">
           <div className="relative overflow-hidden rounded-3xl bg-primary p-10 text-primary-foreground lg:col-span-3">
             <div className="relative z-10 max-w-md">
-              <div className="text-[11px] font-bold uppercase tracking-[0.32em] opacity-80">Cupom de boas-vindas</div>
-              <h3 className="mt-3 text-4xl font-black leading-[1.05] tracking-tight sm:text-5xl">
-                10% OFF na primeira compra
+              <div className="text-[10px] font-semibold uppercase tracking-[0.38em] opacity-80">Cupom de boas-vindas</div>
+              <h3
+                className="mt-4 text-[2.25rem] leading-[1.02] tracking-[-0.025em] sm:text-[3rem]"
+                style={{ fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 600 }}
+              >
+                10% <span className="italic" style={{ fontWeight: 500 }}>off</span> na primeira compra
               </h3>
-              <p className="mt-3 text-sm leading-relaxed opacity-90 sm:text-base">
-                Use o cupom <span className="rounded bg-primary-foreground/15 px-2 py-0.5 font-mono font-bold tracking-wider">AMT10</span> no checkout. Válido em todo o site.
+              <p className="mt-4 text-[15px] leading-[1.65] opacity-90 sm:text-base">
+                Use o cupom <span className="rounded bg-primary-foreground/15 px-2 py-0.5 font-mono text-[13px] font-semibold tracking-wider">AMT10</span> no checkout. Válido em todo o site.
               </p>
               <a
                 href="#destaques"
@@ -302,13 +318,16 @@ function StoreHomePage() {
             className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-foreground p-10 text-background lg:col-span-2"
           >
             <div>
-              <div className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.32em] text-primary">
+              <div className="inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.38em] text-primary">
                 <Sparkles className="h-3.5 w-3.5" /> Novo · Custom Shop
               </div>
-              <h3 className="mt-3 text-3xl font-black leading-[1.05] tracking-tight sm:text-4xl">
-                100% <span className="text-primary">personalizado</span>
+              <h3
+                className="mt-4 text-[2rem] leading-[1.02] tracking-[-0.025em] sm:text-[2.5rem]"
+                style={{ fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 600 }}
+              >
+                100% <span className="italic text-primary" style={{ fontWeight: 500 }}>personalizado</span>
               </h3>
-              <p className="mt-3 text-sm leading-relaxed text-background/70">
+              <p className="mt-4 text-[15px] leading-[1.65] text-background/70">
                 Kimono, rashguard ou faixa sob encomenda no padrão AMT.
               </p>
             </div>
@@ -326,9 +345,13 @@ function StoreHomePage() {
         <div className="mx-auto max-w-7xl px-6 py-20 sm:px-8 sm:py-24">
           <div className="grid gap-12 md:grid-cols-5">
             <div className="md:col-span-2">
-              <div className="text-[11px] font-bold uppercase tracking-[0.32em] text-primary">Sobre a loja</div>
-              <h2 id="sobre-o-app" className="mt-3 text-3xl font-black leading-[1.05] tracking-tight sm:text-4xl">
-                Para que serve a Loja AMT Fight Wear?
+              <div className="text-[10px] font-semibold uppercase tracking-[0.38em] text-primary">Sobre a loja</div>
+              <h2
+                id="sobre-o-app"
+                className="mt-4 text-[2rem] leading-[1.05] tracking-[-0.02em] sm:text-[2.75rem]"
+                style={{ fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 600 }}
+              >
+                Para que serve a <span className="italic" style={{ fontWeight: 500 }}>Loja AMT Fight Wear</span>?
               </h2>
               <img
                 src={amtLogo}
@@ -336,8 +359,8 @@ function StoreHomePage() {
                 className="mt-8 w-full max-w-[220px] rounded-2xl border border-border bg-background object-contain p-4 shadow-sm"
               />
             </div>
-            <div className="space-y-5 text-base leading-relaxed text-muted-foreground md:col-span-3">
-              <p>
+            <div className="space-y-5 text-[15px] leading-[1.75] text-muted-foreground md:col-span-3 sm:text-base">
+              <p className="first-letter:mr-1 first-letter:float-left first-letter:text-5xl first-letter:font-semibold first-letter:leading-[0.9] first-letter:text-foreground" style={{ }}>
                 A <strong className="text-foreground">Loja AMT Fight Wear</strong> é o e-commerce oficial da fabricante brasileira de artigos para artes marciais. O aplicativo permite que praticantes, academias e lojistas <strong className="text-foreground">naveguem pelo catálogo, personalizem peças no Custom Shop, calculem frete, façam pedidos no varejo ou atacado e acompanhem o status de cada compra</strong> em uma conta protegida.
               </p>
               <p>
@@ -457,12 +480,15 @@ function StoreHomePage() {
         <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-neutral-50 via-white to-neutral-100 px-8 py-16 text-center sm:px-12 sm:py-20">
           <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_50%_at_50%_0%,rgba(220,38,38,0.08),transparent_70%)]" />
           <div className="relative">
-            <div className="text-[11px] font-bold uppercase tracking-[0.4em] text-primary">Bem-vindo à</div>
-            <h2 className="mt-3 text-4xl font-black uppercase tracking-tight text-foreground sm:text-5xl">
-              Loja Virtual AMT Fight Wear
+            <div className="text-[10px] font-semibold uppercase tracking-[0.45em] text-primary">Bem-vindo à</div>
+            <h2
+              className="mt-4 text-[2.5rem] leading-[1.02] tracking-[-0.025em] text-foreground sm:text-[3.5rem]"
+              style={{ fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 600 }}
+            >
+              Loja Virtual <span className="italic text-primary" style={{ fontWeight: 500 }}>AMT Fight Wear</span>
             </h2>
-            <p className="mt-4 text-base text-muted-foreground">
-              Compre online com segurança · entrega para todo o Brasil
+            <p className="mx-auto mt-5 max-w-xl text-[15px] leading-[1.7] text-muted-foreground sm:text-base">
+              Compre online com segurança <span className="mx-1 text-primary/60">·</span> entrega para todo o Brasil
             </p>
           </div>
         </div>
