@@ -934,34 +934,6 @@ function NewGraduationPage() {
                         </select>
                       </div>
 
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">Taxa (R$)</label>
-                        <Input
-                          inputMode="decimal"
-                          placeholder="0,00"
-                          className="h-9"
-                          value={entry.fee ?? ""}
-                          onChange={(e) => setStudentFee(s.id, e.target.value)}
-                        />
-                        {entry.beltId && priceByBelt[entry.beltId] != null && (
-                          <div className="text-[10px] text-muted-foreground">
-                            padrão R$ {Number(priceByBelt[entry.beltId]).toFixed(2)}
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">Pagamento</label>
-                        <label className="flex h-9 items-center gap-2 rounded-md border bg-background px-2 text-xs cursor-pointer select-none">
-                          <input
-                            type="checkbox"
-                            className="h-4 w-4 accent-primary"
-                            checked={!!entry.paid}
-                            onChange={(e) => setStudentPaid(s.id, e.target.checked)}
-                          />
-                          <span>{entry.paid ? "Pago" : "Pendente"}</span>
-                        </label>
-                      </div>
 
                       <div className="flex items-center justify-end">
                         {chosenBelt ? (
