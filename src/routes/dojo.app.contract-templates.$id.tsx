@@ -204,61 +204,70 @@ function ContractEditorPage() {
     : draft.page_size === "Letter" ? "aspect-[8.5/11]" : "aspect-[210/297]";
 
   const editor = (
-    <div className="fixed inset-0 z-[100] flex flex-col bg-muted/30 overflow-hidden">
+    <div className="fixed inset-0 z-[100] flex flex-col bg-[#f9fbfd] dark:bg-neutral-950 overflow-hidden">
 
-      {/* Top bar */}
-      <div className="flex items-center justify-between gap-3 border-b bg-background px-4 md:px-6 py-3 shrink-0">
-        <div className="flex items-center gap-3 min-w-0">
+      {/* Google Docs-style title bar */}
+      <div className="flex items-center justify-between gap-3 bg-[#f9fbfd] dark:bg-neutral-950 px-4 md:px-6 pt-3 pb-1 shrink-0">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
           <Link to="/dojo/app/contracts/templates">
-            <Button variant="ghost" size="icon"><ArrowLeft className="h-4 w-4" /></Button>
+            <Button variant="ghost" size="icon" className="rounded-full"><ArrowLeft className="h-4 w-4" /></Button>
           </Link>
-          <FileText className="h-5 w-5 text-primary shrink-0" />
-          <div className="min-w-0">
+          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-blue-50 text-blue-600 shrink-0">
+            <FileText className="h-5 w-5" />
+          </div>
+          <div className="min-w-0 flex-1">
             <Input
               value={draft.name}
               onChange={(e) => patch({ name: e.target.value })}
-              placeholder="Nome do modelo"
-              className="h-8 border-transparent hover:border-input focus:border-input font-semibold text-base px-2 -ml-2 max-w-md"
+              placeholder="Documento sem título"
+              className="h-8 border-transparent hover:border-input focus:border-input font-medium text-lg px-2 -ml-2 max-w-lg"
             />
-            <div className="text-xs text-muted-foreground pl-2">
-              {isNew ? "Novo modelo" : `Editando · atualizado ${existing.data ? new Date((existing.data as any).updated_at).toLocaleString("pt-BR") : ""}`}
+            <div className="flex items-center gap-4 pl-2 -mt-0.5 text-[13px] text-neutral-700 dark:text-neutral-300">
+              <span className="hover:bg-neutral-200/60 dark:hover:bg-neutral-800 rounded px-1.5 py-0.5 cursor-default">Arquivo</span>
+              <span className="hover:bg-neutral-200/60 dark:hover:bg-neutral-800 rounded px-1.5 py-0.5 cursor-default">Editar</span>
+              <span className="hover:bg-neutral-200/60 dark:hover:bg-neutral-800 rounded px-1.5 py-0.5 cursor-default">Ver</span>
+              <span className="hover:bg-neutral-200/60 dark:hover:bg-neutral-800 rounded px-1.5 py-0.5 cursor-default">Inserir</span>
+              <span className="hover:bg-neutral-200/60 dark:hover:bg-neutral-800 rounded px-1.5 py-0.5 cursor-default">Formatar</span>
+              <span className="hover:bg-neutral-200/60 dark:hover:bg-neutral-800 rounded px-1.5 py-0.5 cursor-default">Ferramentas</span>
+              <span className="text-xs text-muted-foreground ml-2">
+                {isNew ? "Novo modelo" : existing.data ? `Salvo · ${new Date((existing.data as any).updated_at).toLocaleString("pt-BR")}` : ""}
+              </span>
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={printPreview}><Printer className="h-4 w-4 mr-1" />Imprimir</Button>
-          <Button size="sm" onClick={save}><Save className="h-4 w-4 mr-1" />Salvar</Button>
+        <div className="flex items-center gap-2 shrink-0">
+          <Button variant="outline" size="sm" onClick={printPreview} className="rounded-full"><Printer className="h-4 w-4 mr-1" />Imprimir</Button>
+          <Button size="sm" onClick={save} className="rounded-full bg-blue-600 hover:bg-blue-700 text-white"><Save className="h-4 w-4 mr-1" />Salvar</Button>
         </div>
       </div>
 
-      {/* Body: editor + preview */}
-      <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        {/* LEFT — editor */}
-        <div className="min-h-0 overflow-y-auto border-r bg-background">
-          <div className="p-4 md:p-6 space-y-4">
-            <div>
-              <Label className="text-xs text-muted-foreground">Descrição interna (opcional)</Label>
-              <Input
-                value={draft.description}
-                onChange={(e) => patch({ description: e.target.value })}
-                placeholder="Ex.: Contrato mensal padrão"
-              />
-            </div>
-
+      {/* Body: main document (emphasis) + small preview sidebar */}
+      <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-0">
+        {/* MAIN — editor */}
+        <div className="min-h-0 overflow-y-auto">
+          <div className="px-3 md:px-6 pt-2 pb-8 space-y-3">
             <Tabs defaultValue="body" className="w-full">
-              <TabsList className="w-full grid grid-cols-4">
-                <TabsTrigger value="body"><FileText className="h-3.5 w-3.5 mr-1" />Corpo</TabsTrigger>
-                <TabsTrigger value="header"><PanelTop className="h-3.5 w-3.5 mr-1" />Cabeçalho</TabsTrigger>
-                <TabsTrigger value="footer"><PanelBottom className="h-3.5 w-3.5 mr-1" />Rodapé</TabsTrigger>
-                <TabsTrigger value="page"><Settings2 className="h-3.5 w-3.5 mr-1" />Página</TabsTrigger>
-              </TabsList>
+              <div className="flex items-center justify-between gap-3 flex-wrap">
+                <TabsList className="bg-neutral-200/60 dark:bg-neutral-800/60">
+                  <TabsTrigger value="body"><FileText className="h-3.5 w-3.5 mr-1" />Corpo</TabsTrigger>
+                  <TabsTrigger value="header"><PanelTop className="h-3.5 w-3.5 mr-1" />Cabeçalho</TabsTrigger>
+                  <TabsTrigger value="footer"><PanelBottom className="h-3.5 w-3.5 mr-1" />Rodapé</TabsTrigger>
+                  <TabsTrigger value="page"><Settings2 className="h-3.5 w-3.5 mr-1" />Página</TabsTrigger>
+                </TabsList>
+                <Input
+                  value={draft.description}
+                  onChange={(e) => patch({ description: e.target.value })}
+                  placeholder="Descrição interna (opcional)"
+                  className="h-8 max-w-xs text-xs"
+                />
+              </div>
 
               <TabsContent value="body" className="mt-3">
                 <RichTextEditor
                   value={draft.content}
                   onChange={(html) => patch({ content: html })}
                   placeholder="Escreva o corpo do contrato…"
-                  minHeight={520}
+                  minHeight={720}
                 />
               </TabsContent>
 
@@ -338,21 +347,34 @@ function ContractEditorPage() {
           </div>
         </div>
 
-        {/* RIGHT — live preview */}
-        <div className="min-h-0 overflow-y-auto bg-neutral-100 dark:bg-neutral-900">
-          <div className="p-4 md:p-8 flex justify-center">
+        {/* ASIDE — small live preview */}
+        <aside className="hidden lg:flex min-h-0 overflow-y-auto border-l bg-white/60 dark:bg-neutral-900/60 backdrop-blur flex-col">
+          <div className="sticky top-0 z-10 flex items-center justify-between border-b bg-white/90 dark:bg-neutral-900/90 px-3 py-2 backdrop-blur">
+            <div className="flex items-center gap-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-200">
+              <Eye className="h-3.5 w-3.5" /> Pré-visualização
+            </div>
+            <span className="text-[10px] text-muted-foreground">dados de exemplo</span>
+          </div>
+          <div className="p-3 flex flex-col items-center gap-2">
             <div
-              className={`w-full max-w-[820px] ${paperClass} bg-white text-black shadow-xl rounded-sm flex flex-col overflow-hidden`}
-              style={{ padding: `${draft.margin_mm}mm`, fontFamily: "Georgia, serif", fontSize: "12pt", lineHeight: 1.6 }}
+              className={`w-full ${paperClass} bg-white text-black shadow-md rounded-sm flex flex-col overflow-hidden border border-neutral-200`}
+              style={{
+                padding: `${Math.max(4, draft.margin_mm / 2)}mm`,
+                fontFamily: "'Arial', 'Helvetica', sans-serif",
+                fontSize: "6.5pt",
+                lineHeight: 1.35,
+              }}
             >
               {draft.header_html.trim() && (
-                <div className="shrink-0 pb-3" dangerouslySetInnerHTML={{ __html: resolvedHeader }} />
+                <div className="shrink-0 pb-1.5" dangerouslySetInnerHTML={{ __html: resolvedHeader }} />
               )}
-              <div className="flex-1 min-h-0 overflow-hidden prose prose-sm max-w-none [&_h1]:text-2xl [&_h2]:text-xl [&_h3]:text-lg"
-                dangerouslySetInnerHTML={{ __html: resolvedContent }} />
+              <div
+                className="flex-1 min-h-0 overflow-hidden prose max-w-none [&_h1]:text-[10pt] [&_h1]:font-bold [&_h2]:text-[8pt] [&_h2]:font-semibold [&_h3]:text-[7pt] [&_p]:my-0.5 [&_hr]:my-1 [&_*]:!leading-snug"
+                dangerouslySetInnerHTML={{ __html: resolvedContent }}
+              />
               {draft.footer_html.trim() && (
                 <div
-                  className="shrink-0 pt-3 text-xs"
+                  className="shrink-0 pt-1.5 text-[5.5pt] text-neutral-600"
                   dangerouslySetInnerHTML={{
                     __html: resolvedFooter
                       .replace(/\{\{\s*pagina_atual\s*\}\}/g, "1")
@@ -361,14 +383,15 @@ function ContractEditorPage() {
                 />
               )}
             </div>
+            <div className="text-[10px] text-muted-foreground text-center">
+              {draft.page_size} · {draft.page_orientation === "portrait" ? "Retrato" : "Paisagem"} · Página 1
+            </div>
           </div>
-          <div className="px-8 pb-8 text-center text-[11px] text-muted-foreground flex items-center justify-center gap-1">
-            <Eye className="h-3 w-3" /> Pré-visualização com dados de exemplo — a impressão respeita o layout real
-          </div>
-        </div>
+        </aside>
       </div>
     </div>
   );
+
 
   if (typeof document === "undefined") return null;
   return createPortal(editor, document.body);
