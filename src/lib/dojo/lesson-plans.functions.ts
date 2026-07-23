@@ -808,3 +808,188 @@ export const getTechniquePresets = createServerFn({ method: "GET" }).handler(asy
     { modality: "Taekwondo", category: "Defesas", examples: ["Arae Makki", "Momtong Makki"] },
   ];
 });
+
+// ================================================================
+// FASE 3 — INTEGRAÇÕES + HISTÓRICO
+// ================================================================
+
+// Lista turmas do dono para picker (autofill de professor/unidade/modalidade)
+export const listClassesForPicker = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
+      .from("dojo_classes")
+      .select("id, name, modality, teacher_id, teacher_name, unit_id, color, dojo_units(id, name), dojo_team_members(id, full_name)")
+      .order("name", { ascending: true })
+      .limit(200);
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+// Lista alunos matriculados na turma (para chamada de presença)
+export const listClassStudentsForAttendance = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ classId: UUID }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { data: rows, error } = await context.supabase
+      .from("dojo_class_students")
+      .select("student_id, dojo_students(id, full_name, photo_url, main_modality)")
+      .eq("class_id", data.classId)
+      .eq("status", "active");
+    if (error) throw new Error(error.message);
+    type Row = { student_id: string; dojo_students: { id: string; full_name: string; photo_url: string | null; main_modality: string | null } | null };
+    return ((rows ?? []) as unknown as Row[])
+      .filter((r) => r.dojo_students)
+      .map((r) => ({
+        id: r.student_id,
+        full_name: r.dojo_students!.full_name,
+        photo_url: r.dojo_students!.photo_url,
+        modality: r.dojo_students!.main_modality,
+      }));
+  });
+
+// Registra aula ministrada: cria dojo_lesson_history, presenças em dojo_attendance
+// e marca o plano como "ministrada".
+export const registerLessonDelivery = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z
+      .object({
+        planId: UUID,
+        presentStudentIds: z.array(UUID).default([]),
+        absentStudentIds: z.array(UUID).default([]),
+        notes: z.string().optional().nullable(),
+        mediaUrls: z.array(z.string()).default([]),
+      })
+      .parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: plan, error: e1 } = await context.supabase
+      .from("dojo_lesson_plans")
+      .select("id, class_id, teacher_id, unit_id, date, start_time, duration_min, blocks, status")
+      .eq("id", data.planId)
+      .maybeSingle();
+    if (e1) throw new Error(e1.message);
+    if (!plan) throw new Error("Plano não encontrado");
+
+    // 1) Marca plano como ministrada
+    const { error: eUpd } = await context.supabase
+      .from("dojo_lesson_plans")
+      .update({ status: "ministrada" })
+      .eq("id", data.planId);
+    if (eUpd) throw new Error(eUpd.message);
+
+    // 2) Coleta conteúdo aplicado a partir dos blocos (para métricas de reuso)
+    type ApplItem = { kind: "content" | "technique" | "item"; ref_id?: string | null; name: string };
+    const applied: ApplItem[] = [];
+    const rawBlocks = (Array.isArray(plan.blocks) ? plan.blocks : []) as Array<{
+      items?: Array<{ name?: string; content_id?: string | null; technique_id?: string | null }>;
+    }>;
+    for (const b of rawBlocks) {
+      for (const it of b.items ?? []) {
+        if (it.content_id) applied.push({ kind: "content", ref_id: it.content_id, name: it.name ?? "" });
+        else if (it.technique_id) applied.push({ kind: "technique", ref_id: it.technique_id, name: it.name ?? "" });
+        else if (it.name) applied.push({ kind: "item", name: it.name });
+      }
+    }
+
+    // 3) Cria histórico
+    const { data: history, error: eHist } = await context.supabase
+      .from("dojo_lesson_history")
+      .insert({
+        owner_id: context.userId,
+        lesson_plan_id: plan.id,
+        class_id: plan.class_id,
+        teacher_id: plan.teacher_id,
+        date: plan.date,
+        duration_min: plan.duration_min,
+        students_count: data.presentStudentIds.length,
+        notes: data.notes ?? null,
+        media_urls: data.mediaUrls,
+        applied_content: applied as never,
+      })
+      .select()
+      .single();
+    if (eHist) throw new Error(eHist.message);
+
+    // 4) Cria presenças (apenas alunos marcados como presentes)
+    if (data.presentStudentIds.length && plan.class_id) {
+      const checkedAt = plan.start_time
+        ? new Date(`${plan.date}T${(plan.start_time as string).slice(0, 8)}`).toISOString()
+        : new Date(`${plan.date}T12:00:00`).toISOString();
+      const rows = data.presentStudentIds.map((sid) => ({
+        owner_id: context.userId,
+        student_id: sid,
+        class_id: plan.class_id,
+        unit_id: plan.unit_id,
+        checked_in_at: checkedAt,
+        method: "manual",
+        source: "lesson_plan",
+        status: "present",
+        created_by: context.userId,
+        notes: "Registrado via Planos de Aula",
+      }));
+      const { error: eAtt } = await context.supabase.from("dojo_attendance").insert(rows);
+      if (eAtt) throw new Error(eAtt.message);
+    }
+
+    return { ok: true, historyId: history?.id };
+  });
+
+// Histórico real (dojo_lesson_history) com join no plano e turma
+export const listLessonHistory = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z
+      .object({
+        from: z.string().optional(),
+        to: z.string().optional(),
+        classId: UUID.optional(),
+        teacherId: UUID.optional(),
+        limit: z.number().int().min(1).max(1000).optional(),
+      })
+      .parse(i ?? {}),
+  )
+  .handler(async ({ data, context }) => {
+    let q = context.supabase
+      .from("dojo_lesson_history")
+      .select(
+        "id, date, students_count, duration_min, notes, media_urls, applied_content, created_at, dojo_lesson_plans(id, title, modality, color), dojo_classes(id, name), dojo_team_members(id, full_name)",
+      )
+      .order("date", { ascending: false })
+      .limit(data.limit ?? 200);
+    if (data.from) q = q.gte("date", data.from);
+    if (data.to) q = q.lte("date", data.to);
+    if (data.classId) q = q.eq("class_id", data.classId);
+    if (data.teacherId) q = q.eq("teacher_id", data.teacherId);
+    const { data: rows, error } = await q;
+    if (error) throw new Error(error.message);
+    return rows ?? [];
+  });
+
+// Métricas de reuso de conteúdo (última aplicação + contagem)
+export const contentUsageStats = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
+      .from("dojo_lesson_history")
+      .select("date, applied_content")
+      .order("date", { ascending: false })
+      .limit(1000);
+    if (error) throw new Error(error.message);
+    const stats = new Map<string, { key: string; kind: string; name: string; count: number; last_used: string }>();
+    for (const row of data ?? []) {
+      const applied = (Array.isArray(row.applied_content) ? row.applied_content : []) as Array<{
+        kind?: string;
+        ref_id?: string | null;
+        name?: string;
+      }>;
+      for (const a of applied) {
+        const key = `${a.kind ?? "item"}:${a.ref_id ?? a.name ?? ""}`;
+        const cur = stats.get(key);
+        if (cur) cur.count += 1;
+        else stats.set(key, { key, kind: a.kind ?? "item", name: a.name ?? "", count: 1, last_used: row.date as string });
+      }
+    }
+    return Array.from(stats.values()).sort((a, b) => b.count - a.count);
+  });
