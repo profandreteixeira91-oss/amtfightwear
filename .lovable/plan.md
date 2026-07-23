@@ -1,80 +1,74 @@
-# Módulo: Análise Individual do Atleta
+# Módulo Planos de Aula — AMT Dojo Manager
 
-Novo hub de performance acessado pela ficha do aluno em `/dojo/app/students/$id`, consolidando dados já existentes (cadastro, frequência, avaliações, graduações, competições, vídeos, agenda, financeiro) sem duplicação.
+Novo módulo pedagógico dentro de **Ensino e Graduação**, cobrindo planejamento, biblioteca de conteúdos, banco de técnicas, histórico e analytics — integrado a Turmas, Faixas, Avaliações, Vídeos e Certificados.
 
-## Escopo desta entrega (Fase 1 — MVP funcional completo)
+Dado o tamanho (calendário drag-and-drop, biblioteca, banco de técnicas, templates, histórico, relatórios, dashboard analítico, inteligência pedagógica), proponho entregar em **4 fases**, cada uma utilizável de forma independente. Isso garante qualidade, evita um mega-PR arriscado e permite validar as decisões de UX antes de investir nas camadas mais complexas.
 
-Vou entregar o módulo end-to-end com toda a UI, todos os cálculos e todos os gráficos usando **exclusivamente dados já existentes** no banco. Campos que hoje não existem em nenhuma tabela (ex.: composição corporal detalhada, notas por fundamento técnico, lesões, metas) serão exibidos como seções "vazias com CTA" — sem migração nova nesta fase, para não inflar schema antes de confirmarmos os fluxos de captura de dados.
+---
 
-## Arquitetura
+## Fase 1 — Fundação (base de dados + CRUD + calendário)
 
-### Rota e navegação
-- Nova rota: `src/routes/dojo.app.students.$id.analysis.tsx`
-- Botão **"Análise de Performance"** no topo da ficha do aluno (`dojo.app.students.$id.tsx`) abre a nova página
-- Tabs internas: `Visão Geral · Frequência · Físico · Técnico · Graduações · Competições · Vídeos · Metas · Lesões · Comparar · Relatórios`
+Objetivo: professor já consegue planejar aulas reais.
 
-### Server functions (`src/lib/dojo/athlete-analysis.functions.ts`)
-Uma função por consulta agregada, todas com `requireSupabaseAuth` + verificação de ownership do aluno:
-- `getAthleteOverview({ studentId })` — dados do aluno + faixa + turmas + próximos eventos
-- `getAthleteAttendance({ studentId, period })` — presenças/faltas por dia; retorna série temporal + heatmap + streaks
-- `getAthletePerformanceScore({ studentId })` — score 0–100 calculado (ver algoritmo abaixo)
-- `getAthleteEvolution({ studentId, metric, period })` — série temporal por métrica
-- `getAthletePhysical({ studentId })` — histórico de `dojo_evaluations` (peso, altura, IMC já capturados)
-- `getAthleteTechnical({ studentId })` — última avaliação técnica em formato radar
-- `getAthleteGraduations({ studentId })` — timeline de `dojo_graduations` + previsão da próxima
-- `getAthleteCompetitions({ studentId })` — usa RPC existente `get_student_competition_history`
-- `getAthleteVideos({ studentId })` — vídeos vinculados ao aluno
-- `getAthleteInsights({ studentId })` — insights heurísticos automáticos
-- `compareAthletes({ studentIdA, studentIdB })` — dataset lado-a-lado
+**Backend (migrations)**
+- `dojo_lesson_plans` (título, modalidade, turma, professor, faixa, categoria, idade, local, data, hora início/fim, carga horária, status, cor, objetivos rich text, notas)
+- `dojo_lesson_blocks` (aquecimento, alongamento, fundamentos, técnicas, exercícios, sparring, condicionamento, encerramento — como blocos ordenáveis JSONB)
+- `dojo_lesson_content_library` (conteúdos reutilizáveis: nome, categoria, modalidade, descrição, mídia, tags, tempo, faixa, idade, nível)
+- `dojo_techniques_bank` (técnicas por modalidade — Judô/BJJ/Karatê/MT/TKD, com seeds só de estrutura, sem popular contas)
+- `dojo_lesson_history` (log automático de aulas ministradas: presença, notas, mídia)
+- Todas com `owner_id`, `unit_id`, RLS por owner, GRANT authenticated/service_role, políticas de leitura/escrita.
 
-### Algoritmo do Score Geral (0–100)
-Média ponderada de sub-scores (cada um 0–100):
-- Frequência (30%): `presenças / esperado` nos últimos 90 dias
-- Assiduidade/streak (10%): normaliza maior sequência ativa
-- Avaliações técnicas (20%): média das notas mais recentes
-- Evolução em graduações (15%): tempo na faixa vs. tempo médio esperado
-- Competições (15%): `(ouro*5 + prata*3 + bronze*2 + vitórias) / (competições+1)`
-- Participação em eventos/check-ins (10%): densidade nos últimos 30 dias
+**Rotas**
+- `/dojo/app/lesson-plans` (dashboard + calendário)
+- `/dojo/app/lesson-plans/library` (biblioteca de conteúdos)
+- `/dojo/app/lesson-plans/techniques` (banco de técnicas)
+- `/dojo/app/lesson-plans/$id` (editor de plano)
 
-Classificação: ≥85 Excelente · ≥70 Muito bom · ≥55 Bom · ≥40 Regular · <40 Necessita atenção
+**UI Fase 1**
+- Dashboard com cards: aulas planejadas na semana, realizadas, pendentes, horas planejadas/ministradas, turmas ativas, próxima aula.
+- Calendário Dia/Semana/Mês/Ano (reaproveitando estilo do módulo Agenda).
+- Editor de plano com blocos (aquecimento, fundamentos, técnicas principais, exercícios, sparring, condicionamento, encerramento), autosave, cores e status.
+- Filtros: professor, modalidade, turma, unidade, faixa, período.
 
-### Insights automáticos (heurísticas, sem IA nesta fase)
-Regras determinísticas em cima dos agregados:
-- Queda de frequência (30/60/90d) vs. baseline pessoal
-- Streak ativo em alta / risco de evasão (>21 dias sem check-in)
-- Tempo na faixa dentro/fora da média da modalidade → sugestão de graduação
-- Performance acima da média da turma
-- Sem competições nos últimos 6 meses → sugerir participação
+**Menu**
+- Adiciona "Planos de Aula" ao grupo Rotina em `AppTopNav.tsx` e ao menu lateral do Dojo.
 
-## UI
+## Fase 2 — Biblioteca, técnicas e templates
 
-### Componentes reutilizados
-- `PageShell`, `SectionCard`, `StatCard`, `BeltAuto`, shadcn `Tabs`, `Card`, `Table`, `Select`
-- Já temos **recharts** no projeto (usar para Linha, Barras, Radar, Gauge via `RadialBarChart`)
-- Heatmap: componente próprio simples (grid 53×7 com escala de cor via `bg-primary/[opacity]`)
+- Biblioteca de conteúdos com upload de imagem/vídeo/PDF (bucket `ig-media`), tags e busca instantânea.
+- Banco de técnicas por modalidade (Judô Nage/Katame/Shime/Kansetsu/Ukemi, BJJ passagens/raspagens/finalizações, Karatê Kihon/Kata/Kumite, Muay Thai chutes/joelhadas/cotoveladas/clinch, TKD Poomsae/chutes/defesas). Adicionar ao plano com 1 clique.
+- Templates de aula (Infantil, Adulto, Competição, Exame, Iniciantes, Avançado, Feminino, Prep Física) + templates personalizados.
+- Drag-and-drop entre blocos, duplicação de aula/semana/mês/semestre/ano com troca de turma/professor/data.
 
-### Novos componentes (`src/components/dojo/athlete-analysis/`)
-- `PerformanceGauge.tsx` — velocímetro do score
-- `AttendanceHeatmap.tsx` — heatmap anual estilo GitHub
-- `EvolutionChart.tsx` — linha com filtros de período
-- `TechnicalRadar.tsx` — radar chart
-- `GraduationTimeline.tsx` — timeline vertical
-- `InsightCard.tsx` — cartão de alerta/sugestão
-- `CompareView.tsx` — layout duplo com radar + barras
-- `AthleteReportButton.tsx` — export PDF (via `jsPDF` já instalado) e CSV
+## Fase 3 — Integrações + histórico
 
-### Design
-Segue design system do Dojo Manager: header com gradiente vermelho, tabs com ícones, cards `rounded-2xl`, responsivo, dark mode nativo.
+- Registro de aula ministrada com presença (integra `dojo_attendance`), fotos/vídeos, observações.
+- Controle de conteúdo aplicado: última aplicação, quantas vezes, sugestão automática.
+- Integração com Turmas (planejamento futuro, últimas aulas, carga horária).
+- Integração com Graduação: conteúdos obrigatórios por faixa, % concluído, aptidão para exame.
+- Integração com Avaliações (vincular aula a exame/simulado/avaliação técnica).
+- Integração com Biblioteca de Vídeos (`dojo_videos`) e Certificados (emissão ao concluir plano).
 
-## Relatórios
-- **PDF**: renderiza a página em modo print via `jsPDF` + `html-to-image` (padrão já usado nos certificados)
-- **CSV**: export nativo para tabelas de frequência, competições e avaliações
+## Fase 4 — Analytics + inteligência pedagógica
 
-## Fora do escopo desta fase (marcados como "em breve" na UI)
-- Captura de novos campos físicos (percentual de gordura, circunferências) — precisa migração dedicada
-- Notas por fundamento técnico específico por modalidade — precisa migração
-- Módulo de metas e lesões com CRUD completo — precisa migração
-- Comparação lado a lado de vídeos com player sincronizado — Fase 2
-- IA preditiva — Fase 2 (heurísticas atendem o requisito de "insights" agora)
+- Dashboard analítico (recharts): planejamento x realizado, conteúdos/técnicas mais usados, horas por professor/modalidade, evolução mensal, distribuição por categoria, aproveitamento, % obrigatórios concluídos, frequência de reuso.
+- Relatórios exportáveis (PDF/Excel/Word) por professor/turma/aluno/modalidade/faixa/período.
+- Inteligência: recomendar conteúdos não ensinados, alertar técnica sem revisão, sugerir sequência lógica, detectar repetição, indicar turmas prontas para avaliação.
 
-Ao aprovar, entrego a Fase 1 completa. Se quiser incluir alguma das seções "Fora do escopo" já nesta rodada, me diga quais para eu incluir as migrações necessárias.
+---
+
+## Detalhes técnicos
+
+- Server functions em `src/lib/dojo/lesson-plans.functions.ts` (CRUD, autosave, duplicação, sugestões) — `requireSupabaseAuth` + RLS por `owner_id`.
+- Autosave via debounce + `useMutation` + `invalidateQueries`.
+- Calendário reaproveita padrão de `dojo.app.schedule.tsx` (Google-Calendar-like).
+- Blocos da aula como array JSONB ordenável — drag-and-drop com `@dnd-kit`.
+- Uploads no bucket `ig-media` (já público).
+- Nova conta continua **zerada** (memória do projeto): seeds só para catálogo estrutural do banco de técnicas por modalidade, opt-in pelo professor.
+- Terminologia "Faixa/Grau/Dan" vem de `belt-terms` (memória do projeto).
+- **Sem IA** (memória: proibida em Avaliações; aqui aplico o mesmo princípio às "sugestões" da Fase 4 — serão heurísticas determinísticas sobre o histórico, não LLM).
+
+## Confirmações antes de começar
+
+1. Posso entregar apenas a **Fase 1** neste turno e as demais em turnos seguintes? (Recomendado — evita PR gigante e alto risco.)
+2. As "sugestões automáticas" da Fase 4 podem ser **heurísticas** (sem IA), coerente com a regra do módulo Avaliações?
