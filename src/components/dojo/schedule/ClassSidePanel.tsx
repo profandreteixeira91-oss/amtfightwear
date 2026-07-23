@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Pencil, Copy, Trash2, Ban, UserPlus, X, Search } from "lucide-react";
+import { Pencil, Copy, Trash2, Ban, UserPlus, X, Search, BookOpen, Plus, ArrowRight } from "lucide-react";
 import {
   getClass,
   deleteClass,
@@ -18,6 +19,7 @@ import {
   removeClassStudent,
   searchStudents,
 } from "@/lib/dojo/schedule.functions";
+import { listLessonPlans, upsertLessonPlan } from "@/lib/dojo/lesson-plans.functions";
 import { WEEKDAYS, CANCEL_REASONS, fmtTime } from "./constants";
 
 export function ClassSidePanel({
