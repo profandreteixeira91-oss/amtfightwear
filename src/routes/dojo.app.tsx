@@ -150,6 +150,7 @@ const nav: { label: string; items: NavItem[] }[] = [
     items: [
       { to: "/dojo/app/units", label: "Unidades e Filiais", icon: Building2 },
       { to: "/dojo/app/corporate-benefits", label: "Benefícios Corporativos", icon: HeartHandshake },
+      { to: "/dojo/app/system-users", label: "Usuários do Sistema", icon: UserCircle },
     ],
   },
   {
