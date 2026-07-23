@@ -226,8 +226,8 @@ function LeadsPage() {
       >
 
       <Card className="mb-4">
-        <CardContent className="p-4">
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-12">
+        <CardContent className="p-3 sm:p-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-12">
             <div className="relative md:col-span-4">
               <Search className="pointer-events-none absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
@@ -239,7 +239,7 @@ function LeadsPage() {
             </div>
             <div className="md:col-span-2">
               <Select value={state || "all"} onValueChange={(v) => { setState(v === "all" ? "" : v); setPage(0); }}>
-                <SelectTrigger><SelectValue placeholder="UF" /></SelectTrigger>
+                <SelectTrigger className="w-full"><SelectValue placeholder="UF" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos estados</SelectItem>
                   {BR_STATES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
@@ -248,7 +248,7 @@ function LeadsPage() {
             </div>
             <div className="md:col-span-3">
               <Select value={stage || "all"} onValueChange={(v) => { setStage(v === "all" ? "" : v); setPage(0); }}>
-                <SelectTrigger><SelectValue placeholder="Estágio do pipeline" /></SelectTrigger>
+                <SelectTrigger className="w-full"><SelectValue placeholder="Estágio do pipeline" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos estágios</SelectItem>
                   {PIPELINE_STAGES.map((s) => <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>)}
@@ -257,7 +257,7 @@ function LeadsPage() {
             </div>
             <div className="md:col-span-3">
               <Select value={String(minScore)} onValueChange={(v) => { setMinScore(Number(v)); setPage(0); }}>
-                <SelectTrigger><SelectValue placeholder="Score mínimo" /></SelectTrigger>
+                <SelectTrigger className="w-full"><SelectValue placeholder="Score mínimo" /></SelectTrigger>
                 <SelectContent>
                   {[0, 20, 40, 60, 80].map((n) => <SelectItem key={n} value={String(n)}>Score ≥ {n}</SelectItem>)}
                 </SelectContent>
@@ -265,21 +265,21 @@ function LeadsPage() {
             </div>
           </div>
 
-          <div className="mt-3 flex flex-wrap items-center gap-4 text-sm">
-            <span className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+            <span className="inline-flex w-full items-center gap-1 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground sm:w-auto">
               <Filter className="h-3 w-3" />Filtros rápidos:
             </span>
             <label className="inline-flex items-center gap-2">
               <Checkbox checked={hasEmail} onCheckedChange={(v) => { setHasEmail(!!v); setPage(0); }} />
-              <Mail className="h-3.5 w-3.5" /> Com e-mail
+              <Mail className="h-3.5 w-3.5" /> <span className="text-xs sm:text-sm">Com e-mail</span>
             </label>
             <label className="inline-flex items-center gap-2">
               <Checkbox checked={hasWa} onCheckedChange={(v) => { setHasWa(!!v); setPage(0); }} />
-              <MessageCircle className="h-3.5 w-3.5" /> Com WhatsApp
+              <MessageCircle className="h-3.5 w-3.5" /> <span className="text-xs sm:text-sm">Com WhatsApp</span>
             </label>
             <label className="inline-flex items-center gap-2">
               <Checkbox checked={hasIg} onCheckedChange={(v) => { setHasIg(!!v); setPage(0); }} />
-              <Instagram className="h-3.5 w-3.5" /> Com Instagram
+              <Instagram className="h-3.5 w-3.5" /> <span className="text-xs sm:text-sm">Com Instagram</span>
             </label>
           </div>
         </CardContent>
