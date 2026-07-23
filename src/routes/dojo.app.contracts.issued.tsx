@@ -35,7 +35,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 function IssuedContractsPage() {
-  const [kind, setKind] = useState<"all"|"student"|"affiliate">("all");
+  const [kind, setKind] = useState<"all"|"student"|"affiliate"|"team">("all");
   const [status, setStatus] = useState<string>("all");
   const [q, setQ] = useState("");
 
