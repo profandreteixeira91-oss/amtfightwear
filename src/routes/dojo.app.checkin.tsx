@@ -44,25 +44,67 @@ function DojoCheckinModule() {
   const [tab, setTab] = useState("dashboard");
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 md:gap-7">
-      <p className="text-sm text-muted-foreground max-w-2xl">
+    <div className="mx-auto w-full max-w-7xl space-y-6">
+      {/* HERO PREMIUM RUBY NOIR */}
+      <section className="relative overflow-hidden rounded-3xl border border-red-500/20 bg-gradient-to-br from-neutral-950 via-neutral-900 to-black text-white shadow-[0_30px_80px_-30px_rgba(220,38,38,0.45)]">
+        <div
+          aria-hidden
+          className="absolute inset-0 opacity-[0.08]"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)",
+            backgroundSize: "44px 44px",
+          }}
+        />
+        <div
+          aria-hidden
+          className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-red-600/40 blur-3xl"
+        />
+        <div
+          aria-hidden
+          className="absolute -bottom-24 left-1/4 h-64 w-64 rounded-full bg-red-500/20 blur-3xl"
+        />
+
+        <div className="relative flex flex-col gap-5 p-5 sm:p-7 md:flex-row md:items-center md:justify-between md:p-9">
+          <div className="min-w-0 space-y-3">
+            <div className="inline-flex items-center gap-2 rounded-full border border-red-400/30 bg-red-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-red-200">
+              <ScanLine className="h-3 w-3" />
+              Central de Presença
+            </div>
+            <h1 className="font-display text-2xl font-black leading-tight tracking-tight sm:text-3xl md:text-4xl">
+              Check-in <span className="text-red-400">inteligente</span> do seu dojo
+            </h1>
+            <p className="max-w-2xl text-sm leading-relaxed text-neutral-300 md:text-base">
+              Presença em tempo real, kiosk fullscreen, PIN, QR Code e integração com Gympass e TotalPass — tudo em um só painel premium.
+            </p>
+          </div>
+
+          <div className="grid shrink-0 grid-cols-3 gap-2 md:gap-3">
+            <HeroStat icon={ScanLine} label="Kiosk" />
+            <HeroStat icon={Fingerprint} label="PIN/QR" />
+            <HeroStat icon={Shield} label="Passes" />
+          </div>
+        </div>
+      </section>
+
+      {/* SUB-COPY */}
+      <p className="max-w-2xl text-sm text-muted-foreground">
         Controle de acesso, presença e integrações Gympass/TotalPass.
       </p>
 
       <Tabs value={tab} onValueChange={setTab} className="space-y-6">
-
-          <div className="overflow-x-auto -mx-4 px-4">
-            <TabsList className="w-max min-w-full flex justify-start">
-              <TabsTrigger value="dashboard" className="gap-2"><Activity className="h-4 w-4" />Dashboard</TabsTrigger>
-              <TabsTrigger value="kiosk" className="gap-2"><ScanLine className="h-4 w-4" />Check-in</TabsTrigger>
-              <TabsTrigger value="present" className="gap-2"><Users className="h-4 w-4" />Presentes</TabsTrigger>
-              <TabsTrigger value="history" className="gap-2"><History className="h-4 w-4" />Histórico</TabsTrigger>
-              <TabsTrigger value="gympass" className="gap-2"><Shield className="h-4 w-4" />Gympass</TabsTrigger>
-              <TabsTrigger value="totalpass" className="gap-2"><Shield className="h-4 w-4" />TotalPass</TabsTrigger>
-              <TabsTrigger value="reports" className="gap-2"><FileBarChart2 className="h-4 w-4" />Relatórios</TabsTrigger>
-              <TabsTrigger value="settings" className="gap-2"><Settings2 className="h-4 w-4" />Configurações</TabsTrigger>
-            </TabsList>
-          </div>
+        <div className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <TabsList className="flex w-max min-w-full justify-start gap-1 rounded-2xl border border-neutral-200 bg-white/70 p-1.5 shadow-sm backdrop-blur">
+            <TabsTrigger value="dashboard" className="gap-2 rounded-xl px-3 py-2 text-xs font-semibold data-[state=active]:bg-red-600 data-[state=active]:text-white data-[state=active]:shadow-[0_10px_25px_-12px_rgba(220,38,38,0.7)]"><Activity className="h-4 w-4" />Dashboard</TabsTrigger>
+            <TabsTrigger value="kiosk" className="gap-2 rounded-xl px-3 py-2 text-xs font-semibold data-[state=active]:bg-red-600 data-[state=active]:text-white data-[state=active]:shadow-[0_10px_25px_-12px_rgba(220,38,38,0.7)]"><ScanLine className="h-4 w-4" />Check-in</TabsTrigger>
+            <TabsTrigger value="present" className="gap-2 rounded-xl px-3 py-2 text-xs font-semibold data-[state=active]:bg-red-600 data-[state=active]:text-white data-[state=active]:shadow-[0_10px_25px_-12px_rgba(220,38,38,0.7)]"><Users className="h-4 w-4" />Presentes</TabsTrigger>
+            <TabsTrigger value="history" className="gap-2 rounded-xl px-3 py-2 text-xs font-semibold data-[state=active]:bg-red-600 data-[state=active]:text-white data-[state=active]:shadow-[0_10px_25px_-12px_rgba(220,38,38,0.7)]"><History className="h-4 w-4" />Histórico</TabsTrigger>
+            <TabsTrigger value="gympass" className="gap-2 rounded-xl px-3 py-2 text-xs font-semibold data-[state=active]:bg-red-600 data-[state=active]:text-white data-[state=active]:shadow-[0_10px_25px_-12px_rgba(220,38,38,0.7)]"><Shield className="h-4 w-4" />Gympass</TabsTrigger>
+            <TabsTrigger value="totalpass" className="gap-2 rounded-xl px-3 py-2 text-xs font-semibold data-[state=active]:bg-red-600 data-[state=active]:text-white data-[state=active]:shadow-[0_10px_25px_-12px_rgba(220,38,38,0.7)]"><Shield className="h-4 w-4" />TotalPass</TabsTrigger>
+            <TabsTrigger value="reports" className="gap-2 rounded-xl px-3 py-2 text-xs font-semibold data-[state=active]:bg-red-600 data-[state=active]:text-white data-[state=active]:shadow-[0_10px_25px_-12px_rgba(220,38,38,0.7)]"><FileBarChart2 className="h-4 w-4" />Relatórios</TabsTrigger>
+            <TabsTrigger value="settings" className="gap-2 rounded-xl px-3 py-2 text-xs font-semibold data-[state=active]:bg-red-600 data-[state=active]:text-white data-[state=active]:shadow-[0_10px_25px_-12px_rgba(220,38,38,0.7)]"><Settings2 className="h-4 w-4" />Configurações</TabsTrigger>
+          </TabsList>
+        </div>
 
           <TabsContent value="dashboard"><DashboardPanel /></TabsContent>
           <TabsContent value="kiosk"><KioskPanel /></TabsContent>
@@ -73,6 +115,15 @@ function DojoCheckinModule() {
           <TabsContent value="reports"><ReportsPanel /></TabsContent>
           <TabsContent value="settings"><SettingsPanel /></TabsContent>
         </Tabs>
+    </div>
+  );
+}
+
+function HeroStat({ icon: Icon, label }: { icon: any; label: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-1 rounded-xl border border-white/10 bg-white/[0.04] px-2 py-2.5 backdrop-blur">
+      <Icon className="h-4 w-4 text-red-300" />
+      <span className="text-[10px] font-semibold uppercase tracking-widest text-white/60">{label}</span>
     </div>
   );
 }
@@ -88,31 +139,37 @@ function DashboardPanel() {
 
   const d = q.data;
   const kpis = [
-    { label: "Presentes agora", v: d?.presentNow, icon: Users, tone: "text-emerald-600 bg-emerald-50" },
-    { label: "Check-ins hoje", v: d?.today, icon: CheckCircle2, tone: "text-blue-600 bg-blue-50" },
-    { label: "Check-outs hoje", v: d?.checkouts, icon: LogOut, tone: "text-orange-600 bg-orange-50" },
-    { label: "Aguardando validação", v: d?.pendingPartner, icon: Clock, tone: "text-yellow-600 bg-yellow-50" },
-    { label: "Gympass hoje", v: d?.gympass, icon: Shield, tone: "text-purple-600 bg-purple-50" },
-    { label: "TotalPass hoje", v: d?.totalpass, icon: Shield, tone: "text-pink-600 bg-pink-50" },
-    { label: "Média diária (30d)", v: d?.dailyAvg, icon: Activity, tone: "text-cyan-600 bg-cyan-50" },
-    { label: "Pico hoje", v: d?.peakCount ? `${d.peakCount} às ${String(d.peakHour).padStart(2, "0")}h` : "—", icon: Zap, tone: "text-rose-600 bg-rose-50" },
+    { label: "Presentes agora", v: d?.presentNow, icon: Users, glow: "from-emerald-400/25 to-emerald-500/5", ring: "ring-emerald-400/30", accent: "text-emerald-600" },
+    { label: "Check-ins hoje", v: d?.today, icon: CheckCircle2, glow: "from-red-500/25 to-red-500/5", ring: "ring-red-400/30", accent: "text-red-600" },
+    { label: "Check-outs hoje", v: d?.checkouts, icon: LogOut, glow: "from-orange-400/25 to-orange-500/5", ring: "ring-orange-400/30", accent: "text-orange-600" },
+    { label: "Aguardando validação", v: d?.pendingPartner, icon: Clock, glow: "from-amber-400/25 to-amber-500/5", ring: "ring-amber-400/30", accent: "text-amber-600" },
+    { label: "Gympass hoje", v: d?.gympass, icon: Shield, glow: "from-violet-400/25 to-violet-500/5", ring: "ring-violet-400/30", accent: "text-violet-600" },
+    { label: "TotalPass hoje", v: d?.totalpass, icon: Shield, glow: "from-fuchsia-400/25 to-fuchsia-500/5", ring: "ring-fuchsia-400/30", accent: "text-fuchsia-600" },
+    { label: "Média diária (30d)", v: d?.dailyAvg, icon: Activity, glow: "from-cyan-400/25 to-cyan-500/5", ring: "ring-cyan-400/30", accent: "text-cyan-600" },
+    { label: "Pico hoje", v: d?.peakCount ? `${d.peakCount} às ${String(d.peakHour).padStart(2, "0")}h` : "—", icon: Zap, glow: "from-rose-400/25 to-rose-500/5", ring: "ring-rose-400/30", accent: "text-rose-600" },
   ];
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {kpis.map((k) => (
-          <Card key={k.label} className="overflow-hidden">
-            <CardContent className="p-4">
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="text-xs text-muted-foreground">{k.label}</div>
-                  <div className="text-2xl font-bold mt-1">
+          <Card
+            key={k.label}
+            className={`group relative overflow-hidden border-neutral-200/70 bg-white shadow-sm ring-1 ${k.ring} transition-all hover:-translate-y-0.5 hover:shadow-lg`}
+          >
+            <div className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${k.glow} opacity-70`} aria-hidden />
+            <CardContent className="relative p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    {k.label}
+                  </div>
+                  <div className="mt-2 font-display text-2xl font-black leading-none tabular-nums text-neutral-900 md:text-3xl">
                     {q.isLoading ? <Skeleton className="h-8 w-16" /> : (k.v ?? 0)}
                   </div>
                 </div>
-                <div className={`h-9 w-9 rounded-lg flex items-center justify-center ${k.tone}`}>
-                  <k.icon className="h-4 w-4" />
+                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/80 shadow-sm ring-1 ${k.ring}`}>
+                  <k.icon className={`h-4 w-4 ${k.accent}`} />
                 </div>
               </div>
             </CardContent>
@@ -120,11 +177,17 @@ function DashboardPanel() {
         ))}
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Distribuição horária (hoje)</CardTitle>
+      <Card className="overflow-hidden border-neutral-200/70 bg-white shadow-sm">
+        <CardHeader className="flex flex-row items-center justify-between border-b border-neutral-100 bg-gradient-to-r from-neutral-50 to-white pb-3">
+          <div>
+            <CardTitle className="text-base font-bold tracking-tight">Distribuição horária</CardTitle>
+            <p className="text-xs text-muted-foreground">Fluxo de check-ins ao longo do dia</p>
+          </div>
+          <Badge variant="outline" className="border-red-200 bg-red-50 text-[10px] font-semibold uppercase tracking-wider text-red-700">
+            Hoje
+          </Badge>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-5">
           <HourlyChart data={d?.hourly ?? []} />
         </CardContent>
       </Card>
@@ -135,20 +198,26 @@ function DashboardPanel() {
 function HourlyChart({ data }: { data: { hour: number; count: number }[] }) {
   const max = Math.max(1, ...data.map((d) => d.count));
   return (
-    <div className="flex items-end gap-1 h-32">
-      {data.map((d) => (
-        <div key={d.hour} className="flex-1 flex flex-col items-center gap-1">
-          <div
-            className="w-full bg-primary/80 rounded-sm transition-all hover:bg-primary"
-            style={{ height: `${(d.count / max) * 100}%`, minHeight: d.count > 0 ? 4 : 0 }}
-            title={`${d.count} check-ins às ${d.hour}h`}
-          />
-          <div className="text-[10px] text-muted-foreground">{d.hour}</div>
-        </div>
-      ))}
+    <div className="flex h-36 items-end gap-1">
+      {data.map((d) => {
+        const pct = (d.count / max) * 100;
+        return (
+          <div key={d.hour} className="flex flex-1 flex-col items-center gap-1">
+            <div className="relative flex h-full w-full items-end">
+              <div
+                className="w-full rounded-t-md bg-gradient-to-t from-red-600 via-red-500 to-red-400 shadow-[0_-6px_18px_-6px_rgba(220,38,38,0.6)] transition-all group-hover:opacity-90"
+                style={{ height: `${pct}%`, minHeight: d.count > 0 ? 4 : 0 }}
+                title={`${d.count} check-ins às ${d.hour}h`}
+              />
+            </div>
+            <div className="text-[10px] font-semibold tabular-nums text-muted-foreground">{d.hour}</div>
+          </div>
+        );
+      })}
     </div>
   );
 }
+
 
 /* ============================ KIOSK ============================ */
 function KioskPanel() {
