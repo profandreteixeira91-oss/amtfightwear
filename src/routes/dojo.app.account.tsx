@@ -133,6 +133,7 @@ function AccountPage() {
     const { error } = await supabase.from("dojo_academy_profile").upsert(payload);
     if (error) return toast.error(error.message);
     await logAudit("academy_updated");
+    await queryClient.invalidateQueries({ queryKey: ["dojo", "branding", "me"] });
     toast.success("Dados da academia salvos");
     load();
   }
