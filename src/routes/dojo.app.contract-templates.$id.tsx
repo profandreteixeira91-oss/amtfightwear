@@ -360,6 +360,7 @@ function ContractEditorPage() {
               className={`w-full ${paperClass} bg-white text-black shadow-md rounded-sm flex flex-col overflow-hidden border border-neutral-200`}
               style={{
                 padding: `${Math.max(4, draft.margin_mm / 2)}mm`,
+                fontFamily: "'Arial', 'Helvetica', sans-serif",
                 fontSize: "6.5pt",
                 lineHeight: 1.35,
               }}
