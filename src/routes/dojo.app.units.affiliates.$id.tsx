@@ -11,7 +11,7 @@ import {
   saveAffiliateContract,
   deleteAffiliateContract,
 } from "@/lib/dojo/affiliates.functions";
-import { listCertificateTemplates } from "@/lib/dojo/certificates.functions";
+import { listCertificateTemplates } from "@/lib/dojo/dojo.functions";
 import { getMyAcademyBranding } from "@/lib/dojo/academy-public.functions";
 import {
   AFFILIATE_CONTRACT_PRESET_HTML,
