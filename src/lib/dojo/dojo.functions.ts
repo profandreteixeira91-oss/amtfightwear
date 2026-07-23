@@ -1428,6 +1428,7 @@ export const getGraduationSettings = createServerFn({ method: "GET" })
       period_months_by_belt: {},
       default_classes: 60,
       default_period_months: 12,
+      price_by_belt: {},
     };
   });
 
@@ -1437,6 +1438,7 @@ export const saveGraduationSettings = createServerFn({ method: "POST" })
     system: z.enum(["merit", "classes", "period"]),
     classes_by_belt: z.record(z.string(), z.number()).optional(),
     period_months_by_belt: z.record(z.string(), z.number()).optional(),
+    price_by_belt: z.record(z.string(), z.number().min(0).max(1_000_000)).optional(),
     default_classes: z.number().int().min(0).max(10000).optional(),
     default_period_months: z.number().int().min(0).max(240).optional(),
   }).parse(i))
@@ -1446,6 +1448,7 @@ export const saveGraduationSettings = createServerFn({ method: "POST" })
       system: data.system,
       classes_by_belt: data.classes_by_belt ?? {},
       period_months_by_belt: data.period_months_by_belt ?? {},
+      price_by_belt: data.price_by_belt ?? {},
       default_classes: data.default_classes ?? 60,
       default_period_months: data.default_period_months ?? 12,
     };
