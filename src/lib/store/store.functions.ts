@@ -340,10 +340,11 @@ export const listStorefrontHome = createServerFn({ method: "GET" }).handler(asyn
     return out;
   };
   const bjjBeltsDaily = shuffle(bjjBelts.data ?? [], seed).slice(0, 12);
+  const featuredDaily = shuffle(featured.data ?? [], seed ^ 0x9e3779b1).slice(0, 12);
 
   return {
     categories: categories.data ?? [],
-    featured: featured.data ?? [],
+    featured: featuredDaily,
     newest: newest.data ?? [],
     bjjBelts: bjjBeltsDaily,
     judoBelts: (judoBelts.data ?? []).slice(0, 12),
