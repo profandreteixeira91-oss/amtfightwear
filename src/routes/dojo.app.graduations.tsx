@@ -172,11 +172,36 @@ function NewGraduationPage() {
     setPerStudent(prev => {
       const next = { ...prev };
       for (const id of selectedStudents) {
-        if (!next[id]) next[id] = { beltId: "", degree: 0 };
+        if (!next[id]) next[id] = { beltId: "", degree: 0, fee: "", paid: false };
       }
       return next;
     });
     setStep("grad");
+  };
+
+  const savePrices = async () => {
+    try {
+      setSavingPrices(true);
+      const priceMap: Record<string, number> = {};
+      for (const [bid, raw] of Object.entries(priceDraft)) {
+        const v = Number((raw ?? "").toString().replace(",", ".").trim());
+        if (!Number.isNaN(v) && v > 0) priceMap[bid] = v;
+      }
+      await saveSettingsFn({ data: {
+        system: (settings.data as any)?.system ?? "merit",
+        classes_by_belt: (settings.data as any)?.classes_by_belt ?? {},
+        period_months_by_belt: (settings.data as any)?.period_months_by_belt ?? {},
+        default_classes: (settings.data as any)?.default_classes ?? 60,
+        default_period_months: (settings.data as any)?.default_period_months ?? 12,
+        price_by_belt: priceMap,
+      }});
+      toast.success("Preços salvos");
+      qc.invalidateQueries({ queryKey: ["dojo-grad-settings"] });
+    } catch (e: any) {
+      toast.error(e.message ?? "Erro ao salvar preços");
+    } finally {
+      setSavingPrices(false);
+    }
   };
 
   const applyDefaultsToAll = () => {
