@@ -366,8 +366,8 @@ export const updateContractStatus = createServerFn({ method: "POST" })
 /** Timeline de um contrato. */
 export const listContractEvents = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { kind: "student"|"affiliate"; contract_id: string }) =>
-    z.object({ kind: z.enum(["student","affiliate"]), contract_id: uuid }).parse(d))
+  .inputValidator((d: { kind: "student"|"affiliate"|"team"; contract_id: string }) =>
+    z.object({ kind: z.enum(["student","affiliate","team"]), contract_id: uuid }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase
       .from("dojo_contract_events")
