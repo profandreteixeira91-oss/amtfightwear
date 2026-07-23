@@ -1101,39 +1101,50 @@ function StudentsPage() {
       </div>
 
 
+      {/* KPIs */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <StudentKpi icon={Users} label="Total de alunos" value={kpiTotal} accent="from-red-500 to-red-700" />
+        <StudentKpi icon={UserCheck} label="Ativos" value={kpiActive} accent="from-emerald-500 to-teal-600" />
+        <StudentKpi icon={Snowflake} label="Trancados" value={kpiFrozen} accent="from-amber-500 to-orange-600" />
+        <StudentKpi icon={UserX} label="Inativos" value={kpiInactive} accent="from-neutral-500 to-neutral-700" />
+      </div>
 
-      {/* Filtros ampliados: nome, e-mail, telefone, CPF, faixa, unidade, cidade, status */}
-      <div className="rounded-lg border border-border bg-card p-3 md:p-4">
+      {/* Filtros ampliados */}
+      <div className="rounded-2xl border border-neutral-200/80 bg-white p-3 md:p-4 shadow-sm">
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-6">
-          <Input
-            className="md:col-span-2"
-            placeholder="Buscar por nome, telefone, CPF, e-mail…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <select className="h-10 rounded-md border border-input bg-background px-2 text-sm" value={status} onChange={(e) => setStatus(e.target.value)}>
+          <div className="relative md:col-span-2">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              className="pl-9 h-10 rounded-full"
+              placeholder="Buscar por nome, telefone, CPF, e-mail…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          <select className="h-10 rounded-full border border-input bg-background px-3 text-sm" value={status} onChange={(e) => setStatus(e.target.value)}>
             <option value="all">Todos os status</option>
             <option value="active">Ativos</option>
             <option value="inactive">Inativos</option>
             <option value="frozen">Trancados</option>
           </select>
-          <select className="h-10 rounded-md border border-input bg-background px-2 text-sm" value={beltFilter} onChange={(e) => setBeltFilter(e.target.value)}>
+          <select className="h-10 rounded-full border border-input bg-background px-3 text-sm" value={beltFilter} onChange={(e) => setBeltFilter(e.target.value)}>
             <option value="all">Todas as faixas</option>
             {(belts.data ?? []).map((b: any) => (
               <option key={b.id} value={b.id}>{b.name}</option>
             ))}
           </select>
-          <select className="h-10 rounded-md border border-input bg-background px-2 text-sm" value={unitFilter} onChange={(e) => setUnitFilter(e.target.value)}>
+          <select className="h-10 rounded-full border border-input bg-background px-3 text-sm" value={unitFilter} onChange={(e) => setUnitFilter(e.target.value)}>
             <option value="all">Todas as unidades</option>
             {(units.data ?? []).map((u: any) => (
               <option key={u.id} value={u.id}>{u.name}</option>
             ))}
           </select>
-          <Input placeholder="Cidade" value={cityFilter} onChange={(e) => setCityFilter(e.target.value)} />
+          <Input className="h-10 rounded-full" placeholder="Cidade" value={cityFilter} onChange={(e) => setCityFilter(e.target.value)} />
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-border bg-card">
+      <div className="overflow-hidden rounded-2xl border border-neutral-200/80 bg-white shadow-sm divide-y divide-neutral-100">
+
         {filtered.map((s: any) => (
           <div
             key={s.id}
