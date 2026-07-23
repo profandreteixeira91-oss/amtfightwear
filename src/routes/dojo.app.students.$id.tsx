@@ -343,28 +343,10 @@ function StudentDetail() {
 
         {/* ============ SIDEBAR ============ */}
         <aside className="space-y-3 lg:sticky lg:top-4 lg:self-start">
-          <Card className="dojo-card overflow-hidden">
-            <div className="relative h-24 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent" />
-            <div className="-mt-12 flex flex-col items-center px-4 pb-4">
-              <div className="h-24 w-24 shrink-0 overflow-hidden rounded-full border-4 border-card bg-muted shadow-sm">
-                {s.photo_url ? (
-                  <img src={s.photo_url} alt={s.full_name} className="h-full w-full object-cover" />
-                ) : (
-                  <div className="grid h-full w-full place-items-center text-2xl font-semibold text-muted-foreground">
-                    {s.full_name?.[0]?.toUpperCase() ?? "?"}
-                  </div>
-                )}
-              </div>
-              <div className="mt-3 w-full text-center">
-                <div className="truncate font-semibold text-base">{s.full_name}</div>
-                <div className="mt-1 text-xs text-muted-foreground">
-                  {age != null ? `${age} anos` : "Idade não informada"}
-                </div>
-              </div>
-              <StatusBadge status={s.status} className="mt-3" />
-            </div>
+          <Card className="dojo-card relative overflow-hidden border-neutral-200/70 bg-white shadow-sm">
+            <div aria-hidden className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-red-500 via-red-400 to-red-600" />
+            <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-red-500/10 blur-3xl" />
 
-            <Separator />
 
             {/* Faixas atuais (uma por modalidade) */}
             <div className="p-4 space-y-3 text-sm">
