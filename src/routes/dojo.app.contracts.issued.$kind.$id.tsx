@@ -169,11 +169,12 @@ function IssuedContractDetail() {
             <CardHeader className="pb-2"><CardTitle className="text-sm">Destinatário</CardTitle></CardHeader>
             <CardContent className="text-sm space-y-1">
               <div className="font-medium">{targetName ?? "—"}</div>
-              {kind === "student" ? (
+              {kind === "student" || kind === "team" ? (
                 <>
                   {target?.email ? <div className="text-xs text-muted-foreground">{target.email}</div> : null}
                   {target?.phone ? <div className="text-xs text-muted-foreground">{target.phone}</div> : null}
                   {target?.cpf ? <div className="text-xs text-muted-foreground">CPF: {target.cpf}</div> : null}
+                  {kind === "team" && target?.role ? <div className="text-xs text-muted-foreground">Cargo: {target.role}</div> : null}
                 </>
               ) : (
                 <>
@@ -184,6 +185,11 @@ function IssuedContractDetail() {
               {kind === "student" && target?.id ? (
                 <Link to="/dojo/app/students/$id" params={{ id: target.id }} className="text-xs text-primary hover:underline">
                   Abrir ficha do aluno →
+                </Link>
+              ) : null}
+              {kind === "team" && target?.id ? (
+                <Link to="/dojo/app/team/$id" params={{ id: target.id }} className="text-xs text-primary hover:underline">
+                  Abrir ficha do colaborador →
                 </Link>
               ) : null}
               {kind === "affiliate" && target?.id ? (
