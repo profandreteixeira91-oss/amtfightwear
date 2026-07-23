@@ -247,17 +247,17 @@ function AdminProductsPage() {
       title="Produtos da loja"
       description={`${filtered.length} produtos${search ? ` (filtrados de ${data?.length ?? 0})` : ""}`}
       actions={
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
           <Input
             placeholder="Buscar produto..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            className="w-56"
+            className="w-full sm:w-56"
           />
           <select
             value={categoryFilter}
             onChange={(e) => { setCategoryFilter(e.target.value); setPage(1); }}
-            className="h-10 rounded-md border bg-background px-2 text-sm min-w-[12rem]"
+            className="h-10 w-full rounded-md border bg-background px-2 text-sm sm:w-auto sm:min-w-[12rem]"
           >
             <option value="">Todas as categorias</option>
             {(() => {
@@ -284,27 +284,29 @@ function AdminProductsPage() {
               return out;
             })()}
           </select>
-          {categoryFilter && (
-            <Button variant="ghost" size="sm" onClick={() => { setCategoryFilter(""); setPage(1); }}>
-              Limpar filtro
+          <div className="flex flex-wrap items-center gap-2">
+            {categoryFilter && (
+              <Button variant="ghost" size="sm" onClick={() => { setCategoryFilter(""); setPage(1); }}>
+                Limpar filtro
+              </Button>
+            )}
+            <Button onClick={() => setCreatingProduct(true)} size="sm">
+              <Plus className="h-4 w-4 mr-1" /> Adicionar
             </Button>
-          )}
-          <Button onClick={() => setCreatingProduct(true)}>
-            <Plus className="h-4 w-4 mr-1" /> Adicionar produto
-          </Button>
-          <Button variant="outline" onClick={() => setManagingCategories(true)}>
-            <Plus className="h-4 w-4 mr-1" /> Categorias
-          </Button>
-          <Link to="/store/wholesale"><Button variant="outline">Atacado</Button></Link>
-          <Link to="/store/import"><Button variant="outline">Importar catálogo</Button></Link>
+            <Button variant="outline" size="sm" onClick={() => setManagingCategories(true)}>
+              <Plus className="h-4 w-4 mr-1" /> Categorias
+            </Button>
+            <Link to="/store/wholesale"><Button variant="outline" size="sm">Atacado</Button></Link>
+            <Link to="/store/import"><Button variant="outline" size="sm">Importar</Button></Link>
+          </div>
         </div>
       }
     >
 
       <Card className="border-primary/40 bg-primary/5">
         <CardContent className="p-4">
-          <div className="flex flex-wrap items-end gap-3">
-            <div className="text-sm font-semibold min-w-[9rem]">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[auto_repeat(3,minmax(0,1fr))_auto] lg:items-end">
+            <div className="text-sm font-semibold">
               Edição em massa
               <div className="text-xs font-normal text-muted-foreground">
                 {selected.size} selecionado(s)
@@ -312,24 +314,27 @@ function AdminProductsPage() {
             </div>
             <div className="flex flex-col gap-1">
               <label className="text-xs text-muted-foreground">Novo preço (R$)</label>
-              <Input value={bulkPrice} onChange={(e) => setBulkPrice(e.target.value)} placeholder="ex: 199,90" className="w-32" />
+              <Input value={bulkPrice} onChange={(e) => setBulkPrice(e.target.value)} placeholder="ex: 199,90" className="w-full" />
             </div>
             <div className="flex flex-col gap-1">
               <label className="text-xs text-muted-foreground">Ajuste % (ex: 10 ou -5)</label>
-              <Input value={bulkPricePct} onChange={(e) => setBulkPricePct(e.target.value)} placeholder="%" className="w-24" />
+              <Input value={bulkPricePct} onChange={(e) => setBulkPricePct(e.target.value)} placeholder="%" className="w-full" />
             </div>
             <div className="flex flex-col gap-1">
               <label className="text-xs text-muted-foreground">Novo estoque</label>
-              <Input value={bulkStock} onChange={(e) => setBulkStock(e.target.value)} placeholder="ex: 10" className="w-24" />
+              <Input value={bulkStock} onChange={(e) => setBulkStock(e.target.value)} placeholder="ex: 10" className="w-full" />
             </div>
-            <Button onClick={applyBulk} disabled={saving || selected.size === 0}>Aplicar em massa</Button>
-            <Button variant="outline" onClick={() => setSelected(new Set(filtered.map((p) => p.id)))} disabled={filtered.length === 0}>
+            <Button onClick={applyBulk} disabled={saving || selected.size === 0} className="w-full sm:w-auto">Aplicar</Button>
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Button variant="outline" size="sm" onClick={() => setSelected(new Set(filtered.map((p) => p.id)))} disabled={filtered.length === 0}>
               Selecionar todos filtrados ({filtered.length})
             </Button>
             {selected.size > 0 && (
               <>
                 <Button
                   variant="destructive"
+                  size="sm"
                   onClick={async () => {
                     if (!confirm(`Excluir ${selected.size} produto(s) selecionado(s)? Esta ação não pode ser desfeita.`)) return;
                     setSaving(true);
@@ -347,17 +352,16 @@ function AdminProductsPage() {
                 >
                   <Trash2 className="h-3 w-3 mr-1" /> Excluir selecionados
                 </Button>
-                <Button variant="ghost" onClick={() => setSelected(new Set())}>Limpar seleção</Button>
+                <Button variant="ghost" size="sm" onClick={() => setSelected(new Set())}>Limpar seleção</Button>
               </>
             )}
-
           </div>
           <p className="mt-2 text-xs text-muted-foreground">Selecione produtos na tabela abaixo (ou use "Selecionar todos filtrados") e informe novo preço, ajuste % ou estoque. Preço absoluto tem prioridade sobre ajuste %.</p>
         </CardContent>
       </Card>
 
       <Card>
-        <CardHeader className="flex-row items-center justify-between">
+        <CardHeader className="flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
           <CardTitle>Catálogo</CardTitle>
           {dirtyCount > 0 && (
             <Button size="sm" onClick={saveAllDirty} disabled={saving}>

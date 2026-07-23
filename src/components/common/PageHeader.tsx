@@ -9,7 +9,7 @@ type PageHeaderProps = {
 
 export function PageHeader({ title, description, actions, eyebrow }: PageHeaderProps) {
   return (
-    <div className="relative mb-6 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 border-b border-border/60 pb-5 sm:mb-8">
+    <div className="relative mb-6 flex flex-col gap-4 border-b border-border/60 pb-5 sm:mb-8 sm:grid sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
       <span
         aria-hidden
         className="pointer-events-none absolute -left-4 top-0 hidden h-8 w-1 rounded-full bg-gradient-to-b from-primary to-primary/30 sm:block"
@@ -21,14 +21,18 @@ export function PageHeader({ title, description, actions, eyebrow }: PageHeaderP
             {eyebrow}
           </div>
         )}
-        <h1 className="truncate bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-2xl font-bold tracking-tight text-transparent sm:text-3xl">
+        <h1 className="break-words bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-xl font-bold tracking-tight text-transparent sm:truncate sm:text-3xl">
           {title}
         </h1>
         {description && (
           <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground">{description}</p>
         )}
       </div>
-      {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
+      {actions && (
+        <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:shrink-0">
+          {actions}
+        </div>
+      )}
     </div>
   );
 }

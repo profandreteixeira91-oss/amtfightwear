@@ -80,7 +80,7 @@ function StoreCustomersPage() {
       </div>
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between gap-3">
+        <CardHeader className="flex flex-col items-stretch justify-between gap-3 sm:flex-row sm:items-center">
           <CardTitle className="text-base">
             {isLoading ? "Carregando..." : `${rows.length} cliente(s)`}
           </CardTitle>
@@ -88,7 +88,7 @@ function StoreCustomersPage() {
             placeholder="Buscar por nome, e-mail, telefone, cidade..."
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            className="max-w-xs"
+            className="w-full sm:max-w-xs"
           />
         </CardHeader>
         <CardContent className="p-0">
@@ -97,53 +97,55 @@ function StoreCustomersPage() {
               {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Cliente</TableHead>
-                  <TableHead className="hidden md:table-cell">Contato</TableHead>
-                  <TableHead className="hidden lg:table-cell">Localidade</TableHead>
-                  <TableHead className="text-right">Pedidos</TableHead>
-                  <TableHead className="text-right">Total pago</TableHead>
-                  <TableHead className="hidden md:table-cell">Cadastro</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {rows.length === 0 ? (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={6} className="py-12 text-center text-sm text-muted-foreground">
-                      Nenhum cliente encontrado.
-                    </TableCell>
+                    <TableHead>Cliente</TableHead>
+                    <TableHead className="hidden md:table-cell">Contato</TableHead>
+                    <TableHead className="hidden lg:table-cell">Localidade</TableHead>
+                    <TableHead className="text-right">Pedidos</TableHead>
+                    <TableHead className="text-right">Total pago</TableHead>
+                    <TableHead className="hidden md:table-cell">Cadastro</TableHead>
                   </TableRow>
-                ) : rows.map((c) => (
-                  <TableRow key={c.id}>
-                    <TableCell>
-                      <div className="font-medium">{c.full_name || "Sem nome"}</div>
-                      <div className="text-xs text-muted-foreground md:hidden">{c.email}</div>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
-                      <div>{c.email}</div>
-                      {c.phone && <div className="text-xs">{c.phone}</div>}
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell text-sm text-muted-foreground">
-                      {[c.city, c.state].filter(Boolean).join(" · ") || "—"}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="font-semibold">{c.orders_count}</div>
-                      {c.paid_count > 0 && (
-                        <Badge variant="secondary" className="text-[10px]">{c.paid_count} pagos</Badge>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right font-mono text-sm">
-                      {fmtBRL(Number(c.total_spent ?? 0))}
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell text-xs text-muted-foreground">
-                      {new Date(c.created_at).toLocaleDateString("pt-BR")}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {rows.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="py-12 text-center text-sm text-muted-foreground">
+                        Nenhum cliente encontrado.
+                      </TableCell>
+                    </TableRow>
+                  ) : rows.map((c) => (
+                    <TableRow key={c.id}>
+                      <TableCell>
+                        <div className="font-medium">{c.full_name || "Sem nome"}</div>
+                        <div className="text-xs text-muted-foreground md:hidden">{c.email}</div>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
+                        <div>{c.email}</div>
+                        {c.phone && <div className="text-xs">{c.phone}</div>}
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell text-sm text-muted-foreground">
+                        {[c.city, c.state].filter(Boolean).join(" · ") || "—"}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="font-semibold">{c.orders_count}</div>
+                        {c.paid_count > 0 && (
+                          <Badge variant="secondary" className="text-[10px]">{c.paid_count} pagos</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right font-mono text-sm">
+                        {fmtBRL(Number(c.total_spent ?? 0))}
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell text-xs text-muted-foreground">
+                        {new Date(c.created_at).toLocaleDateString("pt-BR")}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>
