@@ -22,7 +22,14 @@ import { IssuedList } from "@/components/dojo/certificates-studio/IssuedList";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/dojo/app/certificates")({
-  head: () => ({ meta: [{ title: "Editor de Certificados — AMT Dojo Manager" }] }),
+  head: () => ({
+    meta: [
+      { title: "Certificados — AMT Dojo Manager" },
+      { name: "description", content: "Studio Ruby Noir de certificados: modelos, emissão e histórico com design premium." },
+      { property: "og:title", content: "Certificados — AMT Dojo Manager" },
+      { property: "og:description", content: "Crie modelos, emita certificados e acompanhe emissões com estética premium." },
+    ],
+  }),
   component: CertificatesPage,
 });
 
