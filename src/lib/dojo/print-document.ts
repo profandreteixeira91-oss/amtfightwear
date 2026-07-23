@@ -241,7 +241,9 @@ function buildStyles(o: BrandedPrintOptions): string {
 
   /* FOOTER */
   .doc-footer { display: flex; justify-content: space-between; align-items: center; margin: 28px 52px 0; padding-top: 14px; border-top: 1px solid #e2e8f0; color: #94a3b8; font-size: 10px; }
-  .doc-footer .page-num { color: #cbd5e1; }
+  .doc-footer .page-num-inline { color: #94a3b8; font-variant-numeric: tabular-nums; }
+  .doc-footer-custom, .doc-header-custom { padding: 4mm 6mm; }
+  .doc-footer-custom img, .doc-header-custom img { max-height: 40px; }
 
   /* ACTION BAR (screen only) */
   .print-actions { position: fixed; top: 16px; right: 16px; display: flex; gap: 8px; z-index: 50; }
