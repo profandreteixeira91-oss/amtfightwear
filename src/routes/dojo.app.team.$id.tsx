@@ -197,6 +197,14 @@ function TeamMemberDetail() {
             <Field label="Cidade"><Input value={profile.city ?? ""} onChange={(e) => setProfile({ ...profile, city: e.target.value })} /></Field>
             <Field label="Estado"><Input value={profile.state ?? ""} onChange={(e) => setProfile({ ...profile, state: e.target.value })} /></Field>
             <Field label="CEP"><Input value={profile.zip_code ?? ""} onChange={(e) => setProfile({ ...profile, zip_code: e.target.value })} /></Field>
+            <Field label="Nacionalidade"><Input value={profile.nationality ?? ""} onChange={(e) => setProfile({ ...profile, nationality: e.target.value })} /></Field>
+            <Field label="Escolaridade"><Input value={profile.education_level ?? ""} onChange={(e) => setProfile({ ...profile, education_level: e.target.value })} placeholder="Ensino Médio, Superior, Pós..." /></Field>
+            <Field label="Nome da mãe"><Input value={profile.mother_name ?? ""} onChange={(e) => setProfile({ ...profile, mother_name: e.target.value })} /></Field>
+            <Field label="Nome do pai"><Input value={profile.father_name ?? ""} onChange={(e) => setProfile({ ...profile, father_name: e.target.value })} /></Field>
+            <div className="md:col-span-2 pt-2 text-xs font-semibold uppercase text-muted-foreground">Contato de emergência</div>
+            <Field label="Nome"><Input value={profile.emergency_contact_name ?? ""} onChange={(e) => setProfile({ ...profile, emergency_contact_name: e.target.value })} /></Field>
+            <Field label="Telefone"><Input value={profile.emergency_contact_phone ?? ""} onChange={(e) => setProfile({ ...profile, emergency_contact_phone: e.target.value })} /></Field>
+            <Field label="Grau de parentesco"><Input value={profile.emergency_contact_relation ?? ""} onChange={(e) => setProfile({ ...profile, emergency_contact_relation: e.target.value })} placeholder="Pai, mãe, cônjuge..." /></Field>
             <div className="md:col-span-2">
               <Field label="Observações"><Textarea rows={3} value={profile.notes ?? ""} onChange={(e) => setProfile({ ...profile, notes: e.target.value })} /></Field>
             </div>
