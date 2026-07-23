@@ -811,12 +811,10 @@ function DojoDashboard() {
                     <p className="text-xs text-muted-foreground truncate">
                       {belts.length
                         ? belts
-                            .map(
-                              (b: any) =>
-                                `${b.belt.name}${b.degree ? ` · ${b.degree}º` : ""}`,
-                            )
+                            .map((b: any) => formatBeltFull(b.belt.name, b.belt?.modality, b.degree))
                             .join(" • ")
                         : "Sem faixa"}
+
                     </p>
                   </div>
 
