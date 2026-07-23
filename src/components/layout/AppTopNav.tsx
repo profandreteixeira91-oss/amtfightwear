@@ -45,6 +45,7 @@ import {
   X,
   Megaphone,
   GraduationCap,
+  LifeBuoy,
   CalendarDays,
   Building2,
 } from "lucide-react";
@@ -171,6 +172,7 @@ const groups: { label: string; items: Item[] }[] = [
       { title: "Chat da loja", url: "/store/chat", icon: MessageCircle },
       { title: "Clientes", url: "/store/customers", icon: UserSquare2 },
       { title: "AMT Dojo Manager", url: "/store/dojo-manager", icon: GraduationCap },
+      { title: "Suporte Dojo", url: "/store/dojo-support", icon: LifeBuoy },
 
       { title: "Envio (Melhor Envio)", url: "/store/shipping", icon: Truck },
       { title: "Imagens dos produtos", url: "/store/imagens", icon: ImageIcon },

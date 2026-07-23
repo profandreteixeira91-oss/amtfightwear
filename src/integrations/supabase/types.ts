@@ -7454,6 +7454,83 @@ export type Database = {
         }
         Relationships: []
       }
+      dojo_support_messages: {
+        Row: {
+          author_id: string
+          author_role: string
+          body: string
+          created_at: string
+          id: string
+          ticket_id: string
+        }
+        Insert: {
+          author_id: string
+          author_role: string
+          body: string
+          created_at?: string
+          id?: string
+          ticket_id: string
+        }
+        Update: {
+          author_id?: string
+          author_role?: string
+          body?: string
+          created_at?: string
+          id?: string
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_support_messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_support_tickets: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          last_message_at: string
+          owner_id: string
+          priority: string
+          status: string
+          subject: string
+          unread_by_admin: number
+          unread_by_client: number
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          owner_id: string
+          priority?: string
+          status?: string
+          subject: string
+          unread_by_admin?: number
+          unread_by_client?: number
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          owner_id?: string
+          priority?: string
+          status?: string
+          subject?: string
+          unread_by_admin?: number
+          unread_by_client?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       dojo_team_attendance: {
         Row: {
           break_minutes: number

@@ -58,6 +58,7 @@ import { Route as DojoPayInvoiceIdRouteImport } from './routes/dojo.pay.$invoice
 import { Route as DojoCertificateEditorIdRouteImport } from './routes/dojo.certificate-editor.$id'
 import { Route as DojoAppVideosRouteImport } from './routes/dojo.app.videos'
 import { Route as DojoAppSystemUsersRouteImport } from './routes/dojo.app.system-users'
+import { Route as DojoAppSupportRouteImport } from './routes/dojo.app.support'
 import { Route as DojoAppSubscriptionRouteImport } from './routes/dojo.app.subscription'
 import { Route as DojoAppStudentsRouteImport } from './routes/dojo.app.students'
 import { Route as DojoAppStudentAppQrRouteImport } from './routes/dojo.app.student-app-qr'
@@ -109,6 +110,7 @@ import { Route as AuthenticatedStoreOrdersRouteImport } from './routes/_authenti
 import { Route as AuthenticatedStoreImportRouteImport } from './routes/_authenticated/store.import'
 import { Route as AuthenticatedStoreImagensRouteImport } from './routes/_authenticated/store.imagens'
 import { Route as AuthenticatedStoreFaixaCalcRouteImport } from './routes/_authenticated/store.faixa-calc'
+import { Route as AuthenticatedStoreDojoSupportRouteImport } from './routes/_authenticated/store.dojo-support'
 import { Route as AuthenticatedStoreDojoManagerRouteImport } from './routes/_authenticated/store.dojo-manager'
 import { Route as AuthenticatedStoreCustomersRouteImport } from './routes/_authenticated/store.customers'
 import { Route as AuthenticatedStoreChatRouteImport } from './routes/_authenticated/store.chat'
@@ -468,6 +470,11 @@ const DojoAppSystemUsersRoute = DojoAppSystemUsersRouteImport.update({
   path: '/system-users',
   getParentRoute: () => DojoAppRoute,
 } as any)
+const DojoAppSupportRoute = DojoAppSupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => DojoAppRoute,
+} as any)
 const DojoAppSubscriptionRoute = DojoAppSubscriptionRouteImport.update({
   id: '/subscription',
   path: '/subscription',
@@ -729,6 +736,12 @@ const AuthenticatedStoreFaixaCalcRoute =
   AuthenticatedStoreFaixaCalcRouteImport.update({
     id: '/store/faixa-calc',
     path: '/store/faixa-calc',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStoreDojoSupportRoute =
+  AuthenticatedStoreDojoSupportRouteImport.update({
+    id: '/store/dojo-support',
+    path: '/store/dojo-support',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedStoreDojoManagerRoute =
@@ -1450,6 +1463,7 @@ export interface FileRoutesByFullPath {
   '/store/chat': typeof AuthenticatedStoreChatRoute
   '/store/customers': typeof AuthenticatedStoreCustomersRoute
   '/store/dojo-manager': typeof AuthenticatedStoreDojoManagerRoute
+  '/store/dojo-support': typeof AuthenticatedStoreDojoSupportRoute
   '/store/faixa-calc': typeof AuthenticatedStoreFaixaCalcRoute
   '/store/imagens': typeof AuthenticatedStoreImagensRoute
   '/store/import': typeof AuthenticatedStoreImportRoute
@@ -1501,6 +1515,7 @@ export interface FileRoutesByFullPath {
   '/dojo/app/student-app-qr': typeof DojoAppStudentAppQrRoute
   '/dojo/app/students': typeof DojoAppStudentsRouteWithChildren
   '/dojo/app/subscription': typeof DojoAppSubscriptionRoute
+  '/dojo/app/support': typeof DojoAppSupportRoute
   '/dojo/app/system-users': typeof DojoAppSystemUsersRoute
   '/dojo/app/videos': typeof DojoAppVideosRouteWithChildren
   '/dojo/certificate-editor/$id': typeof DojoCertificateEditorIdRoute
@@ -1661,6 +1676,7 @@ export interface FileRoutesByTo {
   '/store/chat': typeof AuthenticatedStoreChatRoute
   '/store/customers': typeof AuthenticatedStoreCustomersRoute
   '/store/dojo-manager': typeof AuthenticatedStoreDojoManagerRoute
+  '/store/dojo-support': typeof AuthenticatedStoreDojoSupportRoute
   '/store/faixa-calc': typeof AuthenticatedStoreFaixaCalcRoute
   '/store/imagens': typeof AuthenticatedStoreImagensRoute
   '/store/import': typeof AuthenticatedStoreImportRoute
@@ -1706,6 +1722,7 @@ export interface FileRoutesByTo {
   '/dojo/app/schedule': typeof DojoAppScheduleRoute
   '/dojo/app/student-app-qr': typeof DojoAppStudentAppQrRoute
   '/dojo/app/subscription': typeof DojoAppSubscriptionRoute
+  '/dojo/app/support': typeof DojoAppSupportRoute
   '/dojo/app/system-users': typeof DojoAppSystemUsersRoute
   '/dojo/certificate-editor/$id': typeof DojoCertificateEditorIdRoute
   '/dojo/pay/$invoiceId': typeof DojoPayInvoiceIdRoute
@@ -1869,6 +1886,7 @@ export interface FileRoutesById {
   '/_authenticated/store/chat': typeof AuthenticatedStoreChatRoute
   '/_authenticated/store/customers': typeof AuthenticatedStoreCustomersRoute
   '/_authenticated/store/dojo-manager': typeof AuthenticatedStoreDojoManagerRoute
+  '/_authenticated/store/dojo-support': typeof AuthenticatedStoreDojoSupportRoute
   '/_authenticated/store/faixa-calc': typeof AuthenticatedStoreFaixaCalcRoute
   '/_authenticated/store/imagens': typeof AuthenticatedStoreImagensRoute
   '/_authenticated/store/import': typeof AuthenticatedStoreImportRoute
@@ -1920,6 +1938,7 @@ export interface FileRoutesById {
   '/dojo/app/student-app-qr': typeof DojoAppStudentAppQrRoute
   '/dojo/app/students': typeof DojoAppStudentsRouteWithChildren
   '/dojo/app/subscription': typeof DojoAppSubscriptionRoute
+  '/dojo/app/support': typeof DojoAppSupportRoute
   '/dojo/app/system-users': typeof DojoAppSystemUsersRoute
   '/dojo/app/videos': typeof DojoAppVideosRouteWithChildren
   '/dojo/certificate-editor/$id': typeof DojoCertificateEditorIdRoute
@@ -2085,6 +2104,7 @@ export interface FileRouteTypes {
     | '/store/chat'
     | '/store/customers'
     | '/store/dojo-manager'
+    | '/store/dojo-support'
     | '/store/faixa-calc'
     | '/store/imagens'
     | '/store/import'
@@ -2136,6 +2156,7 @@ export interface FileRouteTypes {
     | '/dojo/app/student-app-qr'
     | '/dojo/app/students'
     | '/dojo/app/subscription'
+    | '/dojo/app/support'
     | '/dojo/app/system-users'
     | '/dojo/app/videos'
     | '/dojo/certificate-editor/$id'
@@ -2296,6 +2317,7 @@ export interface FileRouteTypes {
     | '/store/chat'
     | '/store/customers'
     | '/store/dojo-manager'
+    | '/store/dojo-support'
     | '/store/faixa-calc'
     | '/store/imagens'
     | '/store/import'
@@ -2341,6 +2363,7 @@ export interface FileRouteTypes {
     | '/dojo/app/schedule'
     | '/dojo/app/student-app-qr'
     | '/dojo/app/subscription'
+    | '/dojo/app/support'
     | '/dojo/app/system-users'
     | '/dojo/certificate-editor/$id'
     | '/dojo/pay/$invoiceId'
@@ -2503,6 +2526,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/chat'
     | '/_authenticated/store/customers'
     | '/_authenticated/store/dojo-manager'
+    | '/_authenticated/store/dojo-support'
     | '/_authenticated/store/faixa-calc'
     | '/_authenticated/store/imagens'
     | '/_authenticated/store/import'
@@ -2554,6 +2578,7 @@ export interface FileRouteTypes {
     | '/dojo/app/student-app-qr'
     | '/dojo/app/students'
     | '/dojo/app/subscription'
+    | '/dojo/app/support'
     | '/dojo/app/system-users'
     | '/dojo/app/videos'
     | '/dojo/certificate-editor/$id'
@@ -3048,6 +3073,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DojoAppSystemUsersRouteImport
       parentRoute: typeof DojoAppRoute
     }
+    '/dojo/app/support': {
+      id: '/dojo/app/support'
+      path: '/support'
+      fullPath: '/dojo/app/support'
+      preLoaderRoute: typeof DojoAppSupportRouteImport
+      parentRoute: typeof DojoAppRoute
+    }
     '/dojo/app/subscription': {
       id: '/dojo/app/subscription'
       path: '/subscription'
@@ -3403,6 +3435,13 @@ declare module '@tanstack/react-router' {
       path: '/store/faixa-calc'
       fullPath: '/store/faixa-calc'
       preLoaderRoute: typeof AuthenticatedStoreFaixaCalcRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/store/dojo-support': {
+      id: '/_authenticated/store/dojo-support'
+      path: '/store/dojo-support'
+      fullPath: '/store/dojo-support'
+      preLoaderRoute: typeof AuthenticatedStoreDojoSupportRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/store/dojo-manager': {
@@ -4284,6 +4323,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreChatRoute: typeof AuthenticatedStoreChatRoute
   AuthenticatedStoreCustomersRoute: typeof AuthenticatedStoreCustomersRoute
   AuthenticatedStoreDojoManagerRoute: typeof AuthenticatedStoreDojoManagerRoute
+  AuthenticatedStoreDojoSupportRoute: typeof AuthenticatedStoreDojoSupportRoute
   AuthenticatedStoreFaixaCalcRoute: typeof AuthenticatedStoreFaixaCalcRoute
   AuthenticatedStoreImagensRoute: typeof AuthenticatedStoreImagensRoute
   AuthenticatedStoreImportRoute: typeof AuthenticatedStoreImportRoute
@@ -4334,6 +4374,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStoreChatRoute: AuthenticatedStoreChatRoute,
   AuthenticatedStoreCustomersRoute: AuthenticatedStoreCustomersRoute,
   AuthenticatedStoreDojoManagerRoute: AuthenticatedStoreDojoManagerRoute,
+  AuthenticatedStoreDojoSupportRoute: AuthenticatedStoreDojoSupportRoute,
   AuthenticatedStoreFaixaCalcRoute: AuthenticatedStoreFaixaCalcRoute,
   AuthenticatedStoreImagensRoute: AuthenticatedStoreImagensRoute,
   AuthenticatedStoreImportRoute: AuthenticatedStoreImportRoute,
@@ -4661,6 +4702,7 @@ interface DojoAppRouteChildren {
   DojoAppStudentAppQrRoute: typeof DojoAppStudentAppQrRoute
   DojoAppStudentsRoute: typeof DojoAppStudentsRouteWithChildren
   DojoAppSubscriptionRoute: typeof DojoAppSubscriptionRoute
+  DojoAppSupportRoute: typeof DojoAppSupportRoute
   DojoAppSystemUsersRoute: typeof DojoAppSystemUsersRoute
   DojoAppVideosRoute: typeof DojoAppVideosRouteWithChildren
   DojoAppIndexRoute: typeof DojoAppIndexRoute
@@ -4699,6 +4741,7 @@ const DojoAppRouteChildren: DojoAppRouteChildren = {
   DojoAppStudentAppQrRoute: DojoAppStudentAppQrRoute,
   DojoAppStudentsRoute: DojoAppStudentsRouteWithChildren,
   DojoAppSubscriptionRoute: DojoAppSubscriptionRoute,
+  DojoAppSupportRoute: DojoAppSupportRoute,
   DojoAppSystemUsersRoute: DojoAppSystemUsersRoute,
   DojoAppVideosRoute: DojoAppVideosRouteWithChildren,
   DojoAppIndexRoute: DojoAppIndexRoute,
