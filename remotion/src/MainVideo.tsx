@@ -5,6 +5,7 @@ import { fade } from "@remotion/transitions/fade";
 import { slide } from "@remotion/transitions/slide";
 import { Backdrop } from "./Backdrop";
 import { SceneHero } from "./scenes/SceneHero";
+import { SceneProblem } from "./scenes/SceneProblem";
 import { SceneSpotlight, Spotlight } from "./scenes/SceneSpotlight";
 import { SceneWall } from "./scenes/SceneWall";
 import { SceneCTA } from "./scenes/SceneCTA";
