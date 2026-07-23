@@ -318,9 +318,24 @@ export function ClassSidePanel({
                           <ArrowRight className="h-4 w-4 text-muted-foreground" />
                         </button>
                       ))}
-                      <Button size="sm" variant="outline" onClick={handleCreatePlan} disabled={creatingPlan} className="w-full">
-                        <Plus className="h-3.5 w-3.5 mr-1" /> Novo plano para esta data
-                      </Button>
+                      <div className="flex flex-wrap gap-2">
+                        <Button size="sm" variant="outline" onClick={handleCreatePlan} disabled={creatingPlan} className="flex-1">
+                          <Plus className="h-3.5 w-3.5 mr-1" /> Novo em branco
+                        </Button>
+                        <Dialog open={tplOpen} onOpenChange={setTplOpen}>
+                          <DialogTrigger asChild>
+                            <Button size="sm" variant="outline" className="flex-1">
+                              <Sparkles className="h-3.5 w-3.5 mr-1" /> Do modelo
+                            </Button>
+                          </DialogTrigger>
+                          <TemplatePickerContent
+                            templates={templatesQ.data ?? []}
+                            loading={templatesQ.isLoading}
+                            onPick={handleApplyTemplate}
+                          />
+                        </Dialog>
+                      </div>
+
                     </div>
                   )}
                 </section>
