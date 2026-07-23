@@ -8,9 +8,12 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
-  Plus, Pencil, Copy, Archive, FileText, Sparkles, Search, Filter, RefreshCw,
+  Plus, Pencil, Copy, Archive, FileText, Sparkles, Search, Filter, RefreshCw, ChevronDown,
 } from "lucide-react";
 import { toast } from "sonner";
+import {
+  DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import {
   listTemplatesAdvanced,
   duplicateTemplate,
@@ -18,7 +21,7 @@ import {
   saveContractTemplate,
   CONTRACT_CATEGORY_LABELS,
 } from "@/lib/dojo/contracts.functions";
-import { DEFAULT_CONTRACT_PRESET } from "@/lib/dojo/contracts-presets";
+import { CONTRACT_PRESETS, type ContractPreset } from "@/lib/dojo/contracts-presets";
 
 export const Route = createFileRoute("/dojo/app/contracts/templates")({
   head: () => ({
