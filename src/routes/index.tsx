@@ -63,7 +63,7 @@ function SectionHeader({ eyebrow, title, action }: { eyebrow?: string; title: st
         ) : null}
         <h2
           className="text-[2rem] leading-[1.02] tracking-[-0.02em] text-foreground sm:text-[2.75rem] lg:text-[3.25rem]"
-          style={{ fontFamily: '"Outfit", "Inter", system-ui, sans-serif', fontWeight: 700, letterSpacing: "-0.02em" }}
+         
         >
           {title}
         </h2>
@@ -114,7 +114,7 @@ function StoreHomePage() {
 
             <h1
               className="text-[3.25rem] leading-[0.95] tracking-[-0.03em] text-white sm:text-[5rem] lg:text-[6.25rem]"
-              style={{ fontFamily: '"Outfit", "Inter", system-ui, sans-serif', fontWeight: 700, letterSpacing: "-0.02em" }}
+             
             >
               Feito para
               <br />
@@ -210,7 +210,7 @@ function StoreHomePage() {
                       <div className="text-[10px] font-semibold uppercase tracking-[0.36em] text-white/80">Categoria</div>
                       <div
                         className="mt-2 text-xl leading-[1.05] tracking-[-0.01em] drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)] sm:text-2xl"
-                        style={{ fontFamily: '"Outfit", "Inter", system-ui, sans-serif', fontWeight: 700, letterSpacing: "-0.02em" }}
+                       
                       >
                         {c.name}
                       </div>
@@ -297,7 +297,7 @@ function StoreHomePage() {
               <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
                 <Icon className="h-5 w-5" />
               </div>
-              <div className="mt-6 text-lg tracking-[-0.01em] text-foreground" style={{ fontFamily: '"Outfit", "Inter", system-ui, sans-serif', fontWeight: 700, letterSpacing: "-0.02em" }}>{title}</div>
+              <div className="mt-6 text-lg tracking-[-0.01em] text-foreground">{title}</div>
               <div className="mt-2 text-sm leading-[1.65] text-muted-foreground">{desc}</div>
             </div>
           ))}
@@ -314,7 +314,7 @@ function StoreHomePage() {
               <div className="text-[10px] font-semibold uppercase tracking-[0.38em] opacity-80">Cupom de boas-vindas</div>
               <h3
                 className="mt-4 text-[2.25rem] leading-[1.02] tracking-[-0.025em] sm:text-[3rem]"
-                style={{ fontFamily: '"Outfit", "Inter", system-ui, sans-serif', fontWeight: 700, letterSpacing: "-0.02em" }}
+               
               >
                 10% <span className="italic" style={{ fontWeight: 500 }}>off</span> na primeira compra
               </h3>
@@ -342,7 +342,7 @@ function StoreHomePage() {
               </div>
               <h3
                 className="mt-4 text-[2rem] leading-[1.02] tracking-[-0.025em] sm:text-[2.5rem]"
-                style={{ fontFamily: '"Outfit", "Inter", system-ui, sans-serif', fontWeight: 700, letterSpacing: "-0.02em" }}
+               
               >
                 100% <span className="italic text-primary" style={{ fontWeight: 500 }}>personalizado</span>
               </h3>
@@ -368,7 +368,7 @@ function StoreHomePage() {
               <h2
                 id="sobre-o-app"
                 className="mt-4 text-[2rem] leading-[1.05] tracking-[-0.02em] sm:text-[2.75rem]"
-                style={{ fontFamily: '"Outfit", "Inter", system-ui, sans-serif', fontWeight: 700, letterSpacing: "-0.02em" }}
+               
               >
                 Para que serve a <span className="italic" style={{ fontWeight: 500 }}>Loja AMT Fight Wear</span>?
               </h2>
@@ -502,7 +502,7 @@ function StoreHomePage() {
             <div className="text-[10px] font-semibold uppercase tracking-[0.45em] text-primary">Bem-vindo à</div>
             <h2
               className="mt-4 text-[2.5rem] leading-[1.02] tracking-[-0.025em] text-foreground sm:text-[3.5rem]"
-              style={{ fontFamily: '"Outfit", "Inter", system-ui, sans-serif', fontWeight: 700, letterSpacing: "-0.02em" }}
+             
             >
               Loja Virtual <span className="italic text-primary" style={{ fontWeight: 500 }}>AMT Fight Wear</span>
             </h2>
