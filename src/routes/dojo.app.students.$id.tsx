@@ -805,6 +805,12 @@ function StudentDetail() {
               </SectionCard>
             </TabsContent>
 
+            <TabsContent value="contratos" className="mt-4 space-y-4">
+              <SectionCard title="Contratos do aluno" icon={FileText}>
+                <StudentContracts studentId={id} student={student} />
+              </SectionCard>
+            </TabsContent>
+
             {/* --- Competições --- */}
             <TabsContent value="competicoes" className="mt-4 space-y-4">
               <SectionCard title="Competições" icon={Trophy}>
