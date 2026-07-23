@@ -1093,12 +1093,12 @@ function NewGraduationPage() {
                     ? s.current_belts
                     : (s.belt ? [{ belt: s.belt, degree: s.current_degree ?? 0 }] : []);
                   const currentMatch = current.find((b: any) => (b.belt?.modality ?? "jiu-jitsu") === chosenMod);
-                  const nextSuggest = chosenMod === "jiu-jitsu" ? suggestNextBelt({
+                  const nextSuggest = suggestNextBelt({
                     current: currentMatch ? { belt: currentMatch.belt, degree: currentMatch.degree ?? 0 } : null,
                     belts: (belts.data ?? []) as any[],
                     modality: chosenMod,
                     age: studentAge,
-                  }) : null;
+                  });
                   const suggestedBelt = nextSuggest ? beltById.get(nextSuggest.beltId) : null;
 
                   return (
