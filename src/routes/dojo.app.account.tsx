@@ -396,10 +396,35 @@ function PersonalTab({ profile, setProfile, email, onSave }: any) {
 /* ---------------- Academy ---------------- */
 function AcademyTab({ academy, setAcademy, onSave }: any) {
   const { lookup: cepLookup, loading: cepLoading } = useCepLookup();
+  const [availableModalities, setAvailableModalities] = useState<string[]>([]);
+  const [customModality, setCustomModality] = useState("");
   const bind = (k: string) => ({
     value: academy?.[k] ?? "",
     onChange: (e: any) => setAcademy({ ...academy, [k]: e.target.value }),
   });
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.from("dojo_belts").select("modality");
+      const set = new Set<string>();
+      (data ?? []).forEach((b: any) => { if (b.modality) set.add(String(b.modality)); });
+      setAvailableModalities(Array.from(set).sort());
+    })();
+  }, []);
+
+  const selectedModalities: string[] = academy?.modalities ?? [];
+  const toggleModality = (m: string) => {
+    const has = selectedModalities.includes(m);
+    const next = has ? selectedModalities.filter((x) => x !== m) : [...selectedModalities, m];
+    setAcademy({ ...academy, modalities: next });
+  };
+  const addCustomModality = () => {
+    const v = customModality.trim();
+    if (!v) return;
+    if (!selectedModalities.includes(v)) setAcademy({ ...academy, modalities: [...selectedModalities, v] });
+    if (!availableModalities.includes(v)) setAvailableModalities((prev) => [...prev, v].sort());
+    setCustomModality("");
+  };
 
   async function handleCepBlur() {
     const zip = String(academy?.zip || "").replace(/\D/g, "");
