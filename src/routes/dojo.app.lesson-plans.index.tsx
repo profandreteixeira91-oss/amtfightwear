@@ -170,21 +170,20 @@ function LessonPlansDashboardPage() {
     <div className="space-y-6">
       {/* KPI CARDS */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <KpiCard label="Aulas planejadas (semana)" value={stats?.week_planned ?? 0} icon={CalendarDays} tone="blue" />
-        <KpiCard label="Aulas realizadas (semana)" value={stats?.week_done ?? 0} icon={CheckCircle2} tone="emerald" />
+        <KpiCard label="Planejadas (semana)" value={stats?.week_planned ?? 0} icon={CalendarDays} tone="sky" />
+        <KpiCard label="Realizadas (semana)" value={stats?.week_done ?? 0} icon={CheckCircle2} tone="emerald" />
         <KpiCard label="Horas planejadas" value={formatHours(stats?.total_planned_min ?? 0)} icon={Clock} tone="violet" />
         <KpiCard label="Turmas ativas" value={stats?.active_classes ?? 0} icon={Users} tone="amber" />
       </div>
 
       {stats?.next_lesson ? (
-        <Card className="border-primary/20 bg-primary/5">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Próxima aula</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <div className="text-lg font-semibold">{stats.next_lesson.title}</div>
-              <div className="text-sm text-muted-foreground">
+        <div className="relative overflow-hidden rounded-2xl border border-red-500/20 bg-gradient-to-br from-neutral-950 via-neutral-900 to-red-950/40 p-5 text-white shadow-[0_20px_60px_-30px_rgba(220,38,38,0.6)]">
+          <div aria-hidden className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-red-500/20 blur-3xl" />
+          <div className="relative flex flex-wrap items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-red-300">Próxima aula</div>
+              <div className="mt-1 text-lg font-bold">{stats.next_lesson.title}</div>
+              <div className="mt-0.5 text-sm text-neutral-300">
                 {new Date(stats.next_lesson.date).toLocaleDateString("pt-BR")}
                 {stats.next_lesson.start_time ? ` · ${stats.next_lesson.start_time.slice(0, 5)}` : ""}
                 {(stats.next_lesson.dojo_classes as { name?: string } | null)?.name
@@ -192,47 +191,59 @@ function LessonPlansDashboardPage() {
                   : ""}
               </div>
             </div>
-            <Button asChild size="sm">
+            <Button asChild size="sm" className="bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-400">
               <Link to="/dojo/app/lesson-plans/$id" params={{ id: stats.next_lesson.id as string }}>
                 Abrir plano
               </Link>
             </Button>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       ) : null}
 
       {/* CALENDAR HEADER */}
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-1">
-          <Button variant="outline" size="icon" onClick={() => setAnchor(addDays(anchor, view === "month" ? -30 : -7))}>
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => setAnchor(new Date())}>
-            Hoje
-          </Button>
-          <Button variant="outline" size="icon" onClick={() => setAnchor(addDays(anchor, view === "month" ? 30 : 7))}>
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-          <span className="ml-3 text-sm font-medium text-muted-foreground">{formatRangeLabel(range.from, range.to, view)}</span>
-        </div>
-        <div className="flex items-center gap-1">
-          {(["week", "month", "list"] as ViewMode[]).map((v) => (
-            <Button key={v} size="sm" variant={view === v ? "default" : "outline"} onClick={() => setView(v)}>
-              {v === "week" ? "Semana" : v === "month" ? "Mês" : "Lista"}
+      <div className="rounded-2xl border border-white/10 bg-neutral-950/60 p-3 backdrop-blur">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-1">
+            <Button variant="outline" size="icon" className="border-white/15 bg-white/5 text-white hover:bg-white/10" onClick={() => setAnchor(addDays(anchor, view === "month" ? -30 : -7))}>
+              <ChevronLeft className="h-4 w-4" />
             </Button>
-          ))}
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button size="sm" variant="outline" className="ml-2">
-                <Sparkles className="mr-1 h-4 w-4" /> Aplicar modelo
+            <Button variant="outline" size="sm" className="border-white/15 bg-white/5 text-white hover:bg-white/10" onClick={() => setAnchor(new Date())}>
+              Hoje
+            </Button>
+            <Button variant="outline" size="icon" className="border-white/15 bg-white/5 text-white hover:bg-white/10" onClick={() => setAnchor(addDays(anchor, view === "month" ? 30 : 7))}>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+            <span className="ml-3 text-sm font-semibold capitalize text-neutral-200">{formatRangeLabel(range.from, range.to, view)}</span>
+          </div>
+          <div className="flex flex-wrap items-center gap-1">
+            {(["week", "month", "list"] as ViewMode[]).map((v) => (
+              <Button
+                key={v}
+                size="sm"
+                variant={view === v ? "default" : "outline"}
+                className={
+                  view === v
+                    ? "bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_6px_16px_-8px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-400"
+                    : "border-white/15 bg-white/5 text-white hover:bg-white/10"
+                }
+                onClick={() => setView(v)}
+              >
+                {v === "week" ? "Semana" : v === "month" ? "Mês" : "Lista"}
               </Button>
-            </DialogTrigger>
-            <TemplatePickerDialog onPick={(payload) => createFromTpl.mutate(payload)} />
-          </Dialog>
+            ))}
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button size="sm" variant="outline" className="ml-2 border-amber-400/40 bg-amber-400/10 text-amber-100 hover:bg-amber-400/20">
+                  <Sparkles className="mr-1 h-4 w-4" /> Aplicar modelo
+                </Button>
+              </DialogTrigger>
+              <TemplatePickerDialog onPick={(payload) => createFromTpl.mutate(payload)} />
+            </Dialog>
 
-          <Button size="sm" className="ml-1" onClick={() => createDraft.mutate(fmt(new Date()))}>
-            <Plus className="mr-1 h-4 w-4" /> Em branco
-          </Button>
+            <Button size="sm" className="ml-1 bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_6px_16px_-8px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-400" onClick={() => createDraft.mutate(fmt(new Date()))}>
+              <Plus className="mr-1 h-4 w-4" /> Em branco
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -251,6 +262,7 @@ function LessonPlansDashboardPage() {
     </div>
   );
 }
+
 
 function defaultBlocks() {
   return [
