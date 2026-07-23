@@ -119,11 +119,18 @@ function VideosLibrary() {
 
       {/* Top watched */}
       {(dashboard.data?.topWatched?.length ?? 0) > 0 && (
-        <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
-          <div className="mb-3 flex items-center gap-2 text-sm font-bold">
-            <TrendingUp className="h-4 w-4 text-primary" /> Mais assistidos
+        <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-neutral-950/70 p-5 text-white shadow-[0_20px_50px_-30px_rgba(220,38,38,0.5)] backdrop-blur">
+          <div aria-hidden className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-red-600/15 blur-3xl" />
+          <div className="relative mb-4 flex items-center gap-3">
+            <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-amber-400 via-red-500 to-red-700 text-white ring-1 ring-white/20 shadow-[0_10px_25px_-12px_rgba(220,38,38,0.9)]">
+              <TrendingUp className="h-5 w-5" />
+            </div>
+            <div>
+              <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-red-300">Em destaque</div>
+              <div className="text-base font-semibold">Mais assistidos</div>
+            </div>
           </div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="relative grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             {dashboard.data!.topWatched.map((v: any, i: number) => (
               <VideoCard
                 key={v.id}
@@ -145,18 +152,18 @@ function VideosLibrary() {
       )}
 
       {/* Filters */}
-      <div className="grid gap-2 rounded-xl border border-border bg-card p-3 shadow-sm sm:grid-cols-[minmax(0,1fr)_auto_auto_auto]">
+      <div className="grid gap-2 rounded-2xl border border-white/10 bg-neutral-950/60 p-3 text-white backdrop-blur sm:grid-cols-[minmax(0,1fr)_auto_auto_auto]">
         <div className="relative">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar por título ou descrição..."
-            className="pl-9"
+            className="border-white/10 bg-white/5 pl-9 text-white placeholder:text-neutral-500 focus-visible:ring-red-500/40"
           />
         </div>
         <Select value={categoryId} onValueChange={setCategoryId}>
-          <SelectTrigger className="w-full sm:w-52"><SelectValue placeholder="Categoria" /></SelectTrigger>
+          <SelectTrigger className="w-full border-white/10 bg-white/5 text-white sm:w-52"><SelectValue placeholder="Categoria" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todas as categorias</SelectItem>
             {rootCats.map((c: any) => (
@@ -165,7 +172,7 @@ function VideosLibrary() {
           </SelectContent>
         </Select>
         <Select value={status} onValueChange={(v) => setStatus(v as any)}>
-          <SelectTrigger className="w-full sm:w-40"><SelectValue placeholder="Status" /></SelectTrigger>
+          <SelectTrigger className="w-full border-white/10 bg-white/5 text-white sm:w-40"><SelectValue placeholder="Status" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos status</SelectItem>
             <SelectItem value="published">Publicados</SelectItem>
@@ -175,7 +182,7 @@ function VideosLibrary() {
           </SelectContent>
         </Select>
         <Select value={sort} onValueChange={(v) => setSort(v as any)}>
-          <SelectTrigger className="w-full sm:w-44"><Filter className="mr-1 h-3.5 w-3.5" /><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-full border-white/10 bg-white/5 text-white sm:w-44"><Filter className="mr-1 h-3.5 w-3.5" /><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="recent">Mais recentes</SelectItem>
             <SelectItem value="views">Mais assistidos</SelectItem>
@@ -190,11 +197,14 @@ function VideosLibrary() {
           {Array.from({ length: 8 }).map((_, i) => <VideoCardSkeleton key={i} />)}
         </div>
       ) : (videos.data?.length ?? 0) === 0 ? (
-        <div className="rounded-xl border border-dashed border-border bg-card p-12 text-center">
-          <Film className="mx-auto h-10 w-10 text-muted-foreground" />
-          <h3 className="mt-3 text-lg font-bold">Sua biblioteca está vazia</h3>
-          <p className="mt-1 text-sm text-muted-foreground">Publique seu primeiro vídeo para os alunos da academia.</p>
-          <Button asChild className="mt-4">
+        <div className="relative overflow-hidden rounded-2xl border border-dashed border-white/15 bg-neutral-950/60 p-12 text-center text-white backdrop-blur">
+          <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 h-52 w-52 rounded-full bg-red-600/15 blur-3xl" />
+          <div className="relative mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-amber-400 via-red-500 to-red-700 text-white ring-1 ring-white/20 shadow-[0_10px_25px_-12px_rgba(220,38,38,0.9)]">
+            <Film className="h-7 w-7" />
+          </div>
+          <h3 className="relative mt-4 font-display text-xl font-black tracking-tight">Sua biblioteca está vazia</h3>
+          <p className="relative mt-1 text-sm text-neutral-300">Publique seu primeiro vídeo para os alunos da academia.</p>
+          <Button asChild className="relative mt-5 bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-400">
             <Link to="/dojo/app/videos/novo">
               <Plus className="mr-2 h-4 w-4" /> Novo Vídeo
             </Link>
