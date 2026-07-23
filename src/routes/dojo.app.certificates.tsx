@@ -262,19 +262,54 @@ function CertificatesPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 md:gap-7">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 p-4 md:gap-6 md:p-6">
+      {/* ===== HERO Ruby Noir ===== */}
+      <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-neutral-950 text-white shadow-[0_30px_80px_-40px_rgba(220,38,38,0.65)]">
+        <div aria-hidden className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-red-600/25 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute -right-16 top-8 h-64 w-64 rounded-full bg-amber-500/15 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_0%,rgba(255,255,255,0.06),transparent_45%)]" />
+        <div className="relative flex flex-col gap-4 p-5 sm:p-7">
+          <div className="flex items-start gap-4">
+            <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-amber-400 via-red-500 to-red-700 text-white shadow-[0_10px_25px_-10px_rgba(220,38,38,0.9)] ring-1 ring-white/20">
+              <Award className="h-6 w-6" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-red-200 backdrop-blur">
+                <Flame className="h-3 w-3" /> Certificados · Ruby Noir
+              </div>
+              <h1 className="mt-2 font-display text-2xl font-black leading-tight tracking-tight sm:text-3xl md:text-4xl">
+                Reconhecimento em cada linha.
+              </h1>
+              <p className="mt-1 max-w-xl text-sm text-neutral-300">
+                Desenhe modelos, emita certificados e acompanhe cada entrega com padrão premium.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <TabsList>
-            <TabsTrigger value="modelos"><FileCheck className="mr-1 h-4 w-4" /> Modelos</TabsTrigger>
-            <TabsTrigger value="emitidos"><FileCheck className="mr-1 h-4 w-4" /> Emitidos</TabsTrigger>
+          <TabsList className="w-full justify-start rounded-full border border-white/10 bg-neutral-950/60 p-1 backdrop-blur md:w-auto">
+            <TabsTrigger
+              value="modelos"
+              className="rounded-full px-4 text-xs font-semibold text-neutral-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-600 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)]"
+            >
+              <FileCheck className="mr-1 h-4 w-4" /> Modelos
+            </TabsTrigger>
+            <TabsTrigger
+              value="emitidos"
+              className="rounded-full px-4 text-xs font-semibold text-neutral-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-600 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)]"
+            >
+              <Sparkles className="mr-1 h-4 w-4" /> Emitidos
+            </TabsTrigger>
           </TabsList>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {tab === "modelos" && (
               <>
                 <div className="relative">
                   <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-                  <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar modelo…" className="h-9 w-56 pl-7 text-sm" />
+                  <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar modelo…" className="h-9 w-full pl-7 text-sm sm:w-56" />
                 </div>
                 <select value={category} onChange={(e) => setCategory(e.target.value)} className="h-9 rounded-md border border-input bg-background px-2 text-sm">
                   <option value="">Todas as categorias</option>
@@ -283,13 +318,16 @@ function CertificatesPage() {
                 <Button variant="outline" onClick={() => setIssueOpen(true)}>
                   <Send className="h-4 w-4 mr-1" /> Emitir
                 </Button>
-                <Button onClick={() => navigate({ to: "/dojo/certificate-editor/$id", params: { id: "new" } })}>
+                <Button
+                  onClick={() => navigate({ to: "/dojo/certificate-editor/$id", params: { id: "new" } })}
+                  className="bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-400"
+                >
                   <Plus className="h-4 w-4 mr-1" /> Novo modelo
                 </Button>
               </>
             )}
             {tab === "emitidos" && (
-              <Button onClick={() => setIssueOpen(true)} className="bg-red-700 hover:bg-red-800">
+              <Button onClick={() => setIssueOpen(true)} className="bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-400">
                 <Send className="h-4 w-4 mr-1" /> Emitir certificado
               </Button>
             )}
@@ -298,6 +336,7 @@ function CertificatesPage() {
 
         <TabsContent value="modelos" className="mt-4">
           <p className="mb-3 text-sm text-muted-foreground">Modelos de certificado disponíveis para emissão.</p>
+
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {filteredTemplates.map((t: any) => {
