@@ -227,8 +227,7 @@ function TeamMemberDetail() {
             </Field>
             <Field label="Data de admissão"><Input type="date" value={profile.admission_date ?? ""} onChange={(e) => setProfile({ ...profile, admission_date: e.target.value })} /></Field>
             <Field label="Data de desligamento"><Input type="date" value={profile.termination_date ?? ""} onChange={(e) => setProfile({ ...profile, termination_date: e.target.value })} /></Field>
-            <Field label="Registro profissional"><Input value={profile.professional_registry ?? ""} onChange={(e) => setProfile({ ...profile, professional_registry: e.target.value })} /></Field>
-            <Field label="Graduação (faixa)"><Input value={profile.belt_grade ?? ""} onChange={(e) => setProfile({ ...profile, belt_grade: Number(e.target.value) || null })} placeholder="Grau" /></Field>
+            <Field label="CREF / Registro profissional"><Input value={profile.professional_registry ?? ""} onChange={(e) => setProfile({ ...profile, professional_registry: e.target.value })} placeholder="CREF 000000-G/UF" /></Field>
             <Field label="Modalidades (separadas por vírgula)">
               <Input
                 value={Array.isArray(profile.modalities) ? profile.modalities.join(", ") : ""}
@@ -237,6 +236,73 @@ function TeamMemberDetail() {
               />
             </Field>
             <Field label="Especialidades"><Input value={profile.specialties ?? ""} onChange={(e) => setProfile({ ...profile, specialties: e.target.value })} /></Field>
+
+            {(profile.role === "teacher" || profile.role === "instructor") && (
+              <div className="md:col-span-2 rounded-lg border bg-muted/30 p-4 space-y-3">
+                <div className="text-xs font-semibold uppercase text-muted-foreground">
+                  Graduação do professor / instrutor
+                </div>
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                  <Field label="Faixa (fonte: Modalidades & Faixas)">
+                    <Select
+                      value={profile.belt_id ?? "none"}
+                      onValueChange={(v) => setProfile({ ...profile, belt_id: v === "none" ? null : v })}
+                    >
+                      <SelectTrigger><SelectValue placeholder="Selecione a faixa" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">— Nenhuma —</SelectItem>
+                        {(belts.data ?? []).map((b: any) => (
+                          <SelectItem key={b.id} value={b.id}>
+                            {b.modality ? `${b.modality} · ` : ""}{b.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                  <Field label="Grau">
+                    <Input
+                      type="number"
+                      min={0}
+                      max={10}
+                      value={profile.belt_grade ?? ""}
+                      onChange={(e) => setProfile({ ...profile, belt_grade: e.target.value === "" ? null : Number(e.target.value) })}
+                      placeholder="0"
+                    />
+                  </Field>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Prévia</Label>
+                    <div className="rounded border bg-background p-2">
+                      {(() => {
+                        const belt = (belts.data ?? []).find((b: any) => b.id === profile.belt_id);
+                        if (!belt) return <div className="text-xs text-muted-foreground">Selecione uma faixa para visualizar</div>;
+                        return <BeltAuto belt={belt as any} degree={Number(profile.belt_grade ?? 0)} className="h-8" />;
+                      })()}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-2 text-xs font-semibold uppercase text-muted-foreground">
+                  Confederação / Federação
+                </div>
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                  <Field label="Confederação / Federação">
+                    <Input
+                      value={profile.confederation_name ?? ""}
+                      onChange={(e) => setProfile({ ...profile, confederation_name: e.target.value })}
+                      placeholder="Ex.: CBJJ, IBJJF, CBJ, IJF..."
+                    />
+                  </Field>
+                  <Field label="Número de registro">
+                    <Input
+                      value={profile.confederation_number ?? ""}
+                      onChange={(e) => setProfile({ ...profile, confederation_number: e.target.value })}
+                      placeholder="Ex.: 123456"
+                    />
+                  </Field>
+                </div>
+              </div>
+            )}
+
             <div className="md:col-span-2">
               <Field label="Biografia"><Textarea rows={4} value={profile.biography ?? ""} onChange={(e) => setProfile({ ...profile, biography: e.target.value })} /></Field>
             </div>
@@ -248,6 +314,7 @@ function TeamMemberDetail() {
             </div>
           </CardContent></Card>
         </TabsContent>
+
 
         {/* PERMISSIONS */}
         <TabsContent value="permissions" className="mt-4">
