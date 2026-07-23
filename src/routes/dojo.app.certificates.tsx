@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { Trash2, Copy, Plus, Star, Search, Upload, ImageOff, Send, FileCheck } from "lucide-react";
+import { Trash2, Copy, Plus, Star, Search, Upload, ImageOff, Send, FileCheck, Award, Flame, Sparkles } from "lucide-react";
 import { CertificateEditor } from "@/components/dojo/certificate-editor/CertificateEditor";
 import { migrateLegacyFields, toLegacyFields, type EditorSchema } from "@/components/dojo/certificate-editor/types";
 import { CertificatePreviewDialog, type CertificateTemplate } from "@/components/dojo/CertificatePreview";
@@ -22,7 +22,14 @@ import { IssuedList } from "@/components/dojo/certificates-studio/IssuedList";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/dojo/app/certificates")({
-  head: () => ({ meta: [{ title: "Editor de Certificados — AMT Dojo Manager" }] }),
+  head: () => ({
+    meta: [
+      { title: "Certificados — AMT Dojo Manager" },
+      { name: "description", content: "Studio Ruby Noir de certificados: modelos, emissão e histórico com design premium." },
+      { property: "og:title", content: "Certificados — AMT Dojo Manager" },
+      { property: "og:description", content: "Crie modelos, emita certificados e acompanhe emissões com estética premium." },
+    ],
+  }),
   component: CertificatesPage,
 });
 
@@ -255,19 +262,54 @@ function CertificatesPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 md:gap-7">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 p-4 md:gap-6 md:p-6">
+      {/* ===== HERO Ruby Noir ===== */}
+      <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-neutral-950 text-white shadow-[0_30px_80px_-40px_rgba(220,38,38,0.65)]">
+        <div aria-hidden className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-red-600/25 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute -right-16 top-8 h-64 w-64 rounded-full bg-amber-500/15 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_0%,rgba(255,255,255,0.06),transparent_45%)]" />
+        <div className="relative flex flex-col gap-4 p-5 sm:p-7">
+          <div className="flex items-start gap-4">
+            <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-amber-400 via-red-500 to-red-700 text-white shadow-[0_10px_25px_-10px_rgba(220,38,38,0.9)] ring-1 ring-white/20">
+              <Award className="h-6 w-6" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-red-200 backdrop-blur">
+                <Flame className="h-3 w-3" /> Certificados · Ruby Noir
+              </div>
+              <h1 className="mt-2 font-display text-2xl font-black leading-tight tracking-tight sm:text-3xl md:text-4xl">
+                Reconhecimento em cada linha.
+              </h1>
+              <p className="mt-1 max-w-xl text-sm text-neutral-300">
+                Desenhe modelos, emita certificados e acompanhe cada entrega com padrão premium.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <TabsList>
-            <TabsTrigger value="modelos"><FileCheck className="mr-1 h-4 w-4" /> Modelos</TabsTrigger>
-            <TabsTrigger value="emitidos"><FileCheck className="mr-1 h-4 w-4" /> Emitidos</TabsTrigger>
+          <TabsList className="w-full justify-start rounded-full border border-white/10 bg-neutral-950/60 p-1 backdrop-blur md:w-auto">
+            <TabsTrigger
+              value="modelos"
+              className="rounded-full px-4 text-xs font-semibold text-neutral-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-600 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)]"
+            >
+              <FileCheck className="mr-1 h-4 w-4" /> Modelos
+            </TabsTrigger>
+            <TabsTrigger
+              value="emitidos"
+              className="rounded-full px-4 text-xs font-semibold text-neutral-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-600 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)]"
+            >
+              <Sparkles className="mr-1 h-4 w-4" /> Emitidos
+            </TabsTrigger>
           </TabsList>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {tab === "modelos" && (
               <>
                 <div className="relative">
                   <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-                  <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar modelo…" className="h-9 w-56 pl-7 text-sm" />
+                  <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar modelo…" className="h-9 w-full pl-7 text-sm sm:w-56" />
                 </div>
                 <select value={category} onChange={(e) => setCategory(e.target.value)} className="h-9 rounded-md border border-input bg-background px-2 text-sm">
                   <option value="">Todas as categorias</option>
@@ -276,13 +318,16 @@ function CertificatesPage() {
                 <Button variant="outline" onClick={() => setIssueOpen(true)}>
                   <Send className="h-4 w-4 mr-1" /> Emitir
                 </Button>
-                <Button onClick={() => navigate({ to: "/dojo/certificate-editor/$id", params: { id: "new" } })}>
+                <Button
+                  onClick={() => navigate({ to: "/dojo/certificate-editor/$id", params: { id: "new" } })}
+                  className="bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-400"
+                >
                   <Plus className="h-4 w-4 mr-1" /> Novo modelo
                 </Button>
               </>
             )}
             {tab === "emitidos" && (
-              <Button onClick={() => setIssueOpen(true)} className="bg-red-700 hover:bg-red-800">
+              <Button onClick={() => setIssueOpen(true)} className="bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-400">
                 <Send className="h-4 w-4 mr-1" /> Emitir certificado
               </Button>
             )}
@@ -291,6 +336,7 @@ function CertificatesPage() {
 
         <TabsContent value="modelos" className="mt-4">
           <p className="mb-3 text-sm text-muted-foreground">Modelos de certificado disponíveis para emissão.</p>
+
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {filteredTemplates.map((t: any) => {
@@ -339,14 +385,14 @@ function CertificatesPage() {
           };
 
           return (
-            <Card key={t.id} className="dojo-card group overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-md">
+            <Card key={t.id} className="group relative overflow-hidden border-white/10 bg-neutral-950/70 text-white shadow-[0_20px_50px_-30px_rgba(220,38,38,0.5)] backdrop-blur transition-all hover:-translate-y-1 hover:border-red-500/30 hover:shadow-[0_25px_60px_-25px_rgba(220,38,38,0.7)]">
               <div
-                className="relative aspect-[7/5] bg-muted"
-                onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add("ring-2","ring-primary"); }}
-                onDragLeave={(e) => e.currentTarget.classList.remove("ring-2","ring-primary")}
+                className="relative aspect-[7/5] bg-gradient-to-br from-neutral-900 via-neutral-950 to-black"
+                onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add("ring-2","ring-red-500"); }}
+                onDragLeave={(e) => e.currentTarget.classList.remove("ring-2","ring-red-500")}
                 onDrop={(e) => {
                   e.preventDefault();
-                  e.currentTarget.classList.remove("ring-2","ring-primary");
+                  e.currentTarget.classList.remove("ring-2","ring-red-500");
                   const f = e.dataTransfer.files?.[0];
                   if (f) uploadBackground(f);
                 }}
@@ -354,14 +400,14 @@ function CertificatesPage() {
                 {previewUrl ? (
                   <img src={previewUrl} alt={t.name} className="h-full w-full object-contain" />
                 ) : (
-                  <div className="grid h-full w-full place-items-center text-xs text-muted-foreground">Arraste uma imagem ou use o botão abaixo</div>
+                  <div className="grid h-full w-full place-items-center px-4 text-center text-xs text-neutral-400">Arraste uma imagem ou use o botão abaixo</div>
                 )}
                 {t.is_default && (
-                  <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-yellow-400/95 px-2 py-0.5 text-[10px] font-bold text-yellow-950 shadow">
+                  <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 px-2 py-0.5 text-[10px] font-bold text-yellow-950 shadow-[0_6px_16px_-8px_rgba(245,158,11,0.9)] ring-1 ring-white/30">
                     <Star className="h-3 w-3 fill-current" /> Padrão
                   </span>
                 )}
-                <span className="absolute right-2 top-2 rounded-full bg-background/90 px-2 py-0.5 text-[10px] font-medium text-foreground shadow">{catLabel}</span>
+                <span className="absolute right-2 top-2 rounded-full border border-white/15 bg-neutral-950/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-red-200 backdrop-blur">{catLabel}</span>
 
                 {/* Overlay de ações do fundo */}
                 <div className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-1 bg-gradient-to-t from-black/70 to-transparent p-2 opacity-0 transition group-hover:opacity-100">
@@ -388,27 +434,33 @@ function CertificatesPage() {
                 </div>
               </div>
               <CardHeader className="pb-2">
-                <CardTitle className="text-base leading-tight">{t.name}</CardTitle>
-                <div className="text-[11px] text-muted-foreground">{elCount} elemento{elCount === 1 ? "" : "s"}</div>
+                <CardTitle className="text-base font-semibold leading-tight text-white">{t.name}</CardTitle>
+                <div className="text-[11px] text-neutral-400">{elCount} elemento{elCount === 1 ? "" : "s"}</div>
               </CardHeader>
               <CardContent className="flex gap-2 pt-0">
-                <Button size="sm" onClick={() => navigate({ to: "/dojo/certificate-editor/$id", params: { id: t.id } })} className="flex-1">Editar</Button>
-                <Button size="icon" variant="outline" title="Duplicar" onClick={() => duplicate(t)}><Copy className="h-4 w-4" /></Button>
+                <Button
+                  size="sm"
+                  onClick={() => navigate({ to: "/dojo/certificate-editor/$id", params: { id: t.id } })}
+                  className="flex-1 bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-400"
+                >
+                  Editar
+                </Button>
+                <Button size="icon" variant="outline" title="Duplicar" onClick={() => duplicate(t)} className="border-white/15 bg-white/5 text-white hover:bg-white/10"><Copy className="h-4 w-4" /></Button>
                 <Button size="icon" variant="ghost" title="Excluir" onClick={async () => {
                   if (confirm(`Excluir modelo "${t.name}"?`)) {
                     await delFn({ data: { id: t.id } });
                     qc.invalidateQueries({ queryKey: ["dojo-templates"] });
                   }
-                }}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                }} className="text-red-300 hover:bg-red-500/10 hover:text-red-200"><Trash2 className="h-4 w-4" /></Button>
               </CardContent>
             </Card>
           );
         })}
 
         {filteredTemplates.length === 0 && (
-          <Card className="col-span-full">
-            <CardContent className="p-10 text-center text-sm text-muted-foreground">
-              Nenhum modelo encontrado. Clique em <strong>Novo modelo</strong> para criar seu primeiro certificado.
+          <Card className="col-span-full border-white/10 bg-neutral-950/60 text-white backdrop-blur">
+            <CardContent className="p-10 text-center text-sm text-neutral-300">
+              Nenhum modelo encontrado. Clique em <strong className="text-red-300">Novo modelo</strong> para criar seu primeiro certificado.
             </CardContent>
           </Card>
         )}
