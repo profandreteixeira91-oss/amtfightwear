@@ -264,12 +264,98 @@ function ContractEditorPage() {
               className="h-8 border-transparent hover:border-input focus:border-input font-medium text-lg px-2 -ml-2 max-w-lg"
             />
             <div className="flex items-center gap-4 pl-2 -mt-0.5 text-[13px] text-neutral-700 dark:text-neutral-300">
-              <span className="hover:bg-neutral-200/60 dark:hover:bg-neutral-800 rounded px-1.5 py-0.5 cursor-default">Arquivo</span>
-              <span className="hover:bg-neutral-200/60 dark:hover:bg-neutral-800 rounded px-1.5 py-0.5 cursor-default">Editar</span>
-              <span className="hover:bg-neutral-200/60 dark:hover:bg-neutral-800 rounded px-1.5 py-0.5 cursor-default">Ver</span>
-              <span className="hover:bg-neutral-200/60 dark:hover:bg-neutral-800 rounded px-1.5 py-0.5 cursor-default">Inserir</span>
-              <span className="hover:bg-neutral-200/60 dark:hover:bg-neutral-800 rounded px-1.5 py-0.5 cursor-default">Formatar</span>
-              <span className="hover:bg-neutral-200/60 dark:hover:bg-neutral-800 rounded px-1.5 py-0.5 cursor-default">Ferramentas</span>
+              <MenuButton label="Arquivo">
+                <DropdownMenuItem onClick={() => navigate({ to: "/dojo/app/contract-templates/$id", params: { id: "new" } })}>Novo modelo</DropdownMenuItem>
+                <DropdownMenuItem onClick={save}><Save className="h-3.5 w-3.5 mr-2" />Salvar<span className="ml-auto text-[10px] text-muted-foreground">Ctrl+S</span></DropdownMenuItem>
+                <DropdownMenuItem onClick={printPreview}><Printer className="h-3.5 w-3.5 mr-2" />Imprimir<span className="ml-auto text-[10px] text-muted-foreground">Ctrl+P</span></DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate({ to: "/dojo/app/contracts/templates" })}>Voltar aos modelos</DropdownMenuItem>
+                {!isNew && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={removeTemplate} className="text-red-600 focus:text-red-600">Excluir modelo…</DropdownMenuItem>
+                  </>
+                )}
+              </MenuButton>
+              <MenuButton label="Editar">
+                <DropdownMenuItem onClick={() => exec("undo")}>Desfazer<span className="ml-auto text-[10px] text-muted-foreground">Ctrl+Z</span></DropdownMenuItem>
+                <DropdownMenuItem onClick={() => exec("redo")}>Refazer<span className="ml-auto text-[10px] text-muted-foreground">Ctrl+Y</span></DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => exec("selectAll")}>Selecionar tudo</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => exec("copy")}>Copiar</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => exec("cut")}>Recortar</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => exec("paste")}>Colar</DropdownMenuItem>
+              </MenuButton>
+              <MenuButton label="Ver">
+                <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">Aba do editor</DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => setActiveTab("body")}>Corpo</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setActiveTab("header")}>Cabeçalho</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setActiveTab("footer")}>Rodapé</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setActiveTab("page")}>Configuração da página</DropdownMenuItem>
+              </MenuButton>
+              <MenuButton label="Inserir">
+                <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">Variáveis</DropdownMenuLabel>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>Aluno</DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    {["aluno_nome","aluno_cpf","aluno_rg","aluno_endereco","aluno_telefone","aluno_modalidade"].map(v => (
+                      <DropdownMenuItem key={v} onClick={() => insertAtCursor(`{{${v}}}`)}>{v}</DropdownMenuItem>
+                    ))}
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>Academia</DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    {["academia_nome","academia_cnpj","academia_endereco","academia_cidade","academia_estado"].map(v => (
+                      <DropdownMenuItem key={v} onClick={() => insertAtCursor(`{{${v}}}`)}>{v}</DropdownMenuItem>
+                    ))}
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>Contrato</DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    {["contrato_plano","contrato_valor","contrato_forma_pagamento","contrato_dia_vencimento","contrato_inicio","contrato_fim","contrato_data"].map(v => (
+                      <DropdownMenuItem key={v} onClick={() => insertAtCursor(`{{${v}}}`)}>{v}</DropdownMenuItem>
+                    ))}
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => insertAtCursor("<hr />")}>Linha horizontal</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => insertAtCursor('<p style="page-break-after:always"></p>')}>Quebra de página</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => insertAtCursor("{{pagina_atual}} de {{total_paginas}}")}>Número da página</DropdownMenuItem>
+              </MenuButton>
+              <MenuButton label="Formatar">
+                <DropdownMenuItem onClick={() => exec("bold")}><strong>Negrito</strong><span className="ml-auto text-[10px] text-muted-foreground">Ctrl+B</span></DropdownMenuItem>
+                <DropdownMenuItem onClick={() => exec("italic")}><em>Itálico</em><span className="ml-auto text-[10px] text-muted-foreground">Ctrl+I</span></DropdownMenuItem>
+                <DropdownMenuItem onClick={() => exec("underline")}><span className="underline">Sublinhado</span><span className="ml-auto text-[10px] text-muted-foreground">Ctrl+U</span></DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>Alinhamento</DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuItem onClick={() => exec("justifyLeft")}>Esquerda</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => exec("justifyCenter")}>Centro</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => exec("justifyRight")}>Direita</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => exec("justifyFull")}>Justificado</DropdownMenuItem>
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>Listas</DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuItem onClick={() => exec("insertUnorderedList")}>Lista com marcadores</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => exec("insertOrderedList")}>Lista numerada</DropdownMenuItem>
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => exec("removeFormat")}>Limpar formatação</DropdownMenuItem>
+              </MenuButton>
+              <MenuButton label="Ferramentas">
+                <DropdownMenuItem onClick={() => patch({ show_page_numbers: !draft.show_page_numbers })}>
+                  {draft.show_page_numbers ? "✓ " : ""}Numerar páginas
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setActiveTab("page")}>Configuração da página…</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={printPreview}>Pré-visualizar impressão</DropdownMenuItem>
+              </MenuButton>
               <span className="text-xs text-muted-foreground ml-2">
                 {isNew ? "Novo modelo" : existing.data ? `Salvo · ${new Date((existing.data as any).updated_at).toLocaleString("pt-BR")}` : ""}
               </span>
