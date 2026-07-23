@@ -305,8 +305,8 @@ function AdminProductsPage() {
 
       <Card className="border-primary/40 bg-primary/5">
         <CardContent className="p-4">
-          <div className="flex flex-wrap items-end gap-3">
-            <div className="text-sm font-semibold min-w-[9rem]">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[auto_repeat(3,minmax(0,1fr))_auto] lg:items-end">
+            <div className="text-sm font-semibold">
               Edição em massa
               <div className="text-xs font-normal text-muted-foreground">
                 {selected.size} selecionado(s)
@@ -314,24 +314,27 @@ function AdminProductsPage() {
             </div>
             <div className="flex flex-col gap-1">
               <label className="text-xs text-muted-foreground">Novo preço (R$)</label>
-              <Input value={bulkPrice} onChange={(e) => setBulkPrice(e.target.value)} placeholder="ex: 199,90" className="w-32" />
+              <Input value={bulkPrice} onChange={(e) => setBulkPrice(e.target.value)} placeholder="ex: 199,90" className="w-full" />
             </div>
             <div className="flex flex-col gap-1">
               <label className="text-xs text-muted-foreground">Ajuste % (ex: 10 ou -5)</label>
-              <Input value={bulkPricePct} onChange={(e) => setBulkPricePct(e.target.value)} placeholder="%" className="w-24" />
+              <Input value={bulkPricePct} onChange={(e) => setBulkPricePct(e.target.value)} placeholder="%" className="w-full" />
             </div>
             <div className="flex flex-col gap-1">
               <label className="text-xs text-muted-foreground">Novo estoque</label>
-              <Input value={bulkStock} onChange={(e) => setBulkStock(e.target.value)} placeholder="ex: 10" className="w-24" />
+              <Input value={bulkStock} onChange={(e) => setBulkStock(e.target.value)} placeholder="ex: 10" className="w-full" />
             </div>
-            <Button onClick={applyBulk} disabled={saving || selected.size === 0}>Aplicar em massa</Button>
-            <Button variant="outline" onClick={() => setSelected(new Set(filtered.map((p) => p.id)))} disabled={filtered.length === 0}>
+            <Button onClick={applyBulk} disabled={saving || selected.size === 0} className="w-full sm:w-auto">Aplicar</Button>
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Button variant="outline" size="sm" onClick={() => setSelected(new Set(filtered.map((p) => p.id)))} disabled={filtered.length === 0}>
               Selecionar todos filtrados ({filtered.length})
             </Button>
             {selected.size > 0 && (
               <>
                 <Button
                   variant="destructive"
+                  size="sm"
                   onClick={async () => {
                     if (!confirm(`Excluir ${selected.size} produto(s) selecionado(s)? Esta ação não pode ser desfeita.`)) return;
                     setSaving(true);
@@ -349,10 +352,9 @@ function AdminProductsPage() {
                 >
                   <Trash2 className="h-3 w-3 mr-1" /> Excluir selecionados
                 </Button>
-                <Button variant="ghost" onClick={() => setSelected(new Set())}>Limpar seleção</Button>
+                <Button variant="ghost" size="sm" onClick={() => setSelected(new Set())}>Limpar seleção</Button>
               </>
             )}
-
           </div>
           <p className="mt-2 text-xs text-muted-foreground">Selecione produtos na tabela abaixo (ou use "Selecionar todos filtrados") e informe novo preço, ajuste % ou estoque. Preço absoluto tem prioridade sobre ajuste %.</p>
         </CardContent>
