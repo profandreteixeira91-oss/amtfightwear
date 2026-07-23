@@ -461,6 +461,60 @@ function NewGraduationPage() {
               <Button variant="ghost" size="sm" onClick={() => setSelectedStudents(new Set())}>Limpar</Button>
             </div>
 
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
+              <div>
+                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Modalidade
+                </label>
+                <select
+                  value={filterModality}
+                  onChange={(e) => {
+                    setFilterModality(e.target.value);
+                    setFilterBeltId("all");
+                  }}
+                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm capitalize"
+                >
+                  <option value="all">Todas as modalidades</option>
+                  {modalities.map((m) => (
+                    <option key={m} value={m} className="capitalize">{m}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Graduação atual
+                </label>
+                <select
+                  value={filterBeltId}
+                  onChange={(e) => setFilterBeltId(e.target.value)}
+                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                >
+                  <option value="all">Todas as graduações</option>
+                  {filterBeltOptions.map((b: any) => (
+                    <option key={b.id} value={b.id}>
+                      {b.name}
+                      {filterModality === "all" ? ` (${b.modality ?? "jiu-jitsu"})` : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {(filterModality !== "all" || filterBeltId !== "all") && (
+                <div className="flex items-end">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setFilterModality("all");
+                      setFilterBeltId("all");
+                    }}
+                  >
+                    <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Limpar filtros
+                  </Button>
+                </div>
+              )}
+            </div>
+
+
             <div className="max-h-[520px] divide-y divide-border overflow-y-auto rounded-xl border bg-background">
               {filteredStudents.map((s: any) => {
                 const belts = (s.current_belts && s.current_belts.length > 0)
