@@ -109,6 +109,7 @@ import { Route as AuthenticatedStoreOrdersRouteImport } from './routes/_authenti
 import { Route as AuthenticatedStoreImportRouteImport } from './routes/_authenticated/store.import'
 import { Route as AuthenticatedStoreImagensRouteImport } from './routes/_authenticated/store.imagens'
 import { Route as AuthenticatedStoreFaixaCalcRouteImport } from './routes/_authenticated/store.faixa-calc'
+import { Route as AuthenticatedStoreDojoManagerRouteImport } from './routes/_authenticated/store.dojo-manager'
 import { Route as AuthenticatedStoreCustomersRouteImport } from './routes/_authenticated/store.customers'
 import { Route as AuthenticatedStoreChatRouteImport } from './routes/_authenticated/store.chat'
 import { Route as AuthenticatedProspectSettingsRouteImport } from './routes/_authenticated/prospect.settings'
@@ -728,6 +729,12 @@ const AuthenticatedStoreFaixaCalcRoute =
   AuthenticatedStoreFaixaCalcRouteImport.update({
     id: '/store/faixa-calc',
     path: '/store/faixa-calc',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStoreDojoManagerRoute =
+  AuthenticatedStoreDojoManagerRouteImport.update({
+    id: '/store/dojo-manager',
+    path: '/store/dojo-manager',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedStoreCustomersRoute =
@@ -1442,6 +1449,7 @@ export interface FileRoutesByFullPath {
   '/prospect/settings': typeof AuthenticatedProspectSettingsRoute
   '/store/chat': typeof AuthenticatedStoreChatRoute
   '/store/customers': typeof AuthenticatedStoreCustomersRoute
+  '/store/dojo-manager': typeof AuthenticatedStoreDojoManagerRoute
   '/store/faixa-calc': typeof AuthenticatedStoreFaixaCalcRoute
   '/store/imagens': typeof AuthenticatedStoreImagensRoute
   '/store/import': typeof AuthenticatedStoreImportRoute
@@ -1652,6 +1660,7 @@ export interface FileRoutesByTo {
   '/prospect/settings': typeof AuthenticatedProspectSettingsRoute
   '/store/chat': typeof AuthenticatedStoreChatRoute
   '/store/customers': typeof AuthenticatedStoreCustomersRoute
+  '/store/dojo-manager': typeof AuthenticatedStoreDojoManagerRoute
   '/store/faixa-calc': typeof AuthenticatedStoreFaixaCalcRoute
   '/store/imagens': typeof AuthenticatedStoreImagensRoute
   '/store/import': typeof AuthenticatedStoreImportRoute
@@ -1859,6 +1868,7 @@ export interface FileRoutesById {
   '/_authenticated/prospect/settings': typeof AuthenticatedProspectSettingsRoute
   '/_authenticated/store/chat': typeof AuthenticatedStoreChatRoute
   '/_authenticated/store/customers': typeof AuthenticatedStoreCustomersRoute
+  '/_authenticated/store/dojo-manager': typeof AuthenticatedStoreDojoManagerRoute
   '/_authenticated/store/faixa-calc': typeof AuthenticatedStoreFaixaCalcRoute
   '/_authenticated/store/imagens': typeof AuthenticatedStoreImagensRoute
   '/_authenticated/store/import': typeof AuthenticatedStoreImportRoute
@@ -2074,6 +2084,7 @@ export interface FileRouteTypes {
     | '/prospect/settings'
     | '/store/chat'
     | '/store/customers'
+    | '/store/dojo-manager'
     | '/store/faixa-calc'
     | '/store/imagens'
     | '/store/import'
@@ -2284,6 +2295,7 @@ export interface FileRouteTypes {
     | '/prospect/settings'
     | '/store/chat'
     | '/store/customers'
+    | '/store/dojo-manager'
     | '/store/faixa-calc'
     | '/store/imagens'
     | '/store/import'
@@ -2490,6 +2502,7 @@ export interface FileRouteTypes {
     | '/_authenticated/prospect/settings'
     | '/_authenticated/store/chat'
     | '/_authenticated/store/customers'
+    | '/_authenticated/store/dojo-manager'
     | '/_authenticated/store/faixa-calc'
     | '/_authenticated/store/imagens'
     | '/_authenticated/store/import'
@@ -3392,6 +3405,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreFaixaCalcRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/dojo-manager': {
+      id: '/_authenticated/store/dojo-manager'
+      path: '/store/dojo-manager'
+      fullPath: '/store/dojo-manager'
+      preLoaderRoute: typeof AuthenticatedStoreDojoManagerRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/store/customers': {
       id: '/_authenticated/store/customers'
       path: '/store/customers'
@@ -4263,6 +4283,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProspectSettingsRoute: typeof AuthenticatedProspectSettingsRoute
   AuthenticatedStoreChatRoute: typeof AuthenticatedStoreChatRoute
   AuthenticatedStoreCustomersRoute: typeof AuthenticatedStoreCustomersRoute
+  AuthenticatedStoreDojoManagerRoute: typeof AuthenticatedStoreDojoManagerRoute
   AuthenticatedStoreFaixaCalcRoute: typeof AuthenticatedStoreFaixaCalcRoute
   AuthenticatedStoreImagensRoute: typeof AuthenticatedStoreImagensRoute
   AuthenticatedStoreImportRoute: typeof AuthenticatedStoreImportRoute
@@ -4312,6 +4333,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProspectSettingsRoute: AuthenticatedProspectSettingsRoute,
   AuthenticatedStoreChatRoute: AuthenticatedStoreChatRoute,
   AuthenticatedStoreCustomersRoute: AuthenticatedStoreCustomersRoute,
+  AuthenticatedStoreDojoManagerRoute: AuthenticatedStoreDojoManagerRoute,
   AuthenticatedStoreFaixaCalcRoute: AuthenticatedStoreFaixaCalcRoute,
   AuthenticatedStoreImagensRoute: AuthenticatedStoreImagensRoute,
   AuthenticatedStoreImportRoute: AuthenticatedStoreImportRoute,
