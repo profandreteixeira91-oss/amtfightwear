@@ -91,6 +91,8 @@ function TeamMemberDetail() {
   const payments = useQuery({ queryKey: ["team-member-payments", id], queryFn: () => listPayFn({ data: { member_id: id } }) });
   const docs = useQuery({ queryKey: ["team-member-docs", id], queryFn: () => listDocsFn({ data: { member_id: id } }) });
   const history = useQuery({ queryKey: ["team-member-history", id], queryFn: () => historyFn({ data: { member_id: id } }) });
+  const beltsFn = useServerFn(listDojoBelts);
+  const belts = useQuery({ queryKey: ["dojo-belts"], queryFn: () => beltsFn() });
 
   const [profile, setProfile] = useState<any>({});
   const [payroll, setPayroll] = useState<any>({});
