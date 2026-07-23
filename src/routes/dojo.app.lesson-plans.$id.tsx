@@ -252,10 +252,26 @@ function LessonEditorPage() {
         <Button variant="ghost" size="sm" onClick={() => navigate({ to: "/dojo/app/lesson-plans" })}>
           <ChevronLeft className="mr-1 h-4 w-4" /> Voltar
         </Button>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs text-muted-foreground">
             {save.isPending ? "Salvando…" : save.isSuccess ? "Salvo automaticamente" : ""}
           </span>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button size="sm" variant="outline">
+                <BookmarkPlus className="mr-1 h-4 w-4" /> Salvar como modelo
+              </Button>
+            </DialogTrigger>
+            <SaveTemplateDialog defaultName={form.title} onSave={(name) => saveTpl.mutate(name)} />
+          </Dialog>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button size="sm" variant="outline">
+                <Copy className="mr-1 h-4 w-4" /> Duplicar em massa
+              </Button>
+            </DialogTrigger>
+            <BulkDuplicateDialog onConfirm={(input) => bulkDup.mutate(input)} pending={bulkDup.isPending} />
+          </Dialog>
           <Button size="sm" onClick={() => save.mutate(form)} disabled={save.isPending}>
             <Save className="mr-1 h-4 w-4" /> Salvar agora
           </Button>
