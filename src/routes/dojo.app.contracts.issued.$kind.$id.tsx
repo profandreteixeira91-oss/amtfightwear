@@ -67,6 +67,7 @@ function IssuedContractDetail() {
   const target = useMemo(() => {
     if (!contract) return null;
     if (kind === "student") return contract.dojo_students;
+    if (kind === "team") return contract.dojo_team_members;
     return contract.dojo_affiliates;
   }, [contract, kind]);
 
