@@ -246,8 +246,8 @@ function ContractEditorPage() {
             <Tabs defaultValue="body" className="w-full">
               <TabsList className="w-full grid grid-cols-4">
                 <TabsTrigger value="body"><FileText className="h-3.5 w-3.5 mr-1" />Corpo</TabsTrigger>
-                <TabsTrigger value="header"><LayoutPanelTop className="h-3.5 w-3.5 mr-1" />Cabeçalho</TabsTrigger>
-                <TabsTrigger value="footer"><LayoutPanelBottom className="h-3.5 w-3.5 mr-1" />Rodapé</TabsTrigger>
+                <TabsTrigger value="header"><PanelTop className="h-3.5 w-3.5 mr-1" />Cabeçalho</TabsTrigger>
+                <TabsTrigger value="footer"><PanelBottom className="h-3.5 w-3.5 mr-1" />Rodapé</TabsTrigger>
                 <TabsTrigger value="page"><Settings2 className="h-3.5 w-3.5 mr-1" />Página</TabsTrigger>
               </TabsList>
 
