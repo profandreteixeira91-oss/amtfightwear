@@ -139,8 +139,8 @@ function RankingPage() {
           {[1, 0, 2].map((order, i) => {
             const p = podium[order];
             if (!p) return <div key={i} />;
-            // Medalha segue a ordem de exibição (sempre distinta), mesmo em empate.
-            const medalRank = order + 1;
+            // Medalha segue a colocação real: empates recebem a mesma medalha.
+            const medalRank = Math.min(p.rank, 3);
             const styleByMedal = [
               { border: "border-amber-400", bg: "bg-gradient-to-br from-amber-100 to-amber-50 dark:from-amber-950/40 dark:to-transparent", label: "text-amber-700 dark:text-amber-300", medal: "🥇" },
               { border: "border-slate-300", bg: "bg-gradient-to-br from-slate-100 to-slate-50 dark:from-slate-800/40 dark:to-transparent", label: "text-slate-600 dark:text-slate-300", medal: "🥈" },
@@ -192,14 +192,13 @@ function RankingPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {rows.map((r, idx) => {
+                  {rows.map((r) => {
                     const max = rows[0]?.count || 1;
                     const pct = Math.max(4, Math.round((r.count / max) * 100));
-                    const medalRank = idx + 1; // ordem de exibição — medalha única mesmo em empate
                     return (
                       <tr key={r.id} className="border-b last:border-0 hover:bg-muted/40">
                         <td className="py-2 font-bold text-muted-foreground">
-                          {medalRank <= 3 ? <RankMedal rank={medalRank} /> : <span className="pl-1">{r.rank}º</span>}
+                          {r.rank <= 3 ? <RankMedal rank={r.rank} /> : <span className="pl-1">{r.rank}º</span>}
                         </td>
                         <td className="py-2">
                           <div className="flex items-center gap-3">
