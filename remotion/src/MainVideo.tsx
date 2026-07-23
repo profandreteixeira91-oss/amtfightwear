@@ -133,7 +133,7 @@ export const MainVideo: React.FC = () => {
           presentation={fade()}
           timing={linearTiming({ durationInFrames: 15 })}
         />
-        <TransitionSeries.Sequence durationInFrames={150}>
+        <TransitionSeries.Sequence durationInFrames={180}>
           <SceneCTA />
         </TransitionSeries.Sequence>
       </TransitionSeries>
