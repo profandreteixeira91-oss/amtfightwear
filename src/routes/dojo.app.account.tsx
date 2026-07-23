@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCepLookup } from "@/hooks/useCepLookup";
+import { useQueryClient } from "@tanstack/react-query";
 import { DocumentsTab } from "@/components/dojo/account/DocumentsTab";
 
 
@@ -63,6 +64,7 @@ const PLACEMENTS: { key: string; label: string }[] = [
 function AccountPage() {
   const { onboarding } = Route.useSearch();
   const [tab, setTab] = useState<TabKey>(onboarding ? "academy" : "personal");
+  const queryClient = useQueryClient();
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>({});
   const [academy, setAcademy] = useState<any>({});
@@ -131,6 +133,7 @@ function AccountPage() {
     const { error } = await supabase.from("dojo_academy_profile").upsert(payload);
     if (error) return toast.error(error.message);
     await logAudit("academy_updated");
+    await queryClient.invalidateQueries({ queryKey: ["dojo", "branding", "me"] });
     toast.success("Dados da academia salvos");
     load();
   }
