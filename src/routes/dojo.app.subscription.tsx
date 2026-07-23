@@ -3,13 +3,14 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { CreditCard, CheckCircle2, XCircle, Clock, ExternalLink } from "lucide-react";
+import { CreditCard, CheckCircle2, XCircle, Clock } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { NativeCardCheckout } from "@/components/dojo/NativeCardCheckout";
 import {
   getMySubscription,
-  startMySubscription,
   cancelMySubscription,
   syncMySubscription,
   PLAN_AMOUNT,
@@ -32,7 +33,6 @@ const statusLabel: Record<string, { label: string; className: string; Icon: any 
 function SubscriptionPage() {
   const qc = useQueryClient();
   const get = useServerFn(getMySubscription);
-  const start = useServerFn(startMySubscription);
   const cancel = useServerFn(cancelMySubscription);
   const sync = useServerFn(syncMySubscription);
 
@@ -41,8 +41,14 @@ function SubscriptionPage() {
     queryFn: () => get({}),
   });
   const [busy, setBusy] = useState(false);
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [ownerEmail, setOwnerEmail] = useState<string | undefined>(undefined);
 
-  // Se voltou do checkout, sincroniza uma vez
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setOwnerEmail(data.user?.email ?? undefined));
+  }, []);
+
+  // Retorno de eventual checkout externo antigo — sincroniza uma vez.
   useEffect(() => {
     const url = new URL(window.location.href);
     if (url.searchParams.get("mp") === "return") {
@@ -59,22 +65,6 @@ function SubscriptionPage() {
     sub?.trial_ends_at && new Date(sub.trial_ends_at) > new Date() && status === "trialing";
   const trialEnds = sub?.trial_ends_at ? new Date(sub.trial_ends_at) : null;
 
-  async function activate() {
-    setBusy(true);
-    try {
-      const { init_point } = await start({});
-      if (init_point) {
-        window.location.href = `${init_point}${init_point.includes("?") ? "&" : "?"}back_url=${encodeURIComponent(window.location.origin + "/dojo/app/subscription?mp=return")}`;
-      } else {
-        toast.error("Mercado Pago não retornou link de checkout");
-      }
-    } catch (e: any) {
-      toast.error(e?.message ?? "Falha ao iniciar assinatura");
-    } finally {
-      setBusy(false);
-    }
-  }
-
   async function doCancel() {
     if (!confirm("Cancelar a assinatura? Você perderá o acesso ao final do período atual.")) return;
     setBusy(true);
@@ -89,6 +79,9 @@ function SubscriptionPage() {
     }
   }
 
+  const canActivate =
+    status === "trialing" || status === "pending" || status === "cancelled" || status === "paused";
+
   return (
     <div className="mx-auto max-w-3xl space-y-6 p-6">
       <div className="flex items-center gap-3">
@@ -97,7 +90,9 @@ function SubscriptionPage() {
         </div>
         <div>
           <h1 className="text-2xl font-bold">Assinatura</h1>
-          <p className="text-sm text-neutral-500">Plano AMT Dojo Manager — cobrado via Mercado Pago</p>
+          <p className="text-sm text-neutral-500">
+            Plano AMT Dojo Manager — cobrado via Mercado Pago
+          </p>
         </div>
       </div>
 
@@ -112,7 +107,9 @@ function SubscriptionPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-baseline gap-2">
-            <span className="text-4xl font-black">R$ {PLAN_AMOUNT.toFixed(2).replace(".", ",")}</span>
+            <span className="text-4xl font-black">
+              R$ {PLAN_AMOUNT.toFixed(2).replace(".", ",")}
+            </span>
             <span className="text-sm text-neutral-500">/ mês</span>
           </div>
           <ul className="space-y-2 text-sm text-neutral-700">
@@ -137,10 +134,14 @@ function SubscriptionPage() {
           )}
 
           <div className="flex flex-wrap gap-2 pt-2">
-            {(status === "trialing" || status === "pending" || status === "cancelled") && (
-              <Button onClick={activate} disabled={busy || isLoading} className="bg-red-600 hover:bg-red-700">
-                <ExternalLink className="mr-2 h-4 w-4" />
-                {status === "cancelled" ? "Reativar assinatura" : "Ativar assinatura no Mercado Pago"}
+            {canActivate && !showCheckout && (
+              <Button
+                onClick={() => setShowCheckout(true)}
+                disabled={isLoading}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                <CreditCard className="mr-2 h-4 w-4" />
+                {status === "cancelled" ? "Reativar assinatura" : "Ativar assinatura"}
               </Button>
             )}
             {status === "active" && (
@@ -149,14 +150,35 @@ function SubscriptionPage() {
               </Button>
             )}
           </div>
-
-          <p className="pt-2 text-[11px] text-neutral-400">
-            Pagamento recorrente processado com segurança pelo Mercado Pago. Você pode pagar com{" "}
-            <strong>cartão de crédito</strong> ou com <strong>saldo da sua conta Mercado Pago</strong>.
-            Cancele a qualquer momento — nenhum dado do cartão é armazenado no AMT Dojo Manager.
-          </p>
         </CardContent>
       </Card>
+
+      {showCheckout && canActivate && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Finalizar assinatura</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <NativeCardCheckout
+              defaultEmail={ownerEmail}
+              onSuccess={async () => {
+                setShowCheckout(false);
+                await qc.invalidateQueries({ queryKey: ["dojo", "subscription"] });
+              }}
+            />
+            <div className="pt-3 text-center">
+              <button
+                type="button"
+                className="text-xs text-neutral-500 underline"
+                onClick={() => setShowCheckout(false)}
+              >
+                Cancelar
+              </button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
+
