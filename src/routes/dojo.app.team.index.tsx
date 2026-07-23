@@ -86,12 +86,26 @@ function TeamPage() {
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState<{ full_name: string; role: string; email: string; phone: string; whatsapp: string }>({
+  const [form, setForm] = useState<any>({
     full_name: "",
     role: "teacher",
     email: "",
     phone: "",
     whatsapp: "",
+    cpf: "",
+    rg: "",
+    birth_date: "",
+    gender: "",
+    nationality: "",
+    admission_date: "",
+    zip_code: "",
+    address_street: "",
+    address_number: "",
+    address_neighborhood: "",
+    city: "",
+    state: "",
+    emergency_contact_name: "",
+    emergency_contact_phone: "",
   });
 
   const filtered = useMemo(() => {
@@ -108,24 +122,42 @@ function TeamPage() {
     });
   }, [list.data, search, roleFilter, statusFilter]);
 
+  const lookupCep = async (cep: string) => {
+    const clean = cep.replace(/\D/g, "");
+    if (clean.length !== 8) return;
+    try {
+      const r = await fetch(`https://viacep.com.br/ws/${clean}/json/`);
+      const d = await r.json();
+      if (d?.erro) return;
+      setForm((f: any) => ({
+        ...f,
+        address_street: d.logradouro || f.address_street,
+        address_neighborhood: d.bairro || f.address_neighborhood,
+        city: d.localidade || f.city,
+        state: d.uf || f.state,
+      }));
+    } catch {}
+  };
+
   const onCreate = async () => {
     if (!form.full_name.trim()) {
       toast.error("Informe o nome completo");
       return;
     }
     try {
-      await saveFn({
-        data: {
-          full_name: form.full_name,
-          role: form.role as any,
-          email: form.email || undefined,
-          phone: form.phone || undefined,
-          whatsapp: form.whatsapp || undefined,
-        },
-      });
+      const payload = Object.fromEntries(
+        Object.entries(form).map(([k, v]) => [k, v === "" ? null : v]),
+      );
+      await saveFn({ data: { ...payload, full_name: form.full_name, role: form.role } as any });
       toast.success("Colaborador cadastrado");
       setOpen(false);
-      setForm({ full_name: "", role: "teacher", email: "", phone: "", whatsapp: "" });
+      setForm({
+        full_name: "", role: "teacher", email: "", phone: "", whatsapp: "",
+        cpf: "", rg: "", birth_date: "", gender: "", nationality: "",
+        admission_date: "", zip_code: "", address_street: "", address_number: "",
+        address_neighborhood: "", city: "", state: "",
+        emergency_contact_name: "", emergency_contact_phone: "",
+      });
       qc.invalidateQueries({ queryKey: ["team-members"] });
       qc.invalidateQueries({ queryKey: ["team-dashboard"] });
     } catch (e: any) {
@@ -153,6 +185,15 @@ function TeamPage() {
     { label: "Folha do mês", value: formatCurrency(d?.payroll_month_total ?? 0), icon: Wallet, tone: "text-orange-600" },
   ];
 
+  const fld = (k: string, ph: string, extra?: any) => (
+    <Input
+      placeholder={ph}
+      value={form[k] ?? ""}
+      onChange={(e) => setForm({ ...form, [k]: e.target.value })}
+      {...extra}
+    />
+  );
+
   const createDialog = (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -160,35 +201,70 @@ function TeamPage() {
           <Plus className="mr-2 h-4 w-4" /> Novo Colaborador
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Novo colaborador</DialogTitle>
         </DialogHeader>
-        <div className="space-y-3">
-          <Input
-            placeholder="Nome completo"
-            value={form.full_name}
-            onChange={(e) => setForm({ ...form, full_name: e.target.value })}
-          />
-          <Select value={form.role} onValueChange={(v) => setForm({ ...form, role: v })}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {Object.entries(ROLE_LABELS).map(([k, v]) => (
-                <SelectItem key={k} value={k}>
-                  {v}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Input placeholder="E-mail" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-          <Input placeholder="Telefone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
-          <Input placeholder="WhatsApp" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })} />
+        <div className="space-y-4">
+          <section className="space-y-2">
+            <div className="text-xs font-semibold uppercase text-muted-foreground">Identificação</div>
+            <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+              {fld("full_name", "Nome completo *")}
+              <Select value={form.role} onValueChange={(v) => setForm({ ...form, role: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {Object.entries(ROLE_LABELS).map(([k, v]) => (
+                    <SelectItem key={k} value={k}>{v}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {fld("cpf", "CPF")}
+              {fld("rg", "RG")}
+              {fld("birth_date", "Data de nascimento", { type: "date" })}
+              {fld("gender", "Sexo")}
+              {fld("nationality", "Nacionalidade")}
+              {fld("admission_date", "Data de admissão", { type: "date" })}
+            </div>
+          </section>
+
+          <section className="space-y-2">
+            <div className="text-xs font-semibold uppercase text-muted-foreground">Contato</div>
+            <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+              {fld("email", "E-mail", { type: "email" })}
+              {fld("phone", "Telefone")}
+              {fld("whatsapp", "WhatsApp")}
+            </div>
+          </section>
+
+          <section className="space-y-2">
+            <div className="text-xs font-semibold uppercase text-muted-foreground">Endereço</div>
+            <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
+              <Input
+                placeholder="CEP"
+                value={form.zip_code ?? ""}
+                onChange={(e) => setForm({ ...form, zip_code: e.target.value })}
+                onBlur={(e) => lookupCep(e.target.value)}
+              />
+              <div className="md:col-span-2">{fld("address_street", "Rua")}</div>
+              {fld("address_number", "Nº")}
+              {fld("address_neighborhood", "Bairro")}
+              {fld("city", "Cidade")}
+              {fld("state", "UF")}
+            </div>
+          </section>
+
+          <section className="space-y-2">
+            <div className="text-xs font-semibold uppercase text-muted-foreground">Contato de emergência</div>
+            <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+              {fld("emergency_contact_name", "Nome do contato")}
+              {fld("emergency_contact_phone", "Telefone")}
+            </div>
+          </section>
+
           <p className="text-xs text-muted-foreground">
-            Você pode completar os dados profissionais, financeiros, permissões, agenda e documentos após criar o cadastro.
+            Após criar o cadastro você poderá completar graduação, confederação, documentos, permissões, agenda e financeiro na tela do colaborador.
           </p>
-          <Button onClick={onCreate} className="w-full">Cadastrar</Button>
+          <Button onClick={onCreate} className="w-full">Cadastrar colaborador</Button>
         </div>
       </DialogContent>
     </Dialog>
