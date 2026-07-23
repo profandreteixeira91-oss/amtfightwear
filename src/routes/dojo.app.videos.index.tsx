@@ -61,34 +61,51 @@ function VideosLibrary() {
   );
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="min-w-0">
-          <h2 className="truncate text-xl font-black tracking-tight">Biblioteca de Vídeos</h2>
-          <p className="text-sm text-muted-foreground">Publique e organize os conteúdos da sua academia.</p>
+    <div className="space-y-5 p-4 md:p-6">
+      {/* ===== HERO Ruby Noir ===== */}
+      <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-neutral-950 text-white shadow-[0_30px_80px_-40px_rgba(220,38,38,0.65)]">
+        <div aria-hidden className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-red-600/25 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute -right-16 top-8 h-64 w-64 rounded-full bg-amber-500/15 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_0%,rgba(255,255,255,0.06),transparent_45%)]" />
+        <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 p-5 sm:p-7 md:flex md:flex-wrap md:items-center md:justify-between">
+          <div className="flex min-w-0 items-start gap-4">
+            <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-amber-400 via-red-500 to-red-700 text-white shadow-[0_10px_25px_-10px_rgba(220,38,38,0.9)] ring-1 ring-white/20">
+              <PlayCircle className="h-6 w-6" />
+            </div>
+            <div className="min-w-0">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-red-200 backdrop-blur">
+                <Flame className="h-3 w-3" /> Biblioteca · Ruby Noir
+              </div>
+              <h1 className="mt-2 font-display text-2xl font-black leading-tight tracking-tight sm:text-3xl md:text-4xl">
+                Cada aula gravada, um legado técnico.
+              </h1>
+              <p className="mt-1 max-w-xl text-sm text-neutral-300">
+                Publique, organize e acompanhe o consumo dos conteúdos da sua academia.
+              </p>
+            </div>
+          </div>
+          <div className="col-span-2 flex flex-wrap items-center gap-2 md:col-span-1">
+            <Button asChild variant="outline" className="border-white/15 bg-white/5 text-white hover:bg-white/10">
+              <Link to="/dojo/app/videos/favoritos">
+                <StarIcon className="mr-2 h-4 w-4" />
+                Favoritos
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="border-white/15 bg-white/5 text-white hover:bg-white/10">
+              <Link to="/dojo/app/videos/categorias">
+                <FolderTree className="mr-2 h-4 w-4" />
+                Categorias
+              </Link>
+            </Button>
+            <Button asChild className="bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-400">
+              <Link to="/dojo/app/videos/novo">
+                <Plus className="mr-2 h-4 w-4" />
+                Novo Vídeo
+              </Link>
+            </Button>
+          </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button asChild variant="outline">
-            <Link to="/dojo/app/videos/favoritos">
-              <StarIcon className="mr-2 h-4 w-4" />
-              Favoritos
-            </Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link to="/dojo/app/videos/categorias">
-              <FolderTree className="mr-2 h-4 w-4" />
-              Categorias
-            </Link>
-          </Button>
-          <Button asChild>
-            <Link to="/dojo/app/videos/novo">
-              <Plus className="mr-2 h-4 w-4" />
-              Novo Vídeo
-            </Link>
-          </Button>
-        </div>
-      </div>
+      </section>
 
       {/* Dashboard */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
