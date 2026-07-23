@@ -318,13 +318,16 @@ function StoreHomePage() {
             className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-foreground p-10 text-background lg:col-span-2"
           >
             <div>
-              <div className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.32em] text-primary">
+              <div className="inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.38em] text-primary">
                 <Sparkles className="h-3.5 w-3.5" /> Novo · Custom Shop
               </div>
-              <h3 className="mt-3 text-3xl font-black leading-[1.05] tracking-tight sm:text-4xl">
-                100% <span className="text-primary">personalizado</span>
+              <h3
+                className="mt-4 text-[2rem] leading-[1.02] tracking-[-0.025em] sm:text-[2.5rem]"
+                style={{ fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 600 }}
+              >
+                100% <span className="italic text-primary" style={{ fontWeight: 500 }}>personalizado</span>
               </h3>
-              <p className="mt-3 text-sm leading-relaxed text-background/70">
+              <p className="mt-4 text-[15px] leading-[1.65] text-background/70">
                 Kimono, rashguard ou faixa sob encomenda no padrão AMT.
               </p>
             </div>
