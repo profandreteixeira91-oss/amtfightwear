@@ -274,7 +274,7 @@ function StudentDetail() {
                   <UserIcon className="h-3 w-3" />
                   Perfil do aluno
                 </div>
-                <h1 className="font-display truncate text-2xl font-black leading-tight tracking-tight sm:text-3xl md:text-4xl">
+                <h1 className="font-display text-2xl font-black leading-tight tracking-tight break-words sm:text-3xl md:text-4xl">
                   {s.full_name}
                 </h1>
                 <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-neutral-300">
