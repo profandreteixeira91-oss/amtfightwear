@@ -108,36 +108,58 @@ export function PermissionsTab({
 
   return (
     <div className="space-y-4">
-      {/* Vinculo com conta de login */}
+      {/* Conta de login (criação direta pelo dono do dojo) */}
       <Card>
         <CardContent className="space-y-3 p-4">
           <div className="flex items-center gap-2 text-sm font-semibold">
-            <Link2 className="h-4 w-4" /> Conta de login
+            <KeyRound className="h-4 w-4" /> Conta de login
           </div>
           <p className="text-xs text-muted-foreground">
-            Vincule uma conta de usuário existente (o colaborador precisa se cadastrar primeiro em <b>/dojo/auth</b> com o e-mail informado).
+            Defina uma senha e o sistema criará a conta automaticamente com o e-mail cadastrado no perfil do colaborador. Não é necessário cadastro prévio.
           </p>
-          {linkedUserId ? (
-            <div className="flex items-center justify-between gap-2 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm">
-              <div>
-                <div className="text-xs text-emerald-700">Conta vinculada</div>
-                <div className="font-mono text-xs break-all">{linkedUserId}</div>
+
+          <div className="rounded-md border bg-muted/30 p-2 text-xs">
+            <span className="text-muted-foreground">E-mail: </span>
+            <span className="font-mono">{email || <em className="text-destructive">nenhum e-mail cadastrado</em>}</span>
+          </div>
+
+          {linkedUserId && (
+            <div className="flex items-center justify-between gap-2 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-xs dark:border-emerald-900/40 dark:bg-emerald-950/30">
+              <div className="text-emerald-700 dark:text-emerald-300">
+                Conta ativa — o colaborador já pode acessar o sistema.
               </div>
               <Button variant="outline" size="sm" onClick={unlink} disabled={busy}>
                 <Unlink className="mr-2 h-4 w-4" /> Desvincular
               </Button>
             </div>
-          ) : (
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
-              <div className="flex-1">
-                <Label className="text-xs">E-mail da conta de login</Label>
-                <Input type="email" value={linkEmail} onChange={(e) => setLinkEmail(e.target.value)} placeholder="colaborador@exemplo.com" />
-              </div>
-              <Button onClick={link} disabled={busy}>
-                <Link2 className="mr-2 h-4 w-4" /> Vincular
-              </Button>
-            </div>
           )}
+
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
+            <div className="flex-1">
+              <Label className="text-xs">{linkedUserId ? "Nova senha" : "Senha de acesso"}</Label>
+              <div className="relative">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Mínimo 6 caracteres"
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+            <Button onClick={createOrUpdateLogin} disabled={busy || !email}>
+              <KeyRound className="mr-2 h-4 w-4" />
+              {linkedUserId ? "Atualizar senha" : "Criar login"}
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
