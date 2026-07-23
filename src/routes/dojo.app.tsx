@@ -64,6 +64,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { getMyAcademyBranding } from "@/lib/dojo/academy-public.functions";
 import { listDojoBelts } from "@/lib/dojo/dojo.functions";
 import { syncBeltTerms } from "@/lib/dojo/belt-terms";
+import { UnitScopeProvider } from "@/components/dojo/UnitScope";
+import { UnitSwitcher } from "@/components/dojo/UnitSwitcher";
 
 export const Route = createFileRoute("/dojo/app")({
   head: () => ({ meta: [{ title: "Painel — AMT Dojo Manager" }] }),
@@ -139,7 +141,7 @@ const nav: { label: string; items: NavItem[] }[] = [
   {
     label: "Estrutura",
     items: [
-      { to: "/dojo/app/units", label: "Unidades", icon: Building2 },
+      { to: "/dojo/app/units", label: "Unidades e Filiais", icon: Building2 },
       { to: "/dojo/app/corporate-benefits", label: "Benefícios Corporativos", icon: HeartHandshake },
     ],
   },
@@ -170,7 +172,7 @@ const routeTitles: Array<{ match: (p: string) => boolean; title: string; subtitl
   { match: (p) => p.startsWith("/dojo/app/finance"), title: "Financeiro", subtitle: "Recebimentos, contas a receber e a pagar" },
   { match: (p) => p.startsWith("/dojo/app/team"), title: "Equipe", subtitle: "Colaboradores, folha e escalas" },
   { match: (p) => p.startsWith("/dojo/app/corporate-benefits"), title: "Benefícios Corporativos", subtitle: "Gympass, TotalPass e beneficiários" },
-  { match: (p) => p.startsWith("/dojo/app/units"), title: "Unidades", subtitle: "Dojos e polos" },
+  { match: (p) => p.startsWith("/dojo/app/units"), title: "Unidades e Filiais", subtitle: "Unidades próprias e rede de afiliados" },
   
   { match: (p) => p.startsWith("/dojo/app/subscription"), title: "Assinatura AMT", subtitle: "Plano mensal do sistema" },
   { match: (p) => p.startsWith("/dojo/app/integrations"), title: "AMT Pay", subtitle: "Central financeira do dojo" },
@@ -220,14 +222,16 @@ function DojoLayout() {
     <div className="dojo-theme min-h-screen">
       <SidebarProvider>
         <DojoPermissionsProvider>
-          <DojoLayoutInner
-            pathname={pathname}
-            email={email}
-            initial={initial}
-            header={header}
-            onLogout={handleLogout}
-            isActive={isActive}
-          />
+          <UnitScopeProvider>
+            <DojoLayoutInner
+              pathname={pathname}
+              email={email}
+              initial={initial}
+              header={header}
+              onLogout={handleLogout}
+              isActive={isActive}
+            />
+          </UnitScopeProvider>
         </DojoPermissionsProvider>
       </SidebarProvider>
     </div>
@@ -359,6 +363,9 @@ function DojoLayoutInner({
           </div>
 
           <TrialBadge />
+          <div className="hidden md:block">
+            <UnitSwitcher />
+          </div>
           <div className="hidden md:flex items-center gap-2">
             <div className="relative">
               <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-neutral-500" />

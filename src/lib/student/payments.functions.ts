@@ -44,6 +44,7 @@ export const payMyInvoicePix = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!invoice) throw new Error("Cobrança não encontrada");
     if (invoice.status === "paid") throw new Error("Esta cobrança já foi paga");
+    if (!invoice.student_id) throw new Error("Cobrança sem aluno vinculado");
 
     // Token do MP do dono do dojo (não o da AMT).
     const mpToken = await requireOwnerMpToken((invoice as any).owner_id);

@@ -206,6 +206,7 @@ import { Route as ApiPublicAppManifestDotwebmanifestRouteImport } from './routes
 import { Route as AuthenticatedAdsCampaignsIdRouteImport } from './routes/_authenticated/ads.campaigns.$id'
 import { Route as DojoAppEvaluationsTemplatesIndexRouteImport } from './routes/dojo.app.evaluations.templates.index'
 import { Route as DojoAppEvaluationsSessionsIndexRouteImport } from './routes/dojo.app.evaluations.sessions.index'
+import { Route as DojoAppUnitsAffiliatesIdRouteImport } from './routes/dojo.app.units.affiliates.$id'
 import { Route as DojoAppStudentsIdAnalysisRouteImport } from './routes/dojo.app.students.$id.analysis'
 import { Route as DojoAppStoreProdutosSlugRouteImport } from './routes/dojo.app.store.produtos.$slug'
 import { Route as DojoAppStorePedidosIdRouteImport } from './routes/dojo.app.store.pedidos.$id'
@@ -1272,6 +1273,12 @@ const DojoAppEvaluationsSessionsIndexRoute =
     path: '/',
     getParentRoute: () => DojoAppEvaluationsSessionsRoute,
   } as any)
+const DojoAppUnitsAffiliatesIdRoute =
+  DojoAppUnitsAffiliatesIdRouteImport.update({
+    id: '/affiliates/$id',
+    path: '/affiliates/$id',
+    getParentRoute: () => DojoAppUnitsRoute,
+  } as any)
 const DojoAppStudentsIdAnalysisRoute =
   DojoAppStudentsIdAnalysisRouteImport.update({
     id: '/analysis',
@@ -1447,7 +1454,7 @@ export interface FileRoutesByFullPath {
   '/dojo/app/student-app-qr': typeof DojoAppStudentAppQrRoute
   '/dojo/app/students': typeof DojoAppStudentsRouteWithChildren
   '/dojo/app/subscription': typeof DojoAppSubscriptionRoute
-  '/dojo/app/units': typeof DojoAppUnitsRoute
+  '/dojo/app/units': typeof DojoAppUnitsRouteWithChildren
   '/dojo/app/videos': typeof DojoAppVideosRouteWithChildren
   '/dojo/certificate-editor/$id': typeof DojoCertificateEditorIdRoute
   '/dojo/pay/$invoiceId': typeof DojoPayInvoiceIdRoute
@@ -1527,6 +1534,7 @@ export interface FileRoutesByFullPath {
   '/dojo/app/store/pedidos/$id': typeof DojoAppStorePedidosIdRoute
   '/dojo/app/store/produtos/$slug': typeof DojoAppStoreProdutosSlugRoute
   '/dojo/app/students/$id/analysis': typeof DojoAppStudentsIdAnalysisRoute
+  '/dojo/app/units/affiliates/$id': typeof DojoAppUnitsAffiliatesIdRoute
   '/dojo/app/evaluations/sessions/': typeof DojoAppEvaluationsSessionsIndexRoute
   '/dojo/app/evaluations/templates/': typeof DojoAppEvaluationsTemplatesIndexRoute
   '/dojo/app/store/c/$categoria/$subcategoria': typeof DojoAppStoreCCategoriaSubcategoriaRoute
@@ -1645,7 +1653,7 @@ export interface FileRoutesByTo {
   '/dojo/app/schedule': typeof DojoAppScheduleRoute
   '/dojo/app/student-app-qr': typeof DojoAppStudentAppQrRoute
   '/dojo/app/subscription': typeof DojoAppSubscriptionRoute
-  '/dojo/app/units': typeof DojoAppUnitsRoute
+  '/dojo/app/units': typeof DojoAppUnitsRouteWithChildren
   '/dojo/certificate-editor/$id': typeof DojoCertificateEditorIdRoute
   '/dojo/pay/$invoiceId': typeof DojoPayInvoiceIdRoute
   '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
@@ -1722,6 +1730,7 @@ export interface FileRoutesByTo {
   '/dojo/app/store/pedidos/$id': typeof DojoAppStorePedidosIdRoute
   '/dojo/app/store/produtos/$slug': typeof DojoAppStoreProdutosSlugRoute
   '/dojo/app/students/$id/analysis': typeof DojoAppStudentsIdAnalysisRoute
+  '/dojo/app/units/affiliates/$id': typeof DojoAppUnitsAffiliatesIdRoute
   '/dojo/app/evaluations/sessions': typeof DojoAppEvaluationsSessionsIndexRoute
   '/dojo/app/evaluations/templates': typeof DojoAppEvaluationsTemplatesIndexRoute
   '/dojo/app/store/c/$categoria/$subcategoria': typeof DojoAppStoreCCategoriaSubcategoriaRoute
@@ -1851,7 +1860,7 @@ export interface FileRoutesById {
   '/dojo/app/student-app-qr': typeof DojoAppStudentAppQrRoute
   '/dojo/app/students': typeof DojoAppStudentsRouteWithChildren
   '/dojo/app/subscription': typeof DojoAppSubscriptionRoute
-  '/dojo/app/units': typeof DojoAppUnitsRoute
+  '/dojo/app/units': typeof DojoAppUnitsRouteWithChildren
   '/dojo/app/videos': typeof DojoAppVideosRouteWithChildren
   '/dojo/certificate-editor/$id': typeof DojoCertificateEditorIdRoute
   '/dojo/pay/$invoiceId': typeof DojoPayInvoiceIdRoute
@@ -1931,6 +1940,7 @@ export interface FileRoutesById {
   '/dojo/app/store/pedidos/$id': typeof DojoAppStorePedidosIdRoute
   '/dojo/app/store/produtos/$slug': typeof DojoAppStoreProdutosSlugRoute
   '/dojo/app/students/$id/analysis': typeof DojoAppStudentsIdAnalysisRoute
+  '/dojo/app/units/affiliates/$id': typeof DojoAppUnitsAffiliatesIdRoute
   '/dojo/app/evaluations/sessions/': typeof DojoAppEvaluationsSessionsIndexRoute
   '/dojo/app/evaluations/templates/': typeof DojoAppEvaluationsTemplatesIndexRoute
   '/dojo/app/store/c/$categoria/$subcategoria': typeof DojoAppStoreCCategoriaSubcategoriaRoute
@@ -2139,6 +2149,7 @@ export interface FileRouteTypes {
     | '/dojo/app/store/pedidos/$id'
     | '/dojo/app/store/produtos/$slug'
     | '/dojo/app/students/$id/analysis'
+    | '/dojo/app/units/affiliates/$id'
     | '/dojo/app/evaluations/sessions/'
     | '/dojo/app/evaluations/templates/'
     | '/dojo/app/store/c/$categoria/$subcategoria'
@@ -2334,6 +2345,7 @@ export interface FileRouteTypes {
     | '/dojo/app/store/pedidos/$id'
     | '/dojo/app/store/produtos/$slug'
     | '/dojo/app/students/$id/analysis'
+    | '/dojo/app/units/affiliates/$id'
     | '/dojo/app/evaluations/sessions'
     | '/dojo/app/evaluations/templates'
     | '/dojo/app/store/c/$categoria/$subcategoria'
@@ -2542,6 +2554,7 @@ export interface FileRouteTypes {
     | '/dojo/app/store/pedidos/$id'
     | '/dojo/app/store/produtos/$slug'
     | '/dojo/app/students/$id/analysis'
+    | '/dojo/app/units/affiliates/$id'
     | '/dojo/app/evaluations/sessions/'
     | '/dojo/app/evaluations/templates/'
     | '/dojo/app/store/c/$categoria/$subcategoria'
@@ -3986,6 +3999,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DojoAppEvaluationsSessionsIndexRouteImport
       parentRoute: typeof DojoAppEvaluationsSessionsRoute
     }
+    '/dojo/app/units/affiliates/$id': {
+      id: '/dojo/app/units/affiliates/$id'
+      path: '/affiliates/$id'
+      fullPath: '/dojo/app/units/affiliates/$id'
+      preLoaderRoute: typeof DojoAppUnitsAffiliatesIdRouteImport
+      parentRoute: typeof DojoAppUnitsRoute
+    }
     '/dojo/app/students/$id/analysis': {
       id: '/dojo/app/students/$id/analysis'
       path: '/analysis'
@@ -4431,6 +4451,18 @@ const DojoAppStudentsRouteWithChildren = DojoAppStudentsRoute._addFileChildren(
   DojoAppStudentsRouteChildren,
 )
 
+interface DojoAppUnitsRouteChildren {
+  DojoAppUnitsAffiliatesIdRoute: typeof DojoAppUnitsAffiliatesIdRoute
+}
+
+const DojoAppUnitsRouteChildren: DojoAppUnitsRouteChildren = {
+  DojoAppUnitsAffiliatesIdRoute: DojoAppUnitsAffiliatesIdRoute,
+}
+
+const DojoAppUnitsRouteWithChildren = DojoAppUnitsRoute._addFileChildren(
+  DojoAppUnitsRouteChildren,
+)
+
 interface DojoAppVideosRouteChildren {
   DojoAppVideosIdRoute: typeof DojoAppVideosIdRoute
   DojoAppVideosCategoriasRoute: typeof DojoAppVideosCategoriasRoute
@@ -4475,7 +4507,7 @@ interface DojoAppRouteChildren {
   DojoAppStudentAppQrRoute: typeof DojoAppStudentAppQrRoute
   DojoAppStudentsRoute: typeof DojoAppStudentsRouteWithChildren
   DojoAppSubscriptionRoute: typeof DojoAppSubscriptionRoute
-  DojoAppUnitsRoute: typeof DojoAppUnitsRoute
+  DojoAppUnitsRoute: typeof DojoAppUnitsRouteWithChildren
   DojoAppVideosRoute: typeof DojoAppVideosRouteWithChildren
   DojoAppIndexRoute: typeof DojoAppIndexRoute
   DojoAppContractTemplatesIdRoute: typeof DojoAppContractTemplatesIdRoute
@@ -4510,7 +4542,7 @@ const DojoAppRouteChildren: DojoAppRouteChildren = {
   DojoAppStudentAppQrRoute: DojoAppStudentAppQrRoute,
   DojoAppStudentsRoute: DojoAppStudentsRouteWithChildren,
   DojoAppSubscriptionRoute: DojoAppSubscriptionRoute,
-  DojoAppUnitsRoute: DojoAppUnitsRoute,
+  DojoAppUnitsRoute: DojoAppUnitsRouteWithChildren,
   DojoAppVideosRoute: DojoAppVideosRouteWithChildren,
   DojoAppIndexRoute: DojoAppIndexRoute,
   DojoAppContractTemplatesIdRoute: DojoAppContractTemplatesIdRoute,
@@ -4611,13 +4643,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

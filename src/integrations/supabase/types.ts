@@ -2316,6 +2316,185 @@ export type Database = {
         }
         Relationships: []
       }
+      dojo_affiliate_contracts: {
+        Row: {
+          affiliate_id: string
+          created_at: string
+          html_content: string
+          id: string
+          owner_id: string
+          pdf_url: string | null
+          signature_data: Json | null
+          signature_status: string
+          signed_at: string | null
+          title: string
+          updated_at: string
+          variables: Json | null
+        }
+        Insert: {
+          affiliate_id: string
+          created_at?: string
+          html_content: string
+          id?: string
+          owner_id: string
+          pdf_url?: string | null
+          signature_data?: Json | null
+          signature_status?: string
+          signed_at?: string | null
+          title?: string
+          updated_at?: string
+          variables?: Json | null
+        }
+        Update: {
+          affiliate_id?: string
+          created_at?: string
+          html_content?: string
+          id?: string
+          owner_id?: string
+          pdf_url?: string | null
+          signature_data?: Json | null
+          signature_status?: string
+          signed_at?: string | null
+          title?: string
+          updated_at?: string
+          variables?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_affiliate_contracts_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_affiliates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_affiliates: {
+        Row: {
+          academy_name: string
+          affiliation_number: string
+          banner_url: string | null
+          city: string | null
+          cnpj: string | null
+          complement: string | null
+          country: string | null
+          created_at: string
+          email: string | null
+          expires_at: string | null
+          facade_url: string | null
+          gallery_urls: string[] | null
+          id: string
+          joined_at: string | null
+          legal_name: string | null
+          logo_url: string | null
+          manager_cpf: string | null
+          manager_email: string | null
+          manager_name: string | null
+          manager_phone: string | null
+          manager_rg: string | null
+          metadata: Json | null
+          modalities: string[] | null
+          neighborhood: string | null
+          notes: string | null
+          number: string | null
+          owner_id: string
+          phone: string | null
+          socials: Json | null
+          state: string | null
+          state_registration: string | null
+          status: string
+          street: string | null
+          teacher: Json | null
+          trade_name: string | null
+          updated_at: string
+          website: string | null
+          whatsapp: string | null
+          zip: string | null
+        }
+        Insert: {
+          academy_name: string
+          affiliation_number: string
+          banner_url?: string | null
+          city?: string | null
+          cnpj?: string | null
+          complement?: string | null
+          country?: string | null
+          created_at?: string
+          email?: string | null
+          expires_at?: string | null
+          facade_url?: string | null
+          gallery_urls?: string[] | null
+          id?: string
+          joined_at?: string | null
+          legal_name?: string | null
+          logo_url?: string | null
+          manager_cpf?: string | null
+          manager_email?: string | null
+          manager_name?: string | null
+          manager_phone?: string | null
+          manager_rg?: string | null
+          metadata?: Json | null
+          modalities?: string[] | null
+          neighborhood?: string | null
+          notes?: string | null
+          number?: string | null
+          owner_id: string
+          phone?: string | null
+          socials?: Json | null
+          state?: string | null
+          state_registration?: string | null
+          status?: string
+          street?: string | null
+          teacher?: Json | null
+          trade_name?: string | null
+          updated_at?: string
+          website?: string | null
+          whatsapp?: string | null
+          zip?: string | null
+        }
+        Update: {
+          academy_name?: string
+          affiliation_number?: string
+          banner_url?: string | null
+          city?: string | null
+          cnpj?: string | null
+          complement?: string | null
+          country?: string | null
+          created_at?: string
+          email?: string | null
+          expires_at?: string | null
+          facade_url?: string | null
+          gallery_urls?: string[] | null
+          id?: string
+          joined_at?: string | null
+          legal_name?: string | null
+          logo_url?: string | null
+          manager_cpf?: string | null
+          manager_email?: string | null
+          manager_name?: string | null
+          manager_phone?: string | null
+          manager_rg?: string | null
+          metadata?: Json | null
+          modalities?: string[] | null
+          neighborhood?: string | null
+          notes?: string | null
+          number?: string | null
+          owner_id?: string
+          phone?: string | null
+          socials?: Json | null
+          state?: string | null
+          state_registration?: string | null
+          status?: string
+          street?: string | null
+          teacher?: Json | null
+          trade_name?: string | null
+          updated_at?: string
+          website?: string | null
+          whatsapp?: string | null
+          zip?: string | null
+        }
+        Relationships: []
+      }
       dojo_announcement_categories: {
         Row: {
           color: string | null
@@ -3131,6 +3310,7 @@ export type Database = {
       }
       dojo_certificates: {
         Row: {
+          affiliate_id: string | null
           created_at: string
           graduation_id: string | null
           id: string
@@ -3138,11 +3318,13 @@ export type Database = {
           owner_id: string
           pdf_url: string | null
           public_hash: string
-          student_id: string
+          student_id: string | null
           template_id: string | null
+          unit_id: string | null
           values: Json
         }
         Insert: {
+          affiliate_id?: string | null
           created_at?: string
           graduation_id?: string | null
           id?: string
@@ -3150,11 +3332,13 @@ export type Database = {
           owner_id: string
           pdf_url?: string | null
           public_hash?: string
-          student_id: string
+          student_id?: string | null
           template_id?: string | null
+          unit_id?: string | null
           values?: Json
         }
         Update: {
+          affiliate_id?: string | null
           created_at?: string
           graduation_id?: string | null
           id?: string
@@ -3162,11 +3346,19 @@ export type Database = {
           owner_id?: string
           pdf_url?: string | null
           public_hash?: string
-          student_id?: string
+          student_id?: string | null
           template_id?: string | null
+          unit_id?: string | null
           values?: Json
         }
         Relationships: [
+          {
+            foreignKeyName: "dojo_certificates_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_affiliates"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "dojo_certificates_graduation_id_fkey"
             columns: ["graduation_id"]
@@ -3186,6 +3378,13 @@ export type Database = {
             columns: ["template_id"]
             isOneToOne: false
             referencedRelation: "dojo_certificate_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_certificates_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_units"
             referencedColumns: ["id"]
           },
         ]
@@ -4830,6 +5029,7 @@ export type Database = {
           notes: string | null
           owner_id: string
           student_id: string
+          unit_id: string | null
         }
         Insert: {
           belt_id: string
@@ -4841,6 +5041,7 @@ export type Database = {
           notes?: string | null
           owner_id: string
           student_id: string
+          unit_id?: string | null
         }
         Update: {
           belt_id?: string
@@ -4852,6 +5053,7 @@ export type Database = {
           notes?: string | null
           owner_id?: string
           student_id?: string
+          unit_id?: string | null
         }
         Relationships: [
           {
@@ -4866,6 +5068,13 @@ export type Database = {
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_graduations_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_units"
             referencedColumns: ["id"]
           },
         ]
@@ -4919,6 +5128,7 @@ export type Database = {
       }
       dojo_invoices: {
         Row: {
+          affiliate_id: string | null
           amount: number
           asaas_charge_id: string | null
           asaas_invoice_url: string | null
@@ -4942,13 +5152,15 @@ export type Database = {
           payment_provider: string | null
           platform_fee_amount: number | null
           provider: string | null
+          source: string | null
           split_config: Json | null
           status: string
-          student_id: string
+          student_id: string | null
           unit_id: string | null
           updated_at: string
         }
         Insert: {
+          affiliate_id?: string | null
           amount: number
           asaas_charge_id?: string | null
           asaas_invoice_url?: string | null
@@ -4972,13 +5184,15 @@ export type Database = {
           payment_provider?: string | null
           platform_fee_amount?: number | null
           provider?: string | null
+          source?: string | null
           split_config?: Json | null
           status?: string
-          student_id: string
+          student_id?: string | null
           unit_id?: string | null
           updated_at?: string
         }
         Update: {
+          affiliate_id?: string | null
           amount?: number
           asaas_charge_id?: string | null
           asaas_invoice_url?: string | null
@@ -5002,13 +5216,21 @@ export type Database = {
           payment_provider?: string | null
           platform_fee_amount?: number | null
           provider?: string | null
+          source?: string | null
           split_config?: Json | null
           status?: string
-          student_id?: string
+          student_id?: string | null
           unit_id?: string | null
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "dojo_invoices_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_affiliates"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "dojo_invoices_enrollment_id_fkey"
             columns: ["enrollment_id"]
@@ -5814,6 +6036,7 @@ export type Database = {
           student_id: string | null
           subtotal: number
           total: number
+          unit_id: string | null
           updated_at: string
         }
         Insert: {
@@ -5832,6 +6055,7 @@ export type Database = {
           student_id?: string | null
           subtotal?: number
           total?: number
+          unit_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -5850,6 +6074,7 @@ export type Database = {
           student_id?: string | null
           subtotal?: number
           total?: number
+          unit_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -5865,6 +6090,13 @@ export type Database = {
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_sales_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_units"
             referencedColumns: ["id"]
           },
         ]
@@ -7748,36 +7980,167 @@ export type Database = {
         }
         Relationships: []
       }
+      dojo_unit_members: {
+        Row: {
+          created_at: string
+          id: string
+          owner_id: string
+          role: string
+          unit_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          owner_id: string
+          role: string
+          unit_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          owner_id?: string
+          role?: string
+          unit_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_unit_members_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dojo_units: {
         Row: {
           active: boolean
           address: string | null
+          admin_ids: string[] | null
+          age_ranges: string[] | null
+          banner_url: string | null
+          city: string | null
+          cnpj: string | null
+          complement: string | null
+          coordinator_ids: string[] | null
+          country: string | null
           created_at: string
+          email: string | null
+          facade_url: string | null
+          gallery_urls: string[] | null
+          hours: Json | null
           id: string
+          legal_name: string | null
+          logo_url: string | null
+          manager_cpf: string | null
+          manager_name: string | null
+          manager_rg: string | null
+          metadata: Json | null
+          modalities: string[] | null
           name: string
+          neighborhood: string | null
+          number: string | null
+          opened_at: string | null
           owner_id: string
           phone: string | null
+          phone2: string | null
+          socials: Json | null
+          state: string | null
+          state_registration: string | null
+          street: string | null
+          trade_name: string | null
           updated_at: string
+          website: string | null
+          whatsapp: string | null
+          zip: string | null
         }
         Insert: {
           active?: boolean
           address?: string | null
+          admin_ids?: string[] | null
+          age_ranges?: string[] | null
+          banner_url?: string | null
+          city?: string | null
+          cnpj?: string | null
+          complement?: string | null
+          coordinator_ids?: string[] | null
+          country?: string | null
           created_at?: string
+          email?: string | null
+          facade_url?: string | null
+          gallery_urls?: string[] | null
+          hours?: Json | null
           id?: string
+          legal_name?: string | null
+          logo_url?: string | null
+          manager_cpf?: string | null
+          manager_name?: string | null
+          manager_rg?: string | null
+          metadata?: Json | null
+          modalities?: string[] | null
           name: string
+          neighborhood?: string | null
+          number?: string | null
+          opened_at?: string | null
           owner_id: string
           phone?: string | null
+          phone2?: string | null
+          socials?: Json | null
+          state?: string | null
+          state_registration?: string | null
+          street?: string | null
+          trade_name?: string | null
           updated_at?: string
+          website?: string | null
+          whatsapp?: string | null
+          zip?: string | null
         }
         Update: {
           active?: boolean
           address?: string | null
+          admin_ids?: string[] | null
+          age_ranges?: string[] | null
+          banner_url?: string | null
+          city?: string | null
+          cnpj?: string | null
+          complement?: string | null
+          coordinator_ids?: string[] | null
+          country?: string | null
           created_at?: string
+          email?: string | null
+          facade_url?: string | null
+          gallery_urls?: string[] | null
+          hours?: Json | null
           id?: string
+          legal_name?: string | null
+          logo_url?: string | null
+          manager_cpf?: string | null
+          manager_name?: string | null
+          manager_rg?: string | null
+          metadata?: Json | null
+          modalities?: string[] | null
           name?: string
+          neighborhood?: string | null
+          number?: string | null
+          opened_at?: string | null
           owner_id?: string
           phone?: string | null
+          phone2?: string | null
+          socials?: Json | null
+          state?: string | null
+          state_registration?: string | null
+          street?: string | null
+          trade_name?: string | null
           updated_at?: string
+          website?: string | null
+          whatsapp?: string | null
+          zip?: string | null
         }
         Relationships: []
       }
@@ -11318,6 +11681,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      has_unit_access: {
+        Args: { _unit_id: string; _user_id: string }
         Returns: boolean
       }
       move_to_dlq: {
