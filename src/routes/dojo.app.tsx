@@ -140,6 +140,12 @@ const nav: { label: string; items: NavItem[] }[] = [
     ],
   },
   {
+    label: "Jurídico",
+    items: [
+      { to: "/dojo/app/contracts", label: "Central de Contratos", icon: Gavel },
+    ],
+  },
+  {
     label: "Estrutura",
     items: [
       { to: "/dojo/app/units", label: "Unidades e Filiais", icon: Building2 },
