@@ -352,7 +352,7 @@ function BlockRenderer({
             <div className="text-xs font-semibold uppercase tracking-wider text-neutral-400">Sua faixa</div>
             <div className="mt-1 flex items-center gap-2">
               <span className="inline-block h-3 w-8 rounded-sm" style={{ background: belt.color_hex }} />
-              <span className="text-sm font-semibold" style={{ color: "var(--sa-title)" }}>{belt.name}</span>
+              <span className="text-sm font-semibold" style={{ color: "var(--sa-title)" }}>{formatBeltName(belt.name, (belt as any)?.modality)}</span>
             </div>
           </section>
         </Link>
