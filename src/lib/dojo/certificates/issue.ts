@@ -34,8 +34,11 @@ export function buildIssueValues(opts: {
   const beltFull = formatBeltFull(grBelt?.name, grBelt?.modality, gradDegree);
   // Nome da faixa isolado (sem grau): "Faixa Preta", "Faixa Roxa", "Grau Preto" (Muay Thai).
   const beltName = formatBeltName(grBelt?.name, grBelt?.modality);
-  // Rótulo humano do grau/Dan: "3º grau", "2º Dan", "Com aparador", "Sem grau".
-  const grauValue = formatDegree(gradDegree, grBelt?.modality, grBelt?.name);
+  // Rótulo humano do grau/Dan: "3º grau", "2º Dan", "Com aparador".
+  // Quando não há grau ("Sem grau"/"Sem Dan"), devolvemos string vazia para
+  // que a variável {{aluno_grau}} não imprima nada no certificado.
+  const rawGrau = formatDegree(gradDegree, grBelt?.modality, grBelt?.name);
+  const grauValue = /^sem\s+(grau|dan)$/i.test(rawGrau) ? "" : rawGrau;
 
   const values: Record<string, string> = {
     // Aluno
