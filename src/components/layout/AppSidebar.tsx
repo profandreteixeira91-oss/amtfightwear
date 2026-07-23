@@ -133,6 +133,7 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isActive = (path: string) => pathname === path || pathname.startsWith(`${path}/`);
+  const { isOwner } = useIsOwner();
 
   return (
     <Sidebar collapsible="icon">
