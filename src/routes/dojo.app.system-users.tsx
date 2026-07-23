@@ -119,6 +119,8 @@ function MemberRow({ member, qc }: { member: any; qc: ReturnType<typeof useQuery
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
   const [busy, setBusy] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+
 
   const initialPerms: PermissionMap = useMemo(() => {
     const p = (member.permissions ?? {}) as PermissionMap;
