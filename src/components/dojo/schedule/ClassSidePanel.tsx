@@ -218,6 +218,50 @@ export function ClassSidePanel({
                 </div>
               </section>
 
+              {occurrenceDate && (
+                <section className="rounded-md border bg-muted/30 p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="text-xs uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
+                      <BookOpen className="h-3.5 w-3.5" />
+                      Plano de aula ({new Date(occurrenceDate + "T12:00:00").toLocaleDateString("pt-BR")})
+                    </h4>
+                  </div>
+                  {plansForDay.isLoading ? (
+                    <div className="text-xs text-muted-foreground">Carregando…</div>
+                  ) : (plansForDay.data ?? []).length === 0 ? (
+                    <div className="space-y-2">
+                      <p className="text-xs text-muted-foreground">Nenhum plano vinculado a esta aula.</p>
+                      <Button size="sm" variant="default" onClick={handleCreatePlan} disabled={creatingPlan}>
+                        <Plus className="h-3.5 w-3.5 mr-1" />
+                        {creatingPlan ? "Criando..." : "Criar plano para esta aula"}
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-1.5">
+                      {(plansForDay.data ?? []).map((p: any) => (
+                        <button
+                          key={p.id}
+                          onClick={() => navigate({ to: "/dojo/app/lesson-plans/$id", params: { id: p.id } })}
+                          className="w-full flex items-center gap-2 rounded-md border bg-white p-2 text-left text-sm hover:border-primary hover:bg-primary/5 transition"
+                        >
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium truncate">{p.title}</div>
+                            <div className="text-[11px] text-muted-foreground capitalize">
+                              {p.status} · {(p.blocks ?? []).length} blocos
+                            </div>
+                          </div>
+                          <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                        </button>
+                      ))}
+                      <Button size="sm" variant="outline" onClick={handleCreatePlan} disabled={creatingPlan} className="w-full">
+                        <Plus className="h-3.5 w-3.5 mr-1" /> Novo plano para esta data
+                      </Button>
+                    </div>
+                  )}
+                </section>
+              )}
+
+
               {cls.description && (
                 <section>
                   <h4 className="text-xs uppercase tracking-wide text-muted-foreground mb-2">Descrição</h4>
