@@ -99,7 +99,7 @@ function StoreHomePage() {
 
         <div className="relative mx-auto flex min-h-[78vh] max-w-7xl flex-col justify-center px-6 py-24 sm:px-8 sm:py-32 lg:min-h-[86vh]">
           <div className="max-w-3xl motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-4 motion-safe:duration-700">
-            <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 backdrop-blur">
+            <div className="mb-7 inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 backdrop-blur">
               <img
                 src={amtLogo}
                 alt="AMT Fight Wear"
@@ -107,18 +107,22 @@ function StoreHomePage() {
                 height={24}
                 className="h-6 w-6 rounded-full object-cover ring-1 ring-primary/60"
               />
-              <span className="text-[10px] font-bold uppercase tracking-[0.32em] text-white/90">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.38em] text-white/90">
                 AMT Fight Wear · E-commerce oficial
               </span>
             </div>
 
-            <h1 className="text-5xl font-black leading-[0.95] tracking-tight sm:text-7xl lg:text-[5.5rem]">
+            <h1
+              className="text-[3.25rem] leading-[0.95] tracking-[-0.03em] text-white sm:text-[5rem] lg:text-[6.25rem]"
+              style={{ fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 600 }}
+            >
               Feito para
               <br />
-              <span className="text-primary">quem treina</span> de verdade.
+              <span className="italic text-primary" style={{ fontWeight: 500 }}>quem treina</span>
+              <span className="text-white/95"> de verdade.</span>
             </h1>
 
-            <p className="mt-8 max-w-xl text-lg font-medium leading-relaxed text-white/85 sm:text-xl">
+            <p className="mt-8 max-w-xl text-lg font-normal leading-[1.65] text-white/80 sm:text-xl">
               Kimonos, rashguards, faixas e acessórios para jiu-jitsu, judô e artes marciais.
               Direto da fábrica, com envio para todo o Brasil.
             </p>
