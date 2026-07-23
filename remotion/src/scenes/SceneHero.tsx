@@ -1,69 +1,70 @@
 import React from "react";
-import { AbsoluteFill, useCurrentFrame, spring, useVideoConfig, interpolate } from "remotion";
-import { display, sans, colors } from "../theme";
+import { AbsoluteFill, Img, staticFile, useCurrentFrame, useVideoConfig, interpolate, spring } from "remotion";
+import { colors, sans } from "../theme";
 
 export const SceneHero: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const reveal = spring({ frame, fps, config: { damping: 200 } });
-  const line = spring({ frame: frame - 10, fps, config: { damping: 200 } });
-  const sub = spring({ frame: frame - 25, fps, config: { damping: 200 } });
-  const drift = interpolate(frame, [0, 90], [0, -18]);
+
+  const logoIn = spring({ frame, fps, config: { damping: 18, stiffness: 90, mass: 1 } });
+  const logoY = interpolate(logoIn, [0, 1], [30, 0]);
+  const logoOp = interpolate(frame, [0, 12], [0, 1], { extrapolateRight: "clamp" });
+
+  const lineWidth = interpolate(frame - 22, [0, 24], [0, 460], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+  const taglineOp = interpolate(frame, [42, 58], [0, 1], { extrapolateRight: "clamp" });
+  const taglineY = interpolate(frame, [42, 58], [12, 0], { extrapolateRight: "clamp" });
+
+  const subOp = interpolate(frame, [60, 78], [0, 1], { extrapolateRight: "clamp" });
+
+  const outOp = interpolate(frame, [110, 130], [1, 1]);
 
   return (
-    <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", fontFamily: sans }}>
-      <div style={{ textAlign: "center", transform: `translateY(${drift}px)` }}>
+    <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", opacity: outOp }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 28 }}>
         <div
           style={{
+            transform: `translateY(${logoY}px)`,
+            opacity: logoOp,
+            filter: "drop-shadow(0 6px 24px rgba(0,0,0,0.08))",
+          }}
+        >
+          <Img src={staticFile("images/logo.png")} style={{ height: 260, width: "auto" }} />
+        </div>
+
+        <div style={{ height: 2, width: lineWidth, background: colors.ruby, borderRadius: 2 }} />
+
+        <div
+          style={{
+            transform: `translateY(${taglineY}px)`,
+            opacity: taglineOp,
+            fontFamily: sans,
             fontSize: 22,
-            letterSpacing: 14,
-            color: colors.ruby,
             fontWeight: 500,
-            opacity: reveal,
-            marginBottom: 40,
-            textTransform: "uppercase",
-          }}
-        >
-          A M T · D O J O · M A N A G E R
-        </div>
-        <div
-          style={{
-            fontFamily: display,
-            fontSize: 200,
-            lineHeight: 0.95,
-            color: colors.ink,
-            letterSpacing: -6,
-            opacity: line,
-            transform: `translateY(${interpolate(line, [0, 1], [40, 0])}px)`,
-          }}
-        >
-          O <span style={{ fontStyle: "italic", color: colors.ruby }}>dojo</span>
-        </div>
-        <div
-          style={{
-            fontFamily: display,
-            fontSize: 200,
-            lineHeight: 0.95,
-            color: colors.ink,
-            letterSpacing: -6,
-            opacity: line,
-            transform: `translateY(${interpolate(line, [0, 1], [60, 0])}px)`,
-          }}
-        >
-          reimaginado.
-        </div>
-        <div
-          style={{
-            marginTop: 48,
-            fontSize: 26,
-            color: colors.inkDim,
             letterSpacing: 6,
-            fontWeight: 300,
-            opacity: sub,
+            color: colors.ink2,
             textTransform: "uppercase",
           }}
         >
-          Gestão · Ensino · Financeiro · Comunidade
+          Software de gestão · Artes marciais
+        </div>
+
+        <div
+          style={{
+            opacity: subOp,
+            fontFamily: sans,
+            fontSize: 16,
+            fontWeight: 500,
+            letterSpacing: 4,
+            color: colors.inkDim,
+            textTransform: "uppercase",
+            marginTop: 4,
+          }}
+        >
+          Um sistema · doze módulos · zero planilha
         </div>
       </div>
     </AbsoluteFill>
