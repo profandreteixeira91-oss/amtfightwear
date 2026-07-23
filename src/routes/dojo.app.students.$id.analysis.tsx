@@ -310,22 +310,22 @@ function AnalysisPage() {
 
 
         {/* Graduações */}
-        <TabsContent value="graduacoes" className="mt-4">
+        <TabsContent value="graduacoes" className="mt-6">
           <SectionCard title="Timeline de Graduações" description={grads.data?.nextForecast ? `Próxima prevista: ${fmtDate(grads.data.nextForecast)}` : undefined}>
             {(grads.data?.history?.length ?? 0) === 0 ? (
               <EmptyState title="Sem graduações registradas" description="Registre a primeira graduação no perfil do aluno." icon={GraduationCap} />
             ) : (
-              <ol className="relative space-y-3 border-l-2 border-border/60 pl-5">
+              <ol className="relative space-y-5 border-l-2 border-border/60 pl-6">
                 {grads.data!.history.map((g: any, i: number) => (
                   <li key={g.id} className="relative">
-                    <span className="absolute -left-[26px] top-3 h-4 w-4 rounded-full ring-4 ring-background" style={{ background: g.dojo_belts?.color_hex ?? "#000" }} />
-                    {i === 0 && <span className="absolute -left-[30px] top-2 h-6 w-6 animate-ping rounded-full opacity-30" style={{ background: g.dojo_belts?.color_hex ?? "#000" }} />}
-                    <div className="flex items-center gap-4 rounded-xl border border-border/40 bg-card p-4 transition-all hover:border-primary/40 hover:shadow-md">
-                      <div className="w-28 shrink-0"><BeltAuto belt={g.dojo_belts} degree={g.degree} /></div>
-                      <div className="min-w-0 flex-1">
-                        <div className="text-base font-bold">{g.dojo_belts?.name}{g.degree ? ` · ${g.degree}º ${degreeUnit(g.dojo_belts?.modality)}` : ""}</div>
+                    <span className="absolute -left-[30px] top-4 h-4 w-4 rounded-full ring-4 ring-background" style={{ background: g.dojo_belts?.color_hex ?? "#000" }} />
+                    {i === 0 && <span className="absolute -left-[34px] top-3 h-6 w-6 animate-ping rounded-full opacity-30" style={{ background: g.dojo_belts?.color_hex ?? "#000" }} />}
+                    <div className="flex flex-col gap-4 rounded-2xl border border-border/40 bg-card p-5 transition-all hover:border-primary/40 hover:shadow-md sm:flex-row sm:items-center">
+                      <div className="w-32 shrink-0"><BeltAuto belt={g.dojo_belts} degree={g.degree} /></div>
+                      <div className="min-w-0 flex-1 space-y-1.5">
+                        <div className="text-base font-bold sm:text-lg">{g.dojo_belts?.name}{g.degree ? ` · ${g.degree}º ${degreeUnit(g.dojo_belts?.modality)}` : ""}</div>
                         <div className="text-xs text-muted-foreground">{fmtDate(g.graduation_date)} {g.evaluator ? `· Avaliador: ${g.evaluator}` : ""}</div>
-                        {g.notes && <div className="mt-2 text-sm">{g.notes}</div>}
+                        {g.notes && <div className="mt-1 text-sm leading-relaxed">{g.notes}</div>}
                       </div>
                     </div>
                   </li>
@@ -334,6 +334,7 @@ function AnalysisPage() {
             )}
           </SectionCard>
         </TabsContent>
+
 
         {/* Competições */}
         <TabsContent value="competicoes" className="mt-4 space-y-4">
