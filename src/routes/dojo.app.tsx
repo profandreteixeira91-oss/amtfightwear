@@ -56,7 +56,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DojoLogo } from "@/components/dojo/DojoLogo";
-import { TrialBadge } from "@/components/dojo/TrialBadge";
+import { TrialBadge, AccountTrialInline } from "@/components/dojo/TrialBadge";
 import { UnsavedChangesProvider } from "@/components/common/UnsavedChangesGuard";
 import { DojoPermissionsProvider, useDojoPermissions } from "@/components/dojo/DojoPermissionsProvider";
 import { findModuleForPath } from "@/lib/dojo/permissions";
@@ -423,9 +423,10 @@ function DojoLayoutInner({
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link to="/dojo/app/account">
+                <Link to="/dojo/app/account" className="flex items-center gap-2">
                   <UserCircle className="mr-2 h-4 w-4" />
-                  Minha conta
+                  <span className="flex-1">Minha conta</span>
+                  <AccountTrialInline />
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
