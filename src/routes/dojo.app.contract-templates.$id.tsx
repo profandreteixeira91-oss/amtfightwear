@@ -369,4 +369,8 @@ function ContractEditorPage() {
       </div>
     </div>
   );
+
+  if (typeof document === "undefined") return null;
+  return createPortal(editor, document.body);
 }
+
