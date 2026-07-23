@@ -6670,15 +6670,21 @@ export type Database = {
         Row: {
           content: string
           created_at: string
+          due_day: number | null
+          end_date: string | null
           footer_html: string
           header_html: string
           id: string
           margin_mm: number
+          monthly_value: number | null
           owner_id: string
           page_orientation: string
           page_size: string
+          payment_method: string | null
+          plan_name: string | null
           show_page_numbers: boolean
           signed_at: string | null
+          start_date: string | null
           status: string
           student_id: string
           template_id: string | null
@@ -6688,15 +6694,21 @@ export type Database = {
         Insert: {
           content?: string
           created_at?: string
+          due_day?: number | null
+          end_date?: string | null
           footer_html?: string
           header_html?: string
           id?: string
           margin_mm?: number
+          monthly_value?: number | null
           owner_id: string
           page_orientation?: string
           page_size?: string
+          payment_method?: string | null
+          plan_name?: string | null
           show_page_numbers?: boolean
           signed_at?: string | null
+          start_date?: string | null
           status?: string
           student_id: string
           template_id?: string | null
@@ -6706,15 +6718,21 @@ export type Database = {
         Update: {
           content?: string
           created_at?: string
+          due_day?: number | null
+          end_date?: string | null
           footer_html?: string
           header_html?: string
           id?: string
           margin_mm?: number
+          monthly_value?: number | null
           owner_id?: string
           page_orientation?: string
           page_size?: string
+          payment_method?: string | null
+          plan_name?: string | null
           show_page_numbers?: boolean
           signed_at?: string | null
+          start_date?: string | null
           status?: string
           student_id?: string
           template_id?: string | null
