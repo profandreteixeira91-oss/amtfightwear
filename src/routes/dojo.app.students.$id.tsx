@@ -331,7 +331,7 @@ function StudentDetail() {
                             <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
                               {b.belt.modality ?? "jiu-jitsu"}
                             </div>
-                            <div className="font-medium text-sm">{b.belt.name}</div>
+                            <div className="font-medium text-sm">{formatBeltName(b.belt.name, b.belt?.modality)}</div>
                             <div className="text-xs text-muted-foreground">
                               {formatDegree(b.degree, b.belt?.modality, b.belt?.name)}
                             </div>
