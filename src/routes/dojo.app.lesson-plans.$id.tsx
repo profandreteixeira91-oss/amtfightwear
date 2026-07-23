@@ -368,100 +368,121 @@ function LessonEditorPage() {
           </Button>
         </CardHeader>
         <CardContent className="space-y-3">
-          {form.blocks.map((b, idx) => (
-            <div key={b.id} className="rounded-lg border bg-card p-3">
-              <div className="mb-2 flex items-start gap-2">
-                <div className="flex flex-col text-muted-foreground">
-                  <button className="hover:text-foreground" onClick={() => moveBlock(b.id, -1)} disabled={idx === 0}>
-                    <GripVertical className="h-4 w-4" />
-                  </button>
-                </div>
-                <Select value={b.kind} onValueChange={(v) => updateBlock(b.id, { kind: v as Block["kind"] })}>
-                  <SelectTrigger className="w-48">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {BLOCK_KINDS.map((k) => (
-                      <SelectItem key={k.value} value={k.value}>
-                        {k.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Input
-                  className="flex-1"
-                  value={b.title}
-                  onChange={(e) => updateBlock(b.id, { title: e.target.value })}
-                  placeholder="Título do bloco"
-                />
-                <Input
-                  type="number"
-                  className="w-24"
-                  value={b.duration_min ?? ""}
-                  onChange={(e) => updateBlock(b.id, { duration_min: e.target.value ? Number(e.target.value) : null })}
-                  placeholder="min"
-                />
-                <Button variant="ghost" size="icon" onClick={() => moveBlock(b.id, 1)} disabled={idx === form.blocks.length - 1}>
-                  ↓
-                </Button>
-                <Button variant="ghost" size="icon" onClick={() => moveBlock(b.id, -1)} disabled={idx === 0}>
-                  ↑
-                </Button>
-                <Button variant="ghost" size="icon" onClick={() => removeBlock(b.id)}>
-                  <Trash2 className="h-4 w-4 text-red-500" />
-                </Button>
-              </div>
-              <Textarea
-                rows={2}
-                value={b.description}
-                onChange={(e) => updateBlock(b.id, { description: e.target.value })}
-                placeholder="Descrição, orientações e objetivos do bloco…"
-              />
-              <div className="mt-3 space-y-2">
-                {b.items.map((it) => (
-                  <div key={it.id} className="grid grid-cols-12 gap-2 rounded border bg-muted/30 p-2 text-sm">
-                    <Input
-                      className="col-span-4"
-                      value={it.name}
-                      onChange={(e) => updateItem(b.id, it.id, { name: e.target.value })}
-                      placeholder="Exercício / técnica"
-                    />
-                    <Input
-                      className="col-span-4"
-                      value={it.description ?? ""}
-                      onChange={(e) => updateItem(b.id, it.id, { description: e.target.value })}
-                      placeholder="Descrição / observações"
-                    />
-                    <Input
-                      className="col-span-1"
-                      value={it.time_min ?? ""}
-                      onChange={(e) => updateItem(b.id, it.id, { time_min: e.target.value ? Number(e.target.value) : null })}
-                      placeholder="min"
-                      type="number"
-                    />
-                    <Input
-                      className="col-span-1"
-                      value={it.reps ?? ""}
-                      onChange={(e) => updateItem(b.id, it.id, { reps: e.target.value })}
-                      placeholder="rep"
-                    />
-                    <Input
-                      className="col-span-1"
-                      value={it.sets ?? ""}
-                      onChange={(e) => updateItem(b.id, it.id, { sets: e.target.value })}
-                      placeholder="sér"
-                    />
-                    <Button variant="ghost" size="icon" className="col-span-1" onClick={() => removeItem(b.id, it.id)}>
-                      <Trash2 className="h-4 w-4 text-red-500" />
-                    </Button>
-                  </div>
-                ))}
-                <Button size="sm" variant="outline" onClick={() => addItem(b.id)}>
-                  <Plus className="mr-1 h-3 w-3" /> Adicionar item
-                </Button>
-              </div>
-            </div>
-          ))}
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={(e: DragEndEvent) => {
+              if (e.over && e.active.id !== e.over.id) reorderBlocks(String(e.active.id), String(e.over.id));
+            }}
+          >
+            <SortableContext items={form.blocks.map((b) => b.id)} strategy={verticalListSortingStrategy}>
+              {form.blocks.map((b) => (
+                <SortableRow key={b.id} id={b.id}>
+                  {({ listeners, attributes }) => (
+                    <div className="rounded-lg border bg-card p-3">
+                      <div className="mb-2 flex items-start gap-2">
+                        <DragHandle listeners={listeners as Record<string, unknown>} attributes={attributes as Record<string, unknown>} />
+                        <Select value={b.kind} onValueChange={(v) => updateBlock(b.id, { kind: v as Block["kind"] })}>
+                          <SelectTrigger className="w-48">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {BLOCK_KINDS.map((k) => (
+                              <SelectItem key={k.value} value={k.value}>
+                                {k.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Input
+                          className="flex-1"
+                          value={b.title}
+                          onChange={(e) => updateBlock(b.id, { title: e.target.value })}
+                          placeholder="Título do bloco"
+                        />
+                        <Input
+                          type="number"
+                          className="w-24"
+                          value={b.duration_min ?? ""}
+                          onChange={(e) => updateBlock(b.id, { duration_min: e.target.value ? Number(e.target.value) : null })}
+                          placeholder="min"
+                        />
+                        <Button variant="ghost" size="icon" onClick={() => removeBlock(b.id)}>
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                      </div>
+                      <Textarea
+                        rows={2}
+                        value={b.description}
+                        onChange={(e) => updateBlock(b.id, { description: e.target.value })}
+                        placeholder="Descrição, orientações e objetivos do bloco…"
+                      />
+                      <div className="mt-3 space-y-2">
+                        <DndContext
+                          sensors={sensors}
+                          collisionDetection={closestCenter}
+                          onDragEnd={(e: DragEndEvent) => {
+                            if (e.over && e.active.id !== e.over.id) reorderItems(b.id, String(e.active.id), String(e.over.id));
+                          }}
+                        >
+                          <SortableContext items={b.items.map((it) => it.id)} strategy={verticalListSortingStrategy}>
+                            {b.items.map((it) => (
+                              <SortableRow key={it.id} id={it.id}>
+                                {({ listeners: iL, attributes: iA }) => (
+                                  <div className="grid grid-cols-12 items-center gap-2 rounded border bg-muted/30 p-2 text-sm">
+                                    <div className="col-span-1 flex justify-center">
+                                      <DragHandle listeners={iL as Record<string, unknown>} attributes={iA as Record<string, unknown>} />
+                                    </div>
+                                    <Input
+                                      className="col-span-3"
+                                      value={it.name}
+                                      onChange={(e) => updateItem(b.id, it.id, { name: e.target.value })}
+                                      placeholder="Exercício / técnica"
+                                    />
+                                    <Input
+                                      className="col-span-4"
+                                      value={it.description ?? ""}
+                                      onChange={(e) => updateItem(b.id, it.id, { description: e.target.value })}
+                                      placeholder="Descrição"
+                                    />
+                                    <Input
+                                      className="col-span-1"
+                                      value={it.time_min ?? ""}
+                                      onChange={(e) => updateItem(b.id, it.id, { time_min: e.target.value ? Number(e.target.value) : null })}
+                                      placeholder="min"
+                                      type="number"
+                                    />
+                                    <Input
+                                      className="col-span-1"
+                                      value={it.reps ?? ""}
+                                      onChange={(e) => updateItem(b.id, it.id, { reps: e.target.value })}
+                                      placeholder="rep"
+                                    />
+                                    <Input
+                                      className="col-span-1"
+                                      value={it.sets ?? ""}
+                                      onChange={(e) => updateItem(b.id, it.id, { sets: e.target.value })}
+                                      placeholder="sér"
+                                    />
+                                    <Button variant="ghost" size="icon" className="col-span-1" onClick={() => removeItem(b.id, it.id)}>
+                                      <Trash2 className="h-4 w-4 text-red-500" />
+                                    </Button>
+                                  </div>
+                                )}
+                              </SortableRow>
+                            ))}
+                          </SortableContext>
+                        </DndContext>
+                        <Button size="sm" variant="outline" onClick={() => addItem(b.id)}>
+                          <Plus className="mr-1 h-3 w-3" /> Adicionar item
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </SortableRow>
+              ))}
+            </SortableContext>
+          </DndContext>
           {form.blocks.length === 0 ? (
             <div className="rounded border border-dashed p-6 text-center text-sm text-muted-foreground">
               Nenhum bloco. Adicione aquecimento, técnicas, sparring…
