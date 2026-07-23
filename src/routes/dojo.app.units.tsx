@@ -466,7 +466,9 @@ function AffiliateDialog({ form, setForm, onSave }: { form: any; setForm: (f: an
           <Field label="Site"><Input value={form.website ?? ""} onChange={(e) => set("website", e.target.value)} /></Field>
         </Section>
         <Section title="Identidade">
-          <Field label="URL do logo" className="md:col-span-2"><Input value={form.logo_url ?? ""} onChange={(e) => set("logo_url", e.target.value)} placeholder="https://..." /></Field>
+          <Field label="Logo" className="md:col-span-2">
+            <LogoUploader kind="affiliate-logo" value={form.logo_url ?? ""} onChange={(url) => set("logo_url", url)} />
+          </Field>
         </Section>
         <div className="space-y-1">
           <Label className="text-xs">Anotações</Label>
