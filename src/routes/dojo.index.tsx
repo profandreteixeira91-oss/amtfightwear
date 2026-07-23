@@ -1,4 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { recordStoreVisit } from "@/lib/store/customers.functions";
+
 
 import { LandingNav } from "@/components/dojo/landing/LandingNav";
 import { Hero } from "@/components/dojo/landing/Hero";
