@@ -71,8 +71,23 @@ function ContractTemplatesPage() {
 
   const [previewOpen, setPreviewOpen] = useState(false);
   const [current, setCurrent] = useState<any | null>(null);
+  const [installing, setInstalling] = useState(false);
 
   const openNew = () => navigate({ to: "/dojo/app/contract-templates/$id", params: { id: "new" } });
+
+  const installDefault = async () => {
+    setInstalling(true);
+    try {
+      const saved: any = await saveFn({ data: { ...DEFAULT_CONTRACT_PRESET } });
+      toast.success("Modelo padrão instalado");
+      qc.invalidateQueries({ queryKey: ["contract-templates"] });
+      if (saved?.id) navigate({ to: "/dojo/app/contract-templates/$id", params: { id: saved.id } });
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setInstalling(false);
+    }
+  };
   const openEdit = (row: any) => navigate({ to: "/dojo/app/contract-templates/$id", params: { id: row.id } });
   const openPreview = (row: any) => { setCurrent(row); setPreviewOpen(true); };
 
