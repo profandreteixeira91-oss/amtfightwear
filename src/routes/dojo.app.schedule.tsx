@@ -306,15 +306,18 @@ function SchedulePage() {
   );
 }
 
-function Kpi({ icon: Icon, label, value }: { icon: any; label: string; value: any }) {
+function Kpi({ icon: Icon, label, value, accent = "from-red-500 to-red-700" }: { icon: any; label: string; value: any; accent?: string }) {
   return (
-    <div className="border rounded-lg bg-white p-3 flex items-center gap-3">
-      <div className="grid h-10 w-10 place-items-center rounded-md bg-primary/10 text-primary">
-        <Icon className="h-5 w-5" />
-      </div>
-      <div>
-        <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
-        <div className="text-xl font-bold">{value}</div>
+    <div className="group relative overflow-hidden rounded-2xl border border-neutral-200/80 bg-white p-4 shadow-sm hover:shadow-md transition-all">
+      <div className={`absolute -top-8 -right-8 h-24 w-24 rounded-full bg-gradient-to-br ${accent} opacity-[0.08] blur-2xl group-hover:opacity-[0.14] transition-opacity`} />
+      <div className="relative flex items-center gap-3">
+        <div className={`grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br ${accent} text-white shadow-md ring-1 ring-white/20`}>
+          <Icon className="h-5 w-5" />
+        </div>
+        <div className="min-w-0">
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">{label}</div>
+          <div className="text-2xl font-black tracking-tight tabular-nums">{value}</div>
+        </div>
       </div>
     </div>
   );
