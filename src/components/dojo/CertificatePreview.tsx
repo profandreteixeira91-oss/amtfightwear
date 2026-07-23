@@ -166,7 +166,8 @@ function EditorElementRender({ el, values, scale, W, H }: { el: any; values: Rec
     return <div style={{ ...style, fontSize: `${el.fontSize * scale}px`, color: el.color, fontWeight: el.bold ? 700 : 400, textAlign: el.align, fontFamily: el.fontFamily }}>{s}</div>;
   }
   if (el.kind === "image" || el.kind === "logo" || el.kind === "signature") {
-    return el.imageUrl ? <img src={el.imageUrl} alt="" style={{ ...style, objectFit: el.fit ?? "contain" }} /> : <div style={style} />;
+    const src = el.imageUrl || (el.kind === "logo" ? values.academia_logo : "");
+    return src ? <img src={src} alt="" style={{ ...style, objectFit: el.fit ?? "contain" }} /> : <div style={style} />;
   }
   if (el.kind === "rect") return <div style={{ ...style, background: el.fill, border: `${el.strokeWidth ?? 0}px solid ${el.stroke ?? "transparent"}`, borderRadius: el.radius ?? 0 }} />;
   if (el.kind === "circle") return <div style={{ ...style, background: el.fill, border: `${el.strokeWidth ?? 0}px solid ${el.stroke ?? "transparent"}`, borderRadius: "9999px" }} />;
