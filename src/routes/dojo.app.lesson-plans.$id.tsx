@@ -92,6 +92,9 @@ function LessonEditorPage() {
     objectives: string;
     notes: string;
     blocks: Block[];
+    class_id: string | null;
+    teacher_id: string | null;
+    unit_id: string | null;
   } | null>(null);
 
   useEffect(() => {
