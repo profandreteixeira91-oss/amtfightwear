@@ -77,14 +77,29 @@ function TemplatesLibraryPage() {
     return map;
   }, [list.data]);
 
-  const installDefault = async () => {
+  const installPreset = async (preset: ContractPreset) => {
     setInstalling(true);
     try {
-      const saved: any = await saveFn({ data: { ...DEFAULT_CONTRACT_PRESET } });
-      toast.success("Modelo padrão instalado");
+      const { key: _key, ...payload } = preset;
+      const saved: any = await saveFn({ data: payload });
+      toast.success(`Modelo instalado: ${preset.name}`);
       qc.invalidateQueries({ queryKey: ["contract-templates-advanced"] });
       qc.invalidateQueries({ queryKey: ["contract-templates"] });
       if (saved?.id) navigate({ to: "/dojo/app/contract-templates/$id", params: { id: saved.id } });
+    } catch (e: any) { toast.error(e.message); }
+    finally { setInstalling(false); }
+  };
+
+  const installAllPresets = async () => {
+    setInstalling(true);
+    try {
+      for (const preset of CONTRACT_PRESETS) {
+        const { key: _key, ...payload } = preset;
+        await saveFn({ data: payload });
+      }
+      toast.success(`${CONTRACT_PRESETS.length} modelos prontos instalados`);
+      qc.invalidateQueries({ queryKey: ["contract-templates-advanced"] });
+      qc.invalidateQueries({ queryKey: ["contract-templates"] });
     } catch (e: any) { toast.error(e.message); }
     finally { setInstalling(false); }
   };
