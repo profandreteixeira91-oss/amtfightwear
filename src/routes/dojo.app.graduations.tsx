@@ -594,13 +594,48 @@ function NewGraduationPage() {
               </Button>
             </div>
           </CardHeader>
-          {showPricing && (
+          {showPricing && (() => {
+            const acadMods = (academyModalities.data ?? []).map((m) => m.toLowerCase());
+            const filteredByAcademy = acadMods.length > 0
+              ? (belts.data ?? []).filter((b: any) => acadMods.includes(String(b.modality ?? "jiu-jitsu").toLowerCase()))
+              : (belts.data ?? []);
+            const modalityOptions = Array.from(new Set(filteredByAcademy.map((b: any) => String(b.modality ?? "jiu-jitsu")))) as string[];
+            const beltsToShow = pricingModality === "all"
+              ? filteredByAcademy
+              : filteredByAcademy.filter((b: any) => String(b.modality ?? "jiu-jitsu") === pricingModality);
+            return (
             <CardContent className="p-4 md:p-5 space-y-3">
+              {acadMods.length === 0 ? (
+                <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
+                  Nenhuma modalidade definida em <a href="/dojo/app/account?tab=academy" className="font-medium underline">Minha Conta → Academia</a>. Exibindo todas as faixas cadastradas.
+                </div>
+              ) : (
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-xs text-muted-foreground">Modalidade:</span>
+                  <button
+                    type="button"
+                    onClick={() => setPricingModality("all")}
+                    className={`px-2.5 py-1 rounded-full text-xs border capitalize ${pricingModality === "all" ? "bg-primary text-primary-foreground border-primary" : "bg-background hover:bg-muted"}`}
+                  >
+                    Todas
+                  </button>
+                  {modalityOptions.map((m) => (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => setPricingModality(m)}
+                      className={`px-2.5 py-1 rounded-full text-xs border capitalize ${pricingModality === m ? "bg-primary text-primary-foreground border-primary" : "bg-background hover:bg-muted"}`}
+                    >
+                      {m}
+                    </button>
+                  ))}
+                </div>
+              )}
               <div className="max-h-[360px] overflow-y-auto divide-y divide-border rounded-xl border bg-background">
-                {(belts.data ?? []).length === 0 && (
-                  <div className="p-6 text-center text-sm text-muted-foreground">Cadastre faixas primeiro em Graduações → Faixas.</div>
+                {beltsToShow.length === 0 && (
+                  <div className="p-6 text-center text-sm text-muted-foreground">Nenhuma faixa disponível para as modalidades selecionadas.</div>
                 )}
-                {(belts.data ?? []).map((b: any) => (
+                {beltsToShow.map((b: any) => (
                   <div key={b.id} className="flex items-center gap-3 p-3">
                     <BeltAuto belt={b} degree={0} className="w-[160px] shrink-0" />
                     <div className="min-w-0 flex-1">
@@ -627,7 +662,8 @@ function NewGraduationPage() {
                 </Button>
               </div>
             </CardContent>
-          )}
+            );
+          })()}
         </Card>
       )}
 
