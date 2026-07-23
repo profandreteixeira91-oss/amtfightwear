@@ -16,7 +16,7 @@ export function ElementView({ el, values, editable = false }: { el: AnyElement; 
     return <TextView el={el as TextElement | DateElement} values={values} style={style} />;
   }
   if (el.kind === "image" || el.kind === "logo" || el.kind === "signature") {
-    return <ImageView el={el as ImageElement} style={style} />;
+    return <ImageView el={el as ImageElement} style={style} values={values} />;
   }
   if (el.kind === "rect" || el.kind === "circle" || el.kind === "line") {
     return <ShapeView el={el as ShapeElement} style={style} />;
