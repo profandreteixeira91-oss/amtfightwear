@@ -59,56 +59,78 @@ function StoreDashboard() {
   }, [now]);
 
   return (
-    <div className="space-y-6 p-4 md:p-6">
-      {/* Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="min-w-0">
-          <h1 className="text-2xl font-black tracking-tight md:text-3xl">
-            {greeting}, Admin
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {now.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" })}
-            {" · "}
-            <span className={isFetching ? "text-primary" : "text-emerald-600"}>
-              {isFetching ? "sincronizando…" : `atualizado ${new Date(dataUpdatedAt).toLocaleTimeString("pt-BR")}`}
-            </span>
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}>
-            <RefreshCw className={`mr-2 h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
-            Atualizar
-          </Button>
-          <a
-            href="/loja"
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
-          >
-            <ExternalLink className="h-4 w-4" /> Ver loja
-          </a>
+    <div className="space-y-4 p-3 sm:p-4 md:space-y-6 md:p-6">
+      {/* Header premium mobile-first */}
+      <div className="relative overflow-hidden rounded-2xl border border-red-950/10 bg-gradient-to-br from-neutral-950 via-neutral-900 to-red-950/40 p-4 text-white shadow-xl sm:p-6">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-20"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px)",
+            backgroundSize: "24px 24px",
+          }}
+        />
+        <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-red-500/20 blur-3xl" />
+        <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 sm:flex sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.2em] text-red-300/80">Painel da Loja</div>
+            <h1 className="truncate text-xl font-black tracking-tight sm:text-2xl md:text-3xl">
+              {greeting}, Admin
+            </h1>
+            <p className="mt-1 truncate text-[11px] text-white/60 sm:text-xs">
+              {now.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
+              {" · "}
+              <span className={isFetching ? "text-red-300" : "text-emerald-300"}>
+                {isFetching ? "sincronizando…" : `atualizado ${new Date(dataUpdatedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`}
+              </span>
+            </p>
+          </div>
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+            <button
+              onClick={() => refetch()}
+              disabled={isFetching}
+              className="grid h-10 w-10 place-items-center rounded-full bg-white/10 text-white transition hover:bg-white/20 disabled:opacity-50 sm:h-9 sm:w-auto sm:gap-2 sm:px-3"
+              aria-label="Atualizar"
+            >
+              <RefreshCw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
+              <span className="hidden text-sm font-semibold sm:inline">Atualizar</span>
+            </button>
+            <a
+              href="/loja"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex h-10 items-center gap-1.5 rounded-full bg-red-600 px-3 text-sm font-semibold text-white shadow-lg shadow-red-950/40 transition hover:bg-red-500 sm:h-9"
+              aria-label="Ver loja"
+            >
+              <ExternalLink className="h-4 w-4" />
+              <span className="hidden sm:inline">Ver loja</span>
+              <span className="sm:hidden">Loja</span>
+            </a>
+          </div>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-1 rounded-lg border bg-card p-1 shadow-sm w-fit">
-        {RANGES.map((r) => (
-          <button
-            key={r.key}
-            onClick={() => setRange(r.key)}
-            className={`rounded-md px-3 py-1.5 text-xs font-semibold transition ${
-              range === r.key
-                ? "bg-primary text-primary-foreground shadow"
-                : "text-muted-foreground hover:bg-muted"
-            }`}
-          >
-            {r.label}
-          </button>
-        ))}
+      {/* Filtros de período — scroll horizontal no mobile */}
+      <div className="-mx-3 overflow-x-auto px-3 sm:mx-0 sm:px-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        <div className="inline-flex min-w-max gap-1 rounded-full border bg-card p-1 shadow-sm">
+          {RANGES.map((r) => (
+            <button
+              key={r.key}
+              onClick={() => setRange(r.key)}
+              className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold transition ${
+                range === r.key
+                  ? "bg-primary text-primary-foreground shadow"
+                  : "text-muted-foreground hover:bg-muted"
+              }`}
+            >
+              {r.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Top KPI cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {/* KPI cards — 2 colunas no mobile, 4 no desktop */}
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <KpiCard
           icon={DollarSign}
           label="Faturamento hoje"
@@ -123,7 +145,7 @@ function StoreDashboard() {
           label="Pedidos hoje"
           value={data ? NUM(data.today.orders) : undefined}
           loading={isLoading}
-          hint={data ? `Ticket médio ${BRL(data.today.avg_ticket)}` : undefined}
+          hint={data ? `Ticket ${BRL(data.today.avg_ticket)}` : undefined}
           tone="orders"
         />
         <KpiCard
@@ -133,7 +155,7 @@ function StoreDashboard() {
           loading={isLoading}
           hint={
             data
-              ? `${data.live.checkout} no checkout · ${data.live.product_views} produtos · ${data.live.category_views} categorias`
+              ? `${data.live.checkout} checkout · ${data.live.product_views} produtos`
               : undefined
           }
           tone="live"
@@ -148,6 +170,7 @@ function StoreDashboard() {
           tone="cart"
         />
       </div>
+
 
       {/* Visitors analytics */}
       <VisitorsPanel />
