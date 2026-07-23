@@ -59,7 +59,7 @@ export const getMySubscription = createServerFn({ method: "GET" })
     return data;
   });
 
-/** Cria (ou reaproveita) um preapproval no MP e retorna init_point para checkout. */
+/** Cria (ou reaproveita) um preapproval no MP e retorna init_point para checkout externo (fallback). */
 export const startMySubscription = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -92,7 +92,6 @@ export const startMySubscription = createServerFn({ method: "POST" })
           transaction_amount: PLAN_AMOUNT,
           currency_id: "BRL",
         },
-        // Aceita cartão de crédito e saldo em conta Mercado Pago no checkout.
         payment_methods_allowed: {
           payment_types: [{ id: "credit_card" }, { id: "account_money" }],
           payment_methods: [],
@@ -111,6 +110,77 @@ export const startMySubscription = createServerFn({ method: "POST" })
       .eq("id", sub.id);
 
     return { init_point: preapproval.init_point ?? preapproval.sandbox_init_point };
+  });
+
+/** Retorna a public key do Mercado Pago para uso client-side (tokenização de cartão). */
+export const getMpPublicKey = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async () => {
+    const key = process.env.MERCADOPAGO_PUBLIC_KEY;
+    if (!key) throw new Error("MERCADOPAGO_PUBLIC_KEY não configurada");
+    return { publicKey: key };
+  });
+
+/**
+ * Checkout nativo: recebe um card_token_id gerado pelo SDK MP no browser
+ * e cria o preapproval já AUTORIZADO (sem redirect ao site do MP).
+ */
+export const subscribeWithCardToken = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z
+      .object({
+        cardTokenId: z.string().min(4),
+        payerEmail: z.string().email().optional(),
+      })
+      .parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: sub } = await context.supabase
+      .from("dojo_subscriptions")
+      .select("*")
+      .eq("owner_id", context.userId)
+      .maybeSingle();
+    if (!sub) throw new Error("Assinatura não inicializada");
+
+    const { data: userRes } = await context.supabase.auth.getUser();
+    const email = data.payerEmail || userRes.user?.email;
+    if (!email) throw new Error("E-mail do dono indisponível");
+
+    const notification = "https://amtfightwear.com.br/api/public/hooks/mercadopago";
+
+    const preapproval = await mpAmt<any>("/preapproval", {
+      method: "POST",
+      body: JSON.stringify({
+        reason: "AMT Dojo Manager — Assinatura mensal",
+        external_reference: `dojo_sub:${sub.id}`,
+        payer_email: email,
+        card_token_id: data.cardTokenId,
+        status: "authorized",
+        auto_recurring: {
+          frequency: 1,
+          frequency_type: "months",
+          transaction_amount: PLAN_AMOUNT,
+          currency_id: "BRL",
+        },
+        notification_url: notification,
+      }),
+    });
+
+    const patch: Record<string, any> = {
+      mp_preapproval_id: String(preapproval.id),
+      last_event: preapproval,
+    };
+    if (preapproval.status === "authorized") patch.status = "active";
+    else if (preapproval.status === "pending") patch.status = "pending";
+    if (preapproval.next_payment_date) patch.current_period_end = preapproval.next_payment_date;
+
+    await context.supabase
+      .from("dojo_subscriptions")
+      .update(patch as never)
+      .eq("id", sub.id);
+
+    return { status: patch.status ?? preapproval.status, id: String(preapproval.id) };
   });
 
 /** Cancela a assinatura no MP e localmente. */
