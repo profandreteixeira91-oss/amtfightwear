@@ -191,7 +191,7 @@ function HeroHeader({
           </div>
           <p className="mt-3 text-sm md:text-base text-white/85 font-medium">
             {greeting}
-            {firstName ? <>, <span className="text-white">{firstName}</span></> : null}
+            {fullName ? <>, <span className="text-white">{fullName}</span></> : null}
           </p>
           <div className="mt-2 flex items-center gap-3 md:gap-4">
             <Link
