@@ -8,10 +8,20 @@ import {
   upsertLessonPlan,
   deleteLessonPlan,
   duplicateLessonPlan,
+  getBuiltInLessonTemplates,
+  listLessonTemplates,
+  createPlanFromTemplate,
 } from "@/lib/dojo/lesson-plans.functions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   CalendarDays,
   CheckCircle2,
@@ -23,6 +33,7 @@ import {
   Pencil,
   ChevronLeft,
   ChevronRight,
+  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -65,6 +76,16 @@ function LessonPlansDashboardPage() {
   const upsertFn = useServerFn(upsertLessonPlan);
   const deleteFn = useServerFn(deleteLessonPlan);
   const dupFn = useServerFn(duplicateLessonPlan);
+  const fromTplFn = useServerFn(createPlanFromTemplate);
+
+  const createFromTpl = useMutation({
+    mutationFn: (payload: { templateId?: string; builtInKey?: string }) =>
+      fromTplFn({ data: { ...payload, date: fmt(new Date()) } }),
+    onSuccess: (row) => {
+      qc.invalidateQueries({ queryKey: ["lesson-plans"] });
+      if (row && "id" in row) navigate({ to: "/dojo/app/lesson-plans/$id", params: { id: (row as { id: string }).id } });
+    },
+  });
 
   const [view, setView] = useState<ViewMode>("week");
   const [anchor, setAnchor] = useState<Date>(() => new Date());
@@ -185,8 +206,16 @@ function LessonPlansDashboardPage() {
               {v === "week" ? "Semana" : v === "month" ? "Mês" : "Lista"}
             </Button>
           ))}
-          <Button size="sm" className="ml-2" onClick={() => createDraft.mutate(fmt(new Date()))}>
-            <Plus className="mr-1 h-4 w-4" /> Nova aula
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button size="sm" variant="outline" className="ml-2">
+                <Sparkles className="mr-1 h-4 w-4" /> Do modelo
+              </Button>
+            </DialogTrigger>
+            <TemplatePickerDialog onPick={(payload) => createFromTpl.mutate(payload)} />
+          </Dialog>
+          <Button size="sm" className="ml-1" onClick={() => createDraft.mutate(fmt(new Date()))}>
+            <Plus className="mr-1 h-4 w-4" /> Em branco
           </Button>
         </div>
       </div>
@@ -398,5 +427,67 @@ function ListView({
         </div>
       ))}
     </div>
+  );
+}
+
+function TemplatePickerDialog({
+  onPick,
+}: {
+  onPick: (payload: { templateId?: string; builtInKey?: string }) => void;
+}) {
+  const builtInsFn = useServerFn(getBuiltInLessonTemplates);
+  const listFn = useServerFn(listLessonTemplates);
+  const { data: builtIns } = useQuery({
+    queryKey: ["lesson-plans", "builtin-templates"],
+    queryFn: () => builtInsFn({}),
+  });
+  const { data: custom } = useQuery({
+    queryKey: ["lesson-plans", "custom-templates"],
+    queryFn: () => listFn({}),
+  });
+  return (
+    <DialogContent className="max-w-2xl">
+      <DialogHeader>
+        <DialogTitle>Escolher modelo</DialogTitle>
+      </DialogHeader>
+      <div className="max-h-[60vh] space-y-4 overflow-y-auto pr-1">
+        {custom && custom.length ? (
+          <div>
+            <div className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Meus modelos</div>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {custom.map((t) => (
+                <button
+                  key={t.id as string}
+                  className="rounded-lg border p-3 text-left transition hover:border-primary hover:bg-primary/5"
+                  onClick={() => onPick({ templateId: t.id as string })}
+                >
+                  <div className="font-medium">{t.name as string}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {(t.modality as string) ?? "—"} · {(t.blocks as unknown[])?.length ?? 0} blocos
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : null}
+        <div>
+          <div className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Modelos prontos</div>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {(builtIns ?? []).map((t) => (
+              <button
+                key={t.key}
+                className="rounded-lg border p-3 text-left transition hover:border-primary hover:bg-primary/5"
+                onClick={() => onPick({ builtInKey: t.key })}
+              >
+                <div className="font-medium">{t.name}</div>
+                <div className="text-xs text-muted-foreground">
+                  {t.category ?? "Todas as modalidades"} · {t.block_count} blocos
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </DialogContent>
   );
 }
