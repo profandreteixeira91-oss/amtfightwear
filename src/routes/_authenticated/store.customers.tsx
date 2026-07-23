@@ -80,7 +80,7 @@ function StoreCustomersPage() {
       </div>
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between gap-3">
+        <CardHeader className="flex flex-col items-stretch justify-between gap-3 sm:flex-row sm:items-center">
           <CardTitle className="text-base">
             {isLoading ? "Carregando..." : `${rows.length} cliente(s)`}
           </CardTitle>
@@ -88,7 +88,7 @@ function StoreCustomersPage() {
             placeholder="Buscar por nome, e-mail, telefone, cidade..."
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            className="max-w-xs"
+            className="w-full sm:max-w-xs"
           />
         </CardHeader>
         <CardContent className="p-0">
