@@ -480,12 +480,15 @@ function StoreHomePage() {
         <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-neutral-50 via-white to-neutral-100 px-8 py-16 text-center sm:px-12 sm:py-20">
           <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_50%_at_50%_0%,rgba(220,38,38,0.08),transparent_70%)]" />
           <div className="relative">
-            <div className="text-[11px] font-bold uppercase tracking-[0.4em] text-primary">Bem-vindo à</div>
-            <h2 className="mt-3 text-4xl font-black uppercase tracking-tight text-foreground sm:text-5xl">
-              Loja Virtual AMT Fight Wear
+            <div className="text-[10px] font-semibold uppercase tracking-[0.45em] text-primary">Bem-vindo à</div>
+            <h2
+              className="mt-4 text-[2.5rem] leading-[1.02] tracking-[-0.025em] text-foreground sm:text-[3.5rem]"
+              style={{ fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 600 }}
+            >
+              Loja Virtual <span className="italic text-primary" style={{ fontWeight: 500 }}>AMT Fight Wear</span>
             </h2>
-            <p className="mt-4 text-base text-muted-foreground">
-              Compre online com segurança · entrega para todo o Brasil
+            <p className="mx-auto mt-5 max-w-xl text-[15px] leading-[1.7] text-muted-foreground sm:text-base">
+              Compre online com segurança <span className="mx-1 text-primary/60">·</span> entrega para todo o Brasil
             </p>
           </div>
         </div>
