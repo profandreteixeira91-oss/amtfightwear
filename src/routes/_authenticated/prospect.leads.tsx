@@ -287,11 +287,14 @@ function LeadsPage() {
 
       {/* Barra de ações em lote */}
       {selected.size > 0 && (
-        <div className="mb-3 flex flex-wrap items-center gap-2 rounded-md border border-primary/30 bg-primary/5 p-3">
-          <span className="text-sm font-semibold">{selected.size} selecionado(s)</span>
-          <div className="ml-auto flex flex-wrap items-center gap-2">
+        <div className="mb-3 rounded-md border border-primary/30 bg-primary/5 p-3">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <span className="text-sm font-semibold">{selected.size} selecionado(s)</span>
+            <Button size="sm" variant="ghost" onClick={() => setSelected(new Set())}>Limpar</Button>
+          </div>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:flex lg:flex-wrap lg:items-center">
             <Select value={bulkStage} onValueChange={setBulkStage}>
-              <SelectTrigger className="h-9 w-[220px]"><SelectValue placeholder="Mover para estágio..." /></SelectTrigger>
+              <SelectTrigger className="h-9 w-full lg:w-[220px]"><SelectValue placeholder="Mover para estágio..." /></SelectTrigger>
               <SelectContent>
                 {PIPELINE_STAGES.map((s) => <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>)}
               </SelectContent>
@@ -299,6 +302,7 @@ function LeadsPage() {
             <Button
               size="sm"
               variant="outline"
+              className="w-full lg:w-auto"
               disabled={!bulkStage || bulkStageMut.isPending}
               onClick={() => bulkStageMut.mutate({ ids: selectedIds, pipeline_stage: bulkStage })}
             >
@@ -307,15 +311,17 @@ function LeadsPage() {
             <Button
               size="sm"
               variant="outline"
+              className="w-full lg:w-auto"
               disabled={bulkEnrichMut.isPending}
               onClick={() => bulkEnrichMut.mutate(selectedIds)}
             >
               {bulkEnrichMut.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
-              Enriquecer selecionados
+              Enriquecer
             </Button>
             <Button
               size="sm"
               variant="outline"
+              className="w-full lg:w-auto"
               onClick={() => {
                 const added = addToMacroQueue(selectedIds);
                 toast.success(
@@ -325,11 +331,11 @@ function LeadsPage() {
                 );
               }}
             >
-              <Send className="mr-2 h-4 w-4" />Enviar p/ Macro
+              <Send className="mr-2 h-4 w-4" />Macro
             </Button>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button size="sm" variant="destructive">
+                <Button size="sm" variant="destructive" className="w-full lg:w-auto">
                   <Trash2 className="mr-2 h-4 w-4" />Excluir
                 </Button>
               </AlertDialogTrigger>
@@ -348,7 +354,6 @@ function LeadsPage() {
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-            <Button size="sm" variant="ghost" onClick={() => setSelected(new Set())}>Limpar</Button>
           </div>
         </div>
       )}
