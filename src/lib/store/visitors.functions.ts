@@ -38,10 +38,19 @@ function resolveRange(range: string, start?: string, end?: string) {
   return { start: startDate.toISOString(), end: endDate.toISOString() };
 }
 
+// Brasil (America/Sao_Paulo) é UTC-3 sem DST atualmente.
+const TZ_OFFSET_HOURS = -3;
+
+function toLocal(date: Date): Date {
+  return new Date(date.getTime() + TZ_OFFSET_HOURS * 3600 * 1000);
+}
+
 function bucketKey(date: Date, granularity: string) {
-  const d = new Date(date);
+  // Desloca para horário local (BRT) e depois usa métodos UTC para formatar,
+  // garantindo que a chave represente o instante local do evento.
+  const d = toLocal(date);
   if (granularity === "hour") {
-    d.setMinutes(0, 0, 0);
+    d.setUTCMinutes(0, 0, 0);
     return d.toISOString().slice(0, 13) + ":00";
   }
   if (granularity === "week") {
