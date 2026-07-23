@@ -24,6 +24,8 @@ import { dojoFinanceDashboard } from "@/lib/dojo/finance-dashboard.functions";
 import { attendanceStats } from "@/lib/dojo/attendance.functions";
 import { listClasses } from "@/lib/dojo/schedule.functions";
 import { BeltAuto } from "@/components/dojo/BeltSpecVisual";
+import { formatBeltFull } from "@/lib/dojo/degree-label";
+
 import { useUnitScope } from "@/components/dojo/UnitScope";
 import {
   Users,
