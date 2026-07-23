@@ -376,34 +376,85 @@ const paymentSchema = z.object({
   notes: z.string().nullable().optional(),
 });
 
+async function ensureExpenseForPayment(supabase: any, ownerId: string, paymentId: string) {
+  const { data: pay } = await supabase
+    .from("dojo_team_payments")
+    .select("id, owner_id, member_id, amount, description, kind, reference_month, due_date, paid_at, status, dojo_team_members(full_name, role, unit_id)")
+    .eq("id", paymentId)
+    .maybeSingle();
+  if (!pay || pay.status !== "paid") return;
+
+  const { data: existing } = await supabase
+    .from("dojo_expenses")
+    .select("id")
+    .eq("team_payment_id", paymentId)
+    .maybeSingle();
+
+  const name = pay.dojo_team_members?.full_name ?? "Colaborador";
+  const kindLabel: Record<string, string> = {
+    salary: "Salário", advance: "Adiantamento", discount: "Desconto",
+    bonus: "Bônus", commission: "Comissão", overtime: "Hora extra",
+    reimbursement: "Reembolso", other: "Pagamento",
+  };
+  const description = `${kindLabel[pay.kind] ?? "Pagamento"} — ${name}${pay.description ? ` · ${pay.description}` : ""}`;
+  const paidAtDate = pay.paid_at ? new Date(pay.paid_at).toISOString().slice(0, 10) : null;
+  const due_date = paidAtDate ?? pay.due_date ?? pay.reference_month ?? new Date().toISOString().slice(0, 10);
+
+  const payload: any = {
+    owner_id: ownerId,
+    unit_id: pay.dojo_team_members?.unit_id ?? null,
+    category: "Folha de pagamento",
+    description,
+    amount: pay.amount,
+    due_date,
+    paid_at: pay.paid_at,
+    status: "paid",
+    team_payment_id: pay.id,
+  };
+
+  if (existing) {
+    await supabase.from("dojo_expenses").update(payload).eq("id", existing.id);
+  } else {
+    await supabase.from("dojo_expenses").insert(payload);
+  }
+}
+
 export const upsertPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => paymentSchema.parse(i))
   .handler(async ({ data, context }) => {
     const { id, ...rest } = data;
+    let paymentId = id;
     if (id) {
       const { error } = await context.supabase.from("dojo_team_payments").update(rest).eq("id", id);
       if (error) throw new Error(error.message);
-      return { id };
+    } else {
+      const { data: row, error } = await context.supabase.from("dojo_team_payments")
+        .insert({ ...rest, owner_id: context.userId }).select("id").single();
+      if (error) throw new Error(error.message);
+      paymentId = row.id;
+      await context.supabase.from("dojo_team_history").insert({
+        owner_id: context.userId, member_id: rest.member_id,
+        event_type: "payment", description: `Pagamento registrado: ${rest.kind} R$ ${rest.amount}`,
+        after_data: rest as never, actor_user_id: context.userId,
+      });
     }
-    const { data: row, error } = await context.supabase.from("dojo_team_payments")
-      .insert({ ...rest, owner_id: context.userId }).select("id").single();
-    if (error) throw new Error(error.message);
-    await context.supabase.from("dojo_team_history").insert({
-      owner_id: context.userId, member_id: rest.member_id,
-      event_type: "payment", description: `Pagamento registrado: ${rest.kind} R$ ${rest.amount}`,
-      after_data: rest as never, actor_user_id: context.userId,
-    });
-    return { id: row.id };
+    if (rest.status === "paid" && paymentId) {
+      await ensureExpenseForPayment(context.supabase, context.userId, paymentId);
+    } else if (rest.status && rest.status !== "paid" && id) {
+      await context.supabase.from("dojo_expenses").delete().eq("team_payment_id", id);
+    }
+    return { id: paymentId };
   });
 
 export const markPaymentPaid = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: uuid }).parse(i))
+  .inputValidator((i: unknown) => z.object({ id: uuid, paid_at: z.string().optional() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("dojo_team_payments")
-      .update({ status: "paid", paid_at: new Date().toISOString() }).eq("id", data.id);
+      .update({ status: "paid", paid_at: data.paid_at ?? new Date().toISOString() }).eq("id", data.id);
     if (error) throw new Error(error.message);
+    await ensureExpenseForPayment(context.supabase, context.userId, data.id);
     return { ok: true };
   });
 
@@ -414,7 +465,72 @@ export const deletePayment = createServerFn({ method: "POST" })
     const { error } = await context.supabase.from("dojo_team_payments")
       .update({ status: "canceled" }).eq("id", data.id);
     if (error) throw new Error(error.message);
+    await context.supabase.from("dojo_expenses").delete().eq("team_payment_id", data.id);
     return { ok: true };
+  });
+
+// ============ AUTO CALC (Agenda-based) ============
+
+function hoursBetween(startTime: string, endTime: string): number {
+  const [sh, sm] = String(startTime).split(":").map(Number);
+  const [eh, em] = String(endTime).split(":").map(Number);
+  const mins = (eh * 60 + (em || 0)) - (sh * 60 + (sm || 0));
+  return Math.max(0, mins / 60);
+}
+
+export const computeMemberEarnings = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({
+      member_id: uuid,
+      from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+      to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const [{ data: cfg }, { data: occs }] = await Promise.all([
+      context.supabase.from("dojo_team_payroll_config").select("*").eq("member_id", data.member_id).maybeSingle(),
+      context.supabase
+        .from("dojo_class_occurrences")
+        .select("id, original_teacher_id, substitute_teacher_id, status, dojo_classes(start_time, end_time)")
+        .gte("occurrence_date", data.from)
+        .lte("occurrence_date", data.to)
+        .neq("status", "canceled"),
+    ]);
+
+    const mine = (occs ?? []).filter(
+      (o: any) =>
+        o.substitute_teacher_id === data.member_id ||
+        (!o.substitute_teacher_id && o.original_teacher_id === data.member_id),
+    );
+    const classes = mine.length;
+    const hours = mine.reduce((s: number, o: any) => {
+      const c = o.dojo_classes;
+      if (!c?.start_time || !c?.end_time) return s;
+      return s + hoursBetween(c.start_time, c.end_time);
+    }, 0);
+
+    const c: any = cfg ?? {};
+    const payment_type = (c.payment_type ?? "fixed") as string;
+    const base_salary = Number(c.base_salary || 0);
+    const hourly_rate = Number(c.hourly_rate || 0);
+    const per_class_rate = Number(c.per_class_rate || 0);
+
+    let suggested_amount = 0;
+    if (payment_type === "hourly") suggested_amount = hourly_rate * hours;
+    else if (payment_type === "per_class") suggested_amount = per_class_rate * classes;
+    else if (payment_type === "fixed") suggested_amount = base_salary;
+    else suggested_amount = base_salary + hourly_rate * hours + per_class_rate * classes;
+
+    return {
+      payment_type,
+      base_salary,
+      hourly_rate,
+      per_class_rate,
+      classes,
+      hours: Number(hours.toFixed(2)),
+      suggested_amount: Number(suggested_amount.toFixed(2)),
+    };
   });
 
 // ============ PAYROLL CLOSING ============

@@ -11,6 +11,7 @@ import {
   listPayments,
   upsertPayment,
   markPaymentPaid,
+  computeMemberEarnings,
   listTeamDocuments,
   addTeamDocument,
   archiveTeamDocument,
@@ -84,6 +85,7 @@ function TeamMemberDetail() {
   const listPayFn = useServerFn(listPayments);
   const savePayFn = useServerFn(upsertPayment);
   const markPaidFn = useServerFn(markPaymentPaid);
+  const computeFn = useServerFn(computeMemberEarnings);
   const listDocsFn = useServerFn(listTeamDocuments);
   const addDocFn = useServerFn(addTeamDocument);
   const archiveDocFn = useServerFn(archiveTeamDocument);
@@ -105,7 +107,14 @@ function TeamMemberDetail() {
     if (q.data?.payroll) setPayroll(q.data.payroll);
   }, [q.data]);
 
-  const [newPay, setNewPay] = useState<any>({ kind: "salary", amount: 0, status: "pending", description: "" });
+  const firstOfMonth = new Date().toISOString().slice(0, 8) + "01";
+  const today = new Date().toISOString().slice(0, 10);
+  const [newPay, setNewPay] = useState<any>({
+    kind: "salary", amount: 0, status: "pending", description: "",
+    from: firstOfMonth, to: today, hours_worked: null, classes_count: null,
+    due_date: "", paid_at: "", payment_method: "",
+  });
+  const [calc, setCalc] = useState<any>(null);
 
   const saveProfile = async () => {
     try {
@@ -124,6 +133,22 @@ function TeamMemberDetail() {
     } catch (e: any) { toast.error(e.message); }
   };
 
+  const recalc = async () => {
+    try {
+      const r: any = await computeFn({ data: { member_id: id, from: newPay.from, to: newPay.to } });
+      setCalc(r);
+      setNewPay((s: any) => ({
+        ...s,
+        amount: r.suggested_amount,
+        hours_worked: r.hours,
+        classes_count: r.classes,
+        description: s.description ||
+          `Referente a ${new Date(newPay.from).toLocaleDateString("pt-BR")}–${new Date(newPay.to).toLocaleDateString("pt-BR")}`,
+      }));
+      toast.success(`Calculado: ${r.classes} aula(s) · ${r.hours}h`);
+    } catch (e: any) { toast.error(e.message); }
+  };
+
   const addPayment = async () => {
     if (!newPay.amount || newPay.amount <= 0) { toast.error("Informe o valor"); return; }
     try {
@@ -134,12 +159,26 @@ function TeamMemberDetail() {
           amount: Number(newPay.amount),
           description: newPay.description || undefined,
           status: newPay.status,
-          reference_month: new Date().toISOString().slice(0, 7) + "-01",
+          reference_month: newPay.from ? newPay.from.slice(0, 8) + "01" : new Date().toISOString().slice(0, 7) + "-01",
+          hours_worked: newPay.hours_worked ?? null,
+          classes_count: newPay.classes_count ?? null,
+          due_date: newPay.due_date || null,
+          paid_at: newPay.status === "paid" ? (newPay.paid_at || new Date().toISOString()) : null,
+          payment_method: newPay.payment_method || null,
         },
       });
-      toast.success("Lançamento registrado");
-      setNewPay({ kind: "salary", amount: 0, status: "pending", description: "" });
+      toast.success(newPay.status === "paid"
+        ? "Pagamento registrado e lançado em Financeiro"
+        : "Lançamento registrado");
+      setNewPay({
+        kind: "salary", amount: 0, status: "pending", description: "",
+        from: firstOfMonth, to: today, hours_worked: null, classes_count: null,
+        due_date: "", paid_at: "", payment_method: "",
+      });
+      setCalc(null);
       qc.invalidateQueries({ queryKey: ["team-member-payments", id] });
+      qc.invalidateQueries({ queryKey: ["dojo-expenses"] });
+      qc.invalidateQueries({ queryKey: ["dojo-finance"] });
     } catch (e: any) { toast.error(e.message); }
   };
 
@@ -372,25 +411,76 @@ function TeamMemberDetail() {
         {/* PAYMENTS */}
         <TabsContent value="payments" className="mt-4 space-y-4">
           <Card>
-            <CardHeader><CardTitle className="text-base">Novo lançamento</CardTitle></CardHeader>
-            <CardContent className="grid grid-cols-1 gap-3 md:grid-cols-4">
-              <Select value={newPay.kind} onValueChange={(v) => setNewPay({ ...newPay, kind: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {PAYMENT_KINDS.map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              <Input placeholder="Descrição" value={newPay.description} onChange={(e) => setNewPay({ ...newPay, description: e.target.value })} />
-              <Input type="number" step="0.01" placeholder="Valor" value={newPay.amount} onChange={(e) => setNewPay({ ...newPay, amount: e.target.value })} />
-              <div className="flex gap-2">
-                <Select value={newPay.status} onValueChange={(v) => setNewPay({ ...newPay, status: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="pending">Pendente</SelectItem>
-                    <SelectItem value="paid">Pago</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button onClick={addPayment}>Adicionar</Button>
+            <CardHeader>
+              <CardTitle className="text-base">Novo lançamento</CardTitle>
+              <p className="text-xs text-muted-foreground">
+                Selecione o período — o valor é calculado automaticamente segundo a modalidade de pagamento
+                ({PAYMENT_TYPES.find(([k]) => k === (payroll.payment_type ?? "fixed"))?.[1] ?? "—"})
+                usando a agenda do colaborador. Pagamentos com status <b>Pago</b> geram uma despesa em Financeiro.
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+                <Field label="De"><Input type="date" value={newPay.from} onChange={(e) => setNewPay({ ...newPay, from: e.target.value })} /></Field>
+                <Field label="Até"><Input type="date" value={newPay.to} onChange={(e) => setNewPay({ ...newPay, to: e.target.value })} /></Field>
+                <div className="flex items-end">
+                  <Button variant="outline" onClick={recalc} className="w-full">
+                    <RefreshCw className="mr-2 h-4 w-4" /> Calcular pela agenda
+                  </Button>
+                </div>
+                <Field label="Tipo">
+                  <Select value={newPay.kind} onValueChange={(v) => setNewPay({ ...newPay, kind: v })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {PAYMENT_KINDS.map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </Field>
+              </div>
+
+              {calc && (
+                <div className="rounded-md border border-primary/30 bg-primary/5 p-3 text-xs">
+                  <b>Base:</b> {calc.classes} aula(s) · {calc.hours}h ·
+                  {" "}Hora R$ {calc.hourly_rate.toFixed(2)} · Aula R$ {calc.per_class_rate.toFixed(2)} · Fixo R$ {calc.base_salary.toFixed(2)}
+                  {" "}→ Sugerido <b>R$ {calc.suggested_amount.toFixed(2)}</b>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+                <Field label="Descrição"><Input value={newPay.description} onChange={(e) => setNewPay({ ...newPay, description: e.target.value })} /></Field>
+                <Field label="Valor (R$)"><Input type="number" step="0.01" value={newPay.amount} onChange={(e) => setNewPay({ ...newPay, amount: e.target.value })} /></Field>
+                <Field label="Horas"><Input type="number" step="0.01" value={newPay.hours_worked ?? ""} onChange={(e) => setNewPay({ ...newPay, hours_worked: e.target.value ? Number(e.target.value) : null })} /></Field>
+                <Field label="Nº aulas"><Input type="number" value={newPay.classes_count ?? ""} onChange={(e) => setNewPay({ ...newPay, classes_count: e.target.value ? Number(e.target.value) : null })} /></Field>
+              </div>
+
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+                <Field label="Status">
+                  <Select value={newPay.status} onValueChange={(v) => setNewPay({ ...newPay, status: v })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">Pendente</SelectItem>
+                      <SelectItem value="paid">Pago</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field label="Vencimento"><Input type="date" value={newPay.due_date} onChange={(e) => setNewPay({ ...newPay, due_date: e.target.value })} /></Field>
+                <Field label="Data do pagamento"><Input type="date" value={newPay.paid_at ? newPay.paid_at.slice(0,10) : ""} onChange={(e) => setNewPay({ ...newPay, paid_at: e.target.value ? new Date(e.target.value).toISOString() : "" })} /></Field>
+                <Field label="Forma">
+                  <Select value={newPay.payment_method || "pix"} onValueChange={(v) => setNewPay({ ...newPay, payment_method: v })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pix">PIX</SelectItem>
+                      <SelectItem value="transfer">Transferência</SelectItem>
+                      <SelectItem value="cash">Dinheiro</SelectItem>
+                      <SelectItem value="card">Cartão</SelectItem>
+                      <SelectItem value="other">Outro</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
+              </div>
+
+              <div className="flex justify-end">
+                <Button onClick={addPayment}><Save className="mr-2 h-4 w-4" />Registrar lançamento</Button>
               </div>
             </CardContent>
           </Card>
