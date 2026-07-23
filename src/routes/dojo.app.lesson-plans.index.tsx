@@ -297,28 +297,31 @@ function KpiCard({
   label: string;
   value: number | string;
   icon: React.ComponentType<{ className?: string }>;
-  tone: "blue" | "emerald" | "violet" | "amber";
+  tone: "sky" | "emerald" | "violet" | "amber";
 }) {
   const toneMap = {
-    blue: "bg-blue-50 text-blue-700",
-    emerald: "bg-emerald-50 text-emerald-700",
-    violet: "bg-violet-50 text-violet-700",
-    amber: "bg-amber-50 text-amber-700",
+    sky: { ring: "ring-sky-400/40", grad: "from-sky-500 to-cyan-500", glow: "shadow-[0_10px_25px_-12px_rgba(56,189,248,0.7)]" },
+    emerald: { ring: "ring-emerald-400/40", grad: "from-emerald-500 to-teal-500", glow: "shadow-[0_10px_25px_-12px_rgba(16,185,129,0.7)]" },
+    violet: { ring: "ring-violet-400/40", grad: "from-violet-500 to-fuchsia-500", glow: "shadow-[0_10px_25px_-12px_rgba(139,92,246,0.7)]" },
+    amber: { ring: "ring-amber-400/40", grad: "from-amber-500 to-orange-500", glow: "shadow-[0_10px_25px_-12px_rgba(245,158,11,0.7)]" },
   } as const;
+  const t = toneMap[tone];
   return (
-    <Card>
-      <CardContent className="flex items-center gap-3 pt-6">
-        <div className={`grid h-10 w-10 place-items-center rounded-lg ${toneMap[tone]}`}>
+    <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-neutral-950/70 p-4 text-white backdrop-blur">
+      <div aria-hidden className={`pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-gradient-to-br ${t.grad} opacity-20 blur-2xl`} />
+      <div className="relative flex items-center gap-3">
+        <div className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br ${t.grad} text-white ring-1 ${t.ring} ${t.glow}`}>
           <Icon className="h-5 w-5" />
         </div>
-        <div>
-          <div className="text-xs text-muted-foreground">{label}</div>
-          <div className="text-xl font-bold">{value}</div>
+        <div className="min-w-0">
+          <div className="text-[11px] font-medium uppercase tracking-wide text-neutral-400">{label}</div>
+          <div className="text-2xl font-black tracking-tight">{value}</div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
+
 
 type PlanRow = Awaited<ReturnType<typeof listLessonPlans>>[number];
 
