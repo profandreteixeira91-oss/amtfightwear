@@ -163,6 +163,34 @@ function LessonEditorPage() {
     },
   });
 
+  const bulkDupFn = useServerFn(bulkDuplicateLessonPlan);
+  const bulkDup = useMutation({
+    mutationFn: (input: { mode: "weekly" | "biweekly" | "monthly"; occurrences: number }) =>
+      bulkDupFn({ data: { id, ...input } }),
+    onSuccess: (r) => toast.success(`${r.created} aulas criadas`),
+  });
+
+  const saveTplFn = useServerFn(upsertLessonTemplate);
+  const saveTpl = useMutation({
+    mutationFn: (name: string) =>
+      saveTplFn({
+        data: {
+          name,
+          description: form?.objectives || null,
+          modality: form?.modality || null,
+          category: form?.category || null,
+          age_range: form?.age_range || null,
+          color: form?.color || null,
+          objectives: form?.objectives || null,
+          duration_min: form?.duration_min ?? null,
+          blocks: (form?.blocks ?? []) as never,
+        },
+      }),
+    onSuccess: () => toast.success("Modelo salvo na sua biblioteca"),
+  });
+
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
+
   if (!form) return <div className="p-6 text-sm text-muted-foreground">Carregando plano…</div>;
 
   const patch = (p: Partial<typeof form>) => setForm({ ...form, ...p });
