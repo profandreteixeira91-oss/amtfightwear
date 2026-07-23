@@ -332,6 +332,27 @@
   border: 1px solid #fee2e2;
 }
 
+/* Clickable feedback: red shadow on buttons/cards; red underline on links.
+   Scoped to .dojo-theme so the storefront stays untouched. */
+.dojo-theme a:not([data-sidebar="menu-button"]):not([role="tab"]):not(.no-red-underline):hover,
+.dojo-theme a:not([data-sidebar="menu-button"]):not([role="tab"]):not(.no-red-underline):focus-visible {
+  text-decoration: underline;
+  text-decoration-color: var(--dojo-accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+.dojo-theme button:not(:disabled):not([data-sidebar="menu-button"]):not([role="switch"]):not([role="tab"]):hover,
+.dojo-theme [role="button"]:not([aria-disabled="true"]):hover,
+.dojo-theme [data-slot="card"].cursor-pointer:hover,
+.dojo-theme a[class*="rounded"]:not([data-sidebar="menu-button"]):hover {
+  box-shadow: 0 8px 20px -8px rgb(220 38 38 / 0.45), 0 0 0 1px rgb(220 38 38 / 0.15);
+}
+.dojo-theme button:not(:disabled):focus-visible,
+.dojo-theme [role="button"]:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgb(220 38 38 / 0.35);
+}
+
 /* Sidebar polish */
 .dojo-theme [data-sidebar="sidebar"] {
   background: var(--dojo-surface);
