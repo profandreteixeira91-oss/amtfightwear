@@ -46,11 +46,12 @@ export const Route = createFileRoute("/dojo/app/lesson-plans/")({
 });
 
 const STATUS_COLORS: Record<string, string> = {
-  planejada: "bg-blue-100 text-blue-700 border-blue-200",
-  ministrada: "bg-emerald-100 text-emerald-700 border-emerald-200",
-  cancelada: "bg-neutral-100 text-neutral-500 border-neutral-200",
-  reagendada: "bg-amber-100 text-amber-700 border-amber-200",
+  planejada: "bg-sky-500/15 text-sky-200 border-sky-400/30",
+  ministrada: "bg-emerald-500/15 text-emerald-200 border-emerald-400/30",
+  cancelada: "bg-neutral-500/15 text-neutral-300 border-neutral-400/30",
+  reagendada: "bg-amber-500/15 text-amber-200 border-amber-400/30",
 };
+
 
 type ViewMode = "week" | "month" | "list";
 
@@ -169,21 +170,20 @@ function LessonPlansDashboardPage() {
     <div className="space-y-6">
       {/* KPI CARDS */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <KpiCard label="Aulas planejadas (semana)" value={stats?.week_planned ?? 0} icon={CalendarDays} tone="blue" />
-        <KpiCard label="Aulas realizadas (semana)" value={stats?.week_done ?? 0} icon={CheckCircle2} tone="emerald" />
+        <KpiCard label="Planejadas (semana)" value={stats?.week_planned ?? 0} icon={CalendarDays} tone="sky" />
+        <KpiCard label="Realizadas (semana)" value={stats?.week_done ?? 0} icon={CheckCircle2} tone="emerald" />
         <KpiCard label="Horas planejadas" value={formatHours(stats?.total_planned_min ?? 0)} icon={Clock} tone="violet" />
         <KpiCard label="Turmas ativas" value={stats?.active_classes ?? 0} icon={Users} tone="amber" />
       </div>
 
       {stats?.next_lesson ? (
-        <Card className="border-primary/20 bg-primary/5">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Próxima aula</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <div className="text-lg font-semibold">{stats.next_lesson.title}</div>
-              <div className="text-sm text-muted-foreground">
+        <div className="relative overflow-hidden rounded-2xl border border-red-500/20 bg-gradient-to-br from-neutral-950 via-neutral-900 to-red-950/40 p-5 text-white shadow-[0_20px_60px_-30px_rgba(220,38,38,0.6)]">
+          <div aria-hidden className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-red-500/20 blur-3xl" />
+          <div className="relative flex flex-wrap items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-red-300">Próxima aula</div>
+              <div className="mt-1 text-lg font-bold">{stats.next_lesson.title}</div>
+              <div className="mt-0.5 text-sm text-neutral-300">
                 {new Date(stats.next_lesson.date).toLocaleDateString("pt-BR")}
                 {stats.next_lesson.start_time ? ` · ${stats.next_lesson.start_time.slice(0, 5)}` : ""}
                 {(stats.next_lesson.dojo_classes as { name?: string } | null)?.name
@@ -191,47 +191,59 @@ function LessonPlansDashboardPage() {
                   : ""}
               </div>
             </div>
-            <Button asChild size="sm">
+            <Button asChild size="sm" className="bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-400">
               <Link to="/dojo/app/lesson-plans/$id" params={{ id: stats.next_lesson.id as string }}>
                 Abrir plano
               </Link>
             </Button>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       ) : null}
 
       {/* CALENDAR HEADER */}
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-1">
-          <Button variant="outline" size="icon" onClick={() => setAnchor(addDays(anchor, view === "month" ? -30 : -7))}>
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => setAnchor(new Date())}>
-            Hoje
-          </Button>
-          <Button variant="outline" size="icon" onClick={() => setAnchor(addDays(anchor, view === "month" ? 30 : 7))}>
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-          <span className="ml-3 text-sm font-medium text-muted-foreground">{formatRangeLabel(range.from, range.to, view)}</span>
-        </div>
-        <div className="flex items-center gap-1">
-          {(["week", "month", "list"] as ViewMode[]).map((v) => (
-            <Button key={v} size="sm" variant={view === v ? "default" : "outline"} onClick={() => setView(v)}>
-              {v === "week" ? "Semana" : v === "month" ? "Mês" : "Lista"}
+      <div className="rounded-2xl border border-white/10 bg-neutral-950/60 p-3 backdrop-blur">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-1">
+            <Button variant="outline" size="icon" className="border-white/15 bg-white/5 text-white hover:bg-white/10" onClick={() => setAnchor(addDays(anchor, view === "month" ? -30 : -7))}>
+              <ChevronLeft className="h-4 w-4" />
             </Button>
-          ))}
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button size="sm" variant="outline" className="ml-2">
-                <Sparkles className="mr-1 h-4 w-4" /> Aplicar modelo
+            <Button variant="outline" size="sm" className="border-white/15 bg-white/5 text-white hover:bg-white/10" onClick={() => setAnchor(new Date())}>
+              Hoje
+            </Button>
+            <Button variant="outline" size="icon" className="border-white/15 bg-white/5 text-white hover:bg-white/10" onClick={() => setAnchor(addDays(anchor, view === "month" ? 30 : 7))}>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+            <span className="ml-3 text-sm font-semibold capitalize text-neutral-200">{formatRangeLabel(range.from, range.to, view)}</span>
+          </div>
+          <div className="flex flex-wrap items-center gap-1">
+            {(["week", "month", "list"] as ViewMode[]).map((v) => (
+              <Button
+                key={v}
+                size="sm"
+                variant={view === v ? "default" : "outline"}
+                className={
+                  view === v
+                    ? "bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_6px_16px_-8px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-400"
+                    : "border-white/15 bg-white/5 text-white hover:bg-white/10"
+                }
+                onClick={() => setView(v)}
+              >
+                {v === "week" ? "Semana" : v === "month" ? "Mês" : "Lista"}
               </Button>
-            </DialogTrigger>
-            <TemplatePickerDialog onPick={(payload) => createFromTpl.mutate(payload)} />
-          </Dialog>
+            ))}
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button size="sm" variant="outline" className="ml-2 border-amber-400/40 bg-amber-400/10 text-amber-100 hover:bg-amber-400/20">
+                  <Sparkles className="mr-1 h-4 w-4" /> Aplicar modelo
+                </Button>
+              </DialogTrigger>
+              <TemplatePickerDialog onPick={(payload) => createFromTpl.mutate(payload)} />
+            </Dialog>
 
-          <Button size="sm" className="ml-1" onClick={() => createDraft.mutate(fmt(new Date()))}>
-            <Plus className="mr-1 h-4 w-4" /> Em branco
-          </Button>
+            <Button size="sm" className="ml-1 bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_6px_16px_-8px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-400" onClick={() => createDraft.mutate(fmt(new Date()))}>
+              <Plus className="mr-1 h-4 w-4" /> Em branco
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -250,6 +262,7 @@ function LessonPlansDashboardPage() {
     </div>
   );
 }
+
 
 function defaultBlocks() {
   return [
@@ -284,28 +297,31 @@ function KpiCard({
   label: string;
   value: number | string;
   icon: React.ComponentType<{ className?: string }>;
-  tone: "blue" | "emerald" | "violet" | "amber";
+  tone: "sky" | "emerald" | "violet" | "amber";
 }) {
   const toneMap = {
-    blue: "bg-blue-50 text-blue-700",
-    emerald: "bg-emerald-50 text-emerald-700",
-    violet: "bg-violet-50 text-violet-700",
-    amber: "bg-amber-50 text-amber-700",
+    sky: { ring: "ring-sky-400/40", grad: "from-sky-500 to-cyan-500", glow: "shadow-[0_10px_25px_-12px_rgba(56,189,248,0.7)]" },
+    emerald: { ring: "ring-emerald-400/40", grad: "from-emerald-500 to-teal-500", glow: "shadow-[0_10px_25px_-12px_rgba(16,185,129,0.7)]" },
+    violet: { ring: "ring-violet-400/40", grad: "from-violet-500 to-fuchsia-500", glow: "shadow-[0_10px_25px_-12px_rgba(139,92,246,0.7)]" },
+    amber: { ring: "ring-amber-400/40", grad: "from-amber-500 to-orange-500", glow: "shadow-[0_10px_25px_-12px_rgba(245,158,11,0.7)]" },
   } as const;
+  const t = toneMap[tone];
   return (
-    <Card>
-      <CardContent className="flex items-center gap-3 pt-6">
-        <div className={`grid h-10 w-10 place-items-center rounded-lg ${toneMap[tone]}`}>
+    <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-neutral-950/70 p-4 text-white backdrop-blur">
+      <div aria-hidden className={`pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-gradient-to-br ${t.grad} opacity-20 blur-2xl`} />
+      <div className="relative flex items-center gap-3">
+        <div className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br ${t.grad} text-white ring-1 ${t.ring} ${t.glow}`}>
           <Icon className="h-5 w-5" />
         </div>
-        <div>
-          <div className="text-xs text-muted-foreground">{label}</div>
-          <div className="text-xl font-bold">{value}</div>
+        <div className="min-w-0">
+          <div className="text-[11px] font-medium uppercase tracking-wide text-neutral-400">{label}</div>
+          <div className="text-2xl font-black tracking-tight">{value}</div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
+
 
 type PlanRow = Awaited<ReturnType<typeof listLessonPlans>>[number];
 
@@ -323,13 +339,20 @@ function WeekView({ from, plans, onCreate }: { from: Date; plans: PlanRow[]; onC
         const items = byDay[key] ?? [];
         const isToday = fmt(new Date()) === key;
         return (
-          <div key={key} className={`rounded-lg border p-2 min-h-[160px] ${isToday ? "border-primary/40 bg-primary/5" : "bg-card"}`}>
+          <div
+            key={key}
+            className={`min-h-[160px] rounded-xl border p-2 backdrop-blur transition-colors ${
+              isToday
+                ? "border-red-500/40 bg-gradient-to-br from-red-950/40 via-neutral-950/70 to-neutral-950/70 shadow-[0_10px_30px_-20px_rgba(220,38,38,0.7)]"
+                : "border-white/10 bg-neutral-950/50 hover:border-white/20"
+            }`}
+          >
             <div className="mb-2 flex items-center justify-between">
-              <div className="text-xs font-medium">
+              <div className={`text-xs font-semibold capitalize ${isToday ? "text-red-200" : "text-neutral-300"}`}>
                 {d.toLocaleDateString("pt-BR", { weekday: "short", day: "2-digit" })}
               </div>
               <button
-                className="text-xs text-muted-foreground hover:text-primary"
+                className="text-neutral-400 transition-colors hover:text-red-300"
                 onClick={() => onCreate(key)}
                 title="Adicionar aula"
               >
@@ -342,9 +365,9 @@ function WeekView({ from, plans, onCreate }: { from: Date; plans: PlanRow[]; onC
                   key={p.id}
                   to="/dojo/app/lesson-plans/$id"
                   params={{ id: p.id as string }}
-                  className={`block rounded border px-2 py-1 text-xs ${STATUS_COLORS[p.status as string] ?? ""}`}
+                  className={`block rounded-md border px-2 py-1 text-xs backdrop-blur transition-transform hover:scale-[1.02] ${STATUS_COLORS[p.status as string] ?? "border-white/10 bg-white/5 text-white"}`}
                 >
-                  <div className="font-medium truncate">{p.title}</div>
+                  <div className="truncate font-semibold">{p.title}</div>
                   {p.start_time ? <div className="opacity-70">{(p.start_time as string).slice(0, 5)}</div> : null}
                 </Link>
               ))}
@@ -356,6 +379,7 @@ function WeekView({ from, plans, onCreate }: { from: Date; plans: PlanRow[]; onC
   );
 }
 
+
 function MonthView({ anchor, plans, onCreate }: { anchor: Date; plans: PlanRow[]; onCreate: (date: string) => void }) {
   const first = new Date(anchor.getFullYear(), anchor.getMonth(), 1);
   const start = startOfWeek(first);
@@ -363,40 +387,50 @@ function MonthView({ anchor, plans, onCreate }: { anchor: Date; plans: PlanRow[]
   const byDay: Record<string, PlanRow[]> = {};
   for (const p of plans) (byDay[p.date as string] ??= []).push(p);
   return (
-    <div className="grid grid-cols-7 gap-1">
-      {["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"].map((w) => (
-        <div key={w} className="pb-1 text-center text-[11px] font-medium uppercase text-muted-foreground">
-          {w}
-        </div>
-      ))}
-      {cells.map((d) => {
-        const key = fmt(d);
-        const items = byDay[key] ?? [];
-        const inMonth = d.getMonth() === anchor.getMonth();
-        return (
-          <div
-            key={key}
-            className={`min-h-[92px] rounded border p-1 text-xs ${inMonth ? "bg-card" : "bg-muted/40 text-muted-foreground"}`}
-            onDoubleClick={() => onCreate(key)}
-          >
-            <div className="mb-1 text-[11px] font-medium">{d.getDate()}</div>
-            {items.slice(0, 3).map((p) => (
-              <Link
-                key={p.id}
-                to="/dojo/app/lesson-plans/$id"
-                params={{ id: p.id as string }}
-                className={`mb-0.5 block truncate rounded border px-1 ${STATUS_COLORS[p.status as string] ?? ""}`}
-              >
-                {p.title}
-              </Link>
-            ))}
-            {items.length > 3 ? <div className="text-[10px] text-muted-foreground">+{items.length - 3}</div> : null}
+    <div className="rounded-2xl border border-white/10 bg-neutral-950/50 p-2 backdrop-blur">
+      <div className="grid grid-cols-7 gap-1">
+        {["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"].map((w) => (
+          <div key={w} className="pb-1 text-center text-[10px] font-bold uppercase tracking-widest text-neutral-400">
+            {w}
           </div>
-        );
-      })}
+        ))}
+        {cells.map((d) => {
+          const key = fmt(d);
+          const items = byDay[key] ?? [];
+          const inMonth = d.getMonth() === anchor.getMonth();
+          const isToday = fmt(new Date()) === key;
+          return (
+            <div
+              key={key}
+              className={`min-h-[92px] rounded-lg border p-1 text-xs transition-colors ${
+                isToday
+                  ? "border-red-500/50 bg-red-950/30"
+                  : inMonth
+                    ? "border-white/10 bg-white/[0.03] hover:bg-white/[0.06]"
+                    : "border-white/5 bg-transparent text-neutral-500"
+              }`}
+              onDoubleClick={() => onCreate(key)}
+            >
+              <div className={`mb-1 text-[11px] font-bold ${isToday ? "text-red-200" : "text-neutral-300"}`}>{d.getDate()}</div>
+              {items.slice(0, 3).map((p) => (
+                <Link
+                  key={p.id}
+                  to="/dojo/app/lesson-plans/$id"
+                  params={{ id: p.id as string }}
+                  className={`mb-0.5 block truncate rounded border px-1 py-0.5 ${STATUS_COLORS[p.status as string] ?? "border-white/10 bg-white/5 text-white"}`}
+                >
+                  {p.title}
+                </Link>
+              ))}
+              {items.length > 3 ? <div className="text-[10px] text-neutral-500">+{items.length - 3}</div> : null}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
+
 
 function ListView({
   plans,
@@ -408,42 +442,51 @@ function ListView({
   onDuplicate: (id: string) => void;
 }) {
   if (!plans.length) {
-    return <div className="rounded-lg border p-8 text-center text-sm text-muted-foreground">Nenhuma aula planejada neste período.</div>;
+    return (
+      <div className="rounded-2xl border border-white/10 bg-neutral-950/50 p-10 text-center text-sm text-neutral-400 backdrop-blur">
+        Nenhuma aula planejada neste período.
+      </div>
+    );
   }
   return (
-    <div className="divide-y rounded-lg border">
-      {plans.map((p) => (
-        <div key={p.id} className="flex items-center gap-3 p-3">
-          <div className="w-24 text-sm text-muted-foreground">
-            {new Date(p.date as string).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}
-            {p.start_time ? ` · ${(p.start_time as string).slice(0, 5)}` : ""}
-          </div>
-          <div className="flex-1">
-            <div className="font-medium">{p.title}</div>
-            <div className="text-xs text-muted-foreground">
-              {(p.dojo_classes as { name?: string } | null)?.name ?? "—"}
-              {p.modality ? ` · ${p.modality}` : ""}
+    <div className="overflow-hidden rounded-2xl border border-white/10 bg-neutral-950/50 backdrop-blur">
+      <div className="divide-y divide-white/5">
+        {plans.map((p) => (
+          <div key={p.id} className="flex flex-wrap items-center gap-3 p-3 text-white transition-colors hover:bg-white/[0.03]">
+            <div className="w-24 shrink-0 text-sm font-semibold text-neutral-300">
+              {new Date(p.date as string).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}
+              {p.start_time ? ` · ${(p.start_time as string).slice(0, 5)}` : ""}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="truncate font-semibold">{p.title}</div>
+              <div className="truncate text-xs text-neutral-400">
+                {(p.dojo_classes as { name?: string } | null)?.name ?? "—"}
+                {p.modality ? ` · ${p.modality}` : ""}
+              </div>
+            </div>
+            <Badge className={`${STATUS_COLORS[p.status as string] ?? "border-white/10 bg-white/5 text-white"} capitalize`} variant="outline">
+              {p.status as string}
+            </Badge>
+            <div className="flex items-center gap-1">
+              <Button asChild size="icon" variant="ghost" className="text-neutral-300 hover:bg-white/10 hover:text-white">
+                <Link to="/dojo/app/lesson-plans/$id" params={{ id: p.id as string }}>
+                  <Pencil className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button size="icon" variant="ghost" className="text-neutral-300 hover:bg-white/10 hover:text-white" onClick={() => onDuplicate(p.id as string)}>
+                <Copy className="h-4 w-4" />
+              </Button>
+              <Button size="icon" variant="ghost" className="text-red-400 hover:bg-red-500/10 hover:text-red-300" onClick={() => onDelete(p.id as string)}>
+                <Trash2 className="h-4 w-4" />
+              </Button>
             </div>
           </div>
-          <Badge className={STATUS_COLORS[p.status as string] ?? ""} variant="outline">
-            {p.status as string}
-          </Badge>
-          <Button asChild size="icon" variant="ghost">
-            <Link to="/dojo/app/lesson-plans/$id" params={{ id: p.id as string }}>
-              <Pencil className="h-4 w-4" />
-            </Link>
-          </Button>
-          <Button size="icon" variant="ghost" onClick={() => onDuplicate(p.id as string)}>
-            <Copy className="h-4 w-4" />
-          </Button>
-          <Button size="icon" variant="ghost" onClick={() => onDelete(p.id as string)}>
-            <Trash2 className="h-4 w-4 text-red-500" />
-          </Button>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
+
 
 function TemplatePickerDialog({
   onPick,
