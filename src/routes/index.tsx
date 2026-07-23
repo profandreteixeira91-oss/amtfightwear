@@ -188,11 +188,14 @@ function StoreHomePage() {
                       {String(idx + 1).padStart(2, "0")}
                     </div>
                     <div className="relative z-10">
-                      <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-primary">Categoria</div>
-                      <div className="mt-1.5 text-base font-black uppercase leading-tight tracking-tight text-foreground sm:text-lg">
+                      <div className="text-[10px] font-semibold uppercase tracking-[0.36em] text-primary">Categoria</div>
+                      <div
+                        className="mt-2 text-xl leading-[1.05] tracking-[-0.01em] text-foreground sm:text-2xl"
+                        style={{ fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 600 }}
+                      >
                         {c.name}
                       </div>
-                      <div className="mt-4 inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-foreground/70 transition-colors group-hover:text-primary">
+                      <div className="mt-4 inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.32em] text-foreground/60 transition-colors group-hover:text-primary">
                         {subs.length > 0 ? "Ver subcategorias" : "Explorar"} <ArrowRight className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-0.5" />
                       </div>
                     </div>
