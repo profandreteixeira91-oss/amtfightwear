@@ -62,6 +62,7 @@ function IssuedContractsPage() {
               <SelectContent>
                 <SelectItem value="all">Todos</SelectItem>
                 <SelectItem value="student">Alunos</SelectItem>
+                <SelectItem value="team">Equipe</SelectItem>
                 <SelectItem value="affiliate">Filiais</SelectItem>
               </SelectContent>
             </Select>
