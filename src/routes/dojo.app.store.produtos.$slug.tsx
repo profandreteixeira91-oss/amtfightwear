@@ -155,7 +155,7 @@ function PdpPage() {
             )}
           </div>
           <div className="grid grid-cols-4 gap-2">
-            {[product.image_url].filter(Boolean).map((src: string, i) => (
+            {[product.image_url].filter((s): s is string => Boolean(s)).map((src, i) => (
               <div
                 key={i}
                 className="aspect-square overflow-hidden rounded-xl border border-foreground/20"
