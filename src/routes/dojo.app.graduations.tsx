@@ -604,34 +604,34 @@ function NewGraduationPage() {
 
       {/* ============ INFO — CRITÉRIOS ============ */}
       {step === "select" && (
-        <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-primary/[0.02] to-transparent shadow-sm">
-          <CardContent className="p-5">
-            <div className="flex gap-4">
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
-                <Info className="h-5 w-5" />
-              </div>
-              <div className="min-w-0 space-y-2 text-sm text-muted-foreground">
-                <div className="text-sm font-semibold text-foreground">Critérios de graduação</div>
-                <p>
-                  Cada aluno abaixo exibe seu progresso em relação ao critério configurado:
-                  <span className="mx-1 rounded-md bg-muted px-1.5 py-0.5 font-mono text-[11px] text-foreground">aulas feitas / mínimo</span>
-                  e
-                  <span className="mx-1 rounded-md bg-muted px-1.5 py-0.5 font-mono text-[11px] text-foreground">meses de carência</span>.
-                  Alunos com etiqueta
-                  <span className="mx-1 inline-flex items-center rounded-md bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-800">critério individual</span>
-                  possuem regra personalizada.
-                </p>
-                <p>
-                  Defina os critérios padrão em{" "}
-                  <a href="/dojo/app/belts" className="font-medium text-primary underline-offset-4 hover:underline">Graduações → Faixas</a>{" "}
-                  (tempo mínimo, número de aulas, avaliação ou mérito). Para regras caso a caso, edite o aluno em{" "}
-                  <a href="/dojo/app/students" className="font-medium text-primary underline-offset-4 hover:underline">Alunos</a>.
-                </p>
-              </div>
+        <div className="relative overflow-hidden rounded-2xl border border-red-500/20 bg-gradient-to-br from-neutral-950 via-neutral-900 to-red-950/40 p-5 text-white shadow-[0_20px_60px_-30px_rgba(220,38,38,0.5)]">
+          <div aria-hidden className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-red-500/15 blur-3xl" />
+          <div className="relative flex gap-4">
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-amber-400 via-red-500 to-red-700 text-white ring-1 ring-white/20 shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)]">
+              <Info className="h-5 w-5" />
             </div>
-          </CardContent>
-        </Card>
+            <div className="min-w-0 space-y-2 text-sm text-neutral-300">
+              <div className="text-sm font-semibold text-white">Critérios de graduação</div>
+              <p>
+                Cada aluno abaixo exibe seu progresso em relação ao critério configurado:
+                <span className="mx-1 rounded-md border border-white/10 bg-white/10 px-1.5 py-0.5 font-mono text-[11px] text-white">aulas feitas / mínimo</span>
+                e
+                <span className="mx-1 rounded-md border border-white/10 bg-white/10 px-1.5 py-0.5 font-mono text-[11px] text-white">meses de carência</span>.
+                Alunos com etiqueta
+                <span className="mx-1 inline-flex items-center rounded-md border border-amber-400/30 bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-medium text-amber-200">critério individual</span>
+                possuem regra personalizada.
+              </p>
+              <p>
+                Defina os critérios padrão em{" "}
+                <a href="/dojo/app/belts" className="font-medium text-red-300 underline-offset-4 hover:underline">Graduações → Faixas</a>{" "}
+                (tempo mínimo, número de aulas, avaliação ou mérito). Para regras caso a caso, edite o aluno em{" "}
+                <a href="/dojo/app/students" className="font-medium text-red-300 underline-offset-4 hover:underline">Alunos</a>.
+              </p>
+            </div>
+          </div>
+        </div>
       )}
+
 
       {/* ============ PREÇOS POR FAIXA ============ */}
       {step === "select" && (
