@@ -207,9 +207,11 @@ function TemplatesLibraryPage() {
         <Card>
           <CardContent className="p-10 text-center space-y-3">
             <FileText className="h-10 w-10 mx-auto text-muted-foreground" />
-            <div className="text-sm text-muted-foreground">Nenhum modelo encontrado. Comece pelo modelo padrão ou crie um novo.</div>
+            <div className="text-sm text-muted-foreground">Nenhum modelo encontrado. Instale a biblioteca pronta ou crie um novo.</div>
             <div className="flex justify-center gap-2">
-              <Button variant="outline" onClick={installDefault}><Sparkles className="h-4 w-4 mr-1" />Instalar modelo padrão</Button>
+              <Button variant="outline" onClick={installAllPresets} disabled={installing}>
+                <Sparkles className="h-4 w-4 mr-1" />Instalar biblioteca pronta ({CONTRACT_PRESETS.length})
+              </Button>
               <Button onClick={createNew}><Plus className="h-4 w-4 mr-1" />Novo modelo</Button>
             </div>
           </CardContent>
