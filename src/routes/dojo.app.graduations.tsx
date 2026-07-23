@@ -1303,7 +1303,11 @@ function NewGraduationPage() {
                       <div>
                         <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Valor</div>
                         <div className="text-lg font-bold tabular-nums">
-                          R$ {Number((entry.fee ?? "").toString().replace(",", ".") || 0).toFixed(2)}
+                          R$ {(() => {
+                            const raw = (entry.fee ?? "").toString().replace(",", ".").trim();
+                            const fallback = entry.beltId && priceByBelt[entry.beltId] != null ? Number(priceByBelt[entry.beltId]) : 0;
+                            return (raw === "" ? fallback : Number(raw) || 0).toFixed(2);
+                          })()}
                         </div>
                       </div>
                     </div>
