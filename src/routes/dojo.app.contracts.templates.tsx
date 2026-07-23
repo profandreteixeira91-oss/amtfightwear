@@ -159,10 +159,43 @@ function TemplatesLibraryPage() {
             </Button>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={installDefault} disabled={installing}>
-              <Sparkles className="h-4 w-4 mr-1" />
-              {installing ? "Instalando…" : "Modelo padrão"}
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" disabled={installing}>
+                  <Sparkles className="h-4 w-4 mr-1" />
+                  {installing ? "Instalando…" : "Modelos prontos"}
+                  <ChevronDown className="h-3.5 w-3.5 ml-1 opacity-60" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-[340px] max-h-[70vh] overflow-y-auto">
+                <DropdownMenuLabel className="flex items-center justify-between">
+                  <span>Biblioteca de modelos</span>
+                  <button
+                    className="text-[11px] text-primary hover:underline"
+                    onClick={installAllPresets}
+                    disabled={installing}
+                  >
+                    Instalar todos
+                  </button>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {CONTRACT_PRESETS.map((p) => (
+                  <DropdownMenuItem
+                    key={p.key}
+                    onClick={() => installPreset(p)}
+                    className="flex flex-col items-start gap-0.5 py-2"
+                  >
+                    <div className="flex items-center gap-2 w-full">
+                      <Badge variant="outline" className={`${CATEGORY_COLORS[p.category] ?? ""} text-[10px]`}>
+                        {CONTRACT_CATEGORY_LABELS[p.category] ?? p.category}
+                      </Badge>
+                      <span className="text-sm font-medium truncate">{p.name}</span>
+                    </div>
+                    <span className="text-[11px] text-muted-foreground line-clamp-2">{p.description}</span>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button onClick={createNew}><Plus className="h-4 w-4 mr-1" />Novo modelo</Button>
           </div>
         </CardContent>
