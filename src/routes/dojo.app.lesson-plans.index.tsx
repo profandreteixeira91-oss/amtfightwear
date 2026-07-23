@@ -196,8 +196,24 @@ function LessonPlansDashboardPage() {
               {v === "week" ? "Semana" : v === "month" ? "Mês" : "Lista"}
             </Button>
           ))}
-          <Button size="sm" className="ml-2" onClick={() => createDraft.mutate(fmt(new Date()))}>
-            <Plus className="mr-1 h-4 w-4" /> Nova aula
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button size="sm" variant="outline" className="ml-2">
+                <Sparkles className="mr-1 h-4 w-4" /> Do modelo
+              </Button>
+            </DialogTrigger>
+            <TemplatePickerDialog
+              onPick={async (payload) => {
+                const row = await useServerFnRef(createPlanFromTemplate)({
+                  data: { ...payload, date: fmt(new Date()) },
+                });
+                if (row && "id" in row) navigate({ to: "/dojo/app/lesson-plans/$id", params: { id: (row as { id: string }).id } });
+                invalidate();
+              }}
+            />
+          </Dialog>
+          <Button size="sm" className="ml-1" onClick={() => createDraft.mutate(fmt(new Date()))}>
+            <Plus className="mr-1 h-4 w-4" /> Em branco
           </Button>
         </div>
       </div>
