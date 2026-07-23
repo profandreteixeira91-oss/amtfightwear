@@ -13,7 +13,9 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Trash2, Pencil, Plus, Search, Building2, Users, MapPin, Phone, Mail, ExternalLink } from "lucide-react";
+import { Trash2, Pencil, Plus, Search, Building2, Users, MapPin, Phone, Mail, ExternalLink, Upload, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useRef } from "react";
 import { DojoPageShell } from "@/components/dojo/DojoPageShell";
 import { Badge } from "@/components/ui/badge";
 import {
