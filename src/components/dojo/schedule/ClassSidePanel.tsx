@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Pencil, Copy, Trash2, Ban, UserPlus, X, Search, BookOpen, Plus, ArrowRight } from "lucide-react";
+import { Pencil, Copy, Trash2, Ban, UserPlus, X, Search, BookOpen, Plus, ArrowRight, Sparkles } from "lucide-react";
 import {
   getClass,
   deleteClass,
@@ -19,7 +19,19 @@ import {
   removeClassStudent,
   searchStudents,
 } from "@/lib/dojo/schedule.functions";
-import { listLessonPlans, upsertLessonPlan } from "@/lib/dojo/lesson-plans.functions";
+import {
+  listLessonPlans,
+  upsertLessonPlan,
+  listLessonTemplates,
+  createPlanFromTemplate,
+} from "@/lib/dojo/lesson-plans.functions";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { WEEKDAYS, CANCEL_REASONS, fmtTime } from "./constants";
 
 export function ClassSidePanel({
@@ -44,6 +56,8 @@ export function ClassSidePanel({
   const removeStudentFn = useServerFn(removeClassStudent);
   const listPlansFn = useServerFn(listLessonPlans);
   const upsertPlanFn = useServerFn(upsertLessonPlan);
+  const listTemplatesFn = useServerFn(listLessonTemplates);
+  const fromTemplateFn = useServerFn(createPlanFromTemplate);
   const navigate = useNavigate();
   const qc = useQueryClient();
 
@@ -105,6 +119,42 @@ export function ClassSidePanel({
       setCreatingPlan(false);
     }
   };
+
+  const [tplOpen, setTplOpen] = useState(false);
+  const templatesQ = useQuery({
+    queryKey: ["dojo-lesson-templates-picker"],
+    queryFn: () => listTemplatesFn({}),
+    enabled: tplOpen,
+  });
+
+  const handleApplyTemplate = async (templateId: string) => {
+    if (!classId || !occurrenceDate || !cls) return;
+    const schedule = (cls.schedules ?? []).find((s: any) => {
+      const d = new Date(occurrenceDate + "T12:00:00");
+      return s.weekday === d.getDay();
+    });
+    try {
+      const row: any = await fromTemplateFn({
+        data: {
+          templateId,
+          date: occurrenceDate,
+          classId,
+          teacherId: cls.teacher_id ?? null,
+          unitId: cls.unit_id ?? null,
+          startTime: schedule?.start_time ?? null,
+          endTime: schedule?.end_time ?? null,
+          title: `${cls.name} — ${new Date(occurrenceDate + "T12:00:00").toLocaleDateString("pt-BR")}`,
+        },
+      });
+      toast.success("Modelo aplicado à aula");
+      qc.invalidateQueries({ queryKey: ["dojo-class-plans", classId, occurrenceDate] });
+      setTplOpen(false);
+      navigate({ to: "/dojo/app/lesson-plans/$id", params: { id: row.id } });
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  };
+
 
 
   const invalidate = () => {
@@ -231,11 +281,26 @@ export function ClassSidePanel({
                   ) : (plansForDay.data ?? []).length === 0 ? (
                     <div className="space-y-2">
                       <p className="text-xs text-muted-foreground">Nenhum plano vinculado a esta aula.</p>
-                      <Button size="sm" variant="default" onClick={handleCreatePlan} disabled={creatingPlan}>
-                        <Plus className="h-3.5 w-3.5 mr-1" />
-                        {creatingPlan ? "Criando..." : "Criar plano para esta aula"}
-                      </Button>
+                      <div className="flex flex-wrap gap-2">
+                        <Button size="sm" variant="default" onClick={handleCreatePlan} disabled={creatingPlan}>
+                          <Plus className="h-3.5 w-3.5 mr-1" />
+                          {creatingPlan ? "Criando..." : "Criar em branco"}
+                        </Button>
+                        <Dialog open={tplOpen} onOpenChange={setTplOpen}>
+                          <DialogTrigger asChild>
+                            <Button size="sm" variant="outline">
+                              <Sparkles className="h-3.5 w-3.5 mr-1" /> Usar modelo salvo
+                            </Button>
+                          </DialogTrigger>
+                          <TemplatePickerContent
+                            templates={templatesQ.data ?? []}
+                            loading={templatesQ.isLoading}
+                            onPick={handleApplyTemplate}
+                          />
+                        </Dialog>
+                      </div>
                     </div>
+
                   ) : (
                     <div className="space-y-1.5">
                       {(plansForDay.data ?? []).map((p: any) => (
@@ -253,9 +318,24 @@ export function ClassSidePanel({
                           <ArrowRight className="h-4 w-4 text-muted-foreground" />
                         </button>
                       ))}
-                      <Button size="sm" variant="outline" onClick={handleCreatePlan} disabled={creatingPlan} className="w-full">
-                        <Plus className="h-3.5 w-3.5 mr-1" /> Novo plano para esta data
-                      </Button>
+                      <div className="flex flex-wrap gap-2">
+                        <Button size="sm" variant="outline" onClick={handleCreatePlan} disabled={creatingPlan} className="flex-1">
+                          <Plus className="h-3.5 w-3.5 mr-1" /> Novo em branco
+                        </Button>
+                        <Dialog open={tplOpen} onOpenChange={setTplOpen}>
+                          <DialogTrigger asChild>
+                            <Button size="sm" variant="outline" className="flex-1">
+                              <Sparkles className="h-3.5 w-3.5 mr-1" /> Do modelo
+                            </Button>
+                          </DialogTrigger>
+                          <TemplatePickerContent
+                            templates={templatesQ.data ?? []}
+                            loading={templatesQ.isLoading}
+                            onPick={handleApplyTemplate}
+                          />
+                        </Dialog>
+                      </div>
+
                     </div>
                   )}
                 </section>
@@ -421,3 +501,43 @@ function Info({ label, value, className }: { label: string; value: any; classNam
     </div>
   );
 }
+
+function TemplatePickerContent({
+  templates,
+  loading,
+  onPick,
+}: {
+  templates: any[];
+  loading: boolean;
+  onPick: (id: string) => void;
+}) {
+  return (
+    <DialogContent className="max-w-lg">
+      <DialogHeader>
+        <DialogTitle>Aplicar modelo salvo</DialogTitle>
+      </DialogHeader>
+      <div className="max-h-[60vh] overflow-y-auto space-y-2">
+        {loading && <p className="text-sm text-muted-foreground">Carregando modelos…</p>}
+        {!loading && templates.length === 0 && (
+          <div className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">
+            Você ainda não tem modelos salvos. Abra um plano de aula e clique em <b>Salvar como modelo</b> para
+            reutilizá-lo em outras aulas.
+          </div>
+        )}
+        {templates.map((t) => (
+          <button
+            key={t.id}
+            onClick={() => onPick(t.id)}
+            className="w-full rounded-lg border p-3 text-left hover:border-primary hover:bg-primary/5 transition"
+          >
+            <div className="font-medium">{t.name}</div>
+            <div className="text-xs text-muted-foreground">
+              {t.modality ?? "—"} · {(t.blocks ?? []).length} blocos
+            </div>
+          </button>
+        ))}
+      </div>
+    </DialogContent>
+  );
+}
+

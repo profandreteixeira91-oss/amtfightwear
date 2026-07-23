@@ -11,7 +11,11 @@ import {
   getBuiltInLessonTemplates,
   listLessonTemplates,
   createPlanFromTemplate,
+  listClassesForPicker,
 } from "@/lib/dojo/lesson-plans.functions";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -79,13 +83,23 @@ function LessonPlansDashboardPage() {
   const fromTplFn = useServerFn(createPlanFromTemplate);
 
   const createFromTpl = useMutation({
-    mutationFn: (payload: { templateId?: string; builtInKey?: string }) =>
-      fromTplFn({ data: { ...payload, date: fmt(new Date()) } }),
+    mutationFn: (payload: {
+      templateId?: string;
+      builtInKey?: string;
+      date: string;
+      classId?: string | null;
+      teacherId?: string | null;
+      unitId?: string | null;
+      startTime?: string | null;
+      endTime?: string | null;
+      title?: string | null;
+    }) => fromTplFn({ data: payload }),
     onSuccess: (row) => {
       qc.invalidateQueries({ queryKey: ["lesson-plans"] });
       if (row && "id" in row) navigate({ to: "/dojo/app/lesson-plans/$id", params: { id: (row as { id: string }).id } });
     },
   });
+
 
   const [view, setView] = useState<ViewMode>("week");
   const [anchor, setAnchor] = useState<Date>(() => new Date());
@@ -209,11 +223,12 @@ function LessonPlansDashboardPage() {
           <Dialog>
             <DialogTrigger asChild>
               <Button size="sm" variant="outline" className="ml-2">
-                <Sparkles className="mr-1 h-4 w-4" /> Do modelo
+                <Sparkles className="mr-1 h-4 w-4" /> Aplicar modelo
               </Button>
             </DialogTrigger>
             <TemplatePickerDialog onPick={(payload) => createFromTpl.mutate(payload)} />
           </Dialog>
+
           <Button size="sm" className="ml-1" onClick={() => createDraft.mutate(fmt(new Date()))}>
             <Plus className="mr-1 h-4 w-4" /> Em branco
           </Button>
@@ -433,10 +448,21 @@ function ListView({
 function TemplatePickerDialog({
   onPick,
 }: {
-  onPick: (payload: { templateId?: string; builtInKey?: string }) => void;
+  onPick: (payload: {
+    templateId?: string;
+    builtInKey?: string;
+    date: string;
+    classId?: string | null;
+    teacherId?: string | null;
+    unitId?: string | null;
+    startTime?: string | null;
+    endTime?: string | null;
+    title?: string | null;
+  }) => void;
 }) {
   const builtInsFn = useServerFn(getBuiltInLessonTemplates);
   const listFn = useServerFn(listLessonTemplates);
+  const classesFn = useServerFn(listClassesForPicker);
   const { data: builtIns } = useQuery({
     queryKey: ["lesson-plans", "builtin-templates"],
     queryFn: () => builtInsFn({}),
@@ -445,49 +471,148 @@ function TemplatePickerDialog({
     queryKey: ["lesson-plans", "custom-templates"],
     queryFn: () => listFn({}),
   });
+  const { data: classes } = useQuery({
+    queryKey: ["lesson-plans", "classes-picker"],
+    queryFn: () => classesFn({}),
+  });
+
+  const [selected, setSelected] = useState<
+    | { kind: "custom"; id: string; name: string }
+    | { kind: "builtin"; key: string; name: string }
+    | null
+  >(null);
+  const [date, setDate] = useState<string>(() => new Date().toISOString().slice(0, 10));
+  const [classId, setClassId] = useState<string>("");
+  const [startTime, setStartTime] = useState<string>("");
+  const [endTime, setEndTime] = useState<string>("");
+  const [title, setTitle] = useState<string>("");
+
+  const selectedClass = (classes ?? []).find((c: any) => c.id === classId);
+
+  const apply = () => {
+    if (!selected) return;
+    const cls: any = selectedClass;
+    onPick({
+      templateId: selected.kind === "custom" ? selected.id : undefined,
+      builtInKey: selected.kind === "builtin" ? selected.key : undefined,
+      date,
+      classId: classId || null,
+      teacherId: cls?.teacher_id ?? null,
+      unitId: cls?.unit_id ?? null,
+      startTime: startTime || null,
+      endTime: endTime || null,
+      title: title.trim() || null,
+    });
+  };
+
   return (
-    <DialogContent className="max-w-2xl">
+    <DialogContent className="max-w-3xl">
       <DialogHeader>
-        <DialogTitle>Escolher modelo</DialogTitle>
+        <DialogTitle>Aplicar modelo salvo</DialogTitle>
       </DialogHeader>
-      <div className="max-h-[60vh] space-y-4 overflow-y-auto pr-1">
-        {custom && custom.length ? (
+      <div className="grid gap-4 md:grid-cols-[1fr_320px]">
+        {/* Coluna esquerda — escolher modelo */}
+        <div className="max-h-[60vh] space-y-4 overflow-y-auto pr-1">
+          {custom && custom.length ? (
+            <div>
+              <div className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Meus modelos</div>
+              <div className="grid grid-cols-1 gap-2">
+                {custom.map((t) => {
+                  const isSel = selected?.kind === "custom" && selected.id === (t.id as string);
+                  return (
+                    <button
+                      key={t.id as string}
+                      className={`rounded-lg border p-3 text-left transition ${isSel ? "border-primary bg-primary/5" : "hover:border-primary hover:bg-primary/5"}`}
+                      onClick={() => setSelected({ kind: "custom", id: t.id as string, name: t.name as string })}
+                    >
+                      <div className="font-medium">{t.name as string}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {(t.modality as string) ?? "—"} · {(t.blocks as unknown[])?.length ?? 0} blocos
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
+            <div className="rounded-md border border-dashed p-3 text-xs text-muted-foreground">
+              Você ainda não salvou modelos próprios. Dentro de um plano, clique em <b>Salvar como modelo</b> para
+              reutilizá-lo depois.
+            </div>
+          )}
           <div>
-            <div className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Meus modelos</div>
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              {custom.map((t) => (
-                <button
-                  key={t.id as string}
-                  className="rounded-lg border p-3 text-left transition hover:border-primary hover:bg-primary/5"
-                  onClick={() => onPick({ templateId: t.id as string })}
-                >
-                  <div className="font-medium">{t.name as string}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {(t.modality as string) ?? "—"} · {(t.blocks as unknown[])?.length ?? 0} blocos
-                  </div>
-                </button>
-              ))}
+            <div className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Modelos prontos</div>
+            <div className="grid grid-cols-1 gap-2">
+              {(builtIns ?? []).map((t) => {
+                const isSel = selected?.kind === "builtin" && selected.key === t.key;
+                return (
+                  <button
+                    key={t.key}
+                    className={`rounded-lg border p-3 text-left transition ${isSel ? "border-primary bg-primary/5" : "hover:border-primary hover:bg-primary/5"}`}
+                    onClick={() => setSelected({ kind: "builtin", key: t.key, name: t.name })}
+                  >
+                    <div className="font-medium">{t.name}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {t.category ?? "Todas as modalidades"} · {t.block_count} blocos
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
-        ) : null}
-        <div>
-          <div className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Modelos prontos</div>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {(builtIns ?? []).map((t) => (
-              <button
-                key={t.key}
-                className="rounded-lg border p-3 text-left transition hover:border-primary hover:bg-primary/5"
-                onClick={() => onPick({ builtInKey: t.key })}
-              >
-                <div className="font-medium">{t.name}</div>
-                <div className="text-xs text-muted-foreground">
-                  {t.category ?? "Todas as modalidades"} · {t.block_count} blocos
-                </div>
-              </button>
-            ))}
+        </div>
+
+        {/* Coluna direita — turma / data / horário */}
+        <div className="space-y-3 rounded-lg border bg-muted/30 p-3">
+          <div className="text-xs font-semibold uppercase text-muted-foreground">Aplicar em</div>
+          <div className="text-sm">
+            <span className="text-muted-foreground">Modelo:</span>{" "}
+            <span className="font-medium">{selected?.name ?? "—"}</span>
           </div>
+          <div>
+            <Label className="text-xs">Turma</Label>
+            <Select value={classId} onValueChange={setClassId}>
+              <SelectTrigger className="mt-1">
+                <SelectValue placeholder="Selecione a turma" />
+              </SelectTrigger>
+              <SelectContent>
+                {(classes ?? []).map((c: any) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.name} {c.modality ? `· ${c.modality}` : ""}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label className="text-xs">Data</Label>
+            <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="mt-1" />
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label className="text-xs">Início</Label>
+              <Input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className="mt-1" />
+            </div>
+            <div>
+              <Label className="text-xs">Fim</Label>
+              <Input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} className="mt-1" />
+            </div>
+          </div>
+          <div>
+            <Label className="text-xs">Título (opcional)</Label>
+            <Input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder={selected?.name ?? "Título da aula"}
+              className="mt-1"
+            />
+          </div>
+          <Button className="w-full" disabled={!selected} onClick={apply}>
+            Criar plano da aula
+          </Button>
         </div>
       </div>
     </DialogContent>
   );
 }
+
