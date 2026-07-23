@@ -7094,9 +7094,16 @@ export type Database = {
           biography: string | null
           birth_date: string | null
           city: string | null
+          confederation_name: string | null
+          confederation_number: string | null
           cpf: string | null
           created_at: string
+          education_level: string | null
           email: string | null
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
+          emergency_contact_relation: string | null
+          father_name: string | null
           full_name: string
           gender: string | null
           id: string
@@ -7104,6 +7111,8 @@ export type Database = {
           marital_status: string | null
           mini_resume: string | null
           modalities: Json
+          mother_name: string | null
+          nationality: string | null
           notes: string | null
           owner_id: string
           permissions: Json
@@ -7133,9 +7142,16 @@ export type Database = {
           biography?: string | null
           birth_date?: string | null
           city?: string | null
+          confederation_name?: string | null
+          confederation_number?: string | null
           cpf?: string | null
           created_at?: string
+          education_level?: string | null
           email?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          emergency_contact_relation?: string | null
+          father_name?: string | null
           full_name: string
           gender?: string | null
           id?: string
@@ -7143,6 +7159,8 @@ export type Database = {
           marital_status?: string | null
           mini_resume?: string | null
           modalities?: Json
+          mother_name?: string | null
+          nationality?: string | null
           notes?: string | null
           owner_id: string
           permissions?: Json
@@ -7172,9 +7190,16 @@ export type Database = {
           biography?: string | null
           birth_date?: string | null
           city?: string | null
+          confederation_name?: string | null
+          confederation_number?: string | null
           cpf?: string | null
           created_at?: string
+          education_level?: string | null
           email?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          emergency_contact_relation?: string | null
+          father_name?: string | null
           full_name?: string
           gender?: string | null
           id?: string
@@ -7182,6 +7207,8 @@ export type Database = {
           marital_status?: string | null
           mini_resume?: string | null
           modalities?: Json
+          mother_name?: string | null
+          nationality?: string | null
           notes?: string | null
           owner_id?: string
           permissions?: Json
