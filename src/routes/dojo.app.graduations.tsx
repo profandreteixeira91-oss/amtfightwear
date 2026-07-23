@@ -87,6 +87,30 @@ function NewGraduationPage() {
   // Graduação individual por aluno (faixa/grau + cobrança)
   const [perStudent, setPerStudent] = useState<Record<string, { beltId: string; degree: number; fee?: string; paid?: boolean }>>({});
 
+  // Sincroniza a taxa exibida na etapa de pagamento sempre que os preços por
+  // faixa forem atualizados (ex.: dono ajustou o valor em "Preços de graduação
+  // por faixa" enquanto conferia a confirmação).
+  const priceByBeltKey = JSON.stringify(priceByBelt);
+  useEffect(() => {
+    if (step !== "payment") return;
+    setPerStudent(prev => {
+      let changed = false;
+      const next: typeof prev = { ...prev };
+      for (const [sid, p] of Object.entries(prev)) {
+        if (!p?.beltId) continue;
+        const target = priceByBelt[p.beltId];
+        if (target == null) continue;
+        const targetStr = String(target);
+        if (p.fee !== targetStr) {
+          next[sid] = { ...p, fee: targetStr };
+          changed = true;
+        }
+      }
+      return changed ? next : prev;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [priceByBeltKey, step]);
+
   const [registered, setRegistered] = useState<Array<{ id: string; student_id: string }>>([]);
   const [templateId, setTemplateId] = useState("");
   const [issued, setIssued] = useState<Map<string, { template: CertificateTemplate; values: Record<string, string>; studentName: string }>>(new Map());
@@ -285,12 +309,14 @@ function NewGraduationPage() {
     if (missing.length > 0) {
       return toast.error(`Selecione a faixa de ${missing.length} aluno(s) pendente(s)`);
     }
-    // pré-preenche taxa padrão para quem ainda não tem valor
+    // sincroniza a taxa da faixa selecionada com o valor atual definido em
+    // "Preços de graduação por faixa" — se o dono do dojo acabou de ajustar,
+    // o valor precisa refletir imediatamente na confirmação de pagamento.
     setPerStudent(prev => {
       const next = { ...prev };
       for (const sid of selectedStudents) {
         const p = next[sid];
-        if (p && (p.fee == null || p.fee === "") && p.beltId && priceByBelt[p.beltId] != null) {
+        if (p && p.beltId && priceByBelt[p.beltId] != null) {
           next[sid] = { ...p, fee: String(priceByBelt[p.beltId]) };
         }
       }
