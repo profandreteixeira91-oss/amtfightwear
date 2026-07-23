@@ -114,6 +114,9 @@ function LessonEditorPage() {
       objectives: plan.objectives ?? "",
       notes: plan.notes ?? "",
       blocks: (Array.isArray(plan.blocks) ? (plan.blocks as unknown as Block[]) : []) ?? [],
+      class_id: (plan.class_id as string | null) ?? null,
+      teacher_id: (plan.teacher_id as string | null) ?? null,
+      unit_id: (plan.unit_id as string | null) ?? null,
     });
   }, [plan]);
 
