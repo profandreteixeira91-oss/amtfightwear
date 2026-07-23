@@ -30,7 +30,7 @@ import { useDojoBranding } from "@/hooks/useDojoBranding";
 import { downloadStudentsTemplate, parseStudentsFile, type ParsedStudentRow } from "@/lib/dojo/students-xlsx";
 import { printAllStudentSummaries } from "@/lib/dojo/students-bulk-print";
 import { toast } from "sonner";
-import { Trash2, Pencil, UserPlus, FileDown, Upload, Printer, User, MapPin, Phone, Award, Wallet, HeartPulse, Camera, ShieldCheck, FileText } from "lucide-react";
+import { Trash2, Pencil, UserPlus, FileDown, Upload, Printer, User, MapPin, Phone, Award, Wallet, HeartPulse, Camera, ShieldCheck, FileText, Users, UserCheck, Snowflake, UserX, Search, Sparkles } from "lucide-react";
 
 
 export const Route = createFileRoute("/dojo/app/students/")({
@@ -396,48 +396,82 @@ function StudentsPage() {
   };
 
 
-  return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <h2 className="text-lg font-semibold">Alunos</h2>
-          <p className="text-xs text-muted-foreground">
-            {filtered.length} {filtered.length === 1 ? "aluno encontrado" : "alunos encontrados"}
-            {q.data && q.data.length !== filtered.length ? ` · ${q.data.length} no total` : ""}
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".xlsx,.xls,.csv"
-            className="hidden"
-            onChange={(e) => {
-              const f = e.target.files?.[0];
-              if (f) onPickFile(f);
-            }}
-          />
-          <Button variant="outline" onClick={() => downloadStudentsTemplate()}>
-            <FileDown className="h-4 w-4 mr-1" /> Modelo XLSX
-          </Button>
-          <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
-            <Upload className="h-4 w-4 mr-1" /> Importar planilha
-          </Button>
-          <Button variant="outline" onClick={onPrintAll}>
-            <Printer className="h-4 w-4 mr-1" /> Imprimir fichas
-          </Button>
-          <Button variant="outline" asChild>
-            <Link to="/dojo/app/contracts">
-              <FileText className="h-4 w-4 mr-1" /> Central de Contratos
-            </Link>
-          </Button>
+  const allStudents = (q.data ?? []) as any[];
+  const kpiTotal = allStudents.length;
+  const kpiActive = allStudents.filter((s) => s.status === "active").length;
+  const kpiFrozen = allStudents.filter((s) => s.status === "frozen").length;
+  const kpiInactive = allStudents.filter((s) => s.status === "inactive").length;
 
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={openNew}>
-                <UserPlus className="h-4 w-4 mr-1" /> Novo aluno
-              </Button>
-            </DialogTrigger>
+  return (
+    <div className="space-y-6">
+      {/* Premium Hero */}
+      <div className="relative overflow-hidden rounded-3xl border border-red-950/40 bg-gradient-to-br from-[#1a0508] via-[#0f0304] to-black text-white shadow-2xl">
+        <div
+          className="absolute inset-0 opacity-[0.08] pointer-events-none"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)",
+            backgroundSize: "44px 44px",
+          }}
+        />
+        <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-red-600/25 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-red-900/30 blur-3xl pointer-events-none" />
+
+        <div className="relative grid gap-6 p-6 md:p-8 md:grid-cols-[1fr_auto] md:items-start">
+          <div className="flex items-start gap-4 min-w-0">
+            <div className="relative shrink-0">
+              <div className="absolute inset-0 rounded-2xl bg-red-500/40 blur-xl" />
+              <div className="relative grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-red-500 to-red-800 shadow-lg shadow-red-950/50 ring-1 ring-white/10">
+                <Users className="h-7 w-7 text-white" />
+              </div>
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-red-300/80">
+                <Sparkles className="h-3 w-3" /> Gestão de Alunos
+              </div>
+              <h1 className="mt-1 font-display text-3xl md:text-4xl font-black tracking-tight text-white">
+                Alunos do Dojo
+              </h1>
+              <p className="mt-2 max-w-2xl text-sm text-white/70">
+                {filtered.length} {filtered.length === 1 ? "aluno encontrado" : "alunos encontrados"}
+                {q.data && q.data.length !== filtered.length ? ` de ${q.data.length} no total` : ""}
+                {" · "}Cadastro completo, anamnese, graduações e contratos em um único lugar.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2 md:justify-end">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".xlsx,.xls,.csv"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) onPickFile(f);
+              }}
+            />
+            <Button size="sm" variant="outline" className="h-9 rounded-full border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white" onClick={() => downloadStudentsTemplate()}>
+              <FileDown className="h-4 w-4 mr-1" /> Modelo XLSX
+            </Button>
+            <Button size="sm" variant="outline" className="h-9 rounded-full border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white" onClick={() => fileInputRef.current?.click()}>
+              <Upload className="h-4 w-4 mr-1" /> Importar
+            </Button>
+            <Button size="sm" variant="outline" className="h-9 rounded-full border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white" onClick={onPrintAll}>
+              <Printer className="h-4 w-4 mr-1" /> Imprimir fichas
+            </Button>
+            <Button size="sm" variant="outline" className="h-9 rounded-full border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white" asChild>
+              <Link to="/dojo/app/contracts">
+                <FileText className="h-4 w-4 mr-1" /> Contratos
+              </Link>
+            </Button>
+
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm" onClick={openNew} className="h-9 rounded-full bg-white px-4 font-semibold text-red-700 shadow-lg shadow-red-950/40 hover:bg-white/95">
+                  <UserPlus className="h-4 w-4 mr-1" /> Novo aluno
+                </Button>
+              </DialogTrigger>
 
             <DialogContent className="max-w-5xl w-[calc(100vw-2rem)] p-0 gap-0 overflow-hidden">
               <DialogHeader className="px-6 pt-5 pb-4 border-b bg-gradient-to-br from-primary/5 via-background to-background">
@@ -1063,40 +1097,54 @@ function StudentsPage() {
             </DialogContent>
           </Dialog>
         </div>
+        </div>
       </div>
 
-      {/* Filtros ampliados: nome, e-mail, telefone, CPF, faixa, unidade, cidade, status */}
-      <div className="rounded-lg border border-border bg-card p-3 md:p-4">
+
+      {/* KPIs */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <StudentKpi icon={Users} label="Total de alunos" value={kpiTotal} accent="from-red-500 to-red-700" />
+        <StudentKpi icon={UserCheck} label="Ativos" value={kpiActive} accent="from-emerald-500 to-teal-600" />
+        <StudentKpi icon={Snowflake} label="Trancados" value={kpiFrozen} accent="from-amber-500 to-orange-600" />
+        <StudentKpi icon={UserX} label="Inativos" value={kpiInactive} accent="from-neutral-500 to-neutral-700" />
+      </div>
+
+      {/* Filtros ampliados */}
+      <div className="rounded-2xl border border-neutral-200/80 bg-white p-3 md:p-4 shadow-sm">
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-6">
-          <Input
-            className="md:col-span-2"
-            placeholder="Buscar por nome, telefone, CPF, e-mail…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <select className="h-10 rounded-md border border-input bg-background px-2 text-sm" value={status} onChange={(e) => setStatus(e.target.value)}>
+          <div className="relative md:col-span-2">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              className="pl-9 h-10 rounded-full"
+              placeholder="Buscar por nome, telefone, CPF, e-mail…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          <select className="h-10 rounded-full border border-input bg-background px-3 text-sm" value={status} onChange={(e) => setStatus(e.target.value)}>
             <option value="all">Todos os status</option>
             <option value="active">Ativos</option>
             <option value="inactive">Inativos</option>
             <option value="frozen">Trancados</option>
           </select>
-          <select className="h-10 rounded-md border border-input bg-background px-2 text-sm" value={beltFilter} onChange={(e) => setBeltFilter(e.target.value)}>
+          <select className="h-10 rounded-full border border-input bg-background px-3 text-sm" value={beltFilter} onChange={(e) => setBeltFilter(e.target.value)}>
             <option value="all">Todas as faixas</option>
             {(belts.data ?? []).map((b: any) => (
               <option key={b.id} value={b.id}>{b.name}</option>
             ))}
           </select>
-          <select className="h-10 rounded-md border border-input bg-background px-2 text-sm" value={unitFilter} onChange={(e) => setUnitFilter(e.target.value)}>
+          <select className="h-10 rounded-full border border-input bg-background px-3 text-sm" value={unitFilter} onChange={(e) => setUnitFilter(e.target.value)}>
             <option value="all">Todas as unidades</option>
             {(units.data ?? []).map((u: any) => (
               <option key={u.id} value={u.id}>{u.name}</option>
             ))}
           </select>
-          <Input placeholder="Cidade" value={cityFilter} onChange={(e) => setCityFilter(e.target.value)} />
+          <Input className="h-10 rounded-full" placeholder="Cidade" value={cityFilter} onChange={(e) => setCityFilter(e.target.value)} />
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-border bg-card">
+      <div className="overflow-hidden rounded-2xl border border-neutral-200/80 bg-white shadow-sm divide-y divide-neutral-100">
+
         {filtered.map((s: any) => (
           <div
             key={s.id}
@@ -1197,5 +1245,22 @@ function BoolChk({
       <Checkbox checked={checked} onCheckedChange={(v) => onChange(v === true)} className="mt-0.5" />
       <span className="leading-snug">{label}</span>
     </label>
+  );
+}
+
+function StudentKpi({ icon: Icon, label, value, accent = "from-red-500 to-red-700" }: { icon: any; label: string; value: any; accent?: string }) {
+  return (
+    <div className="group relative overflow-hidden rounded-2xl border border-neutral-200/80 bg-white p-4 shadow-sm hover:shadow-md transition-all">
+      <div className={`absolute -top-8 -right-8 h-24 w-24 rounded-full bg-gradient-to-br ${accent} opacity-[0.08] blur-2xl group-hover:opacity-[0.14] transition-opacity`} />
+      <div className="relative flex items-center gap-3">
+        <div className={`grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br ${accent} text-white shadow-md ring-1 ring-white/20`}>
+          <Icon className="h-5 w-5" />
+        </div>
+        <div className="min-w-0">
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">{label}</div>
+          <div className="text-2xl font-black tracking-tight tabular-nums">{value}</div>
+        </div>
+      </div>
+    </div>
   );
 }
