@@ -105,11 +105,12 @@ export function suggestNextBelt(params: {
   }
 
   const currentDeg = current.degree ?? 0;
-  const maxDeg = current.belt.max_degrees ?? 4;
+  // Faixas sem graus (max_degrees = 0 ou não configurado) pulam direto para a próxima faixa.
+  const maxDeg = current.belt.max_degrees ?? 0;
 
   // Faixa atual ainda cabe na lista permitida? Se sim e tem grau disponível, avança grau.
   const currentInAllowed = inModality.find((b) => b.id === current.belt.id);
-  if (currentInAllowed && currentDeg < maxDeg) {
+  if (currentInAllowed && maxDeg > 0 && currentDeg < maxDeg) {
     return { beltId: currentInAllowed.id, degree: currentDeg + 1 };
   }
 
