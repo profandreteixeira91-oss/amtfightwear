@@ -175,6 +175,8 @@ export function AppSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
+        {isOwner && (
+        <SidebarGroup>
           <SidebarGroupLabel>Growth Intelligence</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -191,6 +193,7 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        )}
 
         <SidebarGroup>
           <SidebarGroupLabel>MarketEngine</SidebarGroupLabel>
