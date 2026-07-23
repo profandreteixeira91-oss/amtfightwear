@@ -47,7 +47,9 @@ export function StudentPhotoCapture({ value, onChange }: Props) {
   async function uploadBlob(blob: Blob, ext = "jpg") {
     setUploading(true);
     try {
-      const path = `students/${crypto.randomUUID()}.${ext}`;
+      const { data: userData, error: userErr } = await supabase.auth.getUser();
+      if (userErr || !userData.user) throw new Error("Sessão expirada. Faça login novamente.");
+      const path = `${userData.user.id}/students/${crypto.randomUUID()}.${ext}`;
       const { error } = await supabase.storage.from("dojo-students").upload(path, blob, {
         contentType: blob.type || "image/jpeg",
         upsert: false,
