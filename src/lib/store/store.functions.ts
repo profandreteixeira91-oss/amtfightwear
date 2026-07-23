@@ -356,7 +356,55 @@ export const listStorefrontHome = createServerFn({ method: "GET" }).handler(asyn
 export const listStoreCategories = createServerFn({ method: "GET" }).handler(async () => {
   const sb = publicClient();
   const { data } = await sb.from("store_categories").select("id, slug, name, image_url, description, sort_order, parent_id").eq("active", true).order("sort_order");
-  return data ?? [];
+  const cats = data ?? [];
+  if (cats.length === 0) return [] as Array<(typeof cats)[number] & { preview_image: string | null }>;
+
+  // Build descendants map so a top-level category can borrow an image from any child product.
+  const childrenByParent = new Map<string, string[]>();
+  for (const c of cats) {
+    if (!c.parent_id) continue;
+    const arr = childrenByParent.get(c.parent_id) ?? [];
+    arr.push(c.id);
+    childrenByParent.set(c.parent_id, arr);
+  }
+  const collectIds = (rootId: string) => {
+    const out: string[] = [];
+    const stack = [rootId];
+    while (stack.length) {
+      const cur = stack.pop()!;
+      out.push(cur);
+      const kids = childrenByParent.get(cur);
+      if (kids) stack.push(...kids);
+    }
+    return out;
+  };
+
+  const ids = cats.map((c) => c.id);
+  const { data: prods } = await sb
+    .from("products")
+    .select("category_id, image_url, featured, created_at")
+    .eq("status", "active")
+    .in("category_id", ids)
+    .not("image_url", "is", null)
+    .order("featured", { ascending: false })
+    .order("created_at", { ascending: false });
+
+  const imageByCat = new Map<string, string>();
+  for (const p of prods ?? []) {
+    if (!p.category_id || !p.image_url) continue;
+    if (!imageByCat.has(p.category_id)) imageByCat.set(p.category_id, p.image_url);
+  }
+
+  return cats.map((c) => {
+    let preview: string | null = c.image_url ?? null;
+    if (!preview) {
+      for (const cid of collectIds(c.id)) {
+        const img = imageByCat.get(cid);
+        if (img) { preview = img; break; }
+      }
+    }
+    return { ...c, preview_image: preview };
+  });
 });
 
 export const getCategoryWithProducts = createServerFn({ method: "GET" })
