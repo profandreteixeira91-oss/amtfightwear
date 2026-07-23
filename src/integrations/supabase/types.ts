@@ -7475,6 +7475,120 @@ export type Database = {
           },
         ]
       }
+      dojo_team_contracts: {
+        Row: {
+          cancelled_at: string | null
+          compensation_type: string | null
+          compensation_value: number | null
+          content: string
+          contract_number: string | null
+          created_at: string
+          end_date: string | null
+          expires_at: string | null
+          footer_html: string
+          header_html: string
+          id: string
+          issued_by: string | null
+          margin_mm: number
+          notes: string | null
+          owner_id: string
+          page_orientation: string
+          page_size: string
+          pdf_url: string | null
+          role: string | null
+          sent_at: string | null
+          show_page_numbers: boolean
+          signed_at: string | null
+          start_date: string | null
+          status: string
+          team_member_id: string
+          template_id: string | null
+          template_version: number | null
+          title: string
+          updated_at: string
+          weekly_hours: number | null
+        }
+        Insert: {
+          cancelled_at?: string | null
+          compensation_type?: string | null
+          compensation_value?: number | null
+          content?: string
+          contract_number?: string | null
+          created_at?: string
+          end_date?: string | null
+          expires_at?: string | null
+          footer_html?: string
+          header_html?: string
+          id?: string
+          issued_by?: string | null
+          margin_mm?: number
+          notes?: string | null
+          owner_id: string
+          page_orientation?: string
+          page_size?: string
+          pdf_url?: string | null
+          role?: string | null
+          sent_at?: string | null
+          show_page_numbers?: boolean
+          signed_at?: string | null
+          start_date?: string | null
+          status?: string
+          team_member_id: string
+          template_id?: string | null
+          template_version?: number | null
+          title: string
+          updated_at?: string
+          weekly_hours?: number | null
+        }
+        Update: {
+          cancelled_at?: string | null
+          compensation_type?: string | null
+          compensation_value?: number | null
+          content?: string
+          contract_number?: string | null
+          created_at?: string
+          end_date?: string | null
+          expires_at?: string | null
+          footer_html?: string
+          header_html?: string
+          id?: string
+          issued_by?: string | null
+          margin_mm?: number
+          notes?: string | null
+          owner_id?: string
+          page_orientation?: string
+          page_size?: string
+          pdf_url?: string | null
+          role?: string | null
+          sent_at?: string | null
+          show_page_numbers?: boolean
+          signed_at?: string | null
+          start_date?: string | null
+          status?: string
+          team_member_id?: string
+          template_id?: string | null
+          template_version?: number | null
+          title?: string
+          updated_at?: string
+          weekly_hours?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_team_contracts_team_member_id_fkey"
+            columns: ["team_member_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_team_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_team_contracts_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_contract_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dojo_team_documents: {
         Row: {
           archived_at: string | null
