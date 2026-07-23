@@ -487,41 +487,102 @@ function SortableBeltRow({
     transition,
     opacity: isDragging ? 0.6 : 1,
   };
+  const isGlobal = !b.owner_id;
   return (
-    <div ref={setNodeRef} style={style} className="flex flex-wrap items-center gap-3 p-3 bg-background">
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="group relative flex flex-wrap items-center gap-3 bg-background p-4 transition-colors hover:bg-primary/[0.03] sm:gap-4"
+    >
       <button
         type="button"
-        className="cursor-grab active:cursor-grabbing touch-none text-muted-foreground hover:text-foreground"
+        className="cursor-grab touch-none text-muted-foreground/60 transition-colors hover:text-primary active:cursor-grabbing"
         {...attributes}
         {...listeners}
         aria-label="Arrastar para reordenar"
       >
         <GripVertical className="h-4 w-4" />
       </button>
-      <div className="w-8 text-xs text-muted-foreground">{b.sort_order}</div>
-      <BeltAuto
-        belt={b as any}
-        degree={0}
-        className="min-w-[220px]"
-      />
-      <div className="flex-1 min-w-[160px]">
-        <div className="text-sm font-medium">{formatBeltName(b.name, b.modality)}</div>
-        <div className="text-xs text-muted-foreground">
-          {b.max_degrees > 0 ? `${b.max_degrees} graus` : "sem graus"} · {b.owner_id ? "própria" : "global"}
-          {b.min_months != null && ` · ${b.min_months} ${b.min_months === 1 ? "mês" : "meses"}`}
-          {b.min_classes != null && ` · ${b.min_classes} aulas`}
-          {b.criteria_mode && b.criteria_mode !== "time" && ` · ${
-            b.criteria_mode === "classes" ? "por aulas" :
-            b.criteria_mode === "evaluation" ? "por avaliação" : "por mérito"
-          }`}
+      <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-muted text-[11px] font-bold tabular-nums text-muted-foreground">
+        {b.sort_order}
+      </div>
+      <div className="shrink-0 rounded-xl bg-gradient-to-b from-neutral-50 to-neutral-100 p-2 ring-1 ring-border/60 dark:from-neutral-900 dark:to-neutral-950">
+        <BeltAuto belt={b as any} degree={0} className="min-w-[200px]" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="truncate text-sm font-semibold tracking-tight">{formatBeltName(b.name, b.modality)}</div>
+          <span
+            className={
+              "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider " +
+              (isGlobal ? "bg-amber-100 text-amber-800" : "bg-primary/10 text-primary")
+            }
+          >
+            {isGlobal ? "Global AMT" : "Própria"}
+          </span>
+        </div>
+        <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+          <span className="font-medium">{b.max_degrees > 0 ? `${b.max_degrees} graus` : "sem graus"}</span>
+          {b.min_months != null && (
+            <>
+              <span className="text-border">•</span>
+              <span>{b.min_months} {b.min_months === 1 ? "mês" : "meses"}</span>
+            </>
+          )}
+          {b.min_classes != null && (
+            <>
+              <span className="text-border">•</span>
+              <span>{b.min_classes} aulas</span>
+            </>
+          )}
+          {b.criteria_mode && b.criteria_mode !== "time" && (
+            <>
+              <span className="text-border">•</span>
+              <span className="italic">
+                {b.criteria_mode === "classes" ? "por aulas" : b.criteria_mode === "evaluation" ? "por avaliação" : "por mérito"}
+              </span>
+            </>
+          )}
         </div>
       </div>
-      <Button size="sm" variant="ghost" onClick={() => onEdit(b)} disabled={!canEdit} title={canEdit ? "Editar" : "Faixa global AMT — somente leitura"}>
-        <Pencil className="h-4 w-4" />
-      </Button>
-      <Button size="sm" variant="ghost" onClick={() => onRemove(b.id)} disabled={!canEdit} title={canEdit ? "Excluir" : "Faixa global AMT — somente leitura"}>
-        <Trash2 className={`h-4 w-4 ${canEdit ? "text-red-600" : "text-muted-foreground"}`} />
-      </Button>
+      <div className="flex items-center gap-1 opacity-70 transition-opacity group-hover:opacity-100">
+        <Button
+          size="sm"
+          variant="ghost"
+          className="h-9 w-9 rounded-lg p-0 hover:bg-primary/10 hover:text-primary"
+          onClick={() => onEdit(b)}
+          disabled={!canEdit}
+          title={canEdit ? "Editar" : "Faixa global AMT — somente leitura"}
+        >
+          <Pencil className="h-4 w-4" />
+        </Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          className="h-9 w-9 rounded-lg p-0 hover:bg-destructive/10 hover:text-destructive"
+          onClick={() => onRemove(b.id)}
+          disabled={!canEdit}
+          title={canEdit ? "Excluir" : "Faixa global AMT — somente leitura"}
+        >
+          <Trash2 className={`h-4 w-4 ${canEdit ? "" : "text-muted-foreground"}`} />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function StatChip({ label, value, highlight = false }: { label: string; value: number; highlight?: boolean }) {
+  return (
+    <div
+      className={
+        "rounded-2xl border px-3 py-2 backdrop-blur transition-colors " +
+        (highlight
+          ? "border-primary/40 bg-primary/15 text-white"
+          : "border-white/10 bg-white/5 text-white/85")
+      }
+    >
+      <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/60">{label}</div>
+      <div className="mt-0.5 text-2xl font-black tabular-nums leading-none">{value}</div>
     </div>
   );
 }
