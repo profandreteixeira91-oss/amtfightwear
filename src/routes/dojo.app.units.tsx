@@ -216,8 +216,12 @@ function UnitDialog({ form, setForm, onSave }: { form: any; setForm: (f: any) =>
           <Field label="CPF"><Input value={form.manager_cpf ?? ""} onChange={(e) => set("manager_cpf", e.target.value)} /></Field>
         </Section>
         <Section title="Identidade">
-          <Field label="URL do logo" className="md:col-span-2"><Input value={form.logo_url ?? ""} onChange={(e) => set("logo_url", e.target.value)} placeholder="https://..." /></Field>
-          <Field label="URL do banner" className="md:col-span-2"><Input value={form.banner_url ?? ""} onChange={(e) => set("banner_url", e.target.value)} placeholder="https://..." /></Field>
+          <Field label="Logo" className="md:col-span-2">
+            <LogoUploader kind="logo" value={form.logo_url ?? ""} onChange={(url) => set("logo_url", url)} />
+          </Field>
+          <Field label="Banner" className="md:col-span-2">
+            <LogoUploader kind="banner" value={form.banner_url ?? ""} onChange={(url) => set("banner_url", url)} />
+          </Field>
         </Section>
       </div>
       <DialogFooter>
