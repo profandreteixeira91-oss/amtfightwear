@@ -175,6 +175,7 @@ function TeamMemberDetail() {
             <TabsTrigger value="financial">Financeiro</TabsTrigger>
             <TabsTrigger value="payments">Pagamentos</TabsTrigger>
             <TabsTrigger value="documents">Documentos</TabsTrigger>
+            <TabsTrigger value="contracts">Contratos</TabsTrigger>
             <TabsTrigger value="history">Histórico</TabsTrigger>
           </TabsList>
         </div>
