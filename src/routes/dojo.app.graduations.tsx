@@ -31,11 +31,14 @@ function NewGraduationPage() {
   const bulkFn = useServerFn(addBulkGraduation);
   const templatesFn = useServerFn(listCertificateTemplates);
   const issueFn = useServerFn(issueCertificate);
+  const settingsFn = useServerFn(getGraduationSettings);
+  const saveSettingsFn = useServerFn(saveGraduationSettings);
   const qc = useQueryClient();
 
   const students = useQuery({ queryKey: ["dojo-students"], queryFn: () => studentsFn() });
   const belts = useQuery({ queryKey: ["dojo-belts"], queryFn: () => beltsFn() });
   const templates = useQuery({ queryKey: ["dojo-templates"], queryFn: () => templatesFn() });
+  const settings = useQuery({ queryKey: ["dojo-grad-settings"], queryFn: () => settingsFn() });
   const progressFn = useServerFn(listGraduationProgress);
   const progress = useQuery({ queryKey: ["dojo-grad-progress"], queryFn: () => progressFn() });
   const progressById = useMemo(() => {
@@ -43,6 +46,8 @@ function NewGraduationPage() {
     for (const p of (progress.data ?? []) as any[]) m.set(p.student_id, p);
     return m;
   }, [progress.data]);
+
+  const priceByBelt: Record<string, number> = ((settings.data as any)?.price_by_belt ?? {}) as Record<string, number>;
 
   const [step, setStep] = useState<Step>("select");
   const [selectedStudents, setSelectedStudents] = useState<Set<string>>(new Set());
@@ -52,6 +57,10 @@ function NewGraduationPage() {
   const [filterModality, setFilterModality] = useState<string>("all");
   const [filterBeltId, setFilterBeltId] = useState<string>("all");
 
+  // Preços por faixa (edição local)
+  const [showPricing, setShowPricing] = useState(false);
+  const [priceDraft, setPriceDraft] = useState<Record<string, string>>({});
+  const [savingPrices, setSavingPrices] = useState(false);
 
   // Defaults ("aplicar a todos")
   const [beltId, setBeltId] = useState("");
@@ -60,8 +69,8 @@ function NewGraduationPage() {
   const [evaluator, setEvaluator] = useState("");
   const [notes, setNotes] = useState("");
 
-  // Graduação individual por aluno
-  const [perStudent, setPerStudent] = useState<Record<string, { beltId: string; degree: number }>>({});
+  // Graduação individual por aluno (faixa/grau + cobrança)
+  const [perStudent, setPerStudent] = useState<Record<string, { beltId: string; degree: number; fee?: string; paid?: boolean }>>({});
 
   const [registered, setRegistered] = useState<Array<{ id: string; student_id: string }>>([]);
   const [templateId, setTemplateId] = useState("");
