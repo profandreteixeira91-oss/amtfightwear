@@ -250,7 +250,14 @@ export const bulkDuplicateLessonPlan = createServerFn({ method: "POST" })
     if (!src) throw new Error("Plano de origem não encontrado");
 
     const base = new Date((src.date as string) + "T12:00:00");
-    const rows = [] as Array<Record<string, unknown>>;
+    const rows: Array<{
+      owner_id: string;
+      created_by: string;
+      title: string;
+      date: string;
+      status: string;
+      [k: string]: unknown;
+    }> = [];
     for (let i = 1; i <= data.occurrences; i++) {
       const d = new Date(base);
       if (data.mode === "weekly") d.setDate(base.getDate() + 7 * i);
