@@ -41,7 +41,7 @@ const exec = (cmd: string, value?: string) => {
   document.execCommand(cmd, false, value);
 };
 
-export function RichTextEditor({ value, onChange, placeholder, minHeight = 500 }: Props) {
+export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, showPageNumberTokens = false, compact = false }: Props) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [imgOpen, setImgOpen] = useState(false);
   const [imgUrl, setImgUrl] = useState("");
