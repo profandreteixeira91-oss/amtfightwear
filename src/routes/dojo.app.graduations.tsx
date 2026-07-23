@@ -384,7 +384,8 @@ function NewGraduationPage() {
     const items = Array.from(selectedStudents).map(sid => {
       const p = perStudent[sid] ?? { beltId, degree };
       const rawFee = (p.fee ?? "").toString().replace(",", ".").trim();
-      const feeNum = rawFee === "" ? null : Number(rawFee);
+      const fallbackFee = p.beltId && priceByBelt[p.beltId] != null ? Number(priceByBelt[p.beltId]) : NaN;
+      const feeNum = rawFee === "" ? fallbackFee : Number(rawFee);
       return {
         student_id: sid,
         belt_id: p.beltId,
