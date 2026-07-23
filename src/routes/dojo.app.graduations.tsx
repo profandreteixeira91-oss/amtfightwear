@@ -47,6 +47,10 @@ function NewGraduationPage() {
   const [selectedStudents, setSelectedStudents] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState("");
   const [modality, setModality] = useState<string>("jiu-jitsu");
+  // Filtros da lista de seleção
+  const [filterModality, setFilterModality] = useState<string>("all");
+  const [filterBeltId, setFilterBeltId] = useState<string>("all");
+
 
   // Defaults ("aplicar a todos")
   const [beltId, setBeltId] = useState("");
