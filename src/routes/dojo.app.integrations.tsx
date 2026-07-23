@@ -55,6 +55,7 @@ import {
 import { useState } from "react";
 import { Unplug } from "lucide-react";
 import amtPayLogoAsset from "@/assets/amt-pay-logo.png.asset.json";
+import { PinGate } from "@/components/dojo/PinGate";
 const amtPayLogoUrl = amtPayLogoAsset.url;
 
 export const Route = createFileRoute("/dojo/app/integrations")({
