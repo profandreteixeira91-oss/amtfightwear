@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import {
   Bold, Italic, Underline as UnderlineIcon, Strikethrough,
   AlignLeft, AlignCenter, AlignRight, AlignJustify,
-  List, ListOrdered, Heading1, Heading2, Heading3, Pilcrow,
+  List, ListOrdered,
   Undo, Redo, Link2, Image as ImageIcon, Upload, Braces, Table as TableIcon,
   Minus, Type,
 } from "lucide-react";
@@ -27,7 +27,7 @@ type Props = {
 };
 
 const FONT_FAMILIES = [
-  { label: "Padrão", value: "" },
+  { label: "Padrão", value: "inherit" },
   { label: "Serif", value: "Georgia, 'Times New Roman', serif" },
   { label: "Sans", value: "Inter, Arial, sans-serif" },
   { label: "Mono", value: "'JetBrains Mono', 'Courier New', monospace" },
@@ -37,9 +37,17 @@ const FONT_FAMILIES = [
 
 const FONT_SIZES = ["10", "12", "14", "16", "18", "20", "24", "28", "32", "40"];
 
-const exec = (cmd: string, value?: string) => {
-  document.execCommand(cmd, false, value);
-};
+const BLOCK_FORMATS = [
+  { label: "Parágrafo", value: "p" },
+  { label: "Título 1", value: "h1" },
+  { label: "Título 2", value: "h2" },
+  { label: "Título 3", value: "h3" },
+  { label: "Citação", value: "blockquote" },
+  { label: "Código", value: "pre" },
+];
+
+// z-index acima do modal do editor (Dialog usa z-[80]).
+const OVERLAY_Z = "z-[130]";
 
 export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, showPageNumberTokens = false, compact = false }: Props) {
   const ref = useRef<HTMLDivElement | null>(null);
@@ -49,7 +57,6 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
   const fileRef = useRef<HTMLInputElement | null>(null);
   const savedRange = useRef<Range | null>(null);
 
-  // Initialize the editor's HTML only once (or when value differs and editor isn't focused)
   useEffect(() => {
     if (!ref.current) return;
     if (document.activeElement === ref.current) return;
@@ -65,20 +72,26 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
     }
   };
 
+  const focusEditor = () => {
+    if (!ref.current) return;
+    ref.current.focus({ preventScroll: true });
+  };
+
   const restoreSelection = () => {
-    if (savedRange.current) {
-      const sel = window.getSelection();
+    focusEditor();
+    const sel = window.getSelection();
+    if (savedRange.current && ref.current?.contains(savedRange.current.startContainer)) {
       sel?.removeAllRanges();
       sel?.addRange(savedRange.current);
-    } else if (ref.current) {
-      // If no selection was ever captured, focus the editor and put caret at end
-      ref.current.focus();
+      return;
+    }
+    if (ref.current) {
       const range = document.createRange();
       range.selectNodeContents(ref.current);
       range.collapse(false);
-      const sel = window.getSelection();
       sel?.removeAllRanges();
       sel?.addRange(range);
+      savedRange.current = range.cloneRange();
     }
   };
 
@@ -88,27 +101,45 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
 
   const doExec = (cmd: string, val?: string) => {
     restoreSelection();
-    exec(cmd, val);
+    try { document.execCommand("styleWithCSS", false, "true"); } catch {}
+    document.execCommand(cmd, false, val);
     handleInput();
     saveSelection();
   };
 
   const insertHtml = (html: string) => {
     restoreSelection();
-    exec("insertHTML", html);
+    document.execCommand("insertHTML", false, html);
     handleInput();
     saveSelection();
   };
 
-  const insertVariable = (key: string) => {
-    insertHtml(`{{${key}}}`);
+  const applyFontSize = (px: string) => {
+    restoreSelection();
+    document.execCommand("styleWithCSS", false, "true");
+    document.execCommand("fontSize", false, "7");
+    if (ref.current) {
+      ref.current.querySelectorAll('font[size="7"]').forEach((el) => {
+        const span = document.createElement("span");
+        span.style.fontSize = `${px}px`;
+        span.innerHTML = (el as HTMLElement).innerHTML;
+        el.replaceWith(span);
+      });
+      handleInput();
+    }
+    saveSelection();
   };
+
+  const applyBlock = (tag: string) => {
+    // Alguns navegadores exigem o formato <tag>
+    doExec("formatBlock", `<${tag}>`);
+  };
+
+  const insertVariable = (key: string) => insertHtml(`{{${key}}}`);
 
   const insertImage = (url: string) => {
     if (!url) return;
-    insertHtml(
-      `<img src="${url}" alt="" style="max-width:100%;height:auto;margin:8px 0;" />`,
-    );
+    insertHtml(`<img src="${url}" alt="" style="max-width:100%;height:auto;margin:8px 0;" />`);
     setImgOpen(false);
     setImgUrl("");
   };
@@ -120,14 +151,11 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
   };
 
   const insertTable = () => {
-    const rows = 3;
-    const cols = 3;
+    const rows = 3, cols = 3;
     let html = `<table style="border-collapse:collapse;width:100%;margin:8px 0;">`;
     for (let r = 0; r < rows; r++) {
       html += "<tr>";
-      for (let c = 0; c < cols; c++) {
-        html += `<td style="border:1px solid #ccc;padding:6px;min-width:60px;">&nbsp;</td>`;
-      }
+      for (let c = 0; c < cols; c++) html += `<td style="border:1px solid #ccc;padding:6px;min-width:60px;">&nbsp;</td>`;
       html += "</tr>";
     }
     html += "</table>";
@@ -152,107 +180,140 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
     }
   };
 
+  // Handler dedicado para os SelectItem — precisa capturar a seleção do
+  // editor ANTES do Radix devolver o foco ao trigger.
+  const preventBlur = (e: React.PointerEvent | React.MouseEvent) => {
+    e.preventDefault();
+  };
+
+  const tbBtn =
+    "inline-flex h-8 w-8 items-center justify-center rounded-md text-foreground/80 hover:bg-accent hover:text-foreground transition-colors";
+  const tbDivider = "mx-1 h-6 w-px bg-border/70";
+
   return (
-    <div className="rounded-md border bg-background">
+    <div className="rounded-lg border border-border/80 bg-background shadow-sm overflow-hidden">
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-1 border-b bg-muted/40 p-2 sticky top-0 z-10">
-        <Button type="button" size="icon" variant="ghost" onMouseDown={(e) => e.preventDefault()} onClick={() => doExec("undo")} title="Desfazer"><Undo className="h-4 w-4" /></Button>
-        <Button type="button" size="icon" variant="ghost" onMouseDown={(e) => e.preventDefault()} onClick={() => doExec("redo")} title="Refazer"><Redo className="h-4 w-4" /></Button>
-        <span className="mx-1 h-5 w-px bg-border" />
+      <div
+        className="flex flex-wrap items-center gap-0.5 border-b bg-gradient-to-b from-muted/60 to-muted/30 backdrop-blur px-2 py-2 sticky top-0 z-10"
+        onMouseDown={(e) => {
+          // Impede o toolbar de roubar seleção quando o usuário clica em áreas vazias.
+          if (e.target === e.currentTarget) e.preventDefault();
+        }}
+      >
+        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("undo")} title="Desfazer"><Undo className="h-4 w-4" /></button>
+        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("redo")} title="Refazer"><Redo className="h-4 w-4" /></button>
+        <span className={tbDivider} />
 
-        <Select onValueChange={(v) => doExec("formatBlock", v)}>
-          <SelectTrigger className="h-8 w-[140px]" onMouseDown={saveSelection}><SelectValue placeholder="Parágrafo" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="p">Parágrafo</SelectItem>
-            <SelectItem value="h1">Título 1</SelectItem>
-            <SelectItem value="h2">Título 2</SelectItem>
-            <SelectItem value="h3">Título 3</SelectItem>
-            <SelectItem value="blockquote">Citação</SelectItem>
-            <SelectItem value="pre">Código</SelectItem>
+        {/* Bloco / Parágrafo */}
+        <Select onValueChange={(v) => applyBlock(v)}>
+          <SelectTrigger
+            className="h-8 w-[140px] bg-background/80"
+            onPointerDown={() => saveSelection()}
+          >
+            <SelectValue placeholder="Parágrafo" />
+          </SelectTrigger>
+          <SelectContent className={`${OVERLAY_Z} bg-popover shadow-xl border`}>
+            {BLOCK_FORMATS.map((b) => (
+              <SelectItem key={b.value} value={b.value} onPointerDown={preventBlur}>{b.label}</SelectItem>
+            ))}
           </SelectContent>
         </Select>
 
+        {/* Fonte */}
         <Select onValueChange={(v) => doExec("fontName", v)}>
-          <SelectTrigger className="h-8 w-[130px]" onMouseDown={saveSelection}><SelectValue placeholder="Fonte" /></SelectTrigger>
-          <SelectContent>
+          <SelectTrigger
+            className="h-8 w-[140px] bg-background/80"
+            onPointerDown={() => saveSelection()}
+          >
+            <SelectValue placeholder="Fonte" />
+          </SelectTrigger>
+          <SelectContent className={`${OVERLAY_Z} bg-popover shadow-xl border`}>
             {FONT_FAMILIES.map((f) => (
-              <SelectItem key={f.label} value={f.value || "inherit"}>{f.label}</SelectItem>
+              <SelectItem key={f.label} value={f.value} onPointerDown={preventBlur}>
+                <span style={{ fontFamily: f.value }}>{f.label}</span>
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
 
-        <Select>
-          <SelectTrigger className="h-8 w-[80px]" onMouseDown={saveSelection}><SelectValue placeholder="Tam." /></SelectTrigger>
-
-          <SelectContent>
+        {/* Tamanho */}
+        <Select onValueChange={(v) => applyFontSize(v)}>
+          <SelectTrigger
+            className="h-8 w-[86px] bg-background/80"
+            onPointerDown={() => saveSelection()}
+          >
+            <SelectValue placeholder="Tam." />
+          </SelectTrigger>
+          <SelectContent className={`${OVERLAY_Z} bg-popover shadow-xl border`}>
             {FONT_SIZES.map((s) => (
-              <SelectItem key={s} value={s} onPointerDown={(e) => {
-                e.preventDefault();
-                restoreSelection();
-                // wrap selection in a span with inline font-size
-                document.execCommand("styleWithCSS", false, "true");
-                document.execCommand("fontSize", false, "7");
-                // replace the just-inserted font tags
-                if (ref.current) {
-                  ref.current.querySelectorAll('font[size="7"]').forEach((el) => {
-                    const span = document.createElement("span");
-                    span.style.fontSize = `${s}px`;
-                    span.innerHTML = (el as HTMLElement).innerHTML;
-                    el.replaceWith(span);
-                  });
-                  handleInput();
-                }
-              }}>{s}px</SelectItem>
+              <SelectItem key={s} value={s} onPointerDown={preventBlur}>{s}px</SelectItem>
             ))}
           </SelectContent>
         </Select>
 
-        <span className="mx-1 h-5 w-px bg-border" />
+        <span className={tbDivider} />
 
-        <Button type="button" size="icon" variant="ghost" onMouseDown={(e) => e.preventDefault()} onClick={() => doExec("bold")} title="Negrito"><Bold className="h-4 w-4" /></Button>
-        <Button type="button" size="icon" variant="ghost" onMouseDown={(e) => e.preventDefault()} onClick={() => doExec("italic")} title="Itálico"><Italic className="h-4 w-4" /></Button>
-        <Button type="button" size="icon" variant="ghost" onMouseDown={(e) => e.preventDefault()} onClick={() => doExec("underline")} title="Sublinhado"><UnderlineIcon className="h-4 w-4" /></Button>
-        <Button type="button" size="icon" variant="ghost" onMouseDown={(e) => e.preventDefault()} onClick={() => doExec("strikeThrough")} title="Tachado"><Strikethrough className="h-4 w-4" /></Button>
+        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("bold")} title="Negrito"><Bold className="h-4 w-4" /></button>
+        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("italic")} title="Itálico"><Italic className="h-4 w-4" /></button>
+        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("underline")} title="Sublinhado"><UnderlineIcon className="h-4 w-4" /></button>
+        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("strikeThrough")} title="Tachado"><Strikethrough className="h-4 w-4" /></button>
 
-        <label className="ml-1 inline-flex items-center gap-1 rounded px-2 py-1 text-xs cursor-pointer hover:bg-accent" title="Cor do texto">
+        <label className="ml-1 inline-flex h-8 items-center gap-1 rounded-md px-2 text-xs cursor-pointer hover:bg-accent" title="Cor do texto">
           <Type className="h-4 w-4" />
           <input
             type="color"
-            className="h-5 w-5 cursor-pointer border-0 bg-transparent p-0"
-            onMouseDown={saveSelection}
+            className="h-4 w-5 cursor-pointer border-0 bg-transparent p-0"
+            onMouseDown={() => saveSelection()}
             onChange={(e) => doExec("foreColor", e.target.value)}
           />
         </label>
 
-        <span className="mx-1 h-5 w-px bg-border" />
+        <span className={tbDivider} />
 
-        <Button type="button" size="icon" variant="ghost" onMouseDown={(e) => e.preventDefault()} onClick={() => doExec("justifyLeft")} title="Esquerda"><AlignLeft className="h-4 w-4" /></Button>
-        <Button type="button" size="icon" variant="ghost" onMouseDown={(e) => e.preventDefault()} onClick={() => doExec("justifyCenter")} title="Centro"><AlignCenter className="h-4 w-4" /></Button>
-        <Button type="button" size="icon" variant="ghost" onMouseDown={(e) => e.preventDefault()} onClick={() => doExec("justifyRight")} title="Direita"><AlignRight className="h-4 w-4" /></Button>
-        <Button type="button" size="icon" variant="ghost" onMouseDown={(e) => e.preventDefault()} onClick={() => doExec("justifyFull")} title="Justificado"><AlignJustify className="h-4 w-4" /></Button>
+        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("justifyLeft")} title="Esquerda"><AlignLeft className="h-4 w-4" /></button>
+        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("justifyCenter")} title="Centro"><AlignCenter className="h-4 w-4" /></button>
+        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("justifyRight")} title="Direita"><AlignRight className="h-4 w-4" /></button>
+        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("justifyFull")} title="Justificado"><AlignJustify className="h-4 w-4" /></button>
 
-        <span className="mx-1 h-5 w-px bg-border" />
+        <span className={tbDivider} />
 
-        <Button type="button" size="icon" variant="ghost" onMouseDown={(e) => e.preventDefault()} onClick={() => doExec("insertUnorderedList")} title="Lista"><List className="h-4 w-4" /></Button>
-        <Button type="button" size="icon" variant="ghost" onMouseDown={(e) => e.preventDefault()} onClick={() => doExec("insertOrderedList")} title="Lista numerada"><ListOrdered className="h-4 w-4" /></Button>
-        <Button type="button" size="icon" variant="ghost" onMouseDown={(e) => e.preventDefault()} onClick={() => doExec("insertHorizontalRule")} title="Linha"><Minus className="h-4 w-4" /></Button>
-        <Button type="button" size="icon" variant="ghost" onMouseDown={(e) => e.preventDefault()} onClick={insertTable} title="Tabela"><TableIcon className="h-4 w-4" /></Button>
+        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("insertUnorderedList")} title="Lista"><List className="h-4 w-4" /></button>
+        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("insertOrderedList")} title="Lista numerada"><ListOrdered className="h-4 w-4" /></button>
+        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("insertHorizontalRule")} title="Linha"><Minus className="h-4 w-4" /></button>
+        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={insertTable} title="Tabela"><TableIcon className="h-4 w-4" /></button>
 
-        <span className="mx-1 h-5 w-px bg-border" />
+        <span className={tbDivider} />
 
-        <Button type="button" size="icon" variant="ghost" onMouseDown={(e) => e.preventDefault()} onClick={insertLink} title="Link"><Link2 className="h-4 w-4" /></Button>
-        <Button type="button" size="icon" variant="ghost" onMouseDown={(e) => { e.preventDefault(); saveSelection(); setImgOpen(true); }} title="Imagem"><ImageIcon className="h-4 w-4" /></Button>
+        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={insertLink} title="Link"><Link2 className="h-4 w-4" /></button>
+        <button
+          type="button"
+          className={tbBtn}
+          onMouseDown={(e) => { e.preventDefault(); saveSelection(); }}
+          onClick={() => setImgOpen(true)}
+          title="Imagem"
+        >
+          <ImageIcon className="h-4 w-4" />
+        </button>
 
-        <span className="mx-1 h-5 w-px bg-border" />
+        <span className={tbDivider} />
 
-        {/* Variables */}
+        {/* Variáveis */}
         <Popover>
           <PopoverTrigger asChild>
-            <Button type="button" size="sm" variant="outline" className="h-8 gap-1" onMouseDown={saveSelection}>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              className="h-8 gap-1 bg-background/80"
+              onMouseDown={() => saveSelection()}
+            >
               <Braces className="h-4 w-4" /> Variáveis
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-80 max-h-[420px] overflow-y-auto p-2" align="start">
+          <PopoverContent
+            className={`w-80 max-h-[420px] overflow-y-auto p-2 ${OVERLAY_Z} bg-popover shadow-xl border`}
+            align="start"
+          >
             <div className="text-xs text-muted-foreground mb-2 px-1">
               Clique para inserir. As variáveis serão substituídas pelos dados reais ao imprimir.
             </div>
@@ -265,6 +326,7 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
                       <button
                         key={it.key}
                         type="button"
+                        onMouseDown={preventBlur}
                         onClick={() => insertVariable(it.key)}
                         className="flex items-center justify-between rounded px-2 py-1 text-xs hover:bg-accent text-left"
                       >
@@ -281,15 +343,15 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
 
         {showPageNumberTokens && (
           <>
-            <span className="mx-1 h-5 w-px bg-border" />
+            <span className={tbDivider} />
             <Button type="button" size="sm" variant="outline" className="h-8 gap-1 text-xs"
-              onMouseDown={(e) => e.preventDefault()}
+              onMouseDown={preventBlur}
               onClick={() => insertHtml("{{pagina_atual}}")}
               title="Inserir número da página atual">
               Página nº
             </Button>
             <Button type="button" size="sm" variant="outline" className="h-8 gap-1 text-xs"
-              onMouseDown={(e) => e.preventDefault()}
+              onMouseDown={preventBlur}
               onClick={() => insertHtml("Página {{pagina_atual}} de {{total_paginas}}")}
               title="Inserir 'Página X de Y'">
               X de Y
@@ -310,13 +372,13 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
         onMouseUp={saveSelection}
         onBlur={saveSelection}
         data-placeholder={placeholder ?? "Escreva o contrato..."}
-        className={`prose prose-sm max-w-none focus:outline-none [&_h1]:text-2xl [&_h2]:text-xl [&_h3]:text-lg [&_blockquote]:border-l-4 [&_blockquote]:border-muted [&_blockquote]:pl-3 [&_blockquote]:italic [&_table]:border-collapse [&_table_td]:border [&_table_td]:p-1 empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground ${compact ? "px-3 py-2" : "px-6 py-6"}`}
+        className={`prose prose-sm max-w-none focus:outline-none [&_h1]:text-2xl [&_h2]:text-xl [&_h3]:text-lg [&_blockquote]:border-l-4 [&_blockquote]:border-muted [&_blockquote]:pl-3 [&_blockquote]:italic [&_table]:border-collapse [&_table_td]:border [&_table_td]:p-1 empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground ${compact ? "px-3 py-2" : "px-8 py-8"}`}
         style={{ minHeight: compact ? Math.min(minHeight, 120) : minHeight }}
       />
 
       {/* Image dialog */}
       <Dialog open={imgOpen} onOpenChange={setImgOpen}>
-        <DialogContent>
+        <DialogContent className="z-[140]">
           <DialogHeader><DialogTitle>Inserir imagem</DialogTitle></DialogHeader>
           <div className="space-y-3">
             <div>
