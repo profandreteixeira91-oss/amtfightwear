@@ -77,6 +77,13 @@ function fmtNow(): string {
 }
 
 function buildHeader(o: BrandedPrintOptions): string {
+  if (o.headerHtml && o.headerHtml.trim()) {
+    return `<header class="doc-header-custom">${o.headerHtml}</header>
+    <div class="doc-title-block">
+      <h1>${escapeHtml(o.title)}</h1>
+      ${o.subtitle ? `<p class="subtitle">${escapeHtml(o.subtitle)}</p>` : ""}
+    </div>`;
+  }
   const b = o.branding ?? {};
   const name = b.trade_name ?? b.legal_name ?? "AMT Dojo Manager";
   const primary = b.brand_primary || "#dc2626";
@@ -111,13 +118,22 @@ function buildHeader(o: BrandedPrintOptions): string {
 }
 
 function buildFooter(o: BrandedPrintOptions): string {
+  if (o.footerHtml && o.footerHtml.trim()) {
+    // Replace page tokens with CSS-driven counters so the same DOM
+    // renders the current page number in every printed page.
+    const html = o.footerHtml
+      .replace(/\{\{\s*pagina_atual\s*\}\}/g, '<span class="page-num-current"></span>')
+      .replace(/\{\{\s*total_paginas\s*\}\}/g, '<span class="page-num-total"></span>');
+    return `<footer class="doc-footer-custom">${html}</footer>`;
+  }
   const b = o.branding ?? {};
   const name = b.trade_name ?? b.legal_name ?? "AMT Dojo Manager";
   const left = o.footerLeft ?? name;
   const right = o.footerRight ?? "Powered by AMT Dojo Manager";
+  const showNum = o.showPageNumbers !== false;
   return `<footer class="doc-footer">
     <span>${escapeHtml(left)}</span>
-    <span class="page-num"></span>
+    ${showNum ? '<span class="page-num-inline">Página <span class="page-num-current"></span> de <span class="page-num-total"></span></span>' : '<span></span>'}
     <span>${escapeHtml(right)}</span>
   </footer>`;
 }
