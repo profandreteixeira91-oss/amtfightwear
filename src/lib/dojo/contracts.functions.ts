@@ -90,6 +90,12 @@ const contractSchema = z.object({
   content: z.string().default(""),
   status: z.enum(["draft", "active", "signed", "cancelled"]).default("draft"),
   signed_at: z.string().nullable().optional(),
+  plan_name: z.string().nullable().optional(),
+  monthly_value: z.number().nullable().optional(),
+  payment_method: z.string().nullable().optional(),
+  due_day: z.number().int().min(1).max(31).nullable().optional(),
+  start_date: z.string().nullable().optional(),
+  end_date: z.string().nullable().optional(),
 });
 
 export const listStudentContracts = createServerFn({ method: "GET" })
