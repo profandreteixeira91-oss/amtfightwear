@@ -1255,7 +1255,13 @@ function NewGraduationPage() {
                         inputMode="decimal"
                         placeholder="0,00"
                         className="h-9"
-                        value={entry.fee ?? ""}
+                        value={
+                          (entry.fee ?? "").toString().trim() !== ""
+                            ? (entry.fee ?? "")
+                            : entry.beltId && priceByBelt[entry.beltId] != null
+                              ? String(priceByBelt[entry.beltId])
+                              : ""
+                        }
                         onChange={(e) => setStudentFee(s.id, e.target.value)}
                       />
                       {entry.beltId && priceByBelt[entry.beltId] != null && (
