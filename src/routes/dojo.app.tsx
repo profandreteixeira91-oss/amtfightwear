@@ -163,6 +163,7 @@ const nav: { label: string; items: NavItem[] }[] = [
   {
     label: "Ajuda",
     items: [
+      { to: "/dojo/app/notifications", label: "App & Notificações", icon: Bell },
       { to: "/dojo/app/support", label: "Suporte", icon: LifeBuoy },
     ],
   },
@@ -194,6 +195,7 @@ const routeTitles: Array<{ match: (p: string) => boolean; title: string; subtitl
   { match: (p) => p.startsWith("/dojo/app/integrations"), title: "AMT Pay", subtitle: "Central financeira do dojo" },
   { match: (p) => p.startsWith("/dojo/app/student-app-qr"), title: "QR do App do Aluno", subtitle: "Imprima e distribua para os alunos" },
   { match: (p) => p.startsWith("/dojo/app/system-users"), title: "Usuários do Sistema", subtitle: "Logins e permissões da equipe" },
+  { match: (p) => p.startsWith("/dojo/app/notifications"), title: "App & Notificações", subtitle: "Instalação do app e alertas push" },
 ];
 
 function DojoLayout() {
@@ -203,6 +205,37 @@ function DojoLayout() {
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? null));
   }, []);
+
+  // PWA: troca o manifest para o do Dojo Manager e registra o Service Worker
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const head = document.head;
+    let link = head.querySelector<HTMLLinkElement>('link[rel="manifest"]');
+    const previous = link?.getAttribute("href") ?? null;
+    if (!link) {
+      link = document.createElement("link");
+      link.rel = "manifest";
+      head.appendChild(link);
+    }
+    link.setAttribute("href", "/dojo-manifest.webmanifest");
+
+    let themeMeta = head.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    const prevTheme = themeMeta?.getAttribute("content") ?? null;
+    if (!themeMeta) {
+      themeMeta = document.createElement("meta");
+      themeMeta.name = "theme-color";
+      head.appendChild(themeMeta);
+    }
+    themeMeta.setAttribute("content", "#dc2626");
+
+    void import("@/lib/pwa/register").then((m) => m.registerPwa());
+
+    return () => {
+      if (previous) link!.setAttribute("href", previous);
+      if (prevTheme && themeMeta) themeMeta.setAttribute("content", prevTheme);
+    };
+  }, []);
+
 
   // Força tema claro em todo o Dojo Manager (inclusive popups/dialogs portados fora do escopo .dojo-theme)
   useEffect(() => {
