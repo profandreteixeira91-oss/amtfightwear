@@ -8,10 +8,20 @@ import {
   upsertLessonPlan,
   deleteLessonPlan,
   duplicateLessonPlan,
+  getBuiltInLessonTemplates,
+  listLessonTemplates,
+  createPlanFromTemplate,
 } from "@/lib/dojo/lesson-plans.functions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   CalendarDays,
   CheckCircle2,
@@ -23,6 +33,7 @@ import {
   Pencil,
   ChevronLeft,
   ChevronRight,
+  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 
