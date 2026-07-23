@@ -30,9 +30,13 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { RichTextEditor } from "@/components/dojo/RichTextEditor";
+import { openBrandedPrintDocument } from "@/lib/dojo/print-document";
+import { useDojoBranding } from "@/hooks/useDojoBranding";
 import { toast } from "sonner";
 import {
   ArrowLeft, Building2, FileText, DollarSign, Award, Plus, Printer, Save, Trash2, FileBadge,
+  Pencil, Eye, X, CheckCircle2,
 } from "lucide-react";
 import { DojoPageShell } from "@/components/dojo/DojoPageShell";
 
@@ -298,136 +302,233 @@ function brl(v: number) {
 }
 
 /* ============ CONTRACT ============ */
+const AFFIL_STATUS_LABEL: Record<string, string> = {
+  draft: "Rascunho",
+  pending: "Pendente",
+  signed: "Assinado",
+  cancelled: "Cancelado",
+};
+
 function ContractTab({ affiliate }: { affiliate: any }) {
   const listFn = useServerFn(listAffiliateContracts);
   const saveFn = useServerFn(saveAffiliateContract);
   const delFn = useServerFn(deleteAffiliateContract);
   const brandFn = useServerFn(getMyAcademyBranding);
+  const branding = useDojoBranding();
   const qc = useQueryClient();
   const q = useQuery({
     queryKey: ["affiliate-contracts", affiliate.id],
     queryFn: () => listFn({ data: { affiliate_id: affiliate.id } }),
   });
   const bq = useQuery({ queryKey: ["dojo-branding-me"], queryFn: () => brandFn(), staleTime: 5 * 60 * 1000 });
-  const [editing, setEditing] = useState<any | null>(null);
 
-  const startNew = () => {
-    setEditing({
+  const [open, setOpen] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [current, setCurrent] = useState<any | null>(null);
+
+  const openNew = () => {
+    setCurrent({
       affiliate_id: affiliate.id,
       title: "Contrato de Filiação",
       html_content: AFFILIATE_CONTRACT_PRESET_HTML,
       signature_status: "draft",
     });
+    setOpen(true);
   };
 
-  const onSave = async () => {
+  const openEdit = (row: any) => { setCurrent({ ...row }); setOpen(true); };
+  const openPreview = (row: any) => { setCurrent(row); setPreviewOpen(true); };
+
+  const save = async () => {
+    if (!current?.title?.trim()) { toast.error("Informe o título"); return; }
     try {
       await saveFn({
         data: {
-          id: editing.id,
+          id: current.id,
           affiliate_id: affiliate.id,
-          title: editing.title || "Contrato de Filiação",
-          html_content: editing.html_content,
-          signature_status: editing.signature_status ?? "draft",
+          title: current.title,
+          html_content: current.html_content ?? "",
+          signature_status: current.signature_status ?? "draft",
         },
       });
       toast.success("Contrato salvo");
-      setEditing(null);
+      qc.invalidateQueries({ queryKey: ["affiliate-contracts", affiliate.id] });
+      setOpen(false);
+    } catch (e: any) { toast.error(e.message); }
+  };
+
+  const remove = async (row: any) => {
+    if (!window.confirm(`Excluir contrato "${row.title}"?`)) return;
+    try {
+      await delFn({ data: { id: row.id } });
+      toast.success("Contrato excluído");
       qc.invalidateQueries({ queryKey: ["affiliate-contracts", affiliate.id] });
     } catch (e: any) { toast.error(e.message); }
   };
 
-  const onDelete = async (id: string) => {
-    if (!confirm("Excluir este contrato?")) return;
-    await delFn({ data: { id } });
-    qc.invalidateQueries({ queryKey: ["affiliate-contracts", affiliate.id] });
+  const markSigned = async (row: any) => {
+    try {
+      await saveFn({
+        data: {
+          id: row.id,
+          affiliate_id: affiliate.id,
+          title: row.title,
+          html_content: row.html_content,
+          signature_status: "signed",
+        },
+      });
+      toast.success("Marcado como assinado");
+      qc.invalidateQueries({ queryKey: ["affiliate-contracts", affiliate.id] });
+    } catch (e: any) { toast.error(e.message); }
   };
 
-  const printContract = (c: any) => {
-    const vars = buildAffiliateContractVariables({
-      organization_name: bq.data?.trade_name || bq.data?.legal_name || "",
-      organization_cnpj: (bq.data as any)?.cnpj || "",
-      affiliate,
+  const vars = useMemo(() => buildAffiliateContractVariables({
+    organization_name: bq.data?.trade_name || bq.data?.legal_name || "",
+    organization_cnpj: (bq.data as any)?.cnpj || "",
+    affiliate,
+  }), [bq.data, affiliate]);
+
+  const previewHtml = current ? renderAffiliateContract(current.html_content ?? "", vars) : "";
+
+  const printContract = (row: any) => {
+    const html = renderAffiliateContract(row.html_content ?? "", vars);
+    openBrandedPrintDocument({
+      branding: branding.data as any,
+      title: row.title,
+      subtitle: affiliate?.name ?? "",
+      bodyHtml: `<div style="font-family:Georgia,serif;font-size:12pt;line-height:1.6;">${html}</div>`,
+      footerLeft: `Contrato nº ${String(row.id ?? "").slice(0, 8).toUpperCase()}`,
+      footerRight: (bq.data as any)?.trade_name ?? "",
     });
-    const html = renderAffiliateContract(c.html_content, vars);
-    const w = window.open("", "_blank", "width=900,height=1200");
-    if (!w) return;
-    w.document.write(`<!doctype html><html><head><title>${c.title}</title>
-      <meta charset="utf-8"/>
-      <style>
-        @page { size: A4; margin: 20mm; }
-        body { font-family: 'Inter', system-ui, sans-serif; color: #111; line-height: 1.6; max-width: 780px; margin: 0 auto; padding: 20px; }
-        h1 { font-size: 20px; margin-bottom: 4px; }
-        h2 { font-size: 14px; margin-top: 16px; }
-        p { margin: 8px 0; font-size: 12px; text-align: justify; }
-      </style>
-    </head><body>${html}<script>window.onload=()=>{window.print();}</script></body></html>`);
-    w.document.close();
   };
-
-  if (editing) {
-    return (
-      <div className="space-y-3">
-        <div className="flex justify-between items-center">
-          <Input
-            value={editing.title}
-            onChange={(e) => setEditing({ ...editing, title: e.target.value })}
-            className="max-w-sm font-semibold"
-          />
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setEditing(null)}>Cancelar</Button>
-            <Button onClick={onSave} className="gap-2"><Save className="h-4 w-4" /> Salvar</Button>
-          </div>
-        </div>
-        <div className="rounded-xl border bg-white p-4">
-          <Label className="text-xs mb-2 block">
-            Conteúdo HTML — variáveis suportadas: {"{{organization_name}}"}, {"{{affiliate_name}}"}, {"{{cnpj}}"}, {"{{address}}"}, {"{{city}}"}, {"{{state}}"}, {"{{manager_name}}"}, {"{{cpf}}"}, {"{{affiliation_number}}"}, {"{{signed_at}}"}
-          </Label>
-          <Textarea
-            value={editing.html_content}
-            onChange={(e) => setEditing({ ...editing, html_content: e.target.value })}
-            rows={22}
-            className="font-mono text-xs"
-          />
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-3">
-      <div className="flex justify-between items-center">
-        <p className="text-sm text-muted-foreground">
+      <div className="flex items-center justify-between gap-2">
+        <div className="text-sm text-muted-foreground">
           Contratos de filiação com modelo base pronto. Personalize e imprima em A4.
-        </p>
-        <Button onClick={startNew} className="gap-2"><Plus className="h-4 w-4" /> Novo contrato</Button>
+        </div>
+        <Button size="sm" onClick={openNew}><Plus className="h-4 w-4 mr-1" />Novo contrato</Button>
       </div>
-      <div className="rounded-xl border bg-white overflow-hidden">
-        {(q.data ?? []).map((c: any) => (
-          <div key={c.id} className="flex items-center justify-between p-3 border-b last:border-0">
-            <div>
-              <div className="font-medium">{c.title}</div>
-              <div className="text-xs text-muted-foreground">
-                {new Date(c.created_at).toLocaleDateString("pt-BR")} · {c.signature_status}
+
+      {q.isLoading ? (
+        <div className="rounded border p-6 text-center text-sm text-muted-foreground">Carregando...</div>
+      ) : (q.data ?? []).length === 0 ? (
+        <div className="rounded border border-dashed p-8 text-center space-y-2">
+          <FileText className="h-8 w-8 mx-auto text-muted-foreground" />
+          <div className="text-sm text-muted-foreground">Nenhum contrato gerado.</div>
+          <Button size="sm" variant="outline" onClick={openNew}><Plus className="h-4 w-4 mr-1" />Criar contrato</Button>
+        </div>
+      ) : (
+        <div className="overflow-x-auto rounded border bg-white">
+          <table className="w-full text-sm">
+            <thead className="text-[10px] uppercase tracking-widest text-muted-foreground">
+              <tr className="border-b border-border">
+                <th className="p-2 text-left">Título</th>
+                <th className="p-2 text-left">Status</th>
+                <th className="p-2 text-left">Criado</th>
+                <th className="p-2 text-right">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(q.data ?? []).map((row: any) => (
+                <tr key={row.id} className="border-b border-border last:border-0">
+                  <td className="p-2 font-medium">{row.title}</td>
+                  <td className="p-2">
+                    <Badge variant={row.signature_status === "signed" ? "default" : "outline"}>
+                      {AFFIL_STATUS_LABEL[row.signature_status] ?? row.signature_status}
+                    </Badge>
+                  </td>
+                  <td className="p-2 text-muted-foreground">{new Date(row.created_at).toLocaleDateString("pt-BR")}</td>
+                  <td className="p-2 text-right">
+                    <div className="inline-flex gap-1">
+                      <Button size="icon" variant="outline" onClick={() => openPreview(row)} title="Visualizar"><Eye className="h-4 w-4" /></Button>
+                      <Button size="icon" variant="outline" onClick={() => printContract(row)} title="Imprimir"><Printer className="h-4 w-4" /></Button>
+                      <Button size="icon" variant="ghost" onClick={() => openEdit(row)} title="Editar"><Pencil className="h-4 w-4" /></Button>
+                      {row.signature_status !== "signed" && (
+                        <Button size="icon" variant="ghost" onClick={() => markSigned(row)} title="Marcar como assinado"><CheckCircle2 className="h-4 w-4" /></Button>
+                      )}
+                      <Button size="icon" variant="ghost" className="text-destructive" onClick={() => remove(row)} title="Excluir"><Trash2 className="h-4 w-4" /></Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Editor */}
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-6xl w-[calc(100vw-2rem)] p-0 gap-0 overflow-hidden max-h-[92vh] flex flex-col">
+          <DialogHeader className="px-6 py-4 border-b bg-muted/30">
+            <div className="flex items-center justify-between gap-3">
+              <DialogTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5 text-primary" />
+                {current?.id ? "Editar contrato" : "Novo contrato"}
+              </DialogTitle>
+              <button onClick={() => setOpen(false)} className="p-1 rounded hover:bg-accent"><X className="h-4 w-4" /></button>
+            </div>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-medium text-muted-foreground">Título</label>
+                <Input value={current?.title ?? ""} onChange={(e) => setCurrent({ ...current, title: e.target.value })} />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground">Status</label>
+                <Select value={current?.signature_status ?? "draft"} onValueChange={(v) => setCurrent({ ...current, signature_status: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="draft">Rascunho</SelectItem>
+                    <SelectItem value="pending">Pendente</SelectItem>
+                    <SelectItem value="signed">Assinado</SelectItem>
+                    <SelectItem value="cancelled">Cancelado</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
-            <div className="flex gap-2">
-              <Button size="sm" variant="outline" onClick={() => printContract(c)} className="gap-1.5">
-                <Printer className="h-3.5 w-3.5" /> Imprimir
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => setEditing(c)}>Editar</Button>
-              <Button size="sm" variant="ghost" onClick={() => onDelete(c.id)}>
-                <Trash2 className="h-4 w-4 text-destructive" />
-              </Button>
+            <div className="rounded-md border p-3 bg-muted/20 text-[11px] text-muted-foreground">
+              Variáveis suportadas: <code>{"{{organization_name}}"}</code>, <code>{"{{affiliate_name}}"}</code>, <code>{"{{cnpj}}"}</code>, <code>{"{{address}}"}</code>, <code>{"{{city}}"}</code>, <code>{"{{state}}"}</code>, <code>{"{{manager_name}}"}</code>, <code>{"{{cpf}}"}</code>, <code>{"{{affiliation_number}}"}</code>, <code>{"{{signed_at}}"}</code>.
             </div>
+            <RichTextEditor
+              value={current?.html_content ?? ""}
+              onChange={(html) => setCurrent((c: any) => ({ ...c, html_content: html }))}
+              placeholder="Escreva o conteúdo do contrato de filiação."
+            />
           </div>
-        ))}
-        {(q.data ?? []).length === 0 && (
-          <div className="p-8 text-center text-sm text-muted-foreground">
-            Nenhum contrato gerado. Clique em "Novo contrato" para começar com o modelo base.
+          <DialogFooter className="px-6 py-3 border-t bg-muted/30">
+            <Button variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
+            <Button onClick={save}><Save className="h-4 w-4 mr-1" />Salvar contrato</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Preview */}
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent className="max-w-4xl w-[calc(100vw-2rem)] p-0 gap-0 overflow-hidden max-h-[92vh] flex flex-col">
+          <DialogHeader className="px-6 py-4 border-b bg-muted/30">
+            <div className="flex items-center justify-between gap-3">
+              <DialogTitle className="flex items-center gap-2">
+                <Eye className="h-5 w-5 text-primary" />
+                {current?.title}
+              </DialogTitle>
+              <div className="flex items-center gap-2">
+                <Button size="sm" variant="outline" onClick={() => current && printContract(current)}><Printer className="h-4 w-4 mr-1" />Imprimir</Button>
+                <button onClick={() => setPreviewOpen(false)} className="p-1 rounded hover:bg-accent"><X className="h-4 w-4" /></button>
+              </div>
+            </div>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto p-8 bg-muted/20">
+            <div
+              className="bg-white text-black shadow-lg mx-auto max-w-3xl p-12 prose prose-sm max-w-none [&_h1]:text-2xl [&_h2]:text-xl [&_h3]:text-lg"
+              style={{ fontFamily: "Georgia, serif", lineHeight: 1.6 }}
+              dangerouslySetInnerHTML={{ __html: previewHtml }}
+            />
           </div>
-        )}
-      </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
