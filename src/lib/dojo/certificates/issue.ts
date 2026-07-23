@@ -2,7 +2,7 @@ import { toPng } from "html-to-image";
 import jsPDF from "jspdf";
 import type { EditorSchema } from "@/components/dojo/certificate-editor/types";
 import { supabase } from "@/integrations/supabase/client";
-import { formatBeltFull, formatBjjPretaVariant, isBjjBlackBelt } from "@/lib/dojo/degree-label";
+import { formatBeltFull, formatBeltName, formatDegree } from "@/lib/dojo/degree-label";
 
 
 function fmtBR(d: string | Date | null | undefined): string {
@@ -32,10 +32,10 @@ export function buildIssueValues(opts: {
   // Nome completo da faixa considerando modalidade + grau (ex.: "Faixa Preta com aparador",
   // "Faixa Preta 3º grau", "Faixa Roxa · 2º grau", "Faixa Preta · 2º Dan" para Judô).
   const beltFull = formatBeltFull(grBelt?.name, grBelt?.modality, gradDegree);
-  const isBjjPreta = isBjjBlackBelt(grBelt?.name, grBelt?.modality);
-  // Para o campo puro "aluno_grau" no BJJ Preta, expor a variação humana ("com aparador",
-  // "3º grau"). Para as demais faixas, manter o número do grau/Dan.
-  const grauValue = isBjjPreta ? formatBjjPretaVariant(gradDegree) : String(gradDegree ?? "");
+  // Nome da faixa isolado (sem grau): "Faixa Preta", "Faixa Roxa", "Grau Preto" (Muay Thai).
+  const beltName = formatBeltName(grBelt?.name, grBelt?.modality);
+  // Rótulo humano do grau/Dan: "3º grau", "2º Dan", "Com aparador", "Sem grau".
+  const grauValue = formatDegree(gradDegree, grBelt?.modality, grBelt?.name);
 
   const values: Record<string, string> = {
     // Aluno
@@ -48,7 +48,9 @@ export function buildIssueValues(opts: {
       ? String(Math.max(0, Math.floor((Date.now() - new Date(student.birth_date).getTime()) / (365.25 * 864e5))))
       : "",
     aluno_faixa: beltFull,
+    aluno_faixa_nome: beltName,
     aluno_grau: grauValue,
+    aluno_grau_numero: String(Number(gradDegree ?? 0) || 0),
     aluno_modalidade: grBelt?.modality ?? student?.discipline ?? "",
     aluno_foto: student?.photo_url ?? "",
 
