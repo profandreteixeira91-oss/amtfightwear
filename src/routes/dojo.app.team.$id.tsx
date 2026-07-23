@@ -11,6 +11,7 @@ import {
   listPayments,
   upsertPayment,
   markPaymentPaid,
+  computeMemberEarnings,
   listTeamDocuments,
   addTeamDocument,
   archiveTeamDocument,
