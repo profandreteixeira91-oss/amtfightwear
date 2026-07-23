@@ -32,13 +32,52 @@ export async function subscribePush(vapidPublicKey: string): Promise<PushSubscri
       ? "granted"
       : await Notification.requestPermission();
   if (perm !== "granted") return null;
+
+  // Garante que o SW esteja registrado antes de tentar assinar (evita "no active service worker").
+  if (!(await navigator.serviceWorker.getRegistration("/"))) {
+    try {
+      await navigator.serviceWorker.register("/sw.js", { scope: "/" });
+    } catch {
+      /* noop — registerPwa já tenta e a falha aqui vira erro claro abaixo */
+    }
+  }
   const reg = await navigator.serviceWorker.ready;
+  const appServerKey = urlBase64ToUint8Array(vapidPublicKey);
+
+  // Se já existe inscrição, valida se a applicationServerKey confere.
+  // Chaves diferentes fazem o push service rejeitar com "push service error".
   const existing = await reg.pushManager.getSubscription();
-  if (existing) return existing;
-  return reg.pushManager.subscribe({
-    userVisibleOnly: true,
-    applicationServerKey: urlBase64ToUint8Array(vapidPublicKey).buffer as ArrayBuffer,
-  });
+  if (existing) {
+    const existingKey = existing.options?.applicationServerKey as ArrayBuffer | null | undefined;
+    const sameKey =
+      !!existingKey &&
+      new Uint8Array(existingKey).length === appServerKey.length &&
+      new Uint8Array(existingKey).every((b, i) => b === appServerKey[i]);
+    if (sameKey) return existing;
+    try {
+      await existing.unsubscribe();
+    } catch {
+      /* noop */
+    }
+  }
+
+  try {
+    return await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: appServerKey.buffer as ArrayBuffer,
+    });
+  } catch (err: any) {
+    const msg = String(err?.message || err || "");
+    if (msg.toLowerCase().includes("push service")) {
+      throw new Error(
+        "Não foi possível registrar no serviço de push do navegador. Verifique conexão, feche e reabra o app e tente novamente. No iPhone, instale o app na Tela de Início antes de ativar.",
+      );
+    }
+    if (err?.name === "NotAllowedError") {
+      throw new Error("Permissão de notificação negada pelo navegador.");
+    }
+    throw err;
+  }
 }
 
 export function subscriptionToPayload(sub: PushSubscription) {
