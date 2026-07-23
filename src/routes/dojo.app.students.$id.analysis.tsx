@@ -268,7 +268,7 @@ function AnalysisPage() {
 
 
         {/* Técnico */}
-        <TabsContent value="tecnico" className="mt-4 space-y-4">
+        <TabsContent value="tecnico" className="mt-6 space-y-6">
           <TechnicalTab studentId={id} />
           <SectionCard title="Evolução em avaliações formais" description="Aproveitamento (%) em sessões concluídas">
             {technical.isLoading ? <Skeleton className="h-56" /> :
@@ -280,21 +280,21 @@ function AnalysisPage() {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead className="text-left text-xs uppercase tracking-widest text-muted-foreground">
+                  <thead className="text-left text-xs uppercase tracking-[0.15em] text-muted-foreground">
                     <tr className="border-b border-border/40">
-                      <th className="py-2">Avaliação</th>
-                      <th>Data</th>
-                      <th className="text-right">Aproveitamento</th>
-                      <th className="text-right">Resultado</th>
+                      <th className="py-3 pr-4">Avaliação</th>
+                      <th className="py-3 pr-4">Data</th>
+                      <th className="py-3 pr-4 text-right">Aproveitamento</th>
+                      <th className="py-3 text-right">Resultado</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border/40">
                     {technical.data!.sessions.map((sess: any) => (
                       <tr key={sess.id} className="hover:bg-muted/30">
-                        <td className="py-2 font-medium">{sess.dojo_evaluations?.title ?? "Avaliação"}</td>
-                        <td className="text-muted-foreground">{fmtDate(sess.finished_at)}</td>
-                        <td className="text-right font-bold tabular-nums">{Number(sess.percentage).toFixed(1)}%</td>
-                        <td className="text-right">
+                        <td className="py-3 pr-4 font-medium">{sess.dojo_evaluations?.title ?? "Avaliação"}</td>
+                        <td className="py-3 pr-4 text-muted-foreground">{fmtDate(sess.finished_at)}</td>
+                        <td className="py-3 pr-4 text-right font-bold tabular-nums">{Number(sess.percentage).toFixed(1)}%</td>
+                        <td className="py-3 text-right">
                           <Badge variant={sess.result === "approved" ? "default" : "outline"}>
                             {sess.result === "approved" ? "Aprovado" : sess.result ?? "—"}
                           </Badge>
@@ -307,6 +307,7 @@ function AnalysisPage() {
             )}
           </SectionCard>
         </TabsContent>
+
 
         {/* Graduações */}
         <TabsContent value="graduacoes" className="mt-4">
