@@ -26,7 +26,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus, Trash2, ChevronLeft, Save, Copy, BookmarkPlus } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Plus, Trash2, ChevronLeft, Save, Copy, BookmarkPlus, ClipboardCheck } from "lucide-react";
 import { toast } from "sonner";
 import {
   DndContext,
