@@ -1,4 +1,4 @@
-import { formatDegree, degreeSuffix, degreeUnit } from "@/lib/dojo/degree-label";
+import { formatDegree, degreeSuffix, degreeUnit, formatBeltFull } from "@/lib/dojo/degree-label";
 import { openBrandedPrintDocument, escapeHtml, kvTable } from "@/lib/dojo/print-document";
 
 function fmtDate(d: string | null | undefined) {
