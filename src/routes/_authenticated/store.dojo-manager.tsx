@@ -248,6 +248,11 @@ function StoreDojoManagerAdminPage() {
         </div>
       </div>
 
+      {/* Instalação PWA + notificações push admin */}
+      <div className="mb-6">
+        <AdminPushCard />
+      </div>
+
       {/* KPIs premium */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <KpiCard
