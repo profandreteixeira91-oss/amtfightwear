@@ -1046,29 +1046,30 @@ function LoadingState() {
 }
 
 function Kpi({ icon: Icon, label, value, tint }: { icon: any; label: string; value: React.ReactNode; tint?: "success" | "warning" }) {
-  const tintCls =
-    tint === "success"
-      ? "text-emerald-600"
-      : tint === "warning"
-        ? "text-amber-600"
-        : "text-foreground";
-  const iconWrap =
-    tint === "success"
-      ? "bg-emerald-50 text-emerald-600 ring-emerald-100"
-      : tint === "warning"
-        ? "bg-amber-50 text-amber-600 ring-amber-100"
-        : "bg-muted text-muted-foreground ring-border";
+  const ring =
+    tint === "success" ? "ring-emerald-400/30" : tint === "warning" ? "ring-amber-400/30" : "ring-red-400/25";
+  const glow =
+    tint === "success" ? "from-emerald-500/20 to-emerald-500/5"
+      : tint === "warning" ? "from-amber-500/20 to-amber-500/5"
+      : "from-red-500/15 to-red-500/5";
+  const iconTone =
+    tint === "success" ? "text-emerald-600 bg-emerald-50"
+      : tint === "warning" ? "text-amber-600 bg-amber-50"
+      : "text-red-600 bg-red-50";
+  const valueTone =
+    tint === "success" ? "text-emerald-700" : tint === "warning" ? "text-amber-700" : "text-neutral-900";
   return (
-    <div className="dojo-card group relative flex flex-col gap-2 rounded-xl border border-border bg-card p-3.5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-foreground/20 hover:shadow-md">
-      <div className="flex items-center justify-between gap-2">
-        <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg ring-1 ${iconWrap}`}>
+    <div className={`group relative overflow-hidden rounded-2xl border border-neutral-200/70 bg-white p-3.5 shadow-sm ring-1 ${ring} transition-all hover:-translate-y-0.5 hover:shadow-md`}>
+      <div aria-hidden className={`pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gradient-to-br ${glow} blur-2xl`} />
+      <div className="relative flex items-center justify-between gap-2">
+        <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${iconTone}`}>
           <Icon className="h-[18px] w-[18px]" />
         </div>
-        <div className={`text-2xl font-bold leading-none tracking-tight ${tintCls}`}>
+        <div className={`font-display text-2xl font-black leading-none tracking-tight ${valueTone}`}>
           {value ?? "—"}
         </div>
       </div>
-      <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground leading-tight">
+      <div className="relative mt-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-neutral-500">
         {label}
       </div>
     </div>
