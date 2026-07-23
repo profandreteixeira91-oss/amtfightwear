@@ -524,3 +524,22 @@ function ContractEditorPage() {
   return createPortal(editor, document.body);
 }
 
+
+function MenuButton({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          className="inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[13px] text-neutral-700 hover:bg-neutral-200/60 focus:outline-none focus:bg-neutral-200/60 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
+        >
+          {label}
+          <ChevronDown className="h-3 w-3 opacity-60" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="min-w-[220px]">
+        {children}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
