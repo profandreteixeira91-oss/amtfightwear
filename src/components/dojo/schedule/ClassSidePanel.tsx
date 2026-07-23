@@ -56,6 +56,8 @@ export function ClassSidePanel({
   const removeStudentFn = useServerFn(removeClassStudent);
   const listPlansFn = useServerFn(listLessonPlans);
   const upsertPlanFn = useServerFn(upsertLessonPlan);
+  const listTemplatesFn = useServerFn(listLessonTemplates);
+  const fromTemplateFn = useServerFn(createPlanFromTemplate);
   const navigate = useNavigate();
   const qc = useQueryClient();
 
