@@ -235,14 +235,18 @@ function EditableOverlay({ el, selected, onSelect, onCommit, zoom }: { el: AnyEl
       const r = resizeRef.current;
       const dxPx = (e.clientX - r.startX) / zoom;
       const dyPx = (e.clientY - r.startY) / zoom;
-      const sign = r.dir.includes("l") ? -1 : 1;
-      const signY = r.dir.includes("t") ? -1 : 1;
-      const newW = Math.max(20, r.origW + sign * dxPx);
-      const newH = Math.max(10, r.origH + signY * dyPx);
+      const hasL = r.dir.includes("l");
+      const hasR = r.dir.includes("r");
+      const hasT = r.dir.includes("t");
+      const hasB = r.dir.includes("b");
+      const signX = hasL ? -1 : hasR ? 1 : 0;
+      const signY = hasT ? -1 : hasB ? 1 : 0;
+      const newW = signX === 0 ? r.origW : Math.max(20, r.origW + signX * dxPx);
+      const newH = signY === 0 ? r.origH : Math.max(10, r.origH + signY * dyPx);
       const patch: any = {};
-      patch.w = (newW / pageW) * 100;
-      if (el.kind !== "text") patch.h = (newH / pageH) * 100;
-      if (el.kind === "text") {
+      if (signX !== 0) patch.w = (newW / pageW) * 100;
+      if (el.kind !== "text" && signY !== 0) patch.h = (newH / pageH) * 100;
+      if (el.kind === "text" && signX !== 0) {
         // Scale font a bit too
         const scale = newW / Math.max(1, r.origW);
         if (Math.abs(scale - 1) > 0.02) patch.fontSize = Math.max(6, Math.round((el as any).fontSize * scale));
@@ -288,26 +292,39 @@ function EditableOverlay({ el, selected, onSelect, onCommit, zoom }: { el: AnyEl
     >
       {selected && !el.locked && (
         <>
-          {(["tl","tr","bl","br"] as const).map((dir) => (
-            <div key={dir}
-              onPointerDown={(e) => {
-                e.stopPropagation();
-                (e.target as HTMLElement).setPointerCapture(e.pointerId);
-                resizeRef.current = { startX: e.clientX, startY: e.clientY, origW: w, origH: h, dir };
-              }}
-              onPointerMove={onPointerMove}
-              onPointerUp={endGesture}
-              style={{
-                position: "absolute",
-                left: dir.includes("l") ? -6 : "auto",
-                right: dir.includes("r") ? -6 : "auto",
-                top: dir.includes("t") ? -6 : "auto",
-                bottom: dir.includes("b") ? -6 : "auto",
-                width: 12, height: 12, background: "#b91c1c", border: "2px solid #fff", borderRadius: 999,
-                cursor: dir === "tl" || dir === "br" ? "nwse-resize" : "nesw-resize",
-              }}
-            />
-          ))}
+          {(["tl","tr","bl","br","t","b","l","r"] as const).map((dir) => {
+            const isCorner = dir.length === 2;
+            const isVertical = dir === "t" || dir === "b";
+            const isHorizontal = dir === "l" || dir === "r";
+            const cursor = isCorner
+              ? (dir === "tl" || dir === "br" ? "nwse-resize" : "nesw-resize")
+              : isVertical ? "ns-resize" : "ew-resize";
+            const size = isCorner ? 12 : 10;
+            return (
+              <div key={dir}
+                onPointerDown={(e) => {
+                  e.stopPropagation();
+                  (e.target as HTMLElement).setPointerCapture(e.pointerId);
+                  resizeRef.current = { startX: e.clientX, startY: e.clientY, origW: w, origH: h, dir };
+                }}
+                onPointerMove={onPointerMove}
+                onPointerUp={endGesture}
+                style={{
+                  position: "absolute",
+                  left: dir.includes("l") ? -6 : isVertical ? "50%" : dir.includes("r") ? "auto" : "auto",
+                  right: dir.includes("r") ? -6 : "auto",
+                  top: dir.includes("t") ? -6 : isHorizontal ? "50%" : dir.includes("b") ? "auto" : "auto",
+                  bottom: dir.includes("b") ? -6 : "auto",
+                  width: isVertical ? 18 : size,
+                  height: isHorizontal ? 18 : size,
+                  transform: isVertical ? "translateX(-50%)" : isHorizontal ? "translateY(-50%)" : undefined,
+                  background: "#b91c1c", border: "2px solid #fff",
+                  borderRadius: isCorner ? 999 : 3,
+                  cursor,
+                }}
+              />
+            );
+          })}
           <div
             onPointerDown={(e) => {
               e.stopPropagation();
