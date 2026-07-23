@@ -16,8 +16,11 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import {
-  listCompetitions, listCompetitionFilters,
+  listCompetitions, listCompetitionFilters, createManualCompetition,
 } from "@/lib/dojo/competitions/library.functions";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   runCompetitionIngest, getIngestStatus, setSourceEnabled,
   addCompetitionSource, deleteCompetitionSource,
@@ -199,6 +202,10 @@ function LibraryTab() {
         <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
           <span>{list.isLoading ? "Carregando..." : `${list.data?.total ?? 0} competições encontradas`}</span>
           <div className="flex items-center gap-2">
+            <NewCompetitionDialog onCreated={() => {
+              qc.invalidateQueries({ queryKey: ["comp-lib"] });
+              qc.invalidateQueries({ queryKey: ["comp-filters"] });
+            }} />
             <Button size="sm" variant="outline" onClick={toggleAll} disabled={rows.length === 0}>
               {allSelected ? "Limpar seleção" : "Selecionar todas"}
             </Button>
@@ -534,5 +541,171 @@ function SourcesTab() {
         ))}
       </div>
     </div>
+  );
+}
+
+// ============ NOVA COMPETIÇÃO (MANUAL) ============
+
+function NewCompetitionDialog({ onCreated }: { onCreated: () => void }) {
+  const createFn = useServerFn(createManualCompetition);
+  const [open, setOpen] = useState(false);
+  const empty = {
+    name: "", organization: "", scope: "national" as
+      "international" | "national" | "regional" | "state" | "municipal",
+    modality: "", country: "Brasil", state: "", city: "", venue: "", address: "",
+    start_at: "", end_at: "", registration_deadline: "",
+    price: "", currency: "BRL",
+    official_url: "", registration_url: "",
+    contact_email: "", contact_phone: "",
+    description: "",
+  };
+  const [f, setF] = useState(empty);
+
+  const toIso = (v: string) => v ? new Date(v).toISOString() : null;
+
+  const mut = useMutation({
+    mutationFn: () => createFn({
+      data: {
+        name: f.name.trim(),
+        organization: f.organization.trim() || null,
+        description: f.description.trim() || null,
+        modality: f.modality.trim() || null,
+        scope: f.scope,
+        country: f.country.trim() || null,
+        state: f.state.trim() || null,
+        city: f.city.trim() || null,
+        venue: f.venue.trim() || null,
+        address: f.address.trim() || null,
+        start_at: toIso(f.start_at),
+        end_at: toIso(f.end_at),
+        registration_deadline: toIso(f.registration_deadline),
+        price: f.price ? Number(f.price) : null,
+        currency: f.currency.trim() || "BRL",
+        official_url: f.official_url.trim() || null,
+        registration_url: f.registration_url.trim() || null,
+        contact_email: f.contact_email.trim() || null,
+        contact_phone: f.contact_phone.trim() || null,
+      },
+    }),
+    onSuccess: () => {
+      toast.success("Competição cadastrada");
+      setF(empty);
+      setOpen(false);
+      onCreated();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="default">
+          <Plus className="mr-1 h-3 w-3" /> Nova competição
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Cadastrar competição manualmente</DialogTitle>
+        </DialogHeader>
+        <div className="grid gap-3 py-2 sm:grid-cols-2">
+          <div className="sm:col-span-2">
+            <Label>Nome *</Label>
+            <Input value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })}
+              placeholder="Ex: Copa Regional de Jiu-Jitsu 2026" />
+          </div>
+          <div>
+            <Label>Organização</Label>
+            <Input value={f.organization} onChange={(e) => setF({ ...f, organization: e.target.value })} />
+          </div>
+          <div>
+            <Label>Modalidade</Label>
+            <Input value={f.modality} onChange={(e) => setF({ ...f, modality: e.target.value })}
+              placeholder="Jiu-Jitsu, Judô, MT..." />
+          </div>
+          <div>
+            <Label>Escopo</Label>
+            <Select value={f.scope} onValueChange={(v) => setF({ ...f, scope: v as typeof f.scope })}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="international">Internacional</SelectItem>
+                <SelectItem value="national">Nacional</SelectItem>
+                <SelectItem value="regional">Regional</SelectItem>
+                <SelectItem value="state">Estadual</SelectItem>
+                <SelectItem value="municipal">Municipal</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label>País</Label>
+            <Input value={f.country} onChange={(e) => setF({ ...f, country: e.target.value })} />
+          </div>
+          <div>
+            <Label>Estado (UF)</Label>
+            <Input value={f.state} onChange={(e) => setF({ ...f, state: e.target.value })} />
+          </div>
+          <div>
+            <Label>Cidade</Label>
+            <Input value={f.city} onChange={(e) => setF({ ...f, city: e.target.value })} />
+          </div>
+          <div>
+            <Label>Ginásio / Local</Label>
+            <Input value={f.venue} onChange={(e) => setF({ ...f, venue: e.target.value })} />
+          </div>
+          <div className="sm:col-span-2">
+            <Label>Endereço</Label>
+            <Input value={f.address} onChange={(e) => setF({ ...f, address: e.target.value })} />
+          </div>
+          <div>
+            <Label>Início</Label>
+            <Input type="datetime-local" value={f.start_at}
+              onChange={(e) => setF({ ...f, start_at: e.target.value })} />
+          </div>
+          <div>
+            <Label>Fim</Label>
+            <Input type="datetime-local" value={f.end_at}
+              onChange={(e) => setF({ ...f, end_at: e.target.value })} />
+          </div>
+          <div>
+            <Label>Prazo de inscrição</Label>
+            <Input type="datetime-local" value={f.registration_deadline}
+              onChange={(e) => setF({ ...f, registration_deadline: e.target.value })} />
+          </div>
+          <div>
+            <Label>Valor da inscrição</Label>
+            <Input type="number" step="0.01" value={f.price}
+              onChange={(e) => setF({ ...f, price: e.target.value })} placeholder="0,00" />
+          </div>
+          <div>
+            <Label>Site oficial</Label>
+            <Input value={f.official_url} onChange={(e) => setF({ ...f, official_url: e.target.value })}
+              placeholder="https://..." />
+          </div>
+          <div>
+            <Label>URL de inscrição</Label>
+            <Input value={f.registration_url} onChange={(e) => setF({ ...f, registration_url: e.target.value })}
+              placeholder="https://..." />
+          </div>
+          <div>
+            <Label>E-mail de contato</Label>
+            <Input value={f.contact_email} onChange={(e) => setF({ ...f, contact_email: e.target.value })} />
+          </div>
+          <div>
+            <Label>Telefone</Label>
+            <Input value={f.contact_phone} onChange={(e) => setF({ ...f, contact_phone: e.target.value })} />
+          </div>
+          <div className="sm:col-span-2">
+            <Label>Descrição</Label>
+            <Textarea rows={3} value={f.description}
+              onChange={(e) => setF({ ...f, description: e.target.value })} />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
+          <Button disabled={!f.name.trim() || mut.isPending} onClick={() => mut.mutate()}>
+            {mut.isPending ? "Salvando..." : "Cadastrar"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

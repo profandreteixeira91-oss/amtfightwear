@@ -4,6 +4,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { classify } from "@/lib/dojo/competitions/classifier";
 
 const listSchema = z.object({
   q: z.string().trim().optional(),
@@ -91,4 +92,82 @@ export const listCompetitionFilters = createServerFn({ method: "GET" })
       states: uniq(states as Array<Record<string, string | null>> | null, "state"),
       organizations: uniq(orgs as Array<Record<string, string | null>> | null, "organization"),
     };
+  });
+
+const manualSchema = z.object({
+  name: z.string().trim().min(2, "Nome obrigatório"),
+  organization: z.string().trim().optional().nullable(),
+  description: z.string().trim().optional().nullable(),
+  modality: z.string().trim().optional().nullable(),
+  scope: z.enum(["international", "national", "regional", "state", "municipal"]).optional(),
+  country: z.string().trim().optional().nullable(),
+  state: z.string().trim().optional().nullable(),
+  city: z.string().trim().optional().nullable(),
+  venue: z.string().trim().optional().nullable(),
+  address: z.string().trim().optional().nullable(),
+  start_at: z.string().optional().nullable(),
+  end_at: z.string().optional().nullable(),
+  registration_deadline: z.string().optional().nullable(),
+  price: z.number().nullable().optional(),
+  currency: z.string().trim().optional().nullable(),
+  official_url: z.string().trim().optional().nullable(),
+  registration_url: z.string().trim().optional().nullable(),
+  contact_email: z.string().trim().optional().nullable(),
+  contact_phone: z.string().trim().optional().nullable(),
+});
+
+/**
+ * Cria uma competição manual na biblioteca. Fica marcada com source_code="manual"
+ * e um external_id único para conviver com a chave (source_code, external_id).
+ */
+export const createManualCompetition = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => manualSchema.parse(i))
+  .handler(async ({ data, context }) => {
+    const cls = classify({
+      name: data.name,
+      organization: data.organization ?? null,
+      description: data.description ?? null,
+      country: data.country ?? null,
+      state: data.state ?? null,
+      city: data.city ?? null,
+      scopeHint: data.scope,
+    });
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const externalId = `manual:${context.userId}:${Date.now()}`;
+    const record = {
+      source_id: null,
+      source_code: "manual",
+      external_id: externalId,
+      name: data.name,
+      organization: data.organization ?? null,
+      description: data.description ?? null,
+      modality: data.modality ?? null,
+      country: data.country ?? null,
+      state: data.state ?? null,
+      city: data.city ?? null,
+      address: data.address ?? null,
+      venue: data.venue ?? null,
+      start_at: data.start_at || null,
+      end_at: data.end_at || null,
+      registration_deadline: data.registration_deadline || null,
+      price: typeof data.price === "number" ? data.price : null,
+      currency: data.currency || "BRL",
+      official_url: data.official_url || null,
+      registration_url: data.registration_url || null,
+      contact_email: data.contact_email || null,
+      contact_phone: data.contact_phone || null,
+      scope: data.scope ?? cls.scope,
+      tier: cls.tier,
+      classification: cls as unknown as never,
+      last_seen_at: new Date().toISOString(),
+    };
+    const { data: row, error } = await supabaseAdmin
+      .from("competitions")
+      .insert(record as never)
+      .select("id")
+      .single();
+    if (error) throw new Error(error.message);
+    return { id: (row as { id: string }).id };
   });
