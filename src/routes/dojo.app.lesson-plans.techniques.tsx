@@ -43,7 +43,7 @@ function TechniquesPage() {
   const { data: presets } = useQuery({ queryKey: ["techniques-presets"], queryFn: () => presetsFn() });
 
   const upsert = useMutation({
-    mutationFn: (payload: Parameters<typeof upsertFn>[0]["data"]) => upsertFn({ data: payload }),
+    mutationFn: (payload: TechniqueInput) => upsertFn({ data: payload }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["techniques"] });
       setOpen(false);
@@ -175,7 +175,7 @@ function TechDialog({
   pending,
 }: {
   initial: Tech | null;
-  onSubmit: (data: Parameters<ReturnType<typeof useServerFn<typeof upsertTechnique>>>[0]["data"]) => void;
+  onSubmit: (data: TechniqueInput) => void;
   pending: boolean;
 }) {
   const [form, setForm] = useState({
