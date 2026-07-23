@@ -396,10 +396,35 @@ function PersonalTab({ profile, setProfile, email, onSave }: any) {
 /* ---------------- Academy ---------------- */
 function AcademyTab({ academy, setAcademy, onSave }: any) {
   const { lookup: cepLookup, loading: cepLoading } = useCepLookup();
+  const [availableModalities, setAvailableModalities] = useState<string[]>([]);
+  const [customModality, setCustomModality] = useState("");
   const bind = (k: string) => ({
     value: academy?.[k] ?? "",
     onChange: (e: any) => setAcademy({ ...academy, [k]: e.target.value }),
   });
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.from("dojo_belts").select("modality");
+      const set = new Set<string>();
+      (data ?? []).forEach((b: any) => { if (b.modality) set.add(String(b.modality)); });
+      setAvailableModalities(Array.from(set).sort());
+    })();
+  }, []);
+
+  const selectedModalities: string[] = academy?.modalities ?? [];
+  const toggleModality = (m: string) => {
+    const has = selectedModalities.includes(m);
+    const next = has ? selectedModalities.filter((x) => x !== m) : [...selectedModalities, m];
+    setAcademy({ ...academy, modalities: next });
+  };
+  const addCustomModality = () => {
+    const v = customModality.trim();
+    if (!v) return;
+    if (!selectedModalities.includes(v)) setAcademy({ ...academy, modalities: [...selectedModalities, v] });
+    if (!availableModalities.includes(v)) setAvailableModalities((prev) => [...prev, v].sort());
+    setCustomModality("");
+  };
 
   async function handleCepBlur() {
     const zip = String(academy?.zip || "").replace(/\D/g, "");
@@ -483,13 +508,48 @@ function AcademyTab({ academy, setAcademy, onSave }: any) {
 
         <Separator />
 
-        <Field label="Modalidades oferecidas (separadas por vírgula)">
-          <Input
-            value={(academy?.modalities ?? []).join(", ")}
-            onChange={(e) => setAcademy({ ...academy, modalities: e.target.value.split(",").map((s: string) => s.trim()).filter(Boolean) })}
-            placeholder="Jiu-Jitsu, Muay Thai, Boxe"
-          />
-        </Field>
+        <div className="space-y-2">
+          <Label>Modalidades oferecidas</Label>
+          <p className="text-xs text-muted-foreground">
+            Selecione quais modalidades sua academia oferece. Apenas essas modalidades aparecerão em Graduações e nos preços por faixa.
+          </p>
+          {availableModalities.length === 0 ? (
+            <div className="text-xs text-muted-foreground italic">
+              Nenhuma modalidade cadastrada. Configure em <a href="/dojo/app/belts" className="text-primary underline">Modalidades e Faixas</a>.
+            </div>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {availableModalities.map((m) => {
+                const active = selectedModalities.includes(m);
+                return (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => toggleModality(m)}
+                    className={cn(
+                      "px-3 py-1.5 rounded-full border text-sm capitalize transition",
+                      active
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-background hover:bg-muted border-border"
+                    )}
+                  >
+                    {active ? "✓ " : ""}{m}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+          <div className="flex gap-2 pt-1">
+            <Input
+              value={customModality}
+              onChange={(e) => setCustomModality(e.target.value)}
+              placeholder="Adicionar outra modalidade…"
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustomModality(); } }}
+              className="max-w-xs"
+            />
+            <Button type="button" variant="outline" size="sm" onClick={addCustomModality}>Adicionar</Button>
+          </div>
+        </div>
 
         <div className="flex flex-wrap items-center gap-3">
           <Button onClick={() => onSave()}><Save className="h-4 w-4 mr-1" />Salvar academia</Button>
