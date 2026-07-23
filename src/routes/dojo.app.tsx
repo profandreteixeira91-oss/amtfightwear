@@ -163,6 +163,7 @@ const nav: { label: string; items: NavItem[] }[] = [
   {
     label: "Ajuda",
     items: [
+      { to: "/dojo/app/notifications", label: "App & Notificações", icon: Bell },
       { to: "/dojo/app/support", label: "Suporte", icon: LifeBuoy },
     ],
   },
