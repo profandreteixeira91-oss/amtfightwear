@@ -442,42 +442,51 @@ function ListView({
   onDuplicate: (id: string) => void;
 }) {
   if (!plans.length) {
-    return <div className="rounded-lg border p-8 text-center text-sm text-muted-foreground">Nenhuma aula planejada neste período.</div>;
+    return (
+      <div className="rounded-2xl border border-white/10 bg-neutral-950/50 p-10 text-center text-sm text-neutral-400 backdrop-blur">
+        Nenhuma aula planejada neste período.
+      </div>
+    );
   }
   return (
-    <div className="divide-y rounded-lg border">
-      {plans.map((p) => (
-        <div key={p.id} className="flex items-center gap-3 p-3">
-          <div className="w-24 text-sm text-muted-foreground">
-            {new Date(p.date as string).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}
-            {p.start_time ? ` · ${(p.start_time as string).slice(0, 5)}` : ""}
-          </div>
-          <div className="flex-1">
-            <div className="font-medium">{p.title}</div>
-            <div className="text-xs text-muted-foreground">
-              {(p.dojo_classes as { name?: string } | null)?.name ?? "—"}
-              {p.modality ? ` · ${p.modality}` : ""}
+    <div className="overflow-hidden rounded-2xl border border-white/10 bg-neutral-950/50 backdrop-blur">
+      <div className="divide-y divide-white/5">
+        {plans.map((p) => (
+          <div key={p.id} className="flex flex-wrap items-center gap-3 p-3 text-white transition-colors hover:bg-white/[0.03]">
+            <div className="w-24 shrink-0 text-sm font-semibold text-neutral-300">
+              {new Date(p.date as string).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}
+              {p.start_time ? ` · ${(p.start_time as string).slice(0, 5)}` : ""}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="truncate font-semibold">{p.title}</div>
+              <div className="truncate text-xs text-neutral-400">
+                {(p.dojo_classes as { name?: string } | null)?.name ?? "—"}
+                {p.modality ? ` · ${p.modality}` : ""}
+              </div>
+            </div>
+            <Badge className={`${STATUS_COLORS[p.status as string] ?? "border-white/10 bg-white/5 text-white"} capitalize`} variant="outline">
+              {p.status as string}
+            </Badge>
+            <div className="flex items-center gap-1">
+              <Button asChild size="icon" variant="ghost" className="text-neutral-300 hover:bg-white/10 hover:text-white">
+                <Link to="/dojo/app/lesson-plans/$id" params={{ id: p.id as string }}>
+                  <Pencil className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button size="icon" variant="ghost" className="text-neutral-300 hover:bg-white/10 hover:text-white" onClick={() => onDuplicate(p.id as string)}>
+                <Copy className="h-4 w-4" />
+              </Button>
+              <Button size="icon" variant="ghost" className="text-red-400 hover:bg-red-500/10 hover:text-red-300" onClick={() => onDelete(p.id as string)}>
+                <Trash2 className="h-4 w-4" />
+              </Button>
             </div>
           </div>
-          <Badge className={STATUS_COLORS[p.status as string] ?? ""} variant="outline">
-            {p.status as string}
-          </Badge>
-          <Button asChild size="icon" variant="ghost">
-            <Link to="/dojo/app/lesson-plans/$id" params={{ id: p.id as string }}>
-              <Pencil className="h-4 w-4" />
-            </Link>
-          </Button>
-          <Button size="icon" variant="ghost" onClick={() => onDuplicate(p.id as string)}>
-            <Copy className="h-4 w-4" />
-          </Button>
-          <Button size="icon" variant="ghost" onClick={() => onDelete(p.id as string)}>
-            <Trash2 className="h-4 w-4 text-red-500" />
-          </Button>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
+
 
 function TemplatePickerDialog({
   onPick,
