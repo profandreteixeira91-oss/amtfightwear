@@ -288,7 +288,8 @@ function renderElementHtml(el: any, values: Record<string, string>): string {
     return `<div style="${common}font-size:${el.fontSize}px;color:${el.color};font-weight:${el.bold ? 800 : 400};text-align:${el.align};${el.fontFamily ? `font-family:'${el.fontFamily}',serif;` : ""}">${esc(s)}</div>`;
   }
   if (el.kind === "image" || el.kind === "logo" || el.kind === "signature") {
-    return el.imageUrl ? `<img src="${el.imageUrl}" crossorigin="anonymous" style="${common}${sizingBox}object-fit:${el.fit ?? "contain"};" />` : "";
+    const src = el.imageUrl || (el.kind === "logo" ? values.academia_logo : "");
+    return src ? `<img src="${src}" crossorigin="anonymous" style="${common}${sizingBox}object-fit:${el.fit ?? "contain"};" />` : "";
   }
   if (el.kind === "rect") return `<div style="${common}${sizingBox}background:${el.fill && el.fill !== "transparent" ? el.fill : "transparent"};${el.stroke ? `border:${el.strokeWidth ?? 2}px solid ${el.stroke};` : ""}border-radius:${el.radius ?? 0}px;box-sizing:border-box;"></div>`;
   if (el.kind === "circle") return `<div style="${common}${sizingBox}background:${el.fill && el.fill !== "transparent" ? el.fill : "transparent"};${el.stroke ? `border:${el.strokeWidth ?? 2}px solid ${el.stroke};` : ""}border-radius:50%;box-sizing:border-box;"></div>`;
