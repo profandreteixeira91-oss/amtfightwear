@@ -447,7 +447,7 @@ function DojoLayoutInner({
 
         </header>
 
-        <main className="min-w-0 max-w-full overflow-x-hidden p-4 md:p-6">
+        <main className="min-w-0 max-w-full overflow-x-hidden p-3 sm:p-4 md:p-6">
           <UnsavedChangesProvider>
             {blocked ? (
               <div className="mx-auto mt-16 max-w-md rounded-xl border border-[color:var(--dojo-border)] bg-white p-8 text-center shadow-sm">
