@@ -177,13 +177,14 @@ function TeamPage() {
 
   const d = dash.data;
   const cards = [
-    { label: "Total de colaboradores", value: d?.total ?? 0, icon: Users, tone: "text-blue-600" },
-    { label: "Professores ativos", value: d?.teachers ?? 0, icon: GraduationCap, tone: "text-emerald-600" },
-    { label: "Instrutores", value: d?.instructors ?? 0, icon: UserSquare2, tone: "text-indigo-600" },
-    { label: "Administradores", value: d?.admins ?? 0, icon: ShieldCheck, tone: "text-purple-600" },
-    { label: "Aniversariantes do mês", value: d?.birthdays?.length ?? 0, icon: Cake, tone: "text-pink-600" },
-    { label: "Folha do mês", value: formatCurrency(d?.payroll_month_total ?? 0), icon: Wallet, tone: "text-orange-600" },
+    { label: "Total de colaboradores", value: d?.total ?? 0, icon: Users, ring: "ring-red-400/30", glow: "from-red-500/15 to-red-500/5", iconTone: "text-red-600" },
+    { label: "Professores ativos", value: d?.teachers ?? 0, icon: GraduationCap, ring: "ring-emerald-400/30", glow: "from-emerald-400/15 to-emerald-500/5", iconTone: "text-emerald-600" },
+    { label: "Instrutores", value: d?.instructors ?? 0, icon: UserSquare2, ring: "ring-indigo-400/30", glow: "from-indigo-400/15 to-indigo-500/5", iconTone: "text-indigo-600" },
+    { label: "Administradores", value: d?.admins ?? 0, icon: ShieldCheck, ring: "ring-violet-400/30", glow: "from-violet-400/15 to-violet-500/5", iconTone: "text-violet-600" },
+    { label: "Aniversariantes do mês", value: d?.birthdays?.length ?? 0, icon: Cake, ring: "ring-pink-400/30", glow: "from-pink-400/15 to-pink-500/5", iconTone: "text-pink-600" },
+    { label: "Folha do mês", value: formatCurrency(d?.payroll_month_total ?? 0), icon: Wallet, ring: "ring-amber-400/30", glow: "from-amber-400/15 to-amber-500/5", iconTone: "text-amber-600" },
   ];
+
 
   const fld = (k: string, ph: string, extra?: any) => (
     <Input
