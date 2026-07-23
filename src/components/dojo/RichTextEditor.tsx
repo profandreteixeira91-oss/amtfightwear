@@ -278,6 +278,24 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
             </div>
           </PopoverContent>
         </Popover>
+
+        {showPageNumberTokens && (
+          <>
+            <span className="mx-1 h-5 w-px bg-border" />
+            <Button type="button" size="sm" variant="outline" className="h-8 gap-1 text-xs"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => insertHtml("{{pagina_atual}}")}
+              title="Inserir número da página atual">
+              Página nº
+            </Button>
+            <Button type="button" size="sm" variant="outline" className="h-8 gap-1 text-xs"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => insertHtml("Página {{pagina_atual}} de {{total_paginas}}")}
+              title="Inserir 'Página X de Y'">
+              X de Y
+            </Button>
+          </>
+        )}
       </div>
 
       {/* Editor surface */}
@@ -292,8 +310,8 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
         onMouseUp={saveSelection}
         onBlur={saveSelection}
         data-placeholder={placeholder ?? "Escreva o contrato..."}
-        className="prose prose-sm max-w-none px-6 py-6 focus:outline-none min-h-[400px] [&_h1]:text-2xl [&_h2]:text-xl [&_h3]:text-lg [&_blockquote]:border-l-4 [&_blockquote]:border-muted [&_blockquote]:pl-3 [&_blockquote]:italic [&_table]:border-collapse [&_table_td]:border [&_table_td]:p-1 empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground"
-        style={{ minHeight }}
+        className={`prose prose-sm max-w-none focus:outline-none [&_h1]:text-2xl [&_h2]:text-xl [&_h3]:text-lg [&_blockquote]:border-l-4 [&_blockquote]:border-muted [&_blockquote]:pl-3 [&_blockquote]:italic [&_table]:border-collapse [&_table_td]:border [&_table_td]:p-1 empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground ${compact ? "px-3 py-2" : "px-6 py-6"}`}
+        style={{ minHeight: compact ? Math.min(minHeight, 120) : minHeight }}
       />
 
       {/* Image dialog */}
