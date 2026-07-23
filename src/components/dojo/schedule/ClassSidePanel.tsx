@@ -281,11 +281,26 @@ export function ClassSidePanel({
                   ) : (plansForDay.data ?? []).length === 0 ? (
                     <div className="space-y-2">
                       <p className="text-xs text-muted-foreground">Nenhum plano vinculado a esta aula.</p>
-                      <Button size="sm" variant="default" onClick={handleCreatePlan} disabled={creatingPlan}>
-                        <Plus className="h-3.5 w-3.5 mr-1" />
-                        {creatingPlan ? "Criando..." : "Criar plano para esta aula"}
-                      </Button>
+                      <div className="flex flex-wrap gap-2">
+                        <Button size="sm" variant="default" onClick={handleCreatePlan} disabled={creatingPlan}>
+                          <Plus className="h-3.5 w-3.5 mr-1" />
+                          {creatingPlan ? "Criando..." : "Criar em branco"}
+                        </Button>
+                        <Dialog open={tplOpen} onOpenChange={setTplOpen}>
+                          <DialogTrigger asChild>
+                            <Button size="sm" variant="outline">
+                              <Sparkles className="h-3.5 w-3.5 mr-1" /> Usar modelo salvo
+                            </Button>
+                          </DialogTrigger>
+                          <TemplatePickerContent
+                            templates={templatesQ.data ?? []}
+                            loading={templatesQ.isLoading}
+                            onPick={handleApplyTemplate}
+                          />
+                        </Dialog>
+                      </div>
                     </div>
+
                   ) : (
                     <div className="space-y-1.5">
                       {(plansForDay.data ?? []).map((p: any) => (
