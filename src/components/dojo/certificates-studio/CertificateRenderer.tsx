@@ -212,7 +212,7 @@ export function CertificateRenderer({ doc, values, className }: { doc: EditorSch
 function ElementViewInline({ el, values, pageW, pageH }: { el: AnyElement; values: Record<string, string>; pageW: number; pageH: number }) {
   const style = elementBoxStyle(el, pageW, pageH);
   if (el.kind === "text" || el.kind === "date") return <TextView el={el as any} values={values} style={style} />;
-  if (el.kind === "image" || el.kind === "logo" || el.kind === "signature") return <ImageView el={el as ImageElement} style={style} />;
+  if (el.kind === "image" || el.kind === "logo" || el.kind === "signature") return <ImageView el={el as ImageElement} style={style} values={values} />;
   if (el.kind === "rect" || el.kind === "circle" || el.kind === "line") return <ShapeView el={el as ShapeElement} style={style} />;
   if (el.kind === "qr") return <QrView el={el as QrElement} values={values} style={style} />;
   return null;
