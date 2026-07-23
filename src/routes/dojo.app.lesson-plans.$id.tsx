@@ -139,6 +139,9 @@ function LessonEditorPage() {
           objectives: payload.objectives || null,
           notes: payload.notes || null,
           blocks: payload.blocks,
+          class_id: payload.class_id,
+          teacher_id: payload.teacher_id,
+          unit_id: payload.unit_id,
         },
       }),
     onSuccess: () => {
