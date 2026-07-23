@@ -490,11 +490,11 @@ export const contractsDashboardStats = createServerFn({ method: "GET" })
     };
   });
 
-/** Detalhe de contrato emitido (student ou affiliate) + academia. */
+/** Detalhe de contrato emitido (student, affiliate ou team) + academia. */
 export const getIssuedContract = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { kind: "student"|"affiliate"; id: string }) =>
-    z.object({ kind: z.enum(["student","affiliate"]), id: uuid }).parse(d))
+  .inputValidator((d: { kind: "student"|"affiliate"|"team"; id: string }) =>
+    z.object({ kind: z.enum(["student","affiliate","team"]), id: uuid }).parse(d))
   .handler(async ({ data, context }) => {
     if (data.kind === "student") {
       const { data: row, error } = await context.supabase
@@ -503,6 +503,13 @@ export const getIssuedContract = createServerFn({ method: "GET" })
         .eq("id", data.id).eq("owner_id", context.userId).maybeSingle();
       if (error) throw error;
       return { kind: "student", contract: row };
+    } else if (data.kind === "team") {
+      const { data: row, error } = await context.supabase
+        .from("dojo_team_contracts")
+        .select("*, dojo_team_members(id,full_name,photo_url,email,phone,cpf,role)")
+        .eq("id", data.id).eq("owner_id", context.userId).maybeSingle();
+      if (error) throw error;
+      return { kind: "team", contract: row };
     } else {
       const { data: row, error } = await context.supabase
         .from("dojo_affiliate_contracts")
@@ -512,4 +519,63 @@ export const getIssuedContract = createServerFn({ method: "GET" })
       return { kind: "affiliate", contract: row };
     }
   });
+
+// ============================================================
+// Team contracts — CRUD
+// ============================================================
+
+const teamContractSchema = z.object({
+  id: uuid.optional(),
+  team_member_id: uuid,
+  template_id: uuid.nullable().optional(),
+  title: z.string().min(1).max(200),
+  content: z.string().default(""),
+  status: z.enum(["draft","issued","sent","pending_signature","signed","active","refused","cancelled","expired","terminated","completed"]).default("draft"),
+  signed_at: z.string().nullable().optional(),
+  role: z.string().nullable().optional(),
+  compensation_type: z.string().nullable().optional(),
+  compensation_value: z.number().nullable().optional(),
+  weekly_hours: z.number().int().nullable().optional(),
+  start_date: z.string().nullable().optional(),
+  end_date: z.string().nullable().optional(),
+});
+
+export const listTeamContracts = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { team_member_id: string }) => z.object({ team_member_id: uuid }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: rows, error } = await context.supabase
+      .from("dojo_team_contracts")
+      .select("*")
+      .eq("team_member_id", data.team_member_id)
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    return rows ?? [];
+  });
+
+export const saveTeamContract = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => teamContractSchema.parse(d))
+  .handler(async ({ data, context }) => {
+    const payload = { ...data, owner_id: context.userId };
+    const q = context.supabase.from("dojo_team_contracts");
+    if (data.id) {
+      const { data: row, error } = await q.update(payload).eq("id", data.id).select("*").single();
+      if (error) throw error;
+      return row;
+    }
+    const { data: row, error } = await q.insert(payload).select("*").single();
+    if (error) throw error;
+    return row;
+  });
+
+export const deleteTeamContract = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { id: string }) => z.object({ id: uuid }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase.from("dojo_team_contracts").delete().eq("id", data.id);
+    if (error) throw error;
+    return { ok: true };
+  });
+
 
