@@ -159,6 +159,12 @@ const nav: { label: string; items: NavItem[] }[] = [
       { to: "/dojo/app/student-app-qr", label: "QR do App", icon: Smartphone },
     ],
   },
+  {
+    label: "Ajuda",
+    items: [
+      { to: "/dojo/app/support", label: "Suporte", icon: LifeBuoy },
+    ],
+  },
 ];
 
 const routeTitles: Array<{ match: (p: string) => boolean; title: string; subtitle?: string }> = [
