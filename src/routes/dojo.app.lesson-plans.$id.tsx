@@ -8,6 +8,9 @@ import {
   deleteLessonPlan,
   bulkDuplicateLessonPlan,
   upsertLessonTemplate,
+  listClassesForPicker,
+  listClassStudentsForAttendance,
+  registerLessonDelivery,
 } from "@/lib/dojo/lesson-plans.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,7 +26,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus, Trash2, ChevronLeft, Save, Copy, BookmarkPlus } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Plus, Trash2, ChevronLeft, Save, Copy, BookmarkPlus, ClipboardCheck } from "lucide-react";
 import { toast } from "sonner";
 import {
   DndContext,
@@ -88,6 +92,9 @@ function LessonEditorPage() {
     objectives: string;
     notes: string;
     blocks: Block[];
+    class_id: string | null;
+    teacher_id: string | null;
+    unit_id: string | null;
   } | null>(null);
 
   useEffect(() => {
@@ -107,6 +114,9 @@ function LessonEditorPage() {
       objectives: plan.objectives ?? "",
       notes: plan.notes ?? "",
       blocks: (Array.isArray(plan.blocks) ? (plan.blocks as unknown as Block[]) : []) ?? [],
+      class_id: (plan.class_id as string | null) ?? null,
+      teacher_id: (plan.teacher_id as string | null) ?? null,
+      unit_id: (plan.unit_id as string | null) ?? null,
     });
   }, [plan]);
 
@@ -129,6 +139,9 @@ function LessonEditorPage() {
           objectives: payload.objectives || null,
           notes: payload.notes || null,
           blocks: payload.blocks,
+          class_id: payload.class_id,
+          teacher_id: payload.teacher_id,
+          unit_id: payload.unit_id,
         },
       }),
     onSuccess: () => {
@@ -187,6 +200,22 @@ function LessonEditorPage() {
         },
       }),
     onSuccess: () => toast.success("Modelo salvo na sua biblioteca"),
+  });
+
+  const classesFn = useServerFn(listClassesForPicker);
+  const { data: classes } = useQuery({
+    queryKey: ["lesson-plans", "classes-picker"],
+    queryFn: () => classesFn({}),
+  });
+
+  const registerFn = useServerFn(registerLessonDelivery);
+  const register = useMutation({
+    mutationFn: (input: { presentStudentIds: string[]; absentStudentIds: string[]; notes: string; mediaUrls: string[] }) =>
+      registerFn({ data: { planId: id, ...input } }),
+    onSuccess: () => {
+      toast.success("Aula registrada com presenças");
+      refetch();
+    },
   });
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
@@ -272,6 +301,18 @@ function LessonEditorPage() {
             </DialogTrigger>
             <BulkDuplicateDialog onConfirm={(input) => bulkDup.mutate(input)} pending={bulkDup.isPending} />
           </Dialog>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button size="sm" variant="default" className="bg-emerald-600 hover:bg-emerald-700">
+                <ClipboardCheck className="mr-1 h-4 w-4" /> Registrar aula ministrada
+              </Button>
+            </DialogTrigger>
+            <RegisterDeliveryDialog
+              classId={form.class_id}
+              pending={register.isPending}
+              onConfirm={(input) => register.mutate(input)}
+            />
+          </Dialog>
           <Button size="sm" onClick={() => save.mutate(form)} disabled={save.isPending}>
             <Save className="mr-1 h-4 w-4" /> Salvar agora
           </Button>
@@ -290,6 +331,44 @@ function LessonEditorPage() {
           <div className="md:col-span-2">
             <Label>Título</Label>
             <Input value={form.title} onChange={(e) => patch({ title: e.target.value })} />
+          </div>
+          <div className="md:col-span-2">
+            <Label>Turma</Label>
+            <Select
+              value={form.class_id ?? "__none"}
+              onValueChange={(v) => {
+                if (v === "__none") {
+                  patch({ class_id: null });
+                  return;
+                }
+                const c = (classes ?? []).find((x) => (x.id as string) === v);
+                patch({
+                  class_id: v,
+                  teacher_id: (c?.teacher_id as string | null) ?? form.teacher_id,
+                  unit_id: (c?.unit_id as string | null) ?? form.unit_id,
+                  modality: form.modality || (c?.modality as string) || "",
+                  color: form.color || (c?.color as string) || "#dc2626",
+                });
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Vincular a uma turma (opcional)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__none">Sem turma</SelectItem>
+                {(classes ?? []).map((c) => (
+                  <SelectItem key={c.id as string} value={c.id as string}>
+                    {c.name as string}
+                    {(c.dojo_team_members as { full_name?: string } | null)?.full_name
+                      ? ` · ${(c.dojo_team_members as { full_name?: string }).full_name}`
+                      : ""}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              Vincular a turma autopreenche professor, unidade e habilita a chamada automática em "Registrar aula".
+            </p>
           </div>
           <div>
             <Label>Modalidade</Label>
@@ -576,6 +655,119 @@ function BulkDuplicateDialog({
       <DialogFooter>
         <Button onClick={() => onConfirm({ mode, occurrences })} disabled={pending}>
           {pending ? "Duplicando…" : "Duplicar aulas"}
+        </Button>
+      </DialogFooter>
+    </DialogContent>
+  );
+}
+
+function RegisterDeliveryDialog({
+  classId,
+  pending,
+  onConfirm,
+}: {
+  classId: string | null;
+  pending: boolean;
+  onConfirm: (input: { presentStudentIds: string[]; absentStudentIds: string[]; notes: string; mediaUrls: string[] }) => void;
+}) {
+  const studentsFn = useServerFn(listClassStudentsForAttendance);
+  const { data: students } = useQuery({
+    queryKey: ["lesson-plans", "class-students", classId ?? "none"],
+    queryFn: () => (classId ? studentsFn({ data: { classId } }) : Promise.resolve([])),
+    enabled: !!classId,
+  });
+  const [present, setPresent] = useState<Record<string, boolean>>({});
+  const [notes, setNotes] = useState("");
+  const [media, setMedia] = useState("");
+
+  useEffect(() => {
+    if (students) {
+      const initial: Record<string, boolean> = {};
+      for (const s of students) initial[s.id] = true;
+      setPresent(initial);
+    }
+  }, [students]);
+
+  const toggleAll = (v: boolean) => {
+    const next: Record<string, boolean> = {};
+    for (const s of students ?? []) next[s.id] = v;
+    setPresent(next);
+  };
+
+  const presentIds = Object.entries(present).filter(([, v]) => v).map(([k]) => k);
+  const absentIds = (students ?? []).map((s) => s.id).filter((id) => !present[id]);
+
+  return (
+    <DialogContent className="max-w-2xl">
+      <DialogHeader>
+        <DialogTitle>Registrar aula ministrada</DialogTitle>
+      </DialogHeader>
+      <div className="space-y-4">
+        {!classId ? (
+          <div className="rounded border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
+            Vincule esta aula a uma turma para carregar a lista de alunos. Você ainda pode registrar sem chamada.
+          </div>
+        ) : !students?.length ? (
+          <div className="rounded border border-dashed p-4 text-center text-xs text-muted-foreground">
+            Nenhum aluno matriculado nesta turma.
+          </div>
+        ) : (
+          <div>
+            <div className="mb-2 flex items-center justify-between">
+              <div className="text-sm font-medium">Chamada ({presentIds.length}/{students.length} presentes)</div>
+              <div className="flex gap-1">
+                <Button size="sm" variant="ghost" onClick={() => toggleAll(true)}>Todos</Button>
+                <Button size="sm" variant="ghost" onClick={() => toggleAll(false)}>Ninguém</Button>
+              </div>
+            </div>
+            <div className="max-h-72 divide-y overflow-y-auto rounded border">
+              {students.map((s) => (
+                <label key={s.id} className="flex cursor-pointer items-center gap-3 p-2 hover:bg-muted/50">
+                  <Checkbox
+                    checked={!!present[s.id]}
+                    onCheckedChange={(v) => setPresent({ ...present, [s.id]: !!v })}
+                  />
+                  <div className="flex-1 text-sm">
+                    <div className="font-medium">{s.full_name}</div>
+                    {s.modality ? <div className="text-[11px] text-muted-foreground">{s.modality}</div> : null}
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
+        <div>
+          <Label>Observações da aula</Label>
+          <Textarea
+            rows={3}
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="O que foi trabalhado, destaques, alunos em evolução, tarefas para casa…"
+          />
+        </div>
+        <div>
+          <Label>Mídia (URLs separadas por vírgula)</Label>
+          <Input
+            value={media}
+            onChange={(e) => setMedia(e.target.value)}
+            placeholder="https://…foto1.jpg, https://…video.mp4"
+          />
+        </div>
+      </div>
+      <DialogFooter>
+        <Button
+          onClick={() =>
+            onConfirm({
+              presentStudentIds: presentIds,
+              absentStudentIds: absentIds,
+              notes,
+              mediaUrls: media.split(",").map((s) => s.trim()).filter(Boolean),
+            })
+          }
+          disabled={pending}
+          className="bg-emerald-600 hover:bg-emerald-700"
+        >
+          {pending ? "Registrando…" : "Registrar aula"}
         </Button>
       </DialogFooter>
     </DialogContent>
