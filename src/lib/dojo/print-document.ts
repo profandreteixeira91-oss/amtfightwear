@@ -157,12 +157,19 @@ function buildStyles(o: BrandedPrintOptions): string {
   const orientation = o.orientation ?? "portrait";
   const pageSize = o.pageSize ?? "A4";
   const margin = Math.max(5, Math.min(40, o.marginMm ?? 16));
+  const hasCustomHeader = !!(o.headerHtml && o.headerHtml.trim());
+  const hasCustomFooter = !!(o.footerHtml && o.footerHtml.trim());
   return `
   :root { color-scheme: light; }
   @page {
     size: ${pageSize} ${orientation};
-    margin: ${margin}mm ${margin}mm ${Math.max(margin, 18)}mm ${margin}mm;
+    margin: ${hasCustomHeader ? Math.max(margin, 25) : margin}mm ${margin}mm ${hasCustomFooter ? Math.max(margin, 25) : Math.max(margin, 18)}mm ${margin}mm;
+    ${hasCustomHeader ? "@top-center { content: element(runningHeader); }" : ""}
+    ${hasCustomFooter ? "@bottom-center { content: element(runningFooter); }" : ""}
   }
+  /* Running elements repeat on every page and support page counters */
+  .doc-header-custom { position: running(runningHeader); font-size: 10pt; color: #0f172a; }
+  .doc-footer-custom { position: running(runningFooter); font-size: 10pt; color: #64748b; }
   /* CSS counters for page tokens rendered anywhere in the doc */
   .page-num-current::before { content: counter(page); }
   .page-num-total::before { content: counter(pages); }
