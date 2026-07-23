@@ -1,102 +1,60 @@
+# Refatoração UX/UI — AMT Store (Dojo Manager)
 
-# Refatoração: Unidades e Filiais (revisado)
+Escopo: exclusivamente visual. Nenhuma regra de negócio, API, hook, server function, cálculo de frete/preço, carrinho ou checkout será alterado. Apenas markup/estilos/microinterações.
 
-Renomeia o módulo **Unidades** para **Unidades e Filiais**, com duas abas:
+## Arquivos afetados (só apresentação)
 
-```text
-/dojo/app/units
-├─ Unidades Próprias   (integradas: filtram todos os módulos)
-└─ Filiais (Afiliados) (institucional: cadastro + financeiro + contrato + certificado)
+```
+src/routes/dojo.app.store.tsx                              (shell + header/busca/carrinho)
+src/routes/dojo.app.store.index.tsx                        (home: banner + categorias + destaques)
+src/routes/dojo.app.store.c.$categoria.index.tsx           (listagem por categoria + filtros)
+src/routes/dojo.app.store.c.$categoria.$subcategoria.tsx   (listagem por subcategoria)
+src/routes/dojo.app.store.produtos.$slug.tsx               (PDP: galeria + variações)
+src/routes/dojo.app.store.carrinho.tsx                     (carrinho + resumo lateral)
+src/routes/dojo.app.store.pedidos.tsx                      (lista de pedidos)
+src/routes/dojo.app.store.pedidos.$id.tsx                  (detalhe do pedido)
 ```
 
-Sem novo dashboard: o dashboard principal (`/dojo/app`) recebe um **seletor de unidade** ("Todas as unidades" ou uma específica) que já reaproveita a arquitetura multi-tenant existente.
+Componentes visuais novos (isolados, sem lógica):
 
----
+```
+src/components/dojo/store/StoreHeader.tsx        breadcrumb, busca grande, contador do carrinho
+src/components/dojo/store/HeroCarousel.tsx       banner rotativo (autoplay + dots)
+src/components/dojo/store/CategoryCard.tsx       card premium com hover
+src/components/dojo/store/ProductCard.tsx        card com badge, hover-zoom, preço + parcelas
+src/components/dojo/store/ProductCardSkeleton.tsx
+src/components/dojo/store/FiltersSidebar.tsx     reorganização visual dos filtros existentes
+src/components/dojo/store/SearchAutocomplete.tsx dropdown instant-search sobre a busca já existente
+src/components/dojo/store/EmptyState.tsx         estados vazios (carrinho / sem resultados / sem pedidos)
+src/components/dojo/store/OrderSummary.tsx       resumo sticky do carrinho
+src/components/dojo/store/CheckoutSteps.tsx      indicador de progresso
+```
 
-## 1) Unidades Próprias
+## Diretrizes visuais
 
-### Schema — expandir `dojo_units` (backwards-compatible)
-Todas as colunas novas nullable, sem breaking change:
-- Fiscais: `trade_name`, `legal_name`, `cnpj`, `state_registration`, `opened_at`
-- Responsável: `manager_name`, `manager_cpf`, `manager_rg`
-- Endereço: `zip`, `street`, `number`, `complement`, `neighborhood`, `city`, `state`, `country`
-- Contato: `phone2`, `whatsapp`, `email`, `website`, `socials` (jsonb)
-- Mídia: `logo_url`, `banner_url`, `facade_url`, `gallery_urls[]`
-- Operacional: `hours` (jsonb), `modalities[]`, `age_ranges[]`, `coordinator_ids[]`, `admin_ids[]`
-- `metadata` jsonb
+- Paleta AMT: `background`/`muted` para respiro, `foreground` grafite, `primary` (vermelho institucional) apenas para CTAs/badges/destaques. Nenhum hex hardcoded — só tokens de `src/styles.css`.
+- Tipografia da landing do Dojo (Inter) já ativa via `__root.tsx`; hierarquia com `text-3xl/2xl/lg` + `tracking-tight`.
+- Espaçamento generoso: `py-10/16`, `gap-6/8`, `rounded-2xl`, `shadow-sm` no repouso, `shadow-lg` no hover.
+- Ícones Lucide outline, tamanho 20/24, `strokeWidth={1.75}`.
+- Microinterações via classes existentes (`animate-fade-in`, `hover-scale`, `transition-*`) — nada pesado.
+- Skeletons via `Skeleton` do shadcn nas listagens.
+- Toasts `sonner` já usados — reaproveitar mensagens atuais, sem novos gatilhos.
 
-### Escopo por unidade nos módulos
-Já existe `unit_id` em `dojo_students`. Vou:
-- Adicionar `unit_id uuid` opcional (nullable) em: `dojo_classes`, `dojo_invoices`, `dojo_attendance`, `dojo_certificates`, `dojo_graduations`, `dojo_lesson_plans`, `dojo_sales` (não force NOT NULL — dados legados ficam sem unidade)
-- Criar `UnitScopeProvider` (contexto React + persistência localStorage) e `UnitSwitcher` (dropdown "Todas as unidades" + lista) posicionado no topbar do Dojo
-- Hook `useCurrentUnitId()` consumido pelos server fns via novo parâmetro opcional `unitId` — quando presente, adiciona `.eq('unit_id', unitId)` na query; quando ausente, mostra tudo
+## Fases
 
-### Permissões por unidade
-Nova tabela `dojo_unit_members(user_id, unit_id, role)` + helper SQL `has_unit_access()` + RLS. Dono mantém acesso total.
+1. Shell + Header + Busca instantânea (`store.tsx` + `StoreHeader` + `SearchAutocomplete`).
+2. Home (`store.index.tsx`): hero carrossel, grid de categorias, faixas "Recentes / Mais vendidos / Recomendados" — mantendo as mesmas fontes de dados já usadas.
+3. Listagens (`c.$categoria*`): grid premium com `ProductCard`, `FiltersSidebar` recolhível e skeletons.
+4. PDP (`produtos.$slug.tsx`): layout 2 colunas, galeria com miniaturas + zoom hover, painel de compra à direita, bloco de informações (produção/entrega/garantia/troca) — todas as ações continuam chamando os handlers atuais.
+5. Carrinho (`carrinho.tsx`): lista elegante + `OrderSummary` sticky + `EmptyState` + animações suaves ao remover.
+6. Pedidos (`pedidos*`): cards de status, timeline visual, empty state.
+7. Passe fino: acessibilidade (aria-labels em ícones, focus-visible), responsividade (grid → 2/1 col em mobile), lazy `loading="lazy"` em imagens, `content-visibility:auto` em faixas longas.
 
-### UI
-- Wizard de cadastro (4 passos: Dados gerais / Endereço + Contato / Identidade Visual + Operacional / Permissões)
-- Página de detalhe `/dojo/app/units/$id` com abas: Visão geral, Dados, Equipe, Configurações
-- KPIs da unidade específica na página de detalhe (reutilizando queries já existentes com `unitId` fixo)
+## Garantias
 
-### Dashboard principal
-Adicionar o `UnitSwitcher` no topo de `/dojo/app` (dashboard principal). Todas as queries do dashboard passam a aceitar `unitId?` opcional, refletindo automaticamente a seleção.
+- Nenhum arquivo em `src/lib/store/**`, `src/lib/dojo/**`, hooks, server functions ou migrations será tocado.
+- Rotas mantêm exatamente as mesmas queries, mutations, params e navegação (`Link to=`).
+- Onde a UI de hoje consome um valor derivado, o novo componente recebe o mesmo valor via prop — sem recalcular preço, frete, parcelamento ou disponibilidade.
+- Verificação final: build passa, fluxo carrinho→checkout continua idêntico visualmente no fim do fluxo (checkout branded já existente).
 
----
-
-## 2) Filiais (Afiliados) — módulo novo
-
-Institucional, **não integra** com students/classes/attendance. Integra com **Financeiro** e reaproveita o **gerador de certificados existente**.
-
-### Schema
-- `dojo_affiliates` — dados da academia + responsável + status (ativo/suspenso/cancelado/em_analise) + `affiliation_number` único por owner + `joined_at`, `expires_at` + mídia + professor responsável (jsonb: nome, modalidade, faixa, dan, tempo, certificações)
-- `dojo_affiliate_contracts` — HTML + variáveis + status assinatura + PDF gerado (preparado para e-sign)
-- **Financeiro integrado:** cobranças de filiação usam a tabela existente `dojo_invoices` com dois campos novos:
-  - `affiliate_id uuid` (FK → `dojo_affiliates`)
-  - `source text` (`'student' | 'affiliate' | 'sale'`) — default `'student'`
-  
-  Assim os pagamentos aparecem automaticamente em Receitas / Contas a receber / Fluxo de caixa do módulo Financeiro, com filtro opcional "Origem: Filiação" quando o usuário quer ver só a rede de afiliados. Zero código novo no ledger — reutiliza `recordInvoicePaymentToLedger`.
-
-### Certificado de Afiliado (reuso total)
-Não crio gerador novo. Em vez disso:
-- Adicionar a categoria `"afiliado"` em `dojo_certificate_templates.category` (já é text livre, sem migração)
-- No **CertificateStudio existente**, expor as variáveis de afiliado (`{{affiliate_name}}`, `{{academy_name}}`, `{{city}}`, `{{state}}`, `{{affiliation_number}}`, `{{issued_at}}`, `{{expires_at}}`, `{{organization_name}}`, `{{qr_code}}`, `{{unique_code}}`) na paleta de tokens quando `category === "afiliado"`
-- Botão **"Emitir certificado"** na página do afiliado abre um dialog para escolher qual template de categoria "afiliado" usar, gera o certificado e persiste em `dojo_certificates` (com `affiliate_id` opcional na tabela, ou usa `student_id = null` + `metadata`)
-
-### Contrato de Filiação
-- Botão "Gerar Contrato de Filiação" com **modelo base fixo** (8 cláusulas: Objeto, Direitos, Obrigações do Afiliado, Obrigações da Organização, Pagamentos, Vigência, Rescisão, Foro) preenchido com variáveis `{{organization_name}}`, `{{affiliate_name}}`, `{{cpf}}`, `{{cnpj}}`, `{{address}}`, `{{city}}`, `{{state}}`, `{{affiliation_number}}`, `{{signed_at}}`
-- Visualizar / Imprimir / PDF / DOCX (docx via `docx` npm ou via HTML→Word)
-- Estrutura preparada para assinatura eletrônica (`signature_data` jsonb reservado)
-
-### UI
-- Lista de afiliados com filtros (cidade, estado, situação, modalidade, professor, data)
-- Detalhe `/dojo/app/units/affiliates/$id` com abas: Dados, Professor Responsável, Identidade Visual, **Financeiro**, Contrato, Certificado, Histórico
-- Aba Financeiro do afiliado: lista de cobranças (via `dojo_invoices where affiliate_id = $id`) com botão "Nova cobrança" (mensal / anual / avulsa) — usa o motor de cobrança existente do AMT Pay
-
----
-
-## 3) Busca e filtros
-
-Barra de busca em ambas as abas por nome, cidade, estado, professor, responsável, CPF, CNPJ, nº filiação, situação.
-
----
-
-## Execução
-
-Sequência (sem pausas intermediárias):
-
-1. Migration 1: expandir `dojo_units` + `dojo_unit_members` + `has_unit_access()` + RLS
-2. Migration 2: adicionar `unit_id` nas 7 tabelas core + FK
-3. Migration 3: `dojo_affiliates` + `dojo_affiliate_contracts` + adicionar `affiliate_id` + `source` em `dojo_invoices` + policies + GRANTs
-4. Server fns: `units.functions.ts` (expandido), `affiliates.functions.ts`, `affiliate-contracts.functions.ts`
-5. `UnitScopeProvider` + `UnitSwitcher` + topbar do Dojo + integração no dashboard `/dojo/app`
-6. Rota `/dojo/app/units` com abas + lista + wizard + detalhe da unidade
-7. Rota `/dojo/app/units/affiliates` + detalhe do afiliado (todas as abas incluindo Financeiro reutilizando componentes de invoice)
-8. Presets de token do afiliado no `CertificateStudio` + botão "Emitir certificado" no afiliado
-9. Editor de contrato de afiliação com modelo base + export PDF/DOCX
-10. Filtro "Origem: Filiação" no módulo Financeiro
-
-### Fora de escopo desta rodada
-- Aplicar `useCurrentUnitId()` em **cada** módulo existente (students/finance/schedule/…). Vou preparar a infra (coluna + switcher + hook) e adaptar apenas o **dashboard principal** nesta rodada. Cada módulo restante vira uma tarefa separada quando você quiser propagar. Se preferir que eu propague tudo agora, me diga e ampliamos o escopo.
-
-Aprovar para eu executar?
+Pode aprovar que eu começo pela Fase 1.
