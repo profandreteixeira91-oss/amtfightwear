@@ -1097,7 +1097,10 @@ function StudentsPage() {
             </DialogContent>
           </Dialog>
         </div>
+        </div>
       </div>
+
+
 
       {/* Filtros ampliados: nome, e-mail, telefone, CPF, faixa, unidade, cidade, status */}
       <div className="rounded-lg border border-border bg-card p-3 md:p-4">
