@@ -453,7 +453,7 @@ const BeatScene: React.FC<{ beat: Beat }> = ({ beat }) => {
               textTransform: "uppercase",
             }}
           >
-            amtdojomanager.com
+            dojomanager.amtfightwear.com.br
           </div>
         </div>
       </AbsoluteFill>
