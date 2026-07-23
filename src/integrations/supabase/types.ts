@@ -4006,30 +4006,48 @@ export type Database = {
           content: string
           created_at: string
           description: string | null
+          footer_html: string
+          header_html: string
           id: string
           is_default: boolean
+          margin_mm: number
           name: string
           owner_id: string
+          page_orientation: string
+          page_size: string
+          show_page_numbers: boolean
           updated_at: string
         }
         Insert: {
           content?: string
           created_at?: string
           description?: string | null
+          footer_html?: string
+          header_html?: string
           id?: string
           is_default?: boolean
+          margin_mm?: number
           name: string
           owner_id: string
+          page_orientation?: string
+          page_size?: string
+          show_page_numbers?: boolean
           updated_at?: string
         }
         Update: {
           content?: string
           created_at?: string
           description?: string | null
+          footer_html?: string
+          header_html?: string
           id?: string
           is_default?: boolean
+          margin_mm?: number
           name?: string
           owner_id?: string
+          page_orientation?: string
+          page_size?: string
+          show_page_numbers?: boolean
           updated_at?: string
         }
         Relationships: []
@@ -6652,8 +6670,14 @@ export type Database = {
         Row: {
           content: string
           created_at: string
+          footer_html: string
+          header_html: string
           id: string
+          margin_mm: number
           owner_id: string
+          page_orientation: string
+          page_size: string
+          show_page_numbers: boolean
           signed_at: string | null
           status: string
           student_id: string
@@ -6664,8 +6688,14 @@ export type Database = {
         Insert: {
           content?: string
           created_at?: string
+          footer_html?: string
+          header_html?: string
           id?: string
+          margin_mm?: number
           owner_id: string
+          page_orientation?: string
+          page_size?: string
+          show_page_numbers?: boolean
           signed_at?: string | null
           status?: string
           student_id: string
@@ -6676,8 +6706,14 @@ export type Database = {
         Update: {
           content?: string
           created_at?: string
+          footer_html?: string
+          header_html?: string
           id?: string
+          margin_mm?: number
           owner_id?: string
+          page_orientation?: string
+          page_size?: string
+          show_page_numbers?: boolean
           signed_at?: string | null
           status?: string
           student_id?: string
