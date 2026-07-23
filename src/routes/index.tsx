@@ -278,8 +278,8 @@ function StoreHomePage() {
               <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
                 <Icon className="h-5 w-5" />
               </div>
-              <div className="mt-5 text-base font-black tracking-tight text-foreground">{title}</div>
-              <div className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{desc}</div>
+              <div className="mt-6 text-lg tracking-[-0.01em] text-foreground" style={{ fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 600 }}>{title}</div>
+              <div className="mt-2 text-sm leading-[1.65] text-muted-foreground">{desc}</div>
             </div>
           ))}
         </div>
