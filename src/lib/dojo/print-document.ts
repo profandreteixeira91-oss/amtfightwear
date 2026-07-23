@@ -30,6 +30,16 @@ export type BrandedPrintOptions = {
   /** Rodapé opcional (direita). Ex.: "Confidencial". */
   footerRight?: string;
   orientation?: "portrait" | "landscape";
+  /** Tamanho de página. Padrão A4. */
+  pageSize?: "A4" | "Letter";
+  /** Margem uniforme em milímetros. */
+  marginMm?: number;
+  /** Substitui o cabeçalho branded padrão por HTML customizado. */
+  headerHtml?: string;
+  /** Substitui o rodapé branded padrão por HTML customizado. Suporta os tokens `{{pagina_atual}}` e `{{total_paginas}}`. */
+  footerHtml?: string;
+  /** Exibir numeração no rodapé branded padrão. */
+  showPageNumbers?: boolean;
   /** Emitido no cabeçalho junto à data. */
   documentId?: string;
   /** Auto-abre o diálogo de impressão. Padrão: true. */
