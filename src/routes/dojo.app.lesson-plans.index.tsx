@@ -83,13 +83,23 @@ function LessonPlansDashboardPage() {
   const fromTplFn = useServerFn(createPlanFromTemplate);
 
   const createFromTpl = useMutation({
-    mutationFn: (payload: { templateId?: string; builtInKey?: string }) =>
-      fromTplFn({ data: { ...payload, date: fmt(new Date()) } }),
+    mutationFn: (payload: {
+      templateId?: string;
+      builtInKey?: string;
+      date: string;
+      classId?: string | null;
+      teacherId?: string | null;
+      unitId?: string | null;
+      startTime?: string | null;
+      endTime?: string | null;
+      title?: string | null;
+    }) => fromTplFn({ data: payload }),
     onSuccess: (row) => {
       qc.invalidateQueries({ queryKey: ["lesson-plans"] });
       if (row && "id" in row) navigate({ to: "/dojo/app/lesson-plans/$id", params: { id: (row as { id: string }).id } });
     },
   });
+
 
   const [view, setView] = useState<ViewMode>("week");
   const [anchor, setAnchor] = useState<Date>(() => new Date());
