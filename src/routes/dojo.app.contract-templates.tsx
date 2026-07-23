@@ -158,7 +158,7 @@ function ContractTemplatesPage() {
   const printPreview = () => {
     if (!current) return;
     openBrandedPrintDocument({
-      branding: branding as any,
+      branding: branding.data as any,
       title: current.name,
       subtitle: "Modelo de contrato — dados de exemplo",
       bodyHtml: `<div style="font-family:Georgia,serif;font-size:12pt;line-height:1.6;">${previewHtml}</div>`,
