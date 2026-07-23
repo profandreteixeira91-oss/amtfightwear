@@ -155,13 +155,17 @@ function buildStyles(o: BrandedPrintOptions): string {
   const primary = o.branding?.brand_primary || "#dc2626";
   const secondary = o.branding?.brand_secondary || "#0f172a";
   const orientation = o.orientation ?? "portrait";
+  const pageSize = o.pageSize ?? "A4";
+  const margin = Math.max(5, Math.min(40, o.marginMm ?? 16));
   return `
   :root { color-scheme: light; }
   @page {
-    size: A4 ${orientation};
-    margin: 16mm 14mm 20mm 14mm;
-    @bottom-center { content: "Página " counter(page) " de " counter(pages); font: 400 9pt 'Inter', sans-serif; color: #94a3b8; }
+    size: ${pageSize} ${orientation};
+    margin: ${margin}mm ${margin}mm ${Math.max(margin, 18)}mm ${margin}mm;
   }
+  /* CSS counters for page tokens rendered anywhere in the doc */
+  .page-num-current::before { content: counter(page); }
+  .page-num-total::before { content: counter(pages); }
   * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   html, body { margin: 0; padding: 0; background: #eef2f7; color: #0f172a; font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif; font-size: 11.5px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
   body { padding: 28px 16px; }
