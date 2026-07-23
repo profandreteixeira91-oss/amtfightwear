@@ -100,8 +100,8 @@ function IssuedContractsPage() {
                   className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-accent/50 transition-colors"
                 >
                   <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <div className={`h-9 w-9 rounded-lg flex items-center justify-center shrink-0 ${r.kind === "student" ? "bg-blue-500/10 text-blue-700" : "bg-purple-500/10 text-purple-700"}`}>
-                      {r.kind === "student" ? <Users className="h-4 w-4" /> : <Building2 className="h-4 w-4" />}
+                    <div className={`h-9 w-9 rounded-lg flex items-center justify-center shrink-0 ${r.kind === "student" ? "bg-blue-500/10 text-blue-700" : r.kind === "team" ? "bg-emerald-500/10 text-emerald-700" : "bg-purple-500/10 text-purple-700"}`}>
+                      {r.kind === "student" ? <Users className="h-4 w-4" /> : r.kind === "team" ? <UsersRound className="h-4 w-4" /> : <Building2 className="h-4 w-4" />}
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="font-medium truncate">{r.title}</div>
