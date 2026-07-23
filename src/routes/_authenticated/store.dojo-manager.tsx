@@ -635,22 +635,24 @@ function StoreDojoManagerAdminPage() {
                   Sem dados de origem no período.
                 </div>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Origem</TableHead>
-                      <TableHead className="text-right">Visitas</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {(stats?.referrers ?? []).map((r) => (
-                      <TableRow key={r.host}>
-                        <TableCell>{r.host}</TableCell>
-                        <TableCell className="text-right">{fmtInt(r.count)}</TableCell>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Origem</TableHead>
+                        <TableHead className="text-right">Visitas</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {(stats?.referrers ?? []).map((r) => (
+                        <TableRow key={r.host}>
+                          <TableCell className="max-w-[240px] truncate">{r.host}</TableCell>
+                          <TableCell className="text-right">{fmtInt(r.count)}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               )}
             </CardContent>
           </Card>

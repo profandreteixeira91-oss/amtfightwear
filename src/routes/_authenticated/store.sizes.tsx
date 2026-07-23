@@ -133,39 +133,41 @@ function SizesPage() {
           ) : (data?.length ?? 0) === 0 ? (
             <p className="text-sm text-muted-foreground">Nenhuma categoria cadastrada.</p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-32">Chave</TableHead>
-                  <TableHead>Categoria</TableHead>
-                  <TableHead>Tamanhos</TableHead>
-                  <TableHead className="w-20 text-right">Ordem</TableHead>
-                  <TableHead className="w-32 text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {data!.map((p) => (
-                  <TableRow key={p.id}>
-                    <TableCell className="font-mono text-xs">{p.category_key}</TableCell>
-                    <TableCell className="font-semibold">{p.category_label}</TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1">
-                        {p.sizes.map((s) => (
-                          <Badge key={s} variant="secondary">{s}</Badge>
-                        ))}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right text-sm text-muted-foreground">{p.sort_order}</TableCell>
-                    <TableCell className="text-right">
-                      <Button size="sm" variant="outline" onClick={() => start(p)}>Editar</Button>
-                      <Button size="icon" variant="ghost" className="ml-1" onClick={() => onDelete(p.id)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-32">Chave</TableHead>
+                    <TableHead>Categoria</TableHead>
+                    <TableHead>Tamanhos</TableHead>
+                    <TableHead className="w-20 text-right">Ordem</TableHead>
+                    <TableHead className="w-32 text-right">Ações</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {data!.map((p) => (
+                    <TableRow key={p.id}>
+                      <TableCell className="font-mono text-xs">{p.category_key}</TableCell>
+                      <TableCell className="whitespace-nowrap font-semibold">{p.category_label}</TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1">
+                          {p.sizes.map((s) => (
+                            <Badge key={s} variant="secondary">{s}</Badge>
+                          ))}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right text-sm text-muted-foreground">{p.sort_order}</TableCell>
+                      <TableCell className="whitespace-nowrap text-right">
+                        <Button size="sm" variant="outline" onClick={() => start(p)}>Editar</Button>
+                        <Button size="icon" variant="ghost" className="ml-1" onClick={() => onDelete(p.id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>
