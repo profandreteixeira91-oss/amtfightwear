@@ -202,6 +202,22 @@ function LessonEditorPage() {
     onSuccess: () => toast.success("Modelo salvo na sua biblioteca"),
   });
 
+  const classesFn = useServerFn(listClassesForPicker);
+  const { data: classes } = useQuery({
+    queryKey: ["lesson-plans", "classes-picker"],
+    queryFn: () => classesFn({}),
+  });
+
+  const registerFn = useServerFn(registerLessonDelivery);
+  const register = useMutation({
+    mutationFn: (input: { presentStudentIds: string[]; absentStudentIds: string[]; notes: string; mediaUrls: string[] }) =>
+      registerFn({ data: { planId: id, ...input } }),
+    onSuccess: () => {
+      toast.success("Aula registrada com presenças");
+      refetch();
+    },
+  });
+
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
   if (!form) return <div className="p-6 text-sm text-muted-foreground">Carregando plano…</div>;
