@@ -1,4 +1,5 @@
-import dojoPreview from "@/assets/dojo-manager-preview.png";
+import dojoVideoAsset from "@/assets/dojo-manager-square.mp4.asset.json";
+import dojoWordmarkAsset from "@/assets/amt-dojo-manager-wordmark.png.asset.json";
 
 const FEATURES = [
   "Gestão completa de alunos e atletas",
