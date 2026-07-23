@@ -1,4 +1,4 @@
-import { formatDegree, degreeSuffix, degreeUnit } from "@/lib/dojo/degree-label";
+import { formatDegree, degreeSuffix, degreeUnit, formatBeltName, formatBeltFull } from "@/lib/dojo/degree-label";
 import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
