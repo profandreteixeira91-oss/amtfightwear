@@ -319,7 +319,11 @@ export function AppTopNav() {
             variant="ghost"
             size="icon"
             onClick={() => setMobileOpen((v) => !v)}
-            className="rounded-full"
+            aria-label={mobileOpen ? "Fechar menu" : "Abrir menu"}
+            className={cn(
+              "rounded-full",
+              inDojo && "text-white hover:bg-white/10 hover:text-white",
+            )}
           >
             {mobileOpen ? <X className="h-5 w-5" /> : <MenuIcon className="h-5 w-5" />}
           </Button>
@@ -327,29 +331,51 @@ export function AppTopNav() {
       </div>
 
       {mobileOpen && (
-        <div className="border-t border-border/60 bg-background/95 backdrop-blur lg:hidden">
-          <div className="max-h-[70vh] space-y-4 overflow-y-auto p-3">
+        <div
+          className={cn(
+            "border-t backdrop-blur lg:hidden",
+            inDojo
+              ? "border-red-800/70 bg-red-700 text-white supports-[backdrop-filter]:bg-red-700/95"
+              : "border-border/60 bg-background/95",
+          )}
+        >
+          <div className="max-h-[75vh] space-y-4 overflow-y-auto p-3">
             {visibleGroups.map((g) => (
               <div key={g.label}>
-                <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                <div
+                  className={cn(
+                    "mb-1.5 text-[11px] font-semibold uppercase tracking-[0.18em]",
+                    inDojo ? "text-white/70" : "text-muted-foreground",
+                  )}
+                >
                   {g.label}
                 </div>
-                <div className="grid grid-cols-2 gap-1">
-                  {g.items.map((item) => (
-                    <Link
-                      key={item.url}
-                      to={item.url}
-                      onClick={() => setMobileOpen(false)}
-                      className={cn(
-                        "flex items-center gap-2 rounded-lg border border-transparent px-2 py-1.5 text-sm transition-colors hover:bg-accent",
-                        isActive(item.url) &&
-                          "border-primary/30 bg-primary/10 font-medium text-primary",
-                      )}
-                    >
-                      <item.icon className="h-4 w-4" />
-                      <span className="truncate">{item.title}</span>
-                    </Link>
-                  ))}
+                <div className="grid grid-cols-1 gap-1 xs:grid-cols-2 sm:grid-cols-2">
+                  {g.items.map((item) => {
+                    const active = isActive(item.url);
+                    return (
+                      <Link
+                        key={item.url}
+                        to={item.url}
+                        onClick={() => setMobileOpen(false)}
+                        className={cn(
+                          "flex min-h-11 items-center gap-2 rounded-lg border border-transparent px-2.5 py-2 text-sm leading-tight transition-colors",
+                          inDojo
+                            ? cn(
+                                "text-white/90 hover:bg-white/10 hover:text-white",
+                                active && "border-white/40 bg-white/15 font-semibold text-white",
+                              )
+                            : cn(
+                                "hover:bg-accent",
+                                active && "border-primary/30 bg-primary/10 font-medium text-primary",
+                              ),
+                        )}
+                      >
+                        <item.icon className="h-4 w-4 shrink-0" />
+                        <span className="min-w-0 break-words">{item.title}</span>
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
             ))}
