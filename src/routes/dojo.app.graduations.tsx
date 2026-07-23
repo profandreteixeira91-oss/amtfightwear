@@ -514,45 +514,43 @@ function NewGraduationPage() {
     name.split(/\s+/).filter(Boolean).slice(0, 2).map((n) => n[0]?.toUpperCase()).join("") || "?";
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 md:gap-8">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-4 md:gap-8 md:p-6">
       {/* ============ HERO / HEADER ============ */}
-      <header className="relative overflow-hidden rounded-3xl border border-primary/15 bg-gradient-to-br from-primary/10 via-background to-background p-6 md:p-8 shadow-sm">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-primary/15 blur-3xl"
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -bottom-32 -left-20 h-72 w-72 rounded-full bg-primary/10 blur-3xl"
-        />
-        <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 sm:flex sm:flex-wrap sm:items-center sm:justify-between">
-          <div className="flex min-w-0 items-center gap-4">
-            <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/25 ring-1 ring-primary/30">
-              <GraduationCap className="h-7 w-7" />
-            </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-                <Sparkles className="h-3.5 w-3.5" /> Cerimônia de graduação
+      <header className="relative overflow-hidden rounded-3xl border border-white/10 bg-neutral-950 text-white shadow-[0_30px_80px_-40px_rgba(220,38,38,0.65)]">
+        <div aria-hidden className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-red-600/25 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute -right-16 top-8 h-64 w-64 rounded-full bg-amber-500/15 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_0%,rgba(255,255,255,0.06),transparent_45%)]" />
+
+        <div className="relative flex flex-col gap-4 p-5 sm:p-7">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 sm:flex sm:flex-wrap sm:items-center sm:justify-between">
+            <div className="flex min-w-0 items-center gap-4">
+              <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-amber-400 via-red-500 to-red-700 text-white shadow-[0_10px_25px_-10px_rgba(220,38,38,0.9)] ring-1 ring-white/20">
+                <GraduationCap className="h-7 w-7" />
               </div>
-              <h1 className="mt-1 truncate text-2xl md:text-3xl font-black tracking-tight text-foreground">
-                Nova graduação
-              </h1>
-              <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-                Selecione os alunos, registre a graduação e emita os certificados em um único fluxo guiado.
-              </p>
+              <div className="min-w-0">
+                <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-red-200 backdrop-blur">
+                  <Sparkles className="h-3 w-3" /> Cerimônia · Ruby Noir
+                </div>
+                <h1 className="mt-2 font-display text-2xl font-black leading-tight tracking-tight sm:text-3xl md:text-4xl">
+                  Nova graduação
+                </h1>
+                <p className="mt-1 max-w-2xl text-sm text-neutral-300">
+                  Selecione os alunos, registre a graduação e emita os certificados em um único fluxo guiado.
+                </p>
+              </div>
             </div>
+            {step !== "select" && (
+              <Button variant="outline" size="sm" onClick={reset} className="shrink-0 border-white/15 bg-white/5 text-white hover:bg-white/10">
+                <RotateCcw className="h-4 w-4 mr-1.5" /> Recomeçar
+              </Button>
+            )}
           </div>
-          {step !== "select" && (
-            <Button variant="outline" size="sm" onClick={reset} className="shrink-0">
-              <RotateCcw className="h-4 w-4 mr-1.5" /> Recomeçar
-            </Button>
-          )}
         </div>
       </header>
 
       {/* ============ STEPPER ============ */}
-      <nav aria-label="Etapas" className="rounded-2xl border bg-card p-4 md:p-5 shadow-sm">
-        <ol className="grid grid-cols-4 gap-2 md:gap-3">
+      <nav aria-label="Etapas" className="rounded-2xl border border-white/10 bg-neutral-950/60 p-3 backdrop-blur md:p-4">
+        <ol className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-3">
           {(["select", "grad", "payment", "cert"] as Step[]).map((s, i) => {
             const meta = stepMeta[s];
             const Icon = meta.icon;
@@ -562,37 +560,37 @@ function NewGraduationPage() {
             return (
               <li key={s} className="relative">
                 <div
-                  className={`flex items-start gap-3 rounded-xl border p-3 md:p-4 transition-all ${
+                  className={`flex items-start gap-3 rounded-xl border p-3 transition-all md:p-4 ${
                     active
-                      ? "border-primary/40 bg-primary/5 shadow-sm"
+                      ? "border-red-500/40 bg-gradient-to-br from-red-950/60 via-neutral-950/80 to-neutral-950/80 shadow-[0_10px_30px_-20px_rgba(220,38,38,0.9)]"
                       : done
-                      ? "border-emerald-500/25 bg-emerald-500/5"
-                      : "border-border bg-background/50"
+                        ? "border-emerald-400/30 bg-emerald-500/[0.06]"
+                        : "border-white/10 bg-white/[0.03]"
                   }`}
                 >
                   <div
-                    className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg text-sm font-bold transition-colors ${
+                    className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg text-sm font-bold ring-1 transition-colors ${
                       active
-                        ? "bg-primary text-primary-foreground shadow-md shadow-primary/25"
+                        ? "bg-gradient-to-br from-amber-400 via-red-500 to-red-700 text-white ring-white/20 shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)]"
                         : done
-                        ? "bg-emerald-500 text-white"
-                        : "bg-muted text-muted-foreground"
+                          ? "bg-emerald-500 text-white ring-emerald-300/40"
+                          : "bg-white/5 text-neutral-300 ring-white/10"
                     }`}
                   >
-                    {done ? <CheckCircle2 className="h-5 w-5" /> : <Icon className="h-4.5 w-4.5" />}
+                    {done ? <CheckCircle2 className="h-5 w-5" /> : <Icon className="h-4 w-4" />}
                   </div>
                   <div className="min-w-0">
-                    <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                    <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-neutral-400">
                       Etapa {i + 1}
                     </div>
                     <div
                       className={`truncate text-sm font-semibold ${
-                        active ? "text-foreground" : done ? "text-emerald-700" : "text-muted-foreground"
+                        active ? "text-white" : done ? "text-emerald-200" : "text-neutral-300"
                       }`}
                     >
                       {meta.label}
                     </div>
-                    <div className="mt-0.5 hidden truncate text-xs text-muted-foreground md:block">
+                    <div className="mt-0.5 hidden truncate text-xs text-neutral-400 md:block">
                       {meta.hint}
                     </div>
                   </div>
@@ -602,6 +600,7 @@ function NewGraduationPage() {
           })}
         </ol>
       </nav>
+
 
       {/* ============ INFO — CRITÉRIOS ============ */}
       {step === "select" && (
