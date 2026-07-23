@@ -640,39 +640,40 @@ function KpiCard({
   return (
     <Card className="relative overflow-hidden shadow-sm transition-shadow hover:shadow-md">
       <div className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${toneClass.split(" ")[0]} ${toneClass.split(" ")[1]}`} />
-      <CardContent className="relative p-5">
-        <div className="flex items-center justify-between">
-          <div className={`grid h-9 w-9 place-items-center rounded-lg bg-background/80 ${toneClass.split(" ")[2]} shadow-sm`}>
+      <CardContent className="relative p-3 sm:p-5">
+        <div className="flex items-center justify-between gap-2">
+          <div className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-background/80 ${toneClass.split(" ")[2]} shadow-sm sm:h-9 sm:w-9`}>
             <Icon className="h-4 w-4" />
           </div>
           {live && (
-            <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-emerald-600">
-              <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
+            <span className="flex shrink-0 items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-emerald-600 sm:text-[10px]">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
               Ao vivo
             </span>
           )}
         </div>
-        <div className="mt-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">{label}</div>
+        <div className="mt-2 truncate text-[10px] font-bold uppercase tracking-wider text-muted-foreground sm:mt-3 sm:text-xs">{label}</div>
         {loading ? (
-          <Skeleton className="mt-2 h-8 w-24" />
+          <Skeleton className="mt-1.5 h-7 w-24 sm:h-8" />
         ) : (
-          <div className="mt-1 text-3xl font-black tracking-tight">{value ?? "—"}</div>
+          <div className="mt-0.5 truncate text-xl font-black tracking-tight sm:mt-1 sm:text-3xl">{value ?? "—"}</div>
         )}
-        <div className="mt-2 flex items-center gap-2 text-xs">
+        <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[10px] sm:mt-2 sm:gap-2 sm:text-xs">
           {typeof delta === "number" && (
-            <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold ${
+            <span className={`inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-bold sm:gap-1 sm:px-2 sm:text-[11px] ${
               delta >= 0 ? "bg-emerald-500/10 text-emerald-700" : "bg-red-500/10 text-red-700"
             }`}>
               {delta >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
               {delta >= 0 ? "+" : ""}{delta.toFixed(1)}%
             </span>
           )}
-          {hint && <span className="text-muted-foreground truncate">{hint}</span>}
+          {hint && <span className="truncate text-muted-foreground">{hint}</span>}
         </div>
       </CardContent>
     </Card>
   );
 }
+
 
 function FinanceRow({ label, value, loading, highlight, negative }: { label: string; value?: number; loading: boolean; highlight?: boolean; negative?: boolean }) {
   return (
