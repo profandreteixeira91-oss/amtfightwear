@@ -1,7 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { ShieldAlert } from "lucide-react";
 import {
   listDojoBelts,
   saveDojoBelt,
@@ -29,8 +31,61 @@ import { Plus, Trash2, ChevronUp, ChevronDown, Copy, Save, Beaker } from "lucide
  */
 export const Route = createFileRoute("/dojo/app/belt-studio")({
   head: () => ({ meta: [{ title: "Belt Studio (oculto) — AMT Dojo Manager" }] }),
-  component: BeltStudio,
+  component: BeltStudioGate,
 });
+
+const ALLOWED_EMAIL = "profandreteixeira91@gmail.com";
+
+function BeltStudioGate() {
+  const [status, setStatus] = useState<"loading" | "allowed" | "denied">("loading");
+  const [email, setEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      const e = data.user?.email ?? null;
+      setEmail(e);
+      setStatus(e?.toLowerCase() === ALLOWED_EMAIL ? "allowed" : "denied");
+    });
+  }, []);
+
+  if (status === "loading") {
+    return (
+      <div className="fixed inset-0 z-[100] grid place-items-center bg-white text-neutral-500">
+        Verificando permissão…
+      </div>
+    );
+  }
+
+  if (status === "denied") {
+    return (
+      <div className="fixed inset-0 z-[100] grid place-items-center bg-gradient-to-br from-neutral-50 to-neutral-100 p-6">
+        <div className="max-w-md w-full text-center bg-white border border-neutral-200 rounded-2xl shadow-xl p-8">
+          <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-full bg-red-50 text-red-600">
+            <ShieldAlert className="h-7 w-7" />
+          </div>
+          <h1 className="text-xl font-bold text-neutral-900 mb-2">Acesso restrito</h1>
+          <p className="text-sm text-neutral-600 leading-relaxed">
+            Esta área é exclusiva do administrador do sistema. Sua conta não possui permissão
+            para visualizar o Belt Studio.
+          </p>
+          {email && (
+            <p className="mt-4 text-xs text-neutral-400">
+              Conectado como <span className="font-medium text-neutral-500">{email}</span>
+            </p>
+          )}
+          <Link
+            to="/dojo/app"
+            className="inline-block mt-6 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold px-5 py-2.5 transition-colors"
+          >
+            Voltar ao painel
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return <BeltStudio />;
+}
 
 type BeltRow = {
   id: string;
