@@ -288,7 +288,7 @@ export const bulkDuplicateLessonPlan = createServerFn({ method: "POST" })
     }
     const { data: inserted, error } = await context.supabase
       .from("dojo_lesson_plans")
-      .insert(rows)
+      .insert(rows as never)
       .select("id");
     if (error) throw new Error(error.message);
     return { created: inserted?.length ?? 0 };
