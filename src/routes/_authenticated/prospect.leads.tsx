@@ -594,6 +594,7 @@ function LeadsPage() {
               </TableBody>
             </Table>
           )}
+          </div>
         </CardContent>
       </Card>
 
