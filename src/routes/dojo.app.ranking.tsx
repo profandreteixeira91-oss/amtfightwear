@@ -192,13 +192,14 @@ function RankingPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {rows.map((r) => {
+                  {rows.map((r, idx) => {
                     const max = rows[0]?.count || 1;
                     const pct = Math.max(4, Math.round((r.count / max) * 100));
+                    const medalRank = idx + 1; // ordem de exibição — medalha única mesmo em empate
                     return (
                       <tr key={r.id} className="border-b last:border-0 hover:bg-muted/40">
                         <td className="py-2 font-bold text-muted-foreground">
-                          {r.rank <= 3 ? <RankMedal rank={r.rank} /> : <span className="pl-1">{r.rank}º</span>}
+                          {medalRank <= 3 ? <RankMedal rank={medalRank} /> : <span className="pl-1">{r.rank}º</span>}
                         </td>
                         <td className="py-2">
                           <div className="flex items-center gap-3">
