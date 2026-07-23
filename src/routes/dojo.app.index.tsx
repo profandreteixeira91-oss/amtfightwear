@@ -171,7 +171,7 @@ function HeroHeader({
     month: "long",
   });
   const greeting = greetingFor();
-  const firstName = (userName ?? "").trim().split(/\s+/)[0] || "";
+  const fullName = (userName ?? "").trim();
   const initials =
     (academyName || userName || "A")
       .split(/\s+/)
