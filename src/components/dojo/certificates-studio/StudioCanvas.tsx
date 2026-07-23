@@ -235,14 +235,18 @@ function EditableOverlay({ el, selected, onSelect, onCommit, zoom }: { el: AnyEl
       const r = resizeRef.current;
       const dxPx = (e.clientX - r.startX) / zoom;
       const dyPx = (e.clientY - r.startY) / zoom;
-      const sign = r.dir.includes("l") ? -1 : 1;
-      const signY = r.dir.includes("t") ? -1 : 1;
-      const newW = Math.max(20, r.origW + sign * dxPx);
-      const newH = Math.max(10, r.origH + signY * dyPx);
+      const hasL = r.dir.includes("l");
+      const hasR = r.dir.includes("r");
+      const hasT = r.dir.includes("t");
+      const hasB = r.dir.includes("b");
+      const signX = hasL ? -1 : hasR ? 1 : 0;
+      const signY = hasT ? -1 : hasB ? 1 : 0;
+      const newW = signX === 0 ? r.origW : Math.max(20, r.origW + signX * dxPx);
+      const newH = signY === 0 ? r.origH : Math.max(10, r.origH + signY * dyPx);
       const patch: any = {};
-      patch.w = (newW / pageW) * 100;
-      if (el.kind !== "text") patch.h = (newH / pageH) * 100;
-      if (el.kind === "text") {
+      if (signX !== 0) patch.w = (newW / pageW) * 100;
+      if (el.kind !== "text" && signY !== 0) patch.h = (newH / pageH) * 100;
+      if (el.kind === "text" && signX !== 0) {
         // Scale font a bit too
         const scale = newW / Math.max(1, r.origW);
         if (Math.abs(scale - 1) > 0.02) patch.fontSize = Math.max(6, Math.round((el as any).fontSize * scale));
