@@ -4,6 +4,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { classify } from "@/lib/dojo/competitions/classifier";
 
 const listSchema = z.object({
   q: z.string().trim().optional(),
