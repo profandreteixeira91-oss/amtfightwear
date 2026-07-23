@@ -22,7 +22,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 
-export const Route = createFileRoute("/dojo/app/units")({
+export const Route = createFileRoute("/dojo/app/units/")({
   head: () => ({ meta: [{ title: "Unidades e Filiais — AMT Dojo Manager" }] }),
   component: UnitsAndAffiliatesPage,
 });
