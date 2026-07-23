@@ -261,6 +261,40 @@ function NewGraduationPage() {
     }));
   };
 
+  const goToPayment = () => {
+    const missing: string[] = [];
+    for (const sid of selectedStudents) {
+      const p = perStudent[sid];
+      if (!p?.beltId) missing.push(sid);
+    }
+    if (missing.length > 0) {
+      return toast.error(`Selecione a faixa de ${missing.length} aluno(s) pendente(s)`);
+    }
+    // pré-preenche taxa padrão para quem ainda não tem valor
+    setPerStudent(prev => {
+      const next = { ...prev };
+      for (const sid of selectedStudents) {
+        const p = next[sid];
+        if (p && (p.fee == null || p.fee === "") && p.beltId && priceByBelt[p.beltId] != null) {
+          next[sid] = { ...p, fee: String(priceByBelt[p.beltId]) };
+        }
+      }
+      return next;
+    });
+    setStep("payment");
+  };
+
+  const paymentTotals = useMemo(() => {
+    let paid = 0, pending = 0;
+    for (const sid of selectedStudents) {
+      const p = perStudent[sid];
+      const v = Number(((p?.fee ?? "").toString().replace(",", ".").trim()) || 0);
+      if (Number.isNaN(v)) continue;
+      if (p?.paid) paid += v; else pending += v;
+    }
+    return { paid, pending, total: paid + pending };
+  }, [selectedStudents, perStudent]);
+
   const submitGrad = async () => {
     const items = Array.from(selectedStudents).map(sid => {
       const p = perStudent[sid] ?? { beltId, degree };
