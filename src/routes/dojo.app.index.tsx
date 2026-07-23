@@ -732,24 +732,28 @@ function DojoDashboard() {
         </BentoCard>
 
         {/* Alunos recentes */}
-        <BentoCard className="md:col-span-4">
-          <SectionHead
-            eyebrow="Últimas matrículas"
-            title="Alunos recentes"
-            action={
-              <Link
-                to="/dojo/app/students"
-                className="text-[11px] font-semibold text-primary hover:underline inline-flex items-center gap-1"
-              >
-                Ver todos <ArrowRight className="h-3 w-3" />
-              </Link>
-            }
-          />
-          <div className="divide-y divide-[color:var(--dojo-border)] -mx-1">
+        <div className="md:col-span-4 rounded-2xl border border-zinc-800 bg-zinc-950 shadow-2xl overflow-hidden">
+          <div className="px-6 py-5 flex items-center justify-between border-b border-zinc-900">
+            <div>
+              <p className="text-[10px] font-bold tracking-[0.2em] text-zinc-500 uppercase">
+                Últimas matrículas
+              </p>
+              <h2 className="text-xl font-semibold text-zinc-100 mt-1">Alunos recentes</h2>
+            </div>
+            <Link
+              to="/dojo/app/students"
+              className="group flex items-center gap-2 text-sm font-medium text-red-500 hover:text-red-400 transition-colors"
+            >
+              Ver todos
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </Link>
+          </div>
+
+          <div className="divide-y divide-zinc-900">
             {recent.length === 0 && (
-              <div className="py-6 text-sm text-muted-foreground text-center">
+              <div className="px-6 py-8 text-sm text-zinc-500 text-center">
                 Nenhum aluno cadastrado ainda.{" "}
-                <Link to="/dojo/app/students" className="text-primary font-medium hover:underline">
+                <Link to="/dojo/app/students" className="text-red-500 font-medium hover:underline">
                   Cadastrar primeiro aluno
                 </Link>
               </div>
@@ -761,19 +765,30 @@ function DojoDashboard() {
                   : s.belt
                   ? [{ modality: s.belt.modality, belt: s.belt, degree: s.current_degree ?? 0 }]
                   : [];
+              const isActive = s.status === "active";
               return (
                 <Link
                   key={s.id}
                   to="/dojo/app/students/$id"
                   params={{ id: s.id }}
-                  className="flex items-center gap-3 px-1 py-2.5 hover:bg-neutral-50 transition-colors rounded"
+                  className="group px-6 py-4 flex items-center gap-4 hover:bg-red-950/10 transition-colors"
                 >
-                  <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gradient-to-br from-red-600 to-red-700 text-white text-xs font-bold shadow-sm">
-                    {(s.full_name?.[0] ?? "A").toUpperCase()}
+                  <div className="relative shrink-0">
+                    <div className="grid h-11 w-11 place-items-center rounded-full bg-red-900/30 border border-red-800/50">
+                      <span className="text-red-500 font-bold text-sm">
+                        {(s.full_name?.[0] ?? "A").toUpperCase()}
+                      </span>
+                    </div>
+                    <span
+                      className={`absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-zinc-950 ${
+                        isActive ? "bg-green-500" : "bg-zinc-600"
+                      }`}
+                    />
                   </div>
+
                   <div className="min-w-0 flex-1">
-                    <div className="text-sm font-medium truncate">{s.full_name}</div>
-                    <div className="text-[11px] text-muted-foreground truncate">
+                    <h3 className="text-sm font-semibold text-zinc-100 truncate">{s.full_name}</h3>
+                    <p className="text-xs text-zinc-500 truncate">
                       {belts.length
                         ? belts
                             .map(
@@ -782,27 +797,41 @@ function DojoDashboard() {
                             )
                             .join(" • ")
                         : "Sem faixa"}
-                    </div>
+                    </p>
                   </div>
-                  <div className="hidden md:block shrink-0">
+
+                  <div className="hidden md:flex items-center gap-4 shrink-0">
                     {belts[0] && (
-                      <BeltAuto belt={belts[0].belt} degree={belts[0].degree ?? 0} className="w-[180px]" />
+                      <BeltAuto
+                        belt={belts[0].belt}
+                        degree={belts[0].degree ?? 0}
+                        className="w-[140px]"
+                      />
                     )}
+                    <span
+                      className={`px-2 py-0.5 rounded text-[10px] font-bold border uppercase tracking-wider ${
+                        isActive
+                          ? "bg-green-500/10 text-green-500 border-green-500/20"
+                          : "bg-zinc-800/60 text-zinc-500 border-zinc-700"
+                      }`}
+                    >
+                      {isActive ? "Ativo" : "Inativo"}
+                    </span>
                   </div>
-                  <span
-                    className={`text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded shrink-0 ${
-                      s.status === "active"
-                        ? "bg-emerald-100 text-emerald-700"
-                        : "bg-neutral-100 text-neutral-500"
-                    }`}
-                  >
-                    {s.status === "active" ? "Ativo" : "Inativo"}
-                  </span>
                 </Link>
               );
             })}
           </div>
-        </BentoCard>
+
+          {recent.length > 0 && (
+            <div className="bg-red-950/10 px-6 py-3">
+              <p className="text-[10px] text-zinc-500 uppercase tracking-widest text-center">
+                • Atualizado em tempo real •
+              </p>
+            </div>
+          )}
+        </div>
+
       </section>
 
       {/* Ações rápidas */}
