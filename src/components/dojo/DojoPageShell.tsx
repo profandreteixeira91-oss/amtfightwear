@@ -40,7 +40,7 @@ export function DojoPageShell({
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
             {title && (
-              <h2 className="font-display truncate text-xl font-bold tracking-tight md:text-2xl">
+              <h2 className="font-display break-words text-xl font-bold tracking-tight md:text-2xl">
                 {title}
               </h2>
             )}
