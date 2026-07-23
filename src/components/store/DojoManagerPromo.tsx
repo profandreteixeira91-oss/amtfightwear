@@ -1,4 +1,5 @@
-import dojoPreview from "@/assets/dojo-manager-preview.png";
+import dojoVideoAsset from "@/assets/dojo-manager-square.mp4.asset.json";
+import dojoWordmarkAsset from "@/assets/amt-dojo-manager-wordmark.png.asset.json";
 
 const FEATURES = [
   "Gestão completa de alunos e atletas",
@@ -31,9 +32,16 @@ export function DojoManagerPromo() {
               Novo · SaaS AMT
             </div>
 
-            <h2 id="dojo-manager-promo" className="mt-5 text-3xl font-black leading-[1.05] tracking-tight text-foreground sm:text-4xl lg:text-5xl">
-              AMT <span className="text-primary">Dojo Manager</span>
-            </h2>
+            <h2 id="dojo-manager-promo" className="sr-only">AMT Dojo Manager</h2>
+            <img
+              src={dojoWordmarkAsset.url}
+              alt="AMT Dojo Manager — Gestão, Disciplina, Evolução"
+              width={1280}
+              height={428}
+              loading="lazy"
+              className="mt-5 h-auto w-full max-w-md"
+            />
+
 
             <p className="mt-4 max-w-xl text-lg font-semibold leading-snug text-foreground/80 sm:text-xl">
               O sistema completo para transformar a gestão da sua academia de Jiu-Jitsu.
@@ -73,16 +81,19 @@ export function DojoManagerPromo() {
           {/* Visual */}
           <div className="relative flex items-center justify-center">
             <div aria-hidden className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/10 via-transparent to-foreground/5" />
-            <div className="relative w-full overflow-hidden rounded-2xl border border-border bg-card shadow-2xl">
-              <img
-                src={dojoPreview}
-                alt="Pré-visualização do painel do AMT Dojo Manager, sistema de gestão para academias de jiu-jitsu"
-                width={1280}
-                height={960}
-                loading="lazy"
+            <div className="relative aspect-square w-full max-w-[560px] overflow-hidden rounded-2xl border border-border bg-card shadow-2xl">
+              <video
+                src={dojoVideoAsset.url}
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="metadata"
                 className="h-full w-full object-cover"
+                aria-label="Vídeo de apresentação do AMT Dojo Manager"
               />
             </div>
+
             {/* Floating stat chips */}
             <div className="pointer-events-none absolute -left-2 top-6 hidden rounded-xl border border-border bg-background/95 px-4 py-2 shadow-lg backdrop-blur sm:block">
               <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Alunos ativos</div>
