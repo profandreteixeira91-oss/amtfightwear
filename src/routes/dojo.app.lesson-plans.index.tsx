@@ -339,13 +339,20 @@ function WeekView({ from, plans, onCreate }: { from: Date; plans: PlanRow[]; onC
         const items = byDay[key] ?? [];
         const isToday = fmt(new Date()) === key;
         return (
-          <div key={key} className={`rounded-lg border p-2 min-h-[160px] ${isToday ? "border-primary/40 bg-primary/5" : "bg-card"}`}>
+          <div
+            key={key}
+            className={`min-h-[160px] rounded-xl border p-2 backdrop-blur transition-colors ${
+              isToday
+                ? "border-red-500/40 bg-gradient-to-br from-red-950/40 via-neutral-950/70 to-neutral-950/70 shadow-[0_10px_30px_-20px_rgba(220,38,38,0.7)]"
+                : "border-white/10 bg-neutral-950/50 hover:border-white/20"
+            }`}
+          >
             <div className="mb-2 flex items-center justify-between">
-              <div className="text-xs font-medium">
+              <div className={`text-xs font-semibold capitalize ${isToday ? "text-red-200" : "text-neutral-300"}`}>
                 {d.toLocaleDateString("pt-BR", { weekday: "short", day: "2-digit" })}
               </div>
               <button
-                className="text-xs text-muted-foreground hover:text-primary"
+                className="text-neutral-400 transition-colors hover:text-red-300"
                 onClick={() => onCreate(key)}
                 title="Adicionar aula"
               >
@@ -358,9 +365,9 @@ function WeekView({ from, plans, onCreate }: { from: Date; plans: PlanRow[]; onC
                   key={p.id}
                   to="/dojo/app/lesson-plans/$id"
                   params={{ id: p.id as string }}
-                  className={`block rounded border px-2 py-1 text-xs ${STATUS_COLORS[p.status as string] ?? ""}`}
+                  className={`block rounded-md border px-2 py-1 text-xs backdrop-blur transition-transform hover:scale-[1.02] ${STATUS_COLORS[p.status as string] ?? "border-white/10 bg-white/5 text-white"}`}
                 >
-                  <div className="font-medium truncate">{p.title}</div>
+                  <div className="truncate font-semibold">{p.title}</div>
                   {p.start_time ? <div className="opacity-70">{(p.start_time as string).slice(0, 5)}</div> : null}
                 </Link>
               ))}
@@ -371,6 +378,7 @@ function WeekView({ from, plans, onCreate }: { from: Date; plans: PlanRow[]; onC
     </div>
   );
 }
+
 
 function MonthView({ anchor, plans, onCreate }: { anchor: Date; plans: PlanRow[]; onCreate: (date: string) => void }) {
   const first = new Date(anchor.getFullYear(), anchor.getMonth(), 1);
