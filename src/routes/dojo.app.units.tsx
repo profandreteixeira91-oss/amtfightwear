@@ -481,3 +481,71 @@ function AffiliateDialog({ form, setForm, onSave }: { form: any; setForm: (f: an
     </DialogContent>
   );
 }
+
+function LogoUploader({
+  kind, value, onChange,
+}: { kind: string; value: string; onChange: (url: string) => void }) {
+  const ref = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+
+  const onFile = async (file: File) => {
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Arquivo muito grande (máx. 5MB)");
+      return;
+    }
+    setBusy(true);
+    try {
+      const { data: u } = await supabase.auth.getUser();
+      const uid = u.user?.id;
+      if (!uid) throw new Error("Não autenticado");
+      const ext = (file.name.split(".").pop() || "png").toLowerCase();
+      const path = `${uid}/${kind}-${Date.now()}.${ext}`;
+      const { error } = await supabase.storage
+        .from("dojo-brand")
+        .upload(path, file, { upsert: true, contentType: file.type });
+      if (error) throw error;
+      const { data: pub } = supabase.storage.from("dojo-brand").getPublicUrl(path);
+      onChange(pub.publicUrl);
+      toast.success("Imagem enviada");
+    } catch (e: any) {
+      toast.error(e.message || "Falha no upload");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-2">
+      {value ? (
+        <img src={value} alt="preview" className="h-12 w-12 rounded-lg object-cover border" />
+      ) : (
+        <div className="h-12 w-12 rounded-lg border border-dashed grid place-items-center text-muted-foreground">
+          <Building2 className="h-5 w-5" />
+        </div>
+      )}
+      <Input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="https://... ou faça upload"
+        className="flex-1"
+      />
+      <input
+        ref={ref}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])}
+      />
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        disabled={busy}
+        onClick={() => ref.current?.click()}
+      >
+        {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+      </Button>
+    </div>
+  );
+}
