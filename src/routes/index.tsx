@@ -1,12 +1,22 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
-import { DojoManagerPromo } from "@/components/store/DojoManagerPromo";
 import { listStorefrontHome, listStoreCategories } from "@/lib/store/store.functions";
-import { ArrowRight, Sparkles, Truck, CreditCard, ShieldCheck, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  ArrowRight,
+  Sparkles,
+  Truck,
+  CreditCard,
+  ShieldCheck,
+  RefreshCw,
+  Factory,
+  Shirt,
+  Palette,
+  PackageCheck,
+} from "lucide-react";
 import heroBanner from "@/assets/loja-hero-banner.jpg";
 import amtLogo from "@/assets/amt-logo.jpg";
-
 
 const homeQuery = queryOptions({
   queryKey: ["store", "home"],
@@ -26,10 +36,10 @@ export const Route = createFileRoute("/")({
   },
   head: () => ({
     meta: [
-      { title: "Loja AMT Fight Wear | Artigos para Artes Marciais" },
-      { name: "description", content: "A Loja AMT Fight Wear é o e-commerce oficial para comprar kimonos, rashguards, faixas e acessórios de jiu-jitsu e judô, no varejo ou atacado." },
-      { property: "og:title", content: "Loja AMT Fight Wear | Artigos para Artes Marciais" },
-      { property: "og:description", content: "Kimonos, rashguards, faixas e acessórios AMT Fight Wear. Compre direto da fábrica com envio para todo o Brasil e opção de personalização no Custom Shop." },
+      { title: "AMT Fight Wear | Kimonos, Faixas e Roupas de Treino" },
+      { name: "description", content: "Kimonos, faixas, rashguards e roupas de treino direto da fábrica. Frete grátis acima de R$ 399, até 10x sem juros e envio para todo o Brasil." },
+      { property: "og:title", content: "AMT Fight Wear | Feito para quem treina de verdade" },
+      { property: "og:description", content: "Kimonos, faixas e equipamentos direto da fábrica com alta performance e envio para todo o Brasil." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://amtfightwear.com.br/" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -40,9 +50,9 @@ export const Route = createFileRoute("/")({
       children: JSON.stringify({
         "@context": "https://schema.org",
         "@type": "OnlineStore",
-        name: "Loja AMT Fight Wear",
+        name: "AMT Fight Wear",
         url: "https://amtfightwear.com.br/",
-        description: "E-commerce oficial da AMT Fight Wear para venda de kimonos, rashguards, faixas e acessórios para artes marciais.",
+        description: "E-commerce oficial da AMT Fight Wear.",
       }),
     }],
   }),
@@ -53,7 +63,7 @@ export const Route = createFileRoute("/")({
 
 function SectionHeader({ eyebrow, title, action }: { eyebrow?: string; title: string; action?: React.ReactNode }) {
   return (
-    <div className="mb-12 flex items-end justify-between gap-6 sm:mb-16">
+    <div className="mb-10 flex items-end justify-between gap-6">
       <div className="min-w-0">
         {eyebrow ? (
           <div className="mb-3 flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.38em] text-primary">
@@ -61,10 +71,7 @@ function SectionHeader({ eyebrow, title, action }: { eyebrow?: string; title: st
             {eyebrow}
           </div>
         ) : null}
-        <h2
-          className="text-[2rem] leading-[1.02] tracking-[-0.02em] text-foreground sm:text-[2.75rem] lg:text-[3.25rem]"
-         
-        >
+        <h2 className="text-3xl font-black leading-tight tracking-tight text-foreground sm:text-4xl lg:text-5xl">
           {title}
         </h2>
       </div>
@@ -77,443 +84,251 @@ function StoreHomePage() {
   const { data } = useSuspenseQuery(homeQuery);
   const { data: categories } = useSuspenseQuery(catsQuery);
 
-  const topCategories = categories.filter((c) => !c.parent_id).slice(0, 6);
+  const kimonoSlug = categories.find((c) => /kimono/i.test(c.name))?.slug ?? "kimonos-de-jiu-jitsu";
+  const faixaSlug = categories.find((c) => /faixa/i.test(c.name))?.slug ?? "faixas-de-jiu-jitsu";
+
+  // Vitrines enxutas: mistura destaques + novidades como "Lançamentos & Destaques"
+  const lancamentos = [...data.featured, ...data.newest].filter(
+    (p, i, arr) => arr.findIndex((x) => x.id === p.id) === i,
+  ).slice(0, 8);
+  const maisVendidos = [...data.bjjBelts, ...data.judoBelts].slice(0, 8);
+  const premium = data.kimonos.slice(0, 8);
 
   return (
     <StoreShell categories={categories}>
       {/* ============================================================
-          HERO — Full width, cinematic, premium
+          HERO
          ============================================================ */}
       <section className="relative isolate overflow-hidden bg-black text-white">
         <img
           src={heroBanner}
-          alt="Atleta AMT Fight Wear em treinamento de jiu-jitsu"
+          alt="Atleta AMT Fight Wear em treinamento"
           width={1920}
           height={912}
-          className="pointer-events-none absolute inset-0 h-full w-full object-cover object-[70%_center] opacity-80 sm:object-right motion-safe:animate-in motion-safe:fade-in motion-safe:duration-700"
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover object-[70%_center] opacity-80 sm:object-right"
         />
-        {/* Layered overlays for legibility without washing out imagery */}
         <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black via-black/70 to-black/10" />
         <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-black/40" />
-        <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
 
-        <div className="relative mx-auto flex min-h-[78vh] max-w-7xl flex-col justify-center px-6 py-24 sm:px-8 sm:py-32 lg:min-h-[86vh]">
-          <div className="max-w-3xl motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-4 motion-safe:duration-700">
+        <div className="relative mx-auto flex min-h-[72vh] max-w-7xl flex-col justify-center px-6 py-24 sm:px-8 sm:py-32 lg:min-h-[82vh]">
+          <div className="max-w-3xl">
             <div className="mb-7 inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 backdrop-blur">
-              <img
-                src={amtLogo}
-                alt="AMT Fight Wear"
-                width={24}
-                height={24}
-                className="h-6 w-6 rounded-full object-cover ring-1 ring-primary/60"
-              />
+              <img src={amtLogo} alt="AMT Fight Wear" width={24} height={24} className="h-6 w-6 rounded-full object-cover ring-1 ring-primary/60" />
               <span className="text-[10px] font-semibold uppercase tracking-[0.38em] text-white/90">
                 AMT Fight Wear · E-commerce oficial
               </span>
             </div>
 
-            <h1
-              className="text-[3.25rem] leading-[0.95] tracking-[-0.03em] text-white sm:text-[5rem] lg:text-[6.25rem]"
-             
-            >
-              Feito para
-              <br />
-              <span className="italic text-primary" style={{ fontWeight: 500 }}>quem treina</span>
-              <span className="text-white/95"> de verdade.</span>
+            <h1 className="text-[2.75rem] font-black leading-[0.98] tracking-tight text-white sm:text-6xl lg:text-7xl">
+              Feito para <span className="italic text-primary">quem treina</span> de verdade.
             </h1>
 
-            <p className="mt-8 max-w-xl text-lg font-normal leading-[1.65] text-white/80 sm:text-xl">
-              Kimonos, rashguards, faixas e acessórios para jiu-jitsu, judô e artes marciais.
-              Direto da fábrica, com envio para todo o Brasil.
+            <p className="mt-6 max-w-xl text-base leading-relaxed text-white/85 sm:text-lg">
+              Kimonos, faixas e equipamentos direto da fábrica com alta performance e envio para todo o Brasil.
             </p>
 
-            <div className="mt-10 flex flex-wrap items-center gap-4">
-              <Link
-                to="/loja/categoria/$slug"
-                params={{ slug: categories[0]?.slug ?? "kimonos" }}
-                className="group inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-sm font-bold uppercase tracking-widest text-primary-foreground shadow-[0_10px_30px_-8px_rgba(220,38,38,0.55)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-10px_rgba(220,38,38,0.65)]"
-              >
-                Ver coleção
-                <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-              </Link>
-              <a
-                href="#destaques"
-                className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/5 px-8 py-4 text-sm font-bold uppercase tracking-widest text-white backdrop-blur transition-all duration-300 hover:border-white/60 hover:bg-white/10"
-              >
-                Destaques
-              </a>
+            <div className="mt-9 flex flex-wrap items-center gap-3">
+              <Button asChild size="lg" className="h-12 rounded-full px-8 text-sm font-bold uppercase tracking-widest shadow-[0_10px_30px_-8px_rgba(220,38,38,0.55)]">
+                <Link to="/loja/categoria/$slug" params={{ slug: kimonoSlug }}>
+                  Comprar Kimonos <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="lg" className="h-12 rounded-full border-white/30 bg-white/5 px-8 text-sm font-bold uppercase tracking-widest text-white backdrop-blur hover:bg-white/10 hover:text-white">
+                <Link to="/loja/custom-shop">
+                  Custom Shop <Sparkles className="h-4 w-4" />
+                </Link>
+              </Button>
             </div>
 
-            <div className="mt-14 flex flex-wrap items-center gap-x-8 gap-y-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-white/70">
+            <div className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-white/70">
               <span className="inline-flex items-center gap-2"><Truck className="h-3.5 w-3.5 text-primary" /> Frete grátis R$ 399+</span>
               <span className="inline-flex items-center gap-2"><CreditCard className="h-3.5 w-3.5 text-primary" /> 10x sem juros</span>
               <span className="inline-flex items-center gap-2"><ShieldCheck className="h-3.5 w-3.5 text-primary" /> Compra segura</span>
             </div>
           </div>
         </div>
-
-        {/* Bottom fade into page */}
-        <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-background" />
       </section>
 
       {/* ============================================================
-          CATEGORIES — Premium destaques
+          VITRINE 1 — Lançamentos & Destaques
          ============================================================ */}
-      {topCategories.length > 0 && (
-        <section className="mx-auto max-w-7xl px-6 py-24 sm:px-8 sm:py-28">
+      {lancamentos.length > 0 && (
+        <section id="destaques" className="mx-auto max-w-7xl px-6 py-20 sm:px-8">
           <SectionHeader
-            eyebrow="Coleções"
-            title="Explore por categoria"
+            eyebrow="Novidades"
+            title="Lançamentos & Destaques"
             action={
-              <Link
-                to="/loja/custom-shop"
-                className="hidden shrink-0 items-center gap-2 text-xs font-bold uppercase tracking-[0.28em] text-foreground hover:text-primary sm:inline-flex"
-              >
-                Custom Shop <ArrowRight className="h-3.5 w-3.5" />
+              <Link to="/loja/categoria/$slug" params={{ slug: kimonoSlug }} className="hidden shrink-0 items-center gap-2 text-xs font-bold uppercase tracking-[0.28em] text-foreground hover:text-primary sm:inline-flex">
+                Ver tudo <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             }
           />
-          <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-6">
-            {topCategories.map((c, idx) => {
-              const subs = categories.filter((s) => s.parent_id === c.id);
-              const preview = (c as { preview_image?: string | null }).preview_image ?? null;
-              return (
-                <div key={c.slug} className="group relative">
-                  <Link
-                    to="/loja/categoria/$slug"
-                    params={{ slug: c.slug }}
-                    className="relative flex aspect-[4/5] flex-col justify-end overflow-hidden rounded-2xl border border-border bg-neutral-100 transition-all duration-500 hover:-translate-y-1 hover:border-foreground/30 hover:shadow-[0_24px_50px_-18px_rgba(0,0,0,0.35)]"
-                  >
-                    {/* Product image */}
-                    {preview ? (
-                      <img
-                        src={preview}
-                        alt={c.name}
-                        loading="lazy"
-                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.06]"
-                      />
-                    ) : (
-                      <div aria-hidden className="absolute inset-0 bg-gradient-to-br from-neutral-200 via-neutral-100 to-white" />
-                    )}
-
-                    {/* Darkening gradient for legibility */}
-                    <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-black/10" />
-                    <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_80%_at_100%_0%,rgba(220,38,38,0.28),transparent_60%)] opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-
-                    {/* Index badge */}
-                    <div className="absolute right-4 top-4 text-[10px] font-bold tracking-[0.28em] text-white/80">
-                      {String(idx + 1).padStart(2, "0")}
-                    </div>
-
-                    {/* Content */}
-                    <div className="relative z-10 p-5 text-white">
-                      <div className="text-[10px] font-semibold uppercase tracking-[0.36em] text-white/80">Categoria</div>
-                      <div
-                        className="mt-2 text-xl leading-[1.05] tracking-[-0.01em] drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)] sm:text-2xl"
-                       
-                      >
-                        {c.name}
-                      </div>
-                      <div className="mt-4 inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.32em] text-white/85 transition-colors group-hover:text-white">
-                        {subs.length > 0 ? "Ver subcategorias" : "Explorar"} <ArrowRight className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-0.5" />
-                      </div>
-                    </div>
-                  </Link>
-
-                  {subs.length > 0 && (
-                    <div className="pointer-events-none absolute left-0 right-0 top-full z-30 hidden pt-2 group-hover:pointer-events-auto md:block">
-                      <div className="pointer-events-auto invisible translate-y-1 rounded-2xl border border-border bg-background/95 p-3 opacity-0 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.35)] backdrop-blur-md transition-all duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
-                        <div className="mb-2 px-2 text-[10px] font-bold uppercase tracking-[0.28em] text-muted-foreground">
-                          Subcategorias
-                        </div>
-                        <ul className="flex flex-col">
-                          {subs.map((s) => (
-                            <li key={s.id}>
-                              <Link
-                                to="/loja/categoria/$slug"
-                                params={{ slug: s.slug }}
-                                className="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-sm font-medium text-foreground/80 transition-colors hover:bg-muted hover:text-foreground"
-                              >
-                                <span className="truncate">{s.name}</span>
-                                <ArrowRight className="h-3 w-3 shrink-0 opacity-40" />
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                        <div className="mt-2 border-t border-border pt-2">
-                          <Link
-                            to="/loja/categoria/$slug"
-                            params={{ slug: c.slug }}
-                            className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-[11px] font-bold uppercase tracking-widest text-primary hover:bg-primary/5"
-                          >
-                            Ver tudo em {c.name} <ArrowRight className="h-3 w-3" />
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+          <div className="grid grid-cols-2 gap-5 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
+            {lancamentos.map((p) => <ProductCard key={p.id} product={p} />)}
           </div>
         </section>
       )}
 
       {/* ============================================================
-          FEATURED — Produtos em destaque
+          CUPOM AMT10
          ============================================================ */}
-      {data.featured.length > 0 && (
-        <section id="destaques" className="mx-auto max-w-7xl px-6 py-20 sm:px-8 sm:py-24">
+      <section className="mx-auto max-w-7xl px-6 pb-4 sm:px-8">
+        <div className="relative overflow-hidden rounded-3xl bg-primary p-8 text-primary-foreground sm:p-12">
+          <div className="relative z-10 flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-center">
+            <div className="max-w-xl">
+              <div className="text-[10px] font-semibold uppercase tracking-[0.38em] opacity-80">Cupom de boas-vindas</div>
+              <h3 className="mt-3 text-3xl font-black leading-tight tracking-tight sm:text-4xl">
+                10% off na primeira compra
+              </h3>
+              <p className="mt-3 text-sm leading-relaxed opacity-90 sm:text-base">
+                Use o código <span className="rounded bg-primary-foreground/15 px-2 py-0.5 font-mono text-[13px] font-bold tracking-widest">AMT10</span> no checkout. Válido em todo o site.
+              </p>
+            </div>
+            <Button asChild size="lg" variant="secondary" className="h-12 shrink-0 rounded-full px-8 text-xs font-bold uppercase tracking-widest">
+              <a href="#destaques">Aproveitar agora <ArrowRight className="h-3.5 w-3.5" /></a>
+            </Button>
+          </div>
+          <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 h-72 w-72 rounded-full bg-primary-foreground/10 blur-3xl" />
+        </div>
+      </section>
+
+      {/* ============================================================
+          VITRINE 2 — Mais Vendidos (Faixas)
+         ============================================================ */}
+      {maisVendidos.length > 0 && (
+        <section className="mx-auto max-w-7xl px-6 py-20 sm:px-8">
           <SectionHeader
-            eyebrow="Curadoria"
-            title="Destaques AMT"
+            eyebrow="Alta rotação"
+            title="Mais Vendidos"
             action={
-              <a href="#novidades" className="hidden shrink-0 items-center gap-2 text-xs font-bold uppercase tracking-[0.28em] text-foreground hover:text-primary sm:inline-flex">
-                Novidades <ArrowRight className="h-3.5 w-3.5" />
-              </a>
+              <Link to="/loja/categoria/$slug" params={{ slug: faixaSlug }} className="hidden shrink-0 items-center gap-2 text-xs font-bold uppercase tracking-[0.28em] text-foreground hover:text-primary sm:inline-flex">
+                Ver faixas <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
             }
           />
           <div className="grid grid-cols-2 gap-5 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
-            {data.featured.map((p) => <ProductCard key={p.id} product={p} />)}
+            {maisVendidos.map((p) => <ProductCard key={p.id} product={p} />)}
           </div>
         </section>
       )}
 
       {/* ============================================================
-          BENEFITS — Cards modernos
+          VITRINE 3 — Kimonos Coleção Premium
          ============================================================ */}
-      <section className="mx-auto max-w-7xl px-6 py-20 sm:px-8 sm:py-24">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {premium.length > 0 && (
+        <section className="mx-auto max-w-7xl px-6 py-20 sm:px-8">
+          <SectionHeader
+            eyebrow="Ícones AMT"
+            title="Kimonos Coleção Premium"
+            action={
+              <Link to="/loja/categoria/$slug" params={{ slug: kimonoSlug }} className="hidden shrink-0 items-center gap-2 text-xs font-bold uppercase tracking-[0.28em] text-foreground hover:text-primary sm:inline-flex">
+                Ver coleção <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            }
+          />
+          <div className="grid grid-cols-2 gap-5 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
+            {premium.map((p) => <ProductCard key={p.id} product={p} />)}
+          </div>
+        </section>
+      )}
+
+      {/* ============================================================
+          CUSTOM SHOP — 3 passos
+         ============================================================ */}
+      <section className="relative overflow-hidden bg-neutral-950 text-white">
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_60%_at_50%_0%,rgba(220,38,38,0.18),transparent_70%)]" />
+        <div className="relative mx-auto max-w-7xl px-6 py-24 sm:px-8">
+          <div className="mx-auto max-w-2xl text-center">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.38em] text-white/90 backdrop-blur">
+              <Sparkles className="h-3.5 w-3.5 text-primary" /> Custom Shop
+            </div>
+            <h2 className="text-3xl font-black leading-tight tracking-tight sm:text-4xl lg:text-5xl">
+              Sua peça, do <span className="italic text-primary">seu jeito</span>.
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-white/70 sm:text-base">
+              Customização direto da fábrica com padrão AMT. Três passos, resultado exclusivo.
+            </p>
+          </div>
+
+          <div className="mt-16 grid gap-6 sm:grid-cols-3 sm:gap-8">
+            {[
+              { n: "01", icon: Shirt, title: "Escolha a peça", desc: "Kimono, faixa ou rashguard AMT com fit e tecido premium." },
+              { n: "02", icon: Palette, title: "Envie sua arte", desc: "Patches, bordados ou logotipos da sua academia." },
+              { n: "03", icon: PackageCheck, title: "Receba em casa", desc: "Peça 100% exclusiva no padrão de fábrica AMT." },
+            ].map(({ n, icon: Icon, title, desc }) => (
+              <div key={n} className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-white/[0.06]">
+                <div className="mb-6 flex items-center justify-between">
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary/15 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <div className="text-4xl font-black text-white/10">{n}</div>
+                </div>
+                <div className="text-xl font-bold tracking-tight">{title}</div>
+                <div className="mt-2 text-sm leading-relaxed text-white/65">{desc}</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-14 text-center">
+            <Button asChild size="lg" className="h-12 rounded-full px-10 text-sm font-bold uppercase tracking-widest shadow-[0_10px_30px_-8px_rgba(220,38,38,0.55)]">
+              <Link to="/loja/custom-shop">
+                Customizar Agora <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================================
+          TRUST SIGNALS — barra horizontal
+         ============================================================ */}
+      <section className="border-b bg-muted/30">
+        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-6 py-10 sm:grid-cols-4 sm:px-8 sm:py-12">
           {[
-            { icon: Truck, title: "Frete grátis", desc: "Acima de R$ 399 para todo o Brasil, com rastreamento." },
-            { icon: CreditCard, title: "10x sem juros", desc: "Parcele no cartão ou pague no Pix com desconto." },
-            { icon: RefreshCw, title: "Troca fácil", desc: "7 dias para trocar tamanho, sem burocracia." },
-            { icon: ShieldCheck, title: "Qualidade AMT", desc: "Produtos testados por atletas profissionais." },
+            { icon: Truck, title: "Frete grátis", desc: "Acima de R$ 399" },
+            { icon: CreditCard, title: "10x sem juros", desc: "No cartão" },
+            { icon: RefreshCw, title: "Troca fácil", desc: "7 dias" },
+            { icon: Factory, title: "Direto da fábrica", desc: "Sem intermediários" },
           ].map(({ icon: Icon, title, desc }) => (
-            <div
-              key={title}
-              className="group relative overflow-hidden rounded-2xl border border-border bg-card p-7 transition-all duration-300 hover:-translate-y-0.5 hover:border-foreground/20 hover:shadow-[0_12px_32px_-16px_rgba(0,0,0,0.18)]"
-            >
-              <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
+            <div key={title} className="flex items-center gap-3">
+              <div className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Icon className="h-5 w-5" />
               </div>
-              <div className="mt-6 text-lg tracking-[-0.01em] text-foreground">{title}</div>
-              <div className="mt-2 text-sm leading-[1.65] text-muted-foreground">{desc}</div>
+              <div className="min-w-0">
+                <div className="text-sm font-bold tracking-tight text-foreground">{title}</div>
+                <div className="text-xs text-muted-foreground">{desc}</div>
+              </div>
             </div>
           ))}
         </div>
       </section>
 
       {/* ============================================================
-          PROMO STRIP — Cupom + Custom Shop
+          DOJO MANAGER — banner institucional pré-footer
          ============================================================ */}
-      <section className="mx-auto max-w-7xl px-6 pb-24 sm:px-8">
-        <div className="grid gap-5 lg:grid-cols-5">
-          <div className="relative overflow-hidden rounded-3xl bg-primary p-10 text-primary-foreground lg:col-span-3">
-            <div className="relative z-10 max-w-md">
-              <div className="text-[10px] font-semibold uppercase tracking-[0.38em] opacity-80">Cupom de boas-vindas</div>
-              <h3
-                className="mt-4 text-[2.25rem] leading-[1.02] tracking-[-0.025em] sm:text-[3rem]"
-               
-              >
-                10% <span className="italic" style={{ fontWeight: 500 }}>off</span> na primeira compra
-              </h3>
-              <p className="mt-4 text-[15px] leading-[1.65] opacity-90 sm:text-base">
-                Use o cupom <span className="rounded bg-primary-foreground/15 px-2 py-0.5 font-mono text-[13px] font-semibold tracking-wider">AMT10</span> no checkout. Válido em todo o site.
-              </p>
-              <a
-                href="#destaques"
-                className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary-foreground px-7 py-3.5 text-xs font-bold uppercase tracking-widest text-primary transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.4)]"
-              >
-                Aproveitar agora <ArrowRight className="h-3.5 w-3.5" />
-              </a>
-            </div>
-            <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 h-72 w-72 rounded-full bg-primary-foreground/10 blur-3xl" />
-            <div aria-hidden className="pointer-events-none absolute -bottom-24 -right-8 h-80 w-80 rounded-full bg-primary-foreground/5" />
-          </div>
-
-          <Link
-            to="/loja/custom-shop"
-            className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-foreground p-10 text-background lg:col-span-2"
-          >
-            <div>
-              <div className="inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.38em] text-primary">
-                <Sparkles className="h-3.5 w-3.5" /> Novo · Custom Shop
-              </div>
-              <h3
-                className="mt-4 text-[2rem] leading-[1.02] tracking-[-0.025em] sm:text-[2.5rem]"
-               
-              >
-                100% <span className="italic text-primary" style={{ fontWeight: 500 }}>personalizado</span>
-              </h3>
-              <p className="mt-4 text-[15px] leading-[1.65] text-background/70">
-                Kimono, rashguard ou faixa sob encomenda no padrão AMT.
-              </p>
-            </div>
-            <span className="mt-8 inline-flex w-fit items-center gap-2 text-xs font-bold uppercase tracking-widest text-background transition-colors group-hover:text-primary">
-              Customizar agora <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
-            </span>
-          </Link>
-        </div>
-      </section>
-
-      {/* ============================================================
-          FINALIDADE DO APP — Bloco institucional (mantido)
-         ============================================================ */}
-      <section aria-labelledby="sobre-o-app" className="border-y bg-muted/30">
-        <div className="mx-auto max-w-7xl px-6 py-20 sm:px-8 sm:py-24">
-          <div className="grid gap-12 md:grid-cols-5">
-            <div className="md:col-span-2">
-              <div className="text-[10px] font-semibold uppercase tracking-[0.38em] text-primary">Sobre a loja</div>
-              <h2
-                id="sobre-o-app"
-                className="mt-4 text-[2rem] leading-[1.05] tracking-[-0.02em] sm:text-[2.75rem]"
-               
-              >
-                Para que serve a <span className="italic" style={{ fontWeight: 500 }}>Loja AMT Fight Wear</span>?
+      <section id="dojo-manager" className="mx-auto max-w-7xl px-6 py-20 sm:px-8">
+        <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-neutral-50 via-white to-neutral-100 p-10 sm:p-14">
+          <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_50%_at_100%_0%,rgba(220,38,38,0.08),transparent_70%)]" />
+          <div className="relative flex flex-col items-start justify-between gap-8 lg:flex-row lg:items-center">
+            <div className="max-w-2xl">
+              <div className="text-[10px] font-semibold uppercase tracking-[0.38em] text-primary">Para academias</div>
+              <h2 className="mt-3 text-3xl font-black leading-tight tracking-tight text-foreground sm:text-4xl">
+                Gerencia uma Academia de Artes Marciais?
               </h2>
-              <img
-                src={amtLogo}
-                alt="AMT Fight Wear"
-                className="mt-8 w-full max-w-[220px] rounded-2xl border border-border bg-background object-contain p-4 shadow-sm"
-              />
-            </div>
-            <div className="space-y-5 text-[15px] leading-[1.75] text-muted-foreground md:col-span-3 sm:text-base">
-              <p className="first-letter:mr-1 first-letter:float-left first-letter:text-5xl first-letter:font-semibold first-letter:leading-[0.9] first-letter:text-foreground" style={{ }}>
-                A <strong className="text-foreground">Loja AMT Fight Wear</strong> é o e-commerce oficial da fabricante brasileira de artigos para artes marciais. O aplicativo permite que praticantes, academias e lojistas <strong className="text-foreground">naveguem pelo catálogo, personalizem peças no Custom Shop, calculem frete, façam pedidos no varejo ou atacado e acompanhem o status de cada compra</strong> em uma conta protegida.
+              <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base">
+                Conheça o <strong className="text-foreground">AMT Dojo Manager</strong>: o software completo para controle de alunos, graduações e financeiro.
               </p>
-              <p>
-                Vendemos <strong className="text-foreground">kimonos, rashguards, faixas de jiu-jitsu e judô, shorts e acessórios</strong> produzidos em nossa fábrica. Todo o processo — do carrinho ao pagamento seguro via Mercado Pago, com envio rastreado para todo o Brasil — acontece dentro deste site.
-              </p>
-              <ul className="grid gap-3 pt-4 sm:grid-cols-2">
-                {[
-                  "Compra direto da fábrica, sem intermediários",
-                  "Custom Shop para peças 100% personalizadas",
-                  "Área do cliente com histórico de pedidos",
-                  "Atendimento humano no chat da loja",
-                ].map((it) => (
-                  <li key={it} className="flex items-start gap-3 text-sm text-foreground">
-                    <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">✓</span>
-                    <span>{it}</span>
-                  </li>
-                ))}
-              </ul>
             </div>
+            <Button asChild size="lg" variant="outline" className="h-12 shrink-0 rounded-full px-8 text-xs font-bold uppercase tracking-widest">
+              <a href="https://dojomanager.amtfightwear.com.br" target="_blank" rel="noreferrer">
+                Conhecer Sistema <ArrowRight className="h-3.5 w-3.5" />
+              </a>
+            </Button>
           </div>
         </div>
       </section>
 
-      {/* ============================================================
-          DOJO MANAGER PROMO — Mantido intacto
-         ============================================================ */}
-      <DojoManagerPromo />
-
-      {/* ============================================================
-          NOVIDADES
-         ============================================================ */}
-      {data.newest.length > 0 && (
-        <section id="novidades" className="mx-auto max-w-7xl px-6 py-24 sm:px-8 sm:py-28">
-          <SectionHeader eyebrow="Recém-chegados" title="Novidades" />
-          <div className="grid grid-cols-2 gap-5 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
-            {data.newest.map((p) => <ProductCard key={p.id} product={p} />)}
-          </div>
-        </section>
-      )}
-
-      {/* ============================================================
-          FAIXAS BJJ
-         ============================================================ */}
-      {data.bjjBelts.length > 0 && (
-        <section className="mx-auto max-w-7xl px-6 py-20 sm:px-8 sm:py-24">
-          <SectionHeader
-            eyebrow="Seleção do dia"
-            title="Faixas de Jiu-Jitsu"
-            action={
-              <Link
-                to="/loja/categoria/$slug"
-                params={{ slug: "faixas-de-jiu-jitsu" }}
-                className="inline-flex shrink-0 items-center gap-2 text-xs font-bold uppercase tracking-[0.28em] text-foreground hover:text-primary"
-              >
-                Ver tudo <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
-            }
-          />
-          <div className="grid grid-cols-2 gap-5 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
-            {data.bjjBelts.map((p) => <ProductCard key={p.id} product={p} />)}
-          </div>
-        </section>
-      )}
-
-      {/* ============================================================
-          FAIXAS JUDÔ
-         ============================================================ */}
-      {data.judoBelts.length > 0 && (
-        <section className="mx-auto max-w-7xl px-6 py-20 sm:px-8 sm:py-24">
-          <SectionHeader
-            eyebrow="Tradição"
-            title="Faixas de Judô"
-            action={
-              <Link
-                to="/loja/categoria/$slug"
-                params={{ slug: "faixas-de-judo" }}
-                className="inline-flex shrink-0 items-center gap-2 text-xs font-bold uppercase tracking-[0.28em] text-foreground hover:text-primary"
-              >
-                Ver tudo <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
-            }
-          />
-          <div className="grid grid-cols-2 gap-5 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
-            {data.judoBelts.map((p) => <ProductCard key={p.id} product={p} />)}
-          </div>
-        </section>
-      )}
-
-      {/* ============================================================
-          KIMONOS
-         ============================================================ */}
-      {data.kimonos.length > 0 && (
-        <section className="mx-auto max-w-7xl px-6 py-20 sm:px-8 sm:py-24">
-          <SectionHeader
-            eyebrow="Ícones AMT"
-            title="Kimonos"
-            action={
-              <Link
-                to="/loja/categoria/$slug"
-                params={{ slug: "kimonos-de-jiu-jitsu" }}
-                className="inline-flex shrink-0 items-center gap-2 text-xs font-bold uppercase tracking-[0.28em] text-foreground hover:text-primary"
-              >
-                Ver tudo <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
-            }
-          />
-          <div className="grid grid-cols-2 gap-5 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
-            {data.kimonos.map((p) => <ProductCard key={p.id} product={p} />)}
-          </div>
-        </section>
-      )}
-
-      {/* ============================================================
-          FINAL WELCOME BANNER
-         ============================================================ */}
-      <section className="mx-auto max-w-7xl px-6 pb-24 sm:px-8">
-        <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-neutral-50 via-white to-neutral-100 px-8 py-16 text-center sm:px-12 sm:py-20">
-          <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_50%_at_50%_0%,rgba(220,38,38,0.08),transparent_70%)]" />
-          <div className="relative">
-            <div className="text-[10px] font-semibold uppercase tracking-[0.45em] text-primary">Bem-vindo à</div>
-            <h2
-              className="mt-4 text-[2.5rem] leading-[1.02] tracking-[-0.025em] text-foreground sm:text-[3.5rem]"
-             
-            >
-              Loja Virtual <span className="italic text-primary" style={{ fontWeight: 500 }}>AMT Fight Wear</span>
-            </h2>
-            <p className="mx-auto mt-5 max-w-xl text-[15px] leading-[1.7] text-muted-foreground sm:text-base">
-              Compre online com segurança <span className="mx-1 text-primary/60">·</span> entrega para todo o Brasil
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {data.featured.length === 0 && data.newest.length === 0 && data.bjjBelts.length === 0 && data.judoBelts.length === 0 && data.kimonos.length === 0 && (
+      {lancamentos.length === 0 && maisVendidos.length === 0 && premium.length === 0 && (
         <div className="mx-auto max-w-7xl px-6 py-24 text-center sm:px-8">
           <p className="text-lg text-muted-foreground">Catálogo em preparação. Em breve novos produtos.</p>
         </div>
