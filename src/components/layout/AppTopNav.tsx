@@ -247,8 +247,8 @@ export function AppTopNav() {
             />
             <span className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-white/40 opacity-0 transition-opacity group-hover:opacity-100" />
           </div>
-          <div className="hidden leading-tight sm:block">
-            <div className={cn("text-sm font-bold tracking-tight truncate max-w-[220px]", !inDojo && "text-foreground")}>
+          <div className="hidden min-w-0 leading-tight sm:block">
+            <div className={cn("text-sm font-bold tracking-tight", !inDojo && "text-foreground")}>
               {inStore ? "AMT Fight Wear" : (dojoName || "AMT Growth")}
             </div>
             <div className={cn("text-[10px] font-medium uppercase tracking-[0.18em]", inDojo ? "text-white/70" : "text-muted-foreground")}>
