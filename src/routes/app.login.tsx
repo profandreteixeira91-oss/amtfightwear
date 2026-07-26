@@ -201,30 +201,40 @@ function LoginPage() {
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-medium">Nova senha</label>
+            <div className="relative">
             <input
-              type="password"
+              type={showPw ? "text" : "password"}
               required
               autoFocus
               minLength={8}
               autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-base outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-100"
+              className="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 pr-11 text-base outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-100"
               placeholder="Mínimo 8 caracteres"
             />
+            <button type="button" onClick={() => setShowPw((v) => !v)} aria-label={showPw ? "Ocultar senha" : "Mostrar senha"} className="absolute right-2 top-1/2 -translate-y-1/2 grid h-9 w-9 place-items-center rounded-md text-neutral-400 hover:text-neutral-700">
+              {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
+            </div>
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-medium">Confirme a senha</label>
+            <div className="relative">
             <input
-              type="password"
+              type={showPw2 ? "text" : "password"}
               required
               minLength={8}
               autoComplete="new-password"
               value={passwordConfirm}
               onChange={(e) => setPasswordConfirm(e.target.value)}
-              className="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-base outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-100"
+              className="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 pr-11 text-base outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-100"
               placeholder="Repita a senha"
             />
+            <button type="button" onClick={() => setShowPw2((v) => !v)} aria-label={showPw2 ? "Ocultar senha" : "Mostrar senha"} className="absolute right-2 top-1/2 -translate-y-1/2 grid h-9 w-9 place-items-center rounded-md text-neutral-400 hover:text-neutral-700">
+              {showPw2 ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
+            </div>
           </div>
           <button
             type="submit"
