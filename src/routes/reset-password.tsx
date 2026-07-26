@@ -26,8 +26,14 @@ export const Route = createFileRoute("/reset-password")({
 
 const schema = z
   .object({
-    password: z.string().min(6, "Mínimo de 6 caracteres"),
-    confirm: z.string().min(6, "Mínimo de 6 caracteres"),
+    password: z
+      .string()
+      .min(PASSWORD_MIN_LENGTH, `Mínimo de ${PASSWORD_MIN_LENGTH} caracteres`)
+      .regex(/[a-z]/, "Inclua uma letra minúscula")
+      .regex(/[A-Z]/, "Inclua uma letra maiúscula")
+      .regex(/[0-9]/, "Inclua um número")
+      .regex(/[^A-Za-z0-9]/, "Inclua um símbolo"),
+    confirm: z.string().min(PASSWORD_MIN_LENGTH, `Mínimo de ${PASSWORD_MIN_LENGTH} caracteres`),
   })
   .refine((v) => v.password === v.confirm, {
     message: "As senhas não coincidem",
