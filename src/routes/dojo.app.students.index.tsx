@@ -417,28 +417,34 @@ function StudentsPage() {
         <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-red-600/25 blur-3xl pointer-events-none" />
         <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-red-900/30 blur-3xl pointer-events-none" />
 
-        <div className="relative grid gap-6 p-6 md:p-8 md:grid-cols-[1fr_auto] md:items-start">
-          <div className="flex items-start gap-4 min-w-0">
-            <div className="relative shrink-0">
-              <div className="absolute inset-0 rounded-2xl bg-red-500/40 blur-xl" />
-              <div className="relative grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-red-500 to-red-800 shadow-lg shadow-red-950/50 ring-1 ring-white/10">
-                <Users className="h-7 w-7 text-white" />
+        <div className="relative flex flex-col gap-6 p-6 md:p-8">
+          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div className="flex items-start gap-4 min-w-0">
+              <div className="relative shrink-0">
+                <div className="absolute inset-0 rounded-2xl bg-red-500/40 blur-xl" />
+                <div className="relative grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-red-500 to-red-800 shadow-lg shadow-red-950/50 ring-1 ring-white/10">
+                  <Users className="h-7 w-7 text-white" />
+                </div>
               </div>
-            </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-red-300/80">
-                <Sparkles className="h-3 w-3" /> Gestão de Alunos
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-red-300/80">
+                  <Sparkles className="h-3 w-3" /> Gestão de Alunos
+                </div>
+                <h1 className="mt-1 font-display text-3xl md:text-4xl font-black tracking-tight text-white">
+                  Alunos do Dojo
+                </h1>
               </div>
-              <h1 className="mt-1 font-display text-3xl md:text-4xl font-black tracking-tight text-white">
-                Alunos do Dojo
-              </h1>
-              <p className="mt-2 max-w-2xl text-sm text-white/70">
-                {filtered.length} {filtered.length === 1 ? "aluno encontrado" : "alunos encontrados"}
-                {q.data && q.data.length !== filtered.length ? ` de ${q.data.length} no total` : ""}
-                {" · "}Cadastro completo, anamnese, graduações e contratos em um único lugar.
-              </p>
             </div>
           </div>
+
+          <p className="w-full text-sm text-white/75 leading-relaxed">
+            <span className="font-semibold text-white">
+              {filtered.length} {filtered.length === 1 ? "aluno encontrado" : "alunos encontrados"}
+            </span>
+            {q.data && q.data.length !== filtered.length ? ` de ${q.data.length} no total` : ""}
+            {" · "}Cadastro completo, anamnese, graduações e contratos em um único lugar.
+          </p>
+
 
           <div className="flex flex-wrap gap-2 md:justify-end">
             <input
