@@ -31,6 +31,7 @@ import { MedalsBreakdown } from "@/components/dojo/athlete-analysis/MedalsBreakd
 import { CompareRadar } from "@/components/dojo/athlete-analysis/CompareRadar";
 import { TechnicalTab } from "@/components/dojo/athlete-analysis/TechnicalTab";
 import { InsightCard } from "@/components/dojo/athlete-analysis/InsightCard";
+import { FightVideosTab } from "@/components/dojo/athlete-analysis/FightVideosTab";
 import { GoalsTab } from "@/components/dojo/athlete-analysis/GoalsTab";
 import { formatDegree, degreeUnit, formatBeltName } from "@/lib/dojo/degree-label";
 
@@ -133,7 +134,7 @@ function AnalysisPage() {
               <Sparkles className="h-3 w-3" /> Centro de Performance
             </div>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-              <h2 className="min-w-0 bg-gradient-to-br from-white via-white to-red-200 bg-clip-text text-2xl font-black tracking-tight text-transparent sm:text-3xl md:text-4xl">
+              <h2 className="min-w-0 text-2xl font-black tracking-tight text-white sm:text-3xl md:text-4xl">
                 {s?.full_name ?? <Skeleton className="h-8 w-56" />}
               </h2>
               {s?.status && (
@@ -430,31 +431,7 @@ function AnalysisPage() {
 
         {/* Vídeos */}
         <TabsContent value="videos" className="mt-6">
-          <SectionCard title="Biblioteca de Vídeos" description="Progresso do atleta na plataforma">
-            {(videos.data?.progress?.length ?? 0) === 0 ? (
-              <EmptyState title="Sem vídeos assistidos" description="O aluno ainda não iniciou nenhum vídeo do dojo." icon={Video} />
-            ) : (
-              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                {videos.data!.progress.map((p: any) => (
-                  <div key={p.video_id} className="overflow-hidden rounded-2xl border border-border/40 bg-card transition-all hover:border-primary/40 hover:shadow-md">
-                    {p.dojo_videos?.thumbnail_url ? (
-                      <img src={p.dojo_videos.thumbnail_url} alt="" className="h-36 w-full object-cover" />
-                    ) : <div className="h-36 w-full bg-muted" />}
-                    <div className="space-y-2.5 p-4">
-                      <div className="truncate text-sm font-semibold">{p.dojo_videos?.title ?? "—"}</div>
-                      <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-                        <div className="h-full bg-gradient-to-r from-primary to-primary/60" style={{ width: `${Math.min(100, Number(p.percent) || 0)}%` }} />
-                      </div>
-                      <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <span>{Math.round(Number(p.percent) || 0)}% assistido</span>
-                        {p.completed && <Badge variant="outline" className="text-[10px]">Completo</Badge>}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </SectionCard>
+          <FightVideosTab studentId={id} />
         </TabsContent>
 
         <TabsContent value="metas" className="mt-6">
