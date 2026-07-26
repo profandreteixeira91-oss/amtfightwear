@@ -36,12 +36,12 @@ export function AMTPayInfoPanel() {
         <CardContent className="space-y-3 text-sm text-muted-foreground">
           <p>
             O <strong className="text-foreground">AMT Pay</strong> é a central
-            financeira nativa do Dojo Manager. Ele conecta o seu dojo a um
-            provedor bancário licenciado (AMT Pay — instituição de pagamento
-            autorizada pelo Banco Central) e cuida de todo o ciclo de
-            recebimentos: mensalidades recorrentes, cobranças avulsas, links
-            de pagamento, boletos, PIX e cartão de crédito.
+            financeira nativa do Dojo Manager, operada por instituição de
+            pagamento autorizada pelo Banco Central. Ele cuida de todo o ciclo
+            de recebimentos: mensalidades recorrentes, cobranças avulsas,
+            links de pagamento, boletos, PIX e cartão de crédito.
           </p>
+
           <ul className="grid gap-2 md:grid-cols-2">
             <InfoItem icon={Wallet} title="Carteira do dojo">
               Saldo, extrato, recebimentos do dia e do mês em tempo real.
