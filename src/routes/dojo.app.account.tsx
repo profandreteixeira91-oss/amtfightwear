@@ -774,42 +774,7 @@ function SubscriptionTab({ subscription, invoices = [] }: any) {
   );
 }
 
-/* ---------------- Financial ---------------- */
-function FinancialTab({ invoices }: any) {
-  const [q, setQ] = useState("");
-  const pending = invoices.filter((i: any) => i.status !== "paid");
-  const paid = invoices.filter((i: any) => i.status === "paid");
-  const filter = (list: any[]) => q
-    ? list.filter((i) => JSON.stringify(i).toLowerCase().includes(q.toLowerCase()))
-    : list;
 
-  const totalPaid = paid.reduce((s: number, i: any) => s + Number(i.amount || 0), 0);
-  return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <KpiCard label="Total pago" value={brl(totalPaid)} />
-        <KpiCard label="Faturas pagas" value={String(paid.length)} />
-        <KpiCard label="Pendentes" value={String(pending.length)} />
-        <KpiCard label="Próxima cobrança" value={pending[0]?.due_date ? new Date(pending[0].due_date).toLocaleDateString("pt-BR") : "—"} />
-      </div>
-      <div>
-        <Input placeholder="Buscar por competência, número, valor…" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-md" />
-      </div>
-      <Card>
-        <CardHeader><CardTitle>Faturas pendentes</CardTitle></CardHeader>
-        <CardContent>
-          <InvoiceTable rows={filter(pending)} pending />
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader><CardTitle>Histórico de pagamentos</CardTitle></CardHeader>
-        <CardContent>
-          <InvoiceTable rows={filter(paid)} />
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
 
 function InvoiceTable({ rows, pending }: { rows: any[]; pending?: boolean }) {
   if (!rows.length) return <div className="text-sm text-muted-foreground">Nenhum registro.</div>;
