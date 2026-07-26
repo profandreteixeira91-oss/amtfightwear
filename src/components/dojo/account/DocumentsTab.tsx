@@ -132,14 +132,14 @@ export function DocumentsTab() {
     <div className="space-y-4">
       <Alert>
         <Info className="h-4 w-4" />
-        <AlertTitle>Homologação da subconta Asaas</AlertTitle>
+        <AlertTitle>Homologação da subconta AMT Pay</AlertTitle>
         <AlertDescription className="text-sm">
-          Para liberar a operação do AMT Pay, o Asaas exige três blocos
+          Para liberar a operação do AMT Pay, o AMT Pay exige três blocos
           obrigatórios: <b>documentos pessoais / da empresa</b>,{" "}
           <b>documento(s) exigido(s) pela análise da subconta</b> (CNPJ costuma
           pedir mais itens) e <b>dados bancários do titular</b>. Todos os
           arquivos ficam guardados em bucket privado, criptografados em trânsito
-          (TLS) e enviados via API oficial de KYC do Asaas.
+          (TLS) e enviados via API oficial de KYC do AMT Pay.
         </AlertDescription>
       </Alert>
 
@@ -152,7 +152,7 @@ export function DocumentsTab() {
           </CardTitle>
           <p className="text-sm text-muted-foreground">
             Envie, substitua ou remova os arquivos. Os arquivos daqui são
-            reutilizados na análise da subconta Asaas — se algum for rejeitado,
+            reutilizados na análise da subconta AMT Pay — se algum for rejeitado,
             basta substituir por uma nova versão.
           </p>
         </CardHeader>
@@ -200,7 +200,7 @@ export function DocumentsTab() {
               </CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
                 Conta usada para saques do AMT Pay. Precisa estar no mesmo
-                CPF/CNPJ do responsável pelo dojo — o Asaas bloqueia
+                CPF/CNPJ do responsável pelo dojo — o AMT Pay bloqueia
                 transferências para contas de terceiros.
               </p>
             </div>
@@ -261,7 +261,7 @@ export function DocumentsTab() {
         <p>
           <b className="text-foreground">Segurança:</b> os arquivos são
           armazenados em bucket privado com acesso restrito ao seu usuário e
-          transmitidos ao Asaas por HTTPS/TLS 1.2+. Nada é publicado nem
+          transmitidos ao AMT Pay por HTTPS/TLS 1.2+. Nada é publicado nem
           compartilhado com outros dojos. Você pode substituir ou remover
           qualquer documento a qualquer momento.
         </p>

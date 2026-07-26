@@ -80,7 +80,7 @@ export function mapFrequencyToAsaasCycle(
       return "YEARLY";
     case "custom":
       throw new Error(
-        "Planos com frequência personalizada não suportam cobrança automática pelo Asaas. Configure o plano como mensal/bimestral/trimestral/semestral/anual, ou registre as cobranças manualmente.",
+        "Planos com frequência personalizada não suportam cobrança automática pelo AMT Pay. Configure o plano como mensal/bimestral/trimestral/semestral/anual, ou registre as cobranças manualmente.",
       );
     default:
       return "MONTHLY";
@@ -114,7 +114,7 @@ export async function ensureAsaasCustomerForStudent(
   }
   if (!student.cpf || student.cpf.replace(/\D/g, "").length < 11) {
     throw new Error(
-      "CPF do aluno é obrigatório para cobrança automática pelo Asaas. Preencha o CPF ou escolha cobrança manual.",
+      "CPF do aluno é obrigatório para cobrança automática pelo AMT Pay. Preencha o CPF ou escolha cobrança manual.",
     );
   }
   const cpfClean = student.cpf.replace(/\D/g, "");
@@ -260,7 +260,7 @@ export async function syncInvoiceWithAsaas(
     .eq("id", invoice.student_id)
     .maybeSingle();
 
-  if (!student) throw new Error("Aluno não encontrado para sincronização Asaas");
+  if (!student) throw new Error("Aluno não encontrado para sincronização AMT Pay");
 
   // 3. Garante Customer no Asaas
   const customerId = await ensureAsaasCustomerForStudent(

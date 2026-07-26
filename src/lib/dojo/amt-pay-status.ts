@@ -45,14 +45,14 @@ export function getAsaasStatusMeta(level: AsaasReadinessLevel): {
       };
     case "linked":
       return {
-        label: "Conta Asaas vinculada",
-        description: "Você conectou uma conta Asaas própria. O split AMT (2%) é aplicado em cada cobrança.",
+        label: "Conta AMT Pay vinculada",
+        description: "Você conectou uma conta AMT Pay própria. O split AMT (2%) é aplicado em cada cobrança.",
         tone: "success",
       };
     case "pending":
       return {
         label: "Em análise",
-        description: "O Asaas está processando sua subconta. Isso geralmente leva alguns minutos.",
+        description: "O AMT Pay está processando sua subconta. Isso geralmente leva alguns minutos.",
         tone: "info",
       };
     case "awaiting_docs":
@@ -64,7 +64,7 @@ export function getAsaasStatusMeta(level: AsaasReadinessLevel): {
     case "rejected":
       return {
         label: "Reprovada",
-        description: "A conta foi recusada pelo Asaas. Refaça a ativação com dados corretos.",
+        description: "A conta foi recusada pelo AMT Pay. Refaça a ativação com dados corretos.",
         tone: "danger",
       };
     case "not_started":

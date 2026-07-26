@@ -718,7 +718,7 @@ export const markDojoInvoicePaid = createServerFn({ method: "POST" })
     if (!invoice) throw new Error("Cobrança não encontrada");
 
     if (!(invoice as any).asaas_charge_id) {
-      throw new Error("Esta cobrança antiga ainda não está vinculada ao Asaas. Edite e salve a cobrança antes de registrar o pagamento.");
+      throw new Error("Esta cobrança antiga ainda não está vinculada ao AMT Pay. Edite e salve a cobrança antes de registrar o pagamento.");
     }
     const { data: profile } = await context.supabase
       .from("dojo_academy_profile")
@@ -754,7 +754,7 @@ export const deleteDojoInvoice = createServerFn({ method: "POST" })
     if (!invoice) throw new Error("Cobrança não encontrada");
 
     if (!(invoice as any).asaas_charge_id) {
-      throw new Error("Esta cobrança antiga ainda não está vinculada ao Asaas. Edite e salve a cobrança antes de excluí-la.");
+      throw new Error("Esta cobrança antiga ainda não está vinculada ao AMT Pay. Edite e salve a cobrança antes de excluí-la.");
     }
     const { data: profile } = await context.supabase
       .from("dojo_academy_profile")
@@ -942,12 +942,12 @@ export const enrollStudentWithPlan = createServerFn({ method: "POST" })
           asaas_subscription_id: sub.id,
           billing_type: billingType,
           amount: baseAmount,
-          message: "Assinatura criada no Asaas. As cobranças serão emitidas automaticamente e sincronizadas via webhook.",
+          message: "Assinatura criada no AMT Pay. As cobranças serão emitidas automaticamente e sincronizadas via webhook.",
         };
       } catch (e: any) {
         // Rollback matrícula se falhou criar subscription
         await context.supabase.from("dojo_enrollments").delete().eq("id", enrollRow.id);
-        throw new Error(`Falha ao criar assinatura Asaas: ${e.message}`);
+        throw new Error(`Falha ao criar assinatura AMT Pay: ${e.message}`);
       }
     }
 
@@ -1079,7 +1079,7 @@ export const changeStudentPlan = createServerFn({ method: "POST" })
             const { asaasCancelSubscription } = await import("@/lib/asaas/client.server");
             await asaasCancelSubscription(enr.asaas_subscription_id, apiKey);
           } catch (err) {
-            console.warn("[changeStudentPlan] falha ao cancelar subscription Asaas", err);
+            console.warn("[changeStudentPlan] falha ao cancelar subscription AMT Pay", err);
           }
         }
         await context.supabase

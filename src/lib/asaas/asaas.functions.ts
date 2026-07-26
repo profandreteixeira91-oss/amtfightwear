@@ -307,7 +307,7 @@ export const refreshMyAsaasSubaccount = createServerFn({ method: "POST" })
       .maybeSingle();
 
     if (!profile?.asaas_subaccount_id) {
-      throw new Error("Subconta Asaas ainda não criada.");
+      throw new Error("Subconta AMT Pay ainda não criada.");
     }
 
     const CLOSED_STATUSES = new Set([
@@ -351,7 +351,7 @@ export const refreshMyAsaasSubaccount = createServerFn({ method: "POST" })
           walletId: null,
           onboardingStatus: "not_started",
           reset: true as const,
-          reason: `Subconta encerrada no Asaas (status: ${remoteStatus}). Configuração redefinida.`,
+          reason: `Subconta encerrada no AMT Pay (status: ${remoteStatus}). Configuração redefinida.`,
         };
       }
 
@@ -379,7 +379,7 @@ export const refreshMyAsaasSubaccount = createServerFn({ method: "POST" })
           walletId: null,
           onboardingStatus: "not_started",
           reset: true as const,
-          reason: "Subconta não encontrada no Asaas. Configuração redefinida — você pode criar uma nova.",
+          reason: "Subconta não encontrada no AMT Pay. Configuração redefinida — você pode criar uma nova.",
         };
       }
       throw err;
@@ -523,7 +523,7 @@ export const listMyAsaasDocuments = createServerFn({ method: "GET" })
       res = await asaasListMyDocuments(p.asaas_api_key_encrypted);
     } catch (err) {
       throw new Error(
-        `Não foi possível consultar documentos no Asaas: ${err instanceof Error ? err.message : String(err)}`,
+        `Não foi possível consultar documentos no AMT Pay: ${err instanceof Error ? err.message : String(err)}`,
       );
     }
 
@@ -618,7 +618,7 @@ export const sendMyAsaasDocuments = createServerFn({ method: "POST" })
           pendingId: String(item.id),
           asaasType,
           sent: false,
-          reason: "Tipo sem correspondência local — envie manualmente pelo painel Asaas.",
+          reason: "Tipo sem correspondência local — envie manualmente pelo painel AMT Pay.",
         });
         continue;
       }
@@ -733,7 +733,7 @@ export const uploadAsaasDocumentForPending = createServerFn({ method: "POST" })
       );
     } catch (err) {
       throw new Error(
-        `O Asaas recusou o envio: ${err instanceof Error ? err.message : String(err)}`,
+        `O AMT Pay recusou o envio: ${err instanceof Error ? err.message : String(err)}`,
       );
     }
 

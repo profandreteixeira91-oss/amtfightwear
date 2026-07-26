@@ -210,7 +210,7 @@ function getAsaasConfigs(): AsaasConfig[] {
   }
 
   if (!candidates.length) {
-    throw new Error("Asaas API key não configurada. Configure a credencial do ambiente do AMT Pay.");
+    throw new Error("AMT Pay API key não configurada. Configure a credencial do ambiente do AMT Pay.");
   }
 
   return candidates;
@@ -251,14 +251,14 @@ async function asaasFetch<T>(
 
     const err = data?.errors?.[0]?.description || data?.message || res.statusText;
     if (res.status !== 401 || overrideKey) {
-      throw new Error(`Asaas API ${res.status}: ${err}`);
+      throw new Error(`AMT Pay API ${res.status}: ${err}`);
     }
 
     attempted.push(`${cfg.source} (${cfg.env})`);
   }
 
   throw new Error(
-    `Asaas API 401: nenhuma credencial configurada foi aceita. Tentativas: ${attempted.join(", ")}.`,
+    `AMT Pay API 401: nenhuma credencial configurada foi aceita. Tentativas: ${attempted.join(", ")}.`,
   );
 }
 
@@ -288,11 +288,11 @@ async function asaasFetchMultipart<T>(
     if (res.ok) return data as T;
     const err = data?.errors?.[0]?.description || data?.message || res.statusText;
     if (res.status !== 401 || override) {
-      throw new Error(`Asaas API ${res.status}: ${err}`);
+      throw new Error(`AMT Pay API ${res.status}: ${err}`);
     }
     attempted.push(`${cfg.source} (${cfg.env})`);
   }
-  throw new Error(`Asaas API 401 (multipart): ${attempted.join(", ")}`);
+  throw new Error(`AMT Pay API 401 (multipart): ${attempted.join(", ")}`);
 }
 
 // ============ SUBACCOUNT DOCUMENTS ============

@@ -236,7 +236,7 @@ export function FinanceDashboard() {
           icon={Receipt}
           label="Taxa gateway"
           value={brl(month.gatewayFees)}
-          hint="Asaas / Mercado Pago"
+          hint="AMT Pay / Mercado Pago"
         />
         <Kpi
           icon={Sparkles}
