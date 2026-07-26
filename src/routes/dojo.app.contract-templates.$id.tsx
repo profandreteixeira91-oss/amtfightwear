@@ -442,17 +442,18 @@ function ContractEditorPage() {
                 <div className="text-xs text-muted-foreground">
                   O cabeçalho será impresso no topo de <strong>todas as páginas</strong>. Recomendado: logo com altura entre 40 e 80 px para caber bem em A4.
                 </div>
-                <div className="flex flex-wrap items-center gap-2 rounded-md border border-dashed border-red-500/40 bg-red-500/5 p-2">
-                  <span className="text-xs font-medium text-red-700 dark:text-red-300 inline-flex items-center gap-1">
+                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 rounded-md border border-dashed border-red-500/40 bg-red-500/5 p-2">
+                  <span className="text-xs font-medium text-red-700 dark:text-red-300 inline-flex items-center gap-1 w-full sm:w-auto">
                     <ImageIcon className="h-3.5 w-3.5" /> Logo da academia:
                   </span>
-                  <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => insertAcademyLogo(40)}>Pequena (40 px)</Button>
-                  <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => insertAcademyLogo(56)}>Média (56 px)</Button>
-                  <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => insertAcademyLogo(80)}>Grande (80 px)</Button>
+                  <Button size="sm" variant="outline" className="h-7 text-xs flex-1 sm:flex-none" onClick={() => insertAcademyLogo(40)}>Pequena (40 px)</Button>
+                  <Button size="sm" variant="outline" className="h-7 text-xs flex-1 sm:flex-none" onClick={() => insertAcademyLogo(56)}>Média (56 px)</Button>
+                  <Button size="sm" variant="outline" className="h-7 text-xs flex-1 sm:flex-none" onClick={() => insertAcademyLogo(80)}>Grande (80 px)</Button>
                   {!(branding.data as any)?.logo_url && !(academy.data as any)?.logo_url && (
-                    <span className="text-[11px] text-muted-foreground">Envie a logo em Configurações › Identidade visual.</span>
+                    <span className="text-[11px] text-muted-foreground w-full">Envie a logo em Configurações › Identidade visual.</span>
                   )}
                 </div>
+
                 <RichTextEditor
                   value={draft.header_html}
                   onChange={(html) => patch({ header_html: html })}
