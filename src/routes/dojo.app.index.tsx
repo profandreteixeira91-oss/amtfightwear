@@ -242,22 +242,22 @@ function HeroHeader({
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-3 md:gap-4">
-          <div className="rounded-xl bg-white/8 backdrop-blur border border-white/10 px-3 py-2.5 min-w-[92px]">
-            <div className="text-[10px] uppercase tracking-widest text-white/60">Alunos</div>
-            <div className="font-display text-xl font-bold">{activeCount}</div>
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4 min-w-0">
+          <div className="min-w-0 rounded-xl bg-white/8 backdrop-blur border border-white/10 px-2.5 py-2 sm:px-3 sm:py-2.5">
+            <div className="text-[9px] sm:text-[10px] uppercase tracking-widest text-white/60">Alunos</div>
+            <div className="font-display text-lg sm:text-xl font-bold">{activeCount}</div>
             <div className="text-[10px] text-white/60">de {studentsCount}</div>
           </div>
-          <div className="rounded-xl bg-white/8 backdrop-blur border border-white/10 px-3 py-2.5">
-            <div className="text-[10px] uppercase tracking-widest text-white/60">AMT Pay</div>
-            <div className="font-display text-xl font-bold whitespace-nowrap">
+          <div className="min-w-0 rounded-xl bg-white/8 backdrop-blur border border-white/10 px-2.5 py-2 sm:px-3 sm:py-2.5">
+            <div className="text-[9px] sm:text-[10px] uppercase tracking-widest text-white/60">AMT Pay</div>
+            <div className="font-display text-base sm:text-xl font-bold tabular-nums truncate">
               {brl(balance)}
             </div>
             <div className="text-[10px] text-white/60">saldo total</div>
           </div>
-          <div className="rounded-xl bg-white/8 backdrop-blur border border-white/10 px-3 py-2.5">
-            <div className="text-[10px] uppercase tracking-widest text-white/60">Atrasos</div>
-            <div className="font-display text-xl font-bold">
+          <div className="min-w-0 rounded-xl bg-white/8 backdrop-blur border border-white/10 px-2.5 py-2 sm:px-3 sm:py-2.5">
+            <div className="text-[9px] sm:text-[10px] uppercase tracking-widest text-white/60">Atrasos</div>
+            <div className="font-display text-lg sm:text-xl font-bold">
               {overdueCount}
             </div>
             <div className="text-[10px] text-white/60">faturas</div>
@@ -585,16 +585,16 @@ function DojoDashboard() {
         {/* Projeção de fluxo */}
         <BentoCard className="md:col-span-3">
           <SectionHead eyebrow="Fluxo de caixa" title="Projeção próxima" />
-          <div className="grid grid-cols-4 gap-2 pt-1">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
             {(dash?.projection ?? []).map((p: any) => (
               <div
                 key={p.label}
-                className="rounded-lg border border-[color:var(--dojo-border)] bg-neutral-50 p-2.5 text-center"
+                className="min-w-0 rounded-lg border border-[color:var(--dojo-border)] bg-neutral-50 p-2.5 text-center"
               >
                 <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
                   {p.label}
                 </div>
-                <div className="font-display text-sm md:text-base font-bold text-foreground mt-0.5">
+                <div className="font-display text-sm md:text-base font-bold text-foreground mt-0.5 tabular-nums truncate">
                   {brl(p.amount)}
                 </div>
               </div>
@@ -766,14 +766,14 @@ function DojoDashboard() {
         {/* Alunos recentes — premium ivory card sobre */}
         <div className="md:col-span-4 overflow-hidden rounded-2xl bg-[#faf7f2] text-slate-900 ring-1 ring-black/5 shadow-[0_20px_60px_-25px_rgba(0,0,0,0.55),0_4px_14px_-6px_rgba(0,0,0,0.35)]">
           {/* Cabeçalho editorial */}
-          <div className="relative px-7 pt-6 pb-5">
-            <div className="absolute inset-x-7 top-0 h-px bg-gradient-to-r from-transparent via-rose-700/40 to-transparent" />
-            <div className="flex items-end justify-between gap-4">
-              <div>
+          <div className="relative px-4 pt-5 pb-4 sm:px-7 sm:pt-6 sm:pb-5">
+            <div className="absolute inset-x-4 sm:inset-x-7 top-0 h-px bg-gradient-to-r from-transparent via-rose-700/40 to-transparent" />
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div className="min-w-0">
                 <p className="text-[10px] font-semibold tracking-[0.28em] text-rose-800/80 uppercase">
                   Últimas matrículas
                 </p>
-                <h2 className="mt-1.5 font-display text-2xl font-semibold tracking-tight text-slate-900">
+                <h2 className="mt-1.5 font-display text-xl sm:text-2xl font-semibold tracking-tight text-slate-900">
                   Alunos recentes
                 </h2>
                 <p className="mt-1 text-[11px] text-slate-500">
@@ -782,7 +782,7 @@ function DojoDashboard() {
               </div>
               <Link
                 to="/dojo/app/students"
-                className="group inline-flex items-center gap-1.5 rounded-full border border-slate-900/10 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-800 shadow-sm hover:border-rose-700/40 hover:text-rose-800 transition-colors"
+                className="group inline-flex w-fit items-center gap-1.5 rounded-full border border-slate-900/10 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-800 shadow-sm hover:border-rose-700/40 hover:text-rose-800 transition-colors"
               >
                 Ver todos
                 <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
@@ -791,11 +791,11 @@ function DojoDashboard() {
           </div>
 
           {/* Divisor com serifa hairline */}
-          <div className="mx-7 h-px bg-slate-900/10" />
+          <div className="mx-4 sm:mx-7 h-px bg-slate-900/10" />
 
           <ol className="divide-y divide-slate-900/[0.07]">
             {recent.length === 0 && (
-              <li className="px-7 py-10 text-sm text-slate-500 text-center">
+              <li className="px-4 sm:px-7 py-10 text-sm text-slate-500 text-center">
                 Nenhum aluno cadastrado ainda.{" "}
                 <Link to="/dojo/app/students" className="font-semibold text-rose-800 hover:underline underline-offset-2">
                   Cadastrar primeiro aluno
@@ -815,7 +815,7 @@ function DojoDashboard() {
                   <Link
                     to="/dojo/app/students/$id"
                     params={{ id: s.id }}
-                    className="group grid grid-cols-[auto_auto_1fr_auto_auto] items-center gap-4 px-7 py-4 transition-colors hover:bg-white"
+                    className="group grid grid-cols-[auto_minmax(0,1fr)_auto] sm:grid-cols-[auto_auto_1fr_auto_auto] items-center gap-3 sm:gap-4 px-4 sm:px-7 py-3 sm:py-4 transition-colors hover:bg-white"
                   >
                     {/* Índice tipográfico */}
                     <span className="hidden sm:block w-6 font-display text-[11px] tabular-nums text-slate-400 group-hover:text-rose-800/70 transition-colors">
@@ -898,7 +898,7 @@ function DojoDashboard() {
 
           {/* Rodapé com carimbo editorial */}
           {recent.length > 0 && (
-            <div className="flex items-center justify-between px-7 py-3.5 border-t border-slate-900/[0.07] bg-white/60">
+            <div className="flex items-center justify-between px-4 sm:px-7 py-3.5 border-t border-slate-900/[0.07] bg-white/60">
               <span className="text-[10px] font-semibold tracking-[0.22em] uppercase text-slate-400">
                 {recent.length} {recent.length === 1 ? "registro" : "registros"} • ordem cronológica
               </span>
