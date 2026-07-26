@@ -115,7 +115,7 @@ function AnalysisPage() {
         <div className="pointer-events-none absolute -bottom-32 -left-16 h-96 w-96 rounded-full bg-red-500/15 blur-[120px]" />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-red-500/60 to-transparent" />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(255,255,255,0.04),transparent_40%)]" />
-        <div className="relative grid gap-6 md:grid-cols-[auto_minmax(0,1fr)_auto] md:items-center md:gap-10">
+        <div className="relative grid gap-6 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:gap-10">
           {s?.photo_url ? (
             <div className="relative shrink-0">
               <div className="absolute -inset-1 rounded-2xl bg-gradient-to-br from-red-500 via-red-600 to-amber-500 opacity-70 blur-md" />
@@ -148,12 +148,12 @@ function AnalysisPage() {
                 </Badge>
               )}
             </div>
-            <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/70">
+            <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/85">
               {age(s?.birth_date) != null && <span className="inline-flex items-center gap-1.5"><HeartPulse className="h-4 w-4 text-red-400" />{age(s?.birth_date)} anos</span>}
-              {s?.gender && <span className="capitalize">{s.gender}</span>}
+              {s?.gender && <span className="capitalize text-white/70">{s.gender}</span>}
               {belt && <span className="inline-flex items-center gap-1.5"><Award className="h-4 w-4 text-amber-400" />{formatBeltName(belt.name, belt.modality)} · {formatDegree(s?.current_degree ?? 0, belt.modality, belt.name)}</span>}
               {overview.data?.classes?.[0]?.dojo_classes && <span className="inline-flex items-center gap-1.5"><Users2 className="h-4 w-4 text-red-400" />{(overview.data.classes[0] as any).dojo_classes.name}</span>}
-              <span className="inline-flex items-center gap-1.5"><CalendarDays className="h-4 w-4 text-red-400" />Matrícula {fmtDate(s?.created_at)}</span>
+              <span className="inline-flex items-center gap-1.5 text-white/70"><CalendarDays className="h-4 w-4 text-red-400" />Matrícula {fmtDate(s?.created_at)}</span>
             </div>
             {score.data && (
               <div className="mt-6 max-w-xl rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur">
@@ -168,7 +168,7 @@ function AnalysisPage() {
             )}
           </div>
           {belt && (
-            <div className="relative w-full max-w-[220px] justify-self-center md:justify-self-end">
+            <div className="relative w-full max-w-[220px] justify-self-center sm:col-span-2 lg:col-span-1 lg:justify-self-end">
               <div className="absolute -inset-2 rounded-2xl bg-gradient-to-br from-red-500/30 to-amber-500/20 blur-xl" />
               <div className="relative rounded-2xl border border-white/10 bg-black/40 p-3 backdrop-blur">
                 <BeltAuto belt={belt} degree={s?.current_degree ?? 0} />
@@ -180,7 +180,7 @@ function AnalysisPage() {
       </div>
 
       {/* KPIs principais */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
         <StatCard index={0} icon={Activity} label="Check-ins (365d)" value={attendance.data?.totalPresent ?? "—"} hint={`${attendance.data?.distinctDays ?? 0} dias distintos`} loading={attendance.isLoading} />
         <StatCard index={1} icon={Flame} label="Maior sequência" value={attendance.data?.maxStreak ?? "—"} hint="dias consecutivos" loading={attendance.isLoading} />
         <StatCard index={2} icon={GraduationCap} label="Graduações" value={grads.data?.history.length ?? "—"} hint={grads.data?.nextForecast ? `Próxima ~ ${fmtDate(grads.data.nextForecast)}` : "Sem previsão"} loading={grads.isLoading} />
@@ -239,8 +239,8 @@ function AnalysisPage() {
 
       {/* Tabs detalhadas */}
       <Tabs defaultValue="frequencia" className="w-full">
-        <div className="-mx-4 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <TabsList className="inline-flex h-auto w-max min-w-full gap-1 rounded-2xl border border-red-500/20 bg-neutral-950/70 p-1.5 shadow-[0_10px_40px_-20px_rgba(239,68,68,0.4)] backdrop-blur">
+        <div className="-mx-4 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden xl:overflow-visible">
+          <TabsList className="inline-flex h-auto w-max min-w-full gap-1 rounded-2xl border border-red-500/20 bg-neutral-950/70 p-1.5 shadow-[0_10px_40px_-20px_rgba(239,68,68,0.4)] backdrop-blur xl:flex xl:w-full xl:flex-wrap">
             <TabsTrigger value="frequencia" className="gap-1.5 rounded-xl px-3 py-2 text-sm text-white/60 transition-all data-[state=active]:bg-gradient-to-br data-[state=active]:from-red-500 data-[state=active]:to-red-600 data-[state=active]:text-white data-[state=active]:shadow-[0_8px_24px_-8px_rgba(239,68,68,0.7)]"><CalendarDays className="h-4 w-4" />Frequência</TabsTrigger>
             <TabsTrigger value="tecnico" className="gap-1.5 rounded-xl px-3 py-2 text-sm text-white/60 transition-all data-[state=active]:bg-gradient-to-br data-[state=active]:from-red-500 data-[state=active]:to-red-600 data-[state=active]:text-white data-[state=active]:shadow-[0_8px_24px_-8px_rgba(239,68,68,0.7)]"><Target className="h-4 w-4" />Técnico</TabsTrigger>
             <TabsTrigger value="graduacoes" className="gap-1.5 rounded-xl px-3 py-2 text-sm text-white/60 transition-all data-[state=active]:bg-gradient-to-br data-[state=active]:from-red-500 data-[state=active]:to-red-600 data-[state=active]:text-white data-[state=active]:shadow-[0_8px_24px_-8px_rgba(239,68,68,0.7)]"><GraduationCap className="h-4 w-4" />Graduações</TabsTrigger>
@@ -357,7 +357,7 @@ function AnalysisPage() {
 
         {/* Competições */}
         <TabsContent value="competicoes" className="mt-6 space-y-6">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
             <StatCard index={0} icon={Trophy} label="Disputadas" value={comps.data?.totals.competitions ?? "—"} />
             <StatCard index={1} icon={TrendingUp} label="Vitórias" value={comps.data?.totals.wins ?? "—"} />
             <StatCard index={2} icon={Activity} label="Finalizações" value={comps.data?.totals.submissions ?? "—"} />
