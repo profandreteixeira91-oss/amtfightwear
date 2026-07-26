@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { DojoLogo } from "@/components/dojo/DojoLogo";
 import { PasswordStrength, isPasswordStrong, PASSWORD_MIN_LENGTH } from "@/components/auth/PasswordStrength";
+import { PasswordInput } from "@/components/auth/PasswordInput";
 
 const searchSchema = z.object({ redirect: z.string().optional() });
 
@@ -280,9 +281,8 @@ function DojoAuthPage() {
                 </div>
                 <div className="relative">
                   <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#111111]/40" />
-                  <Input
+                  <PasswordInput
                     id="password"
-                    type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required

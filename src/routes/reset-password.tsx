@@ -8,6 +8,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/auth/PasswordInput";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
@@ -108,7 +109,7 @@ function ResetPasswordPage() {
             <form onSubmit={onSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="password">Nova senha</Label>
-                <Input id="password" type="password" autoComplete="new-password" placeholder={`Mínimo ${PASSWORD_MIN_LENGTH} caracteres`} {...form.register("password")} />
+                <PasswordInput id="password" autoComplete="new-password" placeholder={`Mínimo ${PASSWORD_MIN_LENGTH} caracteres`} {...form.register("password")} />
                 {form.formState.errors.password && (
                   <p className="text-xs text-destructive">{form.formState.errors.password.message}</p>
                 )}
@@ -116,7 +117,7 @@ function ResetPasswordPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="confirm">Confirmar nova senha</Label>
-                <Input id="confirm" type="password" autoComplete="new-password" {...form.register("confirm")} />
+                <PasswordInput id="confirm" autoComplete="new-password" {...form.register("confirm")} />
                 {form.formState.errors.confirm && (
                   <p className="text-xs text-destructive">{form.formState.errors.confirm.message}</p>
                 )}
