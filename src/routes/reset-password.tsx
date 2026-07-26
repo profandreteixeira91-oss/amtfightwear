@@ -68,6 +68,10 @@ function ResetPasswordPage() {
   });
 
   const onSubmit = form.handleSubmit(async (values) => {
+    if (!isPasswordStrong(values.password)) {
+      form.setError("password", { message: "Atenda a todos os requisitos abaixo." });
+      return;
+    }
     const { error } = await supabase.auth.updateUser({ password: values.password });
     if (error) {
       toast.error("Erro ao redefinir senha", { description: error.message });
@@ -77,6 +81,8 @@ function ResetPasswordPage() {
     await supabase.auth.signOut();
     navigate({ to: "/auth", replace: true });
   });
+
+  const watchedPassword = form.watch("password");
 
   if (!ready) {
     return (
