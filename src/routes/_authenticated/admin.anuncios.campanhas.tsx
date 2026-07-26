@@ -52,7 +52,7 @@ function CampaignsPage() {
               {data.map((c) => (
                 <TableRow key={c.id} className="cursor-pointer hover:bg-muted/40">
                   <TableCell className="font-medium">
-                    <Link to="/ads/campaigns/$id" params={{ id: c.id }} className="hover:underline">{c.name}</Link>
+                    <Link to="/admin/anuncios/campanhas/$id" params={{ id: c.id }} className="hover:underline">{c.name}</Link>
                   </TableCell>
                   <TableCell>{c.objective}</TableCell>
                   <TableCell><Badge variant={c.status === "active" ? "default" : "secondary"}>{c.status}</Badge></TableCell>

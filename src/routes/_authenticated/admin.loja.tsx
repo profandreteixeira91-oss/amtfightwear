@@ -309,7 +309,7 @@ function StoreDashboard() {
               <CardTitle className="text-base">Produtos mais vendidos</CardTitle>
               <CardDescription>Top 10 do período</CardDescription>
             </div>
-            <Link to="/store/products" className="text-xs font-semibold text-primary hover:underline">
+            <Link to="/admin/produtos" className="text-xs font-semibold text-primary hover:underline">
               Ver todos <ArrowRight className="ml-1 inline h-3 w-3" />
             </Link>
           </CardHeader>
@@ -352,7 +352,7 @@ function StoreDashboard() {
               </CardTitle>
               <CardDescription>Produtos com ≤ 5 unidades</CardDescription>
             </div>
-            <Link to="/store/products" className="text-xs font-semibold text-primary hover:underline">
+            <Link to="/admin/produtos" className="text-xs font-semibold text-primary hover:underline">
               Repor <ArrowRight className="ml-1 inline h-3 w-3" />
             </Link>
           </CardHeader>
@@ -448,7 +448,7 @@ function StoreDashboard() {
               <CardTitle className="text-base">Últimos pedidos</CardTitle>
               <CardDescription>Atualização automática</CardDescription>
             </div>
-            <Link to="/store/orders" className="text-xs font-semibold text-primary hover:underline">
+            <Link to="/admin/pedidos" className="text-xs font-semibold text-primary hover:underline">
               Ver todos <ArrowRight className="ml-1 inline h-3 w-3" />
             </Link>
           </CardHeader>

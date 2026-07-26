@@ -130,7 +130,7 @@ function CampaignDetailPage() {
   return (
     <>
       <PageHeader
-        eyebrow={<Link to="/ads/campaigns" className="hover:underline">← Campanhas</Link>}
+        eyebrow={<Link to="/admin/anuncios/campanhas" className="hover:underline">← Campanhas</Link>}
         title={campaign.name}
         description={`Objetivo: ${campaign.objective} · Status: ${campaign.status}`}
         actions={

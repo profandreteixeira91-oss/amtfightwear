@@ -58,7 +58,7 @@ import {
 } from "@/components/ui/sidebar";
 
 const mainItems = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+  { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
   { title: "Usuários", url: "/users", icon: Users },
   { title: "Logs", url: "/logs", icon: ScrollText },
 ] as const;
@@ -73,54 +73,54 @@ const growthItems = [
 ] as const;
 
 const marketItems = [
-  { title: "Painel MarketEngine", url: "/market/overview", icon: Rocket },
-  { title: "IA Content Hub", url: "/market/content", icon: Wand2 },
-  { title: "CRM & E-mail", url: "/market/crm", icon: Mail },
-  { title: "Analytics Catálogo", url: "/market/catalog", icon: BarChart4 },
-  { title: "Pesquisa de Mercado", url: "/market/pricing", icon: DollarSign },
-  { title: "Conexões e APIs", url: "/market/connections", icon: Plug },
+  { title: "Painel MarketEngine", url: "/admin/marketing", icon: Rocket },
+  { title: "IA Content Hub", url: "/admin/marketing/inteligencia", icon: Wand2 },
+  { title: "CRM & E-mail", url: "/admin/crm", icon: Mail },
+  { title: "Analytics Catálogo", url: "/admin/marketing/kpis", icon: BarChart4 },
+  { title: "Pesquisa de Mercado", url: "/admin/marketing/mercado", icon: DollarSign },
+  { title: "Conexões e APIs", url: "/admin/conexoes", icon: Plug },
 ] as const;
 
 const scraperItems = [
-  { title: "Dashboard", url: "/prospect", icon: LayoutDashboard },
-  { title: "Leads", url: "/prospect/leads", icon: Users },
-  { title: "Potenciais Clientes", url: "/prospect/qualified", icon: Sparkles },
-  { title: "Pipeline", url: "/prospect/pipeline", icon: Handshake },
-  { title: "Nova Busca", url: "/prospect/search", icon: Radar },
-  { title: "Configurações", url: "/prospect/settings", icon: Wrench },
-  { title: "Logs", url: "/prospect/logs", icon: ListChecks },
+  { title: "Dashboard", url: "/admin/prospect", icon: LayoutDashboard },
+  { title: "Leads", url: "/admin/leads", icon: Users },
+  { title: "Potenciais Clientes", url: "/admin/leads/qualificados", icon: Sparkles },
+  { title: "Pipeline", url: "/admin/leads/pipeline", icon: Handshake },
+  { title: "Nova Busca", url: "/admin/leads/busca", icon: Radar },
+  { title: "Configurações", url: "/admin/leads/configuracoes", icon: Wrench },
+  { title: "Logs", url: "/admin/leads/logs", icon: ListChecks },
 ] as const;
 
 
 const instagramItems = [
-  { title: "Dashboard", url: "/instagram/dashboard", icon: LineChart },
-  { title: "Conta Conectada", url: "/instagram/account", icon: Instagram },
-  { title: "Inbox", url: "/instagram/inbox", icon: Inbox },
-  { title: "CRM Instagram", url: "/instagram/crm", icon: Handshake },
-  { title: "Comentários", url: "/instagram/comments", icon: MessageCircle },
-  { title: "Automações", url: "/instagram/automations", icon: Zap },
-  { title: "Administração", url: "/instagram/admin", icon: Shield },
+  { title: "Dashboard", url: "/admin/instagram", icon: LineChart },
+  { title: "Conta Conectada", url: "/admin/instagram/conta", icon: Instagram },
+  { title: "Inbox", url: "/admin/instagram/inbox", icon: Inbox },
+  { title: "CRM Instagram", url: "/admin/instagram/crm", icon: Handshake },
+  { title: "Comentários", url: "/admin/instagram/comentarios", icon: MessageCircle },
+  { title: "Automações", url: "/admin/instagram/automacoes", icon: Zap },
+  { title: "Administração", url: "/admin/instagram/admin", icon: Shield },
 ] as const;
 
 const adsItems = [
- { title: "Dashboard", url: "/ads/dashboard", icon: LayoutDashboard },
- { title: "Nova Campanha IA", url: "/ads/new", icon: Sparkles },
- { title: "Campanhas", url: "/ads/campaigns", icon: Rocket },
-  { title: "Otimização IA", url: "/ads/optimization", icon: Zap },
-  { title: "Escala IA", url: "/ads/scale", icon: TrendingUp },
-  { title: "Alertas", url: "/ads/alerts", icon: Radar },
- { title: "Criativos", url: "/ads/creatives", icon: Wand2 },
- { title: "Copies", url: "/ads/copies", icon: MessageSquare },
- { title: "Conexão Meta Ads", url: "/ads/connections", icon: Plug },
+ { title: "Dashboard", url: "/admin/anuncios", icon: LayoutDashboard },
+ { title: "Nova Campanha IA", url: "/admin/anuncios/nova", icon: Sparkles },
+ { title: "Campanhas", url: "/admin/anuncios/campanhas", icon: Rocket },
+  { title: "Otimização IA", url: "/admin/anuncios/otimizacao", icon: Zap },
+  { title: "Escala IA", url: "/admin/anuncios/escala", icon: TrendingUp },
+  { title: "Alertas", url: "/admin/anuncios/alertas", icon: Radar },
+ { title: "Criativos", url: "/admin/anuncios/criativos", icon: Wand2 },
+ { title: "Copies", url: "/admin/anuncios/copies", icon: MessageSquare },
+ { title: "Conexão Meta Ads", url: "/admin/anuncios/conexoes", icon: Plug },
 ] as const;
 
 const storeItems = [
-  { title: "Painel da Loja", url: "/store", icon: Store },
-  { title: "Produtos", url: "/store/products", icon: Package },
-  { title: "Pedidos", url: "/store/orders", icon: ShoppingCart },
-  { title: "Envio (Melhor Envio)", url: "/store/shipping", icon: Truck },
-  { title: "Imagens dos produtos", url: "/store/imagens", icon: ImageIcon },
-  { title: "Importar catálogo", url: "/store/import", icon: DownloadIcon },
+  { title: "Painel da Loja", url: "/admin/loja", icon: Store },
+  { title: "Produtos", url: "/admin/produtos", icon: Package },
+  { title: "Pedidos", url: "/admin/pedidos", icon: ShoppingCart },
+  { title: "Envio (Melhor Envio)", url: "/admin/envio", icon: Truck },
+  { title: "Imagens dos produtos", url: "/admin/produtos/imagens", icon: ImageIcon },
+  { title: "Importar catálogo", url: "/admin/produtos/importar", icon: DownloadIcon },
 ] as const;
 
 const accountItems = [
@@ -138,7 +138,7 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border">
-        <Link to="/dashboard" className="flex items-center gap-3 px-2 py-2">
+        <Link to="/admin" className="flex items-center gap-3 px-2 py-2">
           <div className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-md bg-primary text-primary-foreground shadow-sm ring-1 ring-primary/30">
             <img src={amtLogo} alt="AMT Fight Wear" className="h-full w-full object-cover" />
           </div>

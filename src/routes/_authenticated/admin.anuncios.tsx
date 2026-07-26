@@ -45,7 +45,7 @@ function AdsDashboard() {
         description="Consultor de mídia paga com IA — dados reais do Meta Ads após conectar sua conta."
         actions={
           <Button asChild size="sm">
-            <Link to="/ads/new"><Sparkles className="mr-2 h-4 w-4" /> Nova Campanha IA</Link>
+            <Link to="/admin/anuncios/nova"><Sparkles className="mr-2 h-4 w-4" /> Nova Campanha IA</Link>
           </Button>
         }
       />
@@ -104,7 +104,7 @@ function AdsDashboard() {
               icon={Rocket}
               title="Nenhuma conta conectada"
               description="Vá em Conexão Meta Ads para sincronizar suas contas."
-              action={<Button asChild size="sm"><Link to="/ads/connections">Conectar</Link></Button>}
+              action={<Button asChild size="sm"><Link to="/admin/anuncios/conexoes">Conectar</Link></Button>}
             />
           ) : (
             <ul className="space-y-2">

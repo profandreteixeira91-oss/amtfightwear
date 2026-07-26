@@ -111,7 +111,7 @@ function OptimizationPage() {
                         {severityBadge(o.severity)}
                       </div>
                       {camp && (
-                        <Link to="/ads/campaigns/$id" params={{ id: o.campaign_id! }} className="text-xs text-primary hover:underline">
+                        <Link to="/admin/anuncios/campanhas/$id" params={{ id: o.campaign_id! }} className="text-xs text-primary hover:underline">
                           {camp.name}
                         </Link>
                       )}

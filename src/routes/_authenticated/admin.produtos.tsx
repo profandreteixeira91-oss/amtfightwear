@@ -296,8 +296,8 @@ function AdminProductsPage() {
             <Button variant="outline" size="sm" onClick={() => setManagingCategories(true)}>
               <Plus className="h-4 w-4 mr-1" /> Categorias
             </Button>
-            <Link to="/store/wholesale"><Button variant="outline" size="sm">Atacado</Button></Link>
-            <Link to="/store/import"><Button variant="outline" size="sm">Importar</Button></Link>
+            <Link to="/admin/atacado"><Button variant="outline" size="sm">Atacado</Button></Link>
+            <Link to="/admin/produtos/importar"><Button variant="outline" size="sm">Importar</Button></Link>
           </div>
         </div>
       }
@@ -520,7 +520,7 @@ function AdminProductsPage() {
               </table>
               {filtered.length === 0 && (
                 <div className="p-8 text-center text-muted-foreground">
-                  {search ? "Nenhum resultado para a busca." : (<>Nenhum produto ainda. <Link to="/store/import" className="text-primary hover:underline">Importar do site AMT</Link></>)}
+                  {search ? "Nenhum resultado para a busca." : (<>Nenhum produto ainda. <Link to="/admin/produtos/importar" className="text-primary hover:underline">Importar do site AMT</Link></>)}
                 </div>
               )}
 

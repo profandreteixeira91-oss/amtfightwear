@@ -42,10 +42,10 @@ function ProspectDashboardPage() {
         actions={
           <>
             <Button asChild variant="outline" size="sm">
-              <Link to="/prospect/leads"><Users className="mr-2 h-4 w-4" />Leads</Link>
+              <Link to="/admin/leads"><Users className="mr-2 h-4 w-4" />Leads</Link>
             </Button>
             <Button asChild size="sm">
-              <Link to="/prospect/search"><Radar className="mr-2 h-4 w-4" />Nova busca</Link>
+              <Link to="/admin/leads/busca"><Radar className="mr-2 h-4 w-4" />Nova busca</Link>
             </Button>
           </>
         }
@@ -109,7 +109,7 @@ function ProspectDashboardPage() {
             <SectionCard title="Pesquisas recentes" description="Últimas buscas executadas" delay={0.25}
               action={
                 <Button asChild size="sm" variant="outline">
-                  <Link to="/prospect/search"><Radar className="mr-2 h-4 w-4" />Nova</Link>
+                  <Link to="/admin/leads/busca"><Radar className="mr-2 h-4 w-4" />Nova</Link>
                 </Button>
               }>
               {data.recentSearches.length === 0 ? (

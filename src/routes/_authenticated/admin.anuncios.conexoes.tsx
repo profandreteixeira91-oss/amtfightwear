@@ -62,7 +62,7 @@ function ConnectionsPage() {
             icon={Plug}
             title="Nenhuma conta Meta conectada"
             description="Vá em Instagram Hub → Conta Conectada para autorizar o app."
-            action={<Button asChild size="sm"><Link to="/instagram/account">Conectar Meta</Link></Button>}
+            action={<Button asChild size="sm"><Link to="/admin/instagram/conta">Conectar Meta</Link></Button>}
           />
         ) : (
           <div className="flex items-center gap-3 text-sm">

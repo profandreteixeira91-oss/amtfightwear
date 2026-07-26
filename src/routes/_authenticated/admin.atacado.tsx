@@ -69,7 +69,7 @@ function WholesaleSettingsPage() {
     <PageShell
       narrow
       eyebrow={
-        <Link to="/store/products" className="inline-flex items-center hover:text-foreground">
+        <Link to="/admin/produtos" className="inline-flex items-center hover:text-foreground">
           <ChevronLeft className="h-3 w-3" /> Produtos
         </Link>
       }
@@ -145,7 +145,7 @@ function WholesaleSettingsPage() {
           </div>
           <p className="text-muted-foreground">
             Habilite ou desabilite produtos individualmente pela coluna <em>Atacado / Desc.</em> em{" "}
-            <Link to="/store/products" className="text-primary hover:underline">Produtos da loja</Link>.
+            <Link to="/admin/produtos" className="text-primary hover:underline">Produtos da loja</Link>.
             O campo de percentual ao lado da chave define um desconto específico para o produto — deixe vazio para usar o padrão global.
           </p>
         </CardContent>

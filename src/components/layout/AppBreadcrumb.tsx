@@ -31,7 +31,7 @@ export function AppBreadcrumb() {
       <BreadcrumbList>
         <BreadcrumbItem>
           <BreadcrumbLink asChild>
-            <Link to="/dashboard">Início</Link>
+            <Link to="/admin">Início</Link>
           </BreadcrumbLink>
         </BreadcrumbItem>
         {segments.map((seg, i) => {

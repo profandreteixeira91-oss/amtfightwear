@@ -107,7 +107,7 @@ function IgAccount() {
             <div>
               <b>Nenhuma conta Meta ativa.</b>
               <p className="text-muted-foreground mt-1">
-                Acesse <a href="/market/connections" className="underline">Conexões e APIs</a> para conectar sua conta do Facebook e vincular o Instagram Business.
+                Acesse <a href="/admin/conexoes" className="underline">Conexões e APIs</a> para conectar sua conta do Facebook e vincular o Instagram Business.
               </p>
             </div>
           </div>

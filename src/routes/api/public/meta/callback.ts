@@ -5,7 +5,7 @@ const GRAPH = "https://graph.facebook.com/v21.0";
 
 function html(body: string, status = 200) {
   return new Response(
-    `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Meta OAuth</title><style>body{font-family:system-ui;background:#0a0a0a;color:#fafafa;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}.box{max-width:520px;padding:32px;border:1px solid #262626;border-radius:12px;background:#111}h1{margin:0 0 12px;font-size:20px}p{color:#a3a3a3;line-height:1.5}a{color:#ef4444}</style></head><body><div class="box">${body}</div><script>setTimeout(()=>{window.location.href="/market/connections"},3500)</script></body></html>`,
+    `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Meta OAuth</title><style>body{font-family:system-ui;background:#0a0a0a;color:#fafafa;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}.box{max-width:520px;padding:32px;border:1px solid #262626;border-radius:12px;background:#111}h1{margin:0 0 12px;font-size:20px}p{color:#a3a3a3;line-height:1.5}a{color:#ef4444}</style></head><body><div class="box">${body}</div><script>setTimeout(()=>{window.location.href="/admin/conexoes"},3500)</script></body></html>`,
     { status, headers: { "Content-Type": "text/html; charset=utf-8" } },
   );
 }

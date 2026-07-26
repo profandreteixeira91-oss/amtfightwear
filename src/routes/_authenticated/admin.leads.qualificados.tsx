@@ -315,7 +315,7 @@ function QualifiedPage() {
         description={`${total} leads enriquecidos e prontos para abordagem. Envie e-mail ou abra o Instagram com a mensagem pré-pronta.`}
         actions={
           <Button asChild size="sm" variant="outline">
-            <Link to="/prospect/leads">
+            <Link to="/admin/leads">
               Ver todos os leads
             </Link>
           </Button>
@@ -369,7 +369,7 @@ function QualifiedPage() {
             </div>
           ) : rows.length === 0 ? (
             <div className="p-10 text-center text-sm text-muted-foreground">
-              Nenhum potencial cliente ainda. Enriqueça leads em <Link to="/prospect/leads" className="text-primary underline">Leads</Link> para vê-los aqui.
+              Nenhum potencial cliente ainda. Enriqueça leads em <Link to="/admin/leads" className="text-primary underline">Leads</Link> para vê-los aqui.
             </div>
           ) : (
             <Table>
@@ -393,7 +393,7 @@ function QualifiedPage() {
                   return (
                     <TableRow key={r.id}>
                       <TableCell className="min-w-0">
-                        <Link to="/prospect/$id" params={{ id: r.id }} className="truncate font-semibold hover:text-primary">
+                        <Link to="/admin/leads/$id" params={{ id: r.id }} className="truncate font-semibold hover:text-primary">
                           {String(r.name)}
                         </Link>
                         {r.category ? (
@@ -473,7 +473,7 @@ function QualifiedPage() {
                             );
                           })()}
                           <Button asChild size="sm" variant="ghost" title="Abrir lead">
-                            <Link to="/prospect/$id" params={{ id: r.id }}>
+                            <Link to="/admin/leads/$id" params={{ id: r.id }}>
                               <ExternalLink className="h-4 w-4" />
                             </Link>
                           </Button>

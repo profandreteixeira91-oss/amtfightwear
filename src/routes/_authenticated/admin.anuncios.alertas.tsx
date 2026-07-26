@@ -91,7 +91,7 @@ function AlertsPage() {
                     <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
                       <span>{new Date(a.created_at).toLocaleString("pt-BR")}</span>
                       {a.campaign_id && camp?.name && (
-                        <Link to="/ads/campaigns/$id" params={{ id: a.campaign_id }} className="text-primary hover:underline">
+                        <Link to="/admin/anuncios/campanhas/$id" params={{ id: a.campaign_id }} className="text-primary hover:underline">
                           {camp.name}
                         </Link>
                       )}

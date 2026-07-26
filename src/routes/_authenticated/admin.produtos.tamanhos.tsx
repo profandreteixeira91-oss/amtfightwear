@@ -87,7 +87,7 @@ function SizesPage() {
   return (
     <PageShell
       eyebrow={
-        <Link to="/store" className="inline-flex items-center hover:text-foreground">
+        <Link to="/admin/loja" className="inline-flex items-center hover:text-foreground">
           <ChevronLeft className="h-3 w-3" /> Loja
         </Link>
       }
