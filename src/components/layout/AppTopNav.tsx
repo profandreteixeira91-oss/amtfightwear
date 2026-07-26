@@ -171,8 +171,8 @@ const groups: { label: string; items: Item[] }[] = [
     items: [
       { title: "Central AMT", url: "/admin", icon: Shield },
       { title: "Painel da Loja", url: "/store", icon: Store },
-      { title: "Produtos", url: "/store/products", icon: Package },
-      { title: "Pedidos", url: "/store/orders", icon: ShoppingCart },
+      { title: "Produtos", url: "/admin/produtos", icon: Package },
+      { title: "Pedidos", url: "/admin/pedidos", icon: ShoppingCart },
       { title: "Chat da loja", url: "/store/chat", icon: MessageCircle },
       { title: "Clientes", url: "/store/customers", icon: UserSquare2 },
       { title: "AMT Dojo Manager", url: "/admin/saas", icon: GraduationCap },

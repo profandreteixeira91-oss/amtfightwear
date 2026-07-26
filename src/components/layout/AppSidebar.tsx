@@ -116,8 +116,8 @@ const adsItems = [
 
 const storeItems = [
   { title: "Painel da Loja", url: "/store", icon: Store },
-  { title: "Produtos", url: "/store/products", icon: Package },
-  { title: "Pedidos", url: "/store/orders", icon: ShoppingCart },
+  { title: "Produtos", url: "/admin/produtos", icon: Package },
+  { title: "Pedidos", url: "/admin/pedidos", icon: ShoppingCart },
   { title: "Envio (Melhor Envio)", url: "/store/shipping", icon: Truck },
   { title: "Imagens dos produtos", url: "/store/imagens", icon: ImageIcon },
   { title: "Importar catálogo", url: "/store/import", icon: DownloadIcon },

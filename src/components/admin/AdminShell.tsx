@@ -299,8 +299,8 @@ const NAV: NavGroup[] = [
     label: "Vendas — AMT Fight Wear",
     items: [
       { title: "Painel da Loja", url: "/store", icon: Store },
-      { title: "Pedidos", url: "/store/orders", icon: ShoppingCart },
-      { title: "Produtos", url: "/store/products", icon: Package },
+      { title: "Pedidos", url: "/admin/pedidos", icon: ShoppingCart },
+      { title: "Produtos", url: "/admin/produtos", icon: Package },
       { title: "Imagens de produtos", url: "/store/imagens", icon: ImageIcon },
       { title: "Importar produtos", url: "/store/import", icon: DownloadIcon },
       { title: "Tamanhos", url: "/store/sizes", icon: Ruler },
