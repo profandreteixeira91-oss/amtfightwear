@@ -40,8 +40,11 @@ import { Route as ApiGenerateAdImageRouteImport } from './routes/api/generate-ad
 import { Route as AuthenticatedUsersRouteImport } from './routes/_authenticated/users'
 import { Route as AuthenticatedStoreRouteImport } from './routes/_authenticated/store'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedProspectRouteImport } from './routes/_authenticated/prospect'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AuthenticatedMarketRouteImport } from './routes/_authenticated/market'
 import { Route as AuthenticatedLogsRouteImport } from './routes/_authenticated/logs'
+import { Route as AuthenticatedInstagramRouteImport } from './routes/_authenticated/instagram'
 import { Route as AuthenticatedGrowthRouteImport } from './routes/_authenticated/growth'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdsRouteImport } from './routes/_authenticated/ads'
@@ -386,14 +389,29 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedProspectRoute = AuthenticatedProspectRouteImport.update({
+  id: '/prospect',
+  path: '/prospect',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMarketRoute = AuthenticatedMarketRouteImport.update({
+  id: '/market',
+  path: '/market',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedLogsRoute = AuthenticatedLogsRouteImport.update({
   id: '/logs',
   path: '/logs',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedInstagramRoute = AuthenticatedInstagramRouteImport.update({
+  id: '/instagram',
+  path: '/instagram',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedGrowthRoute = AuthenticatedGrowthRouteImport.update({
@@ -438,9 +456,9 @@ const AuthenticatedStoreIndexRoute = AuthenticatedStoreIndexRouteImport.update({
 } as any)
 const AuthenticatedProspectIndexRoute =
   AuthenticatedProspectIndexRouteImport.update({
-    id: '/prospect/',
-    path: '/prospect/',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedProspectRoute,
   } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
@@ -801,127 +819,127 @@ const AuthenticatedStoreChatRoute = AuthenticatedStoreChatRouteImport.update({
 } as any)
 const AuthenticatedProspectSettingsRoute =
   AuthenticatedProspectSettingsRouteImport.update({
-    id: '/prospect/settings',
-    path: '/prospect/settings',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedProspectRoute,
   } as any)
 const AuthenticatedProspectSearchRoute =
   AuthenticatedProspectSearchRouteImport.update({
-    id: '/prospect/search',
-    path: '/prospect/search',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/search',
+    path: '/search',
+    getParentRoute: () => AuthenticatedProspectRoute,
   } as any)
 const AuthenticatedProspectQualifiedRoute =
   AuthenticatedProspectQualifiedRouteImport.update({
-    id: '/prospect/qualified',
-    path: '/prospect/qualified',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/qualified',
+    path: '/qualified',
+    getParentRoute: () => AuthenticatedProspectRoute,
   } as any)
 const AuthenticatedProspectPipelineRoute =
   AuthenticatedProspectPipelineRouteImport.update({
-    id: '/prospect/pipeline',
-    path: '/prospect/pipeline',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/pipeline',
+    path: '/pipeline',
+    getParentRoute: () => AuthenticatedProspectRoute,
   } as any)
 const AuthenticatedProspectMacroRoute =
   AuthenticatedProspectMacroRouteImport.update({
-    id: '/prospect/macro',
-    path: '/prospect/macro',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/macro',
+    path: '/macro',
+    getParentRoute: () => AuthenticatedProspectRoute,
   } as any)
 const AuthenticatedProspectLogsRoute =
   AuthenticatedProspectLogsRouteImport.update({
-    id: '/prospect/logs',
-    path: '/prospect/logs',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/logs',
+    path: '/logs',
+    getParentRoute: () => AuthenticatedProspectRoute,
   } as any)
 const AuthenticatedProspectLeadsRoute =
   AuthenticatedProspectLeadsRouteImport.update({
-    id: '/prospect/leads',
-    path: '/prospect/leads',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/leads',
+    path: '/leads',
+    getParentRoute: () => AuthenticatedProspectRoute,
   } as any)
 const AuthenticatedProspectIdRoute = AuthenticatedProspectIdRouteImport.update({
-  id: '/prospect/$id',
-  path: '/prospect/$id',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AuthenticatedProspectRoute,
 } as any)
 const AuthenticatedMarketPricingRoute =
   AuthenticatedMarketPricingRouteImport.update({
-    id: '/market/pricing',
-    path: '/market/pricing',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/pricing',
+    path: '/pricing',
+    getParentRoute: () => AuthenticatedMarketRoute,
   } as any)
 const AuthenticatedMarketOverviewRoute =
   AuthenticatedMarketOverviewRouteImport.update({
-    id: '/market/overview',
-    path: '/market/overview',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/overview',
+    path: '/overview',
+    getParentRoute: () => AuthenticatedMarketRoute,
   } as any)
 const AuthenticatedMarketCrmRoute = AuthenticatedMarketCrmRouteImport.update({
-  id: '/market/crm',
-  path: '/market/crm',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  id: '/crm',
+  path: '/crm',
+  getParentRoute: () => AuthenticatedMarketRoute,
 } as any)
 const AuthenticatedMarketContentRoute =
   AuthenticatedMarketContentRouteImport.update({
-    id: '/market/content',
-    path: '/market/content',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/content',
+    path: '/content',
+    getParentRoute: () => AuthenticatedMarketRoute,
   } as any)
 const AuthenticatedMarketConnectionsRoute =
   AuthenticatedMarketConnectionsRouteImport.update({
-    id: '/market/connections',
-    path: '/market/connections',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/connections',
+    path: '/connections',
+    getParentRoute: () => AuthenticatedMarketRoute,
   } as any)
 const AuthenticatedMarketCatalogRoute =
   AuthenticatedMarketCatalogRouteImport.update({
-    id: '/market/catalog',
-    path: '/market/catalog',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/catalog',
+    path: '/catalog',
+    getParentRoute: () => AuthenticatedMarketRoute,
   } as any)
 const AuthenticatedInstagramInboxRoute =
   AuthenticatedInstagramInboxRouteImport.update({
-    id: '/instagram/inbox',
-    path: '/instagram/inbox',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/inbox',
+    path: '/inbox',
+    getParentRoute: () => AuthenticatedInstagramRoute,
   } as any)
 const AuthenticatedInstagramDashboardRoute =
   AuthenticatedInstagramDashboardRouteImport.update({
-    id: '/instagram/dashboard',
-    path: '/instagram/dashboard',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/dashboard',
+    path: '/dashboard',
+    getParentRoute: () => AuthenticatedInstagramRoute,
   } as any)
 const AuthenticatedInstagramCrmRoute =
   AuthenticatedInstagramCrmRouteImport.update({
-    id: '/instagram/crm',
-    path: '/instagram/crm',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/crm',
+    path: '/crm',
+    getParentRoute: () => AuthenticatedInstagramRoute,
   } as any)
 const AuthenticatedInstagramCommentsRoute =
   AuthenticatedInstagramCommentsRouteImport.update({
-    id: '/instagram/comments',
-    path: '/instagram/comments',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/comments',
+    path: '/comments',
+    getParentRoute: () => AuthenticatedInstagramRoute,
   } as any)
 const AuthenticatedInstagramAutomationsRoute =
   AuthenticatedInstagramAutomationsRouteImport.update({
-    id: '/instagram/automations',
-    path: '/instagram/automations',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/automations',
+    path: '/automations',
+    getParentRoute: () => AuthenticatedInstagramRoute,
   } as any)
 const AuthenticatedInstagramAdminRoute =
   AuthenticatedInstagramAdminRouteImport.update({
-    id: '/instagram/admin',
-    path: '/instagram/admin',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/admin',
+    path: '/admin',
+    getParentRoute: () => AuthenticatedInstagramRoute,
   } as any)
 const AuthenticatedInstagramAccountRoute =
   AuthenticatedInstagramAccountRouteImport.update({
-    id: '/instagram/account',
-    path: '/instagram/account',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/account',
+    path: '/account',
+    getParentRoute: () => AuthenticatedInstagramRoute,
   } as any)
 const AuthenticatedGrowthMarketRoute =
   AuthenticatedGrowthMarketRouteImport.update({
@@ -1449,8 +1467,11 @@ export interface FileRoutesByFullPath {
   '/ads': typeof AuthenticatedAdsRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/growth': typeof AuthenticatedGrowthRouteWithChildren
+  '/instagram': typeof AuthenticatedInstagramRouteWithChildren
   '/logs': typeof AuthenticatedLogsRoute
+  '/market': typeof AuthenticatedMarketRouteWithChildren
   '/profile': typeof AuthenticatedProfileRoute
+  '/prospect': typeof AuthenticatedProspectRouteWithChildren
   '/settings': typeof AuthenticatedSettingsRoute
   '/store': typeof AuthenticatedStoreRouteWithChildren
   '/users': typeof AuthenticatedUsersRoute
@@ -1669,7 +1690,9 @@ export interface FileRoutesByTo {
   '/ads': typeof AuthenticatedAdsRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/growth': typeof AuthenticatedGrowthRouteWithChildren
+  '/instagram': typeof AuthenticatedInstagramRouteWithChildren
   '/logs': typeof AuthenticatedLogsRoute
+  '/market': typeof AuthenticatedMarketRouteWithChildren
   '/profile': typeof AuthenticatedProfileRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/users': typeof AuthenticatedUsersRoute
@@ -1883,8 +1906,11 @@ export interface FileRoutesById {
   '/_authenticated/ads': typeof AuthenticatedAdsRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/growth': typeof AuthenticatedGrowthRouteWithChildren
+  '/_authenticated/instagram': typeof AuthenticatedInstagramRouteWithChildren
   '/_authenticated/logs': typeof AuthenticatedLogsRoute
+  '/_authenticated/market': typeof AuthenticatedMarketRouteWithChildren
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/prospect': typeof AuthenticatedProspectRouteWithChildren
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/store': typeof AuthenticatedStoreRouteWithChildren
   '/_authenticated/users': typeof AuthenticatedUsersRoute
@@ -2109,8 +2135,11 @@ export interface FileRouteTypes {
     | '/ads'
     | '/dashboard'
     | '/growth'
+    | '/instagram'
     | '/logs'
+    | '/market'
     | '/profile'
+    | '/prospect'
     | '/settings'
     | '/store'
     | '/users'
@@ -2329,7 +2358,9 @@ export interface FileRouteTypes {
     | '/ads'
     | '/dashboard'
     | '/growth'
+    | '/instagram'
     | '/logs'
+    | '/market'
     | '/profile'
     | '/settings'
     | '/users'
@@ -2542,8 +2573,11 @@ export interface FileRouteTypes {
     | '/_authenticated/ads'
     | '/_authenticated/dashboard'
     | '/_authenticated/growth'
+    | '/_authenticated/instagram'
     | '/_authenticated/logs'
+    | '/_authenticated/market'
     | '/_authenticated/profile'
+    | '/_authenticated/prospect'
     | '/_authenticated/settings'
     | '/_authenticated/store'
     | '/_authenticated/users'
@@ -3029,6 +3063,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/prospect': {
+      id: '/_authenticated/prospect'
+      path: '/prospect'
+      fullPath: '/prospect'
+      preLoaderRoute: typeof AuthenticatedProspectRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/profile': {
       id: '/_authenticated/profile'
       path: '/profile'
@@ -3036,11 +3077,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProfileRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/market': {
+      id: '/_authenticated/market'
+      path: '/market'
+      fullPath: '/market'
+      preLoaderRoute: typeof AuthenticatedMarketRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/logs': {
       id: '/_authenticated/logs'
       path: '/logs'
       fullPath: '/logs'
       preLoaderRoute: typeof AuthenticatedLogsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/instagram': {
+      id: '/_authenticated/instagram'
+      path: '/instagram'
+      fullPath: '/instagram'
+      preLoaderRoute: typeof AuthenticatedInstagramRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/growth': {
@@ -3101,10 +3156,10 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/prospect/': {
       id: '/_authenticated/prospect/'
-      path: '/prospect'
+      path: '/'
       fullPath: '/prospect/'
       preLoaderRoute: typeof AuthenticatedProspectIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedProspectRoute
     }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
@@ -3591,150 +3646,150 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/prospect/settings': {
       id: '/_authenticated/prospect/settings'
-      path: '/prospect/settings'
+      path: '/settings'
       fullPath: '/prospect/settings'
       preLoaderRoute: typeof AuthenticatedProspectSettingsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedProspectRoute
     }
     '/_authenticated/prospect/search': {
       id: '/_authenticated/prospect/search'
-      path: '/prospect/search'
+      path: '/search'
       fullPath: '/prospect/search'
       preLoaderRoute: typeof AuthenticatedProspectSearchRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedProspectRoute
     }
     '/_authenticated/prospect/qualified': {
       id: '/_authenticated/prospect/qualified'
-      path: '/prospect/qualified'
+      path: '/qualified'
       fullPath: '/prospect/qualified'
       preLoaderRoute: typeof AuthenticatedProspectQualifiedRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedProspectRoute
     }
     '/_authenticated/prospect/pipeline': {
       id: '/_authenticated/prospect/pipeline'
-      path: '/prospect/pipeline'
+      path: '/pipeline'
       fullPath: '/prospect/pipeline'
       preLoaderRoute: typeof AuthenticatedProspectPipelineRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedProspectRoute
     }
     '/_authenticated/prospect/macro': {
       id: '/_authenticated/prospect/macro'
-      path: '/prospect/macro'
+      path: '/macro'
       fullPath: '/prospect/macro'
       preLoaderRoute: typeof AuthenticatedProspectMacroRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedProspectRoute
     }
     '/_authenticated/prospect/logs': {
       id: '/_authenticated/prospect/logs'
-      path: '/prospect/logs'
+      path: '/logs'
       fullPath: '/prospect/logs'
       preLoaderRoute: typeof AuthenticatedProspectLogsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedProspectRoute
     }
     '/_authenticated/prospect/leads': {
       id: '/_authenticated/prospect/leads'
-      path: '/prospect/leads'
+      path: '/leads'
       fullPath: '/prospect/leads'
       preLoaderRoute: typeof AuthenticatedProspectLeadsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedProspectRoute
     }
     '/_authenticated/prospect/$id': {
       id: '/_authenticated/prospect/$id'
-      path: '/prospect/$id'
+      path: '/$id'
       fullPath: '/prospect/$id'
       preLoaderRoute: typeof AuthenticatedProspectIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedProspectRoute
     }
     '/_authenticated/market/pricing': {
       id: '/_authenticated/market/pricing'
-      path: '/market/pricing'
+      path: '/pricing'
       fullPath: '/market/pricing'
       preLoaderRoute: typeof AuthenticatedMarketPricingRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedMarketRoute
     }
     '/_authenticated/market/overview': {
       id: '/_authenticated/market/overview'
-      path: '/market/overview'
+      path: '/overview'
       fullPath: '/market/overview'
       preLoaderRoute: typeof AuthenticatedMarketOverviewRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedMarketRoute
     }
     '/_authenticated/market/crm': {
       id: '/_authenticated/market/crm'
-      path: '/market/crm'
+      path: '/crm'
       fullPath: '/market/crm'
       preLoaderRoute: typeof AuthenticatedMarketCrmRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedMarketRoute
     }
     '/_authenticated/market/content': {
       id: '/_authenticated/market/content'
-      path: '/market/content'
+      path: '/content'
       fullPath: '/market/content'
       preLoaderRoute: typeof AuthenticatedMarketContentRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedMarketRoute
     }
     '/_authenticated/market/connections': {
       id: '/_authenticated/market/connections'
-      path: '/market/connections'
+      path: '/connections'
       fullPath: '/market/connections'
       preLoaderRoute: typeof AuthenticatedMarketConnectionsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedMarketRoute
     }
     '/_authenticated/market/catalog': {
       id: '/_authenticated/market/catalog'
-      path: '/market/catalog'
+      path: '/catalog'
       fullPath: '/market/catalog'
       preLoaderRoute: typeof AuthenticatedMarketCatalogRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedMarketRoute
     }
     '/_authenticated/instagram/inbox': {
       id: '/_authenticated/instagram/inbox'
-      path: '/instagram/inbox'
+      path: '/inbox'
       fullPath: '/instagram/inbox'
       preLoaderRoute: typeof AuthenticatedInstagramInboxRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedInstagramRoute
     }
     '/_authenticated/instagram/dashboard': {
       id: '/_authenticated/instagram/dashboard'
-      path: '/instagram/dashboard'
+      path: '/dashboard'
       fullPath: '/instagram/dashboard'
       preLoaderRoute: typeof AuthenticatedInstagramDashboardRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedInstagramRoute
     }
     '/_authenticated/instagram/crm': {
       id: '/_authenticated/instagram/crm'
-      path: '/instagram/crm'
+      path: '/crm'
       fullPath: '/instagram/crm'
       preLoaderRoute: typeof AuthenticatedInstagramCrmRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedInstagramRoute
     }
     '/_authenticated/instagram/comments': {
       id: '/_authenticated/instagram/comments'
-      path: '/instagram/comments'
+      path: '/comments'
       fullPath: '/instagram/comments'
       preLoaderRoute: typeof AuthenticatedInstagramCommentsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedInstagramRoute
     }
     '/_authenticated/instagram/automations': {
       id: '/_authenticated/instagram/automations'
-      path: '/instagram/automations'
+      path: '/automations'
       fullPath: '/instagram/automations'
       preLoaderRoute: typeof AuthenticatedInstagramAutomationsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedInstagramRoute
     }
     '/_authenticated/instagram/admin': {
       id: '/_authenticated/instagram/admin'
-      path: '/instagram/admin'
+      path: '/admin'
       fullPath: '/instagram/admin'
       preLoaderRoute: typeof AuthenticatedInstagramAdminRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedInstagramRoute
     }
     '/_authenticated/instagram/account': {
       id: '/_authenticated/instagram/account'
-      path: '/instagram/account'
+      path: '/account'
       fullPath: '/instagram/account'
       preLoaderRoute: typeof AuthenticatedInstagramAccountRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedInstagramRoute
     }
     '/_authenticated/growth/market': {
       id: '/_authenticated/growth/market'
@@ -4449,6 +4504,83 @@ const AuthenticatedGrowthRouteChildren: AuthenticatedGrowthRouteChildren = {
 const AuthenticatedGrowthRouteWithChildren =
   AuthenticatedGrowthRoute._addFileChildren(AuthenticatedGrowthRouteChildren)
 
+interface AuthenticatedInstagramRouteChildren {
+  AuthenticatedInstagramAccountRoute: typeof AuthenticatedInstagramAccountRoute
+  AuthenticatedInstagramAdminRoute: typeof AuthenticatedInstagramAdminRoute
+  AuthenticatedInstagramAutomationsRoute: typeof AuthenticatedInstagramAutomationsRoute
+  AuthenticatedInstagramCommentsRoute: typeof AuthenticatedInstagramCommentsRoute
+  AuthenticatedInstagramCrmRoute: typeof AuthenticatedInstagramCrmRoute
+  AuthenticatedInstagramDashboardRoute: typeof AuthenticatedInstagramDashboardRoute
+  AuthenticatedInstagramInboxRoute: typeof AuthenticatedInstagramInboxRoute
+}
+
+const AuthenticatedInstagramRouteChildren: AuthenticatedInstagramRouteChildren =
+  {
+    AuthenticatedInstagramAccountRoute: AuthenticatedInstagramAccountRoute,
+    AuthenticatedInstagramAdminRoute: AuthenticatedInstagramAdminRoute,
+    AuthenticatedInstagramAutomationsRoute:
+      AuthenticatedInstagramAutomationsRoute,
+    AuthenticatedInstagramCommentsRoute: AuthenticatedInstagramCommentsRoute,
+    AuthenticatedInstagramCrmRoute: AuthenticatedInstagramCrmRoute,
+    AuthenticatedInstagramDashboardRoute: AuthenticatedInstagramDashboardRoute,
+    AuthenticatedInstagramInboxRoute: AuthenticatedInstagramInboxRoute,
+  }
+
+const AuthenticatedInstagramRouteWithChildren =
+  AuthenticatedInstagramRoute._addFileChildren(
+    AuthenticatedInstagramRouteChildren,
+  )
+
+interface AuthenticatedMarketRouteChildren {
+  AuthenticatedMarketCatalogRoute: typeof AuthenticatedMarketCatalogRoute
+  AuthenticatedMarketConnectionsRoute: typeof AuthenticatedMarketConnectionsRoute
+  AuthenticatedMarketContentRoute: typeof AuthenticatedMarketContentRoute
+  AuthenticatedMarketCrmRoute: typeof AuthenticatedMarketCrmRoute
+  AuthenticatedMarketOverviewRoute: typeof AuthenticatedMarketOverviewRoute
+  AuthenticatedMarketPricingRoute: typeof AuthenticatedMarketPricingRoute
+}
+
+const AuthenticatedMarketRouteChildren: AuthenticatedMarketRouteChildren = {
+  AuthenticatedMarketCatalogRoute: AuthenticatedMarketCatalogRoute,
+  AuthenticatedMarketConnectionsRoute: AuthenticatedMarketConnectionsRoute,
+  AuthenticatedMarketContentRoute: AuthenticatedMarketContentRoute,
+  AuthenticatedMarketCrmRoute: AuthenticatedMarketCrmRoute,
+  AuthenticatedMarketOverviewRoute: AuthenticatedMarketOverviewRoute,
+  AuthenticatedMarketPricingRoute: AuthenticatedMarketPricingRoute,
+}
+
+const AuthenticatedMarketRouteWithChildren =
+  AuthenticatedMarketRoute._addFileChildren(AuthenticatedMarketRouteChildren)
+
+interface AuthenticatedProspectRouteChildren {
+  AuthenticatedProspectIdRoute: typeof AuthenticatedProspectIdRoute
+  AuthenticatedProspectLeadsRoute: typeof AuthenticatedProspectLeadsRoute
+  AuthenticatedProspectLogsRoute: typeof AuthenticatedProspectLogsRoute
+  AuthenticatedProspectMacroRoute: typeof AuthenticatedProspectMacroRoute
+  AuthenticatedProspectPipelineRoute: typeof AuthenticatedProspectPipelineRoute
+  AuthenticatedProspectQualifiedRoute: typeof AuthenticatedProspectQualifiedRoute
+  AuthenticatedProspectSearchRoute: typeof AuthenticatedProspectSearchRoute
+  AuthenticatedProspectSettingsRoute: typeof AuthenticatedProspectSettingsRoute
+  AuthenticatedProspectIndexRoute: typeof AuthenticatedProspectIndexRoute
+}
+
+const AuthenticatedProspectRouteChildren: AuthenticatedProspectRouteChildren = {
+  AuthenticatedProspectIdRoute: AuthenticatedProspectIdRoute,
+  AuthenticatedProspectLeadsRoute: AuthenticatedProspectLeadsRoute,
+  AuthenticatedProspectLogsRoute: AuthenticatedProspectLogsRoute,
+  AuthenticatedProspectMacroRoute: AuthenticatedProspectMacroRoute,
+  AuthenticatedProspectPipelineRoute: AuthenticatedProspectPipelineRoute,
+  AuthenticatedProspectQualifiedRoute: AuthenticatedProspectQualifiedRoute,
+  AuthenticatedProspectSearchRoute: AuthenticatedProspectSearchRoute,
+  AuthenticatedProspectSettingsRoute: AuthenticatedProspectSettingsRoute,
+  AuthenticatedProspectIndexRoute: AuthenticatedProspectIndexRoute,
+}
+
+const AuthenticatedProspectRouteWithChildren =
+  AuthenticatedProspectRoute._addFileChildren(
+    AuthenticatedProspectRouteChildren,
+  )
+
 interface AuthenticatedStoreRouteChildren {
   AuthenticatedStoreChatRoute: typeof AuthenticatedStoreChatRoute
   AuthenticatedStoreCustomersRoute: typeof AuthenticatedStoreCustomersRoute
@@ -4491,33 +4623,14 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdsRoute: typeof AuthenticatedAdsRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedGrowthRoute: typeof AuthenticatedGrowthRouteWithChildren
+  AuthenticatedInstagramRoute: typeof AuthenticatedInstagramRouteWithChildren
   AuthenticatedLogsRoute: typeof AuthenticatedLogsRoute
+  AuthenticatedMarketRoute: typeof AuthenticatedMarketRouteWithChildren
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedProspectRoute: typeof AuthenticatedProspectRouteWithChildren
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedStoreRoute: typeof AuthenticatedStoreRouteWithChildren
   AuthenticatedUsersRoute: typeof AuthenticatedUsersRoute
-  AuthenticatedInstagramAccountRoute: typeof AuthenticatedInstagramAccountRoute
-  AuthenticatedInstagramAdminRoute: typeof AuthenticatedInstagramAdminRoute
-  AuthenticatedInstagramAutomationsRoute: typeof AuthenticatedInstagramAutomationsRoute
-  AuthenticatedInstagramCommentsRoute: typeof AuthenticatedInstagramCommentsRoute
-  AuthenticatedInstagramCrmRoute: typeof AuthenticatedInstagramCrmRoute
-  AuthenticatedInstagramDashboardRoute: typeof AuthenticatedInstagramDashboardRoute
-  AuthenticatedInstagramInboxRoute: typeof AuthenticatedInstagramInboxRoute
-  AuthenticatedMarketCatalogRoute: typeof AuthenticatedMarketCatalogRoute
-  AuthenticatedMarketConnectionsRoute: typeof AuthenticatedMarketConnectionsRoute
-  AuthenticatedMarketContentRoute: typeof AuthenticatedMarketContentRoute
-  AuthenticatedMarketCrmRoute: typeof AuthenticatedMarketCrmRoute
-  AuthenticatedMarketOverviewRoute: typeof AuthenticatedMarketOverviewRoute
-  AuthenticatedMarketPricingRoute: typeof AuthenticatedMarketPricingRoute
-  AuthenticatedProspectIdRoute: typeof AuthenticatedProspectIdRoute
-  AuthenticatedProspectLeadsRoute: typeof AuthenticatedProspectLeadsRoute
-  AuthenticatedProspectLogsRoute: typeof AuthenticatedProspectLogsRoute
-  AuthenticatedProspectMacroRoute: typeof AuthenticatedProspectMacroRoute
-  AuthenticatedProspectPipelineRoute: typeof AuthenticatedProspectPipelineRoute
-  AuthenticatedProspectQualifiedRoute: typeof AuthenticatedProspectQualifiedRoute
-  AuthenticatedProspectSearchRoute: typeof AuthenticatedProspectSearchRoute
-  AuthenticatedProspectSettingsRoute: typeof AuthenticatedProspectSettingsRoute
-  AuthenticatedProspectIndexRoute: typeof AuthenticatedProspectIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -4525,34 +4638,14 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdsRoute: AuthenticatedAdsRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedGrowthRoute: AuthenticatedGrowthRouteWithChildren,
+  AuthenticatedInstagramRoute: AuthenticatedInstagramRouteWithChildren,
   AuthenticatedLogsRoute: AuthenticatedLogsRoute,
+  AuthenticatedMarketRoute: AuthenticatedMarketRouteWithChildren,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedProspectRoute: AuthenticatedProspectRouteWithChildren,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedStoreRoute: AuthenticatedStoreRouteWithChildren,
   AuthenticatedUsersRoute: AuthenticatedUsersRoute,
-  AuthenticatedInstagramAccountRoute: AuthenticatedInstagramAccountRoute,
-  AuthenticatedInstagramAdminRoute: AuthenticatedInstagramAdminRoute,
-  AuthenticatedInstagramAutomationsRoute:
-    AuthenticatedInstagramAutomationsRoute,
-  AuthenticatedInstagramCommentsRoute: AuthenticatedInstagramCommentsRoute,
-  AuthenticatedInstagramCrmRoute: AuthenticatedInstagramCrmRoute,
-  AuthenticatedInstagramDashboardRoute: AuthenticatedInstagramDashboardRoute,
-  AuthenticatedInstagramInboxRoute: AuthenticatedInstagramInboxRoute,
-  AuthenticatedMarketCatalogRoute: AuthenticatedMarketCatalogRoute,
-  AuthenticatedMarketConnectionsRoute: AuthenticatedMarketConnectionsRoute,
-  AuthenticatedMarketContentRoute: AuthenticatedMarketContentRoute,
-  AuthenticatedMarketCrmRoute: AuthenticatedMarketCrmRoute,
-  AuthenticatedMarketOverviewRoute: AuthenticatedMarketOverviewRoute,
-  AuthenticatedMarketPricingRoute: AuthenticatedMarketPricingRoute,
-  AuthenticatedProspectIdRoute: AuthenticatedProspectIdRoute,
-  AuthenticatedProspectLeadsRoute: AuthenticatedProspectLeadsRoute,
-  AuthenticatedProspectLogsRoute: AuthenticatedProspectLogsRoute,
-  AuthenticatedProspectMacroRoute: AuthenticatedProspectMacroRoute,
-  AuthenticatedProspectPipelineRoute: AuthenticatedProspectPipelineRoute,
-  AuthenticatedProspectQualifiedRoute: AuthenticatedProspectQualifiedRoute,
-  AuthenticatedProspectSearchRoute: AuthenticatedProspectSearchRoute,
-  AuthenticatedProspectSettingsRoute: AuthenticatedProspectSettingsRoute,
-  AuthenticatedProspectIndexRoute: AuthenticatedProspectIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
