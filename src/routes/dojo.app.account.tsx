@@ -750,9 +750,9 @@ function SubscriptionTab({ subscription }: any) {
           Cobrança recorrente processada pelo Mercado Pago (cartão de crédito ou saldo da conta MP). Cancele quando quiser — nenhum dado do cartão é armazenado no sistema.
         </p>
         <div className="flex flex-wrap gap-2">
-          <Button size="sm" asChild className="bg-red-600 hover:bg-red-700">
-            <a href="/dojo/app/subscription">
-              {status === "active" ? "Gerenciar assinatura" : status === "cancelled" ? "Reativar assinatura" : "Ativar assinatura no Mercado Pago"}
+          <Button size="sm" asChild className="bg-red-600 hover:bg-red-700 text-white">
+            <a href="/dojo/app/subscription" className="text-white">
+              {status === "active" ? "Gerenciar assinatura" : status === "cancelled" ? "Reativar assinatura" : "Ativar assinatura"}
             </a>
           </Button>
         </div>
