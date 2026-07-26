@@ -94,7 +94,7 @@ function AnnouncementsAdmin() {
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 md:gap-7">
-      {/* HERO PREMIUM RUBY NOIR */}
+      {/* HERO PREMIUM */}
       <section className="relative overflow-hidden rounded-3xl border border-red-500/20 bg-gradient-to-br from-neutral-950 via-neutral-900 to-black text-white shadow-[0_30px_80px_-30px_rgba(220,38,38,0.45)]">
         <div
           aria-hidden

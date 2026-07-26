@@ -529,7 +529,7 @@ function NewGraduationPage() {
               </div>
               <div className="min-w-0">
                 <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-red-200 backdrop-blur">
-                  <Sparkles className="h-3 w-3" /> Cerimônia · Ruby Noir
+                  <Sparkles className="h-3 w-3" /> Cerimônia
                 </div>
                 <h1 className="mt-2 font-display text-2xl font-black leading-tight tracking-tight sm:text-3xl md:text-4xl">
                   Nova graduação

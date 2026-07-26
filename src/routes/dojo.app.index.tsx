@@ -748,7 +748,7 @@ function DojoDashboard() {
           </div>
         </BentoCard>
 
-        {/* Alunos recentes — premium ivory card sobre Ruby Noir */}
+        {/* Alunos recentes — premium ivory card sobre */}
         <div className="md:col-span-4 overflow-hidden rounded-2xl bg-[#faf7f2] text-slate-900 ring-1 ring-black/5 shadow-[0_20px_60px_-25px_rgba(0,0,0,0.55),0_4px_14px_-6px_rgba(0,0,0,0.35)]">
           {/* Cabeçalho editorial */}
           <div className="relative px-7 pt-6 pb-5">

@@ -7,7 +7,7 @@ export const Route = createFileRoute("/dojo/app/lesson-plans")({
       { title: "Planos de Aula — AMT Dojo Manager" },
       { name: "description", content: "Planeje, aplique modelos e acompanhe todas as suas aulas com o AMT Dojo Manager." },
       { property: "og:title", content: "Planos de Aula — AMT Dojo Manager" },
-      { property: "og:description", content: "Painel Ruby Noir para planejar aulas, biblioteca e técnicas." },
+      { property: "og:description", content: "Painel para planejar aulas, biblioteca e técnicas." },
     ],
   }),
   component: LessonPlansLayout,
@@ -37,7 +37,7 @@ function LessonPlansLayout() {
             </div>
             <div className="min-w-0">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-red-200 backdrop-blur">
-                <Flame className="h-3 w-3" /> Planos de Aula · Ruby Noir
+                <Flame className="h-3 w-3" /> Planos de Aula
               </div>
               <h1 className="mt-2 font-display text-2xl font-black leading-tight tracking-tight sm:text-3xl md:text-4xl">
                 Planeje cada aula como um round.
