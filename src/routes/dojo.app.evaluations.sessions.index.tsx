@@ -59,6 +59,13 @@ function SessionsList() {
   const [status, setStatus] = useState("all");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [newSess, setNewSess] = useState({ template_id: "", student_id: "" });
+  const search = useSearch({ from: "/dojo/app/evaluations/sessions/" });
+  useEffect(() => {
+    if (search?.new) {
+      setDialogOpen(true);
+      nav({ to: "/dojo/app/evaluations/sessions", search: {} as never, replace: true });
+    }
+  }, [search?.new]);
 
   const filtered = useMemo(() => {
     const rows = data ?? [];
