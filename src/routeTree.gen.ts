@@ -44,11 +44,13 @@ import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedLogsRouteImport } from './routes/_authenticated/logs'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdsRouteImport } from './routes/_authenticated/ads'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as LojaCustomShopIndexRouteImport } from './routes/loja.custom-shop.index'
 import { Route as LojaContaIndexRouteImport } from './routes/loja.conta.index'
 import { Route as DojoAppIndexRouteImport } from './routes/dojo.app.index'
 import { Route as AuthenticatedStoreIndexRouteImport } from './routes/_authenticated/store.index'
 import { Route as AuthenticatedProspectIndexRouteImport } from './routes/_authenticated/prospect.index'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as LojaProdutoSlugRouteImport } from './routes/loja.produto.$slug'
 import { Route as LojaPedidoIdRouteImport } from './routes/loja.pedido.$id'
@@ -403,6 +405,11 @@ const AuthenticatedAdsRoute = AuthenticatedAdsRouteImport.update({
   path: '/ads',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const LojaCustomShopIndexRoute = LojaCustomShopIndexRouteImport.update({
   id: '/loja/custom-shop/',
   path: '/loja/custom-shop/',
@@ -429,6 +436,11 @@ const AuthenticatedProspectIndexRoute =
     path: '/prospect/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
   id: '/lovable/email/suppression',
   path: '/lovable/email/suppression',
@@ -1427,6 +1439,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/ads': typeof AuthenticatedAdsRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/logs': typeof AuthenticatedLogsRoute
@@ -1554,6 +1567,7 @@ export interface FileRoutesByFullPath {
   '/loja/pedido/$id': typeof LojaPedidoIdRoute
   '/loja/produto/$slug': typeof LojaProdutoSlugRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
   '/prospect/': typeof AuthenticatedProspectIndexRoute
   '/store/': typeof AuthenticatedStoreIndexRoute
   '/dojo/app/': typeof DojoAppIndexRoute
@@ -1763,6 +1777,7 @@ export interface FileRoutesByTo {
   '/loja/pedido/$id': typeof LojaPedidoIdRoute
   '/loja/produto/$slug': typeof LojaProdutoSlugRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
   '/prospect': typeof AuthenticatedProspectIndexRoute
   '/store': typeof AuthenticatedStoreIndexRoute
   '/dojo/app': typeof DojoAppIndexRoute
@@ -1856,6 +1871,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/ads': typeof AuthenticatedAdsRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/logs': typeof AuthenticatedLogsRoute
@@ -1984,6 +2000,7 @@ export interface FileRoutesById {
   '/loja/pedido/$id': typeof LojaPedidoIdRoute
   '/loja/produto/$slug': typeof LojaProdutoSlugRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/prospect/': typeof AuthenticatedProspectIndexRoute
   '/_authenticated/store/': typeof AuthenticatedStoreIndexRoute
   '/dojo/app/': typeof DojoAppIndexRoute
@@ -2079,6 +2096,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/terms'
     | '/unsubscribe'
+    | '/admin'
     | '/ads'
     | '/dashboard'
     | '/logs'
@@ -2206,6 +2224,7 @@ export interface FileRouteTypes {
     | '/loja/pedido/$id'
     | '/loja/produto/$slug'
     | '/lovable/email/suppression'
+    | '/admin/'
     | '/prospect/'
     | '/store/'
     | '/dojo/app/'
@@ -2415,6 +2434,7 @@ export interface FileRouteTypes {
     | '/loja/pedido/$id'
     | '/loja/produto/$slug'
     | '/lovable/email/suppression'
+    | '/admin'
     | '/prospect'
     | '/store'
     | '/dojo/app'
@@ -2507,6 +2527,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/terms'
     | '/unsubscribe'
+    | '/_authenticated/admin'
     | '/_authenticated/ads'
     | '/_authenticated/dashboard'
     | '/_authenticated/logs'
@@ -2635,6 +2656,7 @@ export interface FileRouteTypes {
     | '/loja/pedido/$id'
     | '/loja/produto/$slug'
     | '/lovable/email/suppression'
+    | '/_authenticated/admin/'
     | '/_authenticated/prospect/'
     | '/_authenticated/store/'
     | '/dojo/app/'
@@ -3023,6 +3045,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/loja/custom-shop/': {
       id: '/loja/custom-shop/'
       path: '/loja/custom-shop'
@@ -3057,6 +3086,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/prospect/'
       preLoaderRoute: typeof AuthenticatedProspectIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/lovable/email/suppression': {
       id: '/lovable/email/suppression'
@@ -4321,6 +4357,17 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+}
+
+const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+}
+
+const AuthenticatedAdminRouteWithChildren =
+  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
+
 interface AuthenticatedAdsCampaignsRouteChildren {
   AuthenticatedAdsCampaignsIdRoute: typeof AuthenticatedAdsCampaignsIdRoute
 }
@@ -4400,6 +4447,7 @@ const AuthenticatedStoreRouteWithChildren =
   AuthenticatedStoreRoute._addFileChildren(AuthenticatedStoreRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedAdsRoute: typeof AuthenticatedAdsRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedLogsRoute: typeof AuthenticatedLogsRoute
@@ -4438,6 +4486,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedAdsRoute: AuthenticatedAdsRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedLogsRoute: AuthenticatedLogsRoute,
