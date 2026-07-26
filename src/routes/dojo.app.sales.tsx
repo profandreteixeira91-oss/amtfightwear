@@ -779,7 +779,7 @@ function ProductDialog({ product, onDone }: { product: Product | null; onDone: (
   };
 
   return (
-    <DialogContent>
+    <DialogContent className="w-[calc(100vw-1rem)] max-w-lg">
       <DialogHeader>
         <DialogTitle>{product ? "Editar item" : "Novo item"}</DialogTitle>
       </DialogHeader>
