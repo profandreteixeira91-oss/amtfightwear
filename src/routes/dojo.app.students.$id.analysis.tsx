@@ -148,12 +148,12 @@ function AnalysisPage() {
                 </Badge>
               )}
             </div>
-            <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/70">
+            <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/85">
               {age(s?.birth_date) != null && <span className="inline-flex items-center gap-1.5"><HeartPulse className="h-4 w-4 text-red-400" />{age(s?.birth_date)} anos</span>}
-              {s?.gender && <span className="capitalize">{s.gender}</span>}
+              {s?.gender && <span className="capitalize text-white/70">{s.gender}</span>}
               {belt && <span className="inline-flex items-center gap-1.5"><Award className="h-4 w-4 text-amber-400" />{formatBeltName(belt.name, belt.modality)} · {formatDegree(s?.current_degree ?? 0, belt.modality, belt.name)}</span>}
               {overview.data?.classes?.[0]?.dojo_classes && <span className="inline-flex items-center gap-1.5"><Users2 className="h-4 w-4 text-red-400" />{(overview.data.classes[0] as any).dojo_classes.name}</span>}
-              <span className="inline-flex items-center gap-1.5"><CalendarDays className="h-4 w-4 text-red-400" />Matrícula {fmtDate(s?.created_at)}</span>
+              <span className="inline-flex items-center gap-1.5 text-white/70"><CalendarDays className="h-4 w-4 text-red-400" />Matrícula {fmtDate(s?.created_at)}</span>
             </div>
             {score.data && (
               <div className="mt-6 max-w-xl rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur">
