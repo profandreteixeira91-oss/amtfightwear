@@ -341,7 +341,7 @@ function BeltsPage() {
       </Card>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+        <DialogContent className="w-[calc(100vw-1rem)] max-w-lg max-h-[92vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{form.id ? "Editar faixa" : "Nova faixa"}</DialogTitle>
           </DialogHeader>
