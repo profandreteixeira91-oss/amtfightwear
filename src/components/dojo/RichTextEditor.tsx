@@ -266,12 +266,13 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
     <div className="rounded-lg border border-border/80 bg-background shadow-sm overflow-hidden">
       {/* Toolbar */}
       <div
-        className="flex flex-wrap items-center gap-0.5 border-b bg-gradient-to-b from-muted/60 to-muted/30 backdrop-blur px-2 py-2 sticky top-0 z-10"
+        className="flex flex-nowrap md:flex-wrap items-center gap-0.5 border-b bg-gradient-to-b from-muted/60 to-muted/30 backdrop-blur px-2 py-2 sticky top-0 z-10 overflow-x-auto md:overflow-visible [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         onMouseDown={(e) => {
           // Impede o toolbar de roubar seleção quando o usuário clica em áreas vazias.
           if (e.target === e.currentTarget) e.preventDefault();
         }}
       >
+
         <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("undo")} title="Desfazer"><Undo className="h-4 w-4" /></button>
         <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("redo")} title="Refazer"><Redo className="h-4 w-4" /></button>
         <span className={tbDivider} />
