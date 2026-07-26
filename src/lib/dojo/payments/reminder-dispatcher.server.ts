@@ -207,3 +207,91 @@ export async function dispatchInvoiceReminder(
 
   return { status: "sent" };
 }
+
+// ---------- Push (Web Push) ----------
+export async function dispatchInvoicePushReminder(
+  supabase: any,
+  args: { invoice: ReminderInvoice; offsetDays: number; manual?: boolean },
+): Promise<{ status: "sent" | "skipped" | "failed"; reason?: string }> {
+  const { invoice, offsetDays } = args;
+  const channel = "push" as const;
+  const studentId = invoice.student?.id;
+  if (!studentId) return { status: "skipped", reason: "no_student_id" };
+
+  // Idempotência
+  const { data: existing } = await supabase
+    .from("dojo_invoice_reminders")
+    .select("id")
+    .eq("invoice_id", invoice.id)
+    .eq("offset_days", offsetDays)
+    .eq("channel", channel)
+    .maybeSingle();
+  if (existing) return { status: "skipped", reason: "already_sent" };
+
+  // Verifica se o aluno tem alguma inscrição push ativa
+  const { data: subs } = await supabase
+    .from("dojo_push_subscriptions")
+    .select("id")
+    .eq("student_id", studentId)
+    .limit(1);
+  if (!subs || subs.length === 0) {
+    await supabase.from("dojo_invoice_reminders").insert({
+      owner_id: invoice.owner_id,
+      invoice_id: invoice.id,
+      offset_days: offsetDays,
+      channel,
+      status: "skipped",
+      error_message: "no_push_subscription",
+    });
+    return { status: "skipped", reason: "no_push_subscription" };
+  }
+
+  const amount = formatBRL(Number(invoice.amount));
+  const due = formatDateBR(invoice.due_date);
+  let title = "Lembrete de mensalidade";
+  let body = "";
+  if (offsetDays < 0) {
+    const d = Math.abs(offsetDays);
+    title = `Sua mensalidade vence em ${d} dia${d > 1 ? "s" : ""}`;
+    body = `${invoice.description ?? "Mensalidade"} — ${amount} · vencimento ${due}`;
+  } else if (offsetDays === 0) {
+    title = "Sua mensalidade vence hoje";
+    body = `${invoice.description ?? "Mensalidade"} — ${amount}`;
+  } else {
+    title = `Mensalidade em atraso há ${offsetDays} dia${offsetDays > 1 ? "s" : ""}`;
+    body = `${invoice.description ?? "Mensalidade"} — ${amount} · vencia em ${due}`;
+  }
+
+  try {
+    const { sendPushToStudent } = await import("@/lib/push/push.server");
+    await sendPushToStudent(studentId, {
+      title,
+      body,
+      url: `/app/invoice/${invoice.id}`,
+      tag: `invoice-${invoice.id}`,
+      data: { invoiceId: invoice.id, offsetDays },
+    });
+  } catch (err: any) {
+    await supabase.from("dojo_invoice_reminders").insert({
+      owner_id: invoice.owner_id,
+      invoice_id: invoice.id,
+      offset_days: offsetDays,
+      channel,
+      status: "failed",
+      error_message: String(err?.message ?? err),
+    });
+    return { status: "failed", reason: String(err?.message ?? err) };
+  }
+
+  const { error: logErr } = await supabase.from("dojo_invoice_reminders").insert({
+    owner_id: invoice.owner_id,
+    invoice_id: invoice.id,
+    offset_days: offsetDays,
+    channel,
+    status: "sent",
+  });
+  if (logErr && !logErr.message.includes("duplicate")) {
+    console.warn("[reminders] falha ao logar envio push", logErr);
+  }
+  return { status: "sent" };
+}
