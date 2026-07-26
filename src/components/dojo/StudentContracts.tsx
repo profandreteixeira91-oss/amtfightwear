@@ -62,14 +62,20 @@ export function StudentContracts({ studentId, student }: Props) {
   const applyTemplate = (tplId: string) => {
     setNewFromTemplate(tplId);
     const tpl = (templates.data ?? []).find((t: any) => t.id === tplId);
-    if (tpl) {
-      setCurrent((c: any) => ({
-        ...c,
-        template_id: tpl.id,
-        title: c?.title || tpl.name,
-        content: tpl.content ?? "",
-      }));
+    if (!tpl) {
+      toast.error("Modelo não encontrado");
+      return;
     }
+    const header = tpl.header_html ? `<div data-tpl-header>${tpl.header_html}</div>` : "";
+    const footer = tpl.footer_html ? `<div data-tpl-footer style="margin-top:24px;">${tpl.footer_html}</div>` : "";
+    const merged = `${header}${tpl.content ?? ""}${footer}`;
+    setCurrent((c: any) => ({
+      ...(c ?? { student_id: studentId, status: "draft" }),
+      template_id: tpl.id,
+      title: (c?.title && c.title.trim()) ? c.title : tpl.name,
+      content: merged,
+    }));
+    toast.success(`Modelo "${tpl.name}" aplicado`);
   };
 
   const openEdit = (row: any) => {
