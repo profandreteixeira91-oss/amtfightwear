@@ -286,12 +286,13 @@ function DojoAuthPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    minLength={6}
+                    minLength={isSignup ? PASSWORD_MIN_LENGTH : 6}
                     autoComplete={isSignup ? "new-password" : "current-password"}
                     className="h-11 rounded-xl border-black/10 pl-9 focus-visible:ring-[#C1121F]/30"
-                    placeholder={isSignup ? "Mínimo 6 caracteres" : "••••••••"}
+                    placeholder={isSignup ? `Mínimo ${PASSWORD_MIN_LENGTH} caracteres` : "••••••••"}
                   />
                 </div>
+                {isSignup && <PasswordStrength password={password} className="pt-1" />}
               </div>
 
               <Button
