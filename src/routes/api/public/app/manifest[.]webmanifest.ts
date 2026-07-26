@@ -8,8 +8,8 @@ export const Route = createFileRoute("/api/public/app/manifest.webmanifest")({
     handlers: {
       GET: async ({ request }) => {
         const url = new URL(request.url);
-        const name = url.searchParams.get("name") ?? "Portal do Aluno";
-        const short = (url.searchParams.get("short") ?? name).slice(0, 12);
+        const name = url.searchParams.get("name") ?? "Portal do Aluno - AMT Dojo Manager";
+        const short = (url.searchParams.get("short") ?? "Portal Aluno").slice(0, 12);
         const primary = url.searchParams.get("primary") ?? "#dc2626";
         const bg = url.searchParams.get("bg") ?? "#ffffff";
 
