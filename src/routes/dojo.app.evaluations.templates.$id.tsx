@@ -80,6 +80,8 @@ const uid = () => Math.random().toString(36).slice(2, 10);
 function TemplateEditor() {
   const { id } = Route.useParams();
   const saveFn = useServerFn(saveEvalTemplate);
+  const saveCategoryFn = useServerFn(saveEvalCategory);
+  const saveTechniqueFn = useServerFn(saveEvalTechnique);
   const qc = useQueryClient();
 
   const { data: tpl } = useSuspenseQuery(tplOpts(id));
