@@ -21,12 +21,6 @@ import {
   Package,
   Truck,
   MessageCircle,
-  Award,
-  CalendarDays,
-  Trophy,
-  FileBadge,
-  Gavel,
-  ClipboardList,
   ShoppingBag,
   UserCog,
   ShieldCheck,
@@ -68,8 +62,7 @@ const QUICK_ACTIONS: Shortcut[] = [
   { title: "Adicionar produto", href: "/admin/produtos", icon: Package },
   { title: "Novo lead", href: "/admin/leads", icon: Target },
   { title: "Campanha", href: "/admin/anuncios/campanhas", icon: Megaphone },
-  { title: "Aluno", href: "/dojo/app/students", icon: Users },
-  { title: "Certificado", href: "/dojo/app/certificates", icon: FileBadge },
+  { title: "SaaS · Dojos", href: "/admin/dojo", icon: Building2 },
 ];
 
 type UniverseGroup = {
@@ -103,23 +96,19 @@ const UNIVERSES: UniverseGroup[] = [
   },
   {
     label: "AMT Dojo Manager",
-    eyebrow: "SaaS",
+    eyebrow: "SaaS · Visão administrativa",
     color: "slate",
     icon: Building2,
     primary: {
-      title: "Painel do Dojo",
-      href: "/dojo/app",
-      description: "Operação completa da academia — alunos, agenda, financeiro e AMT Pay.",
+      title: "Painel SaaS do Dojo Manager",
+      href: "/admin/dojo",
+      description:
+        "Métricas cross-tenant: dojos cadastrados, assinaturas, MRR e tráfego da landing. Sem acesso aos dados operacionais de cada academia.",
     },
     items: [
-      { title: "Alunos", href: "/dojo/app/students", icon: Users },
-      { title: "Agenda", href: "/dojo/app/schedule", icon: CalendarDays },
-      { title: "Graduações", href: "/dojo/app/graduations", icon: Award },
-      { title: "Avaliações", href: "/dojo/app/evaluations", icon: ClipboardList },
-      { title: "Certificados", href: "/dojo/app/certificates", icon: FileBadge },
-      { title: "Contratos", href: "/dojo/app/contracts", icon: Gavel },
-      { title: "Competições", href: "/dojo/app/competitions", icon: Trophy },
-      { title: "AMT Pay", href: "/dojo/app/integrations", icon: Wallet },
+      { title: "Contas & Assinaturas", href: "/admin/dojo", icon: Building2 },
+      { title: "Suporte SaaS", href: "/admin/saas/suporte", icon: MessageCircle },
+      { title: "Landing /dojo", href: "/dojo", icon: Rocket },
     ],
   },
   {
