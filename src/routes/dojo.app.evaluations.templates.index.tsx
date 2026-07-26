@@ -89,14 +89,20 @@ function TemplatesList() {
   };
 
 
+  const [duplicatingId, setDuplicatingId] = useState<string | null>(null);
   const duplicate = async (id: string) => {
+    if (duplicatingId) return;
+    setDuplicatingId(id);
     try {
-      const res = await dupFn({ data: { id } });
-      toast.success("Modelo copiado");
+      const res: any = await dupFn({ data: { id } });
+      qc.setQueryData(["eval-template", res.id], res);
       qc.invalidateQueries({ queryKey: ["eval-templates"] });
+      toast.success("Modelo copiado");
       nav({ to: "/dojo/app/evaluations/templates/$id", params: { id: res.id } });
     } catch (e: any) {
       toast.error(e.message);
+    } finally {
+      setDuplicatingId(null);
     }
   };
 

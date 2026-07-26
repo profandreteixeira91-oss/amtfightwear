@@ -240,9 +240,19 @@ function SessionRunner() {
         </Card>
       ) : (
         <Card>
-          <CardContent className="p-4 text-center">
+          <CardContent className="p-4 text-center space-y-3">
             <div className="text-lg font-semibold">Avaliação concluída</div>
             <div className="text-sm text-muted-foreground">Resultado: {sess.result}</div>
+            {sess.result === "approved" && student?.id && (
+              <Link
+                to="/dojo/app/graduations"
+                search={{ student: student.id, session: id } as never}
+              >
+                <Button className="mt-2">
+                  <CheckCircle2 className="h-4 w-4 mr-1" /> Registrar graduação e pagamento
+                </Button>
+              </Link>
+            )}
           </CardContent>
         </Card>
       )}

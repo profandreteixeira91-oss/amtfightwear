@@ -22,12 +22,17 @@ import { CheckCircle2, Award, Eye, Printer, GraduationCap, Users, ScrollText, Se
 
 export const Route = createFileRoute("/dojo/app/graduations")({
   head: () => ({ meta: [{ title: "Graduações — AMT Dojo Manager" }] }),
+  validateSearch: (s: Record<string, unknown>) => ({
+    student: typeof s.student === "string" ? s.student : undefined,
+    session: typeof s.session === "string" ? s.session : undefined,
+  }),
   component: NewGraduationPage,
 });
 
 type Step = "select" | "grad" | "payment" | "cert";
 
 function NewGraduationPage() {
+  const routeSearch = Route.useSearch();
   const studentsFn = useServerFn(listDojoStudents);
   const beltsFn = useServerFn(listDojoBelts);
   const bulkFn = useServerFn(addBulkGraduation);
@@ -249,6 +254,22 @@ function NewGraduationPage() {
     });
     setStep("grad");
   };
+
+  // Deep-link vindo da avaliação aprovada: ?student=<id>&session=<id>
+  const autoStudentApplied = useMemo(() => ({ current: false }), []);
+  useEffect(() => {
+    if (autoStudentApplied.current) return;
+    const targetId = routeSearch?.student;
+    if (!targetId) return;
+    if (!students.data || !belts.data) return;
+    const s = (students.data as any[]).find((x: any) => x.id === targetId);
+    if (!s) return;
+    autoStudentApplied.current = true;
+    setSelectedStudents(new Set([targetId]));
+    // aguarda tick para o estado propagar e então avança
+    setTimeout(() => goToGrad(), 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routeSearch?.student, students.data, belts.data]);
 
   const savePrices = async () => {
     try {
