@@ -33,7 +33,7 @@ import { Badge } from "@/components/ui/badge";
 import { BeltAuto } from "@/components/dojo/BeltSpecVisual";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { ArrowLeft, Save, Trash2, FileText, History, Upload } from "lucide-react";
+import { ArrowLeft, Save, Trash2, FileText, History, Upload, Mail, Phone, MapPin, Briefcase, Award } from "lucide-react";
 
 export const Route = createFileRoute("/dojo/app/team/$id")({
   head: () => ({ meta: [{ title: "Colaborador — Equipe" }] }),
