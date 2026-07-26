@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { queryOptions, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import {
   getEvalTemplate, saveEvalTemplate,
@@ -15,8 +15,29 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { Plus, Trash2, ChevronUp, ChevronDown, ArrowLeft } from "lucide-react";
 
+const tplOpts = (id: string) =>
+  queryOptions({
+    queryKey: ["eval-template", id],
+    queryFn: () => getEvalTemplate({ data: { id } }),
+    staleTime: 60_000,
+  });
+const beltsOpts = () =>
+  queryOptions({
+    queryKey: ["dojo-belts"],
+    queryFn: () => listDojoBelts(),
+    staleTime: 5 * 60_000,
+  });
+
 export const Route = createFileRoute("/dojo/app/evaluations/templates/$id")({
+  loader: ({ context, params }) => {
+    // Dispara em paralelo; template é crítico, belts pode carregar em background.
+    context.queryClient.prefetchQuery(beltsOpts());
+    return context.queryClient.ensureQueryData(tplOpts(params.id));
+  },
   component: TemplateEditor,
+  errorComponent: ({ error }) => (
+    <div className="text-sm text-destructive">Falha ao carregar modelo: {error.message}</div>
+  ),
 });
 
 type Criterion = {
@@ -41,16 +62,11 @@ const uid = () => Math.random().toString(36).slice(2, 10);
 
 function TemplateEditor() {
   const { id } = Route.useParams();
-  const getFn = useServerFn(getEvalTemplate);
   const saveFn = useServerFn(saveEvalTemplate);
-  const beltsFn = useServerFn(listDojoBelts);
   const qc = useQueryClient();
 
-  const { data: tpl, isLoading } = useQuery({
-    queryKey: ["eval-template", id],
-    queryFn: () => getFn({ data: { id } }),
-  });
-  const { data: belts } = useQuery({ queryKey: ["dojo-belts"], queryFn: () => beltsFn() });
+  const { data: tpl } = useSuspenseQuery(tplOpts(id));
+  const { data: belts } = useSuspenseQuery(beltsOpts());
 
   const [form, setForm] = useState<any>(null);
 
@@ -76,7 +92,8 @@ function TemplateEditor() {
     }
   }, [tpl, form]);
 
-  if (isLoading || !form) return <div className="text-sm text-muted-foreground">Carregando...</div>;
+  if (!form) return <div className="text-sm text-muted-foreground">Carregando...</div>;
+
 
   const cats: Category[] = form.structure.categories ?? [];
 
