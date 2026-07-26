@@ -89,37 +89,39 @@ function ProductPage() {
 
   return (
     <StoreShell categories={categories}>
-      <div className="mx-auto max-w-7xl px-4 py-8">
-        <nav className="mb-6 text-xs text-muted-foreground">
+      <div className="mx-auto max-w-7xl px-4 pb-24 pt-6 sm:px-6 sm:pb-12 sm:pt-8 lg:px-8">
+        <nav className="mb-6 flex flex-wrap items-center gap-x-2 text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
           <Link to="/" className="hover:text-primary">Início</Link>
-          <span className="mx-2">/</span>
+          <span aria-hidden>/</span>
           {data.category && (
             <>
               <Link to="/loja/categoria/$slug" params={{ slug: data.category.slug }} className="hover:text-primary">{data.category.name}</Link>
-              <span className="mx-2">/</span>
+              <span aria-hidden>/</span>
             </>
           )}
-          <span className="text-foreground">{product.name}</span>
+          <span className="normal-case tracking-normal text-foreground">{product.name}</span>
         </nav>
 
-        <div className="grid gap-8 lg:grid-cols-2">
-          {/* Gallery */}
-          <div>
-            <ProductImage
-              src={images[activeImage]?.url}
-              alt={images[activeImage]?.alt ?? product.name}
-              aspect="square"
-              className="rounded-lg border"
-              priority
-              sizes="(max-width: 1024px) 100vw, 50vw"
-            />
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_420px] lg:gap-12">
+          {/* Galeria */}
+          <div className="space-y-3">
+            <div className="overflow-hidden rounded-2xl bg-neutral-50 shadow-[var(--store-shadow-sm)] ring-1 ring-black/5">
+              <ProductImage
+                src={images[activeImage]?.url}
+                alt={images[activeImage]?.alt ?? product.name}
+                aspect="square"
+                priority
+                sizes="(max-width: 1024px) 100vw, 50vw"
+              />
+            </div>
             {images.length > 1 && (
-              <div className="mt-3 flex gap-2 overflow-x-auto">
+              <div className="flex gap-2 overflow-x-auto pb-1">
                 {images.map((img, i) => (
                   <button
                     key={i}
                     onClick={() => setActiveImage(i)}
-                    className={`h-20 w-20 shrink-0 overflow-hidden rounded border-2 ${i === activeImage ? "border-primary" : "border-transparent"}`}
+                    aria-label={`Foto ${i + 1}`}
+                    className={`h-20 w-20 shrink-0 overflow-hidden rounded-xl border-2 transition ${i === activeImage ? "border-primary shadow-[var(--store-ring-ruby)]" : "border-transparent hover:border-neutral-300"}`}
                   >
                     <ProductImage src={img.url} alt="" aspect="square" />
                   </button>
@@ -129,34 +131,41 @@ function ProductPage() {
           </div>
 
           {/* Buy box */}
-          <div className="flex flex-col gap-4">
-            <h1 className="text-2xl font-black sm:text-3xl">{product.name}</h1>
-            {product.sku && <div className="text-xs text-muted-foreground">SKU: {product.sku}</div>}
+          <div className="flex flex-col gap-5">
+            <div>
+              {data.category && (
+                <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-primary">
+                  {data.category.name}
+                </div>
+              )}
+              <h1 className="font-display text-2xl font-bold leading-tight tracking-tight sm:text-4xl">{product.name}</h1>
+              {product.sku && <div className="mt-1 text-[11px] uppercase tracking-widest text-muted-foreground">SKU: {product.sku}</div>}
+            </div>
 
-            <div className="rounded-lg border bg-card p-4">
+            <div className="card-elevated p-5">
               {compareAtNum && compareAtNum > price && (
                 <div className="text-sm text-muted-foreground line-through">{formatBRL(compareAtNum)}</div>
               )}
-              <div className="text-3xl font-black text-foreground">{formatBRL(price)}</div>
+              <div className="font-display text-4xl font-bold tracking-tight text-foreground">{formatBRL(price)}</div>
               {maxInstallments > 1 ? (
-                <div className="text-sm text-muted-foreground">ou até <strong>{maxInstallments}x</strong> de <strong>{installmentValue}</strong> sem juros</div>
+                <div className="mt-1 text-sm text-muted-foreground">
+                  ou até <strong className="text-foreground">{maxInstallments}x</strong> de <strong className="text-foreground">{installmentValue}</strong> sem juros
+                </div>
               ) : (
-                <div className="text-sm text-muted-foreground">à vista</div>
+                <div className="mt-1 text-sm text-muted-foreground">à vista</div>
               )}
-              <div className="mt-1 text-xs text-primary font-semibold">PIX: {pixPrice} <span className="font-normal text-muted-foreground">(5% off — somente varejo)</span></div>
-            </div>
-
-            <div className="rounded-md border bg-muted/30 p-3 text-xs text-muted-foreground space-y-1">
-              <div className="font-semibold text-foreground">Condições de pagamento</div>
-              <div>• Compras acima de R$ 200,00 — 3x sem juros</div>
-              <div>• Compras acima de R$ 600,00 — 5x sem juros</div>
-              <div>• Compras acima de R$ 1.000,00 — 10x sem juros</div>
-              <div>• 5% de desconto no PIX (varejo)</div>
+              <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary">
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                PIX {pixPrice} <span className="font-normal opacity-70">(5% off · varejo)</span>
+              </div>
             </div>
 
             {data.variants.length > 0 && (
               <div>
-                <div className="mb-2 text-sm font-semibold">Tamanho / Variação</div>
+                <div className="mb-2 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+                  <span>Tamanho / Variação</span>
+                  <span className="text-primary normal-case tracking-normal font-medium">Guia de medidas</span>
+                </div>
                 <div className="flex flex-wrap gap-2">
                   {data.variants.map((v) => {
                     const label = v.size || v.color || v.option_label || "Único";
@@ -167,8 +176,10 @@ function ProductPage() {
                         key={v.id}
                         disabled={outOfStock}
                         onClick={() => setSelectedVariant(v.id)}
-                        className={`rounded-md border px-3 py-2 text-sm font-medium transition ${
-                          selected ? "border-primary bg-primary text-primary-foreground" : "border-input hover:border-primary"
+                        className={`min-w-[3.25rem] rounded-xl border-2 px-4 py-2.5 text-sm font-semibold transition ${
+                          selected
+                            ? "border-primary bg-primary text-primary-foreground shadow-[var(--store-shadow-ruby)]"
+                            : "border-input bg-background hover:border-primary/50"
                         } ${outOfStock ? "opacity-40 line-through cursor-not-allowed" : ""}`}
                       >
                         {label}
@@ -180,60 +191,104 @@ function ProductPage() {
             )}
 
             <div className="flex items-center gap-3">
-              <div className="text-sm font-semibold">Qtd</div>
-              <div className="flex items-center rounded-md border">
-                <button onClick={() => setQty(Math.max(1, qty - 1))} className="px-3 py-2 text-lg">−</button>
-                <div className="w-10 text-center text-sm">{qty}</div>
-                <button onClick={() => setQty(qty + 1)} className="px-3 py-2 text-lg">+</button>
+              <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">Qtd</div>
+              <div className="inline-flex items-center rounded-full border bg-background">
+                <button onClick={() => setQty(Math.max(1, qty - 1))} className="grid h-10 w-10 place-items-center rounded-l-full text-muted-foreground hover:bg-muted hover:text-foreground" aria-label="Diminuir">−</button>
+                <div className="w-10 select-none text-center text-sm font-bold tabular-nums">{qty}</div>
+                <button onClick={() => setQty(qty + 1)} className="grid h-10 w-10 place-items-center rounded-r-full text-muted-foreground hover:bg-muted hover:text-foreground" aria-label="Aumentar">+</button>
               </div>
             </div>
 
-            <div className="flex flex-col gap-2 sm:flex-row">
+            {/* Botões — visíveis apenas ≥sm; no mobile ficam na barra sticky abaixo */}
+            <div className="hidden gap-2 sm:flex">
               <button
                 onClick={handleBuyNow}
-                className="inline-flex flex-1 items-center justify-center gap-2 rounded-md bg-primary px-6 py-3 font-bold text-primary-foreground hover:opacity-90"
+                className="btn-ruby inline-flex flex-1 items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-bold uppercase tracking-widest"
               >
                 <Zap className="h-4 w-4" /> Comprar agora
               </button>
               <button
                 onClick={handleAddToCart}
-                className="inline-flex flex-1 items-center justify-center gap-2 rounded-md border-2 border-primary px-6 py-3 font-bold text-primary hover:bg-primary/5"
+                className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-foreground bg-background px-6 py-3.5 text-sm font-bold uppercase tracking-widest text-foreground transition hover:bg-foreground hover:text-background"
               >
                 <ShoppingBag className="h-4 w-4" /> Adicionar
               </button>
             </div>
 
             {product.short_description && (
-              <p className="mt-2 text-sm text-muted-foreground">{product.short_description}</p>
+              <p className="text-sm leading-relaxed text-muted-foreground">{product.short_description}</p>
             )}
 
             <ShippingCalculator
               items={[{ product_id: product.id, variant_id: variant?.id ?? null, quantity: qty, unit_price: Number(price) }]}
             />
 
+            {/* Trust strip */}
+            <div className="grid grid-cols-3 gap-2 rounded-xl border bg-muted/30 p-3 text-center text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+              <div>Frete grátis<br /><span className="text-foreground">R$ 399+</span></div>
+              <div>Direto da<br /><span className="text-foreground">fábrica</span></div>
+              <div>Troca fácil<br /><span className="text-foreground">7 dias</span></div>
+            </div>
           </div>
         </div>
 
-        {/* Description */}
+        {/* Descrição */}
         {product.description && (
-          <section className="mt-12 rounded-lg border bg-card p-6">
-            <h2 className="mb-3 text-lg font-bold">Descrição</h2>
+          <section className="mt-14 card-elevated p-6 sm:p-8">
+            <div className="eyebrow mb-3">Descrição</div>
+            <h2 className="mb-4 font-display text-2xl font-bold tracking-tight">Detalhes do produto</h2>
             <div className="prose prose-sm max-w-none whitespace-pre-line text-foreground">
               {product.description}
             </div>
           </section>
         )}
 
-        {/* Related */}
+        {/* Relacionados */}
         {data.related.length > 0 && (
-          <section className="mt-12">
-            <h2 className="mb-4 text-xl font-black">Produtos relacionados</h2>
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <section className="mt-14">
+            <div className="mb-6 flex items-end justify-between gap-4">
+              <div>
+                <div className="eyebrow">Continue comprando</div>
+                <h2 className="mt-2 font-display text-2xl font-bold tracking-tight sm:text-3xl">Produtos relacionados</h2>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
               {data.related.map((p) => <ProductCard key={p.id} product={p} />)}
             </div>
           </section>
         )}
       </div>
+
+      {/* Barra de compra sticky — mobile only */}
+      <div
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-black/5 bg-white/95 backdrop-blur pb-safe sm:hidden"
+        style={{ boxShadow: "0 -8px 24px -8px rgb(10 10 10 / 0.12)" }}
+      >
+        <div className="mx-auto flex max-w-7xl items-center gap-3 px-3 pt-3">
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+              {variant ? [variant.size, variant.color].filter(Boolean).join(" / ") || "Selecionado" : "Preço total"}
+            </div>
+            <div className="font-display text-lg font-bold tabular-nums text-foreground">
+              {formatBRL(price * qty)}
+            </div>
+          </div>
+          <button
+            onClick={handleAddToCart}
+            aria-label="Adicionar ao carrinho"
+            className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border-2 border-foreground text-foreground transition active:scale-95"
+          >
+            <ShoppingBag className="h-5 w-5" />
+          </button>
+          <button
+            onClick={handleBuyNow}
+            className="btn-ruby inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl px-4 text-sm font-bold uppercase tracking-widest"
+          >
+            <Zap className="h-4 w-4" /> Comprar
+          </button>
+        </div>
+      </div>
     </StoreShell>
   );
 }
+

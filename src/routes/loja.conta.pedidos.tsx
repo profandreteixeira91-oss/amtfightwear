@@ -153,52 +153,90 @@ function OrdersPage() {
             </Link>
           </div>
         ) : (
-          <div className="overflow-hidden rounded-lg border bg-card shadow-sm">
-            <table className="w-full text-sm">
-              <thead className="bg-muted/50 text-left text-xs uppercase tracking-wider text-muted-foreground">
-                <tr>
-                  <th className="px-4 py-3">Pedido</th>
-                  <th className="px-4 py-3">Data</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Pagamento</th>
-                  <th className="px-4 py-3 text-right">Total</th>
-                  <th className="px-4 py-3"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {orders.map((o) => (
-                  <tr key={o.id} className="border-t hover:bg-accent/40">
-                    <td className="px-4 py-3 font-semibold">{o.order_number}</td>
-                    <td className="px-4 py-3 text-muted-foreground">
-                      {new Date(o.created_at).toLocaleDateString("pt-BR")}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${statusBadgeClass(o.status)}`}>
-                        {statusLabel[o.status] ?? o.status}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${paymentBadgeClass(o.payment_status)}`}>
-                        {paymentLabel[o.payment_status] ?? o.payment_status}
-                      </span>
-                    </td>
+          <>
+            {/* Cards no mobile */}
+            <ul className="space-y-3 md:hidden">
+              {orders.map((o) => (
+                <li key={o.id} className="card-elevated p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="font-display text-base font-bold tabular-nums">{o.order_number}</div>
+                      <div className="text-[11px] uppercase tracking-widest text-muted-foreground">
+                        {new Date(o.created_at).toLocaleDateString("pt-BR")}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-display text-lg font-bold tabular-nums">{formatBRL(Number(o.total))}</div>
+                    </div>
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${statusBadgeClass(o.status)}`}>
+                      {statusLabel[o.status] ?? o.status}
+                    </span>
+                    <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${paymentBadgeClass(o.payment_status)}`}>
+                      {paymentLabel[o.payment_status] ?? o.payment_status}
+                    </span>
+                  </div>
+                  <Link
+                    to="/loja/pedido/$id"
+                    params={{ id: o.id }}
+                    className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline"
+                  >
+                    Ver detalhes <ChevronRight className="h-3.5 w-3.5" />
+                  </Link>
+                </li>
+              ))}
+            </ul>
 
-                    <td className="px-4 py-3 text-right font-black">{formatBRL(Number(o.total))}</td>
-                    <td className="px-4 py-3 text-right">
-                      <Link
-                        to="/loja/pedido/$id"
-                        params={{ id: o.id }}
-                        className="inline-flex items-center gap-1 text-primary hover:underline"
-                      >
-                        Detalhes <ChevronRight className="h-3 w-3" />
-                      </Link>
-                    </td>
+            {/* Tabela no desktop */}
+            <div className="hidden overflow-hidden rounded-2xl border bg-card shadow-[var(--store-shadow-sm)] md:block">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/50 text-left text-[11px] uppercase tracking-widest text-muted-foreground">
+                  <tr>
+                    <th className="px-4 py-3">Pedido</th>
+                    <th className="px-4 py-3">Data</th>
+                    <th className="px-4 py-3">Status</th>
+                    <th className="px-4 py-3">Pagamento</th>
+                    <th className="px-4 py-3 text-right">Total</th>
+                    <th className="px-4 py-3"></th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {orders.map((o) => (
+                    <tr key={o.id} className="border-t hover:bg-accent/40">
+                      <td className="px-4 py-3 font-semibold tabular-nums">{o.order_number}</td>
+                      <td className="px-4 py-3 text-muted-foreground">
+                        {new Date(o.created_at).toLocaleDateString("pt-BR")}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${statusBadgeClass(o.status)}`}>
+                          {statusLabel[o.status] ?? o.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${paymentBadgeClass(o.payment_status)}`}>
+                          {paymentLabel[o.payment_status] ?? o.payment_status}
+                        </span>
+                      </td>
+
+                      <td className="px-4 py-3 text-right font-black tabular-nums">{formatBRL(Number(o.total))}</td>
+                      <td className="px-4 py-3 text-right">
+                        <Link
+                          to="/loja/pedido/$id"
+                          params={{ id: o.id }}
+                          className="inline-flex items-center gap-1 text-primary hover:underline"
+                        >
+                          Detalhes <ChevronRight className="h-3 w-3" />
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
+
       </div>
     </StoreShell>
   );

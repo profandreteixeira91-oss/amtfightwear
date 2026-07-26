@@ -147,7 +147,7 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
   const count = useCart((s) => s.items.reduce((a, i) => a + i.quantity, 0));
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col overflow-x-hidden">
+    <div className="store-scope min-h-screen bg-background text-foreground flex flex-col overflow-x-hidden">
       {/* Top bar */}
       <div className="bg-foreground text-background text-[10px] sm:text-[11px] uppercase tracking-wider sm:tracking-widest">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-2 sm:px-4">
