@@ -4,6 +4,12 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { listDojoPlans, saveDojoPlan, deleteDojoPlan, listDojoUnits } from "@/lib/dojo/dojo.functions";
 import {
+  getNativeBillingConfig,
+  saveNativeBillingConfig,
+  DEFAULT_NATIVE_BILLING,
+  type NativeBillingConfig,
+} from "@/lib/dojo/native-billing.functions";
+import {
   PAYMENT_METHODS,
   
   defaultPlanPaymentMethods,
@@ -35,6 +41,7 @@ import {
 import { toast } from "sonner";
 import {
   Plus, Trash2, Save, Info, CheckCircle2, XCircle, Sparkles, ChevronRight, Copy,
+  QrCode, Link as LinkIcon,
 } from "lucide-react";
 
 export const Route = createFileRoute("/dojo/app/plans")({
@@ -105,6 +112,39 @@ function PlansPage() {
   const plans = useQuery({ queryKey: ["dojo-plans"], queryFn: () => listFn() });
   const units = useQuery({ queryKey: ["dojo-units"], queryFn: () => unitsFn() });
 
+  // ---- Cobrança nativa (PIX / Link fixo) ----
+  const getNbFn = useServerFn(getNativeBillingConfig);
+  const saveNbFn = useServerFn(saveNativeBillingConfig);
+  const nativeCfg = useQuery({
+    queryKey: ["dojo", "native-billing"],
+    queryFn: () => getNbFn(),
+  });
+  const [nb, setNb] = useState<NativeBillingConfig>(DEFAULT_NATIVE_BILLING);
+  const [nbDirty, setNbDirty] = useState(false);
+  const [nbSaving, setNbSaving] = useState(false);
+  useEffect(() => {
+    if (nativeCfg.data) {
+      setNb(nativeCfg.data as NativeBillingConfig);
+      setNbDirty(false);
+    }
+  }, [nativeCfg.data]);
+  const patchNb = (partial: Partial<NativeBillingConfig>) => {
+    setNb((s) => ({ ...s, ...partial }));
+    setNbDirty(true);
+  };
+  const saveNb = async () => {
+    try {
+      setNbSaving(true);
+      await saveNbFn({ data: nb });
+      toast.success("Cobrança nativa atualizada");
+      await qc.invalidateQueries({ queryKey: ["dojo", "native-billing"] });
+      setNbDirty(false);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Erro ao salvar");
+    } finally {
+      setNbSaving(false);
+    }
+  };
 
   const [selectedId, setSelectedId] = useState<string | "new" | null>(null);
   const [form, setForm] = useState<PlanForm>(emptyForm);
@@ -530,6 +570,129 @@ function PlansPage() {
                   </div>
 
                 </SectionCard>
+
+                {/* Cobrança Nativa — PIX exibido ao aluno + Link fixo */}
+                {(form.payment_methods.find((m) => m.code === "pix")?.enabled ||
+                  form.payment_methods.find((m) => m.code === "payment_link")?.enabled) && (
+                  <SectionCard
+                    title="Cobrança Nativa (independente do AMT Pay)"
+                    icon={QrCode}
+                    right={
+                      <Button
+                        size="sm"
+                        onClick={saveNb}
+                        disabled={nbSaving || !nbDirty}
+                        className="gap-1.5"
+                      >
+                        <Save className="h-3.5 w-3.5" />
+                        {nbSaving ? "Salvando..." : "Salvar cobrança"}
+                      </Button>
+                    }
+                  >
+                    <p className="mb-3 text-xs text-muted-foreground">
+                      Estas configurações valem para <b>todos os alunos</b> do dojo. Ao gerar uma cobrança,
+                      o aluno visualiza a chave PIX (com QR Code) e/ou o link fixo abaixo. O pagamento é feito
+                      por fora e você marca como recebido manualmente no módulo Financeiro.
+                    </p>
+
+                    {form.payment_methods.find((m) => m.code === "pix")?.enabled && (
+                      <div className="mb-4 rounded-lg border border-emerald-200/50 bg-emerald-50/40 p-3 dark:bg-emerald-950/10">
+                        <div className="mb-3 flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <QrCode className="h-4 w-4 text-emerald-600" />
+                            <span className="text-sm font-semibold">Chave PIX exibida ao aluno</span>
+                          </div>
+                          <Switch
+                            checked={nb.pix_enabled}
+                            onCheckedChange={(v) => patchNb({ pix_enabled: v })}
+                          />
+                        </div>
+                        {nb.pix_enabled && (
+                          <div className="grid gap-3 md:grid-cols-2">
+                            <Field label="Tipo da chave">
+                              <Select
+                                value={nb.pix_key_type}
+                                onValueChange={(v) => patchNb({ pix_key_type: v as any })}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="cpf">CPF</SelectItem>
+                                  <SelectItem value="cnpj">CNPJ</SelectItem>
+                                  <SelectItem value="email">E-mail</SelectItem>
+                                  <SelectItem value="phone">Telefone</SelectItem>
+                                  <SelectItem value="random">Aleatória</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </Field>
+                            <Field label="Chave PIX" required>
+                              <Input
+                                value={nb.pix_key}
+                                onChange={(e) => patchNb({ pix_key: e.target.value })}
+                                placeholder="Ex.: 123.456.789-00 ou email@dojo.com"
+                              />
+                            </Field>
+                            <Field label="Nome do titular" className="md:col-span-2" required>
+                              <Input
+                                value={nb.pix_holder_name}
+                                onChange={(e) => patchNb({ pix_holder_name: e.target.value })}
+                                placeholder="Nome que aparece no comprovante"
+                              />
+                            </Field>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {form.payment_methods.find((m) => m.code === "payment_link")?.enabled && (
+                      <div className="mb-4 rounded-lg border border-blue-200/50 bg-blue-50/40 p-3 dark:bg-blue-950/10">
+                        <div className="mb-3 flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <LinkIcon className="h-4 w-4 text-blue-600" />
+                            <span className="text-sm font-semibold">Link fixo de pagamento</span>
+                          </div>
+                          <Switch
+                            checked={nb.payment_link_enabled}
+                            onCheckedChange={(v) => patchNb({ payment_link_enabled: v })}
+                          />
+                        </div>
+                        {nb.payment_link_enabled && (
+                          <div className="grid gap-3 md:grid-cols-2">
+                            <Field label="URL do link" className="md:col-span-2" required>
+                              <Input
+                                type="url"
+                                value={nb.payment_link_url}
+                                onChange={(e) => patchNb({ payment_link_url: e.target.value })}
+                                placeholder="https://pag.ae/... ou https://link.mercadopago.com/..."
+                              />
+                            </Field>
+                            <Field
+                              label="Rótulo do botão"
+                              className="md:col-span-2"
+                              hint="Texto exibido ao aluno. Ex.: Pagar via PagSeguro"
+                            >
+                              <Input
+                                value={nb.payment_link_label}
+                                onChange={(e) => patchNb({ payment_link_label: e.target.value })}
+                                placeholder="Pagar agora"
+                              />
+                            </Field>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    <Field label="Instruções extras exibidas ao aluno (opcional)">
+                      <Textarea
+                        value={nb.instructions}
+                        onChange={(e) => patchNb({ instructions: e.target.value })}
+                        placeholder="Ex.: Após o pagamento, envie o comprovante pelo WhatsApp (11) 99999-9999."
+                        rows={2}
+                      />
+                    </Field>
+                  </SectionCard>
+                )}
 
                 {/* Regras */}
                 <SectionCard title="Regras do Plano" icon={Info}>
