@@ -98,27 +98,34 @@ function SystemUsersPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-4 p-4 sm:p-6">
-      <div className="space-y-1">
-        <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-          <UserCircle className="h-4 w-4" />
-          Estrutura · Usuários do Sistema
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 min-w-0 overflow-x-hidden p-4 sm:p-6 md:gap-7">
+      {/* ============ HERO — RUBY NOIR ============ */}
+      <div className="relative overflow-hidden rounded-2xl border border-red-500/20 bg-gradient-to-br from-neutral-950 via-neutral-900 to-red-950/50 p-5 text-white shadow-[0_20px_60px_-30px_rgba(220,38,38,0.55)] md:p-7">
+        <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-red-500/20 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute -bottom-24 -left-16 h-56 w-56 rounded-full bg-amber-500/10 blur-3xl" />
+        <div className="relative flex flex-wrap items-center gap-4">
+          <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-amber-400 via-red-500 to-red-700 text-white ring-1 ring-white/20 shadow-[0_8px_24px_-8px_rgba(220,38,38,0.9)]">
+            <ShieldCheck className="h-6 w-6" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-red-300/80">
+              <UserCircle className="h-3.5 w-3.5" />
+              Estrutura · Usuários do Sistema
+            </div>
+            <h1 className="mt-1 truncate text-xl font-semibold tracking-tight md:text-2xl">Logins e permissões da equipe</h1>
+            <p className="mt-1 max-w-2xl text-sm text-neutral-300">
+              Crie logins de acesso ao painel para cada colaborador e escolha quais módulos ficarão visíveis para ele.
+            </p>
+          </div>
         </div>
-        <h1 className="text-2xl font-bold tracking-tight">Logins e permissões da equipe</h1>
-        <p className="text-sm text-muted-foreground">
-          Crie logins de acesso ao painel para cada colaborador e escolha quais módulos
-          da barra lateral ficarão visíveis para ele.
-        </p>
       </div>
 
       {isLoading ? (
-        <div className="p-6 text-sm text-muted-foreground">Carregando colaboradores…</div>
+        <div className="rounded-xl border border-red-500/10 bg-neutral-950/60 p-6 text-sm text-neutral-400">Carregando colaboradores…</div>
       ) : members.length === 0 ? (
-        <Card>
-          <CardContent className="p-6 text-sm text-muted-foreground">
-            Nenhum colaborador cadastrado ainda. Cadastre em <b>Pessoas › Equipe</b>.
-          </CardContent>
-        </Card>
+        <div className="rounded-xl border border-red-500/10 bg-neutral-950/60 p-6 text-sm text-neutral-400">
+          Nenhum colaborador cadastrado ainda. Cadastre em <b className="text-neutral-200">Pessoas › Equipe</b>.
+        </div>
       ) : (
         <div className="space-y-3">
           {members.map((m: any) => (
