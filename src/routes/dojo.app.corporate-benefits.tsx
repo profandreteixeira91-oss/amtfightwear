@@ -466,24 +466,25 @@ function KpiCard({
   isText?: boolean;
 }) {
   const toneMap: Record<string, string> = {
-    orange: "bg-orange-500/10 text-orange-600",
-    blue: "bg-blue-500/10 text-blue-600",
-    emerald: "bg-emerald-500/10 text-emerald-600",
-    violet: "bg-violet-500/10 text-violet-600",
-    red: "bg-red-500/10 text-red-600",
-    amber: "bg-amber-500/10 text-amber-600",
-    slate: "bg-slate-500/10 text-slate-600",
+    orange: "bg-orange-500/15 text-orange-300 ring-orange-500/30",
+    blue: "bg-blue-500/15 text-blue-300 ring-blue-500/30",
+    emerald: "bg-emerald-500/15 text-emerald-300 ring-emerald-500/30",
+    violet: "bg-violet-500/15 text-violet-300 ring-violet-500/30",
+    red: "bg-red-500/15 text-red-300 ring-red-500/30",
+    amber: "bg-amber-500/15 text-amber-300 ring-amber-500/30",
+    slate: "bg-slate-500/15 text-slate-300 ring-slate-500/30",
   };
   return (
-    <Card className="p-3">
-      <div className="flex items-center gap-2 mb-1">
-        <div className={cn("h-7 w-7 rounded-lg flex items-center justify-center", toneMap[tone])}>
+    <div className="relative overflow-hidden rounded-xl border border-red-500/10 bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950 p-3 text-white shadow-[0_10px_30px_-20px_rgba(220,38,38,0.5)]">
+      <div aria-hidden className="pointer-events-none absolute -right-8 -top-8 h-20 w-20 rounded-full bg-red-500/10 blur-2xl" />
+      <div className="relative flex items-center gap-2 mb-1">
+        <div className={cn("h-7 w-7 rounded-lg ring-1 flex items-center justify-center", toneMap[tone])}>
           <Icon className="h-3.5 w-3.5" />
         </div>
-        <div className="text-[11px] text-muted-foreground">{label}</div>
+        <div className="text-[11px] text-neutral-400 truncate">{label}</div>
       </div>
-      <div className={cn("font-semibold", isText ? "text-sm" : "text-2xl")}>{value}</div>
-    </Card>
+      <div className={cn("font-semibold text-white", isText ? "text-sm" : "text-2xl")}>{value}</div>
+    </div>
   );
 }
 
