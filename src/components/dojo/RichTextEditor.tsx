@@ -440,9 +440,9 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
         className={
           compact
             ? "bg-background relative"
-            : "bg-[#f1f3f4] dark:bg-[#1b1b1f] px-4 py-6 md:py-10 overflow-auto relative"
+            : "bg-[#f1f3f4] dark:bg-[#1b1b1f] px-2 py-4 sm:px-4 sm:py-6 md:py-10 overflow-auto relative"
         }
-        style={compact ? undefined : { maxHeight: "calc(100vh - 220px)" }}
+        style={compact ? undefined : { maxHeight: "calc(100dvh - 260px)" }}
       >
         <div
           className={
@@ -470,7 +470,7 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
             onMouseUp={saveSelection}
             onBlur={saveSelection}
             data-placeholder={placeholder ?? "Escreva o contrato..."}
-            className={`focus:outline-none prose prose-sm max-w-none text-neutral-900 leading-[1.7] [&_h1]:text-2xl [&_h1]:font-bold [&_h2]:text-xl [&_h2]:font-semibold [&_h3]:text-lg [&_h3]:font-semibold [&_p]:my-2 [&_blockquote]:border-l-4 [&_blockquote]:border-neutral-300 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-neutral-700 [&_table]:border-collapse [&_table_td]:border [&_table_td]:border-neutral-300 [&_table_td]:p-1 [&_a]:text-blue-600 [&_a]:underline empty:before:content-[attr(data-placeholder)] empty:before:text-neutral-400 ${compact ? "px-3 py-2" : "px-[96px] py-[96px]"}`}
+            className={`focus:outline-none prose prose-sm max-w-none text-neutral-900 leading-[1.7] [&_h1]:text-2xl [&_h1]:font-bold [&_h2]:text-xl [&_h2]:font-semibold [&_h3]:text-lg [&_h3]:font-semibold [&_p]:my-2 [&_blockquote]:border-l-4 [&_blockquote]:border-neutral-300 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-neutral-700 [&_table]:border-collapse [&_table_td]:border [&_table_td]:border-neutral-300 [&_table_td]:p-1 [&_a]:text-blue-600 [&_a]:underline empty:before:content-[attr(data-placeholder)] empty:before:text-neutral-400 ${compact ? "px-3 py-2" : "px-6 py-8 sm:px-12 sm:py-12 md:px-[96px] md:py-[96px]"}`}
             style={{
               minHeight: compact ? Math.min(minHeight, 120) : minHeight,
               fontFamily: "'Arial', 'Helvetica', sans-serif",
@@ -478,6 +478,7 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
             }}
           />
         </div>
+
 
         {/* Overlay de redimensionamento livre da imagem selecionada */}
         {selectedImg && imgBox && (
