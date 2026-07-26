@@ -21,6 +21,38 @@ const listSchema = z.object({
   pageSize: z.number().int().min(1).max(100).default(30),
 });
 
+// Campos textuais varridos pela busca livre. Inclui todas as fontes cadastradas
+// (source_code) para permitir buscas do tipo "cbjj", "manual" etc.
+const SEARCH_FIELDS = [
+  "name",
+  "organization",
+  "description",
+  "modality",
+  "city",
+  "state",
+  "country",
+  "venue",
+  "address",
+  "source_code",
+] as const;
+
+// Escapa vírgula e parênteses que quebrariam o filtro PostgREST `.or(...)`.
+function escapeOrToken(v: string): string {
+  return v.replace(/,/g, "\\,").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
+}
+
+// Divide a query em tokens respeitando "aspas" para frases exatas.
+function tokenizeQuery(q: string): string[] {
+  const tokens: string[] = [];
+  const re = /"([^"]+)"|(\S+)/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(q)) !== null) {
+    const t = (m[1] ?? m[2] ?? "").trim();
+    if (t.length >= 1) tokens.push(t);
+  }
+  return tokens;
+}
+
 export const listCompetitions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => listSchema.parse(i ?? {}))
@@ -34,8 +66,17 @@ export const listCompetitions = createServerFn({ method: "POST" })
       .order("start_at", { ascending: true, nullsFirst: false });
 
     if (data.q) {
-      const term = `%${data.q}%`;
-      query = query.or(`name.ilike.${term},organization.ilike.${term},city.ilike.${term}`);
+      // Cada token vira uma cláusula OR entre TODOS os campos; múltiplas
+      // chamadas `.or()` são combinadas com AND — assim uma busca por
+      // "sao paulo master" exige todos os termos, mas cada um pode aparecer
+      // em qualquer campo cadastrado (nome, cidade, organização, fonte...).
+      const tokens = tokenizeQuery(data.q);
+      for (const t of tokens) {
+        const safe = escapeOrToken(t);
+        const like = `*${safe}*`;
+        const clauses = SEARCH_FIELDS.map((f) => `${f}.ilike.${like}`).join(",");
+        query = query.or(clauses);
+      }
     }
     if (data.country) query = query.eq("country", data.country);
     if (data.state) query = query.eq("state", data.state);
