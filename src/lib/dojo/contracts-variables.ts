@@ -112,7 +112,6 @@ export function buildContractValues(ctx: ContractContext): Record<string, string
 
     // academia
     academia_nome: a.trade_name ?? a.legal_name ?? "",
-    academia_logo: a.logo_url ?? "",
     academia_razao_social: a.legal_name ?? a.trade_name ?? "",
     academia_cnpj: a.cnpj ?? "",
     academia_cidade: a.city ?? "",
