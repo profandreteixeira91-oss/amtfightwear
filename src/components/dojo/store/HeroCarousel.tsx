@@ -2,9 +2,6 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import heroFaixas from "@/assets/dojo-store/hero-faixas.jpg";
-import heroKimonos from "@/assets/dojo-store/hero-kimonos.jpg";
-import heroPatches from "@/assets/dojo-store/hero-patches.jpg";
 
 type Slide = {
   eyebrow: string;
@@ -16,32 +13,46 @@ type Slide = {
   focus?: string;
 };
 
+// Fotos reais dos produtos publicados em amtfightwear.com.br
 const SLIDES: Slide[] = [
   {
-    eyebrow: "Personalização premium",
-    title: "Faixas com bordado exclusivo",
-    description: "Do branco ao coral, entregues prontas para a graduação.",
-    ctaLabel: "Explorar faixas",
-    categoria: "faixas",
-    image: heroFaixas,
+    eyebrow: "Novos modelos",
+    title: "Kimonos AMT — Lanus Premium Series",
+    description: "Corte competição, tecido leve e acabamento premium.",
+    ctaLabel: "Ver kimonos",
+    categoria: "kimonos-de-jiu-jitsu",
+    image:
+      "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/0942e202-4ed2-406f-a3d7-d71773d8b064/2e851916-ee1b-4a35-b246-6922e147667c.jpg",
     focus: "center",
   },
   {
-    eyebrow: "Novos modelos",
-    title: "Kimonos AMT — corte competição",
-    description: "Tecido leve, reforço nas costuras e ajuste anatômico.",
-    ctaLabel: "Ver kimonos",
-    categoria: "kimonos",
-    image: heroKimonos,
+    eyebrow: "Personalização premium",
+    title: "Faixas de Jiu-Jitsu bordadas",
+    description: "Do branco ao coral, prontas para a graduação.",
+    ctaLabel: "Explorar faixas",
+    categoria: "faixas-de-jiu-jitsu",
+    image:
+      "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/6a8dde04-897a-4bd0-88d8-6e549e028aaa/9bdb3b0b-7a5b-4cfe-a179-71e986bb1457.jpg",
+    focus: "center",
+  },
+  {
+    eyebrow: "Tradição no tatame",
+    title: "Faixas de Judô — linha oficial",
+    description: "Cores por graduação, tecido reforçado para o dia a dia.",
+    ctaLabel: "Ver faixas de judô",
+    categoria: "faixas-de-judo",
+    image:
+      "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/c503c54b-f770-4a9b-85f0-802b5a8e3849/3bb4938e-b34e-4b5a-887e-00496d1009a6.jpg",
     focus: "center",
   },
   {
     eyebrow: "Identidade visual",
-    title: "Patches oficiais da sua academia",
-    description: "Bordados em alta densidade, prontos para aplicar.",
+    title: "Patches reforçados para kimono",
+    description: "Sublimação em alta densidade, prontos para aplicar.",
     ctaLabel: "Ver patches",
     categoria: "patches",
-    image: heroPatches,
+    image:
+      "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images/81ce0ac8-ae59-4bb6-b53b-eb64836de4ce/2f03631d-e3d9-451f-bc3f-1e79c4f83c18.png",
     focus: "center",
   },
 ];
@@ -69,7 +80,6 @@ export function HeroCarousel() {
               i === idx ? "opacity-100" : "pointer-events-none opacity-0",
             )}
           >
-            {/* Foto real do produto */}
             <img
               src={s.image}
               alt=""
@@ -78,7 +88,6 @@ export function HeroCarousel() {
               style={{ objectPosition: s.focus ?? "center" }}
               loading={i === 0 ? "eager" : "lazy"}
             />
-            {/* Overlay para legibilidade — sempre escurece o fundo à esquerda para o texto branco */}
             <div
               aria-hidden="true"
               className="absolute inset-0"
