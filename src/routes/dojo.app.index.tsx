@@ -748,34 +748,46 @@ function DojoDashboard() {
           </div>
         </BentoCard>
 
-        {/* Alunos recentes */}
-        <div className="dojo-card md:col-span-4 overflow-hidden">
-          <div className="px-6 py-5 flex items-center justify-between border-b border-border">
-            <div>
-              <p className="text-[10px] font-bold tracking-[0.2em] text-muted-foreground uppercase">
-                Últimas matrículas
-              </p>
-              <h2 className="text-xl font-semibold mt-1">Alunos recentes</h2>
+        {/* Alunos recentes — premium ivory card sobre Ruby Noir */}
+        <div className="md:col-span-4 overflow-hidden rounded-2xl bg-[#faf7f2] text-slate-900 ring-1 ring-black/5 shadow-[0_20px_60px_-25px_rgba(0,0,0,0.55),0_4px_14px_-6px_rgba(0,0,0,0.35)]">
+          {/* Cabeçalho editorial */}
+          <div className="relative px-7 pt-6 pb-5">
+            <div className="absolute inset-x-7 top-0 h-px bg-gradient-to-r from-transparent via-rose-700/40 to-transparent" />
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <p className="text-[10px] font-semibold tracking-[0.28em] text-rose-800/80 uppercase">
+                  Últimas matrículas
+                </p>
+                <h2 className="mt-1.5 font-display text-2xl font-semibold tracking-tight text-slate-900">
+                  Alunos recentes
+                </h2>
+                <p className="mt-1 text-[11px] text-slate-500">
+                  Registro cronológico das novas entradas no dojo.
+                </p>
+              </div>
+              <Link
+                to="/dojo/app/students"
+                className="group inline-flex items-center gap-1.5 rounded-full border border-slate-900/10 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-800 shadow-sm hover:border-rose-700/40 hover:text-rose-800 transition-colors"
+              >
+                Ver todos
+                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+              </Link>
             </div>
-            <Link
-              to="/dojo/app/students"
-              className="group flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
-            >
-              Ver todos
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Link>
           </div>
 
-          <div className="divide-y divide-border">
+          {/* Divisor com serifa hairline */}
+          <div className="mx-7 h-px bg-slate-900/10" />
+
+          <ol className="divide-y divide-slate-900/[0.07]">
             {recent.length === 0 && (
-              <div className="px-6 py-8 text-sm text-muted-foreground text-center">
+              <li className="px-7 py-10 text-sm text-slate-500 text-center">
                 Nenhum aluno cadastrado ainda.{" "}
-                <Link to="/dojo/app/students" className="text-primary font-medium hover:underline">
+                <Link to="/dojo/app/students" className="font-semibold text-rose-800 hover:underline underline-offset-2">
                   Cadastrar primeiro aluno
                 </Link>
-              </div>
+              </li>
             )}
-            {recent.map((s: any) => {
+            {recent.map((s: any, idx: number) => {
               const belts =
                 s.current_belts && s.current_belts.length > 0
                   ? s.current_belts
@@ -784,68 +796,88 @@ function DojoDashboard() {
                   : [];
               const isActive = s.status === "active";
               return (
-                <Link
-                  key={s.id}
-                  to="/dojo/app/students/$id"
-                  params={{ id: s.id }}
-                  className="group grid grid-cols-[auto_1fr_auto_auto] items-center gap-4 px-6 py-4 hover:bg-muted/40 transition-colors"
-                >
-                  {/* Avatar + status dot */}
-                  <div className="relative shrink-0">
-                    <div className="grid h-11 w-11 place-items-center rounded-full bg-primary/10 border border-primary/20">
-                      <span className="text-primary font-bold text-sm">
-                        {(s.full_name?.[0] ?? "A").toUpperCase()}
-                      </span>
-                    </div>
-                    <span
-                      title={isActive ? "Ativo" : "Inativo"}
-                      className={`absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-card ${
-                        isActive ? "bg-emerald-500" : "bg-muted-foreground/60"
-                      }`}
-                    />
-                  </div>
-
-                  {/* Nome + faixa em texto */}
-                  <div className="min-w-0">
-                    <h3 className="text-sm font-semibold truncate">{s.full_name}</h3>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {belts.length
-                        ? belts
-                            .map((b: any) => formatBeltFull(b.belt.name, b.belt?.modality, b.degree))
-                            .join(" • ")
-                        : "Sem faixa"}
-
-                    </p>
-                  </div>
-
-                  {/* Ilustração da faixa (tamanho fixo) */}
-                  <div className="hidden sm:flex h-8 w-[120px] items-center justify-center shrink-0">
-                    {belts[0] ? (
-                      <BeltAuto
-                        belt={belts[0].belt}
-                        degree={belts[0].degree ?? 0}
-                        className="w-[120px] h-8"
-                      />
-                    ) : (
-                      <div className="w-[120px] h-6 rounded-sm border border-dashed border-border" />
-                    )}
-                  </div>
-
-                  {/* Badge de status */}
-                  <span
-                    className={`hidden md:inline-flex px-2 py-0.5 rounded text-[10px] font-bold border uppercase tracking-wider shrink-0 ${
-                      isActive
-                        ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
-                        : "bg-muted text-muted-foreground border-border"
-                    }`}
+                <li key={s.id}>
+                  <Link
+                    to="/dojo/app/students/$id"
+                    params={{ id: s.id }}
+                    className="group grid grid-cols-[auto_auto_1fr_auto_auto] items-center gap-4 px-7 py-4 transition-colors hover:bg-white"
                   >
-                    {isActive ? "Ativo" : "Inativo"}
-                  </span>
-                </Link>
+                    {/* Índice tipográfico */}
+                    <span className="hidden sm:block w-6 font-display text-[11px] tabular-nums text-slate-400 group-hover:text-rose-800/70 transition-colors">
+                      {String(idx + 1).padStart(2, "0")}
+                    </span>
+
+                    {/* Avatar + status */}
+                    <div className="relative shrink-0">
+                      <div className="grid h-11 w-11 place-items-center rounded-full bg-white ring-1 ring-slate-900/10 shadow-sm">
+                        <span className="font-display text-sm font-bold text-slate-800">
+                          {(s.full_name?.[0] ?? "A").toUpperCase()}
+                        </span>
+                      </div>
+                      <span
+                        title={isActive ? "Ativo" : "Inativo"}
+                        className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full ring-2 ring-[#faf7f2] ${
+                          isActive ? "bg-emerald-500" : "bg-slate-400"
+                        }`}
+                      />
+                    </div>
+
+                    {/* Nome + faixa */}
+                    <div className="min-w-0">
+                      <h3 className="text-[14px] font-semibold text-slate-900 truncate tracking-tight">
+                        {s.full_name}
+                      </h3>
+                      <p className="text-[11.5px] text-slate-500 truncate">
+                        {belts.length
+                          ? belts
+                              .map((b: any) => formatBeltFull(b.belt.name, b.belt?.modality, b.degree))
+                              .join(" • ")
+                          : "Sem faixa"}
+                      </p>
+                    </div>
+
+                    {/* Ilustração da faixa */}
+                    <div className="hidden sm:flex h-8 w-[120px] items-center justify-center shrink-0">
+                      {belts[0] ? (
+                        <BeltAuto
+                          belt={belts[0].belt}
+                          degree={belts[0].degree ?? 0}
+                          className="w-[120px] h-8"
+                        />
+                      ) : (
+                        <div className="w-[120px] h-6 rounded-sm border border-dashed border-slate-300" />
+                      )}
+                    </div>
+
+                    {/* Badge status */}
+                    <span
+                      className={`hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-[0.14em] shrink-0 ${
+                        isActive
+                          ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20"
+                          : "bg-slate-100 text-slate-500 ring-1 ring-slate-900/10"
+                      }`}
+                    >
+                      <span className={`h-1.5 w-1.5 rounded-full ${isActive ? "bg-emerald-500" : "bg-slate-400"}`} />
+                      {isActive ? "Ativo" : "Inativo"}
+                    </span>
+                  </Link>
+                </li>
               );
             })}
-          </div>
+          </ol>
+
+          {/* Rodapé com carimbo editorial */}
+          {recent.length > 0 && (
+            <div className="flex items-center justify-between px-7 py-3.5 border-t border-slate-900/[0.07] bg-white/60">
+              <span className="text-[10px] font-semibold tracking-[0.22em] uppercase text-slate-400">
+                {recent.length} {recent.length === 1 ? "registro" : "registros"} • ordem cronológica
+              </span>
+              <span className="h-1.5 w-1.5 rounded-full bg-rose-700/70" />
+            </div>
+          )}
         </div>
+
+
 
 
       </section>
