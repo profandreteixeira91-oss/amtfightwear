@@ -764,7 +764,7 @@ function BrandAssetBlock({ title, url, onPick, onRemove, inputRef, onChange }: a
 }
 
 /* ---------------- Subscription ---------------- */
-function SubscriptionTab({ subscription, invoices = [] }: any) {
+function SubscriptionTab({ subscription, payments = { paid: [], pending: [] } }: any) {
   const status = subscription?.status ?? "trialing";
   const trialLeft = subscription?.trial_ends_at
     ? Math.max(0, Math.ceil((new Date(subscription.trial_ends_at).getTime() - Date.now()) / 86400000))
@@ -776,8 +776,8 @@ function SubscriptionTab({ subscription, invoices = [] }: any) {
     paused: "Pausada",
     cancelled: "Cancelada",
   };
-  const pending = invoices.filter((i: any) => i.status !== "paid");
-  const paid = invoices.filter((i: any) => i.status === "paid");
+  const pending = payments.pending ?? [];
+  const paid = payments.paid ?? [];
   return (
     <div className="space-y-4">
       <Card>
