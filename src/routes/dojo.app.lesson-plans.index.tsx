@@ -387,8 +387,8 @@ function MonthView({ anchor, plans, onCreate }: { anchor: Date; plans: PlanRow[]
   const byDay: Record<string, PlanRow[]> = {};
   for (const p of plans) (byDay[p.date as string] ??= []).push(p);
   return (
-    <div className="rounded-2xl border border-white/10 bg-neutral-950/50 p-2 backdrop-blur">
-      <div className="grid grid-cols-7 gap-1">
+    <div className="rounded-2xl border border-white/10 bg-neutral-950/50 p-2 backdrop-blur overflow-x-auto">
+      <div className="grid grid-cols-7 gap-1 min-w-[560px]">
         {["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"].map((w) => (
           <div key={w} className="pb-1 text-center text-[10px] font-bold uppercase tracking-widest text-neutral-400">
             {w}
@@ -549,7 +549,7 @@ function TemplatePickerDialog({
   };
 
   return (
-    <DialogContent className="max-w-3xl">
+    <DialogContent className="w-[calc(100vw-1rem)] max-w-3xl">
       <DialogHeader>
         <DialogTitle>Aplicar modelo salvo</DialogTitle>
       </DialogHeader>

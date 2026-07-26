@@ -105,7 +105,7 @@ function SessionsList() {
           <DialogTrigger asChild>
             <Button><Plus className="h-4 w-4 mr-1" /> Nova avaliação</Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="w-[calc(100vw-1rem)] max-w-lg">
             <DialogHeader><DialogTitle>Nova avaliação</DialogTitle></DialogHeader>
             <div className="space-y-3">
               <div>

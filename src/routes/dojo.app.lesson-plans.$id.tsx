@@ -440,9 +440,9 @@ function LessonEditorPage() {
 
       {/* BLOCOS */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-3">
-          <CardTitle>Estrutura da aula</CardTitle>
-          <Button size="sm" onClick={addBlock}>
+        <CardHeader className="flex flex-col gap-2 space-y-0 pb-3 sm:flex-row sm:items-center sm:justify-between">
+          <CardTitle className="min-w-0 truncate">Estrutura da aula</CardTitle>
+          <Button size="sm" onClick={addBlock} className="w-full sm:w-auto">
             <Plus className="mr-1 h-4 w-4" /> Adicionar bloco
           </Button>
         </CardHeader>
@@ -590,7 +590,7 @@ function LessonEditorPage() {
 function SaveTemplateDialog({ defaultName, onSave }: { defaultName: string; onSave: (name: string) => void }) {
   const [name, setName] = useState(defaultName || "Novo modelo");
   return (
-    <DialogContent>
+    <DialogContent className="w-[calc(100vw-1rem)] max-w-lg">
       <DialogHeader>
         <DialogTitle>Salvar como modelo</DialogTitle>
       </DialogHeader>
@@ -620,7 +620,7 @@ function BulkDuplicateDialog({
   const [mode, setMode] = useState<"weekly" | "biweekly" | "monthly">("weekly");
   const [occurrences, setOccurrences] = useState(4);
   return (
-    <DialogContent>
+    <DialogContent className="w-[calc(100vw-1rem)] max-w-lg">
       <DialogHeader>
         <DialogTitle>Duplicar em massa</DialogTitle>
       </DialogHeader>
@@ -698,7 +698,7 @@ function RegisterDeliveryDialog({
   const absentIds = (students ?? []).map((s) => s.id).filter((id) => !present[id]);
 
   return (
-    <DialogContent className="max-w-2xl">
+    <DialogContent className="w-[calc(100vw-1rem)] max-w-2xl">
       <DialogHeader>
         <DialogTitle>Registrar aula ministrada</DialogTitle>
       </DialogHeader>

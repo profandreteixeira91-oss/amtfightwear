@@ -149,7 +149,7 @@ function TechniquesPage() {
       </div>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="w-[calc(100vw-1rem)] max-w-lg">
           <DialogHeader><DialogTitle>{form.id ? "Editar" : "Nova"} técnica</DialogTitle></DialogHeader>
           <div className="space-y-3">
             <Input placeholder="Nome" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
