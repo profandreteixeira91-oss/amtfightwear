@@ -8,7 +8,7 @@ export const Route = createFileRoute("/dojo/app/evaluations")({
   head: () => ({
     meta: [
       { title: "Avaliações — AMT Dojo Manager" },
-      { name: "description", content: "Painel Ruby Noir de avaliações: modelos, sessões e histórico de desempenho dos alunos." },
+      { name: "description", content: "Painel de avaliações: modelos, sessões e histórico de desempenho dos alunos." },
       { property: "og:title", content: "Avaliações — AMT Dojo Manager" },
       { property: "og:description", content: "Gerencie modelos, sessões e histórico de avaliações com padrão premium." },
     ],
@@ -44,7 +44,7 @@ function EvaluationsLayout() {
             </div>
             <div className="min-w-0">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-red-200 backdrop-blur">
-                <Flame className="h-3 w-3" /> Avaliações · Ruby Noir
+                <Flame className="h-3 w-3" /> Avaliações
               </div>
               <h1 className="mt-2 font-display text-2xl font-black leading-tight tracking-tight sm:text-3xl md:text-4xl">
                 Cada aluno, um diagnóstico afiado.

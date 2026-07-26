@@ -45,7 +45,7 @@ function DojoCheckinModule() {
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6">
-      {/* HERO PREMIUM RUBY NOIR */}
+      {/* HERO PREMIUM */}
       <section className="relative overflow-hidden rounded-3xl border border-red-500/20 bg-gradient-to-br from-neutral-950 via-neutral-900 to-black text-white shadow-[0_30px_80px_-30px_rgba(220,38,38,0.45)]">
         <div
           aria-hidden

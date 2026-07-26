@@ -79,7 +79,7 @@ function AMTPayHub() {
 
   return (
     <div className="mx-auto max-w-7xl w-full p-4 md:p-6 space-y-8">
-      {/* Hero premium Ruby Noir */}
+      {/* Hero premium */}
       <header className="relative overflow-hidden rounded-2xl border border-red-900/20 bg-gradient-to-br from-neutral-950 via-red-950 to-neutral-900 text-white shadow-[0_20px_60px_-20px_rgba(220,38,38,0.45)]">
         <div className="pointer-events-none absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_20%_0%,rgba(239,68,68,0.35),transparent_55%),radial-gradient(circle_at_80%_100%,rgba(220,38,38,0.25),transparent_50%)]" />
         <div className="pointer-events-none absolute inset-0 [background-image:linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:32px_32px]" />

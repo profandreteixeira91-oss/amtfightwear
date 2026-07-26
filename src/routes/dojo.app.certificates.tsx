@@ -25,7 +25,7 @@ export const Route = createFileRoute("/dojo/app/certificates")({
   head: () => ({
     meta: [
       { title: "Certificados — AMT Dojo Manager" },
-      { name: "description", content: "Studio Ruby Noir de certificados: modelos, emissão e histórico com design premium." },
+      { name: "description", content: "Studio de certificados: modelos, emissão e histórico com design premium." },
       { property: "og:title", content: "Certificados — AMT Dojo Manager" },
       { property: "og:description", content: "Crie modelos, emita certificados e acompanhe emissões com estética premium." },
     ],
@@ -264,7 +264,7 @@ function CertificatesPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 p-4 md:gap-6 md:p-6">
-      {/* ===== HERO Ruby Noir ===== */}
+      {/* ===== HERO ===== */}
       <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-neutral-950 text-white shadow-[0_30px_80px_-40px_rgba(220,38,38,0.65)]">
         <div aria-hidden className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-red-600/25 blur-3xl" />
         <div aria-hidden className="pointer-events-none absolute -right-16 top-8 h-64 w-64 rounded-full bg-amber-500/15 blur-3xl" />
@@ -276,7 +276,7 @@ function CertificatesPage() {
             </div>
             <div className="min-w-0 flex-1">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-red-200 backdrop-blur">
-                <Flame className="h-3 w-3" /> Certificados · Ruby Noir
+                <Flame className="h-3 w-3" /> Certificados
               </div>
               <h1 className="mt-2 font-display text-2xl font-black leading-tight tracking-tight sm:text-3xl md:text-4xl">
                 Reconhecimento em cada linha.

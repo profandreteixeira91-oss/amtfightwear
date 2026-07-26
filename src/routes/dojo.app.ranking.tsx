@@ -15,7 +15,7 @@ export const Route = createFileRoute("/dojo/app/ranking")({
       { title: "Ranking por turma — AMT Dojo Manager" },
       { name: "description", content: "Ranking de alunos por check-ins realizados em cada turma." },
       { property: "og:title", content: "Ranking por turma — AMT Dojo Manager" },
-      { property: "og:description", content: "Classificação Ruby Noir por check-ins realizados." },
+      { property: "og:description", content: "Classificação por check-ins realizados." },
     ],
   }),
 });
@@ -93,7 +93,7 @@ function RankingPage() {
             </div>
             <div className="min-w-0">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-red-200 backdrop-blur">
-                <Flame className="h-3 w-3" /> Ranking · Ruby Noir
+                <Flame className="h-3 w-3" /> Ranking
               </div>
               <h1 className="mt-2 font-display text-2xl font-black leading-tight tracking-tight sm:text-3xl md:text-4xl">
                 Quem está mais firme no tatame?

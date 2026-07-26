@@ -62,7 +62,7 @@ function VideosLibrary() {
 
   return (
     <div className="space-y-5 p-4 md:p-6">
-      {/* ===== HERO Ruby Noir ===== */}
+      {/* ===== HERO ===== */}
       <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-neutral-950 text-white shadow-[0_30px_80px_-40px_rgba(220,38,38,0.65)]">
         <div aria-hidden className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-red-600/25 blur-3xl" />
         <div aria-hidden className="pointer-events-none absolute -right-16 top-8 h-64 w-64 rounded-full bg-amber-500/15 blur-3xl" />
@@ -74,7 +74,7 @@ function VideosLibrary() {
             </div>
             <div className="min-w-0">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-red-200 backdrop-blur">
-                <Flame className="h-3 w-3" /> Biblioteca · Ruby Noir
+                <Flame className="h-3 w-3" /> Biblioteca
               </div>
               <h1 className="mt-2 font-display text-2xl font-black leading-tight tracking-tight sm:text-3xl md:text-4xl">
                 Cada aula gravada, um legado técnico.

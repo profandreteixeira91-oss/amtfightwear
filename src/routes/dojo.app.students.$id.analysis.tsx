@@ -108,7 +108,7 @@ function AnalysisPage() {
         </Button>
       }
     >
-      {/* HERO premium — Ruby Noir */}
+      {/* HERO premium — */}
       <div className="relative overflow-hidden rounded-[2rem] border border-red-500/25 bg-gradient-to-br from-neutral-950 via-neutral-950 to-black p-6 shadow-[0_30px_80px_-30px_rgba(239,68,68,0.45)] sm:p-8 md:p-10">
         <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-red-600/25 blur-[120px]" />
         <div className="pointer-events-none absolute -bottom-32 -left-16 h-96 w-96 rounded-full bg-red-500/15 blur-[120px]" />
