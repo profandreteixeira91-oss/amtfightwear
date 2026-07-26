@@ -492,22 +492,22 @@ export const computeMemberEarnings = createServerFn({ method: "POST" })
       context.supabase.from("dojo_team_payroll_config").select("*").eq("member_id", data.member_id).maybeSingle(),
       context.supabase
         .from("dojo_class_occurrences")
-        .select("id, original_teacher_id, substitute_teacher_id, status, dojo_classes(start_time, end_time)")
+        .select("id, start_time, end_time, original_teacher_id, substitute_teacher_id, status, dojo_classes(teacher_id)")
         .gte("occurrence_date", data.from)
         .lte("occurrence_date", data.to)
         .neq("status", "canceled"),
     ]);
 
-    const mine = (occs ?? []).filter(
-      (o: any) =>
-        o.substitute_teacher_id === data.member_id ||
-        (!o.substitute_teacher_id && o.original_teacher_id === data.member_id),
-    );
+    const mine = (occs ?? []).filter((o: any) => {
+      if (o.substitute_teacher_id) return o.substitute_teacher_id === data.member_id;
+      // Sem substituição: efetivo é o titular travado na ocorrência OU (fallback) o professor atual da turma
+      const effective = o.original_teacher_id ?? o.dojo_classes?.teacher_id ?? null;
+      return effective === data.member_id;
+    });
     const classes = mine.length;
     const hours = mine.reduce((s: number, o: any) => {
-      const c = o.dojo_classes;
-      if (!c?.start_time || !c?.end_time) return s;
-      return s + hoursBetween(c.start_time, c.end_time);
+      if (!o.start_time || !o.end_time) return s;
+      return s + hoursBetween(o.start_time, o.end_time);
     }, 0);
 
     const c: any = cfg ?? {};
@@ -515,11 +515,14 @@ export const computeMemberEarnings = createServerFn({ method: "POST" })
     const base_salary = Number(c.base_salary || 0);
     const hourly_rate = Number(c.hourly_rate || 0);
     const per_class_rate = Number(c.per_class_rate || 0);
+    const commission_percent = Number(c.commission_percent || 0);
 
     let suggested_amount = 0;
     if (payment_type === "hourly") suggested_amount = hourly_rate * hours;
     else if (payment_type === "per_class") suggested_amount = per_class_rate * classes;
     else if (payment_type === "fixed") suggested_amount = base_salary;
+    else if (payment_type === "percentage") suggested_amount = 0; // depende de receita, tratado no fechamento
+    else if (payment_type === "commission") suggested_amount = 0;
     else suggested_amount = base_salary + hourly_rate * hours + per_class_rate * classes;
 
     return {
@@ -527,6 +530,7 @@ export const computeMemberEarnings = createServerFn({ method: "POST" })
       base_salary,
       hourly_rate,
       per_class_rate,
+      commission_percent,
       classes,
       hours: Number(hours.toFixed(2)),
       suggested_amount: Number(suggested_amount.toFixed(2)),
