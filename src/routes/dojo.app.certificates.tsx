@@ -487,6 +487,25 @@ function CertificatesPage() {
       </Tabs>
 
       <IssuePanel open={issueOpen} onOpenChange={setIssueOpen} />
+
+      <CertificatePreviewDialog
+        open={!!viewingTemplate}
+        onOpenChange={(v) => { if (!v) setViewingTemplate(null); }}
+        template={viewingTemplate ? (() => {
+          const schema: EditorSchema = viewingTemplate.variables?.editor_schema ?? migrateLegacyFields(viewingTemplate);
+          const legacy = toLegacyFields(schema);
+          return {
+            name: viewingTemplate.name,
+            background_url: legacy.background_url,
+            width: legacy.width,
+            height: legacy.height,
+            fields: legacy.fields as any,
+            variables: viewingTemplate.variables,
+          } as CertificateTemplate;
+        })() : null}
+        values={previewValues}
+        title={viewingTemplate?.name ?? "Modelo"}
+      />
     </div>
   );
 }
