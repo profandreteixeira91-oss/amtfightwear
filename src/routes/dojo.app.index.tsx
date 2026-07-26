@@ -657,7 +657,7 @@ function DojoDashboard() {
         </BentoCard>
 
         {/* Faturas em atraso */}
-        <BentoCard className="md:col-span-2 border-amber-300/60 bg-gradient-to-br from-amber-50 to-white">
+        <BentoCard className="md:col-span-2">
           <div className="flex items-start justify-between">
             <div>
               <div className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-semibold text-amber-700">
