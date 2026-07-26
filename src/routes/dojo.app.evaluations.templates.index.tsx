@@ -159,7 +159,12 @@ function TemplatesList() {
                     {catCount} categorias · {critCount} critérios · {t.total_score ?? 0} pts
                   </div>
                   <div className="flex gap-2">
-                    <Link to="/dojo/app/evaluations/templates/$id" params={{ id: t.id }} className="flex-1">
+                    <Link
+                      to="/dojo/app/evaluations/templates/$id"
+                      params={{ id: t.id }}
+                      className="flex-1"
+                      onClick={() => qc.setQueryData(["eval-template", t.id], (prev: any) => prev ?? t)}
+                    >
                       <Button size="sm" variant="outline" className="w-full">
                         <Pencil className="h-3.5 w-3.5 mr-1" /> Editar
                       </Button>
