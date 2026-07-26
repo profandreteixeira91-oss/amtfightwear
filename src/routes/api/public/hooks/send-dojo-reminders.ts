@@ -35,7 +35,7 @@ export const Route = createFileRoute("/api/public/hooks/send-dojo-reminders")({
         const { supabaseAdmin } = await import(
           "@/integrations/supabase/client.server"
         );
-        const { dispatchInvoiceReminder } = await import(
+        const { dispatchInvoiceReminder, dispatchInvoicePushReminder } = await import(
           "@/lib/dojo/payments/reminder-dispatcher.server"
         );
 
