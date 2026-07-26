@@ -19,6 +19,7 @@ import {
   Sparkles,
   Rocket,
   TrendingUp,
+} from "lucide-react";
 import { OwnerOnly } from "@/lib/auth/owner-only";
 import {
   Sidebar,
