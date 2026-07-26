@@ -328,52 +328,56 @@ export async function openCertificatePrint(
     "position:fixed;left:-100000px;top:0;pointer-events:none;opacity:0;z-index:-1;";
   document.body.appendChild(host);
 
-  const pages: Array<{ dataUrl: string; W: number; H: number }> = [];
+  const pages: Array<{ blobUrl: string; W: number; H: number }> = [];
 
   try {
-    for (const it of items) {
-      const W = it.template.width;
-      const H = it.template.height;
+    // Renderiza e rasteriza cada certificado em paralelo — cada um em sua própria célula.
+    const rendered = await Promise.all(
+      items.map(async (it) => {
+        const W = it.template.width;
+        const H = it.template.height;
 
-      const cell = document.createElement("div");
-      cell.style.cssText = `width:${W}px;height:${H}px;background:#fff;`;
-      host.appendChild(cell);
+        const cell = document.createElement("div");
+        cell.style.cssText = `width:${W}px;height:${H}px;background:#fff;`;
+        host.appendChild(cell);
 
-      const root = createRoot(cell);
-      root.render(<CertificateCanvas template={it.template} values={it.values} scale={1} />);
+        const root = createRoot(cell);
+        root.render(<CertificateCanvas template={it.template} values={it.values} scale={1} />);
 
-      // Aguarda React montar + imagens carregarem (fontes/QR/backgrounds).
-      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
-      const imgs = Array.from(cell.querySelectorAll("img")) as HTMLImageElement[];
-      await Promise.all(
-        imgs.map(
-          (img) =>
-            new Promise<void>((res) => {
-              if (img.complete && img.naturalWidth > 0) return res();
-              img.addEventListener("load", () => res(), { once: true });
-              img.addEventListener("error", () => res(), { once: true });
-            }),
-        ),
-      );
-      // pequena folga para renderização final
-      await new Promise((r) => setTimeout(r, 120));
+        // Aguarda React montar + imagens carregarem (fontes/QR/backgrounds).
+        await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+        const imgs = Array.from(cell.querySelectorAll("img")) as HTMLImageElement[];
+        await Promise.all(
+          imgs.map(
+            (img) =>
+              new Promise<void>((res) => {
+                if (img.complete && img.naturalWidth > 0) return res();
+                img.addEventListener("load", () => res(), { once: true });
+                img.addEventListener("error", () => res(), { once: true });
+              }),
+          ),
+        );
 
-      const dataUrl = await toPng(cell, {
-        width: W,
-        height: H,
-        pixelRatio: 2,
-        cacheBust: true,
-        backgroundColor: "#ffffff",
-      });
+        // pixelRatio 1.5 mantém nitidez em A4 sem quadruplicar pixels; sem cacheBust para reaproveitar imagens já carregadas.
+        const blob = await toBlob(cell, {
+          width: W,
+          height: H,
+          pixelRatio: 1.5,
+          backgroundColor: "#ffffff",
+        });
 
-      pages.push({ dataUrl, W, H });
-      root.unmount();
-      host.removeChild(cell);
-    }
+        root.unmount();
+        host.removeChild(cell);
+
+        if (!blob) throw new Error("Falha ao gerar imagem do certificado");
+        return { blobUrl: URL.createObjectURL(blob), W, H };
+      }),
+    );
+    pages.push(...rendered);
   } catch (err) {
     console.error("[certificate print] falha ao rasterizar:", err);
     alert("Não foi possível gerar a imagem do certificado para impressão.");
-    document.body.removeChild(host);
+    if (host.parentNode) document.body.removeChild(host);
     return;
   }
 
@@ -382,7 +386,7 @@ export async function openCertificatePrint(
   const orientation = pages[0].W >= pages[0].H ? "landscape" : "portrait";
   const pagesHtml = pages
     .map(
-      (p) => `<section class="page"><img src="${p.dataUrl}" alt="Certificado" /></section>`,
+      (p) => `<section class="page"><img src="${p.blobUrl}" alt="Certificado" /></section>`,
     )
     .join("");
 
@@ -402,7 +406,7 @@ ${pagesHtml}
   window.addEventListener('load', function() {
     var imgs = Array.from(document.images);
     Promise.all(imgs.map(function(img) { if (img.complete) return Promise.resolve(); return new Promise(function(res) { img.onload = img.onerror = res; }); }))
-      .then(function() { setTimeout(function(){ window.focus(); window.print(); }, 200); });
+      .then(function() { window.focus(); window.print(); });
   });
 </script>
 </body></html>`;
@@ -410,6 +414,7 @@ ${pagesHtml}
   const w = window.open("", "_blank", "width=1100,height=800");
   if (!w) {
     alert("Permita janelas pop-up para imprimir/salvar como PDF.");
+    pages.forEach((p) => URL.revokeObjectURL(p.blobUrl));
     return;
   }
   w.document.open();
