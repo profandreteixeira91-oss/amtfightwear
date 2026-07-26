@@ -301,9 +301,11 @@ function AdminDojoManagerPage() {
           <TabsList className="w-max">
             <TabsTrigger value="overview">Visão geral</TabsTrigger>
             <TabsTrigger value="accounts">Contas & Assinaturas</TabsTrigger>
+            <TabsTrigger value="billing">Pagamentos & Faturas</TabsTrigger>
             <TabsTrigger value="visits">Landing /dojo</TabsTrigger>
           </TabsList>
         </div>
+
 
         <TabsContent value="overview" className="mt-4 space-y-4">
           <div className="grid gap-4 lg:grid-cols-3">
