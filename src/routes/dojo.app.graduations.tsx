@@ -22,6 +22,10 @@ import { CheckCircle2, Award, Eye, Printer, GraduationCap, Users, ScrollText, Se
 
 export const Route = createFileRoute("/dojo/app/graduations")({
   head: () => ({ meta: [{ title: "Graduações — AMT Dojo Manager" }] }),
+  validateSearch: (s: Record<string, unknown>) => ({
+    student: typeof s.student === "string" ? s.student : undefined,
+    session: typeof s.session === "string" ? s.session : undefined,
+  }),
   component: NewGraduationPage,
 });
 
