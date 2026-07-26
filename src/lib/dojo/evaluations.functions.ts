@@ -180,9 +180,11 @@ export const duplicateEvalTemplate = createServerFn({ method: "POST" })
       auto_graduate: src.auto_graduate ?? false,
     };
     const { data: row, error: e2 } = await context.supabase
-      .from("dojo_evaluations").insert(copy as never).select("id").single();
+      .from("dojo_evaluations").insert(copy as never)
+      .select("*, belt:dojo_belts(name,color_hex,stripe_hex,max_degrees,modality,visual,variants)")
+      .single();
     if (e2) throw new Error(e2.message);
-    return { id: row.id };
+    return row;
   });
 
 export const deleteEvalTemplate = createServerFn({ method: "POST" })
