@@ -61,6 +61,7 @@ function CertificatesPage() {
   const [category, setCategory] = useState<string>("");
   const [issueOpen, setIssueOpen] = useState(false);
   const [tab, setTab] = useState<"modelos" | "emitidos">("modelos");
+  const [viewingTemplate, setViewingTemplate] = useState<any | null>(null);
 
   const filteredTemplates = useMemo(() => {
     return (templates.data ?? []).filter((t: any) => {
