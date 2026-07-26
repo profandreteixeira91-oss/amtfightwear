@@ -13,7 +13,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
 import { useUnsavedChanges } from "@/components/common/UnsavedChangesGuard";
 import {
-  User as UserIcon, Building2, Palette, CreditCard, Receipt, Shield,
+  User as UserIcon, Building2, Palette, CreditCard, Shield,
   Bell, Monitor, Plug, Upload, Trash2, Save, KeyRound, LogOut, History, Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -32,14 +32,13 @@ export const Route = createFileRoute("/dojo/app/account")({
 
 type TabKey =
   | "personal" | "academy" | "brand" | "subscription"
-  | "financial" | "documents" | "security" | "notifications" | "sessions" | "integrations";
+  | "documents" | "security" | "notifications" | "sessions" | "integrations";
 
 const TABS: { key: TabKey; label: string; icon: any }[] = [
   { key: "personal", label: "Dados Pessoais", icon: UserIcon },
   { key: "academy", label: "Academia", icon: Building2 },
   { key: "brand", label: "Identidade Visual", icon: Palette },
   { key: "subscription", label: "Assinatura", icon: CreditCard },
-  { key: "financial", label: "Financeiro", icon: Receipt },
   { key: "documents", label: "Documentos", icon: Upload },
   { key: "security", label: "Segurança", icon: Shield },
   { key: "notifications", label: "Notificações", icon: Bell },
@@ -238,10 +237,7 @@ function AccountPage() {
             />
           )}
           {tab === "subscription" && (
-            <SubscriptionTab subscription={subscription} />
-          )}
-          {tab === "financial" && (
-            <FinancialTab invoices={invoices} />
+            <SubscriptionTab subscription={subscription} invoices={invoices} />
           )}
           {tab === "security" && (
             <SecurityTab
@@ -717,7 +713,7 @@ function BrandAssetBlock({ title, url, onPick, onRemove, inputRef, onChange }: a
 }
 
 /* ---------------- Subscription ---------------- */
-function SubscriptionTab({ subscription }: any) {
+function SubscriptionTab({ subscription, invoices = [] }: any) {
   const status = subscription?.status ?? "trialing";
   const trialLeft = subscription?.trial_ends_at
     ? Math.max(0, Math.ceil((new Date(subscription.trial_ends_at).getTime() - Date.now()) / 86400000))
@@ -729,74 +725,56 @@ function SubscriptionTab({ subscription }: any) {
     paused: "Pausada",
     cancelled: "Cancelada",
   };
-  return (
-    <Card>
-      <CardHeader><CardTitle>Assinatura</CardTitle></CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <Info label="Plano atual" value="AMT Dojo Manager" />
-          <Info label="Status" value={statusLabel[status] ?? status} />
-          <Info label="Valor mensal" value={brl(subscription?.plan_amount ?? 69.9)} />
-          <Info label="Próxima cobrança" value={subscription?.current_period_end ? new Date(subscription.current_period_end).toLocaleDateString("pt-BR") : "—"} />
-          <Info label="Forma de pagamento" value="Mercado Pago" />
-          <Info label="Renovação automática" value={status === "active" ? "Sim" : "—"} />
-        </div>
-        {trialLeft != null && trialLeft > 0 && (
-          <div className="rounded-md border border-blue-500/30 bg-blue-500/10 p-3 text-sm">
-            Período de teste: <strong>{trialLeft} dias restantes</strong> (termina em {new Date(subscription.trial_ends_at).toLocaleDateString("pt-BR")}).
-          </div>
-        )}
-        <p className="text-xs text-neutral-500">
-          Cobrança recorrente processada pelo Mercado Pago (cartão de crédito ou saldo da conta MP). Cancele quando quiser — nenhum dado do cartão é armazenado no sistema.
-        </p>
-        <div className="flex flex-wrap gap-2">
-          <Button size="sm" asChild className="bg-red-600 hover:bg-red-700 text-white">
-            <a href="/dojo/app/subscription" className="text-white">
-              {status === "active" ? "Gerenciar assinatura" : status === "cancelled" ? "Reativar assinatura" : "Ativar assinatura"}
-            </a>
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-/* ---------------- Financial ---------------- */
-function FinancialTab({ invoices }: any) {
-  const [q, setQ] = useState("");
   const pending = invoices.filter((i: any) => i.status !== "paid");
   const paid = invoices.filter((i: any) => i.status === "paid");
-  const filter = (list: any[]) => q
-    ? list.filter((i) => JSON.stringify(i).toLowerCase().includes(q.toLowerCase()))
-    : list;
-
-  const totalPaid = paid.reduce((s: number, i: any) => s + Number(i.amount || 0), 0);
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <KpiCard label="Total pago" value={brl(totalPaid)} />
-        <KpiCard label="Faturas pagas" value={String(paid.length)} />
-        <KpiCard label="Pendentes" value={String(pending.length)} />
-        <KpiCard label="Próxima cobrança" value={pending[0]?.due_date ? new Date(pending[0].due_date).toLocaleDateString("pt-BR") : "—"} />
-      </div>
-      <div>
-        <Input placeholder="Buscar por competência, número, valor…" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-md" />
-      </div>
+      <Card>
+        <CardHeader><CardTitle>Assinatura</CardTitle></CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <Info label="Plano atual" value="AMT Dojo Manager" />
+            <Info label="Status" value={statusLabel[status] ?? status} />
+            <Info label="Valor mensal" value={brl(subscription?.plan_amount ?? 69.9)} />
+            <Info label="Próxima cobrança" value={subscription?.current_period_end ? new Date(subscription.current_period_end).toLocaleDateString("pt-BR") : "—"} />
+            <Info label="Forma de pagamento" value="Mercado Pago" />
+            <Info label="Renovação automática" value={status === "active" ? "Sim" : "—"} />
+          </div>
+          {trialLeft != null && trialLeft > 0 && (
+            <div className="rounded-md border border-blue-500/30 bg-blue-500/10 p-3 text-sm">
+              Período de teste: <strong>{trialLeft} dias restantes</strong> (termina em {new Date(subscription.trial_ends_at).toLocaleDateString("pt-BR")}).
+            </div>
+          )}
+          <p className="text-xs text-neutral-500">
+            Cobrança recorrente processada pelo Mercado Pago (cartão de crédito ou saldo da conta MP). Cancele quando quiser — nenhum dado do cartão é armazenado no sistema.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" asChild className="bg-red-600 hover:bg-red-700 text-white">
+              <a href="/dojo/app/subscription" className="text-white">
+                {status === "active" ? "Gerenciar assinatura" : status === "cancelled" ? "Reativar assinatura" : "Ativar assinatura"}
+              </a>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader><CardTitle>Faturas pendentes</CardTitle></CardHeader>
         <CardContent>
-          <InvoiceTable rows={filter(pending)} pending />
+          <InvoiceTable rows={pending} pending />
         </CardContent>
       </Card>
       <Card>
         <CardHeader><CardTitle>Histórico de pagamentos</CardTitle></CardHeader>
         <CardContent>
-          <InvoiceTable rows={filter(paid)} />
+          <InvoiceTable rows={paid} />
         </CardContent>
       </Card>
     </div>
   );
 }
+
+
 
 function InvoiceTable({ rows, pending }: { rows: any[]; pending?: boolean }) {
   if (!rows.length) return <div className="text-sm text-muted-foreground">Nenhum registro.</div>;
