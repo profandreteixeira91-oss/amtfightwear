@@ -246,7 +246,7 @@ export function StudentContracts({ studentId, student }: Props) {
                 <label className="text-xs font-medium text-muted-foreground">Status</label>
                 <Select value={current?.status ?? "draft"} onValueChange={(v) => setCurrent({ ...current, status: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="z-[100]">
                     <SelectItem value="draft">Rascunho</SelectItem>
                     <SelectItem value="active">Ativo</SelectItem>
                     <SelectItem value="signed">Assinado</SelectItem>
@@ -256,9 +256,11 @@ export function StudentContracts({ studentId, student }: Props) {
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground">Aplicar modelo</label>
-                <Select value={newFromTemplate} onValueChange={applyTemplate}>
-                  <SelectTrigger><SelectValue placeholder="Selecionar modelo..." /></SelectTrigger>
-                  <SelectContent>
+                <Select value={newFromTemplate || undefined} onValueChange={applyTemplate}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={templates.isLoading ? "Carregando modelos..." : "Selecionar modelo..."} />
+                  </SelectTrigger>
+                  <SelectContent className="z-[100]">
                     {(templates.data ?? []).length === 0 ? (
                       <div className="p-2 text-xs text-muted-foreground">Nenhum modelo cadastrado</div>
                     ) : (templates.data ?? []).map((t: any) => (
