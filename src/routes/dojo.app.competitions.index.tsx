@@ -39,20 +39,34 @@ export const Route = createFileRoute("/dojo/app/competitions/")({
 function CompetitionsPage() {
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 md:gap-7">
-      <p className="text-sm text-muted-foreground max-w-2xl">
-        Agregador de competições oficiais + gestão completa da sua academia.
-      </p>
+      {/* ============ HERO — RUBY NOIR ============ */}
+      <div className="relative overflow-hidden rounded-2xl border border-red-500/20 bg-gradient-to-br from-neutral-950 via-neutral-900 to-red-950/50 p-5 text-white shadow-[0_20px_60px_-30px_rgba(220,38,38,0.55)] md:p-7">
+        <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-red-500/20 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute -bottom-24 -left-16 h-56 w-56 rounded-full bg-amber-500/10 blur-3xl" />
+        <div className="relative flex flex-wrap items-center gap-4">
+          <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-amber-400 via-red-500 to-red-700 text-white ring-1 ring-white/20 shadow-[0_8px_24px_-8px_rgba(220,38,38,0.9)]">
+            <Trophy className="h-6 w-6" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h1 className="truncate text-xl font-semibold tracking-tight md:text-2xl">Competições</h1>
+            <p className="mt-1 max-w-2xl text-sm text-neutral-300">
+              Agregador ao vivo das fontes que você cadastrou + gestão completa da sua academia: calendário, atletas, medalhas e finanças.
+            </p>
+          </div>
+        </div>
+      </div>
 
       <Tabs defaultValue="dashboard" className="space-y-4">
-
-        <TabsList className="flex flex-wrap">
-          <TabsTrigger value="dashboard"><BarChart3 className="mr-2 h-4 w-4" /> Dashboard</TabsTrigger>
-          <TabsTrigger value="library"><Search className="mr-2 h-4 w-4" /> Biblioteca</TabsTrigger>
-          <TabsTrigger value="calendar"><CalendarDays className="mr-2 h-4 w-4" /> Meu Calendário</TabsTrigger>
-          <TabsTrigger value="ranking"><Medal className="mr-2 h-4 w-4" /> Ranking</TabsTrigger>
-          <TabsTrigger value="stats"><PieIcon className="mr-2 h-4 w-4" /> Estatísticas</TabsTrigger>
-          <TabsTrigger value="sources"><Settings2 className="mr-2 h-4 w-4" /> Fontes</TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto rounded-xl border border-red-500/15 bg-neutral-950/60 p-1 shadow-[0_10px_30px_-20px_rgba(220,38,38,0.6)]">
+          <TabsList className="flex w-max min-w-full flex-nowrap gap-1 bg-transparent p-0">
+            <TabsTrigger value="dashboard" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-red-600 data-[state=active]:to-red-800 data-[state=active]:text-white data-[state=active]:shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] text-neutral-300 hover:text-white"><BarChart3 className="mr-2 h-4 w-4" /> Dashboard</TabsTrigger>
+            <TabsTrigger value="library" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-red-600 data-[state=active]:to-red-800 data-[state=active]:text-white data-[state=active]:shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] text-neutral-300 hover:text-white"><Search className="mr-2 h-4 w-4" /> Biblioteca</TabsTrigger>
+            <TabsTrigger value="calendar" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-red-600 data-[state=active]:to-red-800 data-[state=active]:text-white data-[state=active]:shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] text-neutral-300 hover:text-white"><CalendarDays className="mr-2 h-4 w-4" /> Meu Calendário</TabsTrigger>
+            <TabsTrigger value="ranking" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-red-600 data-[state=active]:to-red-800 data-[state=active]:text-white data-[state=active]:shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] text-neutral-300 hover:text-white"><Medal className="mr-2 h-4 w-4" /> Ranking</TabsTrigger>
+            <TabsTrigger value="stats" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-red-600 data-[state=active]:to-red-800 data-[state=active]:text-white data-[state=active]:shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] text-neutral-300 hover:text-white"><PieIcon className="mr-2 h-4 w-4" /> Estatísticas</TabsTrigger>
+            <TabsTrigger value="sources" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-red-600 data-[state=active]:to-red-800 data-[state=active]:text-white data-[state=active]:shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] text-neutral-300 hover:text-white"><Settings2 className="mr-2 h-4 w-4" /> Fontes</TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="dashboard"><DashboardTab /></TabsContent>
         <TabsContent value="library"><LibraryTab /></TabsContent>
