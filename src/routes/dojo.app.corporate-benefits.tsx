@@ -448,7 +448,7 @@ function CorporateBenefitsPage() {
         onOpenChange={(o) => !o && setWizardProvider(null)}
         onCompleted={() => qc.invalidateQueries({ queryKey: ["corporate-benefits"] })}
       />
-    </DojoPageShell>
+    </div>
   );
 }
 
