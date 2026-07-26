@@ -324,7 +324,7 @@ function ContractEditorPage() {
                 <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">Variáveis</DropdownMenuLabel>
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger>Aluno</DropdownMenuSubTrigger>
-                  <DropdownMenuSubContent>
+                  <DropdownMenuSubContent className="z-[130]">
                     {["aluno_nome","aluno_cpf","aluno_rg","aluno_endereco","aluno_telefone","aluno_modalidade"].map(v => (
                       <DropdownMenuItem key={v} onClick={() => insertAtCursor(`{{${v}}}`)}>{v}</DropdownMenuItem>
                     ))}
@@ -332,7 +332,7 @@ function ContractEditorPage() {
                 </DropdownMenuSub>
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger>Academia</DropdownMenuSubTrigger>
-                  <DropdownMenuSubContent>
+                  <DropdownMenuSubContent className="z-[130]">
                     {["academia_nome","academia_cnpj","academia_endereco","academia_cidade","academia_estado"].map(v => (
                       <DropdownMenuItem key={v} onClick={() => insertAtCursor(`{{${v}}}`)}>{v}</DropdownMenuItem>
                     ))}
@@ -340,7 +340,7 @@ function ContractEditorPage() {
                 </DropdownMenuSub>
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger>Contrato</DropdownMenuSubTrigger>
-                  <DropdownMenuSubContent>
+                  <DropdownMenuSubContent className="z-[130]">
                     {["contrato_plano","contrato_valor","contrato_forma_pagamento","contrato_dia_vencimento","contrato_inicio","contrato_fim","contrato_data"].map(v => (
                       <DropdownMenuItem key={v} onClick={() => insertAtCursor(`{{${v}}}`)}>{v}</DropdownMenuItem>
                     ))}
@@ -363,7 +363,7 @@ function ContractEditorPage() {
                 <DropdownMenuSeparator />
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger>Alinhamento</DropdownMenuSubTrigger>
-                  <DropdownMenuSubContent>
+                  <DropdownMenuSubContent className="z-[130]">
                     <DropdownMenuItem onClick={() => exec("justifyLeft")}>Esquerda</DropdownMenuItem>
                     <DropdownMenuItem onClick={() => exec("justifyCenter")}>Centro</DropdownMenuItem>
                     <DropdownMenuItem onClick={() => exec("justifyRight")}>Direita</DropdownMenuItem>
@@ -372,7 +372,7 @@ function ContractEditorPage() {
                 </DropdownMenuSub>
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger>Listas</DropdownMenuSubTrigger>
-                  <DropdownMenuSubContent>
+                  <DropdownMenuSubContent className="z-[130]">
                     <DropdownMenuItem onClick={() => exec("insertUnorderedList")}>Lista com marcadores</DropdownMenuItem>
                     <DropdownMenuItem onClick={() => exec("insertOrderedList")}>Lista numerada</DropdownMenuItem>
                   </DropdownMenuSubContent>
