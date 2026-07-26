@@ -25,6 +25,7 @@ function NotificationsPage() {
           Instale o Dojo Manager como app no celular ou desktop e ligue os alertas que fazem sentido para o seu dia a dia.
         </p>
       </div>
+      <InstallAppCard />
       <DojoPushCard />
     </div>
   );
