@@ -340,11 +340,11 @@ function TeamPage() {
 
       {/* Filters */}
       <div className="flex flex-col gap-2 rounded-2xl border border-neutral-200/70 bg-white/80 p-3 shadow-sm backdrop-blur sm:flex-row sm:flex-wrap sm:items-center">
-        <div className="relative min-w-[220px] flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <div className="relative w-full min-w-0 flex-1 sm:min-w-[220px]">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Buscar por nome, e-mail, CPF..."
-            className="pl-9 border-neutral-200 bg-white focus-visible:ring-red-500/40"
+            className="pl-10 border-neutral-200 bg-white focus-visible:ring-red-500/40"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
