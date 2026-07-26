@@ -1,31 +1,25 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowUpRight, LucideIcon, Shirt, Sparkles, Shield, Award, Package, Layers } from "lucide-react";
-import catFaixas from "@/assets/dojo-store/cat-faixas.jpg";
-import catKimonos from "@/assets/dojo-store/cat-kimonos.jpg";
-import catPatches from "@/assets/dojo-store/cat-patches.jpg";
-import catRashguards from "@/assets/dojo-store/cat-rashguards.jpg";
-import catCamisetas from "@/assets/dojo-store/cat-camisetas.jpg";
-import catAcessorios from "@/assets/dojo-store/cat-acessorios.jpg";
+import { ArrowUpRight, LucideIcon, Shirt, Sparkles, Award, Layers } from "lucide-react";
+
+// Fotos reais dos produtos publicados em amtfightwear.com.br
+const SB =
+  "https://hhrumnnxrwxnandvqnmx.supabase.co/storage/v1/object/public/product-images";
 
 const ICONS: Record<string, LucideIcon> = {
+  "faixas-de-jiu-jitsu": Award,
+  "faixas-de-judo": Award,
+  "kimonos-de-jiu-jitsu": Shirt,
+  patches: Sparkles,
+  // aliases curtos
   faixas: Award,
   kimonos: Shirt,
-  patches: Sparkles,
-  "rash-guards": Shield,
-  camisetas: Shirt,
-  acessorios: Package,
-  acessórios: Package,
 };
 
 const IMAGES: Record<string, string> = {
-  faixas: catFaixas,
-  kimonos: catKimonos,
-  patches: catPatches,
-  "rash-guards": catRashguards,
-  rashguards: catRashguards,
-  camisetas: catCamisetas,
-  acessorios: catAcessorios,
-  acessórios: catAcessorios,
+  "faixas-de-jiu-jitsu": `${SB}/2a3cafcb-ce4e-4f35-9448-660aee6352a5/e26d3b68-35d3-4b0b-94e2-06416d6ef387.jpg`,
+  "faixas-de-judo": `${SB}/6986425a-ad49-4a23-8aed-8332d9215402/a22e459c-4aa1-495b-afc6-3d78b26f958c.jpg`,
+  "kimonos-de-jiu-jitsu": `${SB}/eed4853a-6aea-4e0e-957b-552ba5c8d0e5/3080bad7-e6ed-4655-944d-451c748b5c9a.jpg`,
+  patches: `${SB}/23801fbf-5a82-41c9-9b96-fbf1196295a5/0bc8191b-4444-45d9-b666-417260bae53e.jpg`,
 };
 
 const FALLBACK_GRADIENT =
