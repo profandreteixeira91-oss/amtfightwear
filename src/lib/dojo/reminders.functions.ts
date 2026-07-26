@@ -53,6 +53,7 @@ function readReminderSettings(row: any): ReminderSettings {
     enabled: stored.enabled ?? DEFAULT_REMINDER_SETTINGS.enabled,
     channels: {
       email: stored.channels?.email ?? true,
+      push: stored.channels?.push ?? true,
       whatsapp: stored.channels?.whatsapp ?? false,
     },
     rules:
