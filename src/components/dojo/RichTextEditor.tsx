@@ -469,6 +469,26 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
             }}
           >
             <div className="absolute inset-0 border-2 border-primary/70 shadow-[0_0_0_1px_rgba(255,255,255,0.6)]" />
+            {/* Botão para excluir a imagem selecionada */}
+            <button
+              type="button"
+              title="Excluir imagem"
+              aria-label="Excluir imagem"
+              className="pointer-events-auto absolute -top-3 -right-3 z-10 inline-flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-white shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400"
+              onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (!selectedImg) return;
+                selectedImg.remove();
+                setSelectedImg(null);
+                setImgBox(null);
+                handleInput();
+                toast.success("Imagem removida");
+              }}
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
             {(["nw","n","ne","e","se","s","sw","w"] as const).map((pos) => {
               const style: React.CSSProperties = { position: "absolute", width: 10, height: 10, background: "white", border: "1.5px solid hsl(var(--primary))", borderRadius: 2 };
               const cursors: Record<string,string> = { nw:"nwse-resize", n:"ns-resize", ne:"nesw-resize", e:"ew-resize", se:"nwse-resize", s:"ns-resize", sw:"nesw-resize", w:"ew-resize" };
