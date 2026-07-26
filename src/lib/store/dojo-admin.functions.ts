@@ -41,19 +41,24 @@ export const adminListDojoAccounts = createServerFn({ method: "GET" })
     await assertAdmin(context as any);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data: academies } = await supabaseAdmin
-      .from("dojo_academy_profile")
-      .select(
-        "owner_id, legal_name, trade_name, phone, whatsapp, city, state, slug, created_at, onboarding_completed",
-      )
+    // Base list: every user profile. Academy profile is optional — new accounts
+    // that haven't finished onboarding still need to show up in the admin.
+    const { data: profiles } = await supabaseAdmin
+      .from("profiles")
+      .select("id, email, full_name, created_at")
       .order("created_at", { ascending: false })
-      .limit(2000);
+      .limit(5000);
 
-    const ownerIds = (academies ?? []).map((a) => a.owner_id);
+    const ownerIds = (profiles ?? []).map((p: any) => p.id);
     if (ownerIds.length === 0) return [] as DojoAccountRow[];
 
-    const [profilesRes, subsRes, studentsRes, unitsRes] = await Promise.all([
-      supabaseAdmin.from("profiles").select("id, email, full_name").in("id", ownerIds),
+    const [academiesRes, subsRes, studentsRes, unitsRes] = await Promise.all([
+      supabaseAdmin
+        .from("dojo_academy_profile")
+        .select(
+          "owner_id, legal_name, trade_name, phone, whatsapp, city, state, slug, created_at, onboarding_completed",
+        )
+        .in("owner_id", ownerIds),
       supabaseAdmin
         .from("dojo_subscriptions")
         .select(
@@ -64,8 +69,8 @@ export const adminListDojoAccounts = createServerFn({ method: "GET" })
       supabaseAdmin.from("dojo_units").select("owner_id").in("owner_id", ownerIds),
     ]);
 
-    const profileMap = new Map(
-      (profilesRes.data ?? []).map((p: any) => [p.id, p]),
+    const academyMap = new Map(
+      (academiesRes.data ?? []).map((a: any) => [a.owner_id, a]),
     );
     const subMap = new Map((subsRes.data ?? []).map((s: any) => [s.owner_id, s]));
     const studentsCount = new Map<string, number>();
@@ -78,21 +83,26 @@ export const adminListDojoAccounts = createServerFn({ method: "GET" })
     }
 
     const now = Date.now();
-    return (academies ?? []).map<DojoAccountRow>((a) => {
-      const p: any = profileMap.get(a.owner_id) ?? {};
-      const s: any = subMap.get(a.owner_id);
+    return (profiles ?? []).map<DojoAccountRow>((p: any) => {
+      const a: any = academyMap.get(p.id) ?? {};
+      const s: any = subMap.get(p.id);
       let sub_status: string | null = s?.status ?? null;
-      // Derive trial when trial_ends_at is in the future and status not paid.
-      if (s?.trial_ends_at && new Date(s.trial_ends_at).getTime() > now && sub_status !== "authorized" && sub_status !== "active") {
+      // Normalize Mercado Pago-style "trialing" to "trial" for the UI.
+      if (sub_status === "trialing") sub_status = "trial";
+      if (
+        s?.trial_ends_at &&
+        new Date(s.trial_ends_at).getTime() > now &&
+        sub_status !== "authorized" &&
+        sub_status !== "active"
+      ) {
         sub_status = "trial";
       }
-      // If no subscription row at all, treat as trial when account < 14 days old
       if (!s) {
-        const ageDays = (now - new Date(a.created_at).getTime()) / (1000 * 60 * 60 * 24);
+        const ageDays = (now - new Date(p.created_at).getTime()) / (1000 * 60 * 60 * 24);
         sub_status = ageDays <= 14 ? "trial" : "none";
       }
       return {
-        owner_id: a.owner_id,
+        owner_id: p.id,
         email: p.email ?? null,
         full_name: p.full_name ?? null,
         trade_name: a.trade_name ?? null,
@@ -102,18 +112,19 @@ export const adminListDojoAccounts = createServerFn({ method: "GET" })
         phone: a.phone ?? null,
         whatsapp: a.whatsapp ?? null,
         slug: a.slug ?? null,
-        created_at: a.created_at,
+        created_at: a.created_at ?? p.created_at,
         onboarding_completed: !!a.onboarding_completed,
         sub_status,
         sub_plan_amount: s?.plan_amount ?? null,
         sub_trial_ends_at: s?.trial_ends_at ?? null,
         sub_current_period_end: s?.current_period_end ?? null,
         sub_cancelled_at: s?.cancelled_at ?? null,
-        students_count: studentsCount.get(a.owner_id) ?? 0,
-        units_count: unitsCount.get(a.owner_id) ?? 0,
+        students_count: studentsCount.get(p.id) ?? 0,
+        units_count: unitsCount.get(p.id) ?? 0,
       };
     });
   });
+
 
 // ---------- Admin: dojo landing page visits ----------
 
