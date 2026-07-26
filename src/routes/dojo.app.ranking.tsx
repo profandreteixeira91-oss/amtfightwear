@@ -79,34 +79,34 @@ function RankingPage() {
   };
 
   return (
-    <div className="space-y-6 p-4 md:p-6">
+    <div className="space-y-4 p-3 sm:space-y-6 sm:p-4 md:p-6">
       {/* ===== HERO ===== */}
-      <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-neutral-950 text-white shadow-[0_30px_80px_-40px_rgba(220,38,38,0.65)]">
+      <section className="relative overflow-hidden rounded-2xl border border-white/10 bg-neutral-950 text-white shadow-[0_30px_80px_-40px_rgba(220,38,38,0.65)] sm:rounded-3xl">
         <div aria-hidden className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-red-600/25 blur-3xl" />
         <div aria-hidden className="pointer-events-none absolute -right-24 top-10 h-72 w-72 rounded-full bg-amber-500/15 blur-3xl" />
         <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(255,255,255,0.06),transparent_40%)]" />
 
-        <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 p-5 sm:p-7 md:grid-cols-[minmax(0,1fr)_minmax(0,auto)]">
-          <div className="flex min-w-0 items-start gap-4">
-            <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-amber-400 via-red-500 to-red-700 text-white shadow-[0_10px_25px_-10px_rgba(220,38,38,0.9)] ring-1 ring-white/20">
-              <Trophy className="h-6 w-6" />
+        <div className="relative flex flex-col gap-5 p-4 sm:p-6 md:grid md:grid-cols-[minmax(0,1fr)_minmax(0,auto)] md:items-start md:gap-4 md:p-7">
+          <div className="flex min-w-0 items-start gap-3 sm:gap-4">
+            <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-amber-400 via-red-500 to-red-700 text-white shadow-[0_10px_25px_-10px_rgba(220,38,38,0.9)] ring-1 ring-white/20 sm:h-14 sm:w-14">
+              <Trophy className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-red-200 backdrop-blur">
                 <Flame className="h-3 w-3" /> Ranking
               </div>
-              <h1 className="mt-2 font-display text-2xl font-black leading-tight tracking-tight sm:text-3xl md:text-4xl">
+              <h1 className="mt-2 font-display text-xl font-black leading-tight tracking-tight sm:text-3xl md:text-4xl">
                 Quem está mais firme no tatame?
               </h1>
-              <p className="mt-1 max-w-xl text-sm text-neutral-300">
-                Classificação por check-ins realizados. Selecione a turma e o período para ver o pódio.
+              <p className="mt-1 max-w-xl text-[13px] text-neutral-300 sm:text-sm">
+                Classificação por check-ins. Selecione a turma e o período.
               </p>
 
               {activeClass && (
                 <div className="mt-3 flex flex-wrap items-center gap-1.5 text-[11px]">
                   <HeroChip>
                     <span className="mr-1 inline-block h-2 w-2 rounded-full" style={{ background: activeClass.color || "#dc2626" }} />
-                    {activeClass.name}
+                    <span className="max-w-[140px] truncate sm:max-w-none">{activeClass.name}</span>
                   </HeroChip>
                   {activeClass.modality && <HeroChip>{activeClass.modality}</HeroChip>}
                   <HeroChip icon={TrendingUp}>{periodLabel[period]}</HeroChip>
@@ -121,7 +121,7 @@ function RankingPage() {
               onValueChange={(v) => setClassId(v)}
               disabled={classesQ.isLoading || classes.length === 0}
             >
-              <SelectTrigger className="w-full border-white/15 bg-white/5 text-white backdrop-blur hover:bg-white/10 md:w-[280px]">
+              <SelectTrigger className="h-11 w-full border-white/15 bg-white/5 text-white backdrop-blur hover:bg-white/10 md:h-10 md:w-[280px]">
                 <SelectValue placeholder={classesQ.isLoading ? "Carregando turmas…" : "Selecione a turma"} />
               </SelectTrigger>
               <SelectContent>
@@ -137,12 +137,12 @@ function RankingPage() {
               </SelectContent>
             </Select>
 
-            <Tabs value={period} onValueChange={(v) => setPeriod(v as Period)}>
-              <TabsList className="w-full border border-white/15 bg-white/5 text-white backdrop-blur md:w-auto">
-                <TabsTrigger value="all" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">Total</TabsTrigger>
-                <TabsTrigger value="year" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">Ano</TabsTrigger>
-                <TabsTrigger value="month" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">Mês</TabsTrigger>
-                <TabsTrigger value="week" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">Semana</TabsTrigger>
+            <Tabs value={period} onValueChange={(v) => setPeriod(v as Period)} className="w-full md:w-auto">
+              <TabsList className="grid h-11 w-full grid-cols-4 border border-white/15 bg-white/5 p-1 text-white backdrop-blur md:flex md:h-10 md:w-auto">
+                <TabsTrigger value="all" className="text-xs data-[state=active]:bg-red-600 data-[state=active]:text-white sm:text-sm">Total</TabsTrigger>
+                <TabsTrigger value="year" className="text-xs data-[state=active]:bg-red-600 data-[state=active]:text-white sm:text-sm">Ano</TabsTrigger>
+                <TabsTrigger value="month" className="text-xs data-[state=active]:bg-red-600 data-[state=active]:text-white sm:text-sm">Mês</TabsTrigger>
+                <TabsTrigger value="week" className="text-xs data-[state=active]:bg-red-600 data-[state=active]:text-white sm:text-sm">Semana</TabsTrigger>
               </TabsList>
             </Tabs>
           </div>
