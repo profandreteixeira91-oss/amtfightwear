@@ -126,50 +126,82 @@ export function ClassFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{form.id ? "Editar turma" : "Nova turma"}</DialogTitle>
+      <DialogContent
+        className="w-[calc(100vw-1rem)] sm:w-full max-w-2xl p-0 gap-0 max-h-[92vh] overflow-hidden flex flex-col"
+      >
+        <DialogHeader className="px-4 sm:px-6 py-4 border-b bg-white sticky top-0 z-10">
+          <DialogTitle className="text-base sm:text-lg">
+            {form.id ? "Editar turma" : "Nova turma"}
+          </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-5 pt-2">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 sm:px-6 py-4 space-y-6">
+          {/* Informações gerais */}
           <section className="space-y-3">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+            <h3 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
               Informações gerais
             </h3>
-            <div className="grid gap-3">
-              <div>
+            <div className="space-y-3">
+              <div className="space-y-1.5">
                 <Label>Nome da turma *</Label>
-                <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+                <Input
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  placeholder="Ex.: Jiu-Jitsu Adulto Avançado"
+                />
               </div>
-              <div>
+              <div className="space-y-1.5">
                 <Label>Descrição</Label>
                 <Textarea
                   rows={2}
                   value={form.description ?? ""}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  placeholder="Opcional"
                 />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
+                <div className="space-y-1.5 min-w-0">
                   <Label>Modalidade</Label>
                   <Select value={form.modality} onValueChange={(v) => setForm({ ...form, modality: v })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {MODALITIES.map((m) => <SelectItem key={m} value={m} className="capitalize">{m}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
-                <div>
+                <div className="space-y-1.5 min-w-0">
                   <Label>Nível</Label>
                   <Select value={form.level} onValueChange={(v) => setForm({ ...form, level: v })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {LEVELS.map((l) => <SelectItem key={l} value={l} className="capitalize">{l}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
               </div>
-              <div>
+              <div className="grid grid-cols-2 sm:grid-cols-[1fr_120px] gap-3">
+                <div className="space-y-1.5 min-w-0">
+                  <Label>Status</Label>
+                  <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v })}>
+                    <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="active">Ativa</SelectItem>
+                      <SelectItem value="inactive">Inativa</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5 min-w-0">
+                  <Label>Máx. alunos</Label>
+                  <Input
+                    type="number"
+                    min={1}
+                    inputMode="numeric"
+                    value={form.max_students}
+                    onChange={(e) => setForm({ ...form, max_students: Number(e.target.value) || 1 })}
+                  />
+                </div>
+              </div>
+              <div className="space-y-1.5">
                 <Label>Cor da turma</Label>
                 <div className="flex flex-wrap gap-2">
                   {CLASS_COLORS.map((c) => (
@@ -177,47 +209,29 @@ export function ClassFormDialog({
                       key={c}
                       type="button"
                       onClick={() => setForm({ ...form, color: c })}
-                      className={`h-8 w-8 rounded-full border-2 ${form.color === c ? "border-foreground scale-110" : "border-transparent"} transition-transform`}
+                      className={`h-8 w-8 rounded-full border-2 shrink-0 ${form.color === c ? "border-foreground scale-110" : "border-transparent"} transition-transform`}
                       style={{ background: c }}
                       aria-label={`Cor ${c}`}
                     />
                   ))}
                 </div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <Label>Status</Label>
-                  <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="active">Ativa</SelectItem>
-                      <SelectItem value="inactive">Inativa</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Máx. alunos</Label>
-                  <Input
-                    type="number"
-                    min={1}
-                    value={form.max_students}
-                    onChange={(e) => setForm({ ...form, max_students: Number(e.target.value) || 1 })}
-                  />
-                </div>
-              </div>
             </div>
           </section>
 
+          {/* Espaço e professor */}
           <section className="space-y-3">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Espaço e professor</h3>
+            <h3 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+              Espaço e professor
+            </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
+              <div className="space-y-1.5 min-w-0">
                 <Label>Espaço</Label>
                 <Select
                   value={form.space_id ?? "none"}
                   onValueChange={(v) => setForm({ ...form, space_id: v === "none" ? null : v })}
                 >
-                  <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                  <SelectTrigger className="w-full"><SelectValue placeholder="Selecione" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">Sem espaço</SelectItem>
                     {(spaces.data ?? []).map((s: any) => (
@@ -226,13 +240,13 @@ export function ClassFormDialog({
                   </SelectContent>
                 </Select>
               </div>
-              <div>
+              <div className="space-y-1.5 min-w-0">
                 <Label>Unidade</Label>
                 <Select
                   value={form.unit_id ?? "none"}
                   onValueChange={(v) => setForm({ ...form, unit_id: v === "none" ? null : v })}
                 >
-                  <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                  <SelectTrigger className="w-full"><SelectValue placeholder="Selecione" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">Sem unidade</SelectItem>
                     {(units.data ?? []).map((u: any) => (
@@ -241,7 +255,7 @@ export function ClassFormDialog({
                   </SelectContent>
                 </Select>
               </div>
-              <div className="sm:col-span-2">
+              <div className="sm:col-span-2 space-y-1.5 min-w-0">
                 <Label>Professor principal</Label>
                 <Select
                   value={form.teacher_id ?? "none"}
@@ -258,7 +272,7 @@ export function ClassFormDialog({
                     }
                   }}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Selecione um colaborador da Equipe" />
                   </SelectTrigger>
                   <SelectContent>
@@ -273,13 +287,13 @@ export function ClassFormDialog({
                       ))}
                   </SelectContent>
                 </Select>
-                <p className="mt-1 text-xs text-muted-foreground">
+                <p className="text-[11px] leading-snug text-muted-foreground">
                   Somente colaboradores cadastrados no módulo{" "}
                   <span className="font-medium">Equipe</span> podem ser designados. Os horários da turma
                   aparecerão automaticamente na escala do professor.
                 </p>
                 {(team.data ?? []).length === 0 && (
-                  <p className="mt-1 text-xs text-amber-600">
+                  <p className="text-[11px] leading-snug text-amber-600">
                     Nenhum colaborador cadastrado. Cadastre em Equipe → Novo colaborador.
                   </p>
                 )}
@@ -287,62 +301,87 @@ export function ClassFormDialog({
             </div>
           </section>
 
+          {/* Horários */}
           <section className="space-y-3">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Horários</h3>
-            <div className="flex flex-wrap gap-2">
-              {WEEKDAYS.map((d) => {
-                const on = form.schedules.some((s: Schedule) => s.weekday === d.value);
-                return (
-                  <button
-                    key={d.value}
-                    type="button"
-                    onClick={() => toggleDay(d.value)}
-                    className={`px-3 py-1.5 rounded-md text-xs font-medium border transition-colors ${
-                      on
-                        ? "bg-primary text-primary-foreground border-primary"
-                        : "bg-white border-[color:var(--dojo-border)] hover:border-primary/40"
-                    }`}
-                  >
-                    {d.short}
-                  </button>
-                );
-              })}
+            <h3 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+              Horários
+            </h3>
+            <div>
+              <Label className="text-xs text-muted-foreground">Dias da semana</Label>
+              <div className="mt-2 grid grid-cols-4 sm:grid-cols-7 gap-1.5">
+                {WEEKDAYS.map((d) => {
+                  const on = form.schedules.some((s: Schedule) => s.weekday === d.value);
+                  return (
+                    <button
+                      key={d.value}
+                      type="button"
+                      onClick={() => toggleDay(d.value)}
+                      className={`h-10 rounded-md text-xs font-semibold border transition-colors ${
+                        on
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-white border-[color:var(--dojo-border)] hover:border-primary/40"
+                      }`}
+                    >
+                      {d.short}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             <div className="space-y-2">
               {form.schedules.map((s: Schedule, idx: number) => (
-                <div key={idx} className="flex items-center gap-2 text-sm">
-                  <span className="min-w-[70px] font-medium">{WEEKDAYS[s.weekday].label}</span>
-                  <Input
-                    type="time"
-                    value={s.start_time}
-                    onChange={(e) => updateSchedule(idx, { start_time: e.target.value })}
-                    className="w-32"
-                  />
-                  <span className="text-muted-foreground">até</span>
-                  <Input
-                    type="time"
-                    value={s.end_time}
-                    onChange={(e) => updateSchedule(idx, { end_time: e.target.value })}
-                    className="w-32"
-                  />
-                  <Button size="icon" variant="ghost" onClick={() => toggleDay(s.weekday)}>
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
+                <div
+                  key={idx}
+                  className="rounded-lg border border-[color:var(--dojo-border)] bg-white p-3 space-y-2"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm font-semibold truncate">
+                      {WEEKDAYS[s.weekday].label}
+                    </span>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-8 w-8 shrink-0"
+                      onClick={() => toggleDay(s.weekday)}
+                      aria-label="Remover dia"
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+                    <Input
+                      type="time"
+                      value={s.start_time}
+                      onChange={(e) => updateSchedule(idx, { start_time: e.target.value })}
+                      className="min-w-0"
+                    />
+                    <span className="text-xs text-muted-foreground">até</span>
+                    <Input
+                      type="time"
+                      value={s.end_time}
+                      onChange={(e) => updateSchedule(idx, { end_time: e.target.value })}
+                      className="min-w-0"
+                    />
+                  </div>
                 </div>
               ))}
               {!form.schedules.length && (
-                <p className="text-xs text-muted-foreground">Selecione ao menos um dia da semana.</p>
+                <p className="text-xs text-muted-foreground">
+                  Selecione ao menos um dia da semana acima.
+                </p>
               )}
             </div>
           </section>
+        </div>
 
-          <div className="flex justify-end gap-2 pt-2 border-t">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button onClick={onSubmit} disabled={saving}>
-              {saving ? "Salvando..." : "Salvar turma"}
-            </Button>
-          </div>
+        <div className="px-4 sm:px-6 py-3 border-t bg-white sticky bottom-0 z-10 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
+          <Button variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
+            Cancelar
+          </Button>
+          <Button onClick={onSubmit} disabled={saving} className="w-full sm:w-auto">
+            {saving ? "Salvando..." : "Salvar turma"}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
