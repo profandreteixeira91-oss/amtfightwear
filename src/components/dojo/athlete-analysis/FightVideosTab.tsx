@@ -153,7 +153,7 @@ export function FightVideosTab({ studentId }: { studentId: string }) {
       <SectionCard
         title="Vídeos do atleta"
         description="Análises técnicas gravadas"
-        actions={
+        action={
           <Dialog open={openUpload} onOpenChange={(v) => { setOpenUpload(v); if (!v) resetUpload(); }}>
             <DialogTrigger asChild>
               <Button size="sm"><Upload className="mr-2 h-4 w-4" />Enviar</Button>
@@ -323,7 +323,7 @@ function VideoAnalysisPanel({ video, onDelete, onChanged }: {
       <SectionCard
         title={video.title}
         description={[video.opponent && `vs ${video.opponent}`, video.event_name, video.video_date && new Date(video.video_date).toLocaleDateString("pt-BR")].filter(Boolean).join(" · ")}
-        actions={
+        action={
           <Button variant="outline" size="sm" onClick={onDelete}>
             <Trash2 className="mr-2 h-4 w-4" />Excluir
           </Button>
