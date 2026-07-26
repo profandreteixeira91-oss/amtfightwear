@@ -32,14 +32,13 @@ export const Route = createFileRoute("/dojo/app/account")({
 
 type TabKey =
   | "personal" | "academy" | "brand" | "subscription"
-  | "financial" | "documents" | "security" | "notifications" | "sessions" | "integrations";
+  | "documents" | "security" | "notifications" | "sessions" | "integrations";
 
 const TABS: { key: TabKey; label: string; icon: any }[] = [
   { key: "personal", label: "Dados Pessoais", icon: UserIcon },
   { key: "academy", label: "Academia", icon: Building2 },
   { key: "brand", label: "Identidade Visual", icon: Palette },
   { key: "subscription", label: "Assinatura", icon: CreditCard },
-  { key: "financial", label: "Financeiro", icon: Receipt },
   { key: "documents", label: "Documentos", icon: Upload },
   { key: "security", label: "Segurança", icon: Shield },
   { key: "notifications", label: "Notificações", icon: Bell },
