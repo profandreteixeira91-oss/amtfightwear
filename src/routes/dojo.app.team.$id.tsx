@@ -193,19 +193,116 @@ function TeamMemberDetail() {
   if (q.isLoading) return <DojoPageShell title="Colaborador"><div className="p-8">Carregando...</div></DojoPageShell>;
   if (!m) return <DojoPageShell title="Colaborador"><div className="p-8">Não encontrado.</div></DojoPageShell>;
 
-  const actions = (
-    <div className="flex gap-2">
-      <Button variant="outline" asChild>
-        <Link to="/dojo/app/team"><ArrowLeft className="mr-2 h-4 w-4" /> Voltar</Link>
-      </Button>
-      <Button variant="destructive" onClick={doDelete}>
-        <Trash2 className="mr-2 h-4 w-4" /> Desligar
-      </Button>
-    </div>
-  );
+  const roleLabel = ROLE_OPTIONS.find(r => r[0] === m.role)?.[1] ?? "Colaborador";
+  const currentBelt = (belts.data ?? []).find((b: any) => b.id === m.belt_id);
+  const initials = (m.full_name ?? "?").split(" ").filter(Boolean).slice(0, 2).map((s: string) => s[0]?.toUpperCase()).join("");
 
   return (
-    <DojoPageShell title={m.full_name} description={ROLE_OPTIONS.find(r => r[0] === m.role)?.[1]} actions={actions}>
+    <DojoPageShell>
+      {/* HERO PREMIUM — Ruby Noir */}
+      <section className="relative overflow-hidden rounded-3xl border border-red-500/20 bg-gradient-to-br from-neutral-950 via-neutral-900 to-black text-white shadow-[0_30px_80px_-30px_rgba(220,38,38,0.45)]">
+        <div
+          aria-hidden
+          className="absolute inset-0 opacity-[0.07]"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)",
+            backgroundSize: "44px 44px",
+          }}
+        />
+        <div aria-hidden className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-red-600/40 blur-3xl" />
+        <div aria-hidden className="absolute -bottom-28 left-1/4 h-64 w-64 rounded-full bg-red-500/20 blur-3xl" />
+
+        <div className="relative flex flex-col gap-5 p-5 sm:p-7 md:p-8">
+          <Link
+            to="/dojo/app/team"
+            className="inline-flex w-fit items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.22em] text-neutral-300 transition hover:border-red-400/40 hover:bg-red-500/10 hover:text-white"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" /> Equipe
+          </Link>
+
+          <div className="flex flex-col gap-5">
+            <div className="flex min-w-0 flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-5">
+              <div className="relative shrink-0">
+                <div aria-hidden className="absolute -inset-1 rounded-full bg-gradient-to-br from-red-500/60 to-red-700/10 blur-md" />
+                <div className="relative grid h-20 w-20 place-items-center overflow-hidden rounded-full border-2 border-white/30 bg-neutral-800 shadow-[0_10px_30px_-8px_rgba(220,38,38,0.55)] sm:h-24 sm:w-24">
+                  {m.photo_url ? (
+                    <img src={m.photo_url} alt={m.full_name} className="h-full w-full object-cover" />
+                  ) : (
+                    <span className="text-2xl font-bold text-neutral-300">{initials || "?"}</span>
+                  )}
+                </div>
+              </div>
+
+              <div className="min-w-0 flex-1 space-y-2">
+                <div className="inline-flex items-center gap-2 rounded-full border border-red-400/30 bg-red-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-red-200">
+                  <Briefcase className="h-3 w-3" />
+                  {roleLabel}
+                </div>
+                <h1 className="font-display break-words text-2xl font-black leading-tight tracking-tight sm:text-3xl md:text-4xl">
+                  {m.full_name}
+                </h1>
+                <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-neutral-300">
+                  {currentBelt && (
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1">
+                      <Award className="h-3 w-3 text-red-300" />
+                      {currentBelt.modality ? `${currentBelt.modality} · ` : ""}{currentBelt.name}
+                      {m.belt_grade ? ` · ${m.belt_grade}º` : ""}
+                    </span>
+                  )}
+                  {m.email && (
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1">
+                      <Mail className="h-3 w-3 text-red-300" /> {m.email}
+                    </span>
+                  )}
+                  {m.phone && (
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1">
+                      <Phone className="h-3 w-3 text-red-300" /> {m.phone}
+                    </span>
+                  )}
+                  {m.city && (
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1">
+                      <MapPin className="h-3 w-3 text-red-300" /> {m.city}{m.state ? `/${m.state}` : ""}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="grid w-full grid-cols-2 gap-2 sm:grid-cols-3">
+              <Button
+                size="sm"
+                variant="outline"
+                asChild
+                className="w-full border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+              >
+                <Link to="/dojo/app/team"><ArrowLeft className="mr-1.5 h-4 w-4" /> Voltar</Link>
+              </Button>
+              {m.whatsapp && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  asChild
+                  className="w-full border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+                >
+                  <a href={`https://wa.me/${m.whatsapp.replace(/\D/g, "")}`} target="_blank" rel="noreferrer">
+                    <Phone className="mr-1.5 h-4 w-4" /> WhatsApp
+                  </a>
+                </Button>
+              )}
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={doDelete}
+                className="w-full border-red-400/40 bg-red-500/10 text-red-200 hover:bg-red-500/20 hover:text-white"
+              >
+                <Trash2 className="mr-1.5 h-4 w-4" /> Desligar
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <Tabs defaultValue="personal" className="w-full">
         <div className="overflow-x-auto">
           <TabsList className="flex w-max min-w-full flex-nowrap gap-0.5 rounded-lg border bg-card p-1">
@@ -220,6 +317,7 @@ function TeamMemberDetail() {
             <TabsTrigger value="history">Histórico</TabsTrigger>
           </TabsList>
         </div>
+
 
         {/* PERSONAL */}
         <TabsContent value="personal" className="mt-4">
