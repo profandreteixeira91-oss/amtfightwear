@@ -232,7 +232,7 @@ function SessionRunner() {
       {!isDone ? (
         <Card>
           <CardContent className="p-4 flex flex-wrap gap-2 justify-end">
-            <Button variant="outline" onClick={() => finish("review")}><RotateCcw className="h-4 w-4 mr-1" /> Nova avaliação</Button>
+            <Button variant="outline" onClick={() => finish("review")}><RotateCcw className="h-4 w-4 mr-1" /> Marcar para revisão</Button>
             <Button variant="outline" onClick={() => finish("conditional")}>Aprovar c/ ressalvas</Button>
             <Button variant="destructive" onClick={() => finish("failed")}><XCircle className="h-4 w-4 mr-1" /> Reprovar</Button>
             <Button onClick={() => finish("approved")}><CheckCircle2 className="h-4 w-4 mr-1" /> Aprovar</Button>
