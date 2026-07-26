@@ -70,68 +70,91 @@ function SupportPage() {
   const activeTicket = useMemo(() => tickets.find((t) => t.id === activeId) ?? null, [tickets, activeId]);
 
   return (
-    <div className="mx-auto max-w-6xl">
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="flex items-center gap-2 text-2xl font-bold">
-            <LifeBuoy className="h-6 w-6 text-primary" /> Suporte
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Abra chamados para dúvidas, sugestões, solicitações e novos módulos. Nosso time responde por aqui.
-          </p>
-        </div>
-        <Button onClick={() => setOpenNew(true)} className="gap-2">
-          <Plus className="h-4 w-4" /> Novo chamado
-        </Button>
-      </div>
-
-      {activeTicket ? (
-        <TicketConversation
-          ticket={activeTicket}
-          onBack={() => setActiveId(null)}
-          onChanged={() => qc.invalidateQueries({ queryKey: ["dojo-support"] })}
-        />
-      ) : (
-        <div className="rounded-2xl border border-border bg-white shadow-sm">
-          {isLoading ? (
-            <div className="p-8 text-center text-sm text-muted-foreground">Carregando...</div>
-          ) : tickets.length === 0 ? (
-            <div className="p-10 text-center">
-              <LifeBuoy className="mx-auto mb-3 h-10 w-10 text-muted-foreground/50" />
-              <p className="text-sm text-muted-foreground">Nenhum chamado ainda. Abra o primeiro clicando em "Novo chamado".</p>
+    <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-black to-neutral-950 text-neutral-100">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Hero */}
+        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-neutral-900/80 via-neutral-950 to-black p-6 shadow-2xl sm:p-8">
+          <div className="pointer-events-none absolute -top-24 -right-16 h-72 w-72 rounded-full bg-red-600/20 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-24 -left-10 h-72 w-72 rounded-full bg-amber-500/10 blur-3xl" />
+          <div className="relative flex flex-wrap items-start justify-between gap-4">
+            <div className="flex items-start gap-4">
+              <div className="relative">
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-red-500 to-amber-500 blur-lg opacity-60" />
+                <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-red-600 to-red-800 shadow-lg ring-1 ring-white/10">
+                  <LifeBuoy className="h-7 w-7 text-white" />
+                </div>
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">Central de Suporte</h1>
+                <p className="mt-1 max-w-xl text-sm text-neutral-400">
+                  Fale direto com o time AMT. Dúvidas, sugestões, novos módulos e solicitações — tudo por aqui, com histórico completo.
+                </p>
+              </div>
             </div>
+            <Button
+              onClick={() => setOpenNew(true)}
+              className="gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg shadow-red-900/40 ring-1 ring-white/10 hover:from-red-500 hover:to-red-600"
+            >
+              <Plus className="h-4 w-4" /> Novo chamado
+            </Button>
+          </div>
+        </div>
+
+        <div className="mt-6">
+          {activeTicket ? (
+            <TicketConversation
+              ticket={activeTicket}
+              onBack={() => setActiveId(null)}
+              onChanged={() => qc.invalidateQueries({ queryKey: ["dojo-support"] })}
+            />
           ) : (
-            <ul className="divide-y divide-border">
-              {tickets.map((t) => (
-                <li key={t.id}>
-                  <button
-                    onClick={() => setActiveId(t.id)}
-                    className="flex w-full items-start justify-between gap-4 px-4 py-3 text-left transition-colors hover:bg-muted/50"
-                  >
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-semibold text-foreground">{t.subject}</span>
-                        <Badge variant="outline" className="text-[10px]">{CATEGORY_LABELS[t.category] ?? t.category}</Badge>
-                        <StatusBadge status={t.status} />
-                      </div>
-                      <div className="mt-1 text-xs text-muted-foreground">
-                        Atualizado {new Date(t.last_message_at).toLocaleString("pt-BR")}
-                      </div>
-                    </div>
-                    {t.unread_by_client > 0 && (
-                      <span className="mt-1 inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-primary px-2 text-xs font-bold text-primary-foreground">
-                        {t.unread_by_client}
-                      </span>
-                    )}
-                  </button>
-                </li>
-              ))}
-            </ul>
+            <div className="overflow-hidden rounded-2xl border border-white/10 bg-neutral-900/60 shadow-xl backdrop-blur">
+              {isLoading ? (
+                <div className="p-8 text-center text-sm text-neutral-400">Carregando...</div>
+              ) : tickets.length === 0 ? (
+                <div className="p-12 text-center">
+                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-red-600/20 to-amber-500/10 ring-1 ring-white/10">
+                    <MessageCircle className="h-8 w-8 text-red-400" />
+                  </div>
+                  <p className="text-base font-semibold text-white">Nenhum chamado ainda</p>
+                  <p className="mt-1 text-sm text-neutral-400">Abra o primeiro clicando em "Novo chamado".</p>
+                </div>
+              ) : (
+                <ul className="divide-y divide-white/5">
+                  {tickets.map((t) => (
+                    <li key={t.id}>
+                      <button
+                        onClick={() => setActiveId(t.id)}
+                        className="group flex w-full items-start justify-between gap-4 px-5 py-4 text-left transition-colors hover:bg-white/5"
+                      >
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="font-semibold text-white group-hover:text-red-300 transition-colors">{t.subject}</span>
+                            <Badge variant="outline" className="border-white/15 bg-white/5 text-[10px] text-neutral-300">
+                              {CATEGORY_LABELS[t.category] ?? t.category}
+                            </Badge>
+                            <StatusBadge status={t.status} />
+                          </div>
+                          <div className="mt-1 text-xs text-neutral-500">
+                            Atualizado {new Date(t.last_message_at).toLocaleString("pt-BR")}
+                          </div>
+                        </div>
+                        {t.unread_by_client > 0 && (
+                          <span className="mt-1 inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-gradient-to-br from-red-500 to-red-700 px-2 text-xs font-bold text-white shadow-lg shadow-red-900/50">
+                            {t.unread_by_client}
+                          </span>
+                        )}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           )}
         </div>
-      )}
 
-      <NewTicketDialog open={openNew} onOpenChange={setOpenNew} onCreated={(id) => setActiveId(id)} />
+        <NewTicketDialog open={openNew} onOpenChange={setOpenNew} onCreated={(id) => setActiveId(id)} />
+      </div>
     </div>
   );
 }
