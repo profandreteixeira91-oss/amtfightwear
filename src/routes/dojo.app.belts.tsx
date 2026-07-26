@@ -292,10 +292,10 @@ function BeltsPage() {
       {/* Lista de faixas */}
       <Card className="rounded-2xl border-border/60 shadow-sm">
         <CardHeader className="border-b border-border/50 pb-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 sm:flex sm:flex-wrap sm:items-center sm:justify-between">
             <div className="min-w-0">
-              <CardTitle className="text-lg font-bold tracking-tight">{label(modality)}</CardTitle>
-              <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+              <CardTitle className="truncate text-base font-bold tracking-tight sm:text-lg">{label(modality)}</CardTitle>
+              <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground sm:gap-2 sm:text-xs">
                 <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 font-medium">
                   <Sparkles className="h-3 w-3 text-primary" /> {localBelts.length} faixa(s)
                 </span>
@@ -311,8 +311,8 @@ function BeltsPage() {
                 )}
               </div>
             </div>
-            <Button size="sm" onClick={openNew} className="h-10 rounded-xl shadow-[0_6px_16px_-6px_rgba(220,38,38,0.55)]">
-              <Plus className="mr-1 h-4 w-4" /> Nova faixa
+            <Button size="sm" onClick={openNew} className="h-10 shrink-0 rounded-xl px-3 shadow-[0_6px_16px_-6px_rgba(220,38,38,0.55)] sm:px-4">
+              <Plus className="h-4 w-4 sm:mr-1" /> <span className="hidden sm:inline">Nova faixa</span><span className="ml-1 sm:hidden">Nova</span>
             </Button>
           </div>
         </CardHeader>
