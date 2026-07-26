@@ -25,12 +25,14 @@ function LibraryPage() {
   const listFn = useServerFn(listLibraryTemplates);
   const dupFn = useServerFn(duplicateEvalTemplate);
   const nav = useNavigate();
+  const qc = useQueryClient();
   const { data, isLoading } = useQuery({
     queryKey: ["eval-library"],
     queryFn: () => listFn(),
   });
   const [q, setQ] = useState("");
   const [modality, setModality] = useState<string>("all");
+  const [copyingId, setCopyingId] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     const rows = data ?? [];
@@ -42,12 +44,19 @@ function LibraryPage() {
   }, [data, q, modality]);
 
   const use = async (id: string) => {
+    if (copyingId) return;
+    setCopyingId(id);
     try {
-      const res = await dupFn({ data: { id } });
+      const res: any = await dupFn({ data: { id } });
+      // Prime o cache do editor para abrir instantaneamente
+      qc.setQueryData(["eval-template", res.id], res);
+      qc.invalidateQueries({ queryKey: ["eval-templates"] });
       toast.success("Modelo copiado para sua academia");
       nav({ to: "/dojo/app/evaluations/templates/$id", params: { id: res.id } });
     } catch (e: any) {
       toast.error(e.message ?? "Erro");
+    } finally {
+      setCopyingId(null);
     }
   };
 
