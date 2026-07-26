@@ -122,8 +122,24 @@ function ContractEditorPage() {
   const deleteFn = useServerFn(deleteContractTemplate);
 
   const exec = (cmd: string, value?: string) => {
+    // Foca o contenteditable visível (corpo/cabeçalho/rodapé) antes de executar,
+    // caso contrário execCommand não tem alvo e comandos como undo/copy/paste falham silenciosamente.
+    const el = document.querySelector<HTMLElement>('[role="textbox"][contenteditable="true"]');
+    if (el) {
+      el.focus({ preventScroll: true });
+      // Se não há seleção dentro dele, coloca o caret no fim para viabilizar copy/cut/selectAll.
+      const sel = window.getSelection();
+      if (sel && (!sel.anchorNode || !el.contains(sel.anchorNode))) {
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        range.collapse(false);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+    }
     try { document.execCommand(cmd, false, value); } catch {}
   };
+
   const insertAtCursor = (html: string) => {
     const sel = window.getSelection();
     if (sel && sel.rangeCount > 0 && (document.activeElement as HTMLElement)?.isContentEditable) {
