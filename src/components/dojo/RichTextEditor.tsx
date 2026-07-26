@@ -115,6 +115,27 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
     return () => node.removeEventListener("mousedown", onMouseDown);
   }, []);
 
+  // Delete/Backspace remove a imagem selecionada.
+  useEffect(() => {
+    if (!selectedImg) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Delete" || e.key === "Backspace") {
+        e.preventDefault();
+        selectedImg.remove();
+        setSelectedImg(null);
+        setImgBox(null);
+        handleInput();
+      } else if (e.key === "Escape") {
+        setSelectedImg(null);
+        setImgBox(null);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedImg]);
+
+
 
   const saveSelection = () => {
     const sel = window.getSelection();
