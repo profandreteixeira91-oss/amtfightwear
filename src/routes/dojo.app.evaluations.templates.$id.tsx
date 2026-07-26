@@ -282,7 +282,7 @@ function TemplateEditor() {
     next[ci] = {
       ...next[ci],
       criteria: [...next[ci].criteria, {
-        id: uid(), name: "Novo critério", weight: 1,
+        id: uid(), name: "Nova técnica", weight: 1,
         max_score: 10, min_score: 0, required: false, eliminatory: false, techniques: [],
       }],
     };
