@@ -73,6 +73,12 @@ function DojoAuthPage() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isPasswordStrong(password)) {
+      toast.error("Senha fraca", {
+        description: "Atenda a todos os requisitos de segurança antes de continuar.",
+      });
+      return;
+    }
     setLoading(true);
     const { error, data } = await supabase.auth.signUp({
       email,
