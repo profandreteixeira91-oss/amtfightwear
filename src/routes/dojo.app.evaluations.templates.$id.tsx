@@ -28,11 +28,24 @@ const beltsOpts = () =>
     queryFn: () => listDojoBelts(),
     staleTime: 5 * 60_000,
   });
+const evalCategoriesOpts = () =>
+  queryOptions({
+    queryKey: ["eval-categories"],
+    queryFn: () => listEvalCategories(),
+    staleTime: 5 * 60_000,
+  });
+const evalTechniquesOpts = () =>
+  queryOptions({
+    queryKey: ["eval-techniques"],
+    queryFn: () => listEvalTechniques(),
+    staleTime: 5 * 60_000,
+  });
 
 export const Route = createFileRoute("/dojo/app/evaluations/templates/$id")({
   loader: ({ context, params }) => {
-    // Dispara em paralelo; template é crítico, belts pode carregar em background.
     context.queryClient.prefetchQuery(beltsOpts());
+    context.queryClient.prefetchQuery(evalCategoriesOpts());
+    context.queryClient.prefetchQuery(evalTechniquesOpts());
     return context.queryClient.ensureQueryData(tplOpts(params.id));
   },
   component: TemplateEditor,
