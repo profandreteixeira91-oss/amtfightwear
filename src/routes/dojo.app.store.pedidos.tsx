@@ -99,7 +99,7 @@ function OrdersPage() {
                 <Link
                   to="/dojo/app/store/pedidos/$id"
                   params={{ id: o.id }}
-                  className="group flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[color:var(--dojo-border)] bg-white p-5 shadow-[var(--dojo-shadow-xs)] transition-all duration-300 hover:-translate-y-0.5 hover:border-foreground/20 hover:shadow-[var(--dojo-shadow-md)]"
+                  className="group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-2xl border border-[color:var(--dojo-border)] bg-white p-4 shadow-[var(--dojo-shadow-xs)] transition-all duration-300 hover:-translate-y-0.5 hover:border-foreground/20 hover:shadow-[var(--dojo-shadow-md)] sm:flex sm:flex-wrap sm:justify-between sm:gap-4 sm:p-5"
                 >
                   <div className="flex min-w-0 items-center gap-4">
                     <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-foreground/[0.04] text-foreground">
