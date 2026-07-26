@@ -10,7 +10,7 @@ import {
   Sparkles,
   TrendingUp,
   Users2,
-  ExternalLink,
+  Receipt,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
