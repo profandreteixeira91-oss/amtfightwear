@@ -333,11 +333,11 @@ export function AppTopNav() {
       </div>
 
       {mobileOpen && (
-        <div className="border-t border-border/60 bg-popover/95 text-foreground backdrop-blur lg:hidden">
+        <div className="light border-t border-slate-200 bg-white text-slate-900 shadow-lg lg:hidden [color-scheme:light]">
           <div className="max-h-[75vh] space-y-4 overflow-y-auto p-3">
             {visibleGroups.map((g) => (
               <div key={g.label}>
-                <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
                   {g.label}
                 </div>
                 <div className="grid grid-cols-1 gap-1 xs:grid-cols-2 sm:grid-cols-2">
@@ -350,8 +350,8 @@ export function AppTopNav() {
                         onClick={() => setMobileOpen(false)}
                         onPointerUp={() => setMobileOpen(false)}
                         className={cn(
-                          "flex min-h-11 items-center gap-2 rounded-lg border border-transparent px-2.5 py-2 text-sm leading-tight text-foreground/80 transition-colors hover:bg-accent hover:text-foreground",
-                          active && "border-primary/30 bg-primary/10 font-medium text-primary",
+                          "flex min-h-11 items-center gap-2 rounded-lg border border-transparent px-2.5 py-2 text-sm leading-tight text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900",
+                          active && "border-red-200 bg-red-50 font-medium text-red-700",
                         )}
                       >
                         <item.icon className="h-4 w-4 shrink-0" />
