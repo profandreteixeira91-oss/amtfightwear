@@ -28,6 +28,7 @@ import { Route as LojaCheckoutRouteImport } from './routes/loja.checkout'
 import { Route as LojaCarrinhoRouteImport } from './routes/loja.carrinho'
 import { Route as LojaAtacadoRouteImport } from './routes/loja.atacado'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
+import { Route as DojoPayDemoRouteImport } from './routes/dojo.pay-demo'
 import { Route as DojoOnboardingRouteImport } from './routes/dojo.onboarding'
 import { Route as DojoCheckoutRouteImport } from './routes/dojo.checkout'
 import { Route as DojoAuthRouteImport } from './routes/dojo.auth'
@@ -385,6 +386,11 @@ const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
   id: '/email/unsubscribe',
   path: '/email/unsubscribe',
   getParentRoute: () => rootRouteImport,
+} as any)
+const DojoPayDemoRoute = DojoPayDemoRouteImport.update({
+  id: '/pay-demo',
+  path: '/pay-demo',
+  getParentRoute: () => DojoRoute,
 } as any)
 const DojoOnboardingRoute = DojoOnboardingRouteImport.update({
   id: '/onboarding',
@@ -1869,6 +1875,7 @@ export interface FileRoutesByFullPath {
   '/dojo/auth': typeof DojoAuthRoute
   '/dojo/checkout': typeof DojoCheckoutRoute
   '/dojo/onboarding': typeof DojoOnboardingRoute
+  '/dojo/pay-demo': typeof DojoPayDemoRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
@@ -2146,6 +2153,7 @@ export interface FileRoutesByTo {
   '/dojo/auth': typeof DojoAuthRoute
   '/dojo/checkout': typeof DojoCheckoutRoute
   '/dojo/onboarding': typeof DojoOnboardingRoute
+  '/dojo/pay-demo': typeof DojoPayDemoRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
@@ -2418,6 +2426,7 @@ export interface FileRoutesById {
   '/dojo/auth': typeof DojoAuthRoute
   '/dojo/checkout': typeof DojoCheckoutRoute
   '/dojo/onboarding': typeof DojoOnboardingRoute
+  '/dojo/pay-demo': typeof DojoPayDemoRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
@@ -2702,6 +2711,7 @@ export interface FileRouteTypes {
     | '/dojo/auth'
     | '/dojo/checkout'
     | '/dojo/onboarding'
+    | '/dojo/pay-demo'
     | '/email/unsubscribe'
     | '/loja/atacado'
     | '/loja/carrinho'
@@ -2979,6 +2989,7 @@ export interface FileRouteTypes {
     | '/dojo/auth'
     | '/dojo/checkout'
     | '/dojo/onboarding'
+    | '/dojo/pay-demo'
     | '/email/unsubscribe'
     | '/loja/atacado'
     | '/loja/carrinho'
@@ -3250,6 +3261,7 @@ export interface FileRouteTypes {
     | '/dojo/auth'
     | '/dojo/checkout'
     | '/dojo/onboarding'
+    | '/dojo/pay-demo'
     | '/email/unsubscribe'
     | '/loja/atacado'
     | '/loja/carrinho'
@@ -3694,6 +3706,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/email/unsubscribe'
       preLoaderRoute: typeof EmailUnsubscribeRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/dojo/pay-demo': {
+      id: '/dojo/pay-demo'
+      path: '/pay-demo'
+      fullPath: '/dojo/pay-demo'
+      preLoaderRoute: typeof DojoPayDemoRouteImport
+      parentRoute: typeof DojoRoute
     }
     '/dojo/onboarding': {
       id: '/dojo/onboarding'
@@ -6343,6 +6362,7 @@ interface DojoRouteChildren {
   DojoAuthRoute: typeof DojoAuthRoute
   DojoCheckoutRoute: typeof DojoCheckoutRoute
   DojoOnboardingRoute: typeof DojoOnboardingRoute
+  DojoPayDemoRoute: typeof DojoPayDemoRoute
   DojoIndexRoute: typeof DojoIndexRoute
   DojoCertificateEditorIdRoute: typeof DojoCertificateEditorIdRoute
   DojoPayInvoiceIdRoute: typeof DojoPayInvoiceIdRoute
@@ -6353,6 +6373,7 @@ const DojoRouteChildren: DojoRouteChildren = {
   DojoAuthRoute: DojoAuthRoute,
   DojoCheckoutRoute: DojoCheckoutRoute,
   DojoOnboardingRoute: DojoOnboardingRoute,
+  DojoPayDemoRoute: DojoPayDemoRoute,
   DojoIndexRoute: DojoIndexRoute,
   DojoCertificateEditorIdRoute: DojoCertificateEditorIdRoute,
   DojoPayInvoiceIdRoute: DojoPayInvoiceIdRoute,
@@ -6426,3 +6447,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
