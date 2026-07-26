@@ -99,20 +99,28 @@ function DashboardTab() {
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         {stats.map((s) => (
-          <Card key={s.label}><CardContent className="p-4">
-            <div className="text-xs text-muted-foreground">{s.label}</div>
-            <div className="mt-1 text-2xl font-bold">{s.value}</div>
-          </CardContent></Card>
+          <Card
+            key={s.label}
+            className="group relative overflow-hidden border-red-500/15 bg-gradient-to-br from-neutral-950 via-neutral-950/95 to-red-950/30 text-white shadow-[0_10px_30px_-20px_rgba(220,38,38,0.6)] transition hover:border-red-500/30"
+          >
+            <div aria-hidden className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-red-500/10 blur-2xl transition group-hover:bg-red-500/20" />
+            <CardContent className="relative p-4">
+              <div className="text-[11px] uppercase tracking-wide text-neutral-400">{s.label}</div>
+              <div className="mt-1 text-2xl font-bold text-white">{s.value}</div>
+            </CardContent>
+          </Card>
         ))}
       </div>
-      <Card><CardContent className="p-4">
-        <div className="mb-2 text-sm font-semibold">Medalhas conquistadas</div>
-        <div className="flex flex-wrap gap-3 text-sm">
-          <Badge className="bg-amber-500">🥇 {d?.medals?.gold ?? 0}</Badge>
-          <Badge className="bg-slate-400">🥈 {d?.medals?.silver ?? 0}</Badge>
-          <Badge className="bg-orange-600">🥉 {d?.medals?.bronze ?? 0}</Badge>
-        </div>
-      </CardContent></Card>
+      <Card className="border-red-500/15 bg-gradient-to-br from-neutral-950 via-neutral-900 to-red-950/40 text-white shadow-[0_10px_30px_-20px_rgba(220,38,38,0.6)]">
+        <CardContent className="p-4">
+          <div className="mb-2 text-sm font-semibold text-white">Medalhas conquistadas</div>
+          <div className="flex flex-wrap gap-3 text-sm">
+            <Badge className="bg-amber-500 text-black">🥇 {d?.medals?.gold ?? 0}</Badge>
+            <Badge className="bg-slate-300 text-black">🥈 {d?.medals?.silver ?? 0}</Badge>
+            <Badge className="bg-orange-600">🥉 {d?.medals?.bronze ?? 0}</Badge>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
