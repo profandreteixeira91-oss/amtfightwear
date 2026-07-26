@@ -440,9 +440,9 @@ function LessonEditorPage() {
 
       {/* BLOCOS */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-3">
-          <CardTitle>Estrutura da aula</CardTitle>
-          <Button size="sm" onClick={addBlock}>
+        <CardHeader className="flex flex-col gap-2 space-y-0 pb-3 sm:flex-row sm:items-center sm:justify-between">
+          <CardTitle className="min-w-0 truncate">Estrutura da aula</CardTitle>
+          <Button size="sm" onClick={addBlock} className="w-full sm:w-auto">
             <Plus className="mr-1 h-4 w-4" /> Adicionar bloco
           </Button>
         </CardHeader>
