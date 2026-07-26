@@ -39,6 +39,8 @@ function SchedulePage() {
   const [editing, setEditing] = useState<any>(null);
   const [panel, setPanel] = useState<{ classId: string; date?: string } | null>(null);
   const [filters, setFilters] = useState({ modality: "all", space_id: "all", unit_id: "all", status: "active", teacher: "" });
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   const listClassesFn = useServerFn(listClasses);
   const listOccFn = useServerFn(listOccurrences);
