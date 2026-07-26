@@ -17,6 +17,7 @@ import { Plus, Play, Trash2, Search } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/dojo/app/evaluations/sessions/")({
+  validateSearch: (s: Record<string, unknown>) => ({ new: s.new ? 1 : undefined }) as { new?: 1 },
   component: SessionsList,
 });
 
