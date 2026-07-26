@@ -158,7 +158,7 @@ export function IssuePanel({ open, onOpenChange, defaultTemplateId }: {
   return (
     <>
       <Dialog open={open} onOpenChange={(v) => { if (!running) onOpenChange(v); }}>
-        <DialogContent className="max-w-3xl">
+        <DialogContent className="max-w-3xl w-[calc(100vw-1rem)] max-h-[92vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Emitir certificados</DialogTitle>
           </DialogHeader>
