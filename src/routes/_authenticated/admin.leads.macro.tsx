@@ -476,7 +476,7 @@ function MacroPage() {
       actions={
         <>
           <Button asChild variant="outline" size="sm">
-            <Link to="/prospect/leads"><ArrowLeft className="mr-2 h-4 w-4" />Leads</Link>
+            <Link to="/admin/leads"><ArrowLeft className="mr-2 h-4 w-4" />Leads</Link>
           </Button>
           {extensionReady ? (
             <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
@@ -784,7 +784,7 @@ function MacroPage() {
                 </div>
 
                 <Button asChild variant="ghost" size="sm" className="w-full">
-                  <Link to="/prospect/$id" params={{ id: current.id }}>Ver ficha completa</Link>
+                  <Link to="/admin/leads/$id" params={{ id: current.id }}>Ver ficha completa</Link>
                 </Button>
               </div>
             </div>

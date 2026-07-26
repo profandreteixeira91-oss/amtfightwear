@@ -78,7 +78,7 @@ const marketItems = [
   { title: "CRM & E-mail", url: "/market/crm", icon: Mail },
   { title: "Analytics Catálogo", url: "/market/catalog", icon: BarChart4 },
   { title: "Pesquisa de Mercado", url: "/market/pricing", icon: DollarSign },
-  { title: "Conexões e APIs", url: "/market/connections", icon: Plug },
+  { title: "Conexões e APIs", url: "/admin/conexoes", icon: Plug },
 ] as const;
 
 const scraperItems = [
@@ -138,7 +138,7 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border">
-        <Link to="/dashboard" className="flex items-center gap-3 px-2 py-2">
+        <Link to="/admin" className="flex items-center gap-3 px-2 py-2">
           <div className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-md bg-primary text-primary-foreground shadow-sm ring-1 ring-primary/30">
             <img src={amtLogo} alt="AMT Fight Wear" className="h-full w-full object-cover" />
           </div>

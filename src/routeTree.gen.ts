@@ -176,6 +176,7 @@ import { Route as AuthenticatedAdminDojoRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin.dashboard'
 import { Route as AuthenticatedAdminCrmRouteImport } from './routes/_authenticated/admin.crm'
 import { Route as AuthenticatedAdminConfiguracoesRouteImport } from './routes/_authenticated/admin.configuracoes'
+import { Route as AuthenticatedAdminConexoesRouteImport } from './routes/_authenticated/admin.conexoes'
 import { Route as AuthenticatedAdminClientesGrowthRouteImport } from './routes/_authenticated/admin.clientes-growth'
 import { Route as AuthenticatedAdminClientesRouteImport } from './routes/_authenticated/admin.clientes'
 import { Route as AuthenticatedAdminAtendimentoRouteImport } from './routes/_authenticated/admin.atendimento'
@@ -1197,6 +1198,12 @@ const AuthenticatedAdminConfiguracoesRoute =
     path: '/configuracoes',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminConexoesRoute =
+  AuthenticatedAdminConexoesRouteImport.update({
+    id: '/conexoes',
+    path: '/conexoes',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminClientesGrowthRoute =
   AuthenticatedAdminClientesGrowthRouteImport.update({
     id: '/clientes-growth',
@@ -2028,6 +2035,7 @@ export interface FileRoutesByFullPath {
   '/admin/atendimento': typeof AuthenticatedAdminAtendimentoRoute
   '/admin/clientes': typeof AuthenticatedAdminClientesRoute
   '/admin/clientes-growth': typeof AuthenticatedAdminClientesGrowthRoute
+  '/admin/conexoes': typeof AuthenticatedAdminConexoesRoute
   '/admin/configuracoes': typeof AuthenticatedAdminConfiguracoesRoute
   '/admin/crm': typeof AuthenticatedAdminCrmRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
@@ -2325,6 +2333,7 @@ export interface FileRoutesByTo {
   '/admin/atendimento': typeof AuthenticatedAdminAtendimentoRoute
   '/admin/clientes': typeof AuthenticatedAdminClientesRoute
   '/admin/clientes-growth': typeof AuthenticatedAdminClientesGrowthRoute
+  '/admin/conexoes': typeof AuthenticatedAdminConexoesRoute
   '/admin/configuracoes': typeof AuthenticatedAdminConfiguracoesRoute
   '/admin/crm': typeof AuthenticatedAdminCrmRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
@@ -2622,6 +2631,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/atendimento': typeof AuthenticatedAdminAtendimentoRoute
   '/_authenticated/admin/clientes': typeof AuthenticatedAdminClientesRoute
   '/_authenticated/admin/clientes-growth': typeof AuthenticatedAdminClientesGrowthRoute
+  '/_authenticated/admin/conexoes': typeof AuthenticatedAdminConexoesRoute
   '/_authenticated/admin/configuracoes': typeof AuthenticatedAdminConfiguracoesRoute
   '/_authenticated/admin/crm': typeof AuthenticatedAdminCrmRoute
   '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
@@ -2927,6 +2937,7 @@ export interface FileRouteTypes {
     | '/admin/atendimento'
     | '/admin/clientes'
     | '/admin/clientes-growth'
+    | '/admin/conexoes'
     | '/admin/configuracoes'
     | '/admin/crm'
     | '/admin/dashboard'
@@ -3224,6 +3235,7 @@ export interface FileRouteTypes {
     | '/admin/atendimento'
     | '/admin/clientes'
     | '/admin/clientes-growth'
+    | '/admin/conexoes'
     | '/admin/configuracoes'
     | '/admin/crm'
     | '/admin/dashboard'
@@ -3520,6 +3532,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/atendimento'
     | '/_authenticated/admin/clientes'
     | '/_authenticated/admin/clientes-growth'
+    | '/_authenticated/admin/conexoes'
     | '/_authenticated/admin/configuracoes'
     | '/_authenticated/admin/crm'
     | '/_authenticated/admin/dashboard'
@@ -5009,6 +5022,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminConfiguracoesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/conexoes': {
+      id: '/_authenticated/admin/conexoes'
+      path: '/conexoes'
+      fullPath: '/admin/conexoes'
+      preLoaderRoute: typeof AuthenticatedAdminConexoesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/clientes-growth': {
       id: '/_authenticated/admin/clientes-growth'
       path: '/clientes-growth'
@@ -6206,6 +6226,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminAtendimentoRoute: typeof AuthenticatedAdminAtendimentoRoute
   AuthenticatedAdminClientesRoute: typeof AuthenticatedAdminClientesRoute
   AuthenticatedAdminClientesGrowthRoute: typeof AuthenticatedAdminClientesGrowthRoute
+  AuthenticatedAdminConexoesRoute: typeof AuthenticatedAdminConexoesRoute
   AuthenticatedAdminConfiguracoesRoute: typeof AuthenticatedAdminConfiguracoesRoute
   AuthenticatedAdminCrmRoute: typeof AuthenticatedAdminCrmRoute
   AuthenticatedAdminDashboardRoute: typeof AuthenticatedAdminDashboardRoute
@@ -6232,6 +6253,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminAtendimentoRoute: AuthenticatedAdminAtendimentoRoute,
   AuthenticatedAdminClientesRoute: AuthenticatedAdminClientesRoute,
   AuthenticatedAdminClientesGrowthRoute: AuthenticatedAdminClientesGrowthRoute,
+  AuthenticatedAdminConexoesRoute: AuthenticatedAdminConexoesRoute,
   AuthenticatedAdminConfiguracoesRoute: AuthenticatedAdminConfiguracoesRoute,
   AuthenticatedAdminCrmRoute: AuthenticatedAdminCrmRoute,
   AuthenticatedAdminDashboardRoute: AuthenticatedAdminDashboardRoute,
@@ -6924,13 +6946,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

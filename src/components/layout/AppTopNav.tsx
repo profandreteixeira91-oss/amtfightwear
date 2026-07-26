@@ -95,7 +95,7 @@ const groups: { label: string; items: Item[] }[] = [
       { title: "CRM & E-mail", url: "/market/crm", icon: Mail },
       { title: "Analytics Catálogo", url: "/market/catalog", icon: BarChart4 },
       { title: "Pesquisa de Mercado", url: "/market/pricing", icon: DollarSign },
-      { title: "Conexões e APIs", url: "/market/connections", icon: Plug },
+      { title: "Conexões e APIs", url: "/admin/conexoes", icon: Plug },
     ],
   },
   {
@@ -175,7 +175,7 @@ const groups: { label: string; items: Item[] }[] = [
       { title: "Pedidos", url: "/store/orders", icon: ShoppingCart },
       { title: "Chat da loja", url: "/store/chat", icon: MessageCircle },
       { title: "Clientes", url: "/store/customers", icon: UserSquare2 },
-      { title: "AMT Dojo Manager", url: "/store/dojo-manager", icon: GraduationCap },
+      { title: "AMT Dojo Manager", url: "/admin/saas", icon: GraduationCap },
       { title: "Suporte Dojo", url: "/store/dojo-support", icon: LifeBuoy },
       { title: "Notificações", url: "/store/notifications", icon: BellRing },
 

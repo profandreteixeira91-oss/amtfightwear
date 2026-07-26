@@ -38,7 +38,7 @@ export function SocialInsights() {
           description="Conecte sua Página do Facebook e Instagram Business para ver seguidores, alcance e posts recentes."
           action={
             <Button asChild size="sm">
-              <Link to="/market/connections">Conectar agora</Link>
+              <Link to="/admin/conexoes">Conectar agora</Link>
             </Button>
           }
         />

@@ -349,7 +349,7 @@ const NAV: NavGroup[] = [
   {
     label: "SaaS — Dojos (cross-tenant)",
     items: [
-      { title: "Dojos / Tenants", url: "/store/dojo-manager", icon: Building2 },
+      { title: "Dojos / Tenants", url: "/admin/saas", icon: Building2 },
       { title: "Suporte SaaS", url: "/store/dojo-support", icon: LifeBuoy },
     ],
   },

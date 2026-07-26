@@ -209,7 +209,7 @@ function LeadsPage() {
               Enriquecer pendentes
             </Button>
             <Button asChild variant="outline" size="sm" className="w-full sm:w-auto">
-              <Link to="/prospect/macro">
+              <Link to="/admin/leads/macro">
                 <Instagram className="mr-2 h-4 w-4" />Macro DM
                 {macroQueue.length > 0 && (
                   <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-[10px]">
@@ -219,7 +219,7 @@ function LeadsPage() {
               </Link>
             </Button>
             <Button asChild size="sm" className="w-full sm:w-auto">
-              <Link to="/prospect/search"><Radar className="mr-2 h-4 w-4" />Nova busca</Link>
+              <Link to="/admin/leads/busca"><Radar className="mr-2 h-4 w-4" />Nova busca</Link>
             </Button>
           </div>
         }
@@ -416,7 +416,7 @@ function LeadsPage() {
                       </TableCell>
                       <TableCell className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <Link to="/prospect/$id" params={{ id: r.id }} className="truncate font-semibold hover:text-primary">
+                          <Link to="/admin/leads/$id" params={{ id: r.id }} className="truncate font-semibold hover:text-primary">
                             {String(r.name)}
                           </Link>
                           {r.quality_tier ? (
@@ -562,7 +562,7 @@ function LeadsPage() {
                             <Sparkles className="h-4 w-4" />
                           </Button>
                           <Button asChild size="sm" variant="ghost" title="Abrir">
-                            <Link to="/prospect/$id" params={{ id: r.id }}>
+                            <Link to="/admin/leads/$id" params={{ id: r.id }}>
                               <ExternalLink className="h-4 w-4" />
                             </Link>
                           </Button>

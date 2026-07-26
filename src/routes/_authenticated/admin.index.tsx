@@ -59,7 +59,7 @@ const MODULES: Module[] = [
     title: "AMT Dojo Manager",
     description:
       "Visão SaaS cross-tenant: dojos cadastrados, assinaturas, split AMT Pay e suporte.",
-    href: "/store/dojo-manager",
+    href: "/admin/saas",
     icon: Building2,
     badge: "SaaS",
   },
@@ -294,7 +294,7 @@ function AdminOverview() {
               <Building2 className="h-4 w-4 text-red-600" /> Últimos dojos cadastrados
             </span>
             <Link
-              to="/store/dojo-manager"
+              to="/admin/saas"
               className="text-xs font-semibold text-red-600 hover:underline"
             >
               ver todos
