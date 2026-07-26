@@ -795,7 +795,7 @@ function DojoDashboard() {
 
           <ol className="divide-y divide-slate-900/[0.07]">
             {recent.length === 0 && (
-              <li className="px-7 py-10 text-sm text-slate-500 text-center">
+              <li className="px-4 sm:px-7 py-10 text-sm text-slate-500 text-center">
                 Nenhum aluno cadastrado ainda.{" "}
                 <Link to="/dojo/app/students" className="font-semibold text-rose-800 hover:underline underline-offset-2">
                   Cadastrar primeiro aluno
@@ -815,7 +815,7 @@ function DojoDashboard() {
                   <Link
                     to="/dojo/app/students/$id"
                     params={{ id: s.id }}
-                    className="group grid grid-cols-[auto_auto_1fr_auto_auto] items-center gap-4 px-7 py-4 transition-colors hover:bg-white"
+                    className="group grid grid-cols-[auto_minmax(0,1fr)_auto] sm:grid-cols-[auto_auto_1fr_auto_auto] items-center gap-3 sm:gap-4 px-4 sm:px-7 py-3 sm:py-4 transition-colors hover:bg-white"
                   >
                     {/* Índice tipográfico */}
                     <span className="hidden sm:block w-6 font-display text-[11px] tabular-nums text-slate-400 group-hover:text-rose-800/70 transition-colors">
