@@ -123,21 +123,14 @@ export const PAYMENT_METHODS: PaymentMethodDef[] = [
   },
   {
     code: "pix",
-    label: "PIX",
+    label: "PIX (QR Code ou maquininha)",
     icon: QrCode,
     configFields: ["discount_pct", "discount_value", "due_days"],
-    gateways: ["manual", "asaas", "mercadopago", "pagseguro", "stripe"],
+    gateways: ["manual"],
   },
   {
-    code: "debit_card",
-    label: "Cartão de Débito",
-    icon: CreditCard,
-    configFields: ["interest_house_pct"],
-    gateways: ["manual", "asaas", "mercadopago", "stripe"],
-  },
-  {
-    code: "credit_card",
-    label: "Cartão de Crédito",
+    code: "card_machine",
+    label: "Cartões (débito ou crédito — maquininha)",
     icon: CreditCard,
     configFields: [
       "max_installments",
@@ -145,55 +138,13 @@ export const PAYMENT_METHODS: PaymentMethodDef[] = [
       "interest_customer_pct",
       "interest_house_pct",
     ],
-    gateways: ["manual", "asaas", "mercadopago", "stripe"],
-  },
-  {
-    code: "boleto",
-    label: "Boleto Bancário",
-    icon: FileText,
-    configFields: ["due_days", "late_fee_pct", "late_interest_pct", "admin_fee"],
-    gateways: ["manual", "asaas", "banco_inter", "mercadopago"],
-  },
-  {
-    code: "payment_link",
-    label: "Link de Pagamento",
-    icon: LinkIcon,
-    configFields: ["due_days"],
-    gateways: ["manual", "asaas", "mercadopago", "stripe"],
-  },
-  {
-    code: "auto_debit",
-    label: "Débito em Conta",
-    icon: Landmark,
-    configFields: ["due_days"],
-    gateways: ["manual", "asaas"],
-  },
-  {
-    code: "bank_transfer",
-    label: "Transferência Bancária",
-    icon: Building2,
-    configFields: ["due_days"],
     gateways: ["manual"],
   },
   {
-    code: "digital_wallet",
-    label: "Carteira Digital",
-    icon: Wallet,
-    configFields: ["discount_pct"],
-    gateways: ["manual", "mercadopago", "stripe"],
-  },
-  {
-    code: "recurring",
-    label: "Mensalidades",
-    icon: Repeat,
-    configFields: ["max_installments"],
-    gateways: ["manual", "asaas", "mercadopago", "stripe"],
-  },
-  {
-    code: "other",
-    label: "Outros",
-    icon: MoreHorizontal,
-    configFields: [],
+    code: "payment_link",
+    label: "Link de pagamento (PIX, cartões, boleto)",
+    icon: LinkIcon,
+    configFields: ["due_days", "max_installments"],
     gateways: ["manual"],
   },
 ];
@@ -227,8 +178,7 @@ export const CONFIG_LABELS: Record<keyof PaymentMethodConfig, string> = {
  */
 export const ASAAS_SUPPORTED_METHODS: PaymentMethodCode[] = [
   "pix",
-  "boleto",
-  "credit_card",
+  "payment_link",
 ];
 
 
