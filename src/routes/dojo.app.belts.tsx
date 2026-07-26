@@ -275,14 +275,14 @@ function BeltsPage() {
               );
             })}
           </div>
-          <div className="flex flex-wrap items-center gap-2 border-t pt-4">
+          <div className="flex flex-col gap-2 border-t pt-4 sm:flex-row sm:flex-wrap sm:items-center">
             <Input
               placeholder="Nova modalidade (ex.: Kung Fu)"
               value={customModality}
               onChange={(e) => setCustomModality(e.target.value)}
-              className="h-10 max-w-xs rounded-xl"
+              className="h-10 w-full rounded-xl sm:max-w-xs"
             />
-            <Button size="sm" variant="outline" className="h-10 rounded-xl" onClick={addCustomModality}>
+            <Button size="sm" variant="outline" className="h-10 w-full rounded-xl sm:w-auto" onClick={addCustomModality}>
               <Plus className="mr-1 h-4 w-4" /> Criar modalidade e faixa
             </Button>
           </div>
@@ -292,10 +292,10 @@ function BeltsPage() {
       {/* Lista de faixas */}
       <Card className="rounded-2xl border-border/60 shadow-sm">
         <CardHeader className="border-b border-border/50 pb-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 sm:flex sm:flex-wrap sm:items-center sm:justify-between">
             <div className="min-w-0">
-              <CardTitle className="text-lg font-bold tracking-tight">{label(modality)}</CardTitle>
-              <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+              <CardTitle className="truncate text-base font-bold tracking-tight sm:text-lg">{label(modality)}</CardTitle>
+              <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground sm:gap-2 sm:text-xs">
                 <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 font-medium">
                   <Sparkles className="h-3 w-3 text-primary" /> {localBelts.length} faixa(s)
                 </span>
@@ -311,8 +311,8 @@ function BeltsPage() {
                 )}
               </div>
             </div>
-            <Button size="sm" onClick={openNew} className="h-10 rounded-xl shadow-[0_6px_16px_-6px_rgba(220,38,38,0.55)]">
-              <Plus className="mr-1 h-4 w-4" /> Nova faixa
+            <Button size="sm" onClick={openNew} className="h-10 shrink-0 rounded-xl px-3 shadow-[0_6px_16px_-6px_rgba(220,38,38,0.55)] sm:px-4">
+              <Plus className="h-4 w-4 sm:mr-1" /> <span className="hidden sm:inline">Nova faixa</span><span className="ml-1 sm:hidden">Nova</span>
             </Button>
           </div>
         </CardHeader>
@@ -341,7 +341,7 @@ function BeltsPage() {
       </Card>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+        <DialogContent className="w-[calc(100vw-1rem)] max-w-lg max-h-[92vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{form.id ? "Editar faixa" : "Nova faixa"}</DialogTitle>
           </DialogHeader>
@@ -445,18 +445,20 @@ function BeltsPage() {
                 </div>
               </div>
             </div>
-            <div className="col-span-2 flex items-center gap-3 bg-muted/40 p-3 rounded">
-              <BeltAuto
-                belt={{
-                  name: form.name,
-                  modality: form.modality,
-                  color_hex: form.color_hex,
-                  stripe_hex: form.stripe_hex || null,
-                  max_degrees: form.max_degrees,
-                }}
-                degree={0}
-                className="min-w-[220px]"
-              />
+            <div className="col-span-2 flex flex-col items-start gap-3 rounded bg-muted/40 p-3 sm:flex-row sm:items-center">
+              <div className="w-full overflow-x-auto sm:w-auto">
+                <BeltAuto
+                  belt={{
+                    name: form.name,
+                    modality: form.modality,
+                    color_hex: form.color_hex,
+                    stripe_hex: form.stripe_hex || null,
+                    max_degrees: form.max_degrees,
+                  }}
+                  degree={0}
+                  className="min-w-[220px]"
+                />
+              </div>
               <div className="text-xs text-muted-foreground">Pré-visualização</div>
             </div>
           </div>
@@ -492,7 +494,7 @@ function SortableBeltRow({
     <div
       ref={setNodeRef}
       style={style}
-      className="group relative flex flex-wrap items-center gap-3 bg-background p-4 transition-colors hover:bg-primary/[0.03] sm:gap-4"
+      className="group relative grid grid-cols-[auto_auto_minmax(0,1fr)_auto] items-center gap-2 bg-background p-3 transition-colors hover:bg-primary/[0.03] sm:flex sm:flex-wrap sm:gap-4 sm:p-4"
     >
       <button
         type="button"
@@ -506,10 +508,12 @@ function SortableBeltRow({
       <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-muted text-[11px] font-bold tabular-nums text-muted-foreground">
         {b.sort_order}
       </div>
-      <div className="shrink-0 rounded-xl bg-gradient-to-b from-neutral-50 to-neutral-100 p-2 ring-1 ring-border/60 dark:from-neutral-900 dark:to-neutral-950">
-        <BeltAuto belt={b as any} degree={0} className="min-w-[200px]" />
-      </div>
-      <div className="min-w-0 flex-1">
+      <div className="col-span-2 min-w-0 order-last w-full sm:order-none sm:col-span-1 sm:w-auto sm:flex-1 sm:min-w-0">
+        <div className="mb-2 w-full overflow-x-auto sm:hidden">
+          <div className="shrink-0 inline-block rounded-xl bg-gradient-to-b from-neutral-50 to-neutral-100 p-2 ring-1 ring-border/60 dark:from-neutral-900 dark:to-neutral-950">
+            <BeltAuto belt={b as any} degree={0} className="min-w-[200px]" />
+          </div>
+        </div>
         <div className="flex flex-wrap items-center gap-2">
           <div className="truncate text-sm font-semibold tracking-tight">{formatBeltName(b.name, b.modality)}</div>
           <span
@@ -545,7 +549,10 @@ function SortableBeltRow({
           )}
         </div>
       </div>
-      <div className="flex items-center gap-1 opacity-70 transition-opacity group-hover:opacity-100">
+      <div className="hidden shrink-0 rounded-xl bg-gradient-to-b from-neutral-50 to-neutral-100 p-2 ring-1 ring-border/60 sm:block dark:from-neutral-900 dark:to-neutral-950">
+        <BeltAuto belt={b as any} degree={0} className="min-w-[200px]" />
+      </div>
+      <div className="flex shrink-0 items-center gap-1 opacity-90 transition-opacity sm:opacity-70 sm:group-hover:opacity-100">
         <Button
           size="sm"
           variant="ghost"
