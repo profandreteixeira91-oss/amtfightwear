@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Bell, Plus, Trash2, Mail, MessageSquare, Loader2 } from "lucide-react";
+import { Bell, BellRing, Plus, Trash2, Mail, MessageSquare, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export function RemindersPanel() {
