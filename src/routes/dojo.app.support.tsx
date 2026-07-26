@@ -283,36 +283,43 @@ function TicketConversation({
   });
 
   return (
-    <div className="rounded-2xl border border-border bg-white shadow-sm">
-      <div className="flex flex-wrap items-center gap-3 border-b border-border px-4 py-3">
-        <Button variant="ghost" size="sm" onClick={onBack} className="gap-1">
+    <div className="overflow-hidden rounded-2xl border border-white/10 bg-neutral-900/60 shadow-xl backdrop-blur">
+      <div className="flex flex-wrap items-center gap-3 border-b border-white/10 bg-gradient-to-r from-neutral-900 to-neutral-950 px-4 py-3">
+        <Button variant="ghost" size="sm" onClick={onBack} className="gap-1 text-neutral-300 hover:bg-white/5 hover:text-white">
           <ArrowLeft className="h-4 w-4" /> Voltar
         </Button>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-semibold">{ticket.subject}</span>
-            <Badge variant="outline" className="text-[10px]">{CATEGORY_LABELS[ticket.category] ?? ticket.category}</Badge>
+            <span className="font-semibold text-white">{ticket.subject}</span>
+            <Badge variant="outline" className="border-white/15 bg-white/5 text-[10px] text-neutral-300">
+              {CATEGORY_LABELS[ticket.category] ?? ticket.category}
+            </Badge>
             <StatusBadge status={data?.ticket.status ?? ticket.status} />
           </div>
         </div>
         {ticket.status !== "fechado" && (
-          <Button variant="outline" size="sm" onClick={() => closeTicket.mutate()}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => closeTicket.mutate()}
+            className="border-white/15 bg-white/5 text-neutral-200 hover:bg-white/10 hover:text-white"
+          >
             Fechar chamado
           </Button>
         )}
       </div>
 
-      <div className="flex h-[60vh] flex-col">
+      <div className="flex h-[60vh] flex-col bg-gradient-to-b from-neutral-950/50 to-black/40">
         <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
           {(data?.messages ?? []).map((m) => {
             const mine = m.author_role === "client";
             return (
               <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
                 <div
-                  className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm shadow-sm ${
+                  className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm shadow-lg ring-1 ${
                     mine
-                      ? "bg-primary text-primary-foreground rounded-br-sm"
-                      : "bg-muted text-foreground rounded-bl-sm"
+                      ? "bg-gradient-to-br from-red-600 to-red-700 text-white ring-red-400/30 rounded-br-sm shadow-red-900/40"
+                      : "bg-white/5 text-neutral-100 ring-white/10 rounded-bl-sm backdrop-blur"
                   }`}
                 >
                   <div className="mb-0.5 text-[10px] font-semibold uppercase tracking-wide opacity-70">
@@ -330,12 +337,12 @@ function TicketConversation({
         </div>
 
         {ticket.status === "fechado" ? (
-          <div className="border-t border-border px-4 py-3 text-center text-sm text-muted-foreground">
+          <div className="border-t border-white/10 bg-neutral-950/60 px-4 py-3 text-center text-sm text-neutral-400">
             Este chamado está fechado. Abra um novo se precisar de mais ajuda.
           </div>
         ) : (
           <form
-            className="flex items-end gap-2 border-t border-border px-3 py-3"
+            className="flex items-end gap-2 border-t border-white/10 bg-neutral-950/60 px-3 py-3"
             onSubmit={(e) => { e.preventDefault(); if (text.trim()) send.mutate(); }}
           >
             <Textarea
@@ -343,7 +350,7 @@ function TicketConversation({
               onChange={(e) => setText(e.target.value)}
               placeholder="Escreva sua mensagem..."
               rows={2}
-              className="flex-1 resize-none"
+              className="flex-1 resize-none border-white/10 bg-white/5 text-neutral-100 placeholder:text-neutral-500 focus-visible:ring-red-500/50"
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
@@ -351,7 +358,11 @@ function TicketConversation({
                 }
               }}
             />
-            <Button type="submit" disabled={!text.trim() || send.isPending} className="gap-1">
+            <Button
+              type="submit"
+              disabled={!text.trim() || send.isPending}
+              className="gap-1 bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg shadow-red-900/40 ring-1 ring-white/10 hover:from-red-500 hover:to-red-600"
+            >
               <Send className="h-4 w-4" /> Enviar
             </Button>
           </form>
