@@ -560,7 +560,7 @@ export const computePayrollPreview = createServerFn({ method: "POST" })
         context.supabase.from("dojo_team_payroll_config").select("*"),
         context.supabase
           .from("dojo_class_occurrences")
-          .select("id, original_teacher_id, substitute_teacher_id, status")
+          .select("id, start_time, end_time, original_teacher_id, substitute_teacher_id, status, dojo_classes(teacher_id)")
           .gte("occurrence_date", start)
           .lt("occurrence_date", end)
           .neq("status", "canceled"),
@@ -578,14 +578,20 @@ export const computePayrollPreview = createServerFn({ method: "POST" })
     const configByMember = new Map((configs ?? []).map((c: any) => [c.member_id, c]));
     const rows = (members ?? []).map((m: any) => {
       const cfg: any = configByMember.get(m.id) ?? {};
-      const classes = (occs ?? []).filter(
-        (o: any) =>
-          o.substitute_teacher_id === m.id ||
-          (!o.substitute_teacher_id && o.original_teacher_id === m.id),
-      ).length;
-      const hours = (att ?? [])
+      const myOccs = (occs ?? []).filter((o: any) => {
+        if (o.substitute_teacher_id) return o.substitute_teacher_id === m.id;
+        const effective = o.original_teacher_id ?? o.dojo_classes?.teacher_id ?? null;
+        return effective === m.id;
+      });
+      const classes = myOccs.length;
+      const scheduleHours = myOccs.reduce((s: number, o: any) => {
+        if (!o.start_time || !o.end_time) return s;
+        return s + hoursBetween(o.start_time, o.end_time);
+      }, 0);
+      const attHours = (att ?? [])
         .filter((a: any) => a.member_id === m.id)
         .reduce((s: number, a: any) => s + Number(a.hours_worked || 0), 0);
+      const hours = attHours > 0 ? attHours : scheduleHours;
 
       const base = Number(cfg.base_salary || 0);
       const hourly = Number(cfg.hourly_rate || 0) * hours;
