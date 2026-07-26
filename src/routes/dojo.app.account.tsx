@@ -810,17 +810,24 @@ function SubscriptionTab({ subscription, payments = { paid: [], pending: [] } }:
       </Card>
 
       <Card>
-        <CardHeader><CardTitle>Faturas pendentes</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle>Faturas pendentes da assinatura</CardTitle>
+          <p className="text-xs text-muted-foreground mt-1">Mensalidades do sistema AMT Dojo Manager em aberto ou agendadas.</p>
+        </CardHeader>
         <CardContent>
           <InvoiceTable rows={pending} pending />
         </CardContent>
       </Card>
       <Card>
-        <CardHeader><CardTitle>Histórico de pagamentos</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle>Histórico de pagamentos da assinatura</CardTitle>
+          <p className="text-xs text-muted-foreground mt-1">Cobranças mensais do sistema já pagas ao Mercado Pago. Não inclui mensalidades dos alunos.</p>
+        </CardHeader>
         <CardContent>
           <InvoiceTable rows={paid} />
         </CardContent>
       </Card>
+
     </div>
   );
 }
