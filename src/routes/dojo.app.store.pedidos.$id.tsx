@@ -245,7 +245,7 @@ function OrderDetail() {
       </div>
 
       <Dialog open={!!assignItem} onOpenChange={(o) => !o && setAssignItem(null)}>
-        <DialogContent className="rounded-3xl">
+        <DialogContent className="w-[calc(100vw-1rem)] max-w-md rounded-3xl">
           <DialogHeader>
             <DialogTitle>Atribuir aos alunos</DialogTitle>
           </DialogHeader>

@@ -364,7 +364,7 @@ function PdpPage() {
 
       {/* Modal pós-adicionar */}
       <Dialog open={addedOpen} onOpenChange={setAddedOpen}>
-        <DialogContent className="max-w-sm rounded-3xl">
+        <DialogContent className="w-[calc(100vw-1rem)] max-w-sm rounded-3xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <CheckCircle2 className="h-5 w-5 text-emerald-600" strokeWidth={1.75} />
