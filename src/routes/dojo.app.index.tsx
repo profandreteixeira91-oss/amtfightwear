@@ -860,22 +860,17 @@ function DojoDashboard() {
                       </p>
                     </div>
 
-                    {/* Ilustração da faixa — proporção fixa 15:4 */}
-                    <div className="hidden sm:flex w-[120px] shrink-0 items-center justify-center">
-                      <div
-                        className="relative w-full overflow-hidden"
-                        style={{ aspectRatio: "15 / 4" }}
-                      >
-                        {belts[0] ? (
-                          <BeltAuto
-                            belt={belts[0].belt}
-                            degree={belts[0].degree ?? 0}
-                            className="absolute inset-0 h-full w-full"
-                          />
-                        ) : (
-                          <div className="absolute inset-0 rounded-sm border border-dashed border-slate-300" />
-                        )}
-                      </div>
+                    {/* Ilustração da faixa — tamanho natural, sem cortes */}
+                    <div className="hidden sm:flex w-[160px] shrink-0 items-center justify-center">
+                      {belts[0] ? (
+                        <BeltAuto
+                          belt={belts[0].belt}
+                          degree={belts[0].degree ?? 0}
+                          className="!flex w-full"
+                        />
+                      ) : (
+                        <div className="h-8 w-full rounded-sm border border-dashed border-slate-300" />
+                      )}
                     </div>
 
 
