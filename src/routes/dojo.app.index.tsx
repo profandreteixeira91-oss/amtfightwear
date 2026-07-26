@@ -766,14 +766,14 @@ function DojoDashboard() {
         {/* Alunos recentes — premium ivory card sobre */}
         <div className="md:col-span-4 overflow-hidden rounded-2xl bg-[#faf7f2] text-slate-900 ring-1 ring-black/5 shadow-[0_20px_60px_-25px_rgba(0,0,0,0.55),0_4px_14px_-6px_rgba(0,0,0,0.35)]">
           {/* Cabeçalho editorial */}
-          <div className="relative px-7 pt-6 pb-5">
-            <div className="absolute inset-x-7 top-0 h-px bg-gradient-to-r from-transparent via-rose-700/40 to-transparent" />
-            <div className="flex items-end justify-between gap-4">
-              <div>
+          <div className="relative px-4 pt-5 pb-4 sm:px-7 sm:pt-6 sm:pb-5">
+            <div className="absolute inset-x-4 sm:inset-x-7 top-0 h-px bg-gradient-to-r from-transparent via-rose-700/40 to-transparent" />
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div className="min-w-0">
                 <p className="text-[10px] font-semibold tracking-[0.28em] text-rose-800/80 uppercase">
                   Últimas matrículas
                 </p>
-                <h2 className="mt-1.5 font-display text-2xl font-semibold tracking-tight text-slate-900">
+                <h2 className="mt-1.5 font-display text-xl sm:text-2xl font-semibold tracking-tight text-slate-900">
                   Alunos recentes
                 </h2>
                 <p className="mt-1 text-[11px] text-slate-500">
@@ -782,7 +782,7 @@ function DojoDashboard() {
               </div>
               <Link
                 to="/dojo/app/students"
-                className="group inline-flex items-center gap-1.5 rounded-full border border-slate-900/10 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-800 shadow-sm hover:border-rose-700/40 hover:text-rose-800 transition-colors"
+                className="group inline-flex w-fit items-center gap-1.5 rounded-full border border-slate-900/10 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-800 shadow-sm hover:border-rose-700/40 hover:text-rose-800 transition-colors"
               >
                 Ver todos
                 <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
@@ -791,7 +791,7 @@ function DojoDashboard() {
           </div>
 
           {/* Divisor com serifa hairline */}
-          <div className="mx-7 h-px bg-slate-900/10" />
+          <div className="mx-4 sm:mx-7 h-px bg-slate-900/10" />
 
           <ol className="divide-y divide-slate-900/[0.07]">
             {recent.length === 0 && (
