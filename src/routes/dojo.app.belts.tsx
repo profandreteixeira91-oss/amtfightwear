@@ -494,7 +494,7 @@ function SortableBeltRow({
     <div
       ref={setNodeRef}
       style={style}
-      className="group relative flex flex-wrap items-center gap-3 bg-background p-4 transition-colors hover:bg-primary/[0.03] sm:gap-4"
+      className="group relative grid grid-cols-[auto_auto_minmax(0,1fr)_auto] items-center gap-2 bg-background p-3 transition-colors hover:bg-primary/[0.03] sm:flex sm:flex-wrap sm:gap-4 sm:p-4"
     >
       <button
         type="button"
@@ -508,10 +508,12 @@ function SortableBeltRow({
       <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-muted text-[11px] font-bold tabular-nums text-muted-foreground">
         {b.sort_order}
       </div>
-      <div className="shrink-0 rounded-xl bg-gradient-to-b from-neutral-50 to-neutral-100 p-2 ring-1 ring-border/60 dark:from-neutral-900 dark:to-neutral-950">
-        <BeltAuto belt={b as any} degree={0} className="min-w-[200px]" />
-      </div>
-      <div className="min-w-0 flex-1">
+      <div className="col-span-2 min-w-0 order-last w-full sm:order-none sm:col-span-1 sm:w-auto sm:flex-1 sm:min-w-0">
+        <div className="mb-2 w-full overflow-x-auto sm:hidden">
+          <div className="shrink-0 inline-block rounded-xl bg-gradient-to-b from-neutral-50 to-neutral-100 p-2 ring-1 ring-border/60 dark:from-neutral-900 dark:to-neutral-950">
+            <BeltAuto belt={b as any} degree={0} className="min-w-[200px]" />
+          </div>
+        </div>
         <div className="flex flex-wrap items-center gap-2">
           <div className="truncate text-sm font-semibold tracking-tight">{formatBeltName(b.name, b.modality)}</div>
           <span
@@ -547,7 +549,10 @@ function SortableBeltRow({
           )}
         </div>
       </div>
-      <div className="flex items-center gap-1 opacity-70 transition-opacity group-hover:opacity-100">
+      <div className="hidden shrink-0 rounded-xl bg-gradient-to-b from-neutral-50 to-neutral-100 p-2 ring-1 ring-border/60 sm:block dark:from-neutral-900 dark:to-neutral-950">
+        <BeltAuto belt={b as any} degree={0} className="min-w-[200px]" />
+      </div>
+      <div className="flex shrink-0 items-center gap-1 opacity-90 transition-opacity sm:opacity-70 sm:group-hover:opacity-100">
         <Button
           size="sm"
           variant="ghost"
