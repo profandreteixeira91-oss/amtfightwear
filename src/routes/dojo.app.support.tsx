@@ -303,9 +303,10 @@ function TicketConversation({
             variant="outline"
             size="sm"
             onClick={() => closeTicket.mutate()}
-            className="border-white/15 bg-white/5 text-neutral-200 hover:bg-white/10 hover:text-white"
+            className="shrink-0 border-white/15 bg-white/5 px-2 text-xs text-neutral-200 hover:bg-white/10 hover:text-white sm:px-3 sm:text-sm"
           >
-            Fechar chamado
+            <span className="hidden sm:inline">Fechar chamado</span>
+            <span className="sm:hidden">Fechar</span>
           </Button>
         )}
       </div>
