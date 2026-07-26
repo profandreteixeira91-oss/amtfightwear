@@ -1,14 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-async function assertAdmin(context: { supabase: any; userId: string }) {
-  const { data: isAdmin } = await context.supabase.rpc("has_role", {
-    _user_id: context.userId,
-    _role: "amt_admin",
-  });
-  if (!isAdmin) throw new Error("Forbidden");
-}
-
 // ---------- Admin: list dojo owner accounts + subscription status ----------
 
 export type DojoAccountRow = {
@@ -38,21 +30,31 @@ export type DojoAccountRow = {
 export const adminListDojoAccounts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertAdmin(context as any);
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "amt_admin",
+    });
+    if (!isAdmin) throw new Error("Forbidden");
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    // Base list: every user profile. Academy profile is optional — new accounts
-    // that haven't finished onboarding still need to show up in the admin.
-    const { data: profiles } = await supabaseAdmin
-      .from("profiles")
-      .select("id, email, full_name, created_at")
-      .order("created_at", { ascending: false })
-      .limit(5000);
+    // A conta Dojo existe desde o cadastro no Auth. Não dependa de onboarding,
+    // profile ou assinatura: essas linhas podem ser criadas somente depois.
+    const { data: authPage, error: authError } = await supabaseAdmin.auth.admin.listUsers({
+      page: 1,
+      perPage: 1000,
+    });
+    if (authError) throw new Error(`Não foi possível listar as contas: ${authError.message}`);
 
-    const ownerIds = (profiles ?? []).map((p: any) => p.id);
+    const authUsers = authPage.users;
+    const ownerIds = authUsers.map((user) => user.id);
     if (ownerIds.length === 0) return [] as DojoAccountRow[];
 
-    const [academiesRes, subsRes, studentsRes, unitsRes] = await Promise.all([
+    const [profilesRes, academiesRes, subsRes, studentsRes, unitsRes] = await Promise.all([
+      supabaseAdmin
+        .from("profiles")
+        .select("id, email, full_name, created_at")
+        .in("id", ownerIds),
       supabaseAdmin
         .from("dojo_academy_profile")
         .select(
@@ -69,6 +71,9 @@ export const adminListDojoAccounts = createServerFn({ method: "GET" })
       supabaseAdmin.from("dojo_units").select("owner_id").in("owner_id", ownerIds),
     ]);
 
+    const profileMap = new Map(
+      (profilesRes.data ?? []).map((profile: any) => [profile.id, profile]),
+    );
     const academyMap = new Map(
       (academiesRes.data ?? []).map((a: any) => [a.owner_id, a]),
     );
@@ -83,9 +88,12 @@ export const adminListDojoAccounts = createServerFn({ method: "GET" })
     }
 
     const now = Date.now();
-    return (profiles ?? []).map<DojoAccountRow>((p: any) => {
-      const a: any = academyMap.get(p.id) ?? {};
-      const s: any = subMap.get(p.id);
+    return authUsers
+      .map<DojoAccountRow>((user) => {
+      const p: any = profileMap.get(user.id) ?? {};
+      const a: any = academyMap.get(user.id) ?? {};
+      const s: any = subMap.get(user.id);
+      const createdAt = a.created_at ?? p.created_at ?? user.created_at;
       let sub_status: string | null = s?.status ?? null;
       // Normalize Mercado Pago-style "trialing" to "trial" for the UI.
       if (sub_status === "trialing") sub_status = "trial";
@@ -98,13 +106,16 @@ export const adminListDojoAccounts = createServerFn({ method: "GET" })
         sub_status = "trial";
       }
       if (!s) {
-        const ageDays = (now - new Date(p.created_at).getTime()) / (1000 * 60 * 60 * 24);
+        const ageDays = (now - new Date(createdAt).getTime()) / (1000 * 60 * 60 * 24);
         sub_status = ageDays <= 14 ? "trial" : "none";
       }
       return {
-        owner_id: p.id,
-        email: p.email ?? null,
-        full_name: p.full_name ?? null,
+        owner_id: user.id,
+        email: user.email ?? p.email ?? null,
+        full_name:
+          p.full_name ??
+          (typeof user.user_metadata?.full_name === "string" ? user.user_metadata.full_name : null) ??
+          (typeof user.user_metadata?.name === "string" ? user.user_metadata.name : null),
         trade_name: a.trade_name ?? null,
         legal_name: a.legal_name ?? null,
         city: a.city ?? null,
@@ -112,17 +123,18 @@ export const adminListDojoAccounts = createServerFn({ method: "GET" })
         phone: a.phone ?? null,
         whatsapp: a.whatsapp ?? null,
         slug: a.slug ?? null,
-        created_at: a.created_at ?? p.created_at,
+        created_at: createdAt,
         onboarding_completed: !!a.onboarding_completed,
         sub_status,
         sub_plan_amount: s?.plan_amount ?? null,
         sub_trial_ends_at: s?.trial_ends_at ?? null,
         sub_current_period_end: s?.current_period_end ?? null,
         sub_cancelled_at: s?.cancelled_at ?? null,
-        students_count: studentsCount.get(p.id) ?? 0,
-        units_count: unitsCount.get(p.id) ?? 0,
+        students_count: studentsCount.get(user.id) ?? 0,
+        units_count: unitsCount.get(user.id) ?? 0,
       };
-    });
+      })
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   });
 
 
@@ -131,7 +143,12 @@ export const adminListDojoAccounts = createServerFn({ method: "GET" })
 export const adminGetDojoLandingStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertAdmin(context as any);
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "amt_admin",
+    });
+    if (!isAdmin) throw new Error("Forbidden");
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const now = new Date();
