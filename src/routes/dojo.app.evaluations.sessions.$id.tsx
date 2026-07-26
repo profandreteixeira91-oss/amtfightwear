@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { ArrowLeft, Save, CheckCircle2, XCircle, RotateCcw } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, XCircle, RotateCcw, Plus } from "lucide-react";
 
 export const Route = createFileRoute("/dojo/app/evaluations/sessions/$id")({
   component: SessionRunner,
