@@ -9,11 +9,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { DojoPageShell } from "@/components/dojo/DojoPageShell";
 import { CorporateBenefitsWizard } from "@/components/dojo/corporate-benefits/CorporateBenefitsWizard";
 import {
   Building2, Ticket, ShieldCheck, RefreshCw, LinkIcon, Unplug, Plus, Users,
-  CheckCircle2, XCircle, Clock, History, ListChecks, Sparkles, Activity, ArrowRight,
+  CheckCircle2, XCircle, Clock, History, ListChecks, Activity, ArrowRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
