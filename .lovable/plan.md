@@ -1,47 +1,114 @@
-# Auditoria UX/UI Mobile — Dojo Manager
 
-Escopo: apenas ajustes de layout/responsividade para experiência premium no mobile. **Sem alterar design system, cores, funções ou rotas.** Foco em: eliminar overflow horizontal, alvos de toque ≥ 44px, hierarquia tipográfica legível, tabelas em cards no mobile, dialogs/sheets respiráveis, botões de ação empilhados e sticky quando necessário.
+# Central Administrativa AMT — rota única `/admin`
 
-## Padrões aplicados em todas as etapas
+Uma central única, exclusiva do owner, que reúne a administração da **AMT Fight Wear** (loja) e do **AMT Dojo Manager** (SaaS) sob a mesma casca visual, o mesmo guard e o mesmo ponto de edição. Sem duplicar telas: as páginas existentes são reaproveitadas como filhas do novo layout.
 
-- Containers com `min-w-0` + `overflow-x-hidden` onde há grids/flex com texto longo.
-- Dialogs: `w-[calc(100vw-1rem)]`, header/footer sticky, corpo rolável.
-- Tabelas densas viram **cards empilhados** no `< sm`, tabela reaparece no `sm:`.
-- Botões primários com `w-full` no mobile, `w-auto` no `sm:`.
-- Filtros/ações agrupadas em `Sheet` ou seção colapsável no mobile.
-- Headers de página: título + subtítulo em coluna, chips/ações abaixo.
-- Sem mudança de tokens de cor, tipografia base, ícones ou rotas.
+## Estrutura de rotas
 
-## Etapas
+```text
+src/routes/_authenticated/
+  admin.tsx                       ← layout raiz da central (OwnerOnly + shell)
+  admin.index.tsx                 ← /admin  (visão geral: KPIs loja + KPIs dojo)
 
-### Etapa 1 — Núcleo do fluxo diário
-Rotas: `dojo.app.index` (dashboard), `dojo.app.students.index`, `dojo.app.students.$id`, `dojo.app.checkin`, `dojo.app.schedule` (revisão pós-refactor recente).
-Foco: cards do dashboard responsivos, lista de alunos em cards no mobile, perfil com abas roláveis horizontalmente, check-in one-hand friendly.
+  admin.store.tsx                 ← sub-layout Fight Wear
+  admin.store.index.tsx           ← /admin/store              (dashboard loja)
+  admin.store.products.tsx        ← /admin/store/products
+  admin.store.orders.tsx          ← /admin/store/orders
+  admin.store.customers.tsx       ← /admin/store/customers
+  admin.store.wholesale.tsx       ← /admin/store/wholesale
+  admin.store.shipping.tsx        ← /admin/store/shipping
+  admin.store.sizes.tsx           ← /admin/store/sizes
+  admin.store.faixa-calc.tsx      ← /admin/store/faixa-calc
+  admin.store.imagens.tsx         ← /admin/store/imagens
+  admin.store.import.tsx          ← /admin/store/import
+  admin.store.chat.tsx            ← /admin/store/chat
+  admin.store.notifications.tsx   ← /admin/store/notifications
 
-### Etapa 2 — Financeiro e vendas
-Rotas: `dojo.app.finance`, `dojo.app.sales`, `dojo.app.plans`, `dojo.app.account`, `dojo.app.integrations`.
-Foco: tabelas de vendas/faturas em cards, formulários de nova venda em passos claros, cards de assinatura sem overflow.
+  admin.dojo.tsx                  ← sub-layout Dojo Manager (visão owner-global)
+  admin.dojo.index.tsx            ← /admin/dojo   (métricas SaaS: MRR, dojos ativos, churn)
+  admin.dojo.tenants.tsx          ← lista de dojos/tenants
+  admin.dojo.tenants.$id.tsx      ← detalhe/impersonation de um dojo
+  admin.dojo.subscriptions.tsx    ← assinaturas e faturas globais
+  admin.dojo.payouts.tsx          ← AMT Pay: splits, saques, taxas
+  admin.dojo.support.tsx          ← suporte cross-tenant
 
-### Etapa 3 — Graduações, avaliações e planos de aula
-Rotas: `dojo.app.graduations`, `dojo.app.evaluations.*`, `dojo.app.lesson-plans.*`, `dojo.app.belts`.
-Foco: seleção de aluno + faixa mobile-first, sessões de avaliação com steps, listas de técnicas com busca sticky.
+  admin.growth.tsx                ← Marketing/Growth Engine (já owner-only)
+```
 
-### Etapa 4 — Certificados, contratos e comunicações
-Rotas: `dojo.app.certificates`, `dojo.app.contracts.*`, `dojo.app.contract-templates.*`, `dojo.app.announcements`, `dojo.app.notifications`.
-Foco: editores com toolbars roláveis horizontalmente, preview colapsável no mobile, listas de emitidos em cards.
+O que **não** muda:
+- Rotas públicas da loja (`/loja/*`) e do dojo (`/dojo/app/*` para cada tenant) permanecem intocadas.
+- Nenhum tenant do Dojo Manager perde acesso à sua própria administração — a central é sobre o **ecossistema**, não substitui o painel de cada academia.
 
-### Etapa 5 — Equipe, ranking, competições, unidades e benefícios
-Rotas: `dojo.app.team.*`, `dojo.app.ranking` (revisão), `dojo.app.competitions.*`, `dojo.app.corporate-benefits`, `dojo.app.units` (se existir).
-Foco: cards de perfil, tabs empilhadas, formulários financeiros condicionais já ajustados só validados.
+## Shell da central (`admin.tsx`)
 
-### Etapa 6 — Store interna e suporte
-Rotas: `dojo.app.store.*`, `dojo.app.support`, `dojo.app.install`, `dojo.app.student-app-qr`, `dojo.app.apk-versions`, `dojo.app.belt-studio`.
-Foco: grid de produtos 2 colunas mobile, carrinho/pedidos em cards, QR/install em hero centralizado.
+Um único ponto de edição controla o visual e as permissões da central inteira:
 
-## Entrega por etapa
-Cada etapa é um turno separado com:
-1. Diagnóstico curto por rota (o que estava quebrando no mobile).
-2. Edits cirúrgicos (sem tocar em lógica, tokens, rotas).
-3. Print de verificação via Playwright viewport 390×844 nas rotas críticas.
+- **Guard**: `<OwnerOnly>` — bloqueia qualquer não-owner antes do `<Outlet />`.
+- **Sidebar shadcn (`collapsible="icon"`)** com dois grupos:
+  - **AMT Fight Wear**: Dashboard, Produtos, Pedidos, Clientes, Atacado, Frete, Tamanhos, Faixa Calc, Imagens, Importação, Chat, Notificações.
+  - **AMT Dojo Manager**: Visão SaaS, Dojos, Assinaturas, AMT Pay, Suporte.
+  - **Growth**: Growth Engine.
+- **Header** com breadcrumb do módulo ativo, seletor rápido "Loja ↔ Dojo", busca global, avatar + logout.
+- **Trigger visível** (hamburguer) para colapsar/expandir a sidebar em desktop e abrir off-canvas no mobile.
+- **Tema**: fundo claro SaaS (padrão adotado no `/store`), com acento vermelho AMT nos indicadores de módulo.
 
-Confirma o plano e começo pela **Etapa 1**?
+## Migração sem quebrar links existentes
+
+1. As páginas atuais em `_authenticated/store.*.tsx` continuam existindo até o corte final.
+2. Cada nova rota `admin.store.*.tsx` **re-exporta o componente** da tela original — nada de código duplicado.
+3. Adicionamos **redirects permanentes** `/store/*` → `/admin/store/*` via `beforeLoad` no layout `store.tsx` existente, para que qualquer bookmark, link interno ou histórico continue funcionando enquanto os `<Link>` internos migram.
+4. As mesmas técnicas para o admin do Dojo (o que hoje é global, não por tenant) e para `/growth`.
+5. Depois de auditar todos os `<Link>` internos, removemos os arquivos antigos.
+
+## Página `/admin` (visão geral do ecossistema)
+
+Cards KPI premium (padrão Stripe/Linear) agregando dois mundos:
+
+- **Fight Wear**: receita 30d, pedidos hoje, ticket médio, produtos com estoque crítico, visitantes online.
+- **Dojo Manager**: MRR, dojos ativos, novos tenants 30d, trial→pago (%), receita AMT Pay (2% split).
+- **Atividade recente unificada**: pedidos, novos dojos, matrículas, saques, tudo em um feed.
+
+Cada card leva ao módulo correspondente com `<Link preload="intent">`.
+
+## Segurança e isolamento
+
+- Guard único no layout — sem checagens duplicadas nas telas filhas.
+- **Nenhuma quebra do multi-tenant**: a central lê dados agregados via server functions dedicadas (`adminGetEcosystemOverview`, `adminListTenants`) que rodam com role owner e **jamais expõem dados de um tenant para outro no painel do próprio tenant**.
+- Server functions novas seguem o padrão `.middleware([requireSupabaseAuth])` + verificação de owner (`OWNER_EMAIL`) dentro do handler antes de qualquer leitura cross-tenant.
+
+## Detalhes técnicos
+
+- `admin.tsx` monta `SidebarProvider` + `AppSidebar` + `<Outlet />` (shadcn Sidebar guidance).
+- Cada sub-layout (`admin.store.tsx`, `admin.dojo.tsx`) apenas renderiza `<Outlet />` — servem como pontos de extensão futuros (loaders compartilhados, tabs de contexto).
+- `AppTopNav` deixa de tratar `/store/*` — a central assume esse chrome. `AppTopNav` continua exclusivo do fluxo Dojo por-tenant.
+- Novas server functions em `src/lib/admin/ecosystem.functions.ts` para KPIs agregados.
+- `getIsOwner()` server-side reaproveitado em cada handler cross-tenant para defesa em profundidade além do RLS.
+
+## Entrega em fases
+
+**Fase 1 — Fundação (esta rodada, se aprovado)**
+- Criar `admin.tsx` com shell (sidebar, header, guard).
+- Criar `admin.index.tsx` com placeholder de KPIs agregados.
+- Criar `admin.store.tsx` + re-exports das 13 telas existentes da loja.
+- Redirect `/store/*` → `/admin/store/*`.
+- Item de menu no `AppTopNav` (área dojo) apontando para `/admin` quando o usuário é owner.
+
+**Fase 2 — Ecossistema Dojo**
+- Criar `admin.dojo.*` (SaaS view: tenants, assinaturas, AMT Pay global, suporte).
+- Server functions agregadas + KPIs reais no `/admin`.
+- Feed de atividade unificado.
+
+**Fase 3 — Limpeza**
+- Migrar todos os `<Link>` internos para `/admin/*`.
+- Remover arquivos antigos `_authenticated/store.*.tsx` (redirects permanecem).
+- Auditoria de acessibilidade e mobile da sidebar.
+
+## Riscos e mitigação
+
+- **Links quebrados**: mitigado por redirects permanentes na Fase 1.
+- **Confusão com painel do tenant**: a central usa `/admin`, o painel do dono do dojo continua em `/dojo/app`. Copy da UI reforça: "Central AMT" vs "Meu Dojo".
+- **Vazamento cross-tenant**: server functions cross-tenant só executam após checagem explícita de owner; testes unitários cobrindo negação para não-owner.
+
+---
+
+Aprovando este plano, começo pela **Fase 1** já nesta rodada.
