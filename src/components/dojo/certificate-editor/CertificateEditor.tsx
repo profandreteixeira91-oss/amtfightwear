@@ -831,12 +831,13 @@ function ElementView({
     window.addEventListener("mousemove", move); window.addEventListener("mouseup", up);
   };
 
+  // No editor: sempre exibir variáveis como {{chave}} para não confundir com texto real.
+  // Textos livres permanecem como foram editados; apenas os tokens {{...}} são mantidos.
   const values = useMemo(() => {
-    const v: Record<string, string> = { ...systemValues() };
-    ALL_VARIABLES.forEach((x) => { if (!(x.key in v)) v[x.key] = x.sample ? `[${x.sample}]` : `{{${x.key}}}`; });
-    if (previewValues) Object.assign(v, previewValues);
+    const v: Record<string, string> = {};
+    ALL_VARIABLES.forEach((x) => { v[x.key] = `{{${x.key}}}`; });
     return v;
-  }, [previewValues]);
+  }, []);
 
 
   return (
