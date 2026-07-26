@@ -137,6 +137,17 @@ function ContractEditorPage() {
     else patch({ content: draft.content + html });
     toast.message("Variável inserida no final do documento (clique no editor antes para posicionar).");
   };
+  const insertAcademyLogo = (heightPx = 56) => {
+    const url = (branding.data as any)?.logo_url || (academy.data as any)?.logo_url;
+    if (!url) {
+      toast.error("Sua academia ainda não tem logo. Envie a logo em Configurações › Identidade visual.");
+      return;
+    }
+    const name = (academy.data as any)?.trade_name ?? (academy.data as any)?.legal_name ?? "Logo da academia";
+    const safeName = String(name).replace(/"/g, "&quot;");
+    const html = `<img src="${url}" alt="${safeName}" style="height:${heightPx}px;width:auto;max-width:220px;object-fit:contain;display:inline-block;vertical-align:middle;" />`;
+    insertAtCursor(html);
+  };
   const removeTemplate = async () => {
     if (isNew || !draft.id) { navigate({ to: "/dojo/app/contracts/templates" }); return; }
     if (!confirm("Excluir este modelo de contrato?")) return;
