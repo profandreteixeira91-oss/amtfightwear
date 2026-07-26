@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { DojoLogo } from "@/components/dojo/DojoLogo";
+import { PasswordStrength, isPasswordStrong, PASSWORD_MIN_LENGTH } from "@/components/auth/PasswordStrength";
 
 const searchSchema = z.object({ redirect: z.string().optional() });
 
