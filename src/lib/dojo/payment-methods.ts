@@ -20,15 +20,8 @@ import {
 export type PaymentMethodCode =
   | "cash"
   | "pix"
-  | "debit_card"
-  | "credit_card"
-  | "boleto"
-  | "payment_link"
-  | "auto_debit"
-  | "bank_transfer"
-  | "digital_wallet"
-  | "recurring"
-  | "other";
+  | "card_machine"
+  | "payment_link";
 
 export type GatewayCode =
   | "manual"
