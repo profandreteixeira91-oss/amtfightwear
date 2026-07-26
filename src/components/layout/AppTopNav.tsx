@@ -333,23 +333,11 @@ export function AppTopNav() {
       </div>
 
       {mobileOpen && (
-        <div
-          className={cn(
-            "border-t backdrop-blur lg:hidden",
-            inDojo
-              ? "border-red-800/70 bg-red-700 text-white supports-[backdrop-filter]:bg-red-700/95"
-              : "border-border/60 bg-background/95",
-          )}
-        >
+        <div className="border-t border-border/60 bg-popover/95 text-foreground backdrop-blur lg:hidden">
           <div className="max-h-[75vh] space-y-4 overflow-y-auto p-3">
             {visibleGroups.map((g) => (
               <div key={g.label}>
-                <div
-                  className={cn(
-                    "mb-1.5 text-[11px] font-semibold uppercase tracking-[0.18em]",
-                    inDojo ? "text-white/70" : "text-muted-foreground",
-                  )}
-                >
+                <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                   {g.label}
                 </div>
                 <div className="grid grid-cols-1 gap-1 xs:grid-cols-2 sm:grid-cols-2">
@@ -360,17 +348,10 @@ export function AppTopNav() {
                         key={item.url}
                         to={item.url}
                         onClick={() => setMobileOpen(false)}
+                        onPointerUp={() => setMobileOpen(false)}
                         className={cn(
-                          "flex min-h-11 items-center gap-2 rounded-lg border border-transparent px-2.5 py-2 text-sm leading-tight transition-colors",
-                          inDojo
-                            ? cn(
-                                "text-white/90 hover:bg-white/10 hover:text-white",
-                                active && "border-white/40 bg-white/15 font-semibold text-white",
-                              )
-                            : cn(
-                                "hover:bg-accent",
-                                active && "border-primary/30 bg-primary/10 font-medium text-primary",
-                              ),
+                          "flex min-h-11 items-center gap-2 rounded-lg border border-transparent px-2.5 py-2 text-sm leading-tight text-foreground/80 transition-colors hover:bg-accent hover:text-foreground",
+                          active && "border-primary/30 bg-primary/10 font-medium text-primary",
                         )}
                       >
                         <item.icon className="h-4 w-4 shrink-0" />

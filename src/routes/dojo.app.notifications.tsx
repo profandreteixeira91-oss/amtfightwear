@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { DojoPushCard } from "@/components/dojo/DojoPushCard";
+import { InstallAppCard } from "@/components/dojo/InstallAppCard";
 
 export const Route = createFileRoute("/dojo/app/notifications")({
   head: () => ({
@@ -24,6 +25,7 @@ function NotificationsPage() {
           Instale o Dojo Manager como app no celular ou desktop e ligue os alertas que fazem sentido para o seu dia a dia.
         </p>
       </div>
+      <InstallAppCard />
       <DojoPushCard />
     </div>
   );
