@@ -400,8 +400,21 @@ export const saveDojoStudent = createServerFn({ method: "POST" })
       if (error) throw new Error(error.message);
       return { id };
     }
-    const { data: row, error } = await context.supabase.from("dojo_students").insert({ ...payload, owner_id: ownerId(context) }).select("id").single();
+    const owner = ownerId(context);
+    const { data: row, error } = await context.supabase.from("dojo_students").insert({ ...payload, owner_id: owner }).select("id, full_name").single();
     if (error) throw new Error(error.message);
+    // Fire-and-forget: notifica o dono do dojo sobre nova matrícula
+    try {
+      const { sendPushToDojoOwner } = await import("@/lib/push/dojo-owner-push.server");
+      void sendPushToDojoOwner(owner, "enrollments", {
+        title: "Nova matrícula",
+        body: `${row.full_name ?? "Novo aluno"} foi cadastrado(a) no dojo`,
+        url: `/dojo/app/students/${row.id}`,
+        tag: `dojo-student-${row.id}`,
+      }).catch((e) => console.warn("[owner-push] enrollment failed", e));
+    } catch (e) {
+      console.warn("[owner-push] enrollment import failed", e);
+    }
     return { id: row.id };
   });
 
