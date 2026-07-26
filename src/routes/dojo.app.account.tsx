@@ -13,7 +13,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
 import { useUnsavedChanges } from "@/components/common/UnsavedChangesGuard";
 import {
-  User as UserIcon, Building2, Palette, CreditCard, Receipt, Shield,
+  User as UserIcon, Building2, Palette, CreditCard, Shield,
   Bell, Monitor, Plug, Upload, Trash2, Save, KeyRound, LogOut, History, Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
