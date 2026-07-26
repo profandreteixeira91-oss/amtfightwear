@@ -259,19 +259,21 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
   };
 
   const tbBtn =
-    "inline-flex h-8 w-8 items-center justify-center rounded-md text-foreground/80 hover:bg-accent hover:text-foreground transition-colors";
-  const tbDivider = "mx-1 h-6 w-px bg-border/70";
+    "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-foreground/80 hover:bg-accent hover:text-foreground transition-colors";
+  const tbDivider = "mx-1 h-6 w-px shrink-0 bg-border/70";
+
 
   return (
     <div className="rounded-lg border border-border/80 bg-background shadow-sm overflow-hidden">
       {/* Toolbar */}
       <div
-        className="flex flex-wrap items-center gap-0.5 border-b bg-gradient-to-b from-muted/60 to-muted/30 backdrop-blur px-2 py-2 sticky top-0 z-10"
+        className="flex flex-nowrap md:flex-wrap items-center gap-0.5 border-b bg-gradient-to-b from-muted/60 to-muted/30 backdrop-blur px-2 py-2 sticky top-0 z-10 overflow-x-auto md:overflow-visible [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         onMouseDown={(e) => {
           // Impede o toolbar de roubar seleção quando o usuário clica em áreas vazias.
           if (e.target === e.currentTarget) e.preventDefault();
         }}
       >
+
         <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("undo")} title="Desfazer"><Undo className="h-4 w-4" /></button>
         <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("redo")} title="Refazer"><Redo className="h-4 w-4" /></button>
         <span className={tbDivider} />
@@ -279,7 +281,7 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
         {/* Bloco / Parágrafo */}
         <Select onValueChange={(v) => applyBlock(v)}>
           <SelectTrigger
-            className="h-8 w-[140px] bg-background/80"
+            className="h-8 w-[130px] shrink-0 bg-background/80"
             onPointerDown={() => saveSelection()}
           >
             <SelectValue placeholder="Parágrafo" />
@@ -294,7 +296,7 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
         {/* Fonte */}
         <Select onValueChange={(v) => doExec("fontName", v)}>
           <SelectTrigger
-            className="h-8 w-[140px] bg-background/80"
+            className="h-8 w-[130px] shrink-0 bg-background/80"
             onPointerDown={() => saveSelection()}
           >
             <SelectValue placeholder="Fonte" />
@@ -311,7 +313,7 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
         {/* Tamanho */}
         <Select onValueChange={(v) => applyFontSize(v)}>
           <SelectTrigger
-            className="h-8 w-[86px] bg-background/80"
+            className="h-8 w-[80px] shrink-0 bg-background/80"
             onPointerDown={() => saveSelection()}
           >
             <SelectValue placeholder="Tam." />
@@ -330,7 +332,7 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
         <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("underline")} title="Sublinhado"><UnderlineIcon className="h-4 w-4" /></button>
         <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("strikeThrough")} title="Tachado"><Strikethrough className="h-4 w-4" /></button>
 
-        <label className="ml-1 inline-flex h-8 items-center gap-1 rounded-md px-2 text-xs cursor-pointer hover:bg-accent" title="Cor do texto">
+        <label className="ml-1 inline-flex h-8 shrink-0 items-center gap-1 rounded-md px-2 text-xs cursor-pointer hover:bg-accent" title="Cor do texto">
           <Type className="h-4 w-4" />
           <input
             type="color"
@@ -376,14 +378,14 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
               type="button"
               size="sm"
               variant="outline"
-              className="h-8 gap-1 bg-background/80"
+              className="h-8 shrink-0 gap-1 bg-background/80"
               onMouseDown={() => saveSelection()}
             >
               <Braces className="h-4 w-4" /> Variáveis
             </Button>
           </PopoverTrigger>
           <PopoverContent
-            className={`w-80 max-h-[420px] overflow-y-auto p-2 ${OVERLAY_Z} bg-popover shadow-xl border`}
+            className={`w-[calc(100vw-2rem)] sm:w-80 max-h-[70dvh] sm:max-h-[420px] overflow-y-auto p-2 ${OVERLAY_Z} bg-popover shadow-xl border`}
             align="start"
           >
             <div className="text-xs text-muted-foreground mb-2 px-1">
@@ -416,13 +418,13 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
         {showPageNumberTokens && (
           <>
             <span className={tbDivider} />
-            <Button type="button" size="sm" variant="outline" className="h-8 gap-1 text-xs"
+            <Button type="button" size="sm" variant="outline" className="h-8 shrink-0 gap-1 text-xs"
               onMouseDown={preventBlur}
               onClick={() => insertHtml("{{pagina_atual}}")}
               title="Inserir número da página atual">
               Página nº
             </Button>
-            <Button type="button" size="sm" variant="outline" className="h-8 gap-1 text-xs"
+            <Button type="button" size="sm" variant="outline" className="h-8 shrink-0 gap-1 text-xs"
               onMouseDown={preventBlur}
               onClick={() => insertHtml("Página {{pagina_atual}} de {{total_paginas}}")}
               title="Inserir 'Página X de Y'">
@@ -438,9 +440,9 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
         className={
           compact
             ? "bg-background relative"
-            : "bg-[#f1f3f4] dark:bg-[#1b1b1f] px-4 py-6 md:py-10 overflow-auto relative"
+            : "bg-[#f1f3f4] dark:bg-[#1b1b1f] px-2 py-4 sm:px-4 sm:py-6 md:py-10 overflow-auto relative"
         }
-        style={compact ? undefined : { maxHeight: "calc(100vh - 220px)" }}
+        style={compact ? undefined : { maxHeight: "calc(100dvh - 260px)" }}
       >
         <div
           className={
@@ -468,7 +470,7 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
             onMouseUp={saveSelection}
             onBlur={saveSelection}
             data-placeholder={placeholder ?? "Escreva o contrato..."}
-            className={`focus:outline-none prose prose-sm max-w-none text-neutral-900 leading-[1.7] [&_h1]:text-2xl [&_h1]:font-bold [&_h2]:text-xl [&_h2]:font-semibold [&_h3]:text-lg [&_h3]:font-semibold [&_p]:my-2 [&_blockquote]:border-l-4 [&_blockquote]:border-neutral-300 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-neutral-700 [&_table]:border-collapse [&_table_td]:border [&_table_td]:border-neutral-300 [&_table_td]:p-1 [&_a]:text-blue-600 [&_a]:underline empty:before:content-[attr(data-placeholder)] empty:before:text-neutral-400 ${compact ? "px-3 py-2" : "px-[96px] py-[96px]"}`}
+            className={`focus:outline-none prose prose-sm max-w-none text-neutral-900 leading-[1.7] [&_h1]:text-2xl [&_h1]:font-bold [&_h2]:text-xl [&_h2]:font-semibold [&_h3]:text-lg [&_h3]:font-semibold [&_p]:my-2 [&_blockquote]:border-l-4 [&_blockquote]:border-neutral-300 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-neutral-700 [&_table]:border-collapse [&_table_td]:border [&_table_td]:border-neutral-300 [&_table_td]:p-1 [&_a]:text-blue-600 [&_a]:underline empty:before:content-[attr(data-placeholder)] empty:before:text-neutral-400 ${compact ? "px-3 py-2" : "px-6 py-8 sm:px-12 sm:py-12 md:px-[96px] md:py-[96px]"}`}
             style={{
               minHeight: compact ? Math.min(minHeight, 120) : minHeight,
               fontFamily: "'Arial', 'Helvetica', sans-serif",
@@ -476,6 +478,7 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
             }}
           />
         </div>
+
 
         {/* Overlay de redimensionamento livre da imagem selecionada */}
         {selectedImg && imgBox && (

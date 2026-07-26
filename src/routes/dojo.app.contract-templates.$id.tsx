@@ -275,12 +275,12 @@ function ContractEditorPage() {
     <div className="fixed inset-0 z-[100] flex flex-col bg-[#f9fbfd] dark:bg-neutral-950 overflow-hidden">
 
       {/* Google Docs-style title bar */}
-      <div className="flex items-center justify-between gap-3 bg-[#f9fbfd] dark:bg-neutral-950 px-4 md:px-6 pt-3 pb-1 shrink-0">
-        <div className="flex items-center gap-3 min-w-0 flex-1">
-          <Link to="/dojo/app/contracts/templates">
-            <Button variant="ghost" size="icon" className="rounded-full"><ArrowLeft className="h-4 w-4" /></Button>
+      <div className="flex items-center justify-between gap-2 sm:gap-3 bg-[#f9fbfd] dark:bg-neutral-950 px-2 sm:px-4 md:px-6 pt-2 sm:pt-3 pb-1 shrink-0">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+          <Link to="/dojo/app/contracts/templates" className="shrink-0">
+            <Button variant="ghost" size="icon" className="rounded-full h-9 w-9"><ArrowLeft className="h-4 w-4" /></Button>
           </Link>
-          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-blue-50 text-blue-600 shrink-0">
+          <div className="hidden sm:flex h-10 w-10 items-center justify-center rounded-md bg-blue-50 text-blue-600 shrink-0">
             <FileText className="h-5 w-5" />
           </div>
           <div className="min-w-0 flex-1">
@@ -288,9 +288,9 @@ function ContractEditorPage() {
               value={draft.name}
               onChange={(e) => patch({ name: e.target.value })}
               placeholder="Documento sem título"
-              className="h-8 border-transparent hover:border-input focus:border-input font-medium text-lg px-2 -ml-2 max-w-lg"
+              className="h-8 border-transparent hover:border-input focus:border-input font-medium text-base sm:text-lg px-2 -ml-1 sm:-ml-2 w-full max-w-lg truncate"
             />
-            <div className="flex items-center gap-4 pl-2 -mt-0.5 text-[13px] text-neutral-700 dark:text-neutral-300">
+            <div className="flex items-center gap-1 sm:gap-4 pl-1 sm:pl-2 -mt-0.5 text-[13px] text-neutral-700 dark:text-neutral-300 overflow-x-auto whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               <MenuButton label="Arquivo">
                 <DropdownMenuItem onClick={() => navigate({ to: "/dojo/app/contract-templates/$id", params: { id: "new" } })}>Novo modelo</DropdownMenuItem>
                 <DropdownMenuItem onClick={save}><Save className="h-3.5 w-3.5 mr-2" />Salvar<span className="ml-auto text-[10px] text-muted-foreground">Ctrl+S</span></DropdownMenuItem>
@@ -388,38 +388,46 @@ function ContractEditorPage() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={printPreview}>Pré-visualizar impressão</DropdownMenuItem>
               </MenuButton>
-              <span className="text-xs text-muted-foreground ml-2">
+              <span className="hidden md:inline text-xs text-muted-foreground ml-2">
                 {isNew ? "Novo modelo" : existing.data ? `Salvo · ${new Date((existing.data as any).updated_at).toLocaleString("pt-BR")}` : ""}
               </span>
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <Button variant="outline" size="sm" onClick={printPreview} className="rounded-full"><Printer className="h-4 w-4 mr-1" />Imprimir</Button>
-          <Button size="sm" onClick={save} className="rounded-full bg-blue-600 hover:bg-blue-700 text-white"><Save className="h-4 w-4 mr-1" />Salvar</Button>
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <Button variant="outline" size="sm" onClick={printPreview} className="rounded-full h-9 w-9 sm:w-auto sm:px-3 p-0 sm:p-auto" aria-label="Imprimir">
+            <Printer className="h-4 w-4 sm:mr-1" />
+            <span className="hidden sm:inline">Imprimir</span>
+          </Button>
+          <Button size="sm" onClick={save} className="rounded-full bg-blue-600 hover:bg-blue-700 text-white h-9 w-9 sm:w-auto sm:px-3 p-0 sm:p-auto" aria-label="Salvar">
+            <Save className="h-4 w-4 sm:mr-1" />
+            <span className="hidden sm:inline">Salvar</span>
+          </Button>
         </div>
       </div>
+
 
       {/* Body: main document (emphasis) + small preview sidebar */}
       <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-0">
         {/* MAIN — editor */}
         <div className="min-h-0 overflow-y-auto">
-          <div className="px-3 md:px-6 pt-2 pb-8 space-y-3">
+          <div className="px-2 sm:px-3 md:px-6 pt-2 pb-8 space-y-3">
             <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="w-full">
-              <div className="flex items-center justify-between gap-3 flex-wrap">
-                <TabsList className="bg-neutral-200/60 dark:bg-neutral-800/60">
-                  <TabsTrigger value="body"><FileText className="h-3.5 w-3.5 mr-1" />Corpo</TabsTrigger>
-                  <TabsTrigger value="header"><PanelTop className="h-3.5 w-3.5 mr-1" />Cabeçalho</TabsTrigger>
-                  <TabsTrigger value="footer"><PanelBottom className="h-3.5 w-3.5 mr-1" />Rodapé</TabsTrigger>
-                  <TabsTrigger value="page"><Settings2 className="h-3.5 w-3.5 mr-1" />Página</TabsTrigger>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
+                <TabsList className="bg-neutral-200/60 dark:bg-neutral-800/60 w-full sm:w-auto overflow-x-auto justify-start [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  <TabsTrigger value="body" className="shrink-0"><FileText className="h-3.5 w-3.5 mr-1" />Corpo</TabsTrigger>
+                  <TabsTrigger value="header" className="shrink-0"><PanelTop className="h-3.5 w-3.5 mr-1" />Cabeçalho</TabsTrigger>
+                  <TabsTrigger value="footer" className="shrink-0"><PanelBottom className="h-3.5 w-3.5 mr-1" />Rodapé</TabsTrigger>
+                  <TabsTrigger value="page" className="shrink-0"><Settings2 className="h-3.5 w-3.5 mr-1" />Página</TabsTrigger>
                 </TabsList>
                 <Input
                   value={draft.description}
                   onChange={(e) => patch({ description: e.target.value })}
                   placeholder="Descrição interna (opcional)"
-                  className="h-8 max-w-xs text-xs"
+                  className="h-8 w-full sm:max-w-xs text-xs"
                 />
               </div>
+
 
               <TabsContent value="body" className="mt-3">
                 <RichTextEditor
@@ -434,17 +442,18 @@ function ContractEditorPage() {
                 <div className="text-xs text-muted-foreground">
                   O cabeçalho será impresso no topo de <strong>todas as páginas</strong>. Recomendado: logo com altura entre 40 e 80 px para caber bem em A4.
                 </div>
-                <div className="flex flex-wrap items-center gap-2 rounded-md border border-dashed border-red-500/40 bg-red-500/5 p-2">
-                  <span className="text-xs font-medium text-red-700 dark:text-red-300 inline-flex items-center gap-1">
+                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 rounded-md border border-dashed border-red-500/40 bg-red-500/5 p-2">
+                  <span className="text-xs font-medium text-red-700 dark:text-red-300 inline-flex items-center gap-1 w-full sm:w-auto">
                     <ImageIcon className="h-3.5 w-3.5" /> Logo da academia:
                   </span>
-                  <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => insertAcademyLogo(40)}>Pequena (40 px)</Button>
-                  <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => insertAcademyLogo(56)}>Média (56 px)</Button>
-                  <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => insertAcademyLogo(80)}>Grande (80 px)</Button>
+                  <Button size="sm" variant="outline" className="h-7 text-xs flex-1 sm:flex-none" onClick={() => insertAcademyLogo(40)}>Pequena (40 px)</Button>
+                  <Button size="sm" variant="outline" className="h-7 text-xs flex-1 sm:flex-none" onClick={() => insertAcademyLogo(56)}>Média (56 px)</Button>
+                  <Button size="sm" variant="outline" className="h-7 text-xs flex-1 sm:flex-none" onClick={() => insertAcademyLogo(80)}>Grande (80 px)</Button>
                   {!(branding.data as any)?.logo_url && !(academy.data as any)?.logo_url && (
-                    <span className="text-[11px] text-muted-foreground">Envie a logo em Configurações › Identidade visual.</span>
+                    <span className="text-[11px] text-muted-foreground w-full">Envie a logo em Configurações › Identidade visual.</span>
                   )}
                 </div>
+
                 <RichTextEditor
                   value={draft.header_html}
                   onChange={(html) => patch({ header_html: html })}
