@@ -83,12 +83,12 @@ const marketItems = [
 
 const scraperItems = [
   { title: "Dashboard", url: "/admin/prospect", icon: LayoutDashboard },
-  { title: "Leads", url: "/prospect/leads", icon: Users },
-  { title: "Potenciais Clientes", url: "/prospect/qualified", icon: Sparkles },
-  { title: "Pipeline", url: "/prospect/pipeline", icon: Handshake },
-  { title: "Nova Busca", url: "/prospect/search", icon: Radar },
-  { title: "Configurações", url: "/prospect/settings", icon: Wrench },
-  { title: "Logs", url: "/prospect/logs", icon: ListChecks },
+  { title: "Leads", url: "/admin/leads", icon: Users },
+  { title: "Potenciais Clientes", url: "/admin/leads/qualificados", icon: Sparkles },
+  { title: "Pipeline", url: "/admin/leads/pipeline", icon: Handshake },
+  { title: "Nova Busca", url: "/admin/leads/busca", icon: Radar },
+  { title: "Configurações", url: "/admin/leads/configuracoes", icon: Wrench },
+  { title: "Logs", url: "/admin/leads/logs", icon: ListChecks },
 ] as const;
 
 

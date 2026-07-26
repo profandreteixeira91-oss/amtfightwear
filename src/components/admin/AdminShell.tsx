@@ -262,11 +262,11 @@ const NAV: NavGroup[] = [
   {
     label: "Comercial",
     items: [
-      { title: "Leads", url: "/prospect/leads", icon: Target },
-      { title: "Leads qualificados", url: "/prospect/qualified", icon: BadgePercent },
-      { title: "Pipeline", url: "/prospect/pipeline", icon: KanbanSquare },
-      { title: "Busca de prospects", url: "/prospect/search", icon: ScanSearch },
-      { title: "Macro / segmentos", url: "/prospect/macro", icon: TrendingUp },
+      { title: "Leads", url: "/admin/leads", icon: Target },
+      { title: "Leads qualificados", url: "/admin/leads/qualificados", icon: BadgePercent },
+      { title: "Pipeline", url: "/admin/leads/pipeline", icon: KanbanSquare },
+      { title: "Busca de prospects", url: "/admin/leads/busca", icon: ScanSearch },
+      { title: "Macro / segmentos", url: "/admin/leads/macro", icon: TrendingUp },
       { title: "CRM", url: "/growth/crm", icon: Users },
       { title: "Clientes (Loja)", url: "/admin/clientes", icon: UserSquare2 },
       { title: "Clientes (Growth)", url: "/growth/customers", icon: UserSquare2 },
