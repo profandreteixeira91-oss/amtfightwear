@@ -145,9 +145,8 @@ function AdminSidebar() {
     <Sidebar collapsible="icon" className="border-r border-neutral-200 bg-white">
       <SidebarContent>
         {NAV.map((group) => {
-          const groupOpen = group.items.some((i) => isActive(i.url));
           return (
-            <SidebarGroup key={group.label} defaultOpen={groupOpen}>
+            <SidebarGroup key={group.label}>
               {!collapsed && (
                 <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-500">
                   {group.label}
