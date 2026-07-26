@@ -5055,6 +5055,109 @@ export type Database = {
           },
         ]
       }
+      dojo_fight_video_notes: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          note: string
+          owner_id: string
+          timestamp_seconds: number
+          title: string | null
+          updated_at: string
+          video_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          note: string
+          owner_id: string
+          timestamp_seconds?: number
+          title?: string | null
+          updated_at?: string
+          video_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          note?: string
+          owner_id?: string
+          timestamp_seconds?: number
+          title?: string | null
+          updated_at?: string
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_fight_video_notes_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_fight_videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_fight_videos: {
+        Row: {
+          content_type: string | null
+          created_at: string
+          description: string | null
+          duration_seconds: number | null
+          event_name: string | null
+          id: string
+          opponent: string | null
+          owner_id: string
+          size_bytes: number | null
+          storage_path: string
+          student_id: string
+          title: string
+          updated_at: string
+          video_date: string | null
+        }
+        Insert: {
+          content_type?: string | null
+          created_at?: string
+          description?: string | null
+          duration_seconds?: number | null
+          event_name?: string | null
+          id?: string
+          opponent?: string | null
+          owner_id: string
+          size_bytes?: number | null
+          storage_path: string
+          student_id: string
+          title: string
+          updated_at?: string
+          video_date?: string | null
+        }
+        Update: {
+          content_type?: string | null
+          created_at?: string
+          description?: string | null
+          duration_seconds?: number | null
+          event_name?: string | null
+          id?: string
+          opponent?: string | null
+          owner_id?: string
+          size_bytes?: number | null
+          storage_path?: string
+          student_id?: string
+          title?: string
+          updated_at?: string
+          video_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_fight_videos_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dojo_gateway_history: {
         Row: {
           action: string
