@@ -226,44 +226,45 @@ function MemberRow({ member, qc }: { member: any; qc: ReturnType<typeof useQuery
   };
 
   return (
-    <Card>
+    <Card className="overflow-hidden border-red-500/15 bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950 text-white shadow-[0_16px_40px_-30px_rgba(220,38,38,0.6)]">
       <CardContent className="p-0">
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
-          className="flex w-full items-center gap-3 p-4 text-left hover:bg-accent/30 transition-colors"
+          className="flex w-full items-center gap-3 p-4 text-left transition-colors hover:bg-white/5"
           aria-expanded={expanded}
         >
-          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
+          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-gradient-to-br from-amber-400 via-red-500 to-red-700 text-white ring-1 ring-white/20 shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)]">
             <UserCircle className="h-5 w-5" />
           </div>
           <div className="min-w-0 flex-1">
-            <div className="truncate text-sm font-semibold">{member.full_name}</div>
-            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+            <div className="truncate text-sm font-semibold text-white">{member.full_name}</div>
+            <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-neutral-400">
               <span className="inline-flex items-center gap-1">
                 <Mail className="h-3 w-3" />
-                {member.email || <em className="text-red-600">e-mail não cadastrado</em>}
+                {member.email || <em className="text-red-400">e-mail não cadastrado</em>}
               </span>
               {member.role && (
-                <Badge variant="outline" className="text-[10px] uppercase">
+                <Badge variant="outline" className="border-red-500/30 bg-red-500/10 text-[10px] uppercase text-red-200">
                   {translateRole(member.role)}
                 </Badge>
               )}
               {hasLogin ? (
-                <Badge className="gap-1 bg-emerald-600 text-white">
+                <Badge className="gap-1 border border-emerald-500/30 bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/15">
                   <CheckCircle2 className="h-3 w-3" /> Login ativo
                 </Badge>
               ) : (
-                <Badge variant="outline" className="gap-1 text-muted-foreground">
+                <Badge variant="outline" className="gap-1 border-neutral-700 bg-neutral-900 text-neutral-400">
                   <XCircle className="h-3 w-3" /> Sem login
                 </Badge>
               )}
             </div>
           </div>
           <ChevronDown
-            className={`h-5 w-5 shrink-0 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`}
+            className={`h-5 w-5 shrink-0 text-neutral-400 transition-transform ${expanded ? "rotate-180" : ""}`}
           />
         </button>
+
 
         {expanded && (
           <div className="space-y-4 border-t p-4">
