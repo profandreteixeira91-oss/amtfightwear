@@ -454,7 +454,9 @@ function NewGraduationPage() {
       aluno_cpf: (student as any).cpf ?? "",
       aluno_data_nascimento: (student as any).birth_date ? new Date((student as any).birth_date).toLocaleDateString("pt-BR") : "",
       aluno_faixa: beltLabel,
-      aluno_grau: String(studentDeg ?? ""),
+      aluno_faixa_nome: beltNameOnly,
+      aluno_grau: grauValueForVar,
+      aluno_grau_numero: String(Number(studentDeg ?? 0) || 0),
       aluno_modalidade: (student as any).modality || (student as any).discipline || studentMod || "",
       aluno_foto: (student as any).photo_url ?? "",
       // Graduação
