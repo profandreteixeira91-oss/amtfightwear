@@ -713,7 +713,7 @@ function BrandAssetBlock({ title, url, onPick, onRemove, inputRef, onChange }: a
 }
 
 /* ---------------- Subscription ---------------- */
-function SubscriptionTab({ subscription }: any) {
+function SubscriptionTab({ subscription, invoices = [] }: any) {
   const status = subscription?.status ?? "trialing";
   const trialLeft = subscription?.trial_ends_at
     ? Math.max(0, Math.ceil((new Date(subscription.trial_ends_at).getTime() - Date.now()) / 86400000))
@@ -725,35 +725,52 @@ function SubscriptionTab({ subscription }: any) {
     paused: "Pausada",
     cancelled: "Cancelada",
   };
+  const pending = invoices.filter((i: any) => i.status !== "paid");
+  const paid = invoices.filter((i: any) => i.status === "paid");
   return (
-    <Card>
-      <CardHeader><CardTitle>Assinatura</CardTitle></CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <Info label="Plano atual" value="AMT Dojo Manager" />
-          <Info label="Status" value={statusLabel[status] ?? status} />
-          <Info label="Valor mensal" value={brl(subscription?.plan_amount ?? 69.9)} />
-          <Info label="Próxima cobrança" value={subscription?.current_period_end ? new Date(subscription.current_period_end).toLocaleDateString("pt-BR") : "—"} />
-          <Info label="Forma de pagamento" value="Mercado Pago" />
-          <Info label="Renovação automática" value={status === "active" ? "Sim" : "—"} />
-        </div>
-        {trialLeft != null && trialLeft > 0 && (
-          <div className="rounded-md border border-blue-500/30 bg-blue-500/10 p-3 text-sm">
-            Período de teste: <strong>{trialLeft} dias restantes</strong> (termina em {new Date(subscription.trial_ends_at).toLocaleDateString("pt-BR")}).
+    <div className="space-y-4">
+      <Card>
+        <CardHeader><CardTitle>Assinatura</CardTitle></CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <Info label="Plano atual" value="AMT Dojo Manager" />
+            <Info label="Status" value={statusLabel[status] ?? status} />
+            <Info label="Valor mensal" value={brl(subscription?.plan_amount ?? 69.9)} />
+            <Info label="Próxima cobrança" value={subscription?.current_period_end ? new Date(subscription.current_period_end).toLocaleDateString("pt-BR") : "—"} />
+            <Info label="Forma de pagamento" value="Mercado Pago" />
+            <Info label="Renovação automática" value={status === "active" ? "Sim" : "—"} />
           </div>
-        )}
-        <p className="text-xs text-neutral-500">
-          Cobrança recorrente processada pelo Mercado Pago (cartão de crédito ou saldo da conta MP). Cancele quando quiser — nenhum dado do cartão é armazenado no sistema.
-        </p>
-        <div className="flex flex-wrap gap-2">
-          <Button size="sm" asChild className="bg-red-600 hover:bg-red-700 text-white">
-            <a href="/dojo/app/subscription" className="text-white">
-              {status === "active" ? "Gerenciar assinatura" : status === "cancelled" ? "Reativar assinatura" : "Ativar assinatura"}
-            </a>
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+          {trialLeft != null && trialLeft > 0 && (
+            <div className="rounded-md border border-blue-500/30 bg-blue-500/10 p-3 text-sm">
+              Período de teste: <strong>{trialLeft} dias restantes</strong> (termina em {new Date(subscription.trial_ends_at).toLocaleDateString("pt-BR")}).
+            </div>
+          )}
+          <p className="text-xs text-neutral-500">
+            Cobrança recorrente processada pelo Mercado Pago (cartão de crédito ou saldo da conta MP). Cancele quando quiser — nenhum dado do cartão é armazenado no sistema.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" asChild className="bg-red-600 hover:bg-red-700 text-white">
+              <a href="/dojo/app/subscription" className="text-white">
+                {status === "active" ? "Gerenciar assinatura" : status === "cancelled" ? "Reativar assinatura" : "Ativar assinatura"}
+              </a>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader><CardTitle>Faturas pendentes</CardTitle></CardHeader>
+        <CardContent>
+          <InvoiceTable rows={pending} pending />
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader><CardTitle>Histórico de pagamentos</CardTitle></CardHeader>
+        <CardContent>
+          <InvoiceTable rows={paid} />
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 
