@@ -267,11 +267,12 @@ function MemberRow({ member, qc }: { member: any; qc: ReturnType<typeof useQuery
 
 
         {expanded && (
-          <div className="space-y-4 border-t p-4">
+          <div className="space-y-4 border-t border-red-500/15 bg-neutral-950/40 p-4">
             <div className="flex flex-wrap gap-2">
               <Button
                 size="sm"
                 variant="outline"
+                className="border-red-500/30 bg-red-500/10 text-red-100 hover:bg-red-500/20 hover:text-white"
                 disabled={emailMissing || busy}
                 onClick={() => setPassOpen(true)}
               >
@@ -279,30 +280,30 @@ function MemberRow({ member, qc }: { member: any; qc: ReturnType<typeof useQuery
                 {hasLogin ? "Trocar senha" : "Criar login"}
               </Button>
               {hasLogin && (
-                <Button size="sm" variant="ghost" disabled={busy} onClick={revokeLogin}>
+                <Button size="sm" variant="ghost" className="text-neutral-300 hover:bg-white/5 hover:text-white" disabled={busy} onClick={revokeLogin}>
                   Revogar acesso
                 </Button>
               )}
             </div>
 
-            <Separator />
+            <Separator className="bg-red-500/15" />
 
             <div className="space-y-2">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="flex items-center gap-2 text-sm font-semibold">
-                  <ShieldCheck className="h-4 w-4" />
+                <div className="flex items-center gap-2 text-sm font-semibold text-white">
+                  <ShieldCheck className="h-4 w-4 text-red-300" />
                   Módulos visíveis para {member.full_name?.split(" ")[0] ?? "o usuário"}
                 </div>
                 <div className="flex gap-2">
-                  <Button size="sm" variant="outline" onClick={() => setAll(true)}>
+                  <Button size="sm" variant="outline" className="border-red-500/25 bg-transparent text-neutral-200 hover:bg-white/5 hover:text-white" onClick={() => setAll(true)}>
                     Marcar todos
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => setAll(false)}>
+                  <Button size="sm" variant="outline" className="border-red-500/25 bg-transparent text-neutral-200 hover:bg-white/5 hover:text-white" onClick={() => setAll(false)}>
                     Desmarcar todos
                   </Button>
                 </div>
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-neutral-400">
                 Só os módulos marcados aparecerão na barra lateral quando este colaborador
                 entrar no sistema.
               </p>
@@ -314,7 +315,11 @@ function MemberRow({ member, qc }: { member: any; qc: ReturnType<typeof useQuery
                     <label
                       key={mod.key}
                       htmlFor={id}
-                      className="flex cursor-pointer items-start gap-2 rounded-md border p-2.5 hover:bg-accent/40"
+                      className={`flex cursor-pointer items-start gap-2 rounded-lg border p-2.5 transition-colors ${
+                        checked
+                          ? "border-red-500/40 bg-red-500/10"
+                          : "border-red-500/10 bg-neutral-900/60 hover:bg-white/5"
+                      }`}
                     >
                       <Checkbox
                         id={id}
@@ -322,15 +327,20 @@ function MemberRow({ member, qc }: { member: any; qc: ReturnType<typeof useQuery
                         onCheckedChange={(v) => toggle(mod.key, v === true)}
                       />
                       <div className="min-w-0">
-                        <div className="text-sm font-medium leading-tight">{mod.label}</div>
-                        <div className="text-[11px] text-muted-foreground">{mod.description}</div>
+                        <div className="text-sm font-medium leading-tight text-white">{mod.label}</div>
+                        <div className="text-[11px] text-neutral-400">{mod.description}</div>
                       </div>
                     </label>
                   );
                 })}
               </div>
               <div className="flex justify-end pt-1">
-                <Button size="sm" disabled={!dirty || busy} onClick={savePerms}>
+                <Button
+                  size="sm"
+                  disabled={!dirty || busy}
+                  onClick={savePerms}
+                  className="bg-gradient-to-br from-red-600 to-red-800 text-white shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-700 disabled:opacity-50"
+                >
                   <Save className="mr-2 h-4 w-4" /> Salvar permissões
                 </Button>
               </div>
@@ -338,6 +348,7 @@ function MemberRow({ member, qc }: { member: any; qc: ReturnType<typeof useQuery
           </div>
         )}
       </CardContent>
+
 
 
       <Dialog open={passOpen} onOpenChange={setPassOpen}>
