@@ -55,10 +55,10 @@ function IssuedContractsPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input placeholder="Buscar por título ou número do contrato…" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9" />
           </div>
-          <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4 text-muted-foreground" />
+          <div className="flex flex-wrap items-center gap-2">
+            <Filter className="h-4 w-4 shrink-0 text-muted-foreground" />
             <Select value={kind} onValueChange={(v) => setKind(v as any)}>
-              <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full min-w-0 flex-1 sm:w-[160px] sm:flex-none"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos</SelectItem>
                 <SelectItem value="student">Alunos</SelectItem>
@@ -67,7 +67,7 @@ function IssuedContractsPage() {
               </SelectContent>
             </Select>
             <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger className="w-[190px]"><SelectValue placeholder="Status" /></SelectTrigger>
+              <SelectTrigger className="w-full min-w-0 flex-1 sm:w-[190px] sm:flex-none"><SelectValue placeholder="Status" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos status</SelectItem>
                 {Object.entries(CONTRACT_STATUS_LABELS).map(([k, v]) => (

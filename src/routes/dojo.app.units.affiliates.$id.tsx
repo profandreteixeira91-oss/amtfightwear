@@ -563,13 +563,13 @@ function CertificateTab({ affiliate }: { affiliate: any }) {
 
         <div className="text-xs text-muted-foreground border-t pt-3">
           <div className="font-semibold text-foreground mb-1">Variáveis disponíveis para esta filial:</div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-1 font-mono">
-            <span>{"{{affiliate_name}}"} → {affiliate.trade_name || affiliate.academy_name}</span>
-            <span>{"{{academy_name}}"} → {affiliate.academy_name}</span>
-            <span>{"{{city}}"} → {affiliate.city || "—"}</span>
-            <span>{"{{state}}"} → {affiliate.state || "—"}</span>
-            <span>{"{{affiliation_number}}"} → {affiliate.affiliation_number}</span>
-            <span>{"{{issued_at}}"} → hoje</span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1 font-mono break-words">
+            <span className="min-w-0 break-all">{"{{affiliate_name}}"} → {affiliate.trade_name || affiliate.academy_name}</span>
+            <span className="min-w-0 break-all">{"{{academy_name}}"} → {affiliate.academy_name}</span>
+            <span className="min-w-0 break-all">{"{{city}}"} → {affiliate.city || "—"}</span>
+            <span className="min-w-0 break-all">{"{{state}}"} → {affiliate.state || "—"}</span>
+            <span className="min-w-0 break-all">{"{{affiliation_number}}"} → {affiliate.affiliation_number}</span>
+            <span className="min-w-0 break-all">{"{{issued_at}}"} → hoje</span>
           </div>
         </div>
 

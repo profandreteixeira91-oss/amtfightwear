@@ -133,10 +133,10 @@ function TemplatesLibraryPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input placeholder="Buscar por nome do modelo…" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9" />
           </div>
-          <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4 text-muted-foreground" />
+          <div className="flex flex-wrap items-center gap-2">
+            <Filter className="h-4 w-4 shrink-0 text-muted-foreground" />
             <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger className="w-[190px]"><SelectValue placeholder="Categoria" /></SelectTrigger>
+              <SelectTrigger className="w-full min-w-0 flex-1 sm:w-[190px] sm:flex-none"><SelectValue placeholder="Categoria" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todas as categorias</SelectItem>
                 {Object.entries(CONTRACT_CATEGORY_LABELS).map(([k, v]) => (
@@ -145,7 +145,7 @@ function TemplatesLibraryPage() {
               </SelectContent>
             </Select>
             <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger className="w-[160px]"><SelectValue placeholder="Status" /></SelectTrigger>
+              <SelectTrigger className="w-full min-w-0 flex-1 sm:w-[160px] sm:flex-none"><SelectValue placeholder="Status" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos</SelectItem>
                 <SelectItem value="active">Ativo</SelectItem>
@@ -154,7 +154,7 @@ function TemplatesLibraryPage() {
                 <SelectItem value="archived">Arquivado</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline" size="icon" onClick={() => list.refetch()}>
+            <Button variant="outline" size="icon" onClick={() => list.refetch()} className="shrink-0">
               <RefreshCw className="h-4 w-4" />
             </Button>
           </div>
