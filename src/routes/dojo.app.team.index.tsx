@@ -12,7 +12,7 @@ import { DojoPageShell } from "@/components/dojo/DojoPageShell";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Dialog,
@@ -340,11 +340,11 @@ function TeamPage() {
 
       {/* Filters */}
       <div className="flex flex-col gap-2 rounded-2xl border border-neutral-200/70 bg-white/80 p-3 shadow-sm backdrop-blur sm:flex-row sm:flex-wrap sm:items-center">
-        <div className="relative min-w-[220px] flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <div className="relative w-full min-w-0 flex-1 sm:min-w-[220px]">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Buscar por nome, e-mail, CPF..."
-            className="pl-9 border-neutral-200 bg-white focus-visible:ring-red-500/40"
+            className="pl-10 border-neutral-200 bg-white focus-visible:ring-red-500/40"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -397,32 +397,33 @@ function TeamPage() {
                 {m.full_name?.slice(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <div className="min-w-[180px] flex-1">
+            <div className="min-w-0 flex-1 basis-[calc(100%-3.75rem)] sm:basis-auto">
               <Link
                 to="/dojo/app/team/$id"
                 params={{ id: m.id }}
-                className="font-semibold tracking-tight text-neutral-900 hover:text-red-600 hover:underline"
+                className="block truncate font-semibold tracking-tight text-neutral-900 hover:text-red-600 hover:underline"
               >
                 {m.full_name}
               </Link>
-              <div className="text-xs text-muted-foreground">
+              <div className="truncate text-xs text-muted-foreground">
                 <span className="font-medium text-neutral-700">{ROLE_LABELS[m.role] ?? m.role}</span>
                 {m.email ? ` · ${m.email}` : ""}
                 {m.phone ? ` · ${m.phone}` : ""}
               </div>
             </div>
-            <Badge variant="outline" className={`rounded-full ${STATUS_COLORS[m.status]}`}>
-              {STATUS_LABELS[m.status] ?? m.status}
-            </Badge>
             <Select value={m.status} onValueChange={(v) => onStatusChange(m.id, v)}>
-              <SelectTrigger className="w-[140px] rounded-xl"><SelectValue /></SelectTrigger>
+              <SelectTrigger
+                className={`h-9 w-full rounded-full border px-3 text-xs font-medium sm:w-[150px] ${STATUS_COLORS[m.status] ?? ""}`}
+              >
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 {Object.entries(STATUS_LABELS).map(([k, v]) => (
                   <SelectItem key={k} value={k}>{v}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <Button size="sm" className="bg-red-600 text-white hover:bg-red-500" asChild>
+            <Button size="sm" className="w-full bg-red-600 text-white hover:bg-red-500 sm:w-auto" asChild>
               <Link to="/dojo/app/team/$id" params={{ id: m.id }}>Abrir</Link>
             </Button>
           </div>
