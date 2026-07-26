@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
 import { listLibraryTemplates, duplicateEvalTemplate } from "@/lib/dojo/evaluations.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -115,8 +115,8 @@ function LibraryPage() {
               <div className="text-xs text-muted-foreground">
                 {t.structure?.categories?.length ?? 0} categorias · método {t.method}
               </div>
-              <Button size="sm" className="w-full" onClick={() => use(t.id)}>
-                <Copy className="h-3.5 w-3.5 mr-1.5" /> Usar este modelo
+              <Button size="sm" className="w-full" onClick={() => use(t.id)} disabled={copyingId === t.id}>
+                <Copy className="h-3.5 w-3.5 mr-1.5" /> {copyingId === t.id ? "Copiando…" : "Usar este modelo"}
               </Button>
             </CardContent>
           </Card>
