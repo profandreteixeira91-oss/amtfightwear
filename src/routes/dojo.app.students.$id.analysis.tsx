@@ -168,7 +168,7 @@ function AnalysisPage() {
             )}
           </div>
           {belt && (
-            <div className="relative w-full max-w-[220px] justify-self-center md:justify-self-end">
+            <div className="relative w-full max-w-[220px] justify-self-center sm:col-span-2 lg:col-span-1 lg:justify-self-end">
               <div className="absolute -inset-2 rounded-2xl bg-gradient-to-br from-red-500/30 to-amber-500/20 blur-xl" />
               <div className="relative rounded-2xl border border-white/10 bg-black/40 p-3 backdrop-blur">
                 <BeltAuto belt={belt} degree={s?.current_degree ?? 0} />
