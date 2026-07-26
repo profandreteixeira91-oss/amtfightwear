@@ -207,7 +207,7 @@ export const PAYMENT_METHODS: PaymentMethodDef[] = [
 
 export const GATEWAY_LABELS: Record<GatewayCode, string> = {
   manual: "Manual (registro interno)",
-  asaas: "Asaas",
+  asaas: "AMT Pay",
   mercadopago: "Mercado Pago",
   pagseguro: "PagSeguro",
   stripe: "Stripe",
