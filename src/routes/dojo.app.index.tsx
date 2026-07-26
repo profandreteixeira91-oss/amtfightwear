@@ -83,16 +83,30 @@ function BentoCard({
   className = "",
   style,
   children,
+  premium = true,
 }: {
   className?: string;
   style?: React.CSSProperties;
   children: React.ReactNode;
+  premium?: boolean;
 }) {
+  if (!premium) {
+    return (
+      <div
+        className={`dojo-card relative overflow-hidden p-4 md:p-5 flex flex-col gap-3 ${className}`}
+        style={style}
+      >
+        {children}
+      </div>
+    );
+  }
   return (
     <div
-      className={`dojo-card relative overflow-hidden p-4 md:p-5 flex flex-col gap-3 ${className}`}
+      className={`relative overflow-hidden rounded-2xl bg-white ring-1 ring-black/5 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.35),0_2px_8px_-4px_rgba(0,0,0,0.12)] transition-all duration-300 hover:shadow-[0_28px_70px_-25px_rgba(0,0,0,0.45),0_4px_14px_-6px_rgba(0,0,0,0.18)] hover:-translate-y-0.5 p-5 md:p-6 flex flex-col gap-3 ${className}`}
       style={style}
     >
+      {/* fio hairline superior editorial */}
+      <div className="pointer-events-none absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-rose-700/25 to-transparent" />
       {children}
     </div>
   );
