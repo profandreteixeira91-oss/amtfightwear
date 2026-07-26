@@ -834,6 +834,16 @@ function SubscriptionTab({ subscription, payments = { paid: [], pending: [] } }:
 
 
 
+function invoiceStatusLabel(s: string): string {
+  const map: Record<string, string> = {
+    approved: "Pago", paid: "Pago",
+    pending: "Aguardando pagamento", in_process: "Processando",
+    rejected: "Rejeitado", cancelled: "Cancelado", refunded: "Reembolsado",
+    charged_back: "Estornado", scheduled: "Agendado", trial: "Em teste",
+  };
+  return map[s] ?? s;
+}
+
 function InvoiceTable({ rows, pending }: { rows: any[]; pending?: boolean }) {
   if (!rows.length) return <div className="text-sm text-muted-foreground">Nenhum registro.</div>;
   return (
