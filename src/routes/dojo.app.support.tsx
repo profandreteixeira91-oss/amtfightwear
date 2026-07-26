@@ -39,10 +39,10 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 const STATUS_META: Record<string, { label: string; className: string; icon: React.ComponentType<{ className?: string }> }> = {
-  aberto: { label: "Aberto", className: "bg-blue-100 text-blue-700 border-blue-200", icon: AlertCircle },
-  em_atendimento: { label: "Em atendimento", className: "bg-amber-100 text-amber-800 border-amber-200", icon: Clock },
-  resolvido: { label: "Resolvido", className: "bg-emerald-100 text-emerald-700 border-emerald-200", icon: CheckCircle2 },
-  fechado: { label: "Fechado", className: "bg-neutral-200 text-neutral-700 border-neutral-300", icon: CheckCircle2 },
+  aberto: { label: "Aberto", className: "bg-blue-500/15 text-blue-300 border-blue-500/30", icon: AlertCircle },
+  em_atendimento: { label: "Em atendimento", className: "bg-amber-500/15 text-amber-300 border-amber-500/30", icon: Clock },
+  resolvido: { label: "Resolvido", className: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30", icon: CheckCircle2 },
+  fechado: { label: "Fechado", className: "bg-neutral-500/15 text-neutral-300 border-neutral-500/30", icon: CheckCircle2 },
 };
 
 function StatusBadge({ status }: { status: string }) {
@@ -70,68 +70,91 @@ function SupportPage() {
   const activeTicket = useMemo(() => tickets.find((t) => t.id === activeId) ?? null, [tickets, activeId]);
 
   return (
-    <div className="mx-auto max-w-6xl">
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="flex items-center gap-2 text-2xl font-bold">
-            <LifeBuoy className="h-6 w-6 text-primary" /> Suporte
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Abra chamados para dúvidas, sugestões, solicitações e novos módulos. Nosso time responde por aqui.
-          </p>
-        </div>
-        <Button onClick={() => setOpenNew(true)} className="gap-2">
-          <Plus className="h-4 w-4" /> Novo chamado
-        </Button>
-      </div>
-
-      {activeTicket ? (
-        <TicketConversation
-          ticket={activeTicket}
-          onBack={() => setActiveId(null)}
-          onChanged={() => qc.invalidateQueries({ queryKey: ["dojo-support"] })}
-        />
-      ) : (
-        <div className="rounded-2xl border border-border bg-white shadow-sm">
-          {isLoading ? (
-            <div className="p-8 text-center text-sm text-muted-foreground">Carregando...</div>
-          ) : tickets.length === 0 ? (
-            <div className="p-10 text-center">
-              <LifeBuoy className="mx-auto mb-3 h-10 w-10 text-muted-foreground/50" />
-              <p className="text-sm text-muted-foreground">Nenhum chamado ainda. Abra o primeiro clicando em "Novo chamado".</p>
+    <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-black to-neutral-950 text-neutral-100">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Hero */}
+        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-neutral-900/80 via-neutral-950 to-black p-6 shadow-2xl sm:p-8">
+          <div className="pointer-events-none absolute -top-24 -right-16 h-72 w-72 rounded-full bg-red-600/20 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-24 -left-10 h-72 w-72 rounded-full bg-amber-500/10 blur-3xl" />
+          <div className="relative flex flex-wrap items-start justify-between gap-4">
+            <div className="flex items-start gap-4">
+              <div className="relative">
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-red-500 to-amber-500 blur-lg opacity-60" />
+                <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-red-600 to-red-800 shadow-lg ring-1 ring-white/10">
+                  <LifeBuoy className="h-7 w-7 text-white" />
+                </div>
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">Central de Suporte</h1>
+                <p className="mt-1 max-w-xl text-sm text-neutral-400">
+                  Fale direto com o time AMT. Dúvidas, sugestões, novos módulos e solicitações — tudo por aqui, com histórico completo.
+                </p>
+              </div>
             </div>
+            <Button
+              onClick={() => setOpenNew(true)}
+              className="gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg shadow-red-900/40 ring-1 ring-white/10 hover:from-red-500 hover:to-red-600"
+            >
+              <Plus className="h-4 w-4" /> Novo chamado
+            </Button>
+          </div>
+        </div>
+
+        <div className="mt-6">
+          {activeTicket ? (
+            <TicketConversation
+              ticket={activeTicket}
+              onBack={() => setActiveId(null)}
+              onChanged={() => qc.invalidateQueries({ queryKey: ["dojo-support"] })}
+            />
           ) : (
-            <ul className="divide-y divide-border">
-              {tickets.map((t) => (
-                <li key={t.id}>
-                  <button
-                    onClick={() => setActiveId(t.id)}
-                    className="flex w-full items-start justify-between gap-4 px-4 py-3 text-left transition-colors hover:bg-muted/50"
-                  >
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-semibold text-foreground">{t.subject}</span>
-                        <Badge variant="outline" className="text-[10px]">{CATEGORY_LABELS[t.category] ?? t.category}</Badge>
-                        <StatusBadge status={t.status} />
-                      </div>
-                      <div className="mt-1 text-xs text-muted-foreground">
-                        Atualizado {new Date(t.last_message_at).toLocaleString("pt-BR")}
-                      </div>
-                    </div>
-                    {t.unread_by_client > 0 && (
-                      <span className="mt-1 inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-primary px-2 text-xs font-bold text-primary-foreground">
-                        {t.unread_by_client}
-                      </span>
-                    )}
-                  </button>
-                </li>
-              ))}
-            </ul>
+            <div className="overflow-hidden rounded-2xl border border-white/10 bg-neutral-900/60 shadow-xl backdrop-blur">
+              {isLoading ? (
+                <div className="p-8 text-center text-sm text-neutral-400">Carregando...</div>
+              ) : tickets.length === 0 ? (
+                <div className="p-12 text-center">
+                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-red-600/20 to-amber-500/10 ring-1 ring-white/10">
+                    <MessageCircle className="h-8 w-8 text-red-400" />
+                  </div>
+                  <p className="text-base font-semibold text-white">Nenhum chamado ainda</p>
+                  <p className="mt-1 text-sm text-neutral-400">Abra o primeiro clicando em "Novo chamado".</p>
+                </div>
+              ) : (
+                <ul className="divide-y divide-white/5">
+                  {tickets.map((t) => (
+                    <li key={t.id}>
+                      <button
+                        onClick={() => setActiveId(t.id)}
+                        className="group flex w-full items-start justify-between gap-4 px-5 py-4 text-left transition-colors hover:bg-white/5"
+                      >
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="font-semibold text-white group-hover:text-red-300 transition-colors">{t.subject}</span>
+                            <Badge variant="outline" className="border-white/15 bg-white/5 text-[10px] text-neutral-300">
+                              {CATEGORY_LABELS[t.category] ?? t.category}
+                            </Badge>
+                            <StatusBadge status={t.status} />
+                          </div>
+                          <div className="mt-1 text-xs text-neutral-500">
+                            Atualizado {new Date(t.last_message_at).toLocaleString("pt-BR")}
+                          </div>
+                        </div>
+                        {t.unread_by_client > 0 && (
+                          <span className="mt-1 inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-gradient-to-br from-red-500 to-red-700 px-2 text-xs font-bold text-white shadow-lg shadow-red-900/50">
+                            {t.unread_by_client}
+                          </span>
+                        )}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           )}
         </div>
-      )}
 
-      <NewTicketDialog open={openNew} onOpenChange={setOpenNew} onCreated={(id) => setActiveId(id)} />
+        <NewTicketDialog open={openNew} onOpenChange={setOpenNew} onCreated={(id) => setActiveId(id)} />
+      </div>
     </div>
   );
 }
@@ -260,36 +283,43 @@ function TicketConversation({
   });
 
   return (
-    <div className="rounded-2xl border border-border bg-white shadow-sm">
-      <div className="flex flex-wrap items-center gap-3 border-b border-border px-4 py-3">
-        <Button variant="ghost" size="sm" onClick={onBack} className="gap-1">
+    <div className="overflow-hidden rounded-2xl border border-white/10 bg-neutral-900/60 shadow-xl backdrop-blur">
+      <div className="flex flex-wrap items-center gap-3 border-b border-white/10 bg-gradient-to-r from-neutral-900 to-neutral-950 px-4 py-3">
+        <Button variant="ghost" size="sm" onClick={onBack} className="gap-1 text-neutral-300 hover:bg-white/5 hover:text-white">
           <ArrowLeft className="h-4 w-4" /> Voltar
         </Button>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-semibold">{ticket.subject}</span>
-            <Badge variant="outline" className="text-[10px]">{CATEGORY_LABELS[ticket.category] ?? ticket.category}</Badge>
+            <span className="font-semibold text-white">{ticket.subject}</span>
+            <Badge variant="outline" className="border-white/15 bg-white/5 text-[10px] text-neutral-300">
+              {CATEGORY_LABELS[ticket.category] ?? ticket.category}
+            </Badge>
             <StatusBadge status={data?.ticket.status ?? ticket.status} />
           </div>
         </div>
         {ticket.status !== "fechado" && (
-          <Button variant="outline" size="sm" onClick={() => closeTicket.mutate()}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => closeTicket.mutate()}
+            className="border-white/15 bg-white/5 text-neutral-200 hover:bg-white/10 hover:text-white"
+          >
             Fechar chamado
           </Button>
         )}
       </div>
 
-      <div className="flex h-[60vh] flex-col">
+      <div className="flex h-[60vh] flex-col bg-gradient-to-b from-neutral-950/50 to-black/40">
         <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
           {(data?.messages ?? []).map((m) => {
             const mine = m.author_role === "client";
             return (
               <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
                 <div
-                  className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm shadow-sm ${
+                  className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm shadow-lg ring-1 ${
                     mine
-                      ? "bg-primary text-primary-foreground rounded-br-sm"
-                      : "bg-muted text-foreground rounded-bl-sm"
+                      ? "bg-gradient-to-br from-red-600 to-red-700 text-white ring-red-400/30 rounded-br-sm shadow-red-900/40"
+                      : "bg-white/5 text-neutral-100 ring-white/10 rounded-bl-sm backdrop-blur"
                   }`}
                 >
                   <div className="mb-0.5 text-[10px] font-semibold uppercase tracking-wide opacity-70">
@@ -307,12 +337,12 @@ function TicketConversation({
         </div>
 
         {ticket.status === "fechado" ? (
-          <div className="border-t border-border px-4 py-3 text-center text-sm text-muted-foreground">
+          <div className="border-t border-white/10 bg-neutral-950/60 px-4 py-3 text-center text-sm text-neutral-400">
             Este chamado está fechado. Abra um novo se precisar de mais ajuda.
           </div>
         ) : (
           <form
-            className="flex items-end gap-2 border-t border-border px-3 py-3"
+            className="flex items-end gap-2 border-t border-white/10 bg-neutral-950/60 px-3 py-3"
             onSubmit={(e) => { e.preventDefault(); if (text.trim()) send.mutate(); }}
           >
             <Textarea
@@ -320,7 +350,7 @@ function TicketConversation({
               onChange={(e) => setText(e.target.value)}
               placeholder="Escreva sua mensagem..."
               rows={2}
-              className="flex-1 resize-none"
+              className="flex-1 resize-none border-white/10 bg-white/5 text-neutral-100 placeholder:text-neutral-500 focus-visible:ring-red-500/50"
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
@@ -328,7 +358,11 @@ function TicketConversation({
                 }
               }}
             />
-            <Button type="submit" disabled={!text.trim() || send.isPending} className="gap-1">
+            <Button
+              type="submit"
+              disabled={!text.trim() || send.isPending}
+              className="gap-1 bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg shadow-red-900/40 ring-1 ring-white/10 hover:from-red-500 hover:to-red-600"
+            >
               <Send className="h-4 w-4" /> Enviar
             </Button>
           </form>
