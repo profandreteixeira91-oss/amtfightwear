@@ -499,7 +499,12 @@ function AdminDojoManagerPage() {
           </Card>
         </TabsContent>
 
+        <TabsContent value="billing" className="mt-4 space-y-4">
+          <BillingPanel accounts={accounts} loading={accountsQ.isLoading} />
+        </TabsContent>
+
         <TabsContent value="visits" className="mt-4 space-y-4">
+
           <div className="grid gap-4 sm:grid-cols-3">
             {(
               [
