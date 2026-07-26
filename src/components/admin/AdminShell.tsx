@@ -96,7 +96,7 @@ export function AdminShell({
   return (
     <OwnerOnly>
       <SidebarProvider defaultOpen>
-        <div className="flex min-h-[calc(100vh-56px)] w-full bg-neutral-50">
+        <div className="flex min-h-screen w-full bg-[radial-gradient(1200px_600px_at_0%_-10%,rgba(220,38,38,0.06),transparent_60%),radial-gradient(900px_500px_at_100%_0%,rgba(0,0,0,0.04),transparent_60%)] bg-neutral-50">
           <AdminSidebar />
           <div className="flex min-w-0 flex-1 flex-col">
             <AdminHeader title={title} />
@@ -127,42 +127,45 @@ function AdminHeader({ title }: { title?: string }) {
 
   return (
     <>
-      <header className="sticky top-14 z-30 flex h-12 items-center gap-2 border-b border-neutral-200 bg-white/80 px-3 backdrop-blur-sm">
+      <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-neutral-200/70 bg-white/70 px-4 backdrop-blur-xl">
         <SidebarTrigger className="text-neutral-600" />
         <div className="ml-1 h-5 w-px bg-neutral-200" />
-        <div className="flex min-w-0 items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-600">
-            <span className="h-1.5 w-1.5 rounded-full bg-red-600" />
+        <Link to="/admin" className="flex items-center gap-2">
+          <span className="grid h-7 w-7 place-items-center rounded-lg bg-gradient-to-br from-red-600 to-red-700 text-white shadow-sm">
+            <Sparkles className="h-3.5 w-3.5" />
+          </span>
+          <span className="text-sm font-semibold tracking-tight text-neutral-900">
             Central AMT
           </span>
-          <nav className="hidden min-w-0 items-center gap-1 text-sm text-neutral-500 md:flex">
-            {crumbs.map((c, i) => (
-              <React.Fragment key={c.href + i}>
-                {i > 0 && <span className="text-neutral-300">/</span>}
-                {i === crumbs.length - 1 ? (
-                  <span className="truncate font-medium text-neutral-800">{c.label}</span>
-                ) : (
-                  <Link to={c.href} className="truncate hover:text-neutral-800">
-                    {c.label}
-                  </Link>
-                )}
-              </React.Fragment>
-            ))}
-          </nav>
-          {title ? (
-            <span className="truncate text-sm font-medium text-neutral-800 md:hidden">{title}</span>
-          ) : null}
-        </div>
+        </Link>
+        <div className="ml-3 hidden h-5 w-px bg-neutral-200 md:block" />
+        <nav className="hidden min-w-0 items-center gap-1.5 text-sm text-neutral-500 md:flex">
+          {crumbs.slice(1).map((c, i, arr) => (
+            <React.Fragment key={c.href + i}>
+              {i > 0 && <span className="text-neutral-300">/</span>}
+              {i === arr.length - 1 ? (
+                <span className="truncate font-medium text-neutral-800">{c.label}</span>
+              ) : (
+                <Link to={c.href} className="truncate hover:text-neutral-800">
+                  {c.label}
+                </Link>
+              )}
+            </React.Fragment>
+          ))}
+        </nav>
+        {title ? (
+          <span className="truncate text-sm font-medium text-neutral-800 md:hidden">{title}</span>
+        ) : null}
         <div className="ml-auto flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={() => setOpen(true)}
-            className="hidden h-8 items-center gap-2 rounded-full border-neutral-200 bg-white text-xs text-neutral-500 hover:text-neutral-800 md:inline-flex"
+            className="hidden h-9 items-center gap-2 rounded-full border-neutral-200 bg-white/80 pl-3 pr-2 text-xs text-neutral-500 shadow-sm hover:text-neutral-900 md:inline-flex"
           >
             <Search className="h-3.5 w-3.5" />
-            Buscar no ecossistema
-            <kbd className="ml-2 hidden items-center gap-0.5 rounded border border-neutral-200 bg-neutral-50 px-1.5 font-mono text-[10px] text-neutral-500 lg:inline-flex">
+            <span>Buscar no ecossistema</span>
+            <kbd className="ml-3 inline-flex items-center gap-0.5 rounded-md border border-neutral-200 bg-neutral-50 px-1.5 py-0.5 font-mono text-[10px] text-neutral-500">
               <Command className="h-3 w-3" />K
             </kbd>
           </Button>
@@ -170,7 +173,7 @@ function AdminHeader({ title }: { title?: string }) {
             variant="ghost"
             size="icon"
             onClick={() => setOpen(true)}
-            className="md:hidden h-8 w-8"
+            className="h-9 w-9 md:hidden"
             aria-label="Buscar"
           >
             <Search className="h-4 w-4" />
