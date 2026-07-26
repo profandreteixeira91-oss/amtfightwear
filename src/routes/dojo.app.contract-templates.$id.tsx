@@ -331,6 +331,11 @@ function ContractEditorPage() {
                   </DropdownMenuSubContent>
                 </DropdownMenuSub>
                 <DropdownMenuSeparator />
+                <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">Logo da academia</DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => insertAcademyLogo(40)}>Logo — pequena (40 px)</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => insertAcademyLogo(56)}>Logo — média (56 px)</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => insertAcademyLogo(80)}>Logo — grande (80 px)</DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => insertAtCursor("<hr />")}>Linha horizontal</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => insertAtCursor('<p style="page-break-after:always"></p>')}>Quebra de página</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => insertAtCursor("{{pagina_atual}} de {{total_paginas}}")}>Número da página</DropdownMenuItem>
