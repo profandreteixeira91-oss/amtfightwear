@@ -492,7 +492,7 @@ function TemplateEditor() {
         <CardContent className="space-y-3">
           {cats.length === 0 && (
             <div className="text-sm text-muted-foreground p-4 text-center border rounded">
-              Adicione categorias, cada uma com seus critérios.
+              Adicione categorias, cada uma com suas técnicas/exercícios.
             </div>
           )}
           {cats.map((cat, ci) => (
