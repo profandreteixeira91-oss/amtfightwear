@@ -37,16 +37,35 @@ function UnitsAndAffiliatesPage() {
   const [tab, setTab] = useState<"units" | "affiliates">("units");
 
   return (
-    <DojoPageShell description="Unidades próprias (integradas ao sistema) e filiais/afiliados (rede institucional).">
-      <Tabs value={tab} onValueChange={(v) => setTab(v as any)} className="w-full">
-        <TabsList>
-          <TabsTrigger value="units" className="gap-2">
-            <Building2 className="h-4 w-4" /> Unidades Próprias
-          </TabsTrigger>
-          <TabsTrigger value="affiliates" className="gap-2">
-            <Users className="h-4 w-4" /> Filiais (Afiliados)
-          </TabsTrigger>
-        </TabsList>
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 md:gap-7">
+      {/* ============ HERO — RUBY NOIR ============ */}
+      <div className="relative overflow-hidden rounded-2xl border border-red-500/20 bg-gradient-to-br from-neutral-950 via-neutral-900 to-red-950/50 p-5 text-white shadow-[0_20px_60px_-30px_rgba(220,38,38,0.55)] md:p-7">
+        <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-red-500/20 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute -bottom-24 -left-16 h-56 w-56 rounded-full bg-amber-500/10 blur-3xl" />
+        <div className="relative flex flex-wrap items-center gap-4">
+          <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-amber-400 via-red-500 to-red-700 text-white ring-1 ring-white/20 shadow-[0_8px_24px_-8px_rgba(220,38,38,0.9)]">
+            <Building2 className="h-6 w-6" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h1 className="truncate text-xl font-semibold tracking-tight md:text-2xl">Unidades e Filiais</h1>
+            <p className="mt-1 max-w-2xl text-sm text-neutral-300">
+              Unidades próprias (integradas ao sistema) e filiais/afiliados (rede institucional).
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <Tabs value={tab} onValueChange={(v) => setTab(v as any)} className="w-full space-y-4">
+        <div className="overflow-x-auto rounded-xl border border-red-500/15 bg-neutral-950/60 p-1 shadow-[0_10px_30px_-20px_rgba(220,38,38,0.6)]">
+          <TabsList className="flex w-max min-w-full flex-nowrap gap-1 bg-transparent p-0">
+            <TabsTrigger value="units" className="gap-2 data-[state=active]:bg-gradient-to-br data-[state=active]:from-red-600 data-[state=active]:to-red-800 data-[state=active]:text-white data-[state=active]:shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] text-neutral-300 hover:text-white">
+              <Building2 className="h-4 w-4" /> Unidades Próprias
+            </TabsTrigger>
+            <TabsTrigger value="affiliates" className="gap-2 data-[state=active]:bg-gradient-to-br data-[state=active]:from-red-600 data-[state=active]:to-red-800 data-[state=active]:text-white data-[state=active]:shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] text-neutral-300 hover:text-white">
+              <Users className="h-4 w-4" /> Filiais (Afiliados)
+            </TabsTrigger>
+          </TabsList>
+        </div>
         <TabsContent value="units" className="mt-4">
           <OwnUnitsPanel />
         </TabsContent>
@@ -54,7 +73,7 @@ function UnitsAndAffiliatesPage() {
           <AffiliatesPanel />
         </TabsContent>
       </Tabs>
-    </DojoPageShell>
+    </div>
   );
 }
 
