@@ -242,6 +242,8 @@ function TemplateEditor() {
       console.warn("autoSaveTechnique:", e?.message);
     }
   };
+
+  const addTechniqueCriterion = (ci: number, techId: string) => {
     const t = libTechs.find((x) => x.id === techId);
     if (!t) return;
     const next = [...cats];
@@ -257,6 +259,7 @@ function TemplateEditor() {
         required: !!t.required,
         eliminatory: false,
         techniques: [t.id],
+        library_id: t.id,
       }],
     };
     setCats(next);
