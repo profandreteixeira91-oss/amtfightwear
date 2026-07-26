@@ -436,9 +436,14 @@ function NewGraduationPage() {
     const { belt: studentBelt, degree: studentDeg } = resolveStudentGrad(studentId);
     const studentMod = studentBelt?.modality ?? modality;
 
+    // Rótulo completo com prefixo "Faixa"/"Grau" + grau, conforme modalidade
+    // (configurado em Modalidades e Faixas). Ex.: "Faixa Marrom", "Grau Preto · 2º grau".
     const beltLabel = studentBelt?.name
-      ? `${studentBelt.name}${studentDeg ? ` — ${studentDeg}º ${degreeUnit(studentMod)}` : ""}`
+      ? formatBeltFull(studentBelt.name, studentMod, studentDeg)
       : "";
+    const beltNameOnly = studentBelt?.name ? formatBeltName(studentBelt.name, studentMod) : "";
+    const grauLabel = studentDeg ? formatDegree(studentDeg, studentMod, studentBelt?.name) : "";
+    const grauValueForVar = /^sem\s+(grau|dan)$/i.test(grauLabel) ? "" : grauLabel;
     const dateBr = new Date(date).toLocaleDateString("pt-BR");
     const dateLong = new Date(date).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
     const now = new Date();
@@ -449,7 +454,9 @@ function NewGraduationPage() {
       aluno_cpf: (student as any).cpf ?? "",
       aluno_data_nascimento: (student as any).birth_date ? new Date((student as any).birth_date).toLocaleDateString("pt-BR") : "",
       aluno_faixa: beltLabel,
-      aluno_grau: String(studentDeg ?? ""),
+      aluno_faixa_nome: beltNameOnly,
+      aluno_grau: grauValueForVar,
+      aluno_grau_numero: String(Number(studentDeg ?? 0) || 0),
       aluno_modalidade: (student as any).modality || (student as any).discipline || studentMod || "",
       aluno_foto: (student as any).photo_url ?? "",
       // Graduação
