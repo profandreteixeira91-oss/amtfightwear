@@ -76,7 +76,7 @@ export const getReminderSettings = createServerFn({ method: "GET" })
 
 const updateSchema = z.object({
   enabled: z.boolean(),
-  channels: z.object({ email: z.boolean(), whatsapp: z.boolean() }),
+  channels: z.object({ email: z.boolean(), push: z.boolean(), whatsapp: z.boolean() }),
   rules: z
     .array(
       z.object({
