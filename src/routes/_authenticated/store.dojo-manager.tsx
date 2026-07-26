@@ -155,6 +155,11 @@ function StoreDojoManagerAdminPage() {
         { event: "INSERT", schema: "public", table: "dojo_academy_profile" },
         () => qc.invalidateQueries({ queryKey: ["admin", "dojo-accounts"] }),
       )
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "profiles" },
+        () => qc.invalidateQueries({ queryKey: ["admin", "dojo-accounts"] }),
+      )
       .subscribe();
     return () => {
       supabase.removeChannel(ch);

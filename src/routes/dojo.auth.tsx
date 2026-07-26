@@ -49,6 +49,7 @@ function DojoAuthPage() {
     const go = async (userId: string) => {
       if (redirected) return;
       redirected = true;
+      await supabase.auth.updateUser({ data: { account_type: "dojo_manager" } });
       const target = await resolveDestination(userId, search.redirect);
       window.location.replace(target);
     };
@@ -96,7 +97,7 @@ function DojoAuthPage() {
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/dojo/auth`,
-        data: { full_name: name },
+        data: { full_name: name, account_type: "dojo_manager" },
       },
     });
     setLoading(false);
