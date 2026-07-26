@@ -243,16 +243,23 @@ function SessionRunner() {
           <CardContent className="p-4 text-center space-y-3">
             <div className="text-lg font-semibold">Avaliação concluída</div>
             <div className="text-sm text-muted-foreground">Resultado: {sess.result}</div>
-            {sess.result === "approved" && student?.id && (
-              <Link
-                to="/dojo/app/graduations"
-                search={{ student: student.id, session: id } as never}
-              >
-                <Button className="mt-2">
-                  <CheckCircle2 className="h-4 w-4 mr-1" /> Registrar graduação e pagamento
+            <div className="flex flex-wrap gap-2 justify-center pt-2">
+              <Link to="/dojo/app/evaluations/sessions" search={{ new: 1 } as never}>
+                <Button variant="outline">
+                  <Plus className="h-4 w-4 mr-1" /> Nova avaliação
                 </Button>
               </Link>
-            )}
+              {sess.result === "approved" && student?.id && (
+                <Link
+                  to="/dojo/app/graduations"
+                  search={{ student: student.id, session: id } as never}
+                >
+                  <Button>
+                    <CheckCircle2 className="h-4 w-4 mr-1" /> Registrar graduação e pagamento
+                  </Button>
+                </Link>
+              )}
+            </div>
           </CardContent>
         </Card>
       )}
