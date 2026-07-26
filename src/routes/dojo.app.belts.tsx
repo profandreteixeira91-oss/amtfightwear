@@ -275,14 +275,14 @@ function BeltsPage() {
               );
             })}
           </div>
-          <div className="flex flex-wrap items-center gap-2 border-t pt-4">
+          <div className="flex flex-col gap-2 border-t pt-4 sm:flex-row sm:flex-wrap sm:items-center">
             <Input
               placeholder="Nova modalidade (ex.: Kung Fu)"
               value={customModality}
               onChange={(e) => setCustomModality(e.target.value)}
-              className="h-10 max-w-xs rounded-xl"
+              className="h-10 w-full rounded-xl sm:max-w-xs"
             />
-            <Button size="sm" variant="outline" className="h-10 rounded-xl" onClick={addCustomModality}>
+            <Button size="sm" variant="outline" className="h-10 w-full rounded-xl sm:w-auto" onClick={addCustomModality}>
               <Plus className="mr-1 h-4 w-4" /> Criar modalidade e faixa
             </Button>
           </div>
