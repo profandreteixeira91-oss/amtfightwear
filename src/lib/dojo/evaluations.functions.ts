@@ -54,7 +54,7 @@ export const getEvalTemplate = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
       .from("dojo_evaluations")
-      .select("*, belt:dojo_belts(name,color_hex,stripe_hex,max_degrees,modality,visual,variants)")
+      .select("*, belt:dojo_belts!dojo_evaluations_belt_id_fkey(name,color_hex,stripe_hex,max_degrees,modality,visual,variants)")
       .eq("id", data.id).single();
     if (error) throw new Error(error.message);
     return row;
@@ -133,7 +133,7 @@ export const saveEvalTemplate = createServerFn({ method: "POST" })
         .from("dojo_evaluations")
         .update(payload as never)
         .eq("id", data.id)
-        .select("*, belt:dojo_belts(name,color_hex,stripe_hex,max_degrees,modality,visual,variants)")
+        .select("*, belt:dojo_belts!dojo_evaluations_belt_id_fkey(name,color_hex,stripe_hex,max_degrees,modality,visual,variants)")
         .single();
       if (error) throw new Error(error.message);
       return row;
@@ -141,7 +141,7 @@ export const saveEvalTemplate = createServerFn({ method: "POST" })
     const { data: row, error } = await context.supabase
       .from("dojo_evaluations")
       .insert({ ...payload, owner_id: context.userId } as never)
-      .select("*, belt:dojo_belts(name,color_hex,stripe_hex,max_degrees,modality,visual,variants)").single();
+      .select("*, belt:dojo_belts!dojo_evaluations_belt_id_fkey(name,color_hex,stripe_hex,max_degrees,modality,visual,variants)").single();
     if (error) throw new Error(error.message);
     return row;
 
@@ -181,7 +181,7 @@ export const duplicateEvalTemplate = createServerFn({ method: "POST" })
     };
     const { data: row, error: e2 } = await context.supabase
       .from("dojo_evaluations").insert(copy as never)
-      .select("*, belt:dojo_belts(name,color_hex,stripe_hex,max_degrees,modality,visual,variants)")
+      .select("*, belt:dojo_belts!dojo_evaluations_belt_id_fkey(name,color_hex,stripe_hex,max_degrees,modality,visual,variants)")
       .single();
     if (e2) throw new Error(e2.message);
     return row;

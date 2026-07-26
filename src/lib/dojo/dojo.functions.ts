@@ -1610,7 +1610,7 @@ export const listDojoEvaluations = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("dojo_evaluations")
-      .select("*, belt:dojo_belts(name,color_hex,stripe_hex,max_degrees,modality,visual,variants)")
+      .select("*, belt:dojo_belts!dojo_evaluations_belt_id_fkey(name,color_hex,stripe_hex,max_degrees,modality,visual,variants)")
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
     return data ?? [];
