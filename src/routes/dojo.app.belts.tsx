@@ -445,18 +445,20 @@ function BeltsPage() {
                 </div>
               </div>
             </div>
-            <div className="col-span-2 flex items-center gap-3 bg-muted/40 p-3 rounded">
-              <BeltAuto
-                belt={{
-                  name: form.name,
-                  modality: form.modality,
-                  color_hex: form.color_hex,
-                  stripe_hex: form.stripe_hex || null,
-                  max_degrees: form.max_degrees,
-                }}
-                degree={0}
-                className="min-w-[220px]"
-              />
+            <div className="col-span-2 flex flex-col items-start gap-3 rounded bg-muted/40 p-3 sm:flex-row sm:items-center">
+              <div className="w-full overflow-x-auto sm:w-auto">
+                <BeltAuto
+                  belt={{
+                    name: form.name,
+                    modality: form.modality,
+                    color_hex: form.color_hex,
+                    stripe_hex: form.stripe_hex || null,
+                    max_degrees: form.max_degrees,
+                  }}
+                  degree={0}
+                  className="min-w-[220px]"
+                />
+              </div>
               <div className="text-xs text-muted-foreground">Pré-visualização</div>
             </div>
           </div>
