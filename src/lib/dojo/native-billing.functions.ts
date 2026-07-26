@@ -107,7 +107,10 @@ export const getNativeBillingForInvoice = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!inv) throw new Error("Cobrança não encontrada");
 
-    const { data: row } = await context.supabase
+    // Configurações do dono não são acessíveis via RLS ao aluno; usa admin
+    // após confirmar (via RLS acima) que a fatura pertence ao chamador.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: row } = await supabaseAdmin
       .from("dojo_payment_settings")
       .select("extras")
       .eq("owner_id", (inv as any).owner_id)
