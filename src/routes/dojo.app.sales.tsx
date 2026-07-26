@@ -303,14 +303,19 @@ function SalesTab({
   );
 }
 
-function KpiCard({ label, value }: { label: string; value: string }) {
+function KpiCard({ label, value, tone = "neutral" }: { label: string; value: string; tone?: "neutral" | "success" | "warning" }) {
+  const accent =
+    tone === "success"
+      ? "from-emerald-500/20 to-emerald-500/0 text-emerald-300"
+      : tone === "warning"
+      ? "from-amber-500/20 to-amber-500/0 text-amber-300"
+      : "from-red-500/20 to-red-500/0 text-red-300";
   return (
-    <Card>
-      <CardContent className="p-4">
-        <p className="text-xs uppercase text-muted-foreground">{label}</p>
-        <p className="mt-1 text-2xl font-semibold">{value}</p>
-      </CardContent>
-    </Card>
+    <div className="group relative overflow-hidden rounded-xl border border-red-500/15 bg-gradient-to-br from-neutral-950 to-neutral-900 p-4 shadow-[0_10px_30px_-20px_rgba(220,38,38,0.6)] transition hover:border-red-500/30">
+      <div aria-hidden className={`pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-gradient-to-br ${accent} blur-2xl opacity-70`} />
+      <p className="relative text-[10px] font-semibold uppercase tracking-wider text-neutral-400">{label}</p>
+      <p className="relative mt-1 text-2xl font-semibold text-white">{value}</p>
+    </div>
   );
 }
 
