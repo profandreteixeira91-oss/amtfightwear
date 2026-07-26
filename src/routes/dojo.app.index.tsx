@@ -585,16 +585,16 @@ function DojoDashboard() {
         {/* Projeção de fluxo */}
         <BentoCard className="md:col-span-3">
           <SectionHead eyebrow="Fluxo de caixa" title="Projeção próxima" />
-          <div className="grid grid-cols-4 gap-2 pt-1">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
             {(dash?.projection ?? []).map((p: any) => (
               <div
                 key={p.label}
-                className="rounded-lg border border-[color:var(--dojo-border)] bg-neutral-50 p-2.5 text-center"
+                className="min-w-0 rounded-lg border border-[color:var(--dojo-border)] bg-neutral-50 p-2.5 text-center"
               >
                 <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
                   {p.label}
                 </div>
-                <div className="font-display text-sm md:text-base font-bold text-foreground mt-0.5">
+                <div className="font-display text-sm md:text-base font-bold text-foreground mt-0.5 tabular-nums truncate">
                   {brl(p.amount)}
                 </div>
               </div>
