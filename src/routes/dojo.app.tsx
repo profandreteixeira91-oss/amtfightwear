@@ -14,6 +14,7 @@ import {
   SidebarMenuButton,
   SidebarTrigger,
   SidebarInset,
+  useSidebar,
 } from "@/components/ui/sidebar";
 
 import {
