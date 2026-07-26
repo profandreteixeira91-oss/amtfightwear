@@ -39,10 +39,10 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 const STATUS_META: Record<string, { label: string; className: string; icon: React.ComponentType<{ className?: string }> }> = {
-  aberto: { label: "Aberto", className: "bg-blue-100 text-blue-700 border-blue-200", icon: AlertCircle },
-  em_atendimento: { label: "Em atendimento", className: "bg-amber-100 text-amber-800 border-amber-200", icon: Clock },
-  resolvido: { label: "Resolvido", className: "bg-emerald-100 text-emerald-700 border-emerald-200", icon: CheckCircle2 },
-  fechado: { label: "Fechado", className: "bg-neutral-200 text-neutral-700 border-neutral-300", icon: CheckCircle2 },
+  aberto: { label: "Aberto", className: "bg-blue-500/15 text-blue-300 border-blue-500/30", icon: AlertCircle },
+  em_atendimento: { label: "Em atendimento", className: "bg-amber-500/15 text-amber-300 border-amber-500/30", icon: Clock },
+  resolvido: { label: "Resolvido", className: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30", icon: CheckCircle2 },
+  fechado: { label: "Fechado", className: "bg-neutral-500/15 text-neutral-300 border-neutral-500/30", icon: CheckCircle2 },
 };
 
 function StatusBadge({ status }: { status: string }) {
