@@ -233,7 +233,7 @@ function PayrollPage() {
                 <Plus className="mr-2 h-4 w-4" /> Lançamento avulso
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="w-[calc(100vw-1rem)] max-w-lg max-h-[92vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Novo lançamento</DialogTitle>
               </DialogHeader>

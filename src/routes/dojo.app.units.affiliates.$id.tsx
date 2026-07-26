@@ -225,7 +225,7 @@ function FinanceTab({ affiliate }: { affiliate: any }) {
           <DialogTrigger asChild>
             <Button className="gap-2"><Plus className="h-4 w-4" /> Nova cobrança</Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="w-[calc(100vw-1rem)] max-w-lg max-h-[92vh] overflow-y-auto">
             <DialogHeader><DialogTitle>Cobrança de filiação</DialogTitle></DialogHeader>
             <div className="space-y-3">
               <div className="space-y-1">
@@ -259,8 +259,8 @@ function FinanceTab({ affiliate }: { affiliate: any }) {
         </Dialog>
       </div>
 
-      <div className="rounded-xl border bg-white overflow-hidden">
-        <table className="w-full text-sm">
+      <div className="rounded-xl border bg-white overflow-x-auto">
+        <table className="w-full min-w-[520px] text-sm">
           <thead className="bg-muted/50 text-xs uppercase tracking-wide text-muted-foreground">
             <tr>
               <th className="text-left px-3 py-2">Descrição</th>
@@ -426,7 +426,7 @@ function ContractTab({ affiliate }: { affiliate: any }) {
         </div>
       ) : (
         <div className="overflow-x-auto rounded border bg-white">
-          <table className="w-full text-sm">
+          <table className="w-full min-w-[560px] text-sm">
             <thead className="text-[10px] uppercase tracking-widest text-muted-foreground">
               <tr className="border-b border-border">
                 <th className="p-2 text-left">Título</th>

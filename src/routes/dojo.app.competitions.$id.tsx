@@ -332,7 +332,7 @@ function AthleteDialog({ acId, initial, onClose, onSaved }: {
 
   return (
     <Dialog open onOpenChange={(o) => { if (!o) onClose(); }}>
-      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+      <DialogContent className="w-[calc(100vw-1rem)] max-h-[90vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{initial.id ? "Editar inscrição" : "Nova inscrição de atleta"}</DialogTitle>
         </DialogHeader>
@@ -697,7 +697,7 @@ function ResultDialog({ acId, initial, athletes, onClose, onSaved }: {
 
   return (
     <Dialog open onOpenChange={(o) => { if (!o) onClose(); }}>
-      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+      <DialogContent className="w-[calc(100vw-1rem)] max-h-[90vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{initial.id ? "Editar resultado" : "Registrar resultado"}</DialogTitle>
         </DialogHeader>
