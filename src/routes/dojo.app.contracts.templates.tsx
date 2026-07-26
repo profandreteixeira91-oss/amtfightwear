@@ -158,16 +158,16 @@ function TemplatesLibraryPage() {
               <RefreshCw className="h-4 w-4" />
             </Button>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" disabled={installing}>
+                <Button variant="outline" disabled={installing} className="flex-1 sm:flex-none">
                   <Sparkles className="h-4 w-4 mr-1" />
                   {installing ? "Instalando…" : "Modelos prontos"}
                   <ChevronDown className="h-3.5 w-3.5 ml-1 opacity-60" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[340px] max-h-[70vh] overflow-y-auto">
+              <DropdownMenuContent align="end" className="w-[calc(100vw-1.5rem)] max-w-[340px] max-h-[70vh] overflow-y-auto">
                 <DropdownMenuLabel className="flex items-center justify-between">
                   <span>Biblioteca de modelos</span>
                   <button
@@ -196,7 +196,7 @@ function TemplatesLibraryPage() {
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button onClick={createNew}><Plus className="h-4 w-4 mr-1" />Novo modelo</Button>
+            <Button onClick={createNew} className="flex-1 sm:flex-none"><Plus className="h-4 w-4 mr-1" />Novo modelo</Button>
           </div>
         </CardContent>
       </Card>
