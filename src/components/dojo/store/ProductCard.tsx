@@ -93,7 +93,7 @@ export function ProductCard({
   );
 
   const commonClass = cn(
-    "group relative flex flex-col overflow-hidden rounded-2xl border border-[color:var(--dojo-border)] bg-white text-left shadow-[var(--dojo-shadow-xs)] transition-all duration-300 hover:-translate-y-1 hover:border-foreground/20 hover:shadow-[var(--dojo-shadow-md)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+    "group relative flex flex-col overflow-hidden rounded-2xl border border-[color:var(--dojo-border)] bg-white text-left shadow-[var(--dojo-shadow-xs)] ring-1 ring-inset ring-black/[0.02] transition-all duration-300 hover:-translate-y-1 hover:border-foreground/20 hover:shadow-[var(--dojo-shadow-md)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
     className,
   );
 

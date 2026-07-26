@@ -85,12 +85,12 @@ function OrderDetail() {
         <ArrowLeft className="h-4 w-4" strokeWidth={1.75} /> Todos os pedidos
       </Link>
 
-      <div className="flex flex-wrap items-end justify-between gap-4">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3 sm:flex sm:flex-wrap sm:justify-between sm:gap-4">
         <div className="min-w-0 space-y-1.5">
           <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
             Pedido
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+          <h1 className="truncate text-2xl font-bold tracking-tight text-foreground sm:text-3xl md:text-4xl">
             {data.order_number}
           </h1>
           <div className="flex flex-wrap gap-1.5 pt-1">
@@ -111,9 +111,9 @@ function OrderDetail() {
           variant="outline"
           onClick={() => re.mutate()}
           disabled={re.isPending}
-          className="rounded-full"
+          className="shrink-0 rounded-full"
         >
-          <Repeat className="mr-2 h-4 w-4" strokeWidth={1.75} /> Comprar novamente
+          <Repeat className="mr-2 h-4 w-4" strokeWidth={1.75} /> <span className="hidden sm:inline">Comprar novamente</span><span className="sm:hidden">Recomprar</span>
         </Button>
       </div>
 
@@ -121,8 +121,8 @@ function OrderDetail() {
         <div className="space-y-4">
           <ul className="divide-y divide-[color:var(--dojo-border)] rounded-2xl border border-[color:var(--dojo-border)] bg-white shadow-[var(--dojo-shadow-xs)]">
             {(data.items ?? []).map((it: any) => (
-              <li key={it.id} className="flex gap-4 p-4">
-                <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-[color:var(--dojo-surface-3)]">
+              <li key={it.id} className="flex flex-wrap gap-3 p-3 sm:gap-4 sm:p-4">
+                <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-[color:var(--dojo-surface-3)] sm:h-20 sm:w-20">
                   {it.image_url ? (
                     <img
                       src={it.image_url}
@@ -131,8 +131,8 @@ function OrderDetail() {
                     />
                   ) : null}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="truncate text-sm font-semibold tracking-tight text-foreground">
+                <div className="min-w-0 flex-1">
+                  <div className="line-clamp-2 text-sm font-semibold leading-tight tracking-tight text-foreground">
                     {it.product_name}
                   </div>
                   {it.variant_label && (
@@ -144,12 +144,12 @@ function OrderDetail() {
                     Qtd: {it.quantity} · {brl(Number(it.unit_price))}
                   </div>
                   {it.customization && (
-                    <div className="mt-1 text-[11px] text-primary">
+                    <div className="mt-1 line-clamp-2 text-[11px] text-primary">
                       ✨ Personalização: {JSON.stringify(it.customization)}
                     </div>
                   )}
                   {it.student && (
-                    <div className="mt-1 text-[11px] text-muted-foreground">
+                    <div className="mt-1 truncate text-[11px] text-muted-foreground">
                       👤 Aluno: {it.student.full_name}
                     </div>
                   )}
@@ -162,7 +162,7 @@ function OrderDetail() {
                     </button>
                   </div>
                 </div>
-                <div className="shrink-0 text-right text-sm font-bold tabular-nums tracking-tight text-foreground">
+                <div className="ml-auto shrink-0 text-right text-sm font-bold tabular-nums tracking-tight text-foreground">
                   {brl(Number(it.total_price))}
                 </div>
               </li>
