@@ -128,6 +128,16 @@ export function RemindersPanel() {
                 }
               />
             </div>
+            <div className="flex items-center gap-2 rounded-lg border px-3 py-2">
+              <BellRing className="h-4 w-4 text-red-600" />
+              <span className="text-sm">Push (app do aluno)</span>
+              <Switch
+                checked={current.channels.push}
+                onCheckedChange={(v) =>
+                  patch({ channels: { ...current.channels, push: v } })
+                }
+              />
+            </div>
             <div className="flex items-center gap-2 rounded-lg border px-3 py-2 opacity-60">
               <MessageSquare className="h-4 w-4" />
               <span className="text-sm">WhatsApp</span>
@@ -143,6 +153,11 @@ export function RemindersPanel() {
               </Badge>
             </div>
           </div>
+
+          <p className="text-xs text-muted-foreground">
+            O push só chega em alunos que já instalaram o app e ativaram
+            notificações em <em>Meu perfil › Notificações</em>.
+          </p>
 
           <Separator />
 
