@@ -476,35 +476,95 @@ function TeamMemberDetail() {
 
         {/* FINANCIAL CONFIG */}
         <TabsContent value="financial" className="mt-4">
-          <Card><CardContent className="grid grid-cols-1 gap-3 p-4 md:grid-cols-2">
-            <Field label="Tipo de pagamento">
-              <Select value={payroll.payment_type ?? "fixed"} onValueChange={(v) => setPayroll({ ...payroll, payment_type: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {PAYMENT_TYPES.map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </Field>
-            <Field label="Salário base (R$)"><Input type="number" step="0.01" value={payroll.base_salary ?? ""} onChange={(e) => setPayroll({ ...payroll, base_salary: e.target.value ? Number(e.target.value) : null })} /></Field>
-            <Field label="Valor por hora (R$)"><Input type="number" step="0.01" value={payroll.hourly_rate ?? ""} onChange={(e) => setPayroll({ ...payroll, hourly_rate: e.target.value ? Number(e.target.value) : null })} /></Field>
-            <Field label="Valor por aula (R$)"><Input type="number" step="0.01" value={payroll.per_class_rate ?? ""} onChange={(e) => setPayroll({ ...payroll, per_class_rate: e.target.value ? Number(e.target.value) : null })} /></Field>
-            <Field label="Percentual (%)"><Input type="number" step="0.01" value={payroll.commission_percent ?? ""} onChange={(e) => setPayroll({ ...payroll, commission_percent: e.target.value ? Number(e.target.value) : null })} /></Field>
-            <Field label="Comissão por matrícula (R$)"><Input type="number" step="0.01" value={payroll.commission_on_enrollment ?? ""} onChange={(e) => setPayroll({ ...payroll, commission_on_enrollment: e.target.value ? Number(e.target.value) : null })} /></Field>
-            <Field label="Comissão por renovação (R$)"><Input type="number" step="0.01" value={payroll.commission_on_renewal ?? ""} onChange={(e) => setPayroll({ ...payroll, commission_on_renewal: e.target.value ? Number(e.target.value) : null })} /></Field>
-            <Field label="Comissão por venda (R$)"><Input type="number" step="0.01" value={payroll.commission_on_sale ?? ""} onChange={(e) => setPayroll({ ...payroll, commission_on_sale: e.target.value ? Number(e.target.value) : null })} /></Field>
-            <Field label="Banco"><Input value={payroll.bank_name ?? ""} onChange={(e) => setPayroll({ ...payroll, bank_name: e.target.value })} /></Field>
-            <Field label="Agência"><Input value={payroll.bank_agency ?? ""} onChange={(e) => setPayroll({ ...payroll, bank_agency: e.target.value })} /></Field>
-            <Field label="Conta"><Input value={payroll.bank_account ?? ""} onChange={(e) => setPayroll({ ...payroll, bank_account: e.target.value })} /></Field>
-            <Field label="PIX"><Input value={payroll.pix_key ?? ""} onChange={(e) => setPayroll({ ...payroll, pix_key: e.target.value })} /></Field>
-            <Field label="CPF/CNPJ"><Input value={payroll.tax_id ?? ""} onChange={(e) => setPayroll({ ...payroll, tax_id: e.target.value })} /></Field>
-            <div className="md:col-span-2">
-              <Field label="Observações financeiras"><Textarea rows={3} value={payroll.notes ?? ""} onChange={(e) => setPayroll({ ...payroll, notes: e.target.value })} /></Field>
-            </div>
-            <div className="md:col-span-2">
-              <Button onClick={savePayrollForm}><Save className="mr-2 h-4 w-4" />Salvar configuração financeira</Button>
-            </div>
+          <Card><CardContent className="p-4 space-y-4">
+            {(() => {
+              const pt = (payroll.payment_type ?? "fixed") as string;
+              // Campos relevantes por modalidade de pagamento
+              const show = {
+                base_salary: ["fixed", "contractor", "mei", "autonomous", "other"].includes(pt),
+                hourly_rate: ["hourly", "contractor", "mei", "autonomous", "other"].includes(pt),
+                per_class_rate: ["per_class", "contractor", "mei", "autonomous", "other"].includes(pt),
+                commission_percent: ["percentage", "commission", "other"].includes(pt),
+                commission_on_enrollment: ["commission", "percentage", "other"].includes(pt),
+                commission_on_renewal: ["commission", "percentage", "other"].includes(pt),
+                commission_on_sale: ["commission", "percentage", "other"].includes(pt),
+                tax_id_required: ["contractor", "mei", "autonomous"].includes(pt),
+              };
+              const hints: Record<string, string> = {
+                fixed: "Valor fixo mensal — informe o salário base.",
+                hourly: "Pagamento por hora trabalhada — informe o valor da hora.",
+                per_class: "Pagamento por aula ministrada — informe o valor por aula.",
+                percentage: "Percentual sobre receita/matrículas — informe o % aplicado.",
+                commission: "Comissões por matrícula, renovação e venda.",
+                contractor: "Prestador PJ/RPA — informe CPF/CNPJ e valores contratados.",
+                mei: "MEI — informe CNPJ e valores contratados.",
+                autonomous: "Autônomo — informe CPF e valores acordados.",
+                other: "Modalidade personalizada — preencha os campos aplicáveis.",
+              };
+              return (
+                <>
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                    <Field label="Tipo de pagamento">
+                      <Select value={pt} onValueChange={(v) => setPayroll({ ...payroll, payment_type: v })}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {PAYMENT_TYPES.map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                    <div className="flex items-end">
+                      <p className="text-xs text-muted-foreground">{hints[pt] ?? ""}</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                    {show.base_salary && (
+                      <Field label="Salário base (R$)"><Input type="number" step="0.01" value={payroll.base_salary ?? ""} onChange={(e) => setPayroll({ ...payroll, base_salary: e.target.value ? Number(e.target.value) : null })} /></Field>
+                    )}
+                    {show.hourly_rate && (
+                      <Field label="Valor por hora (R$)"><Input type="number" step="0.01" value={payroll.hourly_rate ?? ""} onChange={(e) => setPayroll({ ...payroll, hourly_rate: e.target.value ? Number(e.target.value) : null })} /></Field>
+                    )}
+                    {show.per_class_rate && (
+                      <Field label="Valor por aula (R$)"><Input type="number" step="0.01" value={payroll.per_class_rate ?? ""} onChange={(e) => setPayroll({ ...payroll, per_class_rate: e.target.value ? Number(e.target.value) : null })} /></Field>
+                    )}
+                    {show.commission_percent && (
+                      <Field label="Percentual (%)"><Input type="number" step="0.01" value={payroll.commission_percent ?? ""} onChange={(e) => setPayroll({ ...payroll, commission_percent: e.target.value ? Number(e.target.value) : null })} /></Field>
+                    )}
+                    {show.commission_on_enrollment && (
+                      <Field label="Comissão por matrícula (R$)"><Input type="number" step="0.01" value={payroll.commission_on_enrollment ?? ""} onChange={(e) => setPayroll({ ...payroll, commission_on_enrollment: e.target.value ? Number(e.target.value) : null })} /></Field>
+                    )}
+                    {show.commission_on_renewal && (
+                      <Field label="Comissão por renovação (R$)"><Input type="number" step="0.01" value={payroll.commission_on_renewal ?? ""} onChange={(e) => setPayroll({ ...payroll, commission_on_renewal: e.target.value ? Number(e.target.value) : null })} /></Field>
+                    )}
+                    {show.commission_on_sale && (
+                      <Field label="Comissão por venda (R$)"><Input type="number" step="0.01" value={payroll.commission_on_sale ?? ""} onChange={(e) => setPayroll({ ...payroll, commission_on_sale: e.target.value ? Number(e.target.value) : null })} /></Field>
+                    )}
+                  </div>
+
+                  <div className="pt-2">
+                    <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Dados bancários</h4>
+                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                      <Field label="Banco"><Input value={payroll.bank_name ?? ""} onChange={(e) => setPayroll({ ...payroll, bank_name: e.target.value })} /></Field>
+                      <Field label="Agência"><Input value={payroll.bank_agency ?? ""} onChange={(e) => setPayroll({ ...payroll, bank_agency: e.target.value })} /></Field>
+                      <Field label="Conta"><Input value={payroll.bank_account ?? ""} onChange={(e) => setPayroll({ ...payroll, bank_account: e.target.value })} /></Field>
+                      <Field label="PIX"><Input value={payroll.pix_key ?? ""} onChange={(e) => setPayroll({ ...payroll, pix_key: e.target.value })} /></Field>
+                      <Field label={show.tax_id_required ? "CPF/CNPJ *" : "CPF/CNPJ"}>
+                        <Input value={payroll.tax_id ?? ""} onChange={(e) => setPayroll({ ...payroll, tax_id: e.target.value })} />
+                      </Field>
+                    </div>
+                  </div>
+
+                  <Field label="Observações financeiras"><Textarea rows={3} value={payroll.notes ?? ""} onChange={(e) => setPayroll({ ...payroll, notes: e.target.value })} /></Field>
+
+                  <div>
+                    <Button onClick={savePayrollForm}><Save className="mr-2 h-4 w-4" />Salvar configuração financeira</Button>
+                  </div>
+                </>
+              );
+            })()}
           </CardContent></Card>
         </TabsContent>
+
 
         {/* PAYMENTS */}
         <TabsContent value="payments" className="mt-4 space-y-4">
