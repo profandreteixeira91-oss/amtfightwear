@@ -642,7 +642,7 @@ function VisitorDialog({ open, onOpenChange, unitId }: any) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="w-[calc(100vw-1rem)]">
         <DialogHeader><DialogTitle>Registrar visitante</DialogTitle></DialogHeader>
         <div className="space-y-3">
           <div><Label>Nome</Label><Input value={name} onChange={(e) => setName(e.target.value)} autoFocus /></div>
@@ -686,7 +686,7 @@ function PartnerDialog({ open, onOpenChange, provider, unitId }: any) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="w-[calc(100vw-1rem)]">
         <DialogHeader>
           <DialogTitle>Validar {provider === "gympass" ? "Gympass" : "TotalPass"}</DialogTitle>
         </DialogHeader>
