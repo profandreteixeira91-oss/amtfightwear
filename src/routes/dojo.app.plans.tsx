@@ -4,6 +4,12 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { listDojoPlans, saveDojoPlan, deleteDojoPlan, listDojoUnits } from "@/lib/dojo/dojo.functions";
 import {
+  getNativeBillingConfig,
+  saveNativeBillingConfig,
+  DEFAULT_NATIVE_BILLING,
+  type NativeBillingConfig,
+} from "@/lib/dojo/native-billing.functions";
+import {
   PAYMENT_METHODS,
   
   defaultPlanPaymentMethods,
@@ -35,6 +41,7 @@ import {
 import { toast } from "sonner";
 import {
   Plus, Trash2, Save, Info, CheckCircle2, XCircle, Sparkles, ChevronRight, Copy,
+  QrCode, Link as LinkIcon,
 } from "lucide-react";
 
 export const Route = createFileRoute("/dojo/app/plans")({
