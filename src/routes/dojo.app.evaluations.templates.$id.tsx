@@ -4,6 +4,7 @@ import { queryOptions, useQueryClient, useSuspenseQuery } from "@tanstack/react-
 import { useEffect, useState } from "react";
 import {
   getEvalTemplate, saveEvalTemplate,
+  listEvalCategories, listEvalTechniques,
 } from "@/lib/dojo/evaluations.functions";
 import { listDojoBelts } from "@/lib/dojo/dojo.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,11 +28,24 @@ const beltsOpts = () =>
     queryFn: () => listDojoBelts(),
     staleTime: 5 * 60_000,
   });
+const evalCategoriesOpts = () =>
+  queryOptions({
+    queryKey: ["eval-categories"],
+    queryFn: () => listEvalCategories(),
+    staleTime: 5 * 60_000,
+  });
+const evalTechniquesOpts = () =>
+  queryOptions({
+    queryKey: ["eval-techniques"],
+    queryFn: () => listEvalTechniques(),
+    staleTime: 5 * 60_000,
+  });
 
 export const Route = createFileRoute("/dojo/app/evaluations/templates/$id")({
   loader: ({ context, params }) => {
-    // Dispara em paralelo; template é crítico, belts pode carregar em background.
     context.queryClient.prefetchQuery(beltsOpts());
+    context.queryClient.prefetchQuery(evalCategoriesOpts());
+    context.queryClient.prefetchQuery(evalTechniquesOpts());
     return context.queryClient.ensureQueryData(tplOpts(params.id));
   },
   component: TemplateEditor,
@@ -67,6 +81,8 @@ function TemplateEditor() {
 
   const { data: tpl } = useSuspenseQuery(tplOpts(id));
   const { data: belts } = useSuspenseQuery(beltsOpts());
+  const { data: libCategories } = useSuspenseQuery(evalCategoriesOpts());
+  const { data: libTechniques } = useSuspenseQuery(evalTechniquesOpts());
 
   const [form, setForm] = useState<any>(null);
 
@@ -115,6 +131,53 @@ function TemplateEditor() {
 
   const addCategory = () =>
     setCats([...cats, { id: uid(), name: "Nova categoria", weight: 1, criteria: [] }]);
+
+  const libCats: any[] = libCategories ?? [];
+  const libTechs: any[] = libTechniques ?? [];
+
+  const addCategoryFromLibrary = (libId: string) => {
+    const lc = libCats.find((c) => c.id === libId);
+    if (!lc) return;
+    const techs = libTechs.filter((t) => t.category_id === libId && !t.archived);
+    const newCat: Category = {
+      id: uid(),
+      name: lc.name,
+      weight: 1,
+      criteria: techs.map((t) => ({
+        id: uid(),
+        name: t.name,
+        description: t.description ?? null,
+        weight: 1,
+        max_score: Number(t.default_score ?? 10),
+        min_score: 0,
+        required: !!t.required,
+        eliminatory: false,
+        techniques: [t.id],
+      })),
+    };
+    setCats([...cats, newCat]);
+  };
+
+  const addTechniqueCriterion = (ci: number, techId: string) => {
+    const t = libTechs.find((x) => x.id === techId);
+    if (!t) return;
+    const next = [...cats];
+    next[ci] = {
+      ...next[ci],
+      criteria: [...next[ci].criteria, {
+        id: uid(),
+        name: t.name,
+        description: t.description ?? null,
+        weight: 1,
+        max_score: Number(t.default_score ?? 10),
+        min_score: 0,
+        required: !!t.required,
+        eliminatory: false,
+        techniques: [t.id],
+      }],
+    };
+    setCats(next);
+  };
 
   const updCategory = (i: number, patch: Partial<Category>) => {
     const next = [...cats]; next[i] = { ...next[i], ...patch }; setCats(next);
@@ -309,12 +372,36 @@ function TemplateEditor() {
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
             <CardTitle className="text-base">Estrutura da avaliação</CardTitle>
-            <Button size="sm" variant="outline" onClick={addCategory}>
-              <Plus className="h-3.5 w-3.5 mr-1" /> Categoria
-            </Button>
+            <div className="flex items-center gap-2 flex-wrap">
+              {libCats.length > 0 && (
+                <select
+                  className="border rounded p-2 bg-background text-sm"
+                  value=""
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      addCategoryFromLibrary(e.target.value);
+                      e.currentTarget.value = "";
+                    }
+                  }}
+                >
+                  <option value="">+ Da biblioteca…</option>
+                  {libCats.filter((c) => !c.archived).map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+              )}
+              <Button size="sm" variant="outline" onClick={addCategory}>
+                <Plus className="h-3.5 w-3.5 mr-1" /> Categoria
+              </Button>
+            </div>
           </div>
+          {libCats.length === 0 && (
+            <p className="text-xs text-muted-foreground mt-1">
+              Cadastre categorias e técnicas em Avaliações → Biblioteca para importar aqui.
+            </p>
+          )}
         </CardHeader>
         <CardContent className="space-y-3">
           {cats.length === 0 && (
@@ -370,9 +457,42 @@ function TemplateEditor() {
                     </div>
                   </div>
                 ))}
-                <Button size="sm" variant="ghost" onClick={() => addCriterion(ci)}>
-                  <Plus className="h-3.5 w-3.5 mr-1" /> Critério
-                </Button>
+                <div className="flex items-center gap-2 flex-wrap pt-1">
+                  <Button size="sm" variant="ghost" onClick={() => addCriterion(ci)}>
+                    <Plus className="h-3.5 w-3.5 mr-1" /> Critério
+                  </Button>
+                  {(() => {
+                    const matchLib = libCats.find(
+                      (c) => (c.name ?? "").trim().toLowerCase() === (cat.name ?? "").trim().toLowerCase(),
+                    );
+                    const availableTechs = libTechs.filter(
+                      (t) =>
+                        !t.archived &&
+                        (matchLib ? t.category_id === matchLib.id : true) &&
+                        !cat.criteria.some((cr) => (cr.techniques ?? []).includes(t.id)),
+                    );
+                    if (availableTechs.length === 0) return null;
+                    return (
+                      <select
+                        className="border rounded p-1.5 bg-background text-xs"
+                        value=""
+                        onChange={(e) => {
+                          if (e.target.value) {
+                            addTechniqueCriterion(ci, e.target.value);
+                            e.currentTarget.value = "";
+                          }
+                        }}
+                      >
+                        <option value="">
+                          + Técnica {matchLib ? `de "${matchLib.name}"` : "da biblioteca"}…
+                        </option>
+                        {availableTechs.map((t) => (
+                          <option key={t.id} value={t.id}>{t.name}</option>
+                        ))}
+                      </select>
+                    );
+                  })()}
+                </div>
               </div>
             </div>
           ))}
