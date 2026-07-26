@@ -4,6 +4,7 @@ import { queryOptions, useQueryClient, useSuspenseQuery } from "@tanstack/react-
 import { useEffect, useState } from "react";
 import {
   getEvalTemplate, saveEvalTemplate,
+  listEvalCategories, listEvalTechniques,
 } from "@/lib/dojo/evaluations.functions";
 import { listDojoBelts } from "@/lib/dojo/dojo.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
