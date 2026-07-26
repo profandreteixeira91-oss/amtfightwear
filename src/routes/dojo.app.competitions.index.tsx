@@ -195,59 +195,82 @@ function LibraryTab() {
 
   return (
     <div className="space-y-4">
-      <Card><CardContent className="p-4 space-y-3">
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="relative">
-            <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar por nome, organização, cidade..." className="pl-8" />
+      <Card className="border-red-500/15 bg-gradient-to-br from-neutral-950/80 via-neutral-950/60 to-red-950/20 text-white shadow-[0_10px_30px_-20px_rgba(220,38,38,0.7)]">
+        <CardContent className="space-y-3 p-4">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-5">
+            <div className="relative sm:col-span-2 lg:col-span-2">
+              <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-red-300/80" />
+              <Input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder='Busca livre: "sao paulo master", cbjj, ibjjf, kimono...'
+                className="border-red-500/20 bg-neutral-950/60 pl-8 text-white placeholder:text-neutral-500 focus-visible:ring-red-500/40"
+              />
+            </div>
+            <Select value={when} onValueChange={setWhen}>
+              <SelectTrigger className="border-red-500/20 bg-neutral-950/60 text-white"><SelectValue placeholder="Quando" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="upcoming">Próximas</SelectItem>
+                <SelectItem value="30">Próximos 30 dias</SelectItem>
+                <SelectItem value="90">Próximos 90 dias</SelectItem>
+                <SelectItem value="past">Já realizadas</SelectItem>
+                <SelectItem value="all">Todas as datas</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={scope} onValueChange={setScope}>
+              <SelectTrigger className="border-red-500/20 bg-neutral-950/60 text-white"><SelectValue placeholder="Escopo" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os escopos</SelectItem>
+                <SelectItem value="international">Internacional</SelectItem>
+                <SelectItem value="national">Nacional</SelectItem>
+                <SelectItem value="regional">Regional</SelectItem>
+                <SelectItem value="state">Estadual</SelectItem>
+                <SelectItem value="municipal">Municipal</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={country} onValueChange={setCountry}>
+              <SelectTrigger className="border-red-500/20 bg-neutral-950/60 text-white"><SelectValue placeholder="País" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os países</SelectItem>
+                {(filters.data?.countries ?? []).map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Select value={state} onValueChange={setState}>
+              <SelectTrigger className="border-red-500/20 bg-neutral-950/60 text-white"><SelectValue placeholder="Estado" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os estados</SelectItem>
+                {(filters.data?.states ?? []).map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+              </SelectContent>
+            </Select>
           </div>
-          <Select value={scope} onValueChange={setScope}>
-            <SelectTrigger><SelectValue placeholder="Escopo" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos os escopos</SelectItem>
-              <SelectItem value="international">Internacional</SelectItem>
-              <SelectItem value="national">Nacional</SelectItem>
-              <SelectItem value="regional">Regional</SelectItem>
-              <SelectItem value="state">Estadual</SelectItem>
-              <SelectItem value="municipal">Municipal</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={country} onValueChange={setCountry}>
-            <SelectTrigger><SelectValue placeholder="País" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos os países</SelectItem>
-              {(filters.data?.countries ?? []).map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-            </SelectContent>
-          </Select>
-          <Select value={state} onValueChange={setState}>
-            <SelectTrigger><SelectValue placeholder="Estado" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos os estados</SelectItem>
-              {(filters.data?.states ?? []).map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
-          <span>{list.isLoading ? "Carregando..." : `${list.data?.total ?? 0} competições encontradas`}</span>
-          <div className="flex items-center gap-2">
-            <NewCompetitionDialog onCreated={() => {
-              qc.invalidateQueries({ queryKey: ["comp-lib"] });
-              qc.invalidateQueries({ queryKey: ["comp-filters"] });
-            }} />
-            <Button size="sm" variant="outline" onClick={toggleAll} disabled={rows.length === 0}>
-              {allSelected ? "Limpar seleção" : "Selecionar todas"}
-            </Button>
-            <Button
-              size="sm"
-              disabled={selected.size === 0 || bulkMut.isPending}
-              onClick={() => bulkMut.mutate(Array.from(selected))}
-            >
-              <Plus className="mr-1 h-3 w-3" />
-              {bulkMut.isPending ? "Adicionando..." : `Adicionar ${selected.size || ""} ao calendário`}
-            </Button>
+          <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+            <span className="text-neutral-300">
+              {list.isLoading ? "Buscando em todas as fontes..." : `${list.data?.total ?? 0} competições encontradas`}
+              <span className="ml-2 hidden text-neutral-500 md:inline">· dica: use aspas para frase exata, ex: <code className="rounded bg-white/10 px-1">"copa brasil"</code></span>
+            </span>
+            <div className="flex flex-wrap items-center gap-2">
+              <NewCompetitionDialog onCreated={() => {
+                qc.invalidateQueries({ queryKey: ["comp-lib"] });
+                qc.invalidateQueries({ queryKey: ["comp-filters"] });
+              }} />
+              <Button size="sm" variant="outline" onClick={toggleAll} disabled={rows.length === 0}
+                className="border-red-500/30 bg-transparent text-white hover:bg-red-500/10">
+                {allSelected ? "Limpar seleção" : "Selecionar todas"}
+              </Button>
+              <Button
+                size="sm"
+                disabled={selected.size === 0 || bulkMut.isPending}
+                onClick={() => bulkMut.mutate(Array.from(selected))}
+                className="bg-gradient-to-br from-red-600 to-red-800 text-white shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-700"
+              >
+                <Plus className="mr-1 h-3 w-3" />
+                {bulkMut.isPending ? "Adicionando..." : `Adicionar ${selected.size || ""} ao calendário`}
+              </Button>
+            </div>
           </div>
-        </div>
-      </CardContent></Card>
+        </CardContent>
+      </Card>
+
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {rows.map((c) => (
