@@ -580,9 +580,10 @@ function MenuButton({ label, children }: { label: string; children: React.ReactN
           <ChevronDown className="h-3 w-3 opacity-60" />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="min-w-[220px]">
+      <DropdownMenuContent align="start" className="min-w-[220px] z-[130]">
         {children}
       </DropdownMenuContent>
+
     </DropdownMenu>
   );
 }
