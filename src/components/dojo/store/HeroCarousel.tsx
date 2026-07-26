@@ -119,7 +119,7 @@ export function HeroCarousel() {
                 <Link
                   to="/dojo/app/store/c/$categoria"
                   params={{ categoria: s.categoria }}
-                  className="mt-2 inline-flex h-11 items-center gap-2 rounded-full bg-white px-5 text-sm font-semibold text-foreground transition hover:bg-white/90"
+                  className="mt-2 inline-flex h-11 items-center gap-2 rounded-full bg-white px-5 text-sm font-semibold text-black transition hover:bg-white/90"
                 >
                   {s.ctaLabel} <ArrowRight className="h-4 w-4" strokeWidth={1.75} />
                 </Link>
