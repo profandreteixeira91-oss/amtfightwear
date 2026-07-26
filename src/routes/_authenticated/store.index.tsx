@@ -59,117 +59,113 @@ function StoreDashboard() {
   }, [now]);
 
   return (
-    <div className="space-y-4 p-3 sm:p-4 md:space-y-6 md:p-6">
-      {/* Header premium mobile-first */}
-      <div className="relative overflow-hidden rounded-2xl border border-red-950/10 bg-gradient-to-br from-neutral-950 via-neutral-900 to-red-950/40 p-4 text-white shadow-xl sm:p-6">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-20"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px)",
-            backgroundSize: "24px 24px",
-          }}
-        />
-        <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-red-500/20 blur-3xl" />
-        <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 sm:flex sm:items-center sm:justify-between">
+    <div className="min-h-screen bg-gradient-to-b from-neutral-50 via-white to-neutral-50/50">
+      <div className="mx-auto max-w-[1400px] space-y-6 p-4 sm:p-6 md:space-y-8 md:p-8">
+        {/* Header premium — SaaS style (Stripe/Linear/Vercel) */}
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 sm:flex sm:items-center sm:justify-between">
           <div className="min-w-0">
-            <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.2em] text-red-300/80">Painel da Loja</div>
-            <h1 className="truncate text-xl font-black tracking-tight sm:text-2xl md:text-3xl">
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-600 shadow-sm">
+              <span className="h-1.5 w-1.5 rounded-full bg-red-600" />
+              AMT Store
+            </div>
+            <h1 className="truncate text-2xl font-bold tracking-tight text-neutral-900 sm:text-3xl md:text-[32px] md:leading-tight">
               {greeting}, Admin
             </h1>
-            <p className="mt-1 truncate text-[11px] text-white/60 sm:text-xs">
-              {now.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
-              {" · "}
-              <span className={isFetching ? "text-red-300" : "text-emerald-300"}>
-                {isFetching ? "sincronizando…" : `atualizado ${new Date(dataUpdatedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`}
+            <p className="mt-1.5 flex items-center gap-2 truncate text-xs text-neutral-500 sm:text-sm">
+              <span className="capitalize">
+                {now.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
+              </span>
+              <span className="text-neutral-300">·</span>
+              <span className={`inline-flex items-center gap-1.5 ${isFetching ? "text-neutral-500" : "text-emerald-600"}`}>
+                <span className={`h-1.5 w-1.5 rounded-full ${isFetching ? "animate-pulse bg-neutral-400" : "bg-emerald-500"}`} />
+                {isFetching ? "sincronizando" : `atualizado ${new Date(dataUpdatedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`}
               </span>
             </p>
           </div>
-          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             <button
               onClick={() => refetch()}
               disabled={isFetching}
-              className="grid h-10 w-10 place-items-center rounded-full bg-white/10 text-white transition hover:bg-white/20 disabled:opacity-50 sm:h-9 sm:w-auto sm:gap-2 sm:px-3"
+              className="inline-flex h-9 items-center gap-2 rounded-lg border border-neutral-200 bg-white px-3 text-sm font-medium text-neutral-700 shadow-sm transition hover:bg-neutral-50 hover:shadow disabled:opacity-50"
               aria-label="Atualizar"
             >
-              <RefreshCw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
-              <span className="hidden text-sm font-semibold sm:inline">Atualizar</span>
+              <RefreshCw className={`h-3.5 w-3.5 ${isFetching ? "animate-spin" : ""}`} />
+              <span className="hidden sm:inline">Atualizar</span>
             </button>
             <a
               href="/loja"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex h-10 items-center gap-1.5 rounded-full bg-red-600 px-3 text-sm font-semibold text-white shadow-lg shadow-red-950/40 transition hover:bg-red-500 sm:h-9"
+              className="inline-flex h-9 items-center gap-2 rounded-lg bg-neutral-900 px-3.5 text-sm font-medium text-white shadow-sm transition hover:bg-neutral-800"
               aria-label="Ver loja"
             >
-              <ExternalLink className="h-4 w-4" />
+              <ExternalLink className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Ver loja</span>
               <span className="sm:hidden">Loja</span>
             </a>
           </div>
         </div>
-      </div>
 
-      {/* Filtros de período — scroll horizontal no mobile */}
-      <div className="-mx-3 overflow-x-auto px-3 sm:mx-0 sm:px-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-        <div className="inline-flex min-w-max gap-1 rounded-full border bg-card p-1 shadow-sm">
-          {RANGES.map((r) => (
-            <button
-              key={r.key}
-              onClick={() => setRange(r.key)}
-              className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold transition ${
-                range === r.key
-                  ? "bg-primary text-primary-foreground shadow"
-                  : "text-muted-foreground hover:bg-muted"
-              }`}
-            >
-              {r.label}
-            </button>
-          ))}
+        {/* Filtros de período */}
+        <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+          <div className="inline-flex min-w-max gap-0.5 rounded-xl border border-neutral-200 bg-white p-1 shadow-sm">
+            {RANGES.map((r) => (
+              <button
+                key={r.key}
+                onClick={() => setRange(r.key)}
+                className={`whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium transition ${
+                  range === r.key
+                    ? "bg-neutral-900 text-white shadow-sm"
+                    : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
+                }`}
+              >
+                {r.label}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* KPI cards — 2 colunas no mobile, 4 no desktop */}
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-        <KpiCard
-          icon={DollarSign}
-          label="Faturamento hoje"
-          value={data ? BRL(data.today.revenue) : undefined}
-          loading={isLoading}
-          delta={data?.today.growth}
-          hint={data ? `vs ontem: ${BRL(data.today.revenue_yesterday)}` : undefined}
-          tone="revenue"
-        />
-        <KpiCard
-          icon={ShoppingBag}
-          label="Pedidos hoje"
-          value={data ? NUM(data.today.orders) : undefined}
-          loading={isLoading}
-          hint={data ? `Ticket ${BRL(data.today.avg_ticket)}` : undefined}
-          tone="orders"
-        />
-        <KpiCard
-          icon={Eye}
-          label="Visitantes agora"
-          value={data ? NUM(data.live.active) : undefined}
-          loading={isLoading}
-          hint={
-            data
-              ? `${data.live.checkout} checkout · ${data.live.product_views} produtos`
-              : undefined
-          }
-          tone="live"
-          live
-        />
-        <KpiCard
-          icon={ShoppingCart}
-          label="Carrinhos abandonados"
-          value={data ? NUM(data.abandoned.carts.length) : undefined}
-          loading={isLoading}
-          hint={data ? `Potencial ${BRL(data.abandoned.total_value)}` : undefined}
-          tone="cart"
-        />
-      </div>
+        {/* KPI cards */}
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+          <KpiCard
+            icon={DollarSign}
+            label="Faturamento hoje"
+            value={data ? BRL(data.today.revenue) : undefined}
+            loading={isLoading}
+            delta={data?.today.growth}
+            hint={data ? `vs ontem: ${BRL(data.today.revenue_yesterday)}` : undefined}
+            tone="revenue"
+          />
+          <KpiCard
+            icon={ShoppingBag}
+            label="Pedidos hoje"
+            value={data ? NUM(data.today.orders) : undefined}
+            loading={isLoading}
+            hint={data ? `Ticket ${BRL(data.today.avg_ticket)}` : undefined}
+            tone="orders"
+          />
+          <KpiCard
+            icon={Eye}
+            label="Visitantes agora"
+            value={data ? NUM(data.live.active) : undefined}
+            loading={isLoading}
+            hint={
+              data
+                ? `${data.live.checkout} checkout · ${data.live.product_views} produtos`
+                : undefined
+            }
+            tone="live"
+            live
+          />
+          <KpiCard
+            icon={ShoppingCart}
+            label="Carrinhos abandonados"
+            value={data ? NUM(data.abandoned.carts.length) : undefined}
+            loading={isLoading}
+            hint={data ? `Potencial ${BRL(data.abandoned.total_value)}` : undefined}
+            tone="cart"
+          />
+        </div>
 
 
       {/* Visitors analytics */}
