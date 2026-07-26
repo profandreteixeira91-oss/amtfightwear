@@ -32,7 +32,7 @@ export const Route = createFileRoute("/dojo/app/graduations")({
 type Step = "select" | "grad" | "payment" | "cert";
 
 function NewGraduationPage() {
-  const search = Route.useSearch();
+  const routeSearch = Route.useSearch();
   const studentsFn = useServerFn(listDojoStudents);
   const beltsFn = useServerFn(listDojoBelts);
   const bulkFn = useServerFn(addBulkGraduation);
