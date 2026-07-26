@@ -38,6 +38,7 @@ import { Route as AppInstallRouteImport } from './routes/app.install'
 import { Route as AppStudentRouteImport } from './routes/app._student'
 import { Route as ApiGenerateAdImageRouteImport } from './routes/api/generate-ad-image'
 import { Route as AuthenticatedUsersRouteImport } from './routes/_authenticated/users'
+import { Route as AuthenticatedStoreRouteImport } from './routes/_authenticated/store'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedLogsRouteImport } from './routes/_authenticated/logs'
@@ -372,6 +373,11 @@ const AuthenticatedUsersRoute = AuthenticatedUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedStoreRoute = AuthenticatedStoreRouteImport.update({
+  id: '/store',
+  path: '/store',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -413,9 +419,9 @@ const DojoAppIndexRoute = DojoAppIndexRouteImport.update({
   getParentRoute: () => DojoAppRoute,
 } as any)
 const AuthenticatedStoreIndexRoute = AuthenticatedStoreIndexRouteImport.update({
-  id: '/store/',
-  path: '/store/',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedStoreRoute,
 } as any)
 const AuthenticatedProspectIndexRoute =
   AuthenticatedProspectIndexRouteImport.update({
@@ -701,79 +707,79 @@ const ApiDojoApkUploadRoute = ApiDojoApkUploadRouteImport.update({
 } as any)
 const AuthenticatedStoreWholesaleRoute =
   AuthenticatedStoreWholesaleRouteImport.update({
-    id: '/store/wholesale',
-    path: '/store/wholesale',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/wholesale',
+    path: '/wholesale',
+    getParentRoute: () => AuthenticatedStoreRoute,
   } as any)
 const AuthenticatedStoreSizesRoute = AuthenticatedStoreSizesRouteImport.update({
-  id: '/store/sizes',
-  path: '/store/sizes',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  id: '/sizes',
+  path: '/sizes',
+  getParentRoute: () => AuthenticatedStoreRoute,
 } as any)
 const AuthenticatedStoreShippingRoute =
   AuthenticatedStoreShippingRouteImport.update({
-    id: '/store/shipping',
-    path: '/store/shipping',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/shipping',
+    path: '/shipping',
+    getParentRoute: () => AuthenticatedStoreRoute,
   } as any)
 const AuthenticatedStoreProductsRoute =
   AuthenticatedStoreProductsRouteImport.update({
-    id: '/store/products',
-    path: '/store/products',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/products',
+    path: '/products',
+    getParentRoute: () => AuthenticatedStoreRoute,
   } as any)
 const AuthenticatedStoreOrdersRoute =
   AuthenticatedStoreOrdersRouteImport.update({
-    id: '/store/orders',
-    path: '/store/orders',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/orders',
+    path: '/orders',
+    getParentRoute: () => AuthenticatedStoreRoute,
   } as any)
 const AuthenticatedStoreNotificationsRoute =
   AuthenticatedStoreNotificationsRouteImport.update({
-    id: '/store/notifications',
-    path: '/store/notifications',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/notifications',
+    path: '/notifications',
+    getParentRoute: () => AuthenticatedStoreRoute,
   } as any)
 const AuthenticatedStoreImportRoute =
   AuthenticatedStoreImportRouteImport.update({
-    id: '/store/import',
-    path: '/store/import',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/import',
+    path: '/import',
+    getParentRoute: () => AuthenticatedStoreRoute,
   } as any)
 const AuthenticatedStoreImagensRoute =
   AuthenticatedStoreImagensRouteImport.update({
-    id: '/store/imagens',
-    path: '/store/imagens',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/imagens',
+    path: '/imagens',
+    getParentRoute: () => AuthenticatedStoreRoute,
   } as any)
 const AuthenticatedStoreFaixaCalcRoute =
   AuthenticatedStoreFaixaCalcRouteImport.update({
-    id: '/store/faixa-calc',
-    path: '/store/faixa-calc',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/faixa-calc',
+    path: '/faixa-calc',
+    getParentRoute: () => AuthenticatedStoreRoute,
   } as any)
 const AuthenticatedStoreDojoSupportRoute =
   AuthenticatedStoreDojoSupportRouteImport.update({
-    id: '/store/dojo-support',
-    path: '/store/dojo-support',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/dojo-support',
+    path: '/dojo-support',
+    getParentRoute: () => AuthenticatedStoreRoute,
   } as any)
 const AuthenticatedStoreDojoManagerRoute =
   AuthenticatedStoreDojoManagerRouteImport.update({
-    id: '/store/dojo-manager',
-    path: '/store/dojo-manager',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/dojo-manager',
+    path: '/dojo-manager',
+    getParentRoute: () => AuthenticatedStoreRoute,
   } as any)
 const AuthenticatedStoreCustomersRoute =
   AuthenticatedStoreCustomersRouteImport.update({
-    id: '/store/customers',
-    path: '/store/customers',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/customers',
+    path: '/customers',
+    getParentRoute: () => AuthenticatedStoreRoute,
   } as any)
 const AuthenticatedStoreChatRoute = AuthenticatedStoreChatRouteImport.update({
-  id: '/store/chat',
-  path: '/store/chat',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => AuthenticatedStoreRoute,
 } as any)
 const AuthenticatedProspectSettingsRoute =
   AuthenticatedProspectSettingsRouteImport.update({
@@ -1426,6 +1432,7 @@ export interface FileRoutesByFullPath {
   '/logs': typeof AuthenticatedLogsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/store': typeof AuthenticatedStoreRouteWithChildren
   '/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
   '/app/install': typeof AppInstallRouteWithChildren
@@ -1854,6 +1861,7 @@ export interface FileRoutesById {
   '/_authenticated/logs': typeof AuthenticatedLogsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/_authenticated/store': typeof AuthenticatedStoreRouteWithChildren
   '/_authenticated/users': typeof AuthenticatedUsersRoute
   '/api/generate-ad-image': typeof ApiGenerateAdImageRoute
   '/app/_student': typeof AppStudentRouteWithChildren
@@ -2076,6 +2084,7 @@ export interface FileRouteTypes {
     | '/logs'
     | '/profile'
     | '/settings'
+    | '/store'
     | '/users'
     | '/api/generate-ad-image'
     | '/app/install'
@@ -2503,6 +2512,7 @@ export interface FileRouteTypes {
     | '/_authenticated/logs'
     | '/_authenticated/profile'
     | '/_authenticated/settings'
+    | '/_authenticated/store'
     | '/_authenticated/users'
     | '/api/generate-ad-image'
     | '/app/_student'
@@ -2971,6 +2981,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedUsersRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store': {
+      id: '/_authenticated/store'
+      path: '/store'
+      fullPath: '/store'
+      preLoaderRoute: typeof AuthenticatedStoreRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/settings': {
       id: '/_authenticated/settings'
       path: '/settings'
@@ -3029,10 +3046,10 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/store/': {
       id: '/_authenticated/store/'
-      path: '/store'
+      path: '/'
       fullPath: '/store/'
       preLoaderRoute: typeof AuthenticatedStoreIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreRoute
     }
     '/_authenticated/prospect/': {
       id: '/_authenticated/prospect/'
@@ -3428,94 +3445,94 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/store/wholesale': {
       id: '/_authenticated/store/wholesale'
-      path: '/store/wholesale'
+      path: '/wholesale'
       fullPath: '/store/wholesale'
       preLoaderRoute: typeof AuthenticatedStoreWholesaleRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreRoute
     }
     '/_authenticated/store/sizes': {
       id: '/_authenticated/store/sizes'
-      path: '/store/sizes'
+      path: '/sizes'
       fullPath: '/store/sizes'
       preLoaderRoute: typeof AuthenticatedStoreSizesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreRoute
     }
     '/_authenticated/store/shipping': {
       id: '/_authenticated/store/shipping'
-      path: '/store/shipping'
+      path: '/shipping'
       fullPath: '/store/shipping'
       preLoaderRoute: typeof AuthenticatedStoreShippingRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreRoute
     }
     '/_authenticated/store/products': {
       id: '/_authenticated/store/products'
-      path: '/store/products'
+      path: '/products'
       fullPath: '/store/products'
       preLoaderRoute: typeof AuthenticatedStoreProductsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreRoute
     }
     '/_authenticated/store/orders': {
       id: '/_authenticated/store/orders'
-      path: '/store/orders'
+      path: '/orders'
       fullPath: '/store/orders'
       preLoaderRoute: typeof AuthenticatedStoreOrdersRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreRoute
     }
     '/_authenticated/store/notifications': {
       id: '/_authenticated/store/notifications'
-      path: '/store/notifications'
+      path: '/notifications'
       fullPath: '/store/notifications'
       preLoaderRoute: typeof AuthenticatedStoreNotificationsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreRoute
     }
     '/_authenticated/store/import': {
       id: '/_authenticated/store/import'
-      path: '/store/import'
+      path: '/import'
       fullPath: '/store/import'
       preLoaderRoute: typeof AuthenticatedStoreImportRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreRoute
     }
     '/_authenticated/store/imagens': {
       id: '/_authenticated/store/imagens'
-      path: '/store/imagens'
+      path: '/imagens'
       fullPath: '/store/imagens'
       preLoaderRoute: typeof AuthenticatedStoreImagensRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreRoute
     }
     '/_authenticated/store/faixa-calc': {
       id: '/_authenticated/store/faixa-calc'
-      path: '/store/faixa-calc'
+      path: '/faixa-calc'
       fullPath: '/store/faixa-calc'
       preLoaderRoute: typeof AuthenticatedStoreFaixaCalcRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreRoute
     }
     '/_authenticated/store/dojo-support': {
       id: '/_authenticated/store/dojo-support'
-      path: '/store/dojo-support'
+      path: '/dojo-support'
       fullPath: '/store/dojo-support'
       preLoaderRoute: typeof AuthenticatedStoreDojoSupportRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreRoute
     }
     '/_authenticated/store/dojo-manager': {
       id: '/_authenticated/store/dojo-manager'
-      path: '/store/dojo-manager'
+      path: '/dojo-manager'
       fullPath: '/store/dojo-manager'
       preLoaderRoute: typeof AuthenticatedStoreDojoManagerRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreRoute
     }
     '/_authenticated/store/customers': {
       id: '/_authenticated/store/customers'
-      path: '/store/customers'
+      path: '/customers'
       fullPath: '/store/customers'
       preLoaderRoute: typeof AuthenticatedStoreCustomersRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreRoute
     }
     '/_authenticated/store/chat': {
       id: '/_authenticated/store/chat'
-      path: '/store/chat'
+      path: '/chat'
       fullPath: '/store/chat'
       preLoaderRoute: typeof AuthenticatedStoreChatRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreRoute
     }
     '/_authenticated/prospect/settings': {
       id: '/_authenticated/prospect/settings'
@@ -4345,12 +4362,50 @@ const AuthenticatedAdsRouteChildren: AuthenticatedAdsRouteChildren = {
 const AuthenticatedAdsRouteWithChildren =
   AuthenticatedAdsRoute._addFileChildren(AuthenticatedAdsRouteChildren)
 
+interface AuthenticatedStoreRouteChildren {
+  AuthenticatedStoreChatRoute: typeof AuthenticatedStoreChatRoute
+  AuthenticatedStoreCustomersRoute: typeof AuthenticatedStoreCustomersRoute
+  AuthenticatedStoreDojoManagerRoute: typeof AuthenticatedStoreDojoManagerRoute
+  AuthenticatedStoreDojoSupportRoute: typeof AuthenticatedStoreDojoSupportRoute
+  AuthenticatedStoreFaixaCalcRoute: typeof AuthenticatedStoreFaixaCalcRoute
+  AuthenticatedStoreImagensRoute: typeof AuthenticatedStoreImagensRoute
+  AuthenticatedStoreImportRoute: typeof AuthenticatedStoreImportRoute
+  AuthenticatedStoreNotificationsRoute: typeof AuthenticatedStoreNotificationsRoute
+  AuthenticatedStoreOrdersRoute: typeof AuthenticatedStoreOrdersRoute
+  AuthenticatedStoreProductsRoute: typeof AuthenticatedStoreProductsRoute
+  AuthenticatedStoreShippingRoute: typeof AuthenticatedStoreShippingRoute
+  AuthenticatedStoreSizesRoute: typeof AuthenticatedStoreSizesRoute
+  AuthenticatedStoreWholesaleRoute: typeof AuthenticatedStoreWholesaleRoute
+  AuthenticatedStoreIndexRoute: typeof AuthenticatedStoreIndexRoute
+}
+
+const AuthenticatedStoreRouteChildren: AuthenticatedStoreRouteChildren = {
+  AuthenticatedStoreChatRoute: AuthenticatedStoreChatRoute,
+  AuthenticatedStoreCustomersRoute: AuthenticatedStoreCustomersRoute,
+  AuthenticatedStoreDojoManagerRoute: AuthenticatedStoreDojoManagerRoute,
+  AuthenticatedStoreDojoSupportRoute: AuthenticatedStoreDojoSupportRoute,
+  AuthenticatedStoreFaixaCalcRoute: AuthenticatedStoreFaixaCalcRoute,
+  AuthenticatedStoreImagensRoute: AuthenticatedStoreImagensRoute,
+  AuthenticatedStoreImportRoute: AuthenticatedStoreImportRoute,
+  AuthenticatedStoreNotificationsRoute: AuthenticatedStoreNotificationsRoute,
+  AuthenticatedStoreOrdersRoute: AuthenticatedStoreOrdersRoute,
+  AuthenticatedStoreProductsRoute: AuthenticatedStoreProductsRoute,
+  AuthenticatedStoreShippingRoute: AuthenticatedStoreShippingRoute,
+  AuthenticatedStoreSizesRoute: AuthenticatedStoreSizesRoute,
+  AuthenticatedStoreWholesaleRoute: AuthenticatedStoreWholesaleRoute,
+  AuthenticatedStoreIndexRoute: AuthenticatedStoreIndexRoute,
+}
+
+const AuthenticatedStoreRouteWithChildren =
+  AuthenticatedStoreRoute._addFileChildren(AuthenticatedStoreRouteChildren)
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdsRoute: typeof AuthenticatedAdsRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedLogsRoute: typeof AuthenticatedLogsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedStoreRoute: typeof AuthenticatedStoreRouteWithChildren
   AuthenticatedUsersRoute: typeof AuthenticatedUsersRoute
   AuthenticatedGrowthCrmRoute: typeof AuthenticatedGrowthCrmRoute
   AuthenticatedGrowthCustomersRoute: typeof AuthenticatedGrowthCustomersRoute
@@ -4379,21 +4434,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProspectQualifiedRoute: typeof AuthenticatedProspectQualifiedRoute
   AuthenticatedProspectSearchRoute: typeof AuthenticatedProspectSearchRoute
   AuthenticatedProspectSettingsRoute: typeof AuthenticatedProspectSettingsRoute
-  AuthenticatedStoreChatRoute: typeof AuthenticatedStoreChatRoute
-  AuthenticatedStoreCustomersRoute: typeof AuthenticatedStoreCustomersRoute
-  AuthenticatedStoreDojoManagerRoute: typeof AuthenticatedStoreDojoManagerRoute
-  AuthenticatedStoreDojoSupportRoute: typeof AuthenticatedStoreDojoSupportRoute
-  AuthenticatedStoreFaixaCalcRoute: typeof AuthenticatedStoreFaixaCalcRoute
-  AuthenticatedStoreImagensRoute: typeof AuthenticatedStoreImagensRoute
-  AuthenticatedStoreImportRoute: typeof AuthenticatedStoreImportRoute
-  AuthenticatedStoreNotificationsRoute: typeof AuthenticatedStoreNotificationsRoute
-  AuthenticatedStoreOrdersRoute: typeof AuthenticatedStoreOrdersRoute
-  AuthenticatedStoreProductsRoute: typeof AuthenticatedStoreProductsRoute
-  AuthenticatedStoreShippingRoute: typeof AuthenticatedStoreShippingRoute
-  AuthenticatedStoreSizesRoute: typeof AuthenticatedStoreSizesRoute
-  AuthenticatedStoreWholesaleRoute: typeof AuthenticatedStoreWholesaleRoute
   AuthenticatedProspectIndexRoute: typeof AuthenticatedProspectIndexRoute
-  AuthenticatedStoreIndexRoute: typeof AuthenticatedStoreIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -4402,6 +4443,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedLogsRoute: AuthenticatedLogsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedStoreRoute: AuthenticatedStoreRouteWithChildren,
   AuthenticatedUsersRoute: AuthenticatedUsersRoute,
   AuthenticatedGrowthCrmRoute: AuthenticatedGrowthCrmRoute,
   AuthenticatedGrowthCustomersRoute: AuthenticatedGrowthCustomersRoute,
@@ -4431,21 +4473,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProspectQualifiedRoute: AuthenticatedProspectQualifiedRoute,
   AuthenticatedProspectSearchRoute: AuthenticatedProspectSearchRoute,
   AuthenticatedProspectSettingsRoute: AuthenticatedProspectSettingsRoute,
-  AuthenticatedStoreChatRoute: AuthenticatedStoreChatRoute,
-  AuthenticatedStoreCustomersRoute: AuthenticatedStoreCustomersRoute,
-  AuthenticatedStoreDojoManagerRoute: AuthenticatedStoreDojoManagerRoute,
-  AuthenticatedStoreDojoSupportRoute: AuthenticatedStoreDojoSupportRoute,
-  AuthenticatedStoreFaixaCalcRoute: AuthenticatedStoreFaixaCalcRoute,
-  AuthenticatedStoreImagensRoute: AuthenticatedStoreImagensRoute,
-  AuthenticatedStoreImportRoute: AuthenticatedStoreImportRoute,
-  AuthenticatedStoreNotificationsRoute: AuthenticatedStoreNotificationsRoute,
-  AuthenticatedStoreOrdersRoute: AuthenticatedStoreOrdersRoute,
-  AuthenticatedStoreProductsRoute: AuthenticatedStoreProductsRoute,
-  AuthenticatedStoreShippingRoute: AuthenticatedStoreShippingRoute,
-  AuthenticatedStoreSizesRoute: AuthenticatedStoreSizesRoute,
-  AuthenticatedStoreWholesaleRoute: AuthenticatedStoreWholesaleRoute,
   AuthenticatedProspectIndexRoute: AuthenticatedProspectIndexRoute,
-  AuthenticatedStoreIndexRoute: AuthenticatedStoreIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
