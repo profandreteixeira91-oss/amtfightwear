@@ -67,10 +67,15 @@ export function HeroCarousel() {
 
   return (
     <section
-      className="relative overflow-hidden rounded-3xl border border-[color:var(--dojo-border)] shadow-[var(--dojo-shadow-md)]"
+      className="relative overflow-hidden rounded-[28px] border border-[color:var(--dojo-border)] shadow-[var(--dojo-shadow-md)] sm:rounded-3xl"
       aria-roledescription="carousel"
     >
-      <div className="relative aspect-[21/9] min-h-[240px] md:aspect-[21/8]">
+      {/* Halo premium — vinheta radial na borda */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-10 rounded-[inherit] ring-1 ring-inset ring-white/10"
+      />
+      <div className="relative aspect-[4/5] min-h-[360px] sm:aspect-[21/9] sm:min-h-[240px] md:aspect-[21/8]">
         {SLIDES.map((s, i) => (
           <div
             key={s.categoria}
@@ -93,33 +98,25 @@ export function HeroCarousel() {
               className="absolute inset-0"
               style={{
                 background:
-                  "linear-gradient(90deg, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.55) 40%, rgba(0,0,0,0.15) 70%, rgba(0,0,0,0.05) 100%)",
-              }}
-            />
-            <div
-              aria-hidden="true"
-              className="absolute inset-0"
-              style={{
-                background:
-                  "linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.35) 100%)",
+                  "linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.75) 100%), linear-gradient(90deg, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.45) 40%, rgba(0,0,0,0.12) 70%, rgba(0,0,0,0.05) 100%)",
               }}
             />
 
-            <div className="relative flex h-full flex-col justify-end p-6 md:p-12">
-              <div className="max-w-xl space-y-3 text-white">
+            <div className="relative flex h-full flex-col justify-end p-5 sm:p-8 md:p-12">
+              <div className="max-w-xl space-y-2.5 text-white sm:space-y-3">
                 <div className="inline-flex items-center rounded-full bg-white/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white backdrop-blur">
                   {s.eyebrow}
                 </div>
-                <h2 className="text-3xl font-bold leading-tight tracking-tight text-white drop-shadow-[0_2px_16px_rgba(0,0,0,0.55)] md:text-5xl">
+                <h2 className="text-2xl font-bold leading-[1.1] tracking-tight text-white drop-shadow-[0_2px_16px_rgba(0,0,0,0.55)] sm:text-3xl md:text-5xl">
                   {s.title}
                 </h2>
-                <p className="max-w-md text-sm text-white/85 drop-shadow-[0_1px_8px_rgba(0,0,0,0.5)] md:text-base">
+                <p className="max-w-md text-[13px] leading-relaxed text-white/85 drop-shadow-[0_1px_8px_rgba(0,0,0,0.5)] sm:text-sm md:text-base">
                   {s.description}
                 </p>
                 <Link
                   to="/dojo/app/store/c/$categoria"
                   params={{ categoria: s.categoria }}
-                  className="mt-2 inline-flex h-11 items-center gap-2 rounded-full bg-white px-5 text-sm font-semibold text-black transition hover:bg-white/90"
+                  className="mt-1 inline-flex h-11 items-center gap-2 rounded-full bg-white px-5 text-sm font-semibold text-black shadow-[0_10px_30px_-8px_rgba(0,0,0,0.6)] transition hover:bg-white/90 sm:mt-2"
                 >
                   {s.ctaLabel} <ArrowRight className="h-4 w-4" strokeWidth={1.75} />
                 </Link>
@@ -129,7 +126,7 @@ export function HeroCarousel() {
         ))}
       </div>
 
-      <div className="absolute bottom-4 right-4 z-10 flex gap-1.5">
+      <div className="absolute bottom-3 right-3 z-20 flex gap-1.5 sm:bottom-4 sm:right-4">
         {SLIDES.map((_, i) => (
           <button
             key={i}

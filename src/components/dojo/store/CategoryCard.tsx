@@ -42,7 +42,7 @@ export function CategoryCard({
     <Link
       to="/dojo/app/store/c/$categoria"
       params={{ categoria: slug }}
-      className="group relative flex aspect-[4/5] flex-col justify-between overflow-hidden rounded-3xl border border-[color:var(--dojo-border)] p-5 shadow-[var(--dojo-shadow-sm)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--dojo-shadow-lg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+      className="group relative flex aspect-[4/5] flex-col justify-between overflow-hidden rounded-2xl border border-[color:var(--dojo-border)] p-3.5 shadow-[var(--dojo-shadow-sm)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--dojo-shadow-lg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 sm:rounded-3xl sm:p-5"
       style={image ? undefined : { background: FALLBACK_GRADIENT }}
       aria-label={`Ver produtos da categoria ${name}`}
     >
@@ -61,32 +61,36 @@ export function CategoryCard({
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.05) 45%, rgba(0,0,0,0.75) 100%)",
+                "linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.05) 45%, rgba(0,0,0,0.78) 100%)",
             }}
+          />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 rounded-[inherit] ring-1 ring-inset ring-white/10"
           />
         </>
       )}
 
       <div className="relative text-white">
-        <div className="inline-grid h-12 w-12 place-items-center rounded-2xl bg-white/15 backdrop-blur transition-transform duration-300 group-hover:scale-105">
-          <Icon className="h-6 w-6" strokeWidth={1.5} />
+        <div className="inline-grid h-9 w-9 place-items-center rounded-xl bg-white/15 backdrop-blur transition-transform duration-300 group-hover:scale-105 sm:h-12 sm:w-12 sm:rounded-2xl">
+          <Icon className="h-4 w-4 sm:h-6 sm:w-6" strokeWidth={1.5} />
         </div>
       </div>
       <div className="relative text-white">
-        <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/80">
+        <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-white/80 sm:text-[10px]">
           Categoria
         </div>
-        <div className="mt-1 flex items-end justify-between gap-2">
-          <h3 className="text-2xl font-bold tracking-tight drop-shadow-[0_2px_10px_rgba(0,0,0,0.6)] md:text-3xl">
+        <div className="mt-0.5 flex items-end justify-between gap-2 sm:mt-1">
+          <h3 className="min-w-0 truncate text-base font-bold tracking-tight drop-shadow-[0_2px_10px_rgba(0,0,0,0.6)] sm:whitespace-normal sm:text-2xl md:text-3xl">
             {name}
           </h3>
           <ArrowUpRight
-            className="h-6 w-6 shrink-0 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+            className="h-4 w-4 shrink-0 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 sm:h-6 sm:w-6"
             strokeWidth={1.75}
           />
         </div>
         {typeof count === "number" && count > 0 && (
-          <div className="mt-1 text-xs text-white/85">
+          <div className="mt-0.5 text-[10px] text-white/85 sm:mt-1 sm:text-xs">
             {count} produto{count !== 1 ? "s" : ""}
           </div>
         )}

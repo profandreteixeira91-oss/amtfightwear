@@ -106,25 +106,25 @@ function ProductListPage() {
           <ArrowLeft className="h-4 w-4" strokeWidth={1.75} /> Subcategorias de{" "}
           {parent?.name ?? categoria}
         </button>
-        <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3 sm:flex sm:flex-wrap sm:justify-between sm:gap-4">
           <div className="min-w-0 space-y-1">
-            <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+            <div className="truncate text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
               {parent?.name}
               {sub && sub !== parent ? ` · ${sub.name}` : sub === parent ? " · Todos" : ""}
             </div>
-            <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+            <h1 className="truncate text-2xl font-bold tracking-tight text-foreground sm:text-3xl md:text-4xl">
               Produtos
             </h1>
             <p className="text-sm text-muted-foreground">
               {filtered.length} {filtered.length === 1 ? "produto" : "produtos"} disponíveis
             </p>
           </div>
-          <label className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span className="font-semibold uppercase tracking-[0.14em]">Ordenar</span>
+          <label className="col-span-2 flex items-center gap-2 text-xs text-muted-foreground sm:col-span-1">
+            <span className="hidden font-semibold uppercase tracking-[0.14em] sm:inline">Ordenar</span>
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value as any)}
-              className="h-10 rounded-full border border-[color:var(--dojo-border)] bg-white px-3 text-xs text-foreground outline-none focus:border-foreground/40 focus:ring-2 focus:ring-primary/20"
+              className="h-10 w-full min-w-0 rounded-full border border-[color:var(--dojo-border)] bg-white px-3 text-xs text-foreground outline-none focus:border-foreground/40 focus:ring-2 focus:ring-primary/20 sm:w-auto"
             >
               <option value="name">Nome (A–Z)</option>
               <option value="recent">Mais recentes</option>

@@ -264,7 +264,7 @@ function CartPage() {
                       <Trash2 className="h-4 w-4" strokeWidth={1.75} />
                     </button>
                   </div>
-                  <div className="mt-auto flex items-center justify-between gap-2 pt-3">
+                  <div className="mt-auto flex flex-wrap items-center justify-between gap-x-3 gap-y-2 pt-3">
                     <div className="inline-flex h-9 items-center rounded-full border border-[color:var(--dojo-border)] bg-white">
                       <button
                         type="button"
@@ -305,7 +305,7 @@ function CartPage() {
                         <Plus className="h-3.5 w-3.5" strokeWidth={1.75} />
                       </button>
                     </div>
-                    <div className="text-right">
+                    <div className="ml-auto text-right">
                       {it.is_wholesale && (
                         <div className="text-[10px] text-muted-foreground line-through">
                           {brl(it.unit_retail * it.quantity)}
