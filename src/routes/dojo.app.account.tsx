@@ -173,9 +173,9 @@ function AccountPage() {
   }
 
   return (
-    <div className="space-y-4 max-w-6xl">
+    <div className="space-y-5 max-w-6xl">
       {onboarding && (
-        <Alert className="border-primary/40 bg-primary/5">
+        <Alert className="border-red-500/40 bg-gradient-to-r from-red-500/10 via-red-500/5 to-transparent">
           <AlertTitle>Bem-vindo ao AMT Dojo Manager!</AlertTitle>
           <AlertDescription>
             Para começar a operar, preencha os dados da sua academia (razão social,
@@ -196,9 +196,9 @@ function AccountPage() {
         saveProfile={saveProfile}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-5">
         <nav className="md:sticky md:top-4 self-start">
-          <Card className="p-1.5">
+          <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-neutral-900/80 to-neutral-950/80 p-2 shadow-[0_10px_40px_-20px_rgba(220,38,38,0.35)] backdrop-blur-xl">
             <div className="flex md:flex-col gap-1 overflow-x-auto">
               {TABS.map((t) => {
                 const Icon = t.icon;
@@ -208,18 +208,22 @@ function AccountPage() {
                     key={t.key}
                     onClick={() => setTab(t.key)}
                     className={cn(
-                      "flex items-center gap-2 px-3 py-2 rounded-md text-sm text-left transition-colors whitespace-nowrap md:whitespace-normal",
-                      active ? "bg-primary text-primary-foreground" : "hover:bg-muted"
+                      "group flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm text-left transition-all whitespace-nowrap md:whitespace-normal relative",
+                      active
+                        ? "bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg shadow-red-900/40"
+                        : "text-neutral-300 hover:bg-white/5 hover:text-white"
                     )}
                   >
-                    <Icon className="h-4 w-4 shrink-0" />
-                    <span>{t.label}</span>
+                    <Icon className={cn("h-4 w-4 shrink-0 transition-transform", active ? "" : "group-hover:scale-110")} />
+                    <span className="font-medium tracking-tight">{t.label}</span>
+                    {active && <span className="absolute inset-y-1 left-0 w-0.5 rounded-full bg-white/70 md:block hidden" />}
                   </button>
                 );
               })}
             </div>
-          </Card>
+          </div>
         </nav>
+
 
         <div className="min-w-0 space-y-4">
           {tab === "personal" && (
