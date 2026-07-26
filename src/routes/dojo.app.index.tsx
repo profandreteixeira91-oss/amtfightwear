@@ -860,8 +860,10 @@ function DojoDashboard() {
                       </p>
                     </div>
 
-                    {/* Ilustração da faixa — tamanho natural, sem cortes */}
-                    <div className="hidden sm:flex w-[160px] shrink-0 items-center justify-center">
+                    {/* Ilustração da faixa — largura fixa idêntica para todas as cores */}
+                    <div
+                      className="hidden sm:flex w-[180px] shrink-0 items-center justify-center overflow-hidden [&_>div]:!w-full [&_>div]:!inline-flex [&_>div>div]:!w-full [&_>div>div]:!min-w-0"
+                    >
                       {belts[0] ? (
                         <BeltAuto
                           belt={belts[0].belt}
@@ -872,6 +874,7 @@ function DojoDashboard() {
                         <div className="h-8 w-full rounded-sm border border-dashed border-slate-300" />
                       )}
                     </div>
+
 
 
                     {/* Badge status */}
