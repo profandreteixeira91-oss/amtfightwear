@@ -518,6 +518,22 @@ function imcCategory(imc: number | null | undefined) {
   return "Obesidade";
 }
 
+function methodLabel(m?: string | null) {
+  const map: Record<string, string> = {
+    manual: "Manual",
+    qr: "QR Code",
+    pin: "PIN",
+    geo: "Geolocalização",
+    geolocation: "Geolocalização",
+    visitor: "Visitante",
+    gympass: "Gympass",
+    totalpass: "TotalPass",
+    wellhub: "Wellhub",
+  };
+  const k = (m ?? "manual").toLowerCase();
+  return map[k] ?? k;
+}
+
 function MetricBox({ label, value, hint }: { label: string; value: React.ReactNode; hint?: string }) {
   return (
     <div className="rounded-xl border border-border/40 bg-gradient-to-br from-muted/40 to-muted/10 p-5 text-center">
