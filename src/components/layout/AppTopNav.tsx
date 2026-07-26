@@ -169,6 +169,7 @@ const groups: { label: string; items: Item[] }[] = [
   {
     label: "Admin",
     items: [
+      { title: "Central AMT", url: "/admin", icon: Shield },
       { title: "Painel da Loja", url: "/store", icon: Store },
       { title: "Produtos", url: "/store/products", icon: Package },
       { title: "Pedidos", url: "/store/orders", icon: ShoppingCart },
