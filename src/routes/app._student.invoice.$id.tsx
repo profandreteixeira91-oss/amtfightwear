@@ -3,17 +3,27 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, Copy, RefreshCw, CheckCircle2, Clock } from "lucide-react";
+import QRCode from "qrcode";
+import { ArrowLeft, Copy, RefreshCw, CheckCircle2, Clock, QrCode as QrIcon, Link as LinkIcon, Info } from "lucide-react";
 import {
   getMyInvoice,
   payMyInvoicePix,
   syncMyInvoicePayment,
 } from "@/lib/student/payments.functions";
+import { getNativeBillingForInvoice } from "@/lib/dojo/native-billing.functions";
 
 export const Route = createFileRoute("/app/_student/invoice/$id")({
-  head: () => ({ meta: [{ title: "Pagar com Pix — Portal do Aluno" }] }),
+  head: () => ({ meta: [{ title: "Pagamento — Portal do Aluno" }] }),
   component: InvoicePage,
 });
+
+const PIX_TYPE_LABEL: Record<string, string> = {
+  cpf: "CPF",
+  cnpj: "CNPJ",
+  email: "E-mail",
+  phone: "Telefone",
+  random: "Chave aleatória",
+};
 
 function InvoicePage() {
   const { id } = Route.useParams();
@@ -21,10 +31,16 @@ function InvoicePage() {
   const getInv = useServerFn(getMyInvoice);
   const pay = useServerFn(payMyInvoicePix);
   const sync = useServerFn(syncMyInvoicePayment);
+  const getNb = useServerFn(getNativeBillingForInvoice);
 
   const { data: invoice, refetch } = useQuery({
     queryKey: ["student", "invoice", id],
     queryFn: () => getInv({ data: { id } }),
+  });
+
+  const { data: nb } = useQuery({
+    queryKey: ["student", "invoice-native", id],
+    queryFn: () => getNb({ data: { invoice_id: id } }),
   });
 
   const [pix, setPix] = useState<{
@@ -34,10 +50,26 @@ function InvoicePage() {
     amount: number;
   } | null>(null);
   const [loading, setLoading] = useState(false);
+  const [nativeQr, setNativeQr] = useState<string | null>(null);
 
   const paid = invoice?.status === "paid";
 
-  async function generate() {
+  const hasNativePix = Boolean(nb?.pix_enabled && nb?.pix_key);
+  const hasPaymentLink = Boolean(nb?.payment_link_enabled && nb?.payment_link_url);
+  const hasAmtPay = Boolean((invoice as any)?.payment_id) || (!hasNativePix && !hasPaymentLink);
+
+  // Gera QR code local (não-EMV) apenas com a chave, para leitura visual
+  useEffect(() => {
+    if (!hasNativePix || !nb?.pix_key) {
+      setNativeQr(null);
+      return;
+    }
+    QRCode.toDataURL(nb.pix_key, { width: 240, margin: 1 })
+      .then((url) => setNativeQr(url))
+      .catch(() => setNativeQr(null));
+  }, [hasNativePix, nb?.pix_key]);
+
+  async function generateAmtPay() {
     setLoading(true);
     try {
       const r = await pay({ data: { invoice_id: id } });
@@ -54,7 +86,6 @@ function InvoicePage() {
     }
   }
 
-  // Polling a cada 5s enquanto tiver Pix aberto e não estiver pago
   useEffect(() => {
     if (!pix || paid) return;
     const t = setInterval(async () => {
@@ -86,7 +117,7 @@ function InvoicePage() {
         >
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <h1 className="text-xl font-bold">Pagar com Pix</h1>
+        <h1 className="text-xl font-bold">Pagamento</h1>
       </div>
 
       <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-neutral-100">
@@ -104,73 +135,152 @@ function InvoicePage() {
         </div>
       )}
 
-      {!paid && !pix && (
-        <button
-          onClick={generate}
-          disabled={loading}
-          className="w-full rounded-xl py-3 text-sm font-semibold text-white disabled:opacity-60"
-          style={{ background: "var(--sa-primary, #dc2626)" }}
-        >
-          {loading ? "Gerando Pix…" : "Gerar Pix"}
-        </button>
-      )}
-
-      {!paid && pix && (
-        <div className="space-y-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-neutral-100">
-          {pix.qr_code_base64 && (
-            <img
-              src={pix.qr_code_base64}
-              alt="QR Code Pix"
-              className="mx-auto h-56 w-56 rounded-lg ring-1 ring-neutral-200"
-            />
-          )}
-          {pix.copy_paste && (
-            <div>
-              <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
-                Pix Copia e Cola
+      {!paid && (
+        <>
+          {/* Cobrança nativa — PIX */}
+          {hasNativePix && (
+            <div className="space-y-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-neutral-100">
+              <div className="flex items-center gap-2">
+                <QrIcon className="h-5 w-5 text-emerald-600" />
+                <h2 className="text-sm font-bold">Pagar com PIX</h2>
               </div>
-              <div className="flex gap-2">
-                <input
-                  readOnly
-                  value={pix.copy_paste}
-                  className="flex-1 rounded-lg bg-neutral-50 px-3 py-2 text-xs ring-1 ring-neutral-200"
+              {nativeQr && (
+                <img
+                  src={nativeQr}
+                  alt="QR Code PIX"
+                  className="mx-auto h-56 w-56 rounded-lg ring-1 ring-neutral-200"
                 />
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(pix.copy_paste ?? "");
-                    toast.success("Código copiado");
-                  }}
-                  className="grid h-9 w-9 place-items-center rounded-lg bg-neutral-900 text-white"
-                  aria-label="Copiar"
-                >
-                  <Copy className="h-4 w-4" />
-                </button>
+              )}
+              <div className="space-y-2">
+                <div>
+                  <div className="text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
+                    {PIX_TYPE_LABEL[nb!.pix_key_type] ?? "Chave"} do favorecido
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      readOnly
+                      value={nb!.pix_key}
+                      className="flex-1 rounded-lg bg-neutral-50 px-3 py-2 text-xs ring-1 ring-neutral-200"
+                    />
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(nb!.pix_key);
+                        toast.success("Chave copiada");
+                      }}
+                      className="grid h-9 w-9 place-items-center rounded-lg bg-neutral-900 text-white"
+                      aria-label="Copiar"
+                    >
+                      <Copy className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+                {nb!.pix_holder_name && (
+                  <div className="text-xs text-neutral-600">
+                    <span className="font-semibold">Titular:</span> {nb!.pix_holder_name}
+                  </div>
+                )}
+                <div className="rounded-lg bg-amber-50 p-2.5 text-[11px] text-amber-800 ring-1 ring-amber-100">
+                  <Info className="mr-1 inline h-3 w-3 -translate-y-0.5" />
+                  Após pagar, o professor confirmará manualmente o recebimento.
+                </div>
               </div>
             </div>
           )}
-          {pix.expires_at && (
-            <div className="flex items-center gap-2 text-[11px] text-neutral-500">
-              <Clock className="h-3.5 w-3.5" />
-              Expira em {new Date(pix.expires_at).toLocaleString("pt-BR")}
+
+          {/* Link fixo de pagamento */}
+          {hasPaymentLink && (
+            <a
+              href={nb!.payment_link_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold text-white"
+              style={{ background: "var(--sa-primary, #dc2626)" }}
+            >
+              <LinkIcon className="h-4 w-4" />
+              {nb!.payment_link_label || "Pagar agora"}
+            </a>
+          )}
+
+          {/* Instruções extras */}
+          {nb?.instructions && (
+            <div className="rounded-2xl bg-white p-4 text-xs text-neutral-700 shadow-sm ring-1 ring-neutral-100">
+              <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
+                Instruções do dojo
+              </div>
+              <p className="whitespace-pre-wrap">{nb.instructions}</p>
             </div>
           )}
-          <button
-            onClick={async () => {
-              const r = await sync({ data: { invoice_id: id } });
-              if (r.status === "paid") {
-                toast.success("Pagamento confirmado!");
-                await qc.invalidateQueries({ queryKey: ["student", "invoices"] });
-                await refetch();
-              } else {
-                toast.info("Ainda não recebemos. Estamos verificando automaticamente.");
-              }
-            }}
-            className="flex w-full items-center justify-center gap-2 rounded-xl border border-neutral-200 py-2.5 text-xs font-semibold"
-          >
-            <RefreshCw className="h-3.5 w-3.5" />
-            Já paguei — verificar
-          </button>
-        </div>
+
+          {/* Fallback / AMT Pay (Mercado Pago) */}
+          {hasAmtPay && !pix && (
+            <button
+              onClick={generateAmtPay}
+              disabled={loading}
+              className="w-full rounded-xl py-3 text-sm font-semibold text-white disabled:opacity-60"
+              style={{ background: "var(--sa-primary, #dc2626)" }}
+            >
+              {loading ? "Gerando Pix…" : "Gerar Pix via AMT Pay"}
+            </button>
+          )}
+
+          {hasAmtPay && pix && (
+            <div className="space-y-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-neutral-100">
+              {pix.qr_code_base64 && (
+                <img
+                  src={pix.qr_code_base64}
+                  alt="QR Code Pix"
+                  className="mx-auto h-56 w-56 rounded-lg ring-1 ring-neutral-200"
+                />
+              )}
+              {pix.copy_paste && (
+                <div>
+                  <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
+                    Pix Copia e Cola
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      readOnly
+                      value={pix.copy_paste}
+                      className="flex-1 rounded-lg bg-neutral-50 px-3 py-2 text-xs ring-1 ring-neutral-200"
+                    />
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(pix.copy_paste ?? "");
+                        toast.success("Código copiado");
+                      }}
+                      className="grid h-9 w-9 place-items-center rounded-lg bg-neutral-900 text-white"
+                      aria-label="Copiar"
+                    >
+                      <Copy className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
+              {pix.expires_at && (
+                <div className="flex items-center gap-2 text-[11px] text-neutral-500">
+                  <Clock className="h-3.5 w-3.5" />
+                  Expira em {new Date(pix.expires_at).toLocaleString("pt-BR")}
+                </div>
+              )}
+              <button
+                onClick={async () => {
+                  const r = await sync({ data: { invoice_id: id } });
+                  if (r.status === "paid") {
+                    toast.success("Pagamento confirmado!");
+                    await qc.invalidateQueries({ queryKey: ["student", "invoices"] });
+                    await refetch();
+                  } else {
+                    toast.info("Ainda não recebemos. Estamos verificando automaticamente.");
+                  }
+                }}
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-neutral-200 py-2.5 text-xs font-semibold"
+              >
+                <RefreshCw className="h-3.5 w-3.5" />
+                Já paguei — verificar
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
