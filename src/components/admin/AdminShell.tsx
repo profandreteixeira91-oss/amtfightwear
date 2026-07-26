@@ -314,14 +314,6 @@ const NAV: NavGroup[] = [
     ],
   },
   {
-    label: "AMT Dojo Manager (SaaS)",
-    items: [
-      { title: "Painel Admin", url: "/admin/dojo", icon: LayoutDashboard },
-      { title: "Contas & Assinaturas", url: "/admin/saas", icon: Building2 },
-      { title: "Suporte SaaS", url: "/admin/saas/suporte", icon: LifeBuoy },
-    ],
-  },
-  {
     label: "Sistema",
     items: [
       { title: "Usuários", url: "/users", icon: UserCog },
