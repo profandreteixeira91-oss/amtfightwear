@@ -65,12 +65,14 @@ type Criterion = {
   required: boolean;
   eliminatory: boolean;
   techniques: string[];
+  library_id?: string | null;
 };
 type Category = {
   id: string;
   name: string;
   weight: number;
   criteria: Criterion[];
+  library_id?: string | null;
 };
 
 const uid = () => Math.random().toString(36).slice(2, 10);
