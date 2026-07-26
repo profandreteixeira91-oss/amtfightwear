@@ -441,6 +441,15 @@ function CertificatesPage() {
               <CardContent className="flex gap-2 pt-0">
                 <Button
                   size="sm"
+                  variant="outline"
+                  title="Visualizar modelo"
+                  onClick={() => setViewingTemplate(t)}
+                  className="border-white/15 bg-white/5 text-white hover:bg-white/10"
+                >
+                  <Eye className="h-4 w-4 mr-1" /> Ver
+                </Button>
+                <Button
+                  size="sm"
                   onClick={() => navigate({ to: "/dojo/certificate-editor/$id", params: { id: t.id } })}
                   className="flex-1 bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-400"
                 >
