@@ -234,3 +234,68 @@ export const syncMySubscription = createServerFn({ method: "POST" })
     await context.supabase.from("dojo_subscriptions").update(patch as never).eq("id", sub.id);
     return { status: patch.status ?? null };
   });
+
+/**
+ * Lista pagamentos da assinatura do Dojo Manager (mensalidades do sistema)
+ * direto da API do Mercado Pago. Não confundir com faturas de mensalidade
+ * dos alunos (essas ficam em `dojo_invoices`).
+ */
+export const listMySubscriptionPayments = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: sub } = await context.supabase
+      .from("dojo_subscriptions")
+      .select("id, mp_preapproval_id, status, plan_amount, current_period_end, trial_ends_at")
+      .eq("owner_id", context.userId)
+      .maybeSingle();
+
+    const upcoming: any[] = [];
+    if (sub?.current_period_end && (sub.status === "active" || sub.status === "trialing")) {
+      upcoming.push({
+        id: `next-${sub.id}`,
+        description: "Próxima mensalidade — AMT Dojo Manager",
+        amount: Number(sub.plan_amount ?? PLAN_AMOUNT),
+        due_date: sub.current_period_end,
+        paid_at: null,
+        method: "Mercado Pago",
+        status: sub.status === "trialing" ? "trial" : "scheduled",
+        payment_link: null,
+      });
+    }
+
+    if (!sub?.mp_preapproval_id) {
+      return { paid: [] as any[], pending: upcoming };
+    }
+
+    let results: any[] = [];
+    try {
+      const r = await mpAmt<any>(
+        `/authorized_payments/search?preapproval_id=${encodeURIComponent(sub.mp_preapproval_id)}&limit=50&sort=date_created:desc`,
+      );
+      results = Array.isArray(r?.results) ? r.results : [];
+    } catch (e) {
+      console.warn("Falha ao listar pagamentos MP", e);
+    }
+
+    const paid: any[] = [];
+    const pending: any[] = [...upcoming];
+    for (const p of results) {
+      const status: string = String(p.status ?? p.payment_status ?? "").toLowerCase();
+      const amount = Number(p.transaction_amount ?? p.summarized?.charged_amount ?? sub.plan_amount ?? PLAN_AMOUNT);
+      const due = p.debit_date || p.date_created || p.last_modified;
+      const paidAt = status === "approved" ? (p.payment?.date_approved || p.last_modified || due) : null;
+      const row = {
+        id: String(p.id ?? p.payment_id ?? `${sub.mp_preapproval_id}-${due}`),
+        description: p.reason || "Mensalidade AMT Dojo Manager",
+        amount,
+        due_date: due,
+        paid_at: paidAt,
+        method: "Mercado Pago",
+        status,
+        payment_link: null,
+      };
+      if (status === "approved") paid.push(row);
+      else pending.push(row);
+    }
+    return { paid, pending };
+  });
