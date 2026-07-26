@@ -9,11 +9,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { DojoPageShell } from "@/components/dojo/DojoPageShell";
 import { CorporateBenefitsWizard } from "@/components/dojo/corporate-benefits/CorporateBenefitsWizard";
 import {
   Building2, Ticket, ShieldCheck, RefreshCw, LinkIcon, Unplug, Plus, Users,
-  CheckCircle2, XCircle, Clock, History, ListChecks, Sparkles, Activity, ArrowRight,
+  CheckCircle2, XCircle, Clock, History, ListChecks, Activity, ArrowRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -89,32 +88,49 @@ function CorporateBenefitsPage() {
   const hasAnyConnected = connectedCount > 0;
 
   return (
-    <DojoPageShell
-      title="Benefícios Corporativos"
-      description="Gerencie integrações com plataformas de benefícios corporativos."
-    >
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 min-w-0 overflow-x-hidden md:gap-7">
+      {/* ============ HERO — RUBY NOIR ============ */}
+      <div className="relative overflow-hidden rounded-2xl border border-red-500/20 bg-gradient-to-br from-neutral-950 via-neutral-900 to-red-950/50 p-5 text-white shadow-[0_20px_60px_-30px_rgba(220,38,38,0.55)] md:p-7">
+        <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-red-500/20 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute -bottom-24 -left-16 h-56 w-56 rounded-full bg-amber-500/10 blur-3xl" />
+        <div className="relative flex flex-wrap items-center gap-4">
+          <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-amber-400 via-red-500 to-red-700 text-white ring-1 ring-white/20 shadow-[0_8px_24px_-8px_rgba(220,38,38,0.9)]">
+            <ShieldCheck className="h-6 w-6" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h1 className="truncate text-xl font-semibold tracking-tight md:text-2xl">Benefícios Corporativos</h1>
+            <p className="mt-1 max-w-2xl text-sm text-neutral-300">
+              Conecte sua academia às principais plataformas (Gympass, TotalPass) e habilite check-ins via convênio.
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Empty state: nenhuma integração */}
       {!overview.isLoading && !hasAnyConnected && (
-        <Card className="mb-6 overflow-hidden">
-          <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-8 text-center">
-            <div className="mx-auto h-16 w-16 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center mb-4 shadow-lg">
+        <div className="relative overflow-hidden rounded-2xl border border-red-500/15 bg-gradient-to-br from-neutral-950 via-neutral-900 to-red-950/40 p-8 text-center text-white shadow-[0_16px_50px_-30px_rgba(220,38,38,0.6)]">
+          <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(220,38,38,0.18),transparent_60%)]" />
+          <div className="relative">
+            <div className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br from-amber-400 via-red-500 to-red-700 ring-1 ring-white/20 shadow-[0_10px_30px_-10px_rgba(220,38,38,0.9)]">
               <ShieldCheck className="h-7 w-7" />
             </div>
-            <h2 className="text-xl font-bold mb-2">Benefícios Corporativos</h2>
-            <p className="text-sm text-muted-foreground max-w-md mx-auto mb-5">
-              Conecte sua academia às principais plataformas de benefícios corporativos para permitir que alunos
-              realizem check-ins utilizando seus planos.
+            <h2 className="text-xl font-semibold tracking-tight">Ative sua primeira plataforma</h2>
+            <p className="mx-auto mt-2 mb-5 max-w-md text-sm text-neutral-300">
+              Permita que alunos realizem check-ins utilizando seus planos corporativos. Configuração em poucos minutos.
             </p>
-            <Button size="lg" onClick={() => document.getElementById("providers-list")?.scrollIntoView({ behavior: "smooth" })}>
+            <Button
+              size="lg"
+              className="bg-gradient-to-br from-red-600 to-red-800 text-white hover:from-red-500 hover:to-red-700 shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)]"
+              onClick={() => document.getElementById("providers-list")?.scrollIntoView({ behavior: "smooth" })}
+            >
               <Plus className="h-4 w-4 mr-2" /> Conectar Plataforma
             </Button>
-            <div className="text-xs text-muted-foreground mt-3">Leva apenas alguns minutos.</div>
           </div>
-        </Card>
+        </div>
       )}
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <KpiCard label="Alunos Gympass" value={overview.data?.counts.gympass ?? 0} icon={Building2} tone="orange" />
         <KpiCard label="Alunos TotalPass" value={overview.data?.counts.totalpass ?? 0} icon={Ticket} tone="blue" />
         <KpiCard label="Check-ins hoje" value={overview.data?.checkinsToday ?? 0} icon={CheckCircle2} tone="emerald" />
@@ -132,12 +148,25 @@ function CorporateBenefitsPage() {
       </div>
 
       <Tabs defaultValue="platforms" className="w-full">
-        <TabsList>
-          <TabsTrigger value="platforms">Plataformas</TabsTrigger>
-          <TabsTrigger value="beneficiaries">Beneficiários</TabsTrigger>
-          <TabsTrigger value="sync">Sincronizações</TabsTrigger>
-          <TabsTrigger value="history">Histórico</TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto rounded-xl border border-red-500/15 bg-neutral-950/60 p-1 shadow-[0_10px_30px_-20px_rgba(220,38,38,0.6)]">
+          <TabsList className="flex w-max min-w-full flex-nowrap gap-1 bg-transparent p-0">
+            {[
+              { v: "platforms", label: "Plataformas" },
+              { v: "beneficiaries", label: "Beneficiários" },
+              { v: "sync", label: "Sincronizações" },
+              { v: "history", label: "Histórico" },
+            ].map((t) => (
+              <TabsTrigger
+                key={t.v}
+                value={t.v}
+                className="shrink-0 rounded-lg px-3 py-2 text-xs font-medium text-neutral-300 hover:bg-white/5 hover:text-white data-[state=active]:bg-gradient-to-br data-[state=active]:from-red-600 data-[state=active]:to-red-800 data-[state=active]:text-white data-[state=active]:shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)]"
+              >
+                {t.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </div>
+
 
         {/* Plataformas */}
         <TabsContent value="platforms" className="mt-4 space-y-4" id="providers-list">
@@ -419,7 +448,7 @@ function CorporateBenefitsPage() {
         onOpenChange={(o) => !o && setWizardProvider(null)}
         onCompleted={() => qc.invalidateQueries({ queryKey: ["corporate-benefits"] })}
       />
-    </DojoPageShell>
+    </div>
   );
 }
 
@@ -437,24 +466,25 @@ function KpiCard({
   isText?: boolean;
 }) {
   const toneMap: Record<string, string> = {
-    orange: "bg-orange-500/10 text-orange-600",
-    blue: "bg-blue-500/10 text-blue-600",
-    emerald: "bg-emerald-500/10 text-emerald-600",
-    violet: "bg-violet-500/10 text-violet-600",
-    red: "bg-red-500/10 text-red-600",
-    amber: "bg-amber-500/10 text-amber-600",
-    slate: "bg-slate-500/10 text-slate-600",
+    orange: "bg-orange-500/15 text-orange-300 ring-orange-500/30",
+    blue: "bg-blue-500/15 text-blue-300 ring-blue-500/30",
+    emerald: "bg-emerald-500/15 text-emerald-300 ring-emerald-500/30",
+    violet: "bg-violet-500/15 text-violet-300 ring-violet-500/30",
+    red: "bg-red-500/15 text-red-300 ring-red-500/30",
+    amber: "bg-amber-500/15 text-amber-300 ring-amber-500/30",
+    slate: "bg-slate-500/15 text-slate-300 ring-slate-500/30",
   };
   return (
-    <Card className="p-3">
-      <div className="flex items-center gap-2 mb-1">
-        <div className={cn("h-7 w-7 rounded-lg flex items-center justify-center", toneMap[tone])}>
+    <div className="relative overflow-hidden rounded-xl border border-red-500/10 bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950 p-3 text-white shadow-[0_10px_30px_-20px_rgba(220,38,38,0.5)]">
+      <div aria-hidden className="pointer-events-none absolute -right-8 -top-8 h-20 w-20 rounded-full bg-red-500/10 blur-2xl" />
+      <div className="relative flex items-center gap-2 mb-1">
+        <div className={cn("h-7 w-7 rounded-lg ring-1 flex items-center justify-center", toneMap[tone])}>
           <Icon className="h-3.5 w-3.5" />
         </div>
-        <div className="text-[11px] text-muted-foreground">{label}</div>
+        <div className="text-[11px] text-neutral-400 truncate">{label}</div>
       </div>
-      <div className={cn("font-semibold", isText ? "text-sm" : "text-2xl")}>{value}</div>
-    </Card>
+      <div className={cn("font-semibold text-white", isText ? "text-sm" : "text-2xl")}>{value}</div>
+    </div>
   );
 }
 
