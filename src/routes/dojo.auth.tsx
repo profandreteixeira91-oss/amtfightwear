@@ -45,14 +45,24 @@ function DojoAuthPage() {
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getUser().then(async ({ data }) => {
-      if (data.user) {
-        const target = await resolveDestination(data.user.id, search.redirect);
-        window.location.href = target;
-      } else {
-        setChecking(false);
+    let redirected = false;
+    const go = async (userId: string) => {
+      if (redirected) return;
+      redirected = true;
+      const target = await resolveDestination(userId, search.redirect);
+      window.location.replace(target);
+    };
+    // Captura confirmação de email (hash tokens) e login em qualquer aba.
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user && (event === "SIGNED_IN" || event === "INITIAL_SESSION" || event === "TOKEN_REFRESHED" || event === "USER_UPDATED")) {
+        void go(session.user.id);
       }
     });
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) void go(data.user.id);
+      else setChecking(false);
+    });
+    return () => sub.subscription.unsubscribe();
   }, [search.redirect]);
 
   const goAfterAuth = async () => {
