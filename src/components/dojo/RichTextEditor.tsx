@@ -259,8 +259,9 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
   };
 
   const tbBtn =
-    "inline-flex h-8 w-8 items-center justify-center rounded-md text-foreground/80 hover:bg-accent hover:text-foreground transition-colors";
-  const tbDivider = "mx-1 h-6 w-px bg-border/70";
+    "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-foreground/80 hover:bg-accent hover:text-foreground transition-colors";
+  const tbDivider = "mx-1 h-6 w-px shrink-0 bg-border/70";
+
 
   return (
     <div className="rounded-lg border border-border/80 bg-background shadow-sm overflow-hidden">
