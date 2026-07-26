@@ -61,6 +61,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -261,6 +262,7 @@ export function AppTopNav() {
 
 
 
+        {!inStore && (
         <nav className="ml-4 hidden flex-1 items-center gap-0.5 overflow-x-auto lg:flex">
           {visibleGroups.map((g) => {
             const active = groupActive(g.items);
@@ -315,7 +317,69 @@ export function AppTopNav() {
             );
           })}
         </nav>
+        )}
 
+        {inStore && (
+          <div className="ml-auto">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Abrir menu"
+                  className="rounded-full"
+                >
+                  <MenuIcon className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-80 overflow-y-auto p-0">
+                <SheetHeader className="border-b px-5 py-4">
+                  <SheetTitle className="text-left text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    Menu
+                  </SheetTitle>
+                </SheetHeader>
+                <div className="space-y-5 p-4">
+                  {visibleGroups.map((g) => (
+                    <div key={g.label}>
+                      <div className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                        {g.label}
+                      </div>
+                      <div className="space-y-0.5">
+                        {g.items.map((item) => {
+                          const active = isActive(item.url);
+                          return (
+                            <Link
+                              key={item.url}
+                              to={item.url}
+                              className={cn(
+                                "flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm transition-colors",
+                                active
+                                  ? "bg-primary/10 font-medium text-primary"
+                                  : "text-foreground/80 hover:bg-accent hover:text-foreground",
+                              )}
+                            >
+                              <span
+                                className={cn(
+                                  "grid h-7 w-7 place-items-center rounded-md border border-border/60 bg-background/60 text-muted-foreground",
+                                  active && "border-primary/30 bg-primary/10 text-primary",
+                                )}
+                              >
+                                <item.icon className="h-3.5 w-3.5" />
+                              </span>
+                              <span className="truncate">{item.title}</span>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+        )}
+
+        {!inStore && (
         <div className="ml-auto lg:hidden">
           <Button
             variant="ghost"
@@ -330,6 +394,7 @@ export function AppTopNav() {
             {mobileOpen ? <X className="h-5 w-5" /> : <MenuIcon className="h-5 w-5" />}
           </Button>
         </div>
+        )}
       </div>
 
       {mobileOpen && (
