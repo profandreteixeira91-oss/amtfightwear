@@ -20,6 +20,8 @@ import { cn } from "@/lib/utils";
 import { useCepLookup } from "@/hooks/useCepLookup";
 import { useQueryClient } from "@tanstack/react-query";
 import { DocumentsTab } from "@/components/dojo/account/DocumentsTab";
+import { useServerFn } from "@tanstack/react-start";
+import { listMySubscriptionPayments } from "@/lib/dojo/subscription.functions";
 
 
 export const Route = createFileRoute("/dojo/app/account")({
@@ -72,7 +74,8 @@ function AccountPage() {
     finance_alerts: true, product_news: true, reminders: true,
   });
   const [subscription, setSubscription] = useState<any>(null);
-  const [invoices, setInvoices] = useState<any[]>([]);
+  const [subPayments, setSubPayments] = useState<{ paid: any[]; pending: any[] }>({ paid: [], pending: [] });
+  const fetchSubPayments = useServerFn(listMySubscriptionPayments);
   const [audit, setAudit] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [password, setPassword] = useState("");
@@ -90,12 +93,11 @@ function AccountPage() {
     setUser(u.user);
     const uid = u.user.id;
 
-    const [{ data: p }, { data: a }, { data: n }, { data: sub }, { data: inv }, { data: au }] = await Promise.all([
+    const [{ data: p }, { data: a }, { data: n }, { data: sub }, { data: au }] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", uid).maybeSingle(),
       supabase.from("dojo_academy_profile").select("*").eq("owner_id", uid).maybeSingle(),
       supabase.from("dojo_account_notifications").select("*").eq("owner_id", uid).maybeSingle(),
       supabase.from("dojo_subscriptions").select("*").eq("owner_id", uid).maybeSingle(),
-      supabase.from("dojo_invoices").select("*").eq("owner_id", uid).order("due_date", { ascending: false }).limit(50),
       supabase.from("dojo_account_audit").select("*").eq("owner_id", uid).order("created_at", { ascending: false }).limit(30),
     ]);
     const pv = p ?? { id: uid, email: u.user.email };
@@ -105,10 +107,12 @@ function AccountPage() {
     const nv = n ?? { email_enabled: true, system_enabled: true, finance_alerts: true, product_news: true, reminders: true };
     if (n) setNotifPrefs(n);
     setSubscription(sub);
-    setInvoices(inv ?? []);
     setAudit(au ?? []);
     setSnapshot(JSON.stringify({ profile: pv, academy: av, notifPrefs: nv }));
     setLoading(false);
+    fetchSubPayments()
+      .then((r: any) => setSubPayments({ paid: r?.paid ?? [], pending: r?.pending ?? [] }))
+      .catch(() => setSubPayments({ paid: [], pending: [] }));
   }
 
   async function logAudit(action: string, meta: any = {}) {
@@ -241,7 +245,7 @@ function AccountPage() {
             />
           )}
           {tab === "subscription" && (
-            <SubscriptionTab subscription={subscription} invoices={invoices} />
+            <SubscriptionTab subscription={subscription} payments={subPayments} />
           )}
           {tab === "security" && (
             <SecurityTab
@@ -760,7 +764,7 @@ function BrandAssetBlock({ title, url, onPick, onRemove, inputRef, onChange }: a
 }
 
 /* ---------------- Subscription ---------------- */
-function SubscriptionTab({ subscription, invoices = [] }: any) {
+function SubscriptionTab({ subscription, payments = { paid: [], pending: [] } }: any) {
   const status = subscription?.status ?? "trialing";
   const trialLeft = subscription?.trial_ends_at
     ? Math.max(0, Math.ceil((new Date(subscription.trial_ends_at).getTime() - Date.now()) / 86400000))
@@ -772,8 +776,8 @@ function SubscriptionTab({ subscription, invoices = [] }: any) {
     paused: "Pausada",
     cancelled: "Cancelada",
   };
-  const pending = invoices.filter((i: any) => i.status !== "paid");
-  const paid = invoices.filter((i: any) => i.status === "paid");
+  const pending = payments.pending ?? [];
+  const paid = payments.paid ?? [];
   return (
     <div className="space-y-4">
       <Card>
@@ -806,22 +810,39 @@ function SubscriptionTab({ subscription, invoices = [] }: any) {
       </Card>
 
       <Card>
-        <CardHeader><CardTitle>Faturas pendentes</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle>Faturas pendentes da assinatura</CardTitle>
+          <p className="text-xs text-muted-foreground mt-1">Mensalidades do sistema AMT Dojo Manager em aberto ou agendadas.</p>
+        </CardHeader>
         <CardContent>
           <InvoiceTable rows={pending} pending />
         </CardContent>
       </Card>
       <Card>
-        <CardHeader><CardTitle>Histórico de pagamentos</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle>Histórico de pagamentos da assinatura</CardTitle>
+          <p className="text-xs text-muted-foreground mt-1">Cobranças mensais do sistema já pagas ao Mercado Pago. Não inclui mensalidades dos alunos.</p>
+        </CardHeader>
         <CardContent>
           <InvoiceTable rows={paid} />
         </CardContent>
       </Card>
+
     </div>
   );
 }
 
 
+
+function invoiceStatusLabel(s: string): string {
+  const map: Record<string, string> = {
+    approved: "Pago", paid: "Pago",
+    pending: "Aguardando pagamento", in_process: "Processando",
+    rejected: "Rejeitado", cancelled: "Cancelado", refunded: "Reembolsado",
+    charged_back: "Estornado", scheduled: "Agendado", trial: "Em teste",
+  };
+  return map[s] ?? s;
+}
 
 function InvoiceTable({ rows, pending }: { rows: any[]; pending?: boolean }) {
   if (!rows.length) return <div className="text-sm text-muted-foreground">Nenhum registro.</div>;
@@ -845,7 +866,7 @@ function InvoiceTable({ rows, pending }: { rows: any[]; pending?: boolean }) {
               <td className="py-2 pr-3">{brl(r.amount)}</td>
               <td className="py-2 pr-3">{r.paid_at ? new Date(r.paid_at).toLocaleDateString("pt-BR") : new Date(r.due_date).toLocaleDateString("pt-BR")}</td>
               <td className="py-2 pr-3 capitalize">{r.method || "—"}</td>
-              <td className="py-2 pr-3"><Badge variant={r.status === "paid" ? "default" : "secondary"}>{r.status}</Badge></td>
+              <td className="py-2 pr-3"><Badge variant={r.status === "approved" || r.status === "paid" ? "default" : "secondary"}>{invoiceStatusLabel(r.status)}</Badge></td>
               <td className="py-2 pr-3 text-right">
                 {r.payment_link && <a className="text-primary text-xs underline" href={r.payment_link} target="_blank" rel="noreferrer">Abrir</a>}
               </td>
