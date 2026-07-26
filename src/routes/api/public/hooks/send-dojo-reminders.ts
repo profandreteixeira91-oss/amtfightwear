@@ -80,7 +80,7 @@ export const Route = createFileRoute("/api/public/hooks/send-dojo-reminders")({
         const { data: invoices, error } = await (supabaseAdmin as any)
           .from("dojo_invoices")
           .select(
-            "id, owner_id, description, amount, due_date, status, payment_link, asaas_invoice_url, asaas_pix_copypaste, student:dojo_students(full_name, email)",
+            "id, owner_id, description, amount, due_date, status, payment_link, asaas_invoice_url, asaas_pix_copypaste, student:dojo_students(id, full_name, email)",
           )
           .in("status", ["pending", "overdue"])
           .gte("due_date", fromISO)
@@ -108,7 +108,7 @@ export const Route = createFileRoute("/api/public/hooks/send-dojo-reminders")({
 
           const settings =
             settingsByOwner.get(inv.owner_id) ?? DEFAULT_REMINDER_SETTINGS;
-          if (!settings.enabled || !settings.channels.email) {
+          if (!settings.enabled) {
             skipped++;
             continue;
           }
@@ -120,13 +120,24 @@ export const Route = createFileRoute("/api/public/hooks/send-dojo-reminders")({
             continue;
           }
 
-          const result = await dispatchInvoiceReminder(supabaseAdmin as any, {
-            invoice: inv as any,
-            offsetDays: diff,
-          });
-          if (result.status === "sent") sent++;
-          else if (result.status === "failed") failed++;
-          else skipped++;
+          if (settings.channels.email) {
+            const result = await dispatchInvoiceReminder(supabaseAdmin as any, {
+              invoice: inv as any,
+              offsetDays: diff,
+            });
+            if (result.status === "sent") sent++;
+            else if (result.status === "failed") failed++;
+            else skipped++;
+          }
+          if (settings.channels.push) {
+            const result = await dispatchInvoicePushReminder(supabaseAdmin as any, {
+              invoice: inv as any,
+              offsetDays: diff,
+            });
+            if (result.status === "sent") sent++;
+            else if (result.status === "failed") failed++;
+            else skipped++;
+          }
         }
 
         return Response.json({
