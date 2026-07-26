@@ -285,13 +285,13 @@ function TicketConversation({
 
   return (
     <div className="overflow-hidden rounded-2xl border border-white/10 bg-neutral-900/60 shadow-xl backdrop-blur">
-      <div className="flex flex-wrap items-center gap-3 border-b border-white/10 bg-gradient-to-r from-neutral-900 to-neutral-950 px-4 py-3">
-        <Button variant="ghost" size="sm" onClick={onBack} className="gap-1 text-neutral-300 hover:bg-white/5 hover:text-white">
-          <ArrowLeft className="h-4 w-4" /> Voltar
+      <div className="flex items-center gap-2 border-b border-white/10 bg-gradient-to-r from-neutral-900 to-neutral-950 px-3 py-3 sm:gap-3 sm:px-4">
+        <Button variant="ghost" size="sm" onClick={onBack} className="shrink-0 gap-1 px-2 text-neutral-300 hover:bg-white/5 hover:text-white">
+          <ArrowLeft className="h-4 w-4" /> <span className="hidden sm:inline">Voltar</span>
         </Button>
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="font-semibold text-white">{ticket.subject}</span>
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+            <span className="truncate text-sm font-semibold text-white sm:text-base">{ticket.subject}</span>
             <Badge variant="outline" className="border-white/15 bg-white/5 text-[10px] text-neutral-300">
               {CATEGORY_LABELS[ticket.category] ?? ticket.category}
             </Badge>
