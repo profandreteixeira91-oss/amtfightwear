@@ -282,67 +282,110 @@ function AccountHeader({ user, profile, academy, subscription, onEditProfile, on
   }
 
   const status = subscription?.status ?? "trial";
-  const statusColor: Record<string, string> = {
-    active: "bg-emerald-500/15 text-emerald-700 border-emerald-500/30",
-    trial: "bg-blue-500/15 text-blue-700 border-blue-500/30",
-    cancelled: "bg-red-500/15 text-red-700 border-red-500/30",
-    past_due: "bg-amber-500/15 text-amber-700 border-amber-500/30",
+  const statusChip: Record<string, { label: string; cls: string; dot: string }> = {
+    active:    { label: "Assinatura ativa",   cls: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30", dot: "bg-emerald-400" },
+    trial:     { label: "Período de teste",   cls: "bg-sky-500/15 text-sky-300 border-sky-500/30",             dot: "bg-sky-400" },
+    trialing:  { label: "Período de teste",   cls: "bg-sky-500/15 text-sky-300 border-sky-500/30",             dot: "bg-sky-400" },
+    pending:   { label: "Aguardando",         cls: "bg-amber-500/15 text-amber-300 border-amber-500/30",       dot: "bg-amber-400" },
+    cancelled: { label: "Cancelada",          cls: "bg-red-500/15 text-red-300 border-red-500/30",             dot: "bg-red-400" },
+    past_due:  { label: "Vencida",            cls: "bg-amber-500/15 text-amber-300 border-amber-500/30",       dot: "bg-amber-400" },
   };
+  const chip = statusChip[status] ?? { label: status, cls: "bg-white/10 text-white/70 border-white/10", dot: "bg-white/50" };
+  const initials = (profile?.full_name || user?.email || "U").slice(0, 1).toUpperCase();
 
   return (
-    <Card>
-      <CardContent className="p-5">
-        <div className="flex flex-col md:flex-row gap-4 items-start">
-          <div className="relative">
-            <div className="h-20 w-20 rounded-full bg-muted overflow-hidden ring-2 ring-border">
+    <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-neutral-950 via-neutral-900 to-black shadow-[0_20px_60px_-20px_rgba(220,38,38,0.45)]">
+      {/* Glow ornaments */}
+      <div aria-hidden className="pointer-events-none absolute -top-32 -right-24 h-80 w-80 rounded-full bg-red-600/25 blur-3xl" />
+      <div aria-hidden className="pointer-events-none absolute -bottom-40 -left-24 h-80 w-80 rounded-full bg-red-900/40 blur-3xl" />
+      <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(1200px_400px_at_50%_-10%,rgba(255,255,255,0.06),transparent)]" />
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-red-500/60 to-transparent" />
+
+      <div className="relative p-6 md:p-8">
+        <div className="flex flex-col md:flex-row md:items-center gap-6">
+          {/* Avatar */}
+          <div className="relative shrink-0">
+            <div className="absolute -inset-1 rounded-full bg-gradient-to-tr from-red-600 via-red-500 to-red-800 opacity-70 blur-md" />
+            <div className="relative h-24 w-24 rounded-full overflow-hidden ring-2 ring-white/20 bg-neutral-800">
               {profile?.avatar_url
                 ? <img src={profile.avatar_url} alt="avatar" className="h-full w-full object-cover" />
-                : <div className="flex items-center justify-center h-full text-2xl font-semibold text-muted-foreground">{(profile?.full_name || user?.email || "U").slice(0, 1).toUpperCase()}</div>}
+                : <div className="flex items-center justify-center h-full text-3xl font-serif text-white/80">{initials}</div>}
             </div>
             <button
               onClick={() => fileRef.current?.click()}
-              className="absolute -bottom-1 -right-1 bg-primary text-primary-foreground rounded-full p-1.5 shadow"
+              className="absolute -bottom-1 -right-1 rounded-full p-2 bg-gradient-to-br from-red-600 to-red-800 text-white shadow-lg shadow-red-900/50 ring-2 ring-neutral-950 hover:scale-105 transition-transform"
               title="Trocar foto"
             >
-              <Upload className="h-3 w-3" />
+              <Upload className="h-3.5 w-3.5" />
             </button>
             <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={pickAvatar} />
           </div>
+
+          {/* Identity */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-3 flex-wrap">
+            <div className="flex items-start justify-between gap-4 flex-wrap">
               <div className="min-w-0">
-                <h1 className="text-xl font-semibold truncate">{profile?.full_name || "Sem nome cadastrado"}</h1>
-                <div className="text-sm text-muted-foreground truncate">{user?.email}</div>
-                <div className="mt-1 text-xs text-muted-foreground">
-                  {profile?.job_title || "Administrador"}
-                  {academy?.trade_name && <span> · {academy.trade_name}</span>}
+                <div className="text-[10px] uppercase tracking-[0.24em] text-red-400/80 mb-1">Minha Conta</div>
+                <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-white truncate">
+                  {profile?.full_name || "Sem nome cadastrado"}
+                </h1>
+                <div className="mt-1 text-sm text-neutral-400 truncate">{user?.email}</div>
+                <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-neutral-400">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1">
+                    {profile?.job_title || "Administrador"}
+                  </span>
+                  {academy?.trade_name && (
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1">
+                      <Building2 className="h-3 w-3" />{academy.trade_name}
+                    </span>
+                  )}
                 </div>
               </div>
-              <div className="flex flex-col items-end gap-1 text-xs">
-                <Badge variant="outline" className={cn("border", statusColor[status] || "")}>
-                  {status === "active" ? "Assinatura ativa" : status === "trial" ? "Período de teste" : status === "cancelled" ? "Cancelada" : status}
-                </Badge>
-                <span className="text-muted-foreground">
-                  Conta criada em {user?.created_at ? new Date(user.created_at).toLocaleDateString("pt-BR") : "—"}
+
+              <div className="flex flex-col items-end gap-2 text-right">
+                <span className={cn("inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium", chip.cls)}>
+                  <span className={cn("h-1.5 w-1.5 rounded-full", chip.dot)} />
+                  {chip.label}
                 </span>
-                {user?.last_sign_in_at && (
-                  <span className="text-muted-foreground">
-                    Último acesso: {new Date(user.last_sign_in_at).toLocaleString("pt-BR")}
-                  </span>
-                )}
+                <div className="text-[11px] text-neutral-500 leading-relaxed">
+                  <div>Conta criada em {user?.created_at ? new Date(user.created_at).toLocaleDateString("pt-BR") : "—"}</div>
+                  {user?.last_sign_in_at && (
+                    <div>Último acesso: {new Date(user.last_sign_in_at).toLocaleString("pt-BR")}</div>
+                  )}
+                </div>
               </div>
             </div>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <Button variant="outline" size="sm" onClick={onEditProfile}><UserIcon className="h-3 w-3 mr-1" /> Editar Perfil</Button>
-              <Button variant="outline" size="sm" onClick={onChangePassword}><KeyRound className="h-3 w-3 mr-1" /> Alterar Senha</Button>
-              <Button variant="outline" size="sm" onClick={onManageSubscription}><CreditCard className="h-3 w-3 mr-1" /> Gerenciar Assinatura</Button>
+
+            <div className="mt-5 flex flex-wrap gap-2">
+              <Button
+                size="sm"
+                onClick={onEditProfile}
+                className="bg-white/5 border border-white/10 text-white hover:bg-white/10 backdrop-blur"
+              >
+                <UserIcon className="h-3.5 w-3.5 mr-1.5" /> Editar perfil
+              </Button>
+              <Button
+                size="sm"
+                onClick={onChangePassword}
+                className="bg-white/5 border border-white/10 text-white hover:bg-white/10 backdrop-blur"
+              >
+                <KeyRound className="h-3.5 w-3.5 mr-1.5" /> Alterar senha
+              </Button>
+              <Button
+                size="sm"
+                onClick={onManageSubscription}
+                className="bg-gradient-to-r from-red-600 to-red-700 text-white shadow-md shadow-red-900/40 hover:from-red-500 hover:to-red-600"
+              >
+                <CreditCard className="h-3.5 w-3.5 mr-1.5" /> Gerenciar assinatura
+              </Button>
             </div>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
+
 
 /* ---------------- Personal ---------------- */
 function PersonalTab({ profile, setProfile, email, onSave }: any) {
