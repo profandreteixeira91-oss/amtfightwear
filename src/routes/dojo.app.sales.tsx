@@ -297,6 +297,7 @@ function SalesTab({
                 ))}
               </TableBody>
             </Table>
+            </div>
           )}
         </CardContent>
       </Card>
