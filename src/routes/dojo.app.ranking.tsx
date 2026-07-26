@@ -301,25 +301,27 @@ function RankingPage() {
                 return (
                   <li
                     key={r.id}
-                    className={`group grid grid-cols-[52px_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 transition-colors hover:bg-neutral-50 dark:hover:bg-white/5 sm:px-5 ${
+                    className={`group grid grid-cols-[40px_minmax(0,1fr)_auto] items-center gap-2.5 px-3 py-3 transition-colors hover:bg-neutral-50 dark:hover:bg-white/5 sm:grid-cols-[52px_minmax(0,1fr)_auto] sm:gap-3 sm:px-5 ${
                       isTop ? "bg-gradient-to-r from-red-50/40 via-transparent to-transparent dark:from-red-950/20" : ""
                     }`}
                   >
                     <div className="flex items-center justify-center">
                       {r.rank <= 3 ? (
-                        <span className="text-2xl leading-none drop-shadow">{r.rank === 1 ? "🥇" : r.rank === 2 ? "🥈" : "🥉"}</span>
+                        <span className="text-xl leading-none drop-shadow sm:text-2xl">{r.rank === 1 ? "🥇" : r.rank === 2 ? "🥈" : "🥉"}</span>
                       ) : (
-                        <span className="grid h-8 w-8 place-items-center rounded-full border border-neutral-200/70 bg-neutral-50 text-xs font-bold text-neutral-600 dark:border-white/10 dark:bg-white/5 dark:text-neutral-300">
+                        <span className="grid h-7 w-7 place-items-center rounded-full border border-neutral-200/70 bg-neutral-50 text-xs font-bold text-neutral-600 dark:border-white/10 dark:bg-white/5 dark:text-neutral-300 sm:h-8 sm:w-8">
                           {r.rank}
                         </span>
                       )}
                     </div>
 
-                    <div className="flex min-w-0 items-center gap-3">
-                      <Avatar url={r.photo_url} name={r.full_name} size={40} />
+                    <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
+                      <div className="shrink-0">
+                        <Avatar url={r.photo_url} name={r.full_name} size={36} />
+                      </div>
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <div className="truncate text-sm font-semibold">{r.full_name}</div>
+                        <div className="flex items-center gap-1.5">
+                          <div className="truncate text-[13px] font-semibold sm:text-sm">{r.full_name}</div>
                           {r.rank === 1 && (
                             <Crown className="h-3.5 w-3.5 shrink-0 text-amber-500" />
                           )}
@@ -341,9 +343,9 @@ function RankingPage() {
                       </div>
                     </div>
 
-                    <div className="text-right">
-                      <div className="font-display text-lg font-black leading-none">{r.count}</div>
-                      <div className="mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">check-ins</div>
+                    <div className="shrink-0 text-right">
+                      <div className="font-display text-base font-black leading-none sm:text-lg">{r.count}</div>
+                      <div className="mt-0.5 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground sm:text-[10px]">check-ins</div>
                     </div>
                   </li>
                 );
