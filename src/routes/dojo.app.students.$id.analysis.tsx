@@ -133,7 +133,7 @@ function AnalysisPage() {
               <Sparkles className="h-3 w-3" /> Centro de Performance
             </div>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-              <h2 className="min-w-0 bg-gradient-to-br from-white via-white to-red-200 bg-clip-text text-2xl font-black tracking-tight text-transparent sm:text-3xl md:text-4xl">
+              <h2 className="min-w-0 text-2xl font-black tracking-tight text-white sm:text-3xl md:text-4xl">
                 {s?.full_name ?? <Skeleton className="h-8 w-56" />}
               </h2>
               {s?.status && (
