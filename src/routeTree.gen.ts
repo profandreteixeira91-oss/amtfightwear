@@ -108,6 +108,7 @@ import { Route as AuthenticatedStoreSizesRouteImport } from './routes/_authentic
 import { Route as AuthenticatedStoreShippingRouteImport } from './routes/_authenticated/store.shipping'
 import { Route as AuthenticatedStoreProductsRouteImport } from './routes/_authenticated/store.products'
 import { Route as AuthenticatedStoreOrdersRouteImport } from './routes/_authenticated/store.orders'
+import { Route as AuthenticatedStoreNotificationsRouteImport } from './routes/_authenticated/store.notifications'
 import { Route as AuthenticatedStoreImportRouteImport } from './routes/_authenticated/store.import'
 import { Route as AuthenticatedStoreImagensRouteImport } from './routes/_authenticated/store.imagens'
 import { Route as AuthenticatedStoreFaixaCalcRouteImport } from './routes/_authenticated/store.faixa-calc'
@@ -725,6 +726,12 @@ const AuthenticatedStoreOrdersRoute =
   AuthenticatedStoreOrdersRouteImport.update({
     id: '/store/orders',
     path: '/store/orders',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStoreNotificationsRoute =
+  AuthenticatedStoreNotificationsRouteImport.update({
+    id: '/store/notifications',
+    path: '/store/notifications',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedStoreImportRoute =
@@ -1479,6 +1486,7 @@ export interface FileRoutesByFullPath {
   '/store/faixa-calc': typeof AuthenticatedStoreFaixaCalcRoute
   '/store/imagens': typeof AuthenticatedStoreImagensRoute
   '/store/import': typeof AuthenticatedStoreImportRoute
+  '/store/notifications': typeof AuthenticatedStoreNotificationsRoute
   '/store/orders': typeof AuthenticatedStoreOrdersRoute
   '/store/products': typeof AuthenticatedStoreProductsRoute
   '/store/shipping': typeof AuthenticatedStoreShippingRoute
@@ -1694,6 +1702,7 @@ export interface FileRoutesByTo {
   '/store/faixa-calc': typeof AuthenticatedStoreFaixaCalcRoute
   '/store/imagens': typeof AuthenticatedStoreImagensRoute
   '/store/import': typeof AuthenticatedStoreImportRoute
+  '/store/notifications': typeof AuthenticatedStoreNotificationsRoute
   '/store/orders': typeof AuthenticatedStoreOrdersRoute
   '/store/products': typeof AuthenticatedStoreProductsRoute
   '/store/shipping': typeof AuthenticatedStoreShippingRoute
@@ -1906,6 +1915,7 @@ export interface FileRoutesById {
   '/_authenticated/store/faixa-calc': typeof AuthenticatedStoreFaixaCalcRoute
   '/_authenticated/store/imagens': typeof AuthenticatedStoreImagensRoute
   '/_authenticated/store/import': typeof AuthenticatedStoreImportRoute
+  '/_authenticated/store/notifications': typeof AuthenticatedStoreNotificationsRoute
   '/_authenticated/store/orders': typeof AuthenticatedStoreOrdersRoute
   '/_authenticated/store/products': typeof AuthenticatedStoreProductsRoute
   '/_authenticated/store/shipping': typeof AuthenticatedStoreShippingRoute
@@ -2126,6 +2136,7 @@ export interface FileRouteTypes {
     | '/store/faixa-calc'
     | '/store/imagens'
     | '/store/import'
+    | '/store/notifications'
     | '/store/orders'
     | '/store/products'
     | '/store/shipping'
@@ -2341,6 +2352,7 @@ export interface FileRouteTypes {
     | '/store/faixa-calc'
     | '/store/imagens'
     | '/store/import'
+    | '/store/notifications'
     | '/store/orders'
     | '/store/products'
     | '/store/shipping'
@@ -2552,6 +2564,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/faixa-calc'
     | '/_authenticated/store/imagens'
     | '/_authenticated/store/import'
+    | '/_authenticated/store/notifications'
     | '/_authenticated/store/orders'
     | '/_authenticated/store/products'
     | '/_authenticated/store/shipping'
@@ -3446,6 +3459,13 @@ declare module '@tanstack/react-router' {
       path: '/store/orders'
       fullPath: '/store/orders'
       preLoaderRoute: typeof AuthenticatedStoreOrdersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/store/notifications': {
+      id: '/_authenticated/store/notifications'
+      path: '/store/notifications'
+      fullPath: '/store/notifications'
+      preLoaderRoute: typeof AuthenticatedStoreNotificationsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/store/import': {
@@ -4366,6 +4386,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreFaixaCalcRoute: typeof AuthenticatedStoreFaixaCalcRoute
   AuthenticatedStoreImagensRoute: typeof AuthenticatedStoreImagensRoute
   AuthenticatedStoreImportRoute: typeof AuthenticatedStoreImportRoute
+  AuthenticatedStoreNotificationsRoute: typeof AuthenticatedStoreNotificationsRoute
   AuthenticatedStoreOrdersRoute: typeof AuthenticatedStoreOrdersRoute
   AuthenticatedStoreProductsRoute: typeof AuthenticatedStoreProductsRoute
   AuthenticatedStoreShippingRoute: typeof AuthenticatedStoreShippingRoute
@@ -4417,6 +4438,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStoreFaixaCalcRoute: AuthenticatedStoreFaixaCalcRoute,
   AuthenticatedStoreImagensRoute: AuthenticatedStoreImagensRoute,
   AuthenticatedStoreImportRoute: AuthenticatedStoreImportRoute,
+  AuthenticatedStoreNotificationsRoute: AuthenticatedStoreNotificationsRoute,
   AuthenticatedStoreOrdersRoute: AuthenticatedStoreOrdersRoute,
   AuthenticatedStoreProductsRoute: AuthenticatedStoreProductsRoute,
   AuthenticatedStoreShippingRoute: AuthenticatedStoreShippingRoute,

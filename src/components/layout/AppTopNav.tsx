@@ -49,6 +49,7 @@ import {
   LifeBuoy,
   CalendarDays,
   Building2,
+  BellRing,
 } from "lucide-react";
 
 
@@ -174,6 +175,7 @@ const groups: { label: string; items: Item[] }[] = [
       { title: "Clientes", url: "/store/customers", icon: UserSquare2 },
       { title: "AMT Dojo Manager", url: "/store/dojo-manager", icon: GraduationCap },
       { title: "Suporte Dojo", url: "/store/dojo-support", icon: LifeBuoy },
+      { title: "Notificações", url: "/store/notifications", icon: BellRing },
 
       { title: "Envio (Melhor Envio)", url: "/store/shipping", icon: Truck },
       { title: "Imagens dos produtos", url: "/store/imagens", icon: ImageIcon },

@@ -1,8 +1,8 @@
 {
   "id": "/store/",
-  "name": "AMT Fight Wear — Painel Administrativo",
-  "short_name": "AMT Admin",
-  "description": "Gerencie pedidos, mensagens, cadastros e assinaturas do Dojo Manager direto do seu celular.",
+  "name": "Admin AMT Fight Wear",
+  "short_name": "Admin AMT",
+  "description": "Painel administrativo AMT Fight Wear — pedidos, chat, clientes e Dojo Manager no seu bolso.",
   "start_url": "/store",
   "scope": "/store/",
   "display": "standalone",
