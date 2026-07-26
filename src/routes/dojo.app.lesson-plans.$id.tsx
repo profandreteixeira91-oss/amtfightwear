@@ -698,7 +698,7 @@ function RegisterDeliveryDialog({
   const absentIds = (students ?? []).map((s) => s.id).filter((id) => !present[id]);
 
   return (
-    <DialogContent className="max-w-2xl">
+    <DialogContent className="w-[calc(100vw-1rem)] max-w-2xl">
       <DialogHeader>
         <DialogTitle>Registrar aula ministrada</DialogTitle>
       </DialogHeader>
