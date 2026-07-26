@@ -81,6 +81,8 @@ function TemplateEditor() {
 
   const { data: tpl } = useSuspenseQuery(tplOpts(id));
   const { data: belts } = useSuspenseQuery(beltsOpts());
+  const { data: libCategories } = useSuspenseQuery(evalCategoriesOpts());
+  const { data: libTechniques } = useSuspenseQuery(evalTechniquesOpts());
 
   const [form, setForm] = useState<any>(null);
 
