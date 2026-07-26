@@ -397,32 +397,33 @@ function TeamPage() {
                 {m.full_name?.slice(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <div className="min-w-[180px] flex-1">
+            <div className="min-w-0 flex-1 basis-[calc(100%-3.75rem)] sm:basis-auto">
               <Link
                 to="/dojo/app/team/$id"
                 params={{ id: m.id }}
-                className="font-semibold tracking-tight text-neutral-900 hover:text-red-600 hover:underline"
+                className="block truncate font-semibold tracking-tight text-neutral-900 hover:text-red-600 hover:underline"
               >
                 {m.full_name}
               </Link>
-              <div className="text-xs text-muted-foreground">
+              <div className="truncate text-xs text-muted-foreground">
                 <span className="font-medium text-neutral-700">{ROLE_LABELS[m.role] ?? m.role}</span>
                 {m.email ? ` · ${m.email}` : ""}
                 {m.phone ? ` · ${m.phone}` : ""}
               </div>
             </div>
-            <Badge variant="outline" className={`rounded-full ${STATUS_COLORS[m.status]}`}>
-              {STATUS_LABELS[m.status] ?? m.status}
-            </Badge>
             <Select value={m.status} onValueChange={(v) => onStatusChange(m.id, v)}>
-              <SelectTrigger className="w-[140px] rounded-xl"><SelectValue /></SelectTrigger>
+              <SelectTrigger
+                className={`h-9 w-full rounded-full border px-3 text-xs font-medium sm:w-[150px] ${STATUS_COLORS[m.status] ?? ""}`}
+              >
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 {Object.entries(STATUS_LABELS).map(([k, v]) => (
                   <SelectItem key={k} value={k}>{v}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <Button size="sm" className="bg-red-600 text-white hover:bg-red-500" asChild>
+            <Button size="sm" className="w-full bg-red-600 text-white hover:bg-red-500 sm:w-auto" asChild>
               <Link to="/dojo/app/team/$id" params={{ id: m.id }}>Abrir</Link>
             </Button>
           </div>
