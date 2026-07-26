@@ -10,7 +10,7 @@ import {
   Info,
 } from "lucide-react";
 
-export const Route = createFileRoute("/dojo/pay-demo")({
+export const Route = createFileRoute("/pay-demo")({
   head: () => ({
     meta: [
       { title: "Prévia — Cobrança do Aluno" },
