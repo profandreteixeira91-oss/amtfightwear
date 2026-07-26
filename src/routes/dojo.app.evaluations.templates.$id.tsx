@@ -94,6 +94,14 @@ function TemplateEditor() {
 
   if (!form) return <div className="text-sm text-muted-foreground">Carregando...</div>;
 
+  const beltList: any[] = belts ?? [];
+  const modalities = Array.from(
+    new Set(beltList.map((b) => (b.modality ?? "").toString().trim()).filter(Boolean)),
+  ).sort();
+  const filteredBelts = form.modality
+    ? beltList.filter((b) => (b.modality ?? "") === form.modality)
+    : beltList;
+
 
   const cats: Category[] = form.structure.categories ?? [];
 
@@ -195,8 +203,36 @@ function TemplateEditor() {
               <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
             </div>
             <div>
+              <Label>Categoria</Label>
+              <Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="Ex.: adulto" />
+            </div>
+            <div>
               <Label>Modalidade</Label>
-              <Input value={form.modality} onChange={(e) => setForm({ ...form, modality: e.target.value })} placeholder="Ex.: jiu-jitsu-adulto" />
+              <select
+                className="border rounded p-2 bg-background w-full"
+                value={form.modality}
+                onChange={(e) => {
+                  const nextMod = e.target.value;
+                  const stillValid = (id: string) =>
+                    !id || beltList.some((b) => b.id === id && (!nextMod || (b.modality ?? "") === nextMod));
+                  setForm({
+                    ...form,
+                    modality: nextMod,
+                    belt_id: stillValid(form.belt_id) ? form.belt_id : "",
+                    end_belt_id: stillValid(form.end_belt_id) ? form.end_belt_id : "",
+                  });
+                }}
+              >
+                <option value="">Selecione a modalidade…</option>
+                {modalities.map((m) => (
+                  <option key={m} value={m}>{m}</option>
+                ))}
+              </select>
+              {modalities.length === 0 && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Cadastre modalidades em Modalidades e Faixas.
+                </p>
+              )}
             </div>
             <div>
               <Label>Categoria</Label>
@@ -204,16 +240,26 @@ function TemplateEditor() {
             </div>
             <div>
               <Label>Faixa inicial</Label>
-              <select className="border rounded p-2 bg-background w-full" value={form.belt_id} onChange={(e) => setForm({ ...form, belt_id: e.target.value })}>
-                <option value="">—</option>
-                {(belts ?? []).map((b: any) => <option key={b.id} value={b.id}>{b.name}</option>)}
+              <select
+                className="border rounded p-2 bg-background w-full"
+                value={form.belt_id}
+                disabled={!form.modality}
+                onChange={(e) => setForm({ ...form, belt_id: e.target.value })}
+              >
+                <option value="">{form.modality ? "—" : "Selecione a modalidade primeiro"}</option>
+                {filteredBelts.map((b: any) => <option key={b.id} value={b.id}>{b.name}</option>)}
               </select>
             </div>
             <div>
               <Label>Faixa final (para graduação)</Label>
-              <select className="border rounded p-2 bg-background w-full" value={form.end_belt_id} onChange={(e) => setForm({ ...form, end_belt_id: e.target.value })}>
-                <option value="">—</option>
-                {(belts ?? []).map((b: any) => <option key={b.id} value={b.id}>{b.name}</option>)}
+              <select
+                className="border rounded p-2 bg-background w-full"
+                value={form.end_belt_id}
+                disabled={!form.modality}
+                onChange={(e) => setForm({ ...form, end_belt_id: e.target.value })}
+              >
+                <option value="">{form.modality ? "—" : "Selecione a modalidade primeiro"}</option>
+                {filteredBelts.map((b: any) => <option key={b.id} value={b.id}>{b.name}</option>)}
               </select>
             </div>
             <div>
