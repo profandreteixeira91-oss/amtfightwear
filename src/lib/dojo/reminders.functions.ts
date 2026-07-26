@@ -12,14 +12,14 @@ export type ReminderRule = {
 
 export type ReminderSettings = {
   enabled: boolean;
-  channels: { email: boolean; whatsapp: boolean };
+  channels: { email: boolean; push: boolean; whatsapp: boolean };
   rules: ReminderRule[];
   quiet_hours: { start: number; end: number }; // 0-23 (horário do disparo permitido)
 };
 
 export const DEFAULT_REMINDER_SETTINGS: ReminderSettings = {
   enabled: true,
-  channels: { email: true, whatsapp: false },
+  channels: { email: true, push: true, whatsapp: false },
   rules: [
     { offset_days: -3, label: "Aviso prévio (3 dias antes)", enabled: true },
     { offset_days: 0, label: "Vence hoje", enabled: true },
