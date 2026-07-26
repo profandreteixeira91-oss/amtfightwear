@@ -109,7 +109,7 @@ export const getAthleteAttendance = createServerFn({ method: "GET" })
 
     const { data: rows, error } = await supabase
       .from("dojo_attendance")
-      .select("checked_in_at, status, class_id")
+      .select("id, checked_in_at, status, class_id, method, unit_id, notes, dojo_classes(name), dojo_units(name)")
       .eq("student_id", data.studentId)
       .gte("checked_in_at", since)
       .order("checked_in_at", { ascending: true });
@@ -117,11 +117,14 @@ export const getAthleteAttendance = createServerFn({ method: "GET" })
 
     const dayMap = new Map<string, number>();
     let present = 0;
+    const methodCounts: Record<string, number> = {};
     for (const r of rows ?? []) {
       if ((r as any).status !== "present") continue;
       present++;
       const d = new Date((r as any).checked_in_at).toISOString().slice(0, 10);
       dayMap.set(d, (dayMap.get(d) ?? 0) + 1);
+      const m = (r as any).method ?? "manual";
+      methodCounts[m] = (methodCounts[m] ?? 0) + 1;
     }
     const heatmap = Array.from(dayMap.entries()).map(([date, count]) => ({ date, count }));
 
@@ -143,6 +146,20 @@ export const getAthleteAttendance = createServerFn({ method: "GET" })
     const weekday = Array(7).fill(0);
     for (const d of dayMap.keys()) weekday[new Date(d).getDay()]++;
 
+    // Últimos check-ins detalhados (mais recentes primeiro)
+    const recent = [...(rows ?? [])]
+      .filter((r: any) => r.status === "present")
+      .sort((a: any, b: any) => (b.checked_in_at as string).localeCompare(a.checked_in_at))
+      .slice(0, 30)
+      .map((r: any) => ({
+        id: r.id,
+        checked_in_at: r.checked_in_at,
+        method: r.method ?? "manual",
+        class_name: r.dojo_classes?.name ?? null,
+        unit_name: r.dojo_units?.name ?? null,
+        notes: r.notes ?? null,
+      }));
+
     return {
       totalPresent: present,
       distinctDays: dayMap.size,
@@ -151,6 +168,8 @@ export const getAthleteAttendance = createServerFn({ method: "GET" })
       heatmap,
       weekday,
       windowDays: days,
+      methodCounts,
+      recent,
     };
   });
 
