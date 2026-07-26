@@ -521,8 +521,10 @@ function TemplateEditor() {
                         className="flex-1"
                         value={cr.name}
                         onChange={(e) => updCriterion(ci, cri, { name: e.target.value })}
-                        placeholder="Nome do critério"
+                        onBlur={() => autoSaveTechnique(ci, cri)}
+                        placeholder="Nome da técnica/exercício"
                       />
+
                       <label className="text-xs text-muted-foreground flex items-center gap-1">
                         Pts
                         <Input className="w-16" type="number" min={0} value={cr.max_score} onChange={(e) => updCriterion(ci, cri, { max_score: Number(e.target.value) })} />
