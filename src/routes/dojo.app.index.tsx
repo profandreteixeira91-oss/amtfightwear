@@ -898,7 +898,7 @@ function DojoDashboard() {
 
           {/* Rodapé com carimbo editorial */}
           {recent.length > 0 && (
-            <div className="flex items-center justify-between px-7 py-3.5 border-t border-slate-900/[0.07] bg-white/60">
+            <div className="flex items-center justify-between px-4 sm:px-7 py-3.5 border-t border-slate-900/[0.07] bg-white/60">
               <span className="text-[10px] font-semibold tracking-[0.22em] uppercase text-slate-400">
                 {recent.length} {recent.length === 1 ? "registro" : "registros"} • ordem cronológica
               </span>
