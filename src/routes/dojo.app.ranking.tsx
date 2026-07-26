@@ -261,18 +261,18 @@ function RankingPage() {
         <div aria-hidden className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-red-500 via-red-400 to-amber-400" />
         <div aria-hidden className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full bg-red-500/10 blur-3xl" />
 
-        <div className="relative flex items-center justify-between border-b border-neutral-200/70 px-5 py-4 dark:border-white/10">
-          <div className="flex items-center gap-2">
-            <div className="grid h-8 w-8 place-items-center rounded-xl bg-red-600/10 text-red-600 dark:text-red-400">
+        <div className="relative flex items-center justify-between gap-2 border-b border-neutral-200/70 px-4 py-3 dark:border-white/10 sm:px-5 sm:py-4">
+          <div className="flex min-w-0 items-center gap-2">
+            <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-red-600/10 text-red-600 dark:text-red-400">
               <TrendingUp className="h-4 w-4" />
             </div>
-            <div>
-              <div className="text-sm font-bold">Classificação completa</div>
-              <div className="text-[11px] text-muted-foreground">{periodLabel[period]}</div>
+            <div className="min-w-0">
+              <div className="truncate text-sm font-bold">Classificação completa</div>
+              <div className="truncate text-[11px] text-muted-foreground">{periodLabel[period]}</div>
             </div>
           </div>
           {rows.length > 0 && (
-            <span className="rounded-full border border-neutral-200/70 bg-neutral-50 px-2.5 py-0.5 text-[11px] font-semibold text-neutral-600 dark:border-white/10 dark:bg-white/5 dark:text-neutral-300">
+            <span className="shrink-0 rounded-full border border-neutral-200/70 bg-neutral-50 px-2.5 py-0.5 text-[11px] font-semibold text-neutral-600 dark:border-white/10 dark:bg-white/5 dark:text-neutral-300">
               {rows.length} {rows.length === 1 ? "aluno" : "alunos"}
             </span>
           )}
