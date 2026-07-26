@@ -7,7 +7,7 @@ import { Printer, Download, Copy, Check, ArrowLeft, Smartphone } from "lucide-re
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card } from "@/components/ui/card";
+
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { getMyBranding } from "@/lib/student/student.functions";
