@@ -287,7 +287,7 @@ export function StudentContracts({ studentId, student }: Props) {
                 <label className="text-xs font-medium text-muted-foreground">Forma de pagamento</label>
                 <Select value={current?.payment_method ?? ""} onValueChange={(v) => setCurrent({ ...current, payment_method: v })}>
                   <SelectTrigger><SelectValue placeholder="Selecionar..." /></SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="z-[100]">
                     <SelectItem value="PIX">PIX</SelectItem>
                     <SelectItem value="Boleto">Boleto</SelectItem>
                     <SelectItem value="Cartão de crédito">Cartão de crédito</SelectItem>
