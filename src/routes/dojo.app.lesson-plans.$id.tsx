@@ -620,7 +620,7 @@ function BulkDuplicateDialog({
   const [mode, setMode] = useState<"weekly" | "biweekly" | "monthly">("weekly");
   const [occurrences, setOccurrences] = useState(4);
   return (
-    <DialogContent>
+    <DialogContent className="w-[calc(100vw-1rem)] max-w-lg">
       <DialogHeader>
         <DialogTitle>Duplicar em massa</DialogTitle>
       </DialogHeader>
