@@ -259,7 +259,7 @@ const NAV: NavGroup[] = [
     label: "Dashboard",
     items: [
       { title: "Visão geral", url: "/admin", icon: LayoutDashboard },
-      { title: "Analytics", url: "/admin", icon: TrendingUp },
+      { title: "Analytics", url: "/admin/dashboard", icon: TrendingUp },
     ],
   },
   {
@@ -270,9 +270,9 @@ const NAV: NavGroup[] = [
       { title: "Pipeline", url: "/admin/leads/pipeline", icon: KanbanSquare },
       { title: "Busca de prospects", url: "/admin/leads/busca", icon: ScanSearch },
       { title: "Macro / segmentos", url: "/admin/leads/macro", icon: TrendingUp },
-      { title: "CRM", url: "/growth/crm", icon: Users },
+      { title: "CRM", url: "/admin/crm", icon: Users },
       { title: "Clientes (Loja)", url: "/admin/clientes", icon: UserSquare2 },
-      { title: "Clientes (Growth)", url: "/growth/customers", icon: UserSquare2 },
+      { title: "Clientes (Growth)", url: "/admin/clientes-growth", icon: UserSquare2 },
       { title: "Atendimento / Chat", url: "/admin/atendimento", icon: MessageCircle },
     ],
   },
@@ -292,10 +292,10 @@ const NAV: NavGroup[] = [
       { title: "Otimização", url: "/admin/anuncios/otimizacao", icon: Sparkles },
       { title: "Escala", url: "/admin/anuncios/escala", icon: Rocket },
       { title: "Conexões", url: "/admin/anuncios/conexoes", icon: Plug },
-      { title: "Insights (Growth)", url: "/growth/insights", icon: Rocket },
-      { title: "Inteligência", url: "/growth/intelligence", icon: Sparkles },
-      { title: "Mercado", url: "/growth/market", icon: TrendingUp },
-      { title: "KPIs", url: "/growth/kpis", icon: LayoutDashboard },
+      { title: "Marketing — Painel", url: "/admin/marketing", icon: Rocket },
+      { title: "Inteligência", url: "/admin/marketing/inteligencia", icon: Sparkles },
+      { title: "Mercado", url: "/admin/marketing/mercado", icon: TrendingUp },
+      { title: "KPIs", url: "/admin/marketing/kpis", icon: LayoutDashboard },
     ],
   },
   {
@@ -316,10 +316,10 @@ const NAV: NavGroup[] = [
   {
     label: "Sistema",
     items: [
-      { title: "Usuários", url: "/users", icon: UserCog },
-      { title: "Logs / auditoria", url: "/logs", icon: ShieldCheck },
-      { title: "Configurações", url: "/settings", icon: Settings },
-      { title: "Perfil", url: "/profile", icon: UserSquare2 },
+      { title: "Usuários", url: "/admin/usuarios", icon: UserCog },
+      { title: "Logs / auditoria", url: "/admin/logs", icon: ShieldCheck },
+      { title: "Configurações", url: "/admin/configuracoes", icon: Settings },
+      { title: "Perfil", url: "/admin/perfil", icon: UserSquare2 },
     ],
   },
 ];
