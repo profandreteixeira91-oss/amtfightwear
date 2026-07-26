@@ -246,6 +246,21 @@
   --sidebar-ring: var(--dojo-accent);
 }
 
+/* Mobile sidebar Sheet portals outside .dojo-theme — force light Dojo tokens on the portalled element */
+body:has(.dojo-theme) [data-sidebar="sidebar"][data-mobile="true"],
+body:has(.dojo-theme) [data-slot="sheet-content"][data-sidebar="sidebar"] {
+  --sidebar: #ffffff;
+  --sidebar-foreground: var(--dojo-fg-2);
+  --sidebar-primary: var(--dojo-accent);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--dojo-surface-3);
+  --sidebar-accent-foreground: var(--dojo-fg);
+  --sidebar-border: var(--dojo-border);
+  --sidebar-ring: var(--dojo-accent);
+  background-color: #ffffff;
+  color: var(--dojo-fg);
+}
+
 :where(.dojo-theme) h1,
 :where(.dojo-theme) h2,
 :where(.dojo-theme) h3,

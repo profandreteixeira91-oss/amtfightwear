@@ -14,6 +14,7 @@ import {
   SidebarMenuButton,
   SidebarTrigger,
   SidebarInset,
+  useSidebar,
 } from "@/components/ui/sidebar";
 
 import {
@@ -325,6 +326,12 @@ function DojoLayoutInner({
   useEffect(() => {
     if (allBelts?.length) syncBeltTerms(allBelts);
   }, [allBelts]);
+
+  // Fecha automaticamente o menu mobile ao navegar entre rotas
+  const { isMobile, setOpenMobile } = useSidebar();
+  useEffect(() => {
+    if (isMobile) setOpenMobile(false);
+  }, [pathname, isMobile, setOpenMobile]);
 
 
   return (
