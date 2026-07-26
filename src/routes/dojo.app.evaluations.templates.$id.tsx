@@ -549,8 +549,9 @@ function TemplateEditor() {
                 ))}
                 <div className="flex items-center gap-2 flex-wrap pt-1">
                   <Button size="sm" variant="ghost" onClick={() => addCriterion(ci)}>
-                    <Plus className="h-3.5 w-3.5 mr-1" /> Critério
+                    <Plus className="h-3.5 w-3.5 mr-1" /> Técnica/Exercício
                   </Button>
+
                   {(() => {
                     const matchLib = libCats.find(
                       (c) => (c.name ?? "").trim().toLowerCase() === (cat.name ?? "").trim().toLowerCase(),
