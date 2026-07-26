@@ -502,7 +502,9 @@ function TemplateEditor() {
                   className="flex-1 font-medium"
                   value={cat.name}
                   onChange={(e) => updCategory(ci, { name: e.target.value })}
+                  onBlur={() => autoSaveCategory(ci)}
                 />
+
                 <label className="text-xs text-muted-foreground flex items-center gap-1">
                   Peso
                   <Input className="w-16" type="number" min={0} value={cat.weight} onChange={(e) => updCategory(ci, { weight: Number(e.target.value) })} />
