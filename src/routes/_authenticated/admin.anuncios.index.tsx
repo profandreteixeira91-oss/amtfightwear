@@ -21,7 +21,7 @@ import { brl } from "@/lib/format";
 import { getAdsDashboard } from "@/lib/ads/ads.functions";
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 
-export const Route = createFileRoute("/_authenticated/admin/anuncios")({
+export const Route = createFileRoute("/_authenticated/admin/anuncios/")({
   head: () => ({ meta: [{ title: "Tráfego Pago IA — Dashboard" }] }),
   component: AdsDashboard,
 });

@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/common/PageHeader";
 import { StatCard } from "@/components/common/StatCard";
 import { getDashboardKpis } from "@/lib/ig-hub.functions";
 
-export const Route = createFileRoute("/_authenticated/admin/instagram")({
+export const Route = createFileRoute("/_authenticated/admin/instagram/")({
   component: InstagramDashboard,
 });
 

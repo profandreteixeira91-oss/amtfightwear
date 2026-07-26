@@ -166,10 +166,8 @@ import { Route as AuthenticatedAdminProdutosRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminPerfilRouteImport } from './routes/_authenticated/admin.perfil'
 import { Route as AuthenticatedAdminPedidosRouteImport } from './routes/_authenticated/admin.pedidos'
 import { Route as AuthenticatedAdminNotificacoesRouteImport } from './routes/_authenticated/admin.notificacoes'
-import { Route as AuthenticatedAdminMarketingRouteImport } from './routes/_authenticated/admin.marketing'
 import { Route as AuthenticatedAdminLojaRouteImport } from './routes/_authenticated/admin.loja'
 import { Route as AuthenticatedAdminLogsRouteImport } from './routes/_authenticated/admin.logs'
-import { Route as AuthenticatedAdminInstagramRouteImport } from './routes/_authenticated/admin.instagram'
 import { Route as AuthenticatedAdminEnvioRouteImport } from './routes/_authenticated/admin.envio'
 import { Route as AuthenticatedAdminDojoRouteImport } from './routes/_authenticated/admin.dojo'
 import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin.dashboard'
@@ -180,7 +178,6 @@ import { Route as AuthenticatedAdminClientesGrowthRouteImport } from './routes/_
 import { Route as AuthenticatedAdminClientesRouteImport } from './routes/_authenticated/admin.clientes'
 import { Route as AuthenticatedAdminAtendimentoRouteImport } from './routes/_authenticated/admin.atendimento'
 import { Route as AuthenticatedAdminAtacadoRouteImport } from './routes/_authenticated/admin.atacado'
-import { Route as AuthenticatedAdminAnunciosRouteImport } from './routes/_authenticated/admin.anuncios'
 import { Route as DojoAppVideosIndexRouteImport } from './routes/dojo.app.videos.index'
 import { Route as DojoAppUnitsIndexRouteImport } from './routes/dojo.app.units.index'
 import { Route as DojoAppTeamIndexRouteImport } from './routes/dojo.app.team.index'
@@ -191,7 +188,10 @@ import { Route as DojoAppEvaluationsIndexRouteImport } from './routes/dojo.app.e
 import { Route as DojoAppContractsIndexRouteImport } from './routes/dojo.app.contracts.index'
 import { Route as DojoAppContractTemplatesIndexRouteImport } from './routes/dojo.app.contract-templates.index'
 import { Route as DojoAppCompetitionsIndexRouteImport } from './routes/dojo.app.competitions.index'
+import { Route as AuthenticatedAdminMarketingIndexRouteImport } from './routes/_authenticated/admin.marketing.index'
 import { Route as AuthenticatedAdminLeadsIndexRouteImport } from './routes/_authenticated/admin.leads.index'
+import { Route as AuthenticatedAdminInstagramIndexRouteImport } from './routes/_authenticated/admin.instagram.index'
+import { Route as AuthenticatedAdminAnunciosIndexRouteImport } from './routes/_authenticated/admin.anuncios.index'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
@@ -1119,12 +1119,6 @@ const AuthenticatedAdminNotificacoesRoute =
     path: '/notificacoes',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
-const AuthenticatedAdminMarketingRoute =
-  AuthenticatedAdminMarketingRouteImport.update({
-    id: '/marketing',
-    path: '/marketing',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
 const AuthenticatedAdminLojaRoute = AuthenticatedAdminLojaRouteImport.update({
   id: '/loja',
   path: '/loja',
@@ -1135,12 +1129,6 @@ const AuthenticatedAdminLogsRoute = AuthenticatedAdminLogsRouteImport.update({
   path: '/logs',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
-const AuthenticatedAdminInstagramRoute =
-  AuthenticatedAdminInstagramRouteImport.update({
-    id: '/instagram',
-    path: '/instagram',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
 const AuthenticatedAdminEnvioRoute = AuthenticatedAdminEnvioRouteImport.update({
   id: '/envio',
   path: '/envio',
@@ -1198,12 +1186,6 @@ const AuthenticatedAdminAtacadoRoute =
     path: '/atacado',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
-const AuthenticatedAdminAnunciosRoute =
-  AuthenticatedAdminAnunciosRouteImport.update({
-    id: '/anuncios',
-    path: '/anuncios',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
 const DojoAppVideosIndexRoute = DojoAppVideosIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -1256,10 +1238,28 @@ const DojoAppCompetitionsIndexRoute =
     path: '/',
     getParentRoute: () => DojoAppCompetitionsRoute,
   } as any)
+const AuthenticatedAdminMarketingIndexRoute =
+  AuthenticatedAdminMarketingIndexRouteImport.update({
+    id: '/marketing/',
+    path: '/marketing/',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminLeadsIndexRoute =
   AuthenticatedAdminLeadsIndexRouteImport.update({
     id: '/leads/',
     path: '/leads/',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminInstagramIndexRoute =
+  AuthenticatedAdminInstagramIndexRouteImport.update({
+    id: '/instagram/',
+    path: '/instagram/',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminAnunciosIndexRoute =
+  AuthenticatedAdminAnunciosIndexRouteImport.update({
+    id: '/anuncios/',
+    path: '/anuncios/',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const LovableEmailTransactionalSendRoute =
@@ -1591,21 +1591,21 @@ const AuthenticatedAdminProdutosFaixaCalcRoute =
   } as any)
 const AuthenticatedAdminMarketingMercadoRoute =
   AuthenticatedAdminMarketingMercadoRouteImport.update({
-    id: '/mercado',
-    path: '/mercado',
-    getParentRoute: () => AuthenticatedAdminMarketingRoute,
+    id: '/marketing/mercado',
+    path: '/marketing/mercado',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminMarketingKpisRoute =
   AuthenticatedAdminMarketingKpisRouteImport.update({
-    id: '/kpis',
-    path: '/kpis',
-    getParentRoute: () => AuthenticatedAdminMarketingRoute,
+    id: '/marketing/kpis',
+    path: '/marketing/kpis',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminMarketingInteligenciaRoute =
   AuthenticatedAdminMarketingInteligenciaRouteImport.update({
-    id: '/inteligencia',
-    path: '/inteligencia',
-    getParentRoute: () => AuthenticatedAdminMarketingRoute,
+    id: '/marketing/inteligencia',
+    path: '/marketing/inteligencia',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminLeadsQualificadosRoute =
   AuthenticatedAdminLeadsQualificadosRouteImport.update({
@@ -1651,87 +1651,87 @@ const AuthenticatedAdminLeadsIdRoute =
   } as any)
 const AuthenticatedAdminInstagramInboxRoute =
   AuthenticatedAdminInstagramInboxRouteImport.update({
-    id: '/inbox',
-    path: '/inbox',
-    getParentRoute: () => AuthenticatedAdminInstagramRoute,
+    id: '/instagram/inbox',
+    path: '/instagram/inbox',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminInstagramCrmRoute =
   AuthenticatedAdminInstagramCrmRouteImport.update({
-    id: '/crm',
-    path: '/crm',
-    getParentRoute: () => AuthenticatedAdminInstagramRoute,
+    id: '/instagram/crm',
+    path: '/instagram/crm',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminInstagramContaRoute =
   AuthenticatedAdminInstagramContaRouteImport.update({
-    id: '/conta',
-    path: '/conta',
-    getParentRoute: () => AuthenticatedAdminInstagramRoute,
+    id: '/instagram/conta',
+    path: '/instagram/conta',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminInstagramComentariosRoute =
   AuthenticatedAdminInstagramComentariosRouteImport.update({
-    id: '/comentarios',
-    path: '/comentarios',
-    getParentRoute: () => AuthenticatedAdminInstagramRoute,
+    id: '/instagram/comentarios',
+    path: '/instagram/comentarios',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminInstagramAutomacoesRoute =
   AuthenticatedAdminInstagramAutomacoesRouteImport.update({
-    id: '/automacoes',
-    path: '/automacoes',
-    getParentRoute: () => AuthenticatedAdminInstagramRoute,
+    id: '/instagram/automacoes',
+    path: '/instagram/automacoes',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminInstagramAdminRoute =
   AuthenticatedAdminInstagramAdminRouteImport.update({
-    id: '/admin',
-    path: '/admin',
-    getParentRoute: () => AuthenticatedAdminInstagramRoute,
+    id: '/instagram/admin',
+    path: '/instagram/admin',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminAnunciosOtimizacaoRoute =
   AuthenticatedAdminAnunciosOtimizacaoRouteImport.update({
-    id: '/otimizacao',
-    path: '/otimizacao',
-    getParentRoute: () => AuthenticatedAdminAnunciosRoute,
+    id: '/anuncios/otimizacao',
+    path: '/anuncios/otimizacao',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminAnunciosNovaRoute =
   AuthenticatedAdminAnunciosNovaRouteImport.update({
-    id: '/nova',
-    path: '/nova',
-    getParentRoute: () => AuthenticatedAdminAnunciosRoute,
+    id: '/anuncios/nova',
+    path: '/anuncios/nova',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminAnunciosEscalaRoute =
   AuthenticatedAdminAnunciosEscalaRouteImport.update({
-    id: '/escala',
-    path: '/escala',
-    getParentRoute: () => AuthenticatedAdminAnunciosRoute,
+    id: '/anuncios/escala',
+    path: '/anuncios/escala',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminAnunciosCriativosRoute =
   AuthenticatedAdminAnunciosCriativosRouteImport.update({
-    id: '/criativos',
-    path: '/criativos',
-    getParentRoute: () => AuthenticatedAdminAnunciosRoute,
+    id: '/anuncios/criativos',
+    path: '/anuncios/criativos',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminAnunciosCopiesRoute =
   AuthenticatedAdminAnunciosCopiesRouteImport.update({
-    id: '/copies',
-    path: '/copies',
-    getParentRoute: () => AuthenticatedAdminAnunciosRoute,
+    id: '/anuncios/copies',
+    path: '/anuncios/copies',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminAnunciosConexoesRoute =
   AuthenticatedAdminAnunciosConexoesRouteImport.update({
-    id: '/conexoes',
-    path: '/conexoes',
-    getParentRoute: () => AuthenticatedAdminAnunciosRoute,
+    id: '/anuncios/conexoes',
+    path: '/anuncios/conexoes',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminAnunciosCampanhasRoute =
   AuthenticatedAdminAnunciosCampanhasRouteImport.update({
-    id: '/campanhas',
-    path: '/campanhas',
-    getParentRoute: () => AuthenticatedAdminAnunciosRoute,
+    id: '/anuncios/campanhas',
+    path: '/anuncios/campanhas',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminAnunciosAlertasRoute =
   AuthenticatedAdminAnunciosAlertasRouteImport.update({
-    id: '/alertas',
-    path: '/alertas',
-    getParentRoute: () => AuthenticatedAdminAnunciosRoute,
+    id: '/anuncios/alertas',
+    path: '/anuncios/alertas',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const DojoAppEvaluationsTemplatesIndexRoute =
   DojoAppEvaluationsTemplatesIndexRouteImport.update({
@@ -1856,7 +1856,6 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AppIndexRoute
   '/dojo/': typeof DojoIndexRoute
   '/loja/': typeof LojaIndexRoute
-  '/admin/anuncios': typeof AuthenticatedAdminAnunciosRouteWithChildren
   '/admin/atacado': typeof AuthenticatedAdminAtacadoRoute
   '/admin/atendimento': typeof AuthenticatedAdminAtendimentoRoute
   '/admin/clientes': typeof AuthenticatedAdminClientesRoute
@@ -1867,10 +1866,8 @@ export interface FileRoutesByFullPath {
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin/dojo': typeof AuthenticatedAdminDojoRoute
   '/admin/envio': typeof AuthenticatedAdminEnvioRoute
-  '/admin/instagram': typeof AuthenticatedAdminInstagramRouteWithChildren
   '/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/admin/loja': typeof AuthenticatedAdminLojaRoute
-  '/admin/marketing': typeof AuthenticatedAdminMarketingRouteWithChildren
   '/admin/notificacoes': typeof AuthenticatedAdminNotificacoesRoute
   '/admin/pedidos': typeof AuthenticatedAdminPedidosRoute
   '/admin/perfil': typeof AuthenticatedAdminPerfilRoute
@@ -2070,7 +2067,10 @@ export interface FileRoutesByFullPath {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/admin/anuncios/': typeof AuthenticatedAdminAnunciosIndexRoute
+  '/admin/instagram/': typeof AuthenticatedAdminInstagramIndexRoute
   '/admin/leads/': typeof AuthenticatedAdminLeadsIndexRoute
+  '/admin/marketing/': typeof AuthenticatedAdminMarketingIndexRoute
   '/dojo/app/competitions/': typeof DojoAppCompetitionsIndexRoute
   '/dojo/app/contract-templates/': typeof DojoAppContractTemplatesIndexRoute
   '/dojo/app/contracts/': typeof DojoAppContractsIndexRoute
@@ -2129,7 +2129,6 @@ export interface FileRoutesByTo {
   '/pay/$invoiceId': typeof PayInvoiceIdRoute
   '/dojo': typeof DojoIndexRoute
   '/loja': typeof LojaIndexRoute
-  '/admin/anuncios': typeof AuthenticatedAdminAnunciosRouteWithChildren
   '/admin/atacado': typeof AuthenticatedAdminAtacadoRoute
   '/admin/atendimento': typeof AuthenticatedAdminAtendimentoRoute
   '/admin/clientes': typeof AuthenticatedAdminClientesRoute
@@ -2140,10 +2139,8 @@ export interface FileRoutesByTo {
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin/dojo': typeof AuthenticatedAdminDojoRoute
   '/admin/envio': typeof AuthenticatedAdminEnvioRoute
-  '/admin/instagram': typeof AuthenticatedAdminInstagramRouteWithChildren
   '/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/admin/loja': typeof AuthenticatedAdminLojaRoute
-  '/admin/marketing': typeof AuthenticatedAdminMarketingRouteWithChildren
   '/admin/notificacoes': typeof AuthenticatedAdminNotificacoesRoute
   '/admin/pedidos': typeof AuthenticatedAdminPedidosRoute
   '/admin/perfil': typeof AuthenticatedAdminPerfilRoute
@@ -2334,7 +2331,10 @@ export interface FileRoutesByTo {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/admin/anuncios': typeof AuthenticatedAdminAnunciosIndexRoute
+  '/admin/instagram': typeof AuthenticatedAdminInstagramIndexRoute
   '/admin/leads': typeof AuthenticatedAdminLeadsIndexRoute
+  '/admin/marketing': typeof AuthenticatedAdminMarketingIndexRoute
   '/dojo/app/competitions': typeof DojoAppCompetitionsIndexRoute
   '/dojo/app/contract-templates': typeof DojoAppContractTemplatesIndexRoute
   '/dojo/app/contracts': typeof DojoAppContractsIndexRoute
@@ -2402,7 +2402,6 @@ export interface FileRoutesById {
   '/app/': typeof AppIndexRoute
   '/dojo/': typeof DojoIndexRoute
   '/loja/': typeof LojaIndexRoute
-  '/_authenticated/admin/anuncios': typeof AuthenticatedAdminAnunciosRouteWithChildren
   '/_authenticated/admin/atacado': typeof AuthenticatedAdminAtacadoRoute
   '/_authenticated/admin/atendimento': typeof AuthenticatedAdminAtendimentoRoute
   '/_authenticated/admin/clientes': typeof AuthenticatedAdminClientesRoute
@@ -2413,10 +2412,8 @@ export interface FileRoutesById {
   '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/_authenticated/admin/dojo': typeof AuthenticatedAdminDojoRoute
   '/_authenticated/admin/envio': typeof AuthenticatedAdminEnvioRoute
-  '/_authenticated/admin/instagram': typeof AuthenticatedAdminInstagramRouteWithChildren
   '/_authenticated/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/_authenticated/admin/loja': typeof AuthenticatedAdminLojaRoute
-  '/_authenticated/admin/marketing': typeof AuthenticatedAdminMarketingRouteWithChildren
   '/_authenticated/admin/notificacoes': typeof AuthenticatedAdminNotificacoesRoute
   '/_authenticated/admin/pedidos': typeof AuthenticatedAdminPedidosRoute
   '/_authenticated/admin/perfil': typeof AuthenticatedAdminPerfilRoute
@@ -2616,7 +2613,10 @@ export interface FileRoutesById {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/_authenticated/admin/anuncios/': typeof AuthenticatedAdminAnunciosIndexRoute
+  '/_authenticated/admin/instagram/': typeof AuthenticatedAdminInstagramIndexRoute
   '/_authenticated/admin/leads/': typeof AuthenticatedAdminLeadsIndexRoute
+  '/_authenticated/admin/marketing/': typeof AuthenticatedAdminMarketingIndexRoute
   '/dojo/app/competitions/': typeof DojoAppCompetitionsIndexRoute
   '/dojo/app/contract-templates/': typeof DojoAppContractTemplatesIndexRoute
   '/dojo/app/contracts/': typeof DojoAppContractsIndexRoute
@@ -2683,7 +2683,6 @@ export interface FileRouteTypes {
     | '/app/'
     | '/dojo/'
     | '/loja/'
-    | '/admin/anuncios'
     | '/admin/atacado'
     | '/admin/atendimento'
     | '/admin/clientes'
@@ -2694,10 +2693,8 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/admin/dojo'
     | '/admin/envio'
-    | '/admin/instagram'
     | '/admin/logs'
     | '/admin/loja'
-    | '/admin/marketing'
     | '/admin/notificacoes'
     | '/admin/pedidos'
     | '/admin/perfil'
@@ -2897,7 +2894,10 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/admin/anuncios/'
+    | '/admin/instagram/'
     | '/admin/leads/'
+    | '/admin/marketing/'
     | '/dojo/app/competitions/'
     | '/dojo/app/contract-templates/'
     | '/dojo/app/contracts/'
@@ -2956,7 +2956,6 @@ export interface FileRouteTypes {
     | '/pay/$invoiceId'
     | '/dojo'
     | '/loja'
-    | '/admin/anuncios'
     | '/admin/atacado'
     | '/admin/atendimento'
     | '/admin/clientes'
@@ -2967,10 +2966,8 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/admin/dojo'
     | '/admin/envio'
-    | '/admin/instagram'
     | '/admin/logs'
     | '/admin/loja'
-    | '/admin/marketing'
     | '/admin/notificacoes'
     | '/admin/pedidos'
     | '/admin/perfil'
@@ -3161,7 +3158,10 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/admin/anuncios'
+    | '/admin/instagram'
     | '/admin/leads'
+    | '/admin/marketing'
     | '/dojo/app/competitions'
     | '/dojo/app/contract-templates'
     | '/dojo/app/contracts'
@@ -3228,7 +3228,6 @@ export interface FileRouteTypes {
     | '/app/'
     | '/dojo/'
     | '/loja/'
-    | '/_authenticated/admin/anuncios'
     | '/_authenticated/admin/atacado'
     | '/_authenticated/admin/atendimento'
     | '/_authenticated/admin/clientes'
@@ -3239,10 +3238,8 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/dashboard'
     | '/_authenticated/admin/dojo'
     | '/_authenticated/admin/envio'
-    | '/_authenticated/admin/instagram'
     | '/_authenticated/admin/logs'
     | '/_authenticated/admin/loja'
-    | '/_authenticated/admin/marketing'
     | '/_authenticated/admin/notificacoes'
     | '/_authenticated/admin/pedidos'
     | '/_authenticated/admin/perfil'
@@ -3442,7 +3439,10 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/_authenticated/admin/anuncios/'
+    | '/_authenticated/admin/instagram/'
     | '/_authenticated/admin/leads/'
+    | '/_authenticated/admin/marketing/'
     | '/dojo/app/competitions/'
     | '/dojo/app/contract-templates/'
     | '/dojo/app/contracts/'
@@ -4628,13 +4628,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminNotificacoesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/_authenticated/admin/marketing': {
-      id: '/_authenticated/admin/marketing'
-      path: '/marketing'
-      fullPath: '/admin/marketing'
-      preLoaderRoute: typeof AuthenticatedAdminMarketingRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
     '/_authenticated/admin/loja': {
       id: '/_authenticated/admin/loja'
       path: '/loja'
@@ -4647,13 +4640,6 @@ declare module '@tanstack/react-router' {
       path: '/logs'
       fullPath: '/admin/logs'
       preLoaderRoute: typeof AuthenticatedAdminLogsRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/instagram': {
-      id: '/_authenticated/admin/instagram'
-      path: '/instagram'
-      fullPath: '/admin/instagram'
-      preLoaderRoute: typeof AuthenticatedAdminInstagramRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/envio': {
@@ -4726,13 +4712,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAtacadoRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/_authenticated/admin/anuncios': {
-      id: '/_authenticated/admin/anuncios'
-      path: '/anuncios'
-      fullPath: '/admin/anuncios'
-      preLoaderRoute: typeof AuthenticatedAdminAnunciosRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
     '/dojo/app/videos/': {
       id: '/dojo/app/videos/'
       path: '/'
@@ -4803,11 +4782,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DojoAppCompetitionsIndexRouteImport
       parentRoute: typeof DojoAppCompetitionsRoute
     }
+    '/_authenticated/admin/marketing/': {
+      id: '/_authenticated/admin/marketing/'
+      path: '/marketing'
+      fullPath: '/admin/marketing/'
+      preLoaderRoute: typeof AuthenticatedAdminMarketingIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/leads/': {
       id: '/_authenticated/admin/leads/'
       path: '/leads'
       fullPath: '/admin/leads/'
       preLoaderRoute: typeof AuthenticatedAdminLeadsIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/instagram/': {
+      id: '/_authenticated/admin/instagram/'
+      path: '/instagram'
+      fullPath: '/admin/instagram/'
+      preLoaderRoute: typeof AuthenticatedAdminInstagramIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/anuncios/': {
+      id: '/_authenticated/admin/anuncios/'
+      path: '/anuncios'
+      fullPath: '/admin/anuncios/'
+      preLoaderRoute: typeof AuthenticatedAdminAnunciosIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/lovable/email/transactional/send': {
@@ -5218,24 +5218,24 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/admin/marketing/mercado': {
       id: '/_authenticated/admin/marketing/mercado'
-      path: '/mercado'
+      path: '/marketing/mercado'
       fullPath: '/admin/marketing/mercado'
       preLoaderRoute: typeof AuthenticatedAdminMarketingMercadoRouteImport
-      parentRoute: typeof AuthenticatedAdminMarketingRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/marketing/kpis': {
       id: '/_authenticated/admin/marketing/kpis'
-      path: '/kpis'
+      path: '/marketing/kpis'
       fullPath: '/admin/marketing/kpis'
       preLoaderRoute: typeof AuthenticatedAdminMarketingKpisRouteImport
-      parentRoute: typeof AuthenticatedAdminMarketingRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/marketing/inteligencia': {
       id: '/_authenticated/admin/marketing/inteligencia'
-      path: '/inteligencia'
+      path: '/marketing/inteligencia'
       fullPath: '/admin/marketing/inteligencia'
       preLoaderRoute: typeof AuthenticatedAdminMarketingInteligenciaRouteImport
-      parentRoute: typeof AuthenticatedAdminMarketingRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/leads/qualificados': {
       id: '/_authenticated/admin/leads/qualificados'
@@ -5288,101 +5288,101 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/admin/instagram/inbox': {
       id: '/_authenticated/admin/instagram/inbox'
-      path: '/inbox'
+      path: '/instagram/inbox'
       fullPath: '/admin/instagram/inbox'
       preLoaderRoute: typeof AuthenticatedAdminInstagramInboxRouteImport
-      parentRoute: typeof AuthenticatedAdminInstagramRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/instagram/crm': {
       id: '/_authenticated/admin/instagram/crm'
-      path: '/crm'
+      path: '/instagram/crm'
       fullPath: '/admin/instagram/crm'
       preLoaderRoute: typeof AuthenticatedAdminInstagramCrmRouteImport
-      parentRoute: typeof AuthenticatedAdminInstagramRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/instagram/conta': {
       id: '/_authenticated/admin/instagram/conta'
-      path: '/conta'
+      path: '/instagram/conta'
       fullPath: '/admin/instagram/conta'
       preLoaderRoute: typeof AuthenticatedAdminInstagramContaRouteImport
-      parentRoute: typeof AuthenticatedAdminInstagramRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/instagram/comentarios': {
       id: '/_authenticated/admin/instagram/comentarios'
-      path: '/comentarios'
+      path: '/instagram/comentarios'
       fullPath: '/admin/instagram/comentarios'
       preLoaderRoute: typeof AuthenticatedAdminInstagramComentariosRouteImport
-      parentRoute: typeof AuthenticatedAdminInstagramRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/instagram/automacoes': {
       id: '/_authenticated/admin/instagram/automacoes'
-      path: '/automacoes'
+      path: '/instagram/automacoes'
       fullPath: '/admin/instagram/automacoes'
       preLoaderRoute: typeof AuthenticatedAdminInstagramAutomacoesRouteImport
-      parentRoute: typeof AuthenticatedAdminInstagramRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/instagram/admin': {
       id: '/_authenticated/admin/instagram/admin'
-      path: '/admin'
+      path: '/instagram/admin'
       fullPath: '/admin/instagram/admin'
       preLoaderRoute: typeof AuthenticatedAdminInstagramAdminRouteImport
-      parentRoute: typeof AuthenticatedAdminInstagramRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/anuncios/otimizacao': {
       id: '/_authenticated/admin/anuncios/otimizacao'
-      path: '/otimizacao'
+      path: '/anuncios/otimizacao'
       fullPath: '/admin/anuncios/otimizacao'
       preLoaderRoute: typeof AuthenticatedAdminAnunciosOtimizacaoRouteImport
-      parentRoute: typeof AuthenticatedAdminAnunciosRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/anuncios/nova': {
       id: '/_authenticated/admin/anuncios/nova'
-      path: '/nova'
+      path: '/anuncios/nova'
       fullPath: '/admin/anuncios/nova'
       preLoaderRoute: typeof AuthenticatedAdminAnunciosNovaRouteImport
-      parentRoute: typeof AuthenticatedAdminAnunciosRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/anuncios/escala': {
       id: '/_authenticated/admin/anuncios/escala'
-      path: '/escala'
+      path: '/anuncios/escala'
       fullPath: '/admin/anuncios/escala'
       preLoaderRoute: typeof AuthenticatedAdminAnunciosEscalaRouteImport
-      parentRoute: typeof AuthenticatedAdminAnunciosRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/anuncios/criativos': {
       id: '/_authenticated/admin/anuncios/criativos'
-      path: '/criativos'
+      path: '/anuncios/criativos'
       fullPath: '/admin/anuncios/criativos'
       preLoaderRoute: typeof AuthenticatedAdminAnunciosCriativosRouteImport
-      parentRoute: typeof AuthenticatedAdminAnunciosRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/anuncios/copies': {
       id: '/_authenticated/admin/anuncios/copies'
-      path: '/copies'
+      path: '/anuncios/copies'
       fullPath: '/admin/anuncios/copies'
       preLoaderRoute: typeof AuthenticatedAdminAnunciosCopiesRouteImport
-      parentRoute: typeof AuthenticatedAdminAnunciosRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/anuncios/conexoes': {
       id: '/_authenticated/admin/anuncios/conexoes'
-      path: '/conexoes'
+      path: '/anuncios/conexoes'
       fullPath: '/admin/anuncios/conexoes'
       preLoaderRoute: typeof AuthenticatedAdminAnunciosConexoesRouteImport
-      parentRoute: typeof AuthenticatedAdminAnunciosRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/anuncios/campanhas': {
       id: '/_authenticated/admin/anuncios/campanhas'
-      path: '/campanhas'
+      path: '/anuncios/campanhas'
       fullPath: '/admin/anuncios/campanhas'
       preLoaderRoute: typeof AuthenticatedAdminAnunciosCampanhasRouteImport
-      parentRoute: typeof AuthenticatedAdminAnunciosRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/anuncios/alertas': {
       id: '/_authenticated/admin/anuncios/alertas'
-      path: '/alertas'
+      path: '/anuncios/alertas'
       fullPath: '/admin/anuncios/alertas'
       preLoaderRoute: typeof AuthenticatedAdminAnunciosAlertasRouteImport
-      parentRoute: typeof AuthenticatedAdminAnunciosRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/dojo/app/evaluations/templates/': {
       id: '/dojo/app/evaluations/templates/'
@@ -5485,105 +5485,6 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface AuthenticatedAdminAnunciosCampanhasRouteChildren {
-  AuthenticatedAdminAnunciosCampanhasIdRoute: typeof AuthenticatedAdminAnunciosCampanhasIdRoute
-}
-
-const AuthenticatedAdminAnunciosCampanhasRouteChildren: AuthenticatedAdminAnunciosCampanhasRouteChildren =
-  {
-    AuthenticatedAdminAnunciosCampanhasIdRoute:
-      AuthenticatedAdminAnunciosCampanhasIdRoute,
-  }
-
-const AuthenticatedAdminAnunciosCampanhasRouteWithChildren =
-  AuthenticatedAdminAnunciosCampanhasRoute._addFileChildren(
-    AuthenticatedAdminAnunciosCampanhasRouteChildren,
-  )
-
-interface AuthenticatedAdminAnunciosRouteChildren {
-  AuthenticatedAdminAnunciosAlertasRoute: typeof AuthenticatedAdminAnunciosAlertasRoute
-  AuthenticatedAdminAnunciosCampanhasRoute: typeof AuthenticatedAdminAnunciosCampanhasRouteWithChildren
-  AuthenticatedAdminAnunciosConexoesRoute: typeof AuthenticatedAdminAnunciosConexoesRoute
-  AuthenticatedAdminAnunciosCopiesRoute: typeof AuthenticatedAdminAnunciosCopiesRoute
-  AuthenticatedAdminAnunciosCriativosRoute: typeof AuthenticatedAdminAnunciosCriativosRoute
-  AuthenticatedAdminAnunciosEscalaRoute: typeof AuthenticatedAdminAnunciosEscalaRoute
-  AuthenticatedAdminAnunciosNovaRoute: typeof AuthenticatedAdminAnunciosNovaRoute
-  AuthenticatedAdminAnunciosOtimizacaoRoute: typeof AuthenticatedAdminAnunciosOtimizacaoRoute
-}
-
-const AuthenticatedAdminAnunciosRouteChildren: AuthenticatedAdminAnunciosRouteChildren =
-  {
-    AuthenticatedAdminAnunciosAlertasRoute:
-      AuthenticatedAdminAnunciosAlertasRoute,
-    AuthenticatedAdminAnunciosCampanhasRoute:
-      AuthenticatedAdminAnunciosCampanhasRouteWithChildren,
-    AuthenticatedAdminAnunciosConexoesRoute:
-      AuthenticatedAdminAnunciosConexoesRoute,
-    AuthenticatedAdminAnunciosCopiesRoute:
-      AuthenticatedAdminAnunciosCopiesRoute,
-    AuthenticatedAdminAnunciosCriativosRoute:
-      AuthenticatedAdminAnunciosCriativosRoute,
-    AuthenticatedAdminAnunciosEscalaRoute:
-      AuthenticatedAdminAnunciosEscalaRoute,
-    AuthenticatedAdminAnunciosNovaRoute: AuthenticatedAdminAnunciosNovaRoute,
-    AuthenticatedAdminAnunciosOtimizacaoRoute:
-      AuthenticatedAdminAnunciosOtimizacaoRoute,
-  }
-
-const AuthenticatedAdminAnunciosRouteWithChildren =
-  AuthenticatedAdminAnunciosRoute._addFileChildren(
-    AuthenticatedAdminAnunciosRouteChildren,
-  )
-
-interface AuthenticatedAdminInstagramRouteChildren {
-  AuthenticatedAdminInstagramAdminRoute: typeof AuthenticatedAdminInstagramAdminRoute
-  AuthenticatedAdminInstagramAutomacoesRoute: typeof AuthenticatedAdminInstagramAutomacoesRoute
-  AuthenticatedAdminInstagramComentariosRoute: typeof AuthenticatedAdminInstagramComentariosRoute
-  AuthenticatedAdminInstagramContaRoute: typeof AuthenticatedAdminInstagramContaRoute
-  AuthenticatedAdminInstagramCrmRoute: typeof AuthenticatedAdminInstagramCrmRoute
-  AuthenticatedAdminInstagramInboxRoute: typeof AuthenticatedAdminInstagramInboxRoute
-}
-
-const AuthenticatedAdminInstagramRouteChildren: AuthenticatedAdminInstagramRouteChildren =
-  {
-    AuthenticatedAdminInstagramAdminRoute:
-      AuthenticatedAdminInstagramAdminRoute,
-    AuthenticatedAdminInstagramAutomacoesRoute:
-      AuthenticatedAdminInstagramAutomacoesRoute,
-    AuthenticatedAdminInstagramComentariosRoute:
-      AuthenticatedAdminInstagramComentariosRoute,
-    AuthenticatedAdminInstagramContaRoute:
-      AuthenticatedAdminInstagramContaRoute,
-    AuthenticatedAdminInstagramCrmRoute: AuthenticatedAdminInstagramCrmRoute,
-    AuthenticatedAdminInstagramInboxRoute:
-      AuthenticatedAdminInstagramInboxRoute,
-  }
-
-const AuthenticatedAdminInstagramRouteWithChildren =
-  AuthenticatedAdminInstagramRoute._addFileChildren(
-    AuthenticatedAdminInstagramRouteChildren,
-  )
-
-interface AuthenticatedAdminMarketingRouteChildren {
-  AuthenticatedAdminMarketingInteligenciaRoute: typeof AuthenticatedAdminMarketingInteligenciaRoute
-  AuthenticatedAdminMarketingKpisRoute: typeof AuthenticatedAdminMarketingKpisRoute
-  AuthenticatedAdminMarketingMercadoRoute: typeof AuthenticatedAdminMarketingMercadoRoute
-}
-
-const AuthenticatedAdminMarketingRouteChildren: AuthenticatedAdminMarketingRouteChildren =
-  {
-    AuthenticatedAdminMarketingInteligenciaRoute:
-      AuthenticatedAdminMarketingInteligenciaRoute,
-    AuthenticatedAdminMarketingKpisRoute: AuthenticatedAdminMarketingKpisRoute,
-    AuthenticatedAdminMarketingMercadoRoute:
-      AuthenticatedAdminMarketingMercadoRoute,
-  }
-
-const AuthenticatedAdminMarketingRouteWithChildren =
-  AuthenticatedAdminMarketingRoute._addFileChildren(
-    AuthenticatedAdminMarketingRouteChildren,
-  )
-
 interface AuthenticatedAdminProdutosRouteChildren {
   AuthenticatedAdminProdutosFaixaCalcRoute: typeof AuthenticatedAdminProdutosFaixaCalcRoute
   AuthenticatedAdminProdutosImagensRoute: typeof AuthenticatedAdminProdutosImagensRoute
@@ -5622,8 +5523,22 @@ const AuthenticatedAdminSaasRouteWithChildren =
     AuthenticatedAdminSaasRouteChildren,
   )
 
+interface AuthenticatedAdminAnunciosCampanhasRouteChildren {
+  AuthenticatedAdminAnunciosCampanhasIdRoute: typeof AuthenticatedAdminAnunciosCampanhasIdRoute
+}
+
+const AuthenticatedAdminAnunciosCampanhasRouteChildren: AuthenticatedAdminAnunciosCampanhasRouteChildren =
+  {
+    AuthenticatedAdminAnunciosCampanhasIdRoute:
+      AuthenticatedAdminAnunciosCampanhasIdRoute,
+  }
+
+const AuthenticatedAdminAnunciosCampanhasRouteWithChildren =
+  AuthenticatedAdminAnunciosCampanhasRoute._addFileChildren(
+    AuthenticatedAdminAnunciosCampanhasRouteChildren,
+  )
+
 interface AuthenticatedAdminRouteChildren {
-  AuthenticatedAdminAnunciosRoute: typeof AuthenticatedAdminAnunciosRouteWithChildren
   AuthenticatedAdminAtacadoRoute: typeof AuthenticatedAdminAtacadoRoute
   AuthenticatedAdminAtendimentoRoute: typeof AuthenticatedAdminAtendimentoRoute
   AuthenticatedAdminClientesRoute: typeof AuthenticatedAdminClientesRoute
@@ -5634,10 +5549,8 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminDashboardRoute: typeof AuthenticatedAdminDashboardRoute
   AuthenticatedAdminDojoRoute: typeof AuthenticatedAdminDojoRoute
   AuthenticatedAdminEnvioRoute: typeof AuthenticatedAdminEnvioRoute
-  AuthenticatedAdminInstagramRoute: typeof AuthenticatedAdminInstagramRouteWithChildren
   AuthenticatedAdminLogsRoute: typeof AuthenticatedAdminLogsRoute
   AuthenticatedAdminLojaRoute: typeof AuthenticatedAdminLojaRoute
-  AuthenticatedAdminMarketingRoute: typeof AuthenticatedAdminMarketingRouteWithChildren
   AuthenticatedAdminNotificacoesRoute: typeof AuthenticatedAdminNotificacoesRoute
   AuthenticatedAdminPedidosRoute: typeof AuthenticatedAdminPedidosRoute
   AuthenticatedAdminPerfilRoute: typeof AuthenticatedAdminPerfilRoute
@@ -5646,6 +5559,20 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminSaasRoute: typeof AuthenticatedAdminSaasRouteWithChildren
   AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminAnunciosAlertasRoute: typeof AuthenticatedAdminAnunciosAlertasRoute
+  AuthenticatedAdminAnunciosCampanhasRoute: typeof AuthenticatedAdminAnunciosCampanhasRouteWithChildren
+  AuthenticatedAdminAnunciosConexoesRoute: typeof AuthenticatedAdminAnunciosConexoesRoute
+  AuthenticatedAdminAnunciosCopiesRoute: typeof AuthenticatedAdminAnunciosCopiesRoute
+  AuthenticatedAdminAnunciosCriativosRoute: typeof AuthenticatedAdminAnunciosCriativosRoute
+  AuthenticatedAdminAnunciosEscalaRoute: typeof AuthenticatedAdminAnunciosEscalaRoute
+  AuthenticatedAdminAnunciosNovaRoute: typeof AuthenticatedAdminAnunciosNovaRoute
+  AuthenticatedAdminAnunciosOtimizacaoRoute: typeof AuthenticatedAdminAnunciosOtimizacaoRoute
+  AuthenticatedAdminInstagramAdminRoute: typeof AuthenticatedAdminInstagramAdminRoute
+  AuthenticatedAdminInstagramAutomacoesRoute: typeof AuthenticatedAdminInstagramAutomacoesRoute
+  AuthenticatedAdminInstagramComentariosRoute: typeof AuthenticatedAdminInstagramComentariosRoute
+  AuthenticatedAdminInstagramContaRoute: typeof AuthenticatedAdminInstagramContaRoute
+  AuthenticatedAdminInstagramCrmRoute: typeof AuthenticatedAdminInstagramCrmRoute
+  AuthenticatedAdminInstagramInboxRoute: typeof AuthenticatedAdminInstagramInboxRoute
   AuthenticatedAdminLeadsIdRoute: typeof AuthenticatedAdminLeadsIdRoute
   AuthenticatedAdminLeadsBuscaRoute: typeof AuthenticatedAdminLeadsBuscaRoute
   AuthenticatedAdminLeadsConfiguracoesRoute: typeof AuthenticatedAdminLeadsConfiguracoesRoute
@@ -5653,11 +5580,16 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminLeadsMacroRoute: typeof AuthenticatedAdminLeadsMacroRoute
   AuthenticatedAdminLeadsPipelineRoute: typeof AuthenticatedAdminLeadsPipelineRoute
   AuthenticatedAdminLeadsQualificadosRoute: typeof AuthenticatedAdminLeadsQualificadosRoute
+  AuthenticatedAdminMarketingInteligenciaRoute: typeof AuthenticatedAdminMarketingInteligenciaRoute
+  AuthenticatedAdminMarketingKpisRoute: typeof AuthenticatedAdminMarketingKpisRoute
+  AuthenticatedAdminMarketingMercadoRoute: typeof AuthenticatedAdminMarketingMercadoRoute
+  AuthenticatedAdminAnunciosIndexRoute: typeof AuthenticatedAdminAnunciosIndexRoute
+  AuthenticatedAdminInstagramIndexRoute: typeof AuthenticatedAdminInstagramIndexRoute
   AuthenticatedAdminLeadsIndexRoute: typeof AuthenticatedAdminLeadsIndexRoute
+  AuthenticatedAdminMarketingIndexRoute: typeof AuthenticatedAdminMarketingIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
-  AuthenticatedAdminAnunciosRoute: AuthenticatedAdminAnunciosRouteWithChildren,
   AuthenticatedAdminAtacadoRoute: AuthenticatedAdminAtacadoRoute,
   AuthenticatedAdminAtendimentoRoute: AuthenticatedAdminAtendimentoRoute,
   AuthenticatedAdminClientesRoute: AuthenticatedAdminClientesRoute,
@@ -5668,12 +5600,8 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminDashboardRoute: AuthenticatedAdminDashboardRoute,
   AuthenticatedAdminDojoRoute: AuthenticatedAdminDojoRoute,
   AuthenticatedAdminEnvioRoute: AuthenticatedAdminEnvioRoute,
-  AuthenticatedAdminInstagramRoute:
-    AuthenticatedAdminInstagramRouteWithChildren,
   AuthenticatedAdminLogsRoute: AuthenticatedAdminLogsRoute,
   AuthenticatedAdminLojaRoute: AuthenticatedAdminLojaRoute,
-  AuthenticatedAdminMarketingRoute:
-    AuthenticatedAdminMarketingRouteWithChildren,
   AuthenticatedAdminNotificacoesRoute: AuthenticatedAdminNotificacoesRoute,
   AuthenticatedAdminPedidosRoute: AuthenticatedAdminPedidosRoute,
   AuthenticatedAdminPerfilRoute: AuthenticatedAdminPerfilRoute,
@@ -5682,6 +5610,27 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminSaasRoute: AuthenticatedAdminSaasRouteWithChildren,
   AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedAdminAnunciosAlertasRoute:
+    AuthenticatedAdminAnunciosAlertasRoute,
+  AuthenticatedAdminAnunciosCampanhasRoute:
+    AuthenticatedAdminAnunciosCampanhasRouteWithChildren,
+  AuthenticatedAdminAnunciosConexoesRoute:
+    AuthenticatedAdminAnunciosConexoesRoute,
+  AuthenticatedAdminAnunciosCopiesRoute: AuthenticatedAdminAnunciosCopiesRoute,
+  AuthenticatedAdminAnunciosCriativosRoute:
+    AuthenticatedAdminAnunciosCriativosRoute,
+  AuthenticatedAdminAnunciosEscalaRoute: AuthenticatedAdminAnunciosEscalaRoute,
+  AuthenticatedAdminAnunciosNovaRoute: AuthenticatedAdminAnunciosNovaRoute,
+  AuthenticatedAdminAnunciosOtimizacaoRoute:
+    AuthenticatedAdminAnunciosOtimizacaoRoute,
+  AuthenticatedAdminInstagramAdminRoute: AuthenticatedAdminInstagramAdminRoute,
+  AuthenticatedAdminInstagramAutomacoesRoute:
+    AuthenticatedAdminInstagramAutomacoesRoute,
+  AuthenticatedAdminInstagramComentariosRoute:
+    AuthenticatedAdminInstagramComentariosRoute,
+  AuthenticatedAdminInstagramContaRoute: AuthenticatedAdminInstagramContaRoute,
+  AuthenticatedAdminInstagramCrmRoute: AuthenticatedAdminInstagramCrmRoute,
+  AuthenticatedAdminInstagramInboxRoute: AuthenticatedAdminInstagramInboxRoute,
   AuthenticatedAdminLeadsIdRoute: AuthenticatedAdminLeadsIdRoute,
   AuthenticatedAdminLeadsBuscaRoute: AuthenticatedAdminLeadsBuscaRoute,
   AuthenticatedAdminLeadsConfiguracoesRoute:
@@ -5691,7 +5640,15 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminLeadsPipelineRoute: AuthenticatedAdminLeadsPipelineRoute,
   AuthenticatedAdminLeadsQualificadosRoute:
     AuthenticatedAdminLeadsQualificadosRoute,
+  AuthenticatedAdminMarketingInteligenciaRoute:
+    AuthenticatedAdminMarketingInteligenciaRoute,
+  AuthenticatedAdminMarketingKpisRoute: AuthenticatedAdminMarketingKpisRoute,
+  AuthenticatedAdminMarketingMercadoRoute:
+    AuthenticatedAdminMarketingMercadoRoute,
+  AuthenticatedAdminAnunciosIndexRoute: AuthenticatedAdminAnunciosIndexRoute,
+  AuthenticatedAdminInstagramIndexRoute: AuthenticatedAdminInstagramIndexRoute,
   AuthenticatedAdminLeadsIndexRoute: AuthenticatedAdminLeadsIndexRoute,
+  AuthenticatedAdminMarketingIndexRoute: AuthenticatedAdminMarketingIndexRoute,
 }
 
 const AuthenticatedAdminRouteWithChildren =

@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { growthService } from "@/services/growthService";
 
-export const Route = createFileRoute("/_authenticated/admin/marketing")({
+export const Route = createFileRoute("/_authenticated/admin/marketing/")({
   head: () => ({ meta: [{ title: "Insights IA — AMT Growth" }] }),
   component: () => (<OwnerOnly><InsightsPage /></OwnerOnly>),
 });
