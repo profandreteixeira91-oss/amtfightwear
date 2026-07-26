@@ -131,29 +131,43 @@ export const sendReminderNow = createServerFn({ method: "POST" })
     const { data: inv, error: invErr } = await context.supabase
       .from("dojo_invoices")
       .select(
-        "id, owner_id, description, amount, due_date, status, payment_link, asaas_invoice_url, asaas_pix_copypaste, student:dojo_students(full_name, email)",
+        "id, owner_id, description, amount, due_date, status, payment_link, asaas_invoice_url, asaas_pix_copypaste, student:dojo_students(id, full_name, email)",
       )
       .eq("id", data.invoiceId)
       .maybeSingle();
     if (invErr || !inv) throw new Error("Fatura não encontrada");
     if ((inv as any).owner_id !== context.userId)
       throw new Error("Sem permissão");
-    const { dispatchInvoiceReminder } = await import(
+    const { dispatchInvoiceReminder, dispatchInvoicePushReminder } = await import(
       "./payments/reminder-dispatcher.server"
     );
     const { supabaseAdmin } = await import(
       "@/integrations/supabase/client.server"
     );
+    // Descobre canais habilitados para escolher o que disparar manualmente
+    const settingsRow = await ensureSettings(context.supabase, context.userId);
+    const settings = readReminderSettings(settingsRow);
+
     // offset dinâmico = hoje - vencimento
     const today = new Date();
     const due = new Date(`${(inv as any).due_date}T00:00:00Z`);
     const diff = Math.round(
       (today.getTime() - due.getTime()) / (1000 * 60 * 60 * 24),
     );
-    const result = await dispatchInvoiceReminder(supabaseAdmin as any, {
-      invoice: inv as any,
-      offsetDays: diff,
-      manual: true,
-    });
-    return result;
+    const results: Record<string, any> = {};
+    if (settings.channels.email) {
+      results.email = await dispatchInvoiceReminder(supabaseAdmin as any, {
+        invoice: inv as any,
+        offsetDays: diff,
+        manual: true,
+      });
+    }
+    if (settings.channels.push) {
+      results.push = await dispatchInvoicePushReminder(supabaseAdmin as any, {
+        invoice: inv as any,
+        offsetDays: diff,
+        manual: true,
+      });
+    }
+    return results;
   });
