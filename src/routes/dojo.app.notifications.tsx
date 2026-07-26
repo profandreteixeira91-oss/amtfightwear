@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { DojoPushCard } from "@/components/dojo/DojoPushCard";
+import { InstallAppCard } from "@/components/dojo/InstallAppCard";
 
 export const Route = createFileRoute("/dojo/app/notifications")({
   head: () => ({
