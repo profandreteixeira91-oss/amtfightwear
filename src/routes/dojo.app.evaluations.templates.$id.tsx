@@ -372,12 +372,36 @@ function TemplateEditor() {
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
             <CardTitle className="text-base">Estrutura da avaliação</CardTitle>
-            <Button size="sm" variant="outline" onClick={addCategory}>
-              <Plus className="h-3.5 w-3.5 mr-1" /> Categoria
-            </Button>
+            <div className="flex items-center gap-2 flex-wrap">
+              {libCats.length > 0 && (
+                <select
+                  className="border rounded p-2 bg-background text-sm"
+                  value=""
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      addCategoryFromLibrary(e.target.value);
+                      e.currentTarget.value = "";
+                    }
+                  }}
+                >
+                  <option value="">+ Da biblioteca…</option>
+                  {libCats.filter((c) => !c.archived).map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+              )}
+              <Button size="sm" variant="outline" onClick={addCategory}>
+                <Plus className="h-3.5 w-3.5 mr-1" /> Categoria
+              </Button>
+            </div>
           </div>
+          {libCats.length === 0 && (
+            <p className="text-xs text-muted-foreground mt-1">
+              Cadastre categorias e técnicas em Avaliações → Biblioteca para importar aqui.
+            </p>
+          )}
         </CardHeader>
         <CardContent className="space-y-3">
           {cats.length === 0 && (
