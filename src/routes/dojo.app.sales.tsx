@@ -436,7 +436,7 @@ function NewSaleDialog({
   };
 
   return (
-    <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden flex flex-col p-0">
+    <DialogContent className="w-[calc(100vw-1rem)] max-w-3xl max-h-[90vh] overflow-hidden flex flex-col p-0">
       <DialogHeader className="px-6 pt-6">
         <DialogTitle>Nova venda</DialogTitle>
       </DialogHeader>
