@@ -549,7 +549,7 @@ function TemplatePickerDialog({
   };
 
   return (
-    <DialogContent className="max-w-3xl">
+    <DialogContent className="w-[calc(100vw-1rem)] max-w-3xl">
       <DialogHeader>
         <DialogTitle>Aplicar modelo salvo</DialogTitle>
       </DialogHeader>
