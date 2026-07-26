@@ -1,7 +1,7 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   listEvalSessions, listEvalTemplates, createEvalSession, deleteEvalSession,
 } from "@/lib/dojo/evaluations.functions";
@@ -17,6 +17,7 @@ import { Plus, Play, Trash2, Search } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/dojo/app/evaluations/sessions/")({
+  validateSearch: (s: Record<string, unknown>) => ({ new: s.new ? 1 : undefined }) as { new?: 1 },
   component: SessionsList,
 });
 
@@ -58,6 +59,13 @@ function SessionsList() {
   const [status, setStatus] = useState("all");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [newSess, setNewSess] = useState({ template_id: "", student_id: "" });
+  const search = useSearch({ from: "/dojo/app/evaluations/sessions/" });
+  useEffect(() => {
+    if (search?.new) {
+      setDialogOpen(true);
+      nav({ to: "/dojo/app/evaluations/sessions", search: {} as never, replace: true });
+    }
+  }, [search?.new]);
 
   const filtered = useMemo(() => {
     const rows = data ?? [];

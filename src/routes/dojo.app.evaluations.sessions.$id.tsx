@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { ArrowLeft, Save, CheckCircle2, XCircle, RotateCcw } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, XCircle, RotateCcw, Plus } from "lucide-react";
 
 export const Route = createFileRoute("/dojo/app/evaluations/sessions/$id")({
   component: SessionRunner,
@@ -232,7 +232,7 @@ function SessionRunner() {
       {!isDone ? (
         <Card>
           <CardContent className="p-4 flex flex-wrap gap-2 justify-end">
-            <Button variant="outline" onClick={() => finish("review")}><RotateCcw className="h-4 w-4 mr-1" /> Nova avaliação</Button>
+            <Button variant="outline" onClick={() => finish("review")}><RotateCcw className="h-4 w-4 mr-1" /> Marcar para revisão</Button>
             <Button variant="outline" onClick={() => finish("conditional")}>Aprovar c/ ressalvas</Button>
             <Button variant="destructive" onClick={() => finish("failed")}><XCircle className="h-4 w-4 mr-1" /> Reprovar</Button>
             <Button onClick={() => finish("approved")}><CheckCircle2 className="h-4 w-4 mr-1" /> Aprovar</Button>
@@ -243,16 +243,23 @@ function SessionRunner() {
           <CardContent className="p-4 text-center space-y-3">
             <div className="text-lg font-semibold">Avaliação concluída</div>
             <div className="text-sm text-muted-foreground">Resultado: {sess.result}</div>
-            {sess.result === "approved" && student?.id && (
-              <Link
-                to="/dojo/app/graduations"
-                search={{ student: student.id, session: id } as never}
-              >
-                <Button className="mt-2">
-                  <CheckCircle2 className="h-4 w-4 mr-1" /> Registrar graduação e pagamento
+            <div className="flex flex-wrap gap-2 justify-center pt-2">
+              <Link to="/dojo/app/evaluations/sessions" search={{ new: 1 } as never}>
+                <Button variant="outline">
+                  <Plus className="h-4 w-4 mr-1" /> Nova avaliação
                 </Button>
               </Link>
-            )}
+              {sess.result === "approved" && student?.id && (
+                <Link
+                  to="/dojo/app/graduations"
+                  search={{ student: student.id, session: id } as never}
+                >
+                  <Button>
+                    <CheckCircle2 className="h-4 w-4 mr-1" /> Registrar graduação e pagamento
+                  </Button>
+                </Link>
+              )}
+            </div>
           </CardContent>
         </Card>
       )}
