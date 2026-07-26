@@ -203,10 +203,6 @@ function TemplateEditor() {
               <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
             </div>
             <div>
-              <Label>Modalidade</Label>
-              <Input value={form.modality} onChange={(e) => setForm({ ...form, modality: e.target.value })} placeholder="Ex.: jiu-jitsu-adulto" />
-            </div>
-            <div>
               <Label>Categoria</Label>
               <Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="Ex.: adulto" />
             </div>
