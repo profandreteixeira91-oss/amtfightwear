@@ -172,11 +172,11 @@ function SalesTab({
       </div>
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0">
-          <CardTitle>Vendas</CardTitle>
+        <CardHeader className="flex flex-col gap-2 space-y-0 sm:flex-row sm:items-center sm:justify-between">
+          <CardTitle className="min-w-0 truncate">Vendas</CardTitle>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button size="sm">
+              <Button size="sm" className="w-full sm:w-auto">
                 <Plus className="mr-2 h-4 w-4" /> Nova venda
               </Button>
             </DialogTrigger>
@@ -190,12 +190,13 @@ function SalesTab({
             />
           </Dialog>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-2 sm:px-6">
           {sales.length === 0 ? (
             <p className="py-8 text-center text-sm text-muted-foreground">
               Nenhuma venda registrada ainda. Clique em "Nova venda" para começar.
             </p>
           ) : (
+            <div className="-mx-2 overflow-x-auto sm:mx-0">
             <Table>
               <TableHeader>
                 <TableRow>
