@@ -590,7 +590,7 @@ function LessonEditorPage() {
 function SaveTemplateDialog({ defaultName, onSave }: { defaultName: string; onSave: (name: string) => void }) {
   const [name, setName] = useState(defaultName || "Novo modelo");
   return (
-    <DialogContent>
+    <DialogContent className="w-[calc(100vw-1rem)] max-w-lg">
       <DialogHeader>
         <DialogTitle>Salvar como modelo</DialogTitle>
       </DialogHeader>
