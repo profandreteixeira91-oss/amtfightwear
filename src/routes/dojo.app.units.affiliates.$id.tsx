@@ -225,7 +225,7 @@ function FinanceTab({ affiliate }: { affiliate: any }) {
           <DialogTrigger asChild>
             <Button className="gap-2"><Plus className="h-4 w-4" /> Nova cobrança</Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="w-[calc(100vw-1rem)] max-w-lg max-h-[92vh] overflow-y-auto">
             <DialogHeader><DialogTitle>Cobrança de filiação</DialogTitle></DialogHeader>
             <div className="space-y-3">
               <div className="space-y-1">

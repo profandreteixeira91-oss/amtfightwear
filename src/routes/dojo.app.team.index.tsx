@@ -202,7 +202,7 @@ function TeamPage() {
           <Plus className="mr-2 h-4 w-4" /> Novo Colaborador
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+      <DialogContent className="w-[calc(100vw-1rem)] max-w-2xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Novo colaborador</DialogTitle>
         </DialogHeader>

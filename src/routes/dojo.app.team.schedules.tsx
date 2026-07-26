@@ -408,7 +408,7 @@ function SchedulesPage() {
 
       {/* Substitution Dialog */}
       <Dialog open={!!substOcc} onOpenChange={(v) => !v && setSubstOcc(null)}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="w-[calc(100vw-1rem)] max-w-lg">
           <DialogHeader>
             <DialogTitle>Substituir Professor</DialogTitle>
           </DialogHeader>

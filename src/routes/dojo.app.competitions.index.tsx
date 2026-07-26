@@ -662,7 +662,7 @@ function NewCompetitionDialog({ onCreated }: { onCreated: () => void }) {
           <Plus className="mr-1 h-3 w-3" /> Nova competição
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+      <DialogContent className="w-[calc(100vw-1rem)] max-h-[90vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Cadastrar competição manualmente</DialogTitle>
         </DialogHeader>

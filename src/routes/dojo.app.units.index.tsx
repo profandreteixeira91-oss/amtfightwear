@@ -211,7 +211,7 @@ function OwnUnitsPanel() {
 function UnitDialog({ form, setForm, onSave }: { form: any; setForm: (f: any) => void; onSave: () => void }) {
   const set = (k: string, v: any) => setForm({ ...form, [k]: v });
   return (
-    <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+    <DialogContent className="w-[calc(100vw-1rem)] max-w-3xl max-h-[85vh] overflow-y-auto">
       <DialogHeader>
         <DialogTitle>{form.id ? "Editar unidade" : "Nova unidade"}</DialogTitle>
       </DialogHeader>
@@ -441,7 +441,7 @@ function AffiliateDialog({ form, setForm, onSave }: { form: any; setForm: (f: an
   const setTeacher = (k: string, v: any) => setForm({ ...form, teacher: { ...(form.teacher ?? {}), [k]: v } });
   const t = form.teacher ?? {};
   return (
-    <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+    <DialogContent className="w-[calc(100vw-1rem)] max-w-3xl max-h-[85vh] overflow-y-auto">
       <DialogHeader>
         <DialogTitle>{form.id ? "Editar filial" : "Nova filial"}</DialogTitle>
       </DialogHeader>
