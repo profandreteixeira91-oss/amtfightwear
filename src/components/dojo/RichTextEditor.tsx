@@ -11,7 +11,7 @@ import {
   AlignLeft, AlignCenter, AlignRight, AlignJustify,
   List, ListOrdered,
   Undo, Redo, Link2, Image as ImageIcon, Upload, Braces, Table as TableIcon,
-  Minus, Type,
+  Minus, Type, Trash2,
 } from "lucide-react";
 import { CONTRACT_VARIABLE_MENU } from "@/lib/dojo/contracts-variables";
 
