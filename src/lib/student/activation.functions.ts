@@ -4,25 +4,34 @@ import { z } from "zod";
 const EmailSchema = z.object({ email: z.string().trim().email().toLowerCase() });
 
 /**
- * Verifica se o e-mail está cadastrado em dojo_students e se o aluno
- * já possui usuário de autenticação vinculado (activated=true).
- * Endpoint público — retorna apenas booleanos, sem PII.
+ * Verifica se o e-mail está cadastrado em dojo_students.
+ * Retorna somente booleanos — sem PII, sem revelar em qual dojo.
+ *
+ * Regras multi-dojo:
+ *  - "activated" = QUALQUER registro com o e-mail já possui user_id vinculado
+ *    (o aluno já criou senha no Supabase Auth, único por e-mail).
+ *  - "blocked" = TODOS os registros com o e-mail estão em status não elegível.
  */
 export const checkStudentAccess = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => EmailSchema.parse(input))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: student } = await supabaseAdmin
+    const { data: rows, error } = await supabaseAdmin
       .from("dojo_students")
       .select("id, user_id, status")
-      .ilike("email", data.email)
-      .maybeSingle();
-    if (!student) return { exists: false as const, activated: false as const, blocked: false as const };
-    const blocked = student.status && !["active", "trial", "invited"].includes(student.status);
+      .ilike("email", data.email);
+    if (error) throw new Error(error.message);
+    const list = rows ?? [];
+    if (list.length === 0) {
+      return { exists: false as const, activated: false as const, blocked: false as const };
+    }
+    const eligible = list.filter((r) =>
+      !r.status || ["active", "trial", "invited"].includes(r.status as string),
+    );
     return {
       exists: true as const,
-      activated: !!student.user_id,
-      blocked: !!blocked,
+      activated: list.some((r) => !!r.user_id),
+      blocked: eligible.length === 0,
     };
   });
 
@@ -32,53 +41,80 @@ const ActivateSchema = z.object({
 });
 
 /**
- * Primeiro acesso: cria o usuário de autenticação (email/senha) e
- * vincula ao dojo_students.user_id. Só funciona se o aluno existir
- * e ainda não tiver user_id.
+ * Primeiro acesso: cria o usuário no Auth (email/senha) e vincula ao
+ * dojo_students.user_id. Um usuário Auth é único por e-mail (Supabase).
+ *
+ * Se o mesmo e-mail existir em mais de um dojo (pessoa realmente inscrita em
+ * academias distintas), TODAS as inscrições elegíveis daquele e-mail que ainda
+ * não foram vinculadas passam a apontar para o mesmo user_id — isso NÃO cruza
+ * dados: as RLS em cada tabela filtram por `owner_id` do dono do dojo e por
+ * `user_id`/`get_my_student_id()` do próprio aluno, e as consultas do app
+ * usam `.limit(1)` sobre a linha do aluno correspondente. Cada dojo continua
+ * enxergando apenas seus próprios alunos e o aluno vê apenas seu registro.
  */
 export const activateStudentAccount = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => ActivateSchema.parse(input))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data: student, error: sErr } = await supabaseAdmin
+    const { data: rows, error: sErr } = await supabaseAdmin
       .from("dojo_students")
-      .select("id, user_id, full_name, email, owner_id")
+      .select("id, user_id, full_name, email, owner_id, status, created_at")
       .ilike("email", data.email)
-      .maybeSingle();
+      .order("created_at", { ascending: false });
     if (sErr) throw new Error(sErr.message);
-    if (!student) throw new Error("E-mail não cadastrado. Fale com sua academia.");
-    if (student.user_id) throw new Error("Este aluno já criou uma senha. Faça login normalmente.");
+    if (!rows || rows.length === 0) {
+      throw new Error("E-mail não cadastrado. Fale com sua academia.");
+    }
 
-    // Cria o usuário no Auth já confirmado (dono da academia já validou o cadastro).
+    const eligible = rows.filter((r) =>
+      !r.status || ["active", "trial", "invited"].includes(r.status as string),
+    );
+    if (eligible.length === 0) {
+      throw new Error("Sua matrícula está inativa. Fale com sua academia.");
+    }
+    if (eligible.every((r) => !!r.user_id)) {
+      throw new Error("Este e-mail já criou uma senha. Faça login normalmente.");
+    }
+
+    const primary = eligible[0];
+
+    // Cria (ou reaproveita) o usuário no Auth. E-mail é único no Supabase Auth.
+    let userId: string | null = null;
     const { data: created, error: cErr } = await supabaseAdmin.auth.admin.createUser({
       email: data.email,
       password: data.password,
       email_confirm: true,
-      user_metadata: { full_name: student.full_name, dojo_student_id: student.id },
+      user_metadata: { full_name: primary.full_name, dojo_student_id: primary.id },
     });
-    if (cErr || !created.user) {
-      // Se já existe usuário auth mas não estava vinculado, tenta vincular.
-      if (cErr?.message?.toLowerCase().includes("already")) {
-        const { data: list } = await supabaseAdmin.auth.admin.listUsers();
-        const existing = list.users.find((u) => u.email?.toLowerCase() === data.email);
-        if (!existing) throw new Error(cErr.message);
-        // Atualiza a senha do usuário existente
-        await supabaseAdmin.auth.admin.updateUserById(existing.id, {
-          password: data.password,
-          email_confirm: true,
-        });
-        await supabaseAdmin.from("dojo_students").update({ user_id: existing.id }).eq("id", student.id);
-        return { ok: true as const };
-      }
-      throw new Error(cErr?.message ?? "Falha ao criar conta");
+
+    if (cErr || !created?.user) {
+      const already = cErr?.message?.toLowerCase().includes("already");
+      if (!already) throw new Error(cErr?.message ?? "Falha ao criar acesso");
+
+      // Localiza o usuário existente e redefine a senha (dono do dojo já validou).
+      const { data: list } = await supabaseAdmin.auth.admin.listUsers();
+      const existing = list.users.find((u) => u.email?.toLowerCase() === data.email);
+      if (!existing) throw new Error("Falha ao localizar usuário existente");
+      await supabaseAdmin.auth.admin.updateUserById(existing.id, {
+        password: data.password,
+        email_confirm: true,
+      });
+      userId = existing.id;
+    } else {
+      userId = created.user.id;
     }
 
-    const { error: linkErr } = await supabaseAdmin
-      .from("dojo_students")
-      .update({ user_id: created.user.id })
-      .eq("id", student.id);
-    if (linkErr) throw new Error(linkErr.message);
+    // Vincula user_id a todas as matrículas elegíveis com esse e-mail que
+    // ainda não tinham vínculo. Não sobrescreve vínculos existentes.
+    const toLinkIds = eligible.filter((r) => !r.user_id).map((r) => r.id);
+    if (toLinkIds.length > 0) {
+      const { error: linkErr } = await supabaseAdmin
+        .from("dojo_students")
+        .update({ user_id: userId })
+        .in("id", toLinkIds);
+      if (linkErr) throw new Error(linkErr.message);
+    }
 
     return { ok: true as const };
   });
