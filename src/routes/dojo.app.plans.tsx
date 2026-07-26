@@ -112,6 +112,39 @@ function PlansPage() {
   const plans = useQuery({ queryKey: ["dojo-plans"], queryFn: () => listFn() });
   const units = useQuery({ queryKey: ["dojo-units"], queryFn: () => unitsFn() });
 
+  // ---- Cobrança nativa (PIX / Link fixo) ----
+  const getNbFn = useServerFn(getNativeBillingConfig);
+  const saveNbFn = useServerFn(saveNativeBillingConfig);
+  const nativeCfg = useQuery({
+    queryKey: ["dojo", "native-billing"],
+    queryFn: () => getNbFn(),
+  });
+  const [nb, setNb] = useState<NativeBillingConfig>(DEFAULT_NATIVE_BILLING);
+  const [nbDirty, setNbDirty] = useState(false);
+  const [nbSaving, setNbSaving] = useState(false);
+  useEffect(() => {
+    if (nativeCfg.data) {
+      setNb(nativeCfg.data as NativeBillingConfig);
+      setNbDirty(false);
+    }
+  }, [nativeCfg.data]);
+  const patchNb = (partial: Partial<NativeBillingConfig>) => {
+    setNb((s) => ({ ...s, ...partial }));
+    setNbDirty(true);
+  };
+  const saveNb = async () => {
+    try {
+      setNbSaving(true);
+      await saveNbFn({ data: nb });
+      toast.success("Cobrança nativa atualizada");
+      await qc.invalidateQueries({ queryKey: ["dojo", "native-billing"] });
+      setNbDirty(false);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Erro ao salvar");
+    } finally {
+      setNbSaving(false);
+    }
+  };
 
   const [selectedId, setSelectedId] = useState<string | "new" | null>(null);
   const [form, setForm] = useState<PlanForm>(emptyForm);
