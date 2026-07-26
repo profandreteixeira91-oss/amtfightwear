@@ -600,6 +600,7 @@ function StoreDashboard() {
             <IntegrationCard label="WhatsApp" status="pending" />
           </CardContent>
         </Card>
+        </div>
       </div>
     </div>
   );
