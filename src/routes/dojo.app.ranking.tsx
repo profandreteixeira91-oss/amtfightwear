@@ -79,34 +79,34 @@ function RankingPage() {
   };
 
   return (
-    <div className="space-y-6 p-4 md:p-6">
+    <div className="space-y-4 p-3 sm:space-y-6 sm:p-4 md:p-6">
       {/* ===== HERO ===== */}
-      <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-neutral-950 text-white shadow-[0_30px_80px_-40px_rgba(220,38,38,0.65)]">
+      <section className="relative overflow-hidden rounded-2xl border border-white/10 bg-neutral-950 text-white shadow-[0_30px_80px_-40px_rgba(220,38,38,0.65)] sm:rounded-3xl">
         <div aria-hidden className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-red-600/25 blur-3xl" />
         <div aria-hidden className="pointer-events-none absolute -right-24 top-10 h-72 w-72 rounded-full bg-amber-500/15 blur-3xl" />
         <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(255,255,255,0.06),transparent_40%)]" />
 
-        <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 p-5 sm:p-7 md:grid-cols-[minmax(0,1fr)_minmax(0,auto)]">
-          <div className="flex min-w-0 items-start gap-4">
-            <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-amber-400 via-red-500 to-red-700 text-white shadow-[0_10px_25px_-10px_rgba(220,38,38,0.9)] ring-1 ring-white/20">
-              <Trophy className="h-6 w-6" />
+        <div className="relative flex flex-col gap-5 p-4 sm:p-6 md:grid md:grid-cols-[minmax(0,1fr)_minmax(0,auto)] md:items-start md:gap-4 md:p-7">
+          <div className="flex min-w-0 items-start gap-3 sm:gap-4">
+            <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-amber-400 via-red-500 to-red-700 text-white shadow-[0_10px_25px_-10px_rgba(220,38,38,0.9)] ring-1 ring-white/20 sm:h-14 sm:w-14">
+              <Trophy className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-red-200 backdrop-blur">
                 <Flame className="h-3 w-3" /> Ranking
               </div>
-              <h1 className="mt-2 font-display text-2xl font-black leading-tight tracking-tight sm:text-3xl md:text-4xl">
+              <h1 className="mt-2 font-display text-xl font-black leading-tight tracking-tight sm:text-3xl md:text-4xl">
                 Quem está mais firme no tatame?
               </h1>
-              <p className="mt-1 max-w-xl text-sm text-neutral-300">
-                Classificação por check-ins realizados. Selecione a turma e o período para ver o pódio.
+              <p className="mt-1 max-w-xl text-[13px] text-neutral-300 sm:text-sm">
+                Classificação por check-ins. Selecione a turma e o período.
               </p>
 
               {activeClass && (
                 <div className="mt-3 flex flex-wrap items-center gap-1.5 text-[11px]">
                   <HeroChip>
                     <span className="mr-1 inline-block h-2 w-2 rounded-full" style={{ background: activeClass.color || "#dc2626" }} />
-                    {activeClass.name}
+                    <span className="max-w-[140px] truncate sm:max-w-none">{activeClass.name}</span>
                   </HeroChip>
                   {activeClass.modality && <HeroChip>{activeClass.modality}</HeroChip>}
                   <HeroChip icon={TrendingUp}>{periodLabel[period]}</HeroChip>
@@ -121,7 +121,7 @@ function RankingPage() {
               onValueChange={(v) => setClassId(v)}
               disabled={classesQ.isLoading || classes.length === 0}
             >
-              <SelectTrigger className="w-full border-white/15 bg-white/5 text-white backdrop-blur hover:bg-white/10 md:w-[280px]">
+              <SelectTrigger className="h-11 w-full border-white/15 bg-white/5 text-white backdrop-blur hover:bg-white/10 md:h-10 md:w-[280px]">
                 <SelectValue placeholder={classesQ.isLoading ? "Carregando turmas…" : "Selecione a turma"} />
               </SelectTrigger>
               <SelectContent>
@@ -137,12 +137,12 @@ function RankingPage() {
               </SelectContent>
             </Select>
 
-            <Tabs value={period} onValueChange={(v) => setPeriod(v as Period)}>
-              <TabsList className="w-full border border-white/15 bg-white/5 text-white backdrop-blur md:w-auto">
-                <TabsTrigger value="all" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">Total</TabsTrigger>
-                <TabsTrigger value="year" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">Ano</TabsTrigger>
-                <TabsTrigger value="month" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">Mês</TabsTrigger>
-                <TabsTrigger value="week" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">Semana</TabsTrigger>
+            <Tabs value={period} onValueChange={(v) => setPeriod(v as Period)} className="w-full md:w-auto">
+              <TabsList className="grid h-11 w-full grid-cols-4 border border-white/15 bg-white/5 p-1 text-white backdrop-blur md:flex md:h-10 md:w-auto">
+                <TabsTrigger value="all" className="text-xs data-[state=active]:bg-red-600 data-[state=active]:text-white sm:text-sm">Total</TabsTrigger>
+                <TabsTrigger value="year" className="text-xs data-[state=active]:bg-red-600 data-[state=active]:text-white sm:text-sm">Ano</TabsTrigger>
+                <TabsTrigger value="month" className="text-xs data-[state=active]:bg-red-600 data-[state=active]:text-white sm:text-sm">Mês</TabsTrigger>
+                <TabsTrigger value="week" className="text-xs data-[state=active]:bg-red-600 data-[state=active]:text-white sm:text-sm">Semana</TabsTrigger>
               </TabsList>
             </Tabs>
           </div>
@@ -184,10 +184,10 @@ function RankingPage() {
 
       {/* ===== PÓDIO ===== */}
       {podium.length > 0 && (
-        <div className="grid gap-3 md:grid-cols-3">
-          {[1, 0, 2].map((order, i) => {
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          {[0, 1, 2].map((order, i) => {
             const p = podium[order];
-            if (!p) return <div key={i} className="hidden md:block" />;
+            if (!p) return <div key={i} className="hidden sm:block" />;
             const medalRank = Math.min(p.rank, 3);
             const stylesByRank = [
               {
@@ -199,6 +199,7 @@ function RankingPage() {
                 gradient: "from-amber-400 via-amber-500 to-yellow-600",
                 medal: "🥇",
                 label: "1º LUGAR",
+                mdOrder: "sm:order-2 sm:-translate-y-3 sm:scale-[1.03]",
               },
               {
                 border: "border-slate-300/70",
@@ -209,6 +210,7 @@ function RankingPage() {
                 gradient: "from-slate-300 via-slate-400 to-slate-500",
                 medal: "🥈",
                 label: "2º LUGAR",
+                mdOrder: "sm:order-1",
               },
               {
                 border: "border-orange-300/70",
@@ -219,31 +221,33 @@ function RankingPage() {
                 gradient: "from-orange-400 via-orange-500 to-amber-700",
                 medal: "🥉",
                 label: "3º LUGAR",
+                mdOrder: "sm:order-3",
               },
             ];
             const s = stylesByRank[medalRank - 1];
-            const raised = order === 0 ? "md:-translate-y-3 md:scale-[1.03]" : "";
             return (
               <Card
                 key={p.id}
-                className={`relative overflow-hidden border-2 transition-all ${s.border} ${s.bg} ${s.glow} ${raised}`}
+                className={`relative overflow-hidden border-2 transition-all ${s.border} ${s.bg} ${s.glow} ${s.mdOrder}`}
               >
                 <div aria-hidden className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${s.gradient}`} />
                 <div aria-hidden className={`pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-gradient-to-br ${s.gradient} opacity-20 blur-2xl`} />
-                <CardContent className="relative flex flex-col items-center gap-3 py-7 text-center">
-                  <div className="text-4xl leading-none drop-shadow">{s.medal}</div>
-                  <div className={`rounded-full ${s.ring}`}>
-                    <Avatar url={p.photo_url} name={p.full_name} size={72} />
+                <CardContent className="relative flex flex-row items-center gap-4 py-4 text-left sm:flex-col sm:gap-3 sm:py-7 sm:text-center">
+                  <div className="shrink-0 text-3xl leading-none drop-shadow sm:text-4xl">{s.medal}</div>
+                  <div className={`shrink-0 rounded-full ${s.ring}`}>
+                    <Avatar url={p.photo_url} name={p.full_name} size={56} />
                   </div>
-                  <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-[0.14em] ${s.chip}`}>
-                    {s.label}
-                  </span>
-                  <div className="line-clamp-1 max-w-[220px] text-sm font-semibold">{p.full_name}</div>
-                  <div className="flex items-baseline gap-1.5">
-                    <div className={`bg-gradient-to-br bg-clip-text font-display text-4xl font-black leading-none text-transparent ${s.gradient}`}>
-                      {p.count}
+                  <div className="flex min-w-0 flex-1 flex-col gap-1 sm:items-center sm:gap-2">
+                    <span className={`inline-flex w-fit items-center rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.14em] ${s.chip} sm:text-[10px]`}>
+                      {s.label}
+                    </span>
+                    <div className="line-clamp-1 max-w-full text-sm font-semibold">{p.full_name}</div>
+                    <div className="flex items-baseline gap-1.5">
+                      <div className={`bg-gradient-to-br bg-clip-text font-display text-2xl font-black leading-none text-transparent sm:text-4xl ${s.gradient}`}>
+                        {p.count}
+                      </div>
+                      <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground sm:text-[11px]">check-ins</div>
                     </div>
-                    <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">check-ins</div>
                   </div>
                 </CardContent>
               </Card>
@@ -257,18 +261,18 @@ function RankingPage() {
         <div aria-hidden className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-red-500 via-red-400 to-amber-400" />
         <div aria-hidden className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full bg-red-500/10 blur-3xl" />
 
-        <div className="relative flex items-center justify-between border-b border-neutral-200/70 px-5 py-4 dark:border-white/10">
-          <div className="flex items-center gap-2">
-            <div className="grid h-8 w-8 place-items-center rounded-xl bg-red-600/10 text-red-600 dark:text-red-400">
+        <div className="relative flex items-center justify-between gap-2 border-b border-neutral-200/70 px-4 py-3 dark:border-white/10 sm:px-5 sm:py-4">
+          <div className="flex min-w-0 items-center gap-2">
+            <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-red-600/10 text-red-600 dark:text-red-400">
               <TrendingUp className="h-4 w-4" />
             </div>
-            <div>
-              <div className="text-sm font-bold">Classificação completa</div>
-              <div className="text-[11px] text-muted-foreground">{periodLabel[period]}</div>
+            <div className="min-w-0">
+              <div className="truncate text-sm font-bold">Classificação completa</div>
+              <div className="truncate text-[11px] text-muted-foreground">{periodLabel[period]}</div>
             </div>
           </div>
           {rows.length > 0 && (
-            <span className="rounded-full border border-neutral-200/70 bg-neutral-50 px-2.5 py-0.5 text-[11px] font-semibold text-neutral-600 dark:border-white/10 dark:bg-white/5 dark:text-neutral-300">
+            <span className="shrink-0 rounded-full border border-neutral-200/70 bg-neutral-50 px-2.5 py-0.5 text-[11px] font-semibold text-neutral-600 dark:border-white/10 dark:bg-white/5 dark:text-neutral-300">
               {rows.length} {rows.length === 1 ? "aluno" : "alunos"}
             </span>
           )}
@@ -297,25 +301,27 @@ function RankingPage() {
                 return (
                   <li
                     key={r.id}
-                    className={`group grid grid-cols-[52px_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 transition-colors hover:bg-neutral-50 dark:hover:bg-white/5 sm:px-5 ${
+                    className={`group grid grid-cols-[40px_minmax(0,1fr)_auto] items-center gap-2.5 px-3 py-3 transition-colors hover:bg-neutral-50 dark:hover:bg-white/5 sm:grid-cols-[52px_minmax(0,1fr)_auto] sm:gap-3 sm:px-5 ${
                       isTop ? "bg-gradient-to-r from-red-50/40 via-transparent to-transparent dark:from-red-950/20" : ""
                     }`}
                   >
                     <div className="flex items-center justify-center">
                       {r.rank <= 3 ? (
-                        <span className="text-2xl leading-none drop-shadow">{r.rank === 1 ? "🥇" : r.rank === 2 ? "🥈" : "🥉"}</span>
+                        <span className="text-xl leading-none drop-shadow sm:text-2xl">{r.rank === 1 ? "🥇" : r.rank === 2 ? "🥈" : "🥉"}</span>
                       ) : (
-                        <span className="grid h-8 w-8 place-items-center rounded-full border border-neutral-200/70 bg-neutral-50 text-xs font-bold text-neutral-600 dark:border-white/10 dark:bg-white/5 dark:text-neutral-300">
+                        <span className="grid h-7 w-7 place-items-center rounded-full border border-neutral-200/70 bg-neutral-50 text-xs font-bold text-neutral-600 dark:border-white/10 dark:bg-white/5 dark:text-neutral-300 sm:h-8 sm:w-8">
                           {r.rank}
                         </span>
                       )}
                     </div>
 
-                    <div className="flex min-w-0 items-center gap-3">
-                      <Avatar url={r.photo_url} name={r.full_name} size={40} />
+                    <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
+                      <div className="shrink-0">
+                        <Avatar url={r.photo_url} name={r.full_name} size={36} />
+                      </div>
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <div className="truncate text-sm font-semibold">{r.full_name}</div>
+                        <div className="flex items-center gap-1.5">
+                          <div className="truncate text-[13px] font-semibold sm:text-sm">{r.full_name}</div>
                           {r.rank === 1 && (
                             <Crown className="h-3.5 w-3.5 shrink-0 text-amber-500" />
                           )}
@@ -337,9 +343,9 @@ function RankingPage() {
                       </div>
                     </div>
 
-                    <div className="text-right">
-                      <div className="font-display text-lg font-black leading-none">{r.count}</div>
-                      <div className="mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">check-ins</div>
+                    <div className="shrink-0 text-right">
+                      <div className="font-display text-base font-black leading-none sm:text-lg">{r.count}</div>
+                      <div className="mt-0.5 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground sm:text-[10px]">check-ins</div>
                     </div>
                   </li>
                 );
