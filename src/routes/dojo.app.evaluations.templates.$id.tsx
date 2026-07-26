@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import {
   getEvalTemplate, saveEvalTemplate,
   listEvalCategories, listEvalTechniques,
+  saveEvalCategory, saveEvalTechnique,
 } from "@/lib/dojo/evaluations.functions";
 import { listDojoBelts } from "@/lib/dojo/dojo.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -64,12 +65,14 @@ type Criterion = {
   required: boolean;
   eliminatory: boolean;
   techniques: string[];
+  library_id?: string | null;
 };
 type Category = {
   id: string;
   name: string;
   weight: number;
   criteria: Criterion[];
+  library_id?: string | null;
 };
 
 const uid = () => Math.random().toString(36).slice(2, 10);
@@ -77,6 +80,8 @@ const uid = () => Math.random().toString(36).slice(2, 10);
 function TemplateEditor() {
   const { id } = Route.useParams();
   const saveFn = useServerFn(saveEvalTemplate);
+  const saveCategoryFn = useServerFn(saveEvalCategory);
+  const saveTechniqueFn = useServerFn(saveEvalTechnique);
   const qc = useQueryClient();
 
   const { data: tpl } = useSuspenseQuery(tplOpts(id));
@@ -143,6 +148,7 @@ function TemplateEditor() {
       id: uid(),
       name: lc.name,
       weight: 1,
+      library_id: lc.id,
       criteria: techs.map((t) => ({
         id: uid(),
         name: t.name,
@@ -153,9 +159,88 @@ function TemplateEditor() {
         required: !!t.required,
         eliminatory: false,
         techniques: [t.id],
+        library_id: t.id,
       })),
     };
     setCats([...cats, newCat]);
+  };
+
+  // Auto-save a category to the library when its name is finalized.
+  const autoSaveCategory = async (ci: number) => {
+    const c = cats[ci];
+    if (!c) return;
+    const name = (c.name ?? "").trim();
+    if (!name || name.toLowerCase() === "nova categoria") return;
+    if (c.library_id) return;
+    const existing = libCats.find(
+      (lc) => (lc.name ?? "").trim().toLowerCase() === name.toLowerCase(),
+    );
+    if (existing) {
+      updCategory(ci, { library_id: existing.id });
+      return;
+    }
+    try {
+      const res = await saveCategoryFn({ data: { name } });
+      updCategory(ci, { library_id: res.id });
+      qc.invalidateQueries({ queryKey: ["eval-categories"] });
+      toast.success(`Categoria "${name}" salva na biblioteca`);
+    } catch (e: any) {
+      // silencioso — não bloquear o editor
+      console.warn("autoSaveCategory:", e?.message);
+    }
+  };
+
+  // Auto-save a technique/exercise to the library when its name is finalized.
+  const autoSaveTechnique = async (ci: number, cri: number) => {
+    const c = cats[ci];
+    const cr = c?.criteria[cri];
+    if (!c || !cr) return;
+    const name = (cr.name ?? "").trim();
+    if (!name || name.toLowerCase() === "novo critério" || name.toLowerCase() === "nova técnica") return;
+    if (cr.library_id) return;
+    // Garantir categoria na biblioteca antes
+    let categoryLibId = c.library_id ?? null;
+    if (!categoryLibId) {
+      const catName = (c.name ?? "").trim();
+      const matched = libCats.find(
+        (lc) => (lc.name ?? "").trim().toLowerCase() === catName.toLowerCase(),
+      );
+      if (matched) {
+        categoryLibId = matched.id;
+        updCategory(ci, { library_id: matched.id });
+      } else if (catName) {
+        try {
+          const res = await saveCategoryFn({ data: { name: catName } });
+          categoryLibId = res.id;
+          updCategory(ci, { library_id: res.id });
+          qc.invalidateQueries({ queryKey: ["eval-categories"] });
+        } catch {}
+      }
+    }
+    const existing = libTechs.find(
+      (lt) =>
+        (lt.name ?? "").trim().toLowerCase() === name.toLowerCase() &&
+        (categoryLibId ? lt.category_id === categoryLibId : true),
+    );
+    if (existing) {
+      updCriterion(ci, cri, { library_id: existing.id, techniques: [existing.id] });
+      return;
+    }
+    try {
+      const res = await saveTechniqueFn({
+        data: {
+          name,
+          category_id: categoryLibId ?? null,
+          default_score: Number(cr.max_score ?? 10),
+          required: !!cr.required,
+        },
+      });
+      updCriterion(ci, cri, { library_id: res.id, techniques: [res.id] });
+      qc.invalidateQueries({ queryKey: ["eval-techniques"] });
+      toast.success(`"${name}" salva em Técnicas`);
+    } catch (e: any) {
+      console.warn("autoSaveTechnique:", e?.message);
+    }
   };
 
   const addTechniqueCriterion = (ci: number, techId: string) => {
@@ -174,6 +259,7 @@ function TemplateEditor() {
         required: !!t.required,
         eliminatory: false,
         techniques: [t.id],
+        library_id: t.id,
       }],
     };
     setCats(next);
@@ -196,7 +282,7 @@ function TemplateEditor() {
     next[ci] = {
       ...next[ci],
       criteria: [...next[ci].criteria, {
-        id: uid(), name: "Novo critério", weight: 1,
+        id: uid(), name: "Nova técnica", weight: 1,
         max_score: 10, min_score: 0, required: false, eliminatory: false, techniques: [],
       }],
     };
@@ -406,7 +492,7 @@ function TemplateEditor() {
         <CardContent className="space-y-3">
           {cats.length === 0 && (
             <div className="text-sm text-muted-foreground p-4 text-center border rounded">
-              Adicione categorias, cada uma com seus critérios.
+              Adicione categorias, cada uma com suas técnicas/exercícios.
             </div>
           )}
           {cats.map((cat, ci) => (
@@ -416,7 +502,9 @@ function TemplateEditor() {
                   className="flex-1 font-medium"
                   value={cat.name}
                   onChange={(e) => updCategory(ci, { name: e.target.value })}
+                  onBlur={() => autoSaveCategory(ci)}
                 />
+
                 <label className="text-xs text-muted-foreground flex items-center gap-1">
                   Peso
                   <Input className="w-16" type="number" min={0} value={cat.weight} onChange={(e) => updCategory(ci, { weight: Number(e.target.value) })} />
@@ -433,8 +521,10 @@ function TemplateEditor() {
                         className="flex-1"
                         value={cr.name}
                         onChange={(e) => updCriterion(ci, cri, { name: e.target.value })}
-                        placeholder="Nome do critério"
+                        onBlur={() => autoSaveTechnique(ci, cri)}
+                        placeholder="Nome da técnica/exercício"
                       />
+
                       <label className="text-xs text-muted-foreground flex items-center gap-1">
                         Pts
                         <Input className="w-16" type="number" min={0} value={cr.max_score} onChange={(e) => updCriterion(ci, cri, { max_score: Number(e.target.value) })} />
@@ -459,8 +549,9 @@ function TemplateEditor() {
                 ))}
                 <div className="flex items-center gap-2 flex-wrap pt-1">
                   <Button size="sm" variant="ghost" onClick={() => addCriterion(ci)}>
-                    <Plus className="h-3.5 w-3.5 mr-1" /> Critério
+                    <Plus className="h-3.5 w-3.5 mr-1" /> Técnica/Exercício
                   </Button>
+
                   {(() => {
                     const matchLib = libCats.find(
                       (c) => (c.name ?? "").trim().toLowerCase() === (cat.name ?? "").trim().toLowerCase(),
