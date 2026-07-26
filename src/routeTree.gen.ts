@@ -169,7 +169,6 @@ import { Route as AuthenticatedAdminNotificacoesRouteImport } from './routes/_au
 import { Route as AuthenticatedAdminMarketingRouteImport } from './routes/_authenticated/admin.marketing'
 import { Route as AuthenticatedAdminLojaRouteImport } from './routes/_authenticated/admin.loja'
 import { Route as AuthenticatedAdminLogsRouteImport } from './routes/_authenticated/admin.logs'
-import { Route as AuthenticatedAdminLeadsRouteImport } from './routes/_authenticated/admin.leads'
 import { Route as AuthenticatedAdminInstagramRouteImport } from './routes/_authenticated/admin.instagram'
 import { Route as AuthenticatedAdminEnvioRouteImport } from './routes/_authenticated/admin.envio'
 import { Route as AuthenticatedAdminDojoRouteImport } from './routes/_authenticated/admin.dojo'
@@ -192,6 +191,7 @@ import { Route as DojoAppEvaluationsIndexRouteImport } from './routes/dojo.app.e
 import { Route as DojoAppContractsIndexRouteImport } from './routes/dojo.app.contracts.index'
 import { Route as DojoAppContractTemplatesIndexRouteImport } from './routes/dojo.app.contract-templates.index'
 import { Route as DojoAppCompetitionsIndexRouteImport } from './routes/dojo.app.competitions.index'
+import { Route as AuthenticatedAdminLeadsIndexRouteImport } from './routes/_authenticated/admin.leads.index'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
@@ -1135,11 +1135,6 @@ const AuthenticatedAdminLogsRoute = AuthenticatedAdminLogsRouteImport.update({
   path: '/logs',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
-const AuthenticatedAdminLeadsRoute = AuthenticatedAdminLeadsRouteImport.update({
-  id: '/leads',
-  path: '/leads',
-  getParentRoute: () => AuthenticatedAdminRoute,
-} as any)
 const AuthenticatedAdminInstagramRoute =
   AuthenticatedAdminInstagramRouteImport.update({
     id: '/instagram',
@@ -1260,6 +1255,12 @@ const DojoAppCompetitionsIndexRoute =
     id: '/',
     path: '/',
     getParentRoute: () => DojoAppCompetitionsRoute,
+  } as any)
+const AuthenticatedAdminLeadsIndexRoute =
+  AuthenticatedAdminLeadsIndexRouteImport.update({
+    id: '/leads/',
+    path: '/leads/',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const LovableEmailTransactionalSendRoute =
   LovableEmailTransactionalSendRouteImport.update({
@@ -1608,45 +1609,45 @@ const AuthenticatedAdminMarketingInteligenciaRoute =
   } as any)
 const AuthenticatedAdminLeadsQualificadosRoute =
   AuthenticatedAdminLeadsQualificadosRouteImport.update({
-    id: '/qualificados',
-    path: '/qualificados',
-    getParentRoute: () => AuthenticatedAdminLeadsRoute,
+    id: '/leads/qualificados',
+    path: '/leads/qualificados',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminLeadsPipelineRoute =
   AuthenticatedAdminLeadsPipelineRouteImport.update({
-    id: '/pipeline',
-    path: '/pipeline',
-    getParentRoute: () => AuthenticatedAdminLeadsRoute,
+    id: '/leads/pipeline',
+    path: '/leads/pipeline',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminLeadsMacroRoute =
   AuthenticatedAdminLeadsMacroRouteImport.update({
-    id: '/macro',
-    path: '/macro',
-    getParentRoute: () => AuthenticatedAdminLeadsRoute,
+    id: '/leads/macro',
+    path: '/leads/macro',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminLeadsLogsRoute =
   AuthenticatedAdminLeadsLogsRouteImport.update({
-    id: '/logs',
-    path: '/logs',
-    getParentRoute: () => AuthenticatedAdminLeadsRoute,
+    id: '/leads/logs',
+    path: '/leads/logs',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminLeadsConfiguracoesRoute =
   AuthenticatedAdminLeadsConfiguracoesRouteImport.update({
-    id: '/configuracoes',
-    path: '/configuracoes',
-    getParentRoute: () => AuthenticatedAdminLeadsRoute,
+    id: '/leads/configuracoes',
+    path: '/leads/configuracoes',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminLeadsBuscaRoute =
   AuthenticatedAdminLeadsBuscaRouteImport.update({
-    id: '/busca',
-    path: '/busca',
-    getParentRoute: () => AuthenticatedAdminLeadsRoute,
+    id: '/leads/busca',
+    path: '/leads/busca',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminLeadsIdRoute =
   AuthenticatedAdminLeadsIdRouteImport.update({
-    id: '/$id',
-    path: '/$id',
-    getParentRoute: () => AuthenticatedAdminLeadsRoute,
+    id: '/leads/$id',
+    path: '/leads/$id',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminInstagramInboxRoute =
   AuthenticatedAdminInstagramInboxRouteImport.update({
@@ -1867,7 +1868,6 @@ export interface FileRoutesByFullPath {
   '/admin/dojo': typeof AuthenticatedAdminDojoRoute
   '/admin/envio': typeof AuthenticatedAdminEnvioRoute
   '/admin/instagram': typeof AuthenticatedAdminInstagramRouteWithChildren
-  '/admin/leads': typeof AuthenticatedAdminLeadsRouteWithChildren
   '/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/admin/loja': typeof AuthenticatedAdminLojaRoute
   '/admin/marketing': typeof AuthenticatedAdminMarketingRouteWithChildren
@@ -2070,6 +2070,7 @@ export interface FileRoutesByFullPath {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/admin/leads/': typeof AuthenticatedAdminLeadsIndexRoute
   '/dojo/app/competitions/': typeof DojoAppCompetitionsIndexRoute
   '/dojo/app/contract-templates/': typeof DojoAppContractTemplatesIndexRoute
   '/dojo/app/contracts/': typeof DojoAppContractsIndexRoute
@@ -2140,7 +2141,6 @@ export interface FileRoutesByTo {
   '/admin/dojo': typeof AuthenticatedAdminDojoRoute
   '/admin/envio': typeof AuthenticatedAdminEnvioRoute
   '/admin/instagram': typeof AuthenticatedAdminInstagramRouteWithChildren
-  '/admin/leads': typeof AuthenticatedAdminLeadsRouteWithChildren
   '/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/admin/loja': typeof AuthenticatedAdminLojaRoute
   '/admin/marketing': typeof AuthenticatedAdminMarketingRouteWithChildren
@@ -2334,6 +2334,7 @@ export interface FileRoutesByTo {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/admin/leads': typeof AuthenticatedAdminLeadsIndexRoute
   '/dojo/app/competitions': typeof DojoAppCompetitionsIndexRoute
   '/dojo/app/contract-templates': typeof DojoAppContractTemplatesIndexRoute
   '/dojo/app/contracts': typeof DojoAppContractsIndexRoute
@@ -2413,7 +2414,6 @@ export interface FileRoutesById {
   '/_authenticated/admin/dojo': typeof AuthenticatedAdminDojoRoute
   '/_authenticated/admin/envio': typeof AuthenticatedAdminEnvioRoute
   '/_authenticated/admin/instagram': typeof AuthenticatedAdminInstagramRouteWithChildren
-  '/_authenticated/admin/leads': typeof AuthenticatedAdminLeadsRouteWithChildren
   '/_authenticated/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/_authenticated/admin/loja': typeof AuthenticatedAdminLojaRoute
   '/_authenticated/admin/marketing': typeof AuthenticatedAdminMarketingRouteWithChildren
@@ -2616,6 +2616,7 @@ export interface FileRoutesById {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/_authenticated/admin/leads/': typeof AuthenticatedAdminLeadsIndexRoute
   '/dojo/app/competitions/': typeof DojoAppCompetitionsIndexRoute
   '/dojo/app/contract-templates/': typeof DojoAppContractTemplatesIndexRoute
   '/dojo/app/contracts/': typeof DojoAppContractsIndexRoute
@@ -2694,7 +2695,6 @@ export interface FileRouteTypes {
     | '/admin/dojo'
     | '/admin/envio'
     | '/admin/instagram'
-    | '/admin/leads'
     | '/admin/logs'
     | '/admin/loja'
     | '/admin/marketing'
@@ -2897,6 +2897,7 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/admin/leads/'
     | '/dojo/app/competitions/'
     | '/dojo/app/contract-templates/'
     | '/dojo/app/contracts/'
@@ -2967,7 +2968,6 @@ export interface FileRouteTypes {
     | '/admin/dojo'
     | '/admin/envio'
     | '/admin/instagram'
-    | '/admin/leads'
     | '/admin/logs'
     | '/admin/loja'
     | '/admin/marketing'
@@ -3161,6 +3161,7 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/admin/leads'
     | '/dojo/app/competitions'
     | '/dojo/app/contract-templates'
     | '/dojo/app/contracts'
@@ -3239,7 +3240,6 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/dojo'
     | '/_authenticated/admin/envio'
     | '/_authenticated/admin/instagram'
-    | '/_authenticated/admin/leads'
     | '/_authenticated/admin/logs'
     | '/_authenticated/admin/loja'
     | '/_authenticated/admin/marketing'
@@ -3442,6 +3442,7 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/_authenticated/admin/leads/'
     | '/dojo/app/competitions/'
     | '/dojo/app/contract-templates/'
     | '/dojo/app/contracts/'
@@ -4648,13 +4649,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminLogsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/_authenticated/admin/leads': {
-      id: '/_authenticated/admin/leads'
-      path: '/leads'
-      fullPath: '/admin/leads'
-      preLoaderRoute: typeof AuthenticatedAdminLeadsRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
     '/_authenticated/admin/instagram': {
       id: '/_authenticated/admin/instagram'
       path: '/instagram'
@@ -4808,6 +4802,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dojo/app/competitions/'
       preLoaderRoute: typeof DojoAppCompetitionsIndexRouteImport
       parentRoute: typeof DojoAppCompetitionsRoute
+    }
+    '/_authenticated/admin/leads/': {
+      id: '/_authenticated/admin/leads/'
+      path: '/leads'
+      fullPath: '/admin/leads/'
+      preLoaderRoute: typeof AuthenticatedAdminLeadsIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/lovable/email/transactional/send': {
       id: '/lovable/email/transactional/send'
@@ -5238,52 +5239,52 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/admin/leads/qualificados': {
       id: '/_authenticated/admin/leads/qualificados'
-      path: '/qualificados'
+      path: '/leads/qualificados'
       fullPath: '/admin/leads/qualificados'
       preLoaderRoute: typeof AuthenticatedAdminLeadsQualificadosRouteImport
-      parentRoute: typeof AuthenticatedAdminLeadsRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/leads/pipeline': {
       id: '/_authenticated/admin/leads/pipeline'
-      path: '/pipeline'
+      path: '/leads/pipeline'
       fullPath: '/admin/leads/pipeline'
       preLoaderRoute: typeof AuthenticatedAdminLeadsPipelineRouteImport
-      parentRoute: typeof AuthenticatedAdminLeadsRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/leads/macro': {
       id: '/_authenticated/admin/leads/macro'
-      path: '/macro'
+      path: '/leads/macro'
       fullPath: '/admin/leads/macro'
       preLoaderRoute: typeof AuthenticatedAdminLeadsMacroRouteImport
-      parentRoute: typeof AuthenticatedAdminLeadsRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/leads/logs': {
       id: '/_authenticated/admin/leads/logs'
-      path: '/logs'
+      path: '/leads/logs'
       fullPath: '/admin/leads/logs'
       preLoaderRoute: typeof AuthenticatedAdminLeadsLogsRouteImport
-      parentRoute: typeof AuthenticatedAdminLeadsRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/leads/configuracoes': {
       id: '/_authenticated/admin/leads/configuracoes'
-      path: '/configuracoes'
+      path: '/leads/configuracoes'
       fullPath: '/admin/leads/configuracoes'
       preLoaderRoute: typeof AuthenticatedAdminLeadsConfiguracoesRouteImport
-      parentRoute: typeof AuthenticatedAdminLeadsRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/leads/busca': {
       id: '/_authenticated/admin/leads/busca'
-      path: '/busca'
+      path: '/leads/busca'
       fullPath: '/admin/leads/busca'
       preLoaderRoute: typeof AuthenticatedAdminLeadsBuscaRouteImport
-      parentRoute: typeof AuthenticatedAdminLeadsRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/leads/$id': {
       id: '/_authenticated/admin/leads/$id'
-      path: '/$id'
+      path: '/leads/$id'
       fullPath: '/admin/leads/$id'
       preLoaderRoute: typeof AuthenticatedAdminLeadsIdRouteImport
-      parentRoute: typeof AuthenticatedAdminLeadsRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/instagram/inbox': {
       id: '/_authenticated/admin/instagram/inbox'
@@ -5563,34 +5564,6 @@ const AuthenticatedAdminInstagramRouteWithChildren =
     AuthenticatedAdminInstagramRouteChildren,
   )
 
-interface AuthenticatedAdminLeadsRouteChildren {
-  AuthenticatedAdminLeadsIdRoute: typeof AuthenticatedAdminLeadsIdRoute
-  AuthenticatedAdminLeadsBuscaRoute: typeof AuthenticatedAdminLeadsBuscaRoute
-  AuthenticatedAdminLeadsConfiguracoesRoute: typeof AuthenticatedAdminLeadsConfiguracoesRoute
-  AuthenticatedAdminLeadsLogsRoute: typeof AuthenticatedAdminLeadsLogsRoute
-  AuthenticatedAdminLeadsMacroRoute: typeof AuthenticatedAdminLeadsMacroRoute
-  AuthenticatedAdminLeadsPipelineRoute: typeof AuthenticatedAdminLeadsPipelineRoute
-  AuthenticatedAdminLeadsQualificadosRoute: typeof AuthenticatedAdminLeadsQualificadosRoute
-}
-
-const AuthenticatedAdminLeadsRouteChildren: AuthenticatedAdminLeadsRouteChildren =
-  {
-    AuthenticatedAdminLeadsIdRoute: AuthenticatedAdminLeadsIdRoute,
-    AuthenticatedAdminLeadsBuscaRoute: AuthenticatedAdminLeadsBuscaRoute,
-    AuthenticatedAdminLeadsConfiguracoesRoute:
-      AuthenticatedAdminLeadsConfiguracoesRoute,
-    AuthenticatedAdminLeadsLogsRoute: AuthenticatedAdminLeadsLogsRoute,
-    AuthenticatedAdminLeadsMacroRoute: AuthenticatedAdminLeadsMacroRoute,
-    AuthenticatedAdminLeadsPipelineRoute: AuthenticatedAdminLeadsPipelineRoute,
-    AuthenticatedAdminLeadsQualificadosRoute:
-      AuthenticatedAdminLeadsQualificadosRoute,
-  }
-
-const AuthenticatedAdminLeadsRouteWithChildren =
-  AuthenticatedAdminLeadsRoute._addFileChildren(
-    AuthenticatedAdminLeadsRouteChildren,
-  )
-
 interface AuthenticatedAdminMarketingRouteChildren {
   AuthenticatedAdminMarketingInteligenciaRoute: typeof AuthenticatedAdminMarketingInteligenciaRoute
   AuthenticatedAdminMarketingKpisRoute: typeof AuthenticatedAdminMarketingKpisRoute
@@ -5662,7 +5635,6 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminDojoRoute: typeof AuthenticatedAdminDojoRoute
   AuthenticatedAdminEnvioRoute: typeof AuthenticatedAdminEnvioRoute
   AuthenticatedAdminInstagramRoute: typeof AuthenticatedAdminInstagramRouteWithChildren
-  AuthenticatedAdminLeadsRoute: typeof AuthenticatedAdminLeadsRouteWithChildren
   AuthenticatedAdminLogsRoute: typeof AuthenticatedAdminLogsRoute
   AuthenticatedAdminLojaRoute: typeof AuthenticatedAdminLojaRoute
   AuthenticatedAdminMarketingRoute: typeof AuthenticatedAdminMarketingRouteWithChildren
@@ -5674,6 +5646,14 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminSaasRoute: typeof AuthenticatedAdminSaasRouteWithChildren
   AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminLeadsIdRoute: typeof AuthenticatedAdminLeadsIdRoute
+  AuthenticatedAdminLeadsBuscaRoute: typeof AuthenticatedAdminLeadsBuscaRoute
+  AuthenticatedAdminLeadsConfiguracoesRoute: typeof AuthenticatedAdminLeadsConfiguracoesRoute
+  AuthenticatedAdminLeadsLogsRoute: typeof AuthenticatedAdminLeadsLogsRoute
+  AuthenticatedAdminLeadsMacroRoute: typeof AuthenticatedAdminLeadsMacroRoute
+  AuthenticatedAdminLeadsPipelineRoute: typeof AuthenticatedAdminLeadsPipelineRoute
+  AuthenticatedAdminLeadsQualificadosRoute: typeof AuthenticatedAdminLeadsQualificadosRoute
+  AuthenticatedAdminLeadsIndexRoute: typeof AuthenticatedAdminLeadsIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
@@ -5690,7 +5670,6 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminEnvioRoute: AuthenticatedAdminEnvioRoute,
   AuthenticatedAdminInstagramRoute:
     AuthenticatedAdminInstagramRouteWithChildren,
-  AuthenticatedAdminLeadsRoute: AuthenticatedAdminLeadsRouteWithChildren,
   AuthenticatedAdminLogsRoute: AuthenticatedAdminLogsRoute,
   AuthenticatedAdminLojaRoute: AuthenticatedAdminLojaRoute,
   AuthenticatedAdminMarketingRoute:
@@ -5703,6 +5682,16 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminSaasRoute: AuthenticatedAdminSaasRouteWithChildren,
   AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedAdminLeadsIdRoute: AuthenticatedAdminLeadsIdRoute,
+  AuthenticatedAdminLeadsBuscaRoute: AuthenticatedAdminLeadsBuscaRoute,
+  AuthenticatedAdminLeadsConfiguracoesRoute:
+    AuthenticatedAdminLeadsConfiguracoesRoute,
+  AuthenticatedAdminLeadsLogsRoute: AuthenticatedAdminLeadsLogsRoute,
+  AuthenticatedAdminLeadsMacroRoute: AuthenticatedAdminLeadsMacroRoute,
+  AuthenticatedAdminLeadsPipelineRoute: AuthenticatedAdminLeadsPipelineRoute,
+  AuthenticatedAdminLeadsQualificadosRoute:
+    AuthenticatedAdminLeadsQualificadosRoute,
+  AuthenticatedAdminLeadsIndexRoute: AuthenticatedAdminLeadsIndexRoute,
 }
 
 const AuthenticatedAdminRouteWithChildren =
@@ -6375,13 +6364,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
