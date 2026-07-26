@@ -68,8 +68,7 @@ const QUICK_ACTIONS: Shortcut[] = [
   { title: "Adicionar produto", href: "/admin/produtos", icon: Package },
   { title: "Novo lead", href: "/admin/leads", icon: Target },
   { title: "Campanha", href: "/admin/anuncios/campanhas", icon: Megaphone },
-  { title: "Aluno", href: "/dojo/app/students", icon: Users },
-  { title: "Certificado", href: "/dojo/app/certificates", icon: FileBadge },
+  { title: "SaaS · Dojos", href: "/admin/dojo", icon: Building2 },
 ];
 
 type UniverseGroup = {
