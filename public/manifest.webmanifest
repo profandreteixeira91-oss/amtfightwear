@@ -1,8 +1,8 @@
 {
   "id": "/app/",
-  "name": "AMT Dojo Manager — Portal do Aluno",
-  "short_name": "AMT Aluno",
-  "description": "Portal do aluno AMT Dojo Manager — agenda, check-in, graduações, vídeos, financeiro e certificados diretamente no seu bolso.",
+  "name": "Portal do Aluno - AMT Dojo Manager",
+  "short_name": "Portal Aluno",
+  "description": "Portal do Aluno AMT Dojo Manager — agenda, check-in, graduações, vídeos, financeiro e certificados no seu bolso.",
   "start_url": "/app/",
   "scope": "/app/",
   "display": "standalone",
