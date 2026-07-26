@@ -166,9 +166,9 @@ function SalesTab({
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-        <KpiCard label="Vendas registradas" value={String(kpis.count)} />
-        <KpiCard label="Recebido" value={brl(kpis.totalPaid)} />
-        <KpiCard label="A receber" value={brl(kpis.totalPending)} />
+        <KpiCard label="Vendas registradas" value={String(kpis.count)} tone="neutral" />
+        <KpiCard label="Recebido" value={brl(kpis.totalPaid)} tone="success" />
+        <KpiCard label="A receber" value={brl(kpis.totalPending)} tone="warning" />
       </div>
 
       <Card>
