@@ -130,7 +130,7 @@ export function FinancePayables() {
                 <Plus className="h-4 w-4 mr-1" /> Nova despesa
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="w-[calc(100vw-1rem)] max-w-lg">
               <DialogHeader>
                 <DialogTitle>Nova despesa</DialogTitle>
               </DialogHeader>
