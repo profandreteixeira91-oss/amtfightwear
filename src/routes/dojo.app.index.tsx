@@ -824,10 +824,19 @@ function DojoDashboard() {
 
                     {/* Avatar + status */}
                     <div className="relative shrink-0">
-                      <div className="grid h-11 w-11 place-items-center rounded-full bg-white ring-1 ring-slate-900/10 shadow-sm">
-                        <span className="font-display text-sm font-bold text-slate-800">
-                          {(s.full_name?.[0] ?? "A").toUpperCase()}
-                        </span>
+                      <div className="grid h-11 w-11 place-items-center overflow-hidden rounded-full bg-white ring-1 ring-slate-900/10 shadow-sm">
+                        {s.photo_url ? (
+                          <img
+                            src={s.photo_url}
+                            alt={s.full_name ?? "Aluno"}
+                            loading="lazy"
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <span className="font-display text-sm font-bold text-slate-800">
+                            {(s.full_name?.[0] ?? "A").toUpperCase()}
+                          </span>
+                        )}
                       </div>
                       <span
                         title={isActive ? "Ativo" : "Inativo"}
@@ -851,18 +860,24 @@ function DojoDashboard() {
                       </p>
                     </div>
 
-                    {/* Ilustração da faixa */}
-                    <div className="hidden sm:flex h-8 w-[120px] items-center justify-center shrink-0">
-                      {belts[0] ? (
-                        <BeltAuto
-                          belt={belts[0].belt}
-                          degree={belts[0].degree ?? 0}
-                          className="w-[120px] h-8"
-                        />
-                      ) : (
-                        <div className="w-[120px] h-6 rounded-sm border border-dashed border-slate-300" />
-                      )}
+                    {/* Ilustração da faixa — proporção fixa 15:4 */}
+                    <div className="hidden sm:flex w-[120px] shrink-0 items-center justify-center">
+                      <div
+                        className="relative w-full overflow-hidden"
+                        style={{ aspectRatio: "15 / 4" }}
+                      >
+                        {belts[0] ? (
+                          <BeltAuto
+                            belt={belts[0].belt}
+                            degree={belts[0].degree ?? 0}
+                            className="absolute inset-0 h-full w-full"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 rounded-sm border border-dashed border-slate-300" />
+                        )}
+                      </div>
                     </div>
+
 
                     {/* Badge status */}
                     <span
