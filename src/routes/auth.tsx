@@ -10,6 +10,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/auth/PasswordInput";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { authService } from "@/services/authService";
@@ -180,9 +181,8 @@ function AuthPage() {
                       Esqueci minha senha
                     </button>
                   </div>
-                  <Input
+                  <PasswordInput
                     id="signin-password"
-                    type="password"
                     autoComplete="current-password"
                     {...signInForm.register("password")}
                   />
