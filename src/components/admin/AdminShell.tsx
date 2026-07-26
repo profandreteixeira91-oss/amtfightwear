@@ -96,7 +96,7 @@ export function AdminShell({
   return (
     <OwnerOnly>
       <SidebarProvider defaultOpen>
-        <div className="flex min-h-[calc(100vh-56px)] w-full bg-neutral-50">
+        <div className="flex min-h-screen w-full bg-[radial-gradient(1200px_600px_at_0%_-10%,rgba(220,38,38,0.06),transparent_60%),radial-gradient(900px_500px_at_100%_0%,rgba(0,0,0,0.04),transparent_60%)] bg-neutral-50">
           <AdminSidebar />
           <div className="flex min-w-0 flex-1 flex-col">
             <AdminHeader title={title} />
