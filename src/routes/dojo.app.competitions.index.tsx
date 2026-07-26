@@ -130,16 +130,30 @@ function LibraryTab() {
   const [scope, setScope] = useState<string>("all");
   const [country, setCountry] = useState<string>("all");
   const [state, setState] = useState<string>("all");
+  const [when, setWhen] = useState<string>("upcoming"); // upcoming | 30 | 90 | past | all
   const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  const dateRange = useMemo(() => {
+    const now = new Date();
+    const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+    if (when === "all") return { from: undefined, to: undefined };
+    if (when === "past") return { from: undefined, to: startToday };
+    if (when === "upcoming") return { from: startToday, to: undefined };
+    const days = Number(when);
+    const to = new Date(now.getTime() + days * 24 * 60 * 60 * 1000).toISOString();
+    return { from: startToday, to };
+  }, [when]);
 
   const filters = useQuery({ queryKey: ["comp-filters"], queryFn: () => filterFn() });
   const list = useQuery({
-    queryKey: ["comp-lib", q, scope, country, state],
+    queryKey: ["comp-lib", q, scope, country, state, when],
     queryFn: () => listFn({ data: {
       q: q || undefined,
       scope: scope !== "all" ? (scope as "international" | "national" | "regional" | "state" | "municipal") : undefined,
       country: country !== "all" ? country : undefined,
       state: state !== "all" ? state : undefined,
+      fromDate: dateRange.from,
+      toDate: dateRange.to,
       page: 1, pageSize: 60,
     } }),
   });
