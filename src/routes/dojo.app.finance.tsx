@@ -12,6 +12,7 @@ import {
   FileBarChart,
   RefreshCw,
   Settings2,
+  Landmark,
 } from "lucide-react";
 import { FinanceDashboard } from "@/components/dojo/finance/Dashboard";
 import { FinanceReceivables } from "@/components/dojo/finance/Receivables";
