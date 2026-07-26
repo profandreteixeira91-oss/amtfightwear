@@ -38,35 +38,43 @@ export const adminListDojoAccounts = createServerFn({ method: "GET" })
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    // A conta Dojo existe desde o cadastro no Auth. Não dependa de onboarding,
-    // profile ou assinatura: essas linhas podem ser criadas somente depois.
-    const { data: authPage, error: authError } = await supabaseAdmin.auth.admin.listUsers({
-      page: 1,
-      perPage: 1000,
-    });
-    if (authError) throw new Error(`Não foi possível listar as contas: ${authError.message}`);
-
-    const authUsers = authPage.users;
-    const ownerIds = authUsers.map((user) => user.id);
-    if (ownerIds.length === 0) return [] as DojoAccountRow[];
-
-    const [profilesRes, academiesRes, subsRes, studentsRes, unitsRes] = await Promise.all([
-      supabaseAdmin
-        .from("profiles")
-        .select("id, email, full_name, created_at")
-        .in("id", ownerIds),
+    // A conta Dojo existe desde o cadastro no Auth. Academia e assinatura são
+    // vínculos opcionais, mas também identificam as contas legadas do módulo.
+    const [authResult, academiesRes, subsRes] = await Promise.all([
+      supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1000 }),
       supabaseAdmin
         .from("dojo_academy_profile")
         .select(
           "owner_id, legal_name, trade_name, phone, whatsapp, city, state, slug, created_at, onboarding_completed",
         )
-        .in("owner_id", ownerIds),
+        .limit(5000),
       supabaseAdmin
         .from("dojo_subscriptions")
         .select(
           "owner_id, status, plan_amount, trial_ends_at, current_period_end, cancelled_at",
         )
-        .in("owner_id", ownerIds),
+        .limit(5000),
+    ]);
+    const { data: authPage, error: authError } = authResult;
+    if (authError) throw new Error(`Não foi possível listar as contas: ${authError.message}`);
+
+    const knownDojoOwners = new Set<string>([
+      ...(academiesRes.data ?? []).map((academy) => academy.owner_id),
+      ...(subsRes.data ?? []).map((subscription) => subscription.owner_id),
+    ]);
+    const authUsers = authPage.users.filter(
+      (user) =>
+        knownDojoOwners.has(user.id) ||
+        user.user_metadata?.account_type === "dojo_manager",
+    );
+    const ownerIds = authUsers.map((user) => user.id);
+    if (ownerIds.length === 0) return [] as DojoAccountRow[];
+
+    const [profilesRes, studentsRes, unitsRes] = await Promise.all([
+      supabaseAdmin
+        .from("profiles")
+        .select("id, email, full_name, created_at")
+        .in("id", ownerIds),
       supabaseAdmin.from("dojo_students").select("owner_id").in("owner_id", ownerIds),
       supabaseAdmin.from("dojo_units").select("owner_id").in("owner_id", ownerIds),
     ]);
