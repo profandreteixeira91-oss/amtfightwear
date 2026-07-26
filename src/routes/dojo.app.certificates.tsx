@@ -308,27 +308,27 @@ function CertificatesPage() {
           <div className="flex flex-wrap items-center gap-2">
             {tab === "modelos" && (
               <>
-                <div className="relative">
+                <div className="relative w-full sm:w-auto">
                   <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
                   <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar modelo…" className="h-9 w-full pl-7 text-sm sm:w-56" />
                 </div>
-                <select value={category} onChange={(e) => setCategory(e.target.value)} className="h-9 rounded-md border border-input bg-background px-2 text-sm">
+                <select value={category} onChange={(e) => setCategory(e.target.value)} className="h-9 min-w-0 flex-1 rounded-md border border-input bg-background px-2 text-sm sm:flex-none">
                   <option value="">Todas as categorias</option>
                   {CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
                 </select>
-                <Button variant="outline" onClick={() => setIssueOpen(true)}>
+                <Button variant="outline" onClick={() => setIssueOpen(true)} className="flex-1 sm:flex-none">
                   <Send className="h-4 w-4 mr-1" /> Emitir
                 </Button>
                 <Button
                   onClick={() => navigate({ to: "/dojo/certificate-editor/$id", params: { id: "new" } })}
-                  className="bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-400"
+                  className="flex-1 bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-400 sm:flex-none"
                 >
                   <Plus className="h-4 w-4 mr-1" /> Novo modelo
                 </Button>
               </>
             )}
             {tab === "emitidos" && (
-              <Button onClick={() => setIssueOpen(true)} className="bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-400">
+              <Button onClick={() => setIssueOpen(true)} className="w-full bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-400 sm:w-auto">
                 <Send className="h-4 w-4 mr-1" /> Emitir certificado
               </Button>
             )}
