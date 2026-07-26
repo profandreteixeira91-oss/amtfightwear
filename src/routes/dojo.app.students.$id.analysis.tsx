@@ -31,6 +31,7 @@ import { MedalsBreakdown } from "@/components/dojo/athlete-analysis/MedalsBreakd
 import { CompareRadar } from "@/components/dojo/athlete-analysis/CompareRadar";
 import { TechnicalTab } from "@/components/dojo/athlete-analysis/TechnicalTab";
 import { InsightCard } from "@/components/dojo/athlete-analysis/InsightCard";
+import { FightVideosTab } from "@/components/dojo/athlete-analysis/FightVideosTab";
 import { GoalsTab } from "@/components/dojo/athlete-analysis/GoalsTab";
 import { formatDegree, degreeUnit, formatBeltName } from "@/lib/dojo/degree-label";
 
