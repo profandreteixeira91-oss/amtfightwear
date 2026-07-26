@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { DojoLogo } from "@/components/dojo/DojoLogo";
+import { PasswordStrength, isPasswordStrong, PASSWORD_MIN_LENGTH } from "@/components/auth/PasswordStrength";
 
 const searchSchema = z.object({ redirect: z.string().optional() });
 
@@ -72,6 +73,12 @@ function DojoAuthPage() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isPasswordStrong(password)) {
+      toast.error("Senha fraca", {
+        description: "Atenda a todos os requisitos de segurança antes de continuar.",
+      });
+      return;
+    }
     setLoading(true);
     const { error, data } = await supabase.auth.signUp({
       email,
@@ -279,12 +286,13 @@ function DojoAuthPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    minLength={6}
+                    minLength={isSignup ? PASSWORD_MIN_LENGTH : 6}
                     autoComplete={isSignup ? "new-password" : "current-password"}
                     className="h-11 rounded-xl border-black/10 pl-9 focus-visible:ring-[#C1121F]/30"
-                    placeholder={isSignup ? "Mínimo 6 caracteres" : "••••••••"}
+                    placeholder={isSignup ? `Mínimo ${PASSWORD_MIN_LENGTH} caracteres` : "••••••••"}
                   />
                 </div>
+                {isSignup && <PasswordStrength password={password} className="pt-1" />}
               </div>
 
               <Button

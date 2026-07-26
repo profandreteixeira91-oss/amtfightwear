@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
+import { PasswordStrength, isPasswordStrong, PASSWORD_MIN_LENGTH } from "@/components/auth/PasswordStrength";
 
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
@@ -25,8 +26,14 @@ export const Route = createFileRoute("/reset-password")({
 
 const schema = z
   .object({
-    password: z.string().min(6, "Mínimo de 6 caracteres"),
-    confirm: z.string().min(6, "Mínimo de 6 caracteres"),
+    password: z
+      .string()
+      .min(PASSWORD_MIN_LENGTH, `Mínimo de ${PASSWORD_MIN_LENGTH} caracteres`)
+      .regex(/[a-z]/, "Inclua uma letra minúscula")
+      .regex(/[A-Z]/, "Inclua uma letra maiúscula")
+      .regex(/[0-9]/, "Inclua um número")
+      .regex(/[^A-Za-z0-9]/, "Inclua um símbolo"),
+    confirm: z.string().min(PASSWORD_MIN_LENGTH, `Mínimo de ${PASSWORD_MIN_LENGTH} caracteres`),
   })
   .refine((v) => v.password === v.confirm, {
     message: "As senhas não coincidem",
@@ -61,6 +68,10 @@ function ResetPasswordPage() {
   });
 
   const onSubmit = form.handleSubmit(async (values) => {
+    if (!isPasswordStrong(values.password)) {
+      form.setError("password", { message: "Atenda a todos os requisitos abaixo." });
+      return;
+    }
     const { error } = await supabase.auth.updateUser({ password: values.password });
     if (error) {
       toast.error("Erro ao redefinir senha", { description: error.message });
@@ -70,6 +81,8 @@ function ResetPasswordPage() {
     await supabase.auth.signOut();
     navigate({ to: "/auth", replace: true });
   });
+
+  const watchedPassword = form.watch("password");
 
   if (!ready) {
     return (
@@ -95,10 +108,11 @@ function ResetPasswordPage() {
             <form onSubmit={onSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="password">Nova senha</Label>
-                <Input id="password" type="password" autoComplete="new-password" {...form.register("password")} />
+                <Input id="password" type="password" autoComplete="new-password" placeholder={`Mínimo ${PASSWORD_MIN_LENGTH} caracteres`} {...form.register("password")} />
                 {form.formState.errors.password && (
                   <p className="text-xs text-destructive">{form.formState.errors.password.message}</p>
                 )}
+                <PasswordStrength password={watchedPassword ?? ""} className="pt-1" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="confirm">Confirmar nova senha</Label>
