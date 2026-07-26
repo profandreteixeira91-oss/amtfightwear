@@ -148,6 +148,7 @@ function TemplateEditor() {
       id: uid(),
       name: lc.name,
       weight: 1,
+      library_id: lc.id,
       criteria: techs.map((t) => ({
         id: uid(),
         name: t.name,
@@ -158,12 +159,89 @@ function TemplateEditor() {
         required: !!t.required,
         eliminatory: false,
         techniques: [t.id],
+        library_id: t.id,
       })),
     };
     setCats([...cats, newCat]);
   };
 
-  const addTechniqueCriterion = (ci: number, techId: string) => {
+  // Auto-save a category to the library when its name is finalized.
+  const autoSaveCategory = async (ci: number) => {
+    const c = cats[ci];
+    if (!c) return;
+    const name = (c.name ?? "").trim();
+    if (!name || name.toLowerCase() === "nova categoria") return;
+    if (c.library_id) return;
+    const existing = libCats.find(
+      (lc) => (lc.name ?? "").trim().toLowerCase() === name.toLowerCase(),
+    );
+    if (existing) {
+      updCategory(ci, { library_id: existing.id });
+      return;
+    }
+    try {
+      const res = await saveCategoryFn({ data: { name } });
+      updCategory(ci, { library_id: res.id });
+      qc.invalidateQueries({ queryKey: ["eval-categories"] });
+      toast.success(`Categoria "${name}" salva na biblioteca`);
+    } catch (e: any) {
+      // silencioso — não bloquear o editor
+      console.warn("autoSaveCategory:", e?.message);
+    }
+  };
+
+  // Auto-save a technique/exercise to the library when its name is finalized.
+  const autoSaveTechnique = async (ci: number, cri: number) => {
+    const c = cats[ci];
+    const cr = c?.criteria[cri];
+    if (!c || !cr) return;
+    const name = (cr.name ?? "").trim();
+    if (!name || name.toLowerCase() === "novo critério" || name.toLowerCase() === "nova técnica") return;
+    if (cr.library_id) return;
+    // Garantir categoria na biblioteca antes
+    let categoryLibId = c.library_id ?? null;
+    if (!categoryLibId) {
+      const catName = (c.name ?? "").trim();
+      const matched = libCats.find(
+        (lc) => (lc.name ?? "").trim().toLowerCase() === catName.toLowerCase(),
+      );
+      if (matched) {
+        categoryLibId = matched.id;
+        updCategory(ci, { library_id: matched.id });
+      } else if (catName) {
+        try {
+          const res = await saveCategoryFn({ data: { name: catName } });
+          categoryLibId = res.id;
+          updCategory(ci, { library_id: res.id });
+          qc.invalidateQueries({ queryKey: ["eval-categories"] });
+        } catch {}
+      }
+    }
+    const existing = libTechs.find(
+      (lt) =>
+        (lt.name ?? "").trim().toLowerCase() === name.toLowerCase() &&
+        (categoryLibId ? lt.category_id === categoryLibId : true),
+    );
+    if (existing) {
+      updCriterion(ci, cri, { library_id: existing.id, techniques: [existing.id] });
+      return;
+    }
+    try {
+      const res = await saveTechniqueFn({
+        data: {
+          name,
+          category_id: categoryLibId ?? null,
+          default_score: Number(cr.max_score ?? 10),
+          required: !!cr.required,
+        },
+      });
+      updCriterion(ci, cri, { library_id: res.id, techniques: [res.id] });
+      qc.invalidateQueries({ queryKey: ["eval-techniques"] });
+      toast.success(`"${name}" salva em Técnicas`);
+    } catch (e: any) {
+      console.warn("autoSaveTechnique:", e?.message);
+    }
+  };
     const t = libTechs.find((x) => x.id === techId);
     if (!t) return;
     const next = [...cats];
