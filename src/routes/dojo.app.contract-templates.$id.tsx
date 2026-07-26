@@ -122,8 +122,24 @@ function ContractEditorPage() {
   const deleteFn = useServerFn(deleteContractTemplate);
 
   const exec = (cmd: string, value?: string) => {
+    // Foca o contenteditable visível (corpo/cabeçalho/rodapé) antes de executar,
+    // caso contrário execCommand não tem alvo e comandos como undo/copy/paste falham silenciosamente.
+    const el = document.querySelector<HTMLElement>('[role="textbox"][contenteditable="true"]');
+    if (el) {
+      el.focus({ preventScroll: true });
+      // Se não há seleção dentro dele, coloca o caret no fim para viabilizar copy/cut/selectAll.
+      const sel = window.getSelection();
+      if (sel && (!sel.anchorNode || !el.contains(sel.anchorNode))) {
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        range.collapse(false);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+    }
     try { document.execCommand(cmd, false, value); } catch {}
   };
+
   const insertAtCursor = (html: string) => {
     const sel = window.getSelection();
     if (sel && sel.rangeCount > 0 && (document.activeElement as HTMLElement)?.isContentEditable) {
@@ -308,7 +324,7 @@ function ContractEditorPage() {
                 <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">Variáveis</DropdownMenuLabel>
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger>Aluno</DropdownMenuSubTrigger>
-                  <DropdownMenuSubContent>
+                  <DropdownMenuSubContent className="z-[130]">
                     {["aluno_nome","aluno_cpf","aluno_rg","aluno_endereco","aluno_telefone","aluno_modalidade"].map(v => (
                       <DropdownMenuItem key={v} onClick={() => insertAtCursor(`{{${v}}}`)}>{v}</DropdownMenuItem>
                     ))}
@@ -316,7 +332,7 @@ function ContractEditorPage() {
                 </DropdownMenuSub>
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger>Academia</DropdownMenuSubTrigger>
-                  <DropdownMenuSubContent>
+                  <DropdownMenuSubContent className="z-[130]">
                     {["academia_nome","academia_cnpj","academia_endereco","academia_cidade","academia_estado"].map(v => (
                       <DropdownMenuItem key={v} onClick={() => insertAtCursor(`{{${v}}}`)}>{v}</DropdownMenuItem>
                     ))}
@@ -324,7 +340,7 @@ function ContractEditorPage() {
                 </DropdownMenuSub>
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger>Contrato</DropdownMenuSubTrigger>
-                  <DropdownMenuSubContent>
+                  <DropdownMenuSubContent className="z-[130]">
                     {["contrato_plano","contrato_valor","contrato_forma_pagamento","contrato_dia_vencimento","contrato_inicio","contrato_fim","contrato_data"].map(v => (
                       <DropdownMenuItem key={v} onClick={() => insertAtCursor(`{{${v}}}`)}>{v}</DropdownMenuItem>
                     ))}
@@ -347,7 +363,7 @@ function ContractEditorPage() {
                 <DropdownMenuSeparator />
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger>Alinhamento</DropdownMenuSubTrigger>
-                  <DropdownMenuSubContent>
+                  <DropdownMenuSubContent className="z-[130]">
                     <DropdownMenuItem onClick={() => exec("justifyLeft")}>Esquerda</DropdownMenuItem>
                     <DropdownMenuItem onClick={() => exec("justifyCenter")}>Centro</DropdownMenuItem>
                     <DropdownMenuItem onClick={() => exec("justifyRight")}>Direita</DropdownMenuItem>
@@ -356,7 +372,7 @@ function ContractEditorPage() {
                 </DropdownMenuSub>
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger>Listas</DropdownMenuSubTrigger>
-                  <DropdownMenuSubContent>
+                  <DropdownMenuSubContent className="z-[130]">
                     <DropdownMenuItem onClick={() => exec("insertUnorderedList")}>Lista com marcadores</DropdownMenuItem>
                     <DropdownMenuItem onClick={() => exec("insertOrderedList")}>Lista numerada</DropdownMenuItem>
                   </DropdownMenuSubContent>
@@ -564,9 +580,10 @@ function MenuButton({ label, children }: { label: string; children: React.ReactN
           <ChevronDown className="h-3 w-3 opacity-60" />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="min-w-[220px]">
+      <DropdownMenuContent align="start" className="min-w-[220px] z-[130]">
         {children}
       </DropdownMenuContent>
+
     </DropdownMenu>
   );
 }
