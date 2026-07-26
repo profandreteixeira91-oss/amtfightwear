@@ -212,14 +212,14 @@ function SchedulePage() {
               <Button size="sm" variant="ghost" className="h-8 px-3 rounded-full text-xs font-semibold hover:bg-white" onClick={() => setCursor(new Date())}>Hoje</Button>
               <Button size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-white" onClick={() => shift(1)}><ChevronRight className="h-4 w-4" /></Button>
             </div>
-            <div className="text-sm font-semibold capitalize min-w-[180px] px-2 text-neutral-800">{label}</div>
+            <div className="order-3 w-full text-sm font-semibold capitalize px-1 text-neutral-800 sm:order-none sm:w-auto sm:min-w-[180px] sm:px-2">{label}</div>
 
             <div className="flex items-center gap-1 rounded-full bg-neutral-100 ml-auto p-0.5">
               {(["day", "week", "month"] as ViewMode[]).map((v) => (
                 <button
                   key={v}
                   onClick={() => setView(v)}
-                  className={`px-3.5 py-1.5 text-xs font-semibold rounded-full transition-all ${view === v ? "bg-gradient-to-br from-red-600 to-red-800 text-white shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                  className={`px-3 py-1.5 text-xs font-semibold rounded-full transition-all sm:px-3.5 ${view === v ? "bg-gradient-to-br from-red-600 to-red-800 text-white shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
                 >
                   {v === "day" ? "Dia" : v === "week" ? "Semana" : "Mês"}
                 </button>
@@ -227,10 +227,26 @@ function SchedulePage() {
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          {/* Mobile: collapsible filters */}
+          <div className="sm:hidden">
+            <button
+              onClick={() => setFiltersOpen((o) => !o)}
+              className="flex w-full items-center justify-between rounded-2xl border border-neutral-200 bg-white px-3 py-2 text-sm font-semibold text-neutral-700 shadow-sm"
+            >
+              <span className="flex items-center gap-2">
+                <SlidersHorizontal className="h-4 w-4" />
+                Filtros
+              </span>
+              <span className="text-[10px] font-medium uppercase tracking-wider text-neutral-400">
+                {filtersOpen ? "Ocultar" : "Mostrar"}
+              </span>
+            </button>
+          </div>
+
+          <div className={`${filtersOpen ? "grid" : "hidden"} grid-cols-2 gap-2 sm:flex sm:flex-wrap`}>
             <Filter label="Modalidade">
               <Select value={filters.modality} onValueChange={(v) => setFilters({ ...filters, modality: v })}>
-                <SelectTrigger className="h-8 w-[160px]"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="h-8 w-full sm:w-[160px]"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todas</SelectItem>
                   {MODALITIES.map((m) => <SelectItem key={m} value={m} className="capitalize">{m}</SelectItem>)}
@@ -239,7 +255,7 @@ function SchedulePage() {
             </Filter>
             <Filter label="Espaço">
               <Select value={filters.space_id} onValueChange={(v) => setFilters({ ...filters, space_id: v })}>
-                <SelectTrigger className="h-8 w-[160px]"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="h-8 w-full sm:w-[160px]"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos</SelectItem>
                   {(spaces.data ?? []).map((s: any) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
@@ -248,7 +264,7 @@ function SchedulePage() {
             </Filter>
             <Filter label="Unidade">
               <Select value={filters.unit_id} onValueChange={(v) => setFilters({ ...filters, unit_id: v })}>
-                <SelectTrigger className="h-8 w-[160px]"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="h-8 w-full sm:w-[160px]"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todas</SelectItem>
                   {(units.data ?? []).map((u: any) => <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>)}
@@ -257,7 +273,7 @@ function SchedulePage() {
             </Filter>
             <Filter label="Status">
               <Select value={filters.status} onValueChange={(v) => setFilters({ ...filters, status: v })}>
-                <SelectTrigger className="h-8 w-[120px]"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="h-8 w-full sm:w-[120px]"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos</SelectItem>
                   <SelectItem value="active">Ativas</SelectItem>
@@ -267,7 +283,7 @@ function SchedulePage() {
             </Filter>
             <Filter label="Professor">
               <Input
-                className="h-8 w-[160px]"
+                className="h-8 w-full sm:w-[160px]"
                 placeholder="Buscar..."
                 value={filters.teacher}
                 onChange={(e) => setFilters({ ...filters, teacher: e.target.value })}
@@ -276,11 +292,19 @@ function SchedulePage() {
           </div>
 
           {view === "week" && (
-            <WeekCalendar
-              weekStart={range.start}
-              events={events}
-              onSelect={(classId, date) => setPanel({ classId, date })}
-            />
+            isMobile ? (
+              <MobileWeekAgenda
+                weekStart={range.start}
+                events={events}
+                onSelect={(classId, date) => setPanel({ classId, date })}
+              />
+            ) : (
+              <WeekCalendar
+                weekStart={range.start}
+                events={events}
+                onSelect={(classId, date) => setPanel({ classId, date })}
+              />
+            )
           )}
           {view === "day" && (
             <DayView events={events} onSelect={(classId, date) => setPanel({ classId, date })} />
