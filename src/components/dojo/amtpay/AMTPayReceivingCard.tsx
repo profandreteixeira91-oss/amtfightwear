@@ -25,7 +25,7 @@ export function AMTPayReceivingCard() {
             <Step
               n={1}
               title="Aluno paga"
-              body="Cobrança é gerada pelo AMT Pay e paga pelo aluno (Pix, boleto ou cartão). O valor entra na conta Asaas central da AMT."
+              body="Cobrança é gerada pelo AMT Pay e paga pelo aluno (Pix, boleto ou cartão). O valor entra na conta AMT Pay central da AMT."
             />
             <Step
               n={2}

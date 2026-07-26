@@ -87,7 +87,7 @@ export const Route = createFileRoute("/api/public/hooks/generate-dojo-invoices")
             const asaasData = await syncInvoiceWithAsaas(supabaseAdmin as any, invPayload);
             Object.assign(invPayload, asaasData);
           } catch (err) {
-            console.warn("[recurring] Asaas sync falhou", err);
+            console.warn("[recurring] AMT Pay sync falhou", err);
           }
           const { error: insErr } = await supabaseAdmin.from("dojo_invoices").insert(invPayload);
           if (insErr) { skipped++; continue; }

@@ -255,7 +255,7 @@ async function computeBalance(supabase: any, ownerId: string): Promise<WalletBal
         fetchedAt: new Date().toISOString(),
       };
     } catch (err) {
-      console.warn("[amtpay] fallback saldo interno após falha Asaas", err);
+      console.warn("[amtpay] fallback saldo interno após falha AMT Pay", err);
     }
   }
   return computeInternalBalance(supabase, ownerId);
@@ -410,14 +410,14 @@ export const listWalletTransactions = createServerFn({ method: "POST" })
             direction,
             fee_amount: 0,
             net_amount: Math.abs(value),
-            description: String(t.description ?? ev ?? "Movimentação Asaas"),
+            description: String(t.description ?? ev ?? "Movimentação AMT Pay"),
             provider: "asaas",
             provider_source: "native",
             occurred_at: t.date ?? t.dateCreated ?? new Date().toISOString(),
           };
         });
       } catch (err) {
-        console.warn("[amtpay] fallback extrato interno após falha Asaas", err);
+        console.warn("[amtpay] fallback extrato interno após falha AMT Pay", err);
       }
     }
 
@@ -638,7 +638,7 @@ export const retryWithdrawal = createServerFn({ method: "POST" })
       throw new Error(
         r.reason === "no-asaas-key"
           ? "Configuração AMT Pay indisponível. Contate o suporte."
-          : `Não foi possível enviar ao Asaas: ${r.reason ?? "erro desconhecido"}`,
+          : `Não foi possível enviar ao AMT Pay: ${r.reason ?? "erro desconhecido"}`,
       );
     }
     return { ok: true, status: r.asaasStatus };

@@ -31,7 +31,7 @@ async function asaasFetch(path: string, init: RequestInit = {}): Promise<any> {
   const json = text ? JSON.parse(text) : {};
   if (!res.ok) {
     const msg = json?.errors?.[0]?.description ?? json?.message ?? res.statusText;
-    throw new Error(`Asaas ${res.status}: ${msg}`);
+    throw new Error(`AMT Pay ${res.status}: ${msg}`);
   }
   return json;
 }
@@ -44,7 +44,7 @@ const METHOD_MAP: Record<string, string> = {
 
 export const asaasGateway: PaymentGateway = {
   id: "asaas",
-  displayName: "Asaas",
+  displayName: "AMT Pay",
 
   async createCharge(input: CreateChargeInput): Promise<CreateChargeResult> {
     // O AMT Pay usa a conta central da AMT; o split fica a cargo do webhook.

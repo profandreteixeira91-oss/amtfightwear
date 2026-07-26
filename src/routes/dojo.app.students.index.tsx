@@ -318,8 +318,8 @@ function StudentsPage() {
           },
         });
         if (res?.asaas_subscription_id) {
-          toast.success("Aluno matriculado — assinatura Asaas criada");
-          toast.info("As cobranças serão emitidas automaticamente pelo Asaas no ciclo do plano.");
+          toast.success("Aluno matriculado — assinatura AMT Pay criada");
+          toast.info("As cobranças serão emitidas automaticamente pelo AMT Pay no ciclo do plano.");
         } else {
           toast.success("Aluno matriculado e 1ª mensalidade gerada");
           if (res?.payment_url) {
@@ -915,7 +915,7 @@ function StudentsPage() {
                               </select>
                               {isGateway && (
                                 <p className="text-xs text-muted-foreground mt-1">
-                                  AMT Pay ativo — o Asaas emitirá as cobranças automaticamente no ciclo do plano.
+                                  AMT Pay ativo — o AMT Pay emitirá as cobranças automaticamente no ciclo do plano.
                                   O aluno recebe a fatura por e-mail e as cobranças aparecem no Financeiro.
                                 </p>
                               )}

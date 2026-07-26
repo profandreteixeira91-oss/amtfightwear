@@ -138,7 +138,7 @@ export function TuitionRow({
             {inv.asaas_charge_id && (
               <div className="flex items-center gap-2">
                 <CreditCard className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                <span className="text-muted-foreground">Cobrança Asaas:</span>
+                <span className="text-muted-foreground">Cobrança AMT Pay:</span>
                 <code className="rounded bg-white px-1.5 py-0.5 text-[11px] font-mono truncate">{inv.asaas_charge_id}</code>
                 <button className="text-primary hover:underline" onClick={() => copy(inv.asaas_charge_id!, "ID copiado")}><Copy className="h-3 w-3" /></button>
               </div>

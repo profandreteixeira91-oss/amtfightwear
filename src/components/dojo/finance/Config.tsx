@@ -610,7 +610,7 @@ export function FinanceSettings() {
             Arquitetura modular preparada. Ative apenas os gateways que sua academia utiliza.
           </p>
           <div className="grid gap-2 md:grid-cols-2">
-            {["PIX", "Cartão", "Boleto", "Asaas", "Mercado Pago", "PagSeguro", "Stripe", "Outra API"].map((g) => (
+            {["PIX", "Cartão", "Boleto", "AMT Pay", "Mercado Pago", "PagSeguro", "Stripe", "Outra API"].map((g) => (
               <div key={g} className="flex items-center justify-between rounded-lg border border-[color:var(--dojo-border)] p-3">
                 <span className="text-sm font-medium">{g}</span>
                 <Badge variant="outline" className="text-[10px]">Preparado</Badge>

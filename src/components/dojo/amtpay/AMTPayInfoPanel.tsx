@@ -36,12 +36,12 @@ export function AMTPayInfoPanel() {
         <CardContent className="space-y-3 text-sm text-muted-foreground">
           <p>
             O <strong className="text-foreground">AMT Pay</strong> é a central
-            financeira nativa do Dojo Manager. Ele conecta o seu dojo a um
-            provedor bancário licenciado (Asaas — instituição de pagamento
-            autorizada pelo Banco Central) e cuida de todo o ciclo de
-            recebimentos: mensalidades recorrentes, cobranças avulsas, links
-            de pagamento, boletos, PIX e cartão de crédito.
+            financeira nativa do Dojo Manager, operada por instituição de
+            pagamento autorizada pelo Banco Central. Ele cuida de todo o ciclo
+            de recebimentos: mensalidades recorrentes, cobranças avulsas,
+            links de pagamento, boletos, PIX e cartão de crédito.
           </p>
+
           <ul className="grid gap-2 md:grid-cols-2">
             <InfoItem icon={Wallet} title="Carteira do dojo">
               Saldo, extrato, recebimentos do dia e do mês em tempo real.
@@ -92,7 +92,7 @@ export function AMTPayInfoPanel() {
 
           <div>
             <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">
-              Taxas do meio de pagamento (Asaas)
+              Taxas do meio de pagamento (AMT Pay)
             </div>
             <div className="grid gap-2 md:grid-cols-3">
               <FeeCard
@@ -115,21 +115,13 @@ export function AMTPayInfoPanel() {
               />
             </div>
             <p className="text-[11px] text-muted-foreground mt-2 leading-relaxed">
-              Valores de referência praticados pelo Asaas na data desta
+              Valores de referência praticados pelo AMT Pay na data desta
               publicação. A tabela oficial e atualizada fica disponível no
-              extrato de cada cobrança e no painel do Asaas —{" "}
-              <a
-                href="https://www.asaas.com/precos"
-                target="_blank"
-                rel="noreferrer"
-                className="underline underline-offset-2 hover:text-foreground"
-              >
-                asaas.com/precos
-              </a>
-              . Reembolsos, contestações (chargeback) e antecipação de
-              recebíveis podem ter tarifas específicas cobradas diretamente
-              pelo Asaas.
+              extrato de cada cobrança e no painel do AMT Pay. Reembolsos,
+              contestações (chargeback) e antecipação de recebíveis podem ter
+              tarifas específicas cobradas diretamente pelo AMT Pay.
             </p>
+
           </div>
 
           <div className="rounded-md border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-amber-900 dark:text-amber-200 flex gap-2">
@@ -137,7 +129,7 @@ export function AMTPayInfoPanel() {
             <p>
               <strong>Transparência total:</strong> cada cobrança gera um
               lançamento no extrato indicando o valor bruto, a taxa do meio
-              de pagamento (Asaas) e o split de 2% da AMT. O valor líquido é
+              de pagamento (AMT Pay) e o split de 2% da AMT. O valor líquido é
               o que fica na sua carteira.
             </p>
           </div>
@@ -170,16 +162,16 @@ export function AMTPayInfoPanel() {
         <CardContent className="space-y-3 text-sm">
           <ul className="grid gap-2 md:grid-cols-2">
             <SecItem icon={Building2} title="Instituição autorizada">
-              Asaas Gestão Financeira IP S/A — instituição de pagamento
+              AMT Pay Gestão Financeira IP S/A — instituição de pagamento
               regulada e supervisionada pelo <strong>Banco Central do Brasil</strong>.
             </SecItem>
             <SecItem icon={Lock} title="Criptografia TLS 1.2+">
-              Todo o tráfego entre o Dojo Manager, o Asaas e o seu navegador
+              Todo o tráfego entre o Dojo Manager, o AMT Pay e o seu navegador
               é criptografado em trânsito (HTTPS).
             </SecItem>
             <SecItem icon={KeyRound} title="Tokenização de cartões">
               Números de cartão nunca são armazenados no Dojo Manager. O
-              Asaas é certificado <strong>PCI-DSS nível 1</strong>.
+              AMT Pay é certificado <strong>PCI-DSS nível 1</strong>.
             </SecItem>
             <SecItem icon={FileCheck2} title="Conformidade LGPD">
               Tratamos dados pessoais conforme a Lei Geral de Proteção de

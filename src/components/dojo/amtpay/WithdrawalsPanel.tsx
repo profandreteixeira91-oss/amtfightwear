@@ -49,7 +49,7 @@ export function WithdrawalsPanel() {
   async function onRetry(id: string) {
     try {
       const r = await retryFn({ data: { id } });
-      toast.success(r.status === "paid" ? "Transferência confirmada!" : "Saque enviado ao Asaas.");
+      toast.success(r.status === "paid" ? "Transferência confirmada!" : "Saque enviado ao AMT Pay.");
       qc.invalidateQueries({ queryKey: ["amtpay-withdrawals"] });
       qc.invalidateQueries({ queryKey: ["amtpay-balance"] });
       qc.invalidateQueries({ queryKey: ["amtpay-dashboard"] });

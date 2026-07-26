@@ -323,9 +323,9 @@ export function AMTPayActivationForm({
       try {
         await createSubaccount({ data: {} });
       } catch (e) {
-        console.warn("[amtpay-activation] Asaas subaccount:", e);
+        console.warn("[amtpay-activation] AMT Pay subaccount:", e);
         toast.warning("AMT Pay pendente", {
-          description: "Cadastro salvo. A subconta Asaas será revisada em breve.",
+          description: "Cadastro salvo. A subconta AMT Pay será revisada em breve.",
         });
       }
 
@@ -364,7 +364,7 @@ export function AMTPayActivationForm({
               <h2 className="text-base font-semibold tracking-tight">Sua central financeira dentro do Dojo Manager</h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 Ao concluir este cadastro, criamos automaticamente uma subconta bancária <b>em seu nome</b> no
-                Asaas (parceiro regulado pelo BACEN), por onde seus alunos pagam mensalidades via PIX, boleto ou
+                AMT Pay (parceiro regulado pelo BACEN), por onde seus alunos pagam mensalidades via PIX, boleto ou
                 cartão — e você saca direto para sua chave PIX.
               </p>
             </div>
@@ -383,7 +383,7 @@ export function AMTPayActivationForm({
                 <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" /> Segurança
               </div>
               <p className="mt-1 text-xs text-muted-foreground">
-                Dados protegidos por criptografia. Asaas é instituição de pagamento autorizada pelo BACEN.
+                Dados protegidos por criptografia. AMT Pay é instituição de pagamento autorizada pelo BACEN.
               </p>
             </div>
             <div className="rounded-xl bg-white dark:bg-white/5 p-3 ring-1 ring-black/5 dark:ring-white/10">
@@ -399,7 +399,7 @@ export function AMTPayActivationForm({
       )}
 
       <div className="space-y-6">
-        <Section title="Dados do responsável" description="Quem é o titular da conta no Asaas.">
+        <Section title="Dados do responsável" description="Quem é o titular da conta no AMT Pay.">
           <Field label="Nome completo do responsável *">
             <Input value={form.responsibleName} onChange={(e) => set("responsibleName", e.target.value)} />
           </Field>
@@ -536,7 +536,7 @@ export function AMTPayActivationForm({
           </div>
         </Section>
 
-        <Section title="Documentos obrigatórios" description="Envie fotos ou PDFs legíveis (até 10 MB cada). Comprovante de endereço só é solicitado se a análise do Asaas pedir depois.">
+        <Section title="Documentos obrigatórios" description="Envie fotos ou PDFs legíveis (até 10 MB cada). Comprovante de endereço só é solicitado se a análise do AMT Pay pedir depois.">
           <label className="mb-3 flex items-start gap-3 rounded-xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.02] p-3 text-sm text-muted-foreground">
             <Checkbox
               checked={useCnhDigital}
@@ -621,7 +621,7 @@ export function AMTPayActivationForm({
               onCheckedChange={(v) => set("acceptAmtPayTerms", !!v)}
             />
             <span>
-              Li e aceito os termos do AMT Pay, incluindo a criação automática de subconta no Asaas
+              Li e aceito os termos do AMT Pay, incluindo a criação automática de subconta no AMT Pay
               para processamento de pagamentos, com taxa administrativa da AMT de 2% sobre cada transação.
             </span>
           </label>

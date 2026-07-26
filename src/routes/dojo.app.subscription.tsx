@@ -115,7 +115,7 @@ function SubscriptionPage() {
           <ul className="space-y-2 text-sm text-neutral-700">
             <li>• Alunos, agenda, avaliações e certificados</li>
             <li>• App do aluno white-label + notificações push</li>
-            <li>• Cobrança dos alunos com o seu próprio gateway (MP, Asaas, PagSeguro)</li>
+            <li>• Cobrança dos alunos com o seu próprio gateway (MP, AMT Pay, PagSeguro)</li>
             <li>• Integrações Gympass / TotalPass / WhatsApp</li>
           </ul>
 

@@ -77,7 +77,7 @@ function OnboardingPage() {
             Configure seu dojo em uma etapa
           </h1>
           <p className="mx-auto mt-2 max-w-xl text-sm text-black/60">
-            Precisamos destes dados para liberar o sistema e ativar o AMT Pay (processamento de pagamentos via Asaas).
+            Precisamos destes dados para liberar o sistema e ativar o AMT Pay (processamento de pagamentos via AMT Pay).
           </p>
         </div>
 

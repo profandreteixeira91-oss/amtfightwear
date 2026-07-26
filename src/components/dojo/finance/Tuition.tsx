@@ -59,7 +59,7 @@ export function FinanceTuition() {
             <div>
               <div className="font-semibold text-sm">Gerar mensalidades (matrículas manuais)</div>
               <div className="text-xs text-muted-foreground">
-                Assinaturas Asaas são cobradas automaticamente pelo gateway.
+                Assinaturas AMT Pay são cobradas automaticamente pelo gateway.
               </div>
             </div>
           </div>
