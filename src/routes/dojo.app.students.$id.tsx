@@ -254,7 +254,7 @@ function StudentDetail() {
             <ArrowLeft className="h-3.5 w-3.5" /> Alunos
           </Link>
 
-          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-col gap-5">
             <div className="flex min-w-0 items-center gap-4 sm:gap-5">
               <div className="relative shrink-0">
                 <div aria-hidden className="absolute -inset-1 rounded-full bg-gradient-to-br from-red-500/60 to-red-700/10 blur-md" />
@@ -286,16 +286,19 @@ function StudentDetail() {
               </div>
             </div>
 
-            <div className="grid w-full grid-cols-2 gap-2 md:ml-auto md:w-auto md:shrink-0 md:justify-self-end [&_a]:contents [&_a>button]:w-full [&>button]:w-full">
-              <Button size="sm" variant="outline" asChild className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
-                <Link to="/dojo/app/students/$id/analysis" params={{ id }}>
-                  <Activity className="mr-1.5 h-4 w-4" /> Performance
-                </Link>
+            <div className="grid w-full grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+              <Button
+                size="sm"
+                variant="outline"
+                className="w-full border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+                onClick={() => navigate({ to: "/dojo/app/students/$id/analysis", params: { id } })}
+              >
+                <Activity className="mr-1.5 h-4 w-4" /> Performance
               </Button>
               <Button
                 size="sm"
                 variant="outline"
-                className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+                className="w-full border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white"
                 onClick={() => {
                   try { sessionStorage.setItem("dojo-edit-student", id); } catch {}
                   navigate({ to: "/dojo/app/students" });
@@ -306,7 +309,7 @@ function StudentDetail() {
               <Button
                 size="sm"
                 variant="outline"
-                className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+                className="w-full border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white"
                 onClick={() => printStudentReport({
                   student: s, branding, belts: belts.data ?? [], graduations, enrollments, invoices, certificates,
                   attendanceRows, competitions: competitionHistory.data ?? [],
@@ -317,26 +320,42 @@ function StudentDetail() {
                 <Printer className="mr-1.5 h-4 w-4" /> PDF
               </Button>
               {whatsappLink && (
-                <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-                  <Button size="sm" variant="outline" className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  asChild
+                  className="w-full border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+                >
+                  <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
                     <MessageSquare className="mr-1.5 h-4 w-4" /> WhatsApp
-                  </Button>
-                </a>
+                  </a>
+                </Button>
               )}
               {emailLink && (
-                <a href={emailLink}>
-                  <Button size="sm" variant="outline" className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  asChild
+                  className="w-full border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+                >
+                  <a href={emailLink}>
                     <MailIcon className="mr-1.5 h-4 w-4" /> E-mail
-                  </Button>
-                </a>
+                  </a>
+                </Button>
               )}
-              <Button size="sm" variant="outline" onClick={onDeleteStudent} className="border-red-400/40 bg-red-500/10 text-red-200 hover:bg-red-500/20 hover:text-white">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={onDeleteStudent}
+                className="w-full border-red-400/40 bg-red-500/10 text-red-200 hover:bg-red-500/20 hover:text-white"
+              >
                 <Trash2 className="mr-1.5 h-4 w-4" /> Excluir
               </Button>
             </div>
           </div>
         </div>
       </section>
+
 
       {/* Layout: sidebar / conteúdo (timeline vai como card horizontal abaixo) */}
       <div className="grid gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
