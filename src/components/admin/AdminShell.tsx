@@ -18,7 +18,7 @@ import {
   ScrollText,
   Sparkles,
   Rocket,
-} from "lucide-react";
+  TrendingUp,
 import { OwnerOnly } from "@/lib/auth/owner-only";
 import {
   Sidebar,
