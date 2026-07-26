@@ -76,26 +76,27 @@ function SupportPage() {
         <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-neutral-900/80 via-neutral-950 to-black p-6 shadow-2xl sm:p-8">
           <div className="pointer-events-none absolute -top-24 -right-16 h-72 w-72 rounded-full bg-red-600/20 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-24 -left-10 h-72 w-72 rounded-full bg-amber-500/10 blur-3xl" />
-          <div className="relative flex flex-wrap items-start justify-between gap-4">
-            <div className="flex items-start gap-4">
-              <div className="relative">
+          <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 sm:flex sm:flex-wrap sm:justify-between sm:gap-4">
+            <div className="flex min-w-0 items-start gap-3 sm:gap-4">
+              <div className="relative shrink-0">
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-red-500 to-amber-500 blur-lg opacity-60" />
-                <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-red-600 to-red-800 shadow-lg ring-1 ring-white/10">
-                  <LifeBuoy className="h-7 w-7 text-white" />
+                <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-red-600 to-red-800 shadow-lg ring-1 ring-white/10 sm:h-14 sm:w-14">
+                  <LifeBuoy className="h-6 w-6 text-white sm:h-7 sm:w-7" />
                 </div>
               </div>
-              <div>
-                <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">Central de Suporte</h1>
-                <p className="mt-1 max-w-xl text-sm text-neutral-400">
+              <div className="min-w-0">
+                <h1 className="text-xl font-bold tracking-tight text-white sm:text-3xl">Central de Suporte</h1>
+                <p className="mt-1 max-w-xl text-xs text-neutral-400 sm:text-sm">
                   Fale direto com o time AMT. Dúvidas, sugestões, novos módulos e solicitações — tudo por aqui, com histórico completo.
                 </p>
               </div>
             </div>
             <Button
               onClick={() => setOpenNew(true)}
-              className="gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg shadow-red-900/40 ring-1 ring-white/10 hover:from-red-500 hover:to-red-600"
+              size="sm"
+              className="shrink-0 gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg shadow-red-900/40 ring-1 ring-white/10 hover:from-red-500 hover:to-red-600 sm:size-default"
             >
-              <Plus className="h-4 w-4" /> Novo chamado
+              <Plus className="h-4 w-4" /> <span className="hidden sm:inline">Novo chamado</span><span className="sm:hidden">Novo</span>
             </Button>
           </div>
         </div>
