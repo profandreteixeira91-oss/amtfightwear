@@ -578,7 +578,7 @@ function SearchDialog({ open, onOpenChange, unitId, onSuccess }: any) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-lg w-[calc(100vw-1rem)]">
         <DialogHeader><DialogTitle>Buscar aluno</DialogTitle></DialogHeader>
         <Input
           autoFocus
