@@ -74,7 +74,8 @@ function AccountPage() {
     finance_alerts: true, product_news: true, reminders: true,
   });
   const [subscription, setSubscription] = useState<any>(null);
-  const [invoices, setInvoices] = useState<any[]>([]);
+  const [subPayments, setSubPayments] = useState<{ paid: any[]; pending: any[] }>({ paid: [], pending: [] });
+  const fetchSubPayments = useServerFn(listMySubscriptionPayments);
   const [audit, setAudit] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [password, setPassword] = useState("");
