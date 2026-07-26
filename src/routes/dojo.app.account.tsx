@@ -245,7 +245,7 @@ function AccountPage() {
             />
           )}
           {tab === "subscription" && (
-            <SubscriptionTab subscription={subscription} invoices={invoices} />
+            <SubscriptionTab subscription={subscription} payments={subPayments} />
           )}
           {tab === "security" && (
             <SecurityTab
