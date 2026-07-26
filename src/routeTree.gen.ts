@@ -266,31 +266,6 @@ import { Route as AuthenticatedAdminInstagramContaRouteImport } from './routes/_
 import { Route as AuthenticatedAdminInstagramComentariosRouteImport } from './routes/_authenticated/admin.instagram.comentarios'
 import { Route as AuthenticatedAdminInstagramAutomacoesRouteImport } from './routes/_authenticated/admin.instagram.automacoes'
 import { Route as AuthenticatedAdminInstagramAdminRouteImport } from './routes/_authenticated/admin.instagram.admin'
-import { Route as AuthenticatedAdminDojoVideosRouteImport } from './routes/_authenticated/admin.dojo.videos'
-import { Route as AuthenticatedAdminDojoVendasRouteImport } from './routes/_authenticated/admin.dojo.vendas'
-import { Route as AuthenticatedAdminDojoUnidadesRouteImport } from './routes/_authenticated/admin.dojo.unidades'
-import { Route as AuthenticatedAdminDojoSuporteRouteImport } from './routes/_authenticated/admin.dojo.suporte'
-import { Route as AuthenticatedAdminDojoRankingRouteImport } from './routes/_authenticated/admin.dojo.ranking'
-import { Route as AuthenticatedAdminDojoQrAlunoRouteImport } from './routes/_authenticated/admin.dojo.qr-aluno'
-import { Route as AuthenticatedAdminDojoPlanosDeAulaRouteImport } from './routes/_authenticated/admin.dojo.planos-de-aula'
-import { Route as AuthenticatedAdminDojoPlanosRouteImport } from './routes/_authenticated/admin.dojo.planos'
-import { Route as AuthenticatedAdminDojoPayRouteImport } from './routes/_authenticated/admin.dojo.pay'
-import { Route as AuthenticatedAdminDojoNotificacoesRouteImport } from './routes/_authenticated/admin.dojo.notificacoes'
-import { Route as AuthenticatedAdminDojoLojaRouteImport } from './routes/_authenticated/admin.dojo.loja'
-import { Route as AuthenticatedAdminDojoGraduacoesRouteImport } from './routes/_authenticated/admin.dojo.graduacoes'
-import { Route as AuthenticatedAdminDojoFinanceiroRouteImport } from './routes/_authenticated/admin.dojo.financeiro'
-import { Route as AuthenticatedAdminDojoFaixasRouteImport } from './routes/_authenticated/admin.dojo.faixas'
-import { Route as AuthenticatedAdminDojoEquipeRouteImport } from './routes/_authenticated/admin.dojo.equipe'
-import { Route as AuthenticatedAdminDojoContratosRouteImport } from './routes/_authenticated/admin.dojo.contratos'
-import { Route as AuthenticatedAdminDojoContaRouteImport } from './routes/_authenticated/admin.dojo.conta'
-import { Route as AuthenticatedAdminDojoComunicadosRouteImport } from './routes/_authenticated/admin.dojo.comunicados'
-import { Route as AuthenticatedAdminDojoCompeticoesRouteImport } from './routes/_authenticated/admin.dojo.competicoes'
-import { Route as AuthenticatedAdminDojoCheckinRouteImport } from './routes/_authenticated/admin.dojo.checkin'
-import { Route as AuthenticatedAdminDojoCertificadosRouteImport } from './routes/_authenticated/admin.dojo.certificados'
-import { Route as AuthenticatedAdminDojoBeneficiosRouteImport } from './routes/_authenticated/admin.dojo.beneficios'
-import { Route as AuthenticatedAdminDojoAvaliacoesRouteImport } from './routes/_authenticated/admin.dojo.avaliacoes'
-import { Route as AuthenticatedAdminDojoAlunosRouteImport } from './routes/_authenticated/admin.dojo.alunos'
-import { Route as AuthenticatedAdminDojoAgendaRouteImport } from './routes/_authenticated/admin.dojo.agenda'
 import { Route as AuthenticatedAdminAnunciosOtimizacaoRouteImport } from './routes/_authenticated/admin.anuncios.otimizacao'
 import { Route as AuthenticatedAdminAnunciosNovaRouteImport } from './routes/_authenticated/admin.anuncios.nova'
 import { Route as AuthenticatedAdminAnunciosEscalaRouteImport } from './routes/_authenticated/admin.anuncios.escala'
@@ -1709,156 +1684,6 @@ const AuthenticatedAdminInstagramAdminRoute =
     path: '/admin',
     getParentRoute: () => AuthenticatedAdminInstagramRoute,
   } as any)
-const AuthenticatedAdminDojoVideosRoute =
-  AuthenticatedAdminDojoVideosRouteImport.update({
-    id: '/videos',
-    path: '/videos',
-    getParentRoute: () => AuthenticatedAdminDojoRoute,
-  } as any)
-const AuthenticatedAdminDojoVendasRoute =
-  AuthenticatedAdminDojoVendasRouteImport.update({
-    id: '/vendas',
-    path: '/vendas',
-    getParentRoute: () => AuthenticatedAdminDojoRoute,
-  } as any)
-const AuthenticatedAdminDojoUnidadesRoute =
-  AuthenticatedAdminDojoUnidadesRouteImport.update({
-    id: '/unidades',
-    path: '/unidades',
-    getParentRoute: () => AuthenticatedAdminDojoRoute,
-  } as any)
-const AuthenticatedAdminDojoSuporteRoute =
-  AuthenticatedAdminDojoSuporteRouteImport.update({
-    id: '/suporte',
-    path: '/suporte',
-    getParentRoute: () => AuthenticatedAdminDojoRoute,
-  } as any)
-const AuthenticatedAdminDojoRankingRoute =
-  AuthenticatedAdminDojoRankingRouteImport.update({
-    id: '/ranking',
-    path: '/ranking',
-    getParentRoute: () => AuthenticatedAdminDojoRoute,
-  } as any)
-const AuthenticatedAdminDojoQrAlunoRoute =
-  AuthenticatedAdminDojoQrAlunoRouteImport.update({
-    id: '/qr-aluno',
-    path: '/qr-aluno',
-    getParentRoute: () => AuthenticatedAdminDojoRoute,
-  } as any)
-const AuthenticatedAdminDojoPlanosDeAulaRoute =
-  AuthenticatedAdminDojoPlanosDeAulaRouteImport.update({
-    id: '/planos-de-aula',
-    path: '/planos-de-aula',
-    getParentRoute: () => AuthenticatedAdminDojoRoute,
-  } as any)
-const AuthenticatedAdminDojoPlanosRoute =
-  AuthenticatedAdminDojoPlanosRouteImport.update({
-    id: '/planos',
-    path: '/planos',
-    getParentRoute: () => AuthenticatedAdminDojoRoute,
-  } as any)
-const AuthenticatedAdminDojoPayRoute =
-  AuthenticatedAdminDojoPayRouteImport.update({
-    id: '/pay',
-    path: '/pay',
-    getParentRoute: () => AuthenticatedAdminDojoRoute,
-  } as any)
-const AuthenticatedAdminDojoNotificacoesRoute =
-  AuthenticatedAdminDojoNotificacoesRouteImport.update({
-    id: '/notificacoes',
-    path: '/notificacoes',
-    getParentRoute: () => AuthenticatedAdminDojoRoute,
-  } as any)
-const AuthenticatedAdminDojoLojaRoute =
-  AuthenticatedAdminDojoLojaRouteImport.update({
-    id: '/loja',
-    path: '/loja',
-    getParentRoute: () => AuthenticatedAdminDojoRoute,
-  } as any)
-const AuthenticatedAdminDojoGraduacoesRoute =
-  AuthenticatedAdminDojoGraduacoesRouteImport.update({
-    id: '/graduacoes',
-    path: '/graduacoes',
-    getParentRoute: () => AuthenticatedAdminDojoRoute,
-  } as any)
-const AuthenticatedAdminDojoFinanceiroRoute =
-  AuthenticatedAdminDojoFinanceiroRouteImport.update({
-    id: '/financeiro',
-    path: '/financeiro',
-    getParentRoute: () => AuthenticatedAdminDojoRoute,
-  } as any)
-const AuthenticatedAdminDojoFaixasRoute =
-  AuthenticatedAdminDojoFaixasRouteImport.update({
-    id: '/faixas',
-    path: '/faixas',
-    getParentRoute: () => AuthenticatedAdminDojoRoute,
-  } as any)
-const AuthenticatedAdminDojoEquipeRoute =
-  AuthenticatedAdminDojoEquipeRouteImport.update({
-    id: '/equipe',
-    path: '/equipe',
-    getParentRoute: () => AuthenticatedAdminDojoRoute,
-  } as any)
-const AuthenticatedAdminDojoContratosRoute =
-  AuthenticatedAdminDojoContratosRouteImport.update({
-    id: '/contratos',
-    path: '/contratos',
-    getParentRoute: () => AuthenticatedAdminDojoRoute,
-  } as any)
-const AuthenticatedAdminDojoContaRoute =
-  AuthenticatedAdminDojoContaRouteImport.update({
-    id: '/conta',
-    path: '/conta',
-    getParentRoute: () => AuthenticatedAdminDojoRoute,
-  } as any)
-const AuthenticatedAdminDojoComunicadosRoute =
-  AuthenticatedAdminDojoComunicadosRouteImport.update({
-    id: '/comunicados',
-    path: '/comunicados',
-    getParentRoute: () => AuthenticatedAdminDojoRoute,
-  } as any)
-const AuthenticatedAdminDojoCompeticoesRoute =
-  AuthenticatedAdminDojoCompeticoesRouteImport.update({
-    id: '/competicoes',
-    path: '/competicoes',
-    getParentRoute: () => AuthenticatedAdminDojoRoute,
-  } as any)
-const AuthenticatedAdminDojoCheckinRoute =
-  AuthenticatedAdminDojoCheckinRouteImport.update({
-    id: '/checkin',
-    path: '/checkin',
-    getParentRoute: () => AuthenticatedAdminDojoRoute,
-  } as any)
-const AuthenticatedAdminDojoCertificadosRoute =
-  AuthenticatedAdminDojoCertificadosRouteImport.update({
-    id: '/certificados',
-    path: '/certificados',
-    getParentRoute: () => AuthenticatedAdminDojoRoute,
-  } as any)
-const AuthenticatedAdminDojoBeneficiosRoute =
-  AuthenticatedAdminDojoBeneficiosRouteImport.update({
-    id: '/beneficios',
-    path: '/beneficios',
-    getParentRoute: () => AuthenticatedAdminDojoRoute,
-  } as any)
-const AuthenticatedAdminDojoAvaliacoesRoute =
-  AuthenticatedAdminDojoAvaliacoesRouteImport.update({
-    id: '/avaliacoes',
-    path: '/avaliacoes',
-    getParentRoute: () => AuthenticatedAdminDojoRoute,
-  } as any)
-const AuthenticatedAdminDojoAlunosRoute =
-  AuthenticatedAdminDojoAlunosRouteImport.update({
-    id: '/alunos',
-    path: '/alunos',
-    getParentRoute: () => AuthenticatedAdminDojoRoute,
-  } as any)
-const AuthenticatedAdminDojoAgendaRoute =
-  AuthenticatedAdminDojoAgendaRouteImport.update({
-    id: '/agenda',
-    path: '/agenda',
-    getParentRoute: () => AuthenticatedAdminDojoRoute,
-  } as any)
 const AuthenticatedAdminAnunciosOtimizacaoRoute =
   AuthenticatedAdminAnunciosOtimizacaoRouteImport.update({
     id: '/otimizacao',
@@ -2039,7 +1864,7 @@ export interface FileRoutesByFullPath {
   '/admin/configuracoes': typeof AuthenticatedAdminConfiguracoesRoute
   '/admin/crm': typeof AuthenticatedAdminCrmRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
-  '/admin/dojo': typeof AuthenticatedAdminDojoRouteWithChildren
+  '/admin/dojo': typeof AuthenticatedAdminDojoRoute
   '/admin/envio': typeof AuthenticatedAdminEnvioRoute
   '/admin/instagram': typeof AuthenticatedAdminInstagramRouteWithChildren
   '/admin/leads': typeof AuthenticatedAdminLeadsRouteWithChildren
@@ -2171,31 +1996,6 @@ export interface FileRoutesByFullPath {
   '/admin/anuncios/escala': typeof AuthenticatedAdminAnunciosEscalaRoute
   '/admin/anuncios/nova': typeof AuthenticatedAdminAnunciosNovaRoute
   '/admin/anuncios/otimizacao': typeof AuthenticatedAdminAnunciosOtimizacaoRoute
-  '/admin/dojo/agenda': typeof AuthenticatedAdminDojoAgendaRoute
-  '/admin/dojo/alunos': typeof AuthenticatedAdminDojoAlunosRoute
-  '/admin/dojo/avaliacoes': typeof AuthenticatedAdminDojoAvaliacoesRoute
-  '/admin/dojo/beneficios': typeof AuthenticatedAdminDojoBeneficiosRoute
-  '/admin/dojo/certificados': typeof AuthenticatedAdminDojoCertificadosRoute
-  '/admin/dojo/checkin': typeof AuthenticatedAdminDojoCheckinRoute
-  '/admin/dojo/competicoes': typeof AuthenticatedAdminDojoCompeticoesRoute
-  '/admin/dojo/comunicados': typeof AuthenticatedAdminDojoComunicadosRoute
-  '/admin/dojo/conta': typeof AuthenticatedAdminDojoContaRoute
-  '/admin/dojo/contratos': typeof AuthenticatedAdminDojoContratosRoute
-  '/admin/dojo/equipe': typeof AuthenticatedAdminDojoEquipeRoute
-  '/admin/dojo/faixas': typeof AuthenticatedAdminDojoFaixasRoute
-  '/admin/dojo/financeiro': typeof AuthenticatedAdminDojoFinanceiroRoute
-  '/admin/dojo/graduacoes': typeof AuthenticatedAdminDojoGraduacoesRoute
-  '/admin/dojo/loja': typeof AuthenticatedAdminDojoLojaRoute
-  '/admin/dojo/notificacoes': typeof AuthenticatedAdminDojoNotificacoesRoute
-  '/admin/dojo/pay': typeof AuthenticatedAdminDojoPayRoute
-  '/admin/dojo/planos': typeof AuthenticatedAdminDojoPlanosRoute
-  '/admin/dojo/planos-de-aula': typeof AuthenticatedAdminDojoPlanosDeAulaRoute
-  '/admin/dojo/qr-aluno': typeof AuthenticatedAdminDojoQrAlunoRoute
-  '/admin/dojo/ranking': typeof AuthenticatedAdminDojoRankingRoute
-  '/admin/dojo/suporte': typeof AuthenticatedAdminDojoSuporteRoute
-  '/admin/dojo/unidades': typeof AuthenticatedAdminDojoUnidadesRoute
-  '/admin/dojo/vendas': typeof AuthenticatedAdminDojoVendasRoute
-  '/admin/dojo/videos': typeof AuthenticatedAdminDojoVideosRoute
   '/admin/instagram/admin': typeof AuthenticatedAdminInstagramAdminRoute
   '/admin/instagram/automacoes': typeof AuthenticatedAdminInstagramAutomacoesRoute
   '/admin/instagram/comentarios': typeof AuthenticatedAdminInstagramComentariosRoute
@@ -2337,7 +2137,7 @@ export interface FileRoutesByTo {
   '/admin/configuracoes': typeof AuthenticatedAdminConfiguracoesRoute
   '/admin/crm': typeof AuthenticatedAdminCrmRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
-  '/admin/dojo': typeof AuthenticatedAdminDojoRouteWithChildren
+  '/admin/dojo': typeof AuthenticatedAdminDojoRoute
   '/admin/envio': typeof AuthenticatedAdminEnvioRoute
   '/admin/instagram': typeof AuthenticatedAdminInstagramRouteWithChildren
   '/admin/leads': typeof AuthenticatedAdminLeadsRouteWithChildren
@@ -2462,31 +2262,6 @@ export interface FileRoutesByTo {
   '/admin/anuncios/escala': typeof AuthenticatedAdminAnunciosEscalaRoute
   '/admin/anuncios/nova': typeof AuthenticatedAdminAnunciosNovaRoute
   '/admin/anuncios/otimizacao': typeof AuthenticatedAdminAnunciosOtimizacaoRoute
-  '/admin/dojo/agenda': typeof AuthenticatedAdminDojoAgendaRoute
-  '/admin/dojo/alunos': typeof AuthenticatedAdminDojoAlunosRoute
-  '/admin/dojo/avaliacoes': typeof AuthenticatedAdminDojoAvaliacoesRoute
-  '/admin/dojo/beneficios': typeof AuthenticatedAdminDojoBeneficiosRoute
-  '/admin/dojo/certificados': typeof AuthenticatedAdminDojoCertificadosRoute
-  '/admin/dojo/checkin': typeof AuthenticatedAdminDojoCheckinRoute
-  '/admin/dojo/competicoes': typeof AuthenticatedAdminDojoCompeticoesRoute
-  '/admin/dojo/comunicados': typeof AuthenticatedAdminDojoComunicadosRoute
-  '/admin/dojo/conta': typeof AuthenticatedAdminDojoContaRoute
-  '/admin/dojo/contratos': typeof AuthenticatedAdminDojoContratosRoute
-  '/admin/dojo/equipe': typeof AuthenticatedAdminDojoEquipeRoute
-  '/admin/dojo/faixas': typeof AuthenticatedAdminDojoFaixasRoute
-  '/admin/dojo/financeiro': typeof AuthenticatedAdminDojoFinanceiroRoute
-  '/admin/dojo/graduacoes': typeof AuthenticatedAdminDojoGraduacoesRoute
-  '/admin/dojo/loja': typeof AuthenticatedAdminDojoLojaRoute
-  '/admin/dojo/notificacoes': typeof AuthenticatedAdminDojoNotificacoesRoute
-  '/admin/dojo/pay': typeof AuthenticatedAdminDojoPayRoute
-  '/admin/dojo/planos': typeof AuthenticatedAdminDojoPlanosRoute
-  '/admin/dojo/planos-de-aula': typeof AuthenticatedAdminDojoPlanosDeAulaRoute
-  '/admin/dojo/qr-aluno': typeof AuthenticatedAdminDojoQrAlunoRoute
-  '/admin/dojo/ranking': typeof AuthenticatedAdminDojoRankingRoute
-  '/admin/dojo/suporte': typeof AuthenticatedAdminDojoSuporteRoute
-  '/admin/dojo/unidades': typeof AuthenticatedAdminDojoUnidadesRoute
-  '/admin/dojo/vendas': typeof AuthenticatedAdminDojoVendasRoute
-  '/admin/dojo/videos': typeof AuthenticatedAdminDojoVideosRoute
   '/admin/instagram/admin': typeof AuthenticatedAdminInstagramAdminRoute
   '/admin/instagram/automacoes': typeof AuthenticatedAdminInstagramAutomacoesRoute
   '/admin/instagram/comentarios': typeof AuthenticatedAdminInstagramComentariosRoute
@@ -2635,7 +2410,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/configuracoes': typeof AuthenticatedAdminConfiguracoesRoute
   '/_authenticated/admin/crm': typeof AuthenticatedAdminCrmRoute
   '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
-  '/_authenticated/admin/dojo': typeof AuthenticatedAdminDojoRouteWithChildren
+  '/_authenticated/admin/dojo': typeof AuthenticatedAdminDojoRoute
   '/_authenticated/admin/envio': typeof AuthenticatedAdminEnvioRoute
   '/_authenticated/admin/instagram': typeof AuthenticatedAdminInstagramRouteWithChildren
   '/_authenticated/admin/leads': typeof AuthenticatedAdminLeadsRouteWithChildren
@@ -2767,31 +2542,6 @@ export interface FileRoutesById {
   '/_authenticated/admin/anuncios/escala': typeof AuthenticatedAdminAnunciosEscalaRoute
   '/_authenticated/admin/anuncios/nova': typeof AuthenticatedAdminAnunciosNovaRoute
   '/_authenticated/admin/anuncios/otimizacao': typeof AuthenticatedAdminAnunciosOtimizacaoRoute
-  '/_authenticated/admin/dojo/agenda': typeof AuthenticatedAdminDojoAgendaRoute
-  '/_authenticated/admin/dojo/alunos': typeof AuthenticatedAdminDojoAlunosRoute
-  '/_authenticated/admin/dojo/avaliacoes': typeof AuthenticatedAdminDojoAvaliacoesRoute
-  '/_authenticated/admin/dojo/beneficios': typeof AuthenticatedAdminDojoBeneficiosRoute
-  '/_authenticated/admin/dojo/certificados': typeof AuthenticatedAdminDojoCertificadosRoute
-  '/_authenticated/admin/dojo/checkin': typeof AuthenticatedAdminDojoCheckinRoute
-  '/_authenticated/admin/dojo/competicoes': typeof AuthenticatedAdminDojoCompeticoesRoute
-  '/_authenticated/admin/dojo/comunicados': typeof AuthenticatedAdminDojoComunicadosRoute
-  '/_authenticated/admin/dojo/conta': typeof AuthenticatedAdminDojoContaRoute
-  '/_authenticated/admin/dojo/contratos': typeof AuthenticatedAdminDojoContratosRoute
-  '/_authenticated/admin/dojo/equipe': typeof AuthenticatedAdminDojoEquipeRoute
-  '/_authenticated/admin/dojo/faixas': typeof AuthenticatedAdminDojoFaixasRoute
-  '/_authenticated/admin/dojo/financeiro': typeof AuthenticatedAdminDojoFinanceiroRoute
-  '/_authenticated/admin/dojo/graduacoes': typeof AuthenticatedAdminDojoGraduacoesRoute
-  '/_authenticated/admin/dojo/loja': typeof AuthenticatedAdminDojoLojaRoute
-  '/_authenticated/admin/dojo/notificacoes': typeof AuthenticatedAdminDojoNotificacoesRoute
-  '/_authenticated/admin/dojo/pay': typeof AuthenticatedAdminDojoPayRoute
-  '/_authenticated/admin/dojo/planos': typeof AuthenticatedAdminDojoPlanosRoute
-  '/_authenticated/admin/dojo/planos-de-aula': typeof AuthenticatedAdminDojoPlanosDeAulaRoute
-  '/_authenticated/admin/dojo/qr-aluno': typeof AuthenticatedAdminDojoQrAlunoRoute
-  '/_authenticated/admin/dojo/ranking': typeof AuthenticatedAdminDojoRankingRoute
-  '/_authenticated/admin/dojo/suporte': typeof AuthenticatedAdminDojoSuporteRoute
-  '/_authenticated/admin/dojo/unidades': typeof AuthenticatedAdminDojoUnidadesRoute
-  '/_authenticated/admin/dojo/vendas': typeof AuthenticatedAdminDojoVendasRoute
-  '/_authenticated/admin/dojo/videos': typeof AuthenticatedAdminDojoVideosRoute
   '/_authenticated/admin/instagram/admin': typeof AuthenticatedAdminInstagramAdminRoute
   '/_authenticated/admin/instagram/automacoes': typeof AuthenticatedAdminInstagramAutomacoesRoute
   '/_authenticated/admin/instagram/comentarios': typeof AuthenticatedAdminInstagramComentariosRoute
@@ -3073,31 +2823,6 @@ export interface FileRouteTypes {
     | '/admin/anuncios/escala'
     | '/admin/anuncios/nova'
     | '/admin/anuncios/otimizacao'
-    | '/admin/dojo/agenda'
-    | '/admin/dojo/alunos'
-    | '/admin/dojo/avaliacoes'
-    | '/admin/dojo/beneficios'
-    | '/admin/dojo/certificados'
-    | '/admin/dojo/checkin'
-    | '/admin/dojo/competicoes'
-    | '/admin/dojo/comunicados'
-    | '/admin/dojo/conta'
-    | '/admin/dojo/contratos'
-    | '/admin/dojo/equipe'
-    | '/admin/dojo/faixas'
-    | '/admin/dojo/financeiro'
-    | '/admin/dojo/graduacoes'
-    | '/admin/dojo/loja'
-    | '/admin/dojo/notificacoes'
-    | '/admin/dojo/pay'
-    | '/admin/dojo/planos'
-    | '/admin/dojo/planos-de-aula'
-    | '/admin/dojo/qr-aluno'
-    | '/admin/dojo/ranking'
-    | '/admin/dojo/suporte'
-    | '/admin/dojo/unidades'
-    | '/admin/dojo/vendas'
-    | '/admin/dojo/videos'
     | '/admin/instagram/admin'
     | '/admin/instagram/automacoes'
     | '/admin/instagram/comentarios'
@@ -3364,31 +3089,6 @@ export interface FileRouteTypes {
     | '/admin/anuncios/escala'
     | '/admin/anuncios/nova'
     | '/admin/anuncios/otimizacao'
-    | '/admin/dojo/agenda'
-    | '/admin/dojo/alunos'
-    | '/admin/dojo/avaliacoes'
-    | '/admin/dojo/beneficios'
-    | '/admin/dojo/certificados'
-    | '/admin/dojo/checkin'
-    | '/admin/dojo/competicoes'
-    | '/admin/dojo/comunicados'
-    | '/admin/dojo/conta'
-    | '/admin/dojo/contratos'
-    | '/admin/dojo/equipe'
-    | '/admin/dojo/faixas'
-    | '/admin/dojo/financeiro'
-    | '/admin/dojo/graduacoes'
-    | '/admin/dojo/loja'
-    | '/admin/dojo/notificacoes'
-    | '/admin/dojo/pay'
-    | '/admin/dojo/planos'
-    | '/admin/dojo/planos-de-aula'
-    | '/admin/dojo/qr-aluno'
-    | '/admin/dojo/ranking'
-    | '/admin/dojo/suporte'
-    | '/admin/dojo/unidades'
-    | '/admin/dojo/vendas'
-    | '/admin/dojo/videos'
     | '/admin/instagram/admin'
     | '/admin/instagram/automacoes'
     | '/admin/instagram/comentarios'
@@ -3668,31 +3368,6 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/anuncios/escala'
     | '/_authenticated/admin/anuncios/nova'
     | '/_authenticated/admin/anuncios/otimizacao'
-    | '/_authenticated/admin/dojo/agenda'
-    | '/_authenticated/admin/dojo/alunos'
-    | '/_authenticated/admin/dojo/avaliacoes'
-    | '/_authenticated/admin/dojo/beneficios'
-    | '/_authenticated/admin/dojo/certificados'
-    | '/_authenticated/admin/dojo/checkin'
-    | '/_authenticated/admin/dojo/competicoes'
-    | '/_authenticated/admin/dojo/comunicados'
-    | '/_authenticated/admin/dojo/conta'
-    | '/_authenticated/admin/dojo/contratos'
-    | '/_authenticated/admin/dojo/equipe'
-    | '/_authenticated/admin/dojo/faixas'
-    | '/_authenticated/admin/dojo/financeiro'
-    | '/_authenticated/admin/dojo/graduacoes'
-    | '/_authenticated/admin/dojo/loja'
-    | '/_authenticated/admin/dojo/notificacoes'
-    | '/_authenticated/admin/dojo/pay'
-    | '/_authenticated/admin/dojo/planos'
-    | '/_authenticated/admin/dojo/planos-de-aula'
-    | '/_authenticated/admin/dojo/qr-aluno'
-    | '/_authenticated/admin/dojo/ranking'
-    | '/_authenticated/admin/dojo/suporte'
-    | '/_authenticated/admin/dojo/unidades'
-    | '/_authenticated/admin/dojo/vendas'
-    | '/_authenticated/admin/dojo/videos'
     | '/_authenticated/admin/instagram/admin'
     | '/_authenticated/admin/instagram/automacoes'
     | '/_authenticated/admin/instagram/comentarios'
@@ -5652,181 +5327,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminInstagramAdminRouteImport
       parentRoute: typeof AuthenticatedAdminInstagramRoute
     }
-    '/_authenticated/admin/dojo/videos': {
-      id: '/_authenticated/admin/dojo/videos'
-      path: '/videos'
-      fullPath: '/admin/dojo/videos'
-      preLoaderRoute: typeof AuthenticatedAdminDojoVideosRouteImport
-      parentRoute: typeof AuthenticatedAdminDojoRoute
-    }
-    '/_authenticated/admin/dojo/vendas': {
-      id: '/_authenticated/admin/dojo/vendas'
-      path: '/vendas'
-      fullPath: '/admin/dojo/vendas'
-      preLoaderRoute: typeof AuthenticatedAdminDojoVendasRouteImport
-      parentRoute: typeof AuthenticatedAdminDojoRoute
-    }
-    '/_authenticated/admin/dojo/unidades': {
-      id: '/_authenticated/admin/dojo/unidades'
-      path: '/unidades'
-      fullPath: '/admin/dojo/unidades'
-      preLoaderRoute: typeof AuthenticatedAdminDojoUnidadesRouteImport
-      parentRoute: typeof AuthenticatedAdminDojoRoute
-    }
-    '/_authenticated/admin/dojo/suporte': {
-      id: '/_authenticated/admin/dojo/suporte'
-      path: '/suporte'
-      fullPath: '/admin/dojo/suporte'
-      preLoaderRoute: typeof AuthenticatedAdminDojoSuporteRouteImport
-      parentRoute: typeof AuthenticatedAdminDojoRoute
-    }
-    '/_authenticated/admin/dojo/ranking': {
-      id: '/_authenticated/admin/dojo/ranking'
-      path: '/ranking'
-      fullPath: '/admin/dojo/ranking'
-      preLoaderRoute: typeof AuthenticatedAdminDojoRankingRouteImport
-      parentRoute: typeof AuthenticatedAdminDojoRoute
-    }
-    '/_authenticated/admin/dojo/qr-aluno': {
-      id: '/_authenticated/admin/dojo/qr-aluno'
-      path: '/qr-aluno'
-      fullPath: '/admin/dojo/qr-aluno'
-      preLoaderRoute: typeof AuthenticatedAdminDojoQrAlunoRouteImport
-      parentRoute: typeof AuthenticatedAdminDojoRoute
-    }
-    '/_authenticated/admin/dojo/planos-de-aula': {
-      id: '/_authenticated/admin/dojo/planos-de-aula'
-      path: '/planos-de-aula'
-      fullPath: '/admin/dojo/planos-de-aula'
-      preLoaderRoute: typeof AuthenticatedAdminDojoPlanosDeAulaRouteImport
-      parentRoute: typeof AuthenticatedAdminDojoRoute
-    }
-    '/_authenticated/admin/dojo/planos': {
-      id: '/_authenticated/admin/dojo/planos'
-      path: '/planos'
-      fullPath: '/admin/dojo/planos'
-      preLoaderRoute: typeof AuthenticatedAdminDojoPlanosRouteImport
-      parentRoute: typeof AuthenticatedAdminDojoRoute
-    }
-    '/_authenticated/admin/dojo/pay': {
-      id: '/_authenticated/admin/dojo/pay'
-      path: '/pay'
-      fullPath: '/admin/dojo/pay'
-      preLoaderRoute: typeof AuthenticatedAdminDojoPayRouteImport
-      parentRoute: typeof AuthenticatedAdminDojoRoute
-    }
-    '/_authenticated/admin/dojo/notificacoes': {
-      id: '/_authenticated/admin/dojo/notificacoes'
-      path: '/notificacoes'
-      fullPath: '/admin/dojo/notificacoes'
-      preLoaderRoute: typeof AuthenticatedAdminDojoNotificacoesRouteImport
-      parentRoute: typeof AuthenticatedAdminDojoRoute
-    }
-    '/_authenticated/admin/dojo/loja': {
-      id: '/_authenticated/admin/dojo/loja'
-      path: '/loja'
-      fullPath: '/admin/dojo/loja'
-      preLoaderRoute: typeof AuthenticatedAdminDojoLojaRouteImport
-      parentRoute: typeof AuthenticatedAdminDojoRoute
-    }
-    '/_authenticated/admin/dojo/graduacoes': {
-      id: '/_authenticated/admin/dojo/graduacoes'
-      path: '/graduacoes'
-      fullPath: '/admin/dojo/graduacoes'
-      preLoaderRoute: typeof AuthenticatedAdminDojoGraduacoesRouteImport
-      parentRoute: typeof AuthenticatedAdminDojoRoute
-    }
-    '/_authenticated/admin/dojo/financeiro': {
-      id: '/_authenticated/admin/dojo/financeiro'
-      path: '/financeiro'
-      fullPath: '/admin/dojo/financeiro'
-      preLoaderRoute: typeof AuthenticatedAdminDojoFinanceiroRouteImport
-      parentRoute: typeof AuthenticatedAdminDojoRoute
-    }
-    '/_authenticated/admin/dojo/faixas': {
-      id: '/_authenticated/admin/dojo/faixas'
-      path: '/faixas'
-      fullPath: '/admin/dojo/faixas'
-      preLoaderRoute: typeof AuthenticatedAdminDojoFaixasRouteImport
-      parentRoute: typeof AuthenticatedAdminDojoRoute
-    }
-    '/_authenticated/admin/dojo/equipe': {
-      id: '/_authenticated/admin/dojo/equipe'
-      path: '/equipe'
-      fullPath: '/admin/dojo/equipe'
-      preLoaderRoute: typeof AuthenticatedAdminDojoEquipeRouteImport
-      parentRoute: typeof AuthenticatedAdminDojoRoute
-    }
-    '/_authenticated/admin/dojo/contratos': {
-      id: '/_authenticated/admin/dojo/contratos'
-      path: '/contratos'
-      fullPath: '/admin/dojo/contratos'
-      preLoaderRoute: typeof AuthenticatedAdminDojoContratosRouteImport
-      parentRoute: typeof AuthenticatedAdminDojoRoute
-    }
-    '/_authenticated/admin/dojo/conta': {
-      id: '/_authenticated/admin/dojo/conta'
-      path: '/conta'
-      fullPath: '/admin/dojo/conta'
-      preLoaderRoute: typeof AuthenticatedAdminDojoContaRouteImport
-      parentRoute: typeof AuthenticatedAdminDojoRoute
-    }
-    '/_authenticated/admin/dojo/comunicados': {
-      id: '/_authenticated/admin/dojo/comunicados'
-      path: '/comunicados'
-      fullPath: '/admin/dojo/comunicados'
-      preLoaderRoute: typeof AuthenticatedAdminDojoComunicadosRouteImport
-      parentRoute: typeof AuthenticatedAdminDojoRoute
-    }
-    '/_authenticated/admin/dojo/competicoes': {
-      id: '/_authenticated/admin/dojo/competicoes'
-      path: '/competicoes'
-      fullPath: '/admin/dojo/competicoes'
-      preLoaderRoute: typeof AuthenticatedAdminDojoCompeticoesRouteImport
-      parentRoute: typeof AuthenticatedAdminDojoRoute
-    }
-    '/_authenticated/admin/dojo/checkin': {
-      id: '/_authenticated/admin/dojo/checkin'
-      path: '/checkin'
-      fullPath: '/admin/dojo/checkin'
-      preLoaderRoute: typeof AuthenticatedAdminDojoCheckinRouteImport
-      parentRoute: typeof AuthenticatedAdminDojoRoute
-    }
-    '/_authenticated/admin/dojo/certificados': {
-      id: '/_authenticated/admin/dojo/certificados'
-      path: '/certificados'
-      fullPath: '/admin/dojo/certificados'
-      preLoaderRoute: typeof AuthenticatedAdminDojoCertificadosRouteImport
-      parentRoute: typeof AuthenticatedAdminDojoRoute
-    }
-    '/_authenticated/admin/dojo/beneficios': {
-      id: '/_authenticated/admin/dojo/beneficios'
-      path: '/beneficios'
-      fullPath: '/admin/dojo/beneficios'
-      preLoaderRoute: typeof AuthenticatedAdminDojoBeneficiosRouteImport
-      parentRoute: typeof AuthenticatedAdminDojoRoute
-    }
-    '/_authenticated/admin/dojo/avaliacoes': {
-      id: '/_authenticated/admin/dojo/avaliacoes'
-      path: '/avaliacoes'
-      fullPath: '/admin/dojo/avaliacoes'
-      preLoaderRoute: typeof AuthenticatedAdminDojoAvaliacoesRouteImport
-      parentRoute: typeof AuthenticatedAdminDojoRoute
-    }
-    '/_authenticated/admin/dojo/alunos': {
-      id: '/_authenticated/admin/dojo/alunos'
-      path: '/alunos'
-      fullPath: '/admin/dojo/alunos'
-      preLoaderRoute: typeof AuthenticatedAdminDojoAlunosRouteImport
-      parentRoute: typeof AuthenticatedAdminDojoRoute
-    }
-    '/_authenticated/admin/dojo/agenda': {
-      id: '/_authenticated/admin/dojo/agenda'
-      path: '/agenda'
-      fullPath: '/admin/dojo/agenda'
-      preLoaderRoute: typeof AuthenticatedAdminDojoAgendaRouteImport
-      parentRoute: typeof AuthenticatedAdminDojoRoute
-    }
     '/_authenticated/admin/anuncios/otimizacao': {
       id: '/_authenticated/admin/anuncios/otimizacao'
       path: '/otimizacao'
@@ -6034,77 +5534,6 @@ const AuthenticatedAdminAnunciosRouteWithChildren =
     AuthenticatedAdminAnunciosRouteChildren,
   )
 
-interface AuthenticatedAdminDojoRouteChildren {
-  AuthenticatedAdminDojoAgendaRoute: typeof AuthenticatedAdminDojoAgendaRoute
-  AuthenticatedAdminDojoAlunosRoute: typeof AuthenticatedAdminDojoAlunosRoute
-  AuthenticatedAdminDojoAvaliacoesRoute: typeof AuthenticatedAdminDojoAvaliacoesRoute
-  AuthenticatedAdminDojoBeneficiosRoute: typeof AuthenticatedAdminDojoBeneficiosRoute
-  AuthenticatedAdminDojoCertificadosRoute: typeof AuthenticatedAdminDojoCertificadosRoute
-  AuthenticatedAdminDojoCheckinRoute: typeof AuthenticatedAdminDojoCheckinRoute
-  AuthenticatedAdminDojoCompeticoesRoute: typeof AuthenticatedAdminDojoCompeticoesRoute
-  AuthenticatedAdminDojoComunicadosRoute: typeof AuthenticatedAdminDojoComunicadosRoute
-  AuthenticatedAdminDojoContaRoute: typeof AuthenticatedAdminDojoContaRoute
-  AuthenticatedAdminDojoContratosRoute: typeof AuthenticatedAdminDojoContratosRoute
-  AuthenticatedAdminDojoEquipeRoute: typeof AuthenticatedAdminDojoEquipeRoute
-  AuthenticatedAdminDojoFaixasRoute: typeof AuthenticatedAdminDojoFaixasRoute
-  AuthenticatedAdminDojoFinanceiroRoute: typeof AuthenticatedAdminDojoFinanceiroRoute
-  AuthenticatedAdminDojoGraduacoesRoute: typeof AuthenticatedAdminDojoGraduacoesRoute
-  AuthenticatedAdminDojoLojaRoute: typeof AuthenticatedAdminDojoLojaRoute
-  AuthenticatedAdminDojoNotificacoesRoute: typeof AuthenticatedAdminDojoNotificacoesRoute
-  AuthenticatedAdminDojoPayRoute: typeof AuthenticatedAdminDojoPayRoute
-  AuthenticatedAdminDojoPlanosRoute: typeof AuthenticatedAdminDojoPlanosRoute
-  AuthenticatedAdminDojoPlanosDeAulaRoute: typeof AuthenticatedAdminDojoPlanosDeAulaRoute
-  AuthenticatedAdminDojoQrAlunoRoute: typeof AuthenticatedAdminDojoQrAlunoRoute
-  AuthenticatedAdminDojoRankingRoute: typeof AuthenticatedAdminDojoRankingRoute
-  AuthenticatedAdminDojoSuporteRoute: typeof AuthenticatedAdminDojoSuporteRoute
-  AuthenticatedAdminDojoUnidadesRoute: typeof AuthenticatedAdminDojoUnidadesRoute
-  AuthenticatedAdminDojoVendasRoute: typeof AuthenticatedAdminDojoVendasRoute
-  AuthenticatedAdminDojoVideosRoute: typeof AuthenticatedAdminDojoVideosRoute
-}
-
-const AuthenticatedAdminDojoRouteChildren: AuthenticatedAdminDojoRouteChildren =
-  {
-    AuthenticatedAdminDojoAgendaRoute: AuthenticatedAdminDojoAgendaRoute,
-    AuthenticatedAdminDojoAlunosRoute: AuthenticatedAdminDojoAlunosRoute,
-    AuthenticatedAdminDojoAvaliacoesRoute:
-      AuthenticatedAdminDojoAvaliacoesRoute,
-    AuthenticatedAdminDojoBeneficiosRoute:
-      AuthenticatedAdminDojoBeneficiosRoute,
-    AuthenticatedAdminDojoCertificadosRoute:
-      AuthenticatedAdminDojoCertificadosRoute,
-    AuthenticatedAdminDojoCheckinRoute: AuthenticatedAdminDojoCheckinRoute,
-    AuthenticatedAdminDojoCompeticoesRoute:
-      AuthenticatedAdminDojoCompeticoesRoute,
-    AuthenticatedAdminDojoComunicadosRoute:
-      AuthenticatedAdminDojoComunicadosRoute,
-    AuthenticatedAdminDojoContaRoute: AuthenticatedAdminDojoContaRoute,
-    AuthenticatedAdminDojoContratosRoute: AuthenticatedAdminDojoContratosRoute,
-    AuthenticatedAdminDojoEquipeRoute: AuthenticatedAdminDojoEquipeRoute,
-    AuthenticatedAdminDojoFaixasRoute: AuthenticatedAdminDojoFaixasRoute,
-    AuthenticatedAdminDojoFinanceiroRoute:
-      AuthenticatedAdminDojoFinanceiroRoute,
-    AuthenticatedAdminDojoGraduacoesRoute:
-      AuthenticatedAdminDojoGraduacoesRoute,
-    AuthenticatedAdminDojoLojaRoute: AuthenticatedAdminDojoLojaRoute,
-    AuthenticatedAdminDojoNotificacoesRoute:
-      AuthenticatedAdminDojoNotificacoesRoute,
-    AuthenticatedAdminDojoPayRoute: AuthenticatedAdminDojoPayRoute,
-    AuthenticatedAdminDojoPlanosRoute: AuthenticatedAdminDojoPlanosRoute,
-    AuthenticatedAdminDojoPlanosDeAulaRoute:
-      AuthenticatedAdminDojoPlanosDeAulaRoute,
-    AuthenticatedAdminDojoQrAlunoRoute: AuthenticatedAdminDojoQrAlunoRoute,
-    AuthenticatedAdminDojoRankingRoute: AuthenticatedAdminDojoRankingRoute,
-    AuthenticatedAdminDojoSuporteRoute: AuthenticatedAdminDojoSuporteRoute,
-    AuthenticatedAdminDojoUnidadesRoute: AuthenticatedAdminDojoUnidadesRoute,
-    AuthenticatedAdminDojoVendasRoute: AuthenticatedAdminDojoVendasRoute,
-    AuthenticatedAdminDojoVideosRoute: AuthenticatedAdminDojoVideosRoute,
-  }
-
-const AuthenticatedAdminDojoRouteWithChildren =
-  AuthenticatedAdminDojoRoute._addFileChildren(
-    AuthenticatedAdminDojoRouteChildren,
-  )
-
 interface AuthenticatedAdminInstagramRouteChildren {
   AuthenticatedAdminInstagramAdminRoute: typeof AuthenticatedAdminInstagramAdminRoute
   AuthenticatedAdminInstagramAutomacoesRoute: typeof AuthenticatedAdminInstagramAutomacoesRoute
@@ -6230,7 +5659,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminConfiguracoesRoute: typeof AuthenticatedAdminConfiguracoesRoute
   AuthenticatedAdminCrmRoute: typeof AuthenticatedAdminCrmRoute
   AuthenticatedAdminDashboardRoute: typeof AuthenticatedAdminDashboardRoute
-  AuthenticatedAdminDojoRoute: typeof AuthenticatedAdminDojoRouteWithChildren
+  AuthenticatedAdminDojoRoute: typeof AuthenticatedAdminDojoRoute
   AuthenticatedAdminEnvioRoute: typeof AuthenticatedAdminEnvioRoute
   AuthenticatedAdminInstagramRoute: typeof AuthenticatedAdminInstagramRouteWithChildren
   AuthenticatedAdminLeadsRoute: typeof AuthenticatedAdminLeadsRouteWithChildren
@@ -6257,7 +5686,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminConfiguracoesRoute: AuthenticatedAdminConfiguracoesRoute,
   AuthenticatedAdminCrmRoute: AuthenticatedAdminCrmRoute,
   AuthenticatedAdminDashboardRoute: AuthenticatedAdminDashboardRoute,
-  AuthenticatedAdminDojoRoute: AuthenticatedAdminDojoRouteWithChildren,
+  AuthenticatedAdminDojoRoute: AuthenticatedAdminDojoRoute,
   AuthenticatedAdminEnvioRoute: AuthenticatedAdminEnvioRoute,
   AuthenticatedAdminInstagramRoute:
     AuthenticatedAdminInstagramRouteWithChildren,
