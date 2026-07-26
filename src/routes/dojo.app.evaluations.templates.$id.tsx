@@ -94,6 +94,14 @@ function TemplateEditor() {
 
   if (!form) return <div className="text-sm text-muted-foreground">Carregando...</div>;
 
+  const beltList: any[] = belts ?? [];
+  const modalities = Array.from(
+    new Set(beltList.map((b) => (b.modality ?? "").toString().trim()).filter(Boolean)),
+  ).sort();
+  const filteredBelts = form.modality
+    ? beltList.filter((b) => (b.modality ?? "") === form.modality)
+    : beltList;
+
 
   const cats: Category[] = form.structure.categories ?? [];
 
