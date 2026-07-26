@@ -132,6 +132,53 @@ function TemplateEditor() {
   const addCategory = () =>
     setCats([...cats, { id: uid(), name: "Nova categoria", weight: 1, criteria: [] }]);
 
+  const libCats: any[] = libCategories ?? [];
+  const libTechs: any[] = libTechniques ?? [];
+
+  const addCategoryFromLibrary = (libId: string) => {
+    const lc = libCats.find((c) => c.id === libId);
+    if (!lc) return;
+    const techs = libTechs.filter((t) => t.category_id === libId && !t.archived);
+    const newCat: Category = {
+      id: uid(),
+      name: lc.name,
+      weight: 1,
+      criteria: techs.map((t) => ({
+        id: uid(),
+        name: t.name,
+        description: t.description ?? null,
+        weight: 1,
+        max_score: Number(t.default_score ?? 10),
+        min_score: 0,
+        required: !!t.required,
+        eliminatory: false,
+        techniques: [t.id],
+      })),
+    };
+    setCats([...cats, newCat]);
+  };
+
+  const addTechniqueCriterion = (ci: number, techId: string) => {
+    const t = libTechs.find((x) => x.id === techId);
+    if (!t) return;
+    const next = [...cats];
+    next[ci] = {
+      ...next[ci],
+      criteria: [...next[ci].criteria, {
+        id: uid(),
+        name: t.name,
+        description: t.description ?? null,
+        weight: 1,
+        max_score: Number(t.default_score ?? 10),
+        min_score: 0,
+        required: !!t.required,
+        eliminatory: false,
+        techniques: [t.id],
+      }],
+    };
+    setCats(next);
+  };
+
   const updCategory = (i: number, patch: Partial<Category>) => {
     const next = [...cats]; next[i] = { ...next[i], ...patch }; setCats(next);
   };
