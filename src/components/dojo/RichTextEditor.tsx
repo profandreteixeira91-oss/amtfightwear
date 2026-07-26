@@ -281,7 +281,7 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
         {/* Bloco / Parágrafo */}
         <Select onValueChange={(v) => applyBlock(v)}>
           <SelectTrigger
-            className="h-8 w-[140px] bg-background/80"
+            className="h-8 w-[130px] shrink-0 bg-background/80"
             onPointerDown={() => saveSelection()}
           >
             <SelectValue placeholder="Parágrafo" />
@@ -296,7 +296,7 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
         {/* Fonte */}
         <Select onValueChange={(v) => doExec("fontName", v)}>
           <SelectTrigger
-            className="h-8 w-[140px] bg-background/80"
+            className="h-8 w-[130px] shrink-0 bg-background/80"
             onPointerDown={() => saveSelection()}
           >
             <SelectValue placeholder="Fonte" />
@@ -313,7 +313,7 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
         {/* Tamanho */}
         <Select onValueChange={(v) => applyFontSize(v)}>
           <SelectTrigger
-            className="h-8 w-[86px] bg-background/80"
+            className="h-8 w-[80px] shrink-0 bg-background/80"
             onPointerDown={() => saveSelection()}
           >
             <SelectValue placeholder="Tam." />
@@ -332,7 +332,7 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
         <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("underline")} title="Sublinhado"><UnderlineIcon className="h-4 w-4" /></button>
         <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("strikeThrough")} title="Tachado"><Strikethrough className="h-4 w-4" /></button>
 
-        <label className="ml-1 inline-flex h-8 items-center gap-1 rounded-md px-2 text-xs cursor-pointer hover:bg-accent" title="Cor do texto">
+        <label className="ml-1 inline-flex h-8 shrink-0 items-center gap-1 rounded-md px-2 text-xs cursor-pointer hover:bg-accent" title="Cor do texto">
           <Type className="h-4 w-4" />
           <input
             type="color"
@@ -378,14 +378,14 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
               type="button"
               size="sm"
               variant="outline"
-              className="h-8 gap-1 bg-background/80"
+              className="h-8 shrink-0 gap-1 bg-background/80"
               onMouseDown={() => saveSelection()}
             >
               <Braces className="h-4 w-4" /> Variáveis
             </Button>
           </PopoverTrigger>
           <PopoverContent
-            className={`w-80 max-h-[420px] overflow-y-auto p-2 ${OVERLAY_Z} bg-popover shadow-xl border`}
+            className={`w-[calc(100vw-2rem)] sm:w-80 max-h-[70dvh] sm:max-h-[420px] overflow-y-auto p-2 ${OVERLAY_Z} bg-popover shadow-xl border`}
             align="start"
           >
             <div className="text-xs text-muted-foreground mb-2 px-1">
@@ -418,13 +418,13 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
         {showPageNumberTokens && (
           <>
             <span className={tbDivider} />
-            <Button type="button" size="sm" variant="outline" className="h-8 gap-1 text-xs"
+            <Button type="button" size="sm" variant="outline" className="h-8 shrink-0 gap-1 text-xs"
               onMouseDown={preventBlur}
               onClick={() => insertHtml("{{pagina_atual}}")}
               title="Inserir número da página atual">
               Página nº
             </Button>
-            <Button type="button" size="sm" variant="outline" className="h-8 gap-1 text-xs"
+            <Button type="button" size="sm" variant="outline" className="h-8 shrink-0 gap-1 text-xs"
               onMouseDown={preventBlur}
               onClick={() => insertHtml("Página {{pagina_atual}} de {{total_paginas}}")}
               title="Inserir 'Página X de Y'">
