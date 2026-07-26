@@ -259,8 +259,8 @@ function FinanceTab({ affiliate }: { affiliate: any }) {
         </Dialog>
       </div>
 
-      <div className="rounded-xl border bg-white overflow-hidden">
-        <table className="w-full text-sm">
+      <div className="rounded-xl border bg-white overflow-x-auto">
+        <table className="w-full min-w-[520px] text-sm">
           <thead className="bg-muted/50 text-xs uppercase tracking-wide text-muted-foreground">
             <tr>
               <th className="text-left px-3 py-2">Descrição</th>
