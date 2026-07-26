@@ -426,7 +426,7 @@ function ContractTab({ affiliate }: { affiliate: any }) {
         </div>
       ) : (
         <div className="overflow-x-auto rounded border bg-white">
-          <table className="w-full text-sm">
+          <table className="w-full min-w-[560px] text-sm">
             <thead className="text-[10px] uppercase tracking-widest text-muted-foreground">
               <tr className="border-b border-border">
                 <th className="p-2 text-left">Título</th>
