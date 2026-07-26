@@ -255,6 +255,22 @@ function NewGraduationPage() {
     setStep("grad");
   };
 
+  // Deep-link vindo da avaliação aprovada: ?student=<id>&session=<id>
+  const autoStudentApplied = useMemo(() => ({ current: false }), []);
+  useEffect(() => {
+    if (autoStudentApplied.current) return;
+    const targetId = routeSearch?.student;
+    if (!targetId) return;
+    if (!students.data || !belts.data) return;
+    const s = (students.data as any[]).find((x: any) => x.id === targetId);
+    if (!s) return;
+    autoStudentApplied.current = true;
+    setSelectedStudents(new Set([targetId]));
+    // aguarda tick para o estado propagar e então avança
+    setTimeout(() => goToGrad(), 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routeSearch?.student, students.data, belts.data]);
+
   const savePrices = async () => {
     try {
       setSavingPrices(true);
