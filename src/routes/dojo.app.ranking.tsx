@@ -184,10 +184,10 @@ function RankingPage() {
 
       {/* ===== PÓDIO ===== */}
       {podium.length > 0 && (
-        <div className="grid gap-3 md:grid-cols-3">
-          {[1, 0, 2].map((order, i) => {
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          {[0, 1, 2].map((order, i) => {
             const p = podium[order];
-            if (!p) return <div key={i} className="hidden md:block" />;
+            if (!p) return <div key={i} className="hidden sm:block" />;
             const medalRank = Math.min(p.rank, 3);
             const stylesByRank = [
               {
@@ -199,6 +199,7 @@ function RankingPage() {
                 gradient: "from-amber-400 via-amber-500 to-yellow-600",
                 medal: "🥇",
                 label: "1º LUGAR",
+                mdOrder: "sm:order-2 sm:-translate-y-3 sm:scale-[1.03]",
               },
               {
                 border: "border-slate-300/70",
@@ -209,6 +210,7 @@ function RankingPage() {
                 gradient: "from-slate-300 via-slate-400 to-slate-500",
                 medal: "🥈",
                 label: "2º LUGAR",
+                mdOrder: "sm:order-1",
               },
               {
                 border: "border-orange-300/70",
@@ -219,31 +221,33 @@ function RankingPage() {
                 gradient: "from-orange-400 via-orange-500 to-amber-700",
                 medal: "🥉",
                 label: "3º LUGAR",
+                mdOrder: "sm:order-3",
               },
             ];
             const s = stylesByRank[medalRank - 1];
-            const raised = order === 0 ? "md:-translate-y-3 md:scale-[1.03]" : "";
             return (
               <Card
                 key={p.id}
-                className={`relative overflow-hidden border-2 transition-all ${s.border} ${s.bg} ${s.glow} ${raised}`}
+                className={`relative overflow-hidden border-2 transition-all ${s.border} ${s.bg} ${s.glow} ${s.mdOrder}`}
               >
                 <div aria-hidden className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${s.gradient}`} />
                 <div aria-hidden className={`pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-gradient-to-br ${s.gradient} opacity-20 blur-2xl`} />
-                <CardContent className="relative flex flex-col items-center gap-3 py-7 text-center">
-                  <div className="text-4xl leading-none drop-shadow">{s.medal}</div>
-                  <div className={`rounded-full ${s.ring}`}>
-                    <Avatar url={p.photo_url} name={p.full_name} size={72} />
+                <CardContent className="relative flex flex-row items-center gap-4 py-4 text-left sm:flex-col sm:gap-3 sm:py-7 sm:text-center">
+                  <div className="shrink-0 text-3xl leading-none drop-shadow sm:text-4xl">{s.medal}</div>
+                  <div className={`shrink-0 rounded-full ${s.ring}`}>
+                    <Avatar url={p.photo_url} name={p.full_name} size={56} />
                   </div>
-                  <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-[0.14em] ${s.chip}`}>
-                    {s.label}
-                  </span>
-                  <div className="line-clamp-1 max-w-[220px] text-sm font-semibold">{p.full_name}</div>
-                  <div className="flex items-baseline gap-1.5">
-                    <div className={`bg-gradient-to-br bg-clip-text font-display text-4xl font-black leading-none text-transparent ${s.gradient}`}>
-                      {p.count}
+                  <div className="flex min-w-0 flex-1 flex-col gap-1 sm:items-center sm:gap-2">
+                    <span className={`inline-flex w-fit items-center rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.14em] ${s.chip} sm:text-[10px]`}>
+                      {s.label}
+                    </span>
+                    <div className="line-clamp-1 max-w-full text-sm font-semibold">{p.full_name}</div>
+                    <div className="flex items-baseline gap-1.5">
+                      <div className={`bg-gradient-to-br bg-clip-text font-display text-2xl font-black leading-none text-transparent sm:text-4xl ${s.gradient}`}>
+                        {p.count}
+                      </div>
+                      <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground sm:text-[11px]">check-ins</div>
                     </div>
-                    <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">check-ins</div>
                   </div>
                 </CardContent>
               </Card>
