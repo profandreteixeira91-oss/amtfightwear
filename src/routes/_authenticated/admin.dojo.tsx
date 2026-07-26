@@ -229,13 +229,13 @@ function AdminDojoManagerPage() {
     <PageShell
       eyebrow="Admin · SaaS"
       title="AMT Dojo Manager"
-      description="Informações administrativas cross-tenant: assinaturas, MRR, contas de donos de dojo e tráfego da landing page. Este painel não gerencia dados de uma academia individual."
+      description="Painel administrativo do SaaS: donos cadastrados, assinaturas, pagamentos, faturas e tráfego da landing. Este painel gerencia o produto — não dá acesso aos dados operacionais de nenhuma academia."
     >
-      {/* Hero live bar + CTA para sistema operacional */}
+      {/* Hero live bar — apenas indicador de atualização, sem CTA de acesso ao sistema */}
       <div className="relative mb-6 overflow-hidden rounded-2xl border border-primary/20 bg-[linear-gradient(135deg,oklch(0.20_0.05_25),oklch(0.08_0.02_25))] p-5 text-primary-foreground shadow-[0_20px_60px_-30px_oklch(0.56_0.235_27/0.6)]">
         <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-primary/25 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-32 -left-10 h-72 w-72 rounded-full bg-primary/15 blur-3xl" />
-        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <span className="relative inline-flex h-2.5 w-2.5">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
@@ -256,17 +256,13 @@ function AdminDojoManagerPage() {
               </span>
             </div>
           </div>
-          <a
-            href="/dojo/app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-xs font-semibold text-white ring-1 ring-white/20 backdrop-blur transition hover:bg-white/20"
-          >
-            <ExternalLink className="h-3.5 w-3.5" />
-            Abrir sistema Dojo Manager
-          </a>
+          <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-white/80 ring-1 ring-white/15 backdrop-blur">
+            <Eye className="h-3.5 w-3.5" />
+            Somente leitura · Gestão do SaaS
+          </span>
         </div>
       </div>
+
 
       {/* KPIs cross-tenant */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
