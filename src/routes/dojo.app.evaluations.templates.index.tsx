@@ -163,7 +163,6 @@ function TemplatesList() {
                       to="/dojo/app/evaluations/templates/$id"
                       params={{ id: t.id }}
                       className="flex-1"
-                      onMouseEnter={() => qc.prefetchQuery({ queryKey: ["eval-template", t.id], queryFn: () => {/* prefetched by loader */} })}
                       onClick={() => qc.setQueryData(["eval-template", t.id], (prev: any) => prev ?? t)}
                     >
                       <Button size="sm" variant="outline" className="w-full">
