@@ -296,7 +296,9 @@ export const getMyTeamPermissions = createServerFn({ method: "GET" })
     ]);
     if (ownerProfile) return { isOwner: true as const, permissions: null, member: null };
     const row = Array.isArray(rows) ? rows[0] : null;
-    if (!row) return { isOwner: false as const, permissions: null, member: null };
+    // Sem team_member vinculado = usuário autônomo (ex.: novo cadastro em trial).
+    // Trata-se do dono da própria conta e recebe acesso total ao sistema.
+    if (!row) return { isOwner: true as const, permissions: null, member: null };
     return {
       isOwner: false as const,
       permissions: (row.permissions ?? {}) as Record<string, "none" | "read" | "write">,
