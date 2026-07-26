@@ -39,7 +39,7 @@ export type ReminderInvoice = {
   payment_link: string | null;
   asaas_invoice_url: string | null;
   asaas_pix_copypaste: string | null;
-  student: { full_name: string | null; email: string | null } | null;
+  student: { id?: string; full_name: string | null; email: string | null } | null;
 };
 
 export async function dispatchInvoiceReminder(
