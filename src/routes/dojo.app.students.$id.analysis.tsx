@@ -283,6 +283,41 @@ function AnalysisPage() {
             {attendance.isLoading ? <Skeleton className="h-32 w-full" /> :
               <AttendanceHeatmap data={attendance.data?.heatmap ?? []} />}
           </SectionCard>
+
+          <SectionCard title="Últimos check-ins" description="Registros individuais vindos do módulo de check-in">
+            {attendance.isLoading ? <Skeleton className="h-40 w-full" /> :
+              (attendance.data?.recent?.length ?? 0) === 0 ? (
+                <EmptyState title="Nenhum check-in registrado" description="Assim que o aluno fizer check-in (QR, PIN, geolocalização ou manual), aparecerá aqui." icon={CalendarDays} />
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="text-left text-xs uppercase tracking-[0.15em] text-muted-foreground">
+                      <tr className="border-b border-border/40">
+                        <th className="py-3 pr-4">Data</th>
+                        <th className="py-3 pr-4">Hora</th>
+                        <th className="py-3 pr-4">Método</th>
+                        <th className="py-3 pr-4">Turma</th>
+                        <th className="py-3">Unidade</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border/40">
+                      {attendance.data!.recent.map((c: any) => {
+                        const dt = new Date(c.checked_in_at);
+                        return (
+                          <tr key={c.id} className="hover:bg-muted/30">
+                            <td className="py-3 pr-4 font-medium">{dt.toLocaleDateString("pt-BR")}</td>
+                            <td className="py-3 pr-4 tabular-nums text-muted-foreground">{dt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</td>
+                            <td className="py-3 pr-4"><Badge variant="outline" className="capitalize">{methodLabel(c.method)}</Badge></td>
+                            <td className="py-3 pr-4">{c.class_name ?? "—"}</td>
+                            <td className="py-3 text-muted-foreground">{c.unit_name ?? "—"}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+          </SectionCard>
         </TabsContent>
 
 
@@ -481,6 +516,22 @@ function imcCategory(imc: number | null | undefined) {
   if (imc < 25) return "Peso normal";
   if (imc < 30) return "Sobrepeso";
   return "Obesidade";
+}
+
+function methodLabel(m?: string | null) {
+  const map: Record<string, string> = {
+    manual: "Manual",
+    qr: "QR Code",
+    pin: "PIN",
+    geo: "Geolocalização",
+    geolocation: "Geolocalização",
+    visitor: "Visitante",
+    gympass: "Gympass",
+    totalpass: "TotalPass",
+    wellhub: "Wellhub",
+  };
+  const k = (m ?? "manual").toLowerCase();
+  return map[k] ?? k;
 }
 
 function MetricBox({ label, value, hint }: { label: string; value: React.ReactNode; hint?: string }) {
