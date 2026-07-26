@@ -62,14 +62,20 @@ export function StudentContracts({ studentId, student }: Props) {
   const applyTemplate = (tplId: string) => {
     setNewFromTemplate(tplId);
     const tpl = (templates.data ?? []).find((t: any) => t.id === tplId);
-    if (tpl) {
-      setCurrent((c: any) => ({
-        ...c,
-        template_id: tpl.id,
-        title: c?.title || tpl.name,
-        content: tpl.content ?? "",
-      }));
+    if (!tpl) {
+      toast.error("Modelo não encontrado");
+      return;
     }
+    const header = tpl.header_html ? `<div data-tpl-header>${tpl.header_html}</div>` : "";
+    const footer = tpl.footer_html ? `<div data-tpl-footer style="margin-top:24px;">${tpl.footer_html}</div>` : "";
+    const merged = `${header}${tpl.content ?? ""}${footer}`;
+    setCurrent((c: any) => ({
+      ...(c ?? { student_id: studentId, status: "draft" }),
+      template_id: tpl.id,
+      title: (c?.title && c.title.trim()) ? c.title : tpl.name,
+      content: merged,
+    }));
+    toast.success(`Modelo "${tpl.name}" aplicado`);
   };
 
   const openEdit = (row: any) => {
@@ -246,7 +252,7 @@ export function StudentContracts({ studentId, student }: Props) {
                 <label className="text-xs font-medium text-muted-foreground">Status</label>
                 <Select value={current?.status ?? "draft"} onValueChange={(v) => setCurrent({ ...current, status: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="z-[100]">
                     <SelectItem value="draft">Rascunho</SelectItem>
                     <SelectItem value="active">Ativo</SelectItem>
                     <SelectItem value="signed">Assinado</SelectItem>
@@ -256,9 +262,11 @@ export function StudentContracts({ studentId, student }: Props) {
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground">Aplicar modelo</label>
-                <Select value={newFromTemplate} onValueChange={applyTemplate}>
-                  <SelectTrigger><SelectValue placeholder="Selecionar modelo..." /></SelectTrigger>
-                  <SelectContent>
+                <Select value={newFromTemplate || undefined} onValueChange={applyTemplate}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={templates.isLoading ? "Carregando modelos..." : "Selecionar modelo..."} />
+                  </SelectTrigger>
+                  <SelectContent className="z-[100]">
                     {(templates.data ?? []).length === 0 ? (
                       <div className="p-2 text-xs text-muted-foreground">Nenhum modelo cadastrado</div>
                     ) : (templates.data ?? []).map((t: any) => (
@@ -285,7 +293,7 @@ export function StudentContracts({ studentId, student }: Props) {
                 <label className="text-xs font-medium text-muted-foreground">Forma de pagamento</label>
                 <Select value={current?.payment_method ?? ""} onValueChange={(v) => setCurrent({ ...current, payment_method: v })}>
                   <SelectTrigger><SelectValue placeholder="Selecionar..." /></SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="z-[100]">
                     <SelectItem value="PIX">PIX</SelectItem>
                     <SelectItem value="Boleto">Boleto</SelectItem>
                     <SelectItem value="Cartão de crédito">Cartão de crédito</SelectItem>
