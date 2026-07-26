@@ -12,7 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { RichTextEditor } from "@/components/dojo/RichTextEditor";
 import { toast } from "sonner";
-import { ArrowLeft, Save, Printer, Eye, FileText, Settings2, PanelTop, PanelBottom, ChevronDown } from "lucide-react";
+import { ArrowLeft, Save, Printer, Eye, FileText, Settings2, PanelTop, PanelBottom, ChevronDown, Image as ImageIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
