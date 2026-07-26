@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { Trash2, Copy, Plus, Star, Search, Upload, ImageOff, Send, FileCheck, Award, Flame, Sparkles } from "lucide-react";
+import { Trash2, Copy, Plus, Star, Search, Upload, ImageOff, Send, FileCheck, Award, Flame, Sparkles, Eye } from "lucide-react";
 import { CertificateEditor } from "@/components/dojo/certificate-editor/CertificateEditor";
 import { migrateLegacyFields, toLegacyFields, type EditorSchema } from "@/components/dojo/certificate-editor/types";
 import { CertificatePreviewDialog, type CertificateTemplate } from "@/components/dojo/CertificatePreview";
@@ -61,6 +61,7 @@ function CertificatesPage() {
   const [category, setCategory] = useState<string>("");
   const [issueOpen, setIssueOpen] = useState(false);
   const [tab, setTab] = useState<"modelos" | "emitidos">("modelos");
+  const [viewingTemplate, setViewingTemplate] = useState<any | null>(null);
 
   const filteredTemplates = useMemo(() => {
     return (templates.data ?? []).filter((t: any) => {
@@ -440,6 +441,15 @@ function CertificatesPage() {
               <CardContent className="flex gap-2 pt-0">
                 <Button
                   size="sm"
+                  variant="outline"
+                  title="Visualizar modelo"
+                  onClick={() => setViewingTemplate(t)}
+                  className="border-white/15 bg-white/5 text-white hover:bg-white/10"
+                >
+                  <Eye className="h-4 w-4 mr-1" /> Ver
+                </Button>
+                <Button
+                  size="sm"
                   onClick={() => navigate({ to: "/dojo/certificate-editor/$id", params: { id: t.id } })}
                   className="flex-1 bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-400"
                 >
@@ -477,6 +487,25 @@ function CertificatesPage() {
       </Tabs>
 
       <IssuePanel open={issueOpen} onOpenChange={setIssueOpen} />
+
+      <CertificatePreviewDialog
+        open={!!viewingTemplate}
+        onOpenChange={(v) => { if (!v) setViewingTemplate(null); }}
+        template={viewingTemplate ? (() => {
+          const schema: EditorSchema = viewingTemplate.variables?.editor_schema ?? migrateLegacyFields(viewingTemplate);
+          const legacy = toLegacyFields(schema);
+          return {
+            name: viewingTemplate.name,
+            background_url: legacy.background_url,
+            width: legacy.width,
+            height: legacy.height,
+            fields: legacy.fields as any,
+            variables: viewingTemplate.variables,
+          } as CertificateTemplate;
+        })() : null}
+        values={previewValues}
+        title={viewingTemplate?.name ?? "Modelo"}
+      />
     </div>
   );
 }
