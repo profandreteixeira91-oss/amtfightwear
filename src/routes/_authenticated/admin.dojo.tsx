@@ -651,3 +651,157 @@ function MixBar({
     </div>
   );
 }
+
+function BillingPanel({
+  accounts,
+  loading,
+}: {
+  accounts: DojoAccountRow[];
+  loading: boolean;
+}) {
+  const now = Date.now();
+  const in30 = now + 30 * 24 * 3600 * 1000;
+
+  const paidAccounts = accounts.filter(
+    (a) => a.sub_status === "authorized" || a.sub_status === "active",
+  );
+  const expectedNext30 = paidAccounts
+    .filter(
+      (a) =>
+        a.sub_current_period_end &&
+        new Date(a.sub_current_period_end).getTime() <= in30,
+    )
+    .reduce((sum, a) => sum + Number(a.sub_plan_amount ?? 0), 0);
+  const overdue = accounts.filter(
+    (a) =>
+      a.sub_current_period_end &&
+      new Date(a.sub_current_period_end).getTime() < now &&
+      a.sub_status !== "cancelled" &&
+      a.sub_status !== "paused",
+  );
+  const overdueTotal = overdue.reduce(
+    (sum, a) => sum + Number(a.sub_plan_amount ?? 0),
+    0,
+  );
+  const mrr = paidAccounts.reduce(
+    (sum, a) => sum + Number(a.sub_plan_amount ?? 0),
+    0,
+  );
+  const arr = mrr * 12;
+
+  const upcoming = [...accounts]
+    .filter((a) => a.sub_current_period_end)
+    .sort(
+      (a, b) =>
+        new Date(a.sub_current_period_end!).getTime() -
+        new Date(b.sub_current_period_end!).getTime(),
+    )
+    .slice(0, 20);
+
+  return (
+    <>
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <KpiCard
+          icon={<CircleDollarSign className="h-4 w-4" />}
+          label="MRR"
+          value={loading ? "…" : fmtBRL(mrr)}
+          hint={`${paidAccounts.length} assinaturas ativas`}
+          tone="success"
+        />
+        <KpiCard
+          icon={<TrendingUp className="h-4 w-4" />}
+          label="ARR (projeção)"
+          value={loading ? "…" : fmtBRL(arr)}
+          hint="MRR × 12"
+          tone="primary"
+        />
+        <KpiCard
+          icon={<Receipt className="h-4 w-4" />}
+          label="A receber em 30 dias"
+          value={loading ? "…" : fmtBRL(expectedNext30)}
+          hint="Assinaturas com renovação prevista"
+          tone="accent"
+        />
+        <KpiCard
+          icon={<Receipt className="h-4 w-4" />}
+          label="Faturas em atraso"
+          value={loading ? "…" : fmtInt(overdue.length)}
+          hint={`Total ${fmtBRL(overdueTotal)}`}
+          tone="warning"
+        />
+      </div>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">Próximas cobranças SaaS</CardTitle>
+          <p className="text-xs text-muted-foreground">
+            Faturas do AMT Dojo Manager ordenadas por vencimento
+          </p>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="space-y-2">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Skeleton key={i} className="h-10 w-full" />
+              ))}
+            </div>
+          ) : upcoming.length === 0 ? (
+            <div className="py-8 text-center text-sm text-muted-foreground">
+              Nenhuma cobrança agendada.
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Academia</TableHead>
+                    <TableHead>Dono</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Vencimento</TableHead>
+                    <TableHead className="text-right">Valor</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {upcoming.map((a) => {
+                    const due = a.sub_current_period_end
+                      ? new Date(a.sub_current_period_end).getTime()
+                      : null;
+                    const isLate =
+                      due !== null &&
+                      due < now &&
+                      a.sub_status !== "cancelled" &&
+                      a.sub_status !== "paused";
+                    return (
+                      <TableRow key={a.owner_id}>
+                        <TableCell className="font-medium">
+                          {a.trade_name || a.legal_name || "—"}
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm">{a.full_name || "—"}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {a.email || "—"}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {isLate ? (
+                            <Badge variant="destructive">Em atraso</Badge>
+                          ) : (
+                            statusBadge(a.sub_status)
+                          )}
+                        </TableCell>
+                        <TableCell>{fmtDate(a.sub_current_period_end)}</TableCell>
+                        <TableCell className="text-right tabular-nums">
+                          {fmtBRL(a.sub_plan_amount)}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </>
+  );
+}
