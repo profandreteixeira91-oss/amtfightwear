@@ -242,22 +242,22 @@ function HeroHeader({
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-3 md:gap-4">
-          <div className="rounded-xl bg-white/8 backdrop-blur border border-white/10 px-3 py-2.5 min-w-[92px]">
-            <div className="text-[10px] uppercase tracking-widest text-white/60">Alunos</div>
-            <div className="font-display text-xl font-bold">{activeCount}</div>
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4 min-w-0">
+          <div className="min-w-0 rounded-xl bg-white/8 backdrop-blur border border-white/10 px-2.5 py-2 sm:px-3 sm:py-2.5">
+            <div className="text-[9px] sm:text-[10px] uppercase tracking-widest text-white/60">Alunos</div>
+            <div className="font-display text-lg sm:text-xl font-bold">{activeCount}</div>
             <div className="text-[10px] text-white/60">de {studentsCount}</div>
           </div>
-          <div className="rounded-xl bg-white/8 backdrop-blur border border-white/10 px-3 py-2.5">
-            <div className="text-[10px] uppercase tracking-widest text-white/60">AMT Pay</div>
-            <div className="font-display text-xl font-bold whitespace-nowrap">
+          <div className="min-w-0 rounded-xl bg-white/8 backdrop-blur border border-white/10 px-2.5 py-2 sm:px-3 sm:py-2.5">
+            <div className="text-[9px] sm:text-[10px] uppercase tracking-widest text-white/60">AMT Pay</div>
+            <div className="font-display text-base sm:text-xl font-bold tabular-nums truncate">
               {brl(balance)}
             </div>
             <div className="text-[10px] text-white/60">saldo total</div>
           </div>
-          <div className="rounded-xl bg-white/8 backdrop-blur border border-white/10 px-3 py-2.5">
-            <div className="text-[10px] uppercase tracking-widest text-white/60">Atrasos</div>
-            <div className="font-display text-xl font-bold">
+          <div className="min-w-0 rounded-xl bg-white/8 backdrop-blur border border-white/10 px-2.5 py-2 sm:px-3 sm:py-2.5">
+            <div className="text-[9px] sm:text-[10px] uppercase tracking-widest text-white/60">Atrasos</div>
+            <div className="font-display text-lg sm:text-xl font-bold">
               {overdueCount}
             </div>
             <div className="text-[10px] text-white/60">faturas</div>
