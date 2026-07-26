@@ -457,9 +457,42 @@ function TemplateEditor() {
                     </div>
                   </div>
                 ))}
-                <Button size="sm" variant="ghost" onClick={() => addCriterion(ci)}>
-                  <Plus className="h-3.5 w-3.5 mr-1" /> Critério
-                </Button>
+                <div className="flex items-center gap-2 flex-wrap pt-1">
+                  <Button size="sm" variant="ghost" onClick={() => addCriterion(ci)}>
+                    <Plus className="h-3.5 w-3.5 mr-1" /> Critério
+                  </Button>
+                  {(() => {
+                    const matchLib = libCats.find(
+                      (c) => (c.name ?? "").trim().toLowerCase() === (cat.name ?? "").trim().toLowerCase(),
+                    );
+                    const availableTechs = libTechs.filter(
+                      (t) =>
+                        !t.archived &&
+                        (matchLib ? t.category_id === matchLib.id : true) &&
+                        !cat.criteria.some((cr) => (cr.techniques ?? []).includes(t.id)),
+                    );
+                    if (availableTechs.length === 0) return null;
+                    return (
+                      <select
+                        className="border rounded p-1.5 bg-background text-xs"
+                        value=""
+                        onChange={(e) => {
+                          if (e.target.value) {
+                            addTechniqueCriterion(ci, e.target.value);
+                            e.currentTarget.value = "";
+                          }
+                        }}
+                      >
+                        <option value="">
+                          + Técnica {matchLib ? `de "${matchLib.name}"` : "da biblioteca"}…
+                        </option>
+                        {availableTechs.map((t) => (
+                          <option key={t.id} value={t.id}>{t.name}</option>
+                        ))}
+                      </select>
+                    );
+                  })()}
+                </div>
               </div>
             </div>
           ))}
