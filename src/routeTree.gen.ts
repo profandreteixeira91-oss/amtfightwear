@@ -13,6 +13,7 @@ import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as PayDemoRouteImport } from './routes/pay-demo'
 import { Route as DojoRouteImport } from './routes/dojo'
 import { Route as DataDeletionRouteImport } from './routes/data-deletion'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -310,6 +311,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PayDemoRoute = PayDemoRouteImport.update({
+  id: '/pay-demo',
+  path: '/pay-demo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DojoRoute = DojoRouteImport.update({
@@ -1845,6 +1851,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/data-deletion': typeof DataDeletionRoute
   '/dojo': typeof DojoRouteWithChildren
+  '/pay-demo': typeof PayDemoRoute
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/terms': typeof TermsRoute
@@ -2125,6 +2132,7 @@ export interface FileRoutesByTo {
   '/atacado-lp': typeof AtacadoLpRoute
   '/auth': typeof AuthRoute
   '/data-deletion': typeof DataDeletionRoute
+  '/pay-demo': typeof PayDemoRoute
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/terms': typeof TermsRoute
@@ -2393,6 +2401,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/data-deletion': typeof DataDeletionRoute
   '/dojo': typeof DojoRouteWithChildren
+  '/pay-demo': typeof PayDemoRoute
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/terms': typeof TermsRoute
@@ -2678,6 +2687,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/data-deletion'
     | '/dojo'
+    | '/pay-demo'
     | '/privacy'
     | '/reset-password'
     | '/terms'
@@ -2958,6 +2968,7 @@ export interface FileRouteTypes {
     | '/atacado-lp'
     | '/auth'
     | '/data-deletion'
+    | '/pay-demo'
     | '/privacy'
     | '/reset-password'
     | '/terms'
@@ -3225,6 +3236,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/data-deletion'
     | '/dojo'
+    | '/pay-demo'
     | '/privacy'
     | '/reset-password'
     | '/terms'
@@ -3510,6 +3522,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   DataDeletionRoute: typeof DataDeletionRoute
   DojoRoute: typeof DojoRouteWithChildren
+  PayDemoRoute: typeof PayDemoRoute
   PrivacyRoute: typeof PrivacyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   TermsRoute: typeof TermsRoute
@@ -3588,6 +3601,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pay-demo': {
+      id: '/pay-demo'
+      path: '/pay-demo'
+      fullPath: '/pay-demo'
+      preLoaderRoute: typeof PayDemoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dojo': {
@@ -6368,6 +6388,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   DataDeletionRoute: DataDeletionRoute,
   DojoRoute: DojoRouteWithChildren,
+  PayDemoRoute: PayDemoRoute,
   PrivacyRoute: PrivacyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   TermsRoute: TermsRoute,
@@ -6426,13 +6447,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
