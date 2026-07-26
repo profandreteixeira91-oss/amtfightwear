@@ -117,19 +117,11 @@ export function AMTPayInfoPanel() {
             <p className="text-[11px] text-muted-foreground mt-2 leading-relaxed">
               Valores de referência praticados pelo AMT Pay na data desta
               publicação. A tabela oficial e atualizada fica disponível no
-              extrato de cada cobrança e no painel do AMT Pay —{" "}
-              <a
-                href="https://www.asaas.com/precos"
-                target="_blank"
-                rel="noreferrer"
-                className="underline underline-offset-2 hover:text-foreground"
-              >
-                asaas.com/precos
-              </a>
-              . Reembolsos, contestações (chargeback) e antecipação de
-              recebíveis podem ter tarifas específicas cobradas diretamente
-              pelo AMT Pay.
+              extrato de cada cobrança e no painel do AMT Pay. Reembolsos,
+              contestações (chargeback) e antecipação de recebíveis podem ter
+              tarifas específicas cobradas diretamente pelo AMT Pay.
             </p>
+
           </div>
 
           <div className="rounded-md border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-amber-900 dark:text-amber-200 flex gap-2">
