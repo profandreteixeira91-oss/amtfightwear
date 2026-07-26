@@ -102,63 +102,99 @@ function StudentAppQrPage() {
   }
 
   return (
-    <div className="dojo-theme min-h-screen bg-neutral-50">
+    <div className="dojo-theme min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-red-950/40">
       {/* Barra superior — some na impressão */}
       <div className="print:hidden">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 border-b bg-white px-4 py-3">
-          <div className="flex items-center gap-3">
-            <Link
-              to="/dojo/app"
-              className="inline-flex items-center gap-1 text-sm font-medium text-neutral-500 hover:text-neutral-800"
-            >
-              <ArrowLeft className="h-4 w-4" /> Painel do Dojo
-            </Link>
-            <div>
-              <h1 className="text-lg font-bold">QR do App do Aluno</h1>
-              <p className="text-xs text-muted-foreground">
-                Imprima este cartaz e fixe na academia — os alunos escaneiam e instalam o app.
-              </p>
+        <div className="mx-auto max-w-5xl px-4 pt-5 md:pt-7">
+          {/* ============ HERO — RUBY NOIR ============ */}
+          <div className="relative overflow-hidden rounded-2xl border border-red-500/20 bg-gradient-to-br from-neutral-950 via-neutral-900 to-red-950/50 p-5 text-white shadow-[0_20px_60px_-30px_rgba(220,38,38,0.55)] md:p-7">
+            <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-red-500/20 blur-3xl" />
+            <div aria-hidden className="pointer-events-none absolute -bottom-24 -left-16 h-56 w-56 rounded-full bg-amber-500/10 blur-3xl" />
+            <div className="relative flex flex-wrap items-start justify-between gap-4">
+              <div className="flex min-w-0 items-center gap-4">
+                <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-amber-400 via-red-500 to-red-700 text-white ring-1 ring-white/20 shadow-[0_8px_24px_-8px_rgba(220,38,38,0.9)]">
+                  <Smartphone className="h-6 w-6" />
+                </div>
+                <div className="min-w-0">
+                  <Link
+                    to="/dojo/app"
+                    className="inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-red-300/80 hover:text-red-200"
+                  >
+                    <ArrowLeft className="h-3 w-3" /> Painel do Dojo
+                  </Link>
+                  <h1 className="mt-1 truncate text-xl font-semibold tracking-tight md:text-2xl">QR do App do Aluno</h1>
+                  <p className="mt-1 max-w-2xl text-sm text-neutral-300">
+                    Imprima este cartaz e fixe na academia — os alunos escaneiam e entram direto no portal.
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  variant="outline"
+                  onClick={copyLink}
+                  className="border-red-500/30 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+                >
+                  {copied ? <Check className="mr-2 h-4 w-4" /> : <Copy className="mr-2 h-4 w-4" />}
+                  Copiar link
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={downloadPng}
+                  disabled={!dataUrl}
+                  className="border-red-500/30 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+                >
+                  <Download className="mr-2 h-4 w-4" /> Baixar PNG
+                </Button>
+                <Button
+                  onClick={printPoster}
+                  disabled={!url}
+                  className="bg-gradient-to-br from-red-600 to-red-800 text-white shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-700"
+                >
+                  <Printer className="mr-2 h-4 w-4" /> Imprimir cartaz
+                </Button>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={copyLink}>
-              {copied ? <Check className="mr-2 h-4 w-4" /> : <Copy className="mr-2 h-4 w-4" />}
-              Copiar link
-            </Button>
-            <Button variant="outline" onClick={downloadPng} disabled={!dataUrl}>
-              <Download className="mr-2 h-4 w-4" /> Baixar PNG
-            </Button>
-            <Button onClick={printPoster} disabled={!url}>
-              <Printer className="mr-2 h-4 w-4" /> Imprimir cartaz
-            </Button>
           </div>
         </div>
 
         {/* Ajustes rápidos */}
         <div className="mx-auto max-w-5xl px-4 py-4">
-          <Card className="p-4">
+          <div className="rounded-2xl border border-red-500/15 bg-neutral-950/60 p-4 text-white shadow-[0_10px_30px_-20px_rgba(220,38,38,0.6)]">
             <div className="grid gap-3 md:grid-cols-2">
               <div>
-                <Label className="text-xs">Destino do QR</Label>
-                <Input value={url} readOnly className="mt-1 font-mono text-xs" />
-                <p className="mt-1 text-[11px] text-muted-foreground">
+                <Label className="text-xs text-neutral-300">Destino do QR</Label>
+                <Input
+                  value={url}
+                  readOnly
+                  className="mt-1 border-red-500/20 bg-neutral-900/70 font-mono text-xs text-neutral-100 placeholder:text-neutral-500"
+                />
+                <p className="mt-1 text-[11px] text-neutral-400">
                   Ao escanear, o aluno vai direto para o login online do app{slug ? ` desta academia (${slug})` : ""}. Nenhum download é solicitado.
                 </p>
               </div>
               <div className="grid gap-3 md:grid-cols-2">
                 <div>
-                  <Label className="text-xs">Título do cartaz</Label>
-                  <Input value={headline} onChange={(e) => setHeadline(e.target.value)} />
+                  <Label className="text-xs text-neutral-300">Título do cartaz</Label>
+                  <Input
+                    value={headline}
+                    onChange={(e) => setHeadline(e.target.value)}
+                    className="mt-1 border-red-500/20 bg-neutral-900/70 text-neutral-100 placeholder:text-neutral-500"
+                  />
                 </div>
                 <div>
-                  <Label className="text-xs">Subtítulo</Label>
-                  <Input value={subline} onChange={(e) => setSubline(e.target.value)} />
+                  <Label className="text-xs text-neutral-300">Subtítulo</Label>
+                  <Input
+                    value={subline}
+                    onChange={(e) => setSubline(e.target.value)}
+                    className="mt-1 border-red-500/20 bg-neutral-900/70 text-neutral-100 placeholder:text-neutral-500"
+                  />
                 </div>
               </div>
             </div>
-          </Card>
+          </div>
         </div>
       </div>
+
 
       {/* Cartaz */}
       <div className="mx-auto max-w-3xl px-4 pb-10 print:max-w-none print:px-0 print:pb-0">
