@@ -357,6 +357,23 @@ body:has(.dojo-theme) [data-slot="sheet-content"][data-sidebar="sidebar"] {
   color: var(--dojo-fg);
 }
 
+/* Admin shell — force light sidebar tokens (scoped to /admin) */
+.admin-shell,
+.admin-shell [data-sidebar="sidebar"],
+[data-sidebar="sidebar"][data-admin="true"],
+[data-slot="sheet-content"][data-admin-sidebar="true"] {
+  --sidebar: #ffffff;
+  --sidebar-foreground: oklch(0.32 0 0);
+  --sidebar-primary: oklch(0.56 0.235 27);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: oklch(0.96 0 0);
+  --sidebar-accent-foreground: oklch(0.2 0 0);
+  --sidebar-border: oklch(0.92 0 0);
+  --sidebar-ring: oklch(0.56 0.235 27);
+  background-color: #ffffff;
+  color: oklch(0.2 0 0);
+}
+
 :where(.dojo-theme) h1,
 :where(.dojo-theme) h2,
 :where(.dojo-theme) h3,

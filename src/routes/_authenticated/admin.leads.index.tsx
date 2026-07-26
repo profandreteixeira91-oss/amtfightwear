@@ -38,7 +38,7 @@ import {
   subscribeMacroQueue, getMacroQueue,
 } from "@/features/prospect/utils/macro-queue";
 
-export const Route = createFileRoute("/_authenticated/admin/leads")({
+export const Route = createFileRoute("/_authenticated/admin/leads/")({
   head: () => ({ meta: [{ title: "Leads — Prospect Engine" }] }),
   validateSearch: (s: Record<string, unknown>) => ({
     focus: typeof s.focus === "string" ? s.focus : undefined,
