@@ -12,8 +12,11 @@ import { listDojoUnits } from "@/lib/dojo/dojo.functions";
 import { ClassFormDialog } from "@/components/dojo/schedule/ClassFormDialog";
 import { ClassSidePanel } from "@/components/dojo/schedule/ClassSidePanel";
 import { WeekCalendar } from "@/components/dojo/schedule/WeekCalendar";
+import { MobileWeekAgenda } from "@/components/dojo/schedule/MobileWeekAgenda";
 import { SpacesManager } from "@/components/dojo/schedule/SpacesManager";
 import { WEEKDAYS, MODALITIES, fmtTime, ymd } from "@/components/dojo/schedule/constants";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { SlidersHorizontal } from "lucide-react";
 
 export const Route = createFileRoute("/dojo/app/schedule")({
   head: () => ({ meta: [{ title: "Agenda — AMT Dojo Manager" }] }),
