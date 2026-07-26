@@ -12,7 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { RichTextEditor } from "@/components/dojo/RichTextEditor";
 import { toast } from "sonner";
-import { ArrowLeft, Save, Printer, Eye, FileText, Settings2, PanelTop, PanelBottom, ChevronDown } from "lucide-react";
+import { ArrowLeft, Save, Printer, Eye, FileText, Settings2, PanelTop, PanelBottom, ChevronDown, Image as ImageIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -136,6 +136,17 @@ function ContractEditorPage() {
     else if (activeTab === "footer") patch({ footer_html: draft.footer_html + html });
     else patch({ content: draft.content + html });
     toast.message("Variável inserida no final do documento (clique no editor antes para posicionar).");
+  };
+  const insertAcademyLogo = (heightPx = 56) => {
+    const url = (branding.data as any)?.logo_url || (academy.data as any)?.logo_url;
+    if (!url) {
+      toast.error("Sua academia ainda não tem logo. Envie a logo em Configurações › Identidade visual.");
+      return;
+    }
+    const name = (academy.data as any)?.trade_name ?? (academy.data as any)?.legal_name ?? "Logo da academia";
+    const safeName = String(name).replace(/"/g, "&quot;");
+    const html = `<img src="${url}" alt="${safeName}" style="height:${heightPx}px;width:auto;max-width:220px;object-fit:contain;display:inline-block;vertical-align:middle;" />`;
+    insertAtCursor(html);
   };
   const removeTemplate = async () => {
     if (isNew || !draft.id) { navigate({ to: "/dojo/app/contracts/templates" }); return; }
@@ -320,6 +331,11 @@ function ContractEditorPage() {
                   </DropdownMenuSubContent>
                 </DropdownMenuSub>
                 <DropdownMenuSeparator />
+                <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">Logo da academia</DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => insertAcademyLogo(40)}>Logo — pequena (40 px)</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => insertAcademyLogo(56)}>Logo — média (56 px)</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => insertAcademyLogo(80)}>Logo — grande (80 px)</DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => insertAtCursor("<hr />")}>Linha horizontal</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => insertAtCursor('<p style="page-break-after:always"></p>')}>Quebra de página</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => insertAtCursor("{{pagina_atual}} de {{total_paginas}}")}>Número da página</DropdownMenuItem>
@@ -400,7 +416,18 @@ function ContractEditorPage() {
 
               <TabsContent value="header" className="mt-3 space-y-2">
                 <div className="text-xs text-muted-foreground">
-                  O cabeçalho será impresso no topo de <strong>todas as páginas</strong>.
+                  O cabeçalho será impresso no topo de <strong>todas as páginas</strong>. Recomendado: logo com altura entre 40 e 80 px para caber bem em A4.
+                </div>
+                <div className="flex flex-wrap items-center gap-2 rounded-md border border-dashed border-red-500/40 bg-red-500/5 p-2">
+                  <span className="text-xs font-medium text-red-700 dark:text-red-300 inline-flex items-center gap-1">
+                    <ImageIcon className="h-3.5 w-3.5" /> Logo da academia:
+                  </span>
+                  <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => insertAcademyLogo(40)}>Pequena (40 px)</Button>
+                  <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => insertAcademyLogo(56)}>Média (56 px)</Button>
+                  <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => insertAcademyLogo(80)}>Grande (80 px)</Button>
+                  {!(branding.data as any)?.logo_url && !(academy.data as any)?.logo_url && (
+                    <span className="text-[11px] text-muted-foreground">Envie a logo em Configurações › Identidade visual.</span>
+                  )}
                 </div>
                 <RichTextEditor
                   value={draft.header_html}
