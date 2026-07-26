@@ -93,12 +93,11 @@ function AccountPage() {
     setUser(u.user);
     const uid = u.user.id;
 
-    const [{ data: p }, { data: a }, { data: n }, { data: sub }, { data: inv }, { data: au }] = await Promise.all([
+    const [{ data: p }, { data: a }, { data: n }, { data: sub }, { data: au }] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", uid).maybeSingle(),
       supabase.from("dojo_academy_profile").select("*").eq("owner_id", uid).maybeSingle(),
       supabase.from("dojo_account_notifications").select("*").eq("owner_id", uid).maybeSingle(),
       supabase.from("dojo_subscriptions").select("*").eq("owner_id", uid).maybeSingle(),
-      supabase.from("dojo_invoices").select("*").eq("owner_id", uid).order("due_date", { ascending: false }).limit(50),
       supabase.from("dojo_account_audit").select("*").eq("owner_id", uid).order("created_at", { ascending: false }).limit(30),
     ]);
     const pv = p ?? { id: uid, email: u.user.email };
@@ -108,10 +107,12 @@ function AccountPage() {
     const nv = n ?? { email_enabled: true, system_enabled: true, finance_alerts: true, product_news: true, reminders: true };
     if (n) setNotifPrefs(n);
     setSubscription(sub);
-    setInvoices(inv ?? []);
     setAudit(au ?? []);
     setSnapshot(JSON.stringify({ profile: pv, academy: av, notifPrefs: nv }));
     setLoading(false);
+    fetchSubPayments()
+      .then((r: any) => setSubPayments({ paid: r?.paid ?? [], pending: r?.pending ?? [] }))
+      .catch(() => setSubPayments({ paid: [], pending: [] }));
   }
 
   async function logAudit(action: string, meta: any = {}) {
