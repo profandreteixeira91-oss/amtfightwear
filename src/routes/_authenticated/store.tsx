@@ -1,16 +1,11 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
-import { OwnerOnly } from "@/lib/auth/owner-only";
+import { AdminShell } from "@/components/admin/AdminShell";
 
 /**
  * Layout único da área administrativa da AMT Fight Wear (/store/*).
  *
- * Ponto central para:
- *  - Guard de acesso (OwnerOnly)
- *  - Chrome/tema compartilhado (futuro: sidebar, breadcrumb, filtros globais)
- *  - Loaders/contexto compartilhado entre todas as telas de admin da loja
- *
- * Todas as rotas `store.*.tsx` deste diretório são filhas deste layout e
- * herdam automaticamente o guard e o chrome definidos aqui.
+ * Todas as rotas `store.*.tsx` renderizam dentro da Central AMT
+ * (AdminShell), herdando sidebar unificada, guard `OwnerOnly` e chrome.
  */
 export const Route = createFileRoute("/_authenticated/store")({
   component: StoreAdminLayout,
@@ -18,8 +13,8 @@ export const Route = createFileRoute("/_authenticated/store")({
 
 function StoreAdminLayout() {
   return (
-    <OwnerOnly>
+    <AdminShell>
       <Outlet />
-    </OwnerOnly>
+    </AdminShell>
   );
 }

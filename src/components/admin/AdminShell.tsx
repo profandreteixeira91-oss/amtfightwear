@@ -18,6 +18,7 @@ import {
   ScrollText,
   Sparkles,
   Rocket,
+  TrendingUp,
 } from "lucide-react";
 import { OwnerOnly } from "@/lib/auth/owner-only";
 import {
@@ -111,8 +112,6 @@ const NAV: NavGroup[] = [
     items: [
       { title: "Dojos / Tenants", url: "/store/dojo-manager", icon: Building2 },
       { title: "Suporte", url: "/store/dojo-support", icon: LifeBuoy },
-      { title: "AMT Pay", url: "/admin/dojo/payouts", icon: Wallet },
-      { title: "Assinaturas", url: "/admin/dojo/subscriptions", icon: ScrollText },
     ],
   },
   {
@@ -120,14 +119,10 @@ const NAV: NavGroup[] = [
     items: [
       { title: "Inteligência", url: "/growth/intelligence", icon: Sparkles },
       { title: "Marketing Engine", url: "/growth/insights", icon: Rocket },
+      { title: "Mercado", url: "/growth/market", icon: TrendingUp },
       { title: "CRM", url: "/growth/crm", icon: Users },
+      { title: "Clientes", url: "/growth/customers", icon: UserSquare2 },
       { title: "KPIs", url: "/growth/kpis", icon: LayoutDashboard },
-    ],
-  },
-  {
-    label: "Formação",
-    items: [
-      { title: "Portal Aluno", url: "/dojo/portal", icon: GraduationCap },
     ],
   },
 ];

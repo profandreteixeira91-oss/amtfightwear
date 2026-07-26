@@ -42,6 +42,7 @@ import { Route as AuthenticatedStoreRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedLogsRouteImport } from './routes/_authenticated/logs'
+import { Route as AuthenticatedGrowthRouteImport } from './routes/_authenticated/growth'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdsRouteImport } from './routes/_authenticated/ads'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -393,6 +394,11 @@ const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
 const AuthenticatedLogsRoute = AuthenticatedLogsRouteImport.update({
   id: '/logs',
   path: '/logs',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedGrowthRoute = AuthenticatedGrowthRouteImport.update({
+  id: '/growth',
+  path: '/growth',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
@@ -919,37 +925,37 @@ const AuthenticatedInstagramAccountRoute =
   } as any)
 const AuthenticatedGrowthMarketRoute =
   AuthenticatedGrowthMarketRouteImport.update({
-    id: '/growth/market',
-    path: '/growth/market',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/market',
+    path: '/market',
+    getParentRoute: () => AuthenticatedGrowthRoute,
   } as any)
 const AuthenticatedGrowthKpisRoute = AuthenticatedGrowthKpisRouteImport.update({
-  id: '/growth/kpis',
-  path: '/growth/kpis',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  id: '/kpis',
+  path: '/kpis',
+  getParentRoute: () => AuthenticatedGrowthRoute,
 } as any)
 const AuthenticatedGrowthIntelligenceRoute =
   AuthenticatedGrowthIntelligenceRouteImport.update({
-    id: '/growth/intelligence',
-    path: '/growth/intelligence',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/intelligence',
+    path: '/intelligence',
+    getParentRoute: () => AuthenticatedGrowthRoute,
   } as any)
 const AuthenticatedGrowthInsightsRoute =
   AuthenticatedGrowthInsightsRouteImport.update({
-    id: '/growth/insights',
-    path: '/growth/insights',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/insights',
+    path: '/insights',
+    getParentRoute: () => AuthenticatedGrowthRoute,
   } as any)
 const AuthenticatedGrowthCustomersRoute =
   AuthenticatedGrowthCustomersRouteImport.update({
-    id: '/growth/customers',
-    path: '/growth/customers',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/customers',
+    path: '/customers',
+    getParentRoute: () => AuthenticatedGrowthRoute,
   } as any)
 const AuthenticatedGrowthCrmRoute = AuthenticatedGrowthCrmRouteImport.update({
-  id: '/growth/crm',
-  path: '/growth/crm',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  id: '/crm',
+  path: '/crm',
+  getParentRoute: () => AuthenticatedGrowthRoute,
 } as any)
 const AuthenticatedAdsScaleRoute = AuthenticatedAdsScaleRouteImport.update({
   id: '/scale',
@@ -1442,6 +1448,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/ads': typeof AuthenticatedAdsRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/growth': typeof AuthenticatedGrowthRouteWithChildren
   '/logs': typeof AuthenticatedLogsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/settings': typeof AuthenticatedSettingsRoute
@@ -1661,6 +1668,7 @@ export interface FileRoutesByTo {
   '/unsubscribe': typeof UnsubscribeRoute
   '/ads': typeof AuthenticatedAdsRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/growth': typeof AuthenticatedGrowthRouteWithChildren
   '/logs': typeof AuthenticatedLogsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/settings': typeof AuthenticatedSettingsRoute
@@ -1874,6 +1882,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/ads': typeof AuthenticatedAdsRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/growth': typeof AuthenticatedGrowthRouteWithChildren
   '/_authenticated/logs': typeof AuthenticatedLogsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
@@ -2099,6 +2108,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/ads'
     | '/dashboard'
+    | '/growth'
     | '/logs'
     | '/profile'
     | '/settings'
@@ -2318,6 +2328,7 @@ export interface FileRouteTypes {
     | '/unsubscribe'
     | '/ads'
     | '/dashboard'
+    | '/growth'
     | '/logs'
     | '/profile'
     | '/settings'
@@ -2530,6 +2541,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/ads'
     | '/_authenticated/dashboard'
+    | '/_authenticated/growth'
     | '/_authenticated/logs'
     | '/_authenticated/profile'
     | '/_authenticated/settings'
@@ -3029,6 +3041,13 @@ declare module '@tanstack/react-router' {
       path: '/logs'
       fullPath: '/logs'
       preLoaderRoute: typeof AuthenticatedLogsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/growth': {
+      id: '/_authenticated/growth'
+      path: '/growth'
+      fullPath: '/growth'
+      preLoaderRoute: typeof AuthenticatedGrowthRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/dashboard': {
@@ -3719,45 +3738,45 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/growth/market': {
       id: '/_authenticated/growth/market'
-      path: '/growth/market'
+      path: '/market'
       fullPath: '/growth/market'
       preLoaderRoute: typeof AuthenticatedGrowthMarketRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedGrowthRoute
     }
     '/_authenticated/growth/kpis': {
       id: '/_authenticated/growth/kpis'
-      path: '/growth/kpis'
+      path: '/kpis'
       fullPath: '/growth/kpis'
       preLoaderRoute: typeof AuthenticatedGrowthKpisRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedGrowthRoute
     }
     '/_authenticated/growth/intelligence': {
       id: '/_authenticated/growth/intelligence'
-      path: '/growth/intelligence'
+      path: '/intelligence'
       fullPath: '/growth/intelligence'
       preLoaderRoute: typeof AuthenticatedGrowthIntelligenceRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedGrowthRoute
     }
     '/_authenticated/growth/insights': {
       id: '/_authenticated/growth/insights'
-      path: '/growth/insights'
+      path: '/insights'
       fullPath: '/growth/insights'
       preLoaderRoute: typeof AuthenticatedGrowthInsightsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedGrowthRoute
     }
     '/_authenticated/growth/customers': {
       id: '/_authenticated/growth/customers'
-      path: '/growth/customers'
+      path: '/customers'
       fullPath: '/growth/customers'
       preLoaderRoute: typeof AuthenticatedGrowthCustomersRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedGrowthRoute
     }
     '/_authenticated/growth/crm': {
       id: '/_authenticated/growth/crm'
-      path: '/growth/crm'
+      path: '/crm'
       fullPath: '/growth/crm'
       preLoaderRoute: typeof AuthenticatedGrowthCrmRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedGrowthRoute
     }
     '/_authenticated/ads/scale': {
       id: '/_authenticated/ads/scale'
@@ -4409,6 +4428,27 @@ const AuthenticatedAdsRouteChildren: AuthenticatedAdsRouteChildren = {
 const AuthenticatedAdsRouteWithChildren =
   AuthenticatedAdsRoute._addFileChildren(AuthenticatedAdsRouteChildren)
 
+interface AuthenticatedGrowthRouteChildren {
+  AuthenticatedGrowthCrmRoute: typeof AuthenticatedGrowthCrmRoute
+  AuthenticatedGrowthCustomersRoute: typeof AuthenticatedGrowthCustomersRoute
+  AuthenticatedGrowthInsightsRoute: typeof AuthenticatedGrowthInsightsRoute
+  AuthenticatedGrowthIntelligenceRoute: typeof AuthenticatedGrowthIntelligenceRoute
+  AuthenticatedGrowthKpisRoute: typeof AuthenticatedGrowthKpisRoute
+  AuthenticatedGrowthMarketRoute: typeof AuthenticatedGrowthMarketRoute
+}
+
+const AuthenticatedGrowthRouteChildren: AuthenticatedGrowthRouteChildren = {
+  AuthenticatedGrowthCrmRoute: AuthenticatedGrowthCrmRoute,
+  AuthenticatedGrowthCustomersRoute: AuthenticatedGrowthCustomersRoute,
+  AuthenticatedGrowthInsightsRoute: AuthenticatedGrowthInsightsRoute,
+  AuthenticatedGrowthIntelligenceRoute: AuthenticatedGrowthIntelligenceRoute,
+  AuthenticatedGrowthKpisRoute: AuthenticatedGrowthKpisRoute,
+  AuthenticatedGrowthMarketRoute: AuthenticatedGrowthMarketRoute,
+}
+
+const AuthenticatedGrowthRouteWithChildren =
+  AuthenticatedGrowthRoute._addFileChildren(AuthenticatedGrowthRouteChildren)
+
 interface AuthenticatedStoreRouteChildren {
   AuthenticatedStoreChatRoute: typeof AuthenticatedStoreChatRoute
   AuthenticatedStoreCustomersRoute: typeof AuthenticatedStoreCustomersRoute
@@ -4450,17 +4490,12 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedAdsRoute: typeof AuthenticatedAdsRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedGrowthRoute: typeof AuthenticatedGrowthRouteWithChildren
   AuthenticatedLogsRoute: typeof AuthenticatedLogsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedStoreRoute: typeof AuthenticatedStoreRouteWithChildren
   AuthenticatedUsersRoute: typeof AuthenticatedUsersRoute
-  AuthenticatedGrowthCrmRoute: typeof AuthenticatedGrowthCrmRoute
-  AuthenticatedGrowthCustomersRoute: typeof AuthenticatedGrowthCustomersRoute
-  AuthenticatedGrowthInsightsRoute: typeof AuthenticatedGrowthInsightsRoute
-  AuthenticatedGrowthIntelligenceRoute: typeof AuthenticatedGrowthIntelligenceRoute
-  AuthenticatedGrowthKpisRoute: typeof AuthenticatedGrowthKpisRoute
-  AuthenticatedGrowthMarketRoute: typeof AuthenticatedGrowthMarketRoute
   AuthenticatedInstagramAccountRoute: typeof AuthenticatedInstagramAccountRoute
   AuthenticatedInstagramAdminRoute: typeof AuthenticatedInstagramAdminRoute
   AuthenticatedInstagramAutomationsRoute: typeof AuthenticatedInstagramAutomationsRoute
@@ -4489,17 +4524,12 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedAdsRoute: AuthenticatedAdsRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedGrowthRoute: AuthenticatedGrowthRouteWithChildren,
   AuthenticatedLogsRoute: AuthenticatedLogsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedStoreRoute: AuthenticatedStoreRouteWithChildren,
   AuthenticatedUsersRoute: AuthenticatedUsersRoute,
-  AuthenticatedGrowthCrmRoute: AuthenticatedGrowthCrmRoute,
-  AuthenticatedGrowthCustomersRoute: AuthenticatedGrowthCustomersRoute,
-  AuthenticatedGrowthInsightsRoute: AuthenticatedGrowthInsightsRoute,
-  AuthenticatedGrowthIntelligenceRoute: AuthenticatedGrowthIntelligenceRoute,
-  AuthenticatedGrowthKpisRoute: AuthenticatedGrowthKpisRoute,
-  AuthenticatedGrowthMarketRoute: AuthenticatedGrowthMarketRoute,
   AuthenticatedInstagramAccountRoute: AuthenticatedInstagramAccountRoute,
   AuthenticatedInstagramAdminRoute: AuthenticatedInstagramAdminRoute,
   AuthenticatedInstagramAutomationsRoute:
