@@ -1,60 +1,63 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { Download, Smartphone, Check } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { registerPwa } from "@/lib/pwa/register";
-
-type BeforeInstallPromptEvent = Event & {
-  prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
-};
+import {
+  getDeferredInstallPrompt,
+  isPwaInstalled,
+  subscribeInstallState,
+  triggerInstallPrompt,
+} from "@/lib/pwa/install-prompt";
 
 export function InstallAppCard() {
-  const [installEvent, setInstallEvent] = useState<BeforeInstallPromptEvent | null>(null);
-  const [isInstalled, setIsInstalled] = useState(false);
+  const promptEvent = useSyncExternalStore(
+    subscribeInstallState,
+    () => getDeferredInstallPrompt(),
+    () => null,
+  );
+  const installed = useSyncExternalStore(
+    subscribeInstallState,
+    () => isPwaInstalled(),
+    () => false,
+  );
+
   const [isIOS, setIsIOS] = useState(false);
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     void registerPwa();
     const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
     setIsIOS(/iPad|iPhone|iPod/.test(ua) && !(window as any).MSStream);
-    const handler = (e: Event) => {
-      e.preventDefault();
-      setInstallEvent(e as BeforeInstallPromptEvent);
-    };
-    window.addEventListener("beforeinstallprompt", handler);
-    const mql = window.matchMedia?.("(display-mode: standalone)");
-    const setInst = () =>
-      setIsInstalled(!!mql?.matches || (navigator as any).standalone === true);
-    setInst();
-    mql?.addEventListener?.("change", setInst);
-    return () => {
-      window.removeEventListener("beforeinstallprompt", handler);
-      mql?.removeEventListener?.("change", setInst);
-    };
   }, []);
 
   const install = async () => {
-    if (installEvent) {
-      await installEvent.prompt();
-      const choice = await installEvent.userChoice;
-      if (choice.outcome === "accepted") toast.success("Aplicativo instalado.");
-      setInstallEvent(null);
-      return;
-    }
-    if (isIOS) {
-      toast.info(
-        "No iPhone/iPad: toque em Compartilhar e escolha 'Adicionar à Tela de Início'.",
-        { duration: 9000 },
-      );
-    } else {
-      toast.info(
-        "No Chrome/Edge: abra o menu (⋮) e toque em 'Instalar aplicativo' ou 'Adicionar à tela inicial'.",
-        { duration: 9000 },
-      );
+    if (installed) return;
+    setBusy(true);
+    try {
+      const outcome = await triggerInstallPrompt();
+      if (outcome === "accepted") {
+        toast.success("Aplicativo instalado.");
+      } else if (outcome === "dismissed") {
+        toast.message("Instalação cancelada.");
+      } else if (isIOS) {
+        toast.info(
+          "No iPhone/iPad, o navegador não permite instalação automática. Toque em Compartilhar e escolha 'Adicionar à Tela de Início'.",
+          { duration: 9000 },
+        );
+      } else {
+        toast.info(
+          "Instalação indisponível agora. Use o navegador no celular (Chrome/Edge) e recarregue esta página.",
+          { duration: 9000 },
+        );
+      }
+    } finally {
+      setBusy(false);
     }
   };
+
+  const canInstallDirectly = !!promptEvent;
 
   return (
     <Card className="border-red-500/20 bg-gradient-to-br from-red-600 to-red-700 text-white shadow-lg">
@@ -66,24 +69,29 @@ export function InstallAppCard() {
           <div className="min-w-0">
             <div className="text-base font-bold">Instale o Dojo Manager</div>
             <p className="text-sm text-white/85">
-              {isInstalled
+              {installed
                 ? "Aplicativo já instalado neste dispositivo."
-                : "Tenha acesso rápido, notificações push e uso offline."}
+                : canInstallDirectly
+                  ? "Toque em Instalar agora e confirme no diálogo do navegador."
+                  : isIOS
+                    ? "No iPhone/iPad a instalação é feita pelo botão Compartilhar do Safari."
+                    : "Tenha acesso rápido, notificações push e uso offline."}
             </p>
           </div>
         </div>
         <Button
           onClick={install}
-          className="shrink-0 bg-white text-red-700 hover:bg-white/90"
+          disabled={installed || busy}
+          className="shrink-0 bg-white text-red-700 hover:bg-white/90 disabled:opacity-70"
         >
-          {isInstalled ? (
+          {installed ? (
             <>
               <Check className="mr-2 h-4 w-4" /> Instalado
             </>
           ) : (
             <>
               <Download className="mr-2 h-4 w-4" />
-              Instalar agora
+              {busy ? "Abrindo..." : "Instalar agora"}
             </>
           )}
         </Button>
