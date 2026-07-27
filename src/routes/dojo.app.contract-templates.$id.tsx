@@ -272,10 +272,10 @@ function ContractEditorPage() {
     : draft.page_size === "Letter" ? "aspect-[8.5/11]" : "aspect-[210/297]";
 
   const editor = (
-    <div className="fixed inset-0 z-[100] flex flex-col bg-[#f9fbfd] dark:bg-neutral-950 overflow-hidden">
+    <div className="fixed inset-0 z-[100] flex flex-col bg-neutral-50 dark:bg-neutral-950 overflow-hidden">
 
       {/* Google Docs-style title bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-[#f9fbfd] dark:bg-neutral-950 px-3 sm:px-6 pt-2 pb-1 shrink-0 border-b sm:border-b-0">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-neutral-50 dark:bg-neutral-950 px-3 sm:px-6 pt-2 pb-1 shrink-0 border-b sm:border-b-0">
         <div className="flex items-center gap-2 min-w-0">
           <Link to="/dojo/app/contracts/templates" className="shrink-0">
             <Button variant="ghost" size="icon" className="rounded-full h-8 w-8"><ArrowLeft className="h-4 w-4" /></Button>
@@ -410,11 +410,11 @@ function ContractEditorPage() {
       {/* Body: main document (emphasis) + small preview sidebar */}
       <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-0">
         {/* MAIN — editor */}
-        <div className="min-h-0 overflow-y-auto">
-          <div className="px-2 sm:px-3 md:px-6 pt-2 pb-8 space-y-3">
+        <div className="min-h-0 overflow-y-auto bg-neutral-100/50 dark:bg-neutral-900/30">
+          <div className="px-2 sm:px-4 md:px-8 py-3 sm:py-6 max-w-5xl mx-auto w-full space-y-3">
             <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="w-full">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
-                <TabsList className="bg-neutral-200/60 dark:bg-neutral-800/60 w-full sm:w-auto overflow-x-auto justify-start [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <TabsList className="bg-neutral-200/60 dark:bg-neutral-800/60 w-full sm:w-auto overflow-x-auto justify-start [scrollbar-width:none] [&::-webkit-scrollbar]:hidden shrink-0">
                   <TabsTrigger value="body" className="shrink-0"><FileText className="h-3.5 w-3.5 mr-1" />Corpo</TabsTrigger>
                   <TabsTrigger value="header" className="shrink-0"><PanelTop className="h-3.5 w-3.5 mr-1" />Cabeçalho</TabsTrigger>
                   <TabsTrigger value="footer" className="shrink-0"><PanelBottom className="h-3.5 w-3.5 mr-1" />Rodapé</TabsTrigger>
