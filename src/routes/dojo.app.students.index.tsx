@@ -1136,100 +1136,112 @@ function StudentsPage() {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <select className="h-10 rounded-full border border-input bg-background px-3 text-sm" value={status} onChange={(e) => setStatus(e.target.value)}>
+          <select className="h-10 w-full rounded-full border border-input bg-background px-3 text-sm" value={status} onChange={(e) => setStatus(e.target.value)}>
             <option value="all">Todos os status</option>
             <option value="active">Ativos</option>
             <option value="inactive">Inativos</option>
             <option value="frozen">Trancados</option>
           </select>
-          <select className="h-10 rounded-full border border-input bg-background px-3 text-sm" value={beltFilter} onChange={(e) => setBeltFilter(e.target.value)}>
+          <select className="h-10 w-full rounded-full border border-input bg-background px-3 text-sm" value={beltFilter} onChange={(e) => setBeltFilter(e.target.value)}>
             <option value="all">Todas as faixas</option>
             {(belts.data ?? []).map((b: any) => (
               <option key={b.id} value={b.id}>{b.name}</option>
             ))}
           </select>
-          <select className="h-10 rounded-full border border-input bg-background px-3 text-sm" value={unitFilter} onChange={(e) => setUnitFilter(e.target.value)}>
+          <select className="h-10 w-full rounded-full border border-input bg-background px-3 text-sm" value={unitFilter} onChange={(e) => setUnitFilter(e.target.value)}>
             <option value="all">Todas as unidades</option>
             {(units.data ?? []).map((u: any) => (
               <option key={u.id} value={u.id}>{u.name}</option>
             ))}
           </select>
-          <Input className="h-10 rounded-full" placeholder="Cidade" value={cityFilter} onChange={(e) => setCityFilter(e.target.value)} />
+          <Input className="h-10 w-full rounded-full" placeholder="Cidade" value={cityFilter} onChange={(e) => setCityFilter(e.target.value)} />
+
         </div>
       </div>
 
       <div className="overflow-hidden rounded-2xl border border-neutral-200/80 bg-white shadow-sm divide-y divide-neutral-100">
 
-        {pageItems.map((s: any) => (
-          <div
-            key={s.id}
-            className="grid grid-cols-[1fr_auto] items-center gap-3 border-b p-3 last:border-0 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:gap-4"
-          >
-            {/* Avatar + nome */}
-            <div className="flex min-w-0 items-center gap-3">
-              <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-muted">
-                {s.photo_url ? (
-                  <img src={s.photo_url} alt={s.full_name} className="h-full w-full object-cover" />
-                ) : (
-                  <div className="grid h-full w-full place-items-center text-xs font-semibold text-muted-foreground">
-                    {s.full_name?.[0]?.toUpperCase() ?? "?"}
-                  </div>
-                )}
-              </div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-1.5 truncate font-medium">
-                  {s.anamnesis?.autism ? (
-                    <img
-                      src={autismIcon.url}
-                      alt="TEA"
-                      title="Aluno TEA (Transtorno do Espectro Autista)"
-                      className="h-4 w-4 shrink-0"
-                    />
-                  ) : null}
-                  <span className="truncate">{s.full_name}</span>
-                </div>
-                <div className="truncate text-xs text-muted-foreground">
-                  {[
-                    s.belt?.name && formatBeltFull(s.belt.name, s.belt?.modality, s.current_degree),
-                    s.unit?.name,
-                    s.email ?? s.phone,
-                  ].filter(Boolean).join(" · ") || "Sem dados adicionais"}
-                </div>
-              </div>
-            </div>
-
-            {/* Status — some no desktop para dar respiro */}
-            <span
-              className={`hidden shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium sm:inline-flex ${
-                s.status === "active"
-                  ? "bg-green-100 text-green-800"
-                  : s.status === "frozen"
-                    ? "bg-amber-100 text-amber-800"
-                    : "bg-muted text-muted-foreground"
-              }`}
+        {pageItems.map((s: any) => {
+          const statusLabel = s.status === "active" ? "Ativo" : s.status === "frozen" ? "Trancado" : "Inativo";
+          const statusClass =
+            s.status === "active"
+              ? "bg-green-100 text-green-800"
+              : s.status === "frozen"
+                ? "bg-amber-100 text-amber-800"
+                : "bg-muted text-muted-foreground";
+          const meta = [
+            s.belt?.name && formatBeltFull(s.belt.name, s.belt?.modality, s.current_degree),
+            s.unit?.name,
+            s.email ?? s.phone,
+          ].filter(Boolean).join(" · ") || "Sem dados adicionais";
+          return (
+            <div
+              key={s.id}
+              className="p-3 sm:grid sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:items-center sm:gap-4"
             >
-              {s.status === "active" ? "Ativo" : s.status === "frozen" ? "Trancado" : "Inativo"}
-            </span>
+              {/* Header (avatar + nome + status mobile) */}
+              <div className="flex items-start gap-3">
+                <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-muted">
+                  {s.photo_url ? (
+                    <img src={s.photo_url} alt={s.full_name} className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="grid h-full w-full place-items-center text-xs font-semibold text-muted-foreground">
+                      {s.full_name?.[0]?.toUpperCase() ?? "?"}
+                    </div>
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 font-medium">
+                    {s.anamnesis?.autism ? (
+                      <img
+                        src={autismIcon.url}
+                        alt="TEA"
+                        title="Aluno TEA (Transtorno do Espectro Autista)"
+                        className="h-4 w-4 shrink-0"
+                      />
+                    ) : null}
+                    <span className="break-words">{s.full_name}</span>
+                  </div>
+                  <div className="mt-0.5 break-words text-xs text-muted-foreground">
+                    {meta}
+                  </div>
+                </div>
+                {/* Status inline no mobile */}
+                <span
+                  className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium sm:hidden ${statusClass}`}
+                >
+                  {statusLabel}
+                </span>
+              </div>
 
-            {/* Ações */}
-            <div className="col-start-2 flex shrink-0 items-center gap-1 justify-self-end sm:col-auto">
-              <Link to="/dojo/app/students/$id" params={{ id: s.id }}>
-                <Button size="sm" variant="outline">Abrir</Button>
-              </Link>
-              <Button size="icon" variant="ghost" onClick={() => openEdit(s)} aria-label="Editar aluno">
-                <Pencil className="h-4 w-4" />
-              </Button>
-              <Button size="icon" variant="ghost" onClick={() => onDelete(s.id)} aria-label="Excluir aluno">
-                <Trash2 className="h-4 w-4 text-destructive" />
-              </Button>
+              {/* Status desktop */}
+              <span
+                className={`hidden shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium sm:inline-flex ${statusClass}`}
+              >
+                {statusLabel}
+              </span>
+
+              {/* Ações */}
+              <div className="mt-3 flex flex-wrap items-center gap-1 sm:mt-0 sm:justify-self-end sm:flex-nowrap">
+                <Link to="/dojo/app/students/$id" params={{ id: s.id }}>
+                  <Button size="sm" variant="outline">Abrir</Button>
+                </Link>
+                <Button size="icon" variant="ghost" onClick={() => openEdit(s)} aria-label="Editar aluno">
+                  <Pencil className="h-4 w-4" />
+                </Button>
+                <Button size="icon" variant="ghost" onClick={() => onDelete(s.id)} aria-label="Excluir aluno">
+                  <Trash2 className="h-4 w-4 text-destructive" />
+                </Button>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
         {filtered.length === 0 && (
           <div className="p-6 text-center text-sm text-muted-foreground">Nenhum aluno.</div>
         )}
 
       </div>
+
 
       {filtered.length > PAGE_SIZE && (
         <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
@@ -1250,7 +1262,7 @@ function PaginationBar({ page, totalPages, onChange }: { page: number; totalPage
   const end = Math.min(totalPages, start + 4);
   for (let i = start; i <= end; i++) pages.push(i);
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex flex-wrap items-center gap-1">
       <Button size="sm" variant="outline" onClick={() => go(1)} disabled={page === 1} aria-label="Primeira página">«</Button>
       <Button size="sm" variant="outline" onClick={() => go(page - 1)} disabled={page === 1} aria-label="Página anterior">‹</Button>
       {pages.map((p) => (
@@ -1268,6 +1280,7 @@ function PaginationBar({ page, totalPages, onChange }: { page: number; totalPage
       <Button size="sm" variant="outline" onClick={() => go(totalPages)} disabled={page === totalPages} aria-label="Última página">»</Button>
     </div>
   );
+
 }
 
 
