@@ -25,6 +25,7 @@ import { Route as LojaIndexRouteImport } from './routes/loja.index'
 import { Route as DojoIndexRouteImport } from './routes/dojo.index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as PayInvoiceIdRouteImport } from './routes/pay.$invoiceId'
+import { Route as MatriculaSlugRouteImport } from './routes/matricula.$slug'
 import { Route as LojaCheckoutRouteImport } from './routes/loja.checkout'
 import { Route as LojaCarrinhoRouteImport } from './routes/loja.carrinho'
 import { Route as LojaAtacadoRouteImport } from './routes/loja.atacado'
@@ -371,6 +372,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
 const PayInvoiceIdRoute = PayInvoiceIdRouteImport.update({
   id: '/pay/$invoiceId',
   path: '/pay/$invoiceId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MatriculaSlugRoute = MatriculaSlugRouteImport.update({
+  id: '/matricula/$slug',
+  path: '/matricula/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LojaCheckoutRoute = LojaCheckoutRouteImport.update({
@@ -1887,6 +1893,7 @@ export interface FileRoutesByFullPath {
   '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
   '/loja/checkout': typeof LojaCheckoutRoute
+  '/matricula/$slug': typeof MatriculaSlugRoute
   '/pay/$invoiceId': typeof PayInvoiceIdRoute
   '/app/': typeof AppIndexRoute
   '/dojo/': typeof DojoIndexRoute
@@ -2166,6 +2173,7 @@ export interface FileRoutesByTo {
   '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
   '/loja/checkout': typeof LojaCheckoutRoute
+  '/matricula/$slug': typeof MatriculaSlugRoute
   '/pay/$invoiceId': typeof PayInvoiceIdRoute
   '/dojo': typeof DojoIndexRoute
   '/loja': typeof LojaIndexRoute
@@ -2440,6 +2448,7 @@ export interface FileRoutesById {
   '/loja/atacado': typeof LojaAtacadoRoute
   '/loja/carrinho': typeof LojaCarrinhoRoute
   '/loja/checkout': typeof LojaCheckoutRoute
+  '/matricula/$slug': typeof MatriculaSlugRoute
   '/pay/$invoiceId': typeof PayInvoiceIdRoute
   '/app/': typeof AppIndexRoute
   '/dojo/': typeof DojoIndexRoute
@@ -2726,6 +2735,7 @@ export interface FileRouteTypes {
     | '/loja/atacado'
     | '/loja/carrinho'
     | '/loja/checkout'
+    | '/matricula/$slug'
     | '/pay/$invoiceId'
     | '/app/'
     | '/dojo/'
@@ -3005,6 +3015,7 @@ export interface FileRouteTypes {
     | '/loja/atacado'
     | '/loja/carrinho'
     | '/loja/checkout'
+    | '/matricula/$slug'
     | '/pay/$invoiceId'
     | '/dojo'
     | '/loja'
@@ -3278,6 +3289,7 @@ export interface FileRouteTypes {
     | '/loja/atacado'
     | '/loja/carrinho'
     | '/loja/checkout'
+    | '/matricula/$slug'
     | '/pay/$invoiceId'
     | '/app/'
     | '/dojo/'
@@ -3546,6 +3558,7 @@ export interface RootRouteChildren {
   LojaAtacadoRoute: typeof LojaAtacadoRoute
   LojaCarrinhoRoute: typeof LojaCarrinhoRoute
   LojaCheckoutRoute: typeof LojaCheckoutRoute
+  MatriculaSlugRoute: typeof MatriculaSlugRoute
   PayInvoiceIdRoute: typeof PayInvoiceIdRoute
   LojaIndexRoute: typeof LojaIndexRoute
   ApiDojoApkUploadRoute: typeof ApiDojoApkUploadRoute
@@ -3699,6 +3712,13 @@ declare module '@tanstack/react-router' {
       path: '/pay/$invoiceId'
       fullPath: '/pay/$invoiceId'
       preLoaderRoute: typeof PayInvoiceIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/matricula/$slug': {
+      id: '/matricula/$slug'
+      path: '/matricula/$slug'
+      fullPath: '/matricula/$slug'
+      preLoaderRoute: typeof MatriculaSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/loja/checkout': {
@@ -6408,6 +6428,7 @@ const rootRouteChildren: RootRouteChildren = {
   LojaAtacadoRoute: LojaAtacadoRoute,
   LojaCarrinhoRoute: LojaCarrinhoRoute,
   LojaCheckoutRoute: LojaCheckoutRoute,
+  MatriculaSlugRoute: MatriculaSlugRoute,
   PayInvoiceIdRoute: PayInvoiceIdRoute,
   LojaIndexRoute: LojaIndexRoute,
   ApiDojoApkUploadRoute: ApiDojoApkUploadRoute,
