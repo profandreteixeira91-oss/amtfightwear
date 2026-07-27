@@ -1230,6 +1230,15 @@ function StudentsPage() {
         )}
 
       </div>
+
+      {filtered.length > PAGE_SIZE && (
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+          <div className="text-xs text-muted-foreground">
+            Mostrando {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, filtered.length)} de {filtered.length}
+          </div>
+          <Pagination page={currentPage} totalPages={totalPages} onChange={setPage} />
+        </div>
+      )}
     </div>
   );
 }
