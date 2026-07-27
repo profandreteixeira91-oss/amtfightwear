@@ -61,12 +61,12 @@ function LibraryPage() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
-        <div className="relative flex-1 min-w-[220px]">
+        <div className="relative min-w-[180px] flex-1">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input className="pl-8" placeholder="Buscar conteúdo…" value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
         <Input
-          className="w-52"
+          className="w-full sm:w-52"
           placeholder="Filtrar por modalidade"
           value={modality}
           onChange={(e) => setModality(e.target.value)}
@@ -109,9 +109,9 @@ function LibraryPage() {
             )}
             <CardContent className="p-4">
               <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <div className="font-semibold truncate">{c.name}</div>
-                  <div className="text-xs text-muted-foreground">
+                <div className="min-w-0 flex-1">
+                  <div className="truncate font-semibold">{c.name}</div>
+                  <div className="truncate text-xs text-muted-foreground">
                     {c.modality ?? "—"}
                     {c.category ? ` · ${c.category}` : ""}
                   </div>

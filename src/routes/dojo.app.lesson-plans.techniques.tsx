@@ -78,8 +78,8 @@ function TechniquesPage() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
-        <Input className="w-52" placeholder="Modalidade" value={modality} onChange={(e) => setModality(e.target.value)} />
-        <Input className="flex-1 min-w-[200px]" placeholder="Buscar técnica…" value={search} onChange={(e) => setSearch(e.target.value)} />
+        <Input className="w-full sm:w-52" placeholder="Modalidade" value={modality} onChange={(e) => setModality(e.target.value)} />
+        <Input className="min-w-[180px] flex-1" placeholder="Buscar técnica…" value={search} onChange={(e) => setSearch(e.target.value)} />
         <Dialog
           open={open}
           onOpenChange={(v) => {
@@ -129,7 +129,7 @@ function TechniquesPage() {
 
       {Object.entries(grouped).map(([label, items]) => (
         <div key={label}>
-          <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</div>
+          <div className="mb-2 truncate text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</div>
           <div className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
             {items.map((t) => (
               <Card key={t.id}>
@@ -190,11 +190,11 @@ function TechDialog({
     notes: initial?.notes ?? "",
   });
   return (
-    <DialogContent className="max-w-lg">
+    <DialogContent className="max-h-[90vh] w-[calc(100vw-1rem)] max-w-lg overflow-y-auto">
       <DialogHeader>
         <DialogTitle>{initial ? "Editar técnica" : "Nova técnica"}</DialogTitle>
       </DialogHeader>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
           <Label>Modalidade</Label>
           <Input value={form.modality} onChange={(e) => setForm({ ...form, modality: e.target.value })} />
@@ -203,11 +203,11 @@ function TechDialog({
           <Label>Categoria</Label>
           <Input value={form.category ?? ""} onChange={(e) => setForm({ ...form, category: e.target.value })} />
         </div>
-        <div className="col-span-2">
+        <div className="sm:col-span-2">
           <Label>Nome</Label>
           <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
         </div>
-        <div className="col-span-2">
+        <div className="sm:col-span-2">
           <Label>Descrição</Label>
           <Textarea rows={3} value={form.description ?? ""} onChange={(e) => setForm({ ...form, description: e.target.value })} />
         </div>
@@ -219,11 +219,11 @@ function TechDialog({
           <Label>Faixa recomendada</Label>
           <Input value={form.recommended_belt ?? ""} onChange={(e) => setForm({ ...form, recommended_belt: e.target.value })} />
         </div>
-        <div className="col-span-2">
+        <div className="sm:col-span-2">
           <Label>Vídeo (URL)</Label>
           <Input value={form.video_url ?? ""} onChange={(e) => setForm({ ...form, video_url: e.target.value })} />
         </div>
-        <div className="col-span-2">
+        <div className="sm:col-span-2">
           <Label>Imagem (URL)</Label>
           <Input value={form.image_url ?? ""} onChange={(e) => setForm({ ...form, image_url: e.target.value })} />
         </div>

@@ -278,11 +278,11 @@ function LessonEditorPage() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <Button variant="ghost" size="sm" onClick={() => navigate({ to: "/dojo/app/lesson-plans" })}>
+        <Button variant="ghost" size="sm" onClick={() => navigate({ to: "/dojo/app/lesson-plans" })} className="shrink-0">
           <ChevronLeft className="mr-1 h-4 w-4" /> Voltar
         </Button>
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs text-muted-foreground">
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
+          <span className="min-w-0 max-w-[180px] truncate text-xs text-muted-foreground sm:max-w-none">
             {save.isPending ? "Salvando…" : save.isSuccess ? "Salvo automaticamente" : ""}
           </span>
           <Dialog>
@@ -459,10 +459,10 @@ function LessonEditorPage() {
                 <SortableRow key={b.id} id={b.id}>
                   {({ listeners, attributes }) => (
                     <div className="rounded-lg border bg-card p-3">
-                      <div className="mb-2 flex items-start gap-2">
+                      <div className="mb-2 flex flex-wrap items-start gap-2">
                         <DragHandle listeners={listeners as Record<string, unknown>} attributes={attributes as unknown as Record<string, unknown>} />
                         <Select value={b.kind} onValueChange={(v) => updateBlock(b.id, { kind: v as Block["kind"] })}>
-                          <SelectTrigger className="w-48">
+                          <SelectTrigger className="w-full min-w-0 flex-1 sm:w-48 sm:flex-none">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -474,19 +474,19 @@ function LessonEditorPage() {
                           </SelectContent>
                         </Select>
                         <Input
-                          className="flex-1"
+                          className="min-w-0 basis-full flex-1 sm:basis-auto"
                           value={b.title}
                           onChange={(e) => updateBlock(b.id, { title: e.target.value })}
                           placeholder="Título do bloco"
                         />
                         <Input
                           type="number"
-                          className="w-24"
+                          className="w-20 shrink-0 sm:w-24"
                           value={b.duration_min ?? ""}
                           onChange={(e) => updateBlock(b.id, { duration_min: e.target.value ? Number(e.target.value) : null })}
                           placeholder="min"
                         />
-                        <Button variant="ghost" size="icon" onClick={() => removeBlock(b.id)}>
+                        <Button variant="ghost" size="icon" className="shrink-0" onClick={() => removeBlock(b.id)}>
                           <Trash2 className="h-4 w-4 text-red-500" />
                         </Button>
                       </div>
@@ -509,41 +509,41 @@ function LessonEditorPage() {
                               <SortableRow key={it.id} id={it.id}>
                                 {({ listeners: iL, attributes: iA }) => (
                                   <div className="grid grid-cols-12 items-center gap-2 rounded border bg-muted/30 p-2 text-sm">
-                                    <div className="col-span-1 flex justify-center">
+                                    <div className="col-span-2 flex justify-center sm:col-span-1">
                                       <DragHandle listeners={iL as Record<string, unknown>} attributes={iA as unknown as Record<string, unknown>} />
                                     </div>
                                     <Input
-                                      className="col-span-3"
+                                      className="col-span-10 min-w-0 sm:col-span-3"
                                       value={it.name}
                                       onChange={(e) => updateItem(b.id, it.id, { name: e.target.value })}
                                       placeholder="Exercício / técnica"
                                     />
                                     <Input
-                                      className="col-span-4"
+                                      className="col-span-12 min-w-0 sm:col-span-4"
                                       value={it.description ?? ""}
                                       onChange={(e) => updateItem(b.id, it.id, { description: e.target.value })}
                                       placeholder="Descrição"
                                     />
                                     <Input
-                                      className="col-span-1"
+                                      className="col-span-3 min-w-0 sm:col-span-1"
                                       value={it.time_min ?? ""}
                                       onChange={(e) => updateItem(b.id, it.id, { time_min: e.target.value ? Number(e.target.value) : null })}
                                       placeholder="min"
                                       type="number"
                                     />
                                     <Input
-                                      className="col-span-1"
+                                      className="col-span-3 min-w-0 sm:col-span-1"
                                       value={it.reps ?? ""}
                                       onChange={(e) => updateItem(b.id, it.id, { reps: e.target.value })}
                                       placeholder="rep"
                                     />
                                     <Input
-                                      className="col-span-1"
+                                      className="col-span-3 min-w-0 sm:col-span-1"
                                       value={it.sets ?? ""}
                                       onChange={(e) => updateItem(b.id, it.id, { sets: e.target.value })}
                                       placeholder="sér"
                                     />
-                                    <Button variant="ghost" size="icon" className="col-span-1" onClick={() => removeItem(b.id, it.id)}>
+                                    <Button variant="ghost" size="icon" className="col-span-3 justify-self-end sm:col-span-1" onClick={() => removeItem(b.id, it.id)}>
                                       <Trash2 className="h-4 w-4 text-red-500" />
                                     </Button>
                                   </div>
@@ -713,9 +713,9 @@ function RegisterDeliveryDialog({
           </div>
         ) : (
           <div>
-            <div className="mb-2 flex items-center justify-between">
-              <div className="text-sm font-medium">Chamada ({presentIds.length}/{students.length} presentes)</div>
-              <div className="flex gap-1">
+            <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+              <div className="min-w-0 text-sm font-medium">Chamada ({presentIds.length}/{students.length} presentes)</div>
+              <div className="flex flex-wrap gap-1">
                 <Button size="sm" variant="ghost" onClick={() => toggleAll(true)}>Todos</Button>
                 <Button size="sm" variant="ghost" onClick={() => toggleAll(false)}>Ninguém</Button>
               </div>

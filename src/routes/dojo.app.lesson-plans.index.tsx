@@ -180,10 +180,10 @@ function LessonPlansDashboardPage() {
         <div className="relative overflow-hidden rounded-2xl border border-red-500/20 bg-gradient-to-br from-neutral-950 via-neutral-900 to-red-950/40 p-5 text-white shadow-[0_20px_60px_-30px_rgba(220,38,38,0.6)]">
           <div aria-hidden className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-red-500/20 blur-3xl" />
           <div className="relative flex flex-wrap items-center justify-between gap-3">
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-red-300">Próxima aula</div>
-              <div className="mt-1 text-lg font-bold">{stats.next_lesson.title}</div>
-              <div className="mt-0.5 text-sm text-neutral-300">
+              <div className="mt-1 truncate text-lg font-bold">{stats.next_lesson.title}</div>
+              <div className="mt-0.5 truncate text-sm text-neutral-300">
                 {new Date(stats.next_lesson.date).toLocaleDateString("pt-BR")}
                 {stats.next_lesson.start_time ? ` · ${stats.next_lesson.start_time.slice(0, 5)}` : ""}
                 {(stats.next_lesson.dojo_classes as { name?: string } | null)?.name
