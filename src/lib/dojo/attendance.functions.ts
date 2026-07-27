@@ -279,9 +279,8 @@ export const checkinByCode = createServerFn({ method: "POST" })
         method: /^\d+$/.test(code) ? "pin" : "qr",
         created_by: context.userId,
         owner_id: context.userId,
-        validation_result: "success",
-        validation_metadata: ({ auto_resolved: true } as any)
-      } as any)
+        checked_in_at: new Date().toISOString(),
+      })
       .select("id")
       .single();
     if (e2) throw new Error(e2.message);
