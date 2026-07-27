@@ -1369,21 +1369,21 @@ function NewGraduationPage() {
             </div>
 
             {/* Totais */}
-            <div className="grid gap-3 rounded-xl border bg-muted/30 p-4 md:grid-cols-3">
-              <div>
-                <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Total geral</div>
+            <div className="grid grid-cols-1 gap-3 rounded-xl border bg-muted/30 p-4 sm:grid-cols-3">
+              <div className="flex flex-col sm:block">
+                <div className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Total geral</div>
                 <div className="text-xl font-black tabular-nums">
                   R$ {paymentTotals.total.toFixed(2)}
                 </div>
               </div>
-              <div>
-                <div className="text-[10px] uppercase tracking-wide text-emerald-700">Pago</div>
+              <div className="flex flex-col sm:block">
+                <div className="text-[10px] font-bold uppercase tracking-wide text-emerald-700">Pago</div>
                 <div className="text-xl font-black tabular-nums text-emerald-700">
                   R$ {paymentTotals.paid.toFixed(2)}
                 </div>
               </div>
-              <div>
-                <div className="text-[10px] uppercase tracking-wide text-amber-700">A receber</div>
+              <div className="flex flex-col sm:block">
+                <div className="text-[10px] font-bold uppercase tracking-wide text-amber-700">A receber</div>
                 <div className="text-xl font-black tabular-nums text-amber-700">
                   R$ {paymentTotals.pending.toFixed(2)}
                 </div>
