@@ -1236,7 +1236,7 @@ function StudentsPage() {
           <div className="text-xs text-muted-foreground">
             Mostrando {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, filtered.length)} de {filtered.length}
           </div>
-          <Pagination page={currentPage} totalPages={totalPages} onChange={setPage} />
+          <PaginationBar page={currentPage} totalPages={totalPages} onChange={setPage} />
         </div>
       )}
     </div>
