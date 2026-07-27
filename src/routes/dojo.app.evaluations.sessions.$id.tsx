@@ -122,36 +122,45 @@ function SessionRunner() {
   const isDone = sess.status === "done";
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <Link to="/dojo/app/evaluations/sessions" className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1">
-          <ArrowLeft className="h-4 w-4" /> Avaliações
+    <div className="mx-auto w-full max-w-4xl space-y-5 p-2 sm:p-4">
+      <div className="flex items-center justify-between gap-2">
+        <Link to="/dojo/app/evaluations/sessions" className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
+          <ArrowLeft className="h-4 w-4" /> <span className="hidden sm:inline">Voltar para</span> Avaliações
         </Link>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => saveProgress()} disabled={isDone}>
-            <Save className="h-4 w-4 mr-1" /> Salvar
+          <Button variant="outline" size="sm" onClick={() => saveProgress()} disabled={isDone} className="h-9">
+            <Save className="h-4 w-4 mr-1.5" /> Salvar
           </Button>
         </div>
       </div>
 
       {/* Student header */}
-      <Card>
-        <CardContent className="p-4 flex flex-wrap items-center gap-4">
-          {student?.photo_url && (
-            <img src={student.photo_url} alt="" className="w-16 h-16 rounded-full object-cover border" />
-          )}
-          <div className="flex-1 min-w-[200px]">
-            <h2 className="text-xl font-semibold">{student?.full_name ?? "—"}</h2>
-            <div className="text-sm text-muted-foreground">
-              {student?.belt?.name ?? "Sem faixa"} · Modelo: {sess.template?.title ?? "—"}
+      <Card className="overflow-hidden border-white/10 bg-neutral-900/50 backdrop-blur">
+        <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center">
+          <div className="flex items-center gap-4 flex-1 min-w-0">
+            {student?.photo_url ? (
+              <img src={student.photo_url} alt="" className="h-14 w-14 shrink-0 rounded-full border border-white/10 object-cover shadow-lg" />
+            ) : (
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-white/10 bg-neutral-800 text-xl font-bold text-white shadow-lg">
+                {student?.full_name?.charAt(0) ?? "?"}
+              </div>
+            )}
+            <div className="min-w-0 flex-1">
+              <h2 className="truncate font-display text-xl font-black tracking-tight text-white sm:text-2xl">{student?.full_name ?? "—"}</h2>
+              <div className="truncate text-sm text-neutral-400">
+                {student?.belt?.name ?? "Sem faixa"} · {sess.template?.title ?? "—"}
+              </div>
             </div>
           </div>
-          <div className="text-right">
-            <div className="text-3xl font-bold">{total}<span className="text-lg text-muted-foreground">/{max}</span></div>
-            <div className="text-sm text-muted-foreground">{percent}%</div>
+          <div className="flex items-center justify-between border-t border-white/5 pt-4 sm:block sm:border-0 sm:pt-0 sm:text-right">
+            <div className="flex items-baseline gap-1 sm:justify-end">
+              <span className="text-3xl font-black tracking-tighter text-white">{total}</span>
+              <span className="text-sm font-bold text-neutral-500">/{max}</span>
+            </div>
+            <div className="text-xs font-bold uppercase tracking-wider text-red-400">{percent}%</div>
             {passing != null && (
-              <Badge variant={total >= passing ? "default" : "outline"} className="mt-1">
-                {total >= passing ? "Acima do mínimo" : `Mínimo: ${passing}`}
+              <Badge variant={total >= passing ? "default" : "outline"} className={`mt-1 h-5 text-[10px] font-bold uppercase ${total >= passing ? "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30" : "border-white/10 text-neutral-400"}`}>
+                {total >= passing ? "Aprovado" : `Mínimo: ${passing}`}
               </Badge>
             )}
           </div>
