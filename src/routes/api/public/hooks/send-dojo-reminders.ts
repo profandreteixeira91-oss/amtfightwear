@@ -95,6 +95,12 @@ export const Route = createFileRoute("/api/public/hooks/send-dojo-reminders")({
         let skipped = 0;
         let failed = 0;
         for (const inv of invoices ?? []) {
+          // Pula alunos com matrícula congelada ou cancelada — cobrança pausada.
+          const studentStatus = (inv as any).student?.status;
+          if (studentStatus === "frozen" || studentStatus === "cancelled" || (inv as any).student?.cancelled_at) {
+            skipped++;
+            continue;
+          }
           const due = new Date(`${inv.due_date}T00:00:00Z`);
           const diff = Math.round(
             (Date.UTC(
