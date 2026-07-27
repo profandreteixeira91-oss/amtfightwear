@@ -161,8 +161,8 @@ export const confirmSmartCheckins = createServerFn({ method: "POST" })
           created_by: context.userId,
           owner_id: context.userId,
           checked_in_at: new Date().toISOString(),
-          validation_result: "valid",
-          validation_metadata: JSON.stringify({ smart_photo: true })
+          validation_result: "valid" as any,
+          validation_metadata: JSON.stringify({ smart_photo: true }) as any
         });
 
         if (error) throw error;
@@ -173,11 +173,6 @@ export const confirmSmartCheckins = createServerFn({ method: "POST" })
     }
 
     return { ok: true, count: checkinCount, errors };
-
-    // Update status in dojo_detected_faces (if we have a more granular update mechanism)
-    // For now, let's just mark the class photo as processed/completed if needed.
-    
-    return { ok: true, count: checkins.length };
   });
 
 export const getSmartCheckinDetails = createServerFn({ method: "GET" })
