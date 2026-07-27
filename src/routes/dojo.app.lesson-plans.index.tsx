@@ -40,6 +40,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/dojo/app/lesson-plans/")({
   component: LessonPlansDashboardPage,
