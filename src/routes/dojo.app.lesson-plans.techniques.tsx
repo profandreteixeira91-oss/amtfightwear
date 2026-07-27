@@ -219,11 +219,11 @@ function TechDialog({
           <Label>Faixa recomendada</Label>
           <Input value={form.recommended_belt ?? ""} onChange={(e) => setForm({ ...form, recommended_belt: e.target.value })} />
         </div>
-        <div className="col-span-2">
+        <div className="sm:col-span-2">
           <Label>Vídeo (URL)</Label>
           <Input value={form.video_url ?? ""} onChange={(e) => setForm({ ...form, video_url: e.target.value })} />
         </div>
-        <div className="col-span-2">
+        <div className="sm:col-span-2">
           <Label>Imagem (URL)</Label>
           <Input value={form.image_url ?? ""} onChange={(e) => setForm({ ...form, image_url: e.target.value })} />
         </div>
