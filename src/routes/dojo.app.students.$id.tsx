@@ -8,8 +8,9 @@ import {
   addDojoGraduation, deleteDojoGraduation,
   saveDojoEnrollment, deleteDojoEnrollment, changeStudentPlan,
   saveDojoInvoice, markDojoInvoicePaid, deleteDojoInvoice,
-  deleteDojoStudent, saveDojoStudent,
+  deleteDojoStudent, saveDojoStudent, freezeDojoStudent, unfreezeDojoStudent, restoreDojoStudent,
 } from "@/lib/dojo/dojo.functions";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { listAttendance, regenerateStudentCodes } from "@/lib/dojo/attendance.functions";
 import { getStudentCompetitionHistory } from "@/lib/dojo/competitions/rankings.functions";
 import { Button } from "@/components/ui/button";
@@ -67,6 +68,9 @@ function StudentDetail() {
   const attendanceFn = useServerFn(listAttendance);
 
   const delStudent = useServerFn(deleteDojoStudent);
+  const freezeStudent = useServerFn(freezeDojoStudent);
+  const unfreezeStudent = useServerFn(unfreezeDojoStudent);
+  const restoreStudent = useServerFn(restoreDojoStudent);
   const addGrad = useServerFn(addDojoGraduation);
   const delGrad = useServerFn(deleteDojoGraduation);
   const saveEnroll = useServerFn(saveDojoEnrollment);
@@ -101,6 +105,8 @@ function StudentDetail() {
   const [activeTab, setActiveTab] = useState("pessoal");
   const [changePlan, setChangePlan] = useState({ open: false, plan_id: "", custom_amount: "", due_day: 5, start_date: new Date().toISOString().slice(0, 10) });
   const [changingPlan, setChangingPlan] = useState(false);
+  const [cancelDialog, setCancelDialog] = useState<{ open: boolean; mode: "cancel" | "freeze"; frozen_until: string }>({ open: false, mode: "cancel", frozen_until: "" });
+  const [cancelBusy, setCancelBusy] = useState(false);
 
   const refresh = () => qc.invalidateQueries({ queryKey: ["dojo-student", id] });
 
@@ -206,13 +212,40 @@ function StudentDetail() {
   if (q.isLoading || !q.data || !s) return <LoadingState />;
 
 
-  const onDeleteStudent = async () => {
-    if (!confirm(`Cancelar matrícula de ${s.full_name}? Esta ação apaga histórico de graduações, mensalidades e certificados.`)) return;
+  const openCancelDialog = () => setCancelDialog({ open: true, mode: "cancel", frozen_until: "" });
+  const confirmCancelAction = async () => {
+    setCancelBusy(true);
     try {
-      await delStudent({ data: { id } });
-      toast.success("Matrícula cancelada");
-      navigate({ to: "/dojo/app/students" });
-    } catch (e: any) { toast.error("Erro ao cancelar matrícula", { description: e.message }); }
+      if (cancelDialog.mode === "freeze") {
+        await freezeStudent({ data: { id, frozen_until: cancelDialog.frozen_until || null } });
+        toast.success("Matrícula congelada", { description: "Cobranças e fluxo do aluno foram pausados." });
+        setCancelDialog((d) => ({ ...d, open: false }));
+        refresh();
+      } else {
+        await delStudent({ data: { id } });
+        toast.success("Matrícula cancelada", { description: "Dados preservados por 30 dias." });
+        setCancelDialog((d) => ({ ...d, open: false }));
+        navigate({ to: "/dojo/app/students" });
+      }
+    } catch (e: any) {
+      toast.error("Erro", { description: e.message });
+    } finally {
+      setCancelBusy(false);
+    }
+  };
+  const doUnfreeze = async () => {
+    try {
+      await unfreezeStudent({ data: { id } });
+      toast.success("Matrícula reativada");
+      refresh();
+    } catch (e: any) { toast.error("Erro ao reativar", { description: e.message }); }
+  };
+  const doRestore = async () => {
+    try {
+      await restoreStudent({ data: { id } });
+      toast.success("Matrícula restaurada");
+      refresh();
+    } catch (e: any) { toast.error("Erro ao restaurar", { description: e.message }); }
   };
 
   const saveNote = async () => {
@@ -343,18 +376,129 @@ function StudentDetail() {
                   </a>
                 </Button>
               )}
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={onDeleteStudent}
-                className="w-full border-red-400/40 bg-red-500/10 text-red-200 hover:bg-red-500/20 hover:text-white"
-              >
-                <Trash2 className="mr-1.5 h-4 w-4" /> Cancelar matrícula
-              </Button>
+              {s.status === "frozen" ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={doUnfreeze}
+                  className="w-full border-amber-400/40 bg-amber-500/10 text-amber-100 hover:bg-amber-500/20 hover:text-white"
+                >
+                  <RefreshCw className="mr-1.5 h-4 w-4" /> Reativar matrícula
+                </Button>
+              ) : s.status === "cancelled" ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={doRestore}
+                  className="w-full border-emerald-400/40 bg-emerald-500/10 text-emerald-100 hover:bg-emerald-500/20 hover:text-white"
+                >
+                  <RefreshCw className="mr-1.5 h-4 w-4" /> Restaurar matrícula
+                </Button>
+              ) : (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={openCancelDialog}
+                  className="w-full border-red-400/40 bg-red-500/10 text-red-200 hover:bg-red-500/20 hover:text-white"
+                >
+                  <Trash2 className="mr-1.5 h-4 w-4" /> Cancelar matrícula
+                </Button>
+              )}
             </div>
           </div>
         </div>
       </section>
+
+      {/* Diálogo: cancelar / congelar matrícula */}
+      <Dialog open={cancelDialog.open} onOpenChange={(v) => setCancelDialog((d) => ({ ...d, open: v }))}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Cancelar ou congelar matrícula</DialogTitle>
+            <DialogDescription>
+              Escolha como deseja encerrar o vínculo do aluno <strong>{s.full_name}</strong>.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3">
+            <label
+              className={`block cursor-pointer rounded-xl border p-3 transition ${
+                cancelDialog.mode === "freeze"
+                  ? "border-amber-400 bg-amber-50 dark:bg-amber-950/20"
+                  : "border-neutral-200 hover:border-amber-300 dark:border-neutral-800"
+              }`}
+            >
+              <div className="flex items-start gap-3">
+                <input
+                  type="radio"
+                  name="cancel-mode"
+                  className="mt-1"
+                  checked={cancelDialog.mode === "freeze"}
+                  onChange={() => setCancelDialog((d) => ({ ...d, mode: "freeze" }))}
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-semibold">Congelar matrícula</div>
+                  <div className="text-xs text-muted-foreground">
+                    Pausa cobranças, lembretes e demais fluxos. O aluno permanece cadastrado e pode ser reativado a qualquer momento.
+                  </div>
+                  {cancelDialog.mode === "freeze" && (
+                    <div className="mt-2">
+                      <label className="text-xs font-medium">Reativar automaticamente em (opcional)</label>
+                      <Input
+                        type="date"
+                        value={cancelDialog.frozen_until}
+                        min={new Date().toISOString().slice(0, 10)}
+                        onChange={(e) => setCancelDialog((d) => ({ ...d, frozen_until: e.target.value }))}
+                        className="mt-1"
+                      />
+                      <p className="mt-1 text-[11px] text-muted-foreground">
+                        Deixe em branco para congelar por tempo indeterminado.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </label>
+
+            <label
+              className={`block cursor-pointer rounded-xl border p-3 transition ${
+                cancelDialog.mode === "cancel"
+                  ? "border-red-400 bg-red-50 dark:bg-red-950/20"
+                  : "border-neutral-200 hover:border-red-300 dark:border-neutral-800"
+              }`}
+            >
+              <div className="flex items-start gap-3">
+                <input
+                  type="radio"
+                  name="cancel-mode"
+                  className="mt-1"
+                  checked={cancelDialog.mode === "cancel"}
+                  onChange={() => setCancelDialog((d) => ({ ...d, mode: "cancel" }))}
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-semibold text-red-700 dark:text-red-300">Cancelar definitivamente</div>
+                  <div className="text-xs text-muted-foreground">
+                    Encerra a matrícula. Os dados do aluno ficam preservados por 30 dias — dentro desse prazo você pode restaurar o cadastro sem perdas.
+                  </div>
+                </div>
+              </div>
+            </label>
+          </div>
+
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setCancelDialog((d) => ({ ...d, open: false }))} disabled={cancelBusy}>
+              Voltar
+            </Button>
+            <Button
+              onClick={confirmCancelAction}
+              disabled={cancelBusy}
+              className={cancelDialog.mode === "cancel" ? "bg-red-600 hover:bg-red-700 text-white" : "bg-amber-600 hover:bg-amber-700 text-white"}
+            >
+              {cancelBusy ? "Processando..." : cancelDialog.mode === "freeze" ? "Congelar matrícula" : "Cancelar definitivamente"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
 
 
       {/* Layout: sidebar / conteúdo (timeline vai como card horizontal abaixo) */}

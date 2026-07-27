@@ -7392,6 +7392,7 @@ export type Database = {
           asaas_customer_id: string | null
           birth_date: string | null
           blood_type: string | null
+          cancelled_at: string | null
           checkin_pin: string | null
           city: string | null
           cpf: string | null
@@ -7402,6 +7403,8 @@ export type Database = {
           emergency_contact_name: string | null
           emergency_contact_phone: string | null
           emergency_contact_relationship: string | null
+          frozen_since: string | null
+          frozen_until: string | null
           full_name: string
           gender: string | null
           graduation_criteria_mode: string | null
@@ -7444,6 +7447,7 @@ export type Database = {
           asaas_customer_id?: string | null
           birth_date?: string | null
           blood_type?: string | null
+          cancelled_at?: string | null
           checkin_pin?: string | null
           city?: string | null
           cpf?: string | null
@@ -7454,6 +7458,8 @@ export type Database = {
           emergency_contact_name?: string | null
           emergency_contact_phone?: string | null
           emergency_contact_relationship?: string | null
+          frozen_since?: string | null
+          frozen_until?: string | null
           full_name: string
           gender?: string | null
           graduation_criteria_mode?: string | null
@@ -7496,6 +7502,7 @@ export type Database = {
           asaas_customer_id?: string | null
           birth_date?: string | null
           blood_type?: string | null
+          cancelled_at?: string | null
           checkin_pin?: string | null
           city?: string | null
           cpf?: string | null
@@ -7506,6 +7513,8 @@ export type Database = {
           emergency_contact_name?: string | null
           emergency_contact_phone?: string | null
           emergency_contact_relationship?: string | null
+          frozen_since?: string | null
+          frozen_until?: string | null
           full_name?: string
           gender?: string | null
           graduation_criteria_mode?: string | null

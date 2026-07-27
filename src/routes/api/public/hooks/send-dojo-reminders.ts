@@ -80,7 +80,7 @@ export const Route = createFileRoute("/api/public/hooks/send-dojo-reminders")({
         const { data: invoices, error } = await (supabaseAdmin as any)
           .from("dojo_invoices")
           .select(
-            "id, owner_id, description, amount, due_date, status, payment_link, asaas_invoice_url, asaas_pix_copypaste, student:dojo_students(id, full_name, email)",
+            "id, owner_id, description, amount, due_date, status, payment_link, asaas_invoice_url, asaas_pix_copypaste, student:dojo_students(id, full_name, email, status, cancelled_at)",
           )
           .in("status", ["pending", "overdue"])
           .gte("due_date", fromISO)
@@ -95,6 +95,12 @@ export const Route = createFileRoute("/api/public/hooks/send-dojo-reminders")({
         let skipped = 0;
         let failed = 0;
         for (const inv of invoices ?? []) {
+          // Pula alunos com matrícula congelada ou cancelada — cobrança pausada.
+          const studentStatus = (inv as any).student?.status;
+          if (studentStatus === "frozen" || studentStatus === "cancelled" || (inv as any).student?.cancelled_at) {
+            skipped++;
+            continue;
+          }
           const due = new Date(`${inv.due_date}T00:00:00Z`);
           const diff = Math.round(
             (Date.UTC(
