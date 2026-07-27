@@ -250,8 +250,8 @@ function AnnouncementsAdmin() {
                     </span>
                   )}
                 </div>
-                <h3 className="truncate text-base font-bold tracking-tight text-neutral-900">{a.title}</h3>
-                {a.summary && <p className="line-clamp-2 text-sm text-muted-foreground">{a.summary}</p>}
+                <h3 className="break-words text-base font-bold tracking-tight text-neutral-900 leading-tight">{a.title}</h3>
+                {a.summary && <p className="line-clamp-3 break-words text-sm text-muted-foreground leading-normal">{a.summary}</p>}
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-1 text-[11px] text-muted-foreground">
                   <span className="inline-flex items-center gap-1"><Calendar className="h-3 w-3" /> {new Date(a.publish_at).toLocaleString("pt-BR")}</span>
                   {a.expires_at && <span className="inline-flex items-center gap-1"><Clock className="h-3 w-3" /> Expira {new Date(a.expires_at).toLocaleDateString("pt-BR")}</span>}
