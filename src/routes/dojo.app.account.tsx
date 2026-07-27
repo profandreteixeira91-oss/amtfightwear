@@ -81,7 +81,9 @@ function AccountPage() {
   const [audit, setAudit] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
   const [savingPwd, setSavingPwd] = useState(false);
+
   const [snapshot, setSnapshot] = useState<string>("");
   const currentSnap = JSON.stringify({ profile, academy, notifPrefs });
   useUnsavedChanges(!loading && snapshot !== "" && snapshot !== currentSnap);
