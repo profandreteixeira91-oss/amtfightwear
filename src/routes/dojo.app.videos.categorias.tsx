@@ -63,17 +63,18 @@ function CategoriesPage() {
         <h3 className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
           <Plus className="h-4 w-4" /> Nova categoria
         </h3>
-        <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
-          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex.: Passagem de Guarda" />
+        <div className="flex flex-col gap-3 sm:grid sm:grid-cols-[1fr_1fr_auto]">
+          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex.: Passagem de Guarda" className="h-10 text-sm" />
           <Select value={parent} onValueChange={setParent}>
-            <SelectTrigger><SelectValue placeholder="Categoria pai (opcional)" /></SelectTrigger>
+            <SelectTrigger className="h-10 text-sm"><SelectValue placeholder="Categoria pai (opcional)" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="none">Sem pai (categoria raiz)</SelectItem>
               {rootCats.map((c: any) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
             </SelectContent>
           </Select>
-          <Button onClick={handleAdd} disabled={saving || !name.trim()}>
-            <Save className="mr-2 h-4 w-4" />Criar
+          <Button onClick={handleAdd} disabled={saving || !name.trim()} className="h-10">
+            <Save className="mr-2 h-4 w-4" />
+            <span className="truncate">Criar</span>
           </Button>
         </div>
       </section>

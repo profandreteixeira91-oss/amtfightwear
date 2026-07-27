@@ -128,24 +128,33 @@ function VideoPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <Button asChild variant="ghost" size="sm">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <Button asChild variant="ghost" size="sm" className="w-fit">
           <Link to="/dojo/app/videos"><ArrowLeft className="mr-2 h-4 w-4" />Biblioteca</Link>
         </Button>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" onClick={handleFavorite}>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="outline" size="sm" onClick={handleFavorite} className="flex-1 sm:flex-none">
             <Star className={`mr-2 h-4 w-4 ${isFavorited ? "fill-primary text-primary" : ""}`} />
-            {isFavorited ? "Favoritado" : "Favoritar"}
+            <span className="truncate">{isFavorited ? "Favoritado" : "Favoritar"}</span>
           </Button>
-          <Button variant="outline" size="sm" onClick={handleDuplicate}><Copy className="mr-2 h-4 w-4" />Duplicar</Button>
-          <Button variant="outline" size="sm" onClick={handleArchive}>
+          <Button variant="outline" size="sm" onClick={handleDuplicate} className="flex-1 sm:flex-none">
+            <Copy className="mr-2 h-4 w-4" />
+            <span className="truncate">Duplicar</span>
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleArchive} className="flex-1 sm:flex-none">
             <Archive className="mr-2 h-4 w-4" />
-            {v.status === "archived" ? "Restaurar" : "Arquivar"}
+            <span className="truncate">{v.status === "archived" ? "Restaurar" : "Arquivar"}</span>
           </Button>
-          <Button asChild size="sm">
-            <Link to="/dojo/app/videos/novo" search={{ id }}><Edit className="mr-2 h-4 w-4" />Editar</Link>
+          <Button asChild size="sm" className="flex-1 sm:flex-none">
+            <Link to="/dojo/app/videos/novo" search={{ id }}>
+              <Edit className="mr-2 h-4 w-4" />
+              <span className="truncate">Editar</span>
+            </Link>
           </Button>
-          <Button variant="outline" size="sm" onClick={handleDelete} className="text-destructive"><Trash2 className="mr-2 h-4 w-4" />Excluir</Button>
+          <Button variant="outline" size="sm" onClick={handleDelete} className="flex-1 sm:flex-none text-destructive hover:bg-destructive/10">
+            <Trash2 className="mr-2 h-4 w-4" />
+            <span className="truncate">Excluir</span>
+          </Button>
         </div>
       </div>
 
@@ -268,7 +277,7 @@ function VideoPage() {
           </div>
           <section className="rounded-xl border border-border bg-card p-4 shadow-sm">
             <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">Vídeos relacionados</h3>
-            <div className="grid gap-3">
+            <div className="grid grid-cols-2 gap-3 lg:grid-cols-1">
               {relatedList.map((r: any, i) => (
                 <VideoCard
                   key={r.id}
@@ -286,7 +295,7 @@ function VideoPage() {
                 />
               ))}
               {relatedList.length === 0 && (
-                <p className="py-4 text-center text-xs text-muted-foreground">Nada relacionado</p>
+                <p className="col-span-2 py-4 text-center text-xs text-muted-foreground">Nada relacionado</p>
               )}
             </div>
           </section>

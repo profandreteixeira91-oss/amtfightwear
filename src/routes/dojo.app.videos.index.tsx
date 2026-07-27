@@ -67,40 +67,40 @@ function VideosLibrary() {
         <div aria-hidden className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-red-600/25 blur-3xl" />
         <div aria-hidden className="pointer-events-none absolute -right-16 top-8 h-64 w-64 rounded-full bg-amber-500/15 blur-3xl" />
         <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_0%,rgba(255,255,255,0.06),transparent_45%)]" />
-        <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 p-5 sm:p-7 md:flex md:flex-wrap md:items-center md:justify-between">
-          <div className="flex min-w-0 items-start gap-4">
-            <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-amber-400 via-red-500 to-red-700 text-white shadow-[0_10px_25px_-10px_rgba(220,38,38,0.9)] ring-1 ring-white/20">
+        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6 p-5 sm:p-7">
+          <div className="flex items-start gap-4 min-w-0">
+            <div className="grid h-12 w-12 sm:h-14 sm:w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-amber-400 via-red-500 to-red-700 text-white shadow-[0_10px_25px_-10px_rgba(220,38,38,0.9)] ring-1 ring-white/20">
               <PlayCircle className="h-6 w-6" />
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-red-200 backdrop-blur">
                 <Flame className="h-3 w-3" /> Biblioteca
               </div>
-              <h1 className="mt-2 font-display text-2xl font-black leading-tight tracking-tight sm:text-3xl md:text-4xl">
+              <h1 className="mt-2 font-display text-xl font-black leading-tight tracking-tight sm:text-2xl md:text-3xl lg:text-4xl break-words">
                 Cada aula gravada, um legado técnico.
               </h1>
-              <p className="mt-1 max-w-xl text-sm text-neutral-300">
+              <p className="mt-1 max-w-xl text-xs sm:text-sm text-neutral-300 break-words">
                 Publique, organize e acompanhe o consumo dos conteúdos da sua academia.
               </p>
             </div>
           </div>
-          <div className="col-span-2 flex flex-wrap items-center gap-2 md:col-span-1">
-            <Button asChild variant="outline" className="border-white/15 bg-white/5 text-white hover:bg-white/10">
+          <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+            <Button asChild variant="outline" className="flex-1 md:flex-none h-9 text-xs border-white/15 bg-white/5 text-white hover:bg-white/10 px-3">
               <Link to="/dojo/app/videos/favoritos">
-                <StarIcon className="mr-2 h-4 w-4" />
-                Favoritos
+                <StarIcon className="mr-2 h-3.5 w-3.5" />
+                <span className="truncate">Favoritos</span>
               </Link>
             </Button>
-            <Button asChild variant="outline" className="border-white/15 bg-white/5 text-white hover:bg-white/10">
+            <Button asChild variant="outline" className="flex-1 md:flex-none h-9 text-xs border-white/15 bg-white/5 text-white hover:bg-white/10 px-3">
               <Link to="/dojo/app/videos/categorias">
-                <FolderTree className="mr-2 h-4 w-4" />
-                Categorias
+                <FolderTree className="mr-2 h-3.5 w-3.5" />
+                <span className="truncate">Categorias</span>
               </Link>
             </Button>
-            <Button asChild className="bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-400">
+            <Button asChild className="flex-1 md:flex-none h-9 text-xs bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-400 px-3">
               <Link to="/dojo/app/videos/novo">
-                <Plus className="mr-2 h-4 w-4" />
-                Novo Vídeo
+                <Plus className="mr-2 h-3.5 w-3.5" />
+                <span className="truncate">Novo Vídeo</span>
               </Link>
             </Button>
           </div>
@@ -111,10 +111,10 @@ function VideosLibrary() {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
         <VideoStat icon={Film} label="Publicados" value={dashboard.data?.published ?? 0} tint="success" index={0} />
         <VideoStat icon={Layers} label="Categorias" value={dashboard.data?.categoriesCount ?? 0} index={1} />
-        <VideoStat icon={Eye} label="Visualizações" value={(dashboard.data?.totalViews ?? 0).toLocaleString("pt-BR")} tint="primary" index={2} />
-        <VideoStat icon={Clock} label="Horas de conteúdo" value={`${dashboard.data?.totalHours ?? 0}h`} index={3} />
+        <VideoStat icon={Eye} label="Views" value={(dashboard.data?.totalViews ?? 0).toLocaleString("pt-BR")} tint="primary" index={2} />
+        <VideoStat icon={Clock} label="Conteúdo" value={`${dashboard.data?.totalHours ?? 0}h`} index={3} />
         <VideoStat icon={FileText} label="Rascunhos" value={dashboard.data?.drafts ?? 0} tint={(dashboard.data?.drafts ?? 0) > 0 ? "warning" : "muted"} index={4} />
-        <VideoStat icon={TrendingUp} label="Total de vídeos" value={dashboard.data?.totalVideos ?? 0} index={5} />
+        <VideoStat icon={TrendingUp} label="Total" value={dashboard.data?.totalVideos ?? 0} index={5} />
       </div>
 
       {/* Top watched */}
@@ -130,7 +130,7 @@ function VideosLibrary() {
               <div className="text-base font-semibold">Mais assistidos</div>
             </div>
           </div>
-          <div className="relative grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="relative grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-3">
             {dashboard.data!.topWatched.map((v: any, i: number) => (
               <VideoCard
                 key={v.id}
@@ -152,48 +152,59 @@ function VideosLibrary() {
       )}
 
       {/* Filters */}
-      <div className="grid gap-2 rounded-2xl border border-white/10 bg-neutral-950/60 p-3 text-white backdrop-blur sm:grid-cols-[minmax(0,1fr)_auto_auto_auto]">
-        <div className="relative">
+      <div className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-neutral-950/60 p-3 text-white backdrop-blur lg:flex-row lg:items-center">
+        <div className="relative flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar por título ou descrição..."
-            className="border-white/10 bg-white/5 pl-9 text-white placeholder:text-neutral-500 focus-visible:ring-red-500/40"
+            placeholder="Buscar vídeos..."
+            className="h-9 border-white/10 bg-white/5 pl-9 text-xs sm:text-sm text-white placeholder:text-neutral-500 focus-visible:ring-red-500/40"
           />
         </div>
-        <Select value={categoryId} onValueChange={setCategoryId}>
-          <SelectTrigger className="w-full border-white/10 bg-white/5 text-white sm:w-52"><SelectValue placeholder="Categoria" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todas as categorias</SelectItem>
-            {rootCats.map((c: any) => (
-              <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={status} onValueChange={(v) => setStatus(v as any)}>
-          <SelectTrigger className="w-full border-white/10 bg-white/5 text-white sm:w-40"><SelectValue placeholder="Status" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos status</SelectItem>
-            <SelectItem value="published">Publicados</SelectItem>
-            <SelectItem value="draft">Rascunhos</SelectItem>
-            <SelectItem value="private">Privados</SelectItem>
-            <SelectItem value="archived">Arquivados</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={sort} onValueChange={(v) => setSort(v as any)}>
-          <SelectTrigger className="w-full border-white/10 bg-white/5 text-white sm:w-44"><Filter className="mr-1 h-3.5 w-3.5" /><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="recent">Mais recentes</SelectItem>
-            <SelectItem value="views">Mais assistidos</SelectItem>
-            <SelectItem value="title">A–Z</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+          <Select value={categoryId} onValueChange={setCategoryId}>
+            <SelectTrigger className="h-9 w-full border-white/10 bg-white/5 text-xs text-white sm:w-40">
+              <SelectValue placeholder="Categoria" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas</SelectItem>
+              {rootCats.map((c: any) => (
+                <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={status} onValueChange={(v) => setStatus(v as any)}>
+            <SelectTrigger className="h-9 w-full border-white/10 bg-white/5 text-xs text-white sm:w-36">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos</SelectItem>
+              <SelectItem value="published">Publicados</SelectItem>
+              <SelectItem value="draft">Rascunhos</SelectItem>
+              <SelectItem value="private">Privados</SelectItem>
+              <SelectItem value="archived">Arquivados</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={sort} onValueChange={(v) => setSort(v as any)}>
+            <SelectTrigger className="h-9 w-full border-white/10 bg-white/5 text-xs text-white sm:w-40 col-span-2 sm:col-span-1">
+              <div className="flex items-center gap-2 truncate">
+                <Filter className="h-3.5 w-3.5 shrink-0" />
+                <SelectValue />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="recent">Recentes</SelectItem>
+              <SelectItem value="views">Mais vistos</SelectItem>
+              <SelectItem value="title">A–Z</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Grid */}
       {videos.isLoading ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {Array.from({ length: 8 }).map((_, i) => <VideoCardSkeleton key={i} />)}
         </div>
       ) : (videos.data?.length ?? 0) === 0 ? (
@@ -211,7 +222,7 @@ function VideosLibrary() {
           </Button>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {videos.data!.map((v: any, i: number) => (
             <VideoCard
               key={v.id}

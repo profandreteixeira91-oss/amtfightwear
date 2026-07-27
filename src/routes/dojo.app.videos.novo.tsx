@@ -177,21 +177,23 @@ function VideoEditor() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <Button asChild variant="ghost" size="sm">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+        <Button asChild variant="ghost" size="sm" className="w-fit">
           <Link to="/dojo/app/videos"><ArrowLeft className="mr-2 h-4 w-4" />Voltar</Link>
         </Button>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {id && (
-            <Button variant="outline" onClick={handleDelete} className="text-destructive">Excluir</Button>
+            <Button variant="outline" size="sm" onClick={handleDelete} className="flex-1 sm:flex-none text-destructive border-destructive/20 hover:bg-destructive/10">
+              <span className="truncate">Excluir</span>
+            </Button>
           )}
-          <Button variant="outline" onClick={() => handleSave(false)} disabled={saving}>
+          <Button variant="outline" size="sm" onClick={() => handleSave(false)} disabled={saving} className="flex-1 sm:flex-none">
             {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-            Salvar rascunho
+            <span className="truncate">Salvar rascunho</span>
           </Button>
-          <Button onClick={() => handleSave(true)} disabled={saving}>
+          <Button size="sm" onClick={() => handleSave(true)} disabled={saving} className="flex-1 sm:flex-none bg-gradient-to-r from-red-600 to-red-500 text-white shadow-md">
             {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-            Publicar
+            <span className="truncate">Publicar</span>
           </Button>
         </div>
       </div>

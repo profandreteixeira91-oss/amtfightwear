@@ -80,11 +80,11 @@ export function VideoCard({
           )}
         </div>
         <div className="p-3">
-          <div className="line-clamp-2 min-h-[2.5rem] text-sm font-semibold leading-tight tracking-tight">
+          <div className="line-clamp-2 min-h-[2.5rem] text-xs sm:text-sm font-semibold leading-tight tracking-tight">
             {video.title}
           </div>
           {video.teacher_name && (
-            <div className="mt-1 truncate text-xs text-muted-foreground">{video.teacher_name}</div>
+            <div className="mt-1 truncate text-[10px] sm:text-xs text-muted-foreground">{video.teacher_name}</div>
           )}
           <div className="mt-2 flex items-center gap-3 text-[11px] text-muted-foreground">
             <span className="inline-flex items-center gap-1">
