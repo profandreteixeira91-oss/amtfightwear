@@ -392,7 +392,8 @@ function AnnouncementEditor({
           </div>
           <div className="md:col-span-2">
             <Label>Resumo (aparece na listagem)</Label>
-            <Textarea rows={2} value={form.summary ?? ""} onChange={(e) => set("summary", e.target.value)} />
+            <Textarea rows={2} value={form.summary ?? ""} onChange={(e) => set("summary", e.target.value)} maxLength={250} />
+            <p className="mt-1 text-[10px] text-muted-foreground">O resumo ajuda o aluno a identificar o assunto rapidamente. Limite de 250 caracteres.</p>
           </div>
           <div className="md:col-span-2">
             <Label>Conteúdo *</Label>
