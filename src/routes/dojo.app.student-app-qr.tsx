@@ -110,7 +110,7 @@ function StudentAppQrPage() {
           <div className="relative overflow-hidden rounded-2xl border border-red-500/20 bg-gradient-to-br from-neutral-950 via-neutral-900 to-red-950/50 p-5 text-white shadow-[0_20px_60px_-30px_rgba(220,38,38,0.55)] md:p-7">
             <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-red-500/20 blur-3xl" />
             <div aria-hidden className="pointer-events-none absolute -bottom-24 -left-16 h-56 w-56 rounded-full bg-amber-500/10 blur-3xl" />
-            <div className="relative flex flex-wrap items-start justify-between gap-4">
+            <div className="relative flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
               <div className="flex min-w-0 items-center gap-4">
                 <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-amber-400 via-red-500 to-red-700 text-white ring-1 ring-white/20 shadow-[0_8px_24px_-8px_rgba(220,38,38,0.9)]">
                   <Smartphone className="h-6 w-6" />
@@ -123,34 +123,34 @@ function StudentAppQrPage() {
                     <ArrowLeft className="h-3 w-3" /> Painel do Dojo
                   </Link>
                   <h1 className="mt-1 truncate text-xl font-semibold tracking-tight md:text-2xl">QR do App do Aluno</h1>
-                  <p className="mt-1 max-w-2xl text-sm text-neutral-300">
+                  <p className="mt-1 max-w-2xl text-sm text-neutral-300 line-clamp-2 md:line-clamp-none">
                     Imprima este cartaz e fixe na academia — os alunos escaneiam e entram direto no portal.
                   </p>
                 </div>
               </div>
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full md:w-auto">
                 <Button
                   variant="outline"
                   onClick={copyLink}
-                  className="border-red-500/30 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+                  className="w-full h-10 border-red-500/30 bg-white/5 text-white hover:bg-white/10 hover:text-white text-xs sm:text-sm"
                 >
                   {copied ? <Check className="mr-2 h-4 w-4" /> : <Copy className="mr-2 h-4 w-4" />}
-                  Copiar link
+                  <span className="truncate">Copiar link</span>
                 </Button>
                 <Button
                   variant="outline"
                   onClick={downloadPng}
                   disabled={!dataUrl}
-                  className="border-red-500/30 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+                  className="w-full h-10 border-red-500/30 bg-white/5 text-white hover:bg-white/10 hover:text-white text-xs sm:text-sm"
                 >
-                  <Download className="mr-2 h-4 w-4" /> Baixar PNG
+                  <Download className="mr-2 h-4 w-4" /> <span className="truncate">Baixar PNG</span>
                 </Button>
                 <Button
                   onClick={printPoster}
                   disabled={!url}
-                  className="bg-gradient-to-br from-red-600 to-red-800 text-white shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-700"
+                  className="w-full h-10 bg-gradient-to-br from-red-600 to-red-800 text-white shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-700 text-xs sm:text-sm"
                 >
-                  <Printer className="mr-2 h-4 w-4" /> Imprimir cartaz
+                  <Printer className="mr-2 h-4 w-4" /> <span className="truncate">Imprimir cartaz</span>
                 </Button>
               </div>
             </div>
@@ -160,7 +160,7 @@ function StudentAppQrPage() {
         {/* Ajustes rápidos */}
         <div className="mx-auto max-w-5xl px-4 py-4">
           <div className="rounded-2xl border border-red-500/15 bg-neutral-950/60 p-4 text-white shadow-[0_10px_30px_-20px_rgba(220,38,38,0.6)]">
-            <div className="grid gap-3 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2">
               <div>
                 <Label className="text-xs text-neutral-300">Destino do QR</Label>
                 <Input
@@ -172,7 +172,7 @@ function StudentAppQrPage() {
                   Ao escanear, o aluno vai direto para o login online do app{slug ? ` desta academia (${slug})` : ""}. Nenhum download é solicitado.
                 </p>
               </div>
-              <div className="grid gap-3 md:grid-cols-2">
+              <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <Label className="text-xs text-neutral-300">Título do cartaz</Label>
                   <Input
@@ -201,11 +201,11 @@ function StudentAppQrPage() {
         <div
           id="poster"
           className="poster relative mx-auto flex flex-col items-center overflow-hidden rounded-3xl bg-white shadow-xl ring-1 ring-neutral-200 print:rounded-none print:shadow-none print:ring-0"
-          style={{ aspectRatio: "1 / 1.414" }}
+          style={{ aspectRatio: "1 / 1.414", minHeight: "600px" }}
         >
           {/* Faixa superior */}
           <div
-            className="flex w-full items-center justify-between px-10 py-6 text-white"
+            className="flex w-full items-center justify-between px-6 sm:px-10 py-6 text-white"
             style={{ background: brandColor }}
           >
             <div className="flex items-center gap-3">
@@ -225,12 +225,12 @@ function StudentAppQrPage() {
           </div>
 
           {/* Miolo */}
-          <div className="flex flex-1 flex-col items-center justify-center px-10 py-6 text-center">
-            <h2 className="text-4xl font-black tracking-tight text-neutral-900">{headline}</h2>
-            <p className="mt-2 max-w-md text-base text-neutral-600">{subline}</p>
+          <div className="flex flex-1 flex-col items-center justify-center px-6 sm:px-10 py-6 text-center">
+            <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-neutral-900 line-clamp-2">{headline}</h2>
+            <p className="mt-2 max-w-md text-sm sm:text-base text-neutral-600 line-clamp-3">{subline}</p>
 
             <div className="mt-8 rounded-3xl bg-white p-6 shadow-lg ring-1 ring-neutral-200">
-              <canvas ref={canvasRef} className="block h-[320px] w-[320px] print:h-[420px] print:w-[420px]" />
+              <canvas ref={canvasRef} className="block h-[240px] w-[240px] sm:h-[320px] sm:w-[320px] print:h-[420px] print:w-[420px]" />
             </div>
 
             <div className="mt-6 max-w-md break-all rounded-full bg-neutral-100 px-4 py-2 font-mono text-xs text-neutral-600">
@@ -238,7 +238,7 @@ function StudentAppQrPage() {
             </div>
 
             {/* Passos */}
-            <ol className="mt-8 grid w-full max-w-lg grid-cols-3 gap-3 text-left">
+            <ol className="mt-8 grid w-full max-w-lg grid-cols-1 sm:grid-cols-3 gap-3 text-left">
               {[
                 { n: "1", t: "Abra a câmera", d: "Aponte para o QR code" },
                 { n: "2", t: "Toque no link", d: "Aparece na tela" },
@@ -259,7 +259,7 @@ function StudentAppQrPage() {
           </div>
 
           {/* Rodapé */}
-          <div className="w-full border-t bg-neutral-50 px-10 py-4 text-center text-[11px] text-neutral-500">
+          <div className="w-full border-t bg-neutral-50 px-6 sm:px-10 py-4 text-center text-[10px] sm:text-[11px] text-neutral-500">
             Acompanhe seus treinos, check-ins, mensalidades e faixas — direto do seu celular.
             <span className="mx-2">·</span>
             Powered by <span className="font-semibold text-neutral-700">AMT Dojo Manager</span>
