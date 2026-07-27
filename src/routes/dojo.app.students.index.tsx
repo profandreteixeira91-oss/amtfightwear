@@ -28,6 +28,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StudentPhotoCapture } from "@/components/dojo/StudentPhotoCapture";
 import { useDojoBranding } from "@/hooks/useDojoBranding";
 import { downloadStudentsTemplate, parseStudentsFile, type ParsedStudentRow } from "@/lib/dojo/students-xlsx";
+import autismIcon from "@/assets/autism-tea.png.asset.json";
 import { printAllStudentSummaries } from "@/lib/dojo/students-bulk-print";
 import { toast } from "sonner";
 import { Trash2, Pencil, UserPlus, FileDown, Upload, Printer, User, MapPin, Phone, Award, Wallet, HeartPulse, Camera, ShieldCheck, FileText, Users, UserCheck, Snowflake, UserX, Search, Sparkles } from "lucide-react";
@@ -1168,7 +1169,17 @@ function StudentsPage() {
                 )}
               </div>
               <div className="min-w-0">
-                <div className="truncate font-medium">{s.full_name}</div>
+                <div className="flex items-center gap-1.5 truncate font-medium">
+                  {s.anamnesis?.autism ? (
+                    <img
+                      src={autismIcon.url}
+                      alt="TEA"
+                      title="Aluno TEA (Transtorno do Espectro Autista)"
+                      className="h-4 w-4 shrink-0"
+                    />
+                  ) : null}
+                  <span className="truncate">{s.full_name}</span>
+                </div>
                 <div className="truncate text-xs text-muted-foreground">
                   {[
                     s.belt?.name && formatBeltFull(s.belt.name, s.belt?.modality, s.current_degree),
