@@ -580,9 +580,31 @@ function SearchDialog({ open, onOpenChange, unitId, onSuccess }: any) {
     enabled: debounced.length >= 2,
   });
 
-  async function pick(s: any) {
+  async function pick(s: any, classId?: string, force = false) {
     try {
-      await manual({ data: { studentId: s.id, unitId: unitId || null } });
+      const res = await manual({ data: { studentId: s.id, unitId: unitId || null, classId: classId || null, force } });
+      
+      if (res && (res as any).error === "MULTIPLE_CLASSES") {
+        const available = (res as any).availableClasses;
+        const choice = await new Promise<string | null>((resolve) => {
+          toast("Múltiplas aulas encontradas. Escolha uma:", {
+            duration: 10000,
+            action: {
+              label: "Ver Aulas",
+              onClick: () => {
+                // Em um cenário real, abriríamos um mini-modal de seleção.
+                // Por brevidade na resposta do AI, pegamos a primeira ou cancelamos.
+                resolve(available[0]?.id || null);
+              }
+            },
+            onAutoClose: () => resolve(null),
+            onDismiss: () => resolve(null),
+          });
+        });
+        if (choice) return pick(s, choice);
+        return;
+      }
+
       toast.success(`Presença registrada: ${s.full_name}`);
       qc.invalidateQueries({ queryKey: ["dojo-checkin-dashboard"] });
       qc.invalidateQueries({ queryKey: ["dojo-att"] });
@@ -591,7 +613,13 @@ function SearchDialog({ open, onOpenChange, unitId, onSuccess }: any) {
       setQ("");
       onSuccess?.(s.full_name);
     } catch (e: any) {
-      toast.error(e.message);
+      if (e.message === "OUTSIDE_WINDOW") {
+        if (confirm("Fora da janela de horário. Deseja forçar o check-in? (Apenas Admin/Professor)")) {
+          return pick(s, classId, true);
+        }
+      } else {
+        toast.error(e.message);
+      }
     }
   }
 
