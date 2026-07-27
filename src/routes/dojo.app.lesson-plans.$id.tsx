@@ -713,9 +713,9 @@ function RegisterDeliveryDialog({
           </div>
         ) : (
           <div>
-            <div className="mb-2 flex items-center justify-between">
-              <div className="text-sm font-medium">Chamada ({presentIds.length}/{students.length} presentes)</div>
-              <div className="flex gap-1">
+            <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+              <div className="min-w-0 text-sm font-medium">Chamada ({presentIds.length}/{students.length} presentes)</div>
+              <div className="flex flex-wrap gap-1">
                 <Button size="sm" variant="ghost" onClick={() => toggleAll(true)}>Todos</Button>
                 <Button size="sm" variant="ghost" onClick={() => toggleAll(false)}>Ninguém</Button>
               </div>
