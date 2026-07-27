@@ -98,13 +98,13 @@ export function AMTPayInfoPanel() {
               <FeeCard
                 icon={QrCode}
                 method="PIX"
-                fee="R$ 1,99"
+                fee="R$ 1,99 líquido"
                 note="por cobrança recebida"
               />
               <FeeCard
                 icon={Barcode}
                 method="Boleto bancário"
-                fee="R$ 1,99"
+                fee="R$ 1,99 líquido"
                 note="por boleto pago"
               />
               <FeeCard
@@ -144,7 +144,7 @@ export function AMTPayInfoPanel() {
             Prazos de recebimento
           </CardTitle>
         </CardHeader>
-        <CardContent className="grid gap-2 md:grid-cols-3 text-sm">
+        <CardContent className="grid gap-2 grid-cols-1 xs:grid-cols-2 md:grid-cols-3 text-sm">
           <TermCard label="PIX" value="Em segundos" note="Confirmação instantânea" />
           <TermCard label="Boleto" value="1 a 2 dias úteis" note="Após a compensação bancária" />
           <TermCard label="Cartão de crédito" value="D+30 (padrão)" note="Ou D+2 com antecipação" />

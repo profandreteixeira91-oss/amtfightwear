@@ -292,7 +292,7 @@ function FullHub() {
   return (
     <Tabs defaultValue="dashboard" className="w-full">
       <div className="overflow-x-auto -mx-1 px-1">
-        <TabsList className="inline-flex h-auto flex-nowrap gap-1 rounded-xl border border-neutral-200 bg-neutral-50/80 p-1.5 shadow-sm backdrop-blur">
+        <TabsList className="inline-flex h-auto flex-nowrap gap-1 rounded-xl border border-neutral-200 bg-neutral-50/80 p-1 shadow-sm backdrop-blur">
           {[
             { v: "dashboard", i: <LayoutDashboard className="h-3.5 w-3.5" />, l: "Visão geral" },
             { v: "wallet", i: <Wallet className="h-3.5 w-3.5" />, l: "Carteira" },
@@ -309,7 +309,7 @@ function FullHub() {
             <TabsTrigger
               key={t.v}
               value={t.v}
-              className="gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold whitespace-nowrap data-[state=active]:bg-red-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:shadow-red-600/25 transition-all"
+              className="gap-1.5 rounded-lg px-2.5 py-1.5 text-[10px] sm:text-xs font-semibold whitespace-nowrap data-[state=active]:bg-red-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:shadow-red-600/25 transition-all"
             >
               {t.i} {t.l}
             </TabsTrigger>
