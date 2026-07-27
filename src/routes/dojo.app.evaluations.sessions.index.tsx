@@ -103,37 +103,39 @@ function SessionsList() {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between gap-2">
+    <div className="mx-auto w-full max-w-4xl space-y-5 p-2 sm:p-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-lg font-semibold">Minhas avaliações</h2>
-          <p className="text-sm text-muted-foreground">Avaliações executadas ou agendadas com seus alunos.</p>
+          <h2 className="font-display text-2xl font-black tracking-tight text-white">Minhas Avaliações</h2>
+          <p className="text-sm text-neutral-400">Gerencie as sessões de avaliação dos seus alunos.</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button><Plus className="h-4 w-4 mr-1" /> Nova avaliação</Button>
+            <Button className="h-11 w-full bg-red-600 font-bold hover:bg-red-700 sm:w-auto">
+              <Plus className="h-5 w-5 mr-2" /> Nova Avaliação
+            </Button>
           </DialogTrigger>
-          <DialogContent className="w-[calc(100vw-1rem)] max-w-lg">
-            <DialogHeader><DialogTitle>Nova avaliação</DialogTitle></DialogHeader>
-            <div className="space-y-3">
-              <div>
-                <label className="text-xs text-muted-foreground">Modelo</label>
-                <select className="border rounded p-2 bg-background w-full" value={newSess.template_id} onChange={(e) => setNewSess({ ...newSess, template_id: e.target.value })}>
-                  <option value="">Selecione...</option>
+          <DialogContent className="w-[calc(100vw-1rem)] max-w-lg border-white/10 bg-neutral-900 text-white">
+            <DialogHeader><DialogTitle className="text-xl font-black uppercase tracking-tight">Nova Avaliação</DialogTitle></DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-500">Modelo de Avaliação</label>
+                <select className="h-11 border-white/10 rounded-lg p-2 bg-neutral-950 w-full text-sm focus:ring-red-500" value={newSess.template_id} onChange={(e) => setNewSess({ ...newSess, template_id: e.target.value })}>
+                  <option value="">Selecione um modelo...</option>
                   {(templates ?? []).map((t: any) => <option key={t.id} value={t.id}>{t.title}</option>)}
                 </select>
               </div>
-              <div>
-                <label className="text-xs text-muted-foreground">Aluno</label>
-                <select className="border rounded p-2 bg-background w-full" value={newSess.student_id} onChange={(e) => setNewSess({ ...newSess, student_id: e.target.value })}>
-                  <option value="">Selecione...</option>
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-500">Aluno</label>
+                <select className="h-11 border-white/10 rounded-lg p-2 bg-neutral-950 w-full text-sm focus:ring-red-500" value={newSess.student_id} onChange={(e) => setNewSess({ ...newSess, student_id: e.target.value })}>
+                  <option value="">Selecione um aluno...</option>
                   {(students ?? []).map((s: any) => <option key={s.id} value={s.id}>{s.full_name}</option>)}
                 </select>
               </div>
             </div>
-            <DialogFooter>
-              <Button variant="ghost" onClick={() => setDialogOpen(false)}>Cancelar</Button>
-              <Button onClick={create}>Criar e iniciar</Button>
+            <DialogFooter className="gap-2">
+              <Button variant="ghost" className="hover:bg-white/5" onClick={() => setDialogOpen(false)}>Cancelar</Button>
+              <Button className="bg-red-600 hover:bg-red-700" onClick={create}>Criar e Iniciar</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
