@@ -762,15 +762,15 @@ function PlansPage() {
                 </SectionCard>
 
                 {/* Rodapé — salvar novamente */}
-                <div className="flex items-center justify-between rounded-lg border bg-muted/30 p-3">
-                  <p className="text-xs text-muted-foreground">
+                <div className="flex flex-col gap-3 rounded-xl border border-[color:var(--dojo-border)] bg-muted/30 p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4">
+                  <p className="text-[10px] text-muted-foreground sm:text-xs">
                     {dirty
-                      ? "Você tem alterações não salvas."
-                      : "Todas as alterações foram salvas."}
+                      ? "Você possui alterações não salvas neste plano."
+                      : "Todas as alterações foram salvas com sucesso."}
                   </p>
-                  <Button onClick={onSave} disabled={saving || !dirty} className="gap-1.5">
+                  <Button onClick={onSave} disabled={saving || !dirty} className="h-9 gap-2 rounded-full px-5 text-xs sm:h-10 sm:text-sm">
                     <Save className="h-4 w-4" />
-                    {saving ? "Salvando..." : "Salvar plano"}
+                    {saving ? "..." : "Salvar plano"}
                   </Button>
                 </div>
               </>
@@ -795,15 +795,15 @@ function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <Card className="dojo-card">
-      <CardHeader className="flex flex-row items-center justify-between gap-2 pb-3">
-        <CardTitle className="flex items-center gap-2 text-sm">
-          <Icon className="h-4 w-4 text-primary" />
+    <Card className="dojo-card overflow-hidden">
+      <CardHeader className="flex flex-row items-center justify-between gap-2 p-3 sm:p-4 sm:pb-3">
+        <CardTitle className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider sm:gap-2 sm:text-sm">
+          <Icon className="h-3.5 w-3.5 text-primary sm:h-4 sm:w-4" />
           {title}
         </CardTitle>
         {right}
       </CardHeader>
-      <CardContent className="pt-0">{children}</CardContent>
+      <CardContent className="p-3 pt-0 sm:p-4 sm:pt-0">{children}</CardContent>
     </Card>
   );
 }
@@ -854,9 +854,9 @@ function RuleCheck({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <label className="flex cursor-pointer items-center gap-2.5 rounded-md border p-3 transition-colors hover:bg-muted/40">
-      <Checkbox checked={!!checked} onCheckedChange={(v) => onChange(v === true)} />
-      <span className="text-sm">{label}</span>
+    <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-[color:var(--dojo-border)] p-2.5 transition-colors hover:bg-muted/40 sm:gap-3 sm:p-3">
+      <Checkbox checked={!!checked} onCheckedChange={(v) => onChange(v === true)} className="h-4 w-4" />
+      <span className="text-xs font-medium sm:text-sm">{label}</span>
     </label>
   );
 }
