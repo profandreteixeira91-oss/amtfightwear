@@ -3443,6 +3443,14 @@ export type Database = {
           block_on_overdue: boolean
           created_at: string
           extras: Json
+          face_allow_manual_confirmation: boolean | null
+          face_lgpd_policy: string | null
+          face_max_storage_days: number | null
+          face_min_confidence: number | null
+          face_recognition_enabled: boolean | null
+          face_register_visitors: boolean | null
+          face_save_original_photo: boolean | null
+          face_save_thumbnails: boolean | null
           geo_address: string | null
           geo_lat: number | null
           geo_lng: number | null
@@ -3463,6 +3471,14 @@ export type Database = {
           block_on_overdue?: boolean
           created_at?: string
           extras?: Json
+          face_allow_manual_confirmation?: boolean | null
+          face_lgpd_policy?: string | null
+          face_max_storage_days?: number | null
+          face_min_confidence?: number | null
+          face_recognition_enabled?: boolean | null
+          face_register_visitors?: boolean | null
+          face_save_original_photo?: boolean | null
+          face_save_thumbnails?: boolean | null
           geo_address?: string | null
           geo_lat?: number | null
           geo_lng?: number | null
@@ -3483,6 +3499,14 @@ export type Database = {
           block_on_overdue?: boolean
           created_at?: string
           extras?: Json
+          face_allow_manual_confirmation?: boolean | null
+          face_lgpd_policy?: string | null
+          face_max_storage_days?: number | null
+          face_min_confidence?: number | null
+          face_recognition_enabled?: boolean | null
+          face_register_visitors?: boolean | null
+          face_save_original_photo?: boolean | null
+          face_save_thumbnails?: boolean | null
           geo_address?: string | null
           geo_lat?: number | null
           geo_lng?: number | null
@@ -3588,6 +3612,72 @@ export type Database = {
             columns: ["substitute_teacher_id"]
             isOneToOne: false
             referencedRelation: "dojo_team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dojo_class_photos: {
+        Row: {
+          algorithm_version: string | null
+          class_id: string
+          created_at: string | null
+          faces_count: number | null
+          id: string
+          identified_count: number | null
+          lesson_history_id: string | null
+          manual_count: number | null
+          owner_id: string
+          photo_url: string
+          processing_time_ms: number | null
+          professor_id: string | null
+          unit_id: string
+          unknown_count: number | null
+        }
+        Insert: {
+          algorithm_version?: string | null
+          class_id: string
+          created_at?: string | null
+          faces_count?: number | null
+          id?: string
+          identified_count?: number | null
+          lesson_history_id?: string | null
+          manual_count?: number | null
+          owner_id: string
+          photo_url: string
+          processing_time_ms?: number | null
+          professor_id?: string | null
+          unit_id: string
+          unknown_count?: number | null
+        }
+        Update: {
+          algorithm_version?: string | null
+          class_id?: string
+          created_at?: string | null
+          faces_count?: number | null
+          id?: string
+          identified_count?: number | null
+          lesson_history_id?: string | null
+          manual_count?: number | null
+          owner_id?: string
+          photo_url?: string
+          processing_time_ms?: number | null
+          professor_id?: string | null
+          unit_id?: string
+          unknown_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_class_photos_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_class_photos_lesson_history_id_fkey"
+            columns: ["lesson_history_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_lesson_history"
             referencedColumns: ["id"]
           },
         ]
@@ -4543,6 +4633,57 @@ export type Database = {
           status?: string
         }
         Relationships: []
+      }
+      dojo_detected_faces: {
+        Row: {
+          box_json: Json | null
+          class_photo_id: string
+          confidence: number | null
+          created_at: string | null
+          face_thumbnail_url: string | null
+          id: string
+          owner_id: string
+          status: Database["public"]["Enums"]["face_detection_status"] | null
+          student_id: string | null
+        }
+        Insert: {
+          box_json?: Json | null
+          class_photo_id: string
+          confidence?: number | null
+          created_at?: string | null
+          face_thumbnail_url?: string | null
+          id?: string
+          owner_id: string
+          status?: Database["public"]["Enums"]["face_detection_status"] | null
+          student_id?: string | null
+        }
+        Update: {
+          box_json?: Json | null
+          class_photo_id?: string
+          confidence?: number | null
+          created_at?: string | null
+          face_thumbnail_url?: string | null
+          id?: string
+          owner_id?: string
+          status?: Database["public"]["Enums"]["face_detection_status"] | null
+          student_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_detected_faces_class_photo_id_fkey"
+            columns: ["class_photo_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_class_photos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dojo_detected_faces_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       dojo_enrollments: {
         Row: {
@@ -7329,6 +7470,41 @@ export type Database = {
           },
         ]
       }
+      dojo_student_reference_photos: {
+        Row: {
+          created_at: string | null
+          face_embedding: Json | null
+          id: string
+          owner_id: string
+          photo_url: string
+          student_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          face_embedding?: Json | null
+          id?: string
+          owner_id: string
+          photo_url: string
+          student_id: string
+        }
+        Update: {
+          created_at?: string | null
+          face_embedding?: Json | null
+          id?: string
+          owner_id?: string
+          photo_url?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_student_reference_photos_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dojo_student_technical_scores: {
         Row: {
           assessed_at: string
@@ -7403,6 +7579,7 @@ export type Database = {
           emergency_contact_name: string | null
           emergency_contact_phone: string | null
           emergency_contact_relationship: string | null
+          facial_recognition_consent: boolean | null
           frozen_since: string | null
           frozen_until: string | null
           full_name: string
@@ -7458,6 +7635,7 @@ export type Database = {
           emergency_contact_name?: string | null
           emergency_contact_phone?: string | null
           emergency_contact_relationship?: string | null
+          facial_recognition_consent?: boolean | null
           frozen_since?: string | null
           frozen_until?: string | null
           full_name: string
@@ -7513,6 +7691,7 @@ export type Database = {
           emergency_contact_name?: string | null
           emergency_contact_phone?: string | null
           emergency_contact_relationship?: string | null
+          facial_recognition_consent?: boolean | null
           frozen_since?: string | null
           frozen_until?: string | null
           full_name?: string
@@ -12294,6 +12473,12 @@ export type Database = {
         | "fpjjb"
         | "fjjsp"
         | "other"
+      face_detection_status:
+        | "pending"
+        | "confirmed"
+        | "rejected"
+        | "visitor"
+        | "new_student"
       prospect_contact_channel:
         | "email"
         | "whatsapp"
@@ -12504,6 +12689,13 @@ export const Constants = {
         "fpjjb",
         "fjjsp",
         "other",
+      ],
+      face_detection_status: [
+        "pending",
+        "confirmed",
+        "rejected",
+        "visitor",
+        "new_student",
       ],
       prospect_contact_channel: [
         "email",
