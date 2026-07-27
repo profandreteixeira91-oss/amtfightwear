@@ -160,12 +160,12 @@ function StatCard({
   return (
     <Card>
       <CardContent className="flex items-center gap-3 pt-6">
-        <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary/10 text-primary">
+        <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
           <Icon className="h-5 w-5" />
         </div>
-        <div>
-          <div className="text-xs text-muted-foreground">{label}</div>
-          <div className="text-xl font-bold">{value}</div>
+        <div className="min-w-0">
+          <div className="truncate text-xs text-muted-foreground">{label}</div>
+          <div className="truncate text-xl font-bold">{value}</div>
         </div>
       </CardContent>
     </Card>
