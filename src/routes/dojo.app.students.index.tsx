@@ -1262,7 +1262,7 @@ function PaginationBar({ page, totalPages, onChange }: { page: number; totalPage
   const end = Math.min(totalPages, start + 4);
   for (let i = start; i <= end; i++) pages.push(i);
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex flex-wrap items-center gap-1">
       <Button size="sm" variant="outline" onClick={() => go(1)} disabled={page === 1} aria-label="Primeira página">«</Button>
       <Button size="sm" variant="outline" onClick={() => go(page - 1)} disabled={page === 1} aria-label="Página anterior">‹</Button>
       {pages.map((p) => (
@@ -1280,6 +1280,7 @@ function PaginationBar({ page, totalPages, onChange }: { page: number; totalPage
       <Button size="sm" variant="outline" onClick={() => go(totalPages)} disabled={page === totalPages} aria-label="Última página">»</Button>
     </div>
   );
+
 }
 
 
