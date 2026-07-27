@@ -81,6 +81,16 @@ export const Route = createFileRoute("/dojo/app")({
     if (error || !data.user) {
       throw redirect({ to: "/dojo/auth", search: { redirect: location.href } });
     }
+    // Bloqueia contas de aluno: e-mails vinculados a dojo_students só
+    // podem acessar o App do Aluno, nunca o painel do Dojo Manager.
+    const { data: studentRows } = await supabase
+      .from("dojo_students")
+      .select("id")
+      .eq("user_id", data.user.id)
+      .limit(1);
+    if (studentRows && studentRows.length > 0) {
+      throw redirect({ to: "/app" });
+    }
     return { user: data.user };
   },
   component: DojoLayout,
