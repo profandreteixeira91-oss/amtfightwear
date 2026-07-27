@@ -512,7 +512,7 @@ function StudentsPage() {
                 </div>
               </DialogHeader>
 
-              <Tabs defaultValue="dados" className="w-full flex flex-col max-h-[calc(90vh-9rem)]">
+              <Tabs value={tab} onValueChange={setTab} className="w-full flex flex-col max-h-[calc(90vh-9rem)]">
                 <div className="px-6 pt-4 border-b bg-muted/20">
                   <TabsList className="h-auto w-full flex-wrap justify-start bg-transparent p-0 gap-1">
                     <TabsTrigger value="dados" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md px-3 py-2">
