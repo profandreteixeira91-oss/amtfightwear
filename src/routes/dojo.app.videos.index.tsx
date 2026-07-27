@@ -111,10 +111,10 @@ function VideosLibrary() {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
         <VideoStat icon={Film} label="Publicados" value={dashboard.data?.published ?? 0} tint="success" index={0} />
         <VideoStat icon={Layers} label="Categorias" value={dashboard.data?.categoriesCount ?? 0} index={1} />
-        <VideoStat icon={Eye} label="Visualizações" value={(dashboard.data?.totalViews ?? 0).toLocaleString("pt-BR")} tint="primary" index={2} />
-        <VideoStat icon={Clock} label="Horas de conteúdo" value={`${dashboard.data?.totalHours ?? 0}h`} index={3} />
+        <VideoStat icon={Eye} label="Views" value={(dashboard.data?.totalViews ?? 0).toLocaleString("pt-BR")} tint="primary" index={2} />
+        <VideoStat icon={Clock} label="Conteúdo" value={`${dashboard.data?.totalHours ?? 0}h`} index={3} />
         <VideoStat icon={FileText} label="Rascunhos" value={dashboard.data?.drafts ?? 0} tint={(dashboard.data?.drafts ?? 0) > 0 ? "warning" : "muted"} index={4} />
-        <VideoStat icon={TrendingUp} label="Total de vídeos" value={dashboard.data?.totalVideos ?? 0} index={5} />
+        <VideoStat icon={TrendingUp} label="Total" value={dashboard.data?.totalVideos ?? 0} index={5} />
       </div>
 
       {/* Top watched */}
