@@ -275,20 +275,20 @@ function ContractEditorPage() {
     <div className="fixed inset-0 z-[100] flex flex-col bg-[#f9fbfd] dark:bg-neutral-950 overflow-hidden">
 
       {/* Google Docs-style title bar */}
-      <div className="flex items-center justify-between gap-2 sm:gap-3 bg-[#f9fbfd] dark:bg-neutral-950 px-2 sm:px-4 md:px-6 pt-2 sm:pt-3 pb-1 shrink-0">
-        <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-[#f9fbfd] dark:bg-neutral-950 px-3 sm:px-6 pt-2 pb-1 shrink-0 border-b sm:border-b-0">
+        <div className="flex items-center gap-2 min-w-0">
           <Link to="/dojo/app/contracts/templates" className="shrink-0">
-            <Button variant="ghost" size="icon" className="rounded-full h-9 w-9"><ArrowLeft className="h-4 w-4" /></Button>
+            <Button variant="ghost" size="icon" className="rounded-full h-8 w-8"><ArrowLeft className="h-4 w-4" /></Button>
           </Link>
-          <div className="hidden sm:flex h-10 w-10 items-center justify-center rounded-md bg-blue-50 text-blue-600 shrink-0">
-            <FileText className="h-5 w-5" />
+          <div className="hidden xs:flex h-9 w-9 items-center justify-center rounded-md bg-blue-50 text-blue-600 shrink-0">
+            <FileText className="h-4 w-4" />
           </div>
           <div className="min-w-0 flex-1">
             <Input
               value={draft.name}
               onChange={(e) => patch({ name: e.target.value })}
-              placeholder="Documento sem título"
-              className="h-8 border-transparent hover:border-input focus:border-input font-medium text-base sm:text-lg px-2 -ml-1 sm:-ml-2 w-full max-w-lg truncate"
+              placeholder="Sem título"
+              className="h-8 border-transparent hover:border-input focus:border-input font-medium text-base px-1 sm:px-2 -ml-1 w-full max-w-lg truncate"
             />
             <div className="flex items-center gap-1 sm:gap-4 pl-1 sm:pl-2 -mt-0.5 text-[13px] text-neutral-700 dark:text-neutral-300 overflow-x-auto whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               <MenuButton label="Arquivo">
