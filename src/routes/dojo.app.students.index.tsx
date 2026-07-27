@@ -498,6 +498,67 @@ function StudentsPage() {
                 <FileText className="h-4 w-4 mr-1" /> Contratos
               </Link>
             </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-9 rounded-full border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+              onClick={() => setEnrollLinkOpen(true)}
+            >
+              <LinkIcon className="h-4 w-4 mr-1" /> Página de matrícula
+            </Button>
+
+            <Dialog open={enrollLinkOpen} onOpenChange={setEnrollLinkOpen}>
+              <DialogContent className="max-w-lg">
+                <DialogHeader>
+                  <DialogTitle>Página de matrícula do dojo</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 text-sm">
+                  <p className="text-muted-foreground">
+                    Compartilhe este link com potenciais alunos. A página é de acesso aberto —
+                    o aluno preenche os dados, escolhe o plano e é direcionado à página de
+                    pagamento configurada no dojo.
+                  </p>
+                  {slugQ.isLoading ? (
+                    <p className="text-muted-foreground">Carregando...</p>
+                  ) : !(slugQ.data as any)?.slug ? (
+                    <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-amber-900">
+                      Configure o <b>slug</b> do dojo em <b>Configurações → Academia</b> para
+                      habilitar a página pública.
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <Input readOnly value={enrollUrl} onFocus={(e) => e.currentTarget.select()} />
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={async () => {
+                            try {
+                              await navigator.clipboard.writeText(enrollUrl);
+                              toast.success("Link copiado!");
+                            } catch {
+                              toast.error("Não foi possível copiar.");
+                            }
+                          }}
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                        <Button size="sm" asChild>
+                          <a href={enrollUrl} target="_blank" rel="noreferrer">
+                            <ExternalLink className="h-4 w-4 mr-1" /> Abrir
+                          </a>
+                        </Button>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Dica: divulgue o link nas redes sociais, no rodapé do site ou por QR Code
+                        na recepção da academia.
+                      </p>
+                    </>
+                  )}
+                </div>
+              </DialogContent>
+            </Dialog>
+
 
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
