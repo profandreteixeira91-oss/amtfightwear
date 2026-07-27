@@ -122,12 +122,12 @@ function ProductRow({
 
   return (
     <section className="space-y-5">
-      <header className="flex items-end justify-between gap-4">
-        <div>
+      <header className="flex items-end justify-between gap-4 px-1">
+        <div className="min-w-0">
           <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
             {eyebrow}
           </div>
-          <h2 className="mt-1 text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+          <h2 className="mt-1 truncate text-xl font-bold tracking-tight text-foreground sm:text-2xl md:text-3xl">
             {title}
           </h2>
         </div>
@@ -135,9 +135,9 @@ function ProductRow({
           <Link
             to={seeAllTo as any}
             params={seeAllParams as any}
-            className="hidden items-center gap-1 text-sm font-medium text-foreground hover:opacity-70 md:inline-flex"
+            className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-foreground hover:opacity-70 sm:text-sm"
           >
-            Ver tudo <ArrowRight className="h-4 w-4" strokeWidth={1.75} />
+            Ver tudo <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.75} />
           </Link>
         )}
       </header>
