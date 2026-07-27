@@ -56,7 +56,7 @@ function InvoicePage() {
 
   const hasNativePix = Boolean(nb?.pix_enabled && nb?.pix_key);
   const hasPaymentLink = Boolean(nb?.payment_link_enabled && nb?.payment_link_url);
-  const hasAmtPay = Boolean((invoice as any)?.payment_id) || (!hasNativePix && !hasPaymentLink);
+  const hasAmtPay = Boolean((invoice as any)?.payment_id) || (!hasNativePix && !hasPaymentLink && nb?.pix_enabled);
 
   // Gera QR code local (não-EMV) apenas com a chave, para leitura visual
   useEffect(() => {
@@ -212,7 +212,7 @@ function InvoicePage() {
           )}
 
           {/* Fallback / AMT Pay (Mercado Pago) */}
-          {hasAmtPay && !pix && (
+          {hasAmtPay && !pix && (invoice.status !== "paid") && (
             <button
               onClick={generateAmtPay}
               disabled={loading}
@@ -221,6 +221,14 @@ function InvoicePage() {
             >
               {loading ? "Gerando Pix…" : "Gerar Pix via AMT Pay"}
             </button>
+          )}
+          
+          {!hasNativePix && !hasPaymentLink && !nb?.pix_enabled && !paid && (
+            <div className="rounded-2xl bg-amber-50 p-4 text-xs text-amber-800 ring-1 ring-amber-100">
+              <Info className="mr-1 inline h-4 w-4 -translate-y-0.5" />
+              O pagamento para este dojo deve ser combinado diretamente com o professor. 
+              Nenhum método de pagamento online foi configurado pelo administrador.
+            </div>
           )}
 
           {hasAmtPay && pix && (
