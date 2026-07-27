@@ -348,41 +348,42 @@ function PlansPage() {
             ) : (
               <>
                 {/* Ações do topo */}
-                <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0">
-                    <h2 className="truncate text-lg font-semibold">
+                    <h2 className="truncate text-lg font-bold tracking-tight">
                       {form.id ? form.name || "Sem nome" : "Novo plano"}
                     </h2>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-[11px] text-muted-foreground sm:text-xs">
                       {enabledCount > 0
-                        ? `${enabledCount} forma(s) de pagamento habilitada(s)`
-                        : "Nenhuma forma de pagamento habilitada"}
+                        ? `${enabledCount} forma(s) de pagamento ativa(s)`
+                        : "Nenhuma forma de pagamento ativa"}
                     </p>
                   </div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <div className="flex items-center gap-2 rounded-md border px-3 py-1.5">
-                      <Label htmlFor="plan-active" className="text-xs">
+                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                    <div className="flex items-center gap-2 rounded-md border border-[color:var(--dojo-border)] bg-white px-2 py-1 sm:px-3 sm:py-1.5">
+                      <Label htmlFor="plan-active" className="text-[10px] font-semibold uppercase tracking-wider sm:text-xs">
                         Ativo
                       </Label>
                       <Switch
                         id="plan-active"
                         checked={form.active}
                         onCheckedChange={(v) => patch({ active: v })}
+                        className="scale-75 sm:scale-100"
                       />
                     </div>
                     {form.id && (
-                      <>
-                        <Button size="sm" variant="outline" onClick={onDuplicate} className="gap-1.5">
-                          <Copy className="h-3.5 w-3.5" /> Duplicar
+                      <div className="flex gap-1.5">
+                        <Button size="sm" variant="outline" onClick={onDuplicate} className="h-8 gap-1.5 rounded-full px-3 text-xs sm:h-9">
+                          <Copy className="h-3.5 w-3.5" /> <span className="hidden xs:inline">Duplicar</span>
                         </Button>
-                        <Button size="sm" variant="destructive" onClick={onDelete} className="gap-1.5">
-                          <Trash2 className="h-3.5 w-3.5" /> Excluir
+                        <Button size="sm" variant="destructive" onClick={onDelete} className="h-8 gap-1.5 rounded-full px-3 text-xs sm:h-9">
+                          <Trash2 className="h-3.5 w-3.5" /> <span className="hidden xs:inline">Excluir</span>
                         </Button>
-                      </>
+                      </div>
                     )}
-                    <Button size="sm" onClick={onSave} disabled={saving || !dirty} className="gap-1.5">
+                    <Button size="sm" onClick={onSave} disabled={saving || !dirty} className="h-8 gap-1.5 rounded-full px-4 text-xs sm:h-9">
                       <Save className="h-3.5 w-3.5" />
-                      {saving ? "Salvando..." : "Salvar"}
+                      {saving ? "..." : "Salvar"}
                     </Button>
                   </div>
                 </div>
