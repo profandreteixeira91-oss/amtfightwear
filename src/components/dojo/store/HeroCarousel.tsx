@@ -103,22 +103,23 @@ export function HeroCarousel() {
             />
 
             <div className="relative flex h-full flex-col justify-end p-5 sm:p-8 md:p-12">
-              <div className="max-w-xl space-y-2.5 text-white sm:space-y-3">
-                <div className="inline-flex items-center rounded-full bg-white/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white backdrop-blur">
+              <div className="max-w-xl space-y-2 text-white sm:space-y-3">
+                <div className="inline-flex items-center rounded-full bg-white/15 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-white backdrop-blur">
                   {s.eyebrow}
                 </div>
-                <h2 className="text-2xl font-bold leading-[1.1] tracking-tight text-white drop-shadow-[0_2px_16px_rgba(0,0,0,0.55)] sm:text-3xl md:text-5xl">
+                <h2 className="line-clamp-2 text-xl font-bold leading-[1.1] tracking-tight text-white drop-shadow-[0_2px_16px_rgba(0,0,0,0.55)] sm:text-3xl md:text-5xl">
                   {s.title}
                 </h2>
-                <p className="max-w-md text-[13px] leading-relaxed text-white/85 drop-shadow-[0_1px_8px_rgba(0,0,0,0.5)] sm:text-sm md:text-base">
+                <p className="line-clamp-2 max-w-md text-[12px] leading-relaxed text-white/85 drop-shadow-[0_1px_8px_rgba(0,0,0,0.5)] sm:text-sm md:text-base">
                   {s.description}
                 </p>
                 <Link
                   to="/dojo/app/store/c/$categoria"
                   params={{ categoria: s.categoria }}
-                  className="mt-1 inline-flex h-11 items-center gap-2 rounded-full bg-white px-5 text-sm font-semibold text-black shadow-[0_10px_30px_-8px_rgba(0,0,0,0.6)] transition hover:bg-white/90 sm:mt-2"
+                  className="mt-1 inline-flex h-9 sm:h-11 items-center gap-2 rounded-full bg-white px-4 sm:px-5 text-xs sm:text-sm font-semibold text-black shadow-[0_10px_30px_-8px_rgba(0,0,0,0.6)] transition hover:bg-white/90 sm:mt-2"
                 >
-                  {s.ctaLabel} <ArrowRight className="h-4 w-4" strokeWidth={1.75} />
+                  <span className="truncate">{s.ctaLabel}</span>
+                  <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.75} />
                 </Link>
               </div>
             </div>

@@ -35,7 +35,7 @@ export function StoreHeader() {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-3xl border border-[color:var(--dojo-border)] bg-white/90 p-3 shadow-[var(--dojo-shadow-sm)] backdrop-blur sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:gap-4 sm:p-4">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-3xl border border-[color:var(--dojo-border)] bg-white/90 p-2 shadow-[var(--dojo-shadow-sm)] backdrop-blur sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:gap-4 sm:p-4">
         <Link
           to="/dojo/app/store"
           className="hidden shrink-0 items-center gap-2.5 rounded-2xl px-2 py-1 transition hover:bg-black/[0.03] sm:flex"
@@ -65,13 +65,13 @@ export function StoreHeader() {
           <Link
             to="/dojo/app/store/carrinho"
             aria-label={`Carrinho${count > 0 ? ` — ${count} itens` : ""}`}
-            className="relative inline-flex h-11 items-center gap-2 rounded-full bg-foreground px-4 text-sm font-semibold text-background shadow-[var(--dojo-shadow-md)] transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            className="relative inline-flex h-10 sm:h-11 items-center gap-1.5 sm:gap-2 rounded-full bg-foreground px-3 sm:px-4 text-xs sm:text-sm font-semibold text-background shadow-[var(--dojo-shadow-md)] transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
           >
             <ShoppingBag className="h-4 w-4" strokeWidth={1.75} />
             <span className="hidden sm:inline">Carrinho</span>
             <span
               className={cn(
-                "grid h-5 min-w-5 place-items-center rounded-full px-1 text-[10px] font-bold tabular-nums transition",
+                "grid h-4.5 min-w-4.5 place-items-center rounded-full px-1 text-[9px] sm:text-[10px] font-bold tabular-nums transition",
                 count > 0
                   ? "bg-primary text-primary-foreground"
                   : "bg-background/20 text-background/70",

@@ -68,24 +68,24 @@ export function ProductCard({
       </div>
       <div className="flex flex-1 flex-col gap-1 p-4">
         {product.category_name && (
-          <div className="truncate text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          <div className="truncate text-[9px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
             {product.category_name}
           </div>
         )}
-        <div className="line-clamp-2 text-sm font-medium leading-tight text-foreground">
+        <div className="line-clamp-2 text-xs sm:text-sm font-medium leading-tight text-foreground">
           {product.name}
         </div>
-        <div className="mt-auto flex items-baseline gap-2 pt-2">
+        <div className="mt-auto flex items-baseline gap-1.5 pt-2">
           {hasDiscount && (
-            <span className="text-xs text-muted-foreground line-through">{brl(compare!)}</span>
+            <span className="text-[10px] sm:text-xs text-muted-foreground line-through">{brl(compare!)}</span>
           )}
-          <span className="text-lg font-bold tabular-nums tracking-tight text-foreground">
+          <span className="text-base sm:text-lg font-bold tabular-nums tracking-tight text-foreground">
             {brl(price)}
           </span>
         </div>
         {parcela > 0 && (
-          <div className="text-[11px] text-muted-foreground">
-            ou 3× de <span className="tabular-nums text-foreground">{brl(parcela)}</span> sem juros
+          <div className="text-[10px] sm:text-[11px] text-muted-foreground truncate">
+            ou 3× de <span className="tabular-nums text-foreground">{brl(parcela)}</span>
           </div>
         )}
       </div>

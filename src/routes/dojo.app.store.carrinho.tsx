@@ -161,16 +161,16 @@ function CartPage() {
   return (
     <div className="grid w-full max-w-full gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
       <div className="min-w-0 space-y-4">
-        <header className="space-y-1">
+        <header className="space-y-0.5 px-1">
           <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
             Carrinho
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
             Revise seu pedido
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs sm:text-sm text-muted-foreground">
             {data.items.length} {data.items.length === 1 ? "item" : "itens"} · atacado
-            automático a partir de 10 un. por subcategoria (−25%).
+            automático (−25% a partir de 10 un).
           </p>
         </header>
 
@@ -225,25 +225,23 @@ function CartPage() {
                 </div>
                 <div className="flex min-w-0 flex-1 flex-col">
                   <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <div className="truncate text-base font-semibold tracking-tight text-foreground">
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm sm:text-base font-semibold tracking-tight text-foreground">
                         {it.product?.name}
                       </div>
                       {it.product?.category_name && (
-                        <div className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+                        <div className="truncate text-[9px] uppercase tracking-[0.14em] text-muted-foreground">
                           {it.product.category_name}
                         </div>
                       )}
                       {it.variant_label && (
-                        <div className="mt-0.5 text-xs text-muted-foreground">
-                          Tamanho:{" "}
-                          <span className="text-foreground">{it.variant_label}</span>
+                        <div className="mt-0.5 truncate text-[11px] text-muted-foreground">
+                          Tam: <span className="text-foreground">{it.variant_label}</span>
                         </div>
                       )}
                       {it.customization && (
-                        <div className="mt-1 text-[11px] font-medium text-primary">
-                          ✨ Personalizado
-                          {it.customization.name ? `: ${it.customization.name}` : ""}
+                        <div className="mt-0.5 truncate text-[10px] font-medium text-primary">
+                          ✨ {it.customization.name || "Personalizado"}
                         </div>
                       )}
                       <div className="mt-1 text-[11px] text-muted-foreground">
@@ -265,20 +263,20 @@ function CartPage() {
                     </button>
                   </div>
                   <div className="mt-auto flex flex-wrap items-center justify-between gap-x-3 gap-y-2 pt-3">
-                    <div className="inline-flex h-9 items-center rounded-full border border-[color:var(--dojo-border)] bg-white">
+                    <div className="inline-flex h-8 items-center rounded-full border border-[color:var(--dojo-border)] bg-white">
                       <button
                         type="button"
-                        className="grid h-9 w-9 place-items-center rounded-l-full transition hover:bg-black/[0.04]"
+                        className="grid h-8 w-8 place-items-center rounded-l-full transition hover:bg-black/[0.04]"
                         onClick={() => commitQty(it.id, q - 1)}
                         aria-label="Diminuir"
                       >
-                        <Minus className="h-3.5 w-3.5" strokeWidth={1.75} />
+                        <Minus className="h-3 w-3" strokeWidth={1.75} />
                       </button>
                       <input
                         type="text"
                         inputMode="numeric"
                         pattern="[0-9]*"
-                        className="w-10 bg-transparent text-center text-sm tabular-nums outline-none"
+                        className="w-8 bg-transparent text-center text-xs tabular-nums outline-none"
                         value={shown}
                         onChange={(e) => {
                           const raw = e.target.value.replace(/[^0-9]/g, "").slice(0, 3);
@@ -298,25 +296,25 @@ function CartPage() {
                       />
                       <button
                         type="button"
-                        className="grid h-9 w-9 place-items-center rounded-r-full transition hover:bg-black/[0.04]"
+                        className="grid h-8 w-8 place-items-center rounded-r-full transition hover:bg-black/[0.04]"
                         onClick={() => commitQty(it.id, q + 1)}
                         aria-label="Aumentar"
                       >
-                        <Plus className="h-3.5 w-3.5" strokeWidth={1.75} />
+                        <Plus className="h-3 w-3" strokeWidth={1.75} />
                       </button>
                     </div>
-                    <div className="ml-auto text-right">
+                    <div className="ml-auto text-right min-w-fit">
                       {it.is_wholesale && (
-                        <div className="text-[10px] text-muted-foreground line-through">
+                        <div className="text-[9px] text-muted-foreground line-through leading-none">
                           {brl(it.unit_retail * it.quantity)}
                         </div>
                       )}
-                      <div className="text-base font-bold tabular-nums text-foreground">
+                      <div className="text-sm sm:text-base font-bold tabular-nums text-foreground leading-tight">
                         {brl(it.line_total)}
                       </div>
                       {it.is_wholesale && (
-                        <div className="text-[10px] font-medium text-emerald-600">
-                          Atacado −25%
+                        <div className="text-[9px] font-medium text-emerald-600 leading-none">
+                          −25% OFF
                         </div>
                       )}
                     </div>
@@ -327,26 +325,26 @@ function CartPage() {
           })}
         </ul>
 
-        <div className="flex flex-wrap justify-between gap-2">
-          <Button asChild variant="ghost" size="sm" className="rounded-full">
+        <div className="flex flex-wrap items-center justify-between gap-2 px-1">
+          <Button asChild variant="ghost" size="sm" className="h-8 rounded-full text-xs">
             <Link to="/dojo/app/store">Continuar comprando</Link>
           </Button>
           <Button
             variant="outline"
             size="sm"
-            className="rounded-full text-destructive hover:bg-destructive/10"
+            className="h-8 rounded-full text-[11px] text-destructive hover:bg-destructive/10"
             disabled={clr.isPending}
             onClick={() => {
               if (
                 window.confirm(
-                  "Tem certeza que deseja limpar o carrinho? Esta ação não pode ser desfeita.",
+                  "Tem certeza que deseja limpar o carrinho?",
                 )
               ) {
                 clr.mutate();
               }
             }}
           >
-            <Trash2 className="mr-1.5 h-3.5 w-3.5" strokeWidth={1.75} />
+            <Trash2 className="mr-1.5 h-3 w-3" strokeWidth={1.75} />
             Limpar carrinho
           </Button>
         </div>
