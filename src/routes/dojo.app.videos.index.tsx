@@ -130,7 +130,7 @@ function VideosLibrary() {
               <div className="text-base font-semibold">Mais assistidos</div>
             </div>
           </div>
-          <div className="relative grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="relative grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-3">
             {dashboard.data!.topWatched.map((v: any, i: number) => (
               <VideoCard
                 key={v.id}
