@@ -925,28 +925,29 @@ function NewGraduationPage() {
                 return (
                   <label
                     key={s.id}
-                    className={`group flex cursor-pointer items-center gap-4 p-3.5 transition-colors ${
+                    className={`group flex flex-col gap-3 p-4 transition-colors sm:flex-row sm:items-center sm:gap-4 ${
                       isSelected ? "bg-primary/5" : "hover:bg-muted/50"
                     }`}
                   >
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      onChange={() => toggleStudent(s.id)}
-                      className="h-4 w-4 shrink-0 accent-primary"
-                    />
-                    <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-full text-xs font-bold ring-1 transition-colors ${
-                      isSelected ? "bg-primary text-primary-foreground ring-primary/40" : "bg-muted text-foreground ring-border"
-                    }`}>
-                      {initials(s.full_name)}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-semibold text-foreground">{s.full_name}</div>
-                      <div className="mt-0.5 truncate text-xs text-muted-foreground">
-                        {belts.length === 0
-                          ? "Sem faixa"
-                          : belts.map((b: any) => formatBeltFull(b.belt.name, b.belt?.modality, b.degree)).join(" • ")}
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleStudent(s.id)}
+                        className="h-5 w-5 shrink-0 accent-primary"
+                      />
+                      <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-full text-xs font-bold ring-1 transition-colors ${
+                        isSelected ? "bg-primary text-primary-foreground ring-primary/40" : "bg-muted text-foreground ring-border"
+                      }`}>
+                        {initials(s.full_name)}
                       </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-bold text-foreground">{s.full_name}</div>
+                        <div className="mt-0.5 truncate text-[10px] uppercase tracking-wider text-muted-foreground">
+                          {belts.length === 0
+                            ? "Sem faixa"
+                            : belts.map((b: any) => formatBeltFull(b.belt.name, b.belt?.modality, b.degree)).join(" • ")}
+                        </div>
                       {(() => {
                         const p = progressById.get(s.id);
                         if (!p) return null;
