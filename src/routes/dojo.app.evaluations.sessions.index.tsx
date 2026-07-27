@@ -36,10 +36,10 @@ const RESULT_LABEL: Record<string, string> = {
   conditional: "Aprovado c/ ressalvas",
 };
 const RESULT_COLOR: Record<string, string> = {
-  approved: "bg-emerald-100 text-emerald-800",
-  failed: "bg-red-100 text-red-800",
-  review: "bg-amber-100 text-amber-800",
-  conditional: "bg-blue-100 text-blue-800",
+  approved: "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30",
+  failed: "bg-red-500/20 text-red-400 border border-red-500/30",
+  review: "bg-amber-500/20 text-amber-400 border border-amber-500/30",
+  conditional: "bg-blue-500/20 text-blue-400 border border-blue-500/30",
 };
 
 function SessionsList() {
@@ -141,50 +141,72 @@ function SessionsList() {
         </Dialog>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        <div className="relative flex-1 min-w-[240px]">
-          <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input className="pl-8" placeholder="Buscar por aluno ou modelo..." value={q} onChange={(e) => setQ(e.target.value)} />
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-500" />
+          <Input 
+            className="h-11 border-white/10 bg-neutral-900/50 pl-10 text-sm focus:ring-red-500" 
+            placeholder="Buscar por aluno ou modelo..." 
+            value={q} 
+            onChange={(e) => setQ(e.target.value)} 
+          />
         </div>
-        <select className="border rounded-md px-3 py-2 bg-background text-sm" value={status} onChange={(e) => setStatus(e.target.value)}>
+        <select 
+          className="h-11 rounded-lg border border-white/10 bg-neutral-900/50 px-4 text-sm text-white focus:ring-red-500 sm:w-48" 
+          value={status} 
+          onChange={(e) => setStatus(e.target.value)}
+        >
           <option value="all">Todos os status</option>
           {Object.entries(STATUS_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
         </select>
       </div>
 
-      <div className="space-y-2">
+      <div className="grid gap-3 sm:grid-cols-1">
         {filtered.map((s: any) => (
-          <Card key={s.id}>
-            <CardContent className="p-3 flex flex-wrap items-center gap-3">
-              <div className="flex-1 min-w-[200px]">
-                <div className="font-medium">{s.student?.full_name ?? "Aluno"}</div>
-                <div className="text-xs text-muted-foreground">
-                  {s.template?.title ?? "Sem modelo"} · {new Date(s.updated_at).toLocaleDateString("pt-BR")}
+          <Card key={s.id} className="overflow-hidden border-white/10 bg-neutral-900/40 hover:bg-neutral-900/60 transition-colors">
+            <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center">
+              <div className="flex-1 min-w-0">
+                <div className="font-bold text-white leading-tight truncate">{s.student?.full_name ?? "Aluno"}</div>
+                <div className="mt-1 text-xs text-neutral-500 flex flex-wrap gap-x-2 gap-y-1">
+                  <span className="truncate">{s.template?.title ?? "Sem modelo"}</span>
+                  <span className="hidden sm:inline text-neutral-700">•</span>
+                  <span>{new Date(s.updated_at).toLocaleDateString("pt-BR")}</span>
                 </div>
               </div>
-              <div className="text-sm">
-                {s.total_score} / {s.max_score} <span className="text-muted-foreground">({s.percentage}%)</span>
+              
+              <div className="flex items-center justify-between gap-4 border-t border-white/5 pt-3 sm:border-0 sm:pt-0">
+                <div className="text-sm font-black text-white">
+                  {s.total_score} / {s.max_score} <span className="text-[10px] font-bold text-neutral-500">({s.percentage}%)</span>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="h-6 border-white/10 bg-white/5 text-[10px] font-bold uppercase tracking-wider text-neutral-400">
+                    {STATUS_LABEL[s.status] ?? s.status}
+                  </Badge>
+                  {s.result && (
+                    <Badge className={`h-6 text-[10px] font-bold uppercase tracking-wider ${RESULT_COLOR[s.result] ?? "bg-neutral-800 text-neutral-400"}`}>
+                      {RESULT_LABEL[s.result]}
+                    </Badge>
+                  )}
+                  <div className="flex gap-1.5 ml-2">
+                    <Link to="/dojo.app.evaluations.sessions.$id" params={{ id: s.id }}>
+                      <Button size="sm" variant="outline" className="h-9 w-9 p-0 border-white/10 bg-white/5 hover:bg-white/10 sm:w-auto sm:px-3">
+                        <Play className="h-3.5 w-3.5 sm:mr-1.5" /> <span className="hidden sm:inline">Abrir</span>
+                      </Button>
+                    </Link>
+                    <Button size="icon" variant="ghost" className="h-9 w-9 text-neutral-500 hover:text-red-500 hover:bg-red-500/10" onClick={() => remove(s.id)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
               </div>
-              <Badge variant="outline">{STATUS_LABEL[s.status] ?? s.status}</Badge>
-              {s.result && (
-                <span className={`text-xs px-2 py-1 rounded-full ${RESULT_COLOR[s.result] ?? "bg-muted"}`}>
-                  {RESULT_LABEL[s.result]}
-                </span>
-              )}
-              <Link to="/dojo/app/evaluations/sessions/$id" params={{ id: s.id }}>
-                <Button size="sm" variant="outline">
-                  <Play className="h-3.5 w-3.5 mr-1" /> Abrir
-                </Button>
-              </Link>
-              <Button size="icon" variant="ghost" onClick={() => remove(s.id)}>
-                <Trash2 className="h-4 w-4 text-destructive" />
-              </Button>
             </CardContent>
           </Card>
         ))}
         {filtered.length === 0 && (
-          <div className="text-sm text-muted-foreground p-8 text-center border rounded">
-            Nenhuma avaliação encontrada.
+          <div className="flex flex-col items-center justify-center py-16 text-center border-2 border-dashed border-white/5 rounded-2xl bg-neutral-900/20">
+            <Search className="h-10 w-10 text-neutral-700 mb-3" />
+            <div className="text-sm font-medium text-neutral-400">Nenhuma avaliação encontrada</div>
           </div>
         )}
       </div>
