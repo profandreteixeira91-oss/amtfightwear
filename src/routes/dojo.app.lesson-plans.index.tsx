@@ -182,8 +182,8 @@ function LessonPlansDashboardPage() {
           <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0 flex-1 space-y-1">
               <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-red-300">Próxima aula</div>
-              <div className="break-words text-lg font-bold leading-tight">{stats.next_lesson.title}</div>
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-neutral-300">
+              <div className="break-words text-lg font-bold leading-tight sm:text-xl">{stats.next_lesson.title}</div>
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs sm:text-sm text-neutral-300">
                 <span className="shrink-0">{new Date(stats.next_lesson.date).toLocaleDateString("pt-BR")}</span>
                 {stats.next_lesson.start_time && <span className="shrink-0">· {stats.next_lesson.start_time.slice(0, 5)}</span>}
                 {(stats.next_lesson.dojo_classes as { name?: string } | null)?.name && (
@@ -201,47 +201,53 @@ function LessonPlansDashboardPage() {
       ) : null}
 
       {/* CALENDAR HEADER */}
-      <div className="rounded-2xl border border-white/10 bg-neutral-950/60 p-3 backdrop-blur">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-1">
-            <Button variant="outline" size="icon" className="border-white/15 bg-white/5 text-white hover:bg-white/10" onClick={() => setAnchor(addDays(anchor, view === "month" ? -30 : -7))}>
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="sm" className="border-white/15 bg-white/5 text-white hover:bg-white/10" onClick={() => setAnchor(new Date())}>
-              Hoje
-            </Button>
-            <Button variant="outline" size="icon" className="border-white/15 bg-white/5 text-white hover:bg-white/10" onClick={() => setAnchor(addDays(anchor, view === "month" ? 30 : 7))}>
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-            <span className="ml-3 text-sm font-semibold capitalize text-neutral-200">{formatRangeLabel(range.from, range.to, view)}</span>
+      <div className="rounded-2xl border border-white/10 bg-neutral-950/60 p-3 sm:p-4 backdrop-blur">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center justify-between gap-1 sm:justify-start">
+            <div className="flex items-center gap-1">
+              <Button variant="outline" size="icon" className="h-9 w-9 border-white/15 bg-white/5 text-white hover:bg-white/10" onClick={() => setAnchor(addDays(anchor, view === "month" ? -30 : -7))}>
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="sm" className="h-9 border-white/15 bg-white/5 text-white hover:bg-white/10" onClick={() => setAnchor(new Date())}>
+                Hoje
+              </Button>
+              <Button variant="outline" size="icon" className="h-9 w-9 border-white/15 bg-white/5 text-white hover:bg-white/10" onClick={() => setAnchor(addDays(anchor, view === "month" ? 30 : 7))}>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+            <span className="ml-2 text-xs font-semibold capitalize text-neutral-200 sm:ml-3 sm:text-sm">{formatRangeLabel(range.from, range.to, view)}</span>
           </div>
-          <div className="flex flex-wrap items-center gap-1">
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-1.5">
             {(["week", "month", "list"] as ViewMode[]).map((v) => (
               <Button
                 key={v}
                 size="sm"
                 variant={view === v ? "default" : "outline"}
                 className={
-                  view === v
-                    ? "bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_6px_16px_-8px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-400"
-                    : "border-white/15 bg-white/5 text-white hover:bg-white/10"
+                  cn(
+                    "h-9 text-[11px] sm:text-sm",
+                    view === v
+                      ? "bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_6px_16px_-8px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-400"
+                      : "border-white/15 bg-white/5 text-white hover:bg-white/10",
+                    v === "list" ? "col-span-2 sm:col-span-1" : ""
+                  )
                 }
                 onClick={() => setView(v)}
               >
-                {v === "week" ? "Semana" : v === "month" ? "Mês" : "Lista"}
+                {v === "week" ? "Semana" : v === "month" ? "Mês" : "Lista completa"}
               </Button>
             ))}
             <Dialog>
               <DialogTrigger asChild>
-                <Button size="sm" variant="outline" className="ml-2 border-amber-400/40 bg-amber-400/10 text-amber-100 hover:bg-amber-400/20">
-                  <Sparkles className="mr-1 h-4 w-4" /> Aplicar modelo
+                <Button size="sm" variant="outline" className="h-9 text-[11px] border-amber-400/40 bg-amber-400/10 text-amber-100 hover:bg-amber-400/20 sm:text-sm">
+                  <Sparkles className="mr-1 h-3.5 w-3.5" /> <span className="truncate">Modelo</span>
                 </Button>
               </DialogTrigger>
               <TemplatePickerDialog onPick={(payload) => createFromTpl.mutate(payload)} />
             </Dialog>
 
-            <Button size="sm" className="ml-1 bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_6px_16px_-8px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-400" onClick={() => createDraft.mutate(fmt(new Date()))}>
-              <Plus className="mr-1 h-4 w-4" /> Em branco
+            <Button size="sm" className="h-9 text-[11px] bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_6px_16_px_-8px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-400 sm:text-sm" onClick={() => createDraft.mutate(fmt(new Date()))}>
+              <Plus className="mr-1 h-3.5 w-3.5" /> <span className="truncate">Novo</span>
             </Button>
           </div>
         </div>
