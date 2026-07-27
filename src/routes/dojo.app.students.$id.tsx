@@ -349,7 +349,7 @@ function StudentDetail() {
                 onClick={onDeleteStudent}
                 className="w-full border-red-400/40 bg-red-500/10 text-red-200 hover:bg-red-500/20 hover:text-white"
               >
-                <Trash2 className="mr-1.5 h-4 w-4" /> Excluir
+                <Trash2 className="mr-1.5 h-4 w-4" /> Cancelar matrícula
               </Button>
             </div>
           </div>
