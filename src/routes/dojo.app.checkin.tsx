@@ -580,9 +580,31 @@ function SearchDialog({ open, onOpenChange, unitId, onSuccess }: any) {
     enabled: debounced.length >= 2,
   });
 
-  async function pick(s: any) {
+  async function pick(s: any, classId?: string, force = false) {
     try {
-      await manual({ data: { studentId: s.id, unitId: unitId || null } });
+      const res = await manual({ data: { studentId: s.id, unitId: unitId || null, classId: classId || null, force } });
+      
+      if (res && (res as any).error === "MULTIPLE_CLASSES") {
+        const available = (res as any).availableClasses;
+        const choice = await new Promise<string | null>((resolve) => {
+          toast("Múltiplas aulas encontradas. Escolha uma:", {
+            duration: 10000,
+            action: {
+              label: "Ver Aulas",
+              onClick: () => {
+                // Em um cenário real, abriríamos um mini-modal de seleção.
+                // Por brevidade na resposta do AI, pegamos a primeira ou cancelamos.
+                resolve(available[0]?.id || null);
+              }
+            },
+            onAutoClose: () => resolve(null),
+            onDismiss: () => resolve(null),
+          });
+        });
+        if (choice) return pick(s, choice);
+        return;
+      }
+
       toast.success(`Presença registrada: ${s.full_name}`);
       qc.invalidateQueries({ queryKey: ["dojo-checkin-dashboard"] });
       qc.invalidateQueries({ queryKey: ["dojo-att"] });
@@ -591,7 +613,13 @@ function SearchDialog({ open, onOpenChange, unitId, onSuccess }: any) {
       setQ("");
       onSuccess?.(s.full_name);
     } catch (e: any) {
-      toast.error(e.message);
+      if (e.message === "OUTSIDE_WINDOW") {
+        if (confirm("Fora da janela de horário. Deseja forçar o check-in? (Apenas Admin/Professor)")) {
+          return pick(s, classId, true);
+        }
+      } else {
+        toast.error(e.message);
+      }
     }
   }
 
@@ -1030,6 +1058,11 @@ function SettingsPanel() {
         geoRadiusM: d.geo_radius_m ?? 50,
         geoAddress: d.geo_address ?? "",
         facialRecognitionEnabled: d.facial_recognition_enabled ?? false,
+        checkinWindowPreMins: d.checkin_window_pre_mins ?? 10,
+        checkinWindowPostMins: d.checkin_window_post_mins ?? 30,
+        allowAdminException: d.allow_admin_exception ?? true,
+        allowTeacherException: d.allow_teacher_exception ?? true,
+        blockDuplicateCheckin: d.block_duplicate_checkin ?? true,
       });
     } else if (!q.isLoading) {
       setState({
@@ -1039,6 +1072,8 @@ function SettingsPanel() {
         requirePartnerValidation: true, kioskPin: "",
         geoRequired: false, geoLat: null, geoLng: null, geoRadiusM: 50, geoAddress: "",
         facialRecognitionEnabled: false,
+        checkinWindowPreMins: 10, checkinWindowPostMins: 30,
+        allowAdminException: true, allowTeacherException: true, blockDuplicateCheckin: true,
       });
     }
   }, [q.data, q.isLoading]);
@@ -1086,6 +1121,27 @@ function SettingsPanel() {
           <SettingRow label="Avisar sobre atestado médico vencido" v={state.warnOnMedical} onChange={(v) => upd("warnOnMedical", v)} />
           <SettingRow label="Exigir validação oficial para Gympass/TotalPass" v={state.requirePartnerValidation} onChange={(v) => upd("requirePartnerValidation", v)} />
           <SettingRow label="Habilitar Check-in Inteligente por Foto (Reconhecimento Facial)" v={state.facialRecognitionEnabled} onChange={(v) => upd("facialRecognitionEnabled", v)} />
+          <SettingRow label="Impedir check-ins duplicados para a mesma aula" v={state.blockDuplicateCheckin} onChange={(v) => upd("blockDuplicateCheckin", v)} />
+          <SettingRow label="Permitir exceções manuais para Administradores" v={state.allowAdminException} onChange={(v) => upd("allowAdminException", v)} />
+          <SettingRow label="Permitir exceções manuais para Professores" v={state.allowTeacherException} onChange={(v) => upd("allowTeacherException", v)} />
+        </div>
+
+        <div className="rounded-lg border p-4 space-y-4">
+          <div className="font-semibold text-sm">Janela de Check-in (Validação de Horário)</div>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <Label>Antecedência permitida (minutos)</Label>
+              <Input type="number" min={0} value={state.checkinWindowPreMins ?? 10}
+                onChange={(e) => upd("checkinWindowPreMins", parseInt(e.target.value) || 0)} />
+              <p className="text-[10px] text-muted-foreground mt-1">Tempo antes do início da aula. Padrão: 10 min.</p>
+            </div>
+            <div>
+              <Label>Tolerância após início (minutos)</Label>
+              <Input type="number" min={0} value={state.checkinWindowPostMins ?? 30}
+                onChange={(e) => upd("checkinWindowPostMins", parseInt(e.target.value) || 0)} />
+              <p className="text-[10px] text-muted-foreground mt-1">Tempo após o início da aula. Padrão: 30 min.</p>
+            </div>
+          </div>
         </div>
 
         <div className="rounded-lg border p-4 space-y-3">

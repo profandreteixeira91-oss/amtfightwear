@@ -175,6 +175,11 @@ const settingsSchema = z.object({
   geoLng: z.number().min(-180).max(180).optional().nullable(),
   geoRadiusM: z.number().int().min(10).max(5000).optional(),
   geoAddress: z.string().max(300).optional().nullable(),
+  checkinWindowPreMins: z.number().int().min(0).max(1440).optional(),
+  checkinWindowPostMins: z.number().int().min(0).max(1440).optional(),
+  allowAdminException: z.boolean().optional(),
+  allowTeacherException: z.boolean().optional(),
+  blockDuplicateCheckin: z.boolean().optional(),
 });
 
 export const getCheckinSettings = createServerFn({ method: "GET" })
@@ -208,6 +213,11 @@ export const saveCheckinSettings = createServerFn({ method: "POST" })
     if (data.geoLng !== undefined) payload.geo_lng = data.geoLng;
     if (data.geoRadiusM !== undefined) payload.geo_radius_m = data.geoRadiusM;
     if (data.geoAddress !== undefined) payload.geo_address = data.geoAddress;
+    if (data.checkinWindowPreMins !== undefined) payload.checkin_window_pre_mins = data.checkinWindowPreMins;
+    if (data.checkinWindowPostMins !== undefined) payload.checkin_window_post_mins = data.checkinWindowPostMins;
+    if (data.allowAdminException !== undefined) payload.allow_admin_exception = data.allowAdminException;
+    if (data.allowTeacherException !== undefined) payload.allow_teacher_exception = data.allowTeacherException;
+    if (data.blockDuplicateCheckin !== undefined) payload.block_duplicate_checkin = data.blockDuplicateCheckin;
     const { error } = await context.supabase
       .from("dojo_checkin_settings")
       .upsert(payload, { onConflict: "owner_id" });
