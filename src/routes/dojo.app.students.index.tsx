@@ -157,6 +157,8 @@ function StudentsPage() {
   const [beltFilter, setBeltFilter] = useState("all");
   const [unitFilter, setUnitFilter] = useState("all");
   const [cityFilter, setCityFilter] = useState("");
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 20;
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<StudentForm>(emptyForm);
   const [enrollment, setEnrollment] = useState({
@@ -204,6 +206,12 @@ function StudentsPage() {
     }
     return true;
   });
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pageItems = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  useEffect(() => { setPage(1); }, [search, status, beltFilter, unitFilter, cityFilter]);
 
 
   function set<K extends keyof StudentForm>(key: K, val: StudentForm[K]) {
@@ -1152,7 +1160,7 @@ function StudentsPage() {
 
       <div className="overflow-hidden rounded-2xl border border-neutral-200/80 bg-white shadow-sm divide-y divide-neutral-100">
 
-        {filtered.map((s: any) => (
+        {pageItems.map((s: any) => (
           <div
             key={s.id}
             className="grid grid-cols-[1fr_auto] items-center gap-3 border-b p-3 last:border-0 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:gap-4"
@@ -1222,9 +1230,46 @@ function StudentsPage() {
         )}
 
       </div>
+
+      {filtered.length > PAGE_SIZE && (
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+          <div className="text-xs text-muted-foreground">
+            Mostrando {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, filtered.length)} de {filtered.length}
+          </div>
+          <PaginationBar page={currentPage} totalPages={totalPages} onChange={setPage} />
+        </div>
+      )}
     </div>
   );
 }
+
+function PaginationBar({ page, totalPages, onChange }: { page: number; totalPages: number; onChange: (p: number) => void }) {
+  const go = (p: number) => onChange(Math.min(Math.max(1, p), totalPages));
+  const pages: number[] = [];
+  const start = Math.max(1, page - 2);
+  const end = Math.min(totalPages, start + 4);
+  for (let i = start; i <= end; i++) pages.push(i);
+  return (
+    <div className="flex items-center gap-1">
+      <Button size="sm" variant="outline" onClick={() => go(1)} disabled={page === 1} aria-label="Primeira página">«</Button>
+      <Button size="sm" variant="outline" onClick={() => go(page - 1)} disabled={page === 1} aria-label="Página anterior">‹</Button>
+      {pages.map((p) => (
+        <Button
+          key={p}
+          size="sm"
+          variant={p === page ? "default" : "outline"}
+          onClick={() => go(p)}
+          className="min-w-9"
+        >
+          {p}
+        </Button>
+      ))}
+      <Button size="sm" variant="outline" onClick={() => go(page + 1)} disabled={page === totalPages} aria-label="Próxima página">›</Button>
+      <Button size="sm" variant="outline" onClick={() => go(totalPages)} disabled={page === totalPages} aria-label="Última página">»</Button>
+    </div>
+  );
+}
+
 
 function Field({
   label,
