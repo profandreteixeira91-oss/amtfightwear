@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { assertSaasOwner } from "@/lib/auth/is-saas-owner";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const RangeSchema = z.object({

@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { assertSaasOwner } from "@/lib/auth/is-saas-owner";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 // ---------- Admin: list dojo owner accounts + subscription status ----------
