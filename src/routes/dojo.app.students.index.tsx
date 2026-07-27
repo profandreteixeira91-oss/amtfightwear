@@ -28,6 +28,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StudentPhotoCapture } from "@/components/dojo/StudentPhotoCapture";
 import { useDojoBranding } from "@/hooks/useDojoBranding";
 import { downloadStudentsTemplate, parseStudentsFile, type ParsedStudentRow } from "@/lib/dojo/students-xlsx";
+import autismIcon from "@/assets/autism-tea.png.asset.json";
 import { printAllStudentSummaries } from "@/lib/dojo/students-bulk-print";
 import { toast } from "sonner";
 import { Trash2, Pencil, UserPlus, FileDown, Upload, Printer, User, MapPin, Phone, Award, Wallet, HeartPulse, Camera, ShieldCheck, FileText, Users, UserCheck, Snowflake, UserX, Search, Sparkles } from "lucide-react";
