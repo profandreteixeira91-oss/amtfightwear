@@ -129,7 +129,7 @@ function TechniquesPage() {
 
       {Object.entries(grouped).map(([label, items]) => (
         <div key={label}>
-          <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</div>
+          <div className="mb-2 truncate text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</div>
           <div className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
             {items.map((t) => (
               <Card key={t.id}>
