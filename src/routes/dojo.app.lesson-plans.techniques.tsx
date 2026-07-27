@@ -78,8 +78,8 @@ function TechniquesPage() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
-        <Input className="w-52" placeholder="Modalidade" value={modality} onChange={(e) => setModality(e.target.value)} />
-        <Input className="flex-1 min-w-[200px]" placeholder="Buscar técnica…" value={search} onChange={(e) => setSearch(e.target.value)} />
+        <Input className="w-full sm:w-52" placeholder="Modalidade" value={modality} onChange={(e) => setModality(e.target.value)} />
+        <Input className="min-w-[180px] flex-1" placeholder="Buscar técnica…" value={search} onChange={(e) => setSearch(e.target.value)} />
         <Dialog
           open={open}
           onOpenChange={(v) => {
