@@ -132,6 +132,7 @@ const emptyForm: StudentForm = {
   has_medical_clearance: false,
   medical_clearance_date: "",
   lgpd_consent: false,
+  facial_recognition_consent: false,
   image_rights_consent: false,
   terms_accepted: false,
   anamnesis: {},
