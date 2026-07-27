@@ -25,8 +25,8 @@ function GraduationsPage() {
             className="mx-auto mt-3 h-6 w-40 rounded-md shadow-inner"
             style={{ background: data.current.color_hex }}
           />
-          <div className="mt-3 text-lg font-bold">{data.current.name}</div>
-          {data.current.degree ? <div className="text-sm text-neutral-500">{data.current.degree}º {degreeUnit((data.current as any).modality)}</div> : null}
+          <div className="mt-3 break-words text-lg font-bold">{data.current.name}</div>
+          {data.current.degree ? <div className="break-words text-sm text-neutral-500">{data.current.degree}º {degreeUnit((data.current as any).modality)}</div> : null}
         </section>
       )}
 
