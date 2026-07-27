@@ -732,26 +732,28 @@ function NewGraduationPage() {
                   </div>
                 </div>
               )}
-              <div className="flex flex-wrap items-end gap-2 rounded-lg border bg-muted/30 p-3">
-                <div className="flex-1 min-w-[180px]">
-                  <div className="text-[11px] font-medium text-muted-foreground mb-1">Aplicar valor em massa</div>
-                  <div className="flex flex-wrap items-center gap-2">
-
-                    <span className="text-xs text-muted-foreground">R$</span>
-                    <Input
-                      id="bulk-price-input"
-                      inputMode="decimal"
-                      placeholder="0,00"
-                      className="h-9 w-32"
-                    />
+              <div className="flex flex-col gap-3 rounded-lg border bg-muted/30 p-3 sm:flex-row sm:items-end">
+                <div className="flex-1 min-w-0">
+                  <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Aplicar valor em massa</div>
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-1 sm:max-w-[140px]">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">R$</span>
+                      <Input
+                        id="bulk-price-input"
+                        inputMode="decimal"
+                        placeholder="0,00"
+                        className="h-9 pl-8"
+                      />
+                    </div>
                     <Button
                       type="button"
                       size="sm"
                       variant="secondary"
+                      className="whitespace-nowrap"
                       onClick={() => {
                         const el = document.getElementById("bulk-price-input") as HTMLInputElement | null;
                         const v = (el?.value ?? "").trim();
-                        if (!v) { toast.error("Digite um valor para aplicar"); return; }
+                        if (!v) { toast.error("Digite um valor"); return; }
                         setPriceDraft((prev) => {
                           const next = { ...prev };
                           for (const b of beltsToShow) next[(b as any).id] = v;
@@ -760,12 +762,13 @@ function NewGraduationPage() {
                         toast.success(`Valor aplicado a ${beltsToShow.length} ${beltsToShow.length === 1 ? "faixa" : "faixas"}`);
                       }}
                     >
-                      Aplicar a {pricingModality === "all" ? "todas" : "essa modalidade"}
+                      Aplicar
                     </Button>
                     <Button
                       type="button"
                       size="sm"
                       variant="ghost"
+                      className="px-2"
                       onClick={() => {
                         setPriceDraft((prev) => {
                           const next = { ...prev };
