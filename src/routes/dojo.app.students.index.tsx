@@ -280,8 +280,8 @@ function StudentsPage() {
       toast.error("Nome completo é obrigatório");
       return;
     }
-    if (!form.lgpd_consent || !form.terms_accepted) {
-      toast.error("É necessário registrar o consentimento LGPD e o aceite dos termos");
+    if (!form.lgpd_consent || !form.terms_accepted || !form.facial_recognition_consent) {
+      toast.error("É necessário registrar o consentimento LGPD, Biometria Facial e o aceite dos termos");
       return;
     }
     // Ao criar novo aluno, exigir plano
