@@ -1439,19 +1439,21 @@ function NewGraduationPage() {
                 const s = selectedRows.find((x: any) => x.id === g.student_id);
                 const done = issued.has(g.student_id);
                 return (
-                  <div key={g.id} className={`flex items-center gap-4 p-4 transition-colors ${done ? "bg-emerald-500/5" : ""}`}>
-                    <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-full text-xs font-bold ring-1 ${
-                      done ? "bg-emerald-500 text-white ring-emerald-500/40" : "bg-muted text-foreground ring-border"
-                    }`}>
-                      {done ? <CheckCircle2 className="h-5 w-5" /> : initials(s?.full_name ?? "?")}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-semibold">{s?.full_name}</div>
-                      <div className="truncate text-xs text-muted-foreground">
-                        {(() => {
-                          const rg = resolveStudentGrad(g.student_id);
-                          return `${rg.belt?.name ?? ""}${degreeSuffix(rg.degree, rg.belt?.modality, " · ", rg.belt?.name)}`;
-                        })()}
+                  <div key={g.id} className={`flex flex-col gap-3 p-4 transition-colors sm:flex-row sm:items-center sm:gap-4 ${done ? "bg-emerald-500/5" : ""}`}>
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-full text-xs font-bold ring-1 ${
+                        done ? "bg-emerald-500 text-white ring-emerald-500/40" : "bg-muted text-foreground ring-border"
+                      }`}>
+                        {done ? <CheckCircle2 className="h-5 w-5" /> : initials(s?.full_name ?? "?")}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-bold text-foreground">{s?.full_name}</div>
+                        <div className="truncate text-[10px] uppercase tracking-wider text-muted-foreground">
+                          {(() => {
+                            const rg = resolveStudentGrad(g.student_id);
+                            return `${rg.belt?.name ?? ""}${degreeSuffix(rg.degree, rg.belt?.modality, " · ", rg.belt?.name)}`;
+                          })()}
+                        </div>
                       </div>
                     </div>
                     {done ? (
