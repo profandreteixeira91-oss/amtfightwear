@@ -32,6 +32,8 @@ import {
   simulatePartnerCheckin, attendanceReport,
 } from "@/lib/dojo/checkin.functions";
 import { listDojoUnits } from "@/lib/dojo/dojo.functions";
+import { Camera } from "lucide-react";
+import { PhotoCheckinFlow } from "@/components/dojo/checkin/PhotoCheckinFlow";
 
 export const Route = createFileRoute("/dojo/app/checkin")({
   head: () => ({ meta: [{ title: "Check-in — AMT Dojo Manager" }] }),
@@ -226,6 +228,7 @@ function KioskPanel() {
   const [pin, setPin] = useState("");
   const [showSearch, setShowSearch] = useState(false);
   const [showVisitor, setShowVisitor] = useState(false);
+  const [showPhoto, setShowPhoto] = useState(false);
   const [showPartner, setShowPartner] = useState<null | "gympass" | "totalpass">(null);
   const [lastCheckin, setLastCheckin] = useState<null | { name: string; photo?: string | null; message: string; method: string }>(null);
   const [unitId, setUnitId] = useState("");
@@ -445,9 +448,10 @@ function KioskPanel() {
                   Registrar presença
                 </Button>
 
-                <div className="grid grid-cols-2 gap-2 pt-1 md:grid-cols-4">
-                  <ActionButton icon={Search} label="Buscar aluno" onClick={() => setShowSearch(true)} dark={isFullscreen} />
+                <div className="grid grid-cols-2 gap-2 pt-1 md:grid-cols-5">
+                  <ActionButton icon={Search} label="Buscar" onClick={() => setShowSearch(true)} dark={isFullscreen} />
                   <ActionButton icon={UserPlus} label="Visitante" onClick={() => setShowVisitor(true)} dark={isFullscreen} />
+                  <ActionButton icon={Camera} label="Foto Turma" onClick={() => setShowPhoto(true)} dark={isFullscreen} />
                   <ActionButton icon={Shield} label="Gympass" onClick={() => setShowPartner("gympass")} dark={isFullscreen} />
                   <ActionButton icon={Shield} label="TotalPass" onClick={() => setShowPartner("totalpass")} dark={isFullscreen} />
                 </div>
@@ -473,6 +477,21 @@ function KioskPanel() {
       }} />
 
       <VisitorDialog open={showVisitor} onOpenChange={setShowVisitor} unitId={unitId} />
+
+      <Dialog open={showPhoto} onOpenChange={setShowPhoto}>
+        <DialogContent className="max-w-4xl overflow-hidden p-0">
+          <div className="p-6">
+            <PhotoCheckinFlow 
+              unitId={unitId} 
+              onCancel={() => setShowPhoto(false)} 
+              onComplete={() => {
+                setShowPhoto(false);
+                qc.invalidateQueries({ queryKey: ["dojo-checkin-dashboard"] });
+              }} 
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <PartnerDialog
         open={!!showPartner}
@@ -1010,6 +1029,7 @@ function SettingsPanel() {
         geoLng: d.geo_lng ?? null,
         geoRadiusM: d.geo_radius_m ?? 50,
         geoAddress: d.geo_address ?? "",
+        facialRecognitionEnabled: d.facial_recognition_enabled ?? false,
       });
     } else if (!q.isLoading) {
       setState({
@@ -1018,6 +1038,7 @@ function SettingsPanel() {
         blockOnOverdue: false, warnOnOverdue: true, warnOnMedical: true,
         requirePartnerValidation: true, kioskPin: "",
         geoRequired: false, geoLat: null, geoLng: null, geoRadiusM: 50, geoAddress: "",
+        facialRecognitionEnabled: false,
       });
     }
   }, [q.data, q.isLoading]);
@@ -1064,6 +1085,7 @@ function SettingsPanel() {
           <SettingRow label="Avisar (sem bloquear) mensalidade em atraso" v={state.warnOnOverdue} onChange={(v) => upd("warnOnOverdue", v)} />
           <SettingRow label="Avisar sobre atestado médico vencido" v={state.warnOnMedical} onChange={(v) => upd("warnOnMedical", v)} />
           <SettingRow label="Exigir validação oficial para Gympass/TotalPass" v={state.requirePartnerValidation} onChange={(v) => upd("requirePartnerValidation", v)} />
+          <SettingRow label="Habilitar Check-in Inteligente por Foto (Reconhecimento Facial)" v={state.facialRecognitionEnabled} onChange={(v) => upd("facialRecognitionEnabled", v)} />
         </div>
 
         <div className="rounded-lg border p-4 space-y-3">

@@ -76,6 +76,7 @@ type StudentForm = {
   has_medical_clearance: boolean;
   medical_clearance_date: string;
   lgpd_consent: boolean;
+  facial_recognition_consent: boolean;
   image_rights_consent: boolean;
   terms_accepted: boolean;
   anamnesis: {
@@ -131,6 +132,7 @@ const emptyForm: StudentForm = {
   has_medical_clearance: false,
   medical_clearance_date: "",
   lgpd_consent: false,
+  facial_recognition_consent: false,
   image_rights_consent: false,
   terms_accepted: false,
   anamnesis: {},
@@ -278,8 +280,8 @@ function StudentsPage() {
       toast.error("Nome completo é obrigatório");
       return;
     }
-    if (!form.lgpd_consent || !form.terms_accepted) {
-      toast.error("É necessário registrar o consentimento LGPD e o aceite dos termos");
+    if (!form.lgpd_consent || !form.terms_accepted || !form.facial_recognition_consent) {
+      toast.error("É necessário registrar o consentimento LGPD, Biometria Facial e o aceite dos termos");
       return;
     }
     // Ao criar novo aluno, exigir plano
@@ -1110,6 +1112,11 @@ function StudentsPage() {
                     label="Autorizo o tratamento dos meus dados pessoais conforme a LGPD (Lei nº 13.709/2018) para fins de matrícula, controle acadêmico e comunicação da academia."
                     checked={form.lgpd_consent}
                     onChange={(v) => set("lgpd_consent", v)}
+                  />
+                  <BoolChk
+                    label="Autorizo a coleta e processamento de biometria facial para identificação automática em check-ins por foto (Reconhecimento Facial)."
+                    checked={form.facial_recognition_consent}
+                    onChange={(v) => set("facial_recognition_consent", v)}
                   />
                   <BoolChk
                     label="Autorizo o uso da minha imagem em fotos e vídeos para divulgação da academia (redes sociais, site e materiais internos)."

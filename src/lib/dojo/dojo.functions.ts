@@ -240,11 +240,12 @@ export const getDojoStudent = createServerFn({ method: "GET" })
     const { data: student, error } = await context.supabase
       .from("dojo_students").select("*").eq("id", data.id).single();
     if (error) throw new Error(error.message);
-    const [grads, enrolls, invoices, certs] = await Promise.all([
+    const [grads, enrolls, invoices, certs, photos] = await Promise.all([
       context.supabase.from("dojo_graduations").select("*, belt:dojo_belts(id,name,color_hex,stripe_hex,max_degrees,modality,sort_order,visual,variants)").eq("student_id", data.id).order("graduation_date", { ascending: false }),
       context.supabase.from("dojo_enrollments").select("*, plan:dojo_plans(name,amount)").eq("student_id", data.id),
       context.supabase.from("dojo_invoices").select("*").eq("student_id", data.id).order("due_date", { ascending: false }).limit(50),
       context.supabase.from("dojo_certificates").select("*, template:dojo_certificate_templates(*), graduation:dojo_graduations(graduation_date, degree, belt:dojo_belts(name))").eq("student_id", data.id).order("issued_at", { ascending: false }),
+      context.supabase.from("dojo_student_reference_photos").select("*").eq("student_id", data.id),
     ]);
     // Derive current belt per modality from ordered graduations (latest per modality wins).
     const currentByModality = new Map<string, any>();
@@ -261,8 +262,10 @@ export const getDojoStudent = createServerFn({ method: "GET" })
       enrollments: enrolls.data ?? [],
       invoices: invoices.data ?? [],
       certificates: certs.data ?? [],
+      referencePhotos: photos.data ?? [],
       current_belts: Array.from(currentByModality.values()),
     };
+
   });
 
 // Retorna, para todos os alunos do dojo, o progresso rumo à próxima graduação:
@@ -386,6 +389,7 @@ export const saveDojoStudent = createServerFn({ method: "POST" })
     graduation_criteria_mode: z.enum(["time","classes","evaluation","merit"]).nullable().optional(),
     graduation_min_classes: z.number().int().min(0).max(10000).nullable().optional(),
     graduation_min_months: z.number().int().min(0).max(240).nullable().optional(),
+    facial_recognition_consent: z.boolean().optional(),
   }).parse(i))
   .handler(async ({ data, context }) => {
     const { id, ...rest } = data;
@@ -393,6 +397,9 @@ export const saveDojoStudent = createServerFn({ method: "POST" })
     if (payload.email === "") payload.email = null;
     // Stamp consent timestamps when toggled true
     const now = new Date().toISOString();
+    if (data.lgpd_consent) payload.lgpd_consent_at = now;
+    if (data.facial_recognition_consent) payload.facial_recognition_consent_at = now;
+
     if (payload.lgpd_consent === true) payload.lgpd_consent_date = now;
     if (payload.terms_accepted === true) payload.terms_accepted_date = now;
     Object.keys(payload).forEach(k => payload[k] === undefined && delete payload[k]);
@@ -1799,4 +1806,34 @@ export const bulkImportDojoStudents = createServerFn({ method: "POST" })
       }
     }
     return results;
+  });
+
+export const addStudentReferencePhoto = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({
+    studentId: z.string().uuid(),
+    photoUrl: z.string().url()
+  }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("dojo_student_reference_photos")
+      .insert({
+        student_id: data.studentId,
+        photo_url: data.photoUrl,
+        owner_id: context.userId
+      });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const deleteStudentReferencePhoto = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("dojo_student_reference_photos")
+      .delete()
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });
