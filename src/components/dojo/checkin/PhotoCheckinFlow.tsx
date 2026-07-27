@@ -7,8 +7,8 @@ import { Progress } from "@/components/ui/progress";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { listDojoClasses, listDojoUnits } from "@/lib/dojo/dojo.functions";
-import { listLessonsByClass } from "@/lib/dojo/lesson-plans.functions";
+import { listClasses, listDojoUnits } from "@/lib/dojo/schedule.functions";
+import { listLessonPlans } from "@/lib/dojo/lesson-plans.functions";
 import { startFaceRecognition, confirmSmartCheckins } from "@/lib/dojo/face-recognition.functions";
 import { searchStudents } from "@/lib/dojo/checkin.functions";
 import { supabase } from "@/integrations/supabase/client";
@@ -32,18 +32,19 @@ export function PhotoCheckinFlow({ onComplete, onCancel, unitId: initialUnitId }
   const [isProcessing, setIsProcessing] = useState(false);
   
   const qc = useQueryClient();
+  const unitsFn = useServerFn(listDojoUnits);
   const startRecognition = useServerFn(startFaceRecognition);
   const confirmCheckins = useServerFn(confirmSmartCheckins);
   
-  const { data: units } = useQuery({ queryKey: ["dojo-units"], queryFn: () => listDojoUnits() });
+  const { data: units } = useQuery({ queryKey: ["dojo-units"], queryFn: () => unitsFn() });
   const { data: classes } = useQuery({ 
     queryKey: ["dojo-classes", selectedUnitId], 
-    queryFn: () => listDojoClasses({ data: { unitId: selectedUnitId } }),
+    queryFn: () => listClasses({ data: { unitId: selectedUnitId } }),
     enabled: !!selectedUnitId 
   });
   const { data: lessons } = useQuery({ 
     queryKey: ["dojo-lessons", selectedClassId], 
-    queryFn: () => listLessonsByClass({ data: { classId: selectedClassId } }),
+    queryFn: () => listLessonPlans({ data: { classId: selectedClassId } }),
     enabled: !!selectedClassId 
   });
 
