@@ -46,13 +46,18 @@ export const startFaceRecognition = createServerFn({ method: "POST" })
 
     // 3. Flatten reference photos for the provider
     const referencePhotos = students.flatMap(s => {
-      const photos = [{ studentId: s.id, name: s.full_name, url: s.photo_url }];
+      const photos: { studentId: string; name: string; url: string }[] = [];
+      if (s.photo_url) {
+        photos.push({ studentId: s.id, name: s.full_name, url: s.photo_url });
+      }
       if (s.dojo_student_reference_photos) {
         (s.dojo_student_reference_photos as any[]).forEach((ref: any) => {
-          photos.push({ studentId: s.id, name: s.full_name, url: ref.photo_url });
+          if (ref.photo_url) {
+            photos.push({ studentId: s.id, name: s.full_name, url: ref.photo_url });
+          }
         });
       }
-      return photos.filter(p => p.url); // filter out if url is null
+      return photos;
     });
 
     // 4. Process the photo
@@ -82,7 +87,7 @@ export const startFaceRecognition = createServerFn({ method: "POST" })
       class_photo_id: classPhoto.id,
       student_id: f.studentId || null,
       confidence: f.confidence,
-      status: f.studentId ? (f.confidence >= minConfidence ? "confirmed" : "pending") : "pending",
+      status: (f.studentId ? (f.confidence >= minConfidence ? "confirmed" : "pending") : "pending") as any,
       box_json: f.box as any,
       owner_id: context.userId
     }));
