@@ -71,17 +71,17 @@ function HistoryPage() {
                           <Link
                             to="/dojo/app/lesson-plans/$id"
                             params={{ id: plan.id }}
-                            className="font-medium hover:underline"
+                            className="break-words font-medium leading-tight hover:underline"
                           >
                             {plan.title ?? "Aula"}
                           </Link>
                         ) : (
-                          <span className="font-medium">{plan?.title ?? "Aula"}</span>
+                          <span className="break-words font-medium leading-tight">{plan?.title ?? "Aula"}</span>
                         )}
-                        <div className="text-xs text-muted-foreground">
-                          {cls?.name ?? "Sem turma"}
-                          {plan?.modality ? ` · ${plan.modality}` : ""}
-                          {teacher?.full_name ? ` · ${teacher.full_name}` : ""}
+                        <div className="flex flex-wrap gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
+                          <span className="truncate">{cls?.name ?? "Sem turma"}</span>
+                          {plan?.modality && <span className="truncate">· {plan.modality}</span>}
+                          {teacher?.full_name && <span className="truncate">· {teacher.full_name}</span>}
                         </div>
                         {h.notes ? (
                           <div className="mt-1 rounded bg-muted/50 p-2 text-xs italic text-muted-foreground">
@@ -130,7 +130,7 @@ function HistoryPage() {
                 {usage.slice(0, 15).map((u) => (
                   <li key={u.key} className="flex items-center justify-between rounded border px-2 py-1.5 text-sm">
                     <div className="min-w-0 flex-1">
-                      <div className="truncate font-medium">{u.name || "(sem nome)"}</div>
+                      <div className="break-words font-medium leading-tight">{u.name || "(sem nome)"}</div>
                       <div className="text-[11px] text-muted-foreground">
                         {u.kind === "content" ? "Biblioteca" : u.kind === "technique" ? "Técnica" : "Item livre"} ·
                         {" "}último uso {new Date(u.last_used).toLocaleDateString("pt-BR")}

@@ -109,11 +109,11 @@ function LibraryPage() {
             )}
             <CardContent className="p-4">
               <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0 flex-1">
-                  <div className="truncate font-semibold">{c.name}</div>
-                  <div className="truncate text-xs text-muted-foreground">
-                    {c.modality ?? "—"}
-                    {c.category ? ` · ${c.category}` : ""}
+                <div className="min-w-0 flex-1 space-y-0.5">
+                  <div className="break-words font-semibold leading-tight">{c.name}</div>
+                  <div className="flex flex-wrap gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
+                    <span className="truncate">{c.modality ?? "—"}</span>
+                    {c.category && <span className="truncate">· {c.category}</span>}
                   </div>
                 </div>
                 <div className="flex gap-1">
@@ -132,7 +132,7 @@ function LibraryPage() {
                   </Button>
                 </div>
               </div>
-              {c.description ? <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{c.description}</p> : null}
+              {c.description ? <p className="mt-2 break-words text-sm text-muted-foreground">{c.description}</p> : null}
               <div className="mt-2 flex flex-wrap gap-1">
                 {c.tags?.map((t) => (
                   <span key={t} className="rounded bg-muted px-1.5 py-0.5 text-[11px]">
