@@ -76,6 +76,7 @@ type StudentForm = {
   has_medical_clearance: boolean;
   medical_clearance_date: string;
   lgpd_consent: boolean;
+  facial_recognition_consent: boolean;
   image_rights_consent: boolean;
   terms_accepted: boolean;
   anamnesis: {
