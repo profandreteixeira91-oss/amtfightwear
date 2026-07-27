@@ -227,6 +227,7 @@ export const listDojoStudents = createServerFn({ method: "GET" })
     const { data, error } = await context.supabase
       .from("dojo_students")
       .select("*, unit:dojo_units(name), belt:dojo_belts(id,name,color_hex,stripe_hex,max_degrees,modality,sort_order,visual,variants)")
+      .is("cancelled_at", null)
       .order("full_name");
     if (error) throw new Error(error.message);
     return await attachCurrentBeltsByModality(context.supabase, data ?? []);
