@@ -109,9 +109,9 @@ function LibraryPage() {
             )}
             <CardContent className="p-4">
               <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <div className="font-semibold truncate">{c.name}</div>
-                  <div className="text-xs text-muted-foreground">
+                <div className="min-w-0 flex-1">
+                  <div className="truncate font-semibold">{c.name}</div>
+                  <div className="truncate text-xs text-muted-foreground">
                     {c.modality ?? "—"}
                     {c.category ? ` · ${c.category}` : ""}
                   </div>
