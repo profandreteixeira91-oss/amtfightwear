@@ -103,8 +103,8 @@ self.addEventListener("push", (event) => {
   const title = payload.title || "AMT Dojo Manager";
   const options = {
     body: payload.body || "",
-    icon: payload.icon || "/favicon.jpg",
-    badge: payload.badge || "/favicon.jpg",
+    icon: payload.icon || "/notification-icon.png",
+    badge: payload.badge || "/notification-badge.png",
     data: { url: payload.url || "/app", ...(payload.data || {}) },
     tag: payload.tag,
     renotify: !!payload.tag,
