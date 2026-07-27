@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import {
-  ArrowLeft, Printer, CheckCircle2, XCircle, Clock, FileText, Send, RotateCcw,
+  ArrowLeft, Printer, CheckCircle2, XCircle, Clock, FileText, Send, RotateCcw, User, ArrowRight
 } from "lucide-react";
 import {
   getIssuedContract, listContractEvents, updateContractStatus,
@@ -117,22 +117,22 @@ function IssuedContractDetail() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-3 flex-wrap">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 flex-wrap">
         <Link to="/dojo/app/contracts/issued">
           <Button variant="ghost" size="sm"><ArrowLeft className="h-4 w-4 mr-1" />Voltar</Button>
         </Link>
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-1 flex-wrap justify-end sm:justify-start">
           <Select value={currentStatus} onValueChange={changeStatus}>
-            <SelectTrigger className="w-[220px]"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-[160px] h-9 text-xs"><SelectValue /></SelectTrigger>
             <SelectContent>
               {Object.entries(CONTRACT_STATUS_LABELS).map(([k, v]) => (
                 <SelectItem key={k} value={k}>{v}</SelectItem>
               ))}
             </SelectContent>
           </Select>
-          <Button variant="outline" size="sm" onClick={() => changeStatus("sent")}><Send className="h-4 w-4 mr-1" />Marcar como enviado</Button>
-          <Button variant="outline" size="sm" onClick={() => changeStatus("signed")}><CheckCircle2 className="h-4 w-4 mr-1" />Registrar assinatura</Button>
-          <Button variant="outline" size="sm" onClick={doPrint}><Printer className="h-4 w-4 mr-1" />Imprimir</Button>
+          <Button variant="outline" size="sm" onClick={() => changeStatus("sent")} className="h-9 text-xs gap-1"><Send className="h-3.5 w-3.5" />Enviado</Button>
+          <Button variant="outline" size="sm" onClick={() => changeStatus("signed")} className="h-9 text-xs gap-1"><CheckCircle2 className="h-3.5 w-3.5" />Assinado</Button>
+          <Button variant="outline" size="sm" onClick={doPrint} className="h-9 text-xs gap-1"><Printer className="h-3.5 w-3.5" />Imprimir</Button>
         </div>
       </div>
 
@@ -164,14 +164,15 @@ function IssuedContractDetail() {
           </Card>
         </div>
 
-        <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="md:col-span-1 space-y-3 order-1 md:order-none">
           <Card>
-            <CardHeader className="pb-2"><CardTitle className="text-sm">Destinatário</CardTitle></CardHeader>
-            <CardContent className="text-sm space-y-1">
-              <div className="font-medium">{targetName ?? "—"}</div>
+            <CardHeader className="p-4 pb-2"><CardTitle className="text-xs uppercase tracking-wider text-muted-foreground">Destinatário</CardTitle></CardHeader>
+            <CardContent className="p-4 pt-0 text-sm space-y-1">
+              <div className="font-bold text-base truncate">{targetName ?? "—"}</div>
               {kind === "student" || kind === "team" ? (
                 <>
-                  {target?.email ? <div className="text-xs text-muted-foreground">{target.email}</div> : null}
+                  {target?.email ? <div className="text-xs text-muted-foreground truncate">{target.email}</div> : null}
                   {target?.phone ? <div className="text-xs text-muted-foreground">{target.phone}</div> : null}
                   {target?.cpf ? <div className="text-xs text-muted-foreground">CPF: {target.cpf}</div> : null}
                   {kind === "team" && target?.role ? <div className="text-xs text-muted-foreground">Cargo: {target.role}</div> : null}
@@ -179,65 +180,68 @@ function IssuedContractDetail() {
               ) : (
                 <>
                   {target?.cnpj ? <div className="text-xs text-muted-foreground">CNPJ: {target.cnpj}</div> : null}
-                  {target?.city ? <div className="text-xs text-muted-foreground">{target.city}/{target.state}</div> : null}
+                  {target?.city ? <div className="text-xs text-muted-foreground truncate">{target.city}/{target.state}</div> : null}
                 </>
               )}
-              {kind === "student" && target?.id ? (
-                <Link to="/dojo/app/students/$id" params={{ id: target.id }} className="text-xs text-primary hover:underline">
-                  Abrir ficha do aluno →
-                </Link>
-              ) : null}
-              {kind === "team" && target?.id ? (
-                <Link to="/dojo/app/team/$id" params={{ id: target.id }} className="text-xs text-primary hover:underline">
-                  Abrir ficha do colaborador →
-                </Link>
-              ) : null}
-              {kind === "affiliate" && target?.id ? (
-                <Link to="/dojo/app/units/affiliates/$id" params={{ id: target.id }} className="text-xs text-primary hover:underline">
-                  Abrir filial →
-                </Link>
-              ) : null}
+              <div className="pt-2">
+                {kind === "student" && target?.id ? (
+                  <Link to="/dojo/app/students/$id" params={{ id: target.id }} className="text-xs text-primary hover:underline flex items-center gap-1">
+                    Abrir ficha <ArrowRight className="h-3 w-3" />
+                  </Link>
+                ) : kind === "team" && target?.id ? (
+                  <Link to="/dojo/app/team/$id" params={{ id: target.id }} className="text-xs text-primary hover:underline flex items-center gap-1">
+                    Abrir ficha <ArrowRight className="h-3 w-3" />
+                  </Link>
+                ) : kind === "affiliate" && target?.id ? (
+                  <Link to="/dojo/app/units/affiliates/$id" params={{ id: target.id }} className="text-xs text-primary hover:underline flex items-center gap-1">
+                    Abrir filial <ArrowRight className="h-3 w-3" />
+                  </Link>
+                ) : null}
+              </div>
             </CardContent>
           </Card>
 
           {kind === "student" && (contract.plan_name || contract.monthly_value) ? (
             <Card>
-              <CardHeader className="pb-2"><CardTitle className="text-sm">Financeiro</CardTitle></CardHeader>
-              <CardContent className="text-sm space-y-1">
-                {contract.plan_name ? <div>Plano: <span className="font-medium">{contract.plan_name}</span></div> : null}
-                {contract.monthly_value ? <div>Valor: <span className="font-medium">{Number(contract.monthly_value).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}</span></div> : null}
-                {contract.payment_method ? <div>Pagamento: <span className="font-medium capitalize">{contract.payment_method}</span></div> : null}
-                {contract.due_day ? <div>Vencimento: dia <span className="font-medium">{contract.due_day}</span></div> : null}
-                {contract.start_date ? <div>Início: <span className="font-medium">{new Date(contract.start_date).toLocaleDateString("pt-BR")}</span></div> : null}
+              <CardHeader className="p-4 pb-2"><CardTitle className="text-xs uppercase tracking-wider text-muted-foreground">Financeiro</CardTitle></CardHeader>
+              <CardContent className="p-4 pt-0 text-sm space-y-1.5">
+                {contract.plan_name ? <div className="flex justify-between"><span>Plano</span><span className="font-medium">{contract.plan_name}</span></div> : null}
+                {contract.monthly_value ? <div className="flex justify-between"><span>Valor</span><span className="font-medium">{Number(contract.monthly_value).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}</span></div> : null}
+                {contract.payment_method ? <div className="flex justify-between"><span>Pagamento</span><span className="font-medium capitalize">{contract.payment_method}</span></div> : null}
               </CardContent>
             </Card>
           ) : null}
+        </div>
 
+        <div className="md:col-span-2 space-y-3">
           <Card>
-            <CardHeader className="pb-2"><CardTitle className="text-sm flex items-center gap-2"><Clock className="h-4 w-4" />Timeline</CardTitle></CardHeader>
-            <CardContent className="p-0">
+            <CardHeader className="p-4 pb-2"><CardTitle className="text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-2"><Clock className="h-3.5 w-3.5" />Histórico</CardTitle></CardHeader>
+            <CardContent className="p-4">
               {(events.data ?? []).length === 0 ? (
-                <div className="p-4 text-xs text-muted-foreground text-center">Nenhum evento registrado.</div>
+                <div className="text-xs text-muted-foreground text-center py-4">Nenhum evento registrado.</div>
               ) : (
-                <ol className="relative border-l border-border ml-4 py-2">
+                <div className="space-y-4">
                   {(events.data ?? []).map((e: any) => (
-                    <li key={e.id} className="ml-4 py-2">
-                      <span className={`absolute -left-1.5 h-3 w-3 rounded-full ${
+                    <div key={e.id} className="flex gap-3 relative before:absolute before:left-1.5 before:top-4 before:bottom-[-16px] before:w-[1px] before:bg-border last:before:hidden">
+                      <div className={`h-3 w-3 rounded-full mt-1 shrink-0 z-10 border-2 border-background ${
                         e.event_type.includes("signed") ? "bg-emerald-500"
                           : e.event_type.includes("cancelled") || e.event_type.includes("refused") ? "bg-red-500"
                           : e.event_type.includes("sent") ? "bg-cyan-500"
                           : "bg-primary"
                       }`} />
-                      <div className="text-xs font-medium">{EVENT_LABEL[e.event_type] ?? e.event_type}</div>
-                      <div className="text-[11px] text-muted-foreground">{new Date(e.created_at).toLocaleString("pt-BR")}</div>
-                      {e.note ? <div className="text-xs mt-1">{e.note}</div> : null}
-                    </li>
+                      <div className="min-w-0">
+                        <div className="text-[13px] font-medium leading-none">{EVENT_LABEL[e.event_type] ?? e.event_type}</div>
+                        <div className="text-[11px] text-muted-foreground mt-1">{new Date(e.created_at).toLocaleString("pt-BR")}</div>
+                        {e.note ? <div className="text-xs mt-1 text-muted-foreground italic truncate">"{e.note}"</div> : null}
+                      </div>
+                    </div>
                   ))}
-                </ol>
+                </div>
               )}
             </CardContent>
           </Card>
         </div>
+      </div>
       </div>
 
       <div className="flex flex-wrap gap-2">

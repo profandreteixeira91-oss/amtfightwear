@@ -50,15 +50,14 @@ function IssuedContractsPage() {
   return (
     <div className="space-y-4">
       <Card>
-        <CardContent className="p-4 flex flex-col md:flex-row gap-3 md:items-center">
+        <CardContent className="p-4 flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Buscar por título ou número do contrato…" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9" />
+            <Input placeholder="Buscar…" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9 h-10" />
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Filter className="h-4 w-4 shrink-0 text-muted-foreground" />
+          <div className="flex items-center gap-2 shrink-0">
             <Select value={kind} onValueChange={(v) => setKind(v as any)}>
-              <SelectTrigger className="w-full min-w-0 flex-1 sm:w-[160px] sm:flex-none"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-[120px] h-10"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos</SelectItem>
                 <SelectItem value="student">Alunos</SelectItem>
@@ -67,9 +66,9 @@ function IssuedContractsPage() {
               </SelectContent>
             </Select>
             <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger className="w-full min-w-0 flex-1 sm:w-[190px] sm:flex-none"><SelectValue placeholder="Status" /></SelectTrigger>
+              <SelectTrigger className="w-[150px] h-10"><SelectValue placeholder="Status" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos status</SelectItem>
+                <SelectItem value="all">Todos</SelectItem>
                 {Object.entries(CONTRACT_STATUS_LABELS).map(([k, v]) => (
                   <SelectItem key={k} value={k}>{v}</SelectItem>
                 ))}
