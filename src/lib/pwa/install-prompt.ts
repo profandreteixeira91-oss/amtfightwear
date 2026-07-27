@@ -18,14 +18,29 @@ function emit() {
 }
 
 if (typeof window !== "undefined") {
+  // Recupera evento eventualmente capturado pelo script inline em __root.tsx
+  const early = (window as any).__amtInstallPrompt as BeforeInstallPromptEvent | null | undefined;
+  if (early) deferredEvent = early;
+  if ((window as any).__amtInstalled) installed = true;
+
   window.addEventListener("beforeinstallprompt", (e) => {
     e.preventDefault();
     deferredEvent = e as BeforeInstallPromptEvent;
+    (window as any).__amtInstallPrompt = deferredEvent;
     emit();
   });
   window.addEventListener("appinstalled", () => {
     installed = true;
     deferredEvent = null;
+    (window as any).__amtInstallPrompt = null;
+    (window as any).__amtInstalled = true;
+    emit();
+  });
+  // Evento disparado pelo script inline quando o evento nativo chega antes deste módulo carregar
+  window.addEventListener("amt:install-ready", () => {
+    const evt = (window as any).__amtInstallPrompt as BeforeInstallPromptEvent | null;
+    deferredEvent = evt ?? null;
+    if ((window as any).__amtInstalled) installed = true;
     emit();
   });
 }
