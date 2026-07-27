@@ -178,21 +178,51 @@ export const manualCheckin = createServerFn({ method: "POST" })
       .object({
         studentId: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido"),
         unitId: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido").optional().nullable(),
+        classId: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido").optional().nullable(),
         notes: z.string().max(400).optional().nullable(),
+        force: z.boolean().optional(),
       })
       .parse(i),
   )
   .handler(async ({ data, context }) => {
+    const isAdmin = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    const isTeacher = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "teacher" });
+    const isOverride = isAdmin.data || isTeacher.data;
+
+    const validation = await validateAndResolveCheckin(
+      context.supabase,
+      data.studentId,
+      context.userId,
+      isOverride,
+      data.classId
+    );
+
+    if (!validation.isValid && !data.force) {
+      if (validation.reason === "outside_window") {
+        throw new Error("OUTSIDE_WINDOW");
+      }
+      if (validation.reason === "multiple_classes") {
+        return { error: "MULTIPLE_CLASSES", availableClasses: validation.availableClasses };
+      }
+      if (validation.reason === "duplicate_checkin") {
+        throw new Error("Você já realizou o check-in desta aula.");
+      }
+      throw new Error("Não há nenhuma aula disponível para check-in neste momento.");
+    }
+
     const { data: row, error } = await context.supabase
       .from("dojo_attendance")
       .insert({
         student_id: data.studentId,
         unit_id: data.unitId ?? null,
-        class_id: await resolveClassForCheckin(context.supabase, data.studentId),
+        class_id: validation.classId,
         method: "manual",
         notes: data.notes ?? null,
         created_by: context.userId,
         owner_id: context.userId,
+        validation_result: validation.isValid ? "success" : "override",
+        rejection_reason: validation.isValid ? null : validation.reason,
+        validation_metadata: { force: !!data.force, original_reason: validation.reason }
       })
       .select("id")
       .single();
