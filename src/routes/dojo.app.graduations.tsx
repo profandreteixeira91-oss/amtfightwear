@@ -665,19 +665,20 @@ function NewGraduationPage() {
       {step === "select" && (
         <Card className="overflow-hidden shadow-sm">
           <CardHeader className="border-b bg-muted/30">
-            <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0">
                 <CardTitle className="flex items-center gap-2 text-base">
                   <DollarSign className="h-4 w-4 text-primary" />
                   Preços de graduação por faixa
                 </CardTitle>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Defina o valor fixo cobrado por faixa. O sistema gera automaticamente uma conta a receber no Financeiro para cada aluno graduado.
+                  Defina o valor fixo cobrado por faixa para gerar contas no Financeiro.
                 </p>
               </div>
               <Button
                 size="sm"
                 variant={showPricing ? "secondary" : "outline"}
+                className="w-full sm:w-auto"
                 onClick={() => {
                   const opening = !showPricing;
                   setShowPricing(opening);
@@ -702,53 +703,57 @@ function NewGraduationPage() {
               ? filteredByAcademy
               : filteredByAcademy.filter((b: any) => String(b.modality ?? "jiu-jitsu") === pricingModality);
             return (
-            <CardContent className="p-4 md:p-5 space-y-3">
+            <CardContent className="p-4 md:p-5 space-y-4">
               {acadMods.length === 0 ? (
                 <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
-                  Nenhuma modalidade definida em <a href="/dojo/app/account?tab=academy" className="font-medium underline">Minha Conta → Academia</a>. Exibindo todas as faixas cadastradas.
+                  Nenhuma modalidade definida em <a href="/dojo/app/account?tab=academy" className="font-medium underline">Minha Conta</a>.
                 </div>
               ) : (
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs text-muted-foreground">Modalidade:</span>
-                  <button
-                    type="button"
-                    onClick={() => setPricingModality("all")}
-                    className={`px-2.5 py-1 rounded-full text-xs border capitalize ${pricingModality === "all" ? "bg-primary text-primary-foreground border-primary" : "bg-background hover:bg-muted"}`}
-                  >
-                    Todas
-                  </button>
-                  {modalityOptions.map((m) => (
+                  <span className="text-xs font-medium text-muted-foreground">Filtrar:</span>
+                  <div className="flex flex-wrap gap-1.5">
                     <button
-                      key={m}
                       type="button"
-                      onClick={() => setPricingModality(m)}
-                      className={`px-2.5 py-1 rounded-full text-xs border capitalize ${pricingModality === m ? "bg-primary text-primary-foreground border-primary" : "bg-background hover:bg-muted"}`}
+                      onClick={() => setPricingModality("all")}
+                      className={`px-3 py-1 rounded-full text-xs border capitalize transition-colors ${pricingModality === "all" ? "bg-primary text-primary-foreground border-primary" : "bg-background hover:bg-muted"}`}
                     >
-                      {m}
+                      Todas
                     </button>
-                  ))}
+                    {modalityOptions.map((m) => (
+                      <button
+                        key={m}
+                        type="button"
+                        onClick={() => setPricingModality(m)}
+                        className={`px-3 py-1 rounded-full text-xs border capitalize transition-colors ${pricingModality === m ? "bg-primary text-primary-foreground border-primary" : "bg-background hover:bg-muted"}`}
+                      >
+                        {m}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
-              <div className="flex flex-wrap items-end gap-2 rounded-lg border bg-muted/30 p-3">
-                <div className="flex-1 min-w-[180px]">
-                  <div className="text-[11px] font-medium text-muted-foreground mb-1">Aplicar valor em massa</div>
-                  <div className="flex flex-wrap items-center gap-2">
-
-                    <span className="text-xs text-muted-foreground">R$</span>
-                    <Input
-                      id="bulk-price-input"
-                      inputMode="decimal"
-                      placeholder="0,00"
-                      className="h-9 w-32"
-                    />
+              <div className="flex flex-col gap-3 rounded-lg border bg-muted/30 p-3 sm:flex-row sm:items-end">
+                <div className="flex-1 min-w-0">
+                  <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Aplicar valor em massa</div>
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-1 sm:max-w-[140px]">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">R$</span>
+                      <Input
+                        id="bulk-price-input"
+                        inputMode="decimal"
+                        placeholder="0,00"
+                        className="h-9 pl-8"
+                      />
+                    </div>
                     <Button
                       type="button"
                       size="sm"
                       variant="secondary"
+                      className="whitespace-nowrap"
                       onClick={() => {
                         const el = document.getElementById("bulk-price-input") as HTMLInputElement | null;
                         const v = (el?.value ?? "").trim();
-                        if (!v) { toast.error("Digite um valor para aplicar"); return; }
+                        if (!v) { toast.error("Digite um valor"); return; }
                         setPriceDraft((prev) => {
                           const next = { ...prev };
                           for (const b of beltsToShow) next[(b as any).id] = v;
@@ -757,12 +762,13 @@ function NewGraduationPage() {
                         toast.success(`Valor aplicado a ${beltsToShow.length} ${beltsToShow.length === 1 ? "faixa" : "faixas"}`);
                       }}
                     >
-                      Aplicar a {pricingModality === "all" ? "todas" : "essa modalidade"}
+                      Aplicar
                     </Button>
                     <Button
                       type="button"
                       size="sm"
                       variant="ghost"
+                      className="px-2"
                       onClick={() => {
                         setPriceDraft((prev) => {
                           const next = { ...prev };
@@ -781,21 +787,30 @@ function NewGraduationPage() {
                   <div className="p-6 text-center text-sm text-muted-foreground">Nenhuma faixa disponível para as modalidades selecionadas.</div>
                 )}
                 {beltsToShow.map((b: any) => (
-                  <div key={b.id} className="flex items-center gap-3 p-3">
-                    <BeltAuto belt={b} degree={0} className="w-[160px] shrink-0" />
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-semibold">{b.name}</div>
-                      <div className="truncate text-[11px] text-muted-foreground capitalize">{b.modality ?? "jiu-jitsu"}</div>
+                  <div key={b.id} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
+                    <div className="flex flex-1 items-center gap-3 min-w-0">
+                      <div className="hidden sm:block">
+                        <BeltAuto belt={b} degree={0} className="w-[160px] shrink-0" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-bold text-foreground">{b.name}</div>
+                        <div className="truncate text-[10px] uppercase tracking-wider text-muted-foreground">{b.modality ?? "jiu-jitsu"}</div>
+                        <div className="mt-1 sm:hidden">
+                          <BeltAuto belt={b} degree={0} className="w-full" />
+                        </div>
+                      </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-muted-foreground">R$</span>
-                      <Input
-                        inputMode="decimal"
-                        placeholder="0,00"
-                        className="h-9 w-32"
-                        value={priceDraft[b.id] ?? ""}
-                        onChange={(e) => setPriceDraft(prev => ({ ...prev, [b.id]: e.target.value }))}
-                      />
+                      <div className="relative flex-1 sm:w-32">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">R$</span>
+                        <Input
+                          inputMode="decimal"
+                          placeholder="0,00"
+                          className="h-9 pl-8"
+                          value={priceDraft[b.id] ?? ""}
+                          onChange={(e) => setPriceDraft(prev => ({ ...prev, [b.id]: e.target.value }))}
+                        />
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -831,21 +846,23 @@ function NewGraduationPage() {
             </div>
           </CardHeader>
           <CardContent className="p-4 md:p-5 space-y-4">
-            <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] gap-2">
-              <div className="relative min-w-0">
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <div className="relative flex-1">
                 <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
-                  placeholder="Buscar aluno pelo nome…"
+                  placeholder="Buscar aluno…"
                   value={search}
                   onChange={e => setSearch(e.target.value)}
-                  className="pl-9"
+                  className="h-10 pl-9"
                 />
               </div>
-              <Button variant="outline" size="sm" onClick={() => setSelectedStudents(new Set(filteredStudents.map((s: any) => s.id)))}>Todos</Button>
-              <Button variant="ghost" size="sm" onClick={() => setSelectedStudents(new Set())}>Limpar</Button>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" className="flex-1 sm:flex-none" onClick={() => setSelectedStudents(new Set(filteredStudents.map((s: any) => s.id)))}>Todos</Button>
+                <Button variant="ghost" size="sm" className="flex-1 sm:flex-none" onClick={() => setSelectedStudents(new Set())}>Limpar</Button>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_auto]">
               <div>
                 <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                   Modalidade
@@ -908,28 +925,32 @@ function NewGraduationPage() {
                 return (
                   <label
                     key={s.id}
-                    className={`group flex cursor-pointer items-center gap-4 p-3.5 transition-colors ${
+                    className={`group flex flex-col gap-3 p-4 transition-colors sm:flex-row sm:items-center sm:gap-4 ${
                       isSelected ? "bg-primary/5" : "hover:bg-muted/50"
                     }`}
                   >
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      onChange={() => toggleStudent(s.id)}
-                      className="h-4 w-4 shrink-0 accent-primary"
-                    />
-                    <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-full text-xs font-bold ring-1 transition-colors ${
-                      isSelected ? "bg-primary text-primary-foreground ring-primary/40" : "bg-muted text-foreground ring-border"
-                    }`}>
-                      {initials(s.full_name)}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-semibold text-foreground">{s.full_name}</div>
-                      <div className="mt-0.5 truncate text-xs text-muted-foreground">
-                        {belts.length === 0
-                          ? "Sem faixa"
-                          : belts.map((b: any) => formatBeltFull(b.belt.name, b.belt?.modality, b.degree)).join(" • ")}
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleStudent(s.id)}
+                        className="h-5 w-5 shrink-0 accent-primary"
+                      />
+                      <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-full text-xs font-bold ring-1 transition-colors ${
+                        isSelected ? "bg-primary text-primary-foreground ring-primary/40" : "bg-muted text-foreground ring-border"
+                      }`}>
+                        {initials(s.full_name)}
                       </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-bold text-foreground">{s.full_name}</div>
+                        <div className="mt-0.5 truncate text-[10px] uppercase tracking-wider text-muted-foreground">
+                          {belts.length === 0
+                            ? "Sem faixa"
+                            : belts.map((b: any) => formatBeltFull(b.belt.name, b.belt?.modality, b.degree)).join(" • ")}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
                       {(() => {
                         const p = progressById.get(s.id);
                         if (!p) return null;
@@ -1027,19 +1048,19 @@ function NewGraduationPage() {
               </span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-5 md:p-6 space-y-6">
+          <CardContent className="p-4 md:p-6 space-y-6">
             {/* Padrões — aplicar a todos (opcional) */}
-            <section className="space-y-3 rounded-xl border border-dashed bg-muted/20 p-4">
-              <div className="flex flex-wrap items-center justify-between gap-2">
+            <section className="space-y-4 rounded-xl border border-dashed bg-muted/20 p-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Padrão (opcional)</div>
-                  <p className="text-xs text-muted-foreground">Defina uma faixa e grau para aplicar em massa. Cada aluno pode ser editado individualmente abaixo.</p>
+                  <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Padrão (opcional)</div>
+                  <p className="text-xs text-muted-foreground">Defina uma faixa e grau para aplicar em massa.</p>
                 </div>
-                <Button size="sm" variant="outline" onClick={applyDefaultsToAll} disabled={!beltId}>
+                <Button size="sm" variant="outline" className="w-full sm:w-auto" onClick={applyDefaultsToAll} disabled={!beltId}>
                   Aplicar a todos
                 </Button>
               </div>
-              <div className="grid gap-3 md:grid-cols-3">
+              <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
                 <div className="space-y-1.5">
                   <label className="text-xs font-medium text-foreground">Modalidade</label>
                   <select
@@ -1130,8 +1151,8 @@ function NewGraduationPage() {
                   const suggestedBelt = nextSuggest ? beltById.get(nextSuggest.beltId) : null;
 
                   return (
-                    <div key={s.id} className="grid gap-3 p-4 md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,1fr)] md:items-center">
-                      <div className="flex min-w-0 items-center gap-3">
+                    <div key={s.id} className="flex flex-col gap-4 p-4 md:grid md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,1fr)] md:items-center md:gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
                         <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary/10 text-[11px] font-bold text-primary">
                           {initials(s.full_name)}
                         </div>
@@ -1264,9 +1285,9 @@ function NewGraduationPage() {
                 return (
                   <div
                     key={s.id}
-                    className="grid gap-3 p-4 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,1fr)] md:items-center"
+                    className="flex flex-col gap-4 p-4 md:grid md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,1fr)] md:items-center md:gap-3"
                   >
-                    <div className="flex min-w-0 items-center gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
                       <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary/10 text-[11px] font-bold text-primary">
                         {initials(s.full_name)}
                       </div>
@@ -1348,21 +1369,21 @@ function NewGraduationPage() {
             </div>
 
             {/* Totais */}
-            <div className="grid gap-3 rounded-xl border bg-muted/30 p-4 md:grid-cols-3">
-              <div>
-                <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Total geral</div>
+            <div className="grid grid-cols-1 gap-3 rounded-xl border bg-muted/30 p-4 sm:grid-cols-3">
+              <div className="flex flex-col sm:block">
+                <div className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Total geral</div>
                 <div className="text-xl font-black tabular-nums">
                   R$ {paymentTotals.total.toFixed(2)}
                 </div>
               </div>
-              <div>
-                <div className="text-[10px] uppercase tracking-wide text-emerald-700">Pago</div>
+              <div className="flex flex-col sm:block">
+                <div className="text-[10px] font-bold uppercase tracking-wide text-emerald-700">Pago</div>
                 <div className="text-xl font-black tabular-nums text-emerald-700">
                   R$ {paymentTotals.paid.toFixed(2)}
                 </div>
               </div>
-              <div>
-                <div className="text-[10px] uppercase tracking-wide text-amber-700">A receber</div>
+              <div className="flex flex-col sm:block">
+                <div className="text-[10px] font-bold uppercase tracking-wide text-amber-700">A receber</div>
                 <div className="text-xl font-black tabular-nums text-amber-700">
                   R$ {paymentTotals.pending.toFixed(2)}
                 </div>
@@ -1418,19 +1439,21 @@ function NewGraduationPage() {
                 const s = selectedRows.find((x: any) => x.id === g.student_id);
                 const done = issued.has(g.student_id);
                 return (
-                  <div key={g.id} className={`flex items-center gap-4 p-4 transition-colors ${done ? "bg-emerald-500/5" : ""}`}>
-                    <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-full text-xs font-bold ring-1 ${
-                      done ? "bg-emerald-500 text-white ring-emerald-500/40" : "bg-muted text-foreground ring-border"
-                    }`}>
-                      {done ? <CheckCircle2 className="h-5 w-5" /> : initials(s?.full_name ?? "?")}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-semibold">{s?.full_name}</div>
-                      <div className="truncate text-xs text-muted-foreground">
-                        {(() => {
-                          const rg = resolveStudentGrad(g.student_id);
-                          return `${rg.belt?.name ?? ""}${degreeSuffix(rg.degree, rg.belt?.modality, " · ", rg.belt?.name)}`;
-                        })()}
+                  <div key={g.id} className={`flex flex-col gap-3 p-4 transition-colors sm:flex-row sm:items-center sm:gap-4 ${done ? "bg-emerald-500/5" : ""}`}>
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-full text-xs font-bold ring-1 ${
+                        done ? "bg-emerald-500 text-white ring-emerald-500/40" : "bg-muted text-foreground ring-border"
+                      }`}>
+                        {done ? <CheckCircle2 className="h-5 w-5" /> : initials(s?.full_name ?? "?")}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-bold text-foreground">{s?.full_name}</div>
+                        <div className="truncate text-[10px] uppercase tracking-wider text-muted-foreground">
+                          {(() => {
+                            const rg = resolveStudentGrad(g.student_id);
+                            return `${rg.belt?.name ?? ""}${degreeSuffix(rg.degree, rg.belt?.modality, " · ", rg.belt?.name)}`;
+                          })()}
+                        </div>
                       </div>
                     </div>
                     {done ? (
