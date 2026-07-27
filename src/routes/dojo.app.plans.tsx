@@ -504,7 +504,7 @@ function PlansPage() {
                     Somente os métodos habilitados aqui aparecerão como opções ao registrar manualmente as
                     mensalidades deste plano.
                   </p>
-                  <div className="grid gap-3 md:grid-cols-2">
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                     {PAYMENT_METHODS.map((def) => {
                       const state = form.payment_methods.find((m) => m.code === def.code)!;
                       const Icon = def.icon;
@@ -512,7 +512,7 @@ function PlansPage() {
                         <div
                           key={def.code}
                           className={
-                            "rounded-lg border p-3 transition-colors " +
+                            "rounded-xl border p-2.5 transition-colors sm:p-3 " +
                             (state.enabled
                               ? "border-primary/30 bg-primary/[0.03]"
                               : "border-border bg-muted/20")
@@ -531,12 +531,13 @@ function PlansPage() {
                                 <Icon className="h-4 w-4" />
                               </div>
                               <div className="min-w-0">
-                                <div className="truncate text-sm font-medium">{def.label}</div>
+                                <div className="truncate text-xs font-bold sm:text-sm">{def.label}</div>
                               </div>
                             </div>
                             <Switch
                               checked={state.enabled}
                               onCheckedChange={(v) => patchMethod(def.code, { enabled: v })}
+                              className="scale-90 sm:scale-100"
                             />
                           </div>
 
@@ -609,6 +610,7 @@ function PlansPage() {
                           <Switch
                             checked={nb.pix_enabled}
                             onCheckedChange={(v) => patchNb({ pix_enabled: v })}
+                            className="scale-90 sm:scale-100"
                           />
                         </div>
                         {nb.pix_enabled && (
