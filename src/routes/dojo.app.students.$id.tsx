@@ -212,13 +212,40 @@ function StudentDetail() {
   if (q.isLoading || !q.data || !s) return <LoadingState />;
 
 
-  const onDeleteStudent = async () => {
-    if (!confirm(`Cancelar matrícula de ${s.full_name}? Esta ação apaga histórico de graduações, mensalidades e certificados.`)) return;
+  const openCancelDialog = () => setCancelDialog({ open: true, mode: "cancel", frozen_until: "" });
+  const confirmCancelAction = async () => {
+    setCancelBusy(true);
     try {
-      await delStudent({ data: { id } });
-      toast.success("Matrícula cancelada");
-      navigate({ to: "/dojo/app/students" });
-    } catch (e: any) { toast.error("Erro ao cancelar matrícula", { description: e.message }); }
+      if (cancelDialog.mode === "freeze") {
+        await freezeStudent({ data: { id, frozen_until: cancelDialog.frozen_until || null } });
+        toast.success("Matrícula congelada", { description: "Cobranças e fluxo do aluno foram pausados." });
+        setCancelDialog((d) => ({ ...d, open: false }));
+        refresh();
+      } else {
+        await delStudent({ data: { id } });
+        toast.success("Matrícula cancelada", { description: "Dados preservados por 30 dias." });
+        setCancelDialog((d) => ({ ...d, open: false }));
+        navigate({ to: "/dojo/app/students" });
+      }
+    } catch (e: any) {
+      toast.error("Erro", { description: e.message });
+    } finally {
+      setCancelBusy(false);
+    }
+  };
+  const doUnfreeze = async () => {
+    try {
+      await unfreezeStudent({ data: { id } });
+      toast.success("Matrícula reativada");
+      refresh();
+    } catch (e: any) { toast.error("Erro ao reativar", { description: e.message }); }
+  };
+  const doRestore = async () => {
+    try {
+      await restoreStudent({ data: { id } });
+      toast.success("Matrícula restaurada");
+      refresh();
+    } catch (e: any) { toast.error("Erro ao restaurar", { description: e.message }); }
   };
 
   const saveNote = async () => {
