@@ -232,6 +232,17 @@ function DojoLayout() {
     }
     themeMeta.setAttribute("content", "#dc2626");
 
+    // Swap apple-touch-icon para o ícone do Dojo (iOS home screen)
+    let appleIcon = head.querySelector<HTMLLinkElement>('link[rel="apple-touch-icon"]');
+    const prevApple = appleIcon?.getAttribute("href") ?? null;
+    if (!appleIcon) {
+      appleIcon = document.createElement("link");
+      appleIcon.rel = "apple-touch-icon";
+      appleIcon.setAttribute("sizes", "180x180");
+      head.appendChild(appleIcon);
+    }
+    appleIcon.setAttribute("href", "/dojo-icon-180.png");
+
     void import("@/lib/pwa/register").then((m) => m.registerPwa());
     // Garante captura global do beforeinstallprompt o mais cedo possível.
     void import("@/lib/pwa/install-prompt");
@@ -239,6 +250,7 @@ function DojoLayout() {
     return () => {
       if (previous) link!.setAttribute("href", previous);
       if (prevTheme && themeMeta) themeMeta.setAttribute("content", prevTheme);
+      if (prevApple && appleIcon) appleIcon.setAttribute("href", prevApple);
     };
   }, []);
 
