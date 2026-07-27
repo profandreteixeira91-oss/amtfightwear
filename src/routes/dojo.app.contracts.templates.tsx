@@ -128,50 +128,48 @@ function TemplatesLibraryPage() {
   return (
     <div className="space-y-4">
       <Card>
-        <CardContent className="p-4 flex flex-col md:flex-row gap-3 md:items-center">
+        <CardContent className="p-4 flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Buscar por nome do modelo…" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9" />
+            <Input placeholder="Buscar…" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9 h-10" />
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Filter className="h-4 w-4 shrink-0 text-muted-foreground" />
+          <div className="flex items-center gap-2 shrink-0">
             <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger className="w-full min-w-0 flex-1 sm:w-[190px] sm:flex-none"><SelectValue placeholder="Categoria" /></SelectTrigger>
+              <SelectTrigger className="w-[120px] h-10"><SelectValue placeholder="Categoria" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todas as categorias</SelectItem>
+                <SelectItem value="all">Todas</SelectItem>
                 {Object.entries(CONTRACT_CATEGORY_LABELS).map(([k, v]) => (
                   <SelectItem key={k} value={k}>{v}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger className="w-full min-w-0 flex-1 sm:w-[160px] sm:flex-none"><SelectValue placeholder="Status" /></SelectTrigger>
+              <SelectTrigger className="w-[120px] h-10"><SelectValue placeholder="Status" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos</SelectItem>
                 <SelectItem value="active">Ativo</SelectItem>
-                <SelectItem value="review">Em revisão</SelectItem>
-                <SelectItem value="inactive">Inativo</SelectItem>
+                <SelectItem value="review">Revisão</SelectItem>
                 <SelectItem value="archived">Arquivado</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline" size="icon" onClick={() => list.refetch()} className="shrink-0">
+            <Button variant="outline" size="icon" onClick={() => list.refetch()} className="h-10 w-10 shrink-0">
               <RefreshCw className="h-4 w-4" />
             </Button>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" disabled={installing} className="flex-1 sm:flex-none">
-                  <Sparkles className="h-4 w-4 mr-1" />
-                  {installing ? "Instalando…" : "Modelos prontos"}
+                <Button variant="outline" disabled={installing} className="flex-1 h-10 text-xs sm:text-sm">
+                  <Sparkles className="h-3.5 w-3.5 mr-1" />
+                  Prontos
                   <ChevronDown className="h-3.5 w-3.5 ml-1 opacity-60" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[calc(100vw-1.5rem)] max-w-[340px] max-h-[70vh] overflow-y-auto">
+              <DropdownMenuContent align="end" className="w-[calc(100vw-2rem)] max-w-[320px] max-h-[70vh] overflow-y-auto">
                 <DropdownMenuLabel className="flex items-center justify-between">
-                  <span>Biblioteca de modelos</span>
+                  <span className="text-xs">Modelos prontos</span>
                   <button
-                    className="text-[11px] text-primary hover:underline"
+                    className="text-[10px] text-primary hover:underline"
                     onClick={installAllPresets}
                     disabled={installing}
                   >
@@ -186,17 +184,17 @@ function TemplatesLibraryPage() {
                     className="flex flex-col items-start gap-0.5 py-2"
                   >
                     <div className="flex items-center gap-2 w-full">
-                      <Badge variant="outline" className={`${CATEGORY_COLORS[p.category] ?? ""} text-[10px]`}>
+                      <Badge variant="outline" className={`${CATEGORY_COLORS[p.category] ?? ""} text-[9px] px-1 h-4`}>
                         {CONTRACT_CATEGORY_LABELS[p.category] ?? p.category}
                       </Badge>
-                      <span className="text-sm font-medium truncate">{p.name}</span>
+                      <span className="text-xs font-medium truncate">{p.name}</span>
                     </div>
-                    <span className="text-[11px] text-muted-foreground line-clamp-2">{p.description}</span>
+                    <span className="text-[10px] text-muted-foreground line-clamp-1">{p.description}</span>
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button onClick={createNew} className="flex-1 sm:flex-none"><Plus className="h-4 w-4 mr-1" />Novo modelo</Button>
+            <Button onClick={createNew} className="flex-1 h-10 text-xs sm:text-sm"><Plus className="h-3.5 w-3.5 mr-1" />Novo</Button>
           </div>
         </CardContent>
       </Card>
