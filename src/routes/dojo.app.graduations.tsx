@@ -665,19 +665,20 @@ function NewGraduationPage() {
       {step === "select" && (
         <Card className="overflow-hidden shadow-sm">
           <CardHeader className="border-b bg-muted/30">
-            <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0">
                 <CardTitle className="flex items-center gap-2 text-base">
                   <DollarSign className="h-4 w-4 text-primary" />
                   Preços de graduação por faixa
                 </CardTitle>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Defina o valor fixo cobrado por faixa. O sistema gera automaticamente uma conta a receber no Financeiro para cada aluno graduado.
+                  Defina o valor fixo cobrado por faixa para gerar contas no Financeiro.
                 </p>
               </div>
               <Button
                 size="sm"
                 variant={showPricing ? "secondary" : "outline"}
+                className="w-full sm:w-auto"
                 onClick={() => {
                   const opening = !showPricing;
                   setShowPricing(opening);
@@ -702,31 +703,33 @@ function NewGraduationPage() {
               ? filteredByAcademy
               : filteredByAcademy.filter((b: any) => String(b.modality ?? "jiu-jitsu") === pricingModality);
             return (
-            <CardContent className="p-4 md:p-5 space-y-3">
+            <CardContent className="p-4 md:p-5 space-y-4">
               {acadMods.length === 0 ? (
                 <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
-                  Nenhuma modalidade definida em <a href="/dojo/app/account?tab=academy" className="font-medium underline">Minha Conta → Academia</a>. Exibindo todas as faixas cadastradas.
+                  Nenhuma modalidade definida em <a href="/dojo/app/account?tab=academy" className="font-medium underline">Minha Conta</a>.
                 </div>
               ) : (
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs text-muted-foreground">Modalidade:</span>
-                  <button
-                    type="button"
-                    onClick={() => setPricingModality("all")}
-                    className={`px-2.5 py-1 rounded-full text-xs border capitalize ${pricingModality === "all" ? "bg-primary text-primary-foreground border-primary" : "bg-background hover:bg-muted"}`}
-                  >
-                    Todas
-                  </button>
-                  {modalityOptions.map((m) => (
+                  <span className="text-xs font-medium text-muted-foreground">Filtrar:</span>
+                  <div className="flex flex-wrap gap-1.5">
                     <button
-                      key={m}
                       type="button"
-                      onClick={() => setPricingModality(m)}
-                      className={`px-2.5 py-1 rounded-full text-xs border capitalize ${pricingModality === m ? "bg-primary text-primary-foreground border-primary" : "bg-background hover:bg-muted"}`}
+                      onClick={() => setPricingModality("all")}
+                      className={`px-3 py-1 rounded-full text-xs border capitalize transition-colors ${pricingModality === "all" ? "bg-primary text-primary-foreground border-primary" : "bg-background hover:bg-muted"}`}
                     >
-                      {m}
+                      Todas
                     </button>
-                  ))}
+                    {modalityOptions.map((m) => (
+                      <button
+                        key={m}
+                        type="button"
+                        onClick={() => setPricingModality(m)}
+                        className={`px-3 py-1 rounded-full text-xs border capitalize transition-colors ${pricingModality === m ? "bg-primary text-primary-foreground border-primary" : "bg-background hover:bg-muted"}`}
+                      >
+                        {m}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
               <div className="flex flex-wrap items-end gap-2 rounded-lg border bg-muted/30 p-3">
