@@ -1243,6 +1243,34 @@ function StudentsPage() {
   );
 }
 
+function PaginationBar({ page, totalPages, onChange }: { page: number; totalPages: number; onChange: (p: number) => void }) {
+  const go = (p: number) => onChange(Math.min(Math.max(1, p), totalPages));
+  const pages: number[] = [];
+  const start = Math.max(1, page - 2);
+  const end = Math.min(totalPages, start + 4);
+  for (let i = start; i <= end; i++) pages.push(i);
+  return (
+    <div className="flex items-center gap-1">
+      <Button size="sm" variant="outline" onClick={() => go(1)} disabled={page === 1} aria-label="Primeira página">«</Button>
+      <Button size="sm" variant="outline" onClick={() => go(page - 1)} disabled={page === 1} aria-label="Página anterior">‹</Button>
+      {pages.map((p) => (
+        <Button
+          key={p}
+          size="sm"
+          variant={p === page ? "default" : "outline"}
+          onClick={() => go(p)}
+          className="min-w-9"
+        >
+          {p}
+        </Button>
+      ))}
+      <Button size="sm" variant="outline" onClick={() => go(page + 1)} disabled={page === totalPages} aria-label="Próxima página">›</Button>
+      <Button size="sm" variant="outline" onClick={() => go(totalPages)} disabled={page === totalPages} aria-label="Última página">»</Button>
+    </div>
+  );
+}
+
+
 function Field({
   label,
   className,
