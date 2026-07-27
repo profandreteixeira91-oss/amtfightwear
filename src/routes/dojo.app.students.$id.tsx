@@ -105,6 +105,8 @@ function StudentDetail() {
   const [activeTab, setActiveTab] = useState("pessoal");
   const [changePlan, setChangePlan] = useState({ open: false, plan_id: "", custom_amount: "", due_day: 5, start_date: new Date().toISOString().slice(0, 10) });
   const [changingPlan, setChangingPlan] = useState(false);
+  const [cancelDialog, setCancelDialog] = useState<{ open: boolean; mode: "cancel" | "freeze"; frozen_until: string }>({ open: false, mode: "cancel", frozen_until: "" });
+  const [cancelBusy, setCancelBusy] = useState(false);
 
   const refresh = () => qc.invalidateQueries({ queryKey: ["dojo-student", id] });
 
