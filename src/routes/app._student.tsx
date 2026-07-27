@@ -11,6 +11,7 @@ import { DEFAULT_CONFIG, type FeatureKey } from "@/lib/student-app/schema";
 import { Bell, LogOut } from "lucide-react";
 import { PushToggle } from "@/components/student/PushToggle";
 import { PushActivationPrompt } from "@/components/student/PushActivationPrompt";
+import { InstallReminderBanner } from "@/components/student/InstallReminderBanner";
 
 export const Route = createFileRoute("/app/_student")({
   ssr: false,
