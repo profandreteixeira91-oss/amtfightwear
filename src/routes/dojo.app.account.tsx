@@ -151,15 +151,24 @@ function AccountPage() {
   }
 
   async function updatePassword() {
-    if (password.length < 6) return toast.error("Senha muito curta");
+    if (!isPasswordStrong(password)) {
+      return toast.error("Senha não atende aos requisitos", {
+        description: "Cumpra todos os critérios da lista antes de continuar.",
+      });
+    }
+    if (password !== passwordConfirm) {
+      return toast.error("As senhas não coincidem");
+    }
     setSavingPwd(true);
     const { error } = await supabase.auth.updateUser({ password });
     setSavingPwd(false);
     if (error) return toast.error(error.message);
     setPassword("");
+    setPasswordConfirm("");
     await logAudit("password_changed");
     toast.success("Senha atualizada");
   }
+
 
   async function signOutAll() {
     await supabase.auth.signOut({ scope: "others" as any });
