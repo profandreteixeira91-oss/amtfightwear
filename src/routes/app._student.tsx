@@ -47,6 +47,7 @@ function StudentShell() {
 
   return (
     <StudentThemeProvider branding={branding} appearance={config.appearance}>
+      <StudentSplash />
       <InstallReminderBanner />
       <header
         className="sticky top-0 z-30 border-b bg-white/90 backdrop-blur"
