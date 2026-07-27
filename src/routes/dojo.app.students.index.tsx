@@ -1112,6 +1112,11 @@ function StudentsPage() {
                     onChange={(v) => set("lgpd_consent", v)}
                   />
                   <BoolChk
+                    label="Autorizo a coleta e processamento de biometria facial para identificação automática em check-ins por foto (Reconhecimento Facial)."
+                    checked={form.facial_recognition_consent}
+                    onChange={(v) => set("facial_recognition_consent", v)}
+                  />
+                  <BoolChk
                     label="Autorizo o uso da minha imagem em fotos e vídeos para divulgação da academia (redes sociais, site e materiais internos)."
                     checked={form.image_rights_consent}
                     onChange={(v) => set("image_rights_consent", v)}
