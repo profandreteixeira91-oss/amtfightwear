@@ -8,14 +8,15 @@ import type { Database } from "@/integrations/supabase/types";
  */
 export const SAAS_OWNER_EMAIL = "profandreteixeira91@gmail.com";
 
-export async function isSaasOwner(context: {
+type Ctx = {
   supabase: ReturnType<typeof createClient<Database>>;
   userId: string;
-  claims?: { email?: string | null } | null;
-}): Promise<boolean> {
-  const email = context.claims?.email?.toLowerCase() ?? null;
-  if (email && email === SAAS_OWNER_EMAIL) return true;
-  // Fallback: role amt_admin (para eventuais outros administradores)
+  claims?: Record<string, unknown> | null;
+};
+
+export async function isSaasOwner(context: Ctx): Promise<boolean> {
+  const email = (context.claims?.email as string | undefined)?.toLowerCase() ?? null;
+  if (email === SAAS_OWNER_EMAIL) return true;
   const { data } = await context.supabase.rpc("has_role", {
     _user_id: context.userId,
     _role: "amt_admin" as never,
@@ -23,6 +24,6 @@ export async function isSaasOwner(context: {
   return Boolean(data);
 }
 
-export async function assertSaasOwner(context: Parameters<typeof isSaasOwner>[0]) {
+export async function assertSaasOwner(context: Ctx) {
   if (!(await isSaasOwner(context))) throw new Error("Forbidden");
 }
