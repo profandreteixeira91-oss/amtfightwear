@@ -67,40 +67,40 @@ function VideosLibrary() {
         <div aria-hidden className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-red-600/25 blur-3xl" />
         <div aria-hidden className="pointer-events-none absolute -right-16 top-8 h-64 w-64 rounded-full bg-amber-500/15 blur-3xl" />
         <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_0%,rgba(255,255,255,0.06),transparent_45%)]" />
-        <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 p-5 sm:p-7 md:flex md:flex-wrap md:items-center md:justify-between">
-          <div className="flex min-w-0 items-start gap-4">
-            <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-amber-400 via-red-500 to-red-700 text-white shadow-[0_10px_25px_-10px_rgba(220,38,38,0.9)] ring-1 ring-white/20">
+        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6 p-5 sm:p-7">
+          <div className="flex items-start gap-4 min-w-0">
+            <div className="grid h-12 w-12 sm:h-14 sm:w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-amber-400 via-red-500 to-red-700 text-white shadow-[0_10px_25px_-10px_rgba(220,38,38,0.9)] ring-1 ring-white/20">
               <PlayCircle className="h-6 w-6" />
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-red-200 backdrop-blur">
                 <Flame className="h-3 w-3" /> Biblioteca
               </div>
-              <h1 className="mt-2 font-display text-2xl font-black leading-tight tracking-tight sm:text-3xl md:text-4xl">
+              <h1 className="mt-2 font-display text-xl font-black leading-tight tracking-tight sm:text-2xl md:text-3xl lg:text-4xl break-words">
                 Cada aula gravada, um legado técnico.
               </h1>
-              <p className="mt-1 max-w-xl text-sm text-neutral-300">
+              <p className="mt-1 max-w-xl text-xs sm:text-sm text-neutral-300 break-words">
                 Publique, organize e acompanhe o consumo dos conteúdos da sua academia.
               </p>
             </div>
           </div>
-          <div className="col-span-2 flex flex-wrap items-center gap-2 md:col-span-1">
-            <Button asChild variant="outline" className="border-white/15 bg-white/5 text-white hover:bg-white/10">
+          <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+            <Button asChild variant="outline" className="flex-1 md:flex-none h-9 text-xs border-white/15 bg-white/5 text-white hover:bg-white/10 px-3">
               <Link to="/dojo/app/videos/favoritos">
-                <StarIcon className="mr-2 h-4 w-4" />
-                Favoritos
+                <StarIcon className="mr-2 h-3.5 w-3.5" />
+                <span className="truncate">Favoritos</span>
               </Link>
             </Button>
-            <Button asChild variant="outline" className="border-white/15 bg-white/5 text-white hover:bg-white/10">
+            <Button asChild variant="outline" className="flex-1 md:flex-none h-9 text-xs border-white/15 bg-white/5 text-white hover:bg-white/10 px-3">
               <Link to="/dojo/app/videos/categorias">
-                <FolderTree className="mr-2 h-4 w-4" />
-                Categorias
+                <FolderTree className="mr-2 h-3.5 w-3.5" />
+                <span className="truncate">Categorias</span>
               </Link>
             </Button>
-            <Button asChild className="bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-400">
+            <Button asChild className="flex-1 md:flex-none h-9 text-xs bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-400 px-3">
               <Link to="/dojo/app/videos/novo">
-                <Plus className="mr-2 h-4 w-4" />
-                Novo Vídeo
+                <Plus className="mr-2 h-3.5 w-3.5" />
+                <span className="truncate">Novo Vídeo</span>
               </Link>
             </Button>
           </div>
