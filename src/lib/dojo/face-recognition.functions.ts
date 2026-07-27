@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { processClassPhoto as processPhotoServer } from "./face-recognition.server";
+import { validateAndResolveCheckin } from "./attendance.functions";
 
 export const startFaceRecognition = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -129,24 +130,49 @@ export const confirmSmartCheckins = createServerFn({ method: "POST" })
       
     if (!classPhoto) throw new Error("Foto da aula não encontrada");
 
-    // Perform check-ins for each confirmed student
-    const checkins = data.confirms
-      .filter(c => c.status === 'confirmed')
-      .map(c => ({
-        student_id: c.studentId,
-        unit_id: classPhoto.unit_id,
-        class_id: classPhoto.class_id,
-        method: "smart_photo",
-        notes: `Identificado via foto da aula (${data.classPhotoId})`,
-        created_by: context.userId,
-        owner_id: context.userId,
-        checked_in_at: new Date().toISOString()
-      }));
+    // Perform check-ins for each confirmed student with smart validation
+    let checkinCount = 0;
+    const errors: any[] = [];
 
-    if (checkins.length > 0) {
-      const { error } = await supa.from("dojo_attendance").insert(checkins);
-      if (error) throw new Error(error.message);
+    for (const c of data.confirms) {
+      if (c.status !== 'confirmed') continue;
+
+      try {
+        // Use smart validation (as override since it's confirmed by admin/teacher in the UI)
+        const validation = await validateAndResolveCheckin(
+          supa, 
+          c.studentId, 
+          context.userId, 
+          true, // isOverride
+          classPhoto.class_id
+        );
+
+        if (!validation.isValid) {
+          errors.push({ studentId: c.studentId, reason: validation.reason });
+          continue;
+        }
+
+        const { error } = await supa.from("dojo_attendance").insert({
+          student_id: c.studentId,
+          unit_id: classPhoto.unit_id,
+          class_id: validation.classId || classPhoto.class_id,
+          method: "smart_photo",
+          notes: `Identificado via foto da aula (${data.classPhotoId})`,
+          created_by: context.userId,
+          owner_id: context.userId,
+          checked_in_at: new Date().toISOString(),
+          validation_result: "valid",
+          validation_metadata: JSON.stringify({ smart_photo: true })
+        });
+
+        if (error) throw error;
+        checkinCount++;
+      } catch (err: any) {
+        errors.push({ studentId: c.studentId, error: err.message });
+      }
     }
+
+    return { ok: true, count: checkinCount, errors };
 
     // Update status in dojo_detected_faces (if we have a more granular update mechanism)
     // For now, let's just mark the class photo as processed/completed if needed.
