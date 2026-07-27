@@ -53,7 +53,7 @@ export function StudioLeft() {
         fixed inset-y-0 left-0 z-50 w-[320px] bg-white border-r border-neutral-200 flex transition-transform duration-300 ease-in-out
         md:static md:translate-x-0
         ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
-      `}>
+      `} style={{ height: 'calc(100% - 64px)' }}>
         <nav className="flex flex-col w-16 border-r border-neutral-200 bg-neutral-50 shrink-0 overflow-y-auto no-scrollbar">
           {SECTIONS.map((s) => (
             <button key={s.id} onClick={() => setTab(s.id)}

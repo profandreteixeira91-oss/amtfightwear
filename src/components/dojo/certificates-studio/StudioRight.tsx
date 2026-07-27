@@ -29,7 +29,7 @@ export function StudioRight() {
         fixed inset-y-0 right-0 z-50 w-[320px] bg-white border-l border-neutral-200 flex flex-col transition-transform duration-300 ease-in-out
         md:static md:translate-x-0
         ${mobileOpen && el ? "translate-x-0" : "translate-x-full"}
-      `}>
+      `} style={{ height: 'calc(100% - 64px)' }}>
         <div className="p-3 border-b border-neutral-200 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2">
              <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileOpen(false)}>
