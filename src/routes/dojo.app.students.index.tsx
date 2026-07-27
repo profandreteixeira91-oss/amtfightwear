@@ -161,6 +161,13 @@ function StudentsPage() {
   const PAGE_SIZE = 20;
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<StudentForm>(emptyForm);
+  const [tab, setTab] = useState<string>("dados");
+  const tabOrder = form.id
+    ? ["dados", "endereco", "contato", "dojo", "anamnese", "foto", "consent"]
+    : ["dados", "endereco", "contato", "dojo", "plano", "anamnese", "foto", "consent"];
+  const tabIndex = Math.max(0, tabOrder.indexOf(tab));
+  const isLastTab = tabIndex >= tabOrder.length - 1;
+  useEffect(() => { if (open) setTab("dados"); }, [open]);
   const [enrollment, setEnrollment] = useState({
     plan_id: "",
     due_day: 5,
@@ -505,7 +512,7 @@ function StudentsPage() {
                 </div>
               </DialogHeader>
 
-              <Tabs defaultValue="dados" className="w-full flex flex-col max-h-[calc(90vh-9rem)]">
+              <Tabs value={tab} onValueChange={setTab} className="w-full flex flex-col max-h-[calc(90vh-9rem)]">
                 <div className="px-6 pt-4 border-b bg-muted/20">
                   <TabsList className="h-auto w-full flex-wrap justify-start bg-transparent p-0 gap-1">
                     <TabsTrigger value="dados" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md px-3 py-2">
@@ -1055,9 +1062,20 @@ function StudentsPage() {
                 </p>
                 <div className="flex gap-2 ml-auto">
                   <Button variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
-                  <Button onClick={onSave}>
-                    {form.id ? "Salvar alterações" : "Cadastrar aluno"}
-                  </Button>
+                  {!isLastTab && (
+                    <Button variant="outline" onClick={() => setTab(tabOrder[tabIndex - 1])} disabled={tabIndex === 0}>
+                      Voltar
+                    </Button>
+                  )}
+                  {isLastTab ? (
+                    <Button onClick={onSave}>
+                      {form.id ? "Salvar alterações" : "Cadastrar aluno"}
+                    </Button>
+                  ) : (
+                    <Button onClick={() => setTab(tabOrder[tabIndex + 1])}>
+                      Continuar
+                    </Button>
+                  )}
                 </div>
               </div>
 
