@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { cn } from "@/lib/utils";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -83,34 +84,34 @@ function SubscriptionPage() {
     status === "trialing" || status === "pending" || status === "cancelled" || status === "paused";
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 p-6">
+    <div className="mx-auto max-w-3xl space-y-5 p-4 sm:p-6">
       <div className="flex items-center gap-3">
-        <div className="grid h-11 w-11 place-items-center rounded-xl bg-red-50 text-red-600">
+        <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-red-50 text-red-600 sm:h-11 sm:w-11">
           <CreditCard className="h-5 w-5" />
         </div>
-        <div>
-          <h1 className="text-2xl font-bold">Assinatura</h1>
-          <p className="text-sm text-neutral-500">
-            Plano AMT Dojo Manager — cobrado via Mercado Pago
+        <div className="min-w-0">
+          <h1 className="truncate text-xl font-bold sm:text-2xl">Assinatura</h1>
+          <p className="truncate text-xs text-neutral-500 sm:text-sm">
+            Plano AMT Dojo Manager — Mercado Pago
           </p>
         </div>
       </div>
 
       <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="flex items-center justify-between">
-            <span>Plano Único</span>
-            <Badge className={s.className}>
-              <s.Icon className="mr-1 h-3.5 w-3.5" /> {s.label}
+        <CardHeader className="p-4 sm:p-6 sm:pb-2">
+          <CardTitle className="flex items-center justify-between gap-2">
+            <span className="truncate text-base sm:text-lg">Plano Único</span>
+            <Badge className={cn("shrink-0 h-6 px-2 text-[10px] sm:text-xs", s.className)}>
+              <s.Icon className="mr-1 h-3 w-3 sm:h-3.5 sm:w-3.5" /> {s.label}
             </Badge>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-baseline gap-2">
-            <span className="text-4xl font-black">
+        <CardContent className="space-y-4 p-4 pt-0 sm:p-6 sm:pt-0">
+          <div className="flex items-baseline gap-1.5 sm:gap-2">
+            <span className="text-3xl font-black sm:text-4xl">
               R$ {PLAN_AMOUNT.toFixed(2).replace(".", ",")}
             </span>
-            <span className="text-sm text-neutral-500">/ mês</span>
+            <span className="text-[11px] text-neutral-500 sm:text-sm">/ mês</span>
           </div>
           <ul className="space-y-2 text-sm text-neutral-700">
             <li>• Alunos, agenda, avaliações e certificados</li>
