@@ -276,42 +276,85 @@ export function StoreShell({ children, categories }: { children: ReactNode; cate
 
 
 
-        {/* Categories nav — simplified: single row of main categories */}
+        {/* Categories nav — dropdowns with subcategories */}
         {topCategories.length > 0 && (() => {
           const findBy = (re: RegExp) => topCategories.find((c) => re.test(c.name));
           const kimono = findBy(/kimono/i);
-          const faixa = findBy(/faixa/i);
+          const faixaBjj = topCategories.find((c) => /faixa/i.test(c.name) && /jiu|bjj/i.test(c.name)) ?? findBy(/faixa/i);
+          const faixaJudo = topCategories.find((c) => /faixa/i.test(c.name) && /jud[oô]/i.test(c.name));
+          const patches = findBy(/patch/i);
           const rash = findBy(/rash|roupa|short|camis/i);
-          const primary: Array<{ label: string; slug?: string; to?: string; highlight?: boolean }> = [
-            { label: "Kimonos", slug: kimono?.slug },
-            { label: "Faixas", slug: faixa?.slug },
-            { label: "Rashguards & Roupas", slug: rash?.slug },
-            { label: "Custom Shop", to: "/loja/custom-shop", highlight: true },
-            { label: "Atacado", to: "/loja/atacado" },
-          ].filter((n) => n.slug || n.to);
+
+          type NavItem = { label: string; category?: StoreCategory; to?: string; highlight?: boolean };
+          const primary: NavItem[] = [
+            kimono && { label: "Kimonos", category: kimono },
+            faixaBjj && { label: "Faixas BJJ", category: faixaBjj },
+            faixaJudo && { label: "Faixas Judô", category: faixaJudo },
+            patches && { label: "Patches", category: patches },
+            rash && { label: "Rashguards & Roupas", category: rash },
+            { label: "Custom Shop", to: "/loja/custom-shop", highlight: true } as NavItem,
+            { label: "Atacado", to: "/loja/atacado" } as NavItem,
+          ].filter(Boolean) as NavItem[];
+
           return (
             <nav className="hidden md:block border-t bg-background">
-              <div className="mx-auto flex max-w-7xl items-stretch justify-center gap-2 px-4 text-sm font-semibold">
-                {primary.map((n) =>
-                  n.to ? (
-                    <Link
-                      key={n.label}
-                      to={n.to}
-                      className={`whitespace-nowrap px-5 py-3.5 tracking-wide transition-colors ${n.highlight ? "text-primary hover:opacity-80" : "text-foreground hover:text-primary"}`}
-                    >
-                      {n.label}
-                    </Link>
-                  ) : (
-                    <Link
-                      key={n.label}
-                      to="/loja/categoria/$slug"
-                      params={{ slug: n.slug! }}
-                      className="whitespace-nowrap px-5 py-3.5 tracking-wide text-foreground transition-colors hover:text-primary"
-                    >
-                      {n.label}
-                    </Link>
-                  ),
-                )}
+              <div className="mx-auto flex max-w-7xl items-stretch justify-center gap-1 px-4 text-sm font-semibold">
+                {primary.map((n) => {
+                  if (n.to) {
+                    return (
+                      <Link
+                        key={n.label}
+                        to={n.to}
+                        className={`whitespace-nowrap px-5 py-3.5 tracking-wide transition-colors ${n.highlight ? "text-primary hover:opacity-80" : "text-foreground hover:text-primary"}`}
+                      >
+                        {n.label}
+                      </Link>
+                    );
+                  }
+                  const cat = n.category!;
+                  const kids = cat.id ? childrenByParent.get(cat.id) ?? [] : [];
+                  if (kids.length === 0) {
+                    return (
+                      <Link
+                        key={n.label}
+                        to="/loja/categoria/$slug"
+                        params={{ slug: cat.slug }}
+                        className="whitespace-nowrap px-5 py-3.5 tracking-wide text-foreground transition-colors hover:text-primary"
+                      >
+                        {n.label}
+                      </Link>
+                    );
+                  }
+                  return (
+                    <div key={n.label} className="group/nav relative">
+                      <Link
+                        to="/loja/categoria/$slug"
+                        params={{ slug: cat.slug }}
+                        className="flex items-center gap-1 whitespace-nowrap px-5 py-3.5 tracking-wide text-foreground transition-colors hover:text-primary group-hover/nav:text-primary"
+                        aria-haspopup="menu"
+                      >
+                        {n.label}
+                        <ChevronDown className="h-3.5 w-3.5 opacity-60 transition-transform group-hover/nav:rotate-180" />
+                      </Link>
+                      <div
+                        className="invisible absolute left-1/2 top-full z-50 min-w-[260px] -translate-x-1/2 translate-y-1 rounded-md border bg-popover p-2 opacity-0 shadow-xl transition-all duration-150 group-hover/nav:visible group-hover/nav:translate-y-0 group-hover/nav:opacity-100 focus-within:visible focus-within:translate-y-0 focus-within:opacity-100"
+                        role="menu"
+                      >
+                        <Link
+                          to="/loja/categoria/$slug"
+                          params={{ slug: cat.slug }}
+                          className="block rounded px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:bg-accent hover:text-foreground"
+                        >
+                          Ver tudo em {cat.name}
+                        </Link>
+                        <div className="my-1 h-px bg-border" />
+                        {kids.map((k) => (
+                          <SubcategoryItem key={k.slug} category={k} childrenByParent={childrenByParent} />
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </nav>
           );
