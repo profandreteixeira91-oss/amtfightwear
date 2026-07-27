@@ -895,19 +895,42 @@ function InvoiceTable({ rows, pending }: { rows: any[]; pending?: boolean }) {
 }
 
 /* ---------------- Security ---------------- */
-function SecurityTab({ password, setPassword, saving, onSubmit, lastSignIn, audit }: any) {
+function SecurityTab({ password, setPassword, passwordConfirm, setPasswordConfirm, saving, onSubmit, lastSignIn, audit }: any) {
+  const strong = isPasswordStrong(password);
+  const matches = password.length > 0 && password === passwordConfirm;
+  const canSubmit = strong && matches && !saving;
   return (
     <div className="space-y-4">
       <Card>
         <CardHeader><CardTitle>Alterar senha</CardTitle></CardHeader>
-        <CardContent className="space-y-3 max-w-md">
+        <CardContent className="space-y-4 max-w-md">
           <Field label="Nova senha">
-            <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mínimo 6 caracteres" />
+            <Input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Crie uma senha forte"
+              autoComplete="new-password"
+            />
           </Field>
-          <Button onClick={onSubmit} disabled={saving}>
+          <PasswordStrength password={password} />
+          <Field label="Confirmar nova senha">
+            <Input
+              type="password"
+              value={passwordConfirm}
+              onChange={(e) => setPasswordConfirm(e.target.value)}
+              placeholder="Digite a senha novamente"
+              autoComplete="new-password"
+            />
+            {passwordConfirm.length > 0 && !matches && (
+              <p className="mt-1 text-xs text-red-600">As senhas não coincidem.</p>
+            )}
+          </Field>
+          <Button onClick={onSubmit} disabled={!canSubmit}>
             <KeyRound className="h-4 w-4 mr-1" />{saving ? "Salvando..." : "Atualizar senha"}
           </Button>
         </CardContent>
+
       </Card>
       <Card>
         <CardHeader><CardTitle>Autenticação em dois fatores</CardTitle></CardHeader>
