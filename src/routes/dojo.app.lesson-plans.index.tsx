@@ -40,6 +40,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/dojo/app/lesson-plans/")({
   component: LessonPlansDashboardPage,
@@ -169,11 +170,11 @@ function LessonPlansDashboardPage() {
   return (
     <div className="space-y-6">
       {/* KPI CARDS */}
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <KpiCard label="Planejadas (semana)" value={stats?.week_planned ?? 0} icon={CalendarDays} tone="sky" />
-        <KpiCard label="Realizadas (semana)" value={stats?.week_done ?? 0} icon={CheckCircle2} tone="emerald" />
-        <KpiCard label="Horas planejadas" value={formatHours(stats?.total_planned_min ?? 0)} icon={Clock} tone="violet" />
-        <KpiCard label="Turmas ativas" value={stats?.active_classes ?? 0} icon={Users} tone="amber" />
+      <div className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-4">
+        <KpiCard label="Semana" value={stats?.week_planned ?? 0} icon={CalendarDays} tone="sky" />
+        <KpiCard label="Realizadas" value={stats?.week_done ?? 0} icon={CheckCircle2} tone="emerald" />
+        <KpiCard label="Horas" value={formatHours(stats?.total_planned_min ?? 0)} icon={Clock} tone="violet" />
+        <KpiCard label="Turmas" value={stats?.active_classes ?? 0} icon={Users} tone="amber" />
       </div>
 
       {stats?.next_lesson ? (
@@ -182,8 +183,8 @@ function LessonPlansDashboardPage() {
           <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0 flex-1 space-y-1">
               <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-red-300">Próxima aula</div>
-              <div className="break-words text-lg font-bold leading-tight">{stats.next_lesson.title}</div>
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-neutral-300">
+              <div className="break-words text-lg font-bold leading-tight sm:text-xl">{stats.next_lesson.title}</div>
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs sm:text-sm text-neutral-300">
                 <span className="shrink-0">{new Date(stats.next_lesson.date).toLocaleDateString("pt-BR")}</span>
                 {stats.next_lesson.start_time && <span className="shrink-0">· {stats.next_lesson.start_time.slice(0, 5)}</span>}
                 {(stats.next_lesson.dojo_classes as { name?: string } | null)?.name && (
@@ -201,47 +202,53 @@ function LessonPlansDashboardPage() {
       ) : null}
 
       {/* CALENDAR HEADER */}
-      <div className="rounded-2xl border border-white/10 bg-neutral-950/60 p-3 backdrop-blur">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-1">
-            <Button variant="outline" size="icon" className="border-white/15 bg-white/5 text-white hover:bg-white/10" onClick={() => setAnchor(addDays(anchor, view === "month" ? -30 : -7))}>
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="sm" className="border-white/15 bg-white/5 text-white hover:bg-white/10" onClick={() => setAnchor(new Date())}>
-              Hoje
-            </Button>
-            <Button variant="outline" size="icon" className="border-white/15 bg-white/5 text-white hover:bg-white/10" onClick={() => setAnchor(addDays(anchor, view === "month" ? 30 : 7))}>
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-            <span className="ml-3 text-sm font-semibold capitalize text-neutral-200">{formatRangeLabel(range.from, range.to, view)}</span>
+      <div className="rounded-2xl border border-white/10 bg-neutral-950/60 p-3 sm:p-4 backdrop-blur">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center justify-between gap-1 sm:justify-start">
+            <div className="flex items-center gap-1">
+              <Button variant="outline" size="icon" className="h-9 w-9 border-white/15 bg-white/5 text-white hover:bg-white/10" onClick={() => setAnchor(addDays(anchor, view === "month" ? -30 : -7))}>
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="sm" className="h-9 border-white/15 bg-white/5 text-white hover:bg-white/10" onClick={() => setAnchor(new Date())}>
+                Hoje
+              </Button>
+              <Button variant="outline" size="icon" className="h-9 w-9 border-white/15 bg-white/5 text-white hover:bg-white/10" onClick={() => setAnchor(addDays(anchor, view === "month" ? 30 : 7))}>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+            <span className="ml-2 text-xs font-semibold capitalize text-neutral-200 sm:ml-3 sm:text-sm">{formatRangeLabel(range.from, range.to, view)}</span>
           </div>
-          <div className="flex flex-wrap items-center gap-1">
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-1.5">
             {(["week", "month", "list"] as ViewMode[]).map((v) => (
               <Button
                 key={v}
                 size="sm"
                 variant={view === v ? "default" : "outline"}
                 className={
-                  view === v
-                    ? "bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_6px_16px_-8px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-400"
-                    : "border-white/15 bg-white/5 text-white hover:bg-white/10"
+                  cn(
+                    "h-9 text-[11px] sm:text-sm",
+                    view === v
+                      ? "bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_6px_16px_-8px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-400"
+                      : "border-white/15 bg-white/5 text-white hover:bg-white/10",
+                    v === "list" ? "col-span-2 sm:col-span-1" : ""
+                  )
                 }
                 onClick={() => setView(v)}
               >
-                {v === "week" ? "Semana" : v === "month" ? "Mês" : "Lista"}
+                {v === "week" ? "Semana" : v === "month" ? "Mês" : "Lista completa"}
               </Button>
             ))}
             <Dialog>
               <DialogTrigger asChild>
-                <Button size="sm" variant="outline" className="ml-2 border-amber-400/40 bg-amber-400/10 text-amber-100 hover:bg-amber-400/20">
-                  <Sparkles className="mr-1 h-4 w-4" /> Aplicar modelo
+                <Button size="sm" variant="outline" className="h-9 text-[11px] border-amber-400/40 bg-amber-400/10 text-amber-100 hover:bg-amber-400/20 sm:text-sm">
+                  <Sparkles className="mr-1 h-3.5 w-3.5" /> <span className="truncate">Modelo</span>
                 </Button>
               </DialogTrigger>
               <TemplatePickerDialog onPick={(payload) => createFromTpl.mutate(payload)} />
             </Dialog>
 
-            <Button size="sm" className="ml-1 bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_6px_16px_-8px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-400" onClick={() => createDraft.mutate(fmt(new Date()))}>
-              <Plus className="mr-1 h-4 w-4" /> Em branco
+            <Button size="sm" className="h-9 text-[11px] bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_6px_16_px_-8px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-400 sm:text-sm" onClick={() => createDraft.mutate(fmt(new Date()))}>
+              <Plus className="mr-1 h-3.5 w-3.5" /> <span className="truncate">Novo</span>
             </Button>
           </div>
         </div>
@@ -307,15 +314,15 @@ function KpiCard({
   } as const;
   const t = toneMap[tone];
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-neutral-950/70 p-4 text-white backdrop-blur">
-      <div aria-hidden className={`pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-gradient-to-br ${t.grad} opacity-20 blur-2xl`} />
-      <div className="relative flex items-center gap-3">
-        <div className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br ${t.grad} text-white ring-1 ${t.ring} ${t.glow}`}>
-          <Icon className="h-5 w-5" />
+    <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-neutral-950/70 p-3 sm:p-4 text-white backdrop-blur">
+      <div aria-hidden className={`pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full bg-gradient-to-br ${t.grad} opacity-20 blur-2xl sm:h-24 sm:w-24`} />
+      <div className="relative flex items-center gap-2.5 sm:gap-3">
+        <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br ${t.grad} text-white ring-1 ${t.ring} ${t.glow} sm:h-11 sm:w-11`}>
+          <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
         </div>
         <div className="min-w-0">
-          <div className="text-[11px] font-medium uppercase tracking-wide text-neutral-400">{label}</div>
-          <div className="text-2xl font-black tracking-tight">{value}</div>
+          <div className="truncate text-[9px] font-medium uppercase tracking-wider text-neutral-400 sm:text-[11px]">{label}</div>
+          <div className="truncate text-lg font-black tracking-tight sm:text-2xl">{value}</div>
         </div>
       </div>
     </div>
@@ -341,11 +348,12 @@ function WeekView({ from, plans, onCreate }: { from: Date; plans: PlanRow[]; onC
         return (
           <div
             key={key}
-            className={`min-h-[160px] rounded-xl border p-2 backdrop-blur transition-colors ${
+            className={cn(
+              "min-h-[160px] rounded-xl border p-2 backdrop-blur transition-colors",
               isToday
                 ? "border-red-500/40 bg-gradient-to-br from-red-950/40 via-neutral-950/70 to-neutral-950/70 shadow-[0_10px_30px_-20px_rgba(220,38,38,0.7)]"
                 : "border-white/10 bg-neutral-950/50 hover:border-white/20"
-            }`}
+            )}
           >
             <div className="mb-2 flex items-center justify-between">
               <div className={`text-xs font-semibold capitalize ${isToday ? "text-red-200" : "text-neutral-300"}`}>
@@ -365,7 +373,10 @@ function WeekView({ from, plans, onCreate }: { from: Date; plans: PlanRow[]; onC
                   key={p.id}
                   to="/dojo/app/lesson-plans/$id"
                   params={{ id: p.id as string }}
-                  className={`block rounded-md border px-2 py-1 text-xs backdrop-blur transition-transform hover:scale-[1.02] ${STATUS_COLORS[p.status as string] ?? "border-white/10 bg-white/5 text-white"}`}
+                  className={cn(
+                    "block rounded-md border px-2 py-1 text-[10px] sm:text-xs backdrop-blur transition-transform hover:scale-[1.02]",
+                    STATUS_COLORS[p.status as string] ?? "border-white/10 bg-white/5 text-white"
+                  )}
                 >
                   <div className="break-words font-semibold leading-tight">{p.title}</div>
                   {p.start_time ? <div className="mt-0.5 opacity-70">{(p.start_time as string).slice(0, 5)}</div> : null}

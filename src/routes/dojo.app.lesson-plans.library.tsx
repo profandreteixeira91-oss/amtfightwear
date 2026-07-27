@@ -60,14 +60,14 @@ function LibraryPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="relative min-w-[180px] flex-1">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input className="pl-8" placeholder="Buscar conteúdo…" value={search} onChange={(e) => setSearch(e.target.value)} />
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <div className="relative min-w-0 flex-1">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input className="h-9 pl-9 text-sm" placeholder="Buscar conteúdo…" value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
         <Input
-          className="w-full sm:w-52"
-          placeholder="Filtrar por modalidade"
+          className="h-9 w-full text-sm sm:w-48"
+          placeholder="Modalidade"
           value={modality}
           onChange={(e) => setModality(e.target.value)}
         />
@@ -97,7 +97,7 @@ function LibraryPage() {
         </Dialog>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
         {(rows ?? []).map((c) => (
           <Card key={c.id} className="overflow-hidden">
             {c.image_url ? (
@@ -110,27 +110,28 @@ function LibraryPage() {
             <CardContent className="p-4">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0 flex-1 space-y-0.5">
-                  <div className="break-words font-semibold leading-tight">{c.name}</div>
-                  <div className="flex flex-wrap gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
+                  <div className="line-clamp-2 text-xs font-bold leading-tight sm:text-sm">{c.name}</div>
+                  <div className="flex flex-wrap gap-x-1.5 gap-y-0.5 text-[10px] text-muted-foreground">
                     <span className="truncate">{c.modality ?? "—"}</span>
                     {c.category && <span className="truncate">· {c.category}</span>}
                   </div>
                 </div>
-                <div className="flex gap-1">
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => {
-                      setEditing(c);
-                      setOpen(true);
-                    }}
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button size="icon" variant="ghost" onClick={() => remove.mutate(c.id as string)}>
-                    <Trash2 className="h-4 w-4 text-red-500" />
-                  </Button>
-                </div>
+                  <div className="flex flex-col gap-0.5 sm:flex-row">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-7 w-7 sm:h-8 sm:w-8"
+                      onClick={() => {
+                        setEditing(c);
+                        setOpen(true);
+                      }}
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button size="icon" variant="ghost" className="h-7 w-7 sm:h-8 sm:w-8" onClick={() => remove.mutate(c.id as string)}>
+                      <Trash2 className="h-3.5 w-3.5 text-red-500" />
+                    </Button>
+                  </div>
               </div>
               {c.description ? <p className="mt-2 break-words text-sm text-muted-foreground">{c.description}</p> : null}
               <div className="mt-2 flex flex-wrap gap-1">

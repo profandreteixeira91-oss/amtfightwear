@@ -277,34 +277,34 @@ function LessonEditorPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <Button variant="ghost" size="sm" onClick={() => navigate({ to: "/dojo/app/lesson-plans" })} className="shrink-0">
-          <ChevronLeft className="mr-1 h-4 w-4" /> Voltar
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <Button variant="ghost" size="sm" onClick={() => navigate({ to: "/dojo/app/lesson-plans" })} className="h-8 w-fit shrink-0 text-xs sm:h-9 sm:text-sm">
+          <ChevronLeft className="mr-1 h-3.5 w-3.5 sm:h-4 sm:w-4" /> Voltar
         </Button>
-        <div className="flex min-w-0 flex-wrap items-center gap-2">
-          <span className="min-w-0 max-w-[180px] truncate text-xs text-muted-foreground sm:max-w-none">
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
+          <span className="col-span-2 text-[10px] text-muted-foreground sm:col-span-1 sm:mr-2">
             {save.isPending ? "Salvando…" : save.isSuccess ? "Salvo automaticamente" : ""}
           </span>
           <Dialog>
             <DialogTrigger asChild>
-              <Button size="sm" variant="outline">
-                <BookmarkPlus className="mr-1 h-4 w-4" /> Salvar como modelo
+              <Button size="sm" variant="outline" className="h-9 w-full gap-1.5 px-3 text-xs sm:w-auto">
+                <BookmarkPlus className="h-3.5 w-3.5" /> <span className="truncate">Modelo</span>
               </Button>
             </DialogTrigger>
             <SaveTemplateDialog defaultName={form.title} onSave={(name) => saveTpl.mutate(name)} />
           </Dialog>
           <Dialog>
             <DialogTrigger asChild>
-              <Button size="sm" variant="outline">
-                <Copy className="mr-1 h-4 w-4" /> Duplicar em massa
+              <Button size="sm" variant="outline" className="h-9 w-full gap-1.5 px-3 text-xs sm:w-auto">
+                <Copy className="h-3.5 w-3.5" /> <span className="truncate">Massa</span>
               </Button>
             </DialogTrigger>
             <BulkDuplicateDialog onConfirm={(input) => bulkDup.mutate(input)} pending={bulkDup.isPending} />
           </Dialog>
           <Dialog>
             <DialogTrigger asChild>
-              <Button size="sm" variant="default" className="bg-emerald-600 hover:bg-emerald-700">
-                <ClipboardCheck className="mr-1 h-4 w-4" /> Registrar aula ministrada
+              <Button size="sm" variant="default" className="h-9 w-full bg-emerald-600 hover:bg-emerald-700 col-span-2 sm:col-span-1 sm:w-auto">
+                <ClipboardCheck className="mr-1 h-4 w-4" /> Registrar aula
               </Button>
             </DialogTrigger>
             <RegisterDeliveryDialog
@@ -313,11 +313,11 @@ function LessonEditorPage() {
               onConfirm={(input) => register.mutate(input)}
             />
           </Dialog>
-          <Button size="sm" onClick={() => save.mutate(form)} disabled={save.isPending}>
-            <Save className="mr-1 h-4 w-4" /> Salvar agora
+          <Button size="sm" onClick={() => save.mutate(form)} disabled={save.isPending} className="h-9 text-xs">
+            <Save className="mr-1 h-3.5 w-3.5" /> Salvar
           </Button>
-          <Button size="sm" variant="destructive" onClick={() => remove.mutate()}>
-            <Trash2 className="mr-1 h-4 w-4" /> Excluir
+          <Button size="sm" variant="destructive" onClick={() => remove.mutate()} className="h-9 text-xs">
+            <Trash2 className="mr-1 h-3.5 w-3.5" /> Excluir
           </Button>
         </div>
       </div>
@@ -327,10 +327,10 @@ function LessonEditorPage() {
         <CardHeader className="pb-3">
           <CardTitle>Informações gerais</CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          <div className="md:col-span-2">
-            <Label>Título</Label>
-            <Input value={form.title} onChange={(e) => patch({ title: e.target.value })} />
+        <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="sm:col-span-2">
+            <Label className="text-xs sm:text-sm">Título</Label>
+            <Input value={form.title} onChange={(e) => patch({ title: e.target.value })} className="h-9 sm:h-10 text-sm" />
           </div>
           <div className="md:col-span-2">
             <Label>Turma</Label>

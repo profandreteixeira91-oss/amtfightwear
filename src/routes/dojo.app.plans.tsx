@@ -279,13 +279,13 @@ function PlansPage() {
           {/* ============ SIDEBAR ============ */}
           <aside className="space-y-2 lg:sticky lg:top-4 lg:self-start">
             <Card className="dojo-card overflow-hidden">
-              <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
-                <CardTitle className="text-sm font-semibold">Planos cadastrados</CardTitle>
-                <Badge variant="secondary" className="text-xs">
+              <CardHeader className="flex flex-row items-center justify-between gap-2 p-3 sm:p-4">
+                <CardTitle className="text-xs font-bold uppercase tracking-wider sm:text-sm">Planos</CardTitle>
+                <Badge variant="secondary" className="h-5 px-1.5 text-[10px] font-bold">
                   {plans.data?.length ?? 0}
                 </Badge>
               </CardHeader>
-              <CardContent className="p-2">
+              <CardContent className="p-1.5 sm:p-2">
                 <div className="max-h-[60vh] space-y-1 overflow-y-auto pr-1">
                   {(plans.data ?? []).map((p: any) => {
                     const active = selectedId === p.id;
@@ -348,53 +348,55 @@ function PlansPage() {
             ) : (
               <>
                 {/* Ações do topo */}
-                <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0">
-                    <h2 className="truncate text-lg font-semibold">
+                    <h2 className="truncate text-lg font-bold tracking-tight">
                       {form.id ? form.name || "Sem nome" : "Novo plano"}
                     </h2>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-[11px] text-muted-foreground sm:text-xs">
                       {enabledCount > 0
-                        ? `${enabledCount} forma(s) de pagamento habilitada(s)`
-                        : "Nenhuma forma de pagamento habilitada"}
+                        ? `${enabledCount} forma(s) de pagamento ativa(s)`
+                        : "Nenhuma forma de pagamento ativa"}
                     </p>
                   </div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <div className="flex items-center gap-2 rounded-md border px-3 py-1.5">
-                      <Label htmlFor="plan-active" className="text-xs">
+                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                    <div className="flex items-center gap-2 rounded-md border border-[color:var(--dojo-border)] bg-white px-2 py-1 sm:px-3 sm:py-1.5">
+                      <Label htmlFor="plan-active" className="text-[10px] font-semibold uppercase tracking-wider sm:text-xs">
                         Ativo
                       </Label>
                       <Switch
                         id="plan-active"
                         checked={form.active}
                         onCheckedChange={(v) => patch({ active: v })}
+                        className="scale-75 sm:scale-100"
                       />
                     </div>
                     {form.id && (
-                      <>
-                        <Button size="sm" variant="outline" onClick={onDuplicate} className="gap-1.5">
-                          <Copy className="h-3.5 w-3.5" /> Duplicar
+                      <div className="flex gap-1.5">
+                        <Button size="sm" variant="outline" onClick={onDuplicate} className="h-8 gap-1.5 rounded-full px-3 text-xs sm:h-9">
+                          <Copy className="h-3.5 w-3.5" /> <span className="hidden xs:inline">Duplicar</span>
                         </Button>
-                        <Button size="sm" variant="destructive" onClick={onDelete} className="gap-1.5">
-                          <Trash2 className="h-3.5 w-3.5" /> Excluir
+                        <Button size="sm" variant="destructive" onClick={onDelete} className="h-8 gap-1.5 rounded-full px-3 text-xs sm:h-9">
+                          <Trash2 className="h-3.5 w-3.5" /> <span className="hidden xs:inline">Excluir</span>
                         </Button>
-                      </>
+                      </div>
                     )}
-                    <Button size="sm" onClick={onSave} disabled={saving || !dirty} className="gap-1.5">
+                    <Button size="sm" onClick={onSave} disabled={saving || !dirty} className="h-8 gap-1.5 rounded-full px-4 text-xs sm:h-9">
                       <Save className="h-3.5 w-3.5" />
-                      {saving ? "Salvando..." : "Salvar"}
+                      {saving ? "..." : "Salvar"}
                     </Button>
                   </div>
                 </div>
 
                 {/* Informações gerais */}
                 <SectionCard title="Informações Gerais" icon={Info}>
-                  <div className="grid gap-4 md:grid-cols-2">
+                  <div className="grid gap-3 sm:gap-4 md:grid-cols-2">
                     <Field label="Nome do plano" required>
                       <Input
                         value={form.name}
                         onChange={(e) => patch({ name: e.target.value })}
                         placeholder="Ex.: Mensal, Trimestral, Kids..."
+                        className="h-9 sm:h-10 text-sm"
                       />
                     </Field>
                     <Field label="Unidade">
@@ -430,6 +432,7 @@ function PlansPage() {
                         min="0"
                         value={form.amount}
                         onChange={(e) => patch({ amount: e.target.value })}
+                        className="h-9 sm:h-10 text-sm"
                       />
                     </Field>
                     <Field label="Taxa de matrícula (R$)" hint="Opcional — cobrada uma única vez">
@@ -439,6 +442,7 @@ function PlansPage() {
                         min="0"
                         value={form.enrollment_fee}
                         onChange={(e) => patch({ enrollment_fee: e.target.value })}
+                        className="h-9 sm:h-10 text-sm"
                       />
                     </Field>
                     <Field label="Frequência">
@@ -500,7 +504,7 @@ function PlansPage() {
                     Somente os métodos habilitados aqui aparecerão como opções ao registrar manualmente as
                     mensalidades deste plano.
                   </p>
-                  <div className="grid gap-3 md:grid-cols-2">
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                     {PAYMENT_METHODS.map((def) => {
                       const state = form.payment_methods.find((m) => m.code === def.code)!;
                       const Icon = def.icon;
@@ -508,7 +512,7 @@ function PlansPage() {
                         <div
                           key={def.code}
                           className={
-                            "rounded-lg border p-3 transition-colors " +
+                            "rounded-xl border p-2.5 transition-colors sm:p-3 " +
                             (state.enabled
                               ? "border-primary/30 bg-primary/[0.03]"
                               : "border-border bg-muted/20")
@@ -527,12 +531,13 @@ function PlansPage() {
                                 <Icon className="h-4 w-4" />
                               </div>
                               <div className="min-w-0">
-                                <div className="truncate text-sm font-medium">{def.label}</div>
+                                <div className="truncate text-xs font-bold sm:text-sm">{def.label}</div>
                               </div>
                             </div>
                             <Switch
                               checked={state.enabled}
                               onCheckedChange={(v) => patchMethod(def.code, { enabled: v })}
+                              className="scale-90 sm:scale-100"
                             />
                           </div>
 
@@ -605,6 +610,7 @@ function PlansPage() {
                           <Switch
                             checked={nb.pix_enabled}
                             onCheckedChange={(v) => patchNb({ pix_enabled: v })}
+                            className="scale-90 sm:scale-100"
                           />
                         </div>
                         {nb.pix_enabled && (
@@ -756,15 +762,15 @@ function PlansPage() {
                 </SectionCard>
 
                 {/* Rodapé — salvar novamente */}
-                <div className="flex items-center justify-between rounded-lg border bg-muted/30 p-3">
-                  <p className="text-xs text-muted-foreground">
+                <div className="flex flex-col gap-3 rounded-xl border border-[color:var(--dojo-border)] bg-muted/30 p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4">
+                  <p className="text-[10px] text-muted-foreground sm:text-xs">
                     {dirty
-                      ? "Você tem alterações não salvas."
-                      : "Todas as alterações foram salvas."}
+                      ? "Você possui alterações não salvas neste plano."
+                      : "Todas as alterações foram salvas com sucesso."}
                   </p>
-                  <Button onClick={onSave} disabled={saving || !dirty} className="gap-1.5">
+                  <Button onClick={onSave} disabled={saving || !dirty} className="h-9 gap-2 rounded-full px-5 text-xs sm:h-10 sm:text-sm">
                     <Save className="h-4 w-4" />
-                    {saving ? "Salvando..." : "Salvar plano"}
+                    {saving ? "..." : "Salvar plano"}
                   </Button>
                 </div>
               </>
@@ -789,15 +795,15 @@ function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <Card className="dojo-card">
-      <CardHeader className="flex flex-row items-center justify-between gap-2 pb-3">
-        <CardTitle className="flex items-center gap-2 text-sm">
-          <Icon className="h-4 w-4 text-primary" />
+    <Card className="dojo-card overflow-hidden">
+      <CardHeader className="flex flex-row items-center justify-between gap-2 p-3 sm:p-4 sm:pb-3">
+        <CardTitle className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider sm:gap-2 sm:text-sm">
+          <Icon className="h-3.5 w-3.5 text-primary sm:h-4 sm:w-4" />
           {title}
         </CardTitle>
         {right}
       </CardHeader>
-      <CardContent className="pt-0">{children}</CardContent>
+      <CardContent className="p-3 pt-0 sm:p-4 sm:pt-0">{children}</CardContent>
     </Card>
   );
 }
@@ -848,9 +854,9 @@ function RuleCheck({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <label className="flex cursor-pointer items-center gap-2.5 rounded-md border p-3 transition-colors hover:bg-muted/40">
-      <Checkbox checked={!!checked} onCheckedChange={(v) => onChange(v === true)} />
-      <span className="text-sm">{label}</span>
+    <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-[color:var(--dojo-border)] p-2.5 transition-colors hover:bg-muted/40 sm:gap-3 sm:p-3">
+      <Checkbox checked={!!checked} onCheckedChange={(v) => onChange(v === true)} className="h-4 w-4" />
+      <span className="text-xs font-medium sm:text-sm">{label}</span>
     </label>
   );
 }
