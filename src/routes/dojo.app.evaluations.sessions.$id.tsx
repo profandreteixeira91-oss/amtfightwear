@@ -175,30 +175,38 @@ function SessionRunner() {
       )}
 
       {structure.categories?.map((cat: any) => (
-        <Card key={cat.id}>
-          <CardHeader className="pb-2"><CardTitle className="text-base">{cat.name}</CardTitle></CardHeader>
-          <CardContent className="space-y-2">
+        <Card key={cat.id} className="overflow-hidden border-white/10 bg-neutral-900/40">
+          <CardHeader className="border-b border-white/5 bg-white/5 py-3">
+            <CardTitle className="text-sm font-bold uppercase tracking-widest text-neutral-300">{cat.name}</CardTitle>
+          </CardHeader>
+          <CardContent className="divide-y divide-white/5 p-0">
             {cat.criteria.map((cr: any) => (
-              <div key={cr.id} className="flex flex-wrap items-center gap-2 py-2 border-b last:border-0">
-                <div className="flex-1 min-w-[200px]">
-                  <div className="text-sm font-medium">
-                    {cr.name}
-                    {cr.required && <Badge variant="outline" className="ml-2 text-[10px]">Obrigatório</Badge>}
-                    {cr.eliminatory && <Badge variant="destructive" className="ml-1 text-[10px]">Eliminatório</Badge>}
+              <div key={cr.id} className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-sm font-bold text-white leading-tight">{cr.name}</span>
+                    <div className="flex gap-1">
+                      {cr.required && <Badge variant="outline" className="h-4 border-emerald-500/30 bg-emerald-500/10 px-1 text-[8px] font-black uppercase text-emerald-400">Obrigatório</Badge>}
+                      {cr.eliminatory && <Badge variant="destructive" className="h-4 bg-red-500/20 px-1 text-[8px] font-black uppercase text-red-400 ring-1 ring-inset ring-red-500/30">Eliminatório</Badge>}
+                    </div>
                   </div>
-                  {cr.description && <div className="text-xs text-muted-foreground">{cr.description}</div>}
+                  {cr.description && <p className="mt-1 text-xs leading-relaxed text-neutral-500">{cr.description}</p>}
                 </div>
-                <div className="flex items-center gap-1">
-                  <Input
-                    type="number"
-                    min={cr.min_score}
-                    max={cr.max_score}
-                    className="w-20"
-                    value={scores[cr.id] ?? ""}
-                    onChange={(e) => setScore(cr.id, Number(e.target.value))}
-                    disabled={isDone}
-                  />
-                  <span className="text-xs text-muted-foreground">/ {cr.max_score}</span>
+                <div className="flex items-center gap-3 self-end sm:self-center">
+                  <div className="relative">
+                    <Input
+                      type="number"
+                      min={cr.min_score}
+                      max={cr.max_score}
+                      className="h-10 w-24 border-white/10 bg-neutral-950 pr-8 text-center font-black text-white focus:ring-red-500"
+                      value={scores[cr.id] ?? ""}
+                      onChange={(e) => setScore(cr.id, Number(e.target.value))}
+                      disabled={isDone}
+                    />
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-bold text-neutral-600">
+                      /{cr.max_score}
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}
