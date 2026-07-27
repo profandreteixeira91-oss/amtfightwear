@@ -2,11 +2,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 async function ensureAmtAdmin(context: any) {
-  const { data } = await context.supabase.rpc("has_role", {
-    _user_id: context.userId,
-    _role: "amt_admin" as any,
-  });
-  if (!data) throw new Error("Somente admins AMT podem gerenciar notificações do painel.");
+  const { isSaasOwner } = await import("@/lib/auth/is-saas-owner");
+  if (!(await isSaasOwner(context))) throw new Error("Somente admins AMT podem gerenciar notificações do painel.");
 }
 
 /** Retorna a chave pública VAPID para o navegador se inscrever. */

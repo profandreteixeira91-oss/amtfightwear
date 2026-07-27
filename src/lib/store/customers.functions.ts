@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { assertSaasOwner } from "@/lib/auth/is-saas-owner";
 import type { Database } from "@/integrations/supabase/types";
 
 function publicClient() {
@@ -52,8 +53,7 @@ export const adminGetVisitorStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     // has_role check via authenticated client
-    const { data: isAdmin } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "amt_admin" });
-    if (!isAdmin) throw new Error("Forbidden");
+    await assertSaasOwner(context);
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const now = new Date();
@@ -120,8 +120,7 @@ export const adminGetVisitorStats = createServerFn({ method: "GET" })
 export const adminListStoreCustomers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data: isAdmin } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "amt_admin" });
-    if (!isAdmin) throw new Error("Forbidden");
+    await assertSaasOwner(context);
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 

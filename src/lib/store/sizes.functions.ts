@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
+import { assertSaasOwner } from "@/lib/auth/is-saas-owner";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 function publicClient() {
@@ -66,8 +67,7 @@ const upsertInput = z.object({
 });
 
 async function assertAdmin(context: { supabase: ReturnType<typeof createClient<Database>>; userId: string }) {
-  const { data } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "amt_admin" });
-  if (!data) throw new Error("Forbidden");
+  await assertSaasOwner(context);
 }
 
 // Aplica um preset a todos os produtos das categorias que combinam com o padrão.

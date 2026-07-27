@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { assertSaasOwner } from "@/lib/auth/is-saas-owner";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 // ---------- Admin: list dojo owner accounts + subscription status ----------
@@ -30,11 +31,7 @@ export type DojoAccountRow = {
 export const adminListDojoAccounts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data: isAdmin } = await context.supabase.rpc("has_role", {
-      _user_id: context.userId,
-      _role: "amt_admin",
-    });
-    if (!isAdmin) throw new Error("Forbidden");
+    await assertSaasOwner(context);
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
@@ -151,11 +148,7 @@ export const adminListDojoAccounts = createServerFn({ method: "GET" })
 export const adminGetDojoLandingStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data: isAdmin } = await context.supabase.rpc("has_role", {
-      _user_id: context.userId,
-      _role: "amt_admin",
-    });
-    if (!isAdmin) throw new Error("Forbidden");
+    await assertSaasOwner(context);
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
