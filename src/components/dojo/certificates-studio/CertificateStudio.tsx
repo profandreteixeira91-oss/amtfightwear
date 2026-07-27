@@ -130,9 +130,9 @@ export function CertificateStudio({ templateId }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-neutral-50">
+    <div className="fixed inset-0 flex flex-col bg-neutral-100 overflow-hidden">
       <StudioTopbar onSave={save} saving={saving} onPreview={() => setPreviewOpen(true)} onPresentation={() => setPresentation(true)} />
-      <div className="flex flex-1 min-h-0">
+      <div className="relative flex flex-1 min-h-0 overflow-hidden">
         <StudioLeft />
         <StudioCanvas />
         <StudioRight />

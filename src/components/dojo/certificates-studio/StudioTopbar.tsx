@@ -29,7 +29,7 @@ export function StudioTopbar({ onSave, saving, onPreview, onPresentation }: { on
   };
 
   return (
-    <header className="h-14 shrink-0 flex items-center gap-2 px-3 border-b border-neutral-200 bg-white">
+    <header className="h-14 shrink-0 flex items-center gap-2 px-3 border-b border-neutral-200 bg-white overflow-x-auto no-scrollbar">
       <Link to="/dojo/app/certificates" className="flex items-center gap-1 text-neutral-600 hover:text-neutral-900 text-sm">
         <ChevronLeft className="h-4 w-4" /> Certificados
       </Link>

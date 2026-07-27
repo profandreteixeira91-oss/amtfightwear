@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useStudioStore, CERT_FONTS } from "@/lib/dojo/certificates/studio-store";
 import type { AnyElement, TextElement, ImageElement, ShapeElement, QrElement } from "@/components/dojo/certificate-editor/types";
 import { Button } from "@/components/ui/button";
@@ -6,64 +6,93 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
-import { AlignCenter, AlignLeft, AlignRight, Bold, Italic, Underline, Lock, Unlock, Eye, EyeOff, Trash2, Copy, ArrowUp, ArrowDown, ChevronsUp, ChevronsDown, Type as TypeIcon } from "lucide-react";
+import { AlignCenter, AlignLeft, AlignRight, Bold, Italic, Underline, Lock, Unlock, Eye, EyeOff, Trash2, Copy, ArrowUp, ArrowDown, ChevronsUp, ChevronsDown, Type as TypeIcon, Search, ChevronLeft } from "lucide-react";
 
 export function StudioRight() {
   const { doc, selection, updateSelected, deleteSelected, duplicateSelected, bringForward, sendBackward, bringToFront, sendToBack, toggleLock, toggleHidden, pushHistory } = useStudioStore();
   const el = useMemo(() => doc.elements.find((e) => e.id === selection[0]) ?? null, [doc.elements, selection]);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <aside className="hidden md:flex flex-col h-full w-[320px] shrink-0 border-l border-neutral-200 bg-white overflow-y-auto">
-      <div className="p-3 border-b border-neutral-200 flex items-center justify-between">
-        <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wide">
-          {el ? (el.name || labelForKind(el.kind)) : "Propriedades"}
-        </span>
-        {el && (
-          <div className="flex items-center gap-1">
-            <Button size="icon" variant="ghost" onClick={() => toggleLock(el.id)} title={el.locked ? "Desbloquear" : "Bloquear"}>
-              {el.locked ? <Lock className="h-4 w-4" /> : <Unlock className="h-4 w-4" />}
-            </Button>
-            <Button size="icon" variant="ghost" onClick={() => toggleHidden(el.id)} title={el.hidden ? "Mostrar" : "Ocultar"}>
-              {el.hidden ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            </Button>
-            <Button size="icon" variant="ghost" onClick={() => duplicateSelected()} title="Duplicar">
-              <Copy className="h-4 w-4" />
-            </Button>
-            <Button size="icon" variant="ghost" onClick={() => deleteSelected()} title="Excluir" className="text-red-700 hover:text-red-700">
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
-        )}
-      </div>
-
-      {!el ? (
-        <div className="p-4 text-sm text-neutral-500">
-          Selecione um elemento para editar suas propriedades. Use os atalhos: <b>Ctrl+Z</b> desfazer, <b>Ctrl+D</b> duplicar, <b>Del</b> excluir.
-        </div>
-      ) : (
-        <div className="p-3 space-y-4">
-          {(el.kind === "text" || el.kind === "date") && <TextProps el={el as TextElement} />}
-          {(el.kind === "image" || el.kind === "logo" || el.kind === "signature") && <ImageProps el={el as ImageElement} />}
-          {(el.kind === "rect" || el.kind === "circle" || el.kind === "line") && <ShapeProps el={el as ShapeElement} />}
-          {el.kind === "qr" && <QrProps el={el as QrElement} />}
-
-          <hr className="border-neutral-200" />
-          <PositionProps el={el} />
-
-          <hr className="border-neutral-200" />
-          <div className="grid grid-cols-2 gap-2">
-            <Button variant="outline" size="sm" onClick={() => bringForward(el.id)}><ArrowUp className="h-4 w-4 mr-1" /> Frente</Button>
-            <Button variant="outline" size="sm" onClick={() => sendBackward(el.id)}><ArrowDown className="h-4 w-4 mr-1" /> Trás</Button>
-            <Button variant="outline" size="sm" onClick={() => bringToFront(el.id)}><ChevronsUp className="h-4 w-4 mr-1" /> Frente total</Button>
-            <Button variant="outline" size="sm" onClick={() => sendToBack(el.id)}><ChevronsDown className="h-4 w-4 mr-1" /> Fundo</Button>
-          </div>
-        </div>
+    <>
+      {/* Mobile Trigger */}
+      {el && !mobileOpen && (
+        <button
+          onClick={() => setMobileOpen(true)}
+          className="md:hidden fixed bottom-20 right-4 z-40 h-12 w-12 rounded-full bg-red-700 text-white shadow-lg flex items-center justify-center animate-bounce"
+        >
+          <Search className="h-6 w-6" />
+        </button>
       )}
 
-      <div className="mt-auto border-t border-neutral-200">
-        <LayersList />
-      </div>
-    </aside>
+      <aside className={`
+        fixed inset-y-0 right-0 z-50 w-[320px] bg-white border-l border-neutral-200 flex flex-col transition-transform duration-300 ease-in-out
+        md:static md:translate-x-0
+        ${mobileOpen && el ? "translate-x-0" : "translate-x-full"}
+      `} style={{ height: 'calc(100% - 64px)' }}>
+        <div className="p-3 border-b border-neutral-200 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-2">
+             <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileOpen(false)}>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wide">
+              {el ? (el.name || labelForKind(el.kind)) : "Propriedades"}
+            </span>
+          </div>
+          {el && (
+            <div className="flex items-center gap-1">
+              <Button size="icon" variant="ghost" onClick={() => toggleLock(el.id)} title={el.locked ? "Desbloquear" : "Bloquear"}>
+                {el.locked ? <Lock className="h-4 w-4" /> : <Unlock className="h-4 w-4" />}
+              </Button>
+              <Button size="icon" variant="ghost" onClick={() => toggleHidden(el.id)} title={el.hidden ? "Mostrar" : "Ocultar"}>
+                {el.hidden ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </Button>
+              <Button size="icon" variant="ghost" onClick={() => duplicateSelected()} title="Duplicar">
+                <Copy className="h-4 w-4" />
+              </Button>
+              <Button size="icon" variant="ghost" onClick={() => deleteSelected()} title="Excluir" className="text-red-700 hover:text-red-700">
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+        </div>
+
+        <div className="flex-1 overflow-y-auto shrink-0">
+          {!el ? (
+            <div className="p-4 text-sm text-neutral-500">
+              Selecione um elemento para editar suas propriedades. Use os atalhos: <b>Ctrl+Z</b> desfazer, <b>Ctrl+D</b> duplicar, <b>Del</b> excluir.
+            </div>
+          ) : (
+            <div className="p-3 space-y-4">
+              {(el.kind === "text" || el.kind === "date") && <TextProps el={el as TextElement} />}
+              {(el.kind === "image" || el.kind === "logo" || el.kind === "signature") && <ImageProps el={el as ImageElement} />}
+              {(el.kind === "rect" || el.kind === "circle" || el.kind === "line") && <ShapeProps el={el as ShapeElement} />}
+              {el.kind === "qr" && <QrProps el={el as QrElement} />}
+
+              <hr className="border-neutral-200" />
+              <PositionProps el={el} />
+
+              <hr className="border-neutral-200" />
+              <div className="grid grid-cols-2 gap-2">
+                <Button variant="outline" size="sm" onClick={() => bringForward(el.id)}><ArrowUp className="h-4 w-4 mr-1" /> Frente</Button>
+                <Button variant="outline" size="sm" onClick={() => sendBackward(el.id)}><ArrowDown className="h-4 w-4 mr-1" /> Trás</Button>
+                <Button variant="outline" size="sm" onClick={() => bringToFront(el.id)}><ChevronsUp className="h-4 w-4 mr-1" /> Frente total</Button>
+                <Button variant="outline" size="sm" onClick={() => sendToBack(el.id)}><ChevronsDown className="h-4 w-4 mr-1" /> Fundo</Button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="mt-auto border-t border-neutral-200 shrink-0">
+          <LayersList />
+        </div>
+      </aside>
+
+      {/* Overlay for mobile */}
+      {mobileOpen && el && (
+        <div className="fixed inset-0 bg-black/20 z-40 md:hidden" onClick={() => setMobileOpen(false)} />
+      )}
+    </>
   );
 }
 

@@ -110,7 +110,7 @@ export function StudioCanvas() {
   }, []);
 
   return (
-    <div ref={wrapRef} className="relative flex-1 overflow-auto bg-neutral-100 dark:bg-neutral-900">
+    <div ref={wrapRef} className="relative flex-1 overflow-auto bg-neutral-100 dark:bg-neutral-900 pb-20 md:pb-0 touch-none">
       {showRulers && <RulerH />}
       {showRulers && <RulerV />}
       <div
@@ -219,7 +219,7 @@ function EditableOverlay({ el, selected, onSelect, onCommit, zoom }: { el: AnyEl
     if (el.locked) return;
     e.stopPropagation();
     onSelect(e.shiftKey);
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     dragRef.current = { startX: e.clientX, startY: e.clientY, origX: el.x, origY: el.y };
   };
   const onPointerMove = (e: React.PointerEvent) => {
@@ -247,7 +247,6 @@ function EditableOverlay({ el, selected, onSelect, onCommit, zoom }: { el: AnyEl
       if (signX !== 0) patch.w = (newW / pageW) * 100;
       if (el.kind !== "text" && signY !== 0) patch.h = (newH / pageH) * 100;
       if (el.kind === "text" && signX !== 0) {
-        // Scale font a bit too
         const scale = newW / Math.max(1, r.origW);
         if (Math.abs(scale - 1) > 0.02) patch.fontSize = Math.max(6, Math.round((el as any).fontSize * scale));
         resizeRef.current = { ...r, startX: e.clientX, startY: e.clientY, origW: newW };
@@ -255,17 +254,15 @@ function EditableOverlay({ el, selected, onSelect, onCommit, zoom }: { el: AnyEl
       updateElement(el.id, patch);
     } else if (rotateRef.current) {
       const r = rotateRef.current;
-      const rect = (e.currentTarget.parentElement as HTMLElement).getBoundingClientRect();
-      const cxp = rect.left + rect.width / 2;
-      const cyp = rect.top + rect.height / 2;
-      const angle = Math.atan2(e.clientY - cyp, e.clientX - cxp) * 180 / Math.PI;
+      const angle = Math.atan2(e.clientY - r.center.y, e.clientX - r.center.x) * 180 / Math.PI;
       const delta = angle - r.startAngle;
       updateElement(el.id, { rotation: r.startRot + delta } as any);
     }
   };
-  const endGesture = () => {
+  const endGesture = (e: React.PointerEvent) => {
     if (dragRef.current || resizeRef.current || rotateRef.current) onCommit();
     dragRef.current = null; resizeRef.current = null; rotateRef.current = null;
+    try { (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId); } catch {}
   };
 
   return (
@@ -304,7 +301,7 @@ function EditableOverlay({ el, selected, onSelect, onCommit, zoom }: { el: AnyEl
               <div key={dir}
                 onPointerDown={(e) => {
                   e.stopPropagation();
-                  (e.target as HTMLElement).setPointerCapture(e.pointerId);
+                  (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
                   resizeRef.current = { startX: e.clientX, startY: e.clientY, origW: w, origH: h, dir };
                 }}
                 onPointerMove={onPointerMove}
@@ -328,7 +325,7 @@ function EditableOverlay({ el, selected, onSelect, onCommit, zoom }: { el: AnyEl
           <div
             onPointerDown={(e) => {
               e.stopPropagation();
-              (e.target as HTMLElement).setPointerCapture(e.pointerId);
+              (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
               const rect = (e.currentTarget.parentElement as HTMLElement).getBoundingClientRect();
               const cxp = rect.left + rect.width / 2;
               const cyp = rect.top + rect.height / 2;
