@@ -394,13 +394,13 @@ function ContractEditorPage() {
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-          <Button variant="outline" size="sm" onClick={printPreview} className="rounded-full h-9 w-9 sm:w-auto sm:px-3 p-0 sm:p-auto" aria-label="Imprimir">
-            <Printer className="h-4 w-4 sm:mr-1" />
+        <div className="flex items-center gap-1.5 shrink-0 px-2 sm:px-0">
+          <Button variant="outline" size="sm" onClick={printPreview} className="rounded-full h-8 w-8 sm:w-auto sm:px-3 p-0 sm:p-auto" aria-label="Imprimir">
+            <Printer className="h-3.5 w-3.5 sm:mr-1" />
             <span className="hidden sm:inline">Imprimir</span>
           </Button>
-          <Button size="sm" onClick={save} className="rounded-full bg-blue-600 hover:bg-blue-700 text-white h-9 w-9 sm:w-auto sm:px-3 p-0 sm:p-auto" aria-label="Salvar">
-            <Save className="h-4 w-4 sm:mr-1" />
+          <Button size="sm" onClick={save} className="rounded-full bg-blue-600 hover:bg-blue-700 text-white h-8 w-8 sm:w-auto sm:px-3 p-0 sm:p-auto" aria-label="Salvar">
+            <Save className="h-3.5 w-3.5 sm:mr-1" />
             <span className="hidden sm:inline">Salvar</span>
           </Button>
         </div>
