@@ -424,27 +424,93 @@ export const deleteDojoStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
   .handler(async ({ data, context }) => {
-    // Captura nome antes de excluir para incluir na notificação
+    // Cancelamento reversível (soft-delete): mantém dados por 30 dias.
     const { data: prev } = await context.supabase
       .from("dojo_students")
       .select("full_name")
       .eq("id", data.id)
       .maybeSingle();
-    const { error } = await context.supabase.from("dojo_students").delete().eq("id", data.id);
+    const { error } = await context.supabase
+      .from("dojo_students")
+      .update({ status: "cancelled", cancelled_at: new Date().toISOString(), frozen_since: null, frozen_until: null })
+      .eq("id", data.id);
     if (error) throw new Error(error.message);
-    // Fire-and-forget: notifica o dono do dojo sobre o cancelamento
     try {
       const owner = ownerId(context);
       const { sendPushToDojoOwner } = await import("@/lib/push/dojo-owner-push.server");
       void sendPushToDojoOwner(owner, "enrollments", {
         title: "Matrícula cancelada",
-        body: `${prev?.full_name ?? "Aluno"} teve a matrícula cancelada`,
+        body: `${prev?.full_name ?? "Aluno"} teve a matrícula cancelada (dados preservados por 30 dias)`,
         url: `/dojo/app/students`,
         tag: `dojo-student-cancel-${data.id}`,
       }).catch((e) => console.warn("[owner-push] cancel enrollment failed", e));
     } catch (e) {
       console.warn("[owner-push] cancel enrollment import failed", e);
     }
+    return { ok: true };
+  });
+
+export const freezeDojoStudent = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({
+    id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido"),
+    frozen_until: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data inválida").optional().nullable(),
+  }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { data: prev } = await context.supabase
+      .from("dojo_students")
+      .select("full_name")
+      .eq("id", data.id)
+      .maybeSingle();
+    const { error } = await context.supabase
+      .from("dojo_students")
+      .update({
+        status: "frozen",
+        frozen_since: new Date().toISOString(),
+        frozen_until: data.frozen_until ?? null,
+        cancelled_at: null,
+      })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    try {
+      const owner = ownerId(context);
+      const { sendPushToDojoOwner } = await import("@/lib/push/dojo-owner-push.server");
+      const untilLabel = data.frozen_until
+        ? ` até ${new Date(`${data.frozen_until}T00:00:00`).toLocaleDateString("pt-BR")}`
+        : " por tempo indeterminado";
+      void sendPushToDojoOwner(owner, "enrollments", {
+        title: "Matrícula congelada",
+        body: `${prev?.full_name ?? "Aluno"} teve a matrícula congelada${untilLabel}`,
+        url: `/dojo/app/students/${data.id}`,
+        tag: `dojo-student-freeze-${data.id}`,
+      }).catch((e) => console.warn("[owner-push] freeze enrollment failed", e));
+    } catch (e) {
+      console.warn("[owner-push] freeze enrollment import failed", e);
+    }
+    return { ok: true };
+  });
+
+export const unfreezeDojoStudent = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("dojo_students")
+      .update({ status: "active", frozen_since: null, frozen_until: null })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const restoreDojoStudent = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("dojo_students")
+      .update({ status: "active", cancelled_at: null, frozen_since: null, frozen_until: null })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
     return { ok: true };
   });
 
