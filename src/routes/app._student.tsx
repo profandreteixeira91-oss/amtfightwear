@@ -11,6 +11,7 @@ import { DEFAULT_CONFIG, type FeatureKey } from "@/lib/student-app/schema";
 import { Bell, LogOut } from "lucide-react";
 import { PushToggle } from "@/components/student/PushToggle";
 import { PushActivationPrompt } from "@/components/student/PushActivationPrompt";
+import { InstallReminderBanner } from "@/components/student/InstallReminderBanner";
 
 export const Route = createFileRoute("/app/_student")({
   ssr: false,
@@ -45,6 +46,7 @@ function StudentShell() {
 
   return (
     <StudentThemeProvider branding={branding} appearance={config.appearance}>
+      <InstallReminderBanner />
       <header
         className="sticky top-0 z-30 border-b bg-white/90 backdrop-blur"
         style={{ paddingTop: "env(safe-area-inset-top)" }}
