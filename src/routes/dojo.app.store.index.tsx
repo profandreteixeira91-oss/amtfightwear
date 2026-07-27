@@ -46,15 +46,13 @@ function StoreHome() {
 
       {/* Categorias */}
       <section className="space-y-6" aria-labelledby="cats-title">
-        <header className="flex items-end justify-between gap-4">
-          <div>
-            <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-              Coleção
-            </div>
-            <h2 id="cats-title" className="mt-1 text-3xl font-bold tracking-tight text-foreground">
-              Compre por categoria
-            </h2>
+        <header className="flex flex-col gap-1 px-1">
+          <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+            Coleção
           </div>
+          <h2 id="cats-title" className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            Compre por categoria
+          </h2>
         </header>
 
         {catsLoading ? (
