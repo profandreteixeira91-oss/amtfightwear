@@ -7,7 +7,8 @@ import { Progress } from "@/components/ui/progress";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { listClasses, listDojoUnits } from "@/lib/dojo/schedule.functions";
+import { listDojoUnits } from "@/lib/dojo/dojo.functions";
+import { listClasses } from "@/lib/dojo/schedule.functions";
 import { listLessonPlans } from "@/lib/dojo/lesson-plans.functions";
 import { startFaceRecognition, confirmSmartCheckins } from "@/lib/dojo/face-recognition.functions";
 import { searchStudents } from "@/lib/dojo/checkin.functions";
@@ -38,15 +39,17 @@ export function PhotoCheckinFlow({ onComplete, onCancel, unitId: initialUnitId }
   
   const { data: units } = useQuery({ queryKey: ["dojo-units"], queryFn: () => unitsFn() });
   const { data: classes } = useQuery({ 
-    queryKey: ["dojo-classes", selectedUnitId], 
-    queryFn: () => listClasses({ data: { unitId: selectedUnitId } }),
-    enabled: !!selectedUnitId 
+    queryKey: ["dojo-classes"], 
+    queryFn: () => listClasses(),
   });
   const { data: lessons } = useQuery({ 
     queryKey: ["dojo-lessons", selectedClassId], 
     queryFn: () => listLessonPlans({ data: { classId: selectedClassId } }),
     enabled: !!selectedClassId 
   });
+
+  // Filter classes by selected unit
+  const filteredClasses = classes?.filter((c: any) => !selectedUnitId || c.unit_id === selectedUnitId);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -154,7 +157,7 @@ export function PhotoCheckinFlow({ onComplete, onCancel, unitId: initialUnitId }
                   disabled={!selectedUnitId}
                 >
                   <option value="">Selecione...</option>
-                  {classes?.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  {filteredClasses?.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
               </div>
             </div>

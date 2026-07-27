@@ -31,7 +31,7 @@ import {
   registerVisitor, getCheckinSettings, saveCheckinSettings,
   simulatePartnerCheckin, attendanceReport,
 } from "@/lib/dojo/checkin.functions";
-import { listDojoUnits } from "@/lib/dojo/schedule.functions";
+import { listDojoUnits } from "@/lib/dojo/dojo.functions";
 import { Camera } from "lucide-react";
 import { PhotoCheckinFlow } from "@/components/dojo/checkin/PhotoCheckinFlow";
 
