@@ -301,7 +301,7 @@ function EditableOverlay({ el, selected, onSelect, onCommit, zoom }: { el: AnyEl
               <div key={dir}
                 onPointerDown={(e) => {
                   e.stopPropagation();
-                  (e.target as HTMLElement).setPointerCapture(e.pointerId);
+                  (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
                   resizeRef.current = { startX: e.clientX, startY: e.clientY, origW: w, origH: h, dir };
                 }}
                 onPointerMove={onPointerMove}
