@@ -185,9 +185,9 @@ export const manualCheckin = createServerFn({ method: "POST" })
       .parse(i),
   )
   .handler(async ({ data, context }) => {
-    const isAdmin = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
-    const isTeacher = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "teacher" });
-    const isOverride = isAdmin.data || isTeacher.data;
+    const isAdmin = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" as any });
+    const isTeacher = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "moderator" as any }); // 'teacher' mapping to 'moderator' enum
+    const isOverride = !!(isAdmin.data || isTeacher.data);
 
     const validation = await validateAndResolveCheckin(
       context.supabase,
@@ -222,8 +222,8 @@ export const manualCheckin = createServerFn({ method: "POST" })
         owner_id: context.userId,
         validation_result: validation.isValid ? "success" : "override",
         rejection_reason: validation.isValid ? null : validation.reason,
-        validation_metadata: { force: !!data.force, original_reason: validation.reason }
-      })
+        validation_metadata: ({ force: !!data.force, original_reason: validation.reason } as any)
+      } as any)
       .select("id")
       .single();
     if (error) throw new Error(error.message);
