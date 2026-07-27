@@ -325,7 +325,7 @@ function EditableOverlay({ el, selected, onSelect, onCommit, zoom }: { el: AnyEl
           <div
             onPointerDown={(e) => {
               e.stopPropagation();
-              (e.target as HTMLElement).setPointerCapture(e.pointerId);
+              (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
               const rect = (e.currentTarget.parentElement as HTMLElement).getBoundingClientRect();
               const cxp = rect.left + rect.width / 2;
               const cyp = rect.top + rect.height / 2;
