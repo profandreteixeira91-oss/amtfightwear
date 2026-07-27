@@ -1048,19 +1048,19 @@ function NewGraduationPage() {
               </span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-5 md:p-6 space-y-6">
+          <CardContent className="p-4 md:p-6 space-y-6">
             {/* Padrões — aplicar a todos (opcional) */}
-            <section className="space-y-3 rounded-xl border border-dashed bg-muted/20 p-4">
-              <div className="flex flex-wrap items-center justify-between gap-2">
+            <section className="space-y-4 rounded-xl border border-dashed bg-muted/20 p-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Padrão (opcional)</div>
-                  <p className="text-xs text-muted-foreground">Defina uma faixa e grau para aplicar em massa. Cada aluno pode ser editado individualmente abaixo.</p>
+                  <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Padrão (opcional)</div>
+                  <p className="text-xs text-muted-foreground">Defina uma faixa e grau para aplicar em massa.</p>
                 </div>
-                <Button size="sm" variant="outline" onClick={applyDefaultsToAll} disabled={!beltId}>
+                <Button size="sm" variant="outline" className="w-full sm:w-auto" onClick={applyDefaultsToAll} disabled={!beltId}>
                   Aplicar a todos
                 </Button>
               </div>
-              <div className="grid gap-3 md:grid-cols-3">
+              <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
                 <div className="space-y-1.5">
                   <label className="text-xs font-medium text-foreground">Modalidade</label>
                   <select
