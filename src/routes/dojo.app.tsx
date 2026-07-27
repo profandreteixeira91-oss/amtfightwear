@@ -274,7 +274,7 @@ function DojoLayout() {
 
   return (
     <div className="dojo-theme min-h-screen">
-      <DojoSplash />
+      
       <SidebarProvider>
         <DojoPermissionsProvider>
           <UnitScopeProvider>
