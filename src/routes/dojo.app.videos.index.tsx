@@ -152,43 +152,54 @@ function VideosLibrary() {
       )}
 
       {/* Filters */}
-      <div className="grid gap-2 rounded-2xl border border-white/10 bg-neutral-950/60 p-3 text-white backdrop-blur sm:grid-cols-[minmax(0,1fr)_auto_auto_auto]">
-        <div className="relative">
+      <div className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-neutral-950/60 p-3 text-white backdrop-blur lg:flex-row lg:items-center">
+        <div className="relative flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar por título ou descrição..."
-            className="border-white/10 bg-white/5 pl-9 text-white placeholder:text-neutral-500 focus-visible:ring-red-500/40"
+            placeholder="Buscar vídeos..."
+            className="h-9 border-white/10 bg-white/5 pl-9 text-xs sm:text-sm text-white placeholder:text-neutral-500 focus-visible:ring-red-500/40"
           />
         </div>
-        <Select value={categoryId} onValueChange={setCategoryId}>
-          <SelectTrigger className="w-full border-white/10 bg-white/5 text-white sm:w-52"><SelectValue placeholder="Categoria" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todas as categorias</SelectItem>
-            {rootCats.map((c: any) => (
-              <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={status} onValueChange={(v) => setStatus(v as any)}>
-          <SelectTrigger className="w-full border-white/10 bg-white/5 text-white sm:w-40"><SelectValue placeholder="Status" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos status</SelectItem>
-            <SelectItem value="published">Publicados</SelectItem>
-            <SelectItem value="draft">Rascunhos</SelectItem>
-            <SelectItem value="private">Privados</SelectItem>
-            <SelectItem value="archived">Arquivados</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={sort} onValueChange={(v) => setSort(v as any)}>
-          <SelectTrigger className="w-full border-white/10 bg-white/5 text-white sm:w-44"><Filter className="mr-1 h-3.5 w-3.5" /><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="recent">Mais recentes</SelectItem>
-            <SelectItem value="views">Mais assistidos</SelectItem>
-            <SelectItem value="title">A–Z</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+          <Select value={categoryId} onValueChange={setCategoryId}>
+            <SelectTrigger className="h-9 w-full border-white/10 bg-white/5 text-xs text-white sm:w-40">
+              <SelectValue placeholder="Categoria" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas</SelectItem>
+              {rootCats.map((c: any) => (
+                <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={status} onValueChange={(v) => setStatus(v as any)}>
+            <SelectTrigger className="h-9 w-full border-white/10 bg-white/5 text-xs text-white sm:w-36">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos</SelectItem>
+              <SelectItem value="published">Publicados</SelectItem>
+              <SelectItem value="draft">Rascunhos</SelectItem>
+              <SelectItem value="private">Privados</SelectItem>
+              <SelectItem value="archived">Arquivados</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={sort} onValueChange={(v) => setSort(v as any)}>
+            <SelectTrigger className="h-9 w-full border-white/10 bg-white/5 text-xs text-white sm:w-40 col-span-2 sm:col-span-1">
+              <div className="flex items-center gap-2 truncate">
+                <Filter className="h-3.5 w-3.5 shrink-0" />
+                <SelectValue />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="recent">Recentes</SelectItem>
+              <SelectItem value="views">Mais vistos</SelectItem>
+              <SelectItem value="title">A–Z</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Grid */}
