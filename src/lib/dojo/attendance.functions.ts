@@ -244,22 +244,46 @@ export const checkinByCode = createServerFn({ method: "POST" })
     const code = data.code.trim();
     const { data: student, error } = await context.supabase
       .from("dojo_students")
-      .select("id, full_name, unit_id")
+      .select("id, full_name, unit_id, owner_id")
       .or(`checkin_pin.eq.${code},qr_token.eq.${code}`)
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!student) throw new Error("Aluno não encontrado para este código");
+
+    const validation = await validateAndResolveCheckin(
+      context.supabase,
+      student.id,
+      student.owner_id
+    );
+
+    if (!validation.isValid) {
+      if (validation.reason === "outside_window") {
+        throw new Error("Fora da janela permitida para check-in.");
+      }
+      if (validation.reason === "duplicate_checkin") {
+        throw new Error("Você já realizou o check-in desta aula.");
+      }
+      if (validation.reason === "multiple_classes") {
+        // Para Kiosk/PIN, não temos como mostrar seletor facilmente no handler atual, 
+        // mas as regras dizem que se houver 2 válidas deve pedir seleção.
+        // Por enquanto, bloqueamos com mensagem.
+        throw new Error("Múltiplas aulas disponíveis. Use o check-in manual ou selecione a turma.");
+      }
+      throw new Error("Não há nenhuma aula disponível para check-in neste momento.");
+    }
 
     const { data: att, error: e2 } = await context.supabase
       .from("dojo_attendance")
       .insert({
         student_id: student.id,
         unit_id: data.unitId ?? student.unit_id ?? null,
-        class_id: await resolveClassForCheckin(context.supabase, student.id),
+        class_id: validation.classId,
         method: /^\d+$/.test(code) ? "pin" : "qr",
         created_by: context.userId,
         owner_id: context.userId,
-      })
+        validation_result: "success",
+        validation_metadata: ({ auto_resolved: true } as any)
+      } as any)
       .select("id")
       .single();
     if (e2) throw new Error(e2.message);
