@@ -12,6 +12,7 @@ import { Bell, LogOut } from "lucide-react";
 import { PushToggle } from "@/components/student/PushToggle";
 import { PushActivationPrompt } from "@/components/student/PushActivationPrompt";
 import { InstallReminderBanner } from "@/components/student/InstallReminderBanner";
+import { StudentSplash } from "@/components/student/StudentSplash";
 
 export const Route = createFileRoute("/app/_student")({
   ssr: false,
