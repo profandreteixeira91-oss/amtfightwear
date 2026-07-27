@@ -948,6 +948,8 @@ function NewGraduationPage() {
                             ? "Sem faixa"
                             : belts.map((b: any) => formatBeltFull(b.belt.name, b.belt?.modality, b.degree)).join(" • ")}
                         </div>
+                      </div>
+                    </div>
                       {(() => {
                         const p = progressById.get(s.id);
                         if (!p) return null;
