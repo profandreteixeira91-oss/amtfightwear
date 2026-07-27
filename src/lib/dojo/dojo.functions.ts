@@ -386,6 +386,7 @@ export const saveDojoStudent = createServerFn({ method: "POST" })
     graduation_criteria_mode: z.enum(["time","classes","evaluation","merit"]).nullable().optional(),
     graduation_min_classes: z.number().int().min(0).max(10000).nullable().optional(),
     graduation_min_months: z.number().int().min(0).max(240).nullable().optional(),
+    facial_recognition_consent: z.boolean().optional(),
   }).parse(i))
   .handler(async ({ data, context }) => {
     const { id, ...rest } = data;
@@ -393,6 +394,9 @@ export const saveDojoStudent = createServerFn({ method: "POST" })
     if (payload.email === "") payload.email = null;
     // Stamp consent timestamps when toggled true
     const now = new Date().toISOString();
+    if (data.lgpd_consent) payload.lgpd_consent_at = now;
+    if (data.facial_recognition_consent) payload.facial_recognition_consent_at = now;
+
     if (payload.lgpd_consent === true) payload.lgpd_consent_date = now;
     if (payload.terms_accepted === true) payload.terms_accepted_date = now;
     Object.keys(payload).forEach(k => payload[k] === undefined && delete payload[k]);
