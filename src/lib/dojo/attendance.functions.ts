@@ -215,15 +215,13 @@ export const manualCheckin = createServerFn({ method: "POST" })
       .insert({
         student_id: data.studentId,
         unit_id: data.unitId ?? null,
-        class_id: validation.classId,
+        class_id: validation.classId || data.classId || null,
         method: "manual",
         notes: data.notes ?? null,
         created_by: context.userId,
         owner_id: context.userId,
-        validation_result: validation.isValid ? "success" : "override",
-        rejection_reason: validation.isValid ? null : validation.reason,
-        validation_metadata: ({ force: !!data.force, original_reason: validation.reason } as any)
-      } as any)
+        checked_in_at: new Date().toISOString(),
+      })
       .select("id")
       .single();
     if (error) throw new Error(error.message);
