@@ -207,12 +207,12 @@ function StudentDetail() {
 
 
   const onDeleteStudent = async () => {
-    if (!confirm(`Excluir ${s.full_name}? Esta ação apaga histórico de graduações, mensalidades e certificados.`)) return;
+    if (!confirm(`Cancelar matrícula de ${s.full_name}? Esta ação apaga histórico de graduações, mensalidades e certificados.`)) return;
     try {
       await delStudent({ data: { id } });
-      toast.success("Aluno excluído");
+      toast.success("Matrícula cancelada");
       navigate({ to: "/dojo/app/students" });
-    } catch (e: any) { toast.error("Erro ao excluir", { description: e.message }); }
+    } catch (e: any) { toast.error("Erro ao cancelar matrícula", { description: e.message }); }
   };
 
   const saveNote = async () => {
@@ -349,7 +349,7 @@ function StudentDetail() {
                 onClick={onDeleteStudent}
                 className="w-full border-red-400/40 bg-red-500/10 text-red-200 hover:bg-red-500/20 hover:text-white"
               >
-                <Trash2 className="mr-1.5 h-4 w-4" /> Excluir
+                <Trash2 className="mr-1.5 h-4 w-4" /> Cancelar matrícula
               </Button>
             </div>
           </div>
