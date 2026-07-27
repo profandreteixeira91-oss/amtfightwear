@@ -309,24 +309,25 @@ function PdpPage() {
           <div className="flex flex-col gap-2 sm:flex-row">
             <Button
               size="lg"
-              className="h-12 flex-1 rounded-full bg-foreground text-background hover:opacity-90"
+              className="h-11 sm:h-12 flex-1 rounded-full bg-foreground text-background hover:opacity-90"
               onClick={() => add.mutate()}
               disabled={add.isPending}
             >
-              <ShoppingCart className="mr-2 h-4 w-4" strokeWidth={1.75} />
-              {add.isPending ? "Adicionando..." : "Adicionar ao carrinho"}
+              <ShoppingCart className="mr-2 h-4 w-4 shrink-0" strokeWidth={1.75} />
+              <span className="truncate">{add.isPending ? "Adicionando..." : "Carrinho"}</span>
             </Button>
             <Button
               size="lg"
               variant="outline"
-              className="h-12 flex-1 rounded-full border-foreground/20 hover:bg-black/[0.04]"
+              className="h-11 sm:h-12 flex-1 rounded-full border-foreground/20 hover:bg-black/[0.04]"
               onClick={async () => {
                 await add.mutateAsync();
                 nav({ to: "/dojo/app/store/carrinho" });
               }}
               disabled={add.isPending}
             >
-              Comprar agora <ChevronRight className="ml-1 h-4 w-4" strokeWidth={1.75} />
+              <span className="truncate">Comprar agora</span>
+              <ChevronRight className="ml-1 h-4 w-4 shrink-0" strokeWidth={1.75} />
             </Button>
           </div>
 

@@ -327,26 +327,26 @@ function CartPage() {
           })}
         </ul>
 
-        <div className="flex flex-wrap justify-between gap-2">
-          <Button asChild variant="ghost" size="sm" className="rounded-full">
+        <div className="flex flex-wrap items-center justify-between gap-2 px-1">
+          <Button asChild variant="ghost" size="sm" className="h-8 rounded-full text-xs">
             <Link to="/dojo/app/store">Continuar comprando</Link>
           </Button>
           <Button
             variant="outline"
             size="sm"
-            className="rounded-full text-destructive hover:bg-destructive/10"
+            className="h-8 rounded-full text-[11px] text-destructive hover:bg-destructive/10"
             disabled={clr.isPending}
             onClick={() => {
               if (
                 window.confirm(
-                  "Tem certeza que deseja limpar o carrinho? Esta ação não pode ser desfeita.",
+                  "Tem certeza que deseja limpar o carrinho?",
                 )
               ) {
                 clr.mutate();
               }
             }}
           >
-            <Trash2 className="mr-1.5 h-3.5 w-3.5" strokeWidth={1.75} />
+            <Trash2 className="mr-1.5 h-3 w-3" strokeWidth={1.75} />
             Limpar carrinho
           </Button>
         </div>
