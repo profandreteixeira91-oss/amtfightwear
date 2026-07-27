@@ -76,9 +76,29 @@ function DojoAuthPage() {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data: signInData, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      setLoading(false);
+      return toast.error("Falha ao entrar", { description: error.message });
+    }
+    // Contas de aluno não podem acessar o Dojo Manager.
+    if (signInData.user) {
+      const { data: studentRows } = await supabase
+        .from("dojo_students")
+        .select("id")
+        .eq("user_id", signInData.user.id)
+        .limit(1);
+      if (studentRows && studentRows.length > 0) {
+        await supabase.auth.signOut();
+        setLoading(false);
+        toast.error("Acesso restrito", {
+          description: "Este e-mail é de aluno. Use o App do Aluno em /app.",
+        });
+        window.location.assign("/app");
+        return;
+      }
+    }
     setLoading(false);
-    if (error) return toast.error("Falha ao entrar", { description: error.message });
     toast.success("Bem-vindo de volta!");
     await goAfterAuth();
   };
