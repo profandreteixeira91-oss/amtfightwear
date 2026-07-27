@@ -87,8 +87,15 @@ function SchedulePage() {
     for (const o of occurrences.data ?? []) {
       occMap.set(`${o.class_id}|${o.occurrence_date}`, o);
     }
-    const start = new Date(range.from);
-    const end = new Date(range.to);
+    // IMPORTANTE: parsear como data LOCAL. new Date("YYYY-MM-DD") é UTC
+    // (00:00 UTC), o que no Brasil (UTC-3) vira o dia anterior e faz
+    // getDay() apontar para o dia errado — turmas somem da visualização.
+    const parseLocal = (s: string) => {
+      const [y, m, d] = s.split("-").map(Number);
+      return new Date(y, (m ?? 1) - 1, d ?? 1);
+    };
+    const start = parseLocal(range.from);
+    const end = parseLocal(range.to);
     for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
       const dateKey = ymd(d);
       const dow = d.getDay();
