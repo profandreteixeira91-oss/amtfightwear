@@ -509,41 +509,41 @@ function LessonEditorPage() {
                               <SortableRow key={it.id} id={it.id}>
                                 {({ listeners: iL, attributes: iA }) => (
                                   <div className="grid grid-cols-12 items-center gap-2 rounded border bg-muted/30 p-2 text-sm">
-                                    <div className="col-span-1 flex justify-center">
+                                    <div className="col-span-2 flex justify-center sm:col-span-1">
                                       <DragHandle listeners={iL as Record<string, unknown>} attributes={iA as unknown as Record<string, unknown>} />
                                     </div>
                                     <Input
-                                      className="col-span-3"
+                                      className="col-span-10 min-w-0 sm:col-span-3"
                                       value={it.name}
                                       onChange={(e) => updateItem(b.id, it.id, { name: e.target.value })}
                                       placeholder="Exercício / técnica"
                                     />
                                     <Input
-                                      className="col-span-4"
+                                      className="col-span-12 min-w-0 sm:col-span-4"
                                       value={it.description ?? ""}
                                       onChange={(e) => updateItem(b.id, it.id, { description: e.target.value })}
                                       placeholder="Descrição"
                                     />
                                     <Input
-                                      className="col-span-1"
+                                      className="col-span-3 min-w-0 sm:col-span-1"
                                       value={it.time_min ?? ""}
                                       onChange={(e) => updateItem(b.id, it.id, { time_min: e.target.value ? Number(e.target.value) : null })}
                                       placeholder="min"
                                       type="number"
                                     />
                                     <Input
-                                      className="col-span-1"
+                                      className="col-span-3 min-w-0 sm:col-span-1"
                                       value={it.reps ?? ""}
                                       onChange={(e) => updateItem(b.id, it.id, { reps: e.target.value })}
                                       placeholder="rep"
                                     />
                                     <Input
-                                      className="col-span-1"
+                                      className="col-span-3 min-w-0 sm:col-span-1"
                                       value={it.sets ?? ""}
                                       onChange={(e) => updateItem(b.id, it.id, { sets: e.target.value })}
                                       placeholder="sér"
                                     />
-                                    <Button variant="ghost" size="icon" className="col-span-1" onClick={() => removeItem(b.id, it.id)}>
+                                    <Button variant="ghost" size="icon" className="col-span-3 justify-self-end sm:col-span-1" onClick={() => removeItem(b.id, it.id)}>
                                       <Trash2 className="h-4 w-4 text-red-500" />
                                     </Button>
                                   </div>
