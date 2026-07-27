@@ -277,7 +277,7 @@ function VideoPage() {
           </div>
           <section className="rounded-xl border border-border bg-card p-4 shadow-sm">
             <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">Vídeos relacionados</h3>
-            <div className="grid gap-3">
+            <div className="grid grid-cols-2 gap-3 lg:grid-cols-1">
               {relatedList.map((r: any, i) => (
                 <VideoCard
                   key={r.id}
@@ -295,7 +295,7 @@ function VideoPage() {
                 />
               ))}
               {relatedList.length === 0 && (
-                <p className="py-4 text-center text-xs text-muted-foreground">Nada relacionado</p>
+                <p className="col-span-2 py-4 text-center text-xs text-muted-foreground">Nada relacionado</p>
               )}
             </div>
           </section>
