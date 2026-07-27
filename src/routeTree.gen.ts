@@ -110,6 +110,7 @@ import { Route as AppStudentCertificatesRouteImport } from './routes/app._studen
 import { Route as AppStudentCardRouteImport } from './routes/app._student.card'
 import { Route as AppStudentAnnouncementsRouteImport } from './routes/app._student.announcements'
 import { Route as AppStudentAgendaRouteImport } from './routes/app._student.agenda'
+import { Route as ApiPublicDojoManifestDotwebmanifestRouteImport } from './routes/api/public/dojo-manifest[.]webmanifest'
 import { Route as ApiDojoApkUploadRouteImport } from './routes/api/dojo/apk-upload'
 import { Route as AuthenticatedStoreWholesaleRouteImport } from './routes/_authenticated/store.wholesale'
 import { Route as AuthenticatedStoreSizesRouteImport } from './routes/_authenticated/store.sizes'
@@ -798,6 +799,12 @@ const AppStudentAgendaRoute = AppStudentAgendaRouteImport.update({
   path: '/agenda',
   getParentRoute: () => AppStudentRoute,
 } as any)
+const ApiPublicDojoManifestDotwebmanifestRoute =
+  ApiPublicDojoManifestDotwebmanifestRouteImport.update({
+    id: '/api/public/dojo-manifest.webmanifest',
+    path: '/api/public/dojo-manifest.webmanifest',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiDojoApkUploadRoute = ApiDojoApkUploadRouteImport.update({
   id: '/api/dojo/apk-upload',
   path: '/api/dojo/apk-upload',
@@ -1955,6 +1962,7 @@ export interface FileRoutesByFullPath {
   '/store/sizes': typeof AuthenticatedStoreSizesRoute
   '/store/wholesale': typeof AuthenticatedStoreWholesaleRoute
   '/api/dojo/apk-upload': typeof ApiDojoApkUploadRoute
+  '/api/public/dojo-manifest.webmanifest': typeof ApiPublicDojoManifestDotwebmanifestRoute
   '/app/agenda': typeof AppStudentAgendaRoute
   '/app/announcements': typeof AppStudentAnnouncementsRoute
   '/app/card': typeof AppStudentCardRoute
@@ -2229,6 +2237,7 @@ export interface FileRoutesByTo {
   '/store/sizes': typeof AuthenticatedStoreSizesRoute
   '/store/wholesale': typeof AuthenticatedStoreWholesaleRoute
   '/api/dojo/apk-upload': typeof ApiDojoApkUploadRoute
+  '/api/public/dojo-manifest.webmanifest': typeof ApiPublicDojoManifestDotwebmanifestRoute
   '/app/agenda': typeof AppStudentAgendaRoute
   '/app/announcements': typeof AppStudentAnnouncementsRoute
   '/app/card': typeof AppStudentCardRoute
@@ -2506,6 +2515,7 @@ export interface FileRoutesById {
   '/_authenticated/store/sizes': typeof AuthenticatedStoreSizesRoute
   '/_authenticated/store/wholesale': typeof AuthenticatedStoreWholesaleRoute
   '/api/dojo/apk-upload': typeof ApiDojoApkUploadRoute
+  '/api/public/dojo-manifest.webmanifest': typeof ApiPublicDojoManifestDotwebmanifestRoute
   '/app/_student/agenda': typeof AppStudentAgendaRoute
   '/app/_student/announcements': typeof AppStudentAnnouncementsRoute
   '/app/_student/card': typeof AppStudentCardRoute
@@ -2791,6 +2801,7 @@ export interface FileRouteTypes {
     | '/store/sizes'
     | '/store/wholesale'
     | '/api/dojo/apk-upload'
+    | '/api/public/dojo-manifest.webmanifest'
     | '/app/agenda'
     | '/app/announcements'
     | '/app/card'
@@ -3065,6 +3076,7 @@ export interface FileRouteTypes {
     | '/store/sizes'
     | '/store/wholesale'
     | '/api/dojo/apk-upload'
+    | '/api/public/dojo-manifest.webmanifest'
     | '/app/agenda'
     | '/app/announcements'
     | '/app/card'
@@ -3341,6 +3353,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/sizes'
     | '/_authenticated/store/wholesale'
     | '/api/dojo/apk-upload'
+    | '/api/public/dojo-manifest.webmanifest'
     | '/app/_student/agenda'
     | '/app/_student/announcements'
     | '/app/_student/card'
@@ -3536,6 +3549,7 @@ export interface RootRouteChildren {
   PayInvoiceIdRoute: typeof PayInvoiceIdRoute
   LojaIndexRoute: typeof LojaIndexRoute
   ApiDojoApkUploadRoute: typeof ApiDojoApkUploadRoute
+  ApiPublicDojoManifestDotwebmanifestRoute: typeof ApiPublicDojoManifestDotwebmanifestRoute
   LojaCategoriaSlugRoute: typeof LojaCategoriaSlugRoute
   LojaContaPedidosRoute: typeof LojaContaPedidosRoute
   LojaCustomShopKindRoute: typeof LojaCustomShopKindRoute
@@ -4281,6 +4295,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/agenda'
       preLoaderRoute: typeof AppStudentAgendaRouteImport
       parentRoute: typeof AppStudentRoute
+    }
+    '/api/public/dojo-manifest.webmanifest': {
+      id: '/api/public/dojo-manifest.webmanifest'
+      path: '/api/public/dojo-manifest.webmanifest'
+      fullPath: '/api/public/dojo-manifest.webmanifest'
+      preLoaderRoute: typeof ApiPublicDojoManifestDotwebmanifestRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/dojo/apk-upload': {
       id: '/api/dojo/apk-upload'
@@ -6390,6 +6411,8 @@ const rootRouteChildren: RootRouteChildren = {
   PayInvoiceIdRoute: PayInvoiceIdRoute,
   LojaIndexRoute: LojaIndexRoute,
   ApiDojoApkUploadRoute: ApiDojoApkUploadRoute,
+  ApiPublicDojoManifestDotwebmanifestRoute:
+    ApiPublicDojoManifestDotwebmanifestRoute,
   LojaCategoriaSlugRoute: LojaCategoriaSlugRoute,
   LojaContaPedidosRoute: LojaContaPedidosRoute,
   LojaCustomShopKindRoute: LojaCustomShopKindRoute,
