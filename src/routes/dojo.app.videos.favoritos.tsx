@@ -30,7 +30,7 @@ function FavoritesPage() {
           <Button asChild className="mt-4"><Link to="/dojo/app/videos">Ir para a biblioteca</Link></Button>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {favs.data!.map((v: any, i: number) => (
             <VideoCard
               key={v.id}
