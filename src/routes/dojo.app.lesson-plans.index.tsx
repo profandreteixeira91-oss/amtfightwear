@@ -367,8 +367,8 @@ function WeekView({ from, plans, onCreate }: { from: Date; plans: PlanRow[]; onC
                   params={{ id: p.id as string }}
                   className={`block rounded-md border px-2 py-1 text-xs backdrop-blur transition-transform hover:scale-[1.02] ${STATUS_COLORS[p.status as string] ?? "border-white/10 bg-white/5 text-white"}`}
                 >
-                  <div className="truncate font-semibold">{p.title}</div>
-                  {p.start_time ? <div className="opacity-70">{(p.start_time as string).slice(0, 5)}</div> : null}
+                  <div className="break-words font-semibold leading-tight">{p.title}</div>
+                  {p.start_time ? <div className="mt-0.5 opacity-70">{(p.start_time as string).slice(0, 5)}</div> : null}
                 </Link>
               ))}
             </div>
