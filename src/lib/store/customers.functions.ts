@@ -125,29 +125,20 @@ export const adminListStoreCustomers = createServerFn({ method: "GET" })
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data: profiles } = await supabaseAdmin
-      .from("profiles")
-      .select("id, email, full_name, phone, document, city, state, created_at")
-      .order("created_at", { ascending: false })
-      .limit(1000);
-
-    const ids = (profiles ?? []).map((p) => p.id);
-    const emails = (profiles ?? []).map((p) => p.email).filter((e): e is string => !!e);
-
-    // Aggregate orders per customer via user_id OR customer_email
-    const [ordersByUser, ordersByEmail] = await Promise.all([
-      ids.length
-        ? supabaseAdmin
-            .from("store_orders")
-            .select("user_id, total, created_at, payment_status")
-            .in("user_id", ids)
-        : Promise.resolve({ data: [] as Array<{ user_id: string | null; total: number | null; created_at: string; payment_status: string | null }> }),
-      emails.length
-        ? supabaseAdmin
-            .from("store_orders")
-            .select("customer_email, total, created_at, payment_status")
-            .in("customer_email", emails)
-        : Promise.resolve({ data: [] as Array<{ customer_email: string | null; total: number | null; created_at: string; payment_status: string | null }> }),
+    // 1) Only real e-commerce activity counts as "cliente da loja":
+    //    - fez pedido na loja (store_orders: user_id OU customer_email)
+    //    - tem carrinho identificado na loja (store_carts.user_id)
+    const [ordersRes, cartsRes] = await Promise.all([
+      supabaseAdmin
+        .from("store_orders")
+        .select("user_id, customer_email, total, created_at, payment_status")
+        .order("created_at", { ascending: false })
+        .limit(20000),
+      supabaseAdmin
+        .from("store_carts")
+        .select("user_id")
+        .not("user_id", "is", null)
+        .limit(20000),
     ]);
 
     type Agg = { orders: number; paid: number; total: number; last: string | null };
@@ -163,10 +154,94 @@ export const adminListStoreCustomers = createServerFn({ method: "GET" })
       if (!cur.last || o.created_at > cur.last) cur.last = o.created_at;
       m.set(key, cur);
     };
-    for (const o of ordersByUser.data ?? []) if (o.user_id) bump(byUser, o.user_id, o);
-    for (const o of ordersByEmail.data ?? []) if (o.customer_email) bump(byEmail, o.customer_email.toLowerCase(), o);
 
-    return (profiles ?? []).map((p) => {
+    const eligibleUserIds = new Set<string>();
+    const eligibleEmails = new Set<string>();
+
+    for (const o of ordersRes.data ?? []) {
+      if (o.user_id) {
+        eligibleUserIds.add(o.user_id);
+        bump(byUser, o.user_id, o);
+      }
+      if (o.customer_email) {
+        const email = o.customer_email.toLowerCase();
+        eligibleEmails.add(email);
+        bump(byEmail, email, o);
+      }
+    }
+    for (const c of cartsRes.data ?? []) {
+      if (c.user_id) eligibleUserIds.add(c.user_id);
+    }
+
+    // 2) Excluir usuários que só existem via Dojo Manager (donos, alunos, colaboradores).
+    //    Um usuário só é considerado cliente da loja se apareceu em pedido/carrinho da loja.
+    //    Como a Set eligibleUserIds já é construída SOMENTE a partir de atividade na loja,
+    //    perfis de dojo sem atividade na loja jamais entram.
+
+    // 3) Buscar os profiles apenas dos usuários/emails elegíveis.
+    const idsArr = Array.from(eligibleUserIds);
+    const emailsArr = Array.from(eligibleEmails);
+
+    const profilesMap = new Map<string, {
+      id: string;
+      email: string | null;
+      full_name: string | null;
+      phone: string | null;
+      document: string | null;
+      city: string | null;
+      state: string | null;
+      created_at: string;
+    }>();
+
+    if (idsArr.length) {
+      const { data } = await supabaseAdmin
+        .from("profiles")
+        .select("id, email, full_name, phone, document, city, state, created_at")
+        .in("id", idsArr);
+      for (const p of data ?? []) profilesMap.set(p.id, p);
+    }
+    if (emailsArr.length) {
+      const { data } = await supabaseAdmin
+        .from("profiles")
+        .select("id, email, full_name, phone, document, city, state, created_at")
+        .in("email", emailsArr);
+      for (const p of data ?? []) if (!profilesMap.has(p.id)) profilesMap.set(p.id, p);
+    }
+
+    // 4) Também incluir compradores "guest" (pedido só com email, sem profile).
+    const guests: Array<{
+      id: string;
+      email: string | null;
+      full_name: string | null;
+      phone: string | null;
+      document: string | null;
+      city: string | null;
+      state: string | null;
+      created_at: string;
+    }> = [];
+    const knownEmails = new Set(
+      Array.from(profilesMap.values())
+        .map((p) => (p.email ?? "").toLowerCase())
+        .filter(Boolean),
+    );
+    for (const o of ordersRes.data ?? []) {
+      if (!o.customer_email) continue;
+      const email = o.customer_email.toLowerCase();
+      if (knownEmails.has(email)) continue;
+      if (guests.some((g) => g.email === email)) continue;
+      guests.push({
+        id: `guest:${email}`,
+        email,
+        full_name: null,
+        phone: null,
+        document: null,
+        city: null,
+        state: null,
+        created_at: o.created_at,
+      });
+    }
+
+    const rows = [...profilesMap.values(), ...guests].map((p) => {
       const a = byUser.get(p.id);
       const b = p.email ? byEmail.get(p.email.toLowerCase()) : undefined;
       const orders = (a?.orders ?? 0) + (b?.orders ?? 0);
@@ -188,4 +263,8 @@ export const adminListStoreCustomers = createServerFn({ method: "GET" })
         last_order_at: last,
       };
     });
+
+    rows.sort((a, b) => (b.last_order_at ?? b.created_at).localeCompare(a.last_order_at ?? a.created_at));
+    return rows;
   });
+
