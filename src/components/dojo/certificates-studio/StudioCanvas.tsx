@@ -110,7 +110,7 @@ export function StudioCanvas() {
   }, []);
 
   return (
-    <div ref={wrapRef} className="relative flex-1 overflow-auto bg-neutral-100 dark:bg-neutral-900">
+    <div ref={wrapRef} className="relative flex-1 overflow-auto bg-neutral-100 dark:bg-neutral-900 pb-20 md:pb-0 touch-none">
       {showRulers && <RulerH />}
       {showRulers && <RulerV />}
       <div
