@@ -732,7 +732,8 @@ function NewGraduationPage() {
               <div className="flex flex-wrap items-end gap-2 rounded-lg border bg-muted/30 p-3">
                 <div className="flex-1 min-w-[180px]">
                   <div className="text-[11px] font-medium text-muted-foreground mb-1">Aplicar valor em massa</div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
+
                     <span className="text-xs text-muted-foreground">R$</span>
                     <Input
                       id="bulk-price-input"
