@@ -25,8 +25,8 @@ function GraduationsPage() {
             className="mx-auto mt-3 h-6 w-40 rounded-md shadow-inner"
             style={{ background: data.current.color_hex }}
           />
-          <div className="mt-3 text-lg font-bold">{data.current.name}</div>
-          {data.current.degree ? <div className="text-sm text-neutral-500">{data.current.degree}º {degreeUnit((data.current as any).modality)}</div> : null}
+          <div className="mt-3 break-words text-lg font-bold">{data.current.name}</div>
+          {data.current.degree ? <div className="break-words text-sm text-neutral-500">{data.current.degree}º {degreeUnit((data.current as any).modality)}</div> : null}
         </section>
       )}
 
@@ -39,15 +39,15 @@ function GraduationsPage() {
           return (
             <li key={g.id} className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-neutral-100">
               <div className="flex items-center gap-3">
-                <div className="h-8 w-2 rounded-full" style={{ background: b?.color_hex ?? "#000" }} />
+                <div className="h-8 w-2 shrink-0 rounded-full" style={{ background: b?.color_hex ?? "#000" }} />
                 <div className="min-w-0 flex-1">
-                  <div className="text-sm font-semibold">{b?.name ?? "Faixa"}{degreeSuffix(g.degree, b?.modality, " · ", b?.name)}</div>
-                  <div className="text-xs text-neutral-500">
+                  <div className="break-words text-sm font-semibold">{b?.name ?? "Faixa"}{degreeSuffix(g.degree, b?.modality, " · ", b?.name)}</div>
+                  <div className="break-words text-xs text-neutral-500">
                     {new Date(g.graduation_date).toLocaleDateString("pt-BR")} {g.evaluator ? `· ${g.evaluator}` : ""}
                   </div>
                 </div>
               </div>
-              {g.notes && <div className="mt-2 text-xs text-neutral-600">{g.notes}</div>}
+              {g.notes && <div className="mt-2 break-words text-xs text-neutral-600">{g.notes}</div>}
             </li>
           );
         })}

@@ -732,7 +732,8 @@ function NewGraduationPage() {
               <div className="flex flex-wrap items-end gap-2 rounded-lg border bg-muted/30 p-3">
                 <div className="flex-1 min-w-[180px]">
                   <div className="text-[11px] font-medium text-muted-foreground mb-1">Aplicar valor em massa</div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
+
                     <span className="text-xs text-muted-foreground">R$</span>
                     <Input
                       id="bulk-price-input"
@@ -1018,10 +1019,10 @@ function NewGraduationPage() {
       {step === "grad" && (
         <Card className="overflow-hidden shadow-sm">
           <CardHeader className="border-b bg-muted/30">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <GraduationCap className="h-4 w-4 text-primary" />
-              Nova graduação
-              <span className="ml-2 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+            <CardTitle className="flex flex-wrap items-center gap-2 text-base">
+              <GraduationCap className="h-4 w-4 shrink-0 text-primary" />
+              <span className="min-w-0 break-words">Nova graduação</span>
+              <span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
                 {selectedStudents.size} aluno{selectedStudents.size === 1 ? "" : "s"}
               </span>
             </CardTitle>
@@ -1084,11 +1085,11 @@ function NewGraduationPage() {
 
             {/* Graduação individual por aluno */}
             <section className="space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="min-w-0 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                   Graduação por aluno
                 </div>
-                <span className="text-[11px] text-muted-foreground">
+                <span className="min-w-0 text-[11px] text-muted-foreground">
                   Cada aluno pode receber uma faixa/grau diferente
                 </span>
               </div>
@@ -1242,10 +1243,10 @@ function NewGraduationPage() {
       {step === "payment" && (
         <Card className="overflow-hidden shadow-sm">
           <CardHeader className="border-b bg-muted/30">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Award className="h-4 w-4 text-primary" />
-              Confirmação de pagamento
-              <span className="ml-2 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+            <CardTitle className="flex flex-wrap items-center gap-2 text-base">
+              <Award className="h-4 w-4 shrink-0 text-primary" />
+              <span className="min-w-0 break-words">Confirmação de pagamento</span>
+              <span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
                 {selectedRows.length} aluno(s)
               </span>
             </CardTitle>
@@ -1386,10 +1387,10 @@ function NewGraduationPage() {
       {step === "cert" && (
         <Card className="overflow-hidden shadow-sm">
           <CardHeader className="border-b bg-muted/30">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Award className="h-4 w-4 text-primary" />
-              Emissão de certificados
-              <span className="ml-2 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
+            <CardTitle className="flex flex-wrap items-center gap-2 text-base">
+              <Award className="h-4 w-4 shrink-0 text-primary" />
+              <span className="min-w-0 break-words">Emissão de certificados</span>
+              <span className="shrink-0 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
                 {issued.size}/{registered.length} emitidos
               </span>
             </CardTitle>
