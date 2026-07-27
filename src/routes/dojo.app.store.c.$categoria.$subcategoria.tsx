@@ -107,16 +107,16 @@ function ProductListPage() {
           {parent?.name ?? categoria}
         </button>
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3 sm:flex sm:flex-wrap sm:justify-between sm:gap-4">
-          <div className="min-w-0 space-y-1">
-            <div className="truncate text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+          <div className="min-w-0 space-y-0.5 px-1">
+            <div className="truncate text-[9px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
               {parent?.name}
               {sub && sub !== parent ? ` · ${sub.name}` : sub === parent ? " · Todos" : ""}
             </div>
-            <h1 className="truncate text-2xl font-bold tracking-tight text-foreground sm:text-3xl md:text-4xl">
+            <h1 className="truncate text-xl font-bold tracking-tight text-foreground sm:text-2xl md:text-3xl lg:text-4xl">
               Produtos
             </h1>
-            <p className="text-sm text-muted-foreground">
-              {filtered.length} {filtered.length === 1 ? "produto" : "produtos"} disponíveis
+            <p className="text-[11px] sm:text-sm text-muted-foreground">
+              {filtered.length} {filtered.length === 1 ? "produto" : "produtos"}
             </p>
           </div>
           <label className="col-span-2 flex items-center gap-2 text-xs text-muted-foreground sm:col-span-1">
