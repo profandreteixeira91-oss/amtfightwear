@@ -98,7 +98,7 @@ function MyAnnouncements() {
                     {f.featured && <Star className="h-3 w-3 text-yellow-500" />}
                     <span className="text-[10px] uppercase tracking-wider text-neutral-500">{fmtDate(f.publish_at)}</span>
                   </div>
-                  <p className="mt-1 line-clamp-2 whitespace-normal text-sm font-semibold" style={{ color: "var(--sa-title)" }}>
+                  <p className="mt-1 break-words whitespace-normal text-sm font-semibold leading-tight" style={{ color: "var(--sa-title)" }}>
                     {f.title}
                   </p>
                 </div>
@@ -190,11 +190,11 @@ function MyAnnouncements() {
                     )}
                     <span className="ml-auto text-[10px] text-neutral-400">{fmtDate(a.publish_at)}</span>
                   </div>
-                  <p className={`mt-1 line-clamp-1 text-sm font-semibold ${a.is_read ? "text-neutral-600" : ""}`}
+                  <p className={`mt-1 break-words text-sm font-semibold leading-tight ${a.is_read ? "text-neutral-600" : ""}`}
                      style={{ color: a.is_read ? undefined : "var(--sa-title)" }}>
                     {a.title}
                   </p>
-                  {a.summary && <p className="mt-0.5 line-clamp-2 text-xs text-neutral-500">{a.summary}</p>}
+                  {a.summary && <p className="mt-0.5 line-clamp-3 break-words text-xs text-neutral-500 leading-normal">{a.summary}</p>}
                 </div>
               </button>
             </li>
