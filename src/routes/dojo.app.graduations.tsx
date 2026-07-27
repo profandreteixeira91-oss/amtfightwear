@@ -1085,11 +1085,11 @@ function NewGraduationPage() {
 
             {/* Graduação individual por aluno */}
             <section className="space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="min-w-0 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                   Graduação por aluno
                 </div>
-                <span className="text-[11px] text-muted-foreground">
+                <span className="min-w-0 text-[11px] text-muted-foreground">
                   Cada aluno pode receber uma faixa/grau diferente
                 </span>
               </div>
