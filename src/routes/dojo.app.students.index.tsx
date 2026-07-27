@@ -1160,7 +1160,7 @@ function StudentsPage() {
 
       <div className="overflow-hidden rounded-2xl border border-neutral-200/80 bg-white shadow-sm divide-y divide-neutral-100">
 
-        {filtered.map((s: any) => (
+        {pageItems.map((s: any) => (
           <div
             key={s.id}
             className="grid grid-cols-[1fr_auto] items-center gap-3 border-b p-3 last:border-0 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:gap-4"
