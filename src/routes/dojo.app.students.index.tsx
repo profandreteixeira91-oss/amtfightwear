@@ -187,6 +187,16 @@ function StudentsPage() {
   const amtPayCfg = useQuery({ queryKey: ["dojo-amtpay-status"], queryFn: () => amtPayFn(), staleTime: 60_000 });
   const amtPayActive = isAsaasReady((amtPayCfg.data as any)?.onboardingStatus);
 
+  const slugFn = useServerFn(getMyAcademySlug);
+  const slugQ = useQuery({ queryKey: ["dojo-my-slug"], queryFn: () => slugFn(), staleTime: 300_000 });
+  const [enrollLinkOpen, setEnrollLinkOpen] = useState(false);
+  const enrollUrl = (() => {
+    const slug = (slugQ.data as any)?.slug;
+    if (!slug) return "";
+    if (typeof window === "undefined") return `/matricula/${slug}`;
+    return `${window.location.origin}/matricula/${slug}`;
+  })();
+
 
   useEffect(() => {
     if (!q.data) return;
