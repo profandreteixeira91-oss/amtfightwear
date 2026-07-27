@@ -348,11 +348,12 @@ function WeekView({ from, plans, onCreate }: { from: Date; plans: PlanRow[]; onC
         return (
           <div
             key={key}
-            className={`min-h-[160px] rounded-xl border p-2 backdrop-blur transition-colors ${
+            className={cn(
+              "min-h-[160px] rounded-xl border p-2 backdrop-blur transition-colors",
               isToday
                 ? "border-red-500/40 bg-gradient-to-br from-red-950/40 via-neutral-950/70 to-neutral-950/70 shadow-[0_10px_30px_-20px_rgba(220,38,38,0.7)]"
                 : "border-white/10 bg-neutral-950/50 hover:border-white/20"
-            }`}
+            )}
           >
             <div className="mb-2 flex items-center justify-between">
               <div className={`text-xs font-semibold capitalize ${isToday ? "text-red-200" : "text-neutral-300"}`}>
@@ -372,7 +373,10 @@ function WeekView({ from, plans, onCreate }: { from: Date; plans: PlanRow[]; onC
                   key={p.id}
                   to="/dojo/app/lesson-plans/$id"
                   params={{ id: p.id as string }}
-                  className={`block rounded-md border px-2 py-1 text-xs backdrop-blur transition-transform hover:scale-[1.02] ${STATUS_COLORS[p.status as string] ?? "border-white/10 bg-white/5 text-white"}`}
+                  className={cn(
+                    "block rounded-md border px-2 py-1 text-[10px] sm:text-xs backdrop-blur transition-transform hover:scale-[1.02]",
+                    STATUS_COLORS[p.status as string] ?? "border-white/10 bg-white/5 text-white"
+                  )}
                 >
                   <div className="break-words font-semibold leading-tight">{p.title}</div>
                   {p.start_time ? <div className="mt-0.5 opacity-70">{(p.start_time as string).slice(0, 5)}</div> : null}
