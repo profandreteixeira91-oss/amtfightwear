@@ -240,11 +240,12 @@ export const getDojoStudent = createServerFn({ method: "GET" })
     const { data: student, error } = await context.supabase
       .from("dojo_students").select("*").eq("id", data.id).single();
     if (error) throw new Error(error.message);
-    const [grads, enrolls, invoices, certs] = await Promise.all([
+    const [grads, enrolls, invoices, certs, photos] = await Promise.all([
       context.supabase.from("dojo_graduations").select("*, belt:dojo_belts(id,name,color_hex,stripe_hex,max_degrees,modality,sort_order,visual,variants)").eq("student_id", data.id).order("graduation_date", { ascending: false }),
       context.supabase.from("dojo_enrollments").select("*, plan:dojo_plans(name,amount)").eq("student_id", data.id),
       context.supabase.from("dojo_invoices").select("*").eq("student_id", data.id).order("due_date", { ascending: false }).limit(50),
       context.supabase.from("dojo_certificates").select("*, template:dojo_certificate_templates(*), graduation:dojo_graduations(graduation_date, degree, belt:dojo_belts(name))").eq("student_id", data.id).order("issued_at", { ascending: false }),
+      context.supabase.from("dojo_student_reference_photos").select("*").eq("student_id", data.id),
     ]);
     // Derive current belt per modality from ordered graduations (latest per modality wins).
     const currentByModality = new Map<string, any>();
@@ -261,8 +262,10 @@ export const getDojoStudent = createServerFn({ method: "GET" })
       enrollments: enrolls.data ?? [],
       invoices: invoices.data ?? [],
       certificates: certs.data ?? [],
+      referencePhotos: photos.data ?? [],
       current_belts: Array.from(currentByModality.values()),
     };
+
   });
 
 // Retorna, para todos os alunos do dojo, o progresso rumo à próxima graduação:
