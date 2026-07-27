@@ -264,11 +264,14 @@ function AccountPage() {
             <SecurityTab
               password={password}
               setPassword={setPassword}
+              passwordConfirm={passwordConfirm}
+              setPasswordConfirm={setPasswordConfirm}
               saving={savingPwd}
               onSubmit={updatePassword}
               lastSignIn={user?.last_sign_in_at}
               audit={audit}
             />
+
           )}
           {tab === "notifications" && (
             <NotificationsTab prefs={notifPrefs} setPrefs={setNotifPrefs} onSave={saveNotifs} />
