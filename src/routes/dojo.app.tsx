@@ -69,6 +69,8 @@ import { listDojoBelts } from "@/lib/dojo/dojo.functions";
 import { syncBeltTerms } from "@/lib/dojo/belt-terms";
 import { UnitScopeProvider } from "@/components/dojo/UnitScope";
 import { UnitSwitcher } from "@/components/dojo/UnitSwitcher";
+import { DojoSplash } from "@/components/dojo/DojoSplash";
+
 
 
 export const Route = createFileRoute("/dojo/app")({
@@ -274,6 +276,8 @@ function DojoLayout() {
 
   return (
     <div className="dojo-theme min-h-screen">
+      <DojoSplash />
+
       
       <SidebarProvider>
         <DojoPermissionsProvider>
