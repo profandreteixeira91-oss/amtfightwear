@@ -33,15 +33,15 @@ function SubcategoryPage() {
         >
           <ArrowLeft className="h-4 w-4" strokeWidth={1.75} /> Todas as categorias
         </button>
-        <div className="max-w-2xl space-y-1.5">
+        <div className="max-w-2xl space-y-1.5 px-1">
           <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
             Categoria
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+          <h1 className="truncate text-2xl font-bold tracking-tight text-foreground sm:text-3xl md:text-4xl">
             {parent?.name ?? categoria}
           </h1>
           <p className="text-sm text-muted-foreground">
-            Escolha uma subcategoria para explorar os produtos com filtros e ordenação.
+            Escolha uma subcategoria para explorar os produtos.
           </p>
         </div>
       </div>
