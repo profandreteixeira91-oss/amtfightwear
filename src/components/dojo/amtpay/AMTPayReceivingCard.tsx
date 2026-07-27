@@ -15,13 +15,13 @@ export function AMTPayReceivingCard() {
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Building2 className="h-5 w-5 text-primary" />
-            Como funciona o recebimento
+          <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+            <Building2 className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+            Recebimento
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 text-sm">
-          <div className="grid gap-3 md:grid-cols-3">
+          <div className="grid gap-3 grid-cols-1 xs:grid-cols-2 md:grid-cols-3">
             <Step
               n={1}
               title="Aluno paga"

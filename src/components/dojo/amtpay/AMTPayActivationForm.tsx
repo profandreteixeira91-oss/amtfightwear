@@ -349,27 +349,27 @@ export function AMTPayActivationForm({
     );
   }
 
-  const pad = compact ? "" : "py-4";
+  const pad = compact ? "" : "py-2 sm:py-4";
+  const innerPad = compact ? "p-4" : "p-4 sm:p-5";
 
   return (
     <div className={pad}>
       {showIntro && (
         <section className="mb-6 overflow-hidden rounded-2xl border border-[#C1121F]/15 bg-gradient-to-br from-[#C1121F]/5 via-white to-white shadow-sm dark:from-[#C1121F]/10 dark:via-transparent dark:to-transparent">
-          <div className="flex items-start gap-3 border-b border-black/5 dark:border-white/5 px-5 py-4">
+          <div className={`flex flex-col sm:flex-row items-start gap-3 border-b border-black/5 dark:border-white/5 ${innerPad}`}>
             <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#C1121F] text-white shadow-sm">
               <Wallet className="h-5 w-5" />
             </div>
             <div className="min-w-0">
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-[#C1121F]">O que é o AMT Pay</div>
-              <h2 className="text-base font-semibold tracking-tight">Sua central financeira dentro do Dojo Manager</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Ao concluir este cadastro, criamos automaticamente uma subconta bancária <b>em seu nome</b> no
-                AMT Pay (parceiro regulado pelo BACEN), por onde seus alunos pagam mensalidades via PIX, boleto ou
-                cartão — e você saca direto para sua chave PIX.
+              <div className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wide text-[#C1121F]">O que é o AMT Pay</div>
+              <h2 className="text-sm sm:text-base font-semibold tracking-tight">Sua central financeira</h2>
+              <p className="mt-1 text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                Ao concluir este cadastro, criamos uma subconta bancária <b>em seu nome</b> no
+                AMT Pay para recebimentos automáticos.
               </p>
             </div>
           </div>
-          <div className="grid gap-3 p-5 md:grid-cols-3">
+          <div className={`grid gap-3 md:grid-cols-3 ${innerPad}`}>
             <div className="rounded-xl bg-white dark:bg-white/5 p-3 ring-1 ring-black/5 dark:ring-white/10">
               <div className="flex items-center gap-2 text-xs font-semibold">
                 <Percent className="h-3.5 w-3.5 text-[#C1121F]" /> Taxa AMT

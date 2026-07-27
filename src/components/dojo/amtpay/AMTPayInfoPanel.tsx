@@ -94,24 +94,24 @@ export function AMTPayInfoPanel() {
             <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">
               Taxas do meio de pagamento (AMT Pay)
             </div>
-            <div className="grid gap-2 md:grid-cols-3">
+            <div className="grid gap-2 grid-cols-1 xs:grid-cols-2 md:grid-cols-3">
               <FeeCard
                 icon={QrCode}
                 method="PIX"
                 fee="R$ 1,99"
-                note="por cobrança recebida"
+                note="por transação"
               />
               <FeeCard
                 icon={Barcode}
-                method="Boleto bancário"
+                method="Boleto"
                 fee="R$ 1,99"
                 note="por boleto pago"
               />
               <FeeCard
                 icon={CreditCard}
-                method="Cartão de crédito"
+                method="Cartão"
                 fee="2,99% + R$ 0,49"
-                note="à vista; parcelado tem tarifa progressiva"
+                note="venda à vista"
               />
             </div>
             <p className="text-[11px] text-muted-foreground mt-2 leading-relaxed">
@@ -144,7 +144,7 @@ export function AMTPayInfoPanel() {
             Prazos de recebimento
           </CardTitle>
         </CardHeader>
-        <CardContent className="grid gap-2 md:grid-cols-3 text-sm">
+        <CardContent className="grid gap-2 grid-cols-1 xs:grid-cols-2 md:grid-cols-3 text-sm">
           <TermCard label="PIX" value="Em segundos" note="Confirmação instantânea" />
           <TermCard label="Boleto" value="1 a 2 dias úteis" note="Após a compensação bancária" />
           <TermCard label="Cartão de crédito" value="D+30 (padrão)" note="Ou D+2 com antecipação" />

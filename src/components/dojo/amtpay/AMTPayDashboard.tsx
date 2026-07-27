@@ -13,7 +13,7 @@ export function AMTPayDashboard() {
   const d = q.data;
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+    <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
       <MetricCard icon={Wallet}       label="Saldo disponível"       value={brl(d?.balance.available ?? 0)}      tone="primary" />
       <MetricCard icon={Hourglass}    label="Saldo a receber"        value={brl(d?.balance.pending ?? 0)}        tone="warning" />
       <MetricCard icon={CalendarDays} label="Recebimentos hoje"      value={brl(d?.receiptsToday ?? 0)}          tone="success" />
@@ -21,8 +21,8 @@ export function AMTPayDashboard() {
       <MetricCard icon={Users}        label="Mensalidades ativas"    value={String(d?.activeSubscriptions ?? 0)} tone="muted" />
       <MetricCard icon={FileText}     label="Cobranças em aberto"    value={String(d?.openInvoices ?? 0)}        tone="muted" />
       <MetricCard icon={ShieldAlert}  label="Inadimplência"          value={brl(d?.overdueAmount ?? 0)}          tone="danger" />
-      <MetricCard icon={RefreshCw}    label="Última sincronização"
-        value={d?.lastSyncAt ? new Date(d.lastSyncAt).toLocaleString("pt-BR") : "—"} tone="muted" small />
+      <MetricCard icon={RefreshCw}    label="Última atualização"
+        value={d?.lastSyncAt ? new Date(d.lastSyncAt).toLocaleString("pt-BR", { hour: '2-digit', minute: '2-digit' }) : "—"} tone="muted" small />
     </div>
   );
 }
@@ -48,14 +48,14 @@ function MetricCard({
     muted: "text-muted-foreground bg-muted",
   };
   return (
-    <Card>
-      <CardContent className="p-4 flex items-center gap-3">
-        <div className={`h-9 w-9 rounded-xl flex items-center justify-center ${toneMap[tone]}`}>
+    <Card className="overflow-hidden">
+      <CardContent className="p-3 sm:p-4 flex items-center gap-3">
+        <div className={`h-8 w-8 sm:h-9 sm:w-9 shrink-0 rounded-xl flex items-center justify-center ${toneMap[tone]}`}>
           <Icon className="h-4 w-4" />
         </div>
-        <div className="min-w-0">
-          <div className="text-[11px] uppercase tracking-wider text-muted-foreground truncate">{label}</div>
-          <div className={`font-semibold tracking-tight ${small ? "text-sm" : "text-lg"}`}>{value}</div>
+        <div className="min-w-0 flex-1">
+          <div className="text-[9px] sm:text-[11px] uppercase tracking-wider text-muted-foreground truncate leading-tight mb-0.5">{label}</div>
+          <div className={`font-bold tracking-tight truncate ${small ? "text-xs sm:text-sm" : "text-base sm:text-lg"}`}>{value}</div>
         </div>
       </CardContent>
     </Card>

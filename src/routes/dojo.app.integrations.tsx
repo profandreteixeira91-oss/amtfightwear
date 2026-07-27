@@ -83,36 +83,39 @@ function AMTPayHub() {
       <header className="relative overflow-hidden rounded-2xl border border-red-900/20 bg-gradient-to-br from-neutral-950 via-red-950 to-neutral-900 text-white shadow-[0_20px_60px_-20px_rgba(220,38,38,0.45)]">
         <div className="pointer-events-none absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_20%_0%,rgba(239,68,68,0.35),transparent_55%),radial-gradient(circle_at_80%_100%,rgba(220,38,38,0.25),transparent_50%)]" />
         <div className="pointer-events-none absolute inset-0 [background-image:linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:32px_32px]" />
-        <div className="relative flex items-start justify-between flex-wrap gap-6 p-6 md:p-8">
-          <div className="flex items-start gap-5 min-w-0">
-            <div className="relative shrink-0">
+        <div className="relative flex flex-col gap-6 p-6 sm:flex-row sm:items-start sm:justify-between sm:p-8">
+          <div className="flex flex-col gap-4 items-start sm:flex-row sm:gap-5 min-w-0">
+            <div className="relative shrink-0 mx-auto sm:mx-0">
               <div className="absolute -inset-2 rounded-2xl bg-red-500/20 blur-xl" />
               <img
                 src={amtPayLogoUrl}
                 alt="AMT Pay"
-                className="relative h-20 w-20 md:h-24 md:w-24 object-contain drop-shadow-[0_6px_20px_rgba(0,0,0,0.5)]"
+                className="relative h-16 w-16 sm:h-24 sm:w-24 object-contain drop-shadow-[0_6px_20px_rgba(0,0,0,0.5)]"
               />
             </div>
-            <div className="min-w-0">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.18em] text-red-200 backdrop-blur">
+            <div className="min-w-0 text-center sm:text-left">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.18em] text-red-200 backdrop-blur sm:text-[10px]">
                 <CreditCard className="h-3 w-3" /> AMT Pay · Central financeira
               </div>
-              <h1 className="mt-3 font-display text-2xl md:text-4xl font-bold tracking-tight leading-tight">
+              <h1 className="mt-3 font-display text-xl sm:text-3xl md:text-4xl font-bold tracking-tight leading-tight">
                 Integrações & motor financeiro
               </h1>
-              <p className="mt-2 text-sm md:text-base text-white/70 max-w-2xl leading-relaxed">
-                Ative pagamentos com PIX, Boleto e Cartão em nome do seu dojo — ou
-                continue registrando cobranças manualmente pela sua operadora atual.
+              <p className="mt-2 text-xs sm:text-base text-white/70 max-w-2xl leading-relaxed">
+                Ative pagamentos com PIX, Boleto e Cartão em nome do seu dojo.
               </p>
               {activated && (
-                <div className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-semibold text-emerald-300">
+                <div className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2.5 py-1 text-[10px] font-semibold text-emerald-300">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   AMT Pay ativo
                 </div>
               )}
             </div>
           </div>
-          {activated && <DisconnectAMTPayButton />}
+          {activated && (
+            <div className="flex justify-center sm:block">
+              <DisconnectAMTPayButton />
+            </div>
+          )}
         </div>
       </header>
 
@@ -253,7 +256,7 @@ function DisconnectAMTPayButton() {
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
-        <Button size="sm" className="bg-white/10 text-white border border-white/25 hover:bg-red-600 hover:text-white hover:border-red-600 backdrop-blur shadow-sm">
+        <Button size="sm" variant="outline" className="w-full bg-white/10 text-white border border-white/25 hover:bg-red-600 hover:text-white hover:border-red-600 backdrop-blur shadow-sm sm:w-auto">
           <Unplug className="h-4 w-4 mr-2" /> Desconectar AMT Pay
         </Button>
       </AlertDialogTrigger>
@@ -289,7 +292,7 @@ function FullHub() {
   return (
     <Tabs defaultValue="dashboard" className="w-full">
       <div className="overflow-x-auto -mx-1 px-1">
-        <TabsList className="inline-flex h-auto flex-nowrap gap-1 rounded-xl border border-neutral-200 bg-neutral-50/80 p-1.5 shadow-sm backdrop-blur">
+        <TabsList className="inline-flex h-auto flex-nowrap gap-1 rounded-xl border border-neutral-200 bg-neutral-50/80 p-1 shadow-sm backdrop-blur">
           {[
             { v: "dashboard", i: <LayoutDashboard className="h-3.5 w-3.5" />, l: "Visão geral" },
             { v: "wallet", i: <Wallet className="h-3.5 w-3.5" />, l: "Carteira" },
@@ -306,7 +309,7 @@ function FullHub() {
             <TabsTrigger
               key={t.v}
               value={t.v}
-              className="gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold whitespace-nowrap data-[state=active]:bg-red-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:shadow-red-600/25 transition-all"
+              className="gap-1.5 rounded-lg px-2.5 py-1.5 text-[10px] sm:text-xs font-semibold whitespace-nowrap data-[state=active]:bg-red-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:shadow-red-600/25 transition-all"
             >
               {t.i} {t.l}
             </TabsTrigger>
