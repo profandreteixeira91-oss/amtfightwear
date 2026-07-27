@@ -39,15 +39,15 @@ function GraduationsPage() {
           return (
             <li key={g.id} className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-neutral-100">
               <div className="flex items-center gap-3">
-                <div className="h-8 w-2 rounded-full" style={{ background: b?.color_hex ?? "#000" }} />
+                <div className="h-8 w-2 shrink-0 rounded-full" style={{ background: b?.color_hex ?? "#000" }} />
                 <div className="min-w-0 flex-1">
-                  <div className="text-sm font-semibold">{b?.name ?? "Faixa"}{degreeSuffix(g.degree, b?.modality, " · ", b?.name)}</div>
-                  <div className="text-xs text-neutral-500">
+                  <div className="break-words text-sm font-semibold">{b?.name ?? "Faixa"}{degreeSuffix(g.degree, b?.modality, " · ", b?.name)}</div>
+                  <div className="break-words text-xs text-neutral-500">
                     {new Date(g.graduation_date).toLocaleDateString("pt-BR")} {g.evaluator ? `· ${g.evaluator}` : ""}
                   </div>
                 </div>
               </div>
-              {g.notes && <div className="mt-2 text-xs text-neutral-600">{g.notes}</div>}
+              {g.notes && <div className="mt-2 break-words text-xs text-neutral-600">{g.notes}</div>}
             </li>
           );
         })}
