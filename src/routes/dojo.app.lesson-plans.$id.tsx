@@ -278,11 +278,11 @@ function LessonEditorPage() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <Button variant="ghost" size="sm" onClick={() => navigate({ to: "/dojo/app/lesson-plans" })}>
+        <Button variant="ghost" size="sm" onClick={() => navigate({ to: "/dojo/app/lesson-plans" })} className="shrink-0">
           <ChevronLeft className="mr-1 h-4 w-4" /> Voltar
         </Button>
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs text-muted-foreground">
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
+          <span className="min-w-0 max-w-[180px] truncate text-xs text-muted-foreground sm:max-w-none">
             {save.isPending ? "Salvando…" : save.isSuccess ? "Salvo automaticamente" : ""}
           </span>
           <Dialog>
