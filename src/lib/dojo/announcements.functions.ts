@@ -188,8 +188,24 @@ export const saveAnnouncement = createServerFn({ method: "POST" })
             link: `/app/announcements/${row.id}`,
           }));
           await context.supabase.from("dojo_student_notifications").insert(notifRows);
+          try {
+            const { sendPushToStudent } = await import("@/lib/push/push.server");
+            await Promise.all(
+              visibleStudents.map((sid) =>
+                sendPushToStudent(sid, {
+                  title: row.title,
+                  body: row.summary || row.subtitle || "Novo aviso publicado",
+                  url: `/app/announcements/${row.id}`,
+                  tag: `announcement-${row.id}`,
+                  data: { announcementId: row.id, type: "announcement" },
+                }).catch(() => undefined),
+              ),
+            );
+          } catch (e) {
+            console.error("[announcements] push send failed", e);
+          }
         }
-      } catch { /* soft-fail */ }
+      } catch (e) { console.error("[announcements] notify failed", e); }
     }
     return row;
   });
