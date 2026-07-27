@@ -1243,10 +1243,10 @@ function NewGraduationPage() {
       {step === "payment" && (
         <Card className="overflow-hidden shadow-sm">
           <CardHeader className="border-b bg-muted/30">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Award className="h-4 w-4 text-primary" />
-              Confirmação de pagamento
-              <span className="ml-2 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+            <CardTitle className="flex flex-wrap items-center gap-2 text-base">
+              <Award className="h-4 w-4 shrink-0 text-primary" />
+              <span className="min-w-0 break-words">Confirmação de pagamento</span>
+              <span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
                 {selectedRows.length} aluno(s)
               </span>
             </CardTitle>
