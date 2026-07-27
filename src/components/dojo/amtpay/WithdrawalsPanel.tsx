@@ -76,9 +76,9 @@ export function WithdrawalsPanel() {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[720px]">
-            <thead className="text-xs text-muted-foreground border-b">
+        <div className="overflow-x-auto -mx-2 px-2 sm:mx-0 sm:px-0">
+          <table className="w-full text-sm min-w-[640px]">
+            <thead className="text-[10px] sm:text-xs text-muted-foreground border-b uppercase tracking-wider">
               <tr className="text-left">
                 <th className="py-2 pr-3">Data</th>
                 <th className="pr-3">Valor</th>

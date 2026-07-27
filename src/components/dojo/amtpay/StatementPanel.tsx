@@ -81,29 +81,29 @@ export function StatementPanel() {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          <div>
-            <label className="text-xs text-muted-foreground">De</label>
-            <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">De</label>
+            <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="h-9 text-xs" />
           </div>
-          <div>
-            <label className="text-xs text-muted-foreground">Até</label>
-            <Input type="date" value={to} onChange={(e) => setTo(e.target.value)} />
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">Até</label>
+            <Input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="h-9 text-xs" />
           </div>
-          <div>
-            <label className="text-xs text-muted-foreground">Tipo</label>
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">Tipo</label>
             <Select value={kind} onValueChange={setKind}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos</SelectItem>
                 {Object.entries(KIND_LABEL).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
-          <div>
-            <label className="text-xs text-muted-foreground">Forma</label>
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">Forma</label>
             <Select value={method} onValueChange={setMethod}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todas</SelectItem>
                 <SelectItem value="pix">PIX</SelectItem>
@@ -118,9 +118,9 @@ export function StatementPanel() {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[720px]">
-            <thead className="text-xs text-muted-foreground border-b">
+        <div className="overflow-x-auto -mx-2 px-2 sm:mx-0 sm:px-0">
+          <table className="w-full text-sm min-w-[640px]">
+            <thead className="text-[10px] sm:text-xs text-muted-foreground border-b uppercase tracking-wider">
               <tr className="text-left">
                 <th className="py-2 pr-3">Data</th>
                 <th className="pr-3">Tipo</th>
