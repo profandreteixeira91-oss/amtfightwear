@@ -179,16 +179,16 @@ function LessonPlansDashboardPage() {
       {stats?.next_lesson ? (
         <div className="relative overflow-hidden rounded-2xl border border-red-500/20 bg-gradient-to-br from-neutral-950 via-neutral-900 to-red-950/40 p-5 text-white shadow-[0_20px_60px_-30px_rgba(220,38,38,0.6)]">
           <div aria-hidden className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-red-500/20 blur-3xl" />
-          <div className="relative flex flex-wrap items-center justify-between gap-3">
-            <div className="min-w-0 flex-1">
+          <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0 flex-1 space-y-1">
               <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-red-300">Próxima aula</div>
-              <div className="mt-1 truncate text-lg font-bold">{stats.next_lesson.title}</div>
-              <div className="mt-0.5 truncate text-sm text-neutral-300">
-                {new Date(stats.next_lesson.date).toLocaleDateString("pt-BR")}
-                {stats.next_lesson.start_time ? ` · ${stats.next_lesson.start_time.slice(0, 5)}` : ""}
-                {(stats.next_lesson.dojo_classes as { name?: string } | null)?.name
-                  ? ` · ${(stats.next_lesson.dojo_classes as { name?: string }).name}`
-                  : ""}
+              <div className="break-words text-lg font-bold leading-tight">{stats.next_lesson.title}</div>
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-neutral-300">
+                <span className="shrink-0">{new Date(stats.next_lesson.date).toLocaleDateString("pt-BR")}</span>
+                {stats.next_lesson.start_time && <span className="shrink-0">· {stats.next_lesson.start_time.slice(0, 5)}</span>}
+                {(stats.next_lesson.dojo_classes as { name?: string } | null)?.name && (
+                  <span className="truncate">· {(stats.next_lesson.dojo_classes as { name?: string }).name}</span>
+                )}
               </div>
             </div>
             <Button asChild size="sm" className="bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_8px_20px_-10px_rgba(220,38,38,0.9)] hover:from-red-500 hover:to-red-400">
@@ -457,11 +457,11 @@ function ListView({
               {new Date(p.date as string).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}
               {p.start_time ? ` · ${(p.start_time as string).slice(0, 5)}` : ""}
             </div>
-            <div className="min-w-0 flex-1">
-              <div className="truncate font-semibold">{p.title}</div>
-              <div className="truncate text-xs text-neutral-400">
-                {(p.dojo_classes as { name?: string } | null)?.name ?? "—"}
-                {p.modality ? ` · ${p.modality}` : ""}
+            <div className="min-w-0 flex-1 space-y-0.5">
+              <div className="break-words font-semibold leading-tight">{p.title}</div>
+              <div className="flex flex-wrap gap-x-2 gap-y-0.5 text-xs text-neutral-400">
+                <span className="truncate">{(p.dojo_classes as { name?: string } | null)?.name ?? "—"}</span>
+                {p.modality && <span className="truncate">· {p.modality}</span>}
               </div>
             </div>
             <Badge className={`${STATUS_COLORS[p.status as string] ?? "border-white/10 bg-white/5 text-white"} capitalize`} variant="outline">

@@ -508,44 +508,65 @@ function LessonEditorPage() {
                             {b.items.map((it) => (
                               <SortableRow key={it.id} id={it.id}>
                                 {({ listeners: iL, attributes: iA }) => (
-                                  <div className="grid grid-cols-12 items-center gap-2 rounded border bg-muted/30 p-2 text-sm">
-                                    <div className="col-span-2 flex justify-center sm:col-span-1">
+                                  <div className="flex flex-col gap-2 rounded-lg border bg-muted/30 p-3 text-sm sm:grid sm:grid-cols-12 sm:items-center sm:gap-2 sm:p-2">
+                                    <div className="flex items-center justify-between sm:col-span-1 sm:justify-center">
                                       <DragHandle listeners={iL as Record<string, unknown>} attributes={iA as unknown as Record<string, unknown>} />
+                                      <div className="flex items-center gap-1 sm:hidden">
+                                        <Button variant="ghost" size="icon" onClick={() => removeItem(b.id, it.id)}>
+                                          <Trash2 className="h-4 w-4 text-red-500" />
+                                        </Button>
+                                      </div>
                                     </div>
-                                    <Input
-                                      className="col-span-10 min-w-0 sm:col-span-3"
-                                      value={it.name}
-                                      onChange={(e) => updateItem(b.id, it.id, { name: e.target.value })}
-                                      placeholder="Exercício / técnica"
-                                    />
-                                    <Input
-                                      className="col-span-12 min-w-0 sm:col-span-4"
-                                      value={it.description ?? ""}
-                                      onChange={(e) => updateItem(b.id, it.id, { description: e.target.value })}
-                                      placeholder="Descrição"
-                                    />
-                                    <Input
-                                      className="col-span-3 min-w-0 sm:col-span-1"
-                                      value={it.time_min ?? ""}
-                                      onChange={(e) => updateItem(b.id, it.id, { time_min: e.target.value ? Number(e.target.value) : null })}
-                                      placeholder="min"
-                                      type="number"
-                                    />
-                                    <Input
-                                      className="col-span-3 min-w-0 sm:col-span-1"
-                                      value={it.reps ?? ""}
-                                      onChange={(e) => updateItem(b.id, it.id, { reps: e.target.value })}
-                                      placeholder="rep"
-                                    />
-                                    <Input
-                                      className="col-span-3 min-w-0 sm:col-span-1"
-                                      value={it.sets ?? ""}
-                                      onChange={(e) => updateItem(b.id, it.id, { sets: e.target.value })}
-                                      placeholder="sér"
-                                    />
-                                    <Button variant="ghost" size="icon" className="col-span-3 justify-self-end sm:col-span-1" onClick={() => removeItem(b.id, it.id)}>
-                                      <Trash2 className="h-4 w-4 text-red-500" />
-                                    </Button>
+                                    <div className="space-y-1 sm:col-span-3">
+                                      <Label className="text-[10px] uppercase text-muted-foreground sm:hidden">Técnica / Exercício</Label>
+                                      <Input
+                                        className="w-full"
+                                        value={it.name}
+                                        onChange={(e) => updateItem(b.id, it.id, { name: e.target.value })}
+                                        placeholder="Nome"
+                                      />
+                                    </div>
+                                    <div className="space-y-1 sm:col-span-4">
+                                      <Label className="text-[10px] uppercase text-muted-foreground sm:hidden">Descrição</Label>
+                                      <Input
+                                        className="w-full"
+                                        value={it.description ?? ""}
+                                        onChange={(e) => updateItem(b.id, it.id, { description: e.target.value })}
+                                        placeholder="Instruções"
+                                      />
+                                    </div>
+                                    <div className="grid grid-cols-3 gap-2 sm:col-span-3 sm:grid-cols-3">
+                                      <div className="space-y-1">
+                                        <Label className="text-[10px] uppercase text-muted-foreground sm:hidden">Min</Label>
+                                        <Input
+                                          value={it.time_min ?? ""}
+                                          onChange={(e) => updateItem(b.id, it.id, { time_min: e.target.value ? Number(e.target.value) : null })}
+                                          placeholder="Tempo"
+                                          type="number"
+                                        />
+                                      </div>
+                                      <div className="space-y-1">
+                                        <Label className="text-[10px] uppercase text-muted-foreground sm:hidden">Rep</Label>
+                                        <Input
+                                          value={it.reps ?? ""}
+                                          onChange={(e) => updateItem(b.id, it.id, { reps: e.target.value })}
+                                          placeholder="Rep"
+                                        />
+                                      </div>
+                                      <div className="space-y-1">
+                                        <Label className="text-[10px] uppercase text-muted-foreground sm:hidden">Sér</Label>
+                                        <Input
+                                          value={it.sets ?? ""}
+                                          onChange={(e) => updateItem(b.id, it.id, { sets: e.target.value })}
+                                          placeholder="Sér"
+                                        />
+                                      </div>
+                                    </div>
+                                    <div className="hidden sm:col-span-1 sm:block">
+                                      <Button variant="ghost" size="icon" onClick={() => removeItem(b.id, it.id)}>
+                                        <Trash2 className="h-4 w-4 text-red-500" />
+                                      </Button>
+                                    </div>
                                   </div>
                                 )}
                               </SortableRow>
