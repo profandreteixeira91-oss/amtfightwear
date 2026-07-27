@@ -8,8 +8,9 @@ import {
   addDojoGraduation, deleteDojoGraduation,
   saveDojoEnrollment, deleteDojoEnrollment, changeStudentPlan,
   saveDojoInvoice, markDojoInvoicePaid, deleteDojoInvoice,
-  deleteDojoStudent, saveDojoStudent,
+  deleteDojoStudent, saveDojoStudent, freezeDojoStudent, unfreezeDojoStudent, restoreDojoStudent,
 } from "@/lib/dojo/dojo.functions";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { listAttendance, regenerateStudentCodes } from "@/lib/dojo/attendance.functions";
 import { getStudentCompetitionHistory } from "@/lib/dojo/competitions/rankings.functions";
 import { Button } from "@/components/ui/button";
