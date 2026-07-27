@@ -950,6 +950,7 @@ function NewGraduationPage() {
                         </div>
                       </div>
                     </div>
+                    <div className="flex-1 min-w-0">
                       {(() => {
                         const p = progressById.get(s.id);
                         if (!p) return null;
