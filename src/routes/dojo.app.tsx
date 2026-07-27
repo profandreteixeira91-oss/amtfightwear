@@ -221,7 +221,7 @@ function DojoLayout() {
       link.rel = "manifest";
       head.appendChild(link);
     }
-    link.setAttribute("href", "/dojo-manifest.webmanifest");
+    link.setAttribute("href", "/api/public/dojo-manifest.webmanifest?v=3");
 
     let themeMeta = head.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
     const prevTheme = themeMeta?.getAttribute("content") ?? null;

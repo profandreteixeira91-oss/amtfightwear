@@ -64,13 +64,18 @@ export function subscribeInstallState(listener: () => void): () => void {
 export async function triggerInstallPrompt(): Promise<
   "accepted" | "dismissed" | "unavailable"
 > {
-  const evt = deferredEvent;
+  const early =
+    typeof window !== "undefined"
+      ? ((window as any).__amtInstallPrompt as BeforeInstallPromptEvent | null | undefined)
+      : null;
+  const evt = deferredEvent ?? early ?? null;
   if (!evt) return "unavailable";
   try {
     await evt.prompt();
     const choice = await evt.userChoice;
     // O evento só pode ser usado uma vez.
     deferredEvent = null;
+    if (typeof window !== "undefined") (window as any).__amtInstallPrompt = null;
     emit();
     return choice.outcome;
   } catch {

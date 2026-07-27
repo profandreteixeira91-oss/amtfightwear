@@ -1,0 +1,68 @@
+import { createFileRoute } from "@tanstack/react-router";
+
+const DOJO_MANIFEST = {
+  id: "/dojo/app/",
+  name: "AMT Dojo Manager",
+  short_name: "Dojo Manager",
+  description:
+    "Painel completo do dono do dojo — alunos, agenda, graduações, financeiro, AMT Pay e loja.",
+  start_url: "/dojo/app",
+  scope: "/dojo/",
+  display: "standalone",
+  display_override: ["standalone", "minimal-ui", "browser"],
+  orientation: "portrait",
+  background_color: "#0a0a0a",
+  theme_color: "#dc2626",
+  lang: "pt-BR",
+  dir: "ltr",
+  categories: ["business", "productivity", "sports"],
+  prefer_related_applications: false,
+  icons: [
+    { src: "/dojo-icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+    { src: "/dojo-icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+    { src: "/dojo-icon-192.png", sizes: "192x192", type: "image/png", purpose: "maskable" },
+    { src: "/dojo-icon-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+    { src: "/dojo-icon-180.png", sizes: "180x180", type: "image/png", purpose: "any" },
+  ],
+  shortcuts: [
+    {
+      name: "Alunos",
+      short_name: "Alunos",
+      url: "/dojo/app/students",
+      icons: [{ src: "/dojo-icon-192.png", sizes: "192x192", type: "image/png" }],
+    },
+    {
+      name: "Agenda",
+      short_name: "Agenda",
+      url: "/dojo/app/schedule",
+      icons: [{ src: "/dojo-icon-192.png", sizes: "192x192", type: "image/png" }],
+    },
+    {
+      name: "Financeiro",
+      short_name: "Financeiro",
+      url: "/dojo/app/finance",
+      icons: [{ src: "/dojo-icon-192.png", sizes: "192x192", type: "image/png" }],
+    },
+    {
+      name: "AMT Pay",
+      short_name: "AMT Pay",
+      url: "/dojo/app/integrations",
+      icons: [{ src: "/dojo-icon-192.png", sizes: "192x192", type: "image/png" }],
+    },
+  ],
+};
+
+export const Route = createFileRoute("/api/public/dojo-manifest.webmanifest")({
+  server: {
+    handlers: {
+      GET: async () =>
+        new Response(JSON.stringify(DOJO_MANIFEST), {
+          status: 200,
+          headers: {
+            "Content-Type": "application/manifest+json; charset=utf-8",
+            "Cache-Control": "no-cache, must-revalidate",
+          },
+        }),
+    },
+  },
+});

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Bell, BellOff, Download, Loader2, Smartphone, Trash2 } from "lucide-react";
@@ -9,6 +9,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { registerPwa } from "@/lib/pwa/register";
+import {
+  getDeferredInstallPrompt,
+  isPwaInstalled,
+  subscribeInstallState,
+  triggerInstallPrompt,
+} from "@/lib/pwa/install-prompt";
 import {
   getCurrentSubscription,
   isPushSupported,
@@ -23,11 +29,6 @@ import {
   unsubscribeOwnerPush,
   updateOwnerPushCategories,
 } from "@/lib/dojo/owner-push.functions";
-
-type BeforeInstallPromptEvent = Event & {
-  prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
-};
 
 type CategoryKey =
   | "sales"
@@ -69,30 +70,22 @@ export function DojoPushCard() {
     typeof Notification !== "undefined" ? Notification.permission : "unsupported",
   );
   const [currentEndpoint, setCurrentEndpoint] = useState<string | null>(null);
-  const [installEvent, setInstallEvent] = useState<BeforeInstallPromptEvent | null>(null);
-  const [isInstalled, setIsInstalled] = useState(false);
+  const installEvent = useSyncExternalStore(
+    subscribeInstallState,
+    () => getDeferredInstallPrompt(),
+    () => null,
+  );
+  const isInstalled = useSyncExternalStore(
+    subscribeInstallState,
+    () => isPwaInstalled(),
+    () => false,
+  );
 
   useEffect(() => {
     void registerPwa();
     setSupported(isPushSupported());
     if (!isPushSupported()) return;
     void getCurrentSubscription().then((s) => setCurrentEndpoint(s?.endpoint ?? null));
-  }, []);
-
-  useEffect(() => {
-    const handler = (e: Event) => {
-      e.preventDefault();
-      setInstallEvent(e as BeforeInstallPromptEvent);
-    };
-    window.addEventListener("beforeinstallprompt", handler);
-    const mql = window.matchMedia?.("(display-mode: standalone)");
-    const setInst = () => setIsInstalled(!!mql?.matches || (navigator as any).standalone === true);
-    setInst();
-    mql?.addEventListener?.("change", setInst);
-    return () => {
-      window.removeEventListener("beforeinstallprompt", handler);
-      mql?.removeEventListener?.("change", setInst);
-    };
   }, []);
 
   const subsQuery = useQuery({
@@ -187,15 +180,14 @@ export function DojoPushCard() {
   const installApp = async () => {
     if (!installEvent) {
       toast.info(
-        "No iPhone: use Compartilhar → Adicionar à Tela de Início. No Android/Chrome, o navegador exibe o prompt automaticamente.",
+        "A instalação ainda não está disponível neste navegador. Abra esta página diretamente no Chrome; no iPhone, use Compartilhar → Adicionar à Tela de Início.",
         { duration: 8000 },
       );
       return;
     }
-    await installEvent.prompt();
-    const choice = await installEvent.userChoice;
-    if (choice.outcome === "accepted") toast.success("Aplicativo instalado.");
-    setInstallEvent(null);
+    const outcome = await triggerInstallPrompt();
+    if (outcome === "accepted") toast.success("Aplicativo instalado.");
+    if (outcome === "dismissed") toast.message("Instalação cancelada.");
   };
 
   const enabled = !!currentEndpoint;
