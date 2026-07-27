@@ -279,13 +279,13 @@ function PlansPage() {
           {/* ============ SIDEBAR ============ */}
           <aside className="space-y-2 lg:sticky lg:top-4 lg:self-start">
             <Card className="dojo-card overflow-hidden">
-              <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
-                <CardTitle className="text-sm font-semibold">Planos cadastrados</CardTitle>
-                <Badge variant="secondary" className="text-xs">
+              <CardHeader className="flex flex-row items-center justify-between gap-2 p-3 sm:p-4">
+                <CardTitle className="text-xs font-bold uppercase tracking-wider sm:text-sm">Planos</CardTitle>
+                <Badge variant="secondary" className="h-5 px-1.5 text-[10px] font-bold">
                   {plans.data?.length ?? 0}
                 </Badge>
               </CardHeader>
-              <CardContent className="p-2">
+              <CardContent className="p-1.5 sm:p-2">
                 <div className="max-h-[60vh] space-y-1 overflow-y-auto pr-1">
                   {(plans.data ?? []).map((p: any) => {
                     const active = selectedId === p.id;

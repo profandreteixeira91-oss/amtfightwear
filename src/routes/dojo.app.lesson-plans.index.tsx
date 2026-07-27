@@ -170,11 +170,11 @@ function LessonPlansDashboardPage() {
   return (
     <div className="space-y-6">
       {/* KPI CARDS */}
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <KpiCard label="Planejadas (semana)" value={stats?.week_planned ?? 0} icon={CalendarDays} tone="sky" />
-        <KpiCard label="Realizadas (semana)" value={stats?.week_done ?? 0} icon={CheckCircle2} tone="emerald" />
-        <KpiCard label="Horas planejadas" value={formatHours(stats?.total_planned_min ?? 0)} icon={Clock} tone="violet" />
-        <KpiCard label="Turmas ativas" value={stats?.active_classes ?? 0} icon={Users} tone="amber" />
+      <div className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-4">
+        <KpiCard label="Semana" value={stats?.week_planned ?? 0} icon={CalendarDays} tone="sky" />
+        <KpiCard label="Realizadas" value={stats?.week_done ?? 0} icon={CheckCircle2} tone="emerald" />
+        <KpiCard label="Horas" value={formatHours(stats?.total_planned_min ?? 0)} icon={Clock} tone="violet" />
+        <KpiCard label="Turmas" value={stats?.active_classes ?? 0} icon={Users} tone="amber" />
       </div>
 
       {stats?.next_lesson ? (
@@ -314,15 +314,15 @@ function KpiCard({
   } as const;
   const t = toneMap[tone];
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-neutral-950/70 p-4 text-white backdrop-blur">
-      <div aria-hidden className={`pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-gradient-to-br ${t.grad} opacity-20 blur-2xl`} />
-      <div className="relative flex items-center gap-3">
-        <div className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br ${t.grad} text-white ring-1 ${t.ring} ${t.glow}`}>
-          <Icon className="h-5 w-5" />
+    <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-neutral-950/70 p-3 sm:p-4 text-white backdrop-blur">
+      <div aria-hidden className={`pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full bg-gradient-to-br ${t.grad} opacity-20 blur-2xl sm:h-24 sm:w-24`} />
+      <div className="relative flex items-center gap-2.5 sm:gap-3">
+        <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br ${t.grad} text-white ring-1 ${t.ring} ${t.glow} sm:h-11 sm:w-11`}>
+          <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
         </div>
         <div className="min-w-0">
-          <div className="text-[11px] font-medium uppercase tracking-wide text-neutral-400">{label}</div>
-          <div className="text-2xl font-black tracking-tight">{value}</div>
+          <div className="truncate text-[9px] font-medium uppercase tracking-wider text-neutral-400 sm:text-[11px]">{label}</div>
+          <div className="truncate text-lg font-black tracking-tight sm:text-2xl">{value}</div>
         </div>
       </div>
     </div>
