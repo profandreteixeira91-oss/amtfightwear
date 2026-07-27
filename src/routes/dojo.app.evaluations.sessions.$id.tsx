@@ -15,6 +15,13 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { ArrowLeft, Save, CheckCircle2, XCircle, RotateCcw, Plus } from "lucide-react";
 
+const RESULT_LABEL: Record<string, string> = {
+  approved: "Aprovado",
+  failed: "Reprovado",
+  review: "Revisão",
+  conditional: "Aprovado c/ ressalvas",
+};
+
 export const Route = createFileRoute("/dojo/app/evaluations/sessions/$id")({
   component: SessionRunner,
 });
