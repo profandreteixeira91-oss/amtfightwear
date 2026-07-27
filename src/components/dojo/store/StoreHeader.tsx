@@ -35,7 +35,7 @@ export function StoreHeader() {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-3xl border border-[color:var(--dojo-border)] bg-white/90 p-3 shadow-[var(--dojo-shadow-sm)] backdrop-blur sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:gap-4 sm:p-4">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-3xl border border-[color:var(--dojo-border)] bg-white/90 p-2 shadow-[var(--dojo-shadow-sm)] backdrop-blur sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:gap-4 sm:p-4">
         <Link
           to="/dojo/app/store"
           className="hidden shrink-0 items-center gap-2.5 rounded-2xl px-2 py-1 transition hover:bg-black/[0.03] sm:flex"
