@@ -1804,3 +1804,33 @@ export const bulkImportDojoStudents = createServerFn({ method: "POST" })
     }
     return results;
   });
+
+export const addStudentReferencePhoto = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({
+    studentId: z.string().uuid(),
+    photoUrl: z.string().url()
+  }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("dojo_student_reference_photos")
+      .insert({
+        student_id: data.studentId,
+        photo_url: data.photoUrl,
+        owner_id: context.userId
+      });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const deleteStudentReferencePhoto = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("dojo_student_reference_photos")
+      .delete()
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
