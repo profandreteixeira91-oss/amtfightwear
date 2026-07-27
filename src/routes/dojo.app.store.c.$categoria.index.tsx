@@ -91,19 +91,19 @@ function SubcategoryPage() {
               key={s.id}
               to="/dojo/app/store/c/$categoria/$subcategoria"
               params={{ categoria: parent.slug, subcategoria: s.slug }}
-              className="group flex items-center gap-4 rounded-2xl border border-[color:var(--dojo-border)] bg-white p-5 shadow-[var(--dojo-shadow-xs)] transition-all duration-300 hover:-translate-y-0.5 hover:border-foreground/20 hover:shadow-[var(--dojo-shadow-md)]"
+              className="group flex items-center gap-3 rounded-2xl border border-[color:var(--dojo-border)] bg-white p-4 shadow-[var(--dojo-shadow-xs)] transition-all duration-300 hover:-translate-y-0.5 hover:border-foreground/20 hover:shadow-[var(--dojo-shadow-md)] sm:gap-4 sm:p-5"
             >
-              <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-foreground/[0.04] text-foreground">
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-foreground/[0.04] text-foreground sm:h-12 sm:w-12">
                 <Layers className="h-5 w-5" strokeWidth={1.75} />
               </div>
               <div className="min-w-0 flex-1">
-                <div className="truncate text-base font-semibold tracking-tight text-foreground">
+                <div className="truncate text-sm font-semibold tracking-tight text-foreground sm:text-base">
                   {s.name}
                 </div>
-                <div className="text-xs text-muted-foreground">Ver produtos</div>
+                <div className="text-[11px] text-muted-foreground">Ver produtos</div>
               </div>
               <ArrowRight
-                className="h-5 w-5 shrink-0 text-muted-foreground transition-transform duration-300 group-hover:translate-x-1 group-hover:text-foreground"
+                className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-300 group-hover:translate-x-1 group-hover:text-foreground sm:h-5 sm:w-5"
                 strokeWidth={1.75}
               />
             </Link>
@@ -111,16 +111,16 @@ function SubcategoryPage() {
           <Link
             to="/dojo/app/store/c/$categoria/$subcategoria"
             params={{ categoria: parent.slug, subcategoria: "todos" }}
-            className="group flex items-center gap-4 rounded-2xl border border-dashed border-[color:var(--dojo-border)] bg-transparent p-5 text-foreground/70 transition hover:border-foreground/30 hover:text-foreground"
+            className="group flex items-center gap-3 rounded-2xl border border-dashed border-[color:var(--dojo-border)] bg-transparent p-4 text-foreground/70 transition hover:border-foreground/30 hover:text-foreground sm:gap-4 sm:p-5"
           >
-            <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-transparent text-foreground">
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-transparent text-foreground sm:h-12 sm:w-12">
               <PackageOpen className="h-5 w-5" strokeWidth={1.5} />
             </div>
-            <div className="flex-1">
-              <div className="text-sm font-semibold tracking-tight">Ver todos de {parent.name}</div>
-              <div className="text-xs text-muted-foreground">Sem filtro por subcategoria</div>
+            <div className="flex-1 min-w-0">
+              <div className="truncate text-xs sm:text-sm font-semibold tracking-tight">Ver todos de {parent.name}</div>
+              <div className="text-[11px] text-muted-foreground truncate">Sem filtro</div>
             </div>
-            <ArrowRight className="h-5 w-5 shrink-0" strokeWidth={1.75} />
+            <ArrowRight className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" strokeWidth={1.75} />
           </Link>
         </div>
       )}
