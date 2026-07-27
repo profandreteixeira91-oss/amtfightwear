@@ -190,11 +190,11 @@ function TechDialog({
     notes: initial?.notes ?? "",
   });
   return (
-    <DialogContent className="max-w-lg">
+    <DialogContent className="max-h-[90vh] w-[calc(100vw-1rem)] max-w-lg overflow-y-auto">
       <DialogHeader>
         <DialogTitle>{initial ? "Editar técnica" : "Nova técnica"}</DialogTitle>
       </DialogHeader>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
           <Label>Modalidade</Label>
           <Input value={form.modality} onChange={(e) => setForm({ ...form, modality: e.target.value })} />
