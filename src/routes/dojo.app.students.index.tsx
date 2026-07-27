@@ -207,6 +207,12 @@ function StudentsPage() {
     return true;
   });
 
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pageItems = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  useEffect(() => { setPage(1); }, [search, status, beltFilter, unitFilter, cityFilter]);
+
 
   function set<K extends keyof StudentForm>(key: K, val: StudentForm[K]) {
     setForm((f) => ({ ...f, [key]: val }));
