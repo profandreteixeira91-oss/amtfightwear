@@ -80,7 +80,7 @@ export const Route = createFileRoute("/api/public/hooks/send-dojo-reminders")({
         const { data: invoices, error } = await (supabaseAdmin as any)
           .from("dojo_invoices")
           .select(
-            "id, owner_id, description, amount, due_date, status, payment_link, asaas_invoice_url, asaas_pix_copypaste, student:dojo_students(id, full_name, email)",
+            "id, owner_id, description, amount, due_date, status, payment_link, asaas_invoice_url, asaas_pix_copypaste, student:dojo_students(id, full_name, email, status, cancelled_at)",
           )
           .in("status", ["pending", "overdue"])
           .gte("due_date", fromISO)
