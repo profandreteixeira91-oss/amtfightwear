@@ -68,6 +68,9 @@ function StudentDetail() {
   const attendanceFn = useServerFn(listAttendance);
 
   const delStudent = useServerFn(deleteDojoStudent);
+  const freezeStudent = useServerFn(freezeDojoStudent);
+  const unfreezeStudent = useServerFn(unfreezeDojoStudent);
+  const restoreStudent = useServerFn(restoreDojoStudent);
   const addGrad = useServerFn(addDojoGraduation);
   const delGrad = useServerFn(deleteDojoGraduation);
   const saveEnroll = useServerFn(saveDojoEnrollment);
