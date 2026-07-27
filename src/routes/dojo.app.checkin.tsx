@@ -1029,6 +1029,7 @@ function SettingsPanel() {
         geoLng: d.geo_lng ?? null,
         geoRadiusM: d.geo_radius_m ?? 50,
         geoAddress: d.geo_address ?? "",
+        facialRecognitionEnabled: d.facial_recognition_enabled ?? false,
       });
     } else if (!q.isLoading) {
       setState({
@@ -1037,6 +1038,7 @@ function SettingsPanel() {
         blockOnOverdue: false, warnOnOverdue: true, warnOnMedical: true,
         requirePartnerValidation: true, kioskPin: "",
         geoRequired: false, geoLat: null, geoLng: null, geoRadiusM: 50, geoAddress: "",
+        facialRecognitionEnabled: false,
       });
     }
   }, [q.data, q.isLoading]);
@@ -1083,6 +1085,7 @@ function SettingsPanel() {
           <SettingRow label="Avisar (sem bloquear) mensalidade em atraso" v={state.warnOnOverdue} onChange={(v) => upd("warnOnOverdue", v)} />
           <SettingRow label="Avisar sobre atestado médico vencido" v={state.warnOnMedical} onChange={(v) => upd("warnOnMedical", v)} />
           <SettingRow label="Exigir validação oficial para Gympass/TotalPass" v={state.requirePartnerValidation} onChange={(v) => upd("requirePartnerValidation", v)} />
+          <SettingRow label="Habilitar Check-in Inteligente por Foto (Reconhecimento Facial)" v={state.facialRecognitionEnabled} onChange={(v) => upd("facialRecognitionEnabled", v)} />
         </div>
 
         <div className="rounded-lg border p-4 space-y-3">
