@@ -111,19 +111,19 @@ function PdpPage() {
     : { to: "/dojo/app/store" as const, params: {} as any };
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-6 sm:space-y-10">
       <button
         onClick={() => nav(backTarget as any)}
-        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition hover:text-foreground"
+        className="inline-flex items-center gap-1.5 px-1 text-sm text-muted-foreground transition hover:text-foreground sm:px-0"
       >
         <ArrowLeft className="h-4 w-4" strokeWidth={1.75} /> Voltar
       </button>
 
-      <div className="grid gap-10 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2 lg:gap-10">
         {/* Galeria */}
         <div className="space-y-3">
           <div
-            className="relative aspect-square overflow-hidden rounded-3xl border border-[color:var(--dojo-border)] bg-[color:var(--dojo-surface-3)]"
+            className="relative aspect-square overflow-hidden rounded-2xl border border-[color:var(--dojo-border)] bg-[color:var(--dojo-surface-3)] sm:rounded-3xl"
             onMouseMove={(e) => {
               const r = (e.currentTarget as HTMLDivElement).getBoundingClientRect();
               setZoom({
@@ -172,24 +172,24 @@ function PdpPage() {
         </div>
 
         {/* Painel de compra */}
-        <div className="space-y-6">
-          <div className="space-y-2">
+        <div className="space-y-4 px-1 sm:space-y-6 sm:px-0">
+          <div className="space-y-1 sm:space-y-2">
             <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
               {product.category_name}
             </div>
-            <h1 className="text-3xl font-bold leading-tight tracking-tight text-foreground md:text-4xl">
+            <h1 className="text-2xl font-bold leading-tight tracking-tight text-foreground sm:text-3xl md:text-4xl">
               {product.name}
             </h1>
           </div>
 
           <div className="space-y-1">
-            <div className="flex items-baseline gap-3">
+            <div className="flex items-baseline gap-2 sm:gap-3">
               {compareAt && compareAt > price && (
-                <span className="text-base text-muted-foreground line-through">
+                <span className="text-sm text-muted-foreground line-through sm:text-base">
                   {brl(compareAt)}
                 </span>
               )}
-              <span className="text-4xl font-bold tracking-tight text-foreground">
+              <span className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
                 {brl(price)}
               </span>
               {compareAt && compareAt > price && (
