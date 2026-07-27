@@ -111,6 +111,18 @@ function DojoAuthPage() {
       });
       return;
     }
+    // E-mails já cadastrados como aluno não podem abrir conta de dono.
+    const { data: studentByEmail } = await supabase
+      .from("dojo_students")
+      .select("id")
+      .eq("email", email.trim().toLowerCase())
+      .limit(1);
+    if (studentByEmail && studentByEmail.length > 0) {
+      toast.error("E-mail de aluno", {
+        description: "Este e-mail está vinculado a uma matrícula. Use o App do Aluno em /app.",
+      });
+      return;
+    }
     setLoading(true);
     const { error, data } = await supabase.auth.signUp({
       email,
