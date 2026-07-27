@@ -327,10 +327,10 @@ function LessonEditorPage() {
         <CardHeader className="pb-3">
           <CardTitle>Informações gerais</CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          <div className="md:col-span-2">
-            <Label>Título</Label>
-            <Input value={form.title} onChange={(e) => patch({ title: e.target.value })} />
+        <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="sm:col-span-2">
+            <Label className="text-xs sm:text-sm">Título</Label>
+            <Input value={form.title} onChange={(e) => patch({ title: e.target.value })} className="h-9 sm:h-10 text-sm" />
           </div>
           <div className="md:col-span-2">
             <Label>Turma</Label>

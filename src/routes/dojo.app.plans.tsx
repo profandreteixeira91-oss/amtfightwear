@@ -390,12 +390,13 @@ function PlansPage() {
 
                 {/* Informações gerais */}
                 <SectionCard title="Informações Gerais" icon={Info}>
-                  <div className="grid gap-4 md:grid-cols-2">
+                  <div className="grid gap-3 sm:gap-4 md:grid-cols-2">
                     <Field label="Nome do plano" required>
                       <Input
                         value={form.name}
                         onChange={(e) => patch({ name: e.target.value })}
                         placeholder="Ex.: Mensal, Trimestral, Kids..."
+                        className="h-9 sm:h-10 text-sm"
                       />
                     </Field>
                     <Field label="Unidade">
@@ -431,6 +432,7 @@ function PlansPage() {
                         min="0"
                         value={form.amount}
                         onChange={(e) => patch({ amount: e.target.value })}
+                        className="h-9 sm:h-10 text-sm"
                       />
                     </Field>
                     <Field label="Taxa de matrícula (R$)" hint="Opcional — cobrada uma única vez">
@@ -440,6 +442,7 @@ function PlansPage() {
                         min="0"
                         value={form.enrollment_fee}
                         onChange={(e) => patch({ enrollment_fee: e.target.value })}
+                        className="h-9 sm:h-10 text-sm"
                       />
                     </Field>
                     <Field label="Frequência">

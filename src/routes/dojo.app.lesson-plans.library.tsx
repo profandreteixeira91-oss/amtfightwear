@@ -60,14 +60,14 @@ function LibraryPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="relative min-w-[180px] flex-1">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input className="pl-8" placeholder="Buscar conteúdo…" value={search} onChange={(e) => setSearch(e.target.value)} />
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <div className="relative min-w-0 flex-1">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input className="h-9 pl-9 text-sm" placeholder="Buscar conteúdo…" value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
         <Input
-          className="w-full sm:w-52"
-          placeholder="Filtrar por modalidade"
+          className="h-9 w-full text-sm sm:w-48"
+          placeholder="Modalidade"
           value={modality}
           onChange={(e) => setModality(e.target.value)}
         />
@@ -97,7 +97,7 @@ function LibraryPage() {
         </Dialog>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
         {(rows ?? []).map((c) => (
           <Card key={c.id} className="overflow-hidden">
             {c.image_url ? (
