@@ -1285,9 +1285,9 @@ function NewGraduationPage() {
                 return (
                   <div
                     key={s.id}
-                    className="grid gap-3 p-4 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,1fr)] md:items-center"
+                    className="flex flex-col gap-4 p-4 md:grid md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,1fr)] md:items-center md:gap-3"
                   >
-                    <div className="flex min-w-0 items-center gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
                       <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary/10 text-[11px] font-bold text-primary">
                         {initials(s.full_name)}
                       </div>
