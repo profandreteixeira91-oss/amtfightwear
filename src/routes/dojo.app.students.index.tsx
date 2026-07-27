@@ -1062,9 +1062,20 @@ function StudentsPage() {
                 </p>
                 <div className="flex gap-2 ml-auto">
                   <Button variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
-                  <Button onClick={onSave}>
-                    {form.id ? "Salvar alterações" : "Cadastrar aluno"}
-                  </Button>
+                  {!isLastTab && (
+                    <Button variant="outline" onClick={() => setTab(tabOrder[tabIndex - 1])} disabled={tabIndex === 0}>
+                      Voltar
+                    </Button>
+                  )}
+                  {isLastTab ? (
+                    <Button onClick={onSave}>
+                      {form.id ? "Salvar alterações" : "Cadastrar aluno"}
+                    </Button>
+                  ) : (
+                    <Button onClick={() => setTab(tabOrder[tabIndex + 1])}>
+                      Continuar
+                    </Button>
+                  )}
                 </div>
               </div>
 
