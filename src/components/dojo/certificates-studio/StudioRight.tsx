@@ -11,13 +11,34 @@ import { AlignCenter, AlignLeft, AlignRight, Bold, Italic, Underline, Lock, Unlo
 export function StudioRight() {
   const { doc, selection, updateSelected, deleteSelected, duplicateSelected, bringForward, sendBackward, bringToFront, sendToBack, toggleLock, toggleHidden, pushHistory } = useStudioStore();
   const el = useMemo(() => doc.elements.find((e) => e.id === selection[0]) ?? null, [doc.elements, selection]);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <aside className="hidden md:flex flex-col h-full w-[320px] shrink-0 border-l border-neutral-200 bg-white overflow-y-auto">
-      <div className="p-3 border-b border-neutral-200 flex items-center justify-between">
-        <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wide">
-          {el ? (el.name || labelForKind(el.kind)) : "Propriedades"}
-        </span>
+    <>
+      {/* Mobile Trigger */}
+      {el && !mobileOpen && (
+        <button
+          onClick={() => setMobileOpen(true)}
+          className="md:hidden fixed bottom-20 right-4 z-40 h-12 w-12 rounded-full bg-red-700 text-white shadow-lg flex items-center justify-center animate-bounce"
+        >
+          <Search className="h-6 w-6" />
+        </button>
+      )}
+
+      <aside className={`
+        fixed inset-y-0 right-0 z-50 w-[320px] bg-white border-l border-neutral-200 flex flex-col transition-transform duration-300 ease-in-out
+        md:static md:translate-x-0
+        ${mobileOpen && el ? "translate-x-0" : "translate-x-full"}
+      `}>
+        <div className="p-3 border-b border-neutral-200 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-2">
+             <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileOpen(false)}>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wide">
+              {el ? (el.name || labelForKind(el.kind)) : "Propriedades"}
+            </span>
+          </div>
         {el && (
           <div className="flex items-center gap-1">
             <Button size="icon" variant="ghost" onClick={() => toggleLock(el.id)} title={el.locked ? "Desbloquear" : "Bloquear"}>
