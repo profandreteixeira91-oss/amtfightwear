@@ -1136,25 +1136,26 @@ function StudentsPage() {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <select className="h-10 rounded-full border border-input bg-background px-3 text-sm" value={status} onChange={(e) => setStatus(e.target.value)}>
+          <select className="h-10 w-full rounded-full border border-input bg-background px-3 text-sm" value={status} onChange={(e) => setStatus(e.target.value)}>
             <option value="all">Todos os status</option>
             <option value="active">Ativos</option>
             <option value="inactive">Inativos</option>
             <option value="frozen">Trancados</option>
           </select>
-          <select className="h-10 rounded-full border border-input bg-background px-3 text-sm" value={beltFilter} onChange={(e) => setBeltFilter(e.target.value)}>
+          <select className="h-10 w-full rounded-full border border-input bg-background px-3 text-sm" value={beltFilter} onChange={(e) => setBeltFilter(e.target.value)}>
             <option value="all">Todas as faixas</option>
             {(belts.data ?? []).map((b: any) => (
               <option key={b.id} value={b.id}>{b.name}</option>
             ))}
           </select>
-          <select className="h-10 rounded-full border border-input bg-background px-3 text-sm" value={unitFilter} onChange={(e) => setUnitFilter(e.target.value)}>
+          <select className="h-10 w-full rounded-full border border-input bg-background px-3 text-sm" value={unitFilter} onChange={(e) => setUnitFilter(e.target.value)}>
             <option value="all">Todas as unidades</option>
             {(units.data ?? []).map((u: any) => (
               <option key={u.id} value={u.id}>{u.name}</option>
             ))}
           </select>
-          <Input className="h-10 rounded-full" placeholder="Cidade" value={cityFilter} onChange={(e) => setCityFilter(e.target.value)} />
+          <Input className="h-10 w-full rounded-full" placeholder="Cidade" value={cityFilter} onChange={(e) => setCityFilter(e.target.value)} />
+
         </div>
       </div>
 
