@@ -161,8 +161,6 @@ export const confirmSmartCheckins = createServerFn({ method: "POST" })
           created_by: context.userId,
           owner_id: context.userId,
           checked_in_at: new Date().toISOString(),
-          validation_result: "valid" as any,
-          validation_metadata: JSON.stringify({ smart_photo: true }) as any
         });
 
         if (error) throw error;
