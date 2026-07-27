@@ -26,7 +26,7 @@ import {
   Trash2, Award, Eye, Printer, Pencil, ArrowLeft, MessageSquare, Mail as MailIcon,
   Wallet, CalendarCheck, GraduationCap, Trophy, FileText, ShieldCheck,
   Activity, Heart, User as UserIcon, MapPin, Phone, ClipboardList, Upload,
-  QrCode, RefreshCw, TrendingUp, ExternalLink, Sparkles, AlertTriangle,
+  QrCode, RefreshCw, TrendingUp, ExternalLink, Sparkles, AlertTriangle, Camera,
 } from "lucide-react";
 import { BeltAuto } from "@/components/dojo/BeltSpecVisual";
 import { CertificatePreviewDialog, openCertificatePrint, type CertificateTemplate } from "@/components/dojo/CertificatePreview";
@@ -36,6 +36,7 @@ import { StudentCorporateBenefitsSection } from "@/components/dojo/corporate-ben
 import { TuitionRow } from "@/components/dojo/finance/TuitionList";
 import { StudentCompetitionHistory } from "@/components/dojo/competitions/StudentCompetitionHistory";
 import { StudentContracts } from "@/components/dojo/StudentContracts";
+import { addStudentReferencePhoto, deleteStudentReferencePhoto } from "@/lib/dojo/dojo.functions";
 
 export const Route = createFileRoute("/dojo/app/students/$id")({
   head: () => ({ meta: [{ title: "Aluno — AMT Dojo Manager" }] }),
@@ -80,6 +81,8 @@ function StudentDetail() {
   const payInv = useServerFn(markDojoInvoicePaid);
   const delInv = useServerFn(deleteDojoInvoice);
   const saveStudent = useServerFn(saveDojoStudent);
+  const addRefPhoto = useServerFn(addStudentReferencePhoto);
+  const delRefPhoto = useServerFn(deleteStudentReferencePhoto);
 
   const q = useQuery({ queryKey: ["dojo-student", id], queryFn: () => getFn({ data: { id } }) });
   const belts = useQuery({ queryKey: ["dojo-belts"], queryFn: () => beltsFn() });
@@ -899,10 +902,64 @@ function StudentDetail() {
               <SectionCard title="Termos e consentimentos" icon={ShieldCheck}>
                 <div className="space-y-3">
                   <ConsentRow label="Consentimento para uso de dados (LGPD)" granted={!!s.lgpd_consent} date={s.lgpd_consent_date} />
+                  <ConsentRow label="Reconhecimento Facial (Check-in Inteligente)" granted={!!s.facial_recognition_consent} date={s.facial_recognition_consent_at} />
                   <ConsentRow label="Consentimento para uso de imagem" granted={!!s.image_rights_consent} />
                   <ConsentRow label="Aceite dos termos" granted={!!s.terms_accepted} date={s.terms_accepted_date} />
                   <ConsentRow label="Consentimento para marketing" granted={!!s.marketing_consent} />
                 </div>
+                
+                <div className="mt-6 space-y-4 border-t border-border pt-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-sm font-semibold">Fotos de Referência</h4>
+                      <p className="text-xs text-muted-foreground">Utilizadas para identificação no check-in por foto.</p>
+                    </div>
+                    {s.facial_recognition_consent && (
+                      <Button size="sm" variant="outline" onClick={() => {
+                        const url = window.prompt("URL da foto de referência:");
+                        if (url) {
+                          addRefPhoto({ data: { studentId: id, photoUrl: url } })
+                            .then(() => { toast.success("Foto adicionada"); refresh(); })
+                            .catch(e => toast.error(e.message));
+                        }
+                      }}>
+                        <Camera className="mr-1.5 h-4 w-4" /> Adicionar
+                      </Button>
+                    )}
+                  </div>
+
+                  {!s.facial_recognition_consent ? (
+                    <div className="rounded-lg bg-muted/50 p-4 text-center text-xs text-muted-foreground">
+                      <AlertTriangle className="mx-auto mb-1 h-5 w-5 text-amber-500" />
+                      Autorize o reconhecimento facial acima para gerenciar fotos de referência.
+                    </div>
+                  ) : (q.data as any)?.referencePhotos?.length === 0 ? (
+                    <div className="rounded-lg border border-dashed border-border p-6 text-center text-xs text-muted-foreground">
+                      Nenhuma foto de referência cadastrada.
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
+                      {(q.data as any)?.referencePhotos?.map((p: any) => (
+                        <div key={p.id} className="group relative aspect-square overflow-hidden rounded-lg border border-border bg-muted">
+                          <img src={p.photo_url} alt="Referência" className="h-full w-full object-cover" />
+                          <button 
+                            onClick={() => {
+                              if (confirm("Excluir esta foto?")) {
+                                delRefPhoto({ data: { id: p.id } })
+                                  .then(() => { toast.success("Foto removida"); refresh(); })
+                                  .catch(e => toast.error(e.message));
+                              }
+                            }}
+                            className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100"
+                          >
+                            <Trash2 className="h-5 w-5 text-white" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 <div className="mt-4 rounded-lg border border-dashed border-border p-4 text-center text-xs text-muted-foreground">
                   <FileText className="mx-auto mb-1 h-5 w-5" />
                   Anexo de termo assinado (PDF) — em breve integrado ao módulo Documentos.
