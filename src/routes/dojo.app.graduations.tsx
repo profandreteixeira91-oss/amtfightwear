@@ -846,21 +846,23 @@ function NewGraduationPage() {
             </div>
           </CardHeader>
           <CardContent className="p-4 md:p-5 space-y-4">
-            <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] gap-2">
-              <div className="relative min-w-0">
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <div className="relative flex-1">
                 <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
-                  placeholder="Buscar aluno pelo nome…"
+                  placeholder="Buscar aluno…"
                   value={search}
                   onChange={e => setSearch(e.target.value)}
-                  className="pl-9"
+                  className="h-10 pl-9"
                 />
               </div>
-              <Button variant="outline" size="sm" onClick={() => setSelectedStudents(new Set(filteredStudents.map((s: any) => s.id)))}>Todos</Button>
-              <Button variant="ghost" size="sm" onClick={() => setSelectedStudents(new Set())}>Limpar</Button>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" className="flex-1 sm:flex-none" onClick={() => setSelectedStudents(new Set(filteredStudents.map((s: any) => s.id)))}>Todos</Button>
+                <Button variant="ghost" size="sm" className="flex-1 sm:flex-none" onClick={() => setSelectedStudents(new Set())}>Limpar</Button>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_auto]">
               <div>
                 <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                   Modalidade
