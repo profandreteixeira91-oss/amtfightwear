@@ -787,21 +787,30 @@ function NewGraduationPage() {
                   <div className="p-6 text-center text-sm text-muted-foreground">Nenhuma faixa disponível para as modalidades selecionadas.</div>
                 )}
                 {beltsToShow.map((b: any) => (
-                  <div key={b.id} className="flex items-center gap-3 p-3">
-                    <BeltAuto belt={b} degree={0} className="w-[160px] shrink-0" />
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-semibold">{b.name}</div>
-                      <div className="truncate text-[11px] text-muted-foreground capitalize">{b.modality ?? "jiu-jitsu"}</div>
+                  <div key={b.id} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
+                    <div className="flex flex-1 items-center gap-3 min-w-0">
+                      <div className="hidden sm:block">
+                        <BeltAuto belt={b} degree={0} className="w-[160px] shrink-0" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-bold text-foreground">{b.name}</div>
+                        <div className="truncate text-[10px] uppercase tracking-wider text-muted-foreground">{b.modality ?? "jiu-jitsu"}</div>
+                        <div className="mt-1 sm:hidden">
+                          <BeltAuto belt={b} degree={0} className="w-full" />
+                        </div>
+                      </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-muted-foreground">R$</span>
-                      <Input
-                        inputMode="decimal"
-                        placeholder="0,00"
-                        className="h-9 w-32"
-                        value={priceDraft[b.id] ?? ""}
-                        onChange={(e) => setPriceDraft(prev => ({ ...prev, [b.id]: e.target.value }))}
-                      />
+                      <div className="relative flex-1 sm:w-32">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">R$</span>
+                        <Input
+                          inputMode="decimal"
+                          placeholder="0,00"
+                          className="h-9 pl-8"
+                          value={priceDraft[b.id] ?? ""}
+                          onChange={(e) => setPriceDraft(prev => ({ ...prev, [b.id]: e.target.value }))}
+                        />
+                      </div>
                     </div>
                   </div>
                 ))}
