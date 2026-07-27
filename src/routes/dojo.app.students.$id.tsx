@@ -376,18 +376,129 @@ function StudentDetail() {
                   </a>
                 </Button>
               )}
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={onDeleteStudent}
-                className="w-full border-red-400/40 bg-red-500/10 text-red-200 hover:bg-red-500/20 hover:text-white"
-              >
-                <Trash2 className="mr-1.5 h-4 w-4" /> Cancelar matrícula
-              </Button>
+              {s.status === "frozen" ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={doUnfreeze}
+                  className="w-full border-amber-400/40 bg-amber-500/10 text-amber-100 hover:bg-amber-500/20 hover:text-white"
+                >
+                  <RefreshCw className="mr-1.5 h-4 w-4" /> Reativar matrícula
+                </Button>
+              ) : s.status === "cancelled" ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={doRestore}
+                  className="w-full border-emerald-400/40 bg-emerald-500/10 text-emerald-100 hover:bg-emerald-500/20 hover:text-white"
+                >
+                  <RefreshCw className="mr-1.5 h-4 w-4" /> Restaurar matrícula
+                </Button>
+              ) : (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={openCancelDialog}
+                  className="w-full border-red-400/40 bg-red-500/10 text-red-200 hover:bg-red-500/20 hover:text-white"
+                >
+                  <Trash2 className="mr-1.5 h-4 w-4" /> Cancelar matrícula
+                </Button>
+              )}
             </div>
           </div>
         </div>
       </section>
+
+      {/* Diálogo: cancelar / congelar matrícula */}
+      <Dialog open={cancelDialog.open} onOpenChange={(v) => setCancelDialog((d) => ({ ...d, open: v }))}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Cancelar ou congelar matrícula</DialogTitle>
+            <DialogDescription>
+              Escolha como deseja encerrar o vínculo do aluno <strong>{s.full_name}</strong>.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3">
+            <label
+              className={`block cursor-pointer rounded-xl border p-3 transition ${
+                cancelDialog.mode === "freeze"
+                  ? "border-amber-400 bg-amber-50 dark:bg-amber-950/20"
+                  : "border-neutral-200 hover:border-amber-300 dark:border-neutral-800"
+              }`}
+            >
+              <div className="flex items-start gap-3">
+                <input
+                  type="radio"
+                  name="cancel-mode"
+                  className="mt-1"
+                  checked={cancelDialog.mode === "freeze"}
+                  onChange={() => setCancelDialog((d) => ({ ...d, mode: "freeze" }))}
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-semibold">Congelar matrícula</div>
+                  <div className="text-xs text-muted-foreground">
+                    Pausa cobranças, lembretes e demais fluxos. O aluno permanece cadastrado e pode ser reativado a qualquer momento.
+                  </div>
+                  {cancelDialog.mode === "freeze" && (
+                    <div className="mt-2">
+                      <label className="text-xs font-medium">Reativar automaticamente em (opcional)</label>
+                      <Input
+                        type="date"
+                        value={cancelDialog.frozen_until}
+                        min={new Date().toISOString().slice(0, 10)}
+                        onChange={(e) => setCancelDialog((d) => ({ ...d, frozen_until: e.target.value }))}
+                        className="mt-1"
+                      />
+                      <p className="mt-1 text-[11px] text-muted-foreground">
+                        Deixe em branco para congelar por tempo indeterminado.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </label>
+
+            <label
+              className={`block cursor-pointer rounded-xl border p-3 transition ${
+                cancelDialog.mode === "cancel"
+                  ? "border-red-400 bg-red-50 dark:bg-red-950/20"
+                  : "border-neutral-200 hover:border-red-300 dark:border-neutral-800"
+              }`}
+            >
+              <div className="flex items-start gap-3">
+                <input
+                  type="radio"
+                  name="cancel-mode"
+                  className="mt-1"
+                  checked={cancelDialog.mode === "cancel"}
+                  onChange={() => setCancelDialog((d) => ({ ...d, mode: "cancel" }))}
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-semibold text-red-700 dark:text-red-300">Cancelar definitivamente</div>
+                  <div className="text-xs text-muted-foreground">
+                    Encerra a matrícula. Os dados do aluno ficam preservados por 30 dias — dentro desse prazo você pode restaurar o cadastro sem perdas.
+                  </div>
+                </div>
+              </div>
+            </label>
+          </div>
+
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setCancelDialog((d) => ({ ...d, open: false }))} disabled={cancelBusy}>
+              Voltar
+            </Button>
+            <Button
+              onClick={confirmCancelAction}
+              disabled={cancelBusy}
+              className={cancelDialog.mode === "cancel" ? "bg-red-600 hover:bg-red-700 text-white" : "bg-amber-600 hover:bg-amber-700 text-white"}
+            >
+              {cancelBusy ? "Processando..." : cancelDialog.mode === "freeze" ? "Congelar matrícula" : "Cancelar definitivamente"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
 
 
       {/* Layout: sidebar / conteúdo (timeline vai como card horizontal abaixo) */}
