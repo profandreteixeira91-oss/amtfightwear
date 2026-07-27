@@ -459,10 +459,10 @@ function LessonEditorPage() {
                 <SortableRow key={b.id} id={b.id}>
                   {({ listeners, attributes }) => (
                     <div className="rounded-lg border bg-card p-3">
-                      <div className="mb-2 flex items-start gap-2">
+                      <div className="mb-2 flex flex-wrap items-start gap-2">
                         <DragHandle listeners={listeners as Record<string, unknown>} attributes={attributes as unknown as Record<string, unknown>} />
                         <Select value={b.kind} onValueChange={(v) => updateBlock(b.id, { kind: v as Block["kind"] })}>
-                          <SelectTrigger className="w-48">
+                          <SelectTrigger className="w-full min-w-0 flex-1 sm:w-48 sm:flex-none">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -474,19 +474,19 @@ function LessonEditorPage() {
                           </SelectContent>
                         </Select>
                         <Input
-                          className="flex-1"
+                          className="min-w-0 basis-full flex-1 sm:basis-auto"
                           value={b.title}
                           onChange={(e) => updateBlock(b.id, { title: e.target.value })}
                           placeholder="Título do bloco"
                         />
                         <Input
                           type="number"
-                          className="w-24"
+                          className="w-20 shrink-0 sm:w-24"
                           value={b.duration_min ?? ""}
                           onChange={(e) => updateBlock(b.id, { duration_min: e.target.value ? Number(e.target.value) : null })}
                           placeholder="min"
                         />
-                        <Button variant="ghost" size="icon" onClick={() => removeBlock(b.id)}>
+                        <Button variant="ghost" size="icon" className="shrink-0" onClick={() => removeBlock(b.id)}>
                           <Trash2 className="h-4 w-4 text-red-500" />
                         </Button>
                       </div>
