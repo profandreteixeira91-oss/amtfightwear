@@ -91,11 +91,7 @@ export const adminGetVisitors = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => InputSchema.parse(i ?? {}))
   .handler(async ({ context, data }) => {
-    const { data: isAdmin } = await context.supabase.rpc("has_role", {
-      _user_id: context.userId,
-      _role: "amt_admin",
-    });
-    if (!isAdmin) throw new Error("Forbidden");
+    await assertSaasOwner(context);
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { start, end } = resolveRange(data.range, data.start, data.end);

@@ -66,8 +66,7 @@ const upsertInput = z.object({
 });
 
 async function assertAdmin(context: { supabase: ReturnType<typeof createClient<Database>>; userId: string }) {
-  const { data } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "amt_admin" });
-  if (!data) throw new Error("Forbidden");
+  await assertSaasOwner(context);
 }
 
 // Aplica um preset a todos os produtos das categorias que combinam com o padrão.
