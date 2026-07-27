@@ -17,6 +17,7 @@ import {
 import { paymentMethodLabel, normalizePlanPaymentMethods } from "@/lib/dojo/payment-methods";
 import { getMyAsaasConfig } from "@/lib/asaas/asaas.functions";
 import { isAsaasReady } from "@/lib/dojo/amt-pay-status";
+import { getMyAcademySlug } from "@/lib/dojo/academy-public.functions";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
