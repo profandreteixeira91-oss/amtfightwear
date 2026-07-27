@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import {
-  ArrowLeft, Printer, CheckCircle2, XCircle, Clock, FileText, Send, RotateCcw,
+  ArrowLeft, Printer, CheckCircle2, XCircle, Clock, FileText, Send, RotateCcw, User, ArrowRight
 } from "lucide-react";
 import {
   getIssuedContract, listContractEvents, updateContractStatus,
