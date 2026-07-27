@@ -231,6 +231,8 @@ function DojoLayout() {
     themeMeta.setAttribute("content", "#dc2626");
 
     void import("@/lib/pwa/register").then((m) => m.registerPwa());
+    // Garante captura global do beforeinstallprompt o mais cedo possível.
+    void import("@/lib/pwa/install-prompt");
 
     return () => {
       if (previous) link!.setAttribute("href", previous);
