@@ -203,11 +203,11 @@ function TechDialog({
           <Label>Categoria</Label>
           <Input value={form.category ?? ""} onChange={(e) => setForm({ ...form, category: e.target.value })} />
         </div>
-        <div className="col-span-2">
+        <div className="sm:col-span-2">
           <Label>Nome</Label>
           <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
         </div>
-        <div className="col-span-2">
+        <div className="sm:col-span-2">
           <Label>Descrição</Label>
           <Textarea rows={3} value={form.description ?? ""} onChange={(e) => setForm({ ...form, description: e.target.value })} />
         </div>
