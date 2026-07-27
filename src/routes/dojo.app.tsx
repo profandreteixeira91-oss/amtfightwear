@@ -70,6 +70,7 @@ import { syncBeltTerms } from "@/lib/dojo/belt-terms";
 import { UnitScopeProvider } from "@/components/dojo/UnitScope";
 import { UnitSwitcher } from "@/components/dojo/UnitSwitcher";
 import { DojoSplash } from "@/components/dojo/DojoSplash";
+import { EmailVerificationBanner } from "@/components/dojo/EmailVerificationBanner";
 
 
 
@@ -366,6 +367,7 @@ function DojoLayoutInner({
 
   return (
     <>
+      <EmailVerificationBanner />
       <Sidebar collapsible="icon" className="border-r border-[color:var(--dojo-border)]">
         <SidebarHeader className="border-b border-[color:var(--dojo-border)]/60 bg-white">
           <Link to="/dojo" className="flex items-center justify-center px-2 py-2">
