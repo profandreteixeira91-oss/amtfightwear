@@ -157,6 +157,8 @@ function StudentsPage() {
   const [beltFilter, setBeltFilter] = useState("all");
   const [unitFilter, setUnitFilter] = useState("all");
   const [cityFilter, setCityFilter] = useState("");
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 20;
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<StudentForm>(emptyForm);
   const [enrollment, setEnrollment] = useState({
