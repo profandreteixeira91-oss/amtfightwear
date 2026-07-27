@@ -134,12 +134,9 @@ function DojoAuthPage() {
     });
     setLoading(false);
     if (error) return toast.error("Falha ao criar conta", { description: error.message });
-    if (data.session) {
+    if (data.user) {
       toast.success("Conta criada! Bem-vindo ao AMT Dojo Manager.");
       window.location.assign("/dojo/app");
-    } else {
-      toast.success("Conta criada! Confirme seu e-mail para continuar.");
-      setMode("signin");
     }
   };
 
