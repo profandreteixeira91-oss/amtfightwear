@@ -10,34 +10,121 @@ function randomToken() {
   return crypto.randomUUID().replace(/-/g, "");
 }
 
-// Resolve which class a check-in belongs to, so ranking-by-class reflects it.
-// Priority: (1) class with a schedule active right now for this student's
-// enrolled classes; (2) if the student is enrolled in exactly one class, use it.
-// Otherwise returns null.
+// Resolve which class a check-in belongs to, validation rules included.
+export async function validateAndResolveCheckin(
+  supabase: any,
+  studentId: string,
+  ownerId: string,
+  isOverride = false,
+  preferredClassId?: string | null,
+): Promise<{ 
+  classId: string | null; 
+  isValid: boolean; 
+  reason?: string; 
+  availableClasses?: any[];
+  windowMins?: { pre: number; post: number };
+}> {
+  // Load settings
+  const { data: settings } = await supabase
+    .from("dojo_checkin_settings")
+    .select("*")
+    .eq("owner_id", ownerId)
+    .maybeSingle();
+
+  const preWindow = settings?.checkin_window_pre_mins ?? 10;
+  const postWindow = settings?.checkin_window_post_mins ?? 30;
+  const blockDuplicate = settings?.block_duplicate_checkin ?? true;
+
+  // Student enrollments
+  const { data: enrolls } = await supabase
+    .from("dojo_class_students")
+    .select("class_id")
+    .eq("student_id", studentId)
+    .eq("status", "active");
+  
+  const classIds = (enrolls ?? []).map((r: any) => r.class_id).filter(Boolean);
+  if (classIds.length === 0) {
+    return { classId: null, isValid: false, reason: "student_not_enrolled" };
+  }
+
+  // Get current time in UTC/Local server context
+  const now = new Date();
+  const weekday = now.getDay();
+  
+  // We need to check all schedules for these classes today
+  const { data: schedules } = await supabase
+    .from("dojo_class_schedules")
+    .select("class_id, start_time, end_time, weekday, dojo_classes(name, modality)")
+    .in("class_id", classIds)
+    .eq("weekday", weekday);
+
+  if (!schedules || schedules.length === 0) {
+    return { classId: null, isValid: false, reason: "no_classes_today" };
+  }
+
+  const validMatches: any[] = [];
+  
+  for (const s of schedules) {
+    // Parse HH:MM:SS to date for comparison
+    const [h, m, sec] = s.start_time.split(":").map(Number);
+    const start = new Date(now);
+    start.setHours(h, m, sec || 0, 0);
+    
+    const windowStart = new Date(start.getTime() - preWindow * 60000);
+    const windowEnd = new Date(start.getTime() + postWindow * 60000);
+
+    if (now >= windowStart && now <= windowEnd) {
+      validMatches.push(s);
+    }
+  }
+
+  if (validMatches.length === 0) {
+    return { 
+      classId: null, 
+      isValid: isOverride, 
+      reason: "outside_window",
+      windowMins: { pre: preWindow, post: postWindow }
+    };
+  }
+
+  // Check for duplicates in the current window
+  const classIdToUse = preferredClassId || (validMatches.length === 1 ? validMatches[0].class_id : null);
+  
+  if (classIdToUse && blockDuplicate) {
+    const today = now.toISOString().split("T")[0];
+    const { count } = await supabase
+      .from("dojo_attendance")
+      .select("id", { count: "exact", head: true })
+      .eq("student_id", studentId)
+      .eq("class_id", classIdToUse)
+      .gte("checked_in_at", `${today}T00:00:00`)
+      .lte("checked_in_at", `${today}T23:59:59`);
+    
+    if (count && count > 0) {
+      return { classId: classIdToUse, isValid: false, reason: "duplicate_checkin" };
+    }
+  }
+
+  if (validMatches.length > 1 && !preferredClassId) {
+    return { 
+      classId: null, 
+      isValid: false, 
+      reason: "multiple_classes", 
+      availableClasses: validMatches.map(m => ({ id: m.class_id, name: m.dojo_classes?.name }))
+    };
+  }
+
+  return { classId: classIdToUse, isValid: true };
+}
+
+// Keep legacy export but proxy it to avoid breaking other files temporarily
 export async function resolveClassForCheckin(
   supabase: any,
   studentId: string,
 ): Promise<string | null> {
-  const { data: enrolls } = await supabase
-    .from("dojo_class_students")
-    .select("class_id")
-    .eq("student_id", studentId);
-  const classIds = (enrolls ?? []).map((r: any) => r.class_id).filter(Boolean);
-  if (classIds.length === 0) return null;
-  if (classIds.length === 1) return classIds[0];
-
-  const now = new Date();
-  const weekday = now.getDay();
-  const hhmm = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:00`;
-  const { data: sched } = await supabase
-    .from("dojo_class_schedules")
-    .select("class_id, start_time, end_time, weekday")
-    .in("class_id", classIds)
-    .eq("weekday", weekday)
-    .lte("start_time", hhmm)
-    .gte("end_time", hhmm);
-  const match = (sched ?? [])[0];
-  return match?.class_id ?? null;
+  const { data: student } = await supabase.from("dojo_students").select("owner_id").eq("id", studentId).single();
+  const res = await validateAndResolveCheckin(supabase, studentId, student?.owner_id);
+  return res.classId;
 }
 
 // ============ ATTENDANCE ============
