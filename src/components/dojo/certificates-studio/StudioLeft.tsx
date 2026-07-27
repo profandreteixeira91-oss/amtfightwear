@@ -28,31 +28,69 @@ const SECTIONS = [
 
 export function StudioLeft() {
   const [tab, setTab] = useState<typeof SECTIONS[number]["id"]>("templates");
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   return (
-    <aside className="hidden md:flex h-full w-[320px] shrink-0 border-r border-neutral-200 bg-white">
-      <nav className="flex flex-col w-16 border-r border-neutral-200 bg-neutral-50">
-        {SECTIONS.map((s) => (
-          <button key={s.id} onClick={() => setTab(s.id)}
-            className={`flex flex-col items-center gap-1 py-3 text-[10px] font-medium ${tab === s.id ? "bg-red-700 text-white" : "text-neutral-600 hover:bg-neutral-100"}`}>
-            <s.icon className="h-4 w-4" />
+    <>
+      {/* Mobile Toggle Bar */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-neutral-200 z-40 flex items-center justify-around px-2">
+        {SECTIONS.slice(0, 5).map((s) => (
+          <button key={s.id} onClick={() => { setTab(s.id); setMobileOpen(true); }}
+            className={`flex flex-col items-center gap-1 p-2 text-[10px] font-medium ${tab === s.id && mobileOpen ? "text-red-700" : "text-neutral-500"}`}>
+            <s.icon className="h-5 w-5" />
             <span>{s.label}</span>
           </button>
         ))}
-      </nav>
-      <div className="flex-1 overflow-y-auto p-3">
-        {tab === "text" && <TextsPanel />}
-        {tab === "vars" && <VariablesPanel />}
-        {tab === "images" && <ImagesPanel />}
-        {tab === "icons" && <IconsPanel />}
-        {tab === "ornaments" && <OrnamentsPanel />}
-        {tab === "logo" && <LogoPanel />}
-        {tab === "sig" && <SignaturePanel />}
-        {tab === "qr" && <QrPanel />}
-        {tab === "shapes" && <ShapesPanel />}
-        {tab === "page" && <PagePanel />}
-        {tab === "templates" && <TemplatesPanel />}
+        <button onClick={() => setMobileOpen(!mobileOpen)}
+          className={`flex flex-col items-center gap-1 p-2 text-[10px] font-medium ${mobileOpen ? "text-red-700 font-bold" : "text-neutral-500"}`}>
+          <Layout className="h-5 w-5" />
+          <span>Menu</span>
+        </button>
       </div>
-    </aside>
+
+      {/* Sidebar Desktop & Mobile Drawer */}
+      <aside className={`
+        fixed inset-y-0 left-0 z-50 w-[320px] bg-white border-r border-neutral-200 flex transition-transform duration-300 ease-in-out
+        md:static md:translate-x-0
+        ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
+      `}>
+        <nav className="flex flex-col w-16 border-r border-neutral-200 bg-neutral-50 shrink-0 overflow-y-auto no-scrollbar">
+          {SECTIONS.map((s) => (
+            <button key={s.id} onClick={() => setTab(s.id)}
+              className={`flex flex-col items-center gap-1 py-3 text-[10px] font-medium shrink-0 ${tab === s.id ? "bg-red-700 text-white" : "text-neutral-600 hover:bg-neutral-100"}`}>
+              <s.icon className="h-4 w-4" />
+              <span>{s.label}</span>
+            </button>
+          ))}
+          {/* Close button for mobile */}
+          <button onClick={() => setMobileOpen(false)} className="md:hidden mt-auto py-4 text-neutral-400 hover:text-red-700">
+            <ChevronLeft className="h-6 w-6 mx-auto" />
+          </button>
+        </nav>
+        <div className="flex-1 overflow-y-auto p-3">
+          <div className="flex items-center justify-between mb-4 md:hidden">
+            <h3 className="font-bold text-neutral-800">{SECTIONS.find(s => s.id === tab)?.label}</h3>
+            <Button variant="ghost" size="sm" onClick={() => setMobileOpen(false)}>Fechar</Button>
+          </div>
+          {tab === "text" && <TextsPanel />}
+          {tab === "vars" && <VariablesPanel />}
+          {tab === "images" && <ImagesPanel />}
+          {tab === "icons" && <IconsPanel />}
+          {tab === "ornaments" && <OrnamentsPanel />}
+          {tab === "logo" && <LogoPanel />}
+          {tab === "sig" && <SignaturePanel />}
+          {tab === "qr" && <QrPanel />}
+          {tab === "shapes" && <ShapesPanel />}
+          {tab === "page" && <PagePanel />}
+          {tab === "templates" && <TemplatesPanel />}
+        </div>
+      </aside>
+
+      {/* Overlay for mobile */}
+      {mobileOpen && (
+        <div className="fixed inset-0 bg-black/20 z-40 md:hidden" onClick={() => setMobileOpen(false)} />
+      )}
+    </>
   );
 }
 
