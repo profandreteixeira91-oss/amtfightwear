@@ -22,6 +22,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { DocumentsTab } from "@/components/dojo/account/DocumentsTab";
 import { useServerFn } from "@tanstack/react-start";
 import { listMySubscriptionPayments } from "@/lib/dojo/subscription.functions";
+import { PasswordStrength, isPasswordStrong } from "@/components/auth/PasswordStrength";
+
 
 
 export const Route = createFileRoute("/dojo/app/account")({
@@ -79,7 +81,9 @@ function AccountPage() {
   const [audit, setAudit] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
   const [savingPwd, setSavingPwd] = useState(false);
+
   const [snapshot, setSnapshot] = useState<string>("");
   const currentSnap = JSON.stringify({ profile, academy, notifPrefs });
   useUnsavedChanges(!loading && snapshot !== "" && snapshot !== currentSnap);
@@ -151,15 +155,24 @@ function AccountPage() {
   }
 
   async function updatePassword() {
-    if (password.length < 6) return toast.error("Senha muito curta");
+    if (!isPasswordStrong(password)) {
+      return toast.error("Senha não atende aos requisitos", {
+        description: "Cumpra todos os critérios da lista antes de continuar.",
+      });
+    }
+    if (password !== passwordConfirm) {
+      return toast.error("As senhas não coincidem");
+    }
     setSavingPwd(true);
     const { error } = await supabase.auth.updateUser({ password });
     setSavingPwd(false);
     if (error) return toast.error(error.message);
     setPassword("");
+    setPasswordConfirm("");
     await logAudit("password_changed");
     toast.success("Senha atualizada");
   }
+
 
   async function signOutAll() {
     await supabase.auth.signOut({ scope: "others" as any });
@@ -251,11 +264,14 @@ function AccountPage() {
             <SecurityTab
               password={password}
               setPassword={setPassword}
+              passwordConfirm={passwordConfirm}
+              setPasswordConfirm={setPasswordConfirm}
               saving={savingPwd}
               onSubmit={updatePassword}
               lastSignIn={user?.last_sign_in_at}
               audit={audit}
             />
+
           )}
           {tab === "notifications" && (
             <NotificationsTab prefs={notifPrefs} setPrefs={setNotifPrefs} onSave={saveNotifs} />
@@ -879,19 +895,42 @@ function InvoiceTable({ rows, pending }: { rows: any[]; pending?: boolean }) {
 }
 
 /* ---------------- Security ---------------- */
-function SecurityTab({ password, setPassword, saving, onSubmit, lastSignIn, audit }: any) {
+function SecurityTab({ password, setPassword, passwordConfirm, setPasswordConfirm, saving, onSubmit, lastSignIn, audit }: any) {
+  const strong = isPasswordStrong(password);
+  const matches = password.length > 0 && password === passwordConfirm;
+  const canSubmit = strong && matches && !saving;
   return (
     <div className="space-y-4">
       <Card>
         <CardHeader><CardTitle>Alterar senha</CardTitle></CardHeader>
-        <CardContent className="space-y-3 max-w-md">
+        <CardContent className="space-y-4 max-w-md">
           <Field label="Nova senha">
-            <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mínimo 6 caracteres" />
+            <Input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Crie uma senha forte"
+              autoComplete="new-password"
+            />
           </Field>
-          <Button onClick={onSubmit} disabled={saving}>
+          <PasswordStrength password={password} />
+          <Field label="Confirmar nova senha">
+            <Input
+              type="password"
+              value={passwordConfirm}
+              onChange={(e) => setPasswordConfirm(e.target.value)}
+              placeholder="Digite a senha novamente"
+              autoComplete="new-password"
+            />
+            {passwordConfirm.length > 0 && !matches && (
+              <p className="mt-1 text-xs text-red-600">As senhas não coincidem.</p>
+            )}
+          </Field>
+          <Button onClick={onSubmit} disabled={!canSubmit}>
             <KeyRound className="h-4 w-4 mr-1" />{saving ? "Salvando..." : "Atualizar senha"}
           </Button>
         </CardContent>
+
       </Card>
       <Card>
         <CardHeader><CardTitle>Autenticação em dois fatores</CardTitle></CardHeader>
