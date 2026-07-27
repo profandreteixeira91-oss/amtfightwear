@@ -22,6 +22,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { DocumentsTab } from "@/components/dojo/account/DocumentsTab";
 import { useServerFn } from "@tanstack/react-start";
 import { listMySubscriptionPayments } from "@/lib/dojo/subscription.functions";
+import { PasswordStrength, isPasswordStrong } from "@/components/auth/PasswordStrength";
+
 
 
 export const Route = createFileRoute("/dojo/app/account")({
