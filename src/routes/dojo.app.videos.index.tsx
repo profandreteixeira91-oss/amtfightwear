@@ -204,7 +204,7 @@ function VideosLibrary() {
 
       {/* Grid */}
       {videos.isLoading ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {Array.from({ length: 8 }).map((_, i) => <VideoCardSkeleton key={i} />)}
         </div>
       ) : (videos.data?.length ?? 0) === 0 ? (
