@@ -1168,7 +1168,17 @@ function StudentsPage() {
                 )}
               </div>
               <div className="min-w-0">
-                <div className="truncate font-medium">{s.full_name}</div>
+                <div className="flex items-center gap-1.5 truncate font-medium">
+                  {s.anamnesis?.autism ? (
+                    <img
+                      src={autismIcon.url}
+                      alt="TEA"
+                      title="Aluno TEA (Transtorno do Espectro Autista)"
+                      className="h-4 w-4 shrink-0"
+                    />
+                  ) : null}
+                  <span className="truncate">{s.full_name}</span>
+                </div>
                 <div className="truncate text-xs text-muted-foreground">
                   {[
                     s.belt?.name && formatBeltFull(s.belt.name, s.belt?.modality, s.current_degree),
