@@ -113,11 +113,13 @@ function TechniquesPage() {
             </div>
             <div className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
               {(presets ?? []).map((g) => (
-                <div key={`${g.modality}-${g.category}`} className="rounded border p-3">
-                  <div className="text-xs text-muted-foreground">{g.modality}</div>
-                  <div className="font-medium">{g.category}</div>
-                  <div className="mt-1 text-xs text-muted-foreground truncate">{g.examples.join(", ")}</div>
-                  <Button size="sm" variant="outline" className="mt-2" onClick={() => importPresetGroup.mutate(g)}>
+                <div key={`${g.modality}-${g.category}`} className="flex flex-col gap-2 rounded border p-3">
+                  <div className="min-w-0">
+                    <div className="text-[10px] uppercase text-muted-foreground">{g.modality}</div>
+                    <div className="truncate font-medium leading-tight">{g.category}</div>
+                    <div className="mt-1 break-words text-xs text-muted-foreground">{g.examples.join(", ")}</div>
+                  </div>
+                  <Button size="sm" variant="outline" className="mt-auto w-full" onClick={() => importPresetGroup.mutate(g)}>
                     Importar {g.examples.length}
                   </Button>
                 </div>
@@ -135,9 +137,9 @@ function TechniquesPage() {
               <Card key={t.id}>
                 <CardContent className="flex items-start justify-between gap-2 p-3">
                   <div className="min-w-0">
-                    <div className="font-medium truncate">{t.name}</div>
+                    <div className="break-words font-medium leading-tight">{t.name}</div>
                     {t.description ? (
-                      <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{t.description}</p>
+                      <p className="mt-1 break-words text-xs text-muted-foreground">{t.description}</p>
                     ) : null}
                     <div className="mt-1 flex gap-2 text-[11px] text-muted-foreground">
                       {t.difficulty ? <span>Dif.: {t.difficulty}</span> : null}
