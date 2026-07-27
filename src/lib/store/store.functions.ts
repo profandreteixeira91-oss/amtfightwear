@@ -438,7 +438,7 @@ export const getCategoryWithProducts = createServerFn({ method: "GET" })
 
     const { data: products } = await sb
       .from("products")
-      .select("id, name, slug, price, compare_at_price, image_url, short_description")
+      .select("id, name, slug, price, compare_at_price, image_url, short_description, category_id")
       .eq("status", "active")
       .in("category_id", ids)
       .order("featured", { ascending: false })
