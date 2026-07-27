@@ -11,7 +11,12 @@ export const Route = createFileRoute("/app")({
       { name: "mobile-web-app-capable", content: "yes" },
       { name: "robots", content: "noindex, nofollow" },
     ],
-    links: [{ rel: "manifest", href: "/api/public/app/manifest.webmanifest" }],
+    links: [
+      { rel: "manifest", href: "/api/public/app/manifest.webmanifest" },
+      { rel: "apple-touch-icon", sizes: "180x180", href: "/student-icon-180.png" },
+      { rel: "icon", type: "image/png", sizes: "192x192", href: "/student-icon-192.png" },
+      { rel: "icon", type: "image/png", sizes: "512x512", href: "/student-icon-512.png" },
+    ],
   }),
   ssr: false,
   component: () => (
