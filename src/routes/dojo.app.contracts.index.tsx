@@ -37,15 +37,15 @@ function KpiCard({ icon: Icon, label, value, hint, tone = "default" }: any) {
       : "bg-primary/10 text-primary";
   return (
     <Card>
-      <CardContent className="p-5">
-        <div className="flex items-start justify-between">
-          <div>
-            <div className="text-xs text-muted-foreground uppercase tracking-wide">{label}</div>
-            <div className="text-3xl font-bold mt-1">{value}</div>
-            {hint ? <div className="text-xs text-muted-foreground mt-1">{hint}</div> : null}
+      <CardContent className="p-4 sm:p-5">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="text-[10px] text-muted-foreground uppercase tracking-wide truncate">{label}</div>
+            <div className="text-2xl font-bold mt-0.5 truncate">{value}</div>
+            {hint ? <div className="text-[10px] text-muted-foreground mt-0.5 truncate">{hint}</div> : null}
           </div>
-          <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${toneCls}`}>
-            <Icon className="h-5 w-5" />
+          <div className={`h-9 w-9 shrink-0 rounded-lg flex items-center justify-center ${toneCls}`}>
+            <Icon className="h-4 w-4" />
           </div>
         </div>
       </CardContent>
@@ -70,7 +70,7 @@ function ContractsDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-3">
         <KpiCard icon={Files} label="Modelos" value={s?.templates?.total ?? "—"} hint={`${s?.templates?.active ?? 0} ativos`} />
         <KpiCard icon={FileText} label="Contratos emitidos" value={s?.issued?.total ?? "—"} hint="Aluno + filial" tone="default" />
         <KpiCard icon={CheckCircle2} label="Assinados" value={totalSigned} tone="success" />

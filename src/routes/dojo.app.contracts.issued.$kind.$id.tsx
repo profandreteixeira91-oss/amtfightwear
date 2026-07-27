@@ -117,22 +117,22 @@ function IssuedContractDetail() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-3 flex-wrap">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 flex-wrap">
         <Link to="/dojo/app/contracts/issued">
           <Button variant="ghost" size="sm"><ArrowLeft className="h-4 w-4 mr-1" />Voltar</Button>
         </Link>
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-1 flex-wrap justify-end sm:justify-start">
           <Select value={currentStatus} onValueChange={changeStatus}>
-            <SelectTrigger className="w-[220px]"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-[160px] h-9 text-xs"><SelectValue /></SelectTrigger>
             <SelectContent>
               {Object.entries(CONTRACT_STATUS_LABELS).map(([k, v]) => (
                 <SelectItem key={k} value={k}>{v}</SelectItem>
               ))}
             </SelectContent>
           </Select>
-          <Button variant="outline" size="sm" onClick={() => changeStatus("sent")}><Send className="h-4 w-4 mr-1" />Marcar como enviado</Button>
-          <Button variant="outline" size="sm" onClick={() => changeStatus("signed")}><CheckCircle2 className="h-4 w-4 mr-1" />Registrar assinatura</Button>
-          <Button variant="outline" size="sm" onClick={doPrint}><Printer className="h-4 w-4 mr-1" />Imprimir</Button>
+          <Button variant="outline" size="sm" onClick={() => changeStatus("sent")} className="h-9 text-xs gap-1"><Send className="h-3.5 w-3.5" />Enviado</Button>
+          <Button variant="outline" size="sm" onClick={() => changeStatus("signed")} className="h-9 text-xs gap-1"><CheckCircle2 className="h-3.5 w-3.5" />Assinado</Button>
+          <Button variant="outline" size="sm" onClick={doPrint} className="h-9 text-xs gap-1"><Printer className="h-3.5 w-3.5" />Imprimir</Button>
         </div>
       </div>
 
