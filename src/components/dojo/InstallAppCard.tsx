@@ -74,7 +74,6 @@ export function InstallAppCard() {
         </div>
         <Button
           onClick={install}
-          disabled={isInstalled}
           className="shrink-0 bg-white text-red-700 hover:bg-white/90"
         >
           {isInstalled ? (
@@ -84,7 +83,7 @@ export function InstallAppCard() {
           ) : (
             <>
               <Download className="mr-2 h-4 w-4" />
-              {installEvent ? "Instalar aplicativo" : "Como instalar"}
+              Instalar agora
             </>
           )}
         </Button>
