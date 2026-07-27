@@ -6,7 +6,7 @@ import { makeTextElement, makeVariableElement, makeShapeElement, makeImageElemen
 import { CertificateRenderer } from "./CertificateRenderer";
 import { CERTIFICATE_PRESETS } from "@/lib/dojo/certificates/presets";
 import { supabase } from "@/integrations/supabase/client";
-import { Type, Variable, Image as ImageIcon, Shapes, QrCode, Signature, BadgeCheck, Layout, Search, Upload, Circle, Square, Minus, Sparkles, Star } from "lucide-react";
+import { Type, Variable, Image as ImageIcon, Shapes, QrCode, Signature, BadgeCheck, Layout, Search, Upload, Circle, Square, Minus, Sparkles, Star, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
