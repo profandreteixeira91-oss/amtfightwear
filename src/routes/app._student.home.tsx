@@ -60,12 +60,12 @@ function HomePage() {
   const rankingEnabled = config.features.ranking !== false;
 
   return (
-    <div className="mx-auto grid w-full max-w-3xl gap-5 lg:max-w-5xl lg:grid-cols-3 lg:items-start">
-      <div className="lg:col-span-3">
+    <div className="mx-auto grid w-full max-w-3xl gap-4 overflow-x-clip sm:gap-5 lg:max-w-5xl lg:grid-cols-3 lg:items-start">
+      <div className="min-w-0 lg:col-span-3">
         <PerformanceButton />
       </div>
       {rankingEnabled && (
-        <div className="lg:col-span-3">
+        <div className="min-w-0 lg:col-span-3">
           <RankingWidget />
         </div>
       )}
@@ -74,7 +74,7 @@ function HomePage() {
         const spanAll = block.type === "welcome" || block.type === "banner" || block.type === "open_invoices";
         return (
           <div key={block.id} className="contents">
-            <div className={spanAll ? "lg:col-span-3" : block.type === "shortcuts" ? "lg:col-span-2" : "lg:col-span-1"}>
+            <div className={`min-w-0 ${spanAll ? "lg:col-span-3" : block.type === "shortcuts" ? "lg:col-span-2" : "lg:col-span-1"}`}>
 
               <BlockRenderer
                 block={block}
@@ -88,7 +88,7 @@ function HomePage() {
               />
             </div>
             {block.type === "welcome" && (
-              <div className="lg:col-span-3">
+              <div className="min-w-0 lg:col-span-3">
                 <AnnouncementsWidget items={announcements} />
               </div>
             )}
@@ -97,7 +97,7 @@ function HomePage() {
         );
       })}
       {!config.home_blocks.some((b) => b.type === "welcome" && b.visible !== false) && (
-        <div className="lg:col-span-3">
+        <div className="min-w-0 lg:col-span-3">
           <AnnouncementsWidget items={announcements} />
         </div>
       )}
