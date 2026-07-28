@@ -60,8 +60,14 @@ function HomePage() {
     <div className="mx-auto grid w-full max-w-3xl gap-5 lg:max-w-5xl lg:grid-cols-3 lg:items-start">
       {config.home_blocks.filter((b) => b.visible !== false).map((block) => {
         const spanAll = block.type === "welcome" || block.type === "banner" || block.type === "open_invoices";
+        const showRankingBefore = block.type === "shortcuts" && config.features.ranking !== false;
         return (
           <div key={block.id} className="contents">
+            {showRankingBefore && (
+              <div className="lg:col-span-3">
+                <RankingWidget />
+              </div>
+            )}
             <div className={spanAll ? "lg:col-span-3" : block.type === "shortcuts" ? "lg:col-span-2" : "lg:col-span-1"}>
               <BlockRenderer
                 block={block}
@@ -89,6 +95,123 @@ function HomePage() {
         </div>
       )}
     </div>
+  );
+}
+
+function RankingWidget() {
+  const fn = useServerFn(getMyClassRanking);
+  const q = useQuery({
+    queryKey: ["student", "home", "ranking"],
+    queryFn: () => fn({ data: { period: "all" } }),
+    staleTime: 30_000,
+  });
+
+  const data = q.data;
+  const rows = useMemo(() => {
+    if (!data) return [] as Array<{ id: string; full_name: string; photo_url: string | null; count: number; rank: number; isMe: boolean }>;
+    const list = data.students.map((s: any) => ({
+      id: s.id,
+      full_name: s.full_name as string,
+      photo_url: (s.photo_url as string | null) ?? null,
+      count: data.counts[s.id] ?? 0,
+      isMe: s.id === data.me.id,
+    }));
+    list.sort((a, b) => b.count - a.count || a.full_name.localeCompare(b.full_name));
+    let lastCount: number | null = null;
+    let lastRank = 0;
+    return list.map((r, idx) => {
+      const rank = r.count === lastCount ? lastRank : idx + 1;
+      lastCount = r.count; lastRank = rank;
+      return { ...r, rank };
+    });
+  }, [data]);
+
+  if (!data || (data.classes ?? []).length === 0) return null;
+  const activeClass = data.classes.find((c: any) => c.id === data.classId);
+  const myTotal = data.me.total_checkins ?? 0;
+  const myRow = rows.find((r) => r.isMe);
+  const top = rows.slice(0, 3);
+
+  return (
+    <section>
+      <div className="mb-2 flex items-center justify-between px-1">
+        <h2 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-neutral-400">
+          <Trophy className="h-3.5 w-3.5" /> Ranking
+        </h2>
+        <Link to="/app/ranking" className="text-[11px] font-medium" style={{ color: "var(--sa-primary)" }}>
+          Ver completo
+        </Link>
+      </div>
+      <div
+        className="relative overflow-hidden rounded-2xl text-white shadow-[0_20px_60px_-30px_rgba(220,38,38,0.65)]"
+        style={{ background: "linear-gradient(135deg,#111 0%,#1a0a0a 50%,#3a0a0a 100%)" }}
+      >
+        <div aria-hidden className="pointer-events-none absolute -left-16 -top-16 h-48 w-48 rounded-full bg-red-600/25 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute -right-16 top-6 h-48 w-48 rounded-full bg-amber-500/15 blur-3xl" />
+        <div className="relative flex flex-col gap-3 p-4">
+          <div className="flex items-center gap-2 text-[11px]">
+            <span className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/5 px-2 py-0.5 backdrop-blur">
+              <Flame className="h-3 w-3" /> Turma
+            </span>
+            {activeClass && (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-2 py-0.5 backdrop-blur">
+                <span className="h-2 w-2 rounded-full" style={{ background: activeClass.color || "#dc2626" }} />
+                <span className="truncate">{activeClass.name}</span>
+              </span>
+            )}
+          </div>
+
+          <div className="grid grid-cols-3 gap-2 rounded-xl border border-white/10 bg-white/5 p-3 backdrop-blur">
+            <div className="col-span-2">
+              <div className="text-[10px] font-semibold uppercase tracking-wider text-red-200/80">
+                Seus check-ins (total geral)
+              </div>
+              <div className="mt-0.5 flex items-baseline gap-1.5">
+                <div className="font-display text-2xl font-black leading-none">{myTotal}</div>
+                <div className="text-[11px] text-neutral-300">no histórico</div>
+              </div>
+            </div>
+            {myRow && (
+              <div className="rounded-lg bg-gradient-to-br from-amber-400/20 to-red-500/20 p-2 text-right ring-1 ring-white/10">
+                <div className="text-[10px] font-semibold uppercase tracking-wider text-red-100/80">Sua posição</div>
+                <div className="mt-0.5 font-display text-xl font-black leading-none">{myRow.rank}º</div>
+                <div className="text-[10px] text-neutral-300">{myRow.count} check-ins</div>
+              </div>
+            )}
+          </div>
+
+          {top.length > 0 && (
+            <ul className="grid gap-1.5">
+              {top.map((r) => {
+                const medal = r.rank === 1 ? "🥇" : r.rank === 2 ? "🥈" : "🥉";
+                return (
+                  <li
+                    key={r.id}
+                    className={`flex items-center gap-2.5 rounded-xl border border-white/10 bg-white/5 px-2.5 py-2 backdrop-blur ${
+                      r.isMe ? "ring-1 ring-red-400/70" : ""
+                    }`}
+                  >
+                    <span className="text-lg leading-none">{medal}</span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1">
+                        <div className="truncate text-[13px] font-semibold">
+                          {r.isMe ? `${r.full_name} (você)` : r.full_name}
+                        </div>
+                        {r.rank === 1 && <Crown className="h-3.5 w-3.5 shrink-0 text-amber-400" />}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-display text-base font-black leading-none">{r.count}</div>
+                      <div className="text-[9px] font-semibold uppercase tracking-wider text-neutral-400">check-ins</div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+      </div>
+    </section>
   );
 }
 
