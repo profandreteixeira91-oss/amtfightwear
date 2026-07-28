@@ -805,6 +805,17 @@ export const saveDojoInvoice = createServerFn({ method: "POST" })
 
     const { data: row, error } = await context.supabase.from("dojo_invoices").insert(payload).select("id").single();
     if (error) throw new Error(error.message);
+    try {
+      const { safeNotifyStudent } = await import("@/lib/push/push.server");
+      const amountFmt = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" })
+        .format(Number(payload.amount ?? 0));
+      safeNotifyStudent(payload.student_id, {
+        title: "Nova cobrança disponível",
+        body: `${payload.description ?? "Mensalidade"} — ${amountFmt}${payload.due_date ? ` • vence em ${new Date(payload.due_date).toLocaleDateString("pt-BR")}` : ""}`,
+        url: "/app/financeiro",
+        tag: `invoice-${row.id}`,
+      });
+    } catch {}
     return { id: row.id };
   });
 
