@@ -153,11 +153,10 @@ const anamnesisSchema = z.object({
 export const getMyAnamnesis = createServerFn({ method: "GET" })
   .middleware([requireStudentAuth])
   .handler(async ({ context }) => {
-    const { data } = await context.supabase
-      .from("dojo_students")
-      .select("anamnesis, health_insurance, has_medical_clearance, medical_clearance_date")
-      .limit(1)
-      .maybeSingle();
+    const data = await fetchActiveStudent<any>(
+      context.supabase,
+      "anamnesis, health_insurance, has_medical_clearance, medical_clearance_date",
+    );
     return data ?? null;
   });
 
