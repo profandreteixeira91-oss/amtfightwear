@@ -23,7 +23,7 @@ const SHORTCUT_META: Record<string, { label: string; icon: keyof typeof Icons; t
   finance: { label: "Financeiro", icon: "Wallet", to: "/app/finance", feature: "finance" },
   competitions: { label: "Competições", icon: "Trophy", to: "/app/competitions", feature: "competitions" },
   profile: { label: "Meu Perfil", icon: "User", to: "/app/profile", feature: "profile" },
-  documents: { label: "Documentos", icon: "FileText", to: "/app/documents", feature: "documents" },
+  documents: { label: "Contratos", icon: "FileText", to: "/app/documents", feature: "documents" },
   ranking: { label: "Ranking", icon: "Trophy", to: "/app/ranking", feature: "ranking" },
   card: { label: "Carteirinha", icon: "IdCard", to: "/app/card" },
 
