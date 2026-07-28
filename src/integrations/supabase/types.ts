@@ -3439,7 +3439,12 @@ export type Database = {
       }
       dojo_checkin_settings: {
         Row: {
+          allow_fixed_qr_checkin: boolean
+          allow_gps_checkin: boolean
           allow_multiple_daily: boolean
+          allow_photo_checkin: boolean
+          allow_pin_checkin: boolean
+          allow_qr_checkin: boolean
           block_on_overdue: boolean
           created_at: string
           extras: Json
@@ -3467,7 +3472,12 @@ export type Database = {
           welcome_message: string | null
         }
         Insert: {
+          allow_fixed_qr_checkin?: boolean
+          allow_gps_checkin?: boolean
           allow_multiple_daily?: boolean
+          allow_photo_checkin?: boolean
+          allow_pin_checkin?: boolean
+          allow_qr_checkin?: boolean
           block_on_overdue?: boolean
           created_at?: string
           extras?: Json
@@ -3495,7 +3505,12 @@ export type Database = {
           welcome_message?: string | null
         }
         Update: {
+          allow_fixed_qr_checkin?: boolean
+          allow_gps_checkin?: boolean
           allow_multiple_daily?: boolean
+          allow_photo_checkin?: boolean
+          allow_pin_checkin?: boolean
+          allow_qr_checkin?: boolean
           block_on_overdue?: boolean
           created_at?: string
           extras?: Json

@@ -1063,6 +1063,11 @@ function SettingsPanel() {
         allowAdminException: d.allow_admin_exception ?? true,
         allowTeacherException: d.allow_teacher_exception ?? true,
         blockDuplicateCheckin: d.block_duplicate_checkin ?? true,
+        allowGpsCheckin: d.allow_gps_checkin ?? true,
+        allowPinCheckin: d.allow_pin_checkin ?? true,
+        allowQrCheckin: d.allow_qr_checkin ?? true,
+        allowFixedQrCheckin: d.allow_fixed_qr_checkin ?? true,
+        allowPhotoCheckin: d.allow_photo_checkin ?? false,
       });
     } else if (!q.isLoading) {
       setState({
@@ -1074,6 +1079,8 @@ function SettingsPanel() {
         facialRecognitionEnabled: false,
         checkinWindowPreMins: 10, checkinWindowPostMins: 30,
         allowAdminException: true, allowTeacherException: true, blockDuplicateCheckin: true,
+        allowGpsCheckin: true, allowPinCheckin: true, allowQrCheckin: true,
+        allowFixedQrCheckin: true, allowPhotoCheckin: false,
       });
     }
   }, [q.data, q.isLoading]);
@@ -1112,6 +1119,25 @@ function SettingsPanel() {
             placeholder="Use {{name}} para o primeiro nome do aluno"
           />
         </div>
+
+        <div className="rounded-lg border p-4 space-y-3">
+          <div>
+            <div className="font-semibold text-sm">Métodos de check-in aceitos</div>
+            <div className="text-xs text-muted-foreground">
+              Escolha quais métodos ficam disponíveis para seus alunos. Métodos desativados são ocultados no app do aluno.
+            </div>
+          </div>
+          <div className="space-y-2">
+            <SettingRow label="GPS pelo app do aluno" v={state.allowGpsCheckin} onChange={(v) => upd("allowGpsCheckin", v)} />
+            <SettingRow label="QR Code fixo da academia (impresso na parede)" v={state.allowFixedQrCheckin} onChange={(v) => upd("allowFixedQrCheckin", v)} />
+            <SettingRow label="PIN pessoal do aluno no kiosk" v={state.allowPinCheckin} onChange={(v) => upd("allowPinCheckin", v)} />
+            <SettingRow label="QR Code pessoal do aluno no kiosk" v={state.allowQrCheckin} onChange={(v) => upd("allowQrCheckin", v)} />
+            <SettingRow label="Reconhecimento por foto (foto da turma)" v={state.allowPhotoCheckin} onChange={(v) => upd("allowPhotoCheckin", v)} />
+          </div>
+        </div>
+
+        {state.allowFixedQrCheckin && <FixedQrCard />}
+
 
         <div className="space-y-2">
           <SettingRow label="Permitir múltiplos check-ins no mesmo dia" v={state.allowMultipleDaily} onChange={(v) => upd("allowMultipleDaily", v)} />
@@ -1246,6 +1272,70 @@ function SettingRow({ label, v, onChange }: { label: string; v?: boolean; onChan
     <div className="flex items-center justify-between rounded-lg border p-3">
       <div className="text-sm">{label}</div>
       <Switch checked={!!v} onCheckedChange={onChange} />
+    </div>
+  );
+}
+
+function FixedQrCard() {
+  const url = typeof window !== "undefined"
+    ? `${window.location.origin}/app/checkin?auto=fixed_qr`
+    : "https://amtfightwear.com.br/app/checkin?auto=fixed_qr";
+  const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=10&data=${encodeURIComponent(url)}`;
+
+  function printQr() {
+    const w = window.open("", "_blank", "width=800,height=1000");
+    if (!w) return;
+    w.document.write(`<!doctype html><html><head><title>QR de Check-in</title>
+      <style>
+        body { font-family: system-ui, sans-serif; text-align: center; padding: 40px; }
+        h1 { font-size: 28px; margin: 0 0 8px; }
+        p { color: #555; margin: 4px 0 24px; }
+        img { width: 480px; height: 480px; }
+        .foot { margin-top: 24px; font-size: 12px; color: #888; word-break: break-all; }
+        @media print { .no-print { display: none; } }
+      </style></head><body>
+      <h1>Check-in da Academia</h1>
+      <p>Aponte a câmera do celular para o QR abaixo</p>
+      <img src="${qrSrc}" alt="QR Code" />
+      <div class="foot">${url}</div>
+      <button class="no-print" onclick="window.print()" style="margin-top:24px;padding:10px 20px;font-size:14px;">Imprimir</button>
+      </body></html>`);
+    w.document.close();
+  }
+
+  return (
+    <div className="rounded-lg border p-4 space-y-3">
+      <div>
+        <div className="font-semibold text-sm">QR Code fixo da academia</div>
+        <div className="text-xs text-muted-foreground">
+          Imprima e cole na entrada do tatame. Alunos com o app aberto (logados) fazem check-in ao apontar a câmera do celular.
+        </div>
+      </div>
+      <div className="flex flex-col sm:flex-row items-center gap-4">
+        <img
+          src={qrSrc}
+          alt="QR Code de check-in da academia"
+          className="h-40 w-40 rounded border bg-white p-2"
+        />
+        <div className="flex-1 space-y-2 text-center sm:text-left">
+          <p className="text-xs text-muted-foreground break-all">{url}</p>
+          <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
+            <Button size="sm" variant="outline" onClick={printQr}>
+              Imprimir QR
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                navigator.clipboard.writeText(url);
+                toast.success("Link copiado");
+              }}
+            >
+              Copiar link
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
