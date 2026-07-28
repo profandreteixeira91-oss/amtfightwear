@@ -263,6 +263,10 @@ function StudentRankingPage() {
       )}
 
       {/* LISTA COMPLETA */}
+      {(() => {
+        const displayRows = showOverall ? overallRows : rows;
+        const listTitle = showOverall ? "Ranking geral da academia" : "Classificação completa";
+        return (
       <section className="relative overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
         <div aria-hidden className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-red-500 via-red-400 to-amber-400" />
         <div className="flex items-center justify-between gap-2 border-b border-neutral-200 px-4 py-3">
@@ -271,13 +275,15 @@ function StudentRankingPage() {
               <TrendingUp className="h-4 w-4" />
             </div>
             <div className="min-w-0">
-              <div className="truncate text-sm font-bold">Classificação completa</div>
-              <div className="truncate text-[11px] text-neutral-500">{periodLabel[period]}</div>
+              <div className="truncate text-sm font-bold">{listTitle}</div>
+              <div className="truncate text-[11px] text-neutral-500">
+                {showOverall ? `${periodLabel[period]} · todos os alunos ativos` : periodLabel[period]}
+              </div>
             </div>
           </div>
-          {rows.length > 0 && (
+          {displayRows.length > 0 && (
             <span className="shrink-0 rounded-full border border-neutral-200 bg-neutral-50 px-2.5 py-0.5 text-[11px] font-semibold text-neutral-600">
-              {rows.length} {rows.length === 1 ? "aluno" : "alunos"}
+              {displayRows.length} {displayRows.length === 1 ? "aluno" : "alunos"}
             </span>
           )}
         </div>
@@ -286,21 +292,21 @@ function StudentRankingPage() {
           <div className="grid place-items-center py-16 text-neutral-500">
             <Loader2 className="h-5 w-5 animate-spin" />
           </div>
-        ) : !activeClassId ? (
-          <p className="py-12 text-center text-sm text-neutral-500">
-            {hasMultipleClasses ? "Selecione uma turma para ver o ranking." : "Sem turma para exibir."}
-          </p>
-        ) : rows.length === 0 ? (
+        ) : displayRows.length === 0 ? (
           <div className="grid place-items-center gap-2 py-12 text-center">
             <div className="grid h-12 w-12 place-items-center rounded-2xl bg-neutral-100 text-neutral-400">
               <Users className="h-5 w-5" />
             </div>
-            <p className="text-sm text-neutral-500">Nenhum aluno matriculado nesta turma ainda.</p>
+            <p className="text-sm text-neutral-500">
+              {showOverall
+                ? "Ainda não há check-ins registrados na sua academia."
+                : "Nenhum aluno matriculado nesta turma ainda."}
+            </p>
           </div>
         ) : (
           <ul className="divide-y divide-neutral-100">
-            {rows.map((r) => {
-              const max = rows[0]?.count || 1;
+            {displayRows.map((r) => {
+              const max = displayRows[0]?.count || 1;
               const pct = Math.max(4, Math.round((r.count / max) * 100));
               const isTop = r.rank <= 3;
               return (
@@ -358,6 +364,8 @@ function StudentRankingPage() {
           </ul>
         )}
       </section>
+        );
+      })()}
     </div>
   );
 }
