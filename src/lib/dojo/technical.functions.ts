@@ -10,11 +10,14 @@ async function assertOwnership(supabase: any, userId: string, studentId: string)
     .maybeSingle();
   if (!data) throw new Error("Aluno não encontrado");
   if (data.owner_id !== userId) {
+    const { data: isMine } = await supabase.rpc("is_my_student", { _id: studentId });
+    if (isMine) return data;
     const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
     if (!isAdmin) throw new Error("Sem permissão");
   }
   return data;
 }
+
 
 // ---------- Fundamentos (por modalidade) ----------
 export const listFundamentals = createServerFn({ method: "GET" })
