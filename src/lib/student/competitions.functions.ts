@@ -5,6 +5,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireStudentAuth } from "@/integrations/supabase/student-auth-middleware";
+import { fetchActiveStudent } from "./_me";
 
 const uuid = z.string().regex(/^[0-9a-fA-F-]{32,36}$/);
 
@@ -31,11 +32,7 @@ export const getStudentCompetition = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!row) throw new Error("Competição não encontrada");
 
-    const { data: me } = await context.supabase
-      .from("dojo_students")
-      .select("id")
-      .eq("user_id", context.userId)
-      .maybeSingle();
+    const me = await fetchActiveStudent<any>(context.supabase, "id");
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let athlete: any = null;
@@ -73,12 +70,7 @@ export const setMyInterest = createServerFn({ method: "POST" })
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
-    const { data: me, error: meErr } = await context.supabase
-      .from("dojo_students")
-      .select("id, owner_id")
-      .eq("user_id", context.userId)
-      .maybeSingle();
-    if (meErr) throw new Error(meErr.message);
+    const me = await fetchActiveStudent<any>(context.supabase, "id, owner_id");
     if (!me) throw new Error("Aluno não encontrado");
 
     const payload = {
@@ -111,11 +103,7 @@ export const uploadMyCompetitionDocument = createServerFn({ method: "POST" })
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
-    const { data: me } = await context.supabase
-      .from("dojo_students")
-      .select("id, owner_id")
-      .eq("user_id", context.userId)
-      .maybeSingle();
+    const me = await fetchActiveStudent<any>(context.supabase, "id, owner_id");
     if (!me) throw new Error("Aluno não encontrado");
     const { data: row, error } = await context.supabase
       .from("academy_competition_documents")
