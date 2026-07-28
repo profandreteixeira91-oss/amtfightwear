@@ -1275,3 +1275,67 @@ function SettingRow({ label, v, onChange }: { label: string; v?: boolean; onChan
     </div>
   );
 }
+
+function FixedQrCard() {
+  const url = typeof window !== "undefined"
+    ? `${window.location.origin}/app/checkin?auto=fixed_qr`
+    : "https://amtfightwear.com.br/app/checkin?auto=fixed_qr";
+  const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=10&data=${encodeURIComponent(url)}`;
+
+  function printQr() {
+    const w = window.open("", "_blank", "width=800,height=1000");
+    if (!w) return;
+    w.document.write(`<!doctype html><html><head><title>QR de Check-in</title>
+      <style>
+        body { font-family: system-ui, sans-serif; text-align: center; padding: 40px; }
+        h1 { font-size: 28px; margin: 0 0 8px; }
+        p { color: #555; margin: 4px 0 24px; }
+        img { width: 480px; height: 480px; }
+        .foot { margin-top: 24px; font-size: 12px; color: #888; word-break: break-all; }
+        @media print { .no-print { display: none; } }
+      </style></head><body>
+      <h1>Check-in da Academia</h1>
+      <p>Aponte a câmera do celular para o QR abaixo</p>
+      <img src="${qrSrc}" alt="QR Code" />
+      <div class="foot">${url}</div>
+      <button class="no-print" onclick="window.print()" style="margin-top:24px;padding:10px 20px;font-size:14px;">Imprimir</button>
+      </body></html>`);
+    w.document.close();
+  }
+
+  return (
+    <div className="rounded-lg border p-4 space-y-3">
+      <div>
+        <div className="font-semibold text-sm">QR Code fixo da academia</div>
+        <div className="text-xs text-muted-foreground">
+          Imprima e cole na entrada do tatame. Alunos com o app aberto (logados) fazem check-in ao apontar a câmera do celular.
+        </div>
+      </div>
+      <div className="flex flex-col sm:flex-row items-center gap-4">
+        <img
+          src={qrSrc}
+          alt="QR Code de check-in da academia"
+          className="h-40 w-40 rounded border bg-white p-2"
+        />
+        <div className="flex-1 space-y-2 text-center sm:text-left">
+          <p className="text-xs text-muted-foreground break-all">{url}</p>
+          <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
+            <Button size="sm" variant="outline" onClick={printQr}>
+              Imprimir QR
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                navigator.clipboard.writeText(url);
+                toast.success("Link copiado");
+              }}
+            >
+              Copiar link
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
