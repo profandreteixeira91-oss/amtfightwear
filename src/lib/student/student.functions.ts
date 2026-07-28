@@ -335,7 +335,7 @@ export const selfCheckin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) =>
     z.object({
-      method: z.enum(["app", "qr", "pin", "fixed_qr", "photo"]).default("app"),
+      method: z.enum(["app", "qr", "pin", "fixed_qr"]).default("app"),
       lat: z.number().min(-90).max(90).optional().nullable(),
       lng: z.number().min(-180).max(180).optional().nullable(),
       accuracy: z.number().min(0).max(100000).optional().nullable(),
