@@ -123,7 +123,7 @@ function CheckinPage() {
             <button
               key={opt.key}
               onClick={() => doCheckin(opt.key)}
-              disabled={submitting !== null || opt.key === "photo"}
+              disabled={submitting !== null}
               className="flex w-full items-center gap-3 rounded-2xl bg-white p-4 text-left shadow-sm ring-1 ring-neutral-100 transition active:scale-[0.99] disabled:opacity-60"
             >
               <div
@@ -135,7 +135,7 @@ function CheckinPage() {
               <div className="min-w-0 flex-1">
                 <div className="text-sm font-semibold text-neutral-900">{opt.title}</div>
                 <div className="truncate text-[11px] text-neutral-500">
-                  {opt.key === "photo" ? "Registrado automaticamente pelo professor" : opt.desc}
+                  {opt.desc}
                 </div>
               </div>
               <CheckCircle2 className="h-4 w-4 text-neutral-300" />
