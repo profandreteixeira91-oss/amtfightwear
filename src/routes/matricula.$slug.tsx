@@ -91,7 +91,7 @@ const empty: Form = {
 };
 
 function PublicEnrollmentPage() {
-  const { slug } = Route.useParams();
+  const { slug } = useParams({ strict: false }) as { slug: string };
   const navigate = useNavigate();
   const bundleFn = useServerFn(getPublicEnrollmentBundle);
   const enrollFn = useServerFn(publicEnrollStudent);
