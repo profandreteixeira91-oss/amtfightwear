@@ -449,6 +449,22 @@ export const finishEvalSession = createServerFn({ method: "POST" })
         graduated_at: now,
       } as never);
     }
+
+    try {
+      const { safeNotifyStudent } = await import("@/lib/push/push.server");
+      const map: Record<string, { title: string; body: string }> = {
+        approved: { title: "Avaliação aprovada 🏆", body: "Parabéns! Você foi aprovado(a) na sua avaliação." },
+        failed: { title: "Resultado da avaliação", body: "Sua avaliação foi concluída. Toque para ver os detalhes." },
+        review: { title: "Avaliação em revisão", body: "Seu professor está revisando sua avaliação." },
+        conditional: { title: "Aprovação condicional", body: "Você foi aprovado(a) com ressalvas. Confira os detalhes." },
+      };
+      const msg = map[data.result] ?? { title: "Avaliação concluída", body: "Toque para ver os detalhes." };
+      safeNotifyStudent((sess as any)?.student_id, {
+        ...msg,
+        url: "/app/avaliacoes",
+        tag: `eval-finish-${data.id}`,
+      });
+    } catch {}
     return { ok: true };
   });
 
