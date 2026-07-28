@@ -1,25 +1,37 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useSearch } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getMyAttendance, selfCheckin, getMyStudent } from "@/lib/student/student.functions";
-import { CheckCircle2, QrCode, History } from "lucide-react";
+import { getMyCheckinMethods } from "@/lib/dojo/checkin.functions";
+import { CheckCircle2, QrCode, History, MapPin, Fingerprint, ScanLine, Camera, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { z } from "zod";
+
+const searchSchema = z.object({
+  auto: z.enum(["fixed_qr"]).optional(),
+});
 
 export const Route = createFileRoute("/app/_student/checkin")({
   head: () => ({ meta: [{ title: "Check-in — Portal do Aluno" }] }),
+  validateSearch: (s) => searchSchema.parse(s),
   component: CheckinPage,
 });
 
+type Method = "app" | "pin" | "qr" | "fixed_qr" | "photo";
+
 function CheckinPage() {
   const qc = useQueryClient();
+  const search = useSearch({ from: "/app/_student/checkin" });
   const listFn = useServerFn(getMyAttendance);
   const meFn = useServerFn(getMyStudent);
+  const methodsFn = useServerFn(getMyCheckinMethods);
   const checkinFn = useServerFn(selfCheckin);
 
   const { data: me } = useQuery({ queryKey: ["student", "me"], queryFn: () => meFn({}) });
+  const { data: methods } = useQuery({ queryKey: ["student", "checkin-methods"], queryFn: () => methodsFn() });
   const { data: history, isLoading } = useQuery({ queryKey: ["student", "attendance"], queryFn: () => listFn({}) });
-  const [submitting, setSubmitting] = useState(false);
+  const [submitting, setSubmitting] = useState<Method | null>(null);
 
   async function getPosition(): Promise<GeolocationPosition | null> {
     if (typeof navigator === "undefined" || !navigator.geolocation) return null;
@@ -32,54 +44,103 @@ function CheckinPage() {
     });
   }
 
-  async function onCheckin() {
-    setSubmitting(true);
+  async function doCheckin(method: Method) {
+    if (submitting) return;
+    setSubmitting(method);
     try {
-      const pos = await getPosition();
-      if (!pos) {
-        toast.error("Não foi possível obter sua localização", {
-          description: "Ative o GPS e permita o acesso à localização no navegador.",
-        });
-        setSubmitting(false);
-        return;
-      }
-      await checkinFn({
-        data: {
+      let payload: any = { method };
+      if (method === "app") {
+        const pos = await getPosition();
+        if (!pos) {
+          toast.error("Não foi possível obter sua localização", {
+            description: "Ative o GPS e permita o acesso à localização no navegador.",
+          });
+          setSubmitting(null);
+          return;
+        }
+        payload = {
           method: "app",
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
           accuracy: pos.coords.accuracy,
-        },
-      });
+        };
+      }
+      await checkinFn({ data: payload });
       toast.success("Check-in registrado!");
       qc.invalidateQueries({ queryKey: ["student"] });
     } catch (e) {
       toast.error("Falha no check-in", { description: (e as Error).message });
     } finally {
-      setSubmitting(false);
+      setSubmitting(null);
     }
   }
 
+  // Auto check-in ao abrir via QR fixo da academia
+  const autoTriggered = useMemo(() => ({ done: false }), []);
+  useEffect(() => {
+    if (search.auto === "fixed_qr" && !autoTriggered.done && methods?.allowFixedQr) {
+      autoTriggered.done = true;
+      doCheckin("fixed_qr");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search.auto, methods?.allowFixedQr]);
+
   const last = history?.[0];
   const total30 = (history ?? []).filter((a) => Date.now() - new Date(a.checked_in_at).getTime() < 30 * 86400000).length;
+
+  const options: { key: Method; enabled: boolean; icon: any; title: string; desc: string }[] = [
+    { key: "app", enabled: !!methods?.allowGps, icon: MapPin, title: "Check-in por GPS", desc: methods?.geoRequired ? "Valida sua localização junto à academia" : "Registre a partir do app" },
+    { key: "fixed_qr", enabled: !!methods?.allowFixedQr, icon: ScanLine, title: "QR Code da academia", desc: "Aponte a câmera para o QR fixo impresso no dojo" },
+    { key: "pin", enabled: !!methods?.allowPin, icon: Fingerprint, title: "Meu PIN", desc: "Use o PIN abaixo no kiosk da academia" },
+    { key: "qr", enabled: !!methods?.allowQr, icon: QrCode, title: "Meu QR pessoal", desc: "Mostre seu QR no kiosk da academia" },
+    { key: "photo", enabled: !!methods?.allowPhoto, icon: Camera, title: "Reconhecimento facial", desc: "Presença via foto da turma pelo professor" },
+  ];
+  const enabled = options.filter((o) => o.enabled);
 
   return (
     <div className="space-y-4">
       <h1 className="text-xl font-bold">Check-in</h1>
 
-      <section className="rounded-2xl bg-white p-6 text-center shadow-sm ring-1 ring-neutral-100">
-        <QrCode className="mx-auto h-10 w-10 text-neutral-300" />
-        <p className="mt-2 text-xs font-semibold uppercase tracking-wider text-neutral-400">Seu PIN</p>
+      <section className="rounded-2xl bg-white p-5 text-center shadow-sm ring-1 ring-neutral-100">
+        <QrCode className="mx-auto h-9 w-9 text-neutral-300" />
+        <p className="mt-2 text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Seu PIN pessoal</p>
         <p className="text-3xl font-bold tabular-nums tracking-widest">{me?.checkin_pin ?? "——————"}</p>
-        <button
-          onClick={onCheckin}
-          disabled={submitting}
-          className="mt-5 w-full rounded-xl py-3.5 text-base font-semibold text-white shadow-md transition active:scale-[0.99] disabled:opacity-60"
-          style={{ background: "var(--sa-primary, #dc2626)" }}
-        >
-          {submitting ? "Enviando…" : "Registrar check-in agora"}
-        </button>
-        <p className="mt-2 text-[11px] text-neutral-500">O check-in valida sua localização — você precisa estar próximo da academia. Se sua unidade exigir, use o PIN acima no kiosk.</p>
+        <p className="mt-1 text-[11px] text-neutral-500">Use no kiosk da academia se o dono do dojo tiver ativado essa opção.</p>
+      </section>
+
+      <section>
+        <h2 className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-neutral-400">
+          Escolha como registrar sua presença
+        </h2>
+        <div className="space-y-2">
+          {enabled.length === 0 && (
+            <div className="rounded-2xl bg-white p-4 text-center text-sm text-neutral-500 shadow-sm ring-1 ring-neutral-100">
+              Nenhum método de check-in habilitado. Fale com o dono da academia.
+            </div>
+          )}
+          {enabled.map((opt) => (
+            <button
+              key={opt.key}
+              onClick={() => doCheckin(opt.key)}
+              disabled={submitting !== null || opt.key === "photo"}
+              className="flex w-full items-center gap-3 rounded-2xl bg-white p-4 text-left shadow-sm ring-1 ring-neutral-100 transition active:scale-[0.99] disabled:opacity-60"
+            >
+              <div
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white"
+                style={{ background: "var(--sa-primary, #dc2626)" }}
+              >
+                {submitting === opt.key ? <Loader2 className="h-5 w-5 animate-spin" /> : <opt.icon className="h-5 w-5" />}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-semibold text-neutral-900">{opt.title}</div>
+                <div className="truncate text-[11px] text-neutral-500">
+                  {opt.key === "photo" ? "Registrado automaticamente pelo professor" : opt.desc}
+                </div>
+              </div>
+              <CheckCircle2 className="h-4 w-4 text-neutral-300" />
+            </button>
+          ))}
+        </div>
       </section>
 
       <div className="grid grid-cols-2 gap-3">
