@@ -326,14 +326,14 @@ function BlockRenderer({
     case "welcome":
       return (
         <section
-          className="overflow-hidden rounded-2xl p-5 shadow-sm ring-1 ring-neutral-100"
+          className="overflow-hidden rounded-2xl p-4 shadow-sm ring-1 ring-neutral-100 sm:p-5"
           style={{ background: "var(--sa-card, #ffffff)" }}
         >
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             {student?.photo_url ? (
-              <img src={student.photo_url} alt="" className="h-16 w-16 rounded-full object-cover ring-2 ring-white shadow" />
+              <img src={student.photo_url} alt="" className="h-14 w-14 shrink-0 rounded-full object-cover ring-2 ring-white shadow sm:h-16 sm:w-16" />
             ) : (
-              <div className="grid h-16 w-16 place-items-center rounded-full bg-neutral-100 text-lg font-bold text-neutral-400">
+              <div className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-neutral-100 text-lg font-bold text-neutral-400 sm:h-16 sm:w-16">
                 {student?.full_name?.[0] ?? "?"}
               </div>
             )}
@@ -342,20 +342,21 @@ function BlockRenderer({
                 {student?.full_name ?? (isLoading ? "…" : "—")}
               </div>
               {belt && (
-                <div className="mt-1">
+                <div className="mt-1 flex">
                   <span
-                    className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold text-white"
+                    className="inline-flex max-w-full items-center gap-1.5 truncate rounded-full px-2.5 py-1 text-[11px] font-semibold text-white"
                     style={{ background: belt.color_hex }}
                   >
-                    {formatBeltName(belt.name, (belt as any)?.modality)}
-
-                    {degreeSuffix(student?.current_degree, (belt as any)?.modality, " · ", belt?.name)}
+                    <span className="truncate">
+                      {formatBeltName(belt.name, (belt as any)?.modality)}
+                      {degreeSuffix(student?.current_degree, (belt as any)?.modality, " · ", belt?.name)}
+                    </span>
                   </span>
                 </div>
               )}
             </div>
           </div>
-          <div className="mt-4 grid grid-cols-2 gap-3">
+          <div className="mt-4 grid grid-cols-2 gap-2 sm:gap-3">
             <Info label="Último check-in" value={fmtDate(lastCheckin?.checked_in_at)} />
             <Info
               label="Faturas abertas"
