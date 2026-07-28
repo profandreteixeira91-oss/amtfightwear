@@ -27,7 +27,6 @@ export const Route = createFileRoute("/matricula/$slug")({
   component: PublicEnrollmentPage,
 });
 
-export { PublicEnrollmentPage };
 
 const brl = (n: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(n || 0);
@@ -90,7 +89,7 @@ const empty: Form = {
   image_rights_consent: false,
 };
 
-function PublicEnrollmentPage() {
+export function PublicEnrollmentPage() {
   const { slug } = useParams({ strict: false }) as { slug: string };
   const navigate = useNavigate();
   const bundleFn = useServerFn(getPublicEnrollmentBundle);
