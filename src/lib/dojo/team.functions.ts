@@ -314,6 +314,41 @@ export const isEmailTeamMember = createServerFn({ method: "POST" })
     };
   });
 
+/**
+ * Verifica se o usuário autenticado é um membro de equipe. Se existir uma
+ * linha em dojo_team_members com o mesmo e-mail mas sem vínculo com o próprio
+ * user_id (ou com status inativo), bloqueia o acesso — o login precisa ser
+ * criado pelo dono do dojo dentro do módulo Equipe.
+ */
+export const checkTeamMemberGate = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: userRes } = await context.supabase.auth.getUser();
+    const email = (userRes.user?.email ?? "").trim().toLowerCase();
+    if (!email) return { blocked: false as const };
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows, error } = await supabaseAdmin
+      .from("dojo_team_members")
+      .select("id, user_id, status, owner_id")
+      .ilike("email", email)
+      .limit(5);
+    if (error) throw new Error(error.message);
+    if (!rows || rows.length === 0) return { blocked: false as const };
+    // Existe pelo menos uma linha de team_member para este e-mail.
+    // Permite acesso somente quando ao menos uma dessas linhas está vinculada
+    // ao próprio user_id e ativa.
+    const linkedActive = rows.some(
+      (r) => r.user_id === context.userId && (r.status ?? "active") !== "inactive",
+    );
+    if (linkedActive) return { blocked: false as const };
+    const anyLinked = rows.some((r) => !!r.user_id);
+    return {
+      blocked: true as const,
+      reason: anyLinked ? ("inactive" as const) : ("not_provisioned" as const),
+    };
+  });
+
+
 
 export const getMyTeamPermissions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
