@@ -1282,6 +1282,20 @@ export const changeStudentPlan = createServerFn({ method: "POST" })
       .single();
     if (error) throw new Error(error.message);
 
+    // Notifica o aluno da alteração de plano
+    try {
+      const { safeNotifyStudent } = await import("@/lib/push/push.server");
+      safeNotifyStudent(data.student_id, {
+        title: "Plano alterado",
+        body: `Seu plano foi atualizado para ${(plan as any).name}. Novo valor entra em vigor na próxima cobrança.`,
+        url: "/app/plan",
+        tag: `plan-change-${(row as any).id}`,
+        data: { enrollmentId: (row as any).id, type: "plan_change" },
+      }, "plan_change");
+    } catch (e) {
+      console.warn("[changeStudentPlan] push falhou", e);
+    }
+
     return {
       enrollment_id: (row as any).id,
       next_billing_date: nextRunAt,
@@ -1289,6 +1303,7 @@ export const changeStudentPlan = createServerFn({ method: "POST" })
       message: "Plano alterado. O novo valor entrará em vigor na próxima cobrança.",
     };
   });
+
 
 
 
