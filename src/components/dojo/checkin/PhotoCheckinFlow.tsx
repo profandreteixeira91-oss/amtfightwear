@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from "react";
-import { Camera, Upload, Check, X, AlertTriangle, UserPlus, HelpCircle, RefreshCw, Loader2, Users, Search, Trash2 } from "lucide-react";
+import { useState, useRef, useMemo, useEffect } from "react";
+import { Camera, Check, X, AlertTriangle, RefreshCw, Users, Search, Trash2, Image as ImageIcon, MapPin, Calendar, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,8 +20,14 @@ interface PhotoCheckinFlowProps {
   unitId?: string;
 }
 
+const STEPS = [
+  { key: "setup", label: "Configurar" },
+  { key: "processing", label: "Processar" },
+  { key: "validation", label: "Validar" },
+] as const;
+
 export function PhotoCheckinFlow({ onComplete, onCancel, unitId: initialUnitId }: PhotoCheckinFlowProps) {
-  const [step, setStep] = useState<"setup" | "upload" | "processing" | "validation" | "summary">("setup");
+  const [step, setStep] = useState<"setup" | "processing" | "validation">("setup");
   const [selectedUnitId, setSelectedUnitId] = useState(initialUnitId || "");
   const [selectedClassId, setSelectedClassId] = useState("");
   const [selectedLessonId, setSelectedLessonId] = useState("");
@@ -31,27 +37,51 @@ export function PhotoCheckinFlow({ onComplete, onCancel, unitId: initialUnitId }
   const [results, setResults] = useState<any[]>([]);
   const [classPhotoId, setClassPhotoId] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
-  
+
   const qc = useQueryClient();
   const unitsFn = useServerFn(listDojoUnits);
+  const classesFn = useServerFn(listClasses);
+  const lessonsFn = useServerFn(listLessonPlans);
   const startRecognition = useServerFn(startFaceRecognition);
   const confirmCheckins = useServerFn(confirmSmartCheckins);
-  
+
   const { data: units } = useQuery({ queryKey: ["dojo-units"], queryFn: () => unitsFn() });
-  const { data: classes } = useQuery({ 
-    queryKey: ["dojo-classes"], 
-    queryFn: () => listClasses(),
+  const { data: classes, isLoading: loadingClasses } = useQuery({
+    queryKey: ["dojo-classes-photo-checkin"],
+    queryFn: () => classesFn(),
   });
-  const { data: lessons } = useQuery({ 
-    queryKey: ["dojo-lessons", selectedClassId], 
-    queryFn: () => listLessonPlans({ data: { classId: selectedClassId } }),
-    enabled: !!selectedClassId 
+  const { data: lessons, isLoading: loadingLessons } = useQuery({
+    queryKey: ["dojo-lessons-photo-checkin", selectedClassId],
+    queryFn: () => lessonsFn({ data: { classId: selectedClassId } }),
+    enabled: !!selectedClassId,
   });
 
-  // Filter classes by selected unit
-  const filteredClasses = classes?.filter((c: any) => !selectedUnitId || c.unit_id === selectedUnitId);
+  const filteredClasses = useMemo(
+    () => (classes ?? []).filter((c: any) => !selectedUnitId || c.unit_id === selectedUnitId),
+    [classes, selectedUnitId],
+  );
+
+  // Cascade resets: unit change clears class/lesson; class change clears lesson.
+  useEffect(() => {
+    if (selectedClassId && !filteredClasses.some((c: any) => c.id === selectedClassId)) {
+      setSelectedClassId("");
+      setSelectedLessonId("");
+    }
+  }, [selectedUnitId, filteredClasses, selectedClassId]);
+
+  useEffect(() => {
+    setSelectedLessonId("");
+  }, [selectedClassId]);
+
+  // Auto-select the unit when there is only one available.
+  useEffect(() => {
+    if (!selectedUnitId && units && units.length === 1) {
+      setSelectedUnitId(units[0].id);
+    }
+  }, [units, selectedUnitId]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
@@ -59,46 +89,46 @@ export function PhotoCheckinFlow({ onComplete, onCancel, unitId: initialUnitId }
     setFile(f);
     setStep("processing");
     processPhoto(f);
+    e.target.value = "";
   }
 
   async function processPhoto(f: File) {
     setIsProcessing(true);
     setProcessingProgress(10);
     try {
-      // 1. Upload to Supabase Storage
-      const ext = f.name.split('.').pop();
+      const ext = f.name.split(".").pop();
       const path = `class-photos/${crypto.randomUUID()}.${ext}`;
       setProcessingProgress(30);
-      
+
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from("academy_documents")
         .upload(path, f);
-        
       if (uploadError) throw uploadError;
-      
+
       const { data: { publicUrl } } = supabase.storage
         .from("academy_documents")
         .getPublicUrl(path);
-        
+
       setPhotoUrl(publicUrl);
       setProcessingProgress(60);
 
-      // 2. Start recognition
-      const res = await startRecognition({ 
-        data: { 
-          photoUrl: publicUrl, 
-          classId: selectedClassId, 
+      const res = await startRecognition({
+        data: {
+          photoUrl: publicUrl,
+          classId: selectedClassId,
           unitId: selectedUnitId,
-          lessonHistoryId: selectedLessonId || null
-        } 
+          lessonHistoryId: selectedLessonId || null,
+        },
       });
 
       setClassPhotoId(res.classPhotoId);
-      setResults(res.faces.map((f: any) => ({
-        ...f,
-        status: f.studentId && f.confidence >= res.minConfidence ? "confirmed" : "pending"
-      })));
-      
+      setResults(
+        res.faces.map((f: any) => ({
+          ...f,
+          status: f.studentId && f.confidence >= res.minConfidence ? "confirmed" : "pending",
+        })),
+      );
+
       setProcessingProgress(100);
       setTimeout(() => setStep("validation"), 500);
     } catch (err: any) {
@@ -112,12 +142,9 @@ export function PhotoCheckinFlow({ onComplete, onCancel, unitId: initialUnitId }
   async function handleConfirm() {
     try {
       const confirms = results
-        .filter(r => r.status === "confirmed")
-        .map(r => ({
-          studentId: r.studentId,
-          status: "confirmed" as const
-        }));
-        
+        .filter((r) => r.status === "confirmed")
+        .map((r) => ({ studentId: r.studentId, status: "confirmed" as const }));
+
       await confirmCheckins({ data: { classPhotoId, confirms } });
       toast.success(`${confirms.length} check-ins realizados com sucesso!`);
       onComplete();
@@ -126,90 +153,165 @@ export function PhotoCheckinFlow({ onComplete, onCancel, unitId: initialUnitId }
     }
   }
 
+  const canProceed = !!selectedUnitId && !!selectedClassId;
+  const currentStepIndex = STEPS.findIndex((s) => s.key === step);
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-600/15 ring-1 ring-red-500/30">
+            <Camera className="h-5 w-5 text-red-400" />
+          </div>
+          <div>
+            <h3 className="text-base font-bold leading-tight text-white">Check-in por Foto</h3>
+            <p className="text-xs text-neutral-400">Identifique a turma inteira em uma única imagem</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-1.5">
+          {STEPS.map((s, i) => (
+            <div key={s.key} className="flex items-center gap-1.5">
+              <div
+                className={`flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold ring-1 transition-all ${
+                  i <= currentStepIndex
+                    ? "bg-red-600 text-white ring-red-500"
+                    : "bg-white/5 text-neutral-500 ring-white/10"
+                }`}
+              >
+                {i + 1}
+              </div>
+              <span
+                className={`hidden text-[11px] font-medium sm:inline ${
+                  i <= currentStepIndex ? "text-white" : "text-neutral-500"
+                }`}
+              >
+                {s.label}
+              </span>
+              {i < STEPS.length - 1 && <div className="hidden h-px w-4 bg-white/10 sm:block" />}
+            </div>
+          ))}
+        </div>
+      </div>
+
       {step === "setup" && (
         <Card className="border-red-500/10 bg-neutral-900/40 backdrop-blur-sm">
-          <CardContent className="space-y-4 pt-6">
-            <div className="space-y-1 text-center">
-              <h3 className="text-lg font-bold text-white">Check-in por Foto</h3>
-              <p className="text-sm text-neutral-400">Selecione a turma e a aula para começar</p>
-            </div>
-            
+          <CardContent className="space-y-5 pt-6">
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <label className="text-xs font-semibold uppercase tracking-wider text-neutral-500">Unidade</label>
-                <select 
-                  className="w-full rounded-xl border border-white/10 bg-white/5 p-3 text-white outline-none focus:ring-2 focus:ring-red-500/50"
-                  value={selectedUnitId}
-                  onChange={(e) => setSelectedUnitId(e.target.value)}
-                >
-                  <option value="">Selecione...</option>
-                  {units?.map((u: any) => <option key={u.id} value={u.id}>{u.name}</option>)}
-                </select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-semibold uppercase tracking-wider text-neutral-500">Turma</label>
-                <select 
-                  className="w-full rounded-xl border border-white/10 bg-white/5 p-3 text-white outline-none focus:ring-2 focus:ring-red-500/50"
-                  value={selectedClassId}
-                  onChange={(e) => setSelectedClassId(e.target.value)}
-                  disabled={!selectedUnitId}
-                >
-                  <option value="">Selecione...</option>
-                  {filteredClasses?.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-neutral-500">Aula (Opcional)</label>
-              <select 
-                className="w-full rounded-xl border border-white/10 bg-white/5 p-3 text-white outline-none focus:ring-2 focus:ring-red-500/50"
-                value={selectedLessonId}
-                onChange={(e) => setSelectedLessonId(e.target.value)}
-                disabled={!selectedClassId}
-              >
-                <option value="">Selecione a aula...</option>
-                {lessons?.map((l: any) => <option key={l.id} value={l.id}>{new Date(l.date).toLocaleDateString()} - {l.title}</option>)}
-              </select>
-            </div>
-
-            <div className="grid gap-3 pt-4 sm:grid-cols-2">
-              <Button 
-                variant="outline" 
-                onClick={() => fileInputRef.current?.click()}
-                disabled={!selectedClassId}
-                className="h-24 flex-col gap-2 border-red-500/20 bg-white/5 hover:bg-white/10 text-white"
-              >
-                <Camera className="h-6 w-6 text-red-400" />
-                Tirar Foto
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => fileInputRef.current?.click()}
-                disabled={!selectedClassId}
-                className="h-24 flex-col gap-2 border-red-500/20 bg-white/5 hover:bg-white/10 text-white"
-              >
-                <Upload className="h-6 w-6 text-red-400" />
-                Enviar Foto
-              </Button>
-              <input 
-                ref={fileInputRef}
-                type="file" 
-                accept="image/*" 
-                className="hidden" 
-                onChange={handleFileUpload} 
-                capture="environment"
+              <SelectField
+                icon={<MapPin className="h-3.5 w-3.5" />}
+                label="Unidade"
+                value={selectedUnitId}
+                onChange={setSelectedUnitId}
+                placeholder="Selecione a unidade..."
+                options={(units ?? []).map((u: any) => ({ value: u.id, label: u.name }))}
+              />
+              <SelectField
+                icon={<Calendar className="h-3.5 w-3.5" />}
+                label="Turma"
+                value={selectedClassId}
+                onChange={setSelectedClassId}
+                placeholder={
+                  !selectedUnitId
+                    ? "Selecione a unidade primeiro"
+                    : loadingClasses
+                      ? "Carregando turmas..."
+                      : filteredClasses.length === 0
+                        ? "Nenhuma turma nesta unidade"
+                        : "Selecione a turma..."
+                }
+                disabled={!selectedUnitId || loadingClasses || filteredClasses.length === 0}
+                options={filteredClasses.map((c: any) => ({ value: c.id, label: c.name }))}
               />
             </div>
-            
-            <Button variant="ghost" className="w-full text-neutral-500" onClick={onCancel}>
-              Cancelar
-            </Button>
+
+            <SelectField
+              icon={<BookOpen className="h-3.5 w-3.5" />}
+              label="Aula planejada"
+              hint="Opcional — vincula o check-in ao plano de aula"
+              value={selectedLessonId}
+              onChange={setSelectedLessonId}
+              placeholder={
+                !selectedClassId
+                  ? "Selecione a turma primeiro"
+                  : loadingLessons
+                    ? "Carregando aulas..."
+                    : (lessons ?? []).length === 0
+                      ? "Sem aulas planejadas para esta turma"
+                      : "Selecione a aula (opcional)..."
+              }
+              disabled={!selectedClassId || loadingLessons || (lessons ?? []).length === 0}
+              options={(lessons ?? []).map((l: any) => ({
+                value: l.id,
+                label: `${new Date(l.date).toLocaleDateString("pt-BR")} — ${l.title ?? "Aula"}`,
+              }))}
+            />
+
+            <div className="space-y-2">
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
+                Fonte da imagem
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <button
+                  type="button"
+                  onClick={() => cameraInputRef.current?.click()}
+                  disabled={!canProceed}
+                  className="group flex flex-col items-center justify-center gap-2 rounded-xl border border-red-500/20 bg-gradient-to-br from-red-600/10 to-red-950/20 p-6 text-white transition-all hover:border-red-500/40 hover:bg-red-600/15 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-600/20 ring-1 ring-red-500/30 group-hover:bg-red-600/30">
+                    <Camera className="h-5 w-5 text-red-400" />
+                  </div>
+                  <div className="text-center">
+                    <div className="text-sm font-bold">Tirar foto agora</div>
+                    <div className="text-[11px] text-neutral-400">Usa a câmera do dispositivo</div>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={!canProceed}
+                  className="group flex flex-col items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 p-6 text-white transition-all hover:border-white/20 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 ring-1 ring-white/20 group-hover:bg-white/15">
+                    <ImageIcon className="h-5 w-5 text-neutral-200" />
+                  </div>
+                  <div className="text-center">
+                    <div className="text-sm font-bold">Enviar da galeria</div>
+                    <div className="text-[11px] text-neutral-400">JPG ou PNG até 10 MB</div>
+                  </div>
+                </button>
+              </div>
+              <input
+                ref={cameraInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                className="hidden"
+                onChange={handleFileUpload}
+              />
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileUpload}
+              />
+              {!canProceed && (
+                <p className="pt-1 text-center text-[11px] text-amber-400/80">
+                  Selecione unidade e turma antes de escolher a imagem.
+                </p>
+              )}
+            </div>
+
+            <div className="flex justify-end border-t border-white/5 pt-4">
+              <Button variant="ghost" className="text-neutral-400 hover:text-white" onClick={onCancel}>
+                Cancelar
+              </Button>
+            </div>
           </CardContent>
         </Card>
       )}
+
+
 
       {step === "processing" && (
         <Card className="border-red-500/10 bg-neutral-900/40 backdrop-blur-sm py-12">
@@ -296,6 +398,51 @@ export function PhotoCheckinFlow({ onComplete, onCancel, unitId: initialUnitId }
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function SelectField({
+  icon,
+  label,
+  hint,
+  value,
+  onChange,
+  placeholder,
+  options,
+  disabled,
+}: {
+  icon?: React.ReactNode;
+  label: string;
+  hint?: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder: string;
+  options: { value: string; label: string }[];
+  disabled?: boolean;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-center gap-1.5">
+        <span className="text-neutral-500">{icon}</span>
+        <label className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+          {label}
+        </label>
+      </div>
+      <select
+        className="h-11 w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 text-sm text-white outline-none transition-all hover:border-white/20 focus:border-red-500/40 focus:ring-2 focus:ring-red-500/30 disabled:cursor-not-allowed disabled:opacity-50"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        disabled={disabled}
+      >
+        <option value="">{placeholder}</option>
+        {options.map((o) => (
+          <option key={o.value} value={o.value} className="bg-neutral-900">
+            {o.label}
+          </option>
+        ))}
+      </select>
+      {hint && <p className="text-[10.5px] text-neutral-500">{hint}</p>}
     </div>
   );
 }
