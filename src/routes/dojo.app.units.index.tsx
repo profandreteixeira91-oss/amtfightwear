@@ -98,6 +98,7 @@ function OwnUnitsPanel() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<any>(emptyUnit());
   const [search, setSearch] = useState("");
+  const [saving, setSaving] = useState(false);
 
   const filtered = useMemo(() => {
     const s = search.trim().toLowerCase();
@@ -110,21 +111,33 @@ function OwnUnitsPanel() {
   }, [q.data, search]);
 
   const onSave = async () => {
-    try {
-      const payload: any = { ...form };
-      // remove empty strings for optional cols
-      for (const k of Object.keys(payload)) {
-        if (payload[k] === "") payload[k] = null;
+    if (saving) return;
+    // Guard against duplicate insert: if creating (no id) and a unit with the
+    // same normalized name already exists for this owner, update it instead.
+    const payload: any = { ...form };
+    for (const k of Object.keys(payload)) {
+      if (payload[k] === "") payload[k] = null;
+    }
+    if (!payload.name) { toast.error("Informe o nome da unidade"); return; }
+    if (!payload.id) {
+      const norm = String(payload.name).trim().toLowerCase();
+      const dup = (q.data ?? []).find(
+        (u: any) => String(u.name ?? "").trim().toLowerCase() === norm,
+      );
+      if (dup) {
+        payload.id = dup.id;
       }
-      // Ensure required
-      if (!payload.name) { toast.error("Informe o nome da unidade"); return; }
+    }
+    setSaving(true);
+    try {
       await saveFn({ data: payload });
-      toast.success(form.id ? "Unidade atualizada" : "Unidade cadastrada");
+      toast.success(payload.id ? "Unidade atualizada" : "Unidade cadastrada");
       setOpen(false);
       setForm(emptyUnit());
       qc.invalidateQueries({ queryKey: ["dojo-units"] });
       qc.invalidateQueries({ queryKey: ["dojo-units-switcher"] });
     } catch (e: any) { toast.error(e.message); }
+    finally { setSaving(false); }
   };
 
   const onDelete = async (id: string) => {
