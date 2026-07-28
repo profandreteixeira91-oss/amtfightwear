@@ -352,7 +352,7 @@ export const createEvalSession = createServerFn({ method: "POST" })
   }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: tpl } = await context.supabase
-      .from("dojo_evaluations").select("total_score").eq("id", data.template_id).single();
+      .from("dojo_evaluations").select("total_score, title").eq("id", data.template_id).single();
     const { data: row, error } = await context.supabase
       .from("dojo_eval_sessions").insert({
         owner_id: context.userId,
@@ -364,6 +364,18 @@ export const createEvalSession = createServerFn({ method: "POST" })
         max_score: tpl?.total_score ?? 0,
       }).select("id").single();
     if (error) throw new Error(error.message);
+    try {
+      const { safeNotifyStudent } = await import("@/lib/push/push.server");
+      const when = data.scheduled_at
+        ? ` em ${new Date(data.scheduled_at).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}`
+        : "";
+      safeNotifyStudent(data.student_id, {
+        title: data.scheduled_at ? "Avaliação agendada 📋" : "Nova avaliação criada",
+        body: `${(tpl as any)?.title ?? "Avaliação"}${when}`,
+        url: "/app/avaliacoes",
+        tag: `eval-session-${row.id}`,
+      });
+    } catch {}
     return { id: row.id };
   });
 
