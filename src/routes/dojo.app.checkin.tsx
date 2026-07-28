@@ -32,6 +32,7 @@ import {
   simulatePartnerCheckin, attendanceReport,
 } from "@/lib/dojo/checkin.functions";
 import { listDojoUnits } from "@/lib/dojo/dojo.functions";
+import { listUnitQrTokens, regenerateUnitQrToken } from "@/lib/dojo/unit-qr.functions";
 import { Camera } from "lucide-react";
 import { PhotoCheckinFlow } from "@/components/dojo/checkin/PhotoCheckinFlow";
 
@@ -1277,26 +1278,60 @@ function SettingRow({ label, v, onChange }: { label: string; v?: boolean; onChan
 }
 
 function FixedQrCard() {
-  const url = typeof window !== "undefined"
-    ? `${window.location.origin}/app/checkin?auto=fixed_qr`
-    : "https://amtfightwear.com.br/app/checkin?auto=fixed_qr";
-  const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=10&data=${encodeURIComponent(url)}`;
+  const listFn = useServerFn(listUnitQrTokens);
+  const regenFn = useServerFn(regenerateUnitQrToken);
+  const qc = useQueryClient();
+  const { data: units, isLoading } = useQuery({
+    queryKey: ["dojo", "unit-qr-tokens"],
+    queryFn: () => listFn(),
+  });
+  const [busy, setBusy] = useState<string | null>(null);
 
-  function printQr() {
+  async function regenerate(unitId: string, hasToken: boolean) {
+    if (hasToken) {
+      const ok = window.confirm(
+        "Regerar o QR desta unidade? O QR anterior deixará de funcionar imediatamente e você precisará reimprimir.",
+      );
+      if (!ok) return;
+    }
+    setBusy(unitId);
+    try {
+      await regenFn({ data: { unitId } });
+      await qc.invalidateQueries({ queryKey: ["dojo", "unit-qr-tokens"] });
+      toast.success(hasToken ? "QR regerado" : "QR gerado");
+    } catch (e) {
+      toast.error("Falha ao gerar QR", { description: (e as Error).message });
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  function buildUrl(token: string) {
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    return `${origin}/app/checkin?auto=fixed_qr&t=${token}`;
+  }
+  function qrSrc(token: string) {
+    return `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=10&data=${encodeURIComponent(buildUrl(token))}`;
+  }
+
+  function printQr(unitName: string, token: string) {
+    const url = buildUrl(token);
     const w = window.open("", "_blank", "width=800,height=1000");
     if (!w) return;
-    w.document.write(`<!doctype html><html><head><title>QR de Check-in</title>
+    w.document.write(`<!doctype html><html><head><title>QR de Check-in — ${unitName}</title>
       <style>
         body { font-family: system-ui, sans-serif; text-align: center; padding: 40px; }
-        h1 { font-size: 28px; margin: 0 0 8px; }
+        h1 { font-size: 28px; margin: 0 0 4px; }
+        h2 { font-size: 20px; margin: 0 0 8px; color:#b91c1c; }
         p { color: #555; margin: 4px 0 24px; }
         img { width: 480px; height: 480px; }
-        .foot { margin-top: 24px; font-size: 12px; color: #888; word-break: break-all; }
+        .foot { margin-top: 24px; font-size: 11px; color: #888; word-break: break-all; }
         @media print { .no-print { display: none; } }
       </style></head><body>
       <h1>Check-in da Academia</h1>
+      <h2>${unitName}</h2>
       <p>Aponte a câmera do celular para o QR abaixo</p>
-      <img src="${qrSrc}" alt="QR Code" />
+      <img src="${qrSrc(token)}" alt="QR Code" />
       <div class="foot">${url}</div>
       <button class="no-print" onclick="window.print()" style="margin-top:24px;padding:10px 20px;font-size:14px;">Imprimir</button>
       </body></html>`);
@@ -1304,38 +1339,86 @@ function FixedQrCard() {
   }
 
   return (
-    <div className="rounded-lg border p-4 space-y-3">
+    <div className="rounded-lg border p-4 space-y-4">
       <div>
-        <div className="font-semibold text-sm">QR Code fixo da academia</div>
+        <div className="font-semibold text-sm">QR Code fixo por unidade</div>
         <div className="text-xs text-muted-foreground">
-          Imprima e cole na entrada do tatame. Alunos com o app aberto (logados) fazem check-in ao apontar a câmera do celular.
+          Cada unidade tem seu próprio QR seguro (token único). Imprima e cole na entrada do tatame — só alunos matriculados nesta academia conseguem registrar presença. Regerar invalida imediatamente o QR anterior.
         </div>
       </div>
-      <div className="flex flex-col sm:flex-row items-center gap-4">
-        <img
-          src={qrSrc}
-          alt="QR Code de check-in da academia"
-          className="h-40 w-40 rounded border bg-white p-2"
-        />
-        <div className="flex-1 space-y-2 text-center sm:text-left">
-          <p className="text-xs text-muted-foreground break-all">{url}</p>
-          <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
-            <Button size="sm" variant="outline" onClick={printQr}>
-              Imprimir QR
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => {
-                navigator.clipboard.writeText(url);
-                toast.success("Link copiado");
-              }}
-            >
-              Copiar link
-            </Button>
-          </div>
+
+      {isLoading && <div className="text-sm text-muted-foreground">Carregando unidades…</div>}
+      {!isLoading && (!units || units.length === 0) && (
+        <div className="text-sm text-muted-foreground">
+          Nenhuma unidade cadastrada. Crie unidades em Configurações → Unidades para gerar QR Codes.
         </div>
+      )}
+
+      <div className="space-y-3">
+        {(units ?? []).map((u: any) => (
+          <div key={u.unit_id} className="rounded-md border p-3">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              {u.token ? (
+                <img
+                  src={qrSrc(u.token)}
+                  alt={`QR ${u.unit_name}`}
+                  className="h-32 w-32 rounded border bg-white p-2"
+                />
+              ) : (
+                <div className="flex h-32 w-32 items-center justify-center rounded border bg-muted text-xs text-muted-foreground">
+                  Sem QR
+                </div>
+              )}
+              <div className="flex-1 min-w-0 space-y-2">
+                <div className="font-medium text-sm">{u.unit_name}</div>
+                {u.token ? (
+                  <p className="text-[11px] text-muted-foreground break-all">
+                    {buildUrl(u.token)}
+                  </p>
+                ) : (
+                  <p className="text-xs text-muted-foreground">
+                    Gere um QR seguro para esta unidade.
+                  </p>
+                )}
+                <div className="flex flex-wrap gap-2">
+                  {u.token && (
+                    <>
+                      <Button size="sm" variant="outline" onClick={() => printQr(u.unit_name, u.token)}>
+                        Imprimir
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          navigator.clipboard.writeText(buildUrl(u.token));
+                          toast.success("Link copiado");
+                        }}
+                      >
+                        Copiar link
+                      </Button>
+                    </>
+                  )}
+                  <Button
+                    size="sm"
+                    variant={u.token ? "ghost" : "default"}
+                    disabled={busy === u.unit_id}
+                    onClick={() => regenerate(u.unit_id, !!u.token)}
+                  >
+                    {busy === u.unit_id ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : u.token ? (
+                      "Regerar QR"
+                    ) : (
+                      "Gerar QR"
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
 }
+

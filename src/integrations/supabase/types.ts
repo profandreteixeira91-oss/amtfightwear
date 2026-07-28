@@ -8745,6 +8745,47 @@ export type Database = {
           },
         ]
       }
+      dojo_unit_qr_tokens: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          label: string | null
+          owner_id: string
+          revoked_at: string | null
+          token: string
+          unit_id: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          label?: string | null
+          owner_id: string
+          revoked_at?: string | null
+          token: string
+          unit_id: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          label?: string | null
+          owner_id?: string
+          revoked_at?: string | null
+          token?: string
+          unit_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dojo_unit_qr_tokens_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "dojo_units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dojo_units: {
         Row: {
           active: boolean

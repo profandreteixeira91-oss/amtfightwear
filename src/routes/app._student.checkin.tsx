@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getMyAttendance, selfCheckin, getMyStudent } from "@/lib/student/student.functions";
 import { getMyCheckinMethods } from "@/lib/dojo/checkin.functions";
+import { checkinByUnitQr } from "@/lib/student/unit-qr-checkin.functions";
 import { CheckCircle2, QrCode, History, MapPin, Fingerprint, ScanLine, Camera, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useMemo, useState } from "react";
@@ -11,6 +12,7 @@ import { FixedQrScanner } from "@/components/student/FixedQrScanner";
 
 const searchSchema = z.object({
   auto: z.enum(["fixed_qr"]).optional(),
+  t: z.string().trim().min(16).max(128).regex(/^[a-f0-9]+$/i).optional(),
 });
 
 export const Route = createFileRoute("/app/_student/checkin")({
@@ -21,6 +23,20 @@ export const Route = createFileRoute("/app/_student/checkin")({
 
 type Method = "app" | "pin" | "qr" | "fixed_qr" | "photo";
 
+function extractTokenFromRaw(raw: string): string | null {
+  const rx = /^[a-f0-9]{32,128}$/i;
+  try {
+    const u = new URL(raw);
+    const t = u.searchParams.get("t");
+    if (t && rx.test(t)) return t;
+  } catch {
+    // não é URL — pode ser token puro
+  }
+  const trimmed = raw.trim();
+  if (rx.test(trimmed)) return trimmed;
+  return null;
+}
+
 function CheckinPage() {
   const qc = useQueryClient();
   const search = useSearch({ from: "/app/_student/checkin" });
@@ -28,6 +44,7 @@ function CheckinPage() {
   const meFn = useServerFn(getMyStudent);
   const methodsFn = useServerFn(getMyCheckinMethods);
   const checkinFn = useServerFn(selfCheckin);
+  const unitQrCheckinFn = useServerFn(checkinByUnitQr);
 
   const { data: me } = useQuery({ queryKey: ["student", "me"], queryFn: () => meFn({}) });
   const { data: methods } = useQuery({ queryKey: ["student", "checkin-methods"], queryFn: () => methodsFn() });
@@ -46,7 +63,7 @@ function CheckinPage() {
     });
   }
 
-  async function doCheckin(method: Method) {
+  async function doCheckin(method: Exclude<Method, "fixed_qr">) {
     if (submitting) return;
     setSubmitting(method);
     try {
@@ -77,15 +94,35 @@ function CheckinPage() {
     }
   }
 
-  // Auto check-in ao abrir via QR fixo da academia
+  async function doUnitQrCheckin(token: string) {
+    if (submitting) return;
+    setSubmitting("fixed_qr");
+    try {
+      await unitQrCheckinFn({ data: { token } });
+      toast.success("Check-in registrado!");
+      qc.invalidateQueries({ queryKey: ["student"] });
+    } catch (e) {
+      toast.error("Falha no check-in", { description: (e as Error).message });
+    } finally {
+      setSubmitting(null);
+    }
+  }
+
+  // Auto check-in ao abrir via QR fixo da academia (URL com token)
   const autoTriggered = useMemo(() => ({ done: false }), []);
   useEffect(() => {
-    if (search.auto === "fixed_qr" && !autoTriggered.done && methods?.allowFixedQr) {
+    if (
+      search.auto === "fixed_qr" &&
+      search.t &&
+      !autoTriggered.done &&
+      methods?.allowFixedQr
+    ) {
       autoTriggered.done = true;
-      doCheckin("fixed_qr");
+      doUnitQrCheckin(search.t);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search.auto, methods?.allowFixedQr]);
+  }, [search.auto, search.t, methods?.allowFixedQr]);
+
 
   const last = history?.[0];
   const total30 = (history ?? []).filter((a) => Date.now() - new Date(a.checked_in_at).getTime() < 30 * 86400000).length;
@@ -159,19 +196,14 @@ function CheckinPage() {
         onClose={() => setScannerOpen(false)}
         onDecoded={(raw) => {
           setScannerOpen(false);
-          // Aceita URL com auto=fixed_qr OU o valor literal "fixed_qr"
-          let ok = false;
-          try {
-            const u = new URL(raw);
-            ok = u.searchParams.get("auto") === "fixed_qr" && u.pathname.includes("/checkin");
-          } catch {
-            ok = /fixed_qr/i.test(raw);
-          }
-          if (!ok) {
-            toast.error("QR inválido", { description: "Este código não é o QR de check-in da academia." });
+          const token = extractTokenFromRaw(raw);
+          if (!token) {
+            toast.error("QR inválido", {
+              description: "Este código não é um QR de check-in válido desta academia.",
+            });
             return;
           }
-          doCheckin("fixed_qr");
+          doUnitQrCheckin(token);
         }}
       />
 
