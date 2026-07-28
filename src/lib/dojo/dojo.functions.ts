@@ -675,7 +675,7 @@ export const saveDojoEnrollment = createServerFn({ method: "POST" })
     student_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido"),
     plan_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido"),
     custom_amount: z.number().min(0).optional().nullable(),
-    due_day: z.number().int().min(1).max(28),
+    due_day: z.number().int().min(1).max(31),
     start_date: z.string(),
     end_date: z.string().optional().nullable(),
     status: z.enum(["active","paused","cancelled"]).optional(),
@@ -913,7 +913,7 @@ export const enrollStudentWithPlan = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => z.object({
     student_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido"),
     plan_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido"),
-    due_day: z.number().int().min(1).max(28),
+    due_day: z.number().int().min(1).max(31),
     start_date: z.string(),
     first_due_date: z.string().optional(),
     custom_amount: z.number().min(0).optional().nullable(),
@@ -1163,7 +1163,7 @@ export const changeStudentPlan = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => z.object({
     student_id: z.string().uuid(),
     plan_id: z.string().uuid(),
-    due_day: z.number().int().min(1).max(28),
+    due_day: z.number().int().min(1).max(31),
     start_date: z.string(),
     custom_amount: z.number().min(0).nullable().optional(),
     next_billing_date: z.string().optional(),
@@ -1220,10 +1220,14 @@ export const changeStudentPlan = createServerFn({ method: "POST" })
     let nextRunAt = data.next_billing_date;
     if (!nextRunAt) {
       const [sy, sm] = startISO.split("-").map(Number);
-      const dueDay = Math.min(data.due_day, 28);
       const startDay = Number(startISO.slice(8, 10));
-      const targetMonthOffset = startDay > dueDay ? 1 : 0;
-      const dt = new Date(Date.UTC(sy, (sm - 1) + targetMonthOffset, dueDay));
+      const daysInStartMonth = new Date(Date.UTC(sy, sm, 0)).getUTCDate();
+      const dueDayThisMonth = Math.min(data.due_day, daysInStartMonth);
+      const targetMonthOffset = startDay > dueDayThisMonth ? 1 : 0;
+      const targetMonthIndex = (sm - 1) + targetMonthOffset;
+      const daysInTargetMonth = new Date(Date.UTC(sy, targetMonthIndex + 1, 0)).getUTCDate();
+      const dueDay = Math.min(data.due_day, daysInTargetMonth);
+      const dt = new Date(Date.UTC(sy, targetMonthIndex, dueDay));
       nextRunAt = dt.toISOString().slice(0, 10);
     }
 
@@ -1286,7 +1290,8 @@ export const generateMonthlyInvoices = createServerFn({ method: "POST" })
     const [y, m] = data.reference_month.split("-").map(Number);
     let created = 0;
     for (const e of (enrolls ?? []) as any[]) {
-      const dueDay = Math.min(e.due_day ?? 5, 28);
+      const daysInMonth = new Date(Date.UTC(y, m, 0)).getUTCDate();
+      const dueDay = Math.min(e.due_day ?? 5, daysInMonth);
       const dueDate = new Date(Date.UTC(y, m - 1, dueDay)).toISOString().slice(0, 10);
       const amount = e.custom_amount ?? e.plan?.amount ?? 0;
       const monthStart = `${data.reference_month}-01`;
