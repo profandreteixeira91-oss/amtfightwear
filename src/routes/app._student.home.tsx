@@ -164,53 +164,53 @@ function RankingWidget() {
   const top = rows.slice(0, 3);
 
   return (
-    <section>
-      <div className="mb-2 flex items-center justify-between px-1">
-        <h2 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-neutral-400">
-          <Trophy className="h-3.5 w-3.5" /> Ranking
+    <section className="min-w-0">
+      <div className="mb-2 flex items-center justify-between gap-2 px-1">
+        <h2 className="flex min-w-0 items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-neutral-400">
+          <Trophy className="h-3.5 w-3.5 shrink-0" /> <span className="shrink-0">Ranking</span>
           {activeClass && (
-            <span className="ml-1 inline-flex items-center gap-1 rounded-full bg-neutral-100 px-1.5 py-0.5 text-[9px] font-medium normal-case tracking-normal text-neutral-600">
-              <span className="h-1.5 w-1.5 rounded-full" style={{ background: activeClass.color || "#dc2626" }} />
-              <span className="max-w-[100px] truncate">{activeClass.name}</span>
+            <span className="ml-1 inline-flex min-w-0 items-center gap-1 rounded-full bg-neutral-100 px-1.5 py-0.5 text-[9px] font-medium normal-case tracking-normal text-neutral-600">
+              <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: activeClass.color || "#dc2626" }} />
+              <span className="max-w-[90px] truncate">{activeClass.name}</span>
             </span>
           )}
         </h2>
-        <Link to="/app/ranking" className="text-[11px] font-medium" style={{ color: "var(--sa-primary)" }}>
+        <Link to="/app/ranking" className="shrink-0 text-[11px] font-medium" style={{ color: "var(--sa-primary)" }}>
           Ver completo
         </Link>
       </div>
       <Link
         to="/app/ranking"
-        className="relative flex items-center gap-3 overflow-hidden rounded-2xl p-3 text-white shadow-[0_12px_40px_-24px_rgba(220,38,38,0.7)] transition active:scale-[0.99]"
+        className="relative flex items-center gap-2.5 overflow-hidden rounded-2xl p-2.5 text-white shadow-[0_12px_40px_-24px_rgba(220,38,38,0.7)] transition active:scale-[0.99] sm:gap-3 sm:p-3"
         style={{ background: "linear-gradient(135deg,#111 0%,#1a0a0a 55%,#3a0a0a 100%)" }}
       >
         <div aria-hidden className="pointer-events-none absolute -left-10 -top-10 h-28 w-28 rounded-full bg-red-600/25 blur-2xl" />
         {myRow ? (
-          <div className="relative flex shrink-0 flex-col items-center rounded-xl bg-gradient-to-br from-amber-400/25 to-red-500/25 px-2.5 py-1.5 ring-1 ring-white/10">
+          <div className="relative flex shrink-0 flex-col items-center rounded-xl bg-gradient-to-br from-amber-400/25 to-red-500/25 px-2 py-1.5 ring-1 ring-white/10 sm:px-2.5">
             <div className="text-[9px] font-semibold uppercase tracking-wider text-red-100/80">Você</div>
             <div className="font-display text-lg font-black leading-none">{myRow.rank}º</div>
             <div className="text-[9px] text-neutral-300">{myRow.count} ch-in</div>
           </div>
         ) : (
-          <div className="relative flex shrink-0 flex-col items-center rounded-xl bg-white/5 px-2.5 py-1.5 ring-1 ring-white/10">
+          <div className="relative flex shrink-0 flex-col items-center rounded-xl bg-white/5 px-2 py-1.5 ring-1 ring-white/10 sm:px-2.5">
             <div className="text-[9px] font-semibold uppercase tracking-wider text-red-100/80">Total</div>
             <div className="font-display text-lg font-black leading-none">{myTotal}</div>
             <div className="text-[9px] text-neutral-300">check-ins</div>
           </div>
         )}
         {top.length > 0 && (
-          <ul className="relative flex min-w-0 flex-1 items-center gap-1.5">
+          <ul className="relative flex min-w-0 flex-1 items-center gap-1 sm:gap-1.5">
             {top.map((r) => {
               const medal = r.rank === 1 ? "🥇" : r.rank === 2 ? "🥈" : "🥉";
               const firstName = r.full_name.split(" ")[0];
               return (
                 <li
                   key={r.id}
-                  className={`flex min-w-0 flex-1 items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-1.5 py-1 backdrop-blur ${
+                  className={`flex min-w-0 flex-1 items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-1 py-1 backdrop-blur sm:gap-1.5 sm:px-1.5 ${
                     r.isMe ? "ring-1 ring-amber-300/70" : ""
                   }`}
                 >
-                  <span className="text-sm leading-none">{medal}</span>
+                  <span className="shrink-0 text-sm leading-none">{medal}</span>
                   <div className="min-w-0 flex-1">
                     <div className="truncate text-[11px] font-semibold leading-tight">{r.isMe ? "Você" : firstName}</div>
                     <div className="text-[9px] leading-tight text-neutral-300">{r.count} ch-in</div>
