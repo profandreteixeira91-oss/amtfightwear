@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useParams } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -26,6 +26,8 @@ export const Route = createFileRoute("/matricula/$slug")({
   }),
   component: PublicEnrollmentPage,
 });
+
+export { PublicEnrollmentPage };
 
 const brl = (n: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(n || 0);
@@ -89,7 +91,7 @@ const empty: Form = {
 };
 
 function PublicEnrollmentPage() {
-  const { slug } = Route.useParams();
+  const { slug } = useParams({ strict: false }) as { slug: string };
   const navigate = useNavigate();
   const bundleFn = useServerFn(getPublicEnrollmentBundle);
   const enrollFn = useServerFn(publicEnrollStudent);
