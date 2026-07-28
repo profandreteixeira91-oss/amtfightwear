@@ -27,7 +27,7 @@ import {
   Trash2, Award, Eye, Printer, Pencil, ArrowLeft, MessageSquare, Mail as MailIcon,
   Wallet, CalendarCheck, GraduationCap, Trophy, FileText, ShieldCheck,
   Activity, Heart, User as UserIcon, MapPin, Phone, ClipboardList, Upload,
-  QrCode, RefreshCw, TrendingUp, ExternalLink, Sparkles, AlertTriangle, Camera,
+  QrCode, RefreshCw, TrendingUp, ExternalLink, Sparkles, AlertTriangle, Camera, Users, Clock, MapPin as PinIcon,
 } from "lucide-react";
 import { BeltAuto } from "@/components/dojo/BeltSpecVisual";
 import { CertificatePreviewDialog, openCertificatePrint, type CertificateTemplate } from "@/components/dojo/CertificatePreview";
