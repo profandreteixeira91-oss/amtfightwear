@@ -94,7 +94,7 @@ export function StudentSwitcher({ currentName }: { currentName?: string | null }
         ) : (
           <UserCircle2 className="h-4 w-4 text-neutral-500" />
         )}
-        <span className="hidden max-w-[60px] truncate xs:inline sm:max-w-[110px] sm:inline">{current?.full_name?.split(" ")[0] ?? currentName?.split(" ")[0] ?? "Aluno"}</span>
+        <span className="max-w-[70px] truncate sm:max-w-[110px]">{current?.full_name?.split(" ")[0] ?? currentName?.split(" ")[0] ?? "Aluno"}</span>
         <ChevronsUpDown className="h-3.5 w-3.5 text-neutral-400" />
       </button>
       {open ? (
