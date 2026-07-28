@@ -263,7 +263,7 @@ function PaymentTabs(props: TabsProps) {
   const allowPix = props.allowPix ?? true;
   const allowCard = props.allowCard ?? true;
   const allowBoleto = props.allowBoleto ?? true;
-  const tabs: Array<{ key: string; label: string; icon: any; render: () => JSX.Element }> = [];
+  const tabs: Array<{ key: string; label: string; icon: any; render: () => React.ReactElement }> = [];
   if (allowPix) tabs.push({ key: "pix", label: "Pix", icon: QrCode, render: () => <PixPanel {...props} /> });
   if (allowCard) tabs.push({ key: "card", label: "Cartão", icon: CreditCard, render: () => <CardPanel {...props} /> });
   if (allowBoleto) tabs.push({ key: "boleto", label: "Boleto", icon: FileText, render: () => <BoletoPanel {...props} /> });
