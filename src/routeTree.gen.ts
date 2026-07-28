@@ -107,7 +107,6 @@ import { Route as AppStudentHomeRouteImport } from './routes/app._student.home'
 import { Route as AppStudentGraduationsRouteImport } from './routes/app._student.graduations'
 import { Route as AppStudentFinanceRouteImport } from './routes/app._student.finance'
 import { Route as AppStudentEvaluationsRouteImport } from './routes/app._student.evaluations'
-import { Route as AppStudentDocumentsRouteImport } from './routes/app._student.documents'
 import { Route as AppStudentCompetitionsRouteImport } from './routes/app._student.competitions'
 import { Route as AppStudentCheckinRouteImport } from './routes/app._student.checkin'
 import { Route as AppStudentCertificatesRouteImport } from './routes/app._student.certificates'
@@ -196,6 +195,7 @@ import { Route as DojoAppEvaluationsIndexRouteImport } from './routes/dojo.app.e
 import { Route as DojoAppContractsIndexRouteImport } from './routes/dojo.app.contracts.index'
 import { Route as DojoAppContractTemplatesIndexRouteImport } from './routes/dojo.app.contract-templates.index'
 import { Route as DojoAppCompetitionsIndexRouteImport } from './routes/dojo.app.competitions.index'
+import { Route as AppStudentDocumentsIndexRouteImport } from './routes/app._student.documents.index'
 import { Route as AuthenticatedAdminProdutosIndexRouteImport } from './routes/_authenticated/admin.produtos.index'
 import { Route as AuthenticatedAdminMarketingIndexRouteImport } from './routes/_authenticated/admin.marketing.index'
 import { Route as AuthenticatedAdminLeadsIndexRouteImport } from './routes/_authenticated/admin.leads.index'
@@ -790,11 +790,6 @@ const AppStudentEvaluationsRoute = AppStudentEvaluationsRouteImport.update({
   path: '/evaluations',
   getParentRoute: () => AppStudentRoute,
 } as any)
-const AppStudentDocumentsRoute = AppStudentDocumentsRouteImport.update({
-  id: '/documents',
-  path: '/documents',
-  getParentRoute: () => AppStudentRoute,
-} as any)
 const AppStudentCompetitionsRoute = AppStudentCompetitionsRouteImport.update({
   id: '/competitions',
   path: '/competitions',
@@ -1292,6 +1287,12 @@ const DojoAppCompetitionsIndexRoute =
     path: '/',
     getParentRoute: () => DojoAppCompetitionsRoute,
   } as any)
+const AppStudentDocumentsIndexRoute =
+  AppStudentDocumentsIndexRouteImport.update({
+    id: '/documents/',
+    path: '/documents/',
+    getParentRoute: () => AppStudentRoute,
+  } as any)
 const AuthenticatedAdminProdutosIndexRoute =
   AuthenticatedAdminProdutosIndexRouteImport.update({
     id: '/produtos/',
@@ -1483,9 +1484,9 @@ const AppStudentInvoiceIdRoute = AppStudentInvoiceIdRouteImport.update({
   getParentRoute: () => AppStudentRoute,
 } as any)
 const AppStudentDocumentsIdRoute = AppStudentDocumentsIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => AppStudentDocumentsRoute,
+  id: '/documents/$id',
+  path: '/documents/$id',
+  getParentRoute: () => AppStudentRoute,
 } as any)
 const AppStudentCompetitionsIdRoute =
   AppStudentCompetitionsIdRouteImport.update({
@@ -2001,7 +2002,6 @@ export interface FileRoutesByFullPath {
   '/app/certificates': typeof AppStudentCertificatesRoute
   '/app/checkin': typeof AppStudentCheckinRoute
   '/app/competitions': typeof AppStudentCompetitionsRouteWithChildren
-  '/app/documents': typeof AppStudentDocumentsRouteWithChildren
   '/app/evaluations': typeof AppStudentEvaluationsRoute
   '/app/finance': typeof AppStudentFinanceRoute
   '/app/graduations': typeof AppStudentGraduationsRoute
@@ -2146,6 +2146,7 @@ export interface FileRoutesByFullPath {
   '/admin/leads/': typeof AuthenticatedAdminLeadsIndexRoute
   '/admin/marketing/': typeof AuthenticatedAdminMarketingIndexRoute
   '/admin/produtos/': typeof AuthenticatedAdminProdutosIndexRoute
+  '/app/documents/': typeof AppStudentDocumentsIndexRoute
   '/dojo/app/competitions/': typeof DojoAppCompetitionsIndexRoute
   '/dojo/app/contract-templates/': typeof DojoAppContractTemplatesIndexRoute
   '/dojo/app/contracts/': typeof DojoAppContractsIndexRoute
@@ -2281,7 +2282,6 @@ export interface FileRoutesByTo {
   '/app/certificates': typeof AppStudentCertificatesRoute
   '/app/checkin': typeof AppStudentCheckinRoute
   '/app/competitions': typeof AppStudentCompetitionsRouteWithChildren
-  '/app/documents': typeof AppStudentDocumentsRouteWithChildren
   '/app/evaluations': typeof AppStudentEvaluationsRoute
   '/app/finance': typeof AppStudentFinanceRoute
   '/app/graduations': typeof AppStudentGraduationsRoute
@@ -2417,6 +2417,7 @@ export interface FileRoutesByTo {
   '/admin/leads': typeof AuthenticatedAdminLeadsIndexRoute
   '/admin/marketing': typeof AuthenticatedAdminMarketingIndexRoute
   '/admin/produtos': typeof AuthenticatedAdminProdutosIndexRoute
+  '/app/documents': typeof AppStudentDocumentsIndexRoute
   '/dojo/app/competitions': typeof DojoAppCompetitionsIndexRoute
   '/dojo/app/contract-templates': typeof DojoAppContractTemplatesIndexRoute
   '/dojo/app/contracts': typeof DojoAppContractsIndexRoute
@@ -2564,7 +2565,6 @@ export interface FileRoutesById {
   '/app/_student/certificates': typeof AppStudentCertificatesRoute
   '/app/_student/checkin': typeof AppStudentCheckinRoute
   '/app/_student/competitions': typeof AppStudentCompetitionsRouteWithChildren
-  '/app/_student/documents': typeof AppStudentDocumentsRouteWithChildren
   '/app/_student/evaluations': typeof AppStudentEvaluationsRoute
   '/app/_student/finance': typeof AppStudentFinanceRoute
   '/app/_student/graduations': typeof AppStudentGraduationsRoute
@@ -2709,6 +2709,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/leads/': typeof AuthenticatedAdminLeadsIndexRoute
   '/_authenticated/admin/marketing/': typeof AuthenticatedAdminMarketingIndexRoute
   '/_authenticated/admin/produtos/': typeof AuthenticatedAdminProdutosIndexRoute
+  '/app/_student/documents/': typeof AppStudentDocumentsIndexRoute
   '/dojo/app/competitions/': typeof DojoAppCompetitionsIndexRoute
   '/dojo/app/contract-templates/': typeof DojoAppContractTemplatesIndexRoute
   '/dojo/app/contracts/': typeof DojoAppContractsIndexRoute
@@ -2855,7 +2856,6 @@ export interface FileRouteTypes {
     | '/app/certificates'
     | '/app/checkin'
     | '/app/competitions'
-    | '/app/documents'
     | '/app/evaluations'
     | '/app/finance'
     | '/app/graduations'
@@ -3000,6 +3000,7 @@ export interface FileRouteTypes {
     | '/admin/leads/'
     | '/admin/marketing/'
     | '/admin/produtos/'
+    | '/app/documents/'
     | '/dojo/app/competitions/'
     | '/dojo/app/contract-templates/'
     | '/dojo/app/contracts/'
@@ -3135,7 +3136,6 @@ export interface FileRouteTypes {
     | '/app/certificates'
     | '/app/checkin'
     | '/app/competitions'
-    | '/app/documents'
     | '/app/evaluations'
     | '/app/finance'
     | '/app/graduations'
@@ -3271,6 +3271,7 @@ export interface FileRouteTypes {
     | '/admin/leads'
     | '/admin/marketing'
     | '/admin/produtos'
+    | '/app/documents'
     | '/dojo/app/competitions'
     | '/dojo/app/contract-templates'
     | '/dojo/app/contracts'
@@ -3417,7 +3418,6 @@ export interface FileRouteTypes {
     | '/app/_student/certificates'
     | '/app/_student/checkin'
     | '/app/_student/competitions'
-    | '/app/_student/documents'
     | '/app/_student/evaluations'
     | '/app/_student/finance'
     | '/app/_student/graduations'
@@ -3562,6 +3562,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/leads/'
     | '/_authenticated/admin/marketing/'
     | '/_authenticated/admin/produtos/'
+    | '/app/_student/documents/'
     | '/dojo/app/competitions/'
     | '/dojo/app/contract-templates/'
     | '/dojo/app/contracts/'
@@ -4337,13 +4338,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppStudentEvaluationsRouteImport
       parentRoute: typeof AppStudentRoute
     }
-    '/app/_student/documents': {
-      id: '/app/_student/documents'
-      path: '/documents'
-      fullPath: '/app/documents'
-      preLoaderRoute: typeof AppStudentDocumentsRouteImport
-      parentRoute: typeof AppStudentRoute
-    }
     '/app/_student/competitions': {
       id: '/app/_student/competitions'
       path: '/competitions'
@@ -4960,6 +4954,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DojoAppCompetitionsIndexRouteImport
       parentRoute: typeof DojoAppCompetitionsRoute
     }
+    '/app/_student/documents/': {
+      id: '/app/_student/documents/'
+      path: '/documents'
+      fullPath: '/app/documents/'
+      preLoaderRoute: typeof AppStudentDocumentsIndexRouteImport
+      parentRoute: typeof AppStudentRoute
+    }
     '/_authenticated/admin/produtos/': {
       id: '/_authenticated/admin/produtos/'
       path: '/produtos'
@@ -5200,10 +5201,10 @@ declare module '@tanstack/react-router' {
     }
     '/app/_student/documents/$id': {
       id: '/app/_student/documents/$id'
-      path: '/$id'
+      path: '/documents/$id'
       fullPath: '/app/documents/$id'
       preLoaderRoute: typeof AppStudentDocumentsIdRouteImport
-      parentRoute: typeof AppStudentDocumentsRoute
+      parentRoute: typeof AppStudentRoute
     }
     '/app/_student/competitions/$id': {
       id: '/app/_student/competitions/$id'
@@ -6108,17 +6109,6 @@ const AppStudentCompetitionsRouteWithChildren =
     AppStudentCompetitionsRouteChildren,
   )
 
-interface AppStudentDocumentsRouteChildren {
-  AppStudentDocumentsIdRoute: typeof AppStudentDocumentsIdRoute
-}
-
-const AppStudentDocumentsRouteChildren: AppStudentDocumentsRouteChildren = {
-  AppStudentDocumentsIdRoute: AppStudentDocumentsIdRoute,
-}
-
-const AppStudentDocumentsRouteWithChildren =
-  AppStudentDocumentsRoute._addFileChildren(AppStudentDocumentsRouteChildren)
-
 interface AppStudentRouteChildren {
   AppStudentAgendaRoute: typeof AppStudentAgendaRoute
   AppStudentAnnouncementsRoute: typeof AppStudentAnnouncementsRoute
@@ -6126,7 +6116,6 @@ interface AppStudentRouteChildren {
   AppStudentCertificatesRoute: typeof AppStudentCertificatesRoute
   AppStudentCheckinRoute: typeof AppStudentCheckinRoute
   AppStudentCompetitionsRoute: typeof AppStudentCompetitionsRouteWithChildren
-  AppStudentDocumentsRoute: typeof AppStudentDocumentsRouteWithChildren
   AppStudentEvaluationsRoute: typeof AppStudentEvaluationsRoute
   AppStudentFinanceRoute: typeof AppStudentFinanceRoute
   AppStudentGraduationsRoute: typeof AppStudentGraduationsRoute
@@ -6138,7 +6127,9 @@ interface AppStudentRouteChildren {
   AppStudentRankingRoute: typeof AppStudentRankingRoute
   AppStudentSettingsRoute: typeof AppStudentSettingsRoute
   AppStudentVideosRoute: typeof AppStudentVideosRoute
+  AppStudentDocumentsIdRoute: typeof AppStudentDocumentsIdRoute
   AppStudentInvoiceIdRoute: typeof AppStudentInvoiceIdRoute
+  AppStudentDocumentsIndexRoute: typeof AppStudentDocumentsIndexRoute
 }
 
 const AppStudentRouteChildren: AppStudentRouteChildren = {
@@ -6148,7 +6139,6 @@ const AppStudentRouteChildren: AppStudentRouteChildren = {
   AppStudentCertificatesRoute: AppStudentCertificatesRoute,
   AppStudentCheckinRoute: AppStudentCheckinRoute,
   AppStudentCompetitionsRoute: AppStudentCompetitionsRouteWithChildren,
-  AppStudentDocumentsRoute: AppStudentDocumentsRouteWithChildren,
   AppStudentEvaluationsRoute: AppStudentEvaluationsRoute,
   AppStudentFinanceRoute: AppStudentFinanceRoute,
   AppStudentGraduationsRoute: AppStudentGraduationsRoute,
@@ -6160,7 +6150,9 @@ const AppStudentRouteChildren: AppStudentRouteChildren = {
   AppStudentRankingRoute: AppStudentRankingRoute,
   AppStudentSettingsRoute: AppStudentSettingsRoute,
   AppStudentVideosRoute: AppStudentVideosRoute,
+  AppStudentDocumentsIdRoute: AppStudentDocumentsIdRoute,
   AppStudentInvoiceIdRoute: AppStudentInvoiceIdRoute,
+  AppStudentDocumentsIndexRoute: AppStudentDocumentsIndexRoute,
 }
 
 const AppStudentRouteWithChildren = AppStudentRoute._addFileChildren(

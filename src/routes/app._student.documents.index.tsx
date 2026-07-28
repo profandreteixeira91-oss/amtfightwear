@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { FileText, ChevronRight, CheckCircle2, Clock, XCircle, Send } from "lucide-react";
 import { listMyContracts } from "@/lib/student/student.functions";
 
-export const Route = createFileRoute("/app/_student/documents")({
+export const Route = createFileRoute("/app/_student/documents/")({
   head: () => ({ meta: [{ title: "Contratos — Portal do Aluno" }] }),
   component: DocumentsPage,
 });
