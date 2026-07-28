@@ -5,7 +5,7 @@ import { FileText, ChevronRight, CheckCircle2, Clock, XCircle, Send } from "luci
 import { listMyContracts } from "@/lib/student/student.functions";
 
 export const Route = createFileRoute("/app/_student/documents")({
-  head: () => ({ meta: [{ title: "Documentos — Portal do Aluno" }] }),
+  head: () => ({ meta: [{ title: "Contratos — Portal do Aluno" }] }),
   component: DocumentsPage,
 });
 
