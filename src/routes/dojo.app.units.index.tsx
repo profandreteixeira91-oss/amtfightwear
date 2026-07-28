@@ -221,7 +221,7 @@ function OwnUnitsPanel() {
   );
 }
 
-function UnitDialog({ form, setForm, onSave }: { form: any; setForm: (f: any) => void; onSave: () => void }) {
+function UnitDialog({ form, setForm, onSave, saving }: { form: any; setForm: (f: any) => void; onSave: () => void; saving?: boolean }) {
   const set = (k: string, v: any) => setForm({ ...form, [k]: v });
   return (
     <DialogContent className="w-[calc(100vw-1rem)] max-w-3xl max-h-[85vh] overflow-y-auto">
