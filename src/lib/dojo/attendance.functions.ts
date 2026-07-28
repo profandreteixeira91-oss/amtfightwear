@@ -225,6 +225,15 @@ export const manualCheckin = createServerFn({ method: "POST" })
       .select("id")
       .single();
     if (error) throw new Error(error.message);
+    try {
+      const { safeNotifyStudent } = await import("@/lib/push/push.server");
+      safeNotifyStudent(data.studentId, {
+        title: "Check-in registrado ✅",
+        body: "Sua presença foi confirmada. Bons treinos!",
+        url: "/app/agenda",
+        tag: `attendance-${row.id}`,
+      });
+    } catch {}
     return { id: row.id };
   });
 
