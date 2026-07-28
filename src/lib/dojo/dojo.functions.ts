@@ -1485,7 +1485,7 @@ export const issueCertificate = createServerFn({ method: "POST" })
         body: "Seu novo certificado foi emitido. Toque para visualizar e baixar.",
         url: "/app/certificados",
         tag: `certificate-${row.id}`,
-      });
+      }, "contract");
     } catch {}
     return row;
   });
