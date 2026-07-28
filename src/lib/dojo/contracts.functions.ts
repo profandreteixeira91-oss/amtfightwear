@@ -332,14 +332,16 @@ export const generateStudentContract = createServerFn({ method: "POST" })
       payload: { contract_number: numData, template_id: data.template_id },
     });
     try {
-      const { safeNotifyStudent } = await import("@/lib/push/push.server");
-      safeNotifyStudent(data.student_id, {
+      const { sendPushToStudent } = await import("@/lib/push/push.server");
+      await sendPushToStudent(data.student_id, {
         title: "Novo contrato disponível 📄",
         body: `${data.title} — toque para revisar e assinar.`,
         url: "/app/contratos",
         tag: `contract-${row.id}`,
       }, "contract");
-    } catch {}
+    } catch (err) {
+      console.warn("[contracts] push falhou:", (err as any)?.message ?? err);
+    }
     return row;
   });
 
