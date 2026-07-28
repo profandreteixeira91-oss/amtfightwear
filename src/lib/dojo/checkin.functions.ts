@@ -185,6 +185,7 @@ const settingsSchema = z.object({
   allowQrCheckin: z.boolean().optional(),
   allowFixedQrCheckin: z.boolean().optional(),
   allowPhotoCheckin: z.boolean().optional(),
+  facialRecognitionEnabled: z.boolean().optional(),
 });
 
 export const getCheckinSettings = createServerFn({ method: "GET" })
