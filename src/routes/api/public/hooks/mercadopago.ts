@@ -272,7 +272,7 @@ export const Route = createFileRoute("/api/public/hooks/mercadopago")({
                   body: `R$ ${Number((invRow as any).amount).toFixed(2)} — obrigado!`,
                   url: "/app/finance",
                   tag: `inv-${matchedInvoiceId}`,
-                });
+                }, "payment_received");
               } catch {
                 /* noop */
               }

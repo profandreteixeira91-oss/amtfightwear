@@ -338,7 +338,7 @@ export const generateStudentContract = createServerFn({ method: "POST" })
         body: `${data.title} — toque para revisar e assinar.`,
         url: "/app/contratos",
         tag: `contract-${row.id}`,
-      });
+      }, "contract");
     } catch {}
     return row;
   });

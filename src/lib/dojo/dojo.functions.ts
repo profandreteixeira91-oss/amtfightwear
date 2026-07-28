@@ -814,7 +814,7 @@ export const saveDojoInvoice = createServerFn({ method: "POST" })
         body: `${payload.description ?? "Mensalidade"} — ${amountFmt}${payload.due_date ? ` • vence em ${new Date(payload.due_date).toLocaleDateString("pt-BR")}` : ""}`,
         url: "/app/financeiro",
         tag: `invoice-${row.id}`,
-      });
+      }, "invoice_due_soon");
     } catch {}
     return { id: row.id };
   });
@@ -1485,7 +1485,7 @@ export const issueCertificate = createServerFn({ method: "POST" })
         body: "Seu novo certificado foi emitido. Toque para visualizar e baixar.",
         url: "/app/certificados",
         tag: `certificate-${row.id}`,
-      });
+      }, "contract");
     } catch {}
     return row;
   });
@@ -1726,7 +1726,7 @@ export const addBulkGraduation = createServerFn({ method: "POST" })
           body: `Você foi graduado(a): ${belt?.name ?? "Nova faixa"}${degreeTxt}.`,
           url: "/app/graduacoes",
           tag: `graduation-${g.id}`,
-        });
+        }, "graduation");
       }
     } catch {}
 

@@ -232,7 +232,7 @@ export const manualCheckin = createServerFn({ method: "POST" })
         body: "Sua presença foi confirmada. Bons treinos!",
         url: "/app/agenda",
         tag: `attendance-${row.id}`,
-      });
+      }, "attendance_confirmed");
     } catch {}
     return { id: row.id };
   });

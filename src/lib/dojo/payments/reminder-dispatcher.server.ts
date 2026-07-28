@@ -270,7 +270,7 @@ export async function dispatchInvoicePushReminder(
       url: `/app/invoice/${invoice.id}`,
       tag: `invoice-${invoice.id}`,
       data: { invoiceId: invoice.id, offsetDays },
-    });
+    }, offsetDays > 0 ? "invoice_overdue" : "invoice_due_soon");
   } catch (err: any) {
     await supabase.from("dojo_invoice_reminders").insert({
       owner_id: invoice.owner_id,

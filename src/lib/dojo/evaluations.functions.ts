@@ -374,7 +374,7 @@ export const createEvalSession = createServerFn({ method: "POST" })
         body: `${(tpl as any)?.title ?? "Avaliação"}${when}`,
         url: "/app/avaliacoes",
         tag: `eval-session-${row.id}`,
-      });
+      }, "evaluation");
     } catch {}
     return { id: row.id };
   });
@@ -463,7 +463,7 @@ export const finishEvalSession = createServerFn({ method: "POST" })
         ...msg,
         url: "/app/avaliacoes",
         tag: `eval-finish-${data.id}`,
-      });
+      }, "evaluation");
     } catch {}
     return { ok: true };
   });
