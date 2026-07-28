@@ -313,21 +313,75 @@ export const getMyAgenda = createServerFn({ method: "GET" })
       .select("class_id")
       .eq("student_id", me.id)
       .eq("status", "active");
-    const classIds = (enrolls ?? []).map((e) => e.class_id);
+    const classIds = Array.from(new Set((enrolls ?? []).map((e) => e.class_id)));
     if (classIds.length === 0) return [];
 
     const from = data.from ?? new Date().toISOString().slice(0, 10);
     const to = data.to ?? new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10);
 
-    const { data: occ } = await context.supabase
+    // 1) Ocorrências materializadas (autoritativas: status, cancelamentos, remarcações)
+    const { data: matOcc } = await context.supabase
       .from("dojo_class_occurrences")
-      .select("id, class_id, occurrence_date, start_time, end_time, status, dojo_classes(name, modality, teacher_name, color, space_id, unit_id)")
+      .select("id, class_id, schedule_id, occurrence_date, start_time, end_time, status, dojo_classes(name, modality, teacher_name, color, space_id, unit_id)")
       .in("class_id", classIds)
       .gte("occurrence_date", from)
-      .lte("occurrence_date", to)
-      .order("occurrence_date", { ascending: true });
-    return occ ?? [];
+      .lte("occurrence_date", to);
+
+    // 2) Fallback: deriva do calendário semanal para turmas sem ocorrências geradas
+    const { data: classes } = await context.supabase
+      .from("dojo_classes")
+      .select("id, name, modality, teacher_name, color, space_id, unit_id, schedules:dojo_class_schedules(id, weekday, start_time, end_time)")
+      .in("id", classIds);
+
+    const materializedKeys = new Set(
+      (matOcc ?? []).map((o) => `${o.class_id}|${o.occurrence_date}|${o.schedule_id ?? ""}`),
+    );
+
+    const derived: any[] = [];
+    const start = new Date(from + "T00:00:00");
+    const end = new Date(to + "T00:00:00");
+    for (const cls of classes ?? []) {
+      const schedules = (cls as any).schedules ?? [];
+      if (schedules.length === 0) continue;
+      const cur = new Date(start);
+      while (cur <= end) {
+        const iso = cur.toISOString().slice(0, 10);
+        const weekday = cur.getDay();
+        for (const s of schedules) {
+          if (s.weekday !== weekday) continue;
+          const key = `${cls.id}|${iso}|${s.id}`;
+          const fallbackKey = `${cls.id}|${iso}|`;
+          if (materializedKeys.has(key) || materializedKeys.has(fallbackKey)) continue;
+          derived.push({
+            id: `sched:${s.id}:${iso}`,
+            class_id: cls.id,
+            schedule_id: s.id,
+            occurrence_date: iso,
+            start_time: s.start_time,
+            end_time: s.end_time,
+            status: "scheduled",
+            dojo_classes: {
+              name: (cls as any).name,
+              modality: (cls as any).modality,
+              teacher_name: (cls as any).teacher_name,
+              color: (cls as any).color,
+              space_id: (cls as any).space_id,
+              unit_id: (cls as any).unit_id,
+            },
+          });
+        }
+        cur.setDate(cur.getDate() + 1);
+      }
+    }
+
+    const all = [...(matOcc ?? []), ...derived];
+    all.sort((a: any, b: any) => {
+      if (a.occurrence_date !== b.occurrence_date) return a.occurrence_date < b.occurrence_date ? -1 : 1;
+      return (a.start_time ?? "") < (b.start_time ?? "") ? -1 : 1;
+    });
+    return all;
   });
+
 
 // ============ Check-in ============
 
