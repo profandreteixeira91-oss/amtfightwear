@@ -140,80 +140,59 @@ function RankingWidget() {
       <div className="mb-2 flex items-center justify-between px-1">
         <h2 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-neutral-400">
           <Trophy className="h-3.5 w-3.5" /> Ranking
+          {activeClass && (
+            <span className="ml-1 inline-flex items-center gap-1 rounded-full bg-neutral-100 px-1.5 py-0.5 text-[9px] font-medium normal-case tracking-normal text-neutral-600">
+              <span className="h-1.5 w-1.5 rounded-full" style={{ background: activeClass.color || "#dc2626" }} />
+              <span className="max-w-[100px] truncate">{activeClass.name}</span>
+            </span>
+          )}
         </h2>
         <Link to="/app/ranking" className="text-[11px] font-medium" style={{ color: "var(--sa-primary)" }}>
           Ver completo
         </Link>
       </div>
-      <div
-        className="relative overflow-hidden rounded-2xl text-white shadow-[0_20px_60px_-30px_rgba(220,38,38,0.65)]"
-        style={{ background: "linear-gradient(135deg,#111 0%,#1a0a0a 50%,#3a0a0a 100%)" }}
+      <Link
+        to="/app/ranking"
+        className="relative flex items-center gap-3 overflow-hidden rounded-2xl p-3 text-white shadow-[0_12px_40px_-24px_rgba(220,38,38,0.7)] transition active:scale-[0.99]"
+        style={{ background: "linear-gradient(135deg,#111 0%,#1a0a0a 55%,#3a0a0a 100%)" }}
       >
-        <div aria-hidden className="pointer-events-none absolute -left-16 -top-16 h-48 w-48 rounded-full bg-red-600/25 blur-3xl" />
-        <div aria-hidden className="pointer-events-none absolute -right-16 top-6 h-48 w-48 rounded-full bg-amber-500/15 blur-3xl" />
-        <div className="relative flex flex-col gap-3 p-4">
-          <div className="flex items-center gap-2 text-[11px]">
-            <span className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/5 px-2 py-0.5 backdrop-blur">
-              <Flame className="h-3 w-3" /> Turma
-            </span>
-            {activeClass && (
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-2 py-0.5 backdrop-blur">
-                <span className="h-2 w-2 rounded-full" style={{ background: activeClass.color || "#dc2626" }} />
-                <span className="truncate">{activeClass.name}</span>
-              </span>
-            )}
+        <div aria-hidden className="pointer-events-none absolute -left-10 -top-10 h-28 w-28 rounded-full bg-red-600/25 blur-2xl" />
+        {myRow ? (
+          <div className="relative flex shrink-0 flex-col items-center rounded-xl bg-gradient-to-br from-amber-400/25 to-red-500/25 px-2.5 py-1.5 ring-1 ring-white/10">
+            <div className="text-[9px] font-semibold uppercase tracking-wider text-red-100/80">Você</div>
+            <div className="font-display text-lg font-black leading-none">{myRow.rank}º</div>
+            <div className="text-[9px] text-neutral-300">{myRow.count} ch-in</div>
           </div>
-
-          <div className="grid grid-cols-3 gap-2 rounded-xl border border-white/10 bg-white/5 p-3 backdrop-blur">
-            <div className="col-span-2">
-              <div className="text-[10px] font-semibold uppercase tracking-wider text-red-200/80">
-                Seus check-ins (total geral)
-              </div>
-              <div className="mt-0.5 flex items-baseline gap-1.5">
-                <div className="font-display text-2xl font-black leading-none">{myTotal}</div>
-                <div className="text-[11px] text-neutral-300">no histórico</div>
-              </div>
-            </div>
-            {myRow && (
-              <div className="rounded-lg bg-gradient-to-br from-amber-400/20 to-red-500/20 p-2 text-right ring-1 ring-white/10">
-                <div className="text-[10px] font-semibold uppercase tracking-wider text-red-100/80">Sua posição</div>
-                <div className="mt-0.5 font-display text-xl font-black leading-none">{myRow.rank}º</div>
-                <div className="text-[10px] text-neutral-300">{myRow.count} check-ins</div>
-              </div>
-            )}
+        ) : (
+          <div className="relative flex shrink-0 flex-col items-center rounded-xl bg-white/5 px-2.5 py-1.5 ring-1 ring-white/10">
+            <div className="text-[9px] font-semibold uppercase tracking-wider text-red-100/80">Total</div>
+            <div className="font-display text-lg font-black leading-none">{myTotal}</div>
+            <div className="text-[9px] text-neutral-300">check-ins</div>
           </div>
-
-          {top.length > 0 && (
-            <ul className="grid gap-1.5">
-              {top.map((r) => {
-                const medal = r.rank === 1 ? "🥇" : r.rank === 2 ? "🥈" : "🥉";
-                return (
-                  <li
-                    key={r.id}
-                    className={`flex items-center gap-2.5 rounded-xl border border-white/10 bg-white/5 px-2.5 py-2 backdrop-blur ${
-                      r.isMe ? "ring-1 ring-red-400/70" : ""
-                    }`}
-                  >
-                    <span className="text-lg leading-none">{medal}</span>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-1">
-                        <div className="truncate text-[13px] font-semibold">
-                          {r.isMe ? `${r.full_name} (você)` : r.full_name}
-                        </div>
-                        {r.rank === 1 && <Crown className="h-3.5 w-3.5 shrink-0 text-amber-400" />}
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-display text-base font-black leading-none">{r.count}</div>
-                      <div className="text-[9px] font-semibold uppercase tracking-wider text-neutral-400">check-ins</div>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </div>
-      </div>
+        )}
+        {top.length > 0 && (
+          <ul className="relative flex min-w-0 flex-1 items-center gap-1.5">
+            {top.map((r) => {
+              const medal = r.rank === 1 ? "🥇" : r.rank === 2 ? "🥈" : "🥉";
+              const firstName = r.full_name.split(" ")[0];
+              return (
+                <li
+                  key={r.id}
+                  className={`flex min-w-0 flex-1 items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-1.5 py-1 backdrop-blur ${
+                    r.isMe ? "ring-1 ring-amber-300/70" : ""
+                  }`}
+                >
+                  <span className="text-sm leading-none">{medal}</span>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-[11px] font-semibold leading-tight">{r.isMe ? "Você" : firstName}</div>
+                    <div className="text-[9px] leading-tight text-neutral-300">{r.count} ch-in</div>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </Link>
     </section>
   );
 }
