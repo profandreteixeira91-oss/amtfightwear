@@ -344,20 +344,14 @@ function InvoiceList({
                     {overdueDays > 0 && <div className="text-red-600 truncate">{overdueDays}d atraso</div>}
                   </div>
                   <div className="min-w-0">
-                    <Badge
-                      variant="outline"
-                      className={
-                        r.status === "paid"
-                          ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                          : overdueDays > 0
-                          ? "bg-red-50 text-red-700 border-red-200"
-                          : r.status === "cancelled"
-                          ? "bg-muted text-muted-foreground"
-                          : "bg-amber-50 text-amber-700 border-amber-200"
-                      }
-                    >
-                      {STATUS_LABEL[r.status] ?? r.status}
-                    </Badge>
+                    {(() => {
+                      const key = effectiveKey(r);
+                      return (
+                        <Badge variant="outline" className={statusClasses(key)}>
+                          {STATUS_LABEL[key] ?? r.status}
+                        </Badge>
+                      );
+                    })()}
                   </div>
                   <div className="flex items-center justify-end gap-1 flex-nowrap">
                     <Button size="icon" variant="ghost" title="Detalhes" onClick={() => onOpen(r)} className="shrink-0 h-8 w-8">
