@@ -42,8 +42,11 @@ export async function resolveStudentContract(supabase: SupabaseClient, id: strin
     student = data ?? null;
   }
   if (!student) {
-    const { data } = await supabase.from("dojo_students").select("*").limit(1).maybeSingle();
-    student = data ?? null;
+    const { data: activeId } = await supabase.rpc("get_my_student_id");
+    if (activeId) {
+      const { data } = await supabase.from("dojo_students").select("*").eq("id", activeId as string).maybeSingle();
+      student = data ?? null;
+    }
   }
 
   const ownerId = row.owner_id ?? student?.owner_id;
