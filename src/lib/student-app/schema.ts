@@ -155,7 +155,7 @@ export const DEFAULT_FEATURES: Features = {
   attendance: true,
   digital_card: false,
   store: false,
-  ranking: false,
+  ranking: true,
   gamification: false,
   training_plan: false,
 };
