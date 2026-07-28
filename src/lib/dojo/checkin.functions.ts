@@ -180,6 +180,11 @@ const settingsSchema = z.object({
   allowAdminException: z.boolean().optional(),
   allowTeacherException: z.boolean().optional(),
   blockDuplicateCheckin: z.boolean().optional(),
+  allowGpsCheckin: z.boolean().optional(),
+  allowPinCheckin: z.boolean().optional(),
+  allowQrCheckin: z.boolean().optional(),
+  allowFixedQrCheckin: z.boolean().optional(),
+  allowPhotoCheckin: z.boolean().optional(),
 });
 
 export const getCheckinSettings = createServerFn({ method: "GET" })
