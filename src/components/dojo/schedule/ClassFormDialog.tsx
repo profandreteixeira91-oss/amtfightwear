@@ -86,19 +86,26 @@ export function ClassFormDialog({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, initial]);
 
-  const toggleDay = (d: number) => {
-    const base = form.schedules[0] ?? { start_time: "19:00", end_time: "20:00" };
-    const exists = form.schedules.some((s: Schedule) => s.weekday === d);
-    if (exists) {
-      setForm({ ...form, schedules: form.schedules.filter((s: Schedule) => s.weekday !== d) });
-    } else {
-      setForm({
-        ...form,
-        schedules: [...form.schedules, { weekday: d, start_time: base.start_time, end_time: base.end_time }].sort(
-          (a: Schedule, b: Schedule) => a.weekday - b.weekday,
-        ),
-      });
-    }
+  const addDay = (d: number) => {
+    const sameDay = form.schedules.filter((s: Schedule) => s.weekday === d);
+    const base =
+      sameDay[sameDay.length - 1] ??
+      form.schedules[form.schedules.length - 1] ??
+      { start_time: "19:00", end_time: "20:00" };
+    setForm({
+      ...form,
+      schedules: [
+        ...form.schedules,
+        { weekday: d, start_time: base.start_time, end_time: base.end_time },
+      ].sort(
+        (a: Schedule, b: Schedule) =>
+          a.weekday - b.weekday || a.start_time.localeCompare(b.start_time),
+      ),
+    });
+  };
+
+  const removeSchedule = (idx: number) => {
+    setForm({ ...form, schedules: form.schedules.filter((_: Schedule, i: number) => i !== idx) });
   };
 
   const updateSchedule = (idx: number, patch: Partial<Schedule>) => {
