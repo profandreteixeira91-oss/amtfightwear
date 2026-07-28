@@ -399,3 +399,23 @@ export const scheduleStats = createServerFn({ method: "GET" })
       occupancyRate: totalCap ? Math.min(100, Math.round((enrollCount / totalCap) * 100)) : 0,
     };
   });
+
+// ================= STUDENT CLASSES =================
+const UUID_RE = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+
+export const listStudentClasses = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({ studentId: z.string().regex(UUID_RE, "UUID inválido") }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: rows, error } = await context.supabase
+      .from("dojo_class_students")
+      .select(
+        "id, class_id, status, enrolled_at, dojo_classes(id, name, modality, level, teacher_name, color, status, dojo_units(id, name), dojo_spaces(id, name), schedules:dojo_class_schedules(id, weekday, start_time, end_time))",
+      )
+      .eq("student_id", data.studentId)
+      .order("enrolled_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return rows ?? [];
+  });
