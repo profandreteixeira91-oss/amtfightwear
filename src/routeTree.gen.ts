@@ -97,6 +97,7 @@ import { Route as DojoAppAccountRouteImport } from './routes/dojo.app.account'
 import { Route as AppInstallSlugRouteImport } from './routes/app.install.$slug'
 import { Route as AppStudentVideosRouteImport } from './routes/app._student.videos'
 import { Route as AppStudentSettingsRouteImport } from './routes/app._student.settings'
+import { Route as AppStudentRankingRouteImport } from './routes/app._student.ranking'
 import { Route as AppStudentProfileRouteImport } from './routes/app._student.profile'
 import { Route as AppStudentOnboardingRouteImport } from './routes/app._student.onboarding'
 import { Route as AppStudentNotificationsRouteImport } from './routes/app._student.notifications'
@@ -735,6 +736,11 @@ const AppStudentVideosRoute = AppStudentVideosRouteImport.update({
 const AppStudentSettingsRoute = AppStudentSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => AppStudentRoute,
+} as any)
+const AppStudentRankingRoute = AppStudentRankingRouteImport.update({
+  id: '/ranking',
+  path: '/ranking',
   getParentRoute: () => AppStudentRoute,
 } as any)
 const AppStudentProfileRoute = AppStudentProfileRouteImport.update({
@@ -1997,6 +2003,7 @@ export interface FileRoutesByFullPath {
   '/app/notifications': typeof AppStudentNotificationsRoute
   '/app/onboarding': typeof AppStudentOnboardingRoute
   '/app/profile': typeof AppStudentProfileRoute
+  '/app/ranking': typeof AppStudentRankingRoute
   '/app/settings': typeof AppStudentSettingsRoute
   '/app/videos': typeof AppStudentVideosRoute
   '/app/install/$slug': typeof AppInstallSlugRoute
@@ -2275,6 +2282,7 @@ export interface FileRoutesByTo {
   '/app/notifications': typeof AppStudentNotificationsRoute
   '/app/onboarding': typeof AppStudentOnboardingRoute
   '/app/profile': typeof AppStudentProfileRoute
+  '/app/ranking': typeof AppStudentRankingRoute
   '/app/settings': typeof AppStudentSettingsRoute
   '/app/videos': typeof AppStudentVideosRoute
   '/app/install/$slug': typeof AppInstallSlugRoute
@@ -2556,6 +2564,7 @@ export interface FileRoutesById {
   '/app/_student/notifications': typeof AppStudentNotificationsRoute
   '/app/_student/onboarding': typeof AppStudentOnboardingRoute
   '/app/_student/profile': typeof AppStudentProfileRoute
+  '/app/_student/ranking': typeof AppStudentRankingRoute
   '/app/_student/settings': typeof AppStudentSettingsRoute
   '/app/_student/videos': typeof AppStudentVideosRoute
   '/app/install/$slug': typeof AppInstallSlugRoute
@@ -2845,6 +2854,7 @@ export interface FileRouteTypes {
     | '/app/notifications'
     | '/app/onboarding'
     | '/app/profile'
+    | '/app/ranking'
     | '/app/settings'
     | '/app/videos'
     | '/app/install/$slug'
@@ -3123,6 +3133,7 @@ export interface FileRouteTypes {
     | '/app/notifications'
     | '/app/onboarding'
     | '/app/profile'
+    | '/app/ranking'
     | '/app/settings'
     | '/app/videos'
     | '/app/install/$slug'
@@ -3403,6 +3414,7 @@ export interface FileRouteTypes {
     | '/app/_student/notifications'
     | '/app/_student/onboarding'
     | '/app/_student/profile'
+    | '/app/_student/ranking'
     | '/app/_student/settings'
     | '/app/_student/videos'
     | '/app/install/$slug'
@@ -4240,6 +4252,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/app/settings'
       preLoaderRoute: typeof AppStudentSettingsRouteImport
+      parentRoute: typeof AppStudentRoute
+    }
+    '/app/_student/ranking': {
+      id: '/app/_student/ranking'
+      path: '/ranking'
+      fullPath: '/app/ranking'
+      preLoaderRoute: typeof AppStudentRankingRouteImport
       parentRoute: typeof AppStudentRoute
     }
     '/app/_student/profile': {
@@ -6096,6 +6115,7 @@ interface AppStudentRouteChildren {
   AppStudentNotificationsRoute: typeof AppStudentNotificationsRoute
   AppStudentOnboardingRoute: typeof AppStudentOnboardingRoute
   AppStudentProfileRoute: typeof AppStudentProfileRoute
+  AppStudentRankingRoute: typeof AppStudentRankingRoute
   AppStudentSettingsRoute: typeof AppStudentSettingsRoute
   AppStudentVideosRoute: typeof AppStudentVideosRoute
   AppStudentInvoiceIdRoute: typeof AppStudentInvoiceIdRoute
@@ -6117,6 +6137,7 @@ const AppStudentRouteChildren: AppStudentRouteChildren = {
   AppStudentNotificationsRoute: AppStudentNotificationsRoute,
   AppStudentOnboardingRoute: AppStudentOnboardingRoute,
   AppStudentProfileRoute: AppStudentProfileRoute,
+  AppStudentRankingRoute: AppStudentRankingRoute,
   AppStudentSettingsRoute: AppStudentSettingsRoute,
   AppStudentVideosRoute: AppStudentVideosRoute,
   AppStudentInvoiceIdRoute: AppStudentInvoiceIdRoute,
