@@ -1,0 +1,7 @@
+ALTER TABLE public.dojo_students
+  ADD COLUMN IF NOT EXISTS facial_recognition_consent_at TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS lgpd_consent_at TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS lgpd_consent_date TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS terms_accepted_date TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS image_rights_consent BOOLEAN DEFAULT FALSE,
+  ADD COLUMN IF NOT EXISTS terms_accepted BOOLEAN DEFAULT FALSE;

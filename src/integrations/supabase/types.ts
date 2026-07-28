@@ -7631,6 +7631,7 @@ export type Database = {
           emergency_contact_phone: string | null
           emergency_contact_relationship: string | null
           facial_recognition_consent: boolean | null
+          facial_recognition_consent_at: string | null
           frozen_since: string | null
           frozen_until: string | null
           full_name: string
@@ -7645,6 +7646,7 @@ export type Database = {
           id: string
           image_rights_consent: boolean
           lgpd_consent: boolean
+          lgpd_consent_at: string | null
           lgpd_consent_date: string | null
           marital_status: string | null
           medical_clearance_date: string | null
@@ -7687,6 +7689,7 @@ export type Database = {
           emergency_contact_phone?: string | null
           emergency_contact_relationship?: string | null
           facial_recognition_consent?: boolean | null
+          facial_recognition_consent_at?: string | null
           frozen_since?: string | null
           frozen_until?: string | null
           full_name: string
@@ -7701,6 +7704,7 @@ export type Database = {
           id?: string
           image_rights_consent?: boolean
           lgpd_consent?: boolean
+          lgpd_consent_at?: string | null
           lgpd_consent_date?: string | null
           marital_status?: string | null
           medical_clearance_date?: string | null
@@ -7743,6 +7747,7 @@ export type Database = {
           emergency_contact_phone?: string | null
           emergency_contact_relationship?: string | null
           facial_recognition_consent?: boolean | null
+          facial_recognition_consent_at?: string | null
           frozen_since?: string | null
           frozen_until?: string | null
           full_name?: string
@@ -7757,6 +7762,7 @@ export type Database = {
           id?: string
           image_rights_consent?: boolean
           lgpd_consent?: boolean
+          lgpd_consent_at?: string | null
           lgpd_consent_date?: string | null
           marital_status?: string | null
           medical_clearance_date?: string | null
