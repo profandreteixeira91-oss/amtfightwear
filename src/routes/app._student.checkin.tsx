@@ -126,7 +126,13 @@ function CheckinPage() {
           {enabled.map((opt) => (
             <button
               key={opt.key}
-              onClick={() => doCheckin(opt.key)}
+              onClick={() => {
+                if (opt.key === "fixed_qr") {
+                  setScannerOpen(true);
+                } else {
+                  doCheckin(opt.key);
+                }
+              }}
               disabled={submitting !== null}
               className="flex w-full items-center gap-3 rounded-2xl bg-white p-4 text-left shadow-sm ring-1 ring-neutral-100 transition active:scale-[0.99] disabled:opacity-60"
             >
@@ -147,6 +153,27 @@ function CheckinPage() {
           ))}
         </div>
       </section>
+
+      <FixedQrScanner
+        open={scannerOpen}
+        onClose={() => setScannerOpen(false)}
+        onDecoded={(raw) => {
+          setScannerOpen(false);
+          // Aceita URL com auto=fixed_qr OU o valor literal "fixed_qr"
+          let ok = false;
+          try {
+            const u = new URL(raw);
+            ok = u.searchParams.get("auto") === "fixed_qr" && u.pathname.includes("/checkin");
+          } catch {
+            ok = /fixed_qr/i.test(raw);
+          }
+          if (!ok) {
+            toast.error("QR inválido", { description: "Este código não é o QR de check-in da academia." });
+            return;
+          }
+          doCheckin("fixed_qr");
+        }}
+      />
 
       <div className="grid grid-cols-2 gap-3">
         <Stat label="Últ. presença" value={last ? new Date(last.checked_in_at).toLocaleDateString("pt-BR") : "—"} />
