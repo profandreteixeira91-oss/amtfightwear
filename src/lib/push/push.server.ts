@@ -1,60 +1,54 @@
 // Helpers server-only para envio de Web Push (VAPID) aos alunos.
-// Não importar de arquivos que fazem parte do bundle client — use dynamic import.
+// Usa Web Crypto via @block65/webcrypto-web-push (compatível com Cloudflare Workers).
 
-import webpush from "web-push";
+import { sendWebPushOnce } from "./webpush-native.server";
 
 type PushPayload = {
   title: string;
   body?: string;
   url?: string;
   tag?: string;
+  icon?: string;
+  badge?: string;
   data?: Record<string, unknown>;
 };
 
-let configured = false;
-function configure() {
-  if (configured) return;
-  const pub = process.env.VAPID_PUBLIC_KEY;
-  const priv = process.env.VAPID_PRIVATE_KEY;
-  const subject = process.env.VAPID_SUBJECT || "mailto:contato@amtfightwear.com.br";
-  if (!pub || !priv) throw new Error("VAPID keys ausentes (VAPID_PUBLIC_KEY/VAPID_PRIVATE_KEY)");
-  webpush.setVapidDetails(subject, pub, priv);
-  configured = true;
-}
-
 export async function sendPushToStudent(studentId: string, payload: PushPayload): Promise<void> {
-  configure();
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data: subs } = await supabaseAdmin
+  const { data: subs, error } = await supabaseAdmin
     .from("dojo_push_subscriptions")
     .select("id, endpoint, p256dh, auth")
     .eq("student_id", studentId);
-  if (!subs || subs.length === 0) return;
 
-  const body = JSON.stringify(payload);
+  if (error) {
+    console.error("[push:student] falha ao buscar inscrições", studentId, error.message);
+    return;
+  }
+  if (!subs || subs.length === 0) {
+    console.log("[push:student] nenhuma inscrição para", studentId);
+    return;
+  }
+
   await Promise.all(
-    subs.map(async (s) => {
-      try {
-        await webpush.sendNotification(
-          { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } },
-          body,
-          { TTL: 60 * 60 },
-        );
+    subs.map(async (s: any) => {
+      const result = await sendWebPushOnce(
+        { endpoint: s.endpoint, p256dh: s.p256dh, auth: s.auth },
+        payload,
+      );
+      if (result.ok) {
         await supabaseAdmin
           .from("dojo_push_subscriptions")
           .update({ last_success_at: new Date().toISOString(), last_error: null } as never)
           .eq("id", s.id);
-      } catch (err: any) {
-        const code = err?.statusCode;
-        // 404/410 = inscrição inválida, apagar
-        if (code === 404 || code === 410) {
-          await supabaseAdmin.from("dojo_push_subscriptions").delete().eq("id", s.id);
-        } else {
-          await supabaseAdmin
-            .from("dojo_push_subscriptions")
-            .update({ last_error: String(err?.body || err?.message || err) } as never)
-            .eq("id", s.id);
-        }
+      } else if (result.expired) {
+        await supabaseAdmin.from("dojo_push_subscriptions").delete().eq("id", s.id);
+        console.warn("[push:student] inscrição expirada removida", s.id);
+      } else {
+        await supabaseAdmin
+          .from("dojo_push_subscriptions")
+          .update({ last_error: result.error } as never)
+          .eq("id", s.id);
+        console.warn("[push:student] falha no envio", s.id, result.status, result.error);
       }
     }),
   );
