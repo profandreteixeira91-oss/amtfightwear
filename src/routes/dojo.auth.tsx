@@ -13,8 +13,10 @@ import { toast } from "sonner";
 import { DojoLogo } from "@/components/dojo/DojoLogo";
 import { PasswordStrength, isPasswordStrong, PASSWORD_MIN_LENGTH } from "@/components/auth/PasswordStrength";
 import { PasswordInput } from "@/components/auth/PasswordInput";
+import { isEmailTeamMember, checkTeamMemberGate } from "@/lib/dojo/team.functions";
 
 const searchSchema = z.object({ redirect: z.string().optional() });
+
 
 export const Route = createFileRoute("/dojo/auth")({
   validateSearch: searchSchema,
@@ -49,6 +51,25 @@ function DojoAuthPage() {
     const go = async (userId: string) => {
       if (redirected) return;
       redirected = true;
+      // Team-member gate: bloqueia acesso caso o e-mail exista em
+      // dojo_team_members sem vínculo ativo com este user_id.
+      try {
+        const gate = await checkTeamMemberGate();
+        if (gate.blocked) {
+          await supabase.auth.signOut();
+          redirected = false;
+          setChecking(false);
+          toast.error("Acesso pendente", {
+            description:
+              gate.reason === "inactive"
+                ? "Seu acesso foi desativado. Fale com o dono do dojo."
+                : "Seu login precisa ser criado pelo dono do dojo no módulo Equipe.",
+          });
+          return;
+        }
+      } catch {
+        // Se a checagem falhar, seguimos sem bloquear para não travar o dono.
+      }
       await supabase.auth.updateUser({ data: { account_type: "dojo_manager" } });
       const target = await resolveDestination(userId, search.redirect);
       window.location.replace(target);
@@ -66,12 +87,29 @@ function DojoAuthPage() {
     return () => sub.subscription.unsubscribe();
   }, [search.redirect]);
 
+
   const goAfterAuth = async () => {
     const { data } = await supabase.auth.getUser();
     if (!data.user) return;
+    // Aplica o gate de membro de equipe: bloqueia se o e-mail existe em
+    // dojo_team_members sem vínculo ativo com este user_id.
+    try {
+      const gate = await checkTeamMemberGate();
+      if (gate.blocked) {
+        await supabase.auth.signOut();
+        toast.error("Acesso pendente", {
+          description:
+            gate.reason === "inactive"
+              ? "Seu acesso foi desativado. Fale com o dono do dojo."
+              : "Seu login precisa ser criado pelo dono do dojo no módulo Equipe.",
+        });
+        return;
+      }
+    } catch { /* segue em caso de falha na checagem */ }
     const target = await resolveDestination(data.user.id, search.redirect);
     window.location.assign(target);
   };
+
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -123,6 +161,18 @@ function DojoAuthPage() {
       });
       return;
     }
+    // E-mails cadastrados como membro de equipe não podem se auto-registrar:
+    // o login precisa ser criado pelo dono no módulo Equipe.
+    try {
+      const teamCheck = await isEmailTeamMember({ data: { email: email.trim().toLowerCase() } });
+      if (teamCheck.isTeamMember) {
+        toast.error("E-mail de colaborador", {
+          description:
+            "Este e-mail é de um membro de equipe. Peça ao dono do dojo para criar seu login no módulo Equipe.",
+        });
+        return;
+      }
+    } catch { /* segue em caso de falha na checagem */ }
     setLoading(true);
     const { error, data } = await supabase.auth.signUp({
       email,
@@ -139,6 +189,7 @@ function DojoAuthPage() {
       window.location.assign("/dojo/app");
     }
   };
+
 
   const handleGoogle = async () => {
     setGoogleLoading(true);
