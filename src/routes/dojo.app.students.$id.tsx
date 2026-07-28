@@ -632,6 +632,7 @@ function StudentDetail() {
                 <TabsTrigger value="contratos">Contratos</TabsTrigger>
                 
                 <TabsTrigger value="competicoes">Competições</TabsTrigger>
+                <TabsTrigger value="turmas">Turmas</TabsTrigger>
                 <TabsTrigger value="frequencia">Frequência</TabsTrigger>
                 <TabsTrigger value="documentos">Documentos</TabsTrigger>
                 <TabsTrigger value="observacoes">Observações</TabsTrigger>
