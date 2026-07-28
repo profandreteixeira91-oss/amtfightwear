@@ -137,13 +137,18 @@ function StudentRankingPage() {
                 <div className="text-[11px] text-neutral-300">no histórico</div>
               </div>
             </div>
-            {myRow && (
+            {(myRow || myOverallRow) && (
               <div className="rounded-lg bg-gradient-to-br from-amber-400/20 to-red-500/20 p-2 text-right ring-1 ring-white/10">
-                <div className="text-[10px] font-semibold uppercase tracking-wider text-red-100/80">Sua posição</div>
-                <div className="mt-0.5 font-display text-2xl font-black leading-none">
-                  {myRow.rank}º
+                <div className="text-[10px] font-semibold uppercase tracking-wider text-red-100/80">
+                  {showOverall ? "Sua posição na academia" : "Sua posição"}
                 </div>
-                <div className="text-[10px] text-neutral-300">{myRow.count} check-ins</div>
+                <div className="mt-0.5 font-display text-2xl font-black leading-none">
+                  {(showOverall ? myOverallRow?.rank : myRow?.rank) ?? "—"}º
+                </div>
+                <div className="text-[10px] text-neutral-300">
+                  {(showOverall ? myOverallRow?.count : myRow?.count) ?? 0} check-ins
+                  {showOverall && overallRows.length ? ` · de ${overallRows.length}` : ""}
+                </div>
               </div>
             )}
           </div>
