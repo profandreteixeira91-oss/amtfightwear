@@ -57,19 +57,21 @@ function HomePage() {
   const openInvoices = homeData?.openInvoices ?? [];
   const announcements = annData?.items ?? [];
 
+  const rankingEnabled = config.features.ranking !== false;
+
   return (
     <div className="mx-auto grid w-full max-w-3xl gap-5 lg:max-w-5xl lg:grid-cols-3 lg:items-start">
+      {rankingEnabled && (
+        <div className="lg:col-span-3">
+          <RankingWidget />
+        </div>
+      )}
       {config.home_blocks.filter((b) => b.visible !== false).map((block) => {
         const spanAll = block.type === "welcome" || block.type === "banner" || block.type === "open_invoices";
-        const showRankingBefore = block.type === "shortcuts" && config.features.ranking !== false;
         return (
           <div key={block.id} className="contents">
-            {showRankingBefore && (
-              <div className="lg:col-span-3">
-                <RankingWidget />
-              </div>
-            )}
             <div className={spanAll ? "lg:col-span-3" : block.type === "shortcuts" ? "lg:col-span-2" : "lg:col-span-1"}>
+
               <BlockRenderer
                 block={block}
                 config={config}
