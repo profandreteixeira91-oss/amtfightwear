@@ -822,16 +822,18 @@ export const saveDojoInvoice = createServerFn({ method: "POST" })
     const { data: row, error } = await context.supabase.from("dojo_invoices").insert(payload).select("id").single();
     if (error) throw new Error(error.message);
     try {
-      const { safeNotifyStudent } = await import("@/lib/push/push.server");
+      const { sendPushToStudent } = await import("@/lib/push/push.server");
       const amountFmt = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" })
         .format(Number(payload.amount ?? 0));
-      safeNotifyStudent(payload.student_id, {
+      await sendPushToStudent(payload.student_id, {
         title: "Nova cobrança disponível",
         body: `${payload.description ?? "Mensalidade"} — ${amountFmt}${payload.due_date ? ` • vence em ${new Date(payload.due_date).toLocaleDateString("pt-BR")}` : ""}`,
         url: "/app/financeiro",
         tag: `invoice-${row.id}`,
       }, "invoice_due_soon");
-    } catch {}
+    } catch (err) {
+      console.warn("[saveDojoInvoice] push falhou:", (err as any)?.message ?? err);
+    }
     return { id: row.id };
   });
 
@@ -1754,20 +1756,40 @@ export const addBulkGraduation = createServerFn({ method: "POST" })
       invoicesCreated.push({ graduation_id: g.id, invoice_id: inv.id, amount: fee, status: inv.status });
     }
 
-    // Notifica cada aluno graduado (push best-effort).
+    // Notifica cada aluno graduado (push) — graduação + cobrança.
+    // IMPORTANTE: aguardamos o envio antes de retornar. Em runtime serverless
+    // (Cloudflare Workers) promessas fire-and-forget são canceladas ao final
+    // da requisição, o que fazia a push nunca sair.
     try {
-      const { safeNotifyStudent } = await import("@/lib/push/push.server");
+      const { sendPushToStudent } = await import("@/lib/push/push.server");
+      const amountFmt = (v: number) =>
+        new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v);
+      const invoiceByGrad = new Map(invoicesCreated.map(i => [i.graduation_id, i]));
+      const tasks: Promise<unknown>[] = [];
       for (const g of (inserted ?? []) as any[]) {
         const belt = beltById.get(g.belt_id);
         const degreeTxt = typeof g.degree === "number" && g.degree > 0 ? ` — ${g.degree}º grau` : "";
-        safeNotifyStudent(g.student_id, {
+        tasks.push(sendPushToStudent(g.student_id, {
           title: "Parabéns pela graduação! 🥋",
           body: `Você foi graduado(a): ${belt?.name ?? "Nova faixa"}${degreeTxt}.`,
           url: "/app/graduacoes",
           tag: `graduation-${g.id}`,
-        }, "graduation");
+        }, "graduation"));
+
+        const inv = invoiceByGrad.get(g.id);
+        if (inv && inv.status !== "paid") {
+          tasks.push(sendPushToStudent(g.student_id, {
+            title: "Nova cobrança disponível",
+            body: `Taxa de graduação — ${belt?.name ?? "Faixa"} • ${amountFmt(inv.amount)}${data.graduation_date ? ` • vence em ${new Date(data.graduation_date).toLocaleDateString("pt-BR")}` : ""}`,
+            url: "/app/financeiro",
+            tag: `invoice-${inv.invoice_id}`,
+          }, "invoice_due_soon"));
+        }
       }
-    } catch {}
+      await Promise.allSettled(tasks);
+    } catch (err) {
+      console.warn("[bulkAddDojoGraduations] push falhou:", (err as any)?.message ?? err);
+    }
 
     return { count: inserted?.length ?? 0, graduations: inserted ?? [], invoices: invoicesCreated };
   });
