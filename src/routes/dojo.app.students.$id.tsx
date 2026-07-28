@@ -1052,7 +1052,7 @@ function StudentDetail() {
                       </thead>
                       <tbody>
                         {certificates.map((c: any) => {
-                          const hasTemplate = !!c.template?.background_url;
+                          const hasTemplate = !!c.template && (!!c.template.background_url || (Array.isArray(c.template.fields) && c.template.fields.length > 0));
                           const beltLabel = c.graduation?.belt?.name
                             ? formatBeltFull(c.graduation.belt.name, c.graduation.belt?.modality, c.graduation.degree)
                             : (c.values?.belt ?? "—");
