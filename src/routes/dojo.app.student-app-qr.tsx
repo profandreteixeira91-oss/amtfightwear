@@ -225,7 +225,8 @@ function StudentAppQrPage() {
 
 
       {/* Cartaz */}
-      <div className="mx-auto max-w-3xl px-4 pb-10 print:max-w-none print:px-0 print:pb-0">
+      <div className="mx-auto max-w-3xl print:max-w-none print:px-0 print:pb-0">
+
         <div
           id="poster"
           className="poster relative mx-auto flex flex-col items-center overflow-hidden rounded-3xl bg-white shadow-xl ring-1 ring-neutral-200 print:rounded-none print:shadow-none print:ring-0"
