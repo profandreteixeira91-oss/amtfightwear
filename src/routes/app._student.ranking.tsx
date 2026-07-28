@@ -56,10 +56,37 @@ function StudentRankingPage() {
     });
   }, [data]);
 
+  // Ranking geral da academia (resumo mostrado quando nenhuma turma está selecionada)
+  const overallRows = useMemo(() => {
+    const overall = (data as any)?.overall as
+      | { students: Array<{ id: string; full_name: string; photo_url: string | null }>; counts: Record<string, number>; total_students: number }
+      | undefined;
+    if (!overall) return [] as Array<{ id: string; full_name: string; photo_url: string | null; count: number; rank: number; isMe: boolean }>;
+    const meId = data?.me.id ?? "";
+    const list = overall.students.map((s) => ({
+      id: s.id,
+      full_name: s.full_name,
+      photo_url: s.photo_url ?? null,
+      count: overall.counts[s.id] ?? 0,
+      isMe: s.id === meId,
+    }));
+    list.sort((a, b) => b.count - a.count || a.full_name.localeCompare(b.full_name));
+    let lastCount: number | null = null;
+    let lastRank = 0;
+    return list.map((r, idx) => {
+      const rank = r.count === lastCount ? lastRank : idx + 1;
+      lastCount = r.count; lastRank = rank;
+      return { ...r, rank };
+    });
+  }, [data]);
+
   const myTotal = data?.me.total_checkins ?? 0;
   const podium = rows.slice(0, 3);
   const myRow = rows.find((r) => r.isMe);
+  const overallPodium = overallRows.slice(0, 3);
+  const myOverallRow = overallRows.find((r) => r.isMe);
   const hasMultipleClasses = classes.length > 1;
+  const showOverall = !activeClassId;
 
   const periodLabel: Record<Period, string> = {
     all: "Histórico completo",
