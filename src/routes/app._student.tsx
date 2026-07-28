@@ -37,6 +37,29 @@ function StudentShell() {
     staleTime: 30_000,
   });
   const config = cfgData?.config ?? DEFAULT_CONFIG;
+  const queryClient = useQueryClient();
+  const studentId = student?.id;
+
+  // Realtime: quando o aluno é adicionado/removido de uma turma, refresca agenda, home e ranking imediatamente.
+  useEffect(() => {
+    if (!studentId) return;
+    const channel = supabase
+      .channel(`student-enrollments-${studentId}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "dojo_class_students", filter: `student_id=eq.${studentId}` },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["student", "agenda"] });
+          queryClient.invalidateQueries({ queryKey: ["student", "home"] });
+          queryClient.invalidateQueries({ queryKey: ["student", "ranking"] });
+          queryClient.invalidateQueries({ queryKey: ["student", "me"] });
+        },
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [studentId, queryClient]);
 
   async function signOut() {
     await supabase.auth.signOut();
