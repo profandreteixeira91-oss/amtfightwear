@@ -67,6 +67,36 @@ export const getMyClassRanking = createServerFn({ method: "GET" })
       const d = new Date(now); d.setFullYear(d.getFullYear() - 1); sinceIso = d.toISOString();
     }
 
+    // 4b) Ranking geral da academia (todos os alunos ativos), sempre calculado
+    //     para o resumo geral da tela — independente da turma selecionada.
+    const { data: academyStudents } = await supabaseAdmin
+      .from("dojo_students")
+      .select("id, full_name, photo_url, current_belt_id, current_degree")
+      .eq("owner_id", me.owner_id)
+      .is("cancelled_at", null);
+    const academyIds = (academyStudents ?? []).map((s: any) => s.id as string);
+
+    let attOverallQuery = supabaseAdmin
+      .from("dojo_attendance")
+      .select("student_id")
+      .eq("owner_id", me.owner_id);
+    if (sinceIso) attOverallQuery = attOverallQuery.gte("checked_in_at", sinceIso);
+    const { data: attOverall } = await attOverallQuery;
+    const overallCounts: Record<string, number> = {};
+    for (const id of academyIds) overallCounts[id] = 0;
+    for (const a of attOverall ?? []) {
+      const sid = (a as any).student_id as string | null;
+      if (!sid) continue;
+      overallCounts[sid] = (overallCounts[sid] ?? 0) + 1;
+    }
+    const overallStudents = (academyStudents ?? []).map((s: any) => ({
+      id: s.id as string,
+      full_name: s.full_name as string,
+      photo_url: (s.photo_url as string | null) ?? null,
+      current_belt_id: (s.current_belt_id as string | null) ?? null,
+      current_degree: (s.current_degree as number | null) ?? null,
+    }));
+
     // 5) Determina turma efetiva
     const requested = data.classId ?? null;
     const isEnrolled = requested && myClasses.some((c) => c.id === requested);
@@ -84,6 +114,11 @@ export const getMyClassRanking = createServerFn({ method: "GET" })
         classId: null as string | null,
         students: [] as any[],
         counts: {} as Record<string, number>,
+        overall: {
+          students: overallStudents,
+          counts: overallCounts,
+          total_students: overallStudents.length,
+        },
       };
     }
 
