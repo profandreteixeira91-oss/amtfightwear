@@ -122,12 +122,8 @@ export const updateMyProfile = createServerFn({ method: "POST" })
   .middleware([requireStudentAuth])
   .inputValidator((i: unknown) => profileUpdateSchema.parse(i))
   .handler(async ({ data, context }) => {
-    const { data: me, error: e1 } = await context.supabase
-      .from("dojo_students")
-      .select("id")
-      .limit(1)
-      .maybeSingle();
-    if (e1 || !me) throw new Error(e1?.message ?? "Aluno não encontrado");
+    const me = await fetchActiveStudent<{ id: string }>(context.supabase, "id");
+    if (!me) throw new Error("Aluno não encontrado");
     const { error } = await context.supabase.from("dojo_students").update(data).eq("id", me.id);
     if (error) throw new Error(error.message);
     return { ok: true };
