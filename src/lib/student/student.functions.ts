@@ -20,14 +20,10 @@ export const getMyStudent = createServerFn({ method: "GET" })
 export const getMyDigitalCard = createServerFn({ method: "GET" })
   .middleware([requireStudentAuth])
   .handler(async ({ context }) => {
-    const { data: student, error } = await context.supabase
-      .from("dojo_students")
-      .select(
-        "id, owner_id, unit_id, full_name, photo_url, current_belt_id, current_degree, checkin_pin, qr_token, created_at",
-      )
-      .limit(1)
-      .maybeSingle();
-    if (error) throw new Error(error.message);
+    const student = await fetchActiveStudent<any>(
+      context.supabase,
+      "id, owner_id, unit_id, full_name, photo_url, current_belt_id, current_degree, checkin_pin, qr_token, created_at",
+    );
     if (!student) return null;
 
     // Gera credenciais automaticamente se ainda não existirem
