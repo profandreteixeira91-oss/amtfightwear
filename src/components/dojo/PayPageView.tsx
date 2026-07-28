@@ -193,6 +193,14 @@ export function PayPageView({ invoiceId }: { invoiceId: string }) {
               <div className="text-sm text-muted-foreground text-center py-4">
                 Esta cobrança foi cancelada. Entre em contato com {identity.name}.
               </div>
+            ) : !state.data.payment.anyOnline ? (
+              <OfflineOnlyPanel
+                identityName={identity.name}
+                phone={identity.phone}
+                email={identity.email}
+                amtPayActive={state.data.payment.amtPayActive}
+                offlineMethods={state.data.payment.offlineMethods}
+              />
             ) : (
               <PaymentTabs
                 invoiceId={invoiceId}
@@ -206,6 +214,10 @@ export function PayPageView({ invoiceId }: { invoiceId: string }) {
                 fetchBoleto={fetchBoleto}
                 chargeCard={chargeCard}
                 onPaid={() => setPaid(true)}
+                allowPix={state.data.payment.allowPix}
+                allowCard={state.data.payment.allowCard}
+                allowBoleto={state.data.payment.allowBoleto}
+                offlineMethods={state.data.payment.offlineMethods}
               />
             )}
           </CardContent>
