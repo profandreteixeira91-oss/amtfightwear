@@ -273,7 +273,11 @@ function BlockRenderer({
       );
 
     case "shortcuts": {
-      const items = (block.items ?? Object.keys(SHORTCUT_META))
+      const rawKeys = block.items ?? Object.keys(SHORTCUT_META);
+      // Garante que "Documentos" apareça sempre que o feature estiver ativo,
+      // mesmo em configurações salvas antes de o atalho existir.
+      const keys = rawKeys.includes("documents") ? rawKeys : [...rawKeys, "documents"];
+      const items = keys
         .map((k) => ({ key: k, meta: SHORTCUT_META[k] }))
         .filter((x) => x.meta && (!x.meta.feature || config.features[x.meta.feature] !== false));
       if (items.length === 0) return null;
