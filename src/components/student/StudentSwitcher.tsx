@@ -36,7 +36,16 @@ export function StudentSwitcher({ currentName }: { currentName?: string | null }
   const [open, setOpen] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(() => readActive());
 
-  const students = data ?? [];
+  type StudentItem = {
+    id: string;
+    full_name: string;
+    photo_url: string | null;
+    owner_id: string;
+    unit_id: string | null;
+    current_belt_id: string | null;
+    current_degree: number | null;
+  };
+  const students: StudentItem[] = (data ?? []) as StudentItem[];
 
   useEffect(() => {
     // Se o id salvo não está mais entre os elegíveis, limpa.
