@@ -64,6 +64,7 @@ import { Route as LojaCustomShopKindRouteImport } from './routes/loja.custom-sho
 import { Route as LojaContaPedidosRouteImport } from './routes/loja.conta.pedidos'
 import { Route as LojaCategoriaSlugRouteImport } from './routes/loja.categoria.$slug'
 import { Route as DojoPayInvoiceIdRouteImport } from './routes/dojo.pay.$invoiceId'
+import { Route as DojoMatriculaSlugRouteImport } from './routes/dojo.matricula.$slug'
 import { Route as DojoCertificateEditorIdRouteImport } from './routes/dojo.certificate-editor.$id'
 import { Route as DojoAppVideosRouteImport } from './routes/dojo.app.videos'
 import { Route as DojoAppSystemUsersRouteImport } from './routes/dojo.app.system-users'
@@ -567,6 +568,11 @@ const LojaCategoriaSlugRoute = LojaCategoriaSlugRouteImport.update({
 const DojoPayInvoiceIdRoute = DojoPayInvoiceIdRouteImport.update({
   id: '/pay/$invoiceId',
   path: '/pay/$invoiceId',
+  getParentRoute: () => DojoRoute,
+} as any)
+const DojoMatriculaSlugRoute = DojoMatriculaSlugRouteImport.update({
+  id: '/matricula/$slug',
+  path: '/matricula/$slug',
   getParentRoute: () => DojoRoute,
 } as any)
 const DojoCertificateEditorIdRoute = DojoCertificateEditorIdRouteImport.update({
@@ -2017,6 +2023,7 @@ export interface FileRoutesByFullPath {
   '/dojo/app/system-users': typeof DojoAppSystemUsersRoute
   '/dojo/app/videos': typeof DojoAppVideosRouteWithChildren
   '/dojo/certificate-editor/$id': typeof DojoCertificateEditorIdRoute
+  '/dojo/matricula/$slug': typeof DojoMatriculaSlugRoute
   '/dojo/pay/$invoiceId': typeof DojoPayInvoiceIdRoute
   '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
   '/loja/conta/pedidos': typeof LojaContaPedidosRoute
@@ -2286,6 +2293,7 @@ export interface FileRoutesByTo {
   '/dojo/app/support': typeof DojoAppSupportRoute
   '/dojo/app/system-users': typeof DojoAppSystemUsersRoute
   '/dojo/certificate-editor/$id': typeof DojoCertificateEditorIdRoute
+  '/dojo/matricula/$slug': typeof DojoMatriculaSlugRoute
   '/dojo/pay/$invoiceId': typeof DojoPayInvoiceIdRoute
   '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
   '/loja/conta/pedidos': typeof LojaContaPedidosRoute
@@ -2572,6 +2580,7 @@ export interface FileRoutesById {
   '/dojo/app/system-users': typeof DojoAppSystemUsersRoute
   '/dojo/app/videos': typeof DojoAppVideosRouteWithChildren
   '/dojo/certificate-editor/$id': typeof DojoCertificateEditorIdRoute
+  '/dojo/matricula/$slug': typeof DojoMatriculaSlugRoute
   '/dojo/pay/$invoiceId': typeof DojoPayInvoiceIdRoute
   '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
   '/loja/conta/pedidos': typeof LojaContaPedidosRoute
@@ -2859,6 +2868,7 @@ export interface FileRouteTypes {
     | '/dojo/app/system-users'
     | '/dojo/app/videos'
     | '/dojo/certificate-editor/$id'
+    | '/dojo/matricula/$slug'
     | '/dojo/pay/$invoiceId'
     | '/loja/categoria/$slug'
     | '/loja/conta/pedidos'
@@ -3128,6 +3138,7 @@ export interface FileRouteTypes {
     | '/dojo/app/support'
     | '/dojo/app/system-users'
     | '/dojo/certificate-editor/$id'
+    | '/dojo/matricula/$slug'
     | '/dojo/pay/$invoiceId'
     | '/loja/categoria/$slug'
     | '/loja/conta/pedidos'
@@ -3413,6 +3424,7 @@ export interface FileRouteTypes {
     | '/dojo/app/system-users'
     | '/dojo/app/videos'
     | '/dojo/certificate-editor/$id'
+    | '/dojo/matricula/$slug'
     | '/dojo/pay/$invoiceId'
     | '/loja/categoria/$slug'
     | '/loja/conta/pedidos'
@@ -3985,6 +3997,13 @@ declare module '@tanstack/react-router' {
       path: '/pay/$invoiceId'
       fullPath: '/dojo/pay/$invoiceId'
       preLoaderRoute: typeof DojoPayInvoiceIdRouteImport
+      parentRoute: typeof DojoRoute
+    }
+    '/dojo/matricula/$slug': {
+      id: '/dojo/matricula/$slug'
+      path: '/matricula/$slug'
+      fullPath: '/dojo/matricula/$slug'
+      preLoaderRoute: typeof DojoMatriculaSlugRouteImport
       parentRoute: typeof DojoRoute
     }
     '/dojo/certificate-editor/$id': {
@@ -6394,6 +6413,7 @@ interface DojoRouteChildren {
   DojoOnboardingRoute: typeof DojoOnboardingRoute
   DojoIndexRoute: typeof DojoIndexRoute
   DojoCertificateEditorIdRoute: typeof DojoCertificateEditorIdRoute
+  DojoMatriculaSlugRoute: typeof DojoMatriculaSlugRoute
   DojoPayInvoiceIdRoute: typeof DojoPayInvoiceIdRoute
 }
 
@@ -6404,6 +6424,7 @@ const DojoRouteChildren: DojoRouteChildren = {
   DojoOnboardingRoute: DojoOnboardingRoute,
   DojoIndexRoute: DojoIndexRoute,
   DojoCertificateEditorIdRoute: DojoCertificateEditorIdRoute,
+  DojoMatriculaSlugRoute: DojoMatriculaSlugRoute,
   DojoPayInvoiceIdRoute: DojoPayInvoiceIdRoute,
 }
 
