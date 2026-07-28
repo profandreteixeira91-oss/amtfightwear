@@ -181,5 +181,10 @@ export const getMyClassRanking = createServerFn({ method: "GET" })
         status: s.status,
       })),
       counts,
+      overall: {
+        students: overallStudents,
+        counts: overallCounts,
+        total_students: overallStudents.length,
+      },
     };
   });
