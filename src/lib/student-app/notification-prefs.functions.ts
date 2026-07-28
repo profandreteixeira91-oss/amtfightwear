@@ -36,6 +36,7 @@ export const NOTIFICATION_CATEGORY_META: Array<{
   description: string;
   group: "Aulas & Presença" | "Financeiro" | "Comunicação" | "Desempenho";
 }> = [
+  { key: "class_reminder", label: "Lembrete de aula", description: "Avisa o aluno antes do início da aula, com base nos horários abaixo.", group: "Aulas & Presença" },
   { key: "attendance_confirmed", label: "Check-in confirmado", description: "Confirmação enviada após presença registrada.", group: "Aulas & Presença" },
 
   { key: "invoice_due_soon", label: "Cobrança a vencer", description: "Aviso automático de faturas próximas do vencimento.", group: "Financeiro" },
@@ -50,6 +51,24 @@ export const NOTIFICATION_CATEGORY_META: Array<{
   { key: "competition", label: "Competições", description: "Inscrições, resultados e lembretes de eventos.", group: "Desempenho" },
 ];
 
+/**
+ * Regras de temporização configuráveis pelo dono do dojo.
+ * - class_reminder_offsets_min: minutos antes do início da aula em que o push é disparado (múltiplos valores).
+ * - invoice_due_soon_offsets_days: dias antes do vencimento (positivos) em que a cobrança a vencer é notificada.
+ * - invoice_overdue_frequency_days: intervalo em dias com que o lembrete de cobrança vencida é reenviado.
+ */
+export type NotificationExtras = {
+  class_reminder_offsets_min: number[];
+  invoice_due_soon_offsets_days: number[];
+  invoice_overdue_frequency_days: number;
+};
+
+export const DEFAULT_NOTIFICATION_EXTRAS: NotificationExtras = {
+  class_reminder_offsets_min: [60, 15],
+  invoice_due_soon_offsets_days: [3, 1],
+  invoice_overdue_frequency_days: 3,
+};
+
 function normalize(input: unknown): Record<NotificationCategoryKey, boolean> {
   const src = (input && typeof input === "object" ? input : {}) as Record<string, unknown>;
   const out = { ...DEFAULT_NOTIFICATION_CATEGORIES };
@@ -59,34 +78,81 @@ function normalize(input: unknown): Record<NotificationCategoryKey, boolean> {
   return out;
 }
 
+function normalizeIntArray(input: unknown, opts: { min: number; max: number; maxLen: number }): number[] | null {
+  if (!Array.isArray(input)) return null;
+  const seen = new Set<number>();
+  const out: number[] = [];
+  for (const v of input) {
+    const n = Math.round(Number(v));
+    if (!Number.isFinite(n)) continue;
+    if (n < opts.min || n > opts.max) continue;
+    if (seen.has(n)) continue;
+    seen.add(n);
+    out.push(n);
+    if (out.length >= opts.maxLen) break;
+  }
+  return out;
+}
+
+export function normalizeExtras(input: unknown): NotificationExtras {
+  const src = (input && typeof input === "object" ? input : {}) as Record<string, unknown>;
+  const classOff =
+    normalizeIntArray(src.class_reminder_offsets_min, { min: 0, max: 720, maxLen: 8 }) ??
+    DEFAULT_NOTIFICATION_EXTRAS.class_reminder_offsets_min;
+  const dueOff =
+    normalizeIntArray(src.invoice_due_soon_offsets_days, { min: 0, max: 60, maxLen: 6 }) ??
+    DEFAULT_NOTIFICATION_EXTRAS.invoice_due_soon_offsets_days;
+  const rawFreq = Number(src.invoice_overdue_frequency_days);
+  const freq =
+    Number.isFinite(rawFreq) && rawFreq >= 1 && rawFreq <= 30
+      ? Math.round(rawFreq)
+      : DEFAULT_NOTIFICATION_EXTRAS.invoice_overdue_frequency_days;
+  // Ordena para exibição estável (crescente para minutos e dias).
+  return {
+    class_reminder_offsets_min: [...classOff].sort((a, b) => b - a),
+    invoice_due_soon_offsets_days: [...dueOff].sort((a, b) => b - a),
+    invoice_overdue_frequency_days: freq,
+  };
+}
+
 export const getStudentNotificationPrefs = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
     const { data, error } = await supabase
       .from("dojo_student_notification_prefs")
-      .select("categories, updated_at")
+      .select("categories, extras, updated_at")
       .eq("owner_id", userId)
       .maybeSingle();
     if (error) throw new Error(error.message);
     return {
       categories: normalize((data as any)?.categories),
+      extras: normalizeExtras((data as any)?.extras),
       updated_at: (data as any)?.updated_at ?? null,
     };
   });
 
 export const saveStudentNotificationPrefs = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { categories: Partial<Record<NotificationCategoryKey, boolean>> }) => input)
+  .inputValidator((input: {
+    categories: Partial<Record<NotificationCategoryKey, boolean>>;
+    extras?: Partial<NotificationExtras>;
+  }) => input)
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const categories = normalize(data.categories);
+    const extras = normalizeExtras(data.extras);
     const { error } = await supabase
       .from("dojo_student_notification_prefs")
       .upsert(
-        { owner_id: userId, categories, updated_at: new Date().toISOString() } as never,
+        {
+          owner_id: userId,
+          categories,
+          extras,
+          updated_at: new Date().toISOString(),
+        } as never,
         { onConflict: "owner_id" },
       );
     if (error) throw new Error(error.message);
-    return { ok: true, categories };
+    return { ok: true, categories, extras };
   });
