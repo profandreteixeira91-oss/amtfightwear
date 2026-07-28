@@ -1,20 +1,17 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireStudentAuth } from "@/integrations/supabase/student-auth-middleware";
+import { fetchActiveStudent, getActiveStudentId } from "./_me";
 
 // ============ Perfil / branding ============
 
 export const getMyStudent = createServerFn({ method: "GET" })
   .middleware([requireStudentAuth])
   .handler(async ({ context }) => {
-    const { data, error } = await context.supabase
-      .from("dojo_students")
-      .select(
-        "id, owner_id, full_name, email, phone, photo_url, current_belt_id, current_degree, checkin_pin, qr_token, birth_date, cpf, address, street, address_number, address_complement, neighborhood, city, state, zip, emergency_contact_name, emergency_contact_phone, emergency_contact_relationship, notes",
-      )
-      .limit(1)
-      .maybeSingle();
-    if (error) throw new Error(error.message);
+    const data = await fetchActiveStudent<any>(
+      context.supabase,
+      "id, owner_id, full_name, email, phone, photo_url, current_belt_id, current_degree, checkin_pin, qr_token, birth_date, cpf, address, street, address_number, address_complement, neighborhood, city, state, zip, emergency_contact_name, emergency_contact_phone, emergency_contact_relationship, notes",
+    );
     return data;
   });
 
@@ -23,14 +20,10 @@ export const getMyStudent = createServerFn({ method: "GET" })
 export const getMyDigitalCard = createServerFn({ method: "GET" })
   .middleware([requireStudentAuth])
   .handler(async ({ context }) => {
-    const { data: student, error } = await context.supabase
-      .from("dojo_students")
-      .select(
-        "id, owner_id, unit_id, full_name, photo_url, current_belt_id, current_degree, checkin_pin, qr_token, created_at",
-      )
-      .limit(1)
-      .maybeSingle();
-    if (error) throw new Error(error.message);
+    const student = await fetchActiveStudent<any>(
+      context.supabase,
+      "id, owner_id, unit_id, full_name, photo_url, current_belt_id, current_degree, checkin_pin, qr_token, created_at",
+    );
     if (!student) return null;
 
     // Gera credenciais automaticamente se ainda não existirem
@@ -129,12 +122,8 @@ export const updateMyProfile = createServerFn({ method: "POST" })
   .middleware([requireStudentAuth])
   .inputValidator((i: unknown) => profileUpdateSchema.parse(i))
   .handler(async ({ data, context }) => {
-    const { data: me, error: e1 } = await context.supabase
-      .from("dojo_students")
-      .select("id")
-      .limit(1)
-      .maybeSingle();
-    if (e1 || !me) throw new Error(e1?.message ?? "Aluno não encontrado");
+    const me = await fetchActiveStudent<{ id: string }>(context.supabase, "id");
+    if (!me) throw new Error("Aluno não encontrado");
     const { error } = await context.supabase.from("dojo_students").update(data).eq("id", me.id);
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -164,11 +153,10 @@ const anamnesisSchema = z.object({
 export const getMyAnamnesis = createServerFn({ method: "GET" })
   .middleware([requireStudentAuth])
   .handler(async ({ context }) => {
-    const { data } = await context.supabase
-      .from("dojo_students")
-      .select("anamnesis, health_insurance, has_medical_clearance, medical_clearance_date")
-      .limit(1)
-      .maybeSingle();
+    const data = await fetchActiveStudent<any>(
+      context.supabase,
+      "anamnesis, health_insurance, has_medical_clearance, medical_clearance_date",
+    );
     return data ?? null;
   });
 
@@ -181,7 +169,7 @@ export const updateMyAnamnesis = createServerFn({ method: "POST" })
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
-    const { data: me } = await context.supabase.from("dojo_students").select("id").limit(1).maybeSingle();
+    const _meId = await getActiveStudentId(context.supabase); const me = _meId ? (await context.supabase.from("dojo_students").select("id").eq("id", _meId).maybeSingle()).data : null;
     if (!me) throw new Error("Aluno não encontrado");
     const { error } = await context.supabase
       .from("dojo_students")
@@ -202,7 +190,7 @@ export const uploadMyPhoto = createServerFn({ method: "POST" })
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
-    const { data: me } = await context.supabase.from("dojo_students").select("id, owner_id").limit(1).maybeSingle();
+    const _meId = await getActiveStudentId(context.supabase); const me = _meId ? (await context.supabase.from("dojo_students").select("id, owner_id").eq("id", _meId).maybeSingle()).data : null;
     if (!me) throw new Error("Aluno não encontrado");
     // decode base64
     const match = data.data_url.match(/^data:([^;]+);base64,(.+)$/);
@@ -229,7 +217,7 @@ export const uploadMyPhoto = createServerFn({ method: "POST" })
 export const getMyEvaluations = createServerFn({ method: "GET" })
   .middleware([requireStudentAuth])
   .handler(async ({ context }) => {
-    const { data: me } = await context.supabase.from("dojo_students").select("id").limit(1).maybeSingle();
+    const _meId = await getActiveStudentId(context.supabase); const me = _meId ? (await context.supabase.from("dojo_students").select("id").eq("id", _meId).maybeSingle()).data : null;
     if (!me) return [];
     const { data, error } = await context.supabase
       .from("dojo_eval_sessions")
@@ -249,11 +237,10 @@ export const getMyEvaluations = createServerFn({ method: "GET" })
 export const getMyHome = createServerFn({ method: "GET" })
   .middleware([requireStudentAuth])
   .handler(async ({ context }) => {
-    const { data: student } = await context.supabase
-      .from("dojo_students")
-      .select("id, owner_id, full_name, photo_url, current_belt_id, current_degree")
-      .limit(1)
-      .maybeSingle();
+    const student = await fetchActiveStudent<any>(
+      context.supabase,
+      "id, owner_id, full_name, photo_url, current_belt_id, current_degree",
+    );
     if (!student) return null;
 
     const [{ data: belt }, { data: lastCheckin }, { data: lastGrad }, { data: openInvoices }, { data: unread }] =
@@ -306,7 +293,7 @@ export const getMyAgenda = createServerFn({ method: "GET" })
     z.object({ from: z.string().optional(), to: z.string().optional() }).parse(i ?? {}),
   )
   .handler(async ({ data, context }) => {
-    const { data: me } = await context.supabase.from("dojo_students").select("id").limit(1).maybeSingle();
+    const _meId = await getActiveStudentId(context.supabase); const me = _meId ? (await context.supabase.from("dojo_students").select("id").eq("id", _meId).maybeSingle()).data : null;
     if (!me) return [];
     const { data: enrolls } = await context.supabase
       .from("dojo_class_students")
@@ -396,11 +383,10 @@ export const selfCheckin = createServerFn({ method: "POST" })
     }).parse(i ?? {}),
   )
   .handler(async ({ data, context }) => {
-    const { data: me } = await context.supabase
-      .from("dojo_students")
-      .select("id, owner_id, unit_id")
-      .limit(1)
-      .maybeSingle();
+    const me = await fetchActiveStudent<{ id: string; owner_id: string; unit_id: string | null }>(
+      context.supabase,
+      "id, owner_id, unit_id",
+    );
     if (!me) throw new Error("Aluno não encontrado");
 
     const { data: settings } = await context.supabase
@@ -484,7 +470,7 @@ export const getMyAttendance = createServerFn({ method: "GET" })
     z.object({ limit: z.number().int().min(1).max(200).optional() }).parse(i ?? {}),
   )
   .handler(async ({ data, context }) => {
-    const { data: me } = await context.supabase.from("dojo_students").select("id").limit(1).maybeSingle();
+    const _meId = await getActiveStudentId(context.supabase); const me = _meId ? (await context.supabase.from("dojo_students").select("id").eq("id", _meId).maybeSingle()).data : null;
     if (!me) return [];
     const { data: rows } = await context.supabase
       .from("dojo_attendance")
@@ -500,7 +486,7 @@ export const getMyAttendance = createServerFn({ method: "GET" })
 export const getMyGraduations = createServerFn({ method: "GET" })
   .middleware([requireStudentAuth])
   .handler(async ({ context }) => {
-    const { data: me } = await context.supabase.from("dojo_students").select("id, current_belt_id, current_degree").limit(1).maybeSingle();
+    const _meId = await getActiveStudentId(context.supabase); const me = _meId ? (await context.supabase.from("dojo_students").select("id, current_belt_id, current_degree").eq("id", _meId).maybeSingle()).data : null;
     if (!me) return { current: null, history: [] };
     const [{ data: current }, { data: history }] = await Promise.all([
       me.current_belt_id
@@ -520,7 +506,7 @@ export const getMyGraduations = createServerFn({ method: "GET" })
 export const getMyCertificates = createServerFn({ method: "GET" })
   .middleware([requireStudentAuth])
   .handler(async ({ context }) => {
-    const { data: me } = await context.supabase.from("dojo_students").select("id").limit(1).maybeSingle();
+    const _meId = await getActiveStudentId(context.supabase); const me = _meId ? (await context.supabase.from("dojo_students").select("id").eq("id", _meId).maybeSingle()).data : null;
     if (!me) return [];
     const { data } = await context.supabase
       .from("dojo_certificates")
@@ -535,7 +521,7 @@ export const getMyCertificates = createServerFn({ method: "GET" })
 export const getMyInvoices = createServerFn({ method: "GET" })
   .middleware([requireStudentAuth])
   .handler(async ({ context }) => {
-    const { data: me } = await context.supabase.from("dojo_students").select("id").limit(1).maybeSingle();
+    const _meId = await getActiveStudentId(context.supabase); const me = _meId ? (await context.supabase.from("dojo_students").select("id").eq("id", _meId).maybeSingle()).data : null;
     if (!me) return [];
     const { data } = await context.supabase
       .from("dojo_invoices")
@@ -551,7 +537,7 @@ export const getMyInvoices = createServerFn({ method: "GET" })
 export const getMyCompetitions = createServerFn({ method: "GET" })
   .middleware([requireStudentAuth])
   .handler(async ({ context }) => {
-    const { data: me } = await context.supabase.from("dojo_students").select("id, owner_id").limit(1).maybeSingle();
+    const _meId = await getActiveStudentId(context.supabase); const me = _meId ? (await context.supabase.from("dojo_students").select("id, owner_id").eq("id", _meId).maybeSingle()).data : null;
     if (!me) return { upcoming: [], mine: [] };
     const nowIso = new Date().toISOString();
     const [{ data: upcoming }, { data: mine }] = await Promise.all([

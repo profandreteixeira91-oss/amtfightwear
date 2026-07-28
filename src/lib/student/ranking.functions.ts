@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireStudentAuth } from "@/integrations/supabase/student-auth-middleware";
+import { fetchActiveStudent } from "./_me";
 
 /**
  * Ranking do aluno (portal do aluno):
@@ -22,12 +23,10 @@ export const getMyClassRanking = createServerFn({ method: "GET" })
   )
   .handler(async ({ data, context }) => {
     // 1) Identifica o aluno autenticado
-    const { data: me, error: meErr } = await context.supabase
-      .from("dojo_students")
-      .select("id, owner_id")
-      .limit(1)
-      .maybeSingle();
-    if (meErr) throw new Error(meErr.message);
+    const me = await fetchActiveStudent<{ id: string; owner_id: string }>(
+      context.supabase,
+      "id, owner_id",
+    );
     if (!me) throw new Error("Aluno não encontrado");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireStudentAuth } from "@/integrations/supabase/student-auth-middleware";
+import { fetchActiveStudent } from "./_me";
+
 
 // Aluno resgata um QR fixo específico de unidade.
 // Regras aplicadas 100% no backend:
@@ -39,12 +41,10 @@ export const checkinByUnitQr = createServerFn({ method: "POST" })
     }
 
     // 2) Identifica o aluno autenticado usando o client com RLS
-    const { data: me, error: meErr } = await context.supabase
-      .from("dojo_students")
-      .select("id, owner_id, unit_id, status")
-      .limit(1)
-      .maybeSingle();
-    if (meErr) throw new Error(meErr.message);
+    const me = await fetchActiveStudent<{ id: string; owner_id: string; unit_id: string | null; status: string }>(
+      context.supabase,
+      "id, owner_id, unit_id, status",
+    );
     if (!me) throw new Error("Aluno não encontrado");
 
     // 3) Aluno pertence ao mesmo dono do QR

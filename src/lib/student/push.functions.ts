@@ -2,6 +2,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireStudentAuth } from "@/integrations/supabase/student-auth-middleware";
+import { fetchActiveStudent } from "./_me";
 
 export const getVapidPublicKey = createServerFn({ method: "GET" }).handler(async () => {
   return { key: process.env.VAPID_PUBLIC_KEY ?? "" };
@@ -18,11 +19,10 @@ export const subscribeMyPush = createServerFn({ method: "POST" })
   .middleware([requireStudentAuth])
   .inputValidator((i: unknown) => SubscribeSchema.parse(i))
   .handler(async ({ data, context }) => {
-    const { data: student } = await context.supabase
-      .from("dojo_students")
-      .select("id, owner_id")
-      .limit(1)
-      .maybeSingle();
+    const student = await fetchActiveStudent<{ id: string; owner_id: string }>(
+      context.supabase,
+      "id, owner_id",
+    );
     if (!student) throw new Error("Aluno não encontrado");
 
     const { error } = await context.supabase
