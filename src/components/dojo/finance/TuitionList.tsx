@@ -35,16 +35,24 @@ export type TuitionInvoice = {
   provider?: string | null;
 };
 
+const DUE_SOON_DAYS = 5;
+
 function effectiveStatus(i: TuitionInvoice) {
   if (i.status === "paid" || i.status === "cancelled") return i.status;
-  return new Date(i.due_date) < new Date(isoDate()) ? "overdue" : "pending";
+  const today = new Date(isoDate());
+  const due = new Date(i.due_date);
+  const diffDays = Math.ceil((due.getTime() - today.getTime()) / 86_400_000);
+  if (diffDays < 0) return "overdue";
+  if (diffDays <= DUE_SOON_DAYS) return "due_soon";
+  return "pending";
 }
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; cls: string }> = {
-    paid: { label: "Paga", cls: "bg-emerald-100 text-emerald-800 border-emerald-200" },
+    paid: { label: "Pago", cls: "bg-emerald-100 text-emerald-800 border-emerald-200" },
     overdue: { label: "Vencida", cls: "bg-red-100 text-red-800 border-red-200" },
-    pending: { label: "Pendente", cls: "bg-amber-100 text-amber-800 border-amber-200" },
+    due_soon: { label: "Próxima ao vencimento", cls: "bg-amber-100 text-amber-800 border-amber-200" },
+    pending: { label: "A vencer", cls: "bg-emerald-50 text-emerald-700 border-emerald-200" },
     cancelled: { label: "Cancelada", cls: "bg-muted text-muted-foreground border-transparent" },
   };
   const cfg = map[status] ?? map.pending;
