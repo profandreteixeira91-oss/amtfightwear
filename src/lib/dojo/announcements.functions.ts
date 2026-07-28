@@ -170,7 +170,7 @@ async function notifyStudentsForAnnouncement(supabase: any, ownerId: string, row
 
     try {
       const { sendPushToStudent } = await import("@/lib/push/push.server");
-      await Promise.all(
+      const results = await Promise.allSettled(
         visibleStudents.map((sid) =>
           sendPushToStudent(sid, {
             title: `📣 ${row.title}`,
@@ -178,9 +178,14 @@ async function notifyStudentsForAnnouncement(supabase: any, ownerId: string, row
             url: `/app/announcements/${row.id}`,
             tag: `announcement-${row.id}`,
             data: { announcementId: row.id, type: "announcement" },
-          }).catch(() => undefined),
+          }),
         ),
       );
+      const failed = results.filter((r) => r.status === "rejected");
+      console.log(
+        `[announcements] push disparado para ${visibleStudents.length} alunos (${failed.length} falhas)`,
+      );
+      failed.forEach((f: any) => console.warn("[announcements] push rejeitado:", f.reason?.message ?? f.reason));
     } catch (e) {
       console.error("[announcements] push send failed", e);
     }
