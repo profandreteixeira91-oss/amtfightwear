@@ -220,10 +220,10 @@ function StudentRankingPage() {
       )}
 
       {/* PÓDIO */}
-      {podium.length > 0 && (
+      {(showOverall ? overallPodium : podium).length > 0 && (
         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
           {[0, 1, 2].map((order, i) => {
-            const p = podium[order];
+            const p = (showOverall ? overallPodium : podium)[order];
             if (!p) return <div key={i} className="hidden sm:block" />;
             const medalRank = Math.min(p.rank, 3);
             const styles = [
