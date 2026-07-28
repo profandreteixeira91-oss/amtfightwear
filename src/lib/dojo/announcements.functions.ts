@@ -178,7 +178,7 @@ async function notifyStudentsForAnnouncement(supabase: any, ownerId: string, row
             url: `/app/announcements/${row.id}`,
             tag: `announcement-${row.id}`,
             data: { announcementId: row.id, type: "announcement" },
-          }),
+          }, "announcement"),
         ),
       );
       const failed = results.filter((r) => r.status === "rejected");
