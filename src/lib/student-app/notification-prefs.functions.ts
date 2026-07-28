@@ -36,8 +36,8 @@ export const NOTIFICATION_CATEGORY_META: Array<{
   description: string;
   group: "Aulas & Presença" | "Financeiro" | "Comunicação" | "Desempenho";
 }> = [
-  { key: "class_reminder", label: "Lembrete de aulas", description: "Aviso antes do início das aulas do dia.", group: "Aulas & Presença" },
   { key: "attendance_confirmed", label: "Check-in confirmado", description: "Confirmação enviada após presença registrada.", group: "Aulas & Presença" },
+
   { key: "invoice_due_soon", label: "Cobrança a vencer", description: "Aviso automático de faturas próximas do vencimento.", group: "Financeiro" },
   { key: "invoice_overdue", label: "Cobrança vencida", description: "Alerta quando o pagamento passa da data.", group: "Financeiro" },
   { key: "payment_received", label: "Pagamento confirmado", description: "Notifica o aluno quando um pagamento é aprovado.", group: "Financeiro" },
