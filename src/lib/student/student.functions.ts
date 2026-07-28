@@ -8,14 +8,10 @@ import { fetchActiveStudent, getActiveStudentId } from "./_me";
 export const getMyStudent = createServerFn({ method: "GET" })
   .middleware([requireStudentAuth])
   .handler(async ({ context }) => {
-    const { data, error } = await context.supabase
-      .from("dojo_students")
-      .select(
-        "id, owner_id, full_name, email, phone, photo_url, current_belt_id, current_degree, checkin_pin, qr_token, birth_date, cpf, address, street, address_number, address_complement, neighborhood, city, state, zip, emergency_contact_name, emergency_contact_phone, emergency_contact_relationship, notes",
-      )
-      .limit(1)
-      .maybeSingle();
-    if (error) throw new Error(error.message);
+    const data = await fetchActiveStudent<any>(
+      context.supabase,
+      "id, owner_id, full_name, email, phone, photo_url, current_belt_id, current_degree, checkin_pin, qr_token, birth_date, cpf, address, street, address_number, address_complement, neighborhood, city, state, zip, emergency_contact_name, emergency_contact_phone, emergency_contact_relationship, notes",
+    );
     return data;
   });
 
