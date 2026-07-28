@@ -228,6 +228,7 @@ import { Route as DojoAppContractsIssuedRouteImport } from './routes/dojo.app.co
 import { Route as DojoAppContractTemplatesIdRouteImport } from './routes/dojo.app.contract-templates.$id'
 import { Route as DojoAppCompetitionsIdRouteImport } from './routes/dojo.app.competitions.$id'
 import { Route as AppStudentInvoiceIdRouteImport } from './routes/app._student.invoice.$id'
+import { Route as AppStudentDocumentsIdRouteImport } from './routes/app._student.documents.$id'
 import { Route as AppStudentCompetitionsIdRouteImport } from './routes/app._student.competitions.$id'
 import { Route as ApiPublicSalesMessagesRouteImport } from './routes/api/public/sales/messages'
 import { Route as ApiPublicSalesChatRouteImport } from './routes/api/public/sales/chat'
@@ -1468,6 +1469,11 @@ const AppStudentInvoiceIdRoute = AppStudentInvoiceIdRouteImport.update({
   path: '/invoice/$id',
   getParentRoute: () => AppStudentRoute,
 } as any)
+const AppStudentDocumentsIdRoute = AppStudentDocumentsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AppStudentDocumentsRoute,
+} as any)
 const AppStudentCompetitionsIdRoute =
   AppStudentCompetitionsIdRouteImport.update({
     id: '/$id',
@@ -1982,7 +1988,7 @@ export interface FileRoutesByFullPath {
   '/app/certificates': typeof AppStudentCertificatesRoute
   '/app/checkin': typeof AppStudentCheckinRoute
   '/app/competitions': typeof AppStudentCompetitionsRouteWithChildren
-  '/app/documents': typeof AppStudentDocumentsRoute
+  '/app/documents': typeof AppStudentDocumentsRouteWithChildren
   '/app/evaluations': typeof AppStudentEvaluationsRoute
   '/app/finance': typeof AppStudentFinanceRoute
   '/app/graduations': typeof AppStudentGraduationsRoute
@@ -2090,6 +2096,7 @@ export interface FileRoutesByFullPath {
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
   '/api/public/sales/messages': typeof ApiPublicSalesMessagesRoute
   '/app/competitions/$id': typeof AppStudentCompetitionsIdRoute
+  '/app/documents/$id': typeof AppStudentDocumentsIdRoute
   '/app/invoice/$id': typeof AppStudentInvoiceIdRoute
   '/dojo/app/competitions/$id': typeof DojoAppCompetitionsIdRoute
   '/dojo/app/contract-templates/$id': typeof DojoAppContractTemplatesIdRoute
@@ -2259,7 +2266,7 @@ export interface FileRoutesByTo {
   '/app/certificates': typeof AppStudentCertificatesRoute
   '/app/checkin': typeof AppStudentCheckinRoute
   '/app/competitions': typeof AppStudentCompetitionsRouteWithChildren
-  '/app/documents': typeof AppStudentDocumentsRoute
+  '/app/documents': typeof AppStudentDocumentsRouteWithChildren
   '/app/evaluations': typeof AppStudentEvaluationsRoute
   '/app/finance': typeof AppStudentFinanceRoute
   '/app/graduations': typeof AppStudentGraduationsRoute
@@ -2360,6 +2367,7 @@ export interface FileRoutesByTo {
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
   '/api/public/sales/messages': typeof ApiPublicSalesMessagesRoute
   '/app/competitions/$id': typeof AppStudentCompetitionsIdRoute
+  '/app/documents/$id': typeof AppStudentDocumentsIdRoute
   '/app/invoice/$id': typeof AppStudentInvoiceIdRoute
   '/dojo/app/competitions/$id': typeof DojoAppCompetitionsIdRoute
   '/dojo/app/contract-templates/$id': typeof DojoAppContractTemplatesIdRoute
@@ -2539,7 +2547,7 @@ export interface FileRoutesById {
   '/app/_student/certificates': typeof AppStudentCertificatesRoute
   '/app/_student/checkin': typeof AppStudentCheckinRoute
   '/app/_student/competitions': typeof AppStudentCompetitionsRouteWithChildren
-  '/app/_student/documents': typeof AppStudentDocumentsRoute
+  '/app/_student/documents': typeof AppStudentDocumentsRouteWithChildren
   '/app/_student/evaluations': typeof AppStudentEvaluationsRoute
   '/app/_student/finance': typeof AppStudentFinanceRoute
   '/app/_student/graduations': typeof AppStudentGraduationsRoute
@@ -2647,6 +2655,7 @@ export interface FileRoutesById {
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
   '/api/public/sales/messages': typeof ApiPublicSalesMessagesRoute
   '/app/_student/competitions/$id': typeof AppStudentCompetitionsIdRoute
+  '/app/_student/documents/$id': typeof AppStudentDocumentsIdRoute
   '/app/_student/invoice/$id': typeof AppStudentInvoiceIdRoute
   '/dojo/app/competitions/$id': typeof DojoAppCompetitionsIdRoute
   '/dojo/app/contract-templates/$id': typeof DojoAppContractTemplatesIdRoute
@@ -2935,6 +2944,7 @@ export interface FileRouteTypes {
     | '/api/public/sales/chat'
     | '/api/public/sales/messages'
     | '/app/competitions/$id'
+    | '/app/documents/$id'
     | '/app/invoice/$id'
     | '/dojo/app/competitions/$id'
     | '/dojo/app/contract-templates/$id'
@@ -3205,6 +3215,7 @@ export interface FileRouteTypes {
     | '/api/public/sales/chat'
     | '/api/public/sales/messages'
     | '/app/competitions/$id'
+    | '/app/documents/$id'
     | '/app/invoice/$id'
     | '/dojo/app/competitions/$id'
     | '/dojo/app/contract-templates/$id'
@@ -3491,6 +3502,7 @@ export interface FileRouteTypes {
     | '/api/public/sales/chat'
     | '/api/public/sales/messages'
     | '/app/_student/competitions/$id'
+    | '/app/_student/documents/$id'
     | '/app/_student/invoice/$id'
     | '/dojo/app/competitions/$id'
     | '/dojo/app/contract-templates/$id'
@@ -5147,6 +5159,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppStudentInvoiceIdRouteImport
       parentRoute: typeof AppStudentRoute
     }
+    '/app/_student/documents/$id': {
+      id: '/app/_student/documents/$id'
+      path: '/$id'
+      fullPath: '/app/documents/$id'
+      preLoaderRoute: typeof AppStudentDocumentsIdRouteImport
+      parentRoute: typeof AppStudentDocumentsRoute
+    }
     '/app/_student/competitions/$id': {
       id: '/app/_student/competitions/$id'
       path: '/$id'
@@ -6050,6 +6069,17 @@ const AppStudentCompetitionsRouteWithChildren =
     AppStudentCompetitionsRouteChildren,
   )
 
+interface AppStudentDocumentsRouteChildren {
+  AppStudentDocumentsIdRoute: typeof AppStudentDocumentsIdRoute
+}
+
+const AppStudentDocumentsRouteChildren: AppStudentDocumentsRouteChildren = {
+  AppStudentDocumentsIdRoute: AppStudentDocumentsIdRoute,
+}
+
+const AppStudentDocumentsRouteWithChildren =
+  AppStudentDocumentsRoute._addFileChildren(AppStudentDocumentsRouteChildren)
+
 interface AppStudentRouteChildren {
   AppStudentAgendaRoute: typeof AppStudentAgendaRoute
   AppStudentAnnouncementsRoute: typeof AppStudentAnnouncementsRoute
@@ -6057,7 +6087,7 @@ interface AppStudentRouteChildren {
   AppStudentCertificatesRoute: typeof AppStudentCertificatesRoute
   AppStudentCheckinRoute: typeof AppStudentCheckinRoute
   AppStudentCompetitionsRoute: typeof AppStudentCompetitionsRouteWithChildren
-  AppStudentDocumentsRoute: typeof AppStudentDocumentsRoute
+  AppStudentDocumentsRoute: typeof AppStudentDocumentsRouteWithChildren
   AppStudentEvaluationsRoute: typeof AppStudentEvaluationsRoute
   AppStudentFinanceRoute: typeof AppStudentFinanceRoute
   AppStudentGraduationsRoute: typeof AppStudentGraduationsRoute
@@ -6078,7 +6108,7 @@ const AppStudentRouteChildren: AppStudentRouteChildren = {
   AppStudentCertificatesRoute: AppStudentCertificatesRoute,
   AppStudentCheckinRoute: AppStudentCheckinRoute,
   AppStudentCompetitionsRoute: AppStudentCompetitionsRouteWithChildren,
-  AppStudentDocumentsRoute: AppStudentDocumentsRoute,
+  AppStudentDocumentsRoute: AppStudentDocumentsRouteWithChildren,
   AppStudentEvaluationsRoute: AppStudentEvaluationsRoute,
   AppStudentFinanceRoute: AppStudentFinanceRoute,
   AppStudentGraduationsRoute: AppStudentGraduationsRoute,
