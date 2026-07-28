@@ -19,11 +19,10 @@ export const subscribeMyPush = createServerFn({ method: "POST" })
   .middleware([requireStudentAuth])
   .inputValidator((i: unknown) => SubscribeSchema.parse(i))
   .handler(async ({ data, context }) => {
-    const { data: student } = await context.supabase
-      .from("dojo_students")
-      .select("id, owner_id")
-      .limit(1)
-      .maybeSingle();
+    const student = await fetchActiveStudent<{ id: string; owner_id: string }>(
+      context.supabase,
+      "id, owner_id",
+    );
     if (!student) throw new Error("Aluno não encontrado");
 
     const { error } = await context.supabase
