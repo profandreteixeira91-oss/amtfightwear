@@ -1058,7 +1058,7 @@ function SettingsPanel() {
         geoLng: d.geo_lng ?? null,
         geoRadiusM: d.geo_radius_m ?? 50,
         geoAddress: d.geo_address ?? "",
-        facialRecognitionEnabled: d.facial_recognition_enabled ?? false,
+        facialRecognitionEnabled: d.face_recognition_enabled ?? false,
         checkinWindowPreMins: d.checkin_window_pre_mins ?? 10,
         checkinWindowPostMins: d.checkin_window_post_mins ?? 30,
         allowAdminException: d.allow_admin_exception ?? true,
