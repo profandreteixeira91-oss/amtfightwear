@@ -3712,6 +3712,39 @@ export type Database = {
           },
         ]
       }
+      dojo_class_reminders_sent: {
+        Row: {
+          class_id: string
+          id: string
+          occurrence_date: string
+          occurrence_start_time: string
+          offset_minutes: number
+          owner_id: string
+          sent_at: string
+          student_id: string
+        }
+        Insert: {
+          class_id: string
+          id?: string
+          occurrence_date: string
+          occurrence_start_time: string
+          offset_minutes: number
+          owner_id: string
+          sent_at?: string
+          student_id: string
+        }
+        Update: {
+          class_id?: string
+          id?: string
+          occurrence_date?: string
+          occurrence_start_time?: string
+          offset_minutes?: number
+          owner_id?: string
+          sent_at?: string
+          student_id?: string
+        }
+        Relationships: []
+      }
       dojo_class_schedules: {
         Row: {
           class_id: string
@@ -7460,18 +7493,21 @@ export type Database = {
         Row: {
           categories: Json
           created_at: string
+          extras: Json
           owner_id: string
           updated_at: string
         }
         Insert: {
           categories?: Json
           created_at?: string
+          extras?: Json
           owner_id: string
           updated_at?: string
         }
         Update: {
           categories?: Json
           created_at?: string
+          extras?: Json
           owner_id?: string
           updated_at?: string
         }
