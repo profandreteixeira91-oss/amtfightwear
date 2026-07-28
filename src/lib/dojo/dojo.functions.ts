@@ -548,16 +548,32 @@ export const addDojoGraduation = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
 
     // Only overwrite the student's "primary" current belt when the new
-    // graduation is in the same modality as the existing one (or when the
-    // student has no current belt yet). Belts from other modalities are
-    // kept in dojo_graduations and surfaced via current_belts per modality.
-    const [{ data: newBelt }, { data: student }] = await Promise.all([
+    // graduation is in the same modality AND is the MOST RECENT graduation
+    // for that modality. Older/back-dated graduations never override a
+    // more recent one. Belts from other modalities remain in
+    // dojo_graduations and are surfaced via current_belts per modality.
+    const [{ data: newBelt }, { data: student }, { data: modGrads }] = await Promise.all([
       context.supabase.from("dojo_belts").select("modality").eq("id", data.belt_id).maybeSingle(),
       context.supabase.from("dojo_students").select("current_belt_id, belt:dojo_belts(modality)").eq("id", data.student_id).maybeSingle(),
+      context.supabase
+        .from("dojo_graduations")
+        .select("graduation_date, belt:dojo_belts(modality)")
+        .eq("student_id", data.student_id),
     ]);
     const newMod = (newBelt as any)?.modality ?? "jiu-jitsu";
     const currentMod = (student as any)?.belt?.modality ?? null;
-    const shouldOverwrite = !student?.current_belt_id || currentMod === null || currentMod === newMod;
+    // Find the latest graduation date already recorded for this modality
+    // (including the row just inserted).
+    let latestForModality: string | null = null;
+    for (const g of (modGrads as any[]) ?? []) {
+      const mod = g?.belt?.modality ?? "jiu-jitsu";
+      if (mod !== newMod) continue;
+      if (!latestForModality || new Date(g.graduation_date) > new Date(latestForModality)) {
+        latestForModality = g.graduation_date;
+      }
+    }
+    const isMostRecent = !latestForModality || new Date(data.graduation_date) >= new Date(latestForModality);
+    const shouldOverwrite = (!student?.current_belt_id || currentMod === null || currentMod === newMod) && isMostRecent;
     if (shouldOverwrite) {
       await context.supabase.from("dojo_students")
         .update({ current_belt_id: data.belt_id, current_degree: data.degree })
@@ -1675,12 +1691,30 @@ export const addBulkGraduation = createServerFn({ method: "POST" })
     const studentById = new Map<string, any>();
     for (const s of (studentsRows ?? []) as any[]) studentById.set(s.id, s);
 
+    // Pré-carrega a última graduação por modalidade de cada aluno para
+    // garantir que somente a graduação MAIS RECENTE substitui a faixa atual.
+    const { data: existingGrads } = await context.supabase
+      .from("dojo_graduations")
+      .select("student_id, graduation_date, belt:dojo_belts(modality)")
+      .in("student_id", studentIds);
+    const latestByStudentMod = new Map<string, string>();
+    for (const g of (existingGrads as any[]) ?? []) {
+      const mod = g?.belt?.modality ?? "jiu-jitsu";
+      const key = `${g.student_id}::${mod}`;
+      const cur = latestByStudentMod.get(key);
+      if (!cur || new Date(g.graduation_date) > new Date(cur)) {
+        latestByStudentMod.set(key, g.graduation_date);
+      }
+    }
+
     for (const it of items) {
       const s = studentById.get(it.student_id);
       if (!s) continue;
       const currentMod = (s as any).belt?.modality ?? null;
       const newMod = beltById.get(it.belt_id)?.modality ?? "jiu-jitsu";
-      if (!s.current_belt_id || currentMod === null || currentMod === newMod) {
+      const latest = latestByStudentMod.get(`${it.student_id}::${newMod}`) ?? null;
+      const isMostRecent = !latest || new Date(data.graduation_date) >= new Date(latest);
+      if ((!s.current_belt_id || currentMod === null || currentMod === newMod) && isMostRecent) {
         await context.supabase
           .from("dojo_students")
           .update({ current_belt_id: it.belt_id, current_degree: it.degree })
