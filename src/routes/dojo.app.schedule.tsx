@@ -85,7 +85,12 @@ function SchedulePage() {
     const list: any[] = [];
     const occMap = new Map<string, any>();
     for (const o of occurrences.data ?? []) {
-      occMap.set(`${o.class_id}|${o.occurrence_date}`, o);
+      // Chave por schedule_id garante que múltiplos horários no mesmo dia
+      // (ex.: 09:00 e 19:00) não colidam sobrescrevendo um ao outro.
+      if (o.schedule_id) {
+        occMap.set(`sid:${o.schedule_id}|${o.occurrence_date}`, o);
+      }
+      occMap.set(`cls:${o.class_id}|${o.occurrence_date}|${(o.start_time ?? "").slice(0, 5)}`, o);
     }
     // IMPORTANTE: parsear como data LOCAL. new Date("YYYY-MM-DD") é UTC
     // (00:00 UTC), o que no Brasil (UTC-3) vira o dia anterior e faz
@@ -100,9 +105,11 @@ function SchedulePage() {
       const dateKey = ymd(d);
       const dow = d.getDay();
       for (const c of filtered) {
-        for (const s of c.schedules ?? []) {
+        for (const s of (c.schedules ?? [])) {
           if (s.weekday !== dow) continue;
-          const occ = occMap.get(`${c.id}|${dateKey}`);
+          const occ =
+            (s.id && occMap.get(`sid:${s.id}|${dateKey}`)) ||
+            occMap.get(`cls:${c.id}|${dateKey}|${(s.start_time ?? "").slice(0, 5)}`);
           list.push({
             classId: c.id,
             date: dateKey,
@@ -126,6 +133,7 @@ function SchedulePage() {
     }
     return list;
   }, [filtered, occurrences.data, range]);
+
 
   const shift = (delta: number) => {
     const d = new Date(cursor);
