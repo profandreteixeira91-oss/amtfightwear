@@ -507,9 +507,9 @@ function BlockRenderer({
 
 function Info({ label, value, tone }: { label: string; value: string; tone?: "ok" | "warn" }) {
   return (
-    <div className="rounded-xl bg-neutral-50 p-3">
+    <div className="min-w-0 rounded-xl bg-neutral-50 p-2.5 sm:p-3">
       <div className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">{label}</div>
-      <div className={`mt-0.5 text-sm font-semibold ${tone === "warn" ? "text-amber-700" : tone === "ok" ? "text-emerald-700" : "text-neutral-900"}`}>
+      <div className={`mt-0.5 truncate text-sm font-semibold ${tone === "warn" ? "text-amber-700" : tone === "ok" ? "text-emerald-700" : "text-neutral-900"}`}>
         {value}
       </div>
     </div>
