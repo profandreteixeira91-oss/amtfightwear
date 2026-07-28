@@ -5,7 +5,7 @@ import { getMyAttendance, selfCheckin, getMyStudent } from "@/lib/student/studen
 import { getMyCheckinMethods } from "@/lib/dojo/checkin.functions";
 import { CheckCircle2, QrCode, History, MapPin, Fingerprint, ScanLine, Camera, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { FixedQrScanner } from "@/components/student/FixedQrScanner";
 
