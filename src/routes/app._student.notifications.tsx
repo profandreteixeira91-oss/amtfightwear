@@ -36,7 +36,7 @@ function NotificationsPage() {
   async function enable() {
     setBusy(true);
     try {
-      const { publicKey } = await getKey({});
+      const { key: publicKey } = await getKey({});
       if (!publicKey) {
         toast.error("Notificações push ainda não configuradas.");
         return;
