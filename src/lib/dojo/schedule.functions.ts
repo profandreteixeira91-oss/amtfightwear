@@ -314,6 +314,50 @@ export const listOccurrences = createServerFn({ method: "GET" })
     return rows ?? [];
   });
 
+// Lista ocorrências (aulas) do dia para uma turma — usada no check-in por foto
+// para sincronizar com o módulo Agenda.
+export const listTodayClassOccurrences = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({
+      classId: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/),
+      date: z.string().optional(),
+    }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const date = data.date ?? new Date().toISOString().slice(0, 10);
+    // 1) ocorrências materializadas para o dia
+    const { data: occRows, error: occErr } = await context.supabase
+      .from("dojo_class_occurrences")
+      .select("id, class_id, schedule_id, occurrence_date, start_time, end_time, status")
+      .eq("class_id", data.classId)
+      .eq("occurrence_date", date)
+      .neq("status", "cancelled")
+      .order("start_time", { ascending: true });
+    if (occErr) throw new Error(occErr.message);
+
+    if ((occRows ?? []).length > 0) return occRows!;
+
+    // 2) fallback: se não houver ocorrências materializadas, deriva do schedule semanal
+    const weekday = new Date(`${date}T00:00:00`).getDay();
+    const { data: schedRows, error: schedErr } = await context.supabase
+      .from("dojo_class_schedules")
+      .select("id, weekday, start_time, end_time")
+      .eq("class_id", data.classId)
+      .eq("weekday", weekday)
+      .order("start_time", { ascending: true });
+    if (schedErr) throw new Error(schedErr.message);
+    return (schedRows ?? []).map((s: any) => ({
+      id: `sched:${s.id}:${date}`,
+      class_id: data.classId,
+      schedule_id: s.id,
+      occurrence_date: date,
+      start_time: s.start_time,
+      end_time: s.end_time,
+      status: "scheduled",
+    }));
+  });
+
 // ================= SEARCH STUDENTS =================
 export const searchStudents = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
