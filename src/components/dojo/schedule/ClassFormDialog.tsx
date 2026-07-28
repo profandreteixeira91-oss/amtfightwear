@@ -123,6 +123,7 @@ export function ClassFormDialog({
       toast.success("Turma salva");
       onOpenChange(false);
       qc.invalidateQueries({ queryKey: ["dojo-classes"] });
+      qc.invalidateQueries({ queryKey: ["dojo-occurrences"] });
       qc.invalidateQueries({ queryKey: ["dojo-schedule-stats"] });
     } catch (e: any) {
       toast.error(e.message ?? "Erro ao salvar");
