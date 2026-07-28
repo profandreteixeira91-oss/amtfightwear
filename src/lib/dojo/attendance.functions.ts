@@ -100,19 +100,40 @@ export async function validateAndResolveCheckin(
     };
   }
 
-  // Check for duplicates in the current window
+  // Check for duplicates — restrict to the CURRENT schedule window so a class
+  // that runs multiple times on the same day (e.g. 08:00 e 18:00) allows one
+  // check-in per horário.
   const classIdToUse = preferredClassId || (validMatches.length === 1 ? validMatches[0].class_id : null);
-  
+
   if (classIdToUse && blockDuplicate) {
-    const today = now.toISOString().split("T")[0];
+    const currentMatch = validMatches.find((m: any) => m.class_id === classIdToUse) || validMatches[0];
+    const [sh, sm, ssec] = String(currentMatch.start_time).split(":").map(Number);
+    const startMin = sh * 60 + sm + (ssec || 0) / 60;
+    const winStart = startMin - preWindow;
+    const winEnd = startMin + postWindow;
+    // Build ISO timestamps for today's window in the academy timezone.
+    // We reuse the same TZ-derived "today" (YYYY-MM-DD) captured via Intl.
+    const todayParts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: timezone,
+      year: "numeric", month: "2-digit", day: "2-digit",
+    }).formatToParts(now).reduce((acc: any, p) => { acc[p.type] = p.value; return acc; }, {});
+    const todayLocal = `${todayParts.year}-${todayParts.month}-${todayParts.day}`;
+    const toHHMM = (mins: number) => {
+      const clamped = Math.max(0, Math.min(24 * 60 - 1, Math.round(mins)));
+      const H = String(Math.floor(clamped / 60)).padStart(2, "0");
+      const M = String(clamped % 60).padStart(2, "0");
+      return `${H}:${M}:00`;
+    };
+    const fromIso = `${todayLocal}T${toHHMM(winStart)}`;
+    const toIso = `${todayLocal}T${toHHMM(winEnd)}`;
     const { count } = await supabase
       .from("dojo_attendance")
       .select("id", { count: "exact", head: true })
       .eq("student_id", studentId)
       .eq("class_id", classIdToUse)
-      .gte("checked_in_at", `${today}T00:00:00`)
-      .lte("checked_in_at", `${today}T23:59:59`);
-    
+      .gte("checked_in_at", fromIso)
+      .lte("checked_in_at", toIso);
+
     if (count && count > 0) {
       return { classId: classIdToUse, isValid: false, reason: "duplicate_checkin" };
     }
