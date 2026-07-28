@@ -94,6 +94,12 @@ function StudentDetail() {
     queryKey: ["dojo-attendance", id],
     queryFn: () => attendanceFn({ data: { studentId: id, limit: 200 } }),
   });
+  const studentClassesFn = useServerFn(listStudentClasses);
+  const studentClasses = useQuery({
+    queryKey: ["dojo-student-classes", id],
+    queryFn: () => studentClassesFn({ data: { studentId: id } }),
+    staleTime: 30_000,
+  });
   const compHistoryFn = useServerFn(getStudentCompetitionHistory);
   const competitionHistory = useQuery({
     queryKey: ["dojo-student-comp-history", id],
