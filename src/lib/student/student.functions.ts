@@ -1,11 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireStudentAuth } from "@/integrations/supabase/student-auth-middleware";
 
 // ============ Perfil / branding ============
 
 export const getMyStudent = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("dojo_students")
@@ -21,7 +21,7 @@ export const getMyStudent = createServerFn({ method: "GET" })
 // ============ Carteirinha digital ============
 
 export const getMyDigitalCard = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .handler(async ({ context }) => {
     const { data: student, error } = await context.supabase
       .from("dojo_students")
@@ -83,7 +83,7 @@ export const getMyDigitalCard = createServerFn({ method: "GET" })
 
 
 export const getMyBranding = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .handler(async ({ context }) => {
     // Resolver o owner_id correto: dono do dojo (auth.uid()) OU, se o usuário
     // for aluno, o owner do dojo dele. Evita cruzamento quando o mesmo e-mail
@@ -126,7 +126,7 @@ const profileUpdateSchema = z.object({
 });
 
 export const updateMyProfile = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .inputValidator((i: unknown) => profileUpdateSchema.parse(i))
   .handler(async ({ data, context }) => {
     const { data: me, error: e1 } = await context.supabase
@@ -162,7 +162,7 @@ const anamnesisSchema = z.object({
 });
 
 export const getMyAnamnesis = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .handler(async ({ context }) => {
     const { data } = await context.supabase
       .from("dojo_students")
@@ -173,7 +173,7 @@ export const getMyAnamnesis = createServerFn({ method: "GET" })
   });
 
 export const updateMyAnamnesis = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .inputValidator((i: unknown) =>
     z.object({
       anamnesis: anamnesisSchema,
@@ -194,7 +194,7 @@ export const updateMyAnamnesis = createServerFn({ method: "POST" })
 // ============ Foto de perfil (upload) ============
 
 export const uploadMyPhoto = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .inputValidator((i: unknown) =>
     z.object({
       data_url: z.string().min(30).max(6_500_000), // ~5MB base64
@@ -227,7 +227,7 @@ export const uploadMyPhoto = createServerFn({ method: "POST" })
 // ============ Avaliações do aluno ============
 
 export const getMyEvaluations = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .handler(async ({ context }) => {
     const { data: me } = await context.supabase.from("dojo_students").select("id").limit(1).maybeSingle();
     if (!me) return [];
@@ -247,7 +247,7 @@ export const getMyEvaluations = createServerFn({ method: "GET" })
 // ============ Home / dashboard ============
 
 export const getMyHome = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .handler(async ({ context }) => {
     const { data: student } = await context.supabase
       .from("dojo_students")
@@ -301,7 +301,7 @@ export const getMyHome = createServerFn({ method: "GET" })
 // ============ Agenda ============
 
 export const getMyAgenda = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .inputValidator((i: unknown) =>
     z.object({ from: z.string().optional(), to: z.string().optional() }).parse(i ?? {}),
   )
@@ -386,7 +386,7 @@ export const getMyAgenda = createServerFn({ method: "GET" })
 // ============ Check-in ============
 
 export const selfCheckin = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .inputValidator((i: unknown) =>
     z.object({
       method: z.enum(["app", "qr", "pin", "fixed_qr"]).default("app"),
@@ -479,7 +479,7 @@ function haversineMeters(lat1: number, lng1: number, lat2: number, lng2: number)
 }
 
 export const getMyAttendance = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .inputValidator((i: unknown) =>
     z.object({ limit: z.number().int().min(1).max(200).optional() }).parse(i ?? {}),
   )
@@ -498,7 +498,7 @@ export const getMyAttendance = createServerFn({ method: "GET" })
 // ============ Graduações ============
 
 export const getMyGraduations = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .handler(async ({ context }) => {
     const { data: me } = await context.supabase.from("dojo_students").select("id, current_belt_id, current_degree").limit(1).maybeSingle();
     if (!me) return { current: null, history: [] };
@@ -518,7 +518,7 @@ export const getMyGraduations = createServerFn({ method: "GET" })
 // ============ Certificados ============
 
 export const getMyCertificates = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .handler(async ({ context }) => {
     const { data: me } = await context.supabase.from("dojo_students").select("id").limit(1).maybeSingle();
     if (!me) return [];
@@ -533,7 +533,7 @@ export const getMyCertificates = createServerFn({ method: "GET" })
 // ============ Financeiro ============
 
 export const getMyInvoices = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .handler(async ({ context }) => {
     const { data: me } = await context.supabase.from("dojo_students").select("id").limit(1).maybeSingle();
     if (!me) return [];
@@ -549,7 +549,7 @@ export const getMyInvoices = createServerFn({ method: "GET" })
 // ============ Competições ============
 
 export const getMyCompetitions = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .handler(async ({ context }) => {
     const { data: me } = await context.supabase.from("dojo_students").select("id, owner_id").limit(1).maybeSingle();
     if (!me) return { upcoming: [], mine: [] };
@@ -573,7 +573,7 @@ export const getMyCompetitions = createServerFn({ method: "GET" })
 // ============ Vídeos ============
 
 export const getMyVideos = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .inputValidator((i: unknown) =>
     z.object({ q: z.string().optional(), categoryId: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido").optional() }).parse(i ?? {}),
   )
@@ -592,7 +592,7 @@ export const getMyVideos = createServerFn({ method: "GET" })
 // ============ Notificações ============
 
 export const getMyNotifications = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .handler(async ({ context }) => {
     const { data } = await context.supabase
       .from("dojo_student_notifications")
@@ -603,7 +603,7 @@ export const getMyNotifications = createServerFn({ method: "GET" })
   });
 
 export const markNotificationRead = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .inputValidator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
@@ -617,7 +617,7 @@ export const markNotificationRead = createServerFn({ method: "POST" })
 // ============ Contratos do aluno ============
 
 export const listMyContracts = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("dojo_student_contracts")
@@ -630,7 +630,7 @@ export const listMyContracts = createServerFn({ method: "GET" })
   });
 
 export const getMyContract = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .inputValidator((i: unknown) =>
     z.object({
       id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido"),
@@ -639,4 +639,22 @@ export const getMyContract = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => {
     const { resolveStudentContract } = await import("./contracts.server");
     return resolveStudentContract(context.supabase, data.id);
+  });
+
+// ============ Multi-aluno (login compartilhado) ============
+
+export const listMyStudents = createServerFn({ method: "GET" })
+  .middleware([requireStudentAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase.rpc("list_my_students");
+    if (error) throw new Error(error.message);
+    return (data ?? []) as Array<{
+      id: string;
+      full_name: string;
+      photo_url: string | null;
+      owner_id: string;
+      unit_id: string | null;
+      current_belt_id: string | null;
+      current_degree: number | null;
+    }>;
   });

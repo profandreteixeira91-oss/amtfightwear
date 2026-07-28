@@ -2,7 +2,7 @@
 // Usa o Access Token do Mercado Pago **do dono do dojo** (não da AMT).
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireStudentAuth } from "@/integrations/supabase/student-auth-middleware";
 import { requireOwnerMpToken } from "@/lib/dojo/payment-gateway.server";
 
 const MP_BASE = "https://api.mercadopago.com";
@@ -32,7 +32,7 @@ function onlyDigits(s: string | null | undefined): string {
 }
 
 export const payMyInvoicePix = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .inputValidator((i: unknown) => z.object({ invoice_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
   .handler(async ({ data, context }) => {
     // Carrega a fatura via RLS (aluno só vê as próprias)
@@ -130,7 +130,7 @@ export const payMyInvoicePix = createServerFn({ method: "POST" })
   });
 
 export const syncMyInvoicePayment = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .inputValidator((i: unknown) => z.object({ invoice_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: invoice } = await context.supabase
@@ -157,7 +157,7 @@ export const syncMyInvoicePayment = createServerFn({ method: "POST" })
   });
 
 export const getMyInvoice = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .inputValidator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: inv, error } = await context.supabase

@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireStudentAuth } from "@/integrations/supabase/student-auth-middleware";
 
 /**
  * Ranking do aluno (portal do aluno):
@@ -11,7 +11,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
  * - Sempre retorna o total de check-ins do próprio aluno (soma geral).
  */
 export const getMyClassRanking = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .inputValidator((i: unknown) =>
     z
       .object({
