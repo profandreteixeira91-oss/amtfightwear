@@ -14,6 +14,7 @@ import { PushToggle } from "@/components/student/PushToggle";
 import { PushActivationPrompt } from "@/components/student/PushActivationPrompt";
 import { InstallReminderBanner } from "@/components/student/InstallReminderBanner";
 import { StudentSplash } from "@/components/student/StudentSplash";
+import { StudentSwitcher } from "@/components/student/StudentSwitcher";
 import { attachPushRotationListener, getCurrentSubscription, subscriptionToPayload } from "@/lib/pwa/push-client";
 import { subscribeMyPush } from "@/lib/student/push.functions";
 
