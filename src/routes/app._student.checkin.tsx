@@ -88,12 +88,13 @@ function CheckinPage() {
   const last = history?.[0];
   const total30 = (history ?? []).filter((a) => Date.now() - new Date(a.checked_in_at).getTime() < 30 * 86400000).length;
 
+  // Check-in por foto é exclusivo do dono do dojo (feito pelo professor durante a aula),
+  // por isso não aparece como opção no app do aluno.
   const options: { key: Method; enabled: boolean; icon: any; title: string; desc: string }[] = [
     { key: "app", enabled: !!methods?.allowGps, icon: MapPin, title: "Check-in por GPS", desc: methods?.geoRequired ? "Valida sua localização junto à academia" : "Registre a partir do app" },
     { key: "fixed_qr", enabled: !!methods?.allowFixedQr, icon: ScanLine, title: "QR Code da academia", desc: "Aponte a câmera para o QR fixo impresso no dojo" },
     { key: "pin", enabled: !!methods?.allowPin, icon: Fingerprint, title: "Meu PIN", desc: "Use o PIN abaixo no kiosk da academia" },
     { key: "qr", enabled: !!methods?.allowQr, icon: QrCode, title: "Meu QR pessoal", desc: "Mostre seu QR no kiosk da academia" },
-    { key: "photo", enabled: !!methods?.allowPhoto, icon: Camera, title: "Reconhecimento facial", desc: "Presença via foto da turma pelo professor" },
   ];
   const enabled = options.filter((o) => o.enabled);
 
