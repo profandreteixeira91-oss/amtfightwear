@@ -463,7 +463,7 @@ export const finishEvalSession = createServerFn({ method: "POST" })
         ...msg,
         url: "/app/avaliacoes",
         tag: `eval-finish-${data.id}`,
-      });
+      }, "evaluation");
     } catch {}
     return { ok: true };
   });
