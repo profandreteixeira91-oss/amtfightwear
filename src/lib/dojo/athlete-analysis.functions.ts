@@ -23,6 +23,10 @@ async function assertStudentOwnership(
   if (error) throw new Error(error.message);
   if (!data) throw new Error("Aluno não encontrado");
   if (data.owner_id !== userId) {
+    // Permite ao próprio aluno (ou usuário vinculado, como pai) visualizar
+    // seus próprios dados de performance.
+    const { data: isMine } = await supabase.rpc("is_my_student", { _id: studentId });
+    if (isMine) return data;
     const { data: isAdmin } = await supabase.rpc("has_role", {
       _user_id: userId,
       _role: "admin",
@@ -37,6 +41,7 @@ async function assertStudentOwnership(
   }
   return data;
 }
+
 
 const idInput = z.object({ studentId: z.string().uuid() });
 
