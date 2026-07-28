@@ -89,7 +89,7 @@ const empty: Form = {
   image_rights_consent: false,
 };
 
-function PublicEnrollmentPage() {
+export function PublicEnrollmentPage() {
   const { slug } = useParams({ strict: false }) as { slug: string };
   const navigate = useNavigate();
   const bundleFn = useServerFn(getPublicEnrollmentBundle);
