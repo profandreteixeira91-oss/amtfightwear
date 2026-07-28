@@ -263,7 +263,7 @@ function UnitDialog({ form, setForm, onSave, saving }: { form: any; setForm: (f:
         </Section>
       </div>
       <DialogFooter>
-        <Button onClick={onSave}>Salvar</Button>
+        <Button onClick={onSave} disabled={saving}>{saving ? "Salvando…" : "Salvar"}</Button>
       </DialogFooter>
     </DialogContent>
   );
