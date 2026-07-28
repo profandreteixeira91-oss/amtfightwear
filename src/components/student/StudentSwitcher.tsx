@@ -60,12 +60,24 @@ export function StudentSwitcher({ currentName }: { currentName?: string | null }
   const current = students.find((s) => s.id === activeId) ?? students[0];
 
   async function pick(id: string) {
+    if (id === current?.id) {
+      setOpen(false);
+      return;
+    }
     writeActive(id);
     setActiveId(id);
     setOpen(false);
-    await queryClient.cancelQueries();
-    queryClient.clear();
-    router.invalidate();
+    try {
+      await queryClient.cancelQueries();
+      queryClient.clear();
+    } catch { /* noop */ }
+    // Recarrega a página para garantir que todos os dados (SSR, caches, contextos)
+    // reflitam imediatamente o aluno selecionado.
+    if (typeof window !== "undefined") {
+      window.location.reload();
+    } else {
+      router.invalidate();
+    }
   }
 
   return (
