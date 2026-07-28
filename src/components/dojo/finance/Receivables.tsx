@@ -143,19 +143,19 @@ export function FinanceReceivables() {
         </div>
 
         <TabsContent value="all">
-          <InvoiceList rows={items} loading={invs.isLoading} onOpen={setSelected} onPay={handlePay} onDelete={handleDelete} />
+          <InvoiceList rows={items} loading={invs.isLoading} onOpen={setSelected} onPay={openPay} onDelete={handleDelete} />
         </TabsContent>
         <TabsContent value="pending">
-          <InvoiceList rows={pending} loading={invs.isLoading} onOpen={setSelected} onPay={handlePay} onDelete={handleDelete} />
+          <InvoiceList rows={pending} loading={invs.isLoading} onOpen={setSelected} onPay={openPay} onDelete={handleDelete} />
         </TabsContent>
         <TabsContent value="overdue">
-          <InvoiceList rows={overdue} loading={invs.isLoading} onOpen={setSelected} onPay={handlePay} onDelete={handleDelete} />
+          <InvoiceList rows={overdue} loading={invs.isLoading} onOpen={setSelected} onPay={openPay} onDelete={handleDelete} />
         </TabsContent>
         <TabsContent value="paid">
-          <InvoiceList rows={paid} loading={invs.isLoading} onOpen={setSelected} onPay={handlePay} onDelete={handleDelete} />
+          <InvoiceList rows={paid} loading={invs.isLoading} onOpen={setSelected} onPay={openPay} onDelete={handleDelete} />
         </TabsContent>
         <TabsContent value="cancelled">
-          <InvoiceList rows={cancelled} loading={invs.isLoading} onOpen={setSelected} onPay={handlePay} onDelete={handleDelete} />
+          <InvoiceList rows={cancelled} loading={invs.isLoading} onOpen={setSelected} onPay={openPay} onDelete={handleDelete} />
         </TabsContent>
       </Tabs>
 
