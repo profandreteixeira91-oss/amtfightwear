@@ -11,6 +11,7 @@ import {
   syncMyInvoicePayment,
 } from "@/lib/student/payments.functions";
 import { getNativeBillingForInvoice } from "@/lib/dojo/native-billing.functions";
+import { buildPixBrCode } from "@/lib/pix/brcode";
 
 export const Route = createFileRoute("/app/_student/invoice/$id")({
   head: () => ({ meta: [{ title: "Pagamento — Portal do Aluno" }] }),
