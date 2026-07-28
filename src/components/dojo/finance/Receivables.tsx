@@ -27,10 +27,44 @@ import { ShareInvoiceMenu } from "./ShareInvoice";
 
 const STATUS_LABEL: Record<string, string> = {
   paid: "Pago",
-  pending: "Pendente",
-  overdue: "Atrasado",
+  pending: "A vencer",
+  due_soon: "Próxima ao vencimento",
+  overdue: "Vencida",
   cancelled: "Cancelado",
 };
+
+const DUE_SOON_DAYS = 5;
+
+function daysUntilDue(dueDate: string) {
+  const today = new Date(isoDate());
+  const due = new Date(dueDate);
+  return Math.ceil((due.getTime() - today.getTime()) / 86_400_000);
+}
+
+function effectiveKey(r: InvoiceRow): "paid" | "overdue" | "due_soon" | "pending" | "cancelled" {
+  if (r.status === "paid") return "paid";
+  if (r.status === "cancelled") return "cancelled";
+  const d = daysUntilDue(r.due_date);
+  if (d < 0) return "overdue";
+  if (d <= DUE_SOON_DAYS) return "due_soon";
+  return "pending";
+}
+
+function statusClasses(key: string) {
+  switch (key) {
+    case "paid":
+      return "bg-emerald-50 text-emerald-700 border-emerald-200";
+    case "overdue":
+      return "bg-red-50 text-red-700 border-red-200";
+    case "due_soon":
+      return "bg-amber-50 text-amber-800 border-amber-200";
+    case "pending":
+      return "bg-emerald-50 text-emerald-700 border-emerald-200";
+    case "cancelled":
+    default:
+      return "bg-muted text-muted-foreground";
+  }
+}
 
 export function FinanceReceivables() {
   const [status, setStatus] = useState("all");
@@ -62,10 +96,11 @@ export function FinanceReceivables() {
     );
   }, [invs.data, q]);
 
-  const paid = items.filter((i) => i.status === "paid");
-  const pending = items.filter((i) => i.status === "pending" && new Date(i.due_date) >= new Date(isoDate()));
-  const overdue = items.filter((i) => i.status !== "paid" && i.status !== "cancelled" && new Date(i.due_date) < new Date(isoDate()));
-  const cancelled = items.filter((i) => i.status === "cancelled");
+  const paid = items.filter((i) => effectiveKey(i) === "paid");
+  const pending = items.filter((i) => effectiveKey(i) === "pending");
+  const dueSoon = items.filter((i) => effectiveKey(i) === "due_soon");
+  const overdue = items.filter((i) => effectiveKey(i) === "overdue");
+  const cancelled = items.filter((i) => effectiveKey(i) === "cancelled");
 
   const openPay = (row: InvoiceRow) => {
     setPayTarget(row);
@@ -119,9 +154,9 @@ export function FinanceReceivables() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos os status</SelectItem>
-              <SelectItem value="pending">Pendentes</SelectItem>
+              <SelectItem value="pending">A vencer</SelectItem>
               <SelectItem value="paid">Pagas</SelectItem>
-              <SelectItem value="overdue">Atrasadas</SelectItem>
+              <SelectItem value="overdue">Vencidas</SelectItem>
               <SelectItem value="cancelled">Canceladas</SelectItem>
             </SelectContent>
           </Select>
@@ -132,12 +167,22 @@ export function FinanceReceivables() {
         <div className="-mx-1 overflow-x-auto">
           <TabsList className="w-max min-w-full flex-nowrap">
             <TabsTrigger value="all" className="whitespace-nowrap">Todas · {items.length}</TabsTrigger>
-            <TabsTrigger value="pending" className="whitespace-nowrap">Pendentes · {pending.length}</TabsTrigger>
+            <TabsTrigger value="pending" className="whitespace-nowrap">
+              <span className="mr-1 inline-block h-2 w-2 rounded-full bg-emerald-500" />
+              A vencer · {pending.length}
+            </TabsTrigger>
+            <TabsTrigger value="due_soon" className="whitespace-nowrap">
+              <span className="mr-1 inline-block h-2 w-2 rounded-full bg-amber-500" />
+              Próxima ao vencimento · {dueSoon.length}
+            </TabsTrigger>
             <TabsTrigger value="overdue" className="whitespace-nowrap">
               <AlertCircle className="h-3 w-3 mr-1 text-red-600" />
               Vencidas · {overdue.length}
             </TabsTrigger>
-            <TabsTrigger value="paid" className="whitespace-nowrap">Pagas · {paid.length}</TabsTrigger>
+            <TabsTrigger value="paid" className="whitespace-nowrap">
+              <span className="mr-1 inline-block h-2 w-2 rounded-full bg-emerald-500" />
+              Pagas · {paid.length}
+            </TabsTrigger>
             <TabsTrigger value="cancelled" className="whitespace-nowrap">Canceladas · {cancelled.length}</TabsTrigger>
           </TabsList>
         </div>
@@ -147,6 +192,9 @@ export function FinanceReceivables() {
         </TabsContent>
         <TabsContent value="pending">
           <InvoiceList rows={pending} loading={invs.isLoading} onOpen={setSelected} onPay={openPay} onDelete={handleDelete} />
+        </TabsContent>
+        <TabsContent value="due_soon">
+          <InvoiceList rows={dueSoon} loading={invs.isLoading} onOpen={setSelected} onPay={openPay} onDelete={handleDelete} />
         </TabsContent>
         <TabsContent value="overdue">
           <InvoiceList rows={overdue} loading={invs.isLoading} onOpen={setSelected} onPay={openPay} onDelete={handleDelete} />
@@ -296,20 +344,14 @@ function InvoiceList({
                     {overdueDays > 0 && <div className="text-red-600 truncate">{overdueDays}d atraso</div>}
                   </div>
                   <div className="min-w-0">
-                    <Badge
-                      variant="outline"
-                      className={
-                        r.status === "paid"
-                          ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                          : overdueDays > 0
-                          ? "bg-red-50 text-red-700 border-red-200"
-                          : r.status === "cancelled"
-                          ? "bg-muted text-muted-foreground"
-                          : "bg-amber-50 text-amber-700 border-amber-200"
-                      }
-                    >
-                      {STATUS_LABEL[r.status] ?? r.status}
-                    </Badge>
+                    {(() => {
+                      const key = effectiveKey(r);
+                      return (
+                        <Badge variant="outline" className={statusClasses(key)}>
+                          {STATUS_LABEL[key] ?? r.status}
+                        </Badge>
+                      );
+                    })()}
                   </div>
                   <div className="flex items-center justify-end gap-1 flex-nowrap">
                     <Button size="icon" variant="ghost" title="Detalhes" onClick={() => onOpen(r)} className="shrink-0 h-8 w-8">
