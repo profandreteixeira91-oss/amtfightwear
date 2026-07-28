@@ -136,6 +136,11 @@ export const getMyClassRanking = createServerFn({ method: "GET" })
         classId: effectiveClassId,
         students: [],
         counts: {},
+        overall: {
+          students: overallStudents,
+          counts: overallCounts,
+          total_students: overallStudents.length,
+        },
       };
     }
 
