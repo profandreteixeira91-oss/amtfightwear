@@ -47,11 +47,27 @@ export async function validateAndResolveCheckin(
     return { classId: null, isValid: false, reason: "student_not_enrolled" };
   }
 
-  // Get current time in UTC/Local server context
+  // Compute "now" in the academy's local timezone (default: America/Sao_Paulo).
+  // Server runs in UTC (Cloudflare Workers) while schedules are stored in dojo local time,
+  // so we normalize by extracting weekday + minute-of-day via Intl in the target TZ.
+  const timezone = settings?.timezone || "America/Sao_Paulo";
   const now = new Date();
-  const weekday = now.getDay();
-  
-  // We need to check all schedules for these classes today
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: timezone,
+    weekday: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  }).formatToParts(now).reduce((acc: any, p) => { acc[p.type] = p.value; return acc; }, {});
+  const weekdayMap: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+  const weekday = weekdayMap[parts.weekday] ?? new Date().getDay();
+  const hh = parseInt(parts.hour === "24" ? "0" : parts.hour, 10);
+  const mm = parseInt(parts.minute, 10);
+  const ss = parseInt(parts.second, 10);
+  const nowMinutes = hh * 60 + mm + ss / 60;
+
+  // Check schedules for today (also include neighboring weekdays to handle midnight edge cases)
   const { data: schedules } = await supabase
     .from("dojo_class_schedules")
     .select("class_id, start_time, end_time, weekday, dojo_classes(name, modality)")
@@ -63,25 +79,22 @@ export async function validateAndResolveCheckin(
   }
 
   const validMatches: any[] = [];
-  
-  for (const s of schedules) {
-    // Parse HH:MM:SS to date for comparison
-    const [h, m, sec] = s.start_time.split(":").map(Number);
-    const start = new Date(now);
-    start.setHours(h, m, sec || 0, 0);
-    
-    const windowStart = new Date(start.getTime() - preWindow * 60000);
-    const windowEnd = new Date(start.getTime() + postWindow * 60000);
 
-    if (now >= windowStart && now <= windowEnd) {
+  for (const s of schedules) {
+    const [h, m, sec] = String(s.start_time).split(":").map(Number);
+    const startMinutes = h * 60 + m + (sec || 0) / 60;
+    const windowStartMin = startMinutes - preWindow;
+    const windowEndMin = startMinutes + postWindow;
+
+    if (nowMinutes >= windowStartMin && nowMinutes <= windowEndMin) {
       validMatches.push(s);
     }
   }
 
   if (validMatches.length === 0) {
-    return { 
-      classId: null, 
-      isValid: isOverride, 
+    return {
+      classId: null,
+      isValid: isOverride,
       reason: "outside_window",
       windowMins: { pre: preWindow, post: postWindow }
     };
