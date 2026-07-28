@@ -1691,12 +1691,30 @@ export const addBulkGraduation = createServerFn({ method: "POST" })
     const studentById = new Map<string, any>();
     for (const s of (studentsRows ?? []) as any[]) studentById.set(s.id, s);
 
+    // Pré-carrega a última graduação por modalidade de cada aluno para
+    // garantir que somente a graduação MAIS RECENTE substitui a faixa atual.
+    const { data: existingGrads } = await context.supabase
+      .from("dojo_graduations")
+      .select("student_id, graduation_date, belt:dojo_belts(modality)")
+      .in("student_id", studentIds);
+    const latestByStudentMod = new Map<string, string>();
+    for (const g of (existingGrads as any[]) ?? []) {
+      const mod = g?.belt?.modality ?? "jiu-jitsu";
+      const key = `${g.student_id}::${mod}`;
+      const cur = latestByStudentMod.get(key);
+      if (!cur || new Date(g.graduation_date) > new Date(cur)) {
+        latestByStudentMod.set(key, g.graduation_date);
+      }
+    }
+
     for (const it of items) {
       const s = studentById.get(it.student_id);
       if (!s) continue;
       const currentMod = (s as any).belt?.modality ?? null;
       const newMod = beltById.get(it.belt_id)?.modality ?? "jiu-jitsu";
-      if (!s.current_belt_id || currentMod === null || currentMod === newMod) {
+      const latest = latestByStudentMod.get(`${it.student_id}::${newMod}`) ?? null;
+      const isMostRecent = !latest || new Date(data.graduation_date) >= new Date(latest);
+      if ((!s.current_belt_id || currentMod === null || currentMod === newMod) && isMostRecent) {
         await context.supabase
           .from("dojo_students")
           .update({ current_belt_id: it.belt_id, current_degree: it.degree })
