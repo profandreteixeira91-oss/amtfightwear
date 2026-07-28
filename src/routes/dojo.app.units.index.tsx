@@ -166,7 +166,7 @@ function OwnUnitsPanel() {
           <DialogTrigger asChild>
             <Button className="gap-2"><Plus className="h-4 w-4" /> Nova unidade</Button>
           </DialogTrigger>
-          <UnitDialog form={form} setForm={setForm} onSave={onSave} />
+          <UnitDialog form={form} setForm={setForm} onSave={onSave} saving={saving} />
         </Dialog>
       </div>
 
