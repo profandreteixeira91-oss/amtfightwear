@@ -223,11 +223,50 @@ export const saveCheckinSettings = createServerFn({ method: "POST" })
     if (data.allowAdminException !== undefined) payload.allow_admin_exception = data.allowAdminException;
     if (data.allowTeacherException !== undefined) payload.allow_teacher_exception = data.allowTeacherException;
     if (data.blockDuplicateCheckin !== undefined) payload.block_duplicate_checkin = data.blockDuplicateCheckin;
+    if (data.allowGpsCheckin !== undefined) payload.allow_gps_checkin = data.allowGpsCheckin;
+    if (data.allowPinCheckin !== undefined) payload.allow_pin_checkin = data.allowPinCheckin;
+    if (data.allowQrCheckin !== undefined) payload.allow_qr_checkin = data.allowQrCheckin;
+    if (data.allowFixedQrCheckin !== undefined) payload.allow_fixed_qr_checkin = data.allowFixedQrCheckin;
+    if (data.allowPhotoCheckin !== undefined) payload.allow_photo_checkin = data.allowPhotoCheckin;
     const { error } = await context.supabase
       .from("dojo_checkin_settings")
       .upsert(payload, { onConflict: "owner_id" });
     if (error) throw new Error(error.message);
     return { ok: true };
+  });
+
+// ---------- Public method availability for logged-in student ----------
+export const getMyCheckinMethods = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: me } = await context.supabase
+      .from("dojo_students")
+      .select("owner_id")
+      .limit(1)
+      .maybeSingle();
+    if (!me) {
+      return {
+        allowGps: true, allowPin: true, allowQr: true, allowFixedQr: true, allowPhoto: false,
+        welcomeMessage: null as string | null, geoRequired: false,
+      };
+    }
+    const { data: s } = await context.supabase
+      .from("dojo_checkin_settings")
+      .select(
+        "allow_gps_checkin, allow_pin_checkin, allow_qr_checkin, allow_fixed_qr_checkin, allow_photo_checkin, welcome_message, geo_required",
+      )
+      .eq("owner_id", me.owner_id)
+      .maybeSingle();
+    const d = (s ?? {}) as any;
+    return {
+      allowGps: d.allow_gps_checkin ?? true,
+      allowPin: d.allow_pin_checkin ?? true,
+      allowQr: d.allow_qr_checkin ?? true,
+      allowFixedQr: d.allow_fixed_qr_checkin ?? true,
+      allowPhoto: d.allow_photo_checkin ?? false,
+      welcomeMessage: d.welcome_message ?? null,
+      geoRequired: !!d.geo_required,
+    };
   });
 
 // ---------- Simulate partner validation (until real API is contracted) ----------
