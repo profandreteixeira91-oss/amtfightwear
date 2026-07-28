@@ -60,12 +60,12 @@ function HomePage() {
   const rankingEnabled = config.features.ranking !== false;
 
   return (
-    <div className="mx-auto grid w-full max-w-3xl gap-5 lg:max-w-5xl lg:grid-cols-3 lg:items-start">
-      <div className="lg:col-span-3">
+    <div className="mx-auto grid w-full max-w-3xl gap-4 overflow-x-clip sm:gap-5 lg:max-w-5xl lg:grid-cols-3 lg:items-start">
+      <div className="min-w-0 lg:col-span-3">
         <PerformanceButton />
       </div>
       {rankingEnabled && (
-        <div className="lg:col-span-3">
+        <div className="min-w-0 lg:col-span-3">
           <RankingWidget />
         </div>
       )}
@@ -74,7 +74,7 @@ function HomePage() {
         const spanAll = block.type === "welcome" || block.type === "banner" || block.type === "open_invoices";
         return (
           <div key={block.id} className="contents">
-            <div className={spanAll ? "lg:col-span-3" : block.type === "shortcuts" ? "lg:col-span-2" : "lg:col-span-1"}>
+            <div className={`min-w-0 ${spanAll ? "lg:col-span-3" : block.type === "shortcuts" ? "lg:col-span-2" : "lg:col-span-1"}`}>
 
               <BlockRenderer
                 block={block}
@@ -88,7 +88,7 @@ function HomePage() {
               />
             </div>
             {block.type === "welcome" && (
-              <div className="lg:col-span-3">
+              <div className="min-w-0 lg:col-span-3">
                 <AnnouncementsWidget items={announcements} />
               </div>
             )}
@@ -97,7 +97,7 @@ function HomePage() {
         );
       })}
       {!config.home_blocks.some((b) => b.type === "welcome" && b.visible !== false) && (
-        <div className="lg:col-span-3">
+        <div className="min-w-0 lg:col-span-3">
           <AnnouncementsWidget items={announcements} />
         </div>
       )}
@@ -109,19 +109,19 @@ function PerformanceButton() {
   return (
     <Link
       to="/app/performance"
-      className="group relative flex items-center gap-3 overflow-hidden rounded-2xl border border-red-500/30 bg-gradient-to-br from-neutral-950 via-neutral-950 to-black p-4 shadow-[0_20px_60px_-30px_rgba(239,68,68,0.6)] transition-all hover:border-red-400/50 hover:shadow-[0_25px_60px_-25px_rgba(239,68,68,0.75)]"
+      className="group relative flex items-center gap-3 overflow-hidden rounded-2xl border border-red-500/30 bg-gradient-to-br from-neutral-950 via-neutral-950 to-black p-3 shadow-[0_20px_60px_-30px_rgba(239,68,68,0.6)] transition-all hover:border-red-400/50 hover:shadow-[0_25px_60px_-25px_rgba(239,68,68,0.75)] sm:p-4"
     >
       <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-red-600/25 blur-[80px] transition-all group-hover:bg-red-500/40" />
       <div className="pointer-events-none absolute -bottom-14 -left-10 h-40 w-40 rounded-full bg-amber-500/15 blur-[80px]" />
-      <div className="relative grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-red-500 via-red-600 to-amber-500 shadow-lg ring-1 ring-white/10">
-        <Icons.Activity className="h-6 w-6 text-white" />
+      <div className="relative grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-red-500 via-red-600 to-amber-500 shadow-lg ring-1 ring-white/10 sm:h-12 sm:w-12">
+        <Icons.Activity className="h-5 w-5 text-white sm:h-6 sm:w-6" />
       </div>
       <div className="relative min-w-0 flex-1">
         <div className="inline-flex items-center gap-1.5 rounded-full border border-red-500/30 bg-red-500/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.2em] text-red-200">
           <Icons.Sparkles className="h-2.5 w-2.5" /> Novo
         </div>
         <div className="mt-1 text-base font-black tracking-tight text-white">Performance</div>
-        <div className="truncate text-[11px] text-white/70">Sua análise completa: frequência, técnico, graduações e insights</div>
+        <div className="line-clamp-2 text-[11px] leading-snug text-white/70">Sua análise completa: frequência, técnico, graduações e insights</div>
       </div>
       <ChevronRight className="relative h-5 w-5 shrink-0 text-white/60 transition-transform group-hover:translate-x-1 group-hover:text-white" />
     </Link>
@@ -164,53 +164,53 @@ function RankingWidget() {
   const top = rows.slice(0, 3);
 
   return (
-    <section>
-      <div className="mb-2 flex items-center justify-between px-1">
-        <h2 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-neutral-400">
-          <Trophy className="h-3.5 w-3.5" /> Ranking
+    <section className="min-w-0">
+      <div className="mb-2 flex items-center justify-between gap-2 px-1">
+        <h2 className="flex min-w-0 items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-neutral-400">
+          <Trophy className="h-3.5 w-3.5 shrink-0" /> <span className="shrink-0">Ranking</span>
           {activeClass && (
-            <span className="ml-1 inline-flex items-center gap-1 rounded-full bg-neutral-100 px-1.5 py-0.5 text-[9px] font-medium normal-case tracking-normal text-neutral-600">
-              <span className="h-1.5 w-1.5 rounded-full" style={{ background: activeClass.color || "#dc2626" }} />
-              <span className="max-w-[100px] truncate">{activeClass.name}</span>
+            <span className="ml-1 inline-flex min-w-0 items-center gap-1 rounded-full bg-neutral-100 px-1.5 py-0.5 text-[9px] font-medium normal-case tracking-normal text-neutral-600">
+              <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: activeClass.color || "#dc2626" }} />
+              <span className="max-w-[90px] truncate">{activeClass.name}</span>
             </span>
           )}
         </h2>
-        <Link to="/app/ranking" className="text-[11px] font-medium" style={{ color: "var(--sa-primary)" }}>
+        <Link to="/app/ranking" className="shrink-0 text-[11px] font-medium" style={{ color: "var(--sa-primary)" }}>
           Ver completo
         </Link>
       </div>
       <Link
         to="/app/ranking"
-        className="relative flex items-center gap-3 overflow-hidden rounded-2xl p-3 text-white shadow-[0_12px_40px_-24px_rgba(220,38,38,0.7)] transition active:scale-[0.99]"
+        className="relative flex items-center gap-2.5 overflow-hidden rounded-2xl p-2.5 text-white shadow-[0_12px_40px_-24px_rgba(220,38,38,0.7)] transition active:scale-[0.99] sm:gap-3 sm:p-3"
         style={{ background: "linear-gradient(135deg,#111 0%,#1a0a0a 55%,#3a0a0a 100%)" }}
       >
         <div aria-hidden className="pointer-events-none absolute -left-10 -top-10 h-28 w-28 rounded-full bg-red-600/25 blur-2xl" />
         {myRow ? (
-          <div className="relative flex shrink-0 flex-col items-center rounded-xl bg-gradient-to-br from-amber-400/25 to-red-500/25 px-2.5 py-1.5 ring-1 ring-white/10">
+          <div className="relative flex shrink-0 flex-col items-center rounded-xl bg-gradient-to-br from-amber-400/25 to-red-500/25 px-2 py-1.5 ring-1 ring-white/10 sm:px-2.5">
             <div className="text-[9px] font-semibold uppercase tracking-wider text-red-100/80">Você</div>
             <div className="font-display text-lg font-black leading-none">{myRow.rank}º</div>
             <div className="text-[9px] text-neutral-300">{myRow.count} ch-in</div>
           </div>
         ) : (
-          <div className="relative flex shrink-0 flex-col items-center rounded-xl bg-white/5 px-2.5 py-1.5 ring-1 ring-white/10">
+          <div className="relative flex shrink-0 flex-col items-center rounded-xl bg-white/5 px-2 py-1.5 ring-1 ring-white/10 sm:px-2.5">
             <div className="text-[9px] font-semibold uppercase tracking-wider text-red-100/80">Total</div>
             <div className="font-display text-lg font-black leading-none">{myTotal}</div>
             <div className="text-[9px] text-neutral-300">check-ins</div>
           </div>
         )}
         {top.length > 0 && (
-          <ul className="relative flex min-w-0 flex-1 items-center gap-1.5">
+          <ul className="relative flex min-w-0 flex-1 items-center gap-1 sm:gap-1.5">
             {top.map((r) => {
               const medal = r.rank === 1 ? "🥇" : r.rank === 2 ? "🥈" : "🥉";
               const firstName = r.full_name.split(" ")[0];
               return (
                 <li
                   key={r.id}
-                  className={`flex min-w-0 flex-1 items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-1.5 py-1 backdrop-blur ${
+                  className={`flex min-w-0 flex-1 items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-1 py-1 backdrop-blur sm:gap-1.5 sm:px-1.5 ${
                     r.isMe ? "ring-1 ring-amber-300/70" : ""
                   }`}
                 >
-                  <span className="text-sm leading-none">{medal}</span>
+                  <span className="shrink-0 text-sm leading-none">{medal}</span>
                   <div className="min-w-0 flex-1">
                     <div className="truncate text-[11px] font-semibold leading-tight">{r.isMe ? "Você" : firstName}</div>
                     <div className="text-[9px] leading-tight text-neutral-300">{r.count} ch-in</div>
@@ -326,14 +326,14 @@ function BlockRenderer({
     case "welcome":
       return (
         <section
-          className="overflow-hidden rounded-2xl p-5 shadow-sm ring-1 ring-neutral-100"
+          className="overflow-hidden rounded-2xl p-4 shadow-sm ring-1 ring-neutral-100 sm:p-5"
           style={{ background: "var(--sa-card, #ffffff)" }}
         >
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             {student?.photo_url ? (
-              <img src={student.photo_url} alt="" className="h-16 w-16 rounded-full object-cover ring-2 ring-white shadow" />
+              <img src={student.photo_url} alt="" className="h-14 w-14 shrink-0 rounded-full object-cover ring-2 ring-white shadow sm:h-16 sm:w-16" />
             ) : (
-              <div className="grid h-16 w-16 place-items-center rounded-full bg-neutral-100 text-lg font-bold text-neutral-400">
+              <div className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-neutral-100 text-lg font-bold text-neutral-400 sm:h-16 sm:w-16">
                 {student?.full_name?.[0] ?? "?"}
               </div>
             )}
@@ -342,20 +342,21 @@ function BlockRenderer({
                 {student?.full_name ?? (isLoading ? "…" : "—")}
               </div>
               {belt && (
-                <div className="mt-1">
+                <div className="mt-1 flex">
                   <span
-                    className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold text-white"
+                    className="inline-flex max-w-full items-center gap-1.5 truncate rounded-full px-2.5 py-1 text-[11px] font-semibold text-white"
                     style={{ background: belt.color_hex }}
                   >
-                    {formatBeltName(belt.name, (belt as any)?.modality)}
-
-                    {degreeSuffix(student?.current_degree, (belt as any)?.modality, " · ", belt?.name)}
+                    <span className="truncate">
+                      {formatBeltName(belt.name, (belt as any)?.modality)}
+                      {degreeSuffix(student?.current_degree, (belt as any)?.modality, " · ", belt?.name)}
+                    </span>
                   </span>
                 </div>
               )}
             </div>
           </div>
-          <div className="mt-4 grid grid-cols-2 gap-3">
+          <div className="mt-4 grid grid-cols-2 gap-2 sm:gap-3">
             <Info label="Último check-in" value={fmtDate(lastCheckin?.checked_in_at)} />
             <Info
               label="Faturas abertas"
@@ -506,9 +507,9 @@ function BlockRenderer({
 
 function Info({ label, value, tone }: { label: string; value: string; tone?: "ok" | "warn" }) {
   return (
-    <div className="rounded-xl bg-neutral-50 p-3">
+    <div className="min-w-0 rounded-xl bg-neutral-50 p-2.5 sm:p-3">
       <div className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">{label}</div>
-      <div className={`mt-0.5 text-sm font-semibold ${tone === "warn" ? "text-amber-700" : tone === "ok" ? "text-emerald-700" : "text-neutral-900"}`}>
+      <div className={`mt-0.5 truncate text-sm font-semibold ${tone === "warn" ? "text-amber-700" : tone === "ok" ? "text-emerald-700" : "text-neutral-900"}`}>
         {value}
       </div>
     </div>
