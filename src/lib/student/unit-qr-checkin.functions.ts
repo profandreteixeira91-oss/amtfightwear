@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireStudentAuth } from "@/integrations/supabase/student-auth-middleware";
 
 // Aluno resgata um QR fixo específico de unidade.
 // Regras aplicadas 100% no backend:
@@ -11,7 +11,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 //  - Turma/aula resolvida via validateAndResolveCheckin (janela e duplicidade)
 //  - owner_id e unit_id gravados a partir do token, jamais do cliente
 export const checkinByUnitQr = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .inputValidator((i: unknown) =>
     z
       .object({

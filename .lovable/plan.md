@@ -1,133 +1,120 @@
-# Central Administrativa AMT — Unificação sob `/admin/*`
+# Seletor de Aluno no App (contas compartilhando e-mail)
 
-## Escopo
+Hoje o app do aluno resolve UM único cadastro a partir do usuário logado (via
+`get_my_student_id()` e consultas `dojo_students … limit 1`). Se o mesmo e-mail
+está vinculado a pai e filho (dois registros em `dojo_students`), apenas um é
+exposto. A ideia é permitir que o mesmo usuário alterne entre os alunos que
+ele legitimamente possa acessar.
 
-Refatoração **estrutural** (URLs + shell + navegação). Sem tocar em regras de negócio, APIs, banco, permissões ou funcionalidades. Cada rota atual continua funcionando (via redirect) até que todos os `<Link>` internos sejam migrados.
+## O que muda para o usuário
 
-## Estratégia (para não quebrar 100+ rotas de uma vez)
+- No topo da home do app (`/app/*`) surge um seletor com todos os alunos
+  vinculados ao e-mail do usuário logado (ou ao `user_id`).
+- Um único seletor troca instantaneamente o "aluno ativo": home, faixas,
+  frequência, ranking, contratos, mensalidades, check-ins, notificações,
+  vídeos e ranking passam a refletir os dados daquele aluno.
+- Se houver apenas um aluno vinculado, o seletor não aparece (comportamento
+  atual preservado).
+- A escolha fica salva em `localStorage` (por usuário) para persistir entre
+  aberturas do PWA; ao trocar de usuário, o seletor reseta.
 
-Fazer via **camada de aliases** em vez de renomear arquivos:
+## Como fica tecnicamente
 
-1. **Um shell único** (`AdminShell`) — o que já existe hoje em `/store` e `/growth` — passa a envolver TODAS as áreas administrativas (Fight Wear, Growth, Dojo Manager, Ads, Instagram, Prospect, Market, Users, Logs, Settings, Dashboard).
-2. **Rotas canônicas em `/admin/*`** — cada módulo administrativo ganha uma rota física sob `src/routes/_authenticated/admin.<slug>.tsx` que **re-exporta o componente do arquivo original** (import direto, mesma tela, mesma lógica, mesmos loaders).
-3. **Rotas antigas viram redirects** — cada arquivo legado (`store.orders.tsx`, `dojo.app.students.tsx`, etc.) passa a executar `beforeLoad → redirect({ to: "/admin/..."} )`. Sem apagar arquivos, sem quebrar bookmarks/PWA (o redirect leva o usuário à nova URL automaticamente).
-4. **Sidebar única** organizada em grupos (Dashboard, Comercial, Marketing, Vendas, Financeiro, Fight Wear, Dojo Manager, Sistema).
-5. **Busca global** (`⌘K`) implementada uma vez no `AdminShell`.
+### 1. Banco: descobrir todos os alunos elegíveis
+Nova RPC `list_my_students()` `SECURITY DEFINER` que retorna todos os
+`dojo_students` cujo `user_id = auth.uid()` OU `email = auth.users.email` do
+usuário logado, com `id, full_name, photo_url, owner_id, unit_id`.
 
-Isso preserva integralmente APIs, permissões e URLs externas (via 302 client-side), mudando apenas a arquitetura visível.
+A RPC não substitui `get_my_student_id()`; ela apenas lista candidatos.
 
-## Mapa de URLs (canônico → arquivo legado que redireciona)
+### 2. Banco: "aluno ativo" via GUC de sessão
+`get_my_student_id()` passa a ler `current_setting('app.active_student_id', true)`:
+- Se o valor estiver definido E existir um aluno cujo `id = valor` e
+  `user_id = auth.uid()` OU `email = auth.email()`, retorna esse id.
+- Caso contrário, cai no comportamento atual (primeiro match, priorizando
+  `user_id`).
 
-```text
-Dashboard
-  /admin                        ← admin.index.tsx (já existe)
-  /admin/dashboard              ← dashboard.tsx
+Nova RPC `set_active_student(_id uuid)` `SECURITY DEFINER` que:
+1. Valida elegibilidade (mesma condição do `list_my_students`).
+2. Executa `perform set_config('app.active_student_id', _id::text, true)`.
+3. Retorna o id validado.
 
-Comercial
-  /admin/leads                  ← prospect.leads.tsx
-  /admin/leads/qualificados     ← prospect.qualified.tsx
-  /admin/leads/pipeline         ← prospect.pipeline.tsx
-  /admin/leads/busca            ← prospect.search.tsx
-  /admin/leads/macro            ← prospect.macro.tsx
-  /admin/leads/logs             ← prospect.logs.tsx
-  /admin/leads/settings         ← prospect.settings.tsx
-  /admin/leads/:id              ← prospect.$id.tsx
-  /admin/crm                    ← growth.crm.tsx
-  /admin/clientes               ← store.customers.tsx  (+ growth.customers.tsx merge)
-  /admin/atendimento            ← store.chat.tsx
+Como o GUC com `is_local = true` vive apenas na transação atual, ele é
+usado como "sub-rotina" chamada no início de cada server function.
 
-Marketing
-  /admin/instagram/*            ← instagram.*
-  /admin/anuncios/*             ← ads.*
-  /admin/marketing/insights     ← growth.insights.tsx
-  /admin/marketing/intelligence ← growth.intelligence.tsx
-  /admin/marketing/kpis         ← growth.kpis.tsx
-  /admin/marketing/mercado      ← growth.market.tsx / market.*
+### 3. Middleware: propagar o aluno ativo por request
+- O cliente passa `x-active-student: <uuid>` em todas as chamadas de server fn
+  (já usa `functionMiddleware`; adicionamos um attacher que injeta o header a
+  partir do `localStorage`).
+- `requireSupabaseAuth` (ou um novo middleware `resolveActiveStudent`) lê o
+  header, chama `supabase.rpc('set_active_student', { _id })` em uma primeira
+  query e guarda `context.activeStudentId`. Se o id for inválido, é ignorado
+  (fallback silencioso).
 
-Vendas (Fight Wear)
-  /admin/pedidos                ← store.orders.tsx
-  /admin/produtos               ← store.products.tsx
-  /admin/produtos/imagens       ← store.imagens.tsx
-  /admin/produtos/importar      ← store.import.tsx
-  /admin/produtos/tamanhos      ← store.sizes.tsx
-  /admin/produtos/faixa-calc    ← store.faixa-calc.tsx
-  /admin/atacado                ← store.wholesale.tsx
-  /admin/envio                  ← store.shipping.tsx
-  /admin/loja                   ← store.index.tsx
+Como cada query supabase-js roda em conexão separada, precisamos garantir
+que as server functions passem o `student_id` explicitamente também: o
+middleware adiciona `context.activeStudentId` para uso direto nas queries.
 
-Dojo Manager
-  /admin/dojo                    ← dojo.app.index.tsx
-  /admin/dojo/alunos             ← dojo.app.students.*
-  /admin/dojo/equipe             ← dojo.app.team.*
-  /admin/dojo/graduacoes         ← dojo.app.graduations.tsx
-  /admin/dojo/faixas             ← dojo.app.belts.tsx
-  /admin/dojo/faixas/studio      ← dojo.app.belt-studio.tsx
-  /admin/dojo/certificados       ← dojo.app.certificates.tsx
-  /admin/dojo/avaliacoes/*       ← dojo.app.evaluations.*
-  /admin/dojo/planos-de-aula/*   ← dojo.app.lesson-plans.*
-  /admin/dojo/competicoes/*      ← dojo.app.competitions.*
-  /admin/dojo/contratos/*        ← dojo.app.contracts.* + contract-templates.*
-  /admin/dojo/agenda             ← dojo.app.schedule.tsx
-  /admin/dojo/planos             ← dojo.app.plans.tsx
-  /admin/dojo/vendas             ← dojo.app.sales.tsx
-  /admin/dojo/financeiro         ← dojo.app.finance.tsx
-  /admin/dojo/ranking            ← dojo.app.ranking.tsx
-  /admin/dojo/checkin            ← dojo.app.checkin.tsx
-  /admin/dojo/comunicados        ← dojo.app.announcements.tsx
-  /admin/dojo/notificacoes       ← dojo.app.notifications.tsx
-  /admin/dojo/integracoes        ← dojo.app.integrations.tsx
-  /admin/dojo/loja               ← dojo.app.store.*
-  /admin/dojo/conta              ← dojo.app.account.tsx
-  /admin/dojo/beneficios         ← dojo.app.corporate-benefits.tsx
-  /admin/dojo/apk                ← dojo.app.apk-versions.tsx
-  /admin/dojo/qr-aluno           ← dojo.app.student-app-qr.tsx
+### 4. Server functions: usar `context.activeStudentId`
+Substituir o padrão atual em ~15 arquivos:
 
-Sistema
-  /admin/usuarios               ← users.tsx
-  /admin/logs                   ← logs.tsx
-  /admin/configuracoes          ← settings.tsx
-  /admin/perfil                 ← profile.tsx
+```ts
+// antes
+const { data: me } = await ctx.supabase
+  .from("dojo_students").select("id").limit(1).maybeSingle();
+
+// depois
+const me = await resolveMyStudent(ctx);  // novo helper
 ```
 
-## Entregas por fase
+`resolveMyStudent(ctx)`:
+1. Se `ctx.activeStudentId` está setado, faz `select` filtrando por esse id
+   (RLS ainda garante que só retorna se o id for elegível).
+2. Se não retornou, faz o fallback atual (`limit(1)`).
 
-### Fase A — Shell unificado + busca global
-- Estender `AdminShell` para incluir TODOS os grupos acima na sidebar (hoje só cobre parcialmente Store + Growth).
-- Implementar `AdminGlobalSearch` (⌘K) sobre pedidos, produtos, clientes, leads, alunos, certificados, competições, campanhas.
-- Header único com breadcrumb baseado em `useMatches()`.
+Arquivos afetados: `student.functions.ts`, `announcements.functions.ts`,
+`ranking.functions.ts`, `competitions.functions.ts`,
+`unit-qr-checkin.functions.ts`, `payments.functions.ts`, `push.functions.ts`,
+`contracts.server.ts` e derivados.
 
-### Fase B — Camada canônica `/admin/*`
-- Criar arquivos `admin.<slug>.tsx` que fazem `export { Route } from "../<original>"` (ou re-declaram `createFileRoute` importando o componente + loader).
-- Manter guard `OwnerOnly`/permissões existentes.
+### 5. RLS de `dojo_students` (SELECT)
+Verificar se a policy atual já cobre `email = auth.email()`. Se cobrir apenas
+`user_id = auth.uid()`, ampliar para incluir também o match por e-mail — sem
+isso o `list_my_students` retorna vazio para o pai/filho.
 
-### Fase C — Redirect dos legados
-- Cada arquivo legado passa a ter `beforeLoad: () => redirect({ to: "/admin/..." })`, mantendo params via `Route.useParams()`.
+### 6. UI: componente `StudentSwitcher`
+- Novo componente em `src/components/student-app/StudentSwitcher.tsx`.
+- Renderizado no cabeçalho do layout `app._student.tsx`.
+- Usa `useQuery(listMyStudents)`; se ≤1 aluno, não renderiza nada.
+- Ao trocar, grava `localStorage["student-app:active-student"]`, invalida
+  todas as queries (`queryClient.invalidateQueries()`) e chama
+  `router.invalidate()` para recarregar loaders.
 
-### Fase D — Migrar `<Link>` internos
-- Buscar `to="/store/`, `to="/dojo/app/`, `to="/prospect/`, `to="/instagram/`, `to="/ads/`, `to="/growth/`, `to="/market/`, `to="/users"`, `to="/logs"`, `to="/settings"`, `to="/dashboard"` e reescrever para `/admin/*`.
-- Atualizar `AppTopNav` (menu do owner) para apontar para `/admin/*`.
+### 7. Attacher no cliente
+Adicionar um `functionMiddleware` (em `src/start.ts`) que lê o
+`localStorage` e adiciona `x-active-student` ao request. Registrar após o
+`attachSupabaseAuth` existente (append, não substituir).
 
-### Fase E — PWA e links externos
-- Atualizar manifests (`start_url`, atalhos) e QR codes gerados para `/admin/...`.
+## Fora de escopo
 
-## Padronização visual
+- Não altero o fluxo de auth/OAuth existente.
+- Não crio contas novas; apenas expõe o que já está corretamente vinculado
+  no banco.
+- Não muda a UX do dono do dojo (dashboard admin).
 
-- Tokens e componentes shadcn já presentes; a fase A padroniza cards/tabelas/filtros/empty-states via wrappers reutilizados de `src/components/admin/*` (`KpiCard`, `AdminSection`, `DataTable`, `EmptyState`).
-- Sem mudança de paleta — mantém o design premium claro já aplicado em `/store` e `/admin`.
+## Impacto de segurança
 
-## Riscos e mitigações
+- A elegibilidade continua validada no banco (RPCs `SECURITY DEFINER` +
+  RLS por `user_id`/`email`). O header `x-active-student` só influencia
+  QUAL aluno elegível o cliente vê; nunca dá acesso a alunos de terceiros.
+- Um id inválido no header é ignorado e o app volta ao aluno padrão.
 
-- **Cadeia de redirects**: cada legado redireciona 1x direto ao canônico — sem hops.
-- **PWA cache**: bump do `version` no service worker para invalidar rotas antigas.
-- **RLS/permissões**: nenhum handler é tocado; guards permanecem nos componentes originais.
+## Entregáveis
 
-## Volume estimado
-
-- ~90 novos arquivos `admin.*.tsx` (thin re-exports).
-- ~90 edits para adicionar `redirect` nos legados.
-- 1 refator grande no `AdminShell` (sidebar + busca).
-- Grep+replace nos `<Link>`.
-
-## Proposta de execução
-
-Como a mudança é grande, sugiro executar em ordem: **A → B (Fight Wear + Dojo) → C → D → E**, com preview navegável ao fim de cada fase. Confirma para eu começar pela **Fase A** (shell + sidebar completa + busca global) já nesta rodada?
+1. Migração SQL: `list_my_students`, `set_active_student`, ajuste em
+   `get_my_student_id`, revisão da policy SELECT de `dojo_students`.
+2. Helper `resolveMyStudent` + refactor dos ~15 server fns.
+3. Middleware server (`resolveActiveStudent`) + attacher cliente
+   (`attachActiveStudent`).
+4. `StudentSwitcher.tsx` + integração no layout `app._student.tsx`.
+5. Persistência em `localStorage` + invalidação de queries ao trocar.

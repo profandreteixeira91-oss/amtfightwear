@@ -14,6 +14,7 @@ import { PushToggle } from "@/components/student/PushToggle";
 import { PushActivationPrompt } from "@/components/student/PushActivationPrompt";
 import { InstallReminderBanner } from "@/components/student/InstallReminderBanner";
 import { StudentSplash } from "@/components/student/StudentSplash";
+import { StudentSwitcher } from "@/components/student/StudentSwitcher";
 import { attachPushRotationListener, getCurrentSubscription, subscriptionToPayload } from "@/lib/pwa/push-client";
 import { subscribeMyPush } from "@/lib/student/push.functions";
 
@@ -133,6 +134,7 @@ function StudentShell() {
           <DesktopNav items={config.bottom_nav} features={config.features} />
 
           <div className="flex shrink-0 items-center gap-1">
+            <StudentSwitcher currentName={student?.full_name} />
             {config.features.news !== false && (
               <Link
                 to="/app/notifications"

@@ -12342,6 +12342,7 @@ export type Database = {
       }
     }
     Functions: {
+      active_student_from_header: { Args: never; Returns: string }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
@@ -12494,6 +12495,19 @@ export type Database = {
       has_unit_access: {
         Args: { _unit_id: string; _user_id: string }
         Returns: boolean
+      }
+      is_my_student: { Args: { _id: string }; Returns: boolean }
+      list_my_students: {
+        Args: never
+        Returns: {
+          current_belt_id: string
+          current_degree: number
+          full_name: string
+          id: string
+          owner_id: string
+          photo_url: string
+          unit_id: string
+        }[]
       }
       move_to_dlq: {
         Args: {

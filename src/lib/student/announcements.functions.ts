@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireStudentAuth } from "@/integrations/supabase/student-auth-middleware";
 
 const uuid = z.string().regex(/^[0-9a-fA-F-]{32,36}$/);
 
@@ -10,7 +10,7 @@ async function currentStudent(supabase: any) {
 }
 
 export const listMyAnnouncements = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .inputValidator((i: unknown) =>
     z.object({
       q: z.string().optional(),
@@ -96,7 +96,7 @@ export const listMyAnnouncements = createServerFn({ method: "GET" })
   });
 
 export const getMyAnnouncement = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .inputValidator((i: unknown) => z.object({ id: uuid }).parse(i))
   .handler(async ({ data, context }) => {
     const studentId = await currentStudent(context.supabase);
@@ -153,7 +153,7 @@ export const getMyAnnouncement = createServerFn({ method: "GET" })
 
 
 export const confirmRead = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .inputValidator((i: unknown) => z.object({ id: uuid, device: z.string().optional() }).parse(i))
   .handler(async ({ data, context }) => {
     const studentId = await currentStudent(context.supabase);
@@ -171,7 +171,7 @@ export const confirmRead = createServerFn({ method: "POST" })
   });
 
 export const toggleLike = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .inputValidator((i: unknown) => z.object({ id: uuid }).parse(i))
   .handler(async ({ data, context }) => {
     const studentId = await currentStudent(context.supabase);
@@ -198,7 +198,7 @@ export const toggleLike = createServerFn({ method: "POST" })
   });
 
 export const addComment = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .inputValidator((i: unknown) =>
     z.object({ id: uuid, comment: z.string().trim().min(1).max(1000) }).parse(i),
   )
@@ -222,7 +222,7 @@ export const addComment = createServerFn({ method: "POST" })
   });
 
 export const deleteMyComment = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .inputValidator((i: unknown) => z.object({ id: uuid }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("dojo_announcement_comments").delete().eq("id", data.id);

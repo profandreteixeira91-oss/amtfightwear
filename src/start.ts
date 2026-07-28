@@ -2,6 +2,7 @@ import { createStart, createMiddleware } from "@tanstack/react-start";
 
 import { renderErrorPage } from "./lib/error-page";
 import { attachSupabaseAuth } from "@/integrations/supabase/auth-attacher";
+import { attachActiveStudent } from "@/integrations/supabase/active-student-attacher";
 
 const DOJO_HOST = "dojomanager.amtfightwear.com.br";
 
@@ -53,6 +54,6 @@ const errorMiddleware = createMiddleware().server(async ({ next, request }) => {
 });
 
 export const startInstance = createStart(() => ({
-  functionMiddleware: [attachSupabaseAuth],
+  functionMiddleware: [attachSupabaseAuth, attachActiveStudent],
   requestMiddleware: [domainRoutingMiddleware, errorMiddleware],
 }));

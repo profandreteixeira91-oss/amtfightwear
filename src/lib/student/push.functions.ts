@@ -1,7 +1,7 @@
 // Server functions para inscrever/desinscrever o dispositivo do aluno em Web Push.
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireStudentAuth } from "@/integrations/supabase/student-auth-middleware";
 
 export const getVapidPublicKey = createServerFn({ method: "GET" }).handler(async () => {
   return { key: process.env.VAPID_PUBLIC_KEY ?? "" };
@@ -15,7 +15,7 @@ const SubscribeSchema = z.object({
 });
 
 export const subscribeMyPush = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .inputValidator((i: unknown) => SubscribeSchema.parse(i))
   .handler(async ({ data, context }) => {
     const { data: student } = await context.supabase
@@ -43,7 +43,7 @@ export const subscribeMyPush = createServerFn({ method: "POST" })
   });
 
 export const unsubscribeMyPush = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .inputValidator((i: unknown) => z.object({ endpoint: z.string().url() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase

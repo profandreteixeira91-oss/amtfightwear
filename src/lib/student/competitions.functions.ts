@@ -4,12 +4,12 @@
 
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireStudentAuth } from "@/integrations/supabase/student-auth-middleware";
 
 const uuid = z.string().regex(/^[0-9a-fA-F-]{32,36}$/);
 
 export const listStudentCompetitions = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("academy_competitions")
@@ -20,7 +20,7 @@ export const listStudentCompetitions = createServerFn({ method: "GET" })
   });
 
 export const getStudentCompetition = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .inputValidator((i: unknown) => z.object({ id: uuid }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
@@ -62,7 +62,7 @@ export const getStudentCompetition = createServerFn({ method: "POST" })
   });
 
 export const setMyInterest = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .inputValidator((i: unknown) =>
     z.object({
       academy_competition_id: uuid,
@@ -100,7 +100,7 @@ export const setMyInterest = createServerFn({ method: "POST" })
   });
 
 export const uploadMyCompetitionDocument = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireStudentAuth])
   .inputValidator((i: unknown) =>
     z.object({
       academy_competition_id: uuid,
