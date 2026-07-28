@@ -12,8 +12,15 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
-import { Search, CheckCircle2, Trash2, Eye, AlertCircle } from "lucide-react";
+import { Search, CheckCircle2, Trash2, Eye, AlertCircle, CalendarIcon } from "lucide-react";
 import { brl, daysBetween, isoDate, useInvoices, type InvoiceRow } from "./shared";
 import { EntryDrawer } from "./EntryDrawer";
 import { ShareInvoiceMenu } from "./ShareInvoice";
@@ -29,6 +36,11 @@ export function FinanceReceivables() {
   const [status, setStatus] = useState("all");
   const [q, setQ] = useState("");
   const [selected, setSelected] = useState<InvoiceRow | null>(null);
+  const [payTarget, setPayTarget] = useState<InvoiceRow | null>(null);
+  const [payDate, setPayDate] = useState<Date>(new Date());
+  const [payMethod, setPayMethod] = useState<string>("cash");
+  const [paying, setPaying] = useState(false);
+  const [calOpen, setCalOpen] = useState(false);
   const invs = useInvoices(status);
   const payFn = useServerFn(markDojoInvoicePaid);
   const delFn = useServerFn(deleteDojoInvoice);
@@ -55,13 +67,26 @@ export function FinanceReceivables() {
   const overdue = items.filter((i) => i.status !== "paid" && i.status !== "cancelled" && new Date(i.due_date) < new Date(isoDate()));
   const cancelled = items.filter((i) => i.status === "cancelled");
 
-  const handlePay = async (id: string) => {
+  const openPay = (row: InvoiceRow) => {
+    setPayTarget(row);
+    setPayDate(new Date());
+    setPayMethod((row as any).method || "cash");
+  };
+  const confirmPay = async () => {
+    if (!payTarget) return;
+    setPaying(true);
     try {
-      await payFn({ data: { id, method: "cash" } });
+      // paid_at as noon ISO to avoid timezone drift on the selected day
+      const d = new Date(payDate);
+      d.setHours(12, 0, 0, 0);
+      await payFn({ data: { id: payTarget.id, method: payMethod, paid_at: d.toISOString() } });
       toast.success("Cobrança recebida");
+      setPayTarget(null);
       refresh();
     } catch (e: any) {
       toast.error(e.message);
+    } finally {
+      setPaying(false);
     }
   };
   const handleDelete = async (id: string) => {
@@ -118,23 +143,98 @@ export function FinanceReceivables() {
         </div>
 
         <TabsContent value="all">
-          <InvoiceList rows={items} loading={invs.isLoading} onOpen={setSelected} onPay={handlePay} onDelete={handleDelete} />
+          <InvoiceList rows={items} loading={invs.isLoading} onOpen={setSelected} onPay={openPay} onDelete={handleDelete} />
         </TabsContent>
         <TabsContent value="pending">
-          <InvoiceList rows={pending} loading={invs.isLoading} onOpen={setSelected} onPay={handlePay} onDelete={handleDelete} />
+          <InvoiceList rows={pending} loading={invs.isLoading} onOpen={setSelected} onPay={openPay} onDelete={handleDelete} />
         </TabsContent>
         <TabsContent value="overdue">
-          <InvoiceList rows={overdue} loading={invs.isLoading} onOpen={setSelected} onPay={handlePay} onDelete={handleDelete} />
+          <InvoiceList rows={overdue} loading={invs.isLoading} onOpen={setSelected} onPay={openPay} onDelete={handleDelete} />
         </TabsContent>
         <TabsContent value="paid">
-          <InvoiceList rows={paid} loading={invs.isLoading} onOpen={setSelected} onPay={handlePay} onDelete={handleDelete} />
+          <InvoiceList rows={paid} loading={invs.isLoading} onOpen={setSelected} onPay={openPay} onDelete={handleDelete} />
         </TabsContent>
         <TabsContent value="cancelled">
-          <InvoiceList rows={cancelled} loading={invs.isLoading} onOpen={setSelected} onPay={handlePay} onDelete={handleDelete} />
+          <InvoiceList rows={cancelled} loading={invs.isLoading} onOpen={setSelected} onPay={openPay} onDelete={handleDelete} />
         </TabsContent>
       </Tabs>
 
       <EntryDrawer open={!!selected} onOpenChange={(v) => !v && setSelected(null)} entry={selected} kind="invoice" />
+
+      <Dialog open={!!payTarget} onOpenChange={(v) => !v && !paying && setPayTarget(null)}>
+        <DialogContent className="sm:max-w-[440px]">
+          <DialogHeader>
+            <DialogTitle>Registrar recebimento</DialogTitle>
+            <DialogDescription>
+              {payTarget ? (
+                <>
+                  <span className="font-medium text-foreground">{payTarget.student?.full_name ?? "—"}</span>
+                  {" · "}
+                  <span className="text-foreground">{brl(payTarget.amount)}</span>
+                  {payTarget.description ? <> · {payTarget.description}</> : null}
+                </>
+              ) : null}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label>Data do recebimento</Label>
+              <Popover open={calOpen} onOpenChange={setCalOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn("w-full justify-start text-left font-normal", !payDate && "text-muted-foreground")}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {payDate ? format(payDate, "PPP", { locale: ptBR }) : "Selecione a data"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={payDate}
+                    onSelect={(d) => { if (d) { setPayDate(d); setCalOpen(false); } }}
+                    initialFocus
+                    locale={ptBR}
+                    disabled={(d) => d > new Date()}
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>Forma de pagamento</Label>
+              <Select value={payMethod} onValueChange={setPayMethod}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="cash">Dinheiro</SelectItem>
+                  <SelectItem value="pix">PIX</SelectItem>
+                  <SelectItem value="debit_card">Cartão de débito</SelectItem>
+                  <SelectItem value="credit_card">Cartão de crédito</SelectItem>
+                  <SelectItem value="boleto">Boleto</SelectItem>
+                  <SelectItem value="transfer">Transferência bancária</SelectItem>
+                  <SelectItem value="payment_link">Link de pagamento</SelectItem>
+                  <SelectItem value="other">Outro</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setPayTarget(null)} disabled={paying}>
+              Cancelar
+            </Button>
+            <Button onClick={confirmPay} disabled={paying || !payDate}>
+              <CheckCircle2 className="h-4 w-4 mr-1.5" />
+              {paying ? "Registrando…" : "Confirmar recebimento"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -149,7 +249,7 @@ function InvoiceList({
   rows: InvoiceRow[];
   loading: boolean;
   onOpen: (r: InvoiceRow) => void;
-  onPay: (id: string) => void;
+  onPay: (r: InvoiceRow) => void;
   onDelete: (id: string) => void;
 }) {
   if (loading) {
@@ -222,7 +322,7 @@ function InvoiceList({
                           variant="outline"
                           className="h-8 text-xs shrink-0"
                           title="Marcar como recebido"
-                          onClick={() => onPay(r.id)}
+                          onClick={() => onPay(r)}
                         >
                           <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
                           Receber

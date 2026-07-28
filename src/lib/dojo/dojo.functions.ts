@@ -824,6 +824,7 @@ export const markDojoInvoicePaid = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => z.object({
     id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido"),
     method: z.string().max(30).optional(),
+    paid_at: z.string().datetime().optional(),
   }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: invoice, error: invoiceError } = await context.supabase
@@ -857,7 +858,7 @@ export const markDojoInvoicePaid = createServerFn({ method: "POST" })
     }
     // Cobrança manual (sem AMT Pay) — baixa direta no banco
     const { error } = await context.supabase.from("dojo_invoices")
-      .update({ status: "paid", paid_at: new Date().toISOString(), method: data.method ?? "cash" })
+      .update({ status: "paid", paid_at: data.paid_at ?? new Date().toISOString(), method: data.method ?? "cash" })
       .eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
