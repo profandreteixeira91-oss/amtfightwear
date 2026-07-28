@@ -61,11 +61,15 @@ function HomePage() {
 
   return (
     <div className="mx-auto grid w-full max-w-3xl gap-5 lg:max-w-5xl lg:grid-cols-3 lg:items-start">
+      <div className="lg:col-span-3">
+        <PerformanceButton />
+      </div>
       {rankingEnabled && (
         <div className="lg:col-span-3">
           <RankingWidget />
         </div>
       )}
+
       {config.home_blocks.filter((b) => b.visible !== false).map((block) => {
         const spanAll = block.type === "welcome" || block.type === "banner" || block.type === "open_invoices";
         return (
