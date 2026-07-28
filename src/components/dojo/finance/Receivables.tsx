@@ -160,6 +160,81 @@ export function FinanceReceivables() {
       </Tabs>
 
       <EntryDrawer open={!!selected} onOpenChange={(v) => !v && setSelected(null)} entry={selected} kind="invoice" />
+
+      <Dialog open={!!payTarget} onOpenChange={(v) => !v && !paying && setPayTarget(null)}>
+        <DialogContent className="sm:max-w-[440px]">
+          <DialogHeader>
+            <DialogTitle>Registrar recebimento</DialogTitle>
+            <DialogDescription>
+              {payTarget ? (
+                <>
+                  <span className="font-medium text-foreground">{payTarget.student?.full_name ?? "—"}</span>
+                  {" · "}
+                  <span className="text-foreground">{brl(payTarget.amount)}</span>
+                  {payTarget.description ? <> · {payTarget.description}</> : null}
+                </>
+              ) : null}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label>Data do recebimento</Label>
+              <Popover open={calOpen} onOpenChange={setCalOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn("w-full justify-start text-left font-normal", !payDate && "text-muted-foreground")}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {payDate ? format(payDate, "PPP", { locale: ptBR }) : "Selecione a data"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={payDate}
+                    onSelect={(d) => { if (d) { setPayDate(d); setCalOpen(false); } }}
+                    initialFocus
+                    locale={ptBR}
+                    disabled={(d) => d > new Date()}
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>Forma de pagamento</Label>
+              <Select value={payMethod} onValueChange={setPayMethod}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="cash">Dinheiro</SelectItem>
+                  <SelectItem value="pix">PIX</SelectItem>
+                  <SelectItem value="debit_card">Cartão de débito</SelectItem>
+                  <SelectItem value="credit_card">Cartão de crédito</SelectItem>
+                  <SelectItem value="boleto">Boleto</SelectItem>
+                  <SelectItem value="transfer">Transferência bancária</SelectItem>
+                  <SelectItem value="payment_link">Link de pagamento</SelectItem>
+                  <SelectItem value="other">Outro</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setPayTarget(null)} disabled={paying}>
+              Cancelar
+            </Button>
+            <Button onClick={confirmPay} disabled={paying || !payDate}>
+              <CheckCircle2 className="h-4 w-4 mr-1.5" />
+              {paying ? "Registrando…" : "Confirmar recebimento"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
