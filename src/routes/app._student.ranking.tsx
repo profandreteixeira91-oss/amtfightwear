@@ -117,11 +117,13 @@ function StudentRankingPage() {
                 Quem está mais firme no tatame?
               </h1>
               <p className="mt-1 text-[13px] text-neutral-300">
-                {hasMultipleClasses
-                  ? "Selecione uma turma para ver o ranking dos seus colegas."
+                {showOverall && classes.length === 0
+                  ? "Confira o ranking geral da sua academia e a sua posição."
+                  : showOverall
+                  ? "Resumo geral da academia. Escolha uma turma para ver o ranking dos seus colegas."
                   : classes.length === 1
                   ? `Ranking da turma ${classes[0].name}.`
-                  : "Você ainda não está matriculado em nenhuma turma."}
+                  : "Ranking da turma selecionada."}
               </p>
             </div>
           </div>
