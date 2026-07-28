@@ -1726,7 +1726,7 @@ export const addBulkGraduation = createServerFn({ method: "POST" })
           body: `Você foi graduado(a): ${belt?.name ?? "Nova faixa"}${degreeTxt}.`,
           url: "/app/graduacoes",
           tag: `graduation-${g.id}`,
-        });
+        }, "graduation");
       }
     } catch {}
 
