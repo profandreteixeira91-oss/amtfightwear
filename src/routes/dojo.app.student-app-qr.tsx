@@ -193,6 +193,29 @@ function StudentAppQrPage() {
             </div>
           </div>
         </div>
+
+        {/* Atalho para configurar notificações */}
+        <div className="mx-auto max-w-5xl px-4 pb-4">
+          <Link
+            to="/dojo/app/student-notifications-config"
+            className="group flex items-center justify-between gap-4 rounded-2xl border border-red-500/20 bg-gradient-to-br from-neutral-950 via-neutral-900 to-red-950/40 p-4 text-white shadow-[0_10px_30px_-20px_rgba(220,38,38,0.6)] transition hover:border-red-500/40"
+          >
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-amber-400 via-red-500 to-red-700 text-white ring-1 ring-white/20">
+                <Bell className="h-5 w-5" />
+              </div>
+              <div className="min-w-0">
+                <div className="text-sm font-semibold">Notificações do App do Aluno</div>
+                <div className="text-xs text-neutral-400 line-clamp-2">
+                  Escolha quais avisos serão enviados: aulas, cobranças, quadro de avisos, graduações, novos vídeos, avaliações e mais.
+                </div>
+              </div>
+            </div>
+            <div className="text-xs font-semibold uppercase tracking-wider text-red-300 group-hover:text-red-200">
+              Configurar →
+            </div>
+          </Link>
+        </div>
       </div>
 
 
