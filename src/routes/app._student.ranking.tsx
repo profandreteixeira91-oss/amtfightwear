@@ -56,10 +56,37 @@ function StudentRankingPage() {
     });
   }, [data]);
 
+  // Ranking geral da academia (resumo mostrado quando nenhuma turma está selecionada)
+  const overallRows = useMemo(() => {
+    const overall = (data as any)?.overall as
+      | { students: Array<{ id: string; full_name: string; photo_url: string | null }>; counts: Record<string, number>; total_students: number }
+      | undefined;
+    if (!overall) return [] as Array<{ id: string; full_name: string; photo_url: string | null; count: number; rank: number; isMe: boolean }>;
+    const meId = data?.me.id ?? "";
+    const list = overall.students.map((s) => ({
+      id: s.id,
+      full_name: s.full_name,
+      photo_url: s.photo_url ?? null,
+      count: overall.counts[s.id] ?? 0,
+      isMe: s.id === meId,
+    }));
+    list.sort((a, b) => b.count - a.count || a.full_name.localeCompare(b.full_name));
+    let lastCount: number | null = null;
+    let lastRank = 0;
+    return list.map((r, idx) => {
+      const rank = r.count === lastCount ? lastRank : idx + 1;
+      lastCount = r.count; lastRank = rank;
+      return { ...r, rank };
+    });
+  }, [data]);
+
   const myTotal = data?.me.total_checkins ?? 0;
   const podium = rows.slice(0, 3);
   const myRow = rows.find((r) => r.isMe);
+  const overallPodium = overallRows.slice(0, 3);
+  const myOverallRow = overallRows.find((r) => r.isMe);
   const hasMultipleClasses = classes.length > 1;
+  const showOverall = !activeClassId;
 
   const periodLabel: Record<Period, string> = {
     all: "Histórico completo",
@@ -90,11 +117,13 @@ function StudentRankingPage() {
                 Quem está mais firme no tatame?
               </h1>
               <p className="mt-1 text-[13px] text-neutral-300">
-                {hasMultipleClasses
-                  ? "Selecione uma turma para ver o ranking dos seus colegas."
+                {showOverall && classes.length === 0
+                  ? "Confira o ranking geral da sua academia e a sua posição."
+                  : showOverall
+                  ? "Resumo geral da academia. Escolha uma turma para ver o ranking dos seus colegas."
                   : classes.length === 1
                   ? `Ranking da turma ${classes[0].name}.`
-                  : "Você ainda não está matriculado em nenhuma turma."}
+                  : "Ranking da turma selecionada."}
               </p>
             </div>
           </div>
@@ -110,13 +139,18 @@ function StudentRankingPage() {
                 <div className="text-[11px] text-neutral-300">no histórico</div>
               </div>
             </div>
-            {myRow && (
+            {(myRow || myOverallRow) && (
               <div className="rounded-lg bg-gradient-to-br from-amber-400/20 to-red-500/20 p-2 text-right ring-1 ring-white/10">
-                <div className="text-[10px] font-semibold uppercase tracking-wider text-red-100/80">Sua posição</div>
-                <div className="mt-0.5 font-display text-2xl font-black leading-none">
-                  {myRow.rank}º
+                <div className="text-[10px] font-semibold uppercase tracking-wider text-red-100/80">
+                  {showOverall ? "Sua posição na academia" : "Sua posição"}
                 </div>
-                <div className="text-[10px] text-neutral-300">{myRow.count} check-ins</div>
+                <div className="mt-0.5 font-display text-2xl font-black leading-none">
+                  {(showOverall ? myOverallRow?.rank : myRow?.rank) ?? "—"}º
+                </div>
+                <div className="text-[10px] text-neutral-300">
+                  {(showOverall ? myOverallRow?.count : myRow?.count) ?? 0} check-ins
+                  {showOverall && overallRows.length ? ` · de ${overallRows.length}` : ""}
+                </div>
               </div>
             )}
           </div>
@@ -188,10 +222,10 @@ function StudentRankingPage() {
       )}
 
       {/* PÓDIO */}
-      {podium.length > 0 && (
+      {(showOverall ? overallPodium : podium).length > 0 && (
         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
           {[0, 1, 2].map((order, i) => {
-            const p = podium[order];
+            const p = (showOverall ? overallPodium : podium)[order];
             if (!p) return <div key={i} className="hidden sm:block" />;
             const medalRank = Math.min(p.rank, 3);
             const styles = [
@@ -231,6 +265,10 @@ function StudentRankingPage() {
       )}
 
       {/* LISTA COMPLETA */}
+      {(() => {
+        const displayRows = showOverall ? overallRows : rows;
+        const listTitle = showOverall ? "Ranking geral da academia" : "Classificação completa";
+        return (
       <section className="relative overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
         <div aria-hidden className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-red-500 via-red-400 to-amber-400" />
         <div className="flex items-center justify-between gap-2 border-b border-neutral-200 px-4 py-3">
@@ -239,13 +277,15 @@ function StudentRankingPage() {
               <TrendingUp className="h-4 w-4" />
             </div>
             <div className="min-w-0">
-              <div className="truncate text-sm font-bold">Classificação completa</div>
-              <div className="truncate text-[11px] text-neutral-500">{periodLabel[period]}</div>
+              <div className="truncate text-sm font-bold">{listTitle}</div>
+              <div className="truncate text-[11px] text-neutral-500">
+                {showOverall ? `${periodLabel[period]} · todos os alunos ativos` : periodLabel[period]}
+              </div>
             </div>
           </div>
-          {rows.length > 0 && (
+          {displayRows.length > 0 && (
             <span className="shrink-0 rounded-full border border-neutral-200 bg-neutral-50 px-2.5 py-0.5 text-[11px] font-semibold text-neutral-600">
-              {rows.length} {rows.length === 1 ? "aluno" : "alunos"}
+              {displayRows.length} {displayRows.length === 1 ? "aluno" : "alunos"}
             </span>
           )}
         </div>
@@ -254,21 +294,21 @@ function StudentRankingPage() {
           <div className="grid place-items-center py-16 text-neutral-500">
             <Loader2 className="h-5 w-5 animate-spin" />
           </div>
-        ) : !activeClassId ? (
-          <p className="py-12 text-center text-sm text-neutral-500">
-            {hasMultipleClasses ? "Selecione uma turma para ver o ranking." : "Sem turma para exibir."}
-          </p>
-        ) : rows.length === 0 ? (
+        ) : displayRows.length === 0 ? (
           <div className="grid place-items-center gap-2 py-12 text-center">
             <div className="grid h-12 w-12 place-items-center rounded-2xl bg-neutral-100 text-neutral-400">
               <Users className="h-5 w-5" />
             </div>
-            <p className="text-sm text-neutral-500">Nenhum aluno matriculado nesta turma ainda.</p>
+            <p className="text-sm text-neutral-500">
+              {showOverall
+                ? "Ainda não há check-ins registrados na sua academia."
+                : "Nenhum aluno matriculado nesta turma ainda."}
+            </p>
           </div>
         ) : (
           <ul className="divide-y divide-neutral-100">
-            {rows.map((r) => {
-              const max = rows[0]?.count || 1;
+            {displayRows.map((r) => {
+              const max = displayRows[0]?.count || 1;
               const pct = Math.max(4, Math.round((r.count / max) * 100));
               const isTop = r.rank <= 3;
               return (
@@ -326,6 +366,8 @@ function StudentRankingPage() {
           </ul>
         )}
       </section>
+        );
+      })()}
     </div>
   );
 }
