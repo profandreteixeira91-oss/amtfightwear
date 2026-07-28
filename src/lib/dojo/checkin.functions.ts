@@ -229,6 +229,7 @@ export const saveCheckinSettings = createServerFn({ method: "POST" })
     if (data.allowQrCheckin !== undefined) payload.allow_qr_checkin = data.allowQrCheckin;
     if (data.allowFixedQrCheckin !== undefined) payload.allow_fixed_qr_checkin = data.allowFixedQrCheckin;
     if (data.allowPhotoCheckin !== undefined) payload.allow_photo_checkin = data.allowPhotoCheckin;
+    if (data.facialRecognitionEnabled !== undefined) payload.face_recognition_enabled = data.facialRecognitionEnabled;
     const { error } = await context.supabase
       .from("dojo_checkin_settings")
       .upsert(payload, { onConflict: "owner_id" });
