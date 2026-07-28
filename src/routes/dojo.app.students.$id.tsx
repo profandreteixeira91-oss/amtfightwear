@@ -708,7 +708,7 @@ function StudentDetail() {
                     {(plans.data ?? []).map((p: any) => <option key={p.id} value={p.id}>{p.name} · {brl(p.amount)}</option>)}
                   </select>
                   <Input type="number" step="0.01" placeholder="Valor custom" value={enroll.custom_amount} onChange={(e) => setEnroll({ ...enroll, custom_amount: e.target.value })} />
-                  <Input type="number" min={1} max={28} placeholder="Dia venc." value={enroll.due_day} onChange={(e) => setEnroll({ ...enroll, due_day: Number(e.target.value) })} />
+                  <Input type="number" min={1} max={31} placeholder="Dia venc." value={enroll.due_day} onChange={(e) => setEnroll({ ...enroll, due_day: Number(e.target.value) })} />
                   <Input type="date" value={enroll.start_date} onChange={(e) => setEnroll({ ...enroll, start_date: e.target.value })} />
                   <Button onClick={doAddEnroll}>Salvar</Button>
                 </div>
