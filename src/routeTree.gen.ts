@@ -107,6 +107,7 @@ import { Route as AppStudentHomeRouteImport } from './routes/app._student.home'
 import { Route as AppStudentGraduationsRouteImport } from './routes/app._student.graduations'
 import { Route as AppStudentFinanceRouteImport } from './routes/app._student.finance'
 import { Route as AppStudentEvaluationsRouteImport } from './routes/app._student.evaluations'
+import { Route as AppStudentDocumentsRouteImport } from './routes/app._student.documents'
 import { Route as AppStudentCompetitionsRouteImport } from './routes/app._student.competitions'
 import { Route as AppStudentCheckinRouteImport } from './routes/app._student.checkin'
 import { Route as AppStudentCertificatesRouteImport } from './routes/app._student.certificates'
@@ -790,6 +791,11 @@ const AppStudentEvaluationsRoute = AppStudentEvaluationsRouteImport.update({
   path: '/evaluations',
   getParentRoute: () => AppStudentRoute,
 } as any)
+const AppStudentDocumentsRoute = AppStudentDocumentsRouteImport.update({
+  id: '/documents',
+  path: '/documents',
+  getParentRoute: () => AppStudentRoute,
+} as any)
 const AppStudentCompetitionsRoute = AppStudentCompetitionsRouteImport.update({
   id: '/competitions',
   path: '/competitions',
@@ -1289,9 +1295,9 @@ const DojoAppCompetitionsIndexRoute =
   } as any)
 const AppStudentDocumentsIndexRoute =
   AppStudentDocumentsIndexRouteImport.update({
-    id: '/documents/',
-    path: '/documents/',
-    getParentRoute: () => AppStudentRoute,
+    id: '/',
+    path: '/',
+    getParentRoute: () => AppStudentDocumentsRoute,
   } as any)
 const AuthenticatedAdminProdutosIndexRoute =
   AuthenticatedAdminProdutosIndexRouteImport.update({
@@ -1484,9 +1490,9 @@ const AppStudentInvoiceIdRoute = AppStudentInvoiceIdRouteImport.update({
   getParentRoute: () => AppStudentRoute,
 } as any)
 const AppStudentDocumentsIdRoute = AppStudentDocumentsIdRouteImport.update({
-  id: '/documents/$id',
-  path: '/documents/$id',
-  getParentRoute: () => AppStudentRoute,
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AppStudentDocumentsRoute,
 } as any)
 const AppStudentCompetitionsIdRoute =
   AppStudentCompetitionsIdRouteImport.update({
@@ -2002,6 +2008,7 @@ export interface FileRoutesByFullPath {
   '/app/certificates': typeof AppStudentCertificatesRoute
   '/app/checkin': typeof AppStudentCheckinRoute
   '/app/competitions': typeof AppStudentCompetitionsRouteWithChildren
+  '/app/documents': typeof AppStudentDocumentsRouteWithChildren
   '/app/evaluations': typeof AppStudentEvaluationsRoute
   '/app/finance': typeof AppStudentFinanceRoute
   '/app/graduations': typeof AppStudentGraduationsRoute
@@ -2565,6 +2572,7 @@ export interface FileRoutesById {
   '/app/_student/certificates': typeof AppStudentCertificatesRoute
   '/app/_student/checkin': typeof AppStudentCheckinRoute
   '/app/_student/competitions': typeof AppStudentCompetitionsRouteWithChildren
+  '/app/_student/documents': typeof AppStudentDocumentsRouteWithChildren
   '/app/_student/evaluations': typeof AppStudentEvaluationsRoute
   '/app/_student/finance': typeof AppStudentFinanceRoute
   '/app/_student/graduations': typeof AppStudentGraduationsRoute
@@ -2856,6 +2864,7 @@ export interface FileRouteTypes {
     | '/app/certificates'
     | '/app/checkin'
     | '/app/competitions'
+    | '/app/documents'
     | '/app/evaluations'
     | '/app/finance'
     | '/app/graduations'
@@ -3418,6 +3427,7 @@ export interface FileRouteTypes {
     | '/app/_student/certificates'
     | '/app/_student/checkin'
     | '/app/_student/competitions'
+    | '/app/_student/documents'
     | '/app/_student/evaluations'
     | '/app/_student/finance'
     | '/app/_student/graduations'
@@ -4338,6 +4348,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppStudentEvaluationsRouteImport
       parentRoute: typeof AppStudentRoute
     }
+    '/app/_student/documents': {
+      id: '/app/_student/documents'
+      path: '/documents'
+      fullPath: '/app/documents'
+      preLoaderRoute: typeof AppStudentDocumentsRouteImport
+      parentRoute: typeof AppStudentRoute
+    }
     '/app/_student/competitions': {
       id: '/app/_student/competitions'
       path: '/competitions'
@@ -4956,10 +4973,10 @@ declare module '@tanstack/react-router' {
     }
     '/app/_student/documents/': {
       id: '/app/_student/documents/'
-      path: '/documents'
+      path: '/'
       fullPath: '/app/documents/'
       preLoaderRoute: typeof AppStudentDocumentsIndexRouteImport
-      parentRoute: typeof AppStudentRoute
+      parentRoute: typeof AppStudentDocumentsRoute
     }
     '/_authenticated/admin/produtos/': {
       id: '/_authenticated/admin/produtos/'
@@ -5201,10 +5218,10 @@ declare module '@tanstack/react-router' {
     }
     '/app/_student/documents/$id': {
       id: '/app/_student/documents/$id'
-      path: '/documents/$id'
+      path: '/$id'
       fullPath: '/app/documents/$id'
       preLoaderRoute: typeof AppStudentDocumentsIdRouteImport
-      parentRoute: typeof AppStudentRoute
+      parentRoute: typeof AppStudentDocumentsRoute
     }
     '/app/_student/competitions/$id': {
       id: '/app/_student/competitions/$id'
@@ -6109,6 +6126,19 @@ const AppStudentCompetitionsRouteWithChildren =
     AppStudentCompetitionsRouteChildren,
   )
 
+interface AppStudentDocumentsRouteChildren {
+  AppStudentDocumentsIdRoute: typeof AppStudentDocumentsIdRoute
+  AppStudentDocumentsIndexRoute: typeof AppStudentDocumentsIndexRoute
+}
+
+const AppStudentDocumentsRouteChildren: AppStudentDocumentsRouteChildren = {
+  AppStudentDocumentsIdRoute: AppStudentDocumentsIdRoute,
+  AppStudentDocumentsIndexRoute: AppStudentDocumentsIndexRoute,
+}
+
+const AppStudentDocumentsRouteWithChildren =
+  AppStudentDocumentsRoute._addFileChildren(AppStudentDocumentsRouteChildren)
+
 interface AppStudentRouteChildren {
   AppStudentAgendaRoute: typeof AppStudentAgendaRoute
   AppStudentAnnouncementsRoute: typeof AppStudentAnnouncementsRoute
@@ -6116,6 +6146,7 @@ interface AppStudentRouteChildren {
   AppStudentCertificatesRoute: typeof AppStudentCertificatesRoute
   AppStudentCheckinRoute: typeof AppStudentCheckinRoute
   AppStudentCompetitionsRoute: typeof AppStudentCompetitionsRouteWithChildren
+  AppStudentDocumentsRoute: typeof AppStudentDocumentsRouteWithChildren
   AppStudentEvaluationsRoute: typeof AppStudentEvaluationsRoute
   AppStudentFinanceRoute: typeof AppStudentFinanceRoute
   AppStudentGraduationsRoute: typeof AppStudentGraduationsRoute
@@ -6127,9 +6158,7 @@ interface AppStudentRouteChildren {
   AppStudentRankingRoute: typeof AppStudentRankingRoute
   AppStudentSettingsRoute: typeof AppStudentSettingsRoute
   AppStudentVideosRoute: typeof AppStudentVideosRoute
-  AppStudentDocumentsIdRoute: typeof AppStudentDocumentsIdRoute
   AppStudentInvoiceIdRoute: typeof AppStudentInvoiceIdRoute
-  AppStudentDocumentsIndexRoute: typeof AppStudentDocumentsIndexRoute
 }
 
 const AppStudentRouteChildren: AppStudentRouteChildren = {
@@ -6139,6 +6168,7 @@ const AppStudentRouteChildren: AppStudentRouteChildren = {
   AppStudentCertificatesRoute: AppStudentCertificatesRoute,
   AppStudentCheckinRoute: AppStudentCheckinRoute,
   AppStudentCompetitionsRoute: AppStudentCompetitionsRouteWithChildren,
+  AppStudentDocumentsRoute: AppStudentDocumentsRouteWithChildren,
   AppStudentEvaluationsRoute: AppStudentEvaluationsRoute,
   AppStudentFinanceRoute: AppStudentFinanceRoute,
   AppStudentGraduationsRoute: AppStudentGraduationsRoute,
@@ -6150,9 +6180,7 @@ const AppStudentRouteChildren: AppStudentRouteChildren = {
   AppStudentRankingRoute: AppStudentRankingRoute,
   AppStudentSettingsRoute: AppStudentSettingsRoute,
   AppStudentVideosRoute: AppStudentVideosRoute,
-  AppStudentDocumentsIdRoute: AppStudentDocumentsIdRoute,
   AppStudentInvoiceIdRoute: AppStudentInvoiceIdRoute,
-  AppStudentDocumentsIndexRoute: AppStudentDocumentsIndexRoute,
 }
 
 const AppStudentRouteWithChildren = AppStudentRoute._addFileChildren(
