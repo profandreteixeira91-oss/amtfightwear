@@ -12,6 +12,7 @@ import {
 } from "@/lib/dojo/dojo.functions";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { listAttendance, regenerateStudentCodes } from "@/lib/dojo/attendance.functions";
+import { listStudentClasses } from "@/lib/dojo/schedule.functions";
 import { getStudentCompetitionHistory } from "@/lib/dojo/competitions/rankings.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,7 +27,7 @@ import {
   Trash2, Award, Eye, Printer, Pencil, ArrowLeft, MessageSquare, Mail as MailIcon,
   Wallet, CalendarCheck, GraduationCap, Trophy, FileText, ShieldCheck,
   Activity, Heart, User as UserIcon, MapPin, Phone, ClipboardList, Upload,
-  QrCode, RefreshCw, TrendingUp, ExternalLink, Sparkles, AlertTriangle, Camera,
+  QrCode, RefreshCw, TrendingUp, ExternalLink, Sparkles, AlertTriangle, Camera, Users, Clock, MapPin as PinIcon,
 } from "lucide-react";
 import { BeltAuto } from "@/components/dojo/BeltSpecVisual";
 import { CertificatePreviewDialog, openCertificatePrint, type CertificateTemplate } from "@/components/dojo/CertificatePreview";
@@ -92,6 +93,12 @@ function StudentDetail() {
   const attendance = useQuery({
     queryKey: ["dojo-attendance", id],
     queryFn: () => attendanceFn({ data: { studentId: id, limit: 200 } }),
+  });
+  const studentClassesFn = useServerFn(listStudentClasses);
+  const studentClasses = useQuery({
+    queryKey: ["dojo-student-classes", id],
+    queryFn: () => studentClassesFn({ data: { studentId: id } }),
+    staleTime: 30_000,
   });
   const compHistoryFn = useServerFn(getStudentCompetitionHistory);
   const competitionHistory = useQuery({
@@ -625,6 +632,7 @@ function StudentDetail() {
                 <TabsTrigger value="contratos">Contratos</TabsTrigger>
                 
                 <TabsTrigger value="competicoes">Competições</TabsTrigger>
+                <TabsTrigger value="turmas">Turmas</TabsTrigger>
                 <TabsTrigger value="frequencia">Frequência</TabsTrigger>
                 <TabsTrigger value="documentos">Documentos</TabsTrigger>
                 <TabsTrigger value="observacoes">Observações</TabsTrigger>
@@ -1096,7 +1104,84 @@ function StudentDetail() {
               </SectionCard>
             </TabsContent>
 
-            {/* --- Frequência --- */}
+            {/* --- Turmas --- */}
+            <TabsContent value="turmas" className="mt-4 space-y-4">
+              <SectionCard title="Turmas do aluno" icon={Users}>
+                {studentClasses.isLoading ? (
+                  <div className="space-y-2">
+                    <Skeleton className="h-16 w-full" />
+                    <Skeleton className="h-16 w-full" />
+                  </div>
+                ) : !studentClasses.data || studentClasses.data.length === 0 ? (
+                  <EmptyState label="Este aluno ainda não está matriculado em nenhuma turma. Adicione-o pela Agenda." />
+                ) : (
+                  <div className="grid gap-3 md:grid-cols-2">
+                    {studentClasses.data.map((row: any) => {
+                      const cls = row.dojo_classes;
+                      if (!cls) return null;
+                      const weekdays = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+                      const schedules = (cls.schedules ?? []).slice().sort((a: any, b: any) => (a.weekday - b.weekday) || String(a.start_time).localeCompare(String(b.start_time)));
+                      const hhmm = (t?: string | null) => (t ? String(t).slice(0, 5) : "—");
+                      const isActive = (row.status ?? "active") === "active";
+                      return (
+                        <Link
+                          key={row.id}
+                          to="/dojo/app/schedule/$id"
+                          params={{ id: cls.id }}
+                          className="group rounded-xl border border-neutral-200 bg-white p-3 shadow-sm transition hover:border-red-300 hover:shadow-md"
+                        >
+                          <div className="flex items-start gap-3">
+                            <span
+                              className="mt-1 h-3 w-3 shrink-0 rounded-full ring-2 ring-white"
+                              style={{ background: cls.color || "#dc2626" }}
+                            />
+                            <div className="min-w-0 flex-1">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <p className="truncate text-sm font-semibold text-neutral-900">{cls.name}</p>
+                                <Badge variant={isActive ? "default" : "secondary"} className="text-[10px]">
+                                  {isActive ? "Ativo" : row.status ?? "—"}
+                                </Badge>
+                              </div>
+                              <div className="mt-1 flex flex-wrap gap-x-2 gap-y-0.5 text-[11px] text-neutral-500">
+                                {cls.modality ? <span>{cls.modality}</span> : null}
+                                {cls.level ? <span>· {cls.level}</span> : null}
+                                {cls.teacher_name ? <span>· Prof. {cls.teacher_name}</span> : null}
+                              </div>
+                              {(cls.dojo_units?.name || cls.dojo_spaces?.name) ? (
+                                <div className="mt-1 flex items-center gap-1 text-[11px] text-neutral-500">
+                                  <PinIcon className="h-3 w-3" />
+                                  <span className="truncate">
+                                    {[cls.dojo_units?.name, cls.dojo_spaces?.name].filter(Boolean).join(" · ")}
+                                  </span>
+                                </div>
+                              ) : null}
+                              {schedules.length > 0 ? (
+                                <ul className="mt-2 space-y-0.5">
+                                  {schedules.map((sc: any) => (
+                                    <li key={sc.id} className="flex items-center gap-1 text-[11px] text-neutral-600">
+                                      <Clock className="h-3 w-3 text-neutral-400" />
+                                      <span className="font-medium">{weekdays[Number(sc.weekday)] ?? "—"}</span>
+                                      <span className="text-neutral-500">{hhmm(sc.start_time)} – {hhmm(sc.end_time)}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              ) : (
+                                <p className="mt-2 text-[11px] text-neutral-400">Sem horários cadastrados</p>
+                              )}
+                              <p className="mt-2 text-[10px] uppercase tracking-wide text-neutral-400">
+                                Matriculado em {fmtDate(row.enrolled_at)}
+                              </p>
+                            </div>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </SectionCard>
+            </TabsContent>
+
+
             <TabsContent value="frequencia" className="mt-4 space-y-4">
               <SectionCard title="Presença" icon={CalendarCheck}>
                 <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
