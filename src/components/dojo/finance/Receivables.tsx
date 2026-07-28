@@ -174,7 +174,7 @@ function InvoiceList({
   rows: InvoiceRow[];
   loading: boolean;
   onOpen: (r: InvoiceRow) => void;
-  onPay: (id: string) => void;
+  onPay: (r: InvoiceRow) => void;
   onDelete: (id: string) => void;
 }) {
   if (loading) {
