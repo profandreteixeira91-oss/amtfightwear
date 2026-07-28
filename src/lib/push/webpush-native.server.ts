@@ -53,7 +53,7 @@ export async function sendWebPushOnce(
       options: { ttl: ttlSeconds },
     };
     const req = await buildPushPayload(message, subscription, vapid);
-    const res = await fetch(sub.endpoint, req);
+    const res = await fetch(sub.endpoint, req as unknown as RequestInit);
     if (res.status >= 200 && res.status < 300) {
       return { ok: true, status: res.status };
     }
