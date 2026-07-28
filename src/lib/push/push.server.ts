@@ -59,3 +59,17 @@ export async function sendPushToStudent(studentId: string, payload: PushPayload)
     }),
   );
 }
+
+/**
+ * Fire-and-forget: envia push ao aluno e engole qualquer erro
+ * para não bloquear o fluxo principal da função chamadora.
+ */
+export function safeNotifyStudent(
+  studentId: string | null | undefined,
+  payload: PushPayload,
+): void {
+  if (!studentId) return;
+  void sendPushToStudent(studentId, payload).catch((err) => {
+    console.warn("[safeNotifyStudent] falhou:", err?.message ?? err);
+  });
+}
