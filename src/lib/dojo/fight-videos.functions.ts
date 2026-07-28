@@ -167,7 +167,7 @@ export const addFightVideoNote = createServerFn({ method: "POST" })
         body: `Seu professor adicionou um comentário em "${(v as any).title ?? "seu vídeo"}".`,
         url: "/app/videos",
         tag: `fight-note-${row?.id ?? data.video_id}`,
-      });
+      }, "new_video");
     } catch {}
     return row;
   });
