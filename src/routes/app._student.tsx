@@ -101,24 +101,25 @@ function StudentShell() {
     <StudentThemeProvider branding={branding} appearance={config.appearance}>
       <StudentSplash />
       <InstallReminderBanner />
+      <div className="min-h-screen w-full overflow-x-clip">
       <header
         className="sticky top-0 z-30 border-b bg-white/90 backdrop-blur"
         style={{ paddingTop: "env(safe-area-inset-top)" }}
       >
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
-          <div className="flex min-w-0 items-center gap-3">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-3 py-3 sm:gap-4 sm:px-6 lg:px-8">
+          <div className="flex min-w-0 flex-1 items-center gap-2.5 sm:gap-3">
             {logo ? (
               <img
                 src={logo}
                 alt={branding?.trade_name || appName}
-                className="h-12 w-12 shrink-0 rounded-xl object-contain bg-white ring-1 ring-black/5 shadow-sm p-0.5 sm:h-14 sm:w-14"
+                className="h-10 w-10 shrink-0 rounded-xl object-contain bg-white ring-1 ring-black/5 shadow-sm p-0.5 sm:h-12 sm:w-12 md:h-14 md:w-14"
               />
             ) : (
-              <div className="h-12 w-12 shrink-0 rounded-xl sm:h-14 sm:w-14" style={{ background: "var(--sa-primary, #dc2626)" }} />
+              <div className="h-10 w-10 shrink-0 rounded-xl sm:h-12 sm:w-12 md:h-14 md:w-14" style={{ background: "var(--sa-primary, #dc2626)" }} />
             )}
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <div
-                className="truncate text-base font-bold leading-tight sm:text-lg"
+                className="truncate text-sm font-bold leading-tight sm:text-base md:text-lg"
                 style={{ color: "var(--sa-title)" }}
               >
                 {branding?.trade_name || appName}
@@ -133,18 +134,20 @@ function StudentShell() {
           {/* Desktop nav */}
           <DesktopNav items={config.bottom_nav} features={config.features} />
 
-          <div className="flex shrink-0 items-center gap-1">
+          <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
             <StudentSwitcher currentName={student?.full_name} />
             {config.features.news !== false && (
               <Link
                 to="/app/notifications"
-                className="grid h-9 w-9 place-items-center rounded-full text-neutral-600 transition hover:bg-neutral-100"
+                className="hidden h-9 w-9 place-items-center rounded-full text-neutral-600 transition hover:bg-neutral-100 sm:grid"
                 aria-label="Notificações"
               >
                 <Bell className="h-5 w-5" />
               </Link>
             )}
-            <PushToggle />
+            <div className="hidden sm:block">
+              <PushToggle />
+            </div>
             <button
               onClick={signOut}
               className="grid h-9 w-9 place-items-center rounded-full text-neutral-600 transition hover:bg-neutral-100"
@@ -156,12 +159,13 @@ function StudentShell() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-6xl px-4 pb-28 pt-4 sm:px-6 sm:pt-6 lg:px-8 lg:pb-10">
+      <main className="mx-auto w-full max-w-6xl overflow-x-clip px-4 pb-28 pt-4 sm:px-6 sm:pt-6 lg:px-8 lg:pb-10">
         <Outlet />
       </main>
 
       <div className="lg:hidden">
         <BottomNav items={config.bottom_nav} features={config.features} />
+      </div>
       </div>
       <PushActivationPrompt />
     </StudentThemeProvider>
