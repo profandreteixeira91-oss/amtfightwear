@@ -1120,6 +1120,25 @@ function SettingsPanel() {
           />
         </div>
 
+        <div className="rounded-lg border p-4 space-y-3">
+          <div>
+            <div className="font-semibold text-sm">Métodos de check-in aceitos</div>
+            <div className="text-xs text-muted-foreground">
+              Escolha quais métodos ficam disponíveis para seus alunos. Métodos desativados são ocultados no app do aluno.
+            </div>
+          </div>
+          <div className="space-y-2">
+            <SettingRow label="GPS pelo app do aluno" v={state.allowGpsCheckin} onChange={(v) => upd("allowGpsCheckin", v)} />
+            <SettingRow label="QR Code fixo da academia (impresso na parede)" v={state.allowFixedQrCheckin} onChange={(v) => upd("allowFixedQrCheckin", v)} />
+            <SettingRow label="PIN pessoal do aluno no kiosk" v={state.allowPinCheckin} onChange={(v) => upd("allowPinCheckin", v)} />
+            <SettingRow label="QR Code pessoal do aluno no kiosk" v={state.allowQrCheckin} onChange={(v) => upd("allowQrCheckin", v)} />
+            <SettingRow label="Reconhecimento por foto (foto da turma)" v={state.allowPhotoCheckin} onChange={(v) => upd("allowPhotoCheckin", v)} />
+          </div>
+        </div>
+
+        {state.allowFixedQrCheckin && <FixedQrCard />}
+
+
         <div className="space-y-2">
           <SettingRow label="Permitir múltiplos check-ins no mesmo dia" v={state.allowMultipleDaily} onChange={(v) => upd("allowMultipleDaily", v)} />
           <SettingRow label="Exigir check-out (saída)" v={state.requireCheckout} onChange={(v) => upd("requireCheckout", v)} />
