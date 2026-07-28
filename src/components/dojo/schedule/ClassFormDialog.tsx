@@ -86,19 +86,26 @@ export function ClassFormDialog({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, initial]);
 
-  const toggleDay = (d: number) => {
-    const base = form.schedules[0] ?? { start_time: "19:00", end_time: "20:00" };
-    const exists = form.schedules.some((s: Schedule) => s.weekday === d);
-    if (exists) {
-      setForm({ ...form, schedules: form.schedules.filter((s: Schedule) => s.weekday !== d) });
-    } else {
-      setForm({
-        ...form,
-        schedules: [...form.schedules, { weekday: d, start_time: base.start_time, end_time: base.end_time }].sort(
-          (a: Schedule, b: Schedule) => a.weekday - b.weekday,
-        ),
-      });
-    }
+  const addDay = (d: number) => {
+    const sameDay = form.schedules.filter((s: Schedule) => s.weekday === d);
+    const base =
+      sameDay[sameDay.length - 1] ??
+      form.schedules[form.schedules.length - 1] ??
+      { start_time: "19:00", end_time: "20:00" };
+    setForm({
+      ...form,
+      schedules: [
+        ...form.schedules,
+        { weekday: d, start_time: base.start_time, end_time: base.end_time },
+      ].sort(
+        (a: Schedule, b: Schedule) =>
+          a.weekday - b.weekday || a.start_time.localeCompare(b.start_time),
+      ),
+    });
+  };
+
+  const removeSchedule = (idx: number) => {
+    setForm({ ...form, schedules: form.schedules.filter((_: Schedule, i: number) => i !== idx) });
   };
 
   const updateSchedule = (idx: number, patch: Partial<Schedule>) => {
@@ -307,26 +314,35 @@ export function ClassFormDialog({
               Horários
             </h3>
             <div>
-              <Label className="text-xs text-muted-foreground">Dias da semana</Label>
+              <Label className="text-xs text-muted-foreground">Adicionar horário</Label>
               <div className="mt-2 grid grid-cols-4 sm:grid-cols-7 gap-1.5">
                 {WEEKDAYS.map((d) => {
-                  const on = form.schedules.some((s: Schedule) => s.weekday === d.value);
+                  const count = form.schedules.filter((s: Schedule) => s.weekday === d.value).length;
                   return (
                     <button
                       key={d.value}
                       type="button"
-                      onClick={() => toggleDay(d.value)}
-                      className={`h-10 rounded-md text-xs font-semibold border transition-colors ${
-                        on
+                      onClick={() => addDay(d.value)}
+                      title={`Adicionar horário em ${d.label}`}
+                      className={`relative h-10 rounded-md text-xs font-semibold border transition-colors ${
+                        count > 0
                           ? "bg-primary text-primary-foreground border-primary"
                           : "bg-white border-[color:var(--dojo-border)] hover:border-primary/40"
                       }`}
                     >
                       {d.short}
+                      {count > 0 && (
+                        <span className="absolute -top-1 -right-1 h-4 min-w-4 px-1 rounded-full bg-white text-primary text-[10px] font-bold border border-primary flex items-center justify-center">
+                          {count}
+                        </span>
+                      )}
                     </button>
                   );
                 })}
               </div>
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                Clique no dia para adicionar um horário. Você pode incluir vários horários no mesmo dia.
+              </p>
             </div>
 
             <div className="space-y-2">
@@ -343,8 +359,8 @@ export function ClassFormDialog({
                       size="icon"
                       variant="ghost"
                       className="h-8 w-8 shrink-0"
-                      onClick={() => toggleDay(s.weekday)}
-                      aria-label="Remover dia"
+                      onClick={() => removeSchedule(idx)}
+                      aria-label="Remover horário"
                     >
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
