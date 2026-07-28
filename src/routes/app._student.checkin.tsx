@@ -102,12 +102,14 @@ function CheckinPage() {
     <div className="space-y-4">
       <h1 className="text-xl font-bold">Check-in</h1>
 
-      <section className="rounded-2xl bg-white p-5 text-center shadow-sm ring-1 ring-neutral-100">
-        <QrCode className="mx-auto h-9 w-9 text-neutral-300" />
-        <p className="mt-2 text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Seu PIN pessoal</p>
-        <p className="text-3xl font-bold tabular-nums tracking-widest">{me?.checkin_pin ?? "——————"}</p>
-        <p className="mt-1 text-[11px] text-neutral-500">Use no kiosk da academia se o dono do dojo tiver ativado essa opção.</p>
-      </section>
+      {methods?.allowPin && (
+        <section className="rounded-2xl bg-white p-5 text-center shadow-sm ring-1 ring-neutral-100">
+          <QrCode className="mx-auto h-9 w-9 text-neutral-300" />
+          <p className="mt-2 text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Seu PIN pessoal</p>
+          <p className="text-3xl font-bold tabular-nums tracking-widest">{me?.checkin_pin ?? "——————"}</p>
+          <p className="mt-1 text-[11px] text-neutral-500">Use no kiosk da academia para registrar sua presença.</p>
+        </section>
+      )}
 
       <section>
         <h2 className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-neutral-400">
