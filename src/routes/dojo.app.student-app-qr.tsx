@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import QRCode from "qrcode";
-import { Printer, Download, Copy, Check, ArrowLeft, Smartphone } from "lucide-react";
+import { Printer, Download, Copy, Check, ArrowLeft, Smartphone, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
