@@ -51,6 +51,25 @@ function DojoAuthPage() {
     const go = async (userId: string) => {
       if (redirected) return;
       redirected = true;
+      // Team-member gate: bloqueia acesso caso o e-mail exista em
+      // dojo_team_members sem vínculo ativo com este user_id.
+      try {
+        const gate = await checkTeamMemberGate();
+        if (gate.blocked) {
+          await supabase.auth.signOut();
+          redirected = false;
+          setChecking(false);
+          toast.error("Acesso pendente", {
+            description:
+              gate.reason === "inactive"
+                ? "Seu acesso foi desativado. Fale com o dono do dojo."
+                : "Seu login precisa ser criado pelo dono do dojo no módulo Equipe.",
+          });
+          return;
+        }
+      } catch {
+        // Se a checagem falhar, seguimos sem bloquear para não travar o dono.
+      }
       await supabase.auth.updateUser({ data: { account_type: "dojo_manager" } });
       const target = await resolveDestination(userId, search.redirect);
       window.location.replace(target);
@@ -67,6 +86,7 @@ function DojoAuthPage() {
     });
     return () => sub.subscription.unsubscribe();
   }, [search.redirect]);
+
 
   const goAfterAuth = async () => {
     const { data } = await supabase.auth.getUser();
