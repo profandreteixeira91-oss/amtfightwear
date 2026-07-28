@@ -27,6 +27,8 @@ export const Route = createFileRoute("/matricula/$slug")({
   component: PublicEnrollmentPage,
 });
 
+export { PublicEnrollmentPage };
+
 const brl = (n: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(n || 0);
 
