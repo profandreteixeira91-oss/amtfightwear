@@ -237,11 +237,10 @@ export const getMyEvaluations = createServerFn({ method: "GET" })
 export const getMyHome = createServerFn({ method: "GET" })
   .middleware([requireStudentAuth])
   .handler(async ({ context }) => {
-    const { data: student } = await context.supabase
-      .from("dojo_students")
-      .select("id, owner_id, full_name, photo_url, current_belt_id, current_degree")
-      .limit(1)
-      .maybeSingle();
+    const student = await fetchActiveStudent<any>(
+      context.supabase,
+      "id, owner_id, full_name, photo_url, current_belt_id, current_degree",
+    );
     if (!student) return null;
 
     const [{ data: belt }, { data: lastCheckin }, { data: lastGrad }, { data: openInvoices }, { data: unread }] =
