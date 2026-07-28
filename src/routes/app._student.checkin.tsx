@@ -33,6 +33,7 @@ function CheckinPage() {
   const { data: methods } = useQuery({ queryKey: ["student", "checkin-methods"], queryFn: () => methodsFn() });
   const { data: history, isLoading } = useQuery({ queryKey: ["student", "attendance"], queryFn: () => listFn({}) });
   const [submitting, setSubmitting] = useState<Method | null>(null);
+  const [scannerOpen, setScannerOpen] = useState(false);
 
   async function getPosition(): Promise<GeolocationPosition | null> {
     if (typeof navigator === "undefined" || !navigator.geolocation) return null;
