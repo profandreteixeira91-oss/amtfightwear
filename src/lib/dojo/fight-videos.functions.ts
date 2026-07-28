@@ -28,7 +28,8 @@ export const listFightVideos = createServerFn({ method: "GET" })
   .inputValidator((i: unknown) => z.object({ studentId: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    await assertStudent(supabase, userId, data.studentId);
+    await assertStudent(supabase, userId, data.studentId, true);
+
     const { data: videos, error } = await supabase
       .from("dojo_fight_videos")
       .select("id, title, description, opponent, event_name, video_date, duration_seconds, storage_path, content_type, size_bytes, created_at")
