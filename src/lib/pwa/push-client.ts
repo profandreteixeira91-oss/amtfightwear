@@ -62,10 +62,18 @@ export async function subscribePush(vapidPublicKey: string): Promise<PushSubscri
   }
 
   try {
-    return await reg.pushManager.subscribe({
+    const sub = await reg.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: appServerKey.buffer as ArrayBuffer,
     });
+    // Persiste a chave VAPID no SW para permitir re-inscrição automática
+    // em "pushsubscriptionchange" (rotação comum em Android/iOS PWA).
+    try {
+      reg.active?.postMessage({ type: "SET_VAPID_KEY", key: vapidPublicKey });
+    } catch {
+      /* noop */
+    }
+    return sub;
   } catch (err: any) {
     const msg = String(err?.message || err || "");
     if (msg.toLowerCase().includes("push service")) {
@@ -89,3 +97,26 @@ export function subscriptionToPayload(sub: PushSubscription) {
     user_agent: typeof navigator !== "undefined" ? navigator.userAgent.slice(0, 500) : undefined,
   };
 }
+
+/**
+ * Registra um listener global que re-upa a inscrição no servidor sempre que
+ * o SW notificar rotação. Deve ser chamado UMA vez na inicialização do app.
+ */
+export function attachPushRotationListener(
+  onRotated: (payload: { endpoint: string; p256dh: string; auth: string; user_agent?: string }) => void,
+) {
+  if (typeof navigator === "undefined" || !("serviceWorker" in navigator)) return;
+  navigator.serviceWorker.addEventListener("message", (ev) => {
+    const data: any = ev.data;
+    if (!data || data.type !== "PUSH_SUB_CHANGED") return;
+    const keys = data.subscription?.keys ?? {};
+    if (!data.endpoint || !keys.p256dh || !keys.auth) return;
+    onRotated({
+      endpoint: data.endpoint,
+      p256dh: keys.p256dh,
+      auth: keys.auth,
+      user_agent: typeof navigator !== "undefined" ? navigator.userAgent.slice(0, 500) : undefined,
+    });
+  });
+}
+

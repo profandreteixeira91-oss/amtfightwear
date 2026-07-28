@@ -14,6 +14,8 @@ import { PushToggle } from "@/components/student/PushToggle";
 import { PushActivationPrompt } from "@/components/student/PushActivationPrompt";
 import { InstallReminderBanner } from "@/components/student/InstallReminderBanner";
 import { StudentSplash } from "@/components/student/StudentSplash";
+import { attachPushRotationListener, getCurrentSubscription, subscriptionToPayload } from "@/lib/pwa/push-client";
+import { subscribeMyPush } from "@/lib/student/push.functions";
 
 export const Route = createFileRoute("/app/_student")({
   ssr: false,
@@ -60,6 +62,31 @@ function StudentShell() {
       supabase.removeChannel(channel);
     };
   }, [studentId, queryClient]);
+
+  // Push subscription hygiene (celular): re-upa a inscrição atual no servidor
+  // ao abrir o app e escuta rotações do SW, garantindo que Android/iOS não
+  // "percam" o registro após rotação de endpoint FCM/APNs.
+  const subscribeFn = useServerFn(subscribeMyPush);
+  useEffect(() => {
+    if (!studentId) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const s = await getCurrentSubscription();
+        if (!s || cancelled) return;
+        await subscribeFn({ data: subscriptionToPayload(s) });
+      } catch {
+        /* noop */
+      }
+    })();
+    attachPushRotationListener((payload) => {
+      subscribeFn({ data: payload }).catch(() => {});
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [studentId, subscribeFn]);
+
 
   async function signOut() {
     await supabase.auth.signOut();
