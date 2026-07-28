@@ -169,7 +169,7 @@ export const FEATURE_LABELS: Record<FeatureKey, string> = {
   finance: "Financeiro",
   competitions: "Competições",
   profile: "Perfil",
-  documents: "Documentos",
+  documents: "Contratos",
   news: "Notícias",
   messages: "Mensagens",
   events: "Eventos",

@@ -583,12 +583,6 @@ export const getMyContract = createServerFn({ method: "GET" })
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
-    const { data: row, error } = await context.supabase
-      .from("dojo_student_contracts")
-      .select("*")
-      .eq("id", data.id)
-      .maybeSingle();
-    if (error) throw new Error(error.message);
-    if (!row) throw new Error("Contrato não encontrado");
-    return row;
+    const { resolveStudentContract } = await import("./contracts.server");
+    return resolveStudentContract(context.supabase, data.id);
   });

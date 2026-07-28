@@ -5,7 +5,7 @@ import { FileText, ChevronRight, CheckCircle2, Clock, XCircle, Send } from "luci
 import { listMyContracts } from "@/lib/student/student.functions";
 
 export const Route = createFileRoute("/app/_student/documents")({
-  head: () => ({ meta: [{ title: "Documentos — Portal do Aluno" }] }),
+  head: () => ({ meta: [{ title: "Contratos — Portal do Aluno" }] }),
   component: DocumentsPage,
 });
 
@@ -42,8 +42,8 @@ function DocumentsPage() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-xl font-bold" style={{ color: "var(--sa-title)" }}>Documentos</h1>
-        <p className="text-sm text-neutral-500">Seus contratos e documentos vinculados à academia.</p>
+        <h1 className="text-xl font-bold" style={{ color: "var(--sa-title)" }}>Contratos</h1>
+        <p className="text-sm text-neutral-500">Seus contratos vinculados à academia.</p>
       </div>
 
       {isLoading ? (
