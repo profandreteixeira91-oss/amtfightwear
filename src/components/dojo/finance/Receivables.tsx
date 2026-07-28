@@ -154,9 +154,9 @@ export function FinanceReceivables() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos os status</SelectItem>
-              <SelectItem value="pending">Pendentes</SelectItem>
+              <SelectItem value="pending">A vencer</SelectItem>
               <SelectItem value="paid">Pagas</SelectItem>
-              <SelectItem value="overdue">Atrasadas</SelectItem>
+              <SelectItem value="overdue">Vencidas</SelectItem>
               <SelectItem value="cancelled">Canceladas</SelectItem>
             </SelectContent>
           </Select>
