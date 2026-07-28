@@ -139,11 +139,73 @@ export const getAnnouncement = createServerFn({ method: "GET" })
     return row;
   });
 
+async function notifyStudentsForAnnouncement(supabase: any, ownerId: string, row: any) {
+  if (!row || row.status !== "published" || !row.send_notification) return;
+  try {
+    const { data: students } = await supabase
+      .from("dojo_students")
+      .select("id")
+      .eq("owner_id", ownerId)
+      .eq("status", "active");
+    const ids = (students ?? []).map((s: any) => s.id);
+    const visibleStudents: string[] = [];
+    for (const sid of ids) {
+      const { data: ok } = await supabase.rpc("dojo_announcement_visible_to_student", {
+        _ann: row.id,
+        _student: sid,
+      });
+      if (ok === true) visibleStudents.push(sid);
+    }
+    if (visibleStudents.length === 0) return;
+
+    const notifRows = visibleStudents.map((sid) => ({
+      owner_id: ownerId,
+      student_id: sid,
+      type: "announcement",
+      title: row.title,
+      message: row.summary || row.subtitle || "Novo aviso publicado",
+      link: `/app/announcements/${row.id}`,
+    }));
+    await supabase.from("dojo_student_notifications").insert(notifRows);
+
+    try {
+      const { sendPushToStudent } = await import("@/lib/push/push.server");
+      await Promise.all(
+        visibleStudents.map((sid) =>
+          sendPushToStudent(sid, {
+            title: `📣 ${row.title}`,
+            body: row.summary || row.subtitle || "Novo aviso publicado no quadro de avisos",
+            url: `/app/announcements/${row.id}`,
+            tag: `announcement-${row.id}`,
+            data: { announcementId: row.id, type: "announcement" },
+          }).catch(() => undefined),
+        ),
+      );
+    } catch (e) {
+      console.error("[announcements] push send failed", e);
+    }
+  } catch (e) {
+    console.error("[announcements] notify failed", e);
+  }
+}
+
 export const saveAnnouncement = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => announcementSchema.parse(i))
   .handler(async ({ data, context }) => {
     const { id, targets, payload } = normalize(data);
+
+    // Detecta transição de status para não notificar duas vezes o mesmo aviso.
+    let previousStatus: string | null = null;
+    if (id) {
+      const { data: prev } = await context.supabase
+        .from("dojo_announcements")
+        .select("status")
+        .eq("id", id)
+        .maybeSingle();
+      previousStatus = (prev as any)?.status ?? null;
+    }
+
     const record = { ...payload, owner_id: context.userId, created_by: context.userId };
     const { data: row, error } = id
       ? await context.supabase.from("dojo_announcements").update(record).eq("id", id).select().single()
@@ -162,50 +224,10 @@ export const saveAnnouncement = createServerFn({ method: "POST" })
       if (e2) throw new Error(e2.message);
     }
 
-    // Notify students in-app if published + notification flag
-    if (row.status === "published" && row.send_notification) {
-      try {
-        const { data: students } = await context.supabase
-          .from("dojo_students")
-          .select("id")
-          .eq("status", "active");
-        const ids = (students ?? []).map((s: any) => s.id);
-        const visibleStudents: string[] = [];
-        for (const sid of ids) {
-          const { data: ok } = await context.supabase.rpc("dojo_announcement_visible_to_student", {
-            _ann: row.id,
-            _student: sid,
-          });
-          if (ok === true) visibleStudents.push(sid);
-        }
-        if (visibleStudents.length > 0) {
-          const notifRows = visibleStudents.map((sid) => ({
-            owner_id: context.userId,
-            student_id: sid,
-            type: "announcement",
-            title: row.title,
-            message: row.summary || row.subtitle || "Novo aviso publicado",
-            link: `/app/announcements/${row.id}`,
-          }));
-          await context.supabase.from("dojo_student_notifications").insert(notifRows);
-          try {
-            const { sendPushToStudent } = await import("@/lib/push/push.server");
-            await Promise.all(
-              visibleStudents.map((sid) =>
-                sendPushToStudent(sid, {
-                  title: row.title,
-                  body: row.summary || row.subtitle || "Novo aviso publicado",
-                  url: `/app/announcements/${row.id}`,
-                  tag: `announcement-${row.id}`,
-                  data: { announcementId: row.id, type: "announcement" },
-                }).catch(() => undefined),
-              ),
-            );
-          } catch (e) {
-            console.error("[announcements] push send failed", e);
-          }
-        }
-      } catch (e) { console.error("[announcements] notify failed", e); }
+    // Notifica quando publica pela primeira vez ou quando republica após rascunho/arquivado.
+    const becamePublished = row.status === "published" && previousStatus !== "published";
+    if (becamePublished) {
+      await notifyStudentsForAnnouncement(context.supabase, context.userId, row);
     }
     return row;
   });
@@ -225,13 +247,28 @@ export const setAnnouncementStatus = createServerFn({ method: "POST" })
     z.object({ id: uuid, status: z.enum(["draft", "scheduled", "published", "archived"]) }).parse(i),
   )
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase
+    // Consulta status anterior para saber se estamos transicionando para "published".
+    const { data: prev } = await context.supabase
+      .from("dojo_announcements")
+      .select("status")
+      .eq("id", data.id)
+      .maybeSingle();
+    const previousStatus = (prev as any)?.status ?? null;
+
+    const { data: row, error } = await context.supabase
       .from("dojo_announcements")
       .update({ status: data.status })
-      .eq("id", data.id);
+      .eq("id", data.id)
+      .select()
+      .single();
     if (error) throw new Error(error.message);
+
+    if (data.status === "published" && previousStatus !== "published") {
+      await notifyStudentsForAnnouncement(context.supabase, context.userId, row);
+    }
     return { ok: true };
   });
+
 
 // ============ STATS ============
 export const announcementStats = createServerFn({ method: "GET" })
