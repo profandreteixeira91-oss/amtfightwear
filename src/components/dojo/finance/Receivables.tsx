@@ -247,7 +247,7 @@ function InvoiceList({
                           variant="outline"
                           className="h-8 text-xs shrink-0"
                           title="Marcar como recebido"
-                          onClick={() => onPay(r.id)}
+                          onClick={() => onPay(r)}
                         >
                           <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
                           Receber
