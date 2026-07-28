@@ -4,7 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const BUCKET = "dojo-fight-videos";
 
-async function assertStudent(supabase: any, userId: string, studentId: string) {
+async function assertStudent(supabase: any, userId: string, studentId: string, allowMine = false) {
   const { data, error } = await supabase
     .from("dojo_students")
     .select("id, owner_id")
@@ -12,8 +12,15 @@ async function assertStudent(supabase: any, userId: string, studentId: string) {
     .maybeSingle();
   if (error) throw new Error(error.message);
   if (!data) throw new Error("Aluno não encontrado");
-  if (data.owner_id !== userId) throw new Error("Sem permissão");
+  if (data.owner_id !== userId) {
+    if (allowMine) {
+      const { data: isMine } = await supabase.rpc("is_my_student", { _id: studentId });
+      if (isMine) return;
+    }
+    throw new Error("Sem permissão");
+  }
 }
+
 
 // -------- List videos + notes --------
 export const listFightVideos = createServerFn({ method: "GET" })
@@ -21,7 +28,8 @@ export const listFightVideos = createServerFn({ method: "GET" })
   .inputValidator((i: unknown) => z.object({ studentId: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    await assertStudent(supabase, userId, data.studentId);
+    await assertStudent(supabase, userId, data.studentId, true);
+
     const { data: videos, error } = await supabase
       .from("dojo_fight_videos")
       .select("id, title, description, opponent, event_name, video_date, duration_seconds, storage_path, content_type, size_bytes, created_at")

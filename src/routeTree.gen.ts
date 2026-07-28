@@ -100,6 +100,7 @@ import { Route as AppStudentVideosRouteImport } from './routes/app._student.vide
 import { Route as AppStudentSettingsRouteImport } from './routes/app._student.settings'
 import { Route as AppStudentRankingRouteImport } from './routes/app._student.ranking'
 import { Route as AppStudentProfileRouteImport } from './routes/app._student.profile'
+import { Route as AppStudentPerformanceRouteImport } from './routes/app._student.performance'
 import { Route as AppStudentOnboardingRouteImport } from './routes/app._student.onboarding'
 import { Route as AppStudentNotificationsRouteImport } from './routes/app._student.notifications'
 import { Route as AppStudentNewsRouteImport } from './routes/app._student.news'
@@ -754,6 +755,11 @@ const AppStudentRankingRoute = AppStudentRankingRouteImport.update({
 const AppStudentProfileRoute = AppStudentProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => AppStudentRoute,
+} as any)
+const AppStudentPerformanceRoute = AppStudentPerformanceRouteImport.update({
+  id: '/performance',
+  path: '/performance',
   getParentRoute: () => AppStudentRoute,
 } as any)
 const AppStudentOnboardingRoute = AppStudentOnboardingRouteImport.update({
@@ -2016,6 +2022,7 @@ export interface FileRoutesByFullPath {
   '/app/news': typeof AppStudentNewsRoute
   '/app/notifications': typeof AppStudentNotificationsRoute
   '/app/onboarding': typeof AppStudentOnboardingRoute
+  '/app/performance': typeof AppStudentPerformanceRoute
   '/app/profile': typeof AppStudentProfileRoute
   '/app/ranking': typeof AppStudentRankingRoute
   '/app/settings': typeof AppStudentSettingsRoute
@@ -2296,6 +2303,7 @@ export interface FileRoutesByTo {
   '/app/news': typeof AppStudentNewsRoute
   '/app/notifications': typeof AppStudentNotificationsRoute
   '/app/onboarding': typeof AppStudentOnboardingRoute
+  '/app/performance': typeof AppStudentPerformanceRoute
   '/app/profile': typeof AppStudentProfileRoute
   '/app/ranking': typeof AppStudentRankingRoute
   '/app/settings': typeof AppStudentSettingsRoute
@@ -2580,6 +2588,7 @@ export interface FileRoutesById {
   '/app/_student/news': typeof AppStudentNewsRoute
   '/app/_student/notifications': typeof AppStudentNotificationsRoute
   '/app/_student/onboarding': typeof AppStudentOnboardingRoute
+  '/app/_student/performance': typeof AppStudentPerformanceRoute
   '/app/_student/profile': typeof AppStudentProfileRoute
   '/app/_student/ranking': typeof AppStudentRankingRoute
   '/app/_student/settings': typeof AppStudentSettingsRoute
@@ -2872,6 +2881,7 @@ export interface FileRouteTypes {
     | '/app/news'
     | '/app/notifications'
     | '/app/onboarding'
+    | '/app/performance'
     | '/app/profile'
     | '/app/ranking'
     | '/app/settings'
@@ -3152,6 +3162,7 @@ export interface FileRouteTypes {
     | '/app/news'
     | '/app/notifications'
     | '/app/onboarding'
+    | '/app/performance'
     | '/app/profile'
     | '/app/ranking'
     | '/app/settings'
@@ -3435,6 +3446,7 @@ export interface FileRouteTypes {
     | '/app/_student/news'
     | '/app/_student/notifications'
     | '/app/_student/onboarding'
+    | '/app/_student/performance'
     | '/app/_student/profile'
     | '/app/_student/ranking'
     | '/app/_student/settings'
@@ -4297,6 +4309,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/app/profile'
       preLoaderRoute: typeof AppStudentProfileRouteImport
+      parentRoute: typeof AppStudentRoute
+    }
+    '/app/_student/performance': {
+      id: '/app/_student/performance'
+      path: '/performance'
+      fullPath: '/app/performance'
+      preLoaderRoute: typeof AppStudentPerformanceRouteImport
       parentRoute: typeof AppStudentRoute
     }
     '/app/_student/onboarding': {
@@ -6154,6 +6173,7 @@ interface AppStudentRouteChildren {
   AppStudentNewsRoute: typeof AppStudentNewsRoute
   AppStudentNotificationsRoute: typeof AppStudentNotificationsRoute
   AppStudentOnboardingRoute: typeof AppStudentOnboardingRoute
+  AppStudentPerformanceRoute: typeof AppStudentPerformanceRoute
   AppStudentProfileRoute: typeof AppStudentProfileRoute
   AppStudentRankingRoute: typeof AppStudentRankingRoute
   AppStudentSettingsRoute: typeof AppStudentSettingsRoute
@@ -6176,6 +6196,7 @@ const AppStudentRouteChildren: AppStudentRouteChildren = {
   AppStudentNewsRoute: AppStudentNewsRoute,
   AppStudentNotificationsRoute: AppStudentNotificationsRoute,
   AppStudentOnboardingRoute: AppStudentOnboardingRoute,
+  AppStudentPerformanceRoute: AppStudentPerformanceRoute,
   AppStudentProfileRoute: AppStudentProfileRoute,
   AppStudentRankingRoute: AppStudentRankingRoute,
   AppStudentSettingsRoute: AppStudentSettingsRoute,
