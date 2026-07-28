@@ -36,6 +36,11 @@ export function FinanceReceivables() {
   const [status, setStatus] = useState("all");
   const [q, setQ] = useState("");
   const [selected, setSelected] = useState<InvoiceRow | null>(null);
+  const [payTarget, setPayTarget] = useState<InvoiceRow | null>(null);
+  const [payDate, setPayDate] = useState<Date>(new Date());
+  const [payMethod, setPayMethod] = useState<string>("cash");
+  const [paying, setPaying] = useState(false);
+  const [calOpen, setCalOpen] = useState(false);
   const invs = useInvoices(status);
   const payFn = useServerFn(markDojoInvoicePaid);
   const delFn = useServerFn(deleteDojoInvoice);
@@ -62,13 +67,26 @@ export function FinanceReceivables() {
   const overdue = items.filter((i) => i.status !== "paid" && i.status !== "cancelled" && new Date(i.due_date) < new Date(isoDate()));
   const cancelled = items.filter((i) => i.status === "cancelled");
 
-  const handlePay = async (id: string) => {
+  const openPay = (row: InvoiceRow) => {
+    setPayTarget(row);
+    setPayDate(new Date());
+    setPayMethod((row as any).method || "cash");
+  };
+  const confirmPay = async () => {
+    if (!payTarget) return;
+    setPaying(true);
     try {
-      await payFn({ data: { id, method: "cash" } });
+      // paid_at as noon ISO to avoid timezone drift on the selected day
+      const d = new Date(payDate);
+      d.setHours(12, 0, 0, 0);
+      await payFn({ data: { id: payTarget.id, method: payMethod, paid_at: d.toISOString() } });
       toast.success("Cobrança recebida");
+      setPayTarget(null);
       refresh();
     } catch (e: any) {
       toast.error(e.message);
+    } finally {
+      setPaying(false);
     }
   };
   const handleDelete = async (id: string) => {
