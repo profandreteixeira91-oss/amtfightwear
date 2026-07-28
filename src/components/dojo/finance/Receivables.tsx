@@ -27,10 +27,44 @@ import { ShareInvoiceMenu } from "./ShareInvoice";
 
 const STATUS_LABEL: Record<string, string> = {
   paid: "Pago",
-  pending: "Pendente",
-  overdue: "Atrasado",
+  pending: "A vencer",
+  due_soon: "Próxima ao vencimento",
+  overdue: "Vencida",
   cancelled: "Cancelado",
 };
+
+const DUE_SOON_DAYS = 5;
+
+function daysUntilDue(dueDate: string) {
+  const today = new Date(isoDate());
+  const due = new Date(dueDate);
+  return Math.ceil((due.getTime() - today.getTime()) / 86_400_000);
+}
+
+function effectiveKey(r: InvoiceRow): "paid" | "overdue" | "due_soon" | "pending" | "cancelled" {
+  if (r.status === "paid") return "paid";
+  if (r.status === "cancelled") return "cancelled";
+  const d = daysUntilDue(r.due_date);
+  if (d < 0) return "overdue";
+  if (d <= DUE_SOON_DAYS) return "due_soon";
+  return "pending";
+}
+
+function statusClasses(key: string) {
+  switch (key) {
+    case "paid":
+      return "bg-emerald-50 text-emerald-700 border-emerald-200";
+    case "overdue":
+      return "bg-red-50 text-red-700 border-red-200";
+    case "due_soon":
+      return "bg-amber-50 text-amber-800 border-amber-200";
+    case "pending":
+      return "bg-emerald-50 text-emerald-700 border-emerald-200";
+    case "cancelled":
+    default:
+      return "bg-muted text-muted-foreground";
+  }
+}
 
 export function FinanceReceivables() {
   const [status, setStatus] = useState("all");
