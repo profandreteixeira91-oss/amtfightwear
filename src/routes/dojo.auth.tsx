@@ -145,6 +145,18 @@ function DojoAuthPage() {
       });
       return;
     }
+    // E-mails cadastrados como membro de equipe não podem se auto-registrar:
+    // o login precisa ser criado pelo dono no módulo Equipe.
+    try {
+      const teamCheck = await isEmailTeamMember({ data: { email: email.trim().toLowerCase() } });
+      if (teamCheck.isTeamMember) {
+        toast.error("E-mail de colaborador", {
+          description:
+            "Este e-mail é de um membro de equipe. Peça ao dono do dojo para criar seu login no módulo Equipe.",
+        });
+        return;
+      }
+    } catch { /* segue em caso de falha na checagem */ }
     setLoading(true);
     const { error, data } = await supabase.auth.signUp({
       email,
@@ -161,18 +173,7 @@ function DojoAuthPage() {
       window.location.assign("/dojo/app");
     }
   };
-    // E-mails cadastrados como membro de equipe não podem se auto-registrar:
-    // o login precisa ser criado pelo dono no módulo Equipe.
-    try {
-      const teamCheck = await isEmailTeamMember({ data: { email: email.trim().toLowerCase() } });
-      if (teamCheck.isTeamMember) {
-        toast.error("E-mail de colaborador", {
-          description:
-            "Este e-mail é de um membro de equipe. Peça ao dono do dojo para criar seu login no módulo Equipe.",
-        });
-        return;
-      }
-    } catch { /* segue em caso de falha na checagem */ }
+
 
   const handleGoogle = async () => {
     setGoogleLoading(true);
