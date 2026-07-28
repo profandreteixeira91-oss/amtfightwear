@@ -369,8 +369,8 @@ export const selfCheckin = createServerFn({ method: "POST" })
       throw new Error("Este método de check-in não está habilitado pela sua academia.");
     }
 
-    // Validação por localização
-    if (s?.geo_required) {
+    // Validação por localização (apenas para check-in por app/GPS)
+    if (data.method === "app" && s?.geo_required) {
       if (s.geo_lat == null || s.geo_lng == null) {
         throw new Error("A academia ainda não configurou a localização de check-in. Peça ao instrutor para configurar.");
       }
