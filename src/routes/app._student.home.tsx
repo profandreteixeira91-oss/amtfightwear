@@ -28,6 +28,7 @@ const SHORTCUT_META: Record<string, { label: string; icon: keyof typeof Icons; t
   documents: { label: "Contratos", icon: "FileText", to: "/app/documents", feature: "documents" },
   ranking: { label: "Ranking", icon: "Trophy", to: "/app/ranking", feature: "ranking" },
   card: { label: "Carteirinha", icon: "IdCard", to: "/app/card" },
+  notifications: { label: "Notificações do app", icon: "Bell", to: "/app/notifications" },
 
 };
 
