@@ -4,7 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const BUCKET = "dojo-fight-videos";
 
-async function assertStudent(supabase: any, userId: string, studentId: string) {
+async function assertStudent(supabase: any, userId: string, studentId: string, allowMine = false) {
   const { data, error } = await supabase
     .from("dojo_students")
     .select("id, owner_id")
@@ -12,8 +12,15 @@ async function assertStudent(supabase: any, userId: string, studentId: string) {
     .maybeSingle();
   if (error) throw new Error(error.message);
   if (!data) throw new Error("Aluno não encontrado");
-  if (data.owner_id !== userId) throw new Error("Sem permissão");
+  if (data.owner_id !== userId) {
+    if (allowMine) {
+      const { data: isMine } = await supabase.rpc("is_my_student", { _id: studentId });
+      if (isMine) return;
+    }
+    throw new Error("Sem permissão");
+  }
 }
+
 
 // -------- List videos + notes --------
 export const listFightVideos = createServerFn({ method: "GET" })
