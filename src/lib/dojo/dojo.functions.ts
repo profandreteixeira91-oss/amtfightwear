@@ -864,18 +864,21 @@ export const deleteDojoInvoice = createServerFn({ method: "POST" })
     if (invoiceError) throw new Error(invoiceError.message);
     if (!invoice) throw new Error("Cobrança não encontrada");
 
-    if (!(invoice as any).asaas_charge_id) {
-      throw new Error("Esta cobrança antiga ainda não está vinculada ao AMT Pay. Edite e salve a cobrança antes de excluí-la.");
+    if ((invoice as any).asaas_charge_id) {
+      const { data: profile } = await context.supabase
+        .from("dojo_academy_profile")
+        .select("asaas_subaccount_id, asaas_api_key_encrypted, asaas_wallet_id, asaas_onboarding_status")
+        .eq("owner_id", ownerId(context))
+        .maybeSingle();
+      const { resolveDojoAsaasCredentials } = await import("@/lib/asaas/enrollment.server");
+      const { apiKey } = resolveDojoAsaasCredentials((profile ?? {}) as any);
+      const { asaasCancelCharge } = await import("@/lib/asaas/client.server");
+      try {
+        await asaasCancelCharge((invoice as any).asaas_charge_id, apiKey);
+      } catch (e: any) {
+        console.warn("[deleteDojoInvoice] Asaas cancel failed, deleting locally:", e?.message);
+      }
     }
-    const { data: profile } = await context.supabase
-      .from("dojo_academy_profile")
-      .select("asaas_subaccount_id, asaas_api_key_encrypted, asaas_wallet_id, asaas_onboarding_status")
-      .eq("owner_id", ownerId(context))
-      .maybeSingle();
-    const { resolveDojoAsaasCredentials } = await import("@/lib/asaas/enrollment.server");
-    const { apiKey } = resolveDojoAsaasCredentials((profile ?? {}) as any);
-    const { asaasCancelCharge } = await import("@/lib/asaas/client.server");
-    await asaasCancelCharge((invoice as any).asaas_charge_id, apiKey);
 
     const { error } = await context.supabase.from("dojo_invoices").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
