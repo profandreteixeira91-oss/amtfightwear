@@ -402,6 +402,51 @@ export function PhotoCheckinFlow({ onComplete, onCancel, unitId: initialUnitId }
   );
 }
 
+function SelectField({
+  icon,
+  label,
+  hint,
+  value,
+  onChange,
+  placeholder,
+  options,
+  disabled,
+}: {
+  icon?: React.ReactNode;
+  label: string;
+  hint?: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder: string;
+  options: { value: string; label: string }[];
+  disabled?: boolean;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-center gap-1.5">
+        <span className="text-neutral-500">{icon}</span>
+        <label className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+          {label}
+        </label>
+      </div>
+      <select
+        className="h-11 w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 text-sm text-white outline-none transition-all hover:border-white/20 focus:border-red-500/40 focus:ring-2 focus:ring-red-500/30 disabled:cursor-not-allowed disabled:opacity-50"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        disabled={disabled}
+      >
+        <option value="">{placeholder}</option>
+        {options.map((o) => (
+          <option key={o.value} value={o.value} className="bg-neutral-900">
+            {o.label}
+          </option>
+        ))}
+      </select>
+      {hint && <p className="text-[10.5px] text-neutral-500">{hint}</p>}
+    </div>
+  );
+}
+
 function FaceResultCard({ face, onUpdate }: { face: any; onUpdate: (f: any) => void }) {
   const [showSearch, setShowSearch] = useState(false);
   const isHighConfidence = face.confidence >= 0.9;
