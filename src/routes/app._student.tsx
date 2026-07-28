@@ -14,6 +14,8 @@ import { PushToggle } from "@/components/student/PushToggle";
 import { PushActivationPrompt } from "@/components/student/PushActivationPrompt";
 import { InstallReminderBanner } from "@/components/student/InstallReminderBanner";
 import { StudentSplash } from "@/components/student/StudentSplash";
+import { attachPushRotationListener, getCurrentSubscription, subscriptionToPayload } from "@/lib/pwa/push-client";
+import { subscribeMyPush } from "@/lib/student/push.functions";
 
 export const Route = createFileRoute("/app/_student")({
   ssr: false,
