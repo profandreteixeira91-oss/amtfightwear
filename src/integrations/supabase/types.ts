@@ -7456,6 +7456,27 @@ export type Database = {
           },
         ]
       }
+      dojo_student_notification_prefs: {
+        Row: {
+          categories: Json
+          created_at: string
+          owner_id: string
+          updated_at: string
+        }
+        Insert: {
+          categories?: Json
+          created_at?: string
+          owner_id: string
+          updated_at?: string
+        }
+        Update: {
+          categories?: Json
+          created_at?: string
+          owner_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       dojo_student_notifications: {
         Row: {
           created_at: string
