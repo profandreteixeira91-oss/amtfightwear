@@ -63,6 +63,31 @@ function StudentShell() {
     };
   }, [studentId, queryClient]);
 
+  // Push subscription hygiene (celular): re-upa a inscrição atual no servidor
+  // ao abrir o app e escuta rotações do SW, garantindo que Android/iOS não
+  // "percam" o registro após rotação de endpoint FCM/APNs.
+  const subscribeFn = useServerFn(subscribeMyPush);
+  useEffect(() => {
+    if (!studentId) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const s = await getCurrentSubscription();
+        if (!s || cancelled) return;
+        await subscribeFn({ data: subscriptionToPayload(s) });
+      } catch {
+        /* noop */
+      }
+    })();
+    attachPushRotationListener((payload) => {
+      subscribeFn({ data: payload }).catch(() => {});
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [studentId, subscribeFn]);
+
+
   async function signOut() {
     await supabase.auth.signOut();
     navigate({ to: "/app/login", replace: true });
