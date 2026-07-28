@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireStudentAuth } from "@/integrations/supabase/student-auth-middleware";
+import { fetchActiveStudent } from "./_me";
+
 
 // Aluno resgata um QR fixo específico de unidade.
 // Regras aplicadas 100% no backend:
