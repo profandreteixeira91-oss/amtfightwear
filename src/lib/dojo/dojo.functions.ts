@@ -1477,6 +1477,15 @@ export const issueCertificate = createServerFn({ method: "POST" })
       owner_id: ownerId(context),
     }).select("*").single();
     if (error) throw new Error(error.message);
+    try {
+      const { safeNotifyStudent } = await import("@/lib/push/push.server");
+      safeNotifyStudent(data.student_id, {
+        title: "Certificado disponível 🎓",
+        body: "Seu novo certificado foi emitido. Toque para visualizar e baixar.",
+        url: "/app/certificados",
+        tag: `certificate-${row.id}`,
+      });
+    } catch {}
     return row;
   });
 
