@@ -335,7 +335,7 @@ export const selfCheckin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) =>
     z.object({
-      method: z.enum(["app", "qr", "pin"]).default("app"),
+      method: z.enum(["app", "qr", "pin", "fixed_qr", "photo"]).default("app"),
       lat: z.number().min(-90).max(90).optional().nullable(),
       lng: z.number().min(-180).max(180).optional().nullable(),
       accuracy: z.number().min(0).max(100000).optional().nullable(),
@@ -351,11 +351,23 @@ export const selfCheckin = createServerFn({ method: "POST" })
 
     const { data: settings } = await context.supabase
       .from("dojo_checkin_settings")
-      .select("min_interval_minutes, allow_multiple_daily, geo_required, geo_lat, geo_lng, geo_radius_m")
+      .select("min_interval_minutes, allow_multiple_daily, geo_required, geo_lat, geo_lng, geo_radius_m, allow_gps_checkin, allow_pin_checkin, allow_qr_checkin, allow_fixed_qr_checkin, allow_photo_checkin")
       .eq("owner_id", me.owner_id)
       .maybeSingle();
     const s = settings as any;
     const minInterval = s?.min_interval_minutes ?? 30;
+
+    // Método habilitado?
+    const methodEnabled: Record<string, boolean> = {
+      app: s?.allow_gps_checkin ?? true,
+      qr: s?.allow_qr_checkin ?? true,
+      pin: s?.allow_pin_checkin ?? true,
+      fixed_qr: s?.allow_fixed_qr_checkin ?? true,
+      photo: s?.allow_photo_checkin ?? false,
+    };
+    if (!methodEnabled[data.method]) {
+      throw new Error("Este método de check-in não está habilitado pela sua academia.");
+    }
 
     // Validação por localização
     if (s?.geo_required) {
