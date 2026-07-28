@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -193,6 +193,14 @@ export function PayPageView({ invoiceId }: { invoiceId: string }) {
               <div className="text-sm text-muted-foreground text-center py-4">
                 Esta cobrança foi cancelada. Entre em contato com {identity.name}.
               </div>
+            ) : !state.data.payment.anyOnline ? (
+              <OfflineOnlyPanel
+                identityName={identity.name}
+                phone={identity.phone}
+                email={identity.email}
+                amtPayActive={state.data.payment.amtPayActive}
+                offlineMethods={state.data.payment.offlineMethods}
+              />
             ) : (
               <PaymentTabs
                 invoiceId={invoiceId}
@@ -206,6 +214,10 @@ export function PayPageView({ invoiceId }: { invoiceId: string }) {
                 fetchBoleto={fetchBoleto}
                 chargeCard={chargeCard}
                 onPaid={() => setPaid(true)}
+                allowPix={state.data.payment.allowPix}
+                allowCard={state.data.payment.allowCard}
+                allowBoleto={state.data.payment.allowBoleto}
+                offlineMethods={state.data.payment.offlineMethods}
               />
             )}
           </CardContent>
@@ -241,32 +253,101 @@ type TabsProps = {
   fetchBoleto: ReturnType<typeof useServerFn<typeof getInvoiceBoleto>>;
   chargeCard: ReturnType<typeof useServerFn<typeof payInvoiceWithCard>>;
   onPaid: () => void;
+  allowPix?: boolean;
+  allowCard?: boolean;
+  allowBoleto?: boolean;
+  offlineMethods?: Array<{ code: string; label: string }>;
 };
 
 function PaymentTabs(props: TabsProps) {
+  const allowPix = props.allowPix ?? true;
+  const allowCard = props.allowCard ?? true;
+  const allowBoleto = props.allowBoleto ?? true;
+  const tabs: Array<{ key: string; label: string; icon: any; render: () => React.ReactElement }> = [];
+  if (allowPix) tabs.push({ key: "pix", label: "Pix", icon: QrCode, render: () => <PixPanel {...props} /> });
+  if (allowCard) tabs.push({ key: "card", label: "Cartão", icon: CreditCard, render: () => <CardPanel {...props} /> });
+  if (allowBoleto) tabs.push({ key: "boleto", label: "Boleto", icon: FileText, render: () => <BoletoPanel {...props} /> });
+  if (tabs.length === 0) return null;
+
   return (
-    <Tabs defaultValue="pix" className="w-full">
-      <TabsList className="grid w-full grid-cols-3">
-        <TabsTrigger value="pix">
-          <QrCode className="h-4 w-4 mr-1" /> Pix
-        </TabsTrigger>
-        <TabsTrigger value="card">
-          <CreditCard className="h-4 w-4 mr-1" /> Cartão
-        </TabsTrigger>
-        <TabsTrigger value="boleto">
-          <FileText className="h-4 w-4 mr-1" /> Boleto
-        </TabsTrigger>
-      </TabsList>
-      <TabsContent value="pix" className="mt-4">
-        <PixPanel {...props} />
-      </TabsContent>
-      <TabsContent value="card" className="mt-4">
-        <CardPanel {...props} />
-      </TabsContent>
-      <TabsContent value="boleto" className="mt-4">
-        <BoletoPanel {...props} />
-      </TabsContent>
-    </Tabs>
+    <div className="space-y-3">
+      <Tabs defaultValue={tabs[0].key} className="w-full">
+        <TabsList
+          className="grid w-full"
+          style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}
+        >
+          {tabs.map((t) => {
+            const Icon = t.icon;
+            return (
+              <TabsTrigger key={t.key} value={t.key}>
+                <Icon className="h-4 w-4 mr-1" /> {t.label}
+              </TabsTrigger>
+            );
+          })}
+        </TabsList>
+        {tabs.map((t) => (
+          <TabsContent key={t.key} value={t.key} className="mt-4">
+            {t.render()}
+          </TabsContent>
+        ))}
+      </Tabs>
+      {props.offlineMethods && props.offlineMethods.length > 0 ? (
+        <div className="rounded-lg border bg-muted/20 p-3 text-xs text-muted-foreground">
+          <p className="font-medium text-foreground mb-1">Também aceitamos presencialmente:</p>
+          <ul className="list-disc list-inside space-y-0.5">
+            {props.offlineMethods.map((m) => (
+              <li key={m.code}>{m.label}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function OfflineOnlyPanel({
+  identityName,
+  phone,
+  email,
+  amtPayActive,
+  offlineMethods,
+}: {
+  identityName: string;
+  phone?: string | null;
+  email?: string | null;
+  amtPayActive: boolean;
+  offlineMethods: Array<{ code: string; label: string }>;
+}) {
+  return (
+    <div className="space-y-3">
+      <div className="rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-950/20 p-4 space-y-2">
+        <p className="text-sm font-medium text-amber-900 dark:text-amber-200">
+          Pagamento online indisponível
+        </p>
+        <p className="text-xs text-amber-800 dark:text-amber-300">
+          {amtPayActive
+            ? `${identityName} não habilitou formas de pagamento online para esta cobrança.`
+            : `${identityName} ainda não ativou o AMT Pay. O pagamento online desta cobrança não está disponível no momento.`}
+        </p>
+      </div>
+      {offlineMethods.length > 0 ? (
+        <div className="rounded-lg border p-4 space-y-2">
+          <p className="text-sm font-medium">Formas de pagamento aceitas</p>
+          <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+            {offlineMethods.map((m) => (
+              <li key={m.code}>{m.label}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+      {phone || email ? (
+        <div className="rounded-lg border bg-muted/20 p-4 text-sm text-muted-foreground">
+          <p className="font-medium text-foreground mb-1">Combine o pagamento diretamente:</p>
+          {phone ? <p>Telefone/WhatsApp: {phone}</p> : null}
+          {email ? <p>E-mail: {email}</p> : null}
+        </div>
+      ) : null}
+    </div>
   );
 }
 
