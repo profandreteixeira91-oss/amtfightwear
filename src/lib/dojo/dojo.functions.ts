@@ -1754,9 +1754,12 @@ export const addBulkGraduation = createServerFn({ method: "POST" })
       invoicesCreated.push({ graduation_id: g.id, invoice_id: inv.id, amount: fee, status: inv.status });
     }
 
-    // Notifica cada aluno graduado (push best-effort).
+    // Notifica cada aluno graduado (push best-effort) — graduação + cobrança.
     try {
       const { safeNotifyStudent } = await import("@/lib/push/push.server");
+      const amountFmt = (v: number) =>
+        new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v);
+      const invoiceByGrad = new Map(invoicesCreated.map(i => [i.graduation_id, i]));
       for (const g of (inserted ?? []) as any[]) {
         const belt = beltById.get(g.belt_id);
         const degreeTxt = typeof g.degree === "number" && g.degree > 0 ? ` — ${g.degree}º grau` : "";
@@ -1766,6 +1769,16 @@ export const addBulkGraduation = createServerFn({ method: "POST" })
           url: "/app/graduacoes",
           tag: `graduation-${g.id}`,
         }, "graduation");
+
+        const inv = invoiceByGrad.get(g.id);
+        if (inv && inv.status !== "paid") {
+          safeNotifyStudent(g.student_id, {
+            title: "Nova cobrança disponível",
+            body: `Taxa de graduação — ${belt?.name ?? "Faixa"} • ${amountFmt(inv.amount)}${data.graduation_date ? ` • vence em ${new Date(data.graduation_date).toLocaleDateString("pt-BR")}` : ""}`,
+            url: "/app/financeiro",
+            tag: `invoice-${inv.invoice_id}`,
+          }, "invoice_due_soon");
+        }
       }
     } catch {}
 
