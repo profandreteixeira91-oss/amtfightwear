@@ -167,12 +167,22 @@ export function FinanceReceivables() {
         <div className="-mx-1 overflow-x-auto">
           <TabsList className="w-max min-w-full flex-nowrap">
             <TabsTrigger value="all" className="whitespace-nowrap">Todas · {items.length}</TabsTrigger>
-            <TabsTrigger value="pending" className="whitespace-nowrap">Pendentes · {pending.length}</TabsTrigger>
+            <TabsTrigger value="pending" className="whitespace-nowrap">
+              <span className="mr-1 inline-block h-2 w-2 rounded-full bg-emerald-500" />
+              A vencer · {pending.length}
+            </TabsTrigger>
+            <TabsTrigger value="due_soon" className="whitespace-nowrap">
+              <span className="mr-1 inline-block h-2 w-2 rounded-full bg-amber-500" />
+              Próxima ao vencimento · {dueSoon.length}
+            </TabsTrigger>
             <TabsTrigger value="overdue" className="whitespace-nowrap">
               <AlertCircle className="h-3 w-3 mr-1 text-red-600" />
               Vencidas · {overdue.length}
             </TabsTrigger>
-            <TabsTrigger value="paid" className="whitespace-nowrap">Pagas · {paid.length}</TabsTrigger>
+            <TabsTrigger value="paid" className="whitespace-nowrap">
+              <span className="mr-1 inline-block h-2 w-2 rounded-full bg-emerald-500" />
+              Pagas · {paid.length}
+            </TabsTrigger>
             <TabsTrigger value="cancelled" className="whitespace-nowrap">Canceladas · {cancelled.length}</TabsTrigger>
           </TabsList>
         </div>
@@ -182,6 +192,9 @@ export function FinanceReceivables() {
         </TabsContent>
         <TabsContent value="pending">
           <InvoiceList rows={pending} loading={invs.isLoading} onOpen={setSelected} onPay={openPay} onDelete={handleDelete} />
+        </TabsContent>
+        <TabsContent value="due_soon">
+          <InvoiceList rows={dueSoon} loading={invs.isLoading} onOpen={setSelected} onPay={openPay} onDelete={handleDelete} />
         </TabsContent>
         <TabsContent value="overdue">
           <InvoiceList rows={overdue} loading={invs.isLoading} onOpen={setSelected} onPay={openPay} onDelete={handleDelete} />
