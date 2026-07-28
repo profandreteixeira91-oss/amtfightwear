@@ -13,7 +13,60 @@ type PushPayload = {
   data?: Record<string, unknown>;
 };
 
-export async function sendPushToStudent(studentId: string, payload: PushPayload): Promise<void> {
+export type StudentNotificationCategory =
+  | "class_reminder"
+  | "invoice_due_soon"
+  | "invoice_overdue"
+  | "payment_received"
+  | "announcement"
+  | "graduation"
+  | "new_video"
+  | "evaluation"
+  | "attendance_confirmed"
+  | "contract"
+  | "competition"
+  | "plan_change";
+
+async function isCategoryEnabledForStudent(
+  studentId: string,
+  category: StudentNotificationCategory | undefined,
+): Promise<boolean> {
+  if (!category) return true;
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: st } = await supabaseAdmin
+      .from("dojo_students")
+      .select("owner_id")
+      .eq("id", studentId)
+      .maybeSingle();
+    const ownerId = (st as any)?.owner_id as string | undefined;
+    if (!ownerId) return true;
+    const { data: prefs } = await supabaseAdmin
+      .from("dojo_student_notification_prefs")
+      .select("categories")
+      .eq("owner_id", ownerId)
+      .maybeSingle();
+    const cats = (prefs as any)?.categories as Record<string, boolean> | undefined;
+    if (!cats) return true; // sem preferências salvas → padrão (tudo ligado)
+    // undefined em categoria específica também trata como ligado
+    return cats[category] !== false;
+  } catch (err) {
+    console.warn("[push:student] falha ao ler preferências, seguindo com envio:", (err as any)?.message);
+    return true;
+  }
+}
+
+export async function sendPushToStudent(
+  studentId: string,
+  payload: PushPayload,
+  category?: StudentNotificationCategory,
+): Promise<void> {
+  const allowed = await isCategoryEnabledForStudent(studentId, category);
+  if (!allowed) {
+    console.log("[push:student] categoria desativada pelo dono do dojo", { studentId, category });
+    return;
+  }
+
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data: subs, error } = await supabaseAdmin
     .from("dojo_push_subscriptions")
@@ -61,9 +114,10 @@ export async function sendPushToStudent(studentId: string, payload: PushPayload)
 export function safeNotifyStudent(
   studentId: string | null | undefined,
   payload: PushPayload,
+  category?: StudentNotificationCategory,
 ): void {
   if (!studentId) return;
-  void sendPushToStudent(studentId, payload).catch((err) => {
+  void sendPushToStudent(studentId, payload, category).catch((err) => {
     console.warn("[safeNotifyStudent] falhou:", err?.message ?? err);
   });
 }
