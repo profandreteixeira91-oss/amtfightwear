@@ -285,10 +285,25 @@ export const upsertCompetitionAthlete = createServerFn({ method: "POST" })
           body,
           kind: "competition",
         } as never);
+
+        // Envia push web ao aluno
+        try {
+          const { safeNotifyStudent } = await import("@/lib/push/push.server");
+          safeNotifyStudent(data.student_id, {
+            title,
+            body,
+            url: "/app/competitions",
+            tag: `competition-${data.academy_competition_id}-${newStatus ?? "new"}`,
+            data: { academyCompetitionId: data.academy_competition_id, type: "competition" },
+          }, "competition");
+        } catch (pushErr) {
+          console.warn("competition push failed", pushErr);
+        }
       }
     } catch (e) {
       console.warn("notify athlete failed", e);
     }
+
 
     return row;
   });
