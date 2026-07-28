@@ -3439,13 +3439,18 @@ export type Database = {
       }
       dojo_checkin_settings: {
         Row: {
+          allow_admin_exception: boolean
           allow_fixed_qr_checkin: boolean
           allow_gps_checkin: boolean
           allow_multiple_daily: boolean
           allow_photo_checkin: boolean
           allow_pin_checkin: boolean
           allow_qr_checkin: boolean
+          allow_teacher_exception: boolean
+          block_duplicate_checkin: boolean
           block_on_overdue: boolean
+          checkin_window_post_mins: number
+          checkin_window_pre_mins: number
           created_at: string
           extras: Json
           face_allow_manual_confirmation: boolean | null
@@ -3472,13 +3477,18 @@ export type Database = {
           welcome_message: string | null
         }
         Insert: {
+          allow_admin_exception?: boolean
           allow_fixed_qr_checkin?: boolean
           allow_gps_checkin?: boolean
           allow_multiple_daily?: boolean
           allow_photo_checkin?: boolean
           allow_pin_checkin?: boolean
           allow_qr_checkin?: boolean
+          allow_teacher_exception?: boolean
+          block_duplicate_checkin?: boolean
           block_on_overdue?: boolean
+          checkin_window_post_mins?: number
+          checkin_window_pre_mins?: number
           created_at?: string
           extras?: Json
           face_allow_manual_confirmation?: boolean | null
@@ -3505,13 +3515,18 @@ export type Database = {
           welcome_message?: string | null
         }
         Update: {
+          allow_admin_exception?: boolean
           allow_fixed_qr_checkin?: boolean
           allow_gps_checkin?: boolean
           allow_multiple_daily?: boolean
           allow_photo_checkin?: boolean
           allow_pin_checkin?: boolean
           allow_qr_checkin?: boolean
+          allow_teacher_exception?: boolean
+          block_duplicate_checkin?: boolean
           block_on_overdue?: boolean
+          checkin_window_post_mins?: number
+          checkin_window_pre_mins?: number
           created_at?: string
           extras?: Json
           face_allow_manual_confirmation?: boolean | null
