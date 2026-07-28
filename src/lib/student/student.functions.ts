@@ -383,11 +383,10 @@ export const selfCheckin = createServerFn({ method: "POST" })
     }).parse(i ?? {}),
   )
   .handler(async ({ data, context }) => {
-    const { data: me } = await context.supabase
-      .from("dojo_students")
-      .select("id, owner_id, unit_id")
-      .limit(1)
-      .maybeSingle();
+    const me = await fetchActiveStudent<{ id: string; owner_id: string; unit_id: string | null }>(
+      context.supabase,
+      "id, owner_id, unit_id",
+    );
     if (!me) throw new Error("Aluno não encontrado");
 
     const { data: settings } = await context.supabase
