@@ -1063,6 +1063,11 @@ function SettingsPanel() {
         allowAdminException: d.allow_admin_exception ?? true,
         allowTeacherException: d.allow_teacher_exception ?? true,
         blockDuplicateCheckin: d.block_duplicate_checkin ?? true,
+        allowGpsCheckin: d.allow_gps_checkin ?? true,
+        allowPinCheckin: d.allow_pin_checkin ?? true,
+        allowQrCheckin: d.allow_qr_checkin ?? true,
+        allowFixedQrCheckin: d.allow_fixed_qr_checkin ?? true,
+        allowPhotoCheckin: d.allow_photo_checkin ?? false,
       });
     } else if (!q.isLoading) {
       setState({
@@ -1074,6 +1079,8 @@ function SettingsPanel() {
         facialRecognitionEnabled: false,
         checkinWindowPreMins: 10, checkinWindowPostMins: 30,
         allowAdminException: true, allowTeacherException: true, blockDuplicateCheckin: true,
+        allowGpsCheckin: true, allowPinCheckin: true, allowQrCheckin: true,
+        allowFixedQrCheckin: true, allowPhotoCheckin: false,
       });
     }
   }, [q.data, q.isLoading]);
