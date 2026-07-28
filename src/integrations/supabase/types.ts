@@ -12366,6 +12366,10 @@ export type Database = {
         }[]
       }
       dojo_next_contract_number: { Args: { _owner: string }; Returns: string }
+      dojo_recompute_current_belt: {
+        Args: { _student_id: string }
+        Returns: undefined
+      }
       dojo_slugify: { Args: { input: string }; Returns: string }
       email_queue_dispatch: { Args: never; Returns: undefined }
       enqueue_email: {
