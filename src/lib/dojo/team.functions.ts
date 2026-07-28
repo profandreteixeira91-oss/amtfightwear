@@ -285,6 +285,36 @@ export const setTeamMemberLogin = createServerFn({ method: "POST" })
   });
 
 
+/**
+ * Público (sem auth): verifica se um e-mail já está cadastrado como membro
+ * de equipe em qualquer dojo. Usado pelo fluxo /dojo/auth para impedir
+ * que um colaborador crie a própria conta de dono — o login precisa ser
+ * criado pelo dono no módulo Equipe.
+ */
+export const isEmailTeamMember = createServerFn({ method: "POST" })
+  .inputValidator((i: unknown) =>
+    z.object({ email: z.string().email() }).parse(i),
+  )
+  .handler(async ({ data }) => {
+    const email = data.email.trim().toLowerCase();
+    if (!email) return { isTeamMember: false as const };
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows, error } = await supabaseAdmin
+      .from("dojo_team_members")
+      .select("id, user_id, status")
+      .ilike("email", email)
+      .limit(1);
+    if (error) throw new Error(error.message);
+    const row = rows && rows[0];
+    if (!row) return { isTeamMember: false as const };
+    return {
+      isTeamMember: true as const,
+      hasLogin: !!row.user_id,
+      status: row.status ?? null,
+    };
+  });
+
+
 export const getMyTeamPermissions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
