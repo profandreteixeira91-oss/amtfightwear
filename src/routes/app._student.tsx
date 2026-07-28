@@ -134,6 +134,7 @@ function StudentShell() {
           <DesktopNav items={config.bottom_nav} features={config.features} />
 
           <div className="flex shrink-0 items-center gap-1">
+            <StudentSwitcher currentName={student?.full_name} />
             {config.features.news !== false && (
               <Link
                 to="/app/notifications"
