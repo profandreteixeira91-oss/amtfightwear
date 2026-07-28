@@ -196,6 +196,30 @@ function InvoicePage() {
                     <span className="font-semibold">Titular:</span> {nb!.pix_holder_name}
                   </div>
                 )}
+                {nativeCopyPaste && (
+                  <div>
+                    <div className="text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
+                      PIX Copia e Cola
+                    </div>
+                    <div className="flex gap-2">
+                      <input
+                        readOnly
+                        value={nativeCopyPaste}
+                        className="flex-1 truncate rounded-lg bg-neutral-50 px-3 py-2 text-xs ring-1 ring-neutral-200"
+                      />
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(nativeCopyPaste);
+                          toast.success("Código copiado");
+                        }}
+                        className="grid h-9 w-9 place-items-center rounded-lg bg-neutral-900 text-white"
+                        aria-label="Copiar código"
+                      >
+                        <Copy className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                )}
                 <div className="rounded-lg bg-amber-50 p-2.5 text-[11px] text-amber-800 ring-1 ring-amber-100">
                   <Info className="mr-1 inline h-3 w-3 -translate-y-0.5" />
                   Após pagar, o professor confirmará manualmente o recebimento.
