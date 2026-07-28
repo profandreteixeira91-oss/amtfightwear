@@ -11,6 +11,7 @@ import {
   syncMyInvoicePayment,
 } from "@/lib/student/payments.functions";
 import { getNativeBillingForInvoice } from "@/lib/dojo/native-billing.functions";
+import { buildPixBrCode } from "@/lib/pix/brcode";
 
 export const Route = createFileRoute("/app/_student/invoice/$id")({
   head: () => ({ meta: [{ title: "Pagamento — Portal do Aluno" }] }),
@@ -51,6 +52,7 @@ function InvoicePage() {
   } | null>(null);
   const [loading, setLoading] = useState(false);
   const [nativeQr, setNativeQr] = useState<string | null>(null);
+  const [nativeCopyPaste, setNativeCopyPaste] = useState<string | null>(null);
 
   const paid = invoice?.status === "paid";
 
@@ -58,16 +60,31 @@ function InvoicePage() {
   const hasPaymentLink = Boolean(nb?.payment_link_enabled && nb?.payment_link_url);
   const hasAmtPay = Boolean((invoice as any)?.payment_id) || (!hasNativePix && !hasPaymentLink && nb?.pix_enabled);
 
-  // Gera QR code local (não-EMV) apenas com a chave, para leitura visual
+  // Gera QR PIX no padrão BR Code (EMV) para leitura por apps bancários
   useEffect(() => {
-    if (!hasNativePix || !nb?.pix_key) {
+    if (!hasNativePix || !nb?.pix_key || !invoice) {
       setNativeQr(null);
+      setNativeCopyPaste(null);
       return;
     }
-    QRCode.toDataURL(nb.pix_key, { width: 240, margin: 1 })
-      .then((url) => setNativeQr(url))
-      .catch(() => setNativeQr(null));
-  }, [hasNativePix, nb?.pix_key]);
+    try {
+      const payload = buildPixBrCode({
+        pixKey: nb.pix_key,
+        merchantName: nb.pix_holder_name || "RECEBEDOR",
+        merchantCity: "BRASIL",
+        amount: Number(invoice.amount) || 0,
+        txid: (invoice.id ?? "").replace(/-/g, "").slice(0, 25),
+        description: invoice.description ?? undefined,
+      });
+      setNativeCopyPaste(payload);
+      QRCode.toDataURL(payload, { width: 320, margin: 1, errorCorrectionLevel: "M" })
+        .then((url) => setNativeQr(url))
+        .catch(() => setNativeQr(null));
+    } catch {
+      setNativeQr(null);
+      setNativeCopyPaste(null);
+    }
+  }, [hasNativePix, nb?.pix_key, nb?.pix_holder_name, invoice?.id, invoice?.amount, invoice?.description]);
 
   async function generateAmtPay() {
     setLoading(true);
@@ -177,6 +194,30 @@ function InvoicePage() {
                 {nb!.pix_holder_name && (
                   <div className="text-xs text-neutral-600">
                     <span className="font-semibold">Titular:</span> {nb!.pix_holder_name}
+                  </div>
+                )}
+                {nativeCopyPaste && (
+                  <div>
+                    <div className="text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
+                      PIX Copia e Cola
+                    </div>
+                    <div className="flex gap-2">
+                      <input
+                        readOnly
+                        value={nativeCopyPaste}
+                        className="flex-1 truncate rounded-lg bg-neutral-50 px-3 py-2 text-xs ring-1 ring-neutral-200"
+                      />
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(nativeCopyPaste);
+                          toast.success("Código copiado");
+                        }}
+                        className="grid h-9 w-9 place-items-center rounded-lg bg-neutral-900 text-white"
+                        aria-label="Copiar código"
+                      >
+                        <Copy className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
                 )}
                 <div className="rounded-lg bg-amber-50 p-2.5 text-[11px] text-amber-800 ring-1 ring-amber-100">
