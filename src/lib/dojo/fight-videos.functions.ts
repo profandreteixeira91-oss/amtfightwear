@@ -143,7 +143,7 @@ export const addFightVideoNote = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const { data: v } = await supabase
       .from("dojo_fight_videos")
-      .select("id, owner_id")
+      .select("id, owner_id, student_id, title")
       .eq("id", data.video_id)
       .maybeSingle();
     if (!v || v.owner_id !== userId) throw new Error("Sem permissão");
@@ -160,6 +160,15 @@ export const addFightVideoNote = createServerFn({ method: "POST" })
       .select("id, video_id, timestamp_seconds, title, note, category, created_at")
       .maybeSingle();
     if (error) throw new Error(error.message);
+    try {
+      const { safeNotifyStudent } = await import("@/lib/push/push.server");
+      safeNotifyStudent((v as any).student_id, {
+        title: "Nova análise de luta 🥊",
+        body: `Seu professor adicionou um comentário em "${(v as any).title ?? "seu vídeo"}".`,
+        url: "/app/videos",
+        tag: `fight-note-${row?.id ?? data.video_id}`,
+      });
+    } catch {}
     return row;
   });
 

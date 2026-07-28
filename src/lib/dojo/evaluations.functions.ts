@@ -352,7 +352,7 @@ export const createEvalSession = createServerFn({ method: "POST" })
   }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: tpl } = await context.supabase
-      .from("dojo_evaluations").select("total_score").eq("id", data.template_id).single();
+      .from("dojo_evaluations").select("total_score, title").eq("id", data.template_id).single();
     const { data: row, error } = await context.supabase
       .from("dojo_eval_sessions").insert({
         owner_id: context.userId,
@@ -364,6 +364,18 @@ export const createEvalSession = createServerFn({ method: "POST" })
         max_score: tpl?.total_score ?? 0,
       }).select("id").single();
     if (error) throw new Error(error.message);
+    try {
+      const { safeNotifyStudent } = await import("@/lib/push/push.server");
+      const when = data.scheduled_at
+        ? ` em ${new Date(data.scheduled_at).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}`
+        : "";
+      safeNotifyStudent(data.student_id, {
+        title: data.scheduled_at ? "Avaliação agendada 📋" : "Nova avaliação criada",
+        body: `${(tpl as any)?.title ?? "Avaliação"}${when}`,
+        url: "/app/avaliacoes",
+        tag: `eval-session-${row.id}`,
+      });
+    } catch {}
     return { id: row.id };
   });
 
@@ -437,6 +449,22 @@ export const finishEvalSession = createServerFn({ method: "POST" })
         graduated_at: now,
       } as never);
     }
+
+    try {
+      const { safeNotifyStudent } = await import("@/lib/push/push.server");
+      const map: Record<string, { title: string; body: string }> = {
+        approved: { title: "Avaliação aprovada 🏆", body: "Parabéns! Você foi aprovado(a) na sua avaliação." },
+        failed: { title: "Resultado da avaliação", body: "Sua avaliação foi concluída. Toque para ver os detalhes." },
+        review: { title: "Avaliação em revisão", body: "Seu professor está revisando sua avaliação." },
+        conditional: { title: "Aprovação condicional", body: "Você foi aprovado(a) com ressalvas. Confira os detalhes." },
+      };
+      const msg = map[data.result] ?? { title: "Avaliação concluída", body: "Toque para ver os detalhes." };
+      safeNotifyStudent((sess as any)?.student_id, {
+        ...msg,
+        url: "/app/avaliacoes",
+        tag: `eval-finish-${data.id}`,
+      });
+    } catch {}
     return { ok: true };
   });
 

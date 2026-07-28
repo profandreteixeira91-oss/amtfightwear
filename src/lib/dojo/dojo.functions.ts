@@ -805,6 +805,17 @@ export const saveDojoInvoice = createServerFn({ method: "POST" })
 
     const { data: row, error } = await context.supabase.from("dojo_invoices").insert(payload).select("id").single();
     if (error) throw new Error(error.message);
+    try {
+      const { safeNotifyStudent } = await import("@/lib/push/push.server");
+      const amountFmt = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" })
+        .format(Number(payload.amount ?? 0));
+      safeNotifyStudent(payload.student_id, {
+        title: "Nova cobrança disponível",
+        body: `${payload.description ?? "Mensalidade"} — ${amountFmt}${payload.due_date ? ` • vence em ${new Date(payload.due_date).toLocaleDateString("pt-BR")}` : ""}`,
+        url: "/app/financeiro",
+        tag: `invoice-${row.id}`,
+      });
+    } catch {}
     return { id: row.id };
   });
 
@@ -1466,6 +1477,15 @@ export const issueCertificate = createServerFn({ method: "POST" })
       owner_id: ownerId(context),
     }).select("*").single();
     if (error) throw new Error(error.message);
+    try {
+      const { safeNotifyStudent } = await import("@/lib/push/push.server");
+      safeNotifyStudent(data.student_id, {
+        title: "Certificado disponível 🎓",
+        body: "Seu novo certificado foi emitido. Toque para visualizar e baixar.",
+        url: "/app/certificados",
+        tag: `certificate-${row.id}`,
+      });
+    } catch {}
     return row;
   });
 
@@ -1693,6 +1713,21 @@ export const addBulkGraduation = createServerFn({ method: "POST" })
         .eq("id", g.id);
       invoicesCreated.push({ graduation_id: g.id, invoice_id: inv.id, amount: fee, status: inv.status });
     }
+
+    // Notifica cada aluno graduado (push best-effort).
+    try {
+      const { safeNotifyStudent } = await import("@/lib/push/push.server");
+      for (const g of (inserted ?? []) as any[]) {
+        const belt = beltById.get(g.belt_id);
+        const degreeTxt = typeof g.degree === "number" && g.degree > 0 ? ` — ${g.degree}º grau` : "";
+        safeNotifyStudent(g.student_id, {
+          title: "Parabéns pela graduação! 🥋",
+          body: `Você foi graduado(a): ${belt?.name ?? "Nova faixa"}${degreeTxt}.`,
+          url: "/app/graduacoes",
+          tag: `graduation-${g.id}`,
+        });
+      }
+    } catch {}
 
     return { count: inserted?.length ?? 0, graduations: inserted ?? [], invoices: invoicesCreated };
   });

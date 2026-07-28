@@ -331,6 +331,15 @@ export const generateStudentContract = createServerFn({ method: "POST" })
       event_type: "created", actor_id: context.userId,
       payload: { contract_number: numData, template_id: data.template_id },
     });
+    try {
+      const { safeNotifyStudent } = await import("@/lib/push/push.server");
+      safeNotifyStudent(data.student_id, {
+        title: "Novo contrato disponível 📄",
+        body: `${data.title} — toque para revisar e assinar.`,
+        url: "/app/contratos",
+        tag: `contract-${row.id}`,
+      });
+    } catch {}
     return row;
   });
 
