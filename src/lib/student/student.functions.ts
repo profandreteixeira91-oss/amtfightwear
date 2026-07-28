@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireStudentAuth } from "@/integrations/supabase/student-auth-middleware";
+import { fetchActiveStudent, getActiveStudentId } from "./_me";
 
 // ============ Perfil / branding ============
 
