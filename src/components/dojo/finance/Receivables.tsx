@@ -96,10 +96,11 @@ export function FinanceReceivables() {
     );
   }, [invs.data, q]);
 
-  const paid = items.filter((i) => i.status === "paid");
-  const pending = items.filter((i) => i.status === "pending" && new Date(i.due_date) >= new Date(isoDate()));
-  const overdue = items.filter((i) => i.status !== "paid" && i.status !== "cancelled" && new Date(i.due_date) < new Date(isoDate()));
-  const cancelled = items.filter((i) => i.status === "cancelled");
+  const paid = items.filter((i) => effectiveKey(i) === "paid");
+  const pending = items.filter((i) => effectiveKey(i) === "pending");
+  const dueSoon = items.filter((i) => effectiveKey(i) === "due_soon");
+  const overdue = items.filter((i) => effectiveKey(i) === "overdue");
+  const cancelled = items.filter((i) => effectiveKey(i) === "cancelled");
 
   const openPay = (row: InvoiceRow) => {
     setPayTarget(row);
