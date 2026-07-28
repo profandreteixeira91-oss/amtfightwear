@@ -8,8 +8,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { listDojoUnits } from "@/lib/dojo/dojo.functions";
-import { listClasses } from "@/lib/dojo/schedule.functions";
-import { listLessonPlans } from "@/lib/dojo/lesson-plans.functions";
+import { listClasses, listTodayClassOccurrences } from "@/lib/dojo/schedule.functions";
 import { startFaceRecognition, confirmSmartCheckins } from "@/lib/dojo/face-recognition.functions";
 import { searchStudents } from "@/lib/dojo/checkin.functions";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,11 +25,13 @@ const STEPS = [
   { key: "validation", label: "Validar" },
 ] as const;
 
+const WEEKDAYS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+
 export function PhotoCheckinFlow({ onComplete, onCancel, unitId: initialUnitId }: PhotoCheckinFlowProps) {
   const [step, setStep] = useState<"setup" | "processing" | "validation">("setup");
   const [selectedUnitId, setSelectedUnitId] = useState(initialUnitId || "");
   const [selectedClassId, setSelectedClassId] = useState("");
-  const [selectedLessonId, setSelectedLessonId] = useState("");
+  const [selectedOccurrenceId, setSelectedOccurrenceId] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [photoUrl, setPhotoUrl] = useState("");
   const [processingProgress, setProcessingProgress] = useState(0);
@@ -41,7 +42,7 @@ export function PhotoCheckinFlow({ onComplete, onCancel, unitId: initialUnitId }
   const qc = useQueryClient();
   const unitsFn = useServerFn(listDojoUnits);
   const classesFn = useServerFn(listClasses);
-  const lessonsFn = useServerFn(listLessonPlans);
+  const todayOccFn = useServerFn(listTodayClassOccurrences);
   const startRecognition = useServerFn(startFaceRecognition);
   const confirmCheckins = useServerFn(confirmSmartCheckins);
 
@@ -50,9 +51,9 @@ export function PhotoCheckinFlow({ onComplete, onCancel, unitId: initialUnitId }
     queryKey: ["dojo-classes-photo-checkin"],
     queryFn: () => classesFn(),
   });
-  const { data: lessons, isLoading: loadingLessons } = useQuery({
-    queryKey: ["dojo-lessons-photo-checkin", selectedClassId],
-    queryFn: () => lessonsFn({ data: { classId: selectedClassId } }),
+  const { data: occurrences, isLoading: loadingOccurrences } = useQuery({
+    queryKey: ["dojo-today-occurrences", selectedClassId],
+    queryFn: () => todayOccFn({ data: { classId: selectedClassId } }),
     enabled: !!selectedClassId,
   });
 
@@ -61,19 +62,24 @@ export function PhotoCheckinFlow({ onComplete, onCancel, unitId: initialUnitId }
     [classes, selectedUnitId],
   );
 
-  // Cascade resets: unit change clears class/lesson; class change clears lesson.
   useEffect(() => {
     if (selectedClassId && !filteredClasses.some((c: any) => c.id === selectedClassId)) {
       setSelectedClassId("");
-      setSelectedLessonId("");
+      setSelectedOccurrenceId("");
     }
   }, [selectedUnitId, filteredClasses, selectedClassId]);
 
   useEffect(() => {
-    setSelectedLessonId("");
+    setSelectedOccurrenceId("");
   }, [selectedClassId]);
 
-  // Auto-select the unit when there is only one available.
+  // Auto-seleciona a única ocorrência do dia (comum quando a turma tem apenas 1 horário).
+  useEffect(() => {
+    if (!selectedOccurrenceId && (occurrences ?? []).length === 1) {
+      setSelectedOccurrenceId((occurrences as any[])[0].id);
+    }
+  }, [occurrences, selectedOccurrenceId]);
+
   useEffect(() => {
     if (!selectedUnitId && units && units.length === 1) {
       setSelectedUnitId(units[0].id);
@@ -117,7 +123,7 @@ export function PhotoCheckinFlow({ onComplete, onCancel, unitId: initialUnitId }
           photoUrl: publicUrl,
           classId: selectedClassId,
           unitId: selectedUnitId,
-          lessonHistoryId: selectedLessonId || null,
+          lessonHistoryId: null,
         },
       });
 
@@ -156,16 +162,21 @@ export function PhotoCheckinFlow({ onComplete, onCancel, unitId: initialUnitId }
   const canProceed = !!selectedUnitId && !!selectedClassId;
   const currentStepIndex = STEPS.findIndex((s) => s.key === step);
 
+  const todayLabel = useMemo(() => {
+    const d = new Date();
+    return `${WEEKDAYS[d.getDay()]}, ${d.toLocaleDateString("pt-BR")}`;
+  }, []);
+
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 text-slate-900">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-600/15 ring-1 ring-red-500/30">
-            <Camera className="h-5 w-5 text-red-400" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-50 ring-1 ring-red-200">
+            <Camera className="h-5 w-5 text-red-600" />
           </div>
           <div>
-            <h3 className="text-base font-bold leading-tight text-white">Check-in por Foto</h3>
-            <p className="text-xs text-neutral-400">Identifique a turma inteira em uma única imagem</p>
+            <h3 className="text-base font-bold leading-tight text-slate-900">Check-in por Foto</h3>
+            <p className="text-xs text-slate-500">Identifique a turma inteira em uma única imagem</p>
           </div>
         </div>
         <div className="flex items-center gap-1.5">
@@ -174,27 +185,27 @@ export function PhotoCheckinFlow({ onComplete, onCancel, unitId: initialUnitId }
               <div
                 className={`flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold ring-1 transition-all ${
                   i <= currentStepIndex
-                    ? "bg-red-600 text-white ring-red-500"
-                    : "bg-white/5 text-neutral-500 ring-white/10"
+                    ? "bg-red-600 text-white ring-red-600"
+                    : "bg-slate-100 text-slate-400 ring-slate-200"
                 }`}
               >
                 {i + 1}
               </div>
               <span
                 className={`hidden text-[11px] font-medium sm:inline ${
-                  i <= currentStepIndex ? "text-white" : "text-neutral-500"
+                  i <= currentStepIndex ? "text-slate-900" : "text-slate-400"
                 }`}
               >
                 {s.label}
               </span>
-              {i < STEPS.length - 1 && <div className="hidden h-px w-4 bg-white/10 sm:block" />}
+              {i < STEPS.length - 1 && <div className="hidden h-px w-4 bg-slate-200 sm:block" />}
             </div>
           ))}
         </div>
       </div>
 
       {step === "setup" && (
-        <Card className="border-red-500/10 bg-neutral-900/40 backdrop-blur-sm">
+        <Card className="border-slate-200 bg-white shadow-sm">
           <CardContent className="space-y-5 pt-6">
             <div className="grid gap-4 sm:grid-cols-2">
               <SelectField
@@ -226,28 +237,28 @@ export function PhotoCheckinFlow({ onComplete, onCancel, unitId: initialUnitId }
 
             <SelectField
               icon={<BookOpen className="h-3.5 w-3.5" />}
-              label="Aula planejada"
-              hint="Opcional — vincula o check-in ao plano de aula"
-              value={selectedLessonId}
-              onChange={setSelectedLessonId}
+              label={`Aula do dia · ${todayLabel}`}
+              hint="Puxado automaticamente da Agenda da turma selecionada"
+              value={selectedOccurrenceId}
+              onChange={setSelectedOccurrenceId}
               placeholder={
                 !selectedClassId
                   ? "Selecione a turma primeiro"
-                  : loadingLessons
-                    ? "Carregando aulas..."
-                    : (lessons ?? []).length === 0
-                      ? "Sem aulas planejadas para esta turma"
-                      : "Selecione a aula (opcional)..."
+                  : loadingOccurrences
+                    ? "Carregando aulas do dia..."
+                    : (occurrences ?? []).length === 0
+                      ? "Nenhuma aula agendada hoje para esta turma"
+                      : "Selecione o horário da aula..."
               }
-              disabled={!selectedClassId || loadingLessons || (lessons ?? []).length === 0}
-              options={(lessons ?? []).map((l: any) => ({
-                value: l.id,
-                label: `${new Date(l.date).toLocaleDateString("pt-BR")} — ${l.title ?? "Aula"}`,
+              disabled={!selectedClassId || loadingOccurrences || (occurrences ?? []).length === 0}
+              options={(occurrences ?? []).map((o: any) => ({
+                value: o.id,
+                label: `${(o.start_time ?? "").slice(0, 5)} – ${(o.end_time ?? "").slice(0, 5)}`,
               }))}
             />
 
             <div className="space-y-2">
-              <div className="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
                 Fonte da imagem
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
@@ -255,28 +266,28 @@ export function PhotoCheckinFlow({ onComplete, onCancel, unitId: initialUnitId }
                   type="button"
                   onClick={() => cameraInputRef.current?.click()}
                   disabled={!canProceed}
-                  className="group flex flex-col items-center justify-center gap-2 rounded-xl border border-red-500/20 bg-gradient-to-br from-red-600/10 to-red-950/20 p-6 text-white transition-all hover:border-red-500/40 hover:bg-red-600/15 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="group flex flex-col items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50/60 p-6 text-slate-900 transition-all hover:border-red-300 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-600/20 ring-1 ring-red-500/30 group-hover:bg-red-600/30">
-                    <Camera className="h-5 w-5 text-red-400" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 ring-1 ring-red-200 group-hover:bg-red-200">
+                    <Camera className="h-5 w-5 text-red-600" />
                   </div>
                   <div className="text-center">
                     <div className="text-sm font-bold">Tirar foto agora</div>
-                    <div className="text-[11px] text-neutral-400">Usa a câmera do dispositivo</div>
+                    <div className="text-[11px] text-slate-500">Usa a câmera do dispositivo</div>
                   </div>
                 </button>
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={!canProceed}
-                  className="group flex flex-col items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 p-6 text-white transition-all hover:border-white/20 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="group flex flex-col items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 p-6 text-slate-900 transition-all hover:border-slate-300 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 ring-1 ring-white/20 group-hover:bg-white/15">
-                    <ImageIcon className="h-5 w-5 text-neutral-200" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white ring-1 ring-slate-200 group-hover:bg-slate-50">
+                    <ImageIcon className="h-5 w-5 text-slate-600" />
                   </div>
                   <div className="text-center">
                     <div className="text-sm font-bold">Enviar da galeria</div>
-                    <div className="text-[11px] text-neutral-400">JPG ou PNG até 10 MB</div>
+                    <div className="text-[11px] text-slate-500">JPG ou PNG até 10 MB</div>
                   </div>
                 </button>
               </div>
@@ -296,14 +307,14 @@ export function PhotoCheckinFlow({ onComplete, onCancel, unitId: initialUnitId }
                 onChange={handleFileUpload}
               />
               {!canProceed && (
-                <p className="pt-1 text-center text-[11px] text-amber-400/80">
+                <p className="pt-1 text-center text-[11px] text-amber-600">
                   Selecione unidade e turma antes de escolher a imagem.
                 </p>
               )}
             </div>
 
-            <div className="flex justify-end border-t border-white/5 pt-4">
-              <Button variant="ghost" className="text-neutral-400 hover:text-white" onClick={onCancel}>
+            <div className="flex justify-end border-t border-slate-100 pt-4">
+              <Button variant="ghost" className="text-slate-500 hover:text-slate-900" onClick={onCancel}>
                 Cancelar
               </Button>
             </div>
@@ -311,24 +322,22 @@ export function PhotoCheckinFlow({ onComplete, onCancel, unitId: initialUnitId }
         </Card>
       )}
 
-
-
       {step === "processing" && (
-        <Card className="border-red-500/10 bg-neutral-900/40 backdrop-blur-sm py-12">
+        <Card className="border-slate-200 bg-white py-12 shadow-sm">
           <CardContent className="flex flex-col items-center gap-6 text-center">
             <div className="relative">
-              <div className="absolute inset-0 animate-ping rounded-full bg-red-500/20" />
-              <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-red-600 shadow-[0_0_30px_rgba(220,38,38,0.5)]">
+              <div className="absolute inset-0 animate-ping rounded-full bg-red-200/60" />
+              <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-red-600 shadow-[0_10px_30px_-10px_rgba(220,38,38,0.6)]">
                 <RefreshCw className="h-10 w-10 animate-spin text-white" />
               </div>
             </div>
             <div className="space-y-2">
-              <h3 className="text-xl font-bold text-white">Processando Imagem</h3>
-              <p className="text-sm text-neutral-400">Detectando rostos e comparando com a base de alunos...</p>
+              <h3 className="text-xl font-bold text-slate-900">Processando Imagem</h3>
+              <p className="text-sm text-slate-500">Detectando rostos e comparando com a base de alunos...</p>
             </div>
             <div className="w-full max-w-xs space-y-2">
-              <Progress value={processingProgress} className="h-2 bg-white/10" />
-              <p className="text-[10px] font-medium uppercase tracking-widest text-neutral-500">{processingProgress}% Concluído</p>
+              <Progress value={processingProgress} className="h-2 bg-slate-100" />
+              <p className="text-[10px] font-medium uppercase tracking-widest text-slate-400">{processingProgress}% Concluído</p>
             </div>
           </CardContent>
         </Card>
@@ -337,12 +346,11 @@ export function PhotoCheckinFlow({ onComplete, onCancel, unitId: initialUnitId }
       {step === "validation" && (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="grid gap-6 md:grid-cols-2">
-            <Card className="overflow-hidden border-white/10 bg-black/40">
-              <div className="relative aspect-video w-full overflow-hidden bg-neutral-800">
+            <Card className="overflow-hidden border-slate-200 bg-white shadow-sm">
+              <div className="relative aspect-video w-full overflow-hidden bg-slate-100">
                 <img src={photoUrl} className="h-full w-full object-contain" alt="Aula" />
-                {/* Visual indicator for faces could go here with absolute positioning based on box_json */}
                 {results.map((r, i) => (
-                  <div 
+                  <div
                     key={i}
                     className="absolute border-2 transition-all"
                     style={{
@@ -350,19 +358,19 @@ export function PhotoCheckinFlow({ onComplete, onCancel, unitId: initialUnitId }
                       top: `${r.box.y}%`,
                       width: `${r.box.w}%`,
                       height: `${r.box.h}%`,
-                      borderColor: r.studentId ? (r.confidence > 0.9 ? "#22c55e" : "#eab308") : "#ef4444"
+                      borderColor: r.studentId ? (r.confidence > 0.9 ? "#16a34a" : "#ca8a04") : "#dc2626"
                     }}
                   />
                 ))}
               </div>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-neutral-400">Rostos encontrados: {results.length}</span>
+                  <span className="text-sm font-medium text-slate-600">Rostos encontrados: {results.length}</span>
                   <div className="flex gap-2">
-                    <Badge variant="outline" className="border-emerald-500/20 bg-emerald-500/10 text-emerald-400">
+                    <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-emerald-700">
                       {results.filter(r => r.studentId).length} Identificados
                     </Badge>
-                    <Badge variant="outline" className="border-red-500/20 bg-red-500/10 text-red-400">
+                    <Badge variant="outline" className="border-red-200 bg-red-50 text-red-700">
                       {results.filter(r => !r.studentId).length} Desconhecidos
                     </Badge>
                   </div>
@@ -371,12 +379,12 @@ export function PhotoCheckinFlow({ onComplete, onCancel, unitId: initialUnitId }
             </Card>
 
             <div className="flex flex-col gap-3">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-500">Resultados da Identificação</h3>
+              <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500">Resultados da Identificação</h3>
               <div className="max-h-[400px] space-y-2 overflow-y-auto pr-2 custom-scrollbar">
                 {results.map((face, idx) => (
-                  <FaceResultCard 
-                    key={idx} 
-                    face={face} 
+                  <FaceResultCard
+                    key={idx}
+                    face={face}
                     onUpdate={(updated) => {
                       const newRes = [...results];
                       newRes[idx] = updated;
@@ -389,7 +397,7 @@ export function PhotoCheckinFlow({ onComplete, onCancel, unitId: initialUnitId }
           </div>
 
           <div className="flex gap-3 pt-4">
-            <Button variant="outline" className="flex-1 border-white/10 bg-white/5 text-white" onClick={() => setStep("setup")}>
+            <Button variant="outline" className="flex-1 border-slate-200 bg-white text-slate-700 hover:bg-slate-50" onClick={() => setStep("setup")}>
               Refazer
             </Button>
             <Button className="flex-1 bg-red-600 hover:bg-red-700 text-white" onClick={handleConfirm}>
@@ -424,25 +432,25 @@ function SelectField({
   return (
     <div className="space-y-1.5">
       <div className="flex items-center gap-1.5">
-        <span className="text-neutral-500">{icon}</span>
-        <label className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+        <span className="text-slate-500">{icon}</span>
+        <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-600">
           {label}
         </label>
       </div>
       <select
-        className="h-11 w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 text-sm text-white outline-none transition-all hover:border-white/20 focus:border-red-500/40 focus:ring-2 focus:ring-red-500/30 disabled:cursor-not-allowed disabled:opacity-50"
+        className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition-all hover:border-slate-300 focus:border-red-400 focus:ring-2 focus:ring-red-100 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:opacity-70"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
       >
         <option value="">{placeholder}</option>
         {options.map((o) => (
-          <option key={o.value} value={o.value} className="bg-neutral-900">
+          <option key={o.value} value={o.value}>
             {o.label}
           </option>
         ))}
       </select>
-      {hint && <p className="text-[10.5px] text-neutral-500">{hint}</p>}
+      {hint && <p className="text-[10.5px] text-slate-500">{hint}</p>}
     </div>
   );
 }
@@ -451,32 +459,31 @@ function FaceResultCard({ face, onUpdate }: { face: any; onUpdate: (f: any) => v
   const [showSearch, setShowSearch] = useState(false);
   const isHighConfidence = face.confidence >= 0.9;
   const isUnknown = !face.studentId;
-  const isPending = face.status === "pending";
 
   return (
-    <Card className={`overflow-hidden border-white/5 bg-neutral-900/40 transition-all ${isUnknown ? 'ring-1 ring-red-500/30' : !isHighConfidence ? 'ring-1 ring-amber-500/30' : ''}`}>
+    <Card className={`overflow-hidden border-slate-200 bg-white transition-all ${isUnknown ? 'ring-1 ring-red-200' : !isHighConfidence ? 'ring-1 ring-amber-200' : ''}`}>
       <CardContent className="flex items-center gap-3 p-3">
-        <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-neutral-800 ring-1 ring-white/10">
+        <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-slate-100 ring-1 ring-slate-200">
           {face.photo_url ? (
             <img src={face.photo_url} className="h-full w-full object-cover" />
           ) : (
             <div className="flex h-full w-full items-center justify-center">
-              <Users className="h-5 w-5 text-neutral-600" />
+              <Users className="h-5 w-5 text-slate-400" />
             </div>
           )}
         </div>
-        
+
         <div className="min-w-0 flex-1 space-y-0.5">
           <div className="flex items-center gap-2">
-            <span className="truncate font-bold text-white">
+            <span className="truncate font-bold text-slate-900">
               {face.name || "Pessoa Desconhecida"}
             </span>
-            {isHighConfidence && face.studentId && <Check className="h-3.5 w-3.5 text-emerald-400" />}
-            {!isHighConfidence && face.studentId && <AlertTriangle className="h-3.5 w-3.5 text-amber-400" />}
+            {isHighConfidence && face.studentId && <Check className="h-3.5 w-3.5 text-emerald-600" />}
+            {!isHighConfidence && face.studentId && <AlertTriangle className="h-3.5 w-3.5 text-amber-600" />}
           </div>
           <div className="flex items-center gap-2 text-[10px]">
-            <span className="font-medium text-neutral-500 uppercase">Confiança:</span>
-            <span className={`font-bold ${isHighConfidence ? 'text-emerald-400' : 'text-amber-400'}`}>
+            <span className="font-medium text-slate-500 uppercase">Confiança:</span>
+            <span className={`font-bold ${isHighConfidence ? 'text-emerald-600' : 'text-amber-600'}`}>
               {Math.round(face.confidence * 100)}%
             </span>
           </div>
@@ -484,27 +491,27 @@ function FaceResultCard({ face, onUpdate }: { face: any; onUpdate: (f: any) => v
 
         <div className="flex gap-1">
           {face.status === "confirmed" ? (
-            <Button size="icon" variant="ghost" className="h-8 w-8 text-emerald-400" onClick={() => onUpdate({...face, status: "pending"})}>
+            <Button size="icon" variant="ghost" className="h-8 w-8 text-emerald-600" onClick={() => onUpdate({ ...face, status: "pending" })}>
               <Check className="h-4 w-4" />
             </Button>
           ) : (
-            <Button size="icon" variant="ghost" className="h-8 w-8 text-neutral-500 hover:text-white" onClick={() => onUpdate({...face, status: "confirmed"})}>
+            <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 hover:text-slate-900" onClick={() => onUpdate({ ...face, status: "confirmed" })}>
               <Check className="h-4 w-4" />
             </Button>
           )}
-          
-          <Button size="icon" variant="ghost" className="h-8 w-8 text-neutral-500 hover:text-white" onClick={() => setShowSearch(true)}>
+
+          <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 hover:text-slate-900" onClick={() => setShowSearch(true)}>
             <RefreshCw className="h-4 w-4" />
           </Button>
 
-          <Button size="icon" variant="ghost" className="h-8 w-8 text-neutral-500 hover:text-red-400" onClick={() => onUpdate({...face, status: "ignored"})}>
+          <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 hover:text-red-600" onClick={() => onUpdate({ ...face, status: "ignored" })}>
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>
 
         {showSearch && (
-          <StudentPickerModal 
-            onClose={() => setShowSearch(false)} 
+          <StudentPickerModal
+            onClose={() => setShowSearch(false)}
             onPick={(s) => {
               onUpdate({
                 ...face,
@@ -514,7 +521,7 @@ function FaceResultCard({ face, onUpdate }: { face: any; onUpdate: (f: any) => v
                 status: "confirmed"
               });
               setShowSearch(false);
-            }} 
+            }}
           />
         )}
       </CardContent>
@@ -532,21 +539,21 @@ function StudentPickerModal({ onClose, onPick }: { onClose: () => void; onPick: 
   });
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <Card className="w-full max-w-md border-white/10 bg-neutral-900 shadow-2xl">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
+      <Card className="w-full max-w-md border-slate-200 bg-white shadow-2xl">
         <CardContent className="space-y-4 pt-6">
           <div className="flex items-center justify-between">
-            <h3 className="font-bold text-white">Vincular Aluno</h3>
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-neutral-500" onClick={onClose}>
+            <h3 className="font-bold text-slate-900">Vincular Aluno</h3>
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500" onClick={onClose}>
               <X className="h-4 w-4" />
             </Button>
           </div>
-          
+
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
-            <input 
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <input
               autoFocus
-              className="w-full rounded-lg border border-white/10 bg-white/5 p-2.5 pl-10 text-white outline-none focus:ring-2 focus:ring-red-500"
+              className="w-full rounded-lg border border-slate-200 bg-white p-2.5 pl-10 text-slate-900 outline-none focus:ring-2 focus:ring-red-200"
               placeholder="Buscar por nome ou CPF..."
               value={q}
               onChange={(e) => setQ(e.target.value)}
@@ -554,19 +561,19 @@ function StudentPickerModal({ onClose, onPick }: { onClose: () => void; onPick: 
           </div>
 
           <div className="max-h-60 space-y-1 overflow-y-auto">
-            {isLoading && <div className="p-4 text-center text-xs text-neutral-500">Buscando...</div>}
+            {isLoading && <div className="p-4 text-center text-xs text-slate-500">Buscando...</div>}
             {results?.map((s: any) => (
-              <button 
+              <button
                 key={s.id}
-                className="flex w-full items-center gap-3 rounded-lg p-2 text-left hover:bg-white/5"
+                className="flex w-full items-center gap-3 rounded-lg p-2 text-left hover:bg-slate-50"
                 onClick={() => onPick(s)}
               >
-                <div className="h-8 w-8 overflow-hidden rounded-full bg-neutral-800">
-                  {s.photo_url ? <img src={s.photo_url} className="h-full w-full object-cover" /> : <Users className="h-4 w-4 m-2 text-neutral-600" />}
+                <div className="h-8 w-8 overflow-hidden rounded-full bg-slate-100">
+                  {s.photo_url ? <img src={s.photo_url} className="h-full w-full object-cover" /> : <Users className="h-4 w-4 m-2 text-slate-400" />}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-bold text-white">{s.full_name}</div>
-                  <div className="text-[10px] text-neutral-500">{s.email || s.phone || "Sem contato"}</div>
+                  <div className="truncate text-sm font-bold text-slate-900">{s.full_name}</div>
+                  <div className="text-[10px] text-slate-500">{s.email || s.phone || "Sem contato"}</div>
                 </div>
               </button>
             ))}
