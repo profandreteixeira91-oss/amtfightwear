@@ -196,6 +196,7 @@ import { Route as DojoAppEvaluationsIndexRouteImport } from './routes/dojo.app.e
 import { Route as DojoAppContractsIndexRouteImport } from './routes/dojo.app.contracts.index'
 import { Route as DojoAppContractTemplatesIndexRouteImport } from './routes/dojo.app.contract-templates.index'
 import { Route as DojoAppCompetitionsIndexRouteImport } from './routes/dojo.app.competitions.index'
+import { Route as AppStudentDocumentsIndexRouteImport } from './routes/app._student.documents.index'
 import { Route as AuthenticatedAdminProdutosIndexRouteImport } from './routes/_authenticated/admin.produtos.index'
 import { Route as AuthenticatedAdminMarketingIndexRouteImport } from './routes/_authenticated/admin.marketing.index'
 import { Route as AuthenticatedAdminLeadsIndexRouteImport } from './routes/_authenticated/admin.leads.index'
@@ -1292,6 +1293,12 @@ const DojoAppCompetitionsIndexRoute =
     path: '/',
     getParentRoute: () => DojoAppCompetitionsRoute,
   } as any)
+const AppStudentDocumentsIndexRoute =
+  AppStudentDocumentsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AppStudentDocumentsRoute,
+  } as any)
 const AuthenticatedAdminProdutosIndexRoute =
   AuthenticatedAdminProdutosIndexRouteImport.update({
     id: '/produtos/',
@@ -2146,6 +2153,7 @@ export interface FileRoutesByFullPath {
   '/admin/leads/': typeof AuthenticatedAdminLeadsIndexRoute
   '/admin/marketing/': typeof AuthenticatedAdminMarketingIndexRoute
   '/admin/produtos/': typeof AuthenticatedAdminProdutosIndexRoute
+  '/app/documents/': typeof AppStudentDocumentsIndexRoute
   '/dojo/app/competitions/': typeof DojoAppCompetitionsIndexRoute
   '/dojo/app/contract-templates/': typeof DojoAppContractTemplatesIndexRoute
   '/dojo/app/contracts/': typeof DojoAppContractsIndexRoute
@@ -2281,7 +2289,6 @@ export interface FileRoutesByTo {
   '/app/certificates': typeof AppStudentCertificatesRoute
   '/app/checkin': typeof AppStudentCheckinRoute
   '/app/competitions': typeof AppStudentCompetitionsRouteWithChildren
-  '/app/documents': typeof AppStudentDocumentsRouteWithChildren
   '/app/evaluations': typeof AppStudentEvaluationsRoute
   '/app/finance': typeof AppStudentFinanceRoute
   '/app/graduations': typeof AppStudentGraduationsRoute
@@ -2417,6 +2424,7 @@ export interface FileRoutesByTo {
   '/admin/leads': typeof AuthenticatedAdminLeadsIndexRoute
   '/admin/marketing': typeof AuthenticatedAdminMarketingIndexRoute
   '/admin/produtos': typeof AuthenticatedAdminProdutosIndexRoute
+  '/app/documents': typeof AppStudentDocumentsIndexRoute
   '/dojo/app/competitions': typeof DojoAppCompetitionsIndexRoute
   '/dojo/app/contract-templates': typeof DojoAppContractTemplatesIndexRoute
   '/dojo/app/contracts': typeof DojoAppContractsIndexRoute
@@ -2709,6 +2717,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/leads/': typeof AuthenticatedAdminLeadsIndexRoute
   '/_authenticated/admin/marketing/': typeof AuthenticatedAdminMarketingIndexRoute
   '/_authenticated/admin/produtos/': typeof AuthenticatedAdminProdutosIndexRoute
+  '/app/_student/documents/': typeof AppStudentDocumentsIndexRoute
   '/dojo/app/competitions/': typeof DojoAppCompetitionsIndexRoute
   '/dojo/app/contract-templates/': typeof DojoAppContractTemplatesIndexRoute
   '/dojo/app/contracts/': typeof DojoAppContractsIndexRoute
@@ -3000,6 +3009,7 @@ export interface FileRouteTypes {
     | '/admin/leads/'
     | '/admin/marketing/'
     | '/admin/produtos/'
+    | '/app/documents/'
     | '/dojo/app/competitions/'
     | '/dojo/app/contract-templates/'
     | '/dojo/app/contracts/'
@@ -3135,7 +3145,6 @@ export interface FileRouteTypes {
     | '/app/certificates'
     | '/app/checkin'
     | '/app/competitions'
-    | '/app/documents'
     | '/app/evaluations'
     | '/app/finance'
     | '/app/graduations'
@@ -3271,6 +3280,7 @@ export interface FileRouteTypes {
     | '/admin/leads'
     | '/admin/marketing'
     | '/admin/produtos'
+    | '/app/documents'
     | '/dojo/app/competitions'
     | '/dojo/app/contract-templates'
     | '/dojo/app/contracts'
@@ -3562,6 +3572,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/leads/'
     | '/_authenticated/admin/marketing/'
     | '/_authenticated/admin/produtos/'
+    | '/app/_student/documents/'
     | '/dojo/app/competitions/'
     | '/dojo/app/contract-templates/'
     | '/dojo/app/contracts/'
@@ -4960,6 +4971,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DojoAppCompetitionsIndexRouteImport
       parentRoute: typeof DojoAppCompetitionsRoute
     }
+    '/app/_student/documents/': {
+      id: '/app/_student/documents/'
+      path: '/'
+      fullPath: '/app/documents/'
+      preLoaderRoute: typeof AppStudentDocumentsIndexRouteImport
+      parentRoute: typeof AppStudentDocumentsRoute
+    }
     '/_authenticated/admin/produtos/': {
       id: '/_authenticated/admin/produtos/'
       path: '/produtos'
@@ -6110,10 +6128,12 @@ const AppStudentCompetitionsRouteWithChildren =
 
 interface AppStudentDocumentsRouteChildren {
   AppStudentDocumentsIdRoute: typeof AppStudentDocumentsIdRoute
+  AppStudentDocumentsIndexRoute: typeof AppStudentDocumentsIndexRoute
 }
 
 const AppStudentDocumentsRouteChildren: AppStudentDocumentsRouteChildren = {
   AppStudentDocumentsIdRoute: AppStudentDocumentsIdRoute,
+  AppStudentDocumentsIndexRoute: AppStudentDocumentsIndexRoute,
 }
 
 const AppStudentDocumentsRouteWithChildren =
@@ -6574,13 +6594,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
