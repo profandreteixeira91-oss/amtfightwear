@@ -1714,6 +1714,21 @@ export const addBulkGraduation = createServerFn({ method: "POST" })
       invoicesCreated.push({ graduation_id: g.id, invoice_id: inv.id, amount: fee, status: inv.status });
     }
 
+    // Notifica cada aluno graduado (push best-effort).
+    try {
+      const { safeNotifyStudent } = await import("@/lib/push/push.server");
+      for (const g of (inserted ?? []) as any[]) {
+        const belt = beltById.get(g.belt_id);
+        const degreeTxt = typeof g.degree === "number" && g.degree > 0 ? ` — ${g.degree}º grau` : "";
+        safeNotifyStudent(g.student_id, {
+          title: "Parabéns pela graduação! 🥋",
+          body: `Você foi graduado(a): ${belt?.name ?? "Nova faixa"}${degreeTxt}.`,
+          url: "/app/graduacoes",
+          tag: `graduation-${g.id}`,
+        });
+      }
+    } catch {}
+
     return { count: inserted?.length ?? 0, graduations: inserted ?? [], invoices: invoicesCreated };
   });
 
