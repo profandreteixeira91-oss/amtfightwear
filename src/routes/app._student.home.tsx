@@ -109,19 +109,19 @@ function PerformanceButton() {
   return (
     <Link
       to="/app/performance"
-      className="group relative flex items-center gap-3 overflow-hidden rounded-2xl border border-red-500/30 bg-gradient-to-br from-neutral-950 via-neutral-950 to-black p-4 shadow-[0_20px_60px_-30px_rgba(239,68,68,0.6)] transition-all hover:border-red-400/50 hover:shadow-[0_25px_60px_-25px_rgba(239,68,68,0.75)]"
+      className="group relative flex items-center gap-3 overflow-hidden rounded-2xl border border-red-500/30 bg-gradient-to-br from-neutral-950 via-neutral-950 to-black p-3 shadow-[0_20px_60px_-30px_rgba(239,68,68,0.6)] transition-all hover:border-red-400/50 hover:shadow-[0_25px_60px_-25px_rgba(239,68,68,0.75)] sm:p-4"
     >
       <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-red-600/25 blur-[80px] transition-all group-hover:bg-red-500/40" />
       <div className="pointer-events-none absolute -bottom-14 -left-10 h-40 w-40 rounded-full bg-amber-500/15 blur-[80px]" />
-      <div className="relative grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-red-500 via-red-600 to-amber-500 shadow-lg ring-1 ring-white/10">
-        <Icons.Activity className="h-6 w-6 text-white" />
+      <div className="relative grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-red-500 via-red-600 to-amber-500 shadow-lg ring-1 ring-white/10 sm:h-12 sm:w-12">
+        <Icons.Activity className="h-5 w-5 text-white sm:h-6 sm:w-6" />
       </div>
       <div className="relative min-w-0 flex-1">
         <div className="inline-flex items-center gap-1.5 rounded-full border border-red-500/30 bg-red-500/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.2em] text-red-200">
           <Icons.Sparkles className="h-2.5 w-2.5" /> Novo
         </div>
         <div className="mt-1 text-base font-black tracking-tight text-white">Performance</div>
-        <div className="truncate text-[11px] text-white/70">Sua análise completa: frequência, técnico, graduações e insights</div>
+        <div className="line-clamp-2 text-[11px] leading-snug text-white/70">Sua análise completa: frequência, técnico, graduações e insights</div>
       </div>
       <ChevronRight className="relative h-5 w-5 shrink-0 text-white/60 transition-transform group-hover:translate-x-1 group-hover:text-white" />
     </Link>
