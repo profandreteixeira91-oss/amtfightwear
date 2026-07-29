@@ -1215,23 +1215,36 @@ function StudentsPage() {
                 </div>
               </Tabs>
 
-              <div className="flex items-center justify-between gap-2 border-t px-6 py-3 bg-muted/30">
-                <p className="text-[11px] text-muted-foreground hidden sm:block">
-                  {form.id ? "Alterações salvas ao clicar em Salvar." : "Ao salvar, o aluno será matriculado no plano selecionado."}
-                </p>
-                <div className="flex gap-2 ml-auto">
-                  <Button variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
+              <div className="flex flex-col gap-3 border-t bg-gradient-to-b from-background to-muted/40 px-4 py-3 sm:flex-row sm:items-center sm:px-6">
+                <div className="flex min-w-0 items-center gap-2">
+                  <div className="hidden items-center gap-1 sm:flex">
+                    {tabOrder.map((v, i) => (
+                      <span
+                        key={v}
+                        className={[
+                          "h-1.5 rounded-full transition-all duration-300",
+                          i === tabIndex ? "w-6 bg-primary" : i < tabIndex ? "w-3 bg-emerald-500/70" : "w-3 bg-muted-foreground/20",
+                        ].join(" ")}
+                      />
+                    ))}
+                  </div>
+                  <p className="truncate text-[11px] text-muted-foreground">
+                    {form.id ? "Alterações salvas ao clicar em Salvar." : "Ao salvar, o aluno será matriculado no plano selecionado."}
+                  </p>
+                </div>
+                <div className="ml-auto flex items-center gap-2">
+                  <Button variant="ghost" className="rounded-xl" onClick={() => setOpen(false)}>Cancelar</Button>
                   {!isLastTab && (
-                    <Button variant="outline" onClick={() => setTab(tabOrder[tabIndex - 1])} disabled={tabIndex === 0}>
+                    <Button variant="outline" className="rounded-xl" onClick={() => setTab(tabOrder[tabIndex - 1])} disabled={tabIndex === 0}>
                       Voltar
                     </Button>
                   )}
                   {isLastTab ? (
-                    <Button onClick={onSave}>
+                    <Button onClick={onSave} className="rounded-xl px-5 shadow-sm transition-transform active:scale-[0.98]">
                       {form.id ? "Salvar alterações" : "Cadastrar aluno"}
                     </Button>
                   ) : (
-                    <Button onClick={() => setTab(tabOrder[tabIndex + 1])}>
+                    <Button onClick={() => setTab(tabOrder[tabIndex + 1])} className="rounded-xl px-5 shadow-sm transition-transform active:scale-[0.98]">
                       Continuar
                     </Button>
                   )}
@@ -1475,7 +1488,14 @@ function Field({
   return (
     <div className={className}>
       <Label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-        {label}
+        {label.endsWith("*") ? (
+          <>
+            {label.slice(0, -1)}
+            <span className="text-destructive">*</span>
+          </>
+        ) : (
+          label
+        )}
       </Label>
       {children}
       {hint && <p className="mt-1 text-[11px] text-muted-foreground">{hint}</p>}
