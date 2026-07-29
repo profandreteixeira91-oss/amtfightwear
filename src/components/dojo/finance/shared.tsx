@@ -16,6 +16,17 @@ export const pct = (n: number) =>
 
 export const isoDate = (d = new Date()) => d.toISOString().slice(0, 10);
 
+/** Formata datas (ISO "YYYY-MM-DD" ou timestamp) no padrão brasileiro DD/MM/AAAA */
+export const brDate = (v: string | Date | null | undefined) => {
+  if (!v) return "—";
+  if (v instanceof Date) return v.toLocaleDateString("pt-BR");
+  const s = String(v);
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return `${m[3]}/${m[2]}/${m[1]}`;
+  const d = new Date(s);
+  return Number.isNaN(d.getTime()) ? s : d.toLocaleDateString("pt-BR");
+};
+
 export const monthLabel = (yyyyMm: string) => {
   const [y, m] = yyyyMm.split("-").map(Number);
   return new Date(y, (m || 1) - 1, 1).toLocaleDateString("pt-BR", {
