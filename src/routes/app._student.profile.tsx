@@ -7,10 +7,12 @@ import {
   getMyAnamnesis,
   updateMyAnamnesis,
   uploadMyPhoto,
+  getMyConsents,
+  updateMyConsents,
 } from "@/lib/student/student.functions";
 import { toast } from "sonner";
 import { useEffect, useRef, useState } from "react";
-import { Camera, User, MapPin, HeartPulse, ShieldAlert, ChevronDown } from "lucide-react";
+import { Camera, User, MapPin, HeartPulse, ShieldAlert, ChevronDown, ShieldCheck } from "lucide-react";
 
 export const Route = createFileRoute("/app/_student/profile")({
   head: () => ({ meta: [{ title: "Meu perfil — Portal do Aluno" }] }),
@@ -53,6 +55,27 @@ type AnamnesisForm = {
   pregnant: boolean;
 };
 
+type ConsentForm = {
+  lgpd_consent: boolean;
+  facial_recognition_consent: boolean;
+  image_rights_consent: boolean;
+  terms_accepted: boolean;
+};
+
+const emptyConsents: ConsentForm = {
+  lgpd_consent: false,
+  facial_recognition_consent: false,
+  image_rights_consent: false,
+  terms_accepted: false,
+};
+
+const consentItems: Array<[keyof ConsentForm, string]> = [
+  ["lgpd_consent", "Autorizo o tratamento dos meus dados pessoais conforme a LGPD (Lei nº 13.709/2018) para fins de matrícula, controle acadêmico e comunicação da academia."],
+  ["facial_recognition_consent", "Autorizo a coleta e processamento de biometria facial para identificação automática em check-ins por foto (Reconhecimento Facial)."],
+  ["image_rights_consent", "Autorizo o uso da minha imagem em fotos e vídeos para divulgação da academia (redes sociais, site e materiais internos)."],
+  ["terms_accepted", "Declaro estar ciente dos riscos inerentes à prática esportiva e aceito o regulamento interno e o termo de responsabilidade da academia."],
+];
+
 const emptyAnamn: AnamnesisForm = {
   medical_conditions: "",
   medications: "",
@@ -79,9 +102,12 @@ function ProfilePage() {
   const anamnFn = useServerFn(getMyAnamnesis);
   const upAnamnFn = useServerFn(updateMyAnamnesis);
   const uploadFn = useServerFn(uploadMyPhoto);
+  const consentsFn = useServerFn(getMyConsents);
+  const upConsentsFn = useServerFn(updateMyConsents);
 
   const { data: me } = useQuery({ queryKey: ["student", "me"], queryFn: () => meFn({}) });
   const { data: anamnesisRow } = useQuery({ queryKey: ["student", "anamnesis"], queryFn: () => anamnFn({}) });
+  const { data: consentsRow } = useQuery({ queryKey: ["student", "consents"], queryFn: () => consentsFn({}) });
 
   const [form, setForm] = useState<Record<string, string>>({});
   const [anamn, setAnamn] = useState<AnamnesisForm>(emptyAnamn);
@@ -89,7 +115,9 @@ function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [savingHealth, setSavingHealth] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [openSection, setOpenSection] = useState<"contact" | "address" | "health" | null>("contact");
+  const [consents, setConsents] = useState<ConsentForm>(emptyConsents);
+  const [savingConsents, setSavingConsents] = useState(false);
+  const [openSection, setOpenSection] = useState<"contact" | "address" | "health" | "consent" | null>("contact");
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -107,6 +135,31 @@ function ProfilePage() {
     setAnamn({ ...emptyAnamn, ...a });
     setHealthInsurance(anamnesisRow.health_insurance ?? "");
   }, [anamnesisRow]);
+
+  useEffect(() => {
+    if (!consentsRow) return;
+    const c = consentsRow as Partial<Record<keyof ConsentForm, boolean | null>>;
+    setConsents({
+      lgpd_consent: Boolean(c.lgpd_consent),
+      facial_recognition_consent: Boolean(c.facial_recognition_consent),
+      image_rights_consent: Boolean(c.image_rights_consent),
+      terms_accepted: Boolean(c.terms_accepted),
+    });
+  }, [consentsRow]);
+
+  async function onSaveConsents(e: React.FormEvent) {
+    e.preventDefault();
+    setSavingConsents(true);
+    try {
+      await upConsentsFn({ data: consents });
+      toast.success("Consentimentos atualizados");
+      qc.invalidateQueries({ queryKey: ["student"] });
+    } catch (err) {
+      toast.error("Falha ao salvar", { description: (err as Error).message });
+    } finally {
+      setSavingConsents(false);
+    }
+  }
 
   async function onSave(e: React.FormEvent) {
     e.preventDefault();
@@ -345,6 +398,35 @@ function ProfilePage() {
           </Field>
 
           <SaveButton loading={savingHealth} label="Salvar ficha de saúde" />
+        </form>
+      </Section>
+
+      {/* Consentimentos */}
+      <Section
+        icon={ShieldCheck}
+        title="Consentimentos"
+        open={openSection === "consent"}
+        onToggle={() => setOpenSection((s) => (s === "consent" ? null : "consent"))}
+      >
+        <form onSubmit={onSaveConsents} className="space-y-3">
+          {consentItems.map(([key, label]) => (
+            <label
+              key={key}
+              className="flex items-start gap-3 rounded-xl bg-neutral-50 p-3 text-xs leading-relaxed text-neutral-700 ring-1 ring-neutral-200"
+            >
+              <input
+                type="checkbox"
+                checked={consents[key]}
+                onChange={(e) => setConsents((c) => ({ ...c, [key]: e.target.checked }))}
+                className="mt-0.5 h-4 w-4 shrink-0 accent-red-600"
+              />
+              <span>{label}</span>
+            </label>
+          ))}
+          <p className="text-[11px] text-neutral-400">
+            Os consentimentos são registrados com data e hora conforme exigido pela LGPD.
+          </p>
+          <SaveButton loading={savingConsents} label="Salvar consentimentos" />
         </form>
       </Section>
     </div>
