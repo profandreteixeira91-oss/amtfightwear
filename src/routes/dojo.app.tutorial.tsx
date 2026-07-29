@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import {
   Search,
@@ -12,7 +12,6 @@ import {
   Star,
   Trophy,
   MonitorPlay,
-  Pencil,
   Target,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
