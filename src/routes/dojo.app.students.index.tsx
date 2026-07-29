@@ -266,6 +266,17 @@ function StudentsPage() {
     });
     setOpen(true);
   }
+  function resetEnrollment() {
+    setEnrollment({
+      plan_id: "",
+      due_day: 5,
+      start_date: new Date().toISOString().slice(0, 10),
+      first_due_date: new Date().toISOString().slice(0, 10),
+      include_enrollment_fee: true,
+      payment_method: "manual",
+      custom_amount: "",
+    });
+  }
   function openEdit(s: any) {
     const modalities: StudentForm["modalities"] = [];
     if (s.current_belt_id) {
