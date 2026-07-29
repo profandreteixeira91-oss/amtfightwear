@@ -12,9 +12,18 @@ export const Route = createFileRoute("/app/_student/finance")({
 const statusLabel: Record<string, { label: string; className: string }> = {
   paid: { label: "Pago", className: "bg-emerald-100 text-emerald-800" },
   pending: { label: "Pendente", className: "bg-amber-100 text-amber-800" },
+  upcoming: { label: "A vencer", className: "bg-sky-100 text-sky-800" },
   overdue: { label: "Vencido", className: "bg-red-100 text-red-800" },
   canceled: { label: "Cancelado", className: "bg-neutral-100 text-neutral-600" },
 };
+
+function todayISO() {
+  return new Date().toISOString().slice(0, 10);
+}
+function derivedStatus(inv: { status: string; due_date: string }) {
+  if (inv.status === "pending" && inv.due_date > todayISO()) return "upcoming";
+  return inv.status;
+}
 
 function FinancePage() {
   const fn = useServerFn(getMyInvoices);
@@ -32,7 +41,8 @@ function FinancePage() {
       )}
       <ul className="space-y-2">
         {(data ?? []).map((inv) => {
-          const s = statusLabel[inv.status] ?? { label: inv.status, className: "bg-neutral-100 text-neutral-600" };
+          const effective = derivedStatus(inv);
+          const s = statusLabel[effective] ?? { label: inv.status, className: "bg-neutral-100 text-neutral-600" };
           const canPay = inv.status !== "paid" && inv.status !== "canceled";
           return (
             <li key={inv.id} className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-neutral-100">
