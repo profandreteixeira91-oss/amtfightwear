@@ -350,5 +350,19 @@ export async function buildQuotePdf(q: QuotePdfData): Promise<{ blob: Blob; url:
     .replace(/^_+|_+$/g, "")
     .slice(0, 40) || "CLIENTE";
   const fileDate = brDate(q.created_at ?? new Date().toISOString()).replace(/\//g, "-");
-  doc.save(`ORC_${slugName}_${fileDate}.pdf`);
+  const filename = `ORC_${slugName}_${fileDate}.pdf`;
+  const blob = doc.output("blob") as Blob;
+  return { blob, url: URL.createObjectURL(blob), filename };
+}
+
+export async function exportQuotePdf(q: QuotePdfData) {
+  const { blob, filename } = await buildQuotePdf(q);
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
 }
