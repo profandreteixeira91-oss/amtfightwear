@@ -1041,27 +1041,34 @@ function StudentDetail() {
                             <ol className="relative space-y-4 border-l-2 border-border pl-4">
                               {items.map((g: any) => (
                                 <li key={g.id} className="relative">
-                                  <span className="absolute -left-[21px] top-1.5 h-3 w-3 rounded-full border-2 border-primary bg-card" />
-                                  <div className="flex flex-wrap items-center gap-3">
-                                    {g.belt && (
-                                      <div className="w-28 shrink-0">
-                                        <BeltAuto belt={g.belt} degree={g.degree} />
-                                      </div>
-                                    )}
+                                  <span className="absolute -left-[21px] top-4 h-3 w-3 rounded-full border-2 border-primary bg-card" />
+                                  <div className="flex items-center gap-4 rounded-lg border border-border/60 bg-card p-3">
+                                    {/* Ilustração — tamanho padronizado */}
+                                    <div className="flex h-12 w-24 shrink-0 items-center justify-center overflow-hidden">
+                                      {g.belt ? (
+                                        <BeltAuto belt={g.belt} degree={g.degree} className="h-full w-full object-contain" />
+                                      ) : null}
+                                    </div>
+                                    {/* Modalidade */}
+                                    <div className="w-28 shrink-0 truncate text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                                      {g.belt?.modality ?? "—"}
+                                    </div>
+                                    {/* Nome da graduação */}
                                     <div className="min-w-0 flex-1">
-                                      <div className="font-medium">
-                                        {g.belt?.name} <span className="text-muted-foreground font-normal">· {formatDegree(g.degree, g.belt?.modality, g.belt?.name)}</span>
+                                      <div className="truncate font-medium">
+                                        {formatBeltFull(g.belt?.name ?? "", g.belt?.modality, g.degree)}
                                       </div>
-                                      <div className="text-xs text-muted-foreground">
+                                      <div className="truncate text-xs text-muted-foreground">
                                         {fmtDate(g.graduation_date)} · {g.evaluator ?? "Avaliador não informado"}
                                         {g.notes ? ` · ${g.notes}` : ""}
                                       </div>
                                     </div>
-                                    <Button size="icon" variant="ghost" onClick={async () => { await delGrad({ data: { id: g.id } }); refresh(); }}>
+                                    <Button size="icon" variant="ghost" className="shrink-0" onClick={async () => { await delGrad({ data: { id: g.id } }); refresh(); }}>
                                       <Trash2 className="h-4 w-4 text-destructive" />
                                     </Button>
                                   </div>
                                 </li>
+
                               ))}
                             </ol>
                           </div>
