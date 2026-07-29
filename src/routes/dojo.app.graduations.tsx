@@ -324,6 +324,32 @@ function NewGraduationPage() {
     }
   };
 
+  // Troca a modalidade em que o aluno será graduado e recalcula a sugestão
+  const setStudentModality = (studentId: string, newMod: string) => {
+    setPerStudentMod(prev => ({ ...prev, [studentId]: newMod }));
+    const s = (students.data ?? []).find((x: any) => x.id === studentId) as any;
+    const age = computeAge(s?.birth_date);
+    const currents: any[] = (s?.current_belts && s.current_belts.length > 0)
+      ? s.current_belts
+      : (s?.belt ? [{ belt: s.belt, degree: s.current_degree ?? 0 }] : []);
+    const currentTarget = currents.find((b: any) => (b.belt?.modality ?? "jiu-jitsu") === newMod) ?? null;
+    const suggestion = suggestNextBelt({
+      current: currentTarget ? { belt: currentTarget.belt, degree: currentTarget.degree ?? 0 } : null,
+      belts: (belts.data ?? []) as any[],
+      modality: newMod,
+      age,
+    });
+    setPerStudent(prev => ({
+      ...prev,
+      [studentId]: {
+        beltId: suggestion?.beltId ?? "",
+        degree: suggestion?.degree ?? 0,
+        fee: suggestion ? String(priceByBelt[suggestion.beltId] ?? "") : "",
+        paid: prev[studentId]?.paid ?? false,
+      },
+    }));
+  };
+
   const setStudentBelt = (studentId: string, newBeltId: string) => {
     setPerStudent(prev => ({
       ...prev,
