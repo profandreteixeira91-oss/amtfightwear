@@ -26,7 +26,7 @@ export function ResumeTutorialDialog({
           <DialogDescription>
             Você estava no tutorial <strong>{track.title}</strong>, passo {session.stepIndex + 1} de{" "}
             {track.steps.length}
-            {session.savedAt ? ` · ${brDateTime(session.savedAt)}` : ""}.
+            {session.savedAt ? ` · ${brDate(session.savedAt)}` : ""}.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="flex-col gap-2 sm:flex-row">
