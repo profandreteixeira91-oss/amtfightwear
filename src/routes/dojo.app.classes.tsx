@@ -61,6 +61,7 @@ function ClassesPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<any>(null);
   const [panelId, setPanelId] = useState<string | null>(null);
+  const [studentsId, setStudentsId] = useState<string | null>(null);
   const [toDelete, setToDelete] = useState<any>(null);
   const [busy, setBusy] = useState(false);
   const [q, setQ] = useState("");
