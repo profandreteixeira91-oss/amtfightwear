@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getMyInvoices } from "@/lib/student/student.functions";
 import { Wallet, QrCode } from "lucide-react";
+import { brDate } from "@/lib/format";
 
 export const Route = createFileRoute("/app/_student/finance")({
   head: () => ({ meta: [{ title: "Financeiro — Portal do Aluno" }] }),
@@ -50,7 +51,7 @@ function FinancePage() {
                 <div className="min-w-0">
                   <div className="truncate text-sm font-semibold">{inv.description ?? "Mensalidade"}</div>
                   <div className="text-xs text-neutral-500">
-                    Venc: {new Date(inv.due_date).toLocaleDateString("pt-BR")}
+                    Venc: {brDate(inv.due_date)}
                   </div>
                 </div>
                 <div className="text-right">

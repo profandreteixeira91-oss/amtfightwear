@@ -1,3 +1,4 @@
+import { brDate } from "@/lib/format";
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -273,7 +274,7 @@ function FinanceTab({ affiliate }: { affiliate: any }) {
             {(q.data ?? []).map((r: any) => (
               <tr key={r.id} className="border-t">
                 <td className="px-3 py-2">{r.description}</td>
-                <td className="px-3 py-2">{r.due_date ? new Date(r.due_date).toLocaleDateString("pt-BR") : "—"}</td>
+                <td className="px-3 py-2">{r.due_date ? brDate(r.due_date) : "—"}</td>
                 <td className="px-3 py-2 text-right font-medium">{brl(Number(r.amount ?? 0))}</td>
                 <td className="px-3 py-2 text-right">
                   <Badge variant={r.status === "paid" ? "default" : r.status === "overdue" ? "destructive" : "outline"}>
