@@ -587,10 +587,26 @@ export const deleteDojoGraduation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
   .handler(async ({ data, context }) => {
+    // Descobre o aluno antes de excluir para poder recalcular a faixa atual.
+    const { data: grad } = await context.supabase
+      .from("dojo_graduations").select("student_id").eq("id", data.id).maybeSingle();
+
+    // Remove certificados emitidos a partir desta graduação — senão eles
+    // continuariam aparecendo no perfil do aluno e no app do aluno.
+    await context.supabase.from("dojo_certificates").delete().eq("graduation_id", data.id);
+
     const { error } = await context.supabase.from("dojo_graduations").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
-    return { ok: true };
+
+    // Rede de segurança: o trigger já recalcula, mas garantimos a consistência
+    // da faixa/grau atual do aluno mesmo se o trigger for desabilitado.
+    const studentId = (grad as any)?.student_id;
+    if (studentId) {
+      await context.supabase.rpc("dojo_recompute_current_belt", { _student_id: studentId });
+    }
+    return { ok: true, student_id: studentId ?? null };
   });
+
 
 // ============ PLANS ============
 export const listDojoPlans = createServerFn({ method: "GET" })
