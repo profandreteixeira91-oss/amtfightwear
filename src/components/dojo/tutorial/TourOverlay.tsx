@@ -42,22 +42,42 @@ const ACTION_LABEL: Record<TutorialAction, string> = {
   print: "Aguardando a impressão",
 };
 
+/** Diálogo/modal aberto no momento (o tutorial deve seguir dentro dele). */
+function openDialog(): HTMLElement | null {
+  if (typeof document === "undefined") return null;
+  const dialogs = Array.from(
+    document.querySelectorAll<HTMLElement>("[role='dialog'][data-state='open'], [role='alertdialog'][data-state='open']"),
+  );
+  return dialogs[dialogs.length - 1] ?? null;
+}
+
 /** Resolve o alvo do passo: seletor CSS ou `text:Frase`. */
 function resolveTarget(target?: string): HTMLElement | null {
   if (!target || typeof document === "undefined") return null;
-  if (target.startsWith("text:")) {
-    const needle = target.slice(5).trim().toLowerCase();
-    const candidates = Array.from(
-      document.querySelectorAll<HTMLElement>("button, a, [role='tab'], [role='button'], [role='switch'], [role='combobox']"),
-    );
-    const found = candidates.find((el) => {
-      if (!el.offsetParent && el.offsetHeight === 0) return false;
-      return (el.textContent ?? "").trim().toLowerCase().includes(needle);
-    });
-    return found ?? null;
+  // Quando há uma janela aberta, procuramos primeiro dentro dela.
+  const scopes: (HTMLElement | Document)[] = [];
+  const dialog = openDialog();
+  if (dialog) scopes.push(dialog);
+  scopes.push(document);
+
+  for (const scope of scopes) {
+    if (target.startsWith("text:")) {
+      const needle = target.slice(5).trim().toLowerCase();
+      const candidates = Array.from(
+        scope.querySelectorAll<HTMLElement>("button, a, [role='tab'], [role='button'], [role='switch'], [role='combobox']"),
+      );
+      const found = candidates.find((el) => {
+        if (!el.offsetParent && el.offsetHeight === 0) return false;
+        return (el.textContent ?? "").trim().toLowerCase().includes(needle);
+      });
+      if (found) return found;
+      continue;
+    }
+    const all = Array.from(scope.querySelectorAll<HTMLElement>(target));
+    const visible = all.find((el) => el.offsetHeight > 0 || el.offsetParent) ?? all[0];
+    if (visible) return visible;
   }
-  const all = Array.from(document.querySelectorAll<HTMLElement>(target));
-  return all.find((el) => el.offsetHeight > 0 || el.offsetParent) ?? all[0] ?? null;
+  return null;
 }
 
 /** Item do menu lateral correspondente à rota do passo (usado como plano B). */
@@ -236,7 +256,7 @@ export function TourOverlay() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") stop();
+      if (e.key === "Escape" && !openDialog()) stop();
       if (e.key === "ArrowRight" && !waiting) next();
       if (e.key === "ArrowLeft") prev();
     };
@@ -330,6 +350,11 @@ export function TourOverlay() {
 
       {/* Caixa de instrução */}
       <div
+        data-tutorial-card=""
+        onPointerDown={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
+        onFocusCapture={(e) => e.stopPropagation()}
         className="pointer-events-auto absolute w-[min(370px,calc(100vw-24px))] animate-scale-in rounded-2xl border border-primary/30 bg-background/98 p-4 shadow-2xl backdrop-blur"
         style={cardStyle}
       >
