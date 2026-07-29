@@ -283,6 +283,12 @@ function StudentsPage() {
       anamnesis: s.anamnesis ?? {},
       medical_clearance_date: s.medical_clearance_date ?? "",
       birth_date: s.birth_date ?? "",
+      // Exibição já formatada nos padrões brasileiros
+      cpf: maskCPF(s.cpf ?? ""),
+      zip: maskCEP(s.zip ?? ""),
+      phone: maskPhone(s.phone ?? ""),
+      guardian_phone: maskPhone(s.guardian_phone ?? ""),
+      emergency_contact_phone: maskPhone(s.emergency_contact_phone ?? ""),
       modalities,
     });
     setOpen(true);
