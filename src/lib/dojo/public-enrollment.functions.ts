@@ -144,6 +144,11 @@ const enrollInput = z.object({
   rg: z.string().trim().max(30).optional().or(z.literal("")),
   birth_date: z.string().max(20).optional().or(z.literal("")),
   gender: z.string().max(30).optional().or(z.literal("")),
+  nationality: z.string().max(60).optional().or(z.literal("")),
+  marital_status: z.string().max(40).optional().or(z.literal("")),
+  profession: z.string().max(120).optional().or(z.literal("")),
+  blood_type: z.string().max(5).optional().or(z.literal("")),
+  health_insurance: z.string().max(120).optional().or(z.literal("")),
   // Endereço
   zip: z.string().max(20).optional().or(z.literal("")),
   street: z.string().max(200).optional().or(z.literal("")),
@@ -157,11 +162,32 @@ const enrollInput = z.object({
   guardian_phone: z.string().max(40).optional().or(z.literal("")),
   emergency_contact_name: z.string().max(200).optional().or(z.literal("")),
   emergency_contact_phone: z.string().max(40).optional().or(z.literal("")),
+  emergency_contact_relationship: z.string().max(60).optional().or(z.literal("")),
+  // Dojo (unidade e modalidades/faixas)
+  unit_id: uuid.optional().nullable(),
+  modalities: z
+    .array(
+      z.object({
+        modality: z.string().max(60),
+        belt_id: uuid,
+        degree: z.number().int().min(0).max(20).optional(),
+      }),
+    )
+    .max(6)
+    .optional(),
+  // Anamnese e saúde
+  anamnesis: z.record(z.string(), z.any()).optional(),
+  has_medical_clearance: z.boolean().optional(),
+  medical_clearance_date: z.string().max(20).optional().or(z.literal("")),
+  // Foto
+  photo_url: z.string().max(600).optional().or(z.literal("")),
   // Consentimentos (obrigatórios para prosseguir)
   lgpd_consent: z.boolean(),
   terms_accepted: z.boolean(),
   image_rights_consent: z.boolean().optional(),
+  facial_recognition_consent: z.boolean().optional(),
 });
+
 
 export const publicEnrollStudent = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => enrollInput.parse(i))
