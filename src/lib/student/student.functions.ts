@@ -42,7 +42,7 @@ export const getMyDigitalCard = createServerFn({ method: "GET" })
       student.current_belt_id
         ? context.supabase
             .from("dojo_belts")
-            .select("name, color_hex, stripe_hex")
+            .select("name, color_hex, stripe_hex, modality, visual, variants, max_degrees")
             .eq("id", student.current_belt_id)
             .maybeSingle()
         : Promise.resolve({ data: null }),
@@ -246,7 +246,7 @@ export const getMyHome = createServerFn({ method: "GET" })
     const [{ data: belt }, { data: lastCheckin }, { data: lastGrad }, { data: openInvoices }, { data: unread }] =
       await Promise.all([
         student.current_belt_id
-          ? context.supabase.from("dojo_belts").select("name, color_hex, stripe_hex").eq("id", student.current_belt_id).maybeSingle()
+          ? context.supabase.from("dojo_belts").select("name, color_hex, stripe_hex, modality, visual, variants, max_degrees").eq("id", student.current_belt_id).maybeSingle()
           : Promise.resolve({ data: null }),
         context.supabase
           .from("dojo_attendance")
@@ -493,11 +493,11 @@ export const getMyGraduations = createServerFn({ method: "GET" })
     if (!me) return { current: null, history: [] };
     const [{ data: current }, { data: history }] = await Promise.all([
       me.current_belt_id
-        ? context.supabase.from("dojo_belts").select("id, name, color_hex, stripe_hex").eq("id", me.current_belt_id).maybeSingle()
+        ? context.supabase.from("dojo_belts").select("id, name, color_hex, stripe_hex, modality, visual, variants, max_degrees").eq("id", me.current_belt_id).maybeSingle()
         : Promise.resolve({ data: null }),
       context.supabase
         .from("dojo_graduations")
-        .select("id, graduation_date, degree, evaluator, notes, dojo_belts(name, color_hex, stripe_hex)")
+        .select("id, graduation_date, degree, evaluator, notes, dojo_belts(name, color_hex, stripe_hex, modality, visual, variants, max_degrees)")
         .eq("student_id", me.id)
         .order("graduation_date", { ascending: false }),
     ]);
