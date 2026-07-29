@@ -1014,32 +1014,64 @@ function StudentDetail() {
                 {graduations.length === 0 ? (
                   <EmptyState label="Sem graduações registradas." />
                 ) : (
-                  <ol className="relative space-y-4 border-l-2 border-border pl-4">
-                    {graduations.map((g: any) => (
-                      <li key={g.id} className="relative">
-                        <span className="absolute -left-[21px] top-1.5 h-3 w-3 rounded-full border-2 border-primary bg-card" />
-                        <div className="flex flex-wrap items-center gap-3">
-                          {g.belt?.color_hex && (
-                            <BeltAuto belt={g.belt} degree={g.degree} />
-                          )}
-                          <div className="min-w-0 flex-1">
-                            <div className="font-medium">
-                              {g.belt?.name} <span className="text-muted-foreground font-normal">· {formatDegree(g.degree, g.belt?.modality, g.belt?.name)}</span>
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              {fmtDate(g.graduation_date)} · {g.evaluator ?? "Avaliador não informado"}
-                              {g.notes ? ` · ${g.notes}` : ""}
-                            </div>
+                  (() => {
+                    // Uma linha do tempo por modalidade
+                    const groups = new Map<string, any[]>();
+                    for (const g of graduations) {
+                      const mod = (g.belt?.modality ?? "jiu-jitsu").toString();
+                      const arr = groups.get(mod) ?? [];
+                      arr.push(g);
+                      groups.set(mod, arr);
+                    }
+                    const entries = Array.from(groups.entries());
+                    return (
+                      <div className="space-y-6">
+                        {entries.map(([mod, items]) => (
+                          <div key={mod}>
+                            {entries.length > 1 && (
+                              <div className="mb-3 flex items-center gap-2">
+                                <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-primary">
+                                  {mod}
+                                </span>
+                                <span className="text-[11px] text-muted-foreground">
+                                  {items.length} {items.length === 1 ? "graduação" : "graduações"}
+                                </span>
+                              </div>
+                            )}
+                            <ol className="relative space-y-4 border-l-2 border-border pl-4">
+                              {items.map((g: any) => (
+                                <li key={g.id} className="relative">
+                                  <span className="absolute -left-[21px] top-1.5 h-3 w-3 rounded-full border-2 border-primary bg-card" />
+                                  <div className="flex flex-wrap items-center gap-3">
+                                    {g.belt && (
+                                      <div className="w-28 shrink-0">
+                                        <BeltAuto belt={g.belt} degree={g.degree} />
+                                      </div>
+                                    )}
+                                    <div className="min-w-0 flex-1">
+                                      <div className="font-medium">
+                                        {g.belt?.name} <span className="text-muted-foreground font-normal">· {formatDegree(g.degree, g.belt?.modality, g.belt?.name)}</span>
+                                      </div>
+                                      <div className="text-xs text-muted-foreground">
+                                        {fmtDate(g.graduation_date)} · {g.evaluator ?? "Avaliador não informado"}
+                                        {g.notes ? ` · ${g.notes}` : ""}
+                                      </div>
+                                    </div>
+                                    <Button size="icon" variant="ghost" onClick={async () => { await delGrad({ data: { id: g.id } }); refresh(); }}>
+                                      <Trash2 className="h-4 w-4 text-destructive" />
+                                    </Button>
+                                  </div>
+                                </li>
+                              ))}
+                            </ol>
                           </div>
-                          <Button size="icon" variant="ghost" onClick={async () => { await delGrad({ data: { id: g.id } }); refresh(); }}>
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        </div>
-                      </li>
-                    ))}
-                  </ol>
+                        ))}
+                      </div>
+                    );
+                  })()
                 )}
               </SectionCard>
+
             </TabsContent>
 
             {/* --- Certificados --- */}
