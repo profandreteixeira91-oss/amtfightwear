@@ -284,14 +284,26 @@ function StudentsPage() {
     });
   }
   function openEdit(s: any) {
+    // Todas as modalidades do aluno (graduação mais recente de cada uma),
+    // calculadas no servidor em `current_belts`. Fallback: faixa principal.
     const modalities: StudentForm["modalities"] = [];
-    if (s.current_belt_id) {
+    const cbs = Array.isArray(s.current_belts) ? s.current_belts : [];
+    for (const cb of cbs) {
+      if (!cb?.belt?.id) continue;
+      modalities.push({
+        modality: cb.modality ?? cb.belt?.modality ?? "jiu-jitsu",
+        belt_id: cb.belt.id,
+        degree: Number(cb.degree ?? 0),
+      });
+    }
+    if (modalities.length === 0 && s.current_belt_id) {
       modalities.push({
         modality: s.belt?.modality ?? "jiu-jitsu",
         belt_id: s.current_belt_id,
         degree: Number(s.current_degree ?? 0),
       });
     }
+
     setForm({
       ...emptyForm,
       ...s,
