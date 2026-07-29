@@ -267,6 +267,9 @@ export const getMyHome = createServerFn({ method: "GET" })
           .select("id, amount, due_date, status")
           .eq("student_id", student.id)
           .in("status", ["pending", "overdue"])
+          // Regra: só conta como PENDÊNCIA se a data de vencimento já chegou
+          // (vencido) ou é HOJE. Cobranças futuras = aluno em dia.
+          .lte("due_date", new Date().toISOString().slice(0, 10))
           .order("due_date", { ascending: true })
           .limit(3),
         context.supabase
