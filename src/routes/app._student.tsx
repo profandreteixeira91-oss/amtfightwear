@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect } from "react";
 import * as Icons from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { studentSupabase as supabase } from "@/lib/student-auth/student-client";
 import { BottomNav } from "@/components/student/BottomNav";
 import { StudentThemeProvider } from "@/components/student/StudentThemeProvider";
 import { getMyBranding, getMyStudent } from "@/lib/student/student.functions";

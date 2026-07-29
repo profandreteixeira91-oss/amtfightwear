@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { supabase } from "@/integrations/supabase/client";
+import { studentSupabase as supabase } from "@/lib/student-auth/student-client";
 import { toast } from "sonner";
 import { Loader2, ArrowLeft, Eye, EyeOff, ShieldCheck, Sparkles } from "lucide-react";
 import { checkStudentAccess, activateStudentAccount } from "@/lib/student/activation.functions";

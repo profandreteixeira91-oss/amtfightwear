@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { supabase } from "@/integrations/supabase/client";
+import { studentSupabase as supabase } from "@/lib/student-auth/student-client";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { LogOut, KeyRound, Bell, BellOff } from "lucide-react";
