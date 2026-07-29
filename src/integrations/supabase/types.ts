@@ -12145,6 +12145,87 @@ export type Database = {
           },
         ]
       }
+      store_quotes: {
+        Row: {
+          created_at: string
+          customer_address: Json
+          customer_company: string | null
+          customer_document: string | null
+          customer_email: string | null
+          customer_name: string
+          customer_phone: string | null
+          delivery_terms: string | null
+          discount: number
+          id: string
+          items: Json
+          notes: string | null
+          owner_id: string
+          payment_terms: string | null
+          quote_number: string
+          shipping_cost: number
+          signature_image: string | null
+          signer_name: string | null
+          signer_role: string | null
+          status: string
+          subtotal: number
+          total: number
+          updated_at: string
+          valid_until: string | null
+        }
+        Insert: {
+          created_at?: string
+          customer_address?: Json
+          customer_company?: string | null
+          customer_document?: string | null
+          customer_email?: string | null
+          customer_name?: string
+          customer_phone?: string | null
+          delivery_terms?: string | null
+          discount?: number
+          id?: string
+          items?: Json
+          notes?: string | null
+          owner_id?: string
+          payment_terms?: string | null
+          quote_number: string
+          shipping_cost?: number
+          signature_image?: string | null
+          signer_name?: string | null
+          signer_role?: string | null
+          status?: string
+          subtotal?: number
+          total?: number
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Update: {
+          created_at?: string
+          customer_address?: Json
+          customer_company?: string | null
+          customer_document?: string | null
+          customer_email?: string | null
+          customer_name?: string
+          customer_phone?: string | null
+          delivery_terms?: string | null
+          discount?: number
+          id?: string
+          items?: Json
+          notes?: string | null
+          owner_id?: string
+          payment_terms?: string | null
+          quote_number?: string
+          shipping_cost?: number
+          signature_image?: string | null
+          signer_name?: string | null
+          signer_role?: string | null
+          status?: string
+          subtotal?: number
+          total?: number
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Relationships: []
+      }
       store_shipping_settings: {
         Row: {
           created_at: string
