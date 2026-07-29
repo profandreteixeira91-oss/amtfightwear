@@ -233,6 +233,33 @@ export const publicEnrollStudent = createServerFn({ method: "POST" })
     const now = new Date().toISOString();
 
     // 3) Cria o aluno
+    // Valida unidade e faixas informadas (devem pertencer ao mesmo dono)
+    let unitId: string | null = null;
+    if (data.unit_id) {
+      const { data: unit } = await supabaseAdmin
+        .from("dojo_units")
+        .select("id, owner_id")
+        .eq("id", data.unit_id)
+        .maybeSingle();
+      if (unit && (unit as any).owner_id === ownerId) unitId = (unit as any).id;
+    }
+
+    const wantedBeltIds = Array.from(
+      new Set((data.modalities ?? []).map((m) => m.belt_id).filter(Boolean)),
+    );
+    let validBelts: any[] = [];
+    if (wantedBeltIds.length > 0) {
+      const { data: beltRows } = await supabaseAdmin
+        .from("dojo_belts")
+        .select("id, owner_id, modality, max_degrees")
+        .in("id", wantedBeltIds);
+      validBelts = (beltRows ?? []).filter((b: any) => b.owner_id === ownerId);
+    }
+    const validModalities = (data.modalities ?? []).filter((m) =>
+      validBelts.some((b) => b.id === m.belt_id),
+    );
+    const primaryMod = validModalities[0] ?? null;
+
     const studentPayload: any = {
       owner_id: ownerId,
       full_name: data.full_name.trim(),
@@ -242,6 +269,11 @@ export const publicEnrollStudent = createServerFn({ method: "POST" })
       rg: data.rg || null,
       birth_date: data.birth_date || null,
       gender: data.gender || null,
+      nationality: data.nationality || null,
+      marital_status: data.marital_status || null,
+      profession: data.profession || null,
+      blood_type: data.blood_type || null,
+      health_insurance: data.health_insurance || null,
       zip: data.zip || null,
       street: data.street || null,
       address_number: data.address_number || null,
@@ -253,12 +285,24 @@ export const publicEnrollStudent = createServerFn({ method: "POST" })
       guardian_phone: data.guardian_phone || null,
       emergency_contact_name: data.emergency_contact_name || null,
       emergency_contact_phone: data.emergency_contact_phone || null,
+      emergency_contact_relationship: data.emergency_contact_relationship || null,
+      unit_id: unitId,
+      current_belt_id: primaryMod?.belt_id ?? null,
+      current_degree: primaryMod?.degree ?? 0,
+      anamnesis: data.anamnesis && Object.keys(data.anamnesis).length > 0 ? data.anamnesis : {},
+      has_medical_clearance: data.has_medical_clearance ?? false,
+      medical_clearance_date: data.has_medical_clearance && data.medical_clearance_date
+        ? data.medical_clearance_date
+        : null,
+      photo_url: data.photo_url || null,
       status: "active",
       lgpd_consent: true,
       lgpd_consent_date: now,
       terms_accepted: true,
       terms_accepted_date: now,
       image_rights_consent: data.image_rights_consent ?? false,
+      facial_recognition_consent: data.facial_recognition_consent ?? false,
+      facial_recognition_consent_at: data.facial_recognition_consent ? now : null,
     };
     const { data: studentRow, error: sErr } = await supabaseAdmin
       .from("dojo_students")
@@ -266,6 +310,25 @@ export const publicEnrollStudent = createServerFn({ method: "POST" })
       .select("id, full_name, unit_id, email, cpf, phone")
       .single();
     if (sErr) throw new Error(sErr.message);
+
+    // 3.1) Registra as graduações iniciais informadas
+    if (validModalities.length > 0) {
+      try {
+        await supabaseAdmin.from("dojo_graduations").insert(
+          validModalities.map((m) => ({
+            owner_id: ownerId,
+            student_id: studentRow.id,
+            belt_id: m.belt_id,
+            degree: m.degree ?? 0,
+            graduation_date: new Date().toISOString().slice(0, 10),
+            notes: "Faixa informada na matrícula online",
+          })) as any,
+        );
+      } catch (e) {
+        console.warn("[public-enroll] falha ao registrar graduações iniciais:", e);
+      }
+    }
+
 
     // 4) Cria a matrícula
     const today = new Date();
