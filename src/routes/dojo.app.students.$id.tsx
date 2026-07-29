@@ -118,7 +118,16 @@ function StudentDetail() {
   const [cancelDialog, setCancelDialog] = useState<{ open: boolean; mode: "cancel" | "freeze"; frozen_until: string }>({ open: false, mode: "cancel", frozen_until: "" });
   const [cancelBusy, setCancelBusy] = useState(false);
 
-  const refresh = () => qc.invalidateQueries({ queryKey: ["dojo-student", id] });
+  const refresh = () => {
+    // Invalida tudo que depende de graduações para que a exclusão reflita
+    // no perfil, na listagem, nos certificados e no app do aluno.
+    qc.invalidateQueries({ queryKey: ["dojo-student", id] });
+    qc.invalidateQueries({ queryKey: ["dojo-students"] });
+    qc.invalidateQueries({ queryKey: ["dojo-graduations"] });
+    qc.invalidateQueries({ queryKey: ["dojo-certificates"] });
+    qc.invalidateQueries({ queryKey: ["graduation-progress"] });
+  };
+
 
   const doAddGrad = async () => {
     if (!grad.belt_id) return toast.error("Escolha a faixa");
