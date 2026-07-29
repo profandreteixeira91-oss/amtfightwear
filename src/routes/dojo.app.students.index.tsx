@@ -301,8 +301,10 @@ function StudentsPage() {
       emergency_contact_phone: maskPhone(s.emergency_contact_phone ?? ""),
       modalities,
     });
+    resetEnrollment();
     setOpen(true);
   }
+
 
   const onSave = async () => {
     if (!form.full_name.trim()) {
