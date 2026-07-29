@@ -28,7 +28,7 @@ import {
 } from "@/lib/dojo/tutorial/custom-tracks";
 import { useTutorial } from "@/components/dojo/tutorial/TutorialProvider";
 
-export const Route = createFileRoute("/dojo/app/tutorial/editor")({
+export const Route = createFileRoute("/dojo/app/tutorial-editor")({
   head: () => ({
     meta: [
       { title: "Editor de tutoriais | AMT Dojo Manager" },

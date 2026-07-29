@@ -159,7 +159,7 @@ function TutorialPage() {
           Modo demonstração {demo ? "ativo" : "desligado"}
         </Button>
         <Button asChild variant="outline" size="sm" className="gap-1.5">
-          <Link to="/dojo/app/tutorial/editor">
+          <Link to="/dojo/app/tutorial-editor">
             <Pencil className="h-4 w-4" /> Editor de tutoriais
           </Link>
         </Button>
