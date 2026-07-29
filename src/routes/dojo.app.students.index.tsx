@@ -923,14 +923,22 @@ function StudentsPage() {
                             <label className="text-[11px] text-muted-foreground">
                               {selectedBelt ? degreeUnit(selectedBelt.modality) : "Grau"}
                             </label>
-                            <Input
-                              type="number"
-                              min={0}
-                              max={maxDeg}
-                              value={m.degree}
+                            <select
+                              className="border rounded p-2 bg-background w-full disabled:opacity-50"
+                              disabled={!selectedBelt || maxDeg <= 0}
+                              value={String(Math.min(Number(m.degree ?? 0), maxDeg))}
                               onChange={(e) => update({ degree: Number(e.target.value) || 0 })}
-                            />
+                            >
+                              {!selectedBelt && <option value="0">—</option>}
+                              {selectedBelt &&
+                                Array.from({ length: maxDeg + 1 }, (_, d) => (
+                                  <option key={d} value={d}>
+                                    {formatDegree(d, selectedBelt.modality)}
+                                  </option>
+                                ))}
+                            </select>
                           </div>
+
                           <div className="md:col-span-1 flex justify-end">
                             <Button
                               type="button"
