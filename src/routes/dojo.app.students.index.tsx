@@ -178,9 +178,8 @@ function StudentsPage() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<StudentForm>(emptyForm);
   const [tab, setTab] = useState<string>("dados");
-  const tabOrder = form.id
-    ? ["dados", "endereco", "contato", "dojo", "anamnese", "foto", "consent"]
-    : ["dados", "endereco", "contato", "dojo", "plano", "anamnese", "foto", "consent"];
+  const tabOrder = ["dados", "endereco", "contato", "dojo", "plano", "anamnese", "foto", "consent"];
+
   const tabIndex = Math.max(0, tabOrder.indexOf(tab));
   const isLastTab = tabIndex >= tabOrder.length - 1;
   useEffect(() => { if (open) setTab("dados"); }, [open]);
