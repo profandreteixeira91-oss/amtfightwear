@@ -2,7 +2,7 @@ import { formatDegree, degreeSuffix, degreeUnit, formatBeltFull } from "@/lib/do
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ComponentType } from "react";
 import {
   listDojoStudents,
   saveDojoStudent,
@@ -31,14 +31,27 @@ import { useDojoBranding } from "@/hooks/useDojoBranding";
 import { downloadStudentsTemplate, parseStudentsFile, type ParsedStudentRow } from "@/lib/dojo/students-xlsx";
 import autismIcon from "@/assets/autism-tea.png.asset.json";
 import { printAllStudentSummaries } from "@/lib/dojo/students-bulk-print";
+import { maskCPF, maskCEP, maskPhone, clampDueDay, isValidCPF, isValidCEP, isValidPhone } from "@/lib/br-masks";
 import { toast } from "sonner";
-import { Trash2, Pencil, UserPlus, FileDown, Upload, Printer, User, MapPin, Phone, Award, Wallet, HeartPulse, Camera, ShieldCheck, FileText, Users, UserCheck, Snowflake, UserX, Search, Sparkles, Link as LinkIcon, Copy, ExternalLink } from "lucide-react";
+import { Trash2, Pencil, UserPlus, FileDown, Upload, Printer, User, MapPin, Phone, Award, Wallet, HeartPulse, Camera, ShieldCheck, FileText, Users, UserCheck, Snowflake, UserX, Search, Sparkles, Link as LinkIcon, Copy, ExternalLink, Check } from "lucide-react";
 
 
 export const Route = createFileRoute("/dojo/app/students/")({
   head: () => ({ meta: [{ title: "Alunos — AMT Dojo Manager" }] }),
   component: StudentsPage,
 });
+
+/** Metadados visuais das etapas do cadastro de aluno. */
+const STEP_META: Record<string, { label: string; icon: ComponentType<{ className?: string }> }> = {
+  dados: { label: "Dados", icon: User },
+  endereco: { label: "Endereço", icon: MapPin },
+  contato: { label: "Contatos", icon: Phone },
+  dojo: { label: "Dojo", icon: Award },
+  plano: { label: "Plano", icon: Wallet },
+  anamnese: { label: "Anamnese", icon: HeartPulse },
+  foto: { label: "Foto", icon: Camera },
+  consent: { label: "Consentimentos", icon: ShieldCheck },
+};
 
 type StudentForm = {
   id?: string;
@@ -270,6 +283,12 @@ function StudentsPage() {
       anamnesis: s.anamnesis ?? {},
       medical_clearance_date: s.medical_clearance_date ?? "",
       birth_date: s.birth_date ?? "",
+      // Exibição já formatada nos padrões brasileiros
+      cpf: maskCPF(s.cpf ?? ""),
+      zip: maskCEP(s.zip ?? ""),
+      phone: maskPhone(s.phone ?? ""),
+      guardian_phone: maskPhone(s.guardian_phone ?? ""),
+      emergency_contact_phone: maskPhone(s.emergency_contact_phone ?? ""),
       modalities,
     });
     setOpen(true);
@@ -569,56 +588,86 @@ function StudentsPage() {
                 </Button>
               </DialogTrigger>
 
-            <DialogContent className="max-w-5xl w-[calc(100vw-2rem)] p-0 gap-0 overflow-hidden">
-              <DialogHeader className="px-6 pt-5 pb-4 border-b bg-gradient-to-br from-primary/5 via-background to-background">
-                <div className="flex items-start gap-3">
-                  <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+            <DialogContent className="max-w-5xl w-[calc(100vw-2rem)] p-0 gap-0 overflow-hidden rounded-2xl border-neutral-200/80 shadow-2xl">
+              <DialogHeader className="relative overflow-hidden px-6 pt-6 pb-5 text-left border-b border-white/10 bg-[linear-gradient(135deg,#1b0708_0%,#490d10_55%,#7f1417_100%)]">
+                <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-red-500/25 blur-3xl" />
+                <div className="pointer-events-none absolute -left-10 bottom-[-4rem] h-40 w-40 rounded-full bg-white/10 blur-3xl" />
+                <div className="relative flex items-start gap-3.5">
+                  <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-white/10 text-white ring-1 ring-inset ring-white/25 backdrop-blur">
                     <UserPlus className="h-5 w-5" />
                   </div>
-                  <div className="min-w-0">
-                    <DialogTitle className="text-lg font-semibold leading-tight">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/55">
+                      AMT Dojo Manager · Matrícula
+                    </p>
+                    <DialogTitle className="mt-1 text-lg font-semibold leading-tight text-white sm:text-xl">
                       {form.id ? "Editar aluno" : "Cadastrar novo aluno"}
                     </DialogTitle>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      Preencha os dados nas abas abaixo. Campos com <span className="text-destructive">*</span> são obrigatórios.
+                    <p className="mt-1 text-xs leading-relaxed text-white/70">
+                      Etapa {tabIndex + 1} de {tabOrder.length} · Campos com{" "}
+                      <span className="text-red-300">*</span> são obrigatórios.
                     </p>
                   </div>
+                  <div className="hidden shrink-0 items-center gap-3 rounded-2xl bg-white/10 px-3.5 py-2 ring-1 ring-inset ring-white/15 sm:flex">
+                    <div className="text-right">
+                      <div className="text-[10px] uppercase tracking-wider text-white/55">Progresso</div>
+                      <div className="text-lg font-bold tabular-nums text-white">
+                        {Math.round(((tabIndex + 1) / tabOrder.length) * 100)}%
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="relative mt-4 h-1 w-full overflow-hidden rounded-full bg-white/15">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-red-400 to-white transition-all duration-500 ease-out"
+                    style={{ width: `${((tabIndex + 1) / tabOrder.length) * 100}%` }}
+                  />
                 </div>
               </DialogHeader>
 
-              <Tabs value={tab} onValueChange={setTab} className="w-full flex flex-col max-h-[calc(90vh-9rem)]">
-                <div className="px-6 pt-4 border-b bg-muted/20">
-                  <TabsList className="h-auto w-full flex-wrap justify-start bg-transparent p-0 gap-1">
-                    <TabsTrigger value="dados" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md px-3 py-2">
-                      <User className="h-3.5 w-3.5" /> Dados
-                    </TabsTrigger>
-                    <TabsTrigger value="endereco" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md px-3 py-2">
-                      <MapPin className="h-3.5 w-3.5" /> Endereço
-                    </TabsTrigger>
-                    <TabsTrigger value="contato" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md px-3 py-2">
-                      <Phone className="h-3.5 w-3.5" /> Contatos
-                    </TabsTrigger>
-                    <TabsTrigger value="dojo" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md px-3 py-2">
-                      <Award className="h-3.5 w-3.5" /> Dojo
-                    </TabsTrigger>
-                    {!form.id && (
-                      <TabsTrigger value="plano" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md px-3 py-2">
-                        <Wallet className="h-3.5 w-3.5" /> Plano
-                      </TabsTrigger>
-                    )}
-                    <TabsTrigger value="anamnese" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md px-3 py-2">
-                      <HeartPulse className="h-3.5 w-3.5" /> Anamnese
-                    </TabsTrigger>
-                    <TabsTrigger value="foto" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md px-3 py-2">
-                      <Camera className="h-3.5 w-3.5" /> Foto
-                    </TabsTrigger>
-                    <TabsTrigger value="consent" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md px-3 py-2">
-                      <ShieldCheck className="h-3.5 w-3.5" /> Consentimentos
-                    </TabsTrigger>
+              <Tabs value={tab} onValueChange={setTab} className="w-full flex flex-col max-h-[calc(90vh-11rem)]">
+                <div className="border-b bg-gradient-to-b from-muted/40 to-background px-4 py-3 sm:px-6">
+                  <TabsList className="h-auto w-full flex-wrap justify-start gap-1.5 bg-transparent p-0">
+                    {tabOrder.map((value, i) => {
+                      const meta = STEP_META[value];
+                      const done = i < tabIndex;
+                      const active = i === tabIndex;
+                      return (
+                        <TabsTrigger
+                          key={value}
+                          value={value}
+                          className={[
+                            "group gap-2 rounded-xl border px-3 py-2 text-xs font-medium transition-all",
+                            "data-[state=active]:border-primary/30 data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm",
+                            active
+                              ? "border-primary/30"
+                              : done
+                                ? "border-emerald-500/25 bg-emerald-500/5 text-emerald-700"
+                                : "border-transparent text-muted-foreground hover:border-border hover:bg-muted/60",
+                          ].join(" ")}
+                        >
+                          <span
+                            className={[
+                              "grid h-5 w-5 shrink-0 place-items-center rounded-full text-[10px] font-bold transition-colors",
+                              active
+                                ? "bg-primary text-primary-foreground"
+                                : done
+                                  ? "bg-emerald-500 text-white"
+                                  : "bg-muted text-muted-foreground",
+                            ].join(" ")}
+                          >
+                            {done ? <Check className="h-3 w-3" /> : i + 1}
+                          </span>
+                          <meta.icon className="h-3.5 w-3.5" />
+                          <span className="whitespace-nowrap">{meta.label}</span>
+                        </TabsTrigger>
+                      );
+                    })}
                   </TabsList>
                 </div>
 
-                <div className="overflow-y-auto px-6 py-5 flex-1">
+                <div className="overflow-y-auto px-6 py-5 flex-1 bg-[radial-gradient(900px_400px_at_100%_-10%,rgba(220,38,38,0.04),transparent_60%)]">
+
 
 
                 {/* ============ DADOS PESSOAIS ============ */}
@@ -627,7 +676,16 @@ function StudentsPage() {
                     <Input value={form.full_name} onChange={(e) => set("full_name", e.target.value)} />
                   </Field>
                   <Field label="CPF *">
-                    <Input value={form.cpf} onChange={(e) => set("cpf", e.target.value)} placeholder="000.000.000-00" />
+                    <Input
+                      value={form.cpf}
+                      onChange={(e) => set("cpf", maskCPF(e.target.value))}
+                      placeholder="000.000.000-00"
+                      inputMode="numeric"
+                      maxLength={14}
+                    />
+                    {form.cpf && !isValidCPF(form.cpf) && (
+                      <p className="mt-1 text-[11px] text-destructive">CPF incompleto — use o formato 000.000.000-00.</p>
+                    )}
                   </Field>
                   <Field label="RG">
                     <Input value={form.rg} onChange={(e) => set("rg", e.target.value)} />
@@ -688,7 +746,17 @@ function StudentsPage() {
                 {/* ============ ENDEREÇO ============ */}
                 <TabsContent value="endereco" className="mt-4 grid gap-3 md:grid-cols-6">
                   <Field label="CEP" className="md:col-span-2">
-                    <Input name="cep" placeholder="00000-000" value={form.zip} onChange={(e) => set("zip", e.target.value)} />
+                    <Input
+                      name="cep"
+                      placeholder="00000-000"
+                      value={form.zip}
+                      onChange={(e) => set("zip", maskCEP(e.target.value))}
+                      inputMode="numeric"
+                      maxLength={9}
+                    />
+                    {form.zip && !isValidCEP(form.zip) && (
+                      <p className="mt-1 text-[11px] text-destructive">CEP incompleto — use o formato 00000-000.</p>
+                    )}
                   </Field>
                   <Field label="Rua" className="md:col-span-4">
                     <Input name="logradouro" value={form.street} onChange={(e) => set("street", e.target.value)} />
@@ -717,21 +785,30 @@ function StudentsPage() {
                     <Input type="email" value={form.email} onChange={(e) => set("email", e.target.value)} />
                   </Field>
                   <Field label="Telefone / WhatsApp">
-                    <Input value={form.phone} onChange={(e) => set("phone", e.target.value)} placeholder="(11) 99999-9999" />
+                    <Input
+                      value={form.phone}
+                      onChange={(e) => set("phone", maskPhone(e.target.value))}
+                      placeholder="(11)99999-9999"
+                      inputMode="tel"
+                      maxLength={14}
+                    />
+                    {form.phone && !isValidPhone(form.phone) && (
+                      <p className="mt-1 text-[11px] text-destructive">Telefone incompleto — use (XX)XXXXX-XXXX.</p>
+                    )}
                   </Field>
                   <div className="md:col-span-2 mt-2 text-sm font-semibold">Responsável legal (menores de 18 anos)</div>
                   <Field label="Nome do responsável">
                     <Input value={form.guardian_name} onChange={(e) => set("guardian_name", e.target.value)} />
                   </Field>
                   <Field label="Telefone do responsável">
-                    <Input value={form.guardian_phone} onChange={(e) => set("guardian_phone", e.target.value)} />
+                    <Input value={form.guardian_phone} onChange={(e) => set("guardian_phone", maskPhone(e.target.value))} placeholder="(11)99999-9999" inputMode="tel" maxLength={14} />
                   </Field>
                   <div className="md:col-span-2 mt-2 text-sm font-semibold">Contato de emergência</div>
                   <Field label="Nome">
                     <Input value={form.emergency_contact_name} onChange={(e) => set("emergency_contact_name", e.target.value)} />
                   </Field>
                   <Field label="Telefone">
-                    <Input value={form.emergency_contact_phone} onChange={(e) => set("emergency_contact_phone", e.target.value)} />
+                    <Input value={form.emergency_contact_phone} onChange={(e) => set("emergency_contact_phone", maskPhone(e.target.value))} placeholder="(11)99999-9999" inputMode="tel" maxLength={14} />
                   </Field>
                   <Field label="Parentesco" className="md:col-span-2">
                     <Input value={form.emergency_contact_relationship} onChange={(e) => set("emergency_contact_relationship", e.target.value)} placeholder="Ex.: cônjuge, mãe, irmão" />
@@ -923,14 +1000,17 @@ function StudentsPage() {
                           onChange={(e) => setEnrollment((s) => ({ ...s, start_date: e.target.value }))}
                         />
                       </Field>
-                      <Field label="Dia de vencimento (1-28)">
+                      <Field label="Dia de vencimento (1-31)" hint="Meses mais curtos usam o último dia disponível.">
                         <Input
-                          type="number"
-                          min={1}
-                          max={28}
-                          value={enrollment.due_day}
+                          inputMode="numeric"
+                          maxLength={2}
+                          placeholder="05"
+                          value={String(enrollment.due_day)}
                           onChange={(e) =>
-                            setEnrollment((s) => ({ ...s, due_day: Math.max(1, Math.min(28, Number(e.target.value) || 1)) }))
+                            setEnrollment((s) => ({ ...s, due_day: clampDueDay(e.target.value, s.due_day) }))
+                          }
+                          onBlur={(e) =>
+                            setEnrollment((s) => ({ ...s, due_day: clampDueDay(e.target.value, 5) }))
                           }
                         />
                       </Field>
@@ -1135,23 +1215,36 @@ function StudentsPage() {
                 </div>
               </Tabs>
 
-              <div className="flex items-center justify-between gap-2 border-t px-6 py-3 bg-muted/30">
-                <p className="text-[11px] text-muted-foreground hidden sm:block">
-                  {form.id ? "Alterações salvas ao clicar em Salvar." : "Ao salvar, o aluno será matriculado no plano selecionado."}
-                </p>
-                <div className="flex gap-2 ml-auto">
-                  <Button variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
+              <div className="flex flex-col gap-3 border-t bg-gradient-to-b from-background to-muted/40 px-4 py-3 sm:flex-row sm:items-center sm:px-6">
+                <div className="flex min-w-0 items-center gap-2">
+                  <div className="hidden items-center gap-1 sm:flex">
+                    {tabOrder.map((v, i) => (
+                      <span
+                        key={v}
+                        className={[
+                          "h-1.5 rounded-full transition-all duration-300",
+                          i === tabIndex ? "w-6 bg-primary" : i < tabIndex ? "w-3 bg-emerald-500/70" : "w-3 bg-muted-foreground/20",
+                        ].join(" ")}
+                      />
+                    ))}
+                  </div>
+                  <p className="truncate text-[11px] text-muted-foreground">
+                    {form.id ? "Alterações salvas ao clicar em Salvar." : "Ao salvar, o aluno será matriculado no plano selecionado."}
+                  </p>
+                </div>
+                <div className="ml-auto flex items-center gap-2">
+                  <Button variant="ghost" className="rounded-xl" onClick={() => setOpen(false)}>Cancelar</Button>
                   {!isLastTab && (
-                    <Button variant="outline" onClick={() => setTab(tabOrder[tabIndex - 1])} disabled={tabIndex === 0}>
+                    <Button variant="outline" className="rounded-xl" onClick={() => setTab(tabOrder[tabIndex - 1])} disabled={tabIndex === 0}>
                       Voltar
                     </Button>
                   )}
                   {isLastTab ? (
-                    <Button onClick={onSave}>
+                    <Button onClick={onSave} className="rounded-xl px-5 shadow-sm transition-transform active:scale-[0.98]">
                       {form.id ? "Salvar alterações" : "Cadastrar aluno"}
                     </Button>
                   ) : (
-                    <Button onClick={() => setTab(tabOrder[tabIndex + 1])}>
+                    <Button onClick={() => setTab(tabOrder[tabIndex + 1])} className="rounded-xl px-5 shadow-sm transition-transform active:scale-[0.98]">
                       Continuar
                     </Button>
                   )}
@@ -1395,7 +1488,14 @@ function Field({
   return (
     <div className={className}>
       <Label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-        {label}
+        {label.endsWith("*") ? (
+          <>
+            {label.slice(0, -1)}
+            <span className="text-destructive">*</span>
+          </>
+        ) : (
+          label
+        )}
       </Label>
       {children}
       {hint && <p className="mt-1 text-[11px] text-muted-foreground">{hint}</p>}
