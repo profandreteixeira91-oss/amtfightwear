@@ -1,120 +1,59 @@
-# Seletor de Aluno no App (contas compartilhando e-mail)
+## Objetivo
 
-Hoje o app do aluno resolve UM único cadastro a partir do usuário logado (via
-`get_my_student_id()` e consultas `dojo_students … limit 1`). Se o mesmo e-mail
-está vinculado a pai e filho (dois registros em `dojo_students`), apenas um é
-exposto. A ideia é permitir que o mesmo usuário alterne entre os alunos que
-ele legitimamente possa acessar.
+Criar o módulo **Tutorial** no Dojo Manager (`/dojo/app/tutorial`): o dono escolhe uma dúvida ("Como cadastro um aluno?"), o sistema o leva ao módulo correto e o guia com um passo a passo sobreposto na tela real, destacando os botões que ele deve clicar.
 
-## O que muda para o usuário
+## Como funciona (visão do usuário)
 
-- No topo da home do app (`/app/*`) surge um seletor com todos os alunos
-  vinculados ao e-mail do usuário logado (ou ao `user_id`).
-- Um único seletor troca instantaneamente o "aluno ativo": home, faixas,
-  frequência, ranking, contratos, mensalidades, check-ins, notificações,
-  vídeos e ranking passam a refletir os dados daquele aluno.
-- Se houver apenas um aluno vinculado, o seletor não aparece (comportamento
-  atual preservado).
-- A escolha fica salva em `localStorage` (por usuário) para persistir entre
-  aberturas do PWA; ao trocar de usuário, o seletor reseta.
+1. Entra em **Ajuda → Tutorial** (novo item no menu, também acessível por um botão "?" flutuante).
+2. Vê a central de dúvidas: busca por texto + categorias (Primeiros passos, Alunos, Financeiro, Rotina, Graduações, App do aluno, Configurações).
+3. Clica na dúvida. O sistema navega para o módulo correspondente e abre um **painel guia** (canto inferior direito, arrastável/minimizável).
+4. O painel mostra "Passo 1 de 5" com a instrução, e um **destaque visual (spotlight)** cai sobre o botão/campo daquele passo.
+5. O aluno-dono clica "Próximo" (ou o guia avança sozinho quando o passo é concluído, ex.: modal abriu). Pode pausar, voltar, sair ou marcar como concluído.
+6. A trilha fica marcada como concluída e o progresso aparece na central e no onboarding inicial.
 
-## Como fica tecnicamente
+## Estrutura de conteúdo
 
-### 1. Banco: descobrir todos os alunos elegíveis
-Nova RPC `list_my_students()` `SECURITY DEFINER` que retorna todos os
-`dojo_students` cujo `user_id = auth.uid()` OU `email = auth.users.email` do
-usuário logado, com `id, full_name, photo_url, owner_id, unit_id`.
+Cada tutorial é uma **trilha declarativa** (arquivo TypeScript, sem banco para o conteúdo):
 
-A RPC não substitui `get_my_student_id()`; ela apenas lista candidatos.
-
-### 2. Banco: "aluno ativo" via GUC de sessão
-`get_my_student_id()` passa a ler `current_setting('app.active_student_id', true)`:
-- Se o valor estiver definido E existir um aluno cujo `id = valor` e
-  `user_id = auth.uid()` OU `email = auth.email()`, retorna esse id.
-- Caso contrário, cai no comportamento atual (primeiro match, priorizando
-  `user_id`).
-
-Nova RPC `set_active_student(_id uuid)` `SECURITY DEFINER` que:
-1. Valida elegibilidade (mesma condição do `list_my_students`).
-2. Executa `perform set_config('app.active_student_id', _id::text, true)`.
-3. Retorna o id validado.
-
-Como o GUC com `is_local = true` vive apenas na transação atual, ele é
-usado como "sub-rotina" chamada no início de cada server function.
-
-### 3. Middleware: propagar o aluno ativo por request
-- O cliente passa `x-active-student: <uuid>` em todas as chamadas de server fn
-  (já usa `functionMiddleware`; adicionamos um attacher que injeta o header a
-  partir do `localStorage`).
-- `requireSupabaseAuth` (ou um novo middleware `resolveActiveStudent`) lê o
-  header, chama `supabase.rpc('set_active_student', { _id })` em uma primeira
-  query e guarda `context.activeStudentId`. Se o id for inválido, é ignorado
-  (fallback silencioso).
-
-Como cada query supabase-js roda em conexão separada, precisamos garantir
-que as server functions passem o `student_id` explicitamente também: o
-middleware adiciona `context.activeStudentId` para uso direto nas queries.
-
-### 4. Server functions: usar `context.activeStudentId`
-Substituir o padrão atual em ~15 arquivos:
-
-```ts
-// antes
-const { data: me } = await ctx.supabase
-  .from("dojo_students").select("id").limit(1).maybeSingle();
-
-// depois
-const me = await resolveMyStudent(ctx);  // novo helper
+```text
+{
+  id: "cadastrar-aluno",
+  titulo: "Como cadastrar um novo aluno",
+  categoria: "Alunos",
+  duracao: "2 min",
+  rota: "/dojo/app/students",
+  passos: [
+    { texto: "Clique em Novo aluno", alvo: "[data-tour='students-new']", acao: "click" },
+    { texto: "Preencha nome e telefone", alvo: "[data-tour='student-name']" },
+    ...
+  ]
+}
 ```
 
-`resolveMyStudent(ctx)`:
-1. Se `ctx.activeStudentId` está setado, faz `select` filtrando por esse id
-   (RLS ainda garante que só retorna se o id for elegível).
-2. Se não retornou, faz o fallback atual (`limit(1)`).
+- Cada passo aponta para um **`data-tour="..."`** já presente (ou a ser adicionado) no elemento real do módulo.
+- Se o elemento não existir na tela (ex.: usuário fechou o modal), o guia mostra a instrução em texto sem spotlight — nunca quebra.
 
-Arquivos afetados: `student.functions.ts`, `announcements.functions.ts`,
-`ranking.functions.ts`, `competitions.functions.ts`,
-`unit-qr-checkin.functions.ts`, `payments.functions.ts`, `push.functions.ts`,
-`contracts.server.ts` e derivados.
+## Trilhas do primeiro lote (cobrindo o núcleo)
 
-### 5. RLS de `dojo_students` (SELECT)
-Verificar se a policy atual já cobre `email = auth.email()`. Se cobrir apenas
-`user_id = auth.uid()`, ampliar para incluir também o match por e-mail — sem
-isso o `list_my_students` retorna vazio para o pai/filho.
+- **Primeiros passos**: configurar academia/logo/cores, criar unidade, criar planos, criar faixas (Modalidades e faixas), convidar equipe.
+- **Alunos**: cadastrar aluno (wizard), matricular em plano, gerar cobrança, link de auto-matrícula pública, excluir/inativar.
+- **Rotina**: criar turma, montar agenda, check-in (QR fixo, PIN, foto), ranking de presenças.
+- **Financeiro**: cobrança avulsa x recorrência, marcar pago, inadimplência, AMT Pay (ativar gateway, taxas, saque).
+- **Graduações**: critérios (tempo/aulas/mérito), graduar aluno, emitir certificado.
+- **App do aluno**: como o aluno acessa, avisos e notificações push, múltiplos alunos por e-mail.
+- **Loja/Vendas**: registrar venda, produtos, pedidos.
 
-### 6. UI: componente `StudentSwitcher`
-- Novo componente em `src/components/student-app/StudentSwitcher.tsx`.
-- Renderizado no cabeçalho do layout `app._student.tsx`.
-- Usa `useQuery(listMyStudents)`; se ≤1 aluno, não renderiza nada.
-- Ao trocar, grava `localStorage["student-app:active-student"]`, invalida
-  todas as queries (`queryClient.invalidateQueries()`) e chama
-  `router.invalidate()` para recarregar loaders.
+## Detalhes técnicos
 
-### 7. Attacher no cliente
-Adicionar um `functionMiddleware` (em `src/start.ts`) que lê o
-`localStorage` e adiciona `x-active-student` ao request. Registrar após o
-`attachSupabaseAuth` existente (append, não substituir).
+- `src/lib/dojo/tutorial/tracks.ts` — catálogo das trilhas (conteúdo puro, tipado).
+- `src/components/dojo/tutorial/TutorialProvider.tsx` — contexto global (trilha ativa, passo, iniciar/avançar/sair), montado em `src/routes/dojo.app.tsx` para sobreviver à navegação entre módulos.
+- `src/components/dojo/tutorial/TourOverlay.tsx` — spotlight (recorte via box-shadow sobre o elemento alvo, com `getBoundingClientRect` + observer de resize/scroll) e o cartão de instrução; responsivo (em mobile o cartão vira barra inferior).
+- `src/routes/dojo.app.tutorial.tsx` — central de dúvidas com busca, categorias, cards de trilha e progresso.
+- `data-tour` adicionado nos botões-chave dos módulos alvo (mudança puramente de marcação, sem alterar lógica).
+- Progresso salvo por usuário: tabela `dojo_tutorial_progress` (`owner_id`, `track_id`, `status`, `step`, `completed_at`) com RLS por `owner_id` e GRANTs; fallback em localStorage antes de sincronizar.
+- Menu: novo item **Tutorial** no grupo "Conta"/Ajuda do `AppTopNav` + atalho "?" no cabeçalho vermelho do Dojo.
+- Estética Ruby Noir, consistente com os demais módulos.
 
-## Fora de escopo
+## Fora do escopo desta etapa
 
-- Não altero o fluxo de auth/OAuth existente.
-- Não crio contas novas; apenas expõe o que já está corretamente vinculado
-  no banco.
-- Não muda a UX do dono do dojo (dashboard admin).
-
-## Impacto de segurança
-
-- A elegibilidade continua validada no banco (RPCs `SECURITY DEFINER` +
-  RLS por `user_id`/`email`). O header `x-active-student` só influencia
-  QUAL aluno elegível o cliente vê; nunca dá acesso a alunos de terceiros.
-- Um id inválido no header é ignorado e o app volta ao aluno padrão.
-
-## Entregáveis
-
-1. Migração SQL: `list_my_students`, `set_active_student`, ajuste em
-   `get_my_student_id`, revisão da policy SELECT de `dojo_students`.
-2. Helper `resolveMyStudent` + refactor dos ~15 server fns.
-3. Middleware server (`resolveActiveStudent`) + attacher cliente
-   (`attachActiveStudent`).
-4. `StudentSwitcher.tsx` + integração no layout `app._student.tsx`.
-5. Persistência em `localStorage` + invalidação de queries ao trocar.
+Vídeos gravados, tutorial para o app do aluno e tradução multi-idioma — podem entrar depois reutilizando a mesma engine.

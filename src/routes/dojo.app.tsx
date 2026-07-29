@@ -17,7 +17,9 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
+import { TutorialProvider } from "@/components/dojo/tutorial/TutorialProvider";
 import {
+  Compass,
   LayoutDashboard,
   Users,
   Award,
@@ -180,6 +182,7 @@ const nav: { label: string; items: NavItem[] }[] = [
   {
     label: "Ajuda",
     items: [
+      { to: "/dojo/app/tutorial", label: "Tutorial guiado", icon: Compass },
       { to: "/dojo/app/notifications", label: "App & Notificações", icon: Bell },
       { to: "/dojo/app/support", label: "Suporte", icon: LifeBuoy },
     ],
@@ -213,6 +216,7 @@ const routeTitles: Array<{ match: (p: string) => boolean; title: string; subtitl
   { match: (p) => p.startsWith("/dojo/app/student-app-qr"), title: "QR do App do Aluno", subtitle: "Imprima e distribua para os alunos" },
   { match: (p) => p.startsWith("/dojo/app/system-users"), title: "Usuários do Sistema", subtitle: "Logins e permissões da equipe" },
   { match: (p) => p.startsWith("/dojo/app/notifications"), title: "App & Notificações", subtitle: "Instalação do app e alertas push" },
+  { match: (p) => p.startsWith("/dojo/app/tutorial"), title: "Tutorial guiado", subtitle: "Escolha uma dúvida e siga o passo a passo dentro do sistema" },
 ];
 
 function DojoLayout() {
@@ -307,6 +311,7 @@ function DojoLayout() {
       <SidebarProvider>
         <DojoPermissionsProvider>
           <UnitScopeProvider>
+            <TutorialProvider>
             <DojoLayoutInner
               pathname={pathname}
               email={email}
@@ -315,6 +320,7 @@ function DojoLayout() {
               onLogout={handleLogout}
               isActive={isActive}
             />
+            </TutorialProvider>
           </UnitScopeProvider>
         </DojoPermissionsProvider>
       </SidebarProvider>
