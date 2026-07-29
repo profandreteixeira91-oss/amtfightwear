@@ -258,6 +258,7 @@ function StudentsPage() {
 
   function openNew() {
     setForm(emptyForm);
+    initialModsRef.current = [];
     setEnrollment({
       plan_id: "",
       due_day: 5,
