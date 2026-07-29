@@ -363,7 +363,7 @@ function StudentsPage() {
         }
       }
 
-      if (isNew && studentId && enrollment.plan_id) {
+      if (studentId && enrollment.plan_id) {
         const customAmt = enrollment.custom_amount.trim() === "" ? null : Number(enrollment.custom_amount);
         const res: any = await enrollFn({
           data: {
