@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Search, Plus, CheckCircle2, Trash2, Eye } from "lucide-react";
-import { brl, daysBetween, isoDate, useExpenses, useFinanceSettings, type ExpenseRow } from "./shared";
+import { brl, brDate, daysBetween, isoDate, useExpenses, useFinanceSettings, type ExpenseRow } from "./shared";
 import { EntryDrawer } from "./EntryDrawer";
 
 export function FinancePayables() {
@@ -209,7 +209,7 @@ export function FinancePayables() {
                 </div>
                 {form.recurrence !== "none" && (
                   <p className="text-[11px] text-muted-foreground -mt-1">
-                    Serão gerados {Math.max(1, Number(form.installments) || 1)} lançamentos a partir de {form.due_date}, um por{" "}
+                    Serão gerados {Math.max(1, Number(form.installments) || 1)} lançamentos a partir de {brDate(form.due_date)}, um por{" "}
                     {form.recurrence === "monthly" ? "mês" : form.recurrence === "quarterly" ? "trimestre" : "ano"}.
                   </p>
                 )}
@@ -257,7 +257,7 @@ export function FinancePayables() {
                       <div className="text-xs text-muted-foreground truncate min-w-0">{r.category ?? "—"}</div>
                       <div className="text-sm font-semibold whitespace-nowrap">{brl(r.amount)}</div>
                       <div className="text-xs min-w-0">
-                        <div className="truncate">{r.due_date}</div>
+                        <div className="truncate">{brDate(r.due_date)}</div>
                         {overdueDays > 0 && <div className="text-red-600 truncate">{overdueDays}d atraso</div>}
                       </div>
                       <div className="min-w-0">

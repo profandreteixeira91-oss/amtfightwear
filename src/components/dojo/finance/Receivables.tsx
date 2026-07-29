@@ -21,7 +21,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
 import { Search, CheckCircle2, Trash2, Eye, AlertCircle, CalendarIcon } from "lucide-react";
-import { brl, daysBetween, isoDate, useInvoices, type InvoiceRow } from "./shared";
+import { brl, brDate, daysBetween, isoDate, useInvoices, type InvoiceRow } from "./shared";
 import { EntryDrawer } from "./EntryDrawer";
 import { ShareInvoiceMenu } from "./ShareInvoice";
 
@@ -340,7 +340,7 @@ function InvoiceList({
                   </button>
                   <div className="text-sm font-semibold whitespace-nowrap">{brl(r.amount)}</div>
                   <div className="text-xs min-w-0">
-                    <div className="truncate">{r.due_date}</div>
+                    <div className="truncate">{brDate(r.due_date)}</div>
                     {overdueDays > 0 && <div className="text-red-600 truncate">{overdueDays}d atraso</div>}
                   </div>
                   <div className="min-w-0">
