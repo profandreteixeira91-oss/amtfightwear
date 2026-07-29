@@ -158,11 +158,6 @@ function TutorialPage() {
           <MonitorPlay className="h-4 w-4" />
           Modo demonstração {demo ? "ativo" : "desligado"}
         </Button>
-        <Button asChild variant="outline" size="sm" className="gap-1.5">
-          <Link to="/dojo/app/tutorial-editor">
-            <Pencil className="h-4 w-4" /> Editor de tutoriais
-          </Link>
-        </Button>
         {demo && (
           <span className="text-xs text-muted-foreground">
             No modo demonstração o tutorial avança sozinho, apenas para você observar o fluxo.
