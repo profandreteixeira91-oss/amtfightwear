@@ -670,7 +670,16 @@ function StudentsPage() {
                     <Input value={form.full_name} onChange={(e) => set("full_name", e.target.value)} />
                   </Field>
                   <Field label="CPF *">
-                    <Input value={form.cpf} onChange={(e) => set("cpf", e.target.value)} placeholder="000.000.000-00" />
+                    <Input
+                      value={form.cpf}
+                      onChange={(e) => set("cpf", maskCPF(e.target.value))}
+                      placeholder="000.000.000-00"
+                      inputMode="numeric"
+                      maxLength={14}
+                    />
+                    {form.cpf && !isValidCPF(form.cpf) && (
+                      <p className="mt-1 text-[11px] text-destructive">CPF incompleto — use o formato 000.000.000-00.</p>
+                    )}
                   </Field>
                   <Field label="RG">
                     <Input value={form.rg} onChange={(e) => set("rg", e.target.value)} />
@@ -731,7 +740,17 @@ function StudentsPage() {
                 {/* ============ ENDEREÇO ============ */}
                 <TabsContent value="endereco" className="mt-4 grid gap-3 md:grid-cols-6">
                   <Field label="CEP" className="md:col-span-2">
-                    <Input name="cep" placeholder="00000-000" value={form.zip} onChange={(e) => set("zip", e.target.value)} />
+                    <Input
+                      name="cep"
+                      placeholder="00000-000"
+                      value={form.zip}
+                      onChange={(e) => set("zip", maskCEP(e.target.value))}
+                      inputMode="numeric"
+                      maxLength={9}
+                    />
+                    {form.zip && !isValidCEP(form.zip) && (
+                      <p className="mt-1 text-[11px] text-destructive">CEP incompleto — use o formato 00000-000.</p>
+                    )}
                   </Field>
                   <Field label="Rua" className="md:col-span-4">
                     <Input name="logradouro" value={form.street} onChange={(e) => set("street", e.target.value)} />
@@ -760,21 +779,30 @@ function StudentsPage() {
                     <Input type="email" value={form.email} onChange={(e) => set("email", e.target.value)} />
                   </Field>
                   <Field label="Telefone / WhatsApp">
-                    <Input value={form.phone} onChange={(e) => set("phone", e.target.value)} placeholder="(11) 99999-9999" />
+                    <Input
+                      value={form.phone}
+                      onChange={(e) => set("phone", maskPhone(e.target.value))}
+                      placeholder="(11)99999-9999"
+                      inputMode="tel"
+                      maxLength={14}
+                    />
+                    {form.phone && !isValidPhone(form.phone) && (
+                      <p className="mt-1 text-[11px] text-destructive">Telefone incompleto — use (XX)XXXXX-XXXX.</p>
+                    )}
                   </Field>
                   <div className="md:col-span-2 mt-2 text-sm font-semibold">Responsável legal (menores de 18 anos)</div>
                   <Field label="Nome do responsável">
                     <Input value={form.guardian_name} onChange={(e) => set("guardian_name", e.target.value)} />
                   </Field>
                   <Field label="Telefone do responsável">
-                    <Input value={form.guardian_phone} onChange={(e) => set("guardian_phone", e.target.value)} />
+                    <Input value={form.guardian_phone} onChange={(e) => set("guardian_phone", maskPhone(e.target.value))} placeholder="(11)99999-9999" inputMode="tel" maxLength={14} />
                   </Field>
                   <div className="md:col-span-2 mt-2 text-sm font-semibold">Contato de emergência</div>
                   <Field label="Nome">
                     <Input value={form.emergency_contact_name} onChange={(e) => set("emergency_contact_name", e.target.value)} />
                   </Field>
                   <Field label="Telefone">
-                    <Input value={form.emergency_contact_phone} onChange={(e) => set("emergency_contact_phone", e.target.value)} />
+                    <Input value={form.emergency_contact_phone} onChange={(e) => set("emergency_contact_phone", maskPhone(e.target.value))} placeholder="(11)99999-9999" inputMode="tel" maxLength={14} />
                   </Field>
                   <Field label="Parentesco" className="md:col-span-2">
                     <Input value={form.emergency_contact_relationship} onChange={(e) => set("emergency_contact_relationship", e.target.value)} placeholder="Ex.: cônjuge, mãe, irmão" />
@@ -966,14 +994,17 @@ function StudentsPage() {
                           onChange={(e) => setEnrollment((s) => ({ ...s, start_date: e.target.value }))}
                         />
                       </Field>
-                      <Field label="Dia de vencimento (1-28)">
+                      <Field label="Dia de vencimento (1-31)" hint="Meses mais curtos usam o último dia disponível.">
                         <Input
-                          type="number"
-                          min={1}
-                          max={28}
-                          value={enrollment.due_day}
+                          inputMode="numeric"
+                          maxLength={2}
+                          placeholder="05"
+                          value={String(enrollment.due_day)}
                           onChange={(e) =>
-                            setEnrollment((s) => ({ ...s, due_day: Math.max(1, Math.min(28, Number(e.target.value) || 1)) }))
+                            setEnrollment((s) => ({ ...s, due_day: clampDueDay(e.target.value, s.due_day) }))
+                          }
+                          onBlur={(e) =>
+                            setEnrollment((s) => ({ ...s, due_day: clampDueDay(e.target.value, 5) }))
                           }
                         />
                       </Field>
