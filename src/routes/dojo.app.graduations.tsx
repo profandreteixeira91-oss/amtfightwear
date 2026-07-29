@@ -1150,7 +1150,16 @@ function NewGraduationPage() {
                 {selectedRows.map((s: any) => {
                   const entry = perStudent[s.id] ?? { beltId: "", degree: 0 };
                   const chosenBelt = beltById.get(entry.beltId);
-                  const chosenMod = chosenBelt?.modality ?? modality;
+                  const current = (s.current_belts && s.current_belts.length > 0)
+                    ? s.current_belts
+                    : (s.belt ? [{ belt: s.belt, degree: s.current_degree ?? 0 }] : []);
+                  // Modalidades em que o aluno já é graduado
+                  const studentMods: string[] = Array.from(
+                    new Set(current.map((b: any) => String(b.belt?.modality ?? b.modality ?? "jiu-jitsu"))),
+                  );
+                  const multiMod = studentMods.length > 1;
+                  const chosenMod =
+                    perStudentMod[s.id] ?? chosenBelt?.modality ?? studentMods[0] ?? modality;
                   const chosenMax = chosenBelt?.max_degrees ?? 4;
                   const chosenFixed = /^vermelha e preta$/i.test(chosenBelt?.name ?? "")
                     ? 7
@@ -1170,9 +1179,6 @@ function NewGraduationPage() {
                     const extra = beltOptionsRaw.find((b: any) => b.id === entry.beltId);
                     if (extra) beltOptions.push(extra);
                   }
-                  const current = (s.current_belts && s.current_belts.length > 0)
-                    ? s.current_belts
-                    : (s.belt ? [{ belt: s.belt, degree: s.current_degree ?? 0 }] : []);
                   const currentMatch = current.find((b: any) => (b.belt?.modality ?? "jiu-jitsu") === chosenMod);
                   const nextSuggest = suggestNextBelt({
                     current: currentMatch ? { belt: currentMatch.belt, degree: currentMatch.degree ?? 0 } : null,
@@ -1183,7 +1189,14 @@ function NewGraduationPage() {
                   const suggestedBelt = nextSuggest ? beltById.get(nextSuggest.beltId) : null;
 
                   return (
-                    <div key={s.id} className="flex flex-col gap-4 p-4 md:grid md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,1fr)] md:items-center md:gap-3">
+                    <div
+                      key={s.id}
+                      className={`flex flex-col gap-4 p-4 md:grid md:items-center md:gap-3 ${
+                        multiMod
+                          ? "md:grid-cols-[minmax(0,1.2fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,1fr)]"
+                          : "md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,1fr)]"
+                      }`}
+                    >
                       <div className="flex items-center gap-3 min-w-0">
                         <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary/10 text-[11px] font-bold text-primary">
                           {initials(s.full_name)}
