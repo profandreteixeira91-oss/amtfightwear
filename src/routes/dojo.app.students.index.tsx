@@ -284,14 +284,26 @@ function StudentsPage() {
     });
   }
   function openEdit(s: any) {
+    // Todas as modalidades do aluno (graduação mais recente de cada uma),
+    // calculadas no servidor em `current_belts`. Fallback: faixa principal.
     const modalities: StudentForm["modalities"] = [];
-    if (s.current_belt_id) {
+    const cbs = Array.isArray(s.current_belts) ? s.current_belts : [];
+    for (const cb of cbs) {
+      if (!cb?.belt?.id) continue;
+      modalities.push({
+        modality: cb.modality ?? cb.belt?.modality ?? "jiu-jitsu",
+        belt_id: cb.belt.id,
+        degree: Number(cb.degree ?? 0),
+      });
+    }
+    if (modalities.length === 0 && s.current_belt_id) {
       modalities.push({
         modality: s.belt?.modality ?? "jiu-jitsu",
         belt_id: s.current_belt_id,
         degree: Number(s.current_degree ?? 0),
       });
     }
+
     setForm({
       ...emptyForm,
       ...s,
@@ -1501,28 +1513,35 @@ function StudentsPage() {
                 </span>
               </div>
 
-              {/* Graduação — ilustração da faixa */}
-              <div className="mt-3 flex items-center gap-3 sm:mt-0">
-                {s.belt ? (
-                  <>
-                    <div className="w-20 shrink-0 sm:w-24">
-                      <BeltAuto belt={s.belt} degree={s.current_degree ?? 0} />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="truncate text-xs font-medium text-neutral-800">
-                        {formatBeltFull(s.belt.name, s.belt?.modality, s.current_degree)}
+              {/* Graduação — ilustração das faixas (todas as modalidades) */}
+              <div className="mt-3 space-y-1.5 sm:mt-0">
+                {(() => {
+                  const list = Array.isArray(s.current_belts) && s.current_belts.length
+                    ? s.current_belts.filter((cb: any) => cb?.belt)
+                    : s.belt
+                      ? [{ modality: s.belt.modality, belt: s.belt, degree: s.current_degree ?? 0 }]
+                      : [];
+                  if (list.length === 0) return <span className="text-xs text-neutral-400">Sem graduação</span>;
+                  return list.map((cb: any, i: number) => (
+                    <div key={cb.belt.id + i} className="flex items-center gap-3">
+                      <div className="w-20 shrink-0 sm:w-24">
+                        <BeltAuto belt={cb.belt} degree={cb.degree ?? 0} />
                       </div>
-                      {s.belt?.modality ? (
-                        <div className="truncate text-[10px] uppercase tracking-wide text-neutral-400">
-                          {s.belt.modality}
+                      <div className="min-w-0">
+                        <div className="truncate text-xs font-medium text-neutral-800">
+                          {formatBeltFull(cb.belt.name, cb.belt?.modality, cb.degree ?? 0)}
                         </div>
-                      ) : null}
+                        {cb.belt?.modality ? (
+                          <div className="truncate text-[10px] uppercase tracking-wide text-neutral-400">
+                            {cb.belt.modality}
+                          </div>
+                        ) : null}
+                      </div>
                     </div>
-                  </>
-                ) : (
-                  <span className="text-xs text-neutral-400">Sem graduação</span>
-                )}
+                  ));
+                })()}
               </div>
+
 
               {/* Status desktop */}
               <span
