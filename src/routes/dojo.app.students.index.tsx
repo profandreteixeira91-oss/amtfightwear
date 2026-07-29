@@ -27,6 +27,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StudentPhotoCapture } from "@/components/dojo/StudentPhotoCapture";
+import { BeltAuto } from "@/components/dojo/BeltSpecVisual";
+
 import { useDojoBranding } from "@/hooks/useDojoBranding";
 import { downloadStudentsTemplate, parseStudentsFile, type ParsedStudentRow } from "@/lib/dojo/students-xlsx";
 import autismIcon from "@/assets/autism-tea.png.asset.json";
@@ -1436,39 +1438,43 @@ function StudentsPage() {
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-neutral-200/80 bg-white shadow-sm divide-y divide-neutral-100">
+      <div className="overflow-hidden rounded-2xl border border-neutral-200/80 bg-white shadow-[0_1px_2px_rgba(16,24,40,.04),0_8px_24px_-12px_rgba(16,24,40,.12)]">
+        {/* Cabeçalho (desktop) */}
+        <div className="hidden bg-neutral-50/80 px-5 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-neutral-500 sm:grid sm:grid-cols-[minmax(0,1.6fr)_minmax(0,1.2fr)_auto_auto] sm:items-center sm:gap-4">
+          <span>Aluno</span>
+          <span>Graduação</span>
+          <span className="text-center">Situação</span>
+          <span className="text-right">Ações</span>
+        </div>
 
+        <div className="divide-y divide-neutral-100">
         {pageItems.map((s: any) => {
           const statusLabel = s.status === "active" ? "Ativo" : s.status === "frozen" ? "Trancado" : "Inativo";
           const statusClass =
             s.status === "active"
-              ? "bg-green-100 text-green-800"
+              ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20"
               : s.status === "frozen"
-                ? "bg-amber-100 text-amber-800"
-                : "bg-muted text-muted-foreground";
-          const meta = [
-            s.belt?.name && formatBeltFull(s.belt.name, s.belt?.modality, s.current_degree),
-            s.unit?.name,
-            s.email ?? s.phone,
-          ].filter(Boolean).join(" · ") || "Sem dados adicionais";
+                ? "bg-amber-50 text-amber-700 ring-1 ring-amber-600/20"
+                : "bg-neutral-100 text-neutral-600 ring-1 ring-neutral-500/20";
+          const contact = s.email ?? s.phone;
           return (
             <div
               key={s.id}
-              className="p-3 sm:grid sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:items-center sm:gap-4"
+              className="group px-4 py-3 transition-colors hover:bg-neutral-50/70 sm:grid sm:grid-cols-[minmax(0,1.6fr)_minmax(0,1.2fr)_auto_auto] sm:items-center sm:gap-4 sm:px-5"
             >
-              {/* Header (avatar + nome + status mobile) */}
+              {/* Aluno */}
               <div className="flex items-start gap-3">
-                <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-muted">
+                <div className="h-11 w-11 shrink-0 overflow-hidden rounded-full bg-neutral-100 ring-1 ring-neutral-200">
                   {s.photo_url ? (
                     <img src={s.photo_url} alt={s.full_name} className="h-full w-full object-cover" />
                   ) : (
-                    <div className="grid h-full w-full place-items-center text-xs font-semibold text-muted-foreground">
+                    <div className="grid h-full w-full place-items-center text-sm font-semibold text-neutral-500">
                       {s.full_name?.[0]?.toUpperCase() ?? "?"}
                     </div>
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 font-medium">
+                  <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[15px] font-semibold text-neutral-900">
                     {s.anamnesis?.autism ? (
                       <img
                         src={autismIcon.url}
@@ -1479,11 +1485,15 @@ function StudentsPage() {
                     ) : null}
                     <span className="break-words">{s.full_name}</span>
                   </div>
-                  <div className="mt-0.5 break-words text-xs text-muted-foreground">
-                    {meta}
+                  <div className="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs text-neutral-500">
+                    {contact ? <span className="break-all">{contact}</span> : null}
+                    {s.unit?.name ? (
+                      <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[10px] font-medium text-neutral-600">
+                        {s.unit.name}
+                      </span>
+                    ) : null}
                   </div>
                 </div>
-                {/* Status inline no mobile */}
                 <span
                   className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium sm:hidden ${statusClass}`}
                 >
@@ -1491,22 +1501,45 @@ function StudentsPage() {
                 </span>
               </div>
 
+              {/* Graduação — ilustração da faixa */}
+              <div className="mt-3 flex items-center gap-3 sm:mt-0">
+                {s.belt ? (
+                  <>
+                    <div className="w-20 shrink-0 sm:w-24">
+                      <BeltAuto belt={s.belt} degree={s.current_degree ?? 0} />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="truncate text-xs font-medium text-neutral-800">
+                        {formatBeltFull(s.belt.name, s.belt?.modality, s.current_degree)}
+                      </div>
+                      {s.belt?.modality ? (
+                        <div className="truncate text-[10px] uppercase tracking-wide text-neutral-400">
+                          {s.belt.modality}
+                        </div>
+                      ) : null}
+                    </div>
+                  </>
+                ) : (
+                  <span className="text-xs text-neutral-400">Sem graduação</span>
+                )}
+              </div>
+
               {/* Status desktop */}
               <span
-                className={`hidden shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium sm:inline-flex ${statusClass}`}
+                className={`hidden shrink-0 justify-self-center rounded-full px-2.5 py-0.5 text-[11px] font-medium sm:inline-flex ${statusClass}`}
               >
                 {statusLabel}
               </span>
 
               {/* Ações */}
-              <div className="mt-3 flex flex-wrap items-center gap-1 sm:mt-0 sm:justify-self-end sm:flex-nowrap">
+              <div className="mt-3 flex flex-wrap items-center gap-1 sm:mt-0 sm:flex-nowrap sm:justify-self-end sm:opacity-70 sm:transition-opacity sm:group-hover:opacity-100">
                 <Link to="/dojo/app/students/$id" params={{ id: s.id }}>
-                  <Button size="sm" variant="outline">Abrir</Button>
+                  <Button size="sm" variant="outline" className="rounded-full">Abrir</Button>
                 </Link>
-                <Button size="icon" variant="ghost" onClick={() => openEdit(s)} aria-label="Editar aluno">
+                <Button size="icon" variant="ghost" className="rounded-full" onClick={() => openEdit(s)} aria-label="Editar aluno">
                   <Pencil className="h-4 w-4" />
                 </Button>
-                <Button size="icon" variant="ghost" onClick={() => onDelete(s.id)} aria-label="Excluir aluno">
+                <Button size="icon" variant="ghost" className="rounded-full" onClick={() => onDelete(s.id)} aria-label="Excluir aluno">
                   <Trash2 className="h-4 w-4 text-destructive" />
                 </Button>
               </div>
@@ -1514,10 +1547,11 @@ function StudentsPage() {
           );
         })}
         {filtered.length === 0 && (
-          <div className="p-6 text-center text-sm text-muted-foreground">Nenhum aluno.</div>
+          <div className="p-8 text-center text-sm text-neutral-500">Nenhum aluno.</div>
         )}
-
+        </div>
       </div>
+
 
 
       {filtered.length > PAGE_SIZE && (
