@@ -367,10 +367,40 @@ function DojoLayoutInner({
   }, [allBelts]);
 
   // Fecha automaticamente o menu mobile ao navegar entre rotas
-  const { isMobile, setOpenMobile } = useSidebar();
+  const { isMobile, setOpenMobile, setOpen } = useSidebar();
+  const { track, stepIndex } = useTutorial();
+  const step = track?.steps?.[stepIndex];
+
+  /** O passo atual aponta para um elemento dentro da sidebar? */
+  const stepTargetsSidebar = (() => {
+    if (!step?.target || typeof document === "undefined") return false;
+    const raw = step.target;
+    if (raw.startsWith("text:")) {
+      const needle = raw.slice(5).trim().toLowerCase();
+      const links = Array.from(document.querySelectorAll("[data-sidebar] a, [data-sidebar] button"));
+      return links.some((el) => (el.textContent || "").toLowerCase().includes(needle));
+    }
+    try {
+      const el = document.querySelector(raw);
+      return Boolean(el?.closest("[data-sidebar]"));
+    } catch {
+      return false;
+    }
+  })();
+
+  // Enquanto o tutorial estiver ativo, a sidebar permanece fixa e aberta
+  // exatamente no ponto que o tutorial está guiando.
   useEffect(() => {
-    if (isMobile) setOpenMobile(false);
-  }, [pathname, isMobile, setOpenMobile]);
+    if (!track) return;
+    setOpen(true);
+    if (isMobile && stepTargetsSidebar) setOpenMobile(true);
+  }, [track, stepIndex, stepTargetsSidebar, isMobile, setOpen, setOpenMobile]);
+
+  useEffect(() => {
+    // Não fecha o menu mobile quando o tutorial está destacando um item da sidebar
+    if (isMobile && !(track && stepTargetsSidebar)) setOpenMobile(false);
+  }, [pathname, isMobile, setOpenMobile, track, stepTargetsSidebar]);
+
 
 
   return (
