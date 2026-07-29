@@ -220,7 +220,7 @@ function QuotesPage() {
   const generatePdf = async (r: any) => {
     const s: any = settings.data ?? {};
     try {
-      await exportQuotePdf({
+      const { url, filename } = await buildQuotePdf({
         quote_number: r.quote_number,
         created_at: r.created_at,
         valid_until: r.valid_until,
@@ -246,11 +246,33 @@ function QuotesPage() {
         signature_image: r.signature_image || s.signature_image,
         company: s,
       });
-      toast.success("PDF gerado");
+      setPreview((prev) => {
+        if (prev?.url) URL.revokeObjectURL(prev.url);
+        return { url, filename };
+      });
     } catch (e: any) {
       toast.error(e?.message ?? "Erro ao gerar PDF");
     }
   };
+
+  const closePreview = () => {
+    setPreview((prev) => {
+      if (prev?.url) URL.revokeObjectURL(prev.url);
+      return null;
+    });
+  };
+
+  const downloadPreview = () => {
+    if (!preview) return;
+    const a = document.createElement("a");
+    a.href = preview.url;
+    a.download = preview.filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    toast.success("PDF baixado");
+  };
+
 
   const saveAndPdf = async () => {
     const saved = await save();
