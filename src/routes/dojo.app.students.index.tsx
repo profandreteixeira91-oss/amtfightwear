@@ -305,6 +305,7 @@ function StudentsPage() {
       emergency_contact_phone: maskPhone(s.emergency_contact_phone ?? ""),
       modalities,
     });
+    initialModsRef.current = modalities.map((m) => `${m.belt_id}:${m.degree}`);
     resetEnrollment();
     setOpen(true);
   }
