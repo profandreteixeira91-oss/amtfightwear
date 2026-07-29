@@ -70,7 +70,7 @@ async function toDataUrl(url: string): Promise<string | null> {
 const fmt = (u: string) =>
   u.startsWith("data:image/jpeg") || u.startsWith("data:image/jpg") ? "JPEG" : "PNG";
 
-export async function exportQuotePdf(q: QuotePdfData) {
+export async function buildQuotePdf(q: QuotePdfData): Promise<{ blob: Blob; url: string; filename: string }> {
   const doc = new jsPDF({ unit: "pt", format: "a4" });
   const W = doc.internal.pageSize.getWidth();
   const H = doc.internal.pageSize.getHeight();
