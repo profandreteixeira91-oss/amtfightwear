@@ -177,6 +177,9 @@ function StudentsPage() {
   const PAGE_SIZE = 20;
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<StudentForm>(emptyForm);
+  // Snapshot das modalidades/graduações carregadas ao abrir o modal — usado para
+  // detectar o que foi adicionado/alterado e registrar as graduações no salvar.
+  const initialModsRef = useRef<string[]>([]);
   const [tab, setTab] = useState<string>("dados");
   const tabOrder = ["dados", "endereco", "contato", "dojo", "plano", "anamnese", "foto", "consent"];
 
