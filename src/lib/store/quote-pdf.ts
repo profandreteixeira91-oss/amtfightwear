@@ -96,7 +96,7 @@ export async function exportQuotePdf(q: QuotePdfData) {
   const logo = await toDataUrl(amtLogoAsset.url);
   if (logo) {
     try {
-      doc.addImage(logo, fmt(logo), M, 22, 62, 62);
+      doc.addImage(logo, fmt(logo), M, 28, 62, 51);
     } catch {}
   }
 
