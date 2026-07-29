@@ -31,7 +31,9 @@ const quoteSchema = z.object({
   customer_document: z.string().trim().max(40).nullable().optional(),
   customer_email: z.string().trim().max(200).nullable().optional(),
   customer_phone: z.string().trim().max(40).nullable().optional(),
-  customer_address: addressSchema.optional().default({}),
+  customer_address: addressSchema.optional().default(() => ({
+    zip: "", street: "", number: "", complement: "", neighborhood: "", city: "", state: "",
+  })),
   items: z.array(itemSchema).max(200).default([]),
   discount: z.number().min(0).max(10000000).default(0),
   shipping_cost: z.number().min(0).max(10000000).default(0),
