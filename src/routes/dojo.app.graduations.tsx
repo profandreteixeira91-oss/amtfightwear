@@ -92,6 +92,8 @@ function NewGraduationPage() {
 
   // Graduação individual por aluno (faixa/grau + cobrança)
   const [perStudent, setPerStudent] = useState<Record<string, { beltId: string; degree: number; fee?: string; paid?: boolean }>>({});
+  // Modalidade escolhida por aluno (quando o aluno é graduado em mais de uma)
+  const [perStudentMod, setPerStudentMod] = useState<Record<string, string>>({});
 
   // Sincroniza a taxa exibida com os preços salvos em "Preços de graduação
   // por faixa" sempre que os valores mudarem (inclui o caso das settings
