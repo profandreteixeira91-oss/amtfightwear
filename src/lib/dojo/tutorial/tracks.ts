@@ -8,15 +8,45 @@
  * Se o alvo não existir na tela, o passo é exibido apenas como instrução.
  */
 
+import { EXTRA_TRACKS } from "./tracks-extra";
+
+/** Tipo de interação que o passo espera do usuário. */
+export type TutorialAction =
+  | "none"
+  | "click"
+  | "input"
+  | "select"
+  | "navigate"
+  | "submit"
+  | "upload"
+  | "confirm"
+  | "create"
+  | "edit"
+  | "delete"
+  | "export"
+  | "print";
+
 export type TutorialStep = {
+  /** Título curto do passo (cabeçalho da caixa de instrução). */
+  title?: string;
   /** Instrução curta e direta. */
   text: string;
+  /** O que o usuário alcança ao concluir este passo. */
+  objective?: string;
   /** Detalhe opcional exibido abaixo da instrução. */
   hint?: string;
   /** Elemento a destacar na tela. */
   target?: string;
   /** Se preenchido, navega para esta rota ao entrar no passo. */
   route?: string;
+  /** Ação exigida para liberar o botão "Próximo" (padrão: none). */
+  action?: TutorialAction;
+  /** Validação alternativa da ação. */
+  validate?: { selector?: string; route?: string; minLength?: number };
+  /** Passo ignorado automaticamente se este seletor não existir na tela. */
+  requires?: string;
+  /** Tempo estimado do passo, em segundos (padrão 20s). */
+  seconds?: number;
 };
 
 export type TutorialCategory =
@@ -25,8 +55,11 @@ export type TutorialCategory =
   | "Rotina"
   | "Financeiro"
   | "Graduações"
+  | "Ensino & Avaliações"
+  | "Competições"
   | "App do aluno"
-  | "Comercial";
+  | "Comercial"
+  | "Configurações";
 
 export type TutorialTrack = {
   id: string;
@@ -37,6 +70,8 @@ export type TutorialTrack = {
   duration: string;
   route: string;
   steps: TutorialStep[];
+  /** Trilha criada pelo administrador no editor interno. */
+  custom?: boolean;
 };
 
 export const TUTORIAL_CATEGORIES: TutorialCategory[] = [
@@ -45,11 +80,15 @@ export const TUTORIAL_CATEGORIES: TutorialCategory[] = [
   "Rotina",
   "Financeiro",
   "Graduações",
+  "Ensino & Avaliações",
+  "Competições",
   "App do aluno",
   "Comercial",
+  "Configurações",
 ];
 
-export const TUTORIAL_TRACKS: TutorialTrack[] = [
+const BASE_TRACKS: TutorialTrack[] = [
+
   // ───────────────────────── Primeiros passos ─────────────────────────
   {
     id: "configurar-academia",
@@ -421,7 +460,24 @@ export const TUTORIAL_TRACKS: TutorialTrack[] = [
   },
 ];
 
+export const TUTORIAL_TRACKS: TutorialTrack[] = [...BASE_TRACKS, ...EXTRA_TRACKS];
+
+/** Tempo estimado da trilha em minutos (usa `seconds` de cada passo). */
+export function trackMinutes(track: TutorialTrack) {
+  const secs = track.steps.reduce((acc, s) => acc + (s.seconds ?? 20), 0);
+  return Math.max(1, Math.round(secs / 60));
+}
+
+/** Tempo restante estimado, em minutos, a partir de um passo. */
+export function remainingMinutes(track: TutorialTrack, fromStep: number) {
+  const secs = track.steps
+    .slice(fromStep)
+    .reduce((acc, s) => acc + (s.seconds ?? 20), 0);
+  return Math.max(1, Math.round(secs / 60));
+}
+
 export function getTrack(id: string | null | undefined) {
   if (!id) return null;
   return TUTORIAL_TRACKS.find((t) => t.id === id) ?? null;
 }
+
