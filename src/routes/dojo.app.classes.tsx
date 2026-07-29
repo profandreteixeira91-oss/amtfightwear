@@ -344,6 +344,11 @@ function ClassesPage() {
       )}
 
       <ClassFormDialog open={formOpen} onOpenChange={setFormOpen} initial={editing} />
+      <ClassStudentsDialog
+        open={!!studentsId}
+        classId={studentsId}
+        onOpenChange={(v) => !v && setStudentsId(null)}
+      />
       <ClassSidePanel
         open={!!panelId}
         classId={panelId}
