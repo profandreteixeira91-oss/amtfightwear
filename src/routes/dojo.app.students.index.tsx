@@ -41,6 +41,18 @@ export const Route = createFileRoute("/dojo/app/students/")({
   component: StudentsPage,
 });
 
+/** Metadados visuais das etapas do cadastro de aluno. */
+const STEP_META: Record<string, { label: string; icon: React.ComponentType<{ className?: string }> }> = {
+  dados: { label: "Dados", icon: User },
+  endereco: { label: "Endereço", icon: MapPin },
+  contato: { label: "Contatos", icon: Phone },
+  dojo: { label: "Dojo", icon: Award },
+  plano: { label: "Plano", icon: Wallet },
+  anamnese: { label: "Anamnese", icon: HeartPulse },
+  foto: { label: "Foto", icon: Camera },
+  consent: { label: "Consentimentos", icon: ShieldCheck },
+};
+
 type StudentForm = {
   id?: string;
   full_name: string;
