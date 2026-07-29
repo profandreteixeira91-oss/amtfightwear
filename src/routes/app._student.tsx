@@ -33,7 +33,7 @@ function StudentShell() {
   const studentFn = useServerFn(getMyStudent);
   const configFn = useServerFn(getStudentAppConfig);
   const { data: branding } = useQuery({ queryKey: ["student", "branding"], queryFn: () => brandingFn({}) });
-  const { data: student } = useQuery({ queryKey: ["student", "me"], queryFn: () => studentFn({}) });
+  const { data: student, isSuccess: studentLoaded } = useQuery({ queryKey: ["student", "me"], queryFn: () => studentFn({}) });
   const { data: cfgData } = useQuery({
     queryKey: ["student", "app-config"],
     queryFn: () => configFn({}),
@@ -42,6 +42,20 @@ function StudentShell() {
   const config = cfgData?.config ?? DEFAULT_CONFIG;
   const queryClient = useQueryClient();
   const studentId = student?.id;
+
+  // Aluno cancelado/excluído: sem ficha ativa vinculada ao login → força logout
+  // e volta para /app/login. Isso complementa as funções do banco
+  // (get_my_student_id / is_my_student) que já ignoram fichas com cancelled_at.
+  useEffect(() => {
+    if (!studentLoaded) return;
+    if (student) return;
+    (async () => {
+      try {
+        await supabase.auth.signOut();
+      } catch { /* noop */ }
+      navigate({ to: "/app/login", replace: true });
+    })();
+  }, [studentLoaded, student, navigate]);
 
   // Realtime: quando o aluno é adicionado/removido de uma turma, refresca agenda, home e ranking imediatamente.
   useEffect(() => {
