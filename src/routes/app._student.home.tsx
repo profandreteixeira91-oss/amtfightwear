@@ -494,9 +494,12 @@ function BlockRenderer({
         <Link to="/app/graduations" className="block">
           <section className="rounded-2xl p-4 shadow-sm ring-1 ring-neutral-100" style={{ background: "var(--sa-card)" }}>
             <div className="text-xs font-semibold uppercase tracking-wider text-neutral-400">Sua faixa</div>
-            <div className="mt-1 flex items-center gap-2">
-              <span className="inline-block h-3 w-8 rounded-sm" style={{ background: belt.color_hex }} />
-              <span className="text-sm font-semibold" style={{ color: "var(--sa-title)" }}>{formatBeltName(belt.name, (belt as any)?.modality)}</span>
+            <div className="mt-1">
+              <div className="text-sm font-semibold text-black">
+                {formatBeltName(belt.name, (belt as any)?.modality)}
+                {degreeSuffix(student?.current_degree, (belt as any)?.modality, " · ", belt?.name)}
+              </div>
+              <BeltAuto belt={belt} degree={Number(student?.current_degree ?? 0)} className="mt-2 w-full max-w-[260px]" />
             </div>
           </section>
         </Link>
