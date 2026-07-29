@@ -215,5 +215,4 @@ export const EXTRA_TRACKS: TutorialTrack[] = [
       { title: "Pagamento", text: "Confira o histórico e a forma de pagamento nesta tela.", objective: "Manter a assinatura em dia." },
     ],
   },
-  },
 ];
