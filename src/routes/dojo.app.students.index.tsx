@@ -178,9 +178,8 @@ function StudentsPage() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<StudentForm>(emptyForm);
   const [tab, setTab] = useState<string>("dados");
-  const tabOrder = form.id
-    ? ["dados", "endereco", "contato", "dojo", "anamnese", "foto", "consent"]
-    : ["dados", "endereco", "contato", "dojo", "plano", "anamnese", "foto", "consent"];
+  const tabOrder = ["dados", "endereco", "contato", "dojo", "plano", "anamnese", "foto", "consent"];
+
   const tabIndex = Math.max(0, tabOrder.indexOf(tab));
   const isLastTab = tabIndex >= tabOrder.length - 1;
   useEffect(() => { if (open) setTab("dados"); }, [open]);
@@ -267,6 +266,17 @@ function StudentsPage() {
     });
     setOpen(true);
   }
+  function resetEnrollment() {
+    setEnrollment({
+      plan_id: "",
+      due_day: 5,
+      start_date: new Date().toISOString().slice(0, 10),
+      first_due_date: new Date().toISOString().slice(0, 10),
+      include_enrollment_fee: true,
+      payment_method: "manual",
+      custom_amount: "",
+    });
+  }
   function openEdit(s: any) {
     const modalities: StudentForm["modalities"] = [];
     if (s.current_belt_id) {
@@ -291,8 +301,10 @@ function StudentsPage() {
       emergency_contact_phone: maskPhone(s.emergency_contact_phone ?? ""),
       modalities,
     });
+    resetEnrollment();
     setOpen(true);
   }
+
 
   const onSave = async () => {
     if (!form.full_name.trim()) {
@@ -351,7 +363,7 @@ function StudentsPage() {
         }
       }
 
-      if (isNew && studentId && enrollment.plan_id) {
+      if (studentId && enrollment.plan_id) {
         const customAmt = enrollment.custom_amount.trim() === "" ? null : Number(enrollment.custom_amount);
         const res: any = await enrollFn({
           data: {
@@ -961,14 +973,16 @@ function StudentsPage() {
                 </TabsContent>
 
                 {/* ============ PLANO & COBRANÇA ============ */}
-                {!form.id && (
+                {(
                   <TabsContent value="plano" className="mt-4 space-y-4">
                     <p className="text-xs text-muted-foreground">
-                      Selecione o plano do aluno. Uma matrícula é criada automaticamente e a 1ª mensalidade é gerada com base no plano.
-                      As mensalidades seguintes são criadas mensalmente no Financeiro.
+                      {form.id
+                        ? "Selecione um plano para criar uma nova matrícula para este aluno (opcional)."
+                        : "Selecione o plano do aluno. Uma matrícula é criada automaticamente e a 1ª mensalidade é gerada com base no plano."}
+                      {" "}As mensalidades seguintes são criadas mensalmente no Financeiro.
                     </p>
                     <div className="grid gap-3 md:grid-cols-2">
-                      <Field label="Plano *" className="md:col-span-2">
+                      <Field label={form.id ? "Plano" : "Plano *"} className="md:col-span-2">
                         <select
                           className="border rounded p-2 bg-background w-full"
                           data-tour="student-plan"
