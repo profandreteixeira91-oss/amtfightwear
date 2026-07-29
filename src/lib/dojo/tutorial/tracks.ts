@@ -8,6 +8,8 @@
  * Se o alvo não existir na tela, o passo é exibido apenas como instrução.
  */
 
+import { EXTRA_TRACKS } from "./tracks-extra";
+
 /** Tipo de interação que o passo espera do usuário. */
 export type TutorialAction =
   | "none"
