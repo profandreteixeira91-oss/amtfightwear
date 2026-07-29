@@ -1277,21 +1277,34 @@ function StudentsPage() {
                 </div>
                 <div className="ml-auto flex items-center gap-2">
                   <Button variant="ghost" className="rounded-xl" onClick={() => setOpen(false)}>Cancelar</Button>
-                  {!isLastTab && (
-                    <Button variant="outline" className="rounded-xl" onClick={() => setTab(tabOrder[tabIndex - 1])} disabled={tabIndex === 0}>
-                      Voltar
-                    </Button>
-                  )}
-                  {isLastTab ? (
+                  {form.id ? (
                     <Button data-tour="student-save" onClick={onSave} className="rounded-xl px-5 shadow-sm transition-transform active:scale-[0.98]">
-                      {form.id ? "Salvar alterações" : "Cadastrar aluno"}
+                      Salvar alterações
                     </Button>
                   ) : (
-                    <Button data-tour="student-next" onClick={() => setTab(tabOrder[tabIndex + 1])} className="rounded-xl px-5 shadow-sm transition-transform active:scale-[0.98]">
-                      Continuar
-                    </Button>
+                    <>
+                      {!isLastTab && (
+                        <Button variant="outline" className="rounded-xl" onClick={() => setTab(tabOrder[tabIndex - 1])} disabled={tabIndex === 0}>
+                          Voltar
+                        </Button>
+                      )}
+                      {isLastTab ? (
+                        <Button data-tour="student-save" onClick={onSave} className="rounded-xl px-5 shadow-sm transition-transform active:scale-[0.98]">
+                          Cadastrar aluno
+                        </Button>
+                      ) : (
+                        <Button
+                          data-tour="student-next"
+                          onClick={() => { if (validateStep(tab)) setTab(tabOrder[tabIndex + 1]); }}
+                          className="rounded-xl px-5 shadow-sm transition-transform active:scale-[0.98]"
+                        >
+                          Continuar
+                        </Button>
+                      )}
+                    </>
                   )}
                 </div>
+
               </div>
 
             </DialogContent>
