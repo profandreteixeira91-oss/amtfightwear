@@ -1,3 +1,4 @@
+import { BeltAuto } from "@/components/dojo/BeltSpecVisual";
 import { brDate } from "@/lib/format";
 import { useMemo } from "react";
 import { formatDegree, degreeSuffix, degreeUnit, formatBeltName } from "@/lib/dojo/degree-label";
