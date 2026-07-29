@@ -1041,16 +1041,16 @@ function StudentDetail() {
                             <ol className="relative space-y-4 border-l-2 border-border pl-4">
                               {items.map((g: any) => (
                                 <li key={g.id} className="relative">
-                                  <span className="absolute -left-[21px] top-4 h-3 w-3 rounded-full border-2 border-primary bg-card" />
-                                  <div className="flex items-center gap-4 rounded-lg border border-border/60 bg-card p-3">
-                                    {/* Ilustração — tamanho padronizado */}
-                                    <div className="flex h-12 w-24 shrink-0 items-center justify-center overflow-hidden">
-                                      {g.belt ? (
-                                        <BeltAuto belt={g.belt} degree={g.degree} className="h-full w-full object-contain" />
-                                      ) : null}
+                                  <span className="absolute -left-[21px] top-5 h-3 w-3 rounded-full border-2 border-primary bg-card" />
+                                  <div className="flex flex-col gap-3 rounded-lg border border-border/60 bg-card p-3 sm:flex-row sm:items-center sm:gap-4">
+                                    {/* Ilustração — tamanho padronizado (220x32 escalado) */}
+                                    <div className="h-[26px] w-[176px] shrink-0 overflow-hidden">
+                                      <div className="h-8 w-[220px] origin-top-left scale-[0.8]">
+                                        {g.belt ? <BeltAuto belt={g.belt} degree={g.degree} className="w-full" /> : null}
+                                      </div>
                                     </div>
                                     {/* Modalidade */}
-                                    <div className="w-28 shrink-0 truncate text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                                    <div className="w-full shrink-0 truncate text-[11px] font-semibold uppercase tracking-wide text-muted-foreground sm:w-28">
                                       {g.belt?.modality ?? "—"}
                                     </div>
                                     {/* Nome da graduação */}
@@ -1063,11 +1063,12 @@ function StudentDetail() {
                                         {g.notes ? ` · ${g.notes}` : ""}
                                       </div>
                                     </div>
-                                    <Button size="icon" variant="ghost" className="shrink-0" onClick={async () => { await delGrad({ data: { id: g.id } }); refresh(); }}>
+                                    <Button size="icon" variant="ghost" className="shrink-0 self-end sm:self-auto" onClick={async () => { await delGrad({ data: { id: g.id } }); refresh(); }}>
                                       <Trash2 className="h-4 w-4 text-destructive" />
                                     </Button>
                                   </div>
                                 </li>
+
 
                               ))}
                             </ol>
