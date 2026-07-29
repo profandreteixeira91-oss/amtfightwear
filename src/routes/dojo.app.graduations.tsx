@@ -1224,6 +1224,23 @@ function NewGraduationPage() {
                         </div>
                       </div>
 
+                      {multiMod && (
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                            Modalidade
+                          </label>
+                          <select
+                            className="h-9 w-full rounded-md border bg-background px-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                            value={chosenMod}
+                            onChange={(e) => setStudentModality(s.id, e.target.value)}
+                          >
+                            {studentMods.map((m) => (
+                              <option key={m} value={m}>{modalityLabel(m)}</option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
+
                       <div className="space-y-1">
                         <label className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">Faixa</label>
                         <select
