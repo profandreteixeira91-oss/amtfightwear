@@ -1,7 +1,7 @@
 import { createStart, createMiddleware } from "@tanstack/react-start";
 
 import { renderErrorPage } from "./lib/error-page";
-import { attachSupabaseAuth } from "@/integrations/supabase/auth-attacher";
+import { attachScopedSupabaseAuth } from "@/lib/student-auth/bearer-attacher";
 import { attachActiveStudent } from "@/integrations/supabase/active-student-attacher";
 
 const DOJO_HOST = "dojomanager.amtfightwear.com.br";
