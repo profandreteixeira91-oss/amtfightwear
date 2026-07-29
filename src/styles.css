@@ -698,3 +698,139 @@ a.btn:hover,
   transition: box-shadow 180ms ease-out;
 }
 
+
+/* =========================================================================
+   Central AMT — Design System da área administrativa (/admin)
+   Camada exclusivamente visual, escopada em .admin-shell.
+   ========================================================================= */
+
+.admin-shell {
+  --admin-radius: 16px;
+  --admin-border: color-mix(in oklab, var(--foreground) 10%, transparent);
+  --admin-shadow-xs: 0 1px 2px rgba(16, 18, 27, 0.04);
+  --admin-shadow-sm: 0 1px 2px rgba(16, 18, 27, 0.05), 0 4px 14px -8px rgba(16, 18, 27, 0.12);
+  --admin-shadow-md: 0 2px 6px rgba(16, 18, 27, 0.06), 0 18px 40px -22px rgba(16, 18, 27, 0.28);
+  --sidebar-width: 16.5rem;
+  font-feature-settings: "cv02", "cv03", "cv04", "ss01";
+}
+
+.admin-surface {
+  background-color: oklch(0.985 0.002 250);
+  background-image:
+    radial-gradient(1100px 520px at 0% -12%, color-mix(in oklab, var(--primary) 8%, transparent), transparent 62%),
+    radial-gradient(900px 480px at 100% -6%, rgba(16, 18, 27, 0.05), transparent 60%);
+}
+.dark .admin-surface {
+  background-color: oklch(0.16 0.005 260);
+}
+
+/* Topbar translúcida */
+.admin-shell .admin-topbar {
+  border-bottom: 1px solid var(--admin-border);
+  background: color-mix(in oklab, var(--background) 72%, transparent);
+  backdrop-filter: saturate(180%) blur(16px);
+  -webkit-backdrop-filter: saturate(180%) blur(16px);
+}
+
+/* Cards padrão */
+.admin-shell .admin-card {
+  background: var(--card);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  box-shadow: var(--admin-shadow-sm);
+  transition:
+    box-shadow 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.admin-shell .admin-card--hover:hover {
+  box-shadow: var(--admin-shadow-md);
+  transform: translateY(-2px);
+  border-color: color-mix(in oklab, var(--primary) 22%, var(--admin-border));
+}
+
+.admin-shell .admin-empty-orb {
+  background: color-mix(in oklab, var(--primary) 9%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--primary) 16%, transparent);
+}
+
+/* Uplift consistente em todos os módulos existentes (sem alterar markup) */
+.admin-shell [data-slot="card"] {
+  border-radius: var(--admin-radius);
+  border-color: var(--admin-border);
+  box-shadow: var(--admin-shadow-sm);
+  transition: box-shadow 220ms cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.admin-shell [data-slot="card"]:hover {
+  box-shadow: var(--admin-shadow-md);
+}
+.admin-shell [data-slot="table"] thead th {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+  font-weight: 600;
+}
+.admin-shell [data-slot="table"] tbody tr {
+  transition: background-color 160ms ease-out;
+}
+.admin-shell [data-slot="table"] tbody tr:hover {
+  background: color-mix(in oklab, var(--foreground) 3.5%, transparent);
+}
+.admin-shell [data-slot="input"],
+.admin-shell [data-slot="textarea"],
+.admin-shell [data-slot="select-trigger"] {
+  border-radius: 12px;
+  transition: border-color 160ms ease-out, box-shadow 160ms ease-out;
+}
+.admin-shell [data-slot="button"] {
+  border-radius: 12px;
+  transition: background-color 160ms ease-out, color 160ms ease-out,
+              box-shadow 160ms ease-out, transform 120ms ease-out;
+}
+.admin-shell [data-slot="button"]:active:not(:disabled) {
+  transform: scale(0.98);
+}
+.admin-shell [data-slot="dialog-content"] {
+  border-radius: 18px;
+  box-shadow: var(--admin-shadow-md);
+}
+.admin-shell [data-slot="badge"] {
+  border-radius: 999px;
+}
+
+/* Remove a sombra vermelha global dentro do admin — visual mais sóbrio */
+.admin-shell button:not(:disabled):hover,
+.admin-shell [role="button"]:not([aria-disabled="true"]):hover,
+.admin-shell a.btn:hover,
+.admin-shell .btn:hover {
+  box-shadow: var(--admin-shadow-xs);
+}
+
+/* Sidebar premium */
+.admin-shell .admin-sidebar [data-sidebar="sidebar"] {
+  box-shadow: var(--admin-shadow-xs);
+}
+.admin-shell [data-sidebar="sidebar"],
+.admin-shell [data-slot="sidebar-container"] {
+  transition: width 240ms cubic-bezier(0.22, 1, 0.36, 1),
+              left 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Microinterações de entrada */
+@keyframes adminFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+.admin-shell .admin-fade-in {
+  animation: adminFadeIn 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-shell *,
+  .admin-shell .admin-fade-in {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
