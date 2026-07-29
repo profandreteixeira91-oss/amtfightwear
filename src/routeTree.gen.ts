@@ -172,6 +172,7 @@ import { Route as AuthenticatedAdminSaasRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAdminProspectRouteImport } from './routes/_authenticated/admin.prospect'
 import { Route as AuthenticatedAdminPerfilRouteImport } from './routes/_authenticated/admin.perfil'
 import { Route as AuthenticatedAdminPedidosRouteImport } from './routes/_authenticated/admin.pedidos'
+import { Route as AuthenticatedAdminOrcamentosRouteImport } from './routes/_authenticated/admin.orcamentos'
 import { Route as AuthenticatedAdminNotificacoesRouteImport } from './routes/_authenticated/admin.notificacoes'
 import { Route as AuthenticatedAdminMarketingRouteImport } from './routes/_authenticated/admin.marketing'
 import { Route as AuthenticatedAdminLojaRouteImport } from './routes/_authenticated/admin.loja'
@@ -1163,6 +1164,12 @@ const AuthenticatedAdminPedidosRoute =
     path: '/pedidos',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminOrcamentosRoute =
+  AuthenticatedAdminOrcamentosRouteImport.update({
+    id: '/orcamentos',
+    path: '/orcamentos',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminNotificacoesRoute =
   AuthenticatedAdminNotificacoesRouteImport.update({
     id: '/notificacoes',
@@ -1965,6 +1972,7 @@ export interface FileRoutesByFullPath {
   '/admin/loja': typeof AuthenticatedAdminLojaRoute
   '/admin/marketing': typeof AuthenticatedAdminMarketingRouteWithChildren
   '/admin/notificacoes': typeof AuthenticatedAdminNotificacoesRoute
+  '/admin/orcamentos': typeof AuthenticatedAdminOrcamentosRoute
   '/admin/pedidos': typeof AuthenticatedAdminPedidosRoute
   '/admin/perfil': typeof AuthenticatedAdminPerfilRoute
   '/admin/prospect': typeof AuthenticatedAdminProspectRoute
@@ -2249,6 +2257,7 @@ export interface FileRoutesByTo {
   '/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/admin/loja': typeof AuthenticatedAdminLojaRoute
   '/admin/notificacoes': typeof AuthenticatedAdminNotificacoesRoute
+  '/admin/orcamentos': typeof AuthenticatedAdminOrcamentosRoute
   '/admin/pedidos': typeof AuthenticatedAdminPedidosRoute
   '/admin/perfil': typeof AuthenticatedAdminPerfilRoute
   '/admin/prospect': typeof AuthenticatedAdminProspectRoute
@@ -2535,6 +2544,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/loja': typeof AuthenticatedAdminLojaRoute
   '/_authenticated/admin/marketing': typeof AuthenticatedAdminMarketingRouteWithChildren
   '/_authenticated/admin/notificacoes': typeof AuthenticatedAdminNotificacoesRoute
+  '/_authenticated/admin/orcamentos': typeof AuthenticatedAdminOrcamentosRoute
   '/_authenticated/admin/pedidos': typeof AuthenticatedAdminPedidosRoute
   '/_authenticated/admin/perfil': typeof AuthenticatedAdminPerfilRoute
   '/_authenticated/admin/prospect': typeof AuthenticatedAdminProspectRoute
@@ -2830,6 +2840,7 @@ export interface FileRouteTypes {
     | '/admin/loja'
     | '/admin/marketing'
     | '/admin/notificacoes'
+    | '/admin/orcamentos'
     | '/admin/pedidos'
     | '/admin/perfil'
     | '/admin/prospect'
@@ -3114,6 +3125,7 @@ export interface FileRouteTypes {
     | '/admin/logs'
     | '/admin/loja'
     | '/admin/notificacoes'
+    | '/admin/orcamentos'
     | '/admin/pedidos'
     | '/admin/perfil'
     | '/admin/prospect'
@@ -3399,6 +3411,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/loja'
     | '/_authenticated/admin/marketing'
     | '/_authenticated/admin/notificacoes'
+    | '/_authenticated/admin/orcamentos'
     | '/_authenticated/admin/pedidos'
     | '/_authenticated/admin/perfil'
     | '/_authenticated/admin/prospect'
@@ -4841,6 +4854,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminPedidosRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/orcamentos': {
+      id: '/_authenticated/admin/orcamentos'
+      path: '/orcamentos'
+      fullPath: '/admin/orcamentos'
+      preLoaderRoute: typeof AuthenticatedAdminOrcamentosRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/notificacoes': {
       id: '/_authenticated/admin/notificacoes'
       path: '/notificacoes'
@@ -5892,6 +5912,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminLojaRoute: typeof AuthenticatedAdminLojaRoute
   AuthenticatedAdminMarketingRoute: typeof AuthenticatedAdminMarketingRouteWithChildren
   AuthenticatedAdminNotificacoesRoute: typeof AuthenticatedAdminNotificacoesRoute
+  AuthenticatedAdminOrcamentosRoute: typeof AuthenticatedAdminOrcamentosRoute
   AuthenticatedAdminPedidosRoute: typeof AuthenticatedAdminPedidosRoute
   AuthenticatedAdminPerfilRoute: typeof AuthenticatedAdminPerfilRoute
   AuthenticatedAdminProspectRoute: typeof AuthenticatedAdminProspectRoute
@@ -5932,6 +5953,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminMarketingRoute:
     AuthenticatedAdminMarketingRouteWithChildren,
   AuthenticatedAdminNotificacoesRoute: AuthenticatedAdminNotificacoesRoute,
+  AuthenticatedAdminOrcamentosRoute: AuthenticatedAdminOrcamentosRoute,
   AuthenticatedAdminPedidosRoute: AuthenticatedAdminPedidosRoute,
   AuthenticatedAdminPerfilRoute: AuthenticatedAdminPerfilRoute,
   AuthenticatedAdminProspectRoute: AuthenticatedAdminProspectRoute,

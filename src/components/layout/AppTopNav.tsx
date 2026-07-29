@@ -50,6 +50,7 @@ import {
   CalendarDays,
   Building2,
   BellRing,
+  FileText,
 } from "lucide-react";
 
 
@@ -173,6 +174,7 @@ const groups: { label: string; items: Item[] }[] = [
       { title: "Painel da Loja", url: "/admin/loja", icon: Store },
       { title: "Produtos", url: "/admin/produtos", icon: Package },
       { title: "Pedidos", url: "/admin/pedidos", icon: ShoppingCart },
+      { title: "Orçamentos", url: "/admin/orcamentos", icon: FileText },
       { title: "Chat da loja", url: "/admin/atendimento", icon: MessageCircle },
       { title: "Clientes", url: "/admin/clientes", icon: UserSquare2 },
       { title: "AMT Dojo Manager", url: "/admin/saas", icon: GraduationCap },
