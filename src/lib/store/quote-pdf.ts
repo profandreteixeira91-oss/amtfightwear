@@ -1,5 +1,5 @@
 import jsPDF from "jspdf";
-import amtLogoAsset from "@/assets/amt-logo.png.asset.json";
+import amtLogoAsset from "@/assets/amt-fightwear-logo.png.asset.json";
 
 export type QuotePdfItem = {
   name: string;
@@ -70,7 +70,7 @@ async function toDataUrl(url: string): Promise<string | null> {
 const fmt = (u: string) =>
   u.startsWith("data:image/jpeg") || u.startsWith("data:image/jpg") ? "JPEG" : "PNG";
 
-export async function exportQuotePdf(q: QuotePdfData) {
+export async function buildQuotePdf(q: QuotePdfData): Promise<{ blob: Blob; url: string; filename: string }> {
   const doc = new jsPDF({ unit: "pt", format: "a4" });
   const W = doc.internal.pageSize.getWidth();
   const H = doc.internal.pageSize.getHeight();
@@ -96,7 +96,7 @@ export async function exportQuotePdf(q: QuotePdfData) {
   const logo = await toDataUrl(amtLogoAsset.url);
   if (logo) {
     try {
-      doc.addImage(logo, fmt(logo), M, 22, 62, 62);
+      doc.addImage(logo, fmt(logo), M, 28, 62, 51);
     } catch {}
   }
 
@@ -350,5 +350,19 @@ export async function exportQuotePdf(q: QuotePdfData) {
     .replace(/^_+|_+$/g, "")
     .slice(0, 40) || "CLIENTE";
   const fileDate = brDate(q.created_at ?? new Date().toISOString()).replace(/\//g, "-");
-  doc.save(`ORC_${slugName}_${fileDate}.pdf`);
+  const filename = `ORC_${slugName}_${fileDate}.pdf`;
+  const blob = doc.output("blob") as Blob;
+  return { blob, url: URL.createObjectURL(blob), filename };
+}
+
+export async function exportQuotePdf(q: QuotePdfData) {
+  const { blob, filename } = await buildQuotePdf(q);
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
 }

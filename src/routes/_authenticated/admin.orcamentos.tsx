@@ -24,7 +24,7 @@ import {
   adminGetQuoteSettings, adminSaveQuoteSettings,
 } from "@/lib/store/quotes.functions";
 import { adminListStoreProducts } from "@/lib/store/store.functions";
-import { exportQuotePdf } from "@/lib/store/quote-pdf";
+import { buildQuotePdf } from "@/lib/store/quote-pdf";
 
 export const Route = createFileRoute("/_authenticated/admin/orcamentos")({
   head: () => ({
@@ -102,6 +102,7 @@ function QuotesPage() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [toDelete, setToDelete] = useState<any>(null);
   const [busy, setBusy] = useState(false);
+  const [preview, setPreview] = useState<{ url: string; filename: string } | null>(null);
   const [q, setQ] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [form, setForm] = useState(emptyForm());
@@ -220,7 +221,7 @@ function QuotesPage() {
   const generatePdf = async (r: any) => {
     const s: any = settings.data ?? {};
     try {
-      await exportQuotePdf({
+      const { url, filename } = await buildQuotePdf({
         quote_number: r.quote_number,
         created_at: r.created_at,
         valid_until: r.valid_until,
@@ -246,11 +247,33 @@ function QuotesPage() {
         signature_image: r.signature_image || s.signature_image,
         company: s,
       });
-      toast.success("PDF gerado");
+      setPreview((prev) => {
+        if (prev?.url) URL.revokeObjectURL(prev.url);
+        return { url, filename };
+      });
     } catch (e: any) {
       toast.error(e?.message ?? "Erro ao gerar PDF");
     }
   };
+
+  const closePreview = () => {
+    setPreview((prev) => {
+      if (prev?.url) URL.revokeObjectURL(prev.url);
+      return null;
+    });
+  };
+
+  const downloadPreview = () => {
+    if (!preview) return;
+    const a = document.createElement("a");
+    a.href = preview.url;
+    a.download = preview.filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    toast.success("PDF baixado");
+  };
+
 
   const saveAndPdf = async () => {
     const saved = await save();
@@ -567,7 +590,28 @@ function QuotesPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={!!preview} onOpenChange={(o) => { if (!o) closePreview(); }}>
+        <DialogContent className="max-w-5xl p-0">
+          <DialogHeader className="border-b px-5 py-3">
+            <DialogTitle className="text-base">Visualizar orçamento</DialogTitle>
+            <DialogDescription className="truncate text-xs">{preview?.filename}</DialogDescription>
+          </DialogHeader>
+          <div className="h-[70vh] w-full bg-neutral-100">
+            {preview ? (
+              <iframe src={preview.url} title="Pré-visualização do orçamento" className="h-full w-full" />
+            ) : null}
+          </div>
+          <div className="flex justify-end gap-2 border-t px-5 py-3">
+            <Button variant="ghost" onClick={closePreview}>Fechar</Button>
+            <Button className="bg-red-600 hover:bg-red-500" onClick={downloadPreview}>
+              <Download className="mr-1.5 h-4 w-4" /> Baixar PDF
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
+
   );
 }
 
