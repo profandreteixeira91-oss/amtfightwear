@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import {
   Search,
@@ -12,7 +12,6 @@ import {
   Star,
   Trophy,
   MonitorPlay,
-  Pencil,
   Target,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -157,11 +156,6 @@ function TutorialPage() {
         >
           <MonitorPlay className="h-4 w-4" />
           Modo demonstração {demo ? "ativo" : "desligado"}
-        </Button>
-        <Button asChild variant="outline" size="sm" className="gap-1.5">
-          <Link to="/dojo/app/tutorial-editor">
-            <Pencil className="h-4 w-4" /> Editor de tutoriais
-          </Link>
         </Button>
         {demo && (
           <span className="text-xs text-muted-foreground">

@@ -27,6 +27,7 @@ import {
   saveCustomTrack,
 } from "@/lib/dojo/tutorial/custom-tracks";
 import { useTutorial } from "@/components/dojo/tutorial/TutorialProvider";
+import { OwnerOnly } from "@/lib/auth/owner-only";
 
 export const Route = createFileRoute("/dojo/app/tutorial-editor")({
   head: () => ({
@@ -44,10 +45,20 @@ export const Route = createFileRoute("/dojo/app/tutorial-editor")({
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
-  component: EditorPage,
+  component: EditorRoute,
 });
+
+/** Rota oculta: apenas a conta proprietária tem acesso. */
+function EditorRoute() {
+  return (
+    <OwnerOnly>
+      <EditorPage />
+    </OwnerOnly>
+  );
+}
 
 const ACTIONS: TutorialAction[] = [
   "none",
