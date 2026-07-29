@@ -102,6 +102,7 @@ function QuotesPage() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [toDelete, setToDelete] = useState<any>(null);
   const [busy, setBusy] = useState(false);
+  const [preview, setPreview] = useState<{ url: string; filename: string } | null>(null);
   const [q, setQ] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [form, setForm] = useState(emptyForm());
