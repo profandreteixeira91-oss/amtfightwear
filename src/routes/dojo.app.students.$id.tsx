@@ -118,7 +118,16 @@ function StudentDetail() {
   const [cancelDialog, setCancelDialog] = useState<{ open: boolean; mode: "cancel" | "freeze"; frozen_until: string }>({ open: false, mode: "cancel", frozen_until: "" });
   const [cancelBusy, setCancelBusy] = useState(false);
 
-  const refresh = () => qc.invalidateQueries({ queryKey: ["dojo-student", id] });
+  const refresh = () => {
+    // Invalida tudo que depende de graduações para que a exclusão reflita
+    // no perfil, na listagem, nos certificados e no app do aluno.
+    qc.invalidateQueries({ queryKey: ["dojo-student", id] });
+    qc.invalidateQueries({ queryKey: ["dojo-students"] });
+    qc.invalidateQueries({ queryKey: ["dojo-graduations"] });
+    qc.invalidateQueries({ queryKey: ["dojo-certificates"] });
+    qc.invalidateQueries({ queryKey: ["graduation-progress"] });
+  };
+
 
   const doAddGrad = async () => {
     if (!grad.belt_id) return toast.error("Escolha a faixa");
@@ -1063,7 +1072,17 @@ function StudentDetail() {
                                         {g.notes ? ` · ${g.notes}` : ""}
                                       </div>
                                     </div>
-                                    <Button size="icon" variant="ghost" className="shrink-0 self-end sm:self-auto" onClick={async () => { await delGrad({ data: { id: g.id } }); refresh(); }}>
+                                    <Button size="icon" variant="ghost" className="shrink-0 self-end sm:self-auto" onClick={async () => {
+                                      if (!confirm("Excluir esta graduação? Ela será removida de todo o sistema, incluindo certificados emitidos e o app do aluno.")) return;
+                                      try {
+                                        await delGrad({ data: { id: g.id } });
+                                        refresh();
+                                        toast.success("Graduação excluída de todo o sistema");
+                                      } catch (e: any) {
+                                        toast.error(e?.message ?? "Não foi possível excluir a graduação");
+                                      }
+                                    }}>
+
                                       <Trash2 className="h-4 w-4 text-destructive" />
                                     </Button>
                                   </div>
