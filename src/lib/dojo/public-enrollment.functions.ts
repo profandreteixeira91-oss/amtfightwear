@@ -32,6 +32,15 @@ export type PublicPlan = {
   payment_methods: Array<{ code: string; enabled?: boolean; gateway?: string }> | null;
 };
 
+export type PublicUnit = { id: string; name: string };
+export type PublicBelt = {
+  id: string;
+  name: string;
+  modality: string | null;
+  max_degrees: number | null;
+  sort_order: number | null;
+};
+
 export type PublicEnrollmentBundle = {
   academy: {
     slug: string;
@@ -44,7 +53,10 @@ export type PublicEnrollmentBundle = {
     state: string | null;
   };
   plans: PublicPlan[];
+  units: PublicUnit[];
+  belts: PublicBelt[];
 };
+
 
 export const getPublicEnrollmentBundle = createServerFn({ method: "GET" })
   .inputValidator((i: unknown) => z.object({ slug: slugSchema }).parse(i))
