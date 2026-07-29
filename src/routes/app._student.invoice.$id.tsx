@@ -1,3 +1,4 @@
+import { brDate } from "@/lib/format";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -141,7 +142,7 @@ function InvoicePage() {
         <div className="text-xs text-neutral-500">{invoice.description ?? "Mensalidade"}</div>
         <div className="mt-1 text-2xl font-black">R$ {Number(invoice.amount).toFixed(2)}</div>
         <div className="mt-1 text-xs text-neutral-500">
-          Vencimento: {new Date(invoice.due_date).toLocaleDateString("pt-BR")}
+          Vencimento: {brDate(invoice.due_date)}
         </div>
       </div>
 

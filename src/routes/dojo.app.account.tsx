@@ -1,3 +1,4 @@
+import { brDate } from "@/lib/format";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -878,9 +879,9 @@ function InvoiceTable({ rows, pending }: { rows: any[]; pending?: boolean }) {
         <tbody>
           {rows.map((r) => (
             <tr key={r.id} className="border-t">
-              <td className="py-2 pr-3">{r.description || new Date(r.due_date).toLocaleDateString("pt-BR", { month: "long", year: "numeric" })}</td>
+              <td className="py-2 pr-3">{r.description || new Date(r.due_date + "T12:00:00").toLocaleDateString("pt-BR", { month: "long", year: "numeric" })}</td>
               <td className="py-2 pr-3">{brl(r.amount)}</td>
-              <td className="py-2 pr-3">{r.paid_at ? new Date(r.paid_at).toLocaleDateString("pt-BR") : new Date(r.due_date).toLocaleDateString("pt-BR")}</td>
+              <td className="py-2 pr-3">{brDate(r.paid_at || r.due_date)}</td>
               <td className="py-2 pr-3 capitalize">{r.method || "—"}</td>
               <td className="py-2 pr-3"><Badge variant={r.status === "approved" || r.status === "paid" ? "default" : "secondary"}>{invoiceStatusLabel(r.status)}</Badge></td>
               <td className="py-2 pr-3 text-right">

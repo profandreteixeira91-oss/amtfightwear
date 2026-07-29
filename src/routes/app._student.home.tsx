@@ -1,3 +1,4 @@
+import { brDate } from "@/lib/format";
 import { useMemo } from "react";
 import { formatDegree, degreeSuffix, degreeUnit, formatBeltName } from "@/lib/dojo/degree-label";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -400,7 +401,7 @@ function BlockRenderer({
               <div>
                 <div className="text-sm font-semibold text-amber-900">Você tem cobranças em aberto</div>
                 <div className="mt-0.5 text-xs text-amber-800">
-                  Próximo vencimento em {new Date(openInvoices[0].due_date).toLocaleDateString("pt-BR")}
+                  Próximo vencimento em {brDate(openInvoices[0].due_date)}
                 </div>
               </div>
               <ChevronRight className="h-5 w-5 text-amber-700" />
