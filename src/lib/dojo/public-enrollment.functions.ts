@@ -86,6 +86,18 @@ export const getPublicEnrollmentBundle = createServerFn({ method: "GET" })
       .order("name", { ascending: true });
     if (plansErr) throw new Error(plansErr.message);
 
+    const { data: units } = await supabaseAdmin
+      .from("dojo_units")
+      .select("id, name")
+      .eq("owner_id", ownerId)
+      .order("name", { ascending: true });
+
+    const { data: belts } = await supabaseAdmin
+      .from("dojo_belts")
+      .select("id, name, modality, max_degrees, sort_order")
+      .eq("owner_id", ownerId)
+      .order("sort_order", { ascending: true });
+
     return {
       academy: {
         slug: (academy as any).slug,
@@ -107,7 +119,16 @@ export const getPublicEnrollmentBundle = createServerFn({ method: "GET" })
         custom_months: p.custom_months,
         payment_methods: Array.isArray(p.payment_methods) ? p.payment_methods : null,
       })),
+      units: (units ?? []).map((u: any) => ({ id: u.id, name: u.name })),
+      belts: (belts ?? []).map((b: any) => ({
+        id: b.id,
+        name: b.name,
+        modality: b.modality ?? null,
+        max_degrees: b.max_degrees != null ? Number(b.max_degrees) : null,
+        sort_order: b.sort_order != null ? Number(b.sort_order) : null,
+      })),
     };
+
   });
 
 const enrollInput = z.object({
