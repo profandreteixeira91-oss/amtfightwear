@@ -1072,7 +1072,17 @@ function StudentDetail() {
                                         {g.notes ? ` · ${g.notes}` : ""}
                                       </div>
                                     </div>
-                                    <Button size="icon" variant="ghost" className="shrink-0 self-end sm:self-auto" onClick={async () => { await delGrad({ data: { id: g.id } }); refresh(); }}>
+                                    <Button size="icon" variant="ghost" className="shrink-0 self-end sm:self-auto" onClick={async () => {
+                                      if (!confirm("Excluir esta graduação? Ela será removida de todo o sistema, incluindo certificados emitidos e o app do aluno.")) return;
+                                      try {
+                                        await delGrad({ data: { id: g.id } });
+                                        refresh();
+                                        toast.success("Graduação excluída de todo o sistema");
+                                      } catch (e: any) {
+                                        toast.error(e?.message ?? "Não foi possível excluir a graduação");
+                                      }
+                                    }}>
+
                                       <Trash2 className="h-4 w-4 text-destructive" />
                                     </Button>
                                   </div>
