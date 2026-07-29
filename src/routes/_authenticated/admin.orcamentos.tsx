@@ -24,7 +24,7 @@ import {
   adminGetQuoteSettings, adminSaveQuoteSettings,
 } from "@/lib/store/quotes.functions";
 import { adminListStoreProducts } from "@/lib/store/store.functions";
-import { exportQuotePdf } from "@/lib/store/quote-pdf";
+import { buildQuotePdf } from "@/lib/store/quote-pdf";
 
 export const Route = createFileRoute("/_authenticated/admin/orcamentos")({
   head: () => ({
