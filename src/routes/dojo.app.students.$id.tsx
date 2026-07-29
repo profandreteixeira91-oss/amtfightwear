@@ -609,7 +609,7 @@ function StudentDetail() {
 
           {/* KPIs */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
-            <Kpi icon={Activity} label="Dias treinando" value={daysTraining || "—"} />
+            <Kpi icon={Activity} label="Matriculado a (dias)" value={daysTraining || "—"} />
             <Kpi icon={CalendarCheck} label="Presença no mês" value={attendanceThisMonth} />
             <Kpi icon={Wallet} label="Pagas" value={paidInvoices} tint={paidInvoices > 0 ? "success" : undefined} />
             <Kpi icon={Wallet} label="Pendentes" value={pendingInvoices} tint={pendingInvoices > 0 ? "warning" : undefined} />
@@ -2139,7 +2139,7 @@ function printStudentReport(p: {
       ["Dia de vencimento", currentEnroll?.due_day],
       ["Data de matrícula", fmtDate(metrics.enrollmentDate)],
       ["Status atual", statusLabel],
-      ["Dias treinando", metrics.daysTraining],
+      ["Matriculado a (dias)", metrics.daysTraining],
     ]))}
 
     ${section("Graduação Atual", currentBeltHtml)}
