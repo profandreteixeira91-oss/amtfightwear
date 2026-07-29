@@ -33,6 +33,7 @@ import { listClasses, deleteClass, duplicateClass, listSpaces } from "@/lib/dojo
 import { listDojoUnits } from "@/lib/dojo/dojo.functions";
 import { ClassFormDialog } from "@/components/dojo/schedule/ClassFormDialog";
 import { ClassSidePanel } from "@/components/dojo/schedule/ClassSidePanel";
+import { ClassStudentsDialog } from "@/components/dojo/schedule/ClassStudentsDialog";
 import { WEEKDAYS, MODALITIES, fmtTime } from "@/components/dojo/schedule/constants";
 import { Link } from "@tanstack/react-router";
 
