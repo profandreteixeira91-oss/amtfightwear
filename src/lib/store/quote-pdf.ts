@@ -341,5 +341,14 @@ export async function exportQuotePdf(q: QuotePdfData) {
     doc.text(`Página ${i} de ${pages}`, W - M, H - 30, { align: "right" });
   }
 
-  doc.save(`${q.quote_number || "orcamento"}.pdf`);
+  // ---------- Nome do arquivo: ORC_NOMECLIENTE_DATA ----------
+  const slugName = (q.customer_name || "CLIENTE")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .slice(0, 40) || "CLIENTE";
+  const fileDate = brDate(q.created_at ?? new Date().toISOString()).replace(/\//g, "-");
+  doc.save(`ORC_${slugName}_${fileDate}.pdf`);
 }
