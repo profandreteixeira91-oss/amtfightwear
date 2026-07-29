@@ -191,39 +191,39 @@ function ClassesPage() {
       </div>
 
       {/* Filtros */}
-      <div className="grid grid-cols-2 gap-2 rounded-2xl border border-neutral-200/80 bg-white p-3 shadow-sm sm:flex sm:flex-wrap sm:items-center">
-        <div className="relative col-span-2 sm:w-[240px]">
+      <div className="grid grid-cols-1 gap-2 rounded-2xl border border-neutral-200/80 bg-white p-3 shadow-sm sm:flex sm:flex-wrap sm:items-center">
+        <div className="relative w-full min-w-0 sm:w-[240px]">
           <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            className="h-9 pl-8"
+            className="h-9 w-full pl-8 text-sm"
             placeholder="Buscar turma, professor..."
             value={q}
             onChange={(e) => setQ(e.target.value)}
           />
         </div>
         <Select value={filters.modality} onValueChange={(v) => setFilters({ ...filters, modality: v })}>
-          <SelectTrigger className="h-9 w-full sm:w-[150px]"><SelectValue placeholder="Modalidade" /></SelectTrigger>
+          <SelectTrigger className="h-9 w-full min-w-0 text-sm sm:w-auto sm:min-w-[160px]"><SelectValue placeholder="Modalidade" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todas modalidades</SelectItem>
             {MODALITIES.map((m) => <SelectItem key={m} value={m} className="capitalize">{m}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select value={filters.space_id} onValueChange={(v) => setFilters({ ...filters, space_id: v })}>
-          <SelectTrigger className="h-9 w-full sm:w-[150px]"><SelectValue placeholder="Espaço" /></SelectTrigger>
+          <SelectTrigger className="h-9 w-full min-w-0 text-sm sm:w-auto sm:min-w-[160px]"><SelectValue placeholder="Espaço" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos os espaços</SelectItem>
             {(spaces.data ?? []).map((s: any) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select value={filters.unit_id} onValueChange={(v) => setFilters({ ...filters, unit_id: v })}>
-          <SelectTrigger className="h-9 w-full sm:w-[150px]"><SelectValue placeholder="Unidade" /></SelectTrigger>
+          <SelectTrigger className="h-9 w-full min-w-0 text-sm sm:w-auto sm:min-w-[160px]"><SelectValue placeholder="Unidade" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todas as unidades</SelectItem>
             {(units.data ?? []).map((u: any) => <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select value={filters.status} onValueChange={(v) => setFilters({ ...filters, status: v })}>
-          <SelectTrigger className="h-9 w-full sm:w-[130px]"><SelectValue placeholder="Status" /></SelectTrigger>
+          <SelectTrigger className="h-9 w-full min-w-0 text-sm sm:w-auto sm:min-w-[140px]"><SelectValue placeholder="Status" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos status</SelectItem>
             <SelectItem value="active">Ativas</SelectItem>
@@ -231,6 +231,7 @@ function ClassesPage() {
           </SelectContent>
         </Select>
       </div>
+
 
       {/* Lista */}
       {classes.isLoading ? (
