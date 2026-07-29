@@ -17,7 +17,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-import { TutorialProvider } from "@/components/dojo/tutorial/TutorialProvider";
+import { TutorialProvider, useTutorial } from "@/components/dojo/tutorial/TutorialProvider";
 import {
   Compass,
   LayoutDashboard,
