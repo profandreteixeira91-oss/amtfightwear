@@ -21,6 +21,7 @@ import {
   LayoutDashboard,
   Users,
   Award,
+  GraduationCap,
   ClipboardList,
   FileBadge,
   Wallet,
