@@ -291,6 +291,7 @@ const NAV: NavGroup[] = [
     items: [
       { title: "Gestão da Loja", url: "/admin/loja", icon: Store },
       { title: "Pedidos", url: "/admin/pedidos", icon: ShoppingCart },
+      { title: "Orçamentos", url: "/admin/orcamentos", icon: FileText },
       { title: "Catálogo", url: "/admin/produtos", icon: Package },
       { title: "Calc. de Faixas", url: "/admin/produtos/faixa-calc", icon: Calculator },
       { title: "Atacado", url: "/admin/atacado", icon: Boxes },
