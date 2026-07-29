@@ -311,6 +311,37 @@ function StudentsPage() {
   }
 
 
+  // Valida a etapa atual antes de permitir avançar (apenas no cadastro de novo aluno)
+  const validateStep = (step: string): boolean => {
+    if (step === "dados") {
+      if (!form.full_name.trim()) { toast.error("Informe o nome completo do aluno"); return false; }
+      if (form.cpf && !isValidCPF(form.cpf)) { toast.error("CPF inválido"); return false; }
+      if (!form.birth_date) { toast.error("Informe a data de nascimento"); return false; }
+      return true;
+    }
+    if (step === "endereco") {
+      if (form.zip && !isValidCEP(form.zip)) { toast.error("CEP inválido"); return false; }
+      if (!form.city.trim() || !form.state.trim()) { toast.error("Informe ao menos cidade e estado"); return false; }
+      return true;
+    }
+    if (step === "contato") {
+      if (!form.phone.trim() && !form.email.trim()) { toast.error("Informe telefone ou e-mail do aluno"); return false; }
+      if (form.phone && !isValidPhone(form.phone)) { toast.error("Telefone inválido"); return false; }
+      return true;
+    }
+    if (step === "dojo") {
+      const valid = (form.modalities ?? []).filter((m) => m.modality && m.belt_id);
+      if (valid.length === 0) { toast.error("Adicione ao menos uma modalidade com faixa"); return false; }
+      return true;
+    }
+    if (step === "plano") {
+      if (!enrollment.plan_id) { toast.error("Selecione um plano para o aluno"); return false; }
+      return true;
+    }
+    return true;
+  };
+
+
   const onSave = async () => {
     if (!form.full_name.trim()) {
       toast.error("Nome completo é obrigatório");
