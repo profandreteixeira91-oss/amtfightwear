@@ -177,6 +177,9 @@ function StudentsPage() {
   const PAGE_SIZE = 20;
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<StudentForm>(emptyForm);
+  // Snapshot das modalidades/graduações carregadas ao abrir o modal — usado para
+  // detectar o que foi adicionado/alterado e registrar as graduações no salvar.
+  const initialModsRef = useRef<string[]>([]);
   const [tab, setTab] = useState<string>("dados");
   const tabOrder = ["dados", "endereco", "contato", "dojo", "plano", "anamnese", "foto", "consent"];
 
@@ -255,6 +258,7 @@ function StudentsPage() {
 
   function openNew() {
     setForm(emptyForm);
+    initialModsRef.current = [];
     setEnrollment({
       plan_id: "",
       due_day: 5,
@@ -301,6 +305,7 @@ function StudentsPage() {
       emergency_contact_phone: maskPhone(s.emergency_contact_phone ?? ""),
       modalities,
     });
+    initialModsRef.current = modalities.map((m) => `${m.belt_id}:${m.degree}`);
     resetEnrollment();
     setOpen(true);
   }
@@ -342,10 +347,14 @@ function StudentsPage() {
       const saved: any = await saveFn({ data: payload });
       const studentId = saved?.id ?? form.id;
 
-      // Registrar graduações para modalidades adicionais (apenas em novo aluno)
-      if (isNew && studentId && validMods.length > 1) {
+      // Registrar no histórico de graduações tudo que foi adicionado/alterado
+      // nesta janela (funciona tanto no cadastro quanto na edição).
+      if (studentId) {
+        const before = new Set(initialModsRef.current);
+        const toRegister = validMods.filter((m) => !before.has(`${m.belt_id}:${Number(m.degree ?? 0)}`));
         const today = new Date().toISOString().slice(0, 10);
-        for (const m of validMods.slice(1)) {
+        let okCount = 0;
+        for (const m of toRegister) {
           try {
             await addGradFn({
               data: {
@@ -354,14 +363,20 @@ function StudentsPage() {
                 degree: Number(m.degree ?? 0),
                 graduation_date: today,
                 evaluator: null,
-                notes: "Cadastro inicial (modalidade adicional)",
+                notes: isNew ? "Cadastro inicial" : "Registrado no cadastro do aluno",
               },
             });
+            okCount++;
           } catch (e: any) {
-            toast.error("Falha ao registrar modalidade adicional", { description: e?.message });
+            toast.error("Falha ao registrar graduação", { description: e?.message });
           }
         }
+        if (okCount > 0 && !isNew) {
+          toast.success(`${okCount} graduação(ões) registrada(s)`);
+        }
+        initialModsRef.current = validMods.map((m) => `${m.belt_id}:${Number(m.degree ?? 0)}`);
       }
+
 
       if (studentId && enrollment.plan_id) {
         const customAmt = enrollment.custom_amount.trim() === "" ? null : Number(enrollment.custom_amount);
@@ -394,6 +409,8 @@ function StudentsPage() {
       setForm(emptyForm);
       qc.invalidateQueries({ queryKey: ["dojo-students"] });
       qc.invalidateQueries({ queryKey: ["dojo-invoices"] });
+      qc.invalidateQueries({ queryKey: ["dojo-student"] });
+      qc.invalidateQueries({ queryKey: ["dojo-graduations"] });
     } catch (e: any) {
       toast.error("Erro ao salvar", { description: e.message });
     }

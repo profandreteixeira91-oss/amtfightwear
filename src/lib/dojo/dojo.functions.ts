@@ -377,7 +377,7 @@ export const saveDojoStudent = createServerFn({ method: "POST" })
     emergency_contact_phone: z.string().max(40).optional().nullable(),
     emergency_contact_relationship: z.string().max(60).optional().nullable(),
     current_belt_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido").optional().nullable(),
-    current_degree: z.number().int().min(0).max(10).optional(),
+    current_degree: z.number().int().min(0).max(20).optional(),
     status: z.enum(["active","inactive","frozen"]).optional(),
     notes: z.string().max(2000).optional().nullable(),
     anamnesis: z.record(z.string(), z.any()).optional(),
@@ -527,7 +527,7 @@ export const addDojoGraduation = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => z.object({
     student_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido"),
     belt_id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido"),
-    degree: z.number().int().min(0).max(10).default(0),
+    degree: z.number().int().min(0).max(20).default(0),
     graduation_date: z.string(),
     evaluator: z.string().max(200).optional().nullable(),
     notes: z.string().max(2000).optional().nullable(),
