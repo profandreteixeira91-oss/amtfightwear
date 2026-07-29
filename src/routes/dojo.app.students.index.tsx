@@ -2,7 +2,7 @@ import { formatDegree, degreeSuffix, degreeUnit, formatBeltFull } from "@/lib/do
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ComponentType } from "react";
 import {
   listDojoStudents,
   saveDojoStudent,
@@ -42,7 +42,7 @@ export const Route = createFileRoute("/dojo/app/students/")({
 });
 
 /** Metadados visuais das etapas do cadastro de aluno. */
-const STEP_META: Record<string, { label: string; icon: React.ComponentType<{ className?: string }> }> = {
+const STEP_META: Record<string, { label: string; icon: ComponentType<{ className?: string }> }> = {
   dados: { label: "Dados", icon: User },
   endereco: { label: "Endereço", icon: MapPin },
   contato: { label: "Contatos", icon: Phone },
