@@ -583,12 +583,12 @@ function StudentsPage() {
 
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
-                <Button size="sm" onClick={openNew} className="h-9 rounded-full bg-white px-4 font-semibold text-red-700 shadow-lg shadow-red-950/40 hover:bg-white/95">
+                <Button data-tour="novo-aluno" size="sm" onClick={openNew} className="h-9 rounded-full bg-white px-4 font-semibold text-red-700 shadow-lg shadow-red-950/40 hover:bg-white/95">
                   <UserPlus className="h-4 w-4 mr-1" /> Novo aluno
                 </Button>
               </DialogTrigger>
 
-            <DialogContent className="max-w-5xl w-[calc(100vw-2rem)] p-0 gap-0 overflow-hidden rounded-2xl border-neutral-200/80 shadow-2xl">
+            <DialogContent data-tour="student-dialog" className="max-w-5xl w-[calc(100vw-2rem)] p-0 gap-0 overflow-hidden rounded-2xl border-neutral-200/80 shadow-2xl">
               <DialogHeader className="relative overflow-hidden px-6 pt-6 pb-5 text-left border-b border-white/10 bg-[linear-gradient(135deg,#1b0708_0%,#490d10_55%,#7f1417_100%)]">
                 <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-red-500/25 blur-3xl" />
                 <div className="pointer-events-none absolute -left-10 bottom-[-4rem] h-40 w-40 rounded-full bg-white/10 blur-3xl" />
@@ -636,6 +636,7 @@ function StudentsPage() {
                         <TabsTrigger
                           key={value}
                           value={value}
+                          data-tour={`student-step-${value}`}
                           className={[
                             "group gap-2 rounded-xl border px-3 py-2 text-xs font-medium transition-all",
                             "data-[state=active]:border-primary/30 data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm",
@@ -673,10 +674,11 @@ function StudentsPage() {
                 {/* ============ DADOS PESSOAIS ============ */}
                 <TabsContent value="dados" className="mt-4 grid gap-3 md:grid-cols-2">
                   <Field label="Nome completo *" className="md:col-span-2">
-                    <Input value={form.full_name} onChange={(e) => set("full_name", e.target.value)} />
+                    <Input data-tour="student-name" value={form.full_name} onChange={(e) => set("full_name", e.target.value)} />
                   </Field>
                   <Field label="CPF *">
                     <Input
+                      data-tour="student-cpf"
                       value={form.cpf}
                       onChange={(e) => set("cpf", maskCPF(e.target.value))}
                       placeholder="000.000.000-00"
@@ -748,6 +750,7 @@ function StudentsPage() {
                   <Field label="CEP" className="md:col-span-2">
                     <Input
                       name="cep"
+                      data-tour="student-cep"
                       placeholder="00000-000"
                       value={form.zip}
                       onChange={(e) => set("zip", maskCEP(e.target.value))}
@@ -968,6 +971,7 @@ function StudentsPage() {
                       <Field label="Plano *" className="md:col-span-2">
                         <select
                           className="border rounded p-2 bg-background w-full"
+                          data-tour="student-plan"
                           value={enrollment.plan_id}
                           onChange={(e) => setEnrollment((s) => ({ ...s, plan_id: e.target.value }))}
                         >
@@ -1240,11 +1244,11 @@ function StudentsPage() {
                     </Button>
                   )}
                   {isLastTab ? (
-                    <Button onClick={onSave} className="rounded-xl px-5 shadow-sm transition-transform active:scale-[0.98]">
+                    <Button data-tour="student-save" onClick={onSave} className="rounded-xl px-5 shadow-sm transition-transform active:scale-[0.98]">
                       {form.id ? "Salvar alterações" : "Cadastrar aluno"}
                     </Button>
                   ) : (
-                    <Button onClick={() => setTab(tabOrder[tabIndex + 1])} className="rounded-xl px-5 shadow-sm transition-transform active:scale-[0.98]">
+                    <Button data-tour="student-next" onClick={() => setTab(tabOrder[tabIndex + 1])} className="rounded-xl px-5 shadow-sm transition-transform active:scale-[0.98]">
                       Continuar
                     </Button>
                   )}
