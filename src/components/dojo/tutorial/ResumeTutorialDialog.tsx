@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Button } from "@/components/ui/button";
 import { PlayCircle, RotateCcw, X } from "lucide-react";
 import { findTrack } from "@/lib/dojo/tutorial/custom-tracks";
-import { brDateTime } from "@/lib/format";
+import { brDate } from "@/lib/format";
 
 export function ResumeTutorialDialog({
   session,
