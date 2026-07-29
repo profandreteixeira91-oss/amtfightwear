@@ -1,7 +1,7 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { brl, daysBetween, isoDate, type InvoiceRow, type ExpenseRow } from "./shared";
+import { brl, brDate, daysBetween, isoDate, type InvoiceRow, type ExpenseRow } from "./shared";
 import { Calendar, CreditCard, FileText, Clock, Tag, User, Paperclip, History } from "lucide-react";
 
 export type EntryKind = "invoice" | "expense";
@@ -67,7 +67,7 @@ export function EntryDrawer({
           </div>
 
           <div className="space-y-2 text-sm">
-            <Row icon={Calendar} label="Vencimento" value={entry.due_date} />
+            <Row icon={Calendar} label="Vencimento" value={brDate(entry.due_date)} />
             {entry.paid_at && <Row icon={Clock} label="Recebido/Pago em" value={new Date(entry.paid_at).toLocaleString("pt-BR")} />}
             {isInvoice && inv.method && <Row icon={CreditCard} label="Forma" value={inv.method} />}
             {!isInvoice && exp.category && <Row icon={Tag} label="Categoria" value={exp.category} />}
@@ -126,7 +126,7 @@ function TimelineItem({ label, date, tone = "default" }: { label: string; date: 
       <div className={`mt-1.5 h-1.5 w-1.5 rounded-full ${dotClass}`} />
       <div className="flex-1 min-w-0">
         <div className="text-xs font-medium">{label}</div>
-        <div className="text-[10px] text-muted-foreground">{new Date(date).toLocaleString("pt-BR")}</div>
+        <div className="text-[10px] text-muted-foreground">{date.length <= 10 ? brDate(date) : new Date(date).toLocaleString("pt-BR")}</div>
       </div>
     </div>
   );
