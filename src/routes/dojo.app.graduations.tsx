@@ -31,6 +31,24 @@ export const Route = createFileRoute("/dojo/app/graduations")({
 
 type Step = "select" | "grad" | "payment" | "cert";
 
+const MODALITY_LABELS: Record<string, string> = {
+  "jiu-jitsu": "Jiu-Jitsu",
+  "muay-thai": "Muay Thai",
+  judo: "Judô",
+  karate: "Karatê",
+  "taekwondo": "Taekwondo",
+  boxe: "Boxe",
+  mma: "MMA",
+  capoeira: "Capoeira",
+  "kung-fu": "Kung Fu",
+  "krav-maga": "Krav Magá",
+  wrestling: "Wrestling",
+};
+function modalityLabel(v: string) {
+  if (MODALITY_LABELS[v]) return MODALITY_LABELS[v];
+  return String(v).replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 function NewGraduationPage() {
   const routeSearch = Route.useSearch();
   const studentsFn = useServerFn(listDojoStudents);
@@ -92,6 +110,8 @@ function NewGraduationPage() {
 
   // Graduação individual por aluno (faixa/grau + cobrança)
   const [perStudent, setPerStudent] = useState<Record<string, { beltId: string; degree: number; fee?: string; paid?: boolean }>>({});
+  // Modalidade escolhida por aluno (quando o aluno é graduado em mais de uma)
+  const [perStudentMod, setPerStudentMod] = useState<Record<string, string>>({});
 
   // Sincroniza a taxa exibida com os preços salvos em "Preços de graduação
   // por faixa" sempre que os valores mudarem (inclui o caso das settings
@@ -221,10 +241,10 @@ function NewGraduationPage() {
     // Inicializa entradas por aluno com sugestão da próxima graduação (mantém escolhas prévias).
     const allBelts = (belts.data ?? []) as any[];
     const studentsList = (students.data ?? []) as any[];
+    const modDefaults: Record<string, string> = {};
     setPerStudent(prev => {
       const next = { ...prev };
       for (const id of selectedStudents) {
-        if (next[id]?.beltId) continue;
         const s = studentsList.find((x: any) => x.id === id);
         const age = computeAge(s?.birth_date);
         // Faixa atual do aluno na modalidade escolhida (fallback: primeira encontrada).
@@ -232,9 +252,12 @@ function NewGraduationPage() {
           ? s.current_belts
           : (s?.belt ? [{ belt: s.belt, degree: s.current_degree ?? 0 }] : []);
         const currentInMod = currents.find((b: any) => (b.belt?.modality ?? "jiu-jitsu") === modality) ?? currents[0] ?? null;
-        const targetMod = currentInMod?.belt?.modality ?? modality;
+        const targetMod = perStudentMod[id] ?? currentInMod?.belt?.modality ?? modality;
+        modDefaults[id] = targetMod;
+        if (next[id]?.beltId) continue;
+        const currentTarget = currents.find((b: any) => (b.belt?.modality ?? "jiu-jitsu") === targetMod) ?? null;
         const suggestion = suggestNextBelt({
-          current: currentInMod ? { belt: currentInMod.belt, degree: currentInMod.degree ?? 0 } : null,
+          current: currentTarget ? { belt: currentTarget.belt, degree: currentTarget.degree ?? 0 } : null,
           belts: allBelts,
           modality: targetMod,
           age,
@@ -252,6 +275,7 @@ function NewGraduationPage() {
       }
       return next;
     });
+    setPerStudentMod(prev => ({ ...modDefaults, ...prev }));
     setStep("grad");
   };
 
@@ -316,6 +340,32 @@ function NewGraduationPage() {
     } else {
       toast.success("Faixa aplicada a todos os alunos");
     }
+  };
+
+  // Troca a modalidade em que o aluno será graduado e recalcula a sugestão
+  const setStudentModality = (studentId: string, newMod: string) => {
+    setPerStudentMod(prev => ({ ...prev, [studentId]: newMod }));
+    const s = (students.data ?? []).find((x: any) => x.id === studentId) as any;
+    const age = computeAge(s?.birth_date);
+    const currents: any[] = (s?.current_belts && s.current_belts.length > 0)
+      ? s.current_belts
+      : (s?.belt ? [{ belt: s.belt, degree: s.current_degree ?? 0 }] : []);
+    const currentTarget = currents.find((b: any) => (b.belt?.modality ?? "jiu-jitsu") === newMod) ?? null;
+    const suggestion = suggestNextBelt({
+      current: currentTarget ? { belt: currentTarget.belt, degree: currentTarget.degree ?? 0 } : null,
+      belts: (belts.data ?? []) as any[],
+      modality: newMod,
+      age,
+    });
+    setPerStudent(prev => ({
+      ...prev,
+      [studentId]: {
+        beltId: suggestion?.beltId ?? "",
+        degree: suggestion?.degree ?? 0,
+        fee: suggestion ? String(priceByBelt[suggestion.beltId] ?? "") : "",
+        paid: prev[studentId]?.paid ?? false,
+      },
+    }));
   };
 
   const setStudentBelt = (studentId: string, newBeltId: string) => {
@@ -1118,7 +1168,16 @@ function NewGraduationPage() {
                 {selectedRows.map((s: any) => {
                   const entry = perStudent[s.id] ?? { beltId: "", degree: 0 };
                   const chosenBelt = beltById.get(entry.beltId);
-                  const chosenMod = chosenBelt?.modality ?? modality;
+                  const current = (s.current_belts && s.current_belts.length > 0)
+                    ? s.current_belts
+                    : (s.belt ? [{ belt: s.belt, degree: s.current_degree ?? 0 }] : []);
+                  // Modalidades em que o aluno já é graduado
+                  const studentMods: string[] = Array.from(
+                    new Set(current.map((b: any) => String(b.belt?.modality ?? b.modality ?? "jiu-jitsu"))),
+                  );
+                  const multiMod = studentMods.length > 1;
+                  const chosenMod =
+                    perStudentMod[s.id] ?? chosenBelt?.modality ?? studentMods[0] ?? modality;
                   const chosenMax = chosenBelt?.max_degrees ?? 4;
                   const chosenFixed = /^vermelha e preta$/i.test(chosenBelt?.name ?? "")
                     ? 7
@@ -1138,9 +1197,6 @@ function NewGraduationPage() {
                     const extra = beltOptionsRaw.find((b: any) => b.id === entry.beltId);
                     if (extra) beltOptions.push(extra);
                   }
-                  const current = (s.current_belts && s.current_belts.length > 0)
-                    ? s.current_belts
-                    : (s.belt ? [{ belt: s.belt, degree: s.current_degree ?? 0 }] : []);
                   const currentMatch = current.find((b: any) => (b.belt?.modality ?? "jiu-jitsu") === chosenMod);
                   const nextSuggest = suggestNextBelt({
                     current: currentMatch ? { belt: currentMatch.belt, degree: currentMatch.degree ?? 0 } : null,
@@ -1151,7 +1207,14 @@ function NewGraduationPage() {
                   const suggestedBelt = nextSuggest ? beltById.get(nextSuggest.beltId) : null;
 
                   return (
-                    <div key={s.id} className="flex flex-col gap-4 p-4 md:grid md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,1fr)] md:items-center md:gap-3">
+                    <div
+                      key={s.id}
+                      className={`flex flex-col gap-4 p-4 md:grid md:items-center md:gap-3 ${
+                        multiMod
+                          ? "md:grid-cols-[minmax(0,1.2fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,1fr)]"
+                          : "md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,1fr)]"
+                      }`}
+                    >
                       <div className="flex items-center gap-3 min-w-0">
                         <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary/10 text-[11px] font-bold text-primary">
                           {initials(s.full_name)}
@@ -1178,6 +1241,23 @@ function NewGraduationPage() {
                           )}
                         </div>
                       </div>
+
+                      {multiMod && (
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                            Modalidade
+                          </label>
+                          <select
+                            className="h-9 w-full rounded-md border bg-background px-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                            value={chosenMod}
+                            onChange={(e) => setStudentModality(s.id, e.target.value)}
+                          >
+                            {studentMods.map((m) => (
+                              <option key={m} value={m}>{modalityLabel(m)}</option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
 
                       <div className="space-y-1">
                         <label className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">Faixa</label>
