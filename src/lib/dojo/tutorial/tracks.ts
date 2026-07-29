@@ -458,7 +458,24 @@ const BASE_TRACKS: TutorialTrack[] = [
   },
 ];
 
+export const TUTORIAL_TRACKS: TutorialTrack[] = [...BASE_TRACKS, ...EXTRA_TRACKS];
+
+/** Tempo estimado da trilha em minutos (usa `seconds` de cada passo). */
+export function trackMinutes(track: TutorialTrack) {
+  const secs = track.steps.reduce((acc, s) => acc + (s.seconds ?? 20), 0);
+  return Math.max(1, Math.round(secs / 60));
+}
+
+/** Tempo restante estimado, em minutos, a partir de um passo. */
+export function remainingMinutes(track: TutorialTrack, fromStep: number) {
+  const secs = track.steps
+    .slice(fromStep)
+    .reduce((acc, s) => acc + (s.seconds ?? 20), 0);
+  return Math.max(1, Math.round(secs / 60));
+}
+
 export function getTrack(id: string | null | undefined) {
   if (!id) return null;
   return TUTORIAL_TRACKS.find((t) => t.id === id) ?? null;
 }
+
