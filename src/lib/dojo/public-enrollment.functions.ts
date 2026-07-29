@@ -32,6 +32,15 @@ export type PublicPlan = {
   payment_methods: Array<{ code: string; enabled?: boolean; gateway?: string }> | null;
 };
 
+export type PublicUnit = { id: string; name: string };
+export type PublicBelt = {
+  id: string;
+  name: string;
+  modality: string | null;
+  max_degrees: number | null;
+  sort_order: number | null;
+};
+
 export type PublicEnrollmentBundle = {
   academy: {
     slug: string;
@@ -44,7 +53,10 @@ export type PublicEnrollmentBundle = {
     state: string | null;
   };
   plans: PublicPlan[];
+  units: PublicUnit[];
+  belts: PublicBelt[];
 };
+
 
 export const getPublicEnrollmentBundle = createServerFn({ method: "GET" })
   .inputValidator((i: unknown) => z.object({ slug: slugSchema }).parse(i))
@@ -74,6 +86,18 @@ export const getPublicEnrollmentBundle = createServerFn({ method: "GET" })
       .order("name", { ascending: true });
     if (plansErr) throw new Error(plansErr.message);
 
+    const { data: units } = await supabaseAdmin
+      .from("dojo_units")
+      .select("id, name")
+      .eq("owner_id", ownerId)
+      .order("name", { ascending: true });
+
+    const { data: belts } = await supabaseAdmin
+      .from("dojo_belts")
+      .select("id, name, modality, max_degrees, sort_order")
+      .eq("owner_id", ownerId)
+      .order("sort_order", { ascending: true });
+
     return {
       academy: {
         slug: (academy as any).slug,
@@ -95,7 +119,16 @@ export const getPublicEnrollmentBundle = createServerFn({ method: "GET" })
         custom_months: p.custom_months,
         payment_methods: Array.isArray(p.payment_methods) ? p.payment_methods : null,
       })),
+      units: (units ?? []).map((u: any) => ({ id: u.id, name: u.name })),
+      belts: (belts ?? []).map((b: any) => ({
+        id: b.id,
+        name: b.name,
+        modality: b.modality ?? null,
+        max_degrees: b.max_degrees != null ? Number(b.max_degrees) : null,
+        sort_order: b.sort_order != null ? Number(b.sort_order) : null,
+      })),
     };
+
   });
 
 const enrollInput = z.object({
@@ -111,6 +144,11 @@ const enrollInput = z.object({
   rg: z.string().trim().max(30).optional().or(z.literal("")),
   birth_date: z.string().max(20).optional().or(z.literal("")),
   gender: z.string().max(30).optional().or(z.literal("")),
+  nationality: z.string().max(60).optional().or(z.literal("")),
+  marital_status: z.string().max(40).optional().or(z.literal("")),
+  profession: z.string().max(120).optional().or(z.literal("")),
+  blood_type: z.string().max(5).optional().or(z.literal("")),
+  health_insurance: z.string().max(120).optional().or(z.literal("")),
   // Endereço
   zip: z.string().max(20).optional().or(z.literal("")),
   street: z.string().max(200).optional().or(z.literal("")),
@@ -124,11 +162,32 @@ const enrollInput = z.object({
   guardian_phone: z.string().max(40).optional().or(z.literal("")),
   emergency_contact_name: z.string().max(200).optional().or(z.literal("")),
   emergency_contact_phone: z.string().max(40).optional().or(z.literal("")),
+  emergency_contact_relationship: z.string().max(60).optional().or(z.literal("")),
+  // Dojo (unidade e modalidades/faixas)
+  unit_id: uuid.optional().nullable(),
+  modalities: z
+    .array(
+      z.object({
+        modality: z.string().max(60),
+        belt_id: uuid,
+        degree: z.number().int().min(0).max(20).optional(),
+      }),
+    )
+    .max(6)
+    .optional(),
+  // Anamnese e saúde
+  anamnesis: z.record(z.string(), z.any()).optional(),
+  has_medical_clearance: z.boolean().optional(),
+  medical_clearance_date: z.string().max(20).optional().or(z.literal("")),
+  // Foto
+  photo_url: z.string().max(600).optional().or(z.literal("")),
   // Consentimentos (obrigatórios para prosseguir)
   lgpd_consent: z.boolean(),
   terms_accepted: z.boolean(),
   image_rights_consent: z.boolean().optional(),
+  facial_recognition_consent: z.boolean().optional(),
 });
+
 
 export const publicEnrollStudent = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => enrollInput.parse(i))
@@ -174,6 +233,33 @@ export const publicEnrollStudent = createServerFn({ method: "POST" })
     const now = new Date().toISOString();
 
     // 3) Cria o aluno
+    // Valida unidade e faixas informadas (devem pertencer ao mesmo dono)
+    let unitId: string | null = null;
+    if (data.unit_id) {
+      const { data: unit } = await supabaseAdmin
+        .from("dojo_units")
+        .select("id, owner_id")
+        .eq("id", data.unit_id)
+        .maybeSingle();
+      if (unit && (unit as any).owner_id === ownerId) unitId = (unit as any).id;
+    }
+
+    const wantedBeltIds = Array.from(
+      new Set((data.modalities ?? []).map((m) => m.belt_id).filter(Boolean)),
+    );
+    let validBelts: any[] = [];
+    if (wantedBeltIds.length > 0) {
+      const { data: beltRows } = await supabaseAdmin
+        .from("dojo_belts")
+        .select("id, owner_id, modality, max_degrees")
+        .in("id", wantedBeltIds);
+      validBelts = (beltRows ?? []).filter((b: any) => b.owner_id === ownerId);
+    }
+    const validModalities = (data.modalities ?? []).filter((m) =>
+      validBelts.some((b) => b.id === m.belt_id),
+    );
+    const primaryMod = validModalities[0] ?? null;
+
     const studentPayload: any = {
       owner_id: ownerId,
       full_name: data.full_name.trim(),
@@ -183,6 +269,11 @@ export const publicEnrollStudent = createServerFn({ method: "POST" })
       rg: data.rg || null,
       birth_date: data.birth_date || null,
       gender: data.gender || null,
+      nationality: data.nationality || null,
+      marital_status: data.marital_status || null,
+      profession: data.profession || null,
+      blood_type: data.blood_type || null,
+      health_insurance: data.health_insurance || null,
       zip: data.zip || null,
       street: data.street || null,
       address_number: data.address_number || null,
@@ -194,12 +285,24 @@ export const publicEnrollStudent = createServerFn({ method: "POST" })
       guardian_phone: data.guardian_phone || null,
       emergency_contact_name: data.emergency_contact_name || null,
       emergency_contact_phone: data.emergency_contact_phone || null,
+      emergency_contact_relationship: data.emergency_contact_relationship || null,
+      unit_id: unitId,
+      current_belt_id: primaryMod?.belt_id ?? null,
+      current_degree: primaryMod?.degree ?? 0,
+      anamnesis: data.anamnesis && Object.keys(data.anamnesis).length > 0 ? data.anamnesis : {},
+      has_medical_clearance: data.has_medical_clearance ?? false,
+      medical_clearance_date: data.has_medical_clearance && data.medical_clearance_date
+        ? data.medical_clearance_date
+        : null,
+      photo_url: data.photo_url || null,
       status: "active",
       lgpd_consent: true,
       lgpd_consent_date: now,
       terms_accepted: true,
       terms_accepted_date: now,
       image_rights_consent: data.image_rights_consent ?? false,
+      facial_recognition_consent: data.facial_recognition_consent ?? false,
+      facial_recognition_consent_at: data.facial_recognition_consent ? now : null,
     };
     const { data: studentRow, error: sErr } = await supabaseAdmin
       .from("dojo_students")
@@ -207,6 +310,25 @@ export const publicEnrollStudent = createServerFn({ method: "POST" })
       .select("id, full_name, unit_id, email, cpf, phone")
       .single();
     if (sErr) throw new Error(sErr.message);
+
+    // 3.1) Registra as graduações iniciais informadas
+    if (validModalities.length > 0) {
+      try {
+        await supabaseAdmin.from("dojo_graduations").insert(
+          validModalities.map((m) => ({
+            owner_id: ownerId,
+            student_id: studentRow.id,
+            belt_id: m.belt_id,
+            degree: m.degree ?? 0,
+            graduation_date: new Date().toISOString().slice(0, 10),
+            notes: "Faixa informada na matrícula online",
+          })) as any,
+        );
+      } catch (e) {
+        console.warn("[public-enroll] falha ao registrar graduações iniciais:", e);
+      }
+    }
+
 
     // 4) Cria a matrícula
     const today = new Date();
@@ -285,3 +407,43 @@ export const publicEnrollStudent = createServerFn({ method: "POST" })
       amount,
     };
   });
+
+/**
+ * Upload público da foto do aluno durante a auto-matrícula.
+ * Recebe um data URL (JPEG/PNG) e grava no bucket `dojo-students`
+ * dentro da pasta do dono do dojo resolvido pelo slug.
+ */
+const photoInput = z.object({
+  slug: slugSchema,
+  data_url: z.string().min(32).max(4_500_000),
+});
+
+export const publicUploadEnrollmentPhoto = createServerFn({ method: "POST" })
+  .inputValidator((i: unknown) => photoInput.parse(i))
+  .handler(async ({ data }) => {
+    const match = /^data:(image\/(jpeg|jpg|png|webp));base64,([A-Za-z0-9+/=]+)$/.exec(data.data_url);
+    if (!match) throw new Error("Formato de imagem inválido");
+    const contentType = match[1];
+    const ext = contentType === "image/png" ? "png" : contentType === "image/webp" ? "webp" : "jpg";
+    const bytes = Uint8Array.from(atob(match[3]), (c) => c.charCodeAt(0));
+    if (bytes.byteLength > 3_500_000) throw new Error("Imagem muito grande (máx. 3MB)");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: academy } = await supabaseAdmin
+      .from("dojo_academy_profile")
+      .select("owner_id")
+      .eq("slug", data.slug)
+      .maybeSingle();
+    if (!academy) throw new Error("Dojo não encontrado");
+    const ownerId = (academy as any).owner_id as string;
+
+    const path = `${ownerId}/students/${crypto.randomUUID()}.${ext}`;
+    const { error } = await supabaseAdmin.storage
+      .from("dojo-students")
+      .upload(path, bytes, { contentType, upsert: false });
+    if (error) throw new Error(error.message);
+
+    const { data: pub } = supabaseAdmin.storage.from("dojo-students").getPublicUrl(path);
+    return { url: pub.publicUrl };
+  });
+
