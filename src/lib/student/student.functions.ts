@@ -179,6 +179,49 @@ export const updateMyAnamnesis = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+// ============ Consentimentos (LGPD) ============
+
+export const getMyConsents = createServerFn({ method: "GET" })
+  .middleware([requireStudentAuth])
+  .handler(async ({ context }) => {
+    const data = await fetchActiveStudent<any>(
+      context.supabase,
+      "lgpd_consent, facial_recognition_consent, image_rights_consent, terms_accepted, lgpd_consent_at, facial_recognition_consent_at",
+    );
+    return data ?? null;
+  });
+
+export const updateMyConsents = createServerFn({ method: "POST" })
+  .middleware([requireStudentAuth])
+  .inputValidator((i: unknown) =>
+    z.object({
+      lgpd_consent: z.boolean(),
+      facial_recognition_consent: z.boolean(),
+      image_rights_consent: z.boolean(),
+      terms_accepted: z.boolean(),
+    }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const meId = await getActiveStudentId(context.supabase);
+    if (!meId) throw new Error("Aluno não encontrado");
+    const now = new Date().toISOString();
+    const { error } = await context.supabase
+      .from("dojo_students")
+      .update({
+        lgpd_consent: data.lgpd_consent,
+        facial_recognition_consent: data.facial_recognition_consent,
+        image_rights_consent: data.image_rights_consent,
+        terms_accepted: data.terms_accepted,
+        lgpd_consent_at: data.lgpd_consent ? now : null,
+        facial_recognition_consent_at: data.facial_recognition_consent ? now : null,
+      })
+      .eq("id", meId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+
+
 // ============ Foto de perfil (upload) ============
 
 export const uploadMyPhoto = createServerFn({ method: "POST" })
