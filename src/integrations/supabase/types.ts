@@ -8749,6 +8749,39 @@ export type Database = {
         }
         Relationships: []
       }
+      dojo_tutorial_progress: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          owner_id: string
+          status: string
+          step: number
+          track_id: string
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          owner_id?: string
+          status?: string
+          step?: number
+          track_id: string
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          owner_id?: string
+          status?: string
+          step?: number
+          track_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       dojo_unit_members: {
         Row: {
           created_at: string
