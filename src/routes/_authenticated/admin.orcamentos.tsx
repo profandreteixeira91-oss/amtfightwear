@@ -590,7 +590,28 @@ function QuotesPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={!!preview} onOpenChange={(o) => { if (!o) closePreview(); }}>
+        <DialogContent className="max-w-5xl p-0">
+          <DialogHeader className="border-b px-5 py-3">
+            <DialogTitle className="text-base">Visualizar orçamento</DialogTitle>
+            <DialogDescription className="truncate text-xs">{preview?.filename}</DialogDescription>
+          </DialogHeader>
+          <div className="h-[70vh] w-full bg-neutral-100">
+            {preview ? (
+              <iframe src={preview.url} title="Pré-visualização do orçamento" className="h-full w-full" />
+            ) : null}
+          </div>
+          <div className="flex justify-end gap-2 border-t px-5 py-3">
+            <Button variant="ghost" onClick={closePreview}>Fechar</Button>
+            <Button className="bg-red-600 hover:bg-red-500" onClick={downloadPreview}>
+              <Download className="mr-1.5 h-4 w-4" /> Baixar PDF
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
+
   );
 }
 
