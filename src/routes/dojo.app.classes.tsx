@@ -33,6 +33,7 @@ import { listClasses, deleteClass, duplicateClass, listSpaces } from "@/lib/dojo
 import { listDojoUnits } from "@/lib/dojo/dojo.functions";
 import { ClassFormDialog } from "@/components/dojo/schedule/ClassFormDialog";
 import { ClassSidePanel } from "@/components/dojo/schedule/ClassSidePanel";
+import { ClassStudentsDialog } from "@/components/dojo/schedule/ClassStudentsDialog";
 import { WEEKDAYS, MODALITIES, fmtTime } from "@/components/dojo/schedule/constants";
 import { Link } from "@tanstack/react-router";
 
@@ -61,6 +62,7 @@ function ClassesPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<any>(null);
   const [panelId, setPanelId] = useState<string | null>(null);
+  const [studentsId, setStudentsId] = useState<string | null>(null);
   const [toDelete, setToDelete] = useState<any>(null);
   const [busy, setBusy] = useState(false);
   const [q, setQ] = useState("");
@@ -259,8 +261,8 @@ function ClassesPage() {
               <div className="pl-2.5">
                 <div className="flex items-start justify-between gap-2">
                   <button className="min-w-0 text-left" onClick={() => setPanelId(c.id)}>
-                    <div className="truncate font-semibold">{c.name}</div>
-                    <div className="mt-0.5 text-xs capitalize text-muted-foreground">
+                    <div className="font-semibold break-words">{c.name}</div>
+                    <div className="mt-0.5 text-xs capitalize text-muted-foreground break-words">
                       {c.modality} · {c.level || "todos"}
                     </div>
                   </button>
@@ -274,20 +276,20 @@ function ClassesPage() {
                 </div>
 
                 <div className="mt-3 space-y-1.5 text-xs text-muted-foreground">
-                  <div className="flex items-center gap-1.5">
-                    <Users className="h-3.5 w-3.5 shrink-0" />
-                    <span>{(c.students ?? []).length}/{c.max_students} alunos · {c.teacher_name || "sem professor"}</span>
+                  <div className="flex items-start gap-1.5">
+                    <Users className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                    <span className="min-w-0 break-words">{(c.students ?? []).length}/{c.max_students} alunos · {c.teacher_name || "sem professor"}</span>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <MapPin className="h-3.5 w-3.5 shrink-0" />
-                    <span className="truncate">
+                  <div className="flex items-start gap-1.5">
+                    <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                    <span className="min-w-0 break-words">
                       {c.dojo_spaces?.name || "Sem espaço"}
                       {c.dojo_units?.name ? ` · ${c.dojo_units.name}` : ""}
                     </span>
                   </div>
                   <div className="flex items-start gap-1.5">
                     <Clock className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                    <span className="min-w-0">
+                    <span className="min-w-0 break-words">
                       {(c.schedules ?? []).length
                         ? (c.schedules ?? [])
                             .slice()
@@ -302,6 +304,15 @@ function ClassesPage() {
                 <div className="mt-4 flex flex-wrap items-center gap-1.5">
                   <Button size="sm" variant="outline" className="h-8 rounded-full" onClick={() => openEdit(c)}>
                     <Pencil className="h-3.5 w-3.5 mr-1" /> Editar
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-8 rounded-full"
+                    onClick={() => setStudentsId(c.id)}
+                    title="Gerenciar alunos da turma"
+                  >
+                    <Users className="h-3.5 w-3.5 mr-1" /> Alunos
                   </Button>
                   <Button size="sm" variant="ghost" className="h-8 rounded-full" onClick={() => setPanelId(c.id)}>
                     Detalhes
@@ -327,12 +338,18 @@ function ClassesPage() {
                   </Button>
                 </div>
               </div>
+
             </div>
           ))}
         </div>
       )}
 
       <ClassFormDialog open={formOpen} onOpenChange={setFormOpen} initial={editing} />
+      <ClassStudentsDialog
+        open={!!studentsId}
+        classId={studentsId}
+        onOpenChange={(v) => !v && setStudentsId(null)}
+      />
       <ClassSidePanel
         open={!!panelId}
         classId={panelId}
