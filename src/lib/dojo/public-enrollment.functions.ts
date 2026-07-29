@@ -407,3 +407,43 @@ export const publicEnrollStudent = createServerFn({ method: "POST" })
       amount,
     };
   });
+
+/**
+ * Upload público da foto do aluno durante a auto-matrícula.
+ * Recebe um data URL (JPEG/PNG) e grava no bucket `dojo-students`
+ * dentro da pasta do dono do dojo resolvido pelo slug.
+ */
+const photoInput = z.object({
+  slug: slugSchema,
+  data_url: z.string().min(32).max(4_500_000),
+});
+
+export const publicUploadEnrollmentPhoto = createServerFn({ method: "POST" })
+  .inputValidator((i: unknown) => photoInput.parse(i))
+  .handler(async ({ data }) => {
+    const match = /^data:(image\/(jpeg|jpg|png|webp));base64,([A-Za-z0-9+/=]+)$/.exec(data.data_url);
+    if (!match) throw new Error("Formato de imagem inválido");
+    const contentType = match[1];
+    const ext = contentType === "image/png" ? "png" : contentType === "image/webp" ? "webp" : "jpg";
+    const bytes = Uint8Array.from(atob(match[3]), (c) => c.charCodeAt(0));
+    if (bytes.byteLength > 3_500_000) throw new Error("Imagem muito grande (máx. 3MB)");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: academy } = await supabaseAdmin
+      .from("dojo_academy_profile")
+      .select("owner_id")
+      .eq("slug", data.slug)
+      .maybeSingle();
+    if (!academy) throw new Error("Dojo não encontrado");
+    const ownerId = (academy as any).owner_id as string;
+
+    const path = `${ownerId}/students/${crypto.randomUUID()}.${ext}`;
+    const { error } = await supabaseAdmin.storage
+      .from("dojo-students")
+      .upload(path, bytes, { contentType, upsert: false });
+    if (error) throw new Error(error.message);
+
+    const { data: pub } = supabaseAdmin.storage.from("dojo-students").getPublicUrl(path);
+    return { url: pub.publicUrl };
+  });
+
