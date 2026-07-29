@@ -973,14 +973,16 @@ function StudentsPage() {
                 </TabsContent>
 
                 {/* ============ PLANO & COBRANÇA ============ */}
-                {!form.id && (
+                {(
                   <TabsContent value="plano" className="mt-4 space-y-4">
                     <p className="text-xs text-muted-foreground">
-                      Selecione o plano do aluno. Uma matrícula é criada automaticamente e a 1ª mensalidade é gerada com base no plano.
-                      As mensalidades seguintes são criadas mensalmente no Financeiro.
+                      {form.id
+                        ? "Selecione um plano para criar uma nova matrícula para este aluno (opcional)."
+                        : "Selecione o plano do aluno. Uma matrícula é criada automaticamente e a 1ª mensalidade é gerada com base no plano."}
+                      {" "}As mensalidades seguintes são criadas mensalmente no Financeiro.
                     </p>
                     <div className="grid gap-3 md:grid-cols-2">
-                      <Field label="Plano *" className="md:col-span-2">
+                      <Field label={form.id ? "Plano" : "Plano *"} className="md:col-span-2">
                         <select
                           className="border rounded p-2 bg-background w-full"
                           data-tour="student-plan"
