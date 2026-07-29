@@ -116,6 +116,7 @@ const nav: { label: string; items: NavItem[] }[] = [
   {
     label: "Rotina",
     items: [
+      { to: "/dojo/app/classes", label: "Turmas", icon: GraduationCap },
       { to: "/dojo/app/schedule", label: "Agenda", icon: CalendarDays },
       { to: "/dojo/app/checkin", label: "Check-in", icon: QrCode },
       { to: "/dojo/app/ranking", label: "Ranking", icon: Trophy },
