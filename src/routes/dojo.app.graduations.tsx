@@ -223,10 +223,10 @@ function NewGraduationPage() {
     // Inicializa entradas por aluno com sugestão da próxima graduação (mantém escolhas prévias).
     const allBelts = (belts.data ?? []) as any[];
     const studentsList = (students.data ?? []) as any[];
+    const modDefaults: Record<string, string> = {};
     setPerStudent(prev => {
       const next = { ...prev };
       for (const id of selectedStudents) {
-        if (next[id]?.beltId) continue;
         const s = studentsList.find((x: any) => x.id === id);
         const age = computeAge(s?.birth_date);
         // Faixa atual do aluno na modalidade escolhida (fallback: primeira encontrada).
@@ -234,9 +234,12 @@ function NewGraduationPage() {
           ? s.current_belts
           : (s?.belt ? [{ belt: s.belt, degree: s.current_degree ?? 0 }] : []);
         const currentInMod = currents.find((b: any) => (b.belt?.modality ?? "jiu-jitsu") === modality) ?? currents[0] ?? null;
-        const targetMod = currentInMod?.belt?.modality ?? modality;
+        const targetMod = perStudentMod[id] ?? currentInMod?.belt?.modality ?? modality;
+        modDefaults[id] = targetMod;
+        if (next[id]?.beltId) continue;
+        const currentTarget = currents.find((b: any) => (b.belt?.modality ?? "jiu-jitsu") === targetMod) ?? null;
         const suggestion = suggestNextBelt({
-          current: currentInMod ? { belt: currentInMod.belt, degree: currentInMod.degree ?? 0 } : null,
+          current: currentTarget ? { belt: currentTarget.belt, degree: currentTarget.degree ?? 0 } : null,
           belts: allBelts,
           modality: targetMod,
           age,
@@ -254,6 +257,7 @@ function NewGraduationPage() {
       }
       return next;
     });
+    setPerStudentMod(prev => ({ ...modDefaults, ...prev }));
     setStep("grad");
   };
 
