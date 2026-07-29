@@ -31,6 +31,24 @@ export const Route = createFileRoute("/dojo/app/graduations")({
 
 type Step = "select" | "grad" | "payment" | "cert";
 
+const MODALITY_LABELS: Record<string, string> = {
+  "jiu-jitsu": "Jiu-Jitsu",
+  "muay-thai": "Muay Thai",
+  judo: "Judô",
+  karate: "Karatê",
+  "taekwondo": "Taekwondo",
+  boxe: "Boxe",
+  mma: "MMA",
+  capoeira: "Capoeira",
+  "kung-fu": "Kung Fu",
+  "krav-maga": "Krav Magá",
+  wrestling: "Wrestling",
+};
+function modalityLabel(v: string) {
+  if (MODALITY_LABELS[v]) return MODALITY_LABELS[v];
+  return String(v).replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 function NewGraduationPage() {
   const routeSearch = Route.useSearch();
   const studentsFn = useServerFn(listDojoStudents);
