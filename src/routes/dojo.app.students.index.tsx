@@ -184,7 +184,7 @@ function StudentsPage() {
   // detectar o que foi adicionado/alterado e registrar as graduações no salvar.
   const initialModsRef = useRef<string[]>([]);
   const [tab, setTab] = useState<string>("dados");
-  const tabOrder = ["dados", "endereco", "contato", "dojo", "plano", "anamnese", "foto", "consent"];
+  const tabOrder = ["dados", "endereco", "contato", "dojo", "plano", "anamnese", "foto", "consent", "contrato"];
 
   const tabIndex = Math.max(0, tabOrder.indexOf(tab));
   const isLastTab = tabIndex >= tabOrder.length - 1;
