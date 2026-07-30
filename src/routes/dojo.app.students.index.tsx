@@ -1452,7 +1452,7 @@ function StudentsPage() {
 
       <div className="overflow-hidden rounded-2xl border border-neutral-200/80 bg-white shadow-[0_1px_2px_rgba(16,24,40,.04),0_8px_24px_-12px_rgba(16,24,40,.12)]">
         {/* Cabeçalho (desktop) */}
-        <div className="hidden bg-neutral-50/80 px-5 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-neutral-500 sm:grid sm:grid-cols-[minmax(0,1.6fr)_minmax(0,1.2fr)_auto_auto] sm:items-center sm:gap-4">
+        <div className="hidden bg-neutral-50/80 px-5 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-neutral-500 sm:grid sm:grid-cols-[minmax(0,1.3fr)_minmax(0,1.5fr)_auto_auto] sm:items-center sm:gap-4">
           <span>Aluno</span>
           <span>Graduação</span>
           <span className="text-center">Situação</span>
@@ -1472,7 +1472,7 @@ function StudentsPage() {
           return (
             <div
               key={s.id}
-              className="group px-4 py-3 transition-colors hover:bg-neutral-50/70 sm:grid sm:grid-cols-[minmax(0,1.6fr)_minmax(0,1.2fr)_auto_auto] sm:items-center sm:gap-4 sm:px-5"
+              className="group px-4 py-3 transition-colors hover:bg-neutral-50/70 sm:grid sm:grid-cols-[minmax(0,1.3fr)_minmax(0,1.5fr)_auto_auto] sm:items-center sm:gap-4 sm:px-5"
             >
               {/* Aluno */}
               <div className="flex items-start gap-3">
@@ -1497,12 +1497,14 @@ function StudentsPage() {
                     ) : null}
                     <span className="break-words">{s.full_name}</span>
                   </div>
-                  <div className="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs text-neutral-500">
-                    {contact ? <span className="break-all">{contact}</span> : null}
+                  <div className="mt-0.5 text-xs text-neutral-500">
+                    {contact ? <div className="break-all">{contact}</div> : null}
                     {s.unit?.name ? (
-                      <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[10px] font-medium text-neutral-600">
-                        {s.unit.name}
-                      </span>
+                      <div className="mt-1">
+                        <span className="inline-block max-w-full truncate rounded-full bg-neutral-100 px-2 py-0.5 text-[10px] font-medium text-neutral-600">
+                          {s.unit.name}
+                        </span>
+                      </div>
                     ) : null}
                   </div>
                 </div>
@@ -1524,8 +1526,12 @@ function StudentsPage() {
                   if (list.length === 0) return <span className="text-xs text-neutral-400">Sem graduação</span>;
                   return list.map((cb: any, i: number) => (
                     <div key={cb.belt.id + i} className="flex items-center gap-3">
-                      <div className="w-20 shrink-0 sm:w-24">
-                        <BeltAuto belt={cb.belt} degree={cb.degree ?? 0} />
+                      {/* Caixa de tamanho fixo: a ilustração (min 220px) é reduzida
+                          proporcionalmente para nunca invadir o texto ao lado. */}
+                      <div className="h-[24px] w-[154px] shrink-0 overflow-hidden">
+                        <div className="w-[220px] origin-top-left scale-[0.7]">
+                          <BeltAuto belt={cb.belt} degree={cb.degree ?? 0} className="w-full" />
+                        </div>
                       </div>
                       <div className="min-w-0">
                         <div className="truncate text-xs font-medium text-neutral-800">
