@@ -1692,6 +1692,12 @@ export const addBulkGraduation = createServerFn({ method: "POST" })
       .maybeSingle();
     const priceByBelt: Record<string, number> = ((settingsRow as any)?.price_by_belt ?? {}) as Record<string, number>;
 
+    // Data da cerimônia no futuro => graduação AGENDADA: a faixa do aluno só
+    // muda e o push de parabéns só é enviado no dia selecionado (cron horário
+    // em /api/public/hooks/apply-scheduled-graduations).
+    const todayISO = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date());
+    const isScheduled = String(data.graduation_date).slice(0, 10) > todayISO;
+
     const rows = items.map(it => {
       const fee = it.fee_amount != null ? Number(it.fee_amount) : Number(priceByBelt[it.belt_id] ?? 0);
       return {
@@ -1703,11 +1709,13 @@ export const addBulkGraduation = createServerFn({ method: "POST" })
         notes: data.notes ?? null,
         owner_id: ownerId(context),
         fee_amount: fee > 0 ? fee : null,
+        applied_at: isScheduled ? null : new Date().toISOString(),
       };
     });
     const { data: inserted, error } = await context.supabase
-      .from("dojo_graduations").insert(rows).select("id, student_id, belt_id, fee_amount");
+      .from("dojo_graduations").insert(rows).select("id, student_id, belt_id, degree, fee_amount");
     if (error) throw new Error(error.message);
+
 
     // Modality-aware overwrite por aluno + info da faixa (para descrição da cobrança).
     const beltIds = Array.from(new Set(items.map(i => i.belt_id)));
