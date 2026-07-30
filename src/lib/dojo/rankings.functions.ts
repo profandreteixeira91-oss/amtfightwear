@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { PRESENT_STATUSES } from "@/lib/dojo/attendance-status";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 // ---------- Lista turmas do dojo ----------
@@ -77,7 +78,8 @@ export const getClassRanking = createServerFn({ method: "GET" })
     let attQuery = supabaseAdmin
       .from("dojo_attendance")
       .select("student_id, checked_in_at")
-      .in("student_id", studentIds);
+      .in("student_id", studentIds)
+      .in("status", PRESENT_STATUSES as unknown as string[]);
     if (sinceIso) attQuery = attQuery.gte("checked_in_at", sinceIso);
     const { data: attendance, error: attErr } = await attQuery;
     if (attErr) throw new Error(attErr.message);

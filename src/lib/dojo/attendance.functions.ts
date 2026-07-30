@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { PRESENT_STATUSES } from "@/lib/dojo/attendance-status";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 
@@ -198,9 +199,9 @@ export const attendanceStats = createServerFn({ method: "GET" })
     const startWeek = new Date(now.getTime() - 7 * 86400000).toISOString();
     const startMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
     const [d, w, m] = await Promise.all([
-      context.supabase.from("dojo_attendance").select("id", { count: "exact", head: true }).gte("checked_in_at", startDay),
-      context.supabase.from("dojo_attendance").select("id", { count: "exact", head: true }).gte("checked_in_at", startWeek),
-      context.supabase.from("dojo_attendance").select("id", { count: "exact", head: true }).gte("checked_in_at", startMonth),
+      context.supabase.from("dojo_attendance").select("id", { count: "exact", head: true }).in("status", PRESENT_STATUSES as unknown as string[]).gte("checked_in_at", startDay),
+      context.supabase.from("dojo_attendance").select("id", { count: "exact", head: true }).in("status", PRESENT_STATUSES as unknown as string[]).gte("checked_in_at", startWeek),
+      context.supabase.from("dojo_attendance").select("id", { count: "exact", head: true }).in("status", PRESENT_STATUSES as unknown as string[]).gte("checked_in_at", startMonth),
     ]);
     return { today: d.count ?? 0, week: w.count ?? 0, month: m.count ?? 0 };
   });
