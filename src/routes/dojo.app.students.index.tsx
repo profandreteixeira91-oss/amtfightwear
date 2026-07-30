@@ -18,6 +18,10 @@ import { paymentMethodLabel, normalizePlanPaymentMethods } from "@/lib/dojo/paym
 import { getMyAsaasConfig } from "@/lib/asaas/asaas.functions";
 import { isAsaasReady } from "@/lib/dojo/amt-pay-status";
 import { getMyAcademySlug } from "@/lib/dojo/academy-public.functions";
+import { listContractTemplates, generateStudentContract, getMyAcademyForContract } from "@/lib/dojo/contracts.functions";
+import { buildContractValues, resolveContractHtml } from "@/lib/dojo/contracts-variables";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { sanitizeHtml } from "@/lib/security/sanitize-html";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -53,6 +57,7 @@ const STEP_META: Record<string, { label: string; icon: ComponentType<{ className
   anamnese: { label: "Anamnese", icon: HeartPulse },
   foto: { label: "Foto", icon: Camera },
   consent: { label: "Consentimentos", icon: ShieldCheck },
+  contrato: { label: "Contrato", icon: FileText },
 };
 
 type StudentForm = {
@@ -183,7 +188,7 @@ function StudentsPage() {
   // detectar o que foi adicionado/alterado e registrar as graduações no salvar.
   const initialModsRef = useRef<string[]>([]);
   const [tab, setTab] = useState<string>("dados");
-  const tabOrder = ["dados", "endereco", "contato", "dojo", "plano", "anamnese", "foto", "consent"];
+  const tabOrder = ["dados", "endereco", "contato", "dojo", "plano", "anamnese", "foto", "consent", "contrato"];
 
   const tabIndex = Math.max(0, tabOrder.indexOf(tab));
   const isLastTab = tabIndex >= tabOrder.length - 1;
@@ -196,6 +201,22 @@ function StudentsPage() {
     include_enrollment_fee: true,
     payment_method: "manual" as string,
     custom_amount: "" as string,
+  });
+
+  // ===== Contrato no ato da matrícula =====
+  const [contractSel, setContractSel] = useState<{ template_id: string; title: string }>({ template_id: "", title: "" });
+  const contractTplFn = useServerFn(listContractTemplates);
+  const contractAcademyFn = useServerFn(getMyAcademyForContract);
+  const generateContractFn = useServerFn(generateStudentContract);
+  const contractTemplates = useQuery({
+    queryKey: ["contract-templates"],
+    queryFn: () => contractTplFn(),
+    staleTime: 60_000,
+  });
+  const contractAcademy = useQuery({
+    queryKey: ["contract-academy-profile"],
+    queryFn: () => contractAcademyFn(),
+    staleTime: 300_000,
   });
 
   const q = useQuery({ queryKey: ["dojo-students"], queryFn: () => listFn() });
@@ -282,6 +303,7 @@ function StudentsPage() {
       payment_method: "manual",
       custom_amount: "",
     });
+    setContractSel({ template_id: "", title: "" });
   }
   function openEdit(s: any) {
     // Todas as modalidades do aluno (graduação mais recente de cada uma),
@@ -450,8 +472,60 @@ function StudentsPage() {
       } else {
         toast.success("Aluno salvo");
       }
+
+      // ===== Contrato gerado no ato da matrícula =====
+      if (studentId && contractSel.template_id) {
+        try {
+          const tpl: any = (contractTemplates.data ?? []).find((t: any) => t.id === contractSel.template_id);
+          if (!tpl) throw new Error("Modelo de contrato não encontrado");
+          const plan: any = (plans.data ?? []).find((p: any) => p.id === enrollment.plan_id);
+          const customAmt = enrollment.custom_amount.trim() === "" ? null : Number(enrollment.custom_amount);
+          const monthly = Number.isFinite(customAmt as number) && customAmt != null
+            ? Number(customAmt)
+            : (plan?.amount != null ? Number(plan.amount) : null);
+          const contractMeta = {
+            plan_name: plan?.name ?? null,
+            monthly_value: monthly,
+            payment_method: enrollment.payment_method,
+            due_day: enrollment.due_day,
+            start_date: enrollment.start_date,
+          };
+          const merged = [
+            tpl.header_html ? `<div data-tpl-header>${tpl.header_html}</div>` : "",
+            tpl.content ?? "",
+            tpl.footer_html ? `<div data-tpl-footer style="margin-top:24px;">${tpl.footer_html}</div>` : "",
+          ].join("");
+          const values = buildContractValues({
+            student: { ...payload, id: studentId },
+            academy: contractAcademy.data,
+            contract: contractMeta,
+          } as any);
+          const resolved = resolveContractHtml(merged, values);
+          await generateContractFn({
+            data: {
+              student_id: studentId,
+              template_id: tpl.id,
+              resolved_content: resolved,
+              title: (contractSel.title.trim() || tpl.name || "Contrato de prestação de serviços"),
+              plan_name: contractMeta.plan_name,
+              monthly_value: contractMeta.monthly_value,
+              payment_method: contractMeta.payment_method,
+              due_day: contractMeta.due_day,
+              start_date: contractMeta.start_date,
+            },
+          });
+          toast.success("Contrato gerado e disponível no perfil do aluno");
+          qc.invalidateQueries({ queryKey: ["student-contracts", studentId] });
+          qc.invalidateQueries({ queryKey: ["dojo-contracts"] });
+        } catch (e: any) {
+          toast.error("Falha ao gerar o contrato", { description: e?.message });
+        }
+      }
+
       setOpen(false);
       setForm(emptyForm);
+      setContractSel({ template_id: "", title: "" });
+
       qc.invalidateQueries({ queryKey: ["dojo-students"] });
       qc.invalidateQueries({ queryKey: ["dojo-invoices"] });
       qc.invalidateQueries({ queryKey: ["dojo-student"] });
@@ -1300,6 +1374,91 @@ function StudentsPage() {
                     Os consentimentos são registrados com data e hora conforme exigido pela LGPD.
                   </p>
                 </TabsContent>
+
+                {/* ============ CONTRATO ============ */}
+                <TabsContent value="contrato" className="mt-4 space-y-4">
+                  <div className="rounded-xl border bg-muted/30 p-4">
+                    <div className="flex items-start gap-3">
+                      <FileText className="mt-0.5 h-5 w-5 text-primary" />
+                      <div className="text-sm">
+                        <p className="font-medium">Contrato no ato da matrícula</p>
+                        <p className="text-xs text-muted-foreground">
+                          Escolha um modelo para gerar o contrato automaticamente ao concluir o cadastro.
+                          Os dados do aluno, plano e valores são preenchidos nas variáveis do modelo.
+                          O contrato fica salvo no perfil do aluno e no app dele para assinatura.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                      <Label>Modelo de contrato</Label>
+                      <Select
+                        value={contractSel.template_id || "none"}
+                        onValueChange={(v) => setContractSel((p) => ({ ...p, template_id: v === "none" ? "" : v }))}
+                      >
+                        <SelectTrigger><SelectValue placeholder="Selecione um modelo" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">Não gerar contrato agora</SelectItem>
+                          {(contractTemplates.data ?? []).map((t: any) => (
+                            <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {(contractTemplates.data ?? []).length === 0 && (
+                        <p className="text-[11px] text-muted-foreground">
+                          Nenhum modelo cadastrado. Crie modelos em Contratos.
+                        </p>
+                      )}
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label>Título do contrato (opcional)</Label>
+                      <Input
+                        value={contractSel.title}
+                        placeholder="Contrato de prestação de serviços"
+                        onChange={(e) => setContractSel((p) => ({ ...p, title: e.target.value }))}
+                      />
+                    </div>
+                  </div>
+
+                  {contractSel.template_id && (() => {
+                    const tpl: any = (contractTemplates.data ?? []).find((t: any) => t.id === contractSel.template_id);
+                    if (!tpl) return null;
+                    const plan: any = (plans.data ?? []).find((p: any) => p.id === enrollment.plan_id);
+                    const customAmt = enrollment.custom_amount.trim() === "" ? null : Number(enrollment.custom_amount);
+                    const monthly = customAmt != null && Number.isFinite(customAmt)
+                      ? customAmt
+                      : (plan?.amount != null ? Number(plan.amount) : null);
+                    const merged = [
+                      tpl.header_html ? `<div>${tpl.header_html}</div>` : "",
+                      tpl.content ?? "",
+                      tpl.footer_html ? `<div style="margin-top:24px;">${tpl.footer_html}</div>` : "",
+                    ].join("");
+                    const html = resolveContractHtml(merged, buildContractValues({
+                      student: form,
+                      academy: contractAcademy.data,
+                      contract: {
+                        plan_name: plan?.name ?? null,
+                        monthly_value: monthly,
+                        payment_method: enrollment.payment_method,
+                        due_day: enrollment.due_day,
+                        start_date: enrollment.start_date,
+                      },
+                    } as any));
+                    return (
+                      <div className="space-y-2">
+                        <Label className="text-xs uppercase tracking-wide text-muted-foreground">Pré-visualização</Label>
+                        <div
+                          className="max-h-72 overflow-y-auto rounded-xl border bg-background p-4 text-[13px] leading-relaxed"
+                          style={{ fontFamily: "Georgia, serif" }}
+                          dangerouslySetInnerHTML={{ __html: sanitizeHtml(html) }}
+                        />
+                      </div>
+                    );
+                  })()}
+                </TabsContent>
+
                 </div>
               </Tabs>
 
