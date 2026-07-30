@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { sanitizeHtml } from "@/lib/security/sanitize-html";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
@@ -158,7 +159,7 @@ function IssuedContractDetail() {
               <div
                 className="prose prose-sm max-w-none [&_h1]:text-2xl [&_h2]:text-xl [&_h3]:text-lg bg-white text-black rounded-md border p-6"
                 style={{ fontFamily: "Georgia, serif", lineHeight: 1.6 }}
-                dangerouslySetInnerHTML={{ __html: contract.content ?? "" }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(contract.content ?? "") }}
               />
             </CardContent>
           </Card>

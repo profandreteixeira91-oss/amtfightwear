@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { sanitizeHtml } from "@/lib/security/sanitize-html";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
@@ -545,11 +546,11 @@ function ContractEditorPage() {
               }}
             >
               {draft.header_html.trim() && (
-                <div className="shrink-0 pb-1.5" dangerouslySetInnerHTML={{ __html: resolvedHeader }} />
+                <div className="shrink-0 pb-1.5" dangerouslySetInnerHTML={{ __html: sanitizeHtml(resolvedHeader) }} />
               )}
               <div
                 className="flex-1 min-h-0 overflow-hidden prose max-w-none [&_h1]:text-[10pt] [&_h1]:font-bold [&_h2]:text-[8pt] [&_h2]:font-semibold [&_h3]:text-[7pt] [&_p]:my-0.5 [&_hr]:my-1 [&_*]:!leading-snug"
-                dangerouslySetInnerHTML={{ __html: resolvedContent }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(resolvedContent) }}
               />
               {draft.footer_html.trim() && (
                 <div
