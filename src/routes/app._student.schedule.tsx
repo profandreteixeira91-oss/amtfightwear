@@ -79,6 +79,7 @@ function SchedulePage() {
   }, [data]);
 
   const list = byDay.get(day) ?? [];
+  const [view, setView] = useState<"week" | "day">("week");
 
   return (
     <div className="space-y-4">
@@ -88,6 +89,30 @@ function SchedulePage() {
           Todas as turmas do dojo — apenas visualização.
         </p>
       </div>
+
+      <div className="inline-flex rounded-xl bg-white p-1 ring-1 ring-neutral-200">
+        {(["week", "day"] as const).map((v) => (
+          <button
+            key={v}
+            type="button"
+            onClick={() => setView(v)}
+            className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+              view === v ? "text-white" : "text-neutral-600"
+            }`}
+            style={view === v ? { background: "var(--sa-primary, #dc2626)" } : undefined}
+          >
+            {v === "week" ? "Semana" : "Dia"}
+          </button>
+        ))}
+      </div>
+
+      {view === "week" && (
+        <WeekGrid byDay={byDay} isLoading={isLoading} unitName={unitName} />
+      )}
+
+      {view === "day" && (
+        <>
+
 
       <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
         {WEEKDAYS.map((w) => {
