@@ -228,6 +228,8 @@ function KioskPanel() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [pin, setPin] = useState("");
   const [showSearch, setShowSearch] = useState(false);
+  const [showRetro, setShowRetro] = useState(false);
+
   const [showVisitor, setShowVisitor] = useState(false);
   const [showPhoto, setShowPhoto] = useState(false);
   const [showPartner, setShowPartner] = useState<null | "gympass" | "totalpass">(null);
