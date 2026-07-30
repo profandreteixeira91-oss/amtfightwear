@@ -417,7 +417,8 @@ function BlockRenderer({
       // Garante que "Documentos" e "Ranking" apareçam sempre que o feature estiver
       // ativo, mesmo em configurações salvas antes de os atalhos existirem.
       const withDocs = rawKeys.includes("documents") ? rawKeys : [...rawKeys, "documents"];
-      const keys = withDocs.includes("ranking") ? withDocs : [...withDocs, "ranking"];
+      const keys0 = withDocs.includes("ranking") ? withDocs : [...withDocs, "ranking"];
+      const keys = keys0.includes("schedule") ? keys0 : [...keys0, "schedule"];
       const items = keys
         .map((k) => ({ key: k, meta: SHORTCUT_META[k] }))
         .filter((x) => x.meta && (!x.meta.feature || config.features[x.meta.feature] !== false));
