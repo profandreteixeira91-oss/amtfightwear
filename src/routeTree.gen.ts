@@ -101,6 +101,7 @@ import { Route as DojoAppAccountRouteImport } from './routes/dojo.app.account'
 import { Route as AppInstallSlugRouteImport } from './routes/app.install.$slug'
 import { Route as AppStudentVideosRouteImport } from './routes/app._student.videos'
 import { Route as AppStudentSettingsRouteImport } from './routes/app._student.settings'
+import { Route as AppStudentScheduleRouteImport } from './routes/app._student.schedule'
 import { Route as AppStudentRankingRouteImport } from './routes/app._student.ranking'
 import { Route as AppStudentProfileRouteImport } from './routes/app._student.profile'
 import { Route as AppStudentPerformanceRouteImport } from './routes/app._student.performance'
@@ -766,6 +767,11 @@ const AppStudentVideosRoute = AppStudentVideosRouteImport.update({
 const AppStudentSettingsRoute = AppStudentSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => AppStudentRoute,
+} as any)
+const AppStudentScheduleRoute = AppStudentScheduleRouteImport.update({
+  id: '/schedule',
+  path: '/schedule',
   getParentRoute: () => AppStudentRoute,
 } as any)
 const AppStudentRankingRoute = AppStudentRankingRouteImport.update({
@@ -2065,6 +2071,7 @@ export interface FileRoutesByFullPath {
   '/app/performance': typeof AppStudentPerformanceRoute
   '/app/profile': typeof AppStudentProfileRoute
   '/app/ranking': typeof AppStudentRankingRoute
+  '/app/schedule': typeof AppStudentScheduleRoute
   '/app/settings': typeof AppStudentSettingsRoute
   '/app/videos': typeof AppStudentVideosRoute
   '/app/install/$slug': typeof AppInstallSlugRoute
@@ -2352,6 +2359,7 @@ export interface FileRoutesByTo {
   '/app/performance': typeof AppStudentPerformanceRoute
   '/app/profile': typeof AppStudentProfileRoute
   '/app/ranking': typeof AppStudentRankingRoute
+  '/app/schedule': typeof AppStudentScheduleRoute
   '/app/settings': typeof AppStudentSettingsRoute
   '/app/videos': typeof AppStudentVideosRoute
   '/app/install/$slug': typeof AppInstallSlugRoute
@@ -2643,6 +2651,7 @@ export interface FileRoutesById {
   '/app/_student/performance': typeof AppStudentPerformanceRoute
   '/app/_student/profile': typeof AppStudentProfileRoute
   '/app/_student/ranking': typeof AppStudentRankingRoute
+  '/app/_student/schedule': typeof AppStudentScheduleRoute
   '/app/_student/settings': typeof AppStudentSettingsRoute
   '/app/_student/videos': typeof AppStudentVideosRoute
   '/app/install/$slug': typeof AppInstallSlugRoute
@@ -2942,6 +2951,7 @@ export interface FileRouteTypes {
     | '/app/performance'
     | '/app/profile'
     | '/app/ranking'
+    | '/app/schedule'
     | '/app/settings'
     | '/app/videos'
     | '/app/install/$slug'
@@ -3229,6 +3239,7 @@ export interface FileRouteTypes {
     | '/app/performance'
     | '/app/profile'
     | '/app/ranking'
+    | '/app/schedule'
     | '/app/settings'
     | '/app/videos'
     | '/app/install/$slug'
@@ -3519,6 +3530,7 @@ export interface FileRouteTypes {
     | '/app/_student/performance'
     | '/app/_student/profile'
     | '/app/_student/ranking'
+    | '/app/_student/schedule'
     | '/app/_student/settings'
     | '/app/_student/videos'
     | '/app/install/$slug'
@@ -4393,6 +4405,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/app/settings'
       preLoaderRoute: typeof AppStudentSettingsRouteImport
+      parentRoute: typeof AppStudentRoute
+    }
+    '/app/_student/schedule': {
+      id: '/app/_student/schedule'
+      path: '/schedule'
+      fullPath: '/app/schedule'
+      preLoaderRoute: typeof AppStudentScheduleRouteImport
       parentRoute: typeof AppStudentRoute
     }
     '/app/_student/ranking': {
@@ -6297,6 +6316,7 @@ interface AppStudentRouteChildren {
   AppStudentPerformanceRoute: typeof AppStudentPerformanceRoute
   AppStudentProfileRoute: typeof AppStudentProfileRoute
   AppStudentRankingRoute: typeof AppStudentRankingRoute
+  AppStudentScheduleRoute: typeof AppStudentScheduleRoute
   AppStudentSettingsRoute: typeof AppStudentSettingsRoute
   AppStudentVideosRoute: typeof AppStudentVideosRoute
   AppStudentInvoiceIdRoute: typeof AppStudentInvoiceIdRoute
@@ -6320,6 +6340,7 @@ const AppStudentRouteChildren: AppStudentRouteChildren = {
   AppStudentPerformanceRoute: AppStudentPerformanceRoute,
   AppStudentProfileRoute: AppStudentProfileRoute,
   AppStudentRankingRoute: AppStudentRankingRoute,
+  AppStudentScheduleRoute: AppStudentScheduleRoute,
   AppStudentSettingsRoute: AppStudentSettingsRoute,
   AppStudentVideosRoute: AppStudentVideosRoute,
   AppStudentInvoiceIdRoute: AppStudentInvoiceIdRoute,
@@ -6745,13 +6766,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

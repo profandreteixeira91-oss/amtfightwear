@@ -21,6 +21,7 @@ export const Route = createFileRoute("/app/_student/home")({
 const SHORTCUT_META: Record<string, { label: string; icon: keyof typeof Icons; to: string; feature?: FeatureKey }> = {
   checkin: { label: "Check-in", icon: "QrCode", to: "/app/checkin", feature: "checkin" },
   agenda: { label: "Agenda", icon: "CalendarDays", to: "/app/agenda", feature: "agenda" },
+  schedule: { label: "Grade de aulas", icon: "CalendarRange", to: "/app/schedule" },
   videos: { label: "Vídeos", icon: "Film", to: "/app/videos", feature: "videos" },
   graduations: { label: "Graduações", icon: "Award", to: "/app/graduations", feature: "graduations" },
   certificates: { label: "Certificados", icon: "FileBadge", to: "/app/certificates", feature: "certificates" },
