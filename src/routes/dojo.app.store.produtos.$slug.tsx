@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { sanitizeHtml } from "@/lib/security/sanitize-html";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { dsGetProduct, dsAddToCart } from "@/lib/dojo/store/store.functions";
@@ -358,7 +359,7 @@ function PdpPage() {
           <h2 className="text-xl font-bold tracking-tight text-foreground">Descrição</h2>
           <div
             className="prose prose-sm max-w-none text-sm leading-relaxed text-muted-foreground"
-            dangerouslySetInnerHTML={{ __html: product.description }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(product.description) }}
           />
         </section>
       )}

@@ -5,11 +5,15 @@
  * salvando os leads em `prospect_companies`.
  */
 import { createFileRoute } from "@tanstack/react-router";
+import { checkInternalHookAuth } from "@/lib/security/hook-auth";
 
 export const Route = createFileRoute("/api/public/hooks/martial-arts-daily-sweep")({
   server: {
     handlers: {
-      POST: async () => {
+      POST: async ({ request }) => {
+        const denied = checkInternalHookAuth(request);
+        if (denied) return denied;
+
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { discoverCompanies, buildMartialArtsQueries } = await import("@/lib/prospect/prospect-engine.server");
 

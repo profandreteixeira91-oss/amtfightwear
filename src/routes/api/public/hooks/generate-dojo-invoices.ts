@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { checkInternalHookAuth } from "@/lib/security/hook-auth";
 import { advanceDate, type RecurringFrequency } from "@/lib/dojo/recurring.functions";
 
 // Roda diariamente. Para toda regra recorrente ativa cujo `next_run_at` seja
@@ -8,7 +9,10 @@ import { advanceDate, type RecurringFrequency } from "@/lib/dojo/recurring.funct
 export const Route = createFileRoute("/api/public/hooks/generate-dojo-invoices")({
   server: {
     handlers: {
-      POST: async () => {
+      POST: async ({ request }) => {
+        const denied = checkInternalHookAuth(request);
+        if (denied) return denied;
+
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
         const now = new Date();

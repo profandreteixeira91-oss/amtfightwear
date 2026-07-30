@@ -3,11 +3,15 @@
 // Ao chegar a data (fuso America/Sao_Paulo), este job troca a faixa do aluno
 // no sistema e envia o push de parabéns. Idempotente via applied_at.
 import { createFileRoute } from "@tanstack/react-router";
+import { checkInternalHookAuth } from "@/lib/security/hook-auth";
 
 export const Route = createFileRoute("/api/public/hooks/apply-scheduled-graduations")({
   server: {
     handlers: {
-      POST: async () => {
+      POST: async ({ request }) => {
+        const denied = checkInternalHookAuth(request);
+        if (denied) return denied;
+
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { sendPushToStudent } = await import("@/lib/push/push.server");
 

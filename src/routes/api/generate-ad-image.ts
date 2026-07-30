@@ -6,13 +6,36 @@ export const Route = createFileRoute("/api/generate-ad-image")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        // Somente usuários autenticados podem consumir a geração de imagens
+        // (protege a cota paga do gateway de IA).
+        const authHeader = request.headers.get("authorization") ?? "";
+        const token = authHeader.toLowerCase().startsWith("bearer ")
+          ? authHeader.slice(7).trim()
+          : "";
+        if (!token) return new Response("Unauthorized", { status: 401 });
+        {
+          const { createClient } = await import("@supabase/supabase-js");
+          const pubKey = process.env.SUPABASE_PUBLISHABLE_KEY!;
+          const authClient = createClient(process.env.SUPABASE_URL!, pubKey, {
+            auth: { persistSession: false },
+          });
+          const { data: userData, error: userErr } = await authClient.auth.getUser(token);
+          if (userErr || !userData?.user) {
+            return new Response("Unauthorized", { status: 401 });
+          }
+        }
+
         const body = (await request.json()) as {
           prompt: string;
           size?: string;
           aspectRatio?: "1:1" | "3:4" | "4:3" | "9:16" | "16:9";
         };
+        if (typeof body?.prompt !== "string" || body.prompt.trim().length < 3 || body.prompt.length > 4000) {
+          return new Response("Invalid prompt", { status: 400 });
+        }
         const key = process.env.LOVABLE_API_KEY;
         if (!key) return new Response("Missing LOVABLE_API_KEY", { status: 500 });
+
 
         // Deriva aspect ratio a partir de size, se necessário.
         let aspectRatio = body.aspectRatio;

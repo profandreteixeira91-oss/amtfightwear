@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { sanitizeHtml } from "@/lib/security/sanitize-html";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -347,7 +348,7 @@ export function StudentContracts({ studentId, student }: Props) {
             <div
               className="bg-white text-black shadow-lg mx-auto max-w-3xl p-12 prose prose-sm max-w-none [&_h1]:text-2xl [&_h2]:text-xl [&_h3]:text-lg"
               style={{ fontFamily: "Georgia, serif", lineHeight: 1.6 }}
-              dangerouslySetInnerHTML={{ __html: previewHtml }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(previewHtml) }}
             />
           </div>
         </DialogContent>

@@ -3,6 +3,7 @@
 // quais aulas iniciam dentro dos offsets configurados (em minutos)
 // no fuso horário da academia. Idempotente via dojo_class_reminders_sent.
 import { createFileRoute } from "@tanstack/react-router";
+import { checkInternalHookAuth } from "@/lib/security/hook-auth";
 
 type ExtrasShape = {
   class_reminder_offsets_min?: number[];
@@ -43,7 +44,10 @@ function timeToMinutes(t: string): number {
 export const Route = createFileRoute("/api/public/hooks/send-class-reminders")({
   server: {
     handlers: {
-      POST: async () => {
+      POST: async ({ request }) => {
+        const denied = checkInternalHookAuth(request);
+        if (denied) return denied;
+
         const { supabaseAdmin } = await import(
           "@/integrations/supabase/client.server"
         );

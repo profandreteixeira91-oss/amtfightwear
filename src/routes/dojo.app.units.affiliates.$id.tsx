@@ -1,4 +1,5 @@
 import { brDate } from "@/lib/format";
+import { sanitizeHtml } from "@/lib/security/sanitize-html";
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -530,7 +531,7 @@ function ContractTab({ affiliate }: { affiliate: any }) {
             <div
               className="bg-white text-black shadow-lg mx-auto max-w-3xl p-12 prose prose-sm max-w-none [&_h1]:text-2xl [&_h2]:text-xl [&_h3]:text-lg"
               style={{ fontFamily: "Georgia, serif", lineHeight: 1.6 }}
-              dangerouslySetInnerHTML={{ __html: previewHtml }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(previewHtml) }}
             />
           </div>
         </DialogContent>

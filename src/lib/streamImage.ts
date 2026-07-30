@@ -6,11 +6,21 @@ export async function streamImage(
   body: Record<string, unknown>,
   onFrame: (dataUrl: string, isFinal: boolean) => void,
 ): Promise<void> {
+  // Endpoints de geração de imagem exigem sessão autenticada (evita uso da
+  // cota paga por terceiros). Anexa o bearer token da sessão atual.
+  const { supabase } = await import("@/integrations/supabase/client");
+  const { data: sessionData } = await supabase.auth.getSession();
+  const token = sessionData.session?.access_token;
+
   const res = await fetch(endpoint, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
     body: JSON.stringify(body),
   });
+
   if (!res.ok || !res.body) {
     const detail = await res.text().catch(() => "");
     let msg = detail;
