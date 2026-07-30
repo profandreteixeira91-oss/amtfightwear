@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { checkInternalHookAuth } from "@/lib/security/hook-auth";
 
 const GRAPH = "https://graph.facebook.com/v21.0";
 
@@ -408,6 +409,9 @@ export const Route = createFileRoute("/api/public/hooks/auto-instagram-post")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const denied = checkInternalHookAuth(request);
+        if (denied) return denied;
+
         const url = new URL(request.url);
         const force = url.searchParams.get("force") === "1" || request.headers.get("x-force") === "1";
         const forcedType = url.searchParams.get("type") as PostType | null;

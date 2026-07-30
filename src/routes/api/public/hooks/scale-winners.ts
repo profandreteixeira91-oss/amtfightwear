@@ -1,10 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { checkInternalHookAuth } from "@/lib/security/hook-auth";
 import { decideScale, embedText, type ScaleCampaign } from "@/lib/ads/ads-scale";
 
 export const Route = createFileRoute("/api/public/hooks/scale-winners")({
   server: {
     handlers: {
-      POST: async () => handle(),
+      POST: async ({ request }: { request: Request }) => {
+        const denied = checkInternalHookAuth(request);
+        if (denied) return denied;
+        return handle();
+      },
       GET: async () => handle(),
     },
   },

@@ -4,13 +4,17 @@
  * mesmo motor de `enrichLead`, respeitando um limite por rodada.
  */
 import { createFileRoute } from "@tanstack/react-router";
+import { checkInternalHookAuth } from "@/lib/security/hook-auth";
 
 const PER_USER_LIMIT = 15;
 
 export const Route = createFileRoute("/api/public/hooks/enrich-pending-leads")({
   server: {
     handlers: {
-      POST: async () => {
+      POST: async ({ request }) => {
+        const denied = checkInternalHookAuth(request);
+        if (denied) return denied;
+
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { enrichCompanyCore } = await import("@/lib/prospect/prospect-engine.server");
 

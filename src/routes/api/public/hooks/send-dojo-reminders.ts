@@ -5,6 +5,7 @@
 //   2) dojo_payment_settings.extras.reminders (RemindersPanel AMT Pay — email)
 //   3) DEFAULT_REMINDER_SETTINGS
 import { createFileRoute } from "@tanstack/react-router";
+import { checkInternalHookAuth } from "@/lib/security/hook-auth";
 import {
   DEFAULT_REMINDER_SETTINGS,
   type ReminderSettings,
@@ -66,7 +67,10 @@ function readPrefs(row: any): OwnerPrefs {
 export const Route = createFileRoute("/api/public/hooks/send-dojo-reminders")({
   server: {
     handlers: {
-      POST: async () => {
+      POST: async ({ request }) => {
+        const denied = checkInternalHookAuth(request);
+        if (denied) return denied;
+
         const { supabaseAdmin } = await import(
           "@/integrations/supabase/client.server"
         );

@@ -1,11 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { checkInternalHookAuth } from "@/lib/security/hook-auth";
 
 const GRAPH = "https://graph.facebook.com/v21.0";
 
 export const Route = createFileRoute("/api/public/hooks/ig-sync")({
   server: {
     handlers: {
-      POST: async () => {
+      POST: async ({ request }) => {
+        const denied = checkInternalHookAuth(request);
+        if (denied) return denied;
+
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
         // For each active meta_connection: sync profile + recent media

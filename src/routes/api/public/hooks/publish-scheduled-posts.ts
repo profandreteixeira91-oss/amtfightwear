@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { checkInternalHookAuth } from "@/lib/security/hook-auth";
 
 const GRAPH = "https://graph.facebook.com/v21.0";
 
@@ -24,7 +25,10 @@ async function publish(igId: string, token: string, caption: string, imageUrl: s
 export const Route = createFileRoute("/api/public/hooks/publish-scheduled-posts")({
   server: {
     handlers: {
-      POST: async () => {
+      POST: async ({ request }) => {
+        const denied = checkInternalHookAuth(request);
+        if (denied) return denied;
+
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
         const { data: due, error } = await supabaseAdmin
