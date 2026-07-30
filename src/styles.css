@@ -863,3 +863,12 @@ body:has([data-student-shell]) {
 [data-student-shell] :where(img, video, canvas, iframe) {
   max-width: 100%;
 }
+
+/* Performance (app do aluno): palavras nunca são quebradas no meio */
+[data-student-performance],
+[data-student-performance] * {
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+  hyphens: none !important;
+  -webkit-hyphens: none !important;
+}
