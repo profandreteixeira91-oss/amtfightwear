@@ -10,6 +10,9 @@ import {
   saveDojoInvoice, markDojoInvoicePaid, deleteDojoInvoice,
   deleteDojoStudent, saveDojoStudent, freezeDojoStudent, unfreezeDojoStudent, restoreDojoStudent,
 } from "@/lib/dojo/dojo.functions";
+import { listCertificateTemplates, issueCertificate } from "@/lib/dojo/dojo.functions";
+import { buildIssueValues } from "@/lib/dojo/certificates/issue";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { listAttendance, regenerateStudentCodes } from "@/lib/dojo/attendance.functions";
 import { listStudentClasses } from "@/lib/dojo/schedule.functions";
