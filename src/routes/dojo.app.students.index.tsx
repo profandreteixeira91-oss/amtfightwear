@@ -18,6 +18,10 @@ import { paymentMethodLabel, normalizePlanPaymentMethods } from "@/lib/dojo/paym
 import { getMyAsaasConfig } from "@/lib/asaas/asaas.functions";
 import { isAsaasReady } from "@/lib/dojo/amt-pay-status";
 import { getMyAcademySlug } from "@/lib/dojo/academy-public.functions";
+import { listContractTemplates, generateStudentContract, getMyAcademyForContract } from "@/lib/dojo/contracts.functions";
+import { buildContractValues, resolveContractHtml } from "@/lib/dojo/contracts-variables";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { sanitizeHtml } from "@/lib/security/sanitize-html";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
