@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { PixKeyCheck } from "@/components/dojo/finance/PixKeyCheck";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
@@ -646,8 +647,16 @@ function PlansPage() {
                                 placeholder="Nome que aparece no comprovante"
                               />
                             </Field>
+                            <div className="md:col-span-2">
+                              <PixKeyCheck
+                                pixKey={nb.pix_key}
+                                keyType={nb.pix_key_type}
+                                holder={nb.pix_holder_name}
+                              />
+                            </div>
                           </div>
                         )}
+
                       </div>
                     )}
 

@@ -7,6 +7,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { normalizePixKey, validatePixKey } from "@/lib/pix/brcode";
 
 export type NativeBillingConfig = {
   pix_enabled: boolean;
@@ -58,7 +59,11 @@ async function ensureRow(supabase: any, ownerId: string) {
 }
 
 function normalize(raw: any): NativeBillingConfig {
-  return { ...DEFAULT_NATIVE_BILLING, ...(raw ?? {}) };
+  const cfg = { ...DEFAULT_NATIVE_BILLING, ...(raw ?? {}) } as NativeBillingConfig;
+  // Chaves salvas antes da validação podem conter máscara; normaliza na leitura
+  // para que o QR funcione em qualquer conta de dono de dojo.
+  if (cfg.pix_key) cfg.pix_key = normalizePixKey(cfg.pix_key, cfg.pix_key_type);
+  return cfg;
 }
 
 export const getNativeBillingConfig = createServerFn({ method: "GET" })
@@ -70,7 +75,16 @@ export const getNativeBillingConfig = createServerFn({ method: "GET" })
 
 export const saveNativeBillingConfig = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => schema.parse(i))
+  .inputValidator((i: unknown) => {
+    const parsed = schema.parse(i);
+    if (parsed.pix_enabled) {
+      const problem = validatePixKey(parsed.pix_key, parsed.pix_key_type);
+      if (problem) throw new Error(problem);
+      // Guarda a chave já sem máscara: é o formato aceito no BR Code.
+      parsed.pix_key = normalizePixKey(parsed.pix_key, parsed.pix_key_type);
+    }
+    return parsed;
+  })
   .handler(async ({ data, context }) => {
     const row = await ensureRow(context.supabase, context.userId);
     const extras = { ...(row.extras ?? {}), native_billing: data };
