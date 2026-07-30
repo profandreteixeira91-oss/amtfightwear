@@ -5439,6 +5439,7 @@ export type Database = {
       }
       dojo_graduations: {
         Row: {
+          applied_at: string | null
           belt_id: string
           created_at: string
           degree: number
@@ -5453,6 +5454,7 @@ export type Database = {
           unit_id: string | null
         }
         Insert: {
+          applied_at?: string | null
           belt_id: string
           created_at?: string
           degree?: number
@@ -5467,6 +5469,7 @@ export type Database = {
           unit_id?: string | null
         }
         Update: {
+          applied_at?: string | null
           belt_id?: string
           created_at?: string
           degree?: number
