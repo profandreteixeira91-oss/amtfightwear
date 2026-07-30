@@ -45,16 +45,11 @@ export function detectPixKeyType(raw: string): PixKeyType | null {
   if (EMAIL_RE.test(v)) return "email";
   if (UUID_RE.test(v.replace(/^urn:uuid:/i, ""))) return "random";
   const digits = v.replace(/\D/g, "");
-  if (v.startsWith("+") || digits.length === 11 || digits.length === 10) {
-    // 11 dígitos é ambíguo (CPF x celular): "+" ou DDI 55 indica telefone.
-    if (v.startsWith("+") || digits.startsWith("55") === false ? v.startsWith("+") : true) {
-      // resolvido abaixo por heurística explícita
-    }
-  }
+  // "+" ou DDI 55 na frente => telefone (11 dígitos puros é tratado como CPF).
+  if (v.trim().startsWith("+")) return digits.length >= 12 ? "phone" : null;
   if (digits.length === 14) return "cnpj";
-  if (digits.length === 11 && !v.startsWith("+")) return "cpf";
-  if (v.startsWith("+") && digits.length >= 12) return "phone";
   if (digits.length === 13 && digits.startsWith("55")) return "phone";
+  if (digits.length === 11) return "cpf";
   if (digits.length === 10) return "phone";
   return null;
 }
