@@ -41,6 +41,7 @@ import { TuitionRow } from "@/components/dojo/finance/TuitionList";
 import { StudentCompetitionHistory } from "@/components/dojo/competitions/StudentCompetitionHistory";
 import { StudentContracts } from "@/components/dojo/StudentContracts";
 import { addStudentReferencePhoto, deleteStudentReferencePhoto } from "@/lib/dojo/dojo.functions";
+import { brDate } from "@/lib/format";
 
 export const Route = createFileRoute("/dojo/app/students/$id")({
   head: () => ({ meta: [{ title: "Aluno — AMT Dojo Manager" }] }),
@@ -48,10 +49,7 @@ export const Route = createFileRoute("/dojo/app/students/$id")({
 });
 
 const brl = (n: number) => Number(n || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-const fmtDate = (v?: string | null) => {
-  if (!v) return "—";
-  try { return new Date(v).toLocaleDateString("pt-BR"); } catch { return String(v); }
-};
+const fmtDate = (v?: string | null) => brDate(v);
 const fmtDateTime = (v?: string | null) => {
   if (!v) return "—";
   try { return new Date(v).toLocaleString("pt-BR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }); } catch { return String(v); }

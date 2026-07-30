@@ -25,6 +25,7 @@ import { EvaluationTrendChart } from "@/components/dojo/athlete-analysis/Evaluat
 import { MedalsBreakdown } from "@/components/dojo/athlete-analysis/MedalsBreakdown";
 import { InsightCard } from "@/components/dojo/athlete-analysis/InsightCard";
 import { formatDegree, degreeUnit, formatBeltName } from "@/lib/dojo/degree-label";
+import { brDate } from "@/lib/format";
 
 export const Route = createFileRoute("/app/_student/performance")({
   head: () => ({
@@ -39,8 +40,7 @@ export const Route = createFileRoute("/app/_student/performance")({
 });
 
 function fmtDate(v?: string | null) {
-  if (!v) return "—";
-  try { return new Date(v).toLocaleDateString("pt-BR"); } catch { return String(v); }
+  return brDate(v);
 }
 function age(birth?: string | null) {
   if (!birth) return null;

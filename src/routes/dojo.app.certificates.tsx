@@ -20,6 +20,7 @@ import { systemValues } from "@/components/dojo/certificate-editor/qr";
 import { IssuePanel } from "@/components/dojo/certificates-studio/IssuePanel";
 import { IssuedList } from "@/components/dojo/certificates-studio/IssuedList";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { brDate } from "@/lib/format";
 
 export const Route = createFileRoute("/dojo/app/certificates")({
   head: () => ({
@@ -176,7 +177,7 @@ function CertificatesPage() {
       base.aluno_nome = s.full_name || base.aluno_nome;
       base.aluno_nome_social = s.social_name || s.full_name || base.aluno_nome;
       base.aluno_cpf = s.cpf || base.aluno_cpf;
-      base.aluno_data_nascimento = s.birth_date ? new Date(s.birth_date).toLocaleDateString("pt-BR") : base.aluno_data_nascimento;
+      base.aluno_data_nascimento = s.birth_date ? brDate(s.birth_date) : base.aluno_data_nascimento;
       base.aluno_faixa = s.current_belt || s.current_belt_id || base.aluno_faixa;
       base.aluno_grau = String(s.current_degree ?? "") || base.aluno_grau;
       base.aluno_modalidade = s.modality || s.discipline || base.aluno_modalidade;

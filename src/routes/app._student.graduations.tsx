@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getMyGraduations } from "@/lib/student/student.functions";
 import { Award } from "lucide-react";
+import { brDate } from "@/lib/format";
 
 export const Route = createFileRoute("/app/_student/graduations")({
   head: () => ({ meta: [{ title: "Graduações — Portal do Aluno" }] }),
@@ -41,7 +42,7 @@ function GraduationsPage() {
               <div className="min-w-0">
                 <div className="break-words text-sm font-semibold text-black">{b?.name ?? "Faixa"}{degreeSuffix(g.degree, b?.modality, " · ", b?.name)}</div>
                 <div className="break-words text-xs text-neutral-500">
-                  {new Date(g.graduation_date).toLocaleDateString("pt-BR")} {g.evaluator ? `· ${g.evaluator}` : ""}
+                  {brDate(g.graduation_date)} {g.evaluator ? `· ${g.evaluator}` : ""}
                 </div>
                 {b && <BeltAuto belt={b} degree={Number(g.degree ?? 0)} className="mt-2 w-full max-w-[240px]" />}
               </div>

@@ -1,6 +1,7 @@
 import { formatDegree, degreeSuffix, degreeUnit } from "@/lib/dojo/degree-label";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { CheckCircle2, XCircle, Download, ArrowLeft, ShieldCheck } from "lucide-react";
+import { brDate } from "@/lib/format";
 
 type CertPayload = {
   id: string;
@@ -80,7 +81,7 @@ function CertificateValidationPage() {
   const { hash } = Route.useParams();
   const beltColor = cert.belt?.color_hex ?? "#111";
   const dojoName = cert.academy?.trade_name ?? cert.academy?.legal_name ?? "Dojo";
-  const gradDate = cert.graduation_date ? new Date(cert.graduation_date).toLocaleDateString("pt-BR") : null;
+  const gradDate = cert.graduation_date ? brDate(cert.graduation_date) : null;
   const issuedAt = new Date(cert.issued_at).toLocaleDateString("pt-BR");
 
   return (

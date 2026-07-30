@@ -843,7 +843,7 @@ export const saveDojoInvoice = createServerFn({ method: "POST" })
         .format(Number(payload.amount ?? 0));
       await sendPushToStudent(payload.student_id, {
         title: "Nova cobrança disponível",
-        body: `${payload.description ?? "Mensalidade"} — ${amountFmt}${payload.due_date ? ` • vence em ${new Date(payload.due_date).toLocaleDateString("pt-BR")}` : ""}`,
+        body: `${payload.description ?? "Mensalidade"} — ${amountFmt}${payload.due_date ? ` • vence em ${new Date(payload.due_date + "T12:00:00Z").toLocaleDateString("pt-BR", { timeZone: "UTC" })}` : ""}`,
         url: "/app/financeiro",
         tag: `invoice-${row.id}`,
       }, "invoice_due_soon");
@@ -1826,7 +1826,7 @@ export const addBulkGraduation = createServerFn({ method: "POST" })
         if (inv && inv.status !== "paid") {
           tasks.push(sendPushToStudent(g.student_id, {
             title: "Nova cobrança disponível",
-            body: `Taxa de graduação — ${belt?.name ?? "Faixa"} • ${amountFmt(inv.amount)}${data.graduation_date ? ` • vence em ${new Date(data.graduation_date).toLocaleDateString("pt-BR")}` : ""}`,
+            body: `Taxa de graduação — ${belt?.name ?? "Faixa"} • ${amountFmt(inv.amount)}${data.graduation_date ? ` • vence em ${new Date(data.graduation_date + "T12:00:00Z").toLocaleDateString("pt-BR", { timeZone: "UTC" })}` : ""}`,
             url: "/app/financeiro",
             tag: `invoice-${inv.invoice_id}`,
           }, "invoice_due_soon"));
