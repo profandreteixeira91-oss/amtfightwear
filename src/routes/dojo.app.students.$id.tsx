@@ -1414,6 +1414,60 @@ function StudentDetail() {
         </CardContent>
       </Card>
 
+      {/* ===== Editar graduação (data / avaliador) ===== */}
+      <Dialog open={gradEdit.open} onOpenChange={(v) => { if (!v) setGradEdit({ open: false, grad: null, graduation_date: "", evaluator: "" }); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Editar graduação</DialogTitle>
+            <DialogDescription>
+              {gradEdit.grad
+                ? formatBeltFull(gradEdit.grad.belt?.name ?? "", gradEdit.grad.belt?.modality, gradEdit.grad.degree)
+                : ""}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">Data da avaliação</label>
+              <Input
+                type="date"
+                value={gradEdit.graduation_date}
+                onChange={(e) => setGradEdit((p) => ({ ...p, graduation_date: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">Avaliador</label>
+              <Input
+                placeholder="Nome do avaliador"
+                value={gradEdit.evaluator}
+                onChange={(e) => setGradEdit((p) => ({ ...p, evaluator: e.target.value }))}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setGradEdit({ open: false, grad: null, graduation_date: "", evaluator: "" })}>Cancelar</Button>
+            <Button
+              disabled={gradEditBusy || !gradEdit.graduation_date}
+              onClick={async () => {
+                if (!gradEdit.grad) return;
+                setGradEditBusy(true);
+                try {
+                  await updGrad({ data: { id: gradEdit.grad.id, graduation_date: gradEdit.graduation_date, evaluator: gradEdit.evaluator.trim() || null } });
+                  setGradEdit({ open: false, grad: null, graduation_date: "", evaluator: "" });
+                  refresh();
+                  toast.success("Graduação atualizada");
+                } catch (e: any) {
+                  toast.error(e?.message ?? "Não foi possível atualizar a graduação");
+                } finally {
+                  setGradEditBusy(false);
+                }
+              }}
+            >
+              {gradEditBusy ? "Salvando…" : "Salvar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* ===== Emitir certificado a partir da linha do tempo ===== */}
       <Dialog open={certIssue.open} onOpenChange={(v) => { if (!v) setCertIssue({ open: false, grad: null, template_id: "" }); }}>
         <DialogContent className="sm:max-w-md">
