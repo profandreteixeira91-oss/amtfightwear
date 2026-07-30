@@ -24,8 +24,10 @@ import { Separator } from "@/components/ui/separator";
 
 import {
   listAttendance, attendanceStats, manualCheckin, checkinByCode, deleteAttendance,
-  listPartnerIntegrations, listPartnerCheckins,
+  listPartnerIntegrations, listPartnerCheckins, retroactiveCheckin,
 } from "@/lib/dojo/attendance.functions";
+import { listClassesForPicker } from "@/lib/dojo/lesson-plans.functions";
+
 import {
   searchStudents, checkinDashboard, presentNowList, checkoutAttendance,
   registerVisitor, getCheckinSettings, saveCheckinSettings,
@@ -228,6 +230,8 @@ function KioskPanel() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [pin, setPin] = useState("");
   const [showSearch, setShowSearch] = useState(false);
+  const [showRetro, setShowRetro] = useState(false);
+
   const [showVisitor, setShowVisitor] = useState(false);
   const [showPhoto, setShowPhoto] = useState(false);
   const [showPartner, setShowPartner] = useState<null | "gympass" | "totalpass">(null);
@@ -450,7 +454,7 @@ function KioskPanel() {
                 </Button>
 
                 <div className="grid grid-cols-2 gap-2 pt-1 md:grid-cols-5">
-                  <ActionButton icon={Search} label="Buscar" onClick={() => setShowSearch(true)} dark={isFullscreen} />
+                  <ActionButton icon={History} label="Check-in retroativo" onClick={() => setShowRetro(true)} dark={isFullscreen} />
                   <ActionButton icon={UserPlus} label="Visitante" onClick={() => setShowVisitor(true)} dark={isFullscreen} />
                   <ActionButton icon={Camera} label="Foto Turma" onClick={() => setShowPhoto(true)} dark={isFullscreen} />
                   <ActionButton icon={Shield} label="Gympass" onClick={() => setShowPartner("gympass")} dark={isFullscreen} />
@@ -476,6 +480,9 @@ function KioskPanel() {
         setLastCheckin({ name, message: welcomeTpl.replace(/\{\{name\}\}/g, name.split(" ")[0]), method: "Manual" });
         setTimeout(() => setLastCheckin(null), 3500);
       }} />
+
+      <RetroactiveCheckinDialog open={showRetro} onOpenChange={setShowRetro} unitId={unitId} />
+
 
       <VisitorDialog open={showVisitor} onOpenChange={setShowVisitor} unitId={unitId} />
 
@@ -562,7 +569,186 @@ function SuccessBanner({ data, dark }: { data: { name: string; photo?: string | 
   );
 }
 
+/* ==================== RETROACTIVE CHECK-IN DIALOG ==================== */
+function RetroactiveCheckinDialog({ open, onOpenChange, unitId }: any) {
+  const [q, setQ] = useState("");
+  const [debounced, setDebounced] = useState("");
+  const [selected, setSelected] = useState<any>(null);
+  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [time, setTime] = useState("19:00");
+  const [classId, setClassId] = useState("none");
+  const [notes, setNotes] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const search = useServerFn(searchStudents);
+  const classesFn = useServerFn(listClassesForPicker);
+  const retro = useServerFn(retroactiveCheckin);
+  const qc = useQueryClient();
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebounced(q), 250);
+    return () => clearTimeout(t);
+  }, [q]);
+
+  useEffect(() => {
+    if (!open) {
+      setQ(""); setDebounced(""); setSelected(null); setClassId("none"); setNotes("");
+      setDate(new Date().toISOString().slice(0, 10)); setTime("19:00");
+    }
+  }, [open]);
+
+  const res = useQuery({
+    queryKey: ["dojo-student-search", debounced],
+    queryFn: () => (debounced.length >= 2 ? search({ data: { q: debounced } }) : Promise.resolve([])),
+    enabled: open && debounced.length >= 2 && !selected,
+  });
+
+  const classesQ = useQuery({
+    queryKey: ["dojo-classes-picker"],
+    queryFn: () => classesFn(),
+    enabled: open,
+  });
+
+  async function save() {
+    if (!selected) return toast.error("Selecione um aluno");
+    if (!date) return toast.error("Selecione a data");
+    const iso = new Date(`${date}T${time || "00:00"}:00`);
+    if (Number.isNaN(iso.getTime())) return toast.error("Data/hora inválida");
+    if (iso.getTime() > Date.now()) return toast.error("A data não pode ser no futuro");
+
+    setSaving(true);
+    try {
+      await retro({
+        data: {
+          studentId: selected.id,
+          checkedInAt: iso.toISOString(),
+          unitId: unitId || null,
+          classId: classId !== "none" ? classId : null,
+          notes: notes.trim() || null,
+        },
+      });
+      toast.success(`Check-in retroativo registrado: ${selected.full_name}`);
+      qc.invalidateQueries({ queryKey: ["dojo-checkin-dashboard"] });
+      qc.invalidateQueries({ queryKey: ["dojo-att"] });
+      qc.invalidateQueries({ queryKey: ["dojo-present"] });
+      qc.invalidateQueries({ queryKey: ["dojo-attendance"] });
+      qc.invalidateQueries({ queryKey: ["student"] });
+      onOpenChange(false);
+    } catch (e: any) {
+      toast.error(e.message || "Falha ao registrar");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg w-[calc(100vw-1rem)]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <History className="h-4 w-4 text-primary" /> Check-in retroativo
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div>
+            <Label>Aluno</Label>
+            {selected ? (
+              <div className="mt-1 flex items-center gap-3 rounded-lg border p-2">
+                <div className="h-9 w-9 overflow-hidden rounded-full bg-muted flex items-center justify-center">
+                  {selected.photo_url
+                    ? <img src={selected.photo_url} className="h-full w-full object-cover" />
+                    : <Users className="h-4 w-4 text-muted-foreground" />}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-medium">{selected.full_name}</div>
+                  <div className="truncate text-xs text-muted-foreground">{selected.cpf || selected.email || selected.phone || "—"}</div>
+                </div>
+                <Button variant="ghost" size="sm" onClick={() => setSelected(null)}>Trocar</Button>
+              </div>
+            ) : (
+              <>
+                <Input
+                  autoFocus
+                  className="mt-1"
+                  placeholder="Nome, CPF, telefone, e-mail ou PIN"
+                  value={q}
+                  onChange={(e) => setQ(e.target.value)}
+                />
+                <ScrollArea className="mt-2 max-h-56">
+                  <div className="space-y-1">
+                    {res.isFetching && <div className="p-3 text-sm text-muted-foreground">Buscando...</div>}
+                    {!res.isFetching && debounced.length >= 2 && (res.data ?? []).length === 0 && (
+                      <div className="p-3 text-sm text-muted-foreground">Nenhum aluno encontrado.</div>
+                    )}
+                    {(res.data ?? []).map((s: any) => (
+                      <button
+                        key={s.id}
+                        onClick={() => setSelected(s)}
+                        className="flex w-full items-center gap-3 rounded-lg p-2 text-left transition hover:bg-muted"
+                      >
+                        <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-muted">
+                          {s.photo_url ? <img src={s.photo_url} className="h-full w-full object-cover" /> : <Users className="h-4 w-4 text-muted-foreground" />}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate text-sm font-medium">{s.full_name}</div>
+                          <div className="truncate text-xs text-muted-foreground">{s.cpf || s.email || s.phone || "—"}</div>
+                        </div>
+                        <Badge variant={s.status === "active" ? "default" : "secondary"}>{s.status || "—"}</Badge>
+                      </button>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Data</Label>
+              <Input type="date" className="mt-1" value={date} max={new Date().toISOString().slice(0, 10)} onChange={(e) => setDate(e.target.value)} />
+            </div>
+            <div>
+              <Label>Hora</Label>
+              <Input type="time" className="mt-1" value={time} onChange={(e) => setTime(e.target.value)} />
+            </div>
+          </div>
+
+          <div>
+            <Label>Turma (opcional)</Label>
+            <Select value={classId} onValueChange={setClassId}>
+              <SelectTrigger className="mt-1"><SelectValue placeholder="Sem turma" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Sem turma</SelectItem>
+                {(classesQ.data ?? []).map((c: any) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.name}{c.modality ? ` — ${c.modality}` : ""}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label>Observações (opcional)</Label>
+            <Textarea className="mt-1" rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Ex.: presença lançada manualmente pelo professor" />
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving}>Cancelar</Button>
+          <Button onClick={save} disabled={saving || !selected}>
+            {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}
+            Validar check-in
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 /* ============================ SEARCH DIALOG ============================ */
+
 function SearchDialog({ open, onOpenChange, unitId, onSuccess }: any) {
   const [q, setQ] = useState("");
   const [debounced, setDebounced] = useState("");
