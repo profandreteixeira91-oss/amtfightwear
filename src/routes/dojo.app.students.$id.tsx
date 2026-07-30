@@ -77,6 +77,7 @@ function StudentDetail() {
   const restoreStudent = useServerFn(restoreDojoStudent);
   const addGrad = useServerFn(addDojoGraduation);
   const delGrad = useServerFn(deleteDojoGraduation);
+  const updGrad = useServerFn(updateDojoGraduation);
   const saveEnroll = useServerFn(saveDojoEnrollment);
   const delEnroll = useServerFn(deleteDojoEnrollment);
   const doChangePlanFn = useServerFn(changeStudentPlan);
