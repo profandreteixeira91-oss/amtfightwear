@@ -203,6 +203,22 @@ function StudentsPage() {
     custom_amount: "" as string,
   });
 
+  // ===== Contrato no ato da matrícula =====
+  const [contractSel, setContractSel] = useState<{ template_id: string; title: string }>({ template_id: "", title: "" });
+  const contractTplFn = useServerFn(listContractTemplates);
+  const contractAcademyFn = useServerFn(getMyAcademyForContract);
+  const generateContractFn = useServerFn(generateStudentContract);
+  const contractTemplates = useQuery({
+    queryKey: ["contract-templates"],
+    queryFn: () => contractTplFn(),
+    staleTime: 60_000,
+  });
+  const contractAcademy = useQuery({
+    queryKey: ["contract-academy-profile"],
+    queryFn: () => contractAcademyFn(),
+    staleTime: 300_000,
+  });
+
   const q = useQuery({ queryKey: ["dojo-students"], queryFn: () => listFn() });
   const belts = useQuery({ queryKey: ["dojo-belts"], queryFn: () => beltsFn() });
   const units = useQuery({ queryKey: ["dojo-units"], queryFn: () => unitsFn() });
