@@ -450,7 +450,7 @@ function KioskPanel() {
                 </Button>
 
                 <div className="grid grid-cols-2 gap-2 pt-1 md:grid-cols-5">
-                  <ActionButton icon={Search} label="Buscar" onClick={() => setShowSearch(true)} dark={isFullscreen} />
+                  <ActionButton icon={History} label="Check-in retroativo" onClick={() => setShowRetro(true)} dark={isFullscreen} />
                   <ActionButton icon={UserPlus} label="Visitante" onClick={() => setShowVisitor(true)} dark={isFullscreen} />
                   <ActionButton icon={Camera} label="Foto Turma" onClick={() => setShowPhoto(true)} dark={isFullscreen} />
                   <ActionButton icon={Shield} label="Gympass" onClick={() => setShowPartner("gympass")} dark={isFullscreen} />
