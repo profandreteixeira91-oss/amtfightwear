@@ -57,3 +57,30 @@ export const isValidPhone = (value: string) => {
   const len = onlyDigits(value).length;
   return len === 10 || len === 11;
 };
+
+/**
+ * Converte um valor monetário digitado em português (ex.: "150,50", "R$ 1.200,00",
+ * "150.50") para número. Retorna `null` quando não há valor informado.
+ *
+ * Motivo: o usuário costuma digitar vírgula como separador decimal; `Number("150,50")`
+ * resulta em NaN e o valor customizado acabava sendo ignorado silenciosamente.
+ */
+export function parseAmountBR(value: string | number | null | undefined): number | null {
+  if (value === null || value === undefined) return null;
+  if (typeof value === "number") return Number.isFinite(value) ? value : null;
+  const raw = value.trim();
+  if (!raw) return null;
+  let s = raw.replace(/[^\d.,-]/g, "");
+  if (!s) return null;
+  const lastComma = s.lastIndexOf(",");
+  const lastDot = s.lastIndexOf(".");
+  if (lastComma > -1 && lastDot > -1) {
+    // O separador decimal é o que aparece por último; o outro é separador de milhar.
+    if (lastComma > lastDot) s = s.replace(/\./g, "").replace(",", ".");
+    else s = s.replace(/,/g, "");
+  } else if (lastComma > -1) {
+    s = s.replace(/\./g, "").replace(",", ".");
+  }
+  const n = Number(s);
+  return Number.isFinite(n) ? n : null;
+}
