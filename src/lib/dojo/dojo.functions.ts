@@ -582,6 +582,30 @@ export const addDojoGraduation = createServerFn({ method: "POST" })
     return { id: row.id };
   });
 
+export const updateDojoGraduation = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({
+    id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido"),
+    graduation_date: z.string().min(1),
+    evaluator: z.string().max(200).optional().nullable(),
+  }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { data: grad } = await context.supabase
+      .from("dojo_graduations").select("student_id").eq("id", data.id).maybeSingle();
+
+    const { error } = await context.supabase
+      .from("dojo_graduations")
+      .update({ graduation_date: data.graduation_date, evaluator: data.evaluator ?? null })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+
+    const studentId = (grad as any)?.student_id;
+    if (studentId) {
+      await context.supabase.rpc("dojo_recompute_current_belt", { _student_id: studentId });
+    }
+    return { ok: true };
+  });
+
 
 export const deleteDojoGraduation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
