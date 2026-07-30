@@ -493,7 +493,7 @@ export const selfCheckin = createServerFn({ method: "POST" })
       class_id: classId,
       method: data.method,
       source: "student_app",
-      status: "checked_in",
+      status: "present",
     });
     if (error) throw new Error(error.message);
     return { ok: true };

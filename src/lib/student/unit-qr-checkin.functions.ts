@@ -113,7 +113,7 @@ export const checkinByUnitQr = createServerFn({ method: "POST" })
         class_id: validation.classId,
         method: "fixed_qr",
         source: "student_app",
-        status: "checked_in",
+        status: "present",
         checked_in_at: new Date().toISOString(),
       })
       .select("id")

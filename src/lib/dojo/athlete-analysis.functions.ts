@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { PRESENT_STATUSES, isPresentStatus, localDayISO, localWeekday } from "@/lib/dojo/attendance-status";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 /**
@@ -73,7 +74,7 @@ export const getAthleteOverview = createServerFn({ method: "GET" })
         .from("dojo_attendance")
         .select("checked_in_at, class_id")
         .eq("student_id", data.studentId)
-        .eq("status", "present")
+        .in("status", PRESENT_STATUSES as unknown as string[])
         .order("checked_in_at", { ascending: false })
         .limit(1)
         .maybeSingle(),
@@ -124,9 +125,9 @@ export const getAthleteAttendance = createServerFn({ method: "GET" })
     let present = 0;
     const methodCounts: Record<string, number> = {};
     for (const r of rows ?? []) {
-      if ((r as any).status !== "present") continue;
+      if (!isPresentStatus((r as any).status)) continue;
       present++;
-      const d = new Date((r as any).checked_in_at).toISOString().slice(0, 10);
+      const d = localDayISO((r as any).checked_in_at);
       dayMap.set(d, (dayMap.get(d) ?? 0) + 1);
       const m = (r as any).method ?? "manual";
       methodCounts[m] = (methodCounts[m] ?? 0) + 1;
@@ -149,11 +150,11 @@ export const getAthleteAttendance = createServerFn({ method: "GET" })
 
     // weekday distribution
     const weekday = Array(7).fill(0);
-    for (const d of dayMap.keys()) weekday[new Date(d).getDay()]++;
+    for (const d of dayMap.keys()) weekday[localWeekday(d)]++;
 
     // Últimos check-ins detalhados (mais recentes primeiro)
     const recent = [...(rows ?? [])]
-      .filter((r: any) => r.status === "present")
+      .filter((r: any) => isPresentStatus(r.status))
       .sort((a: any, b: any) => (b.checked_in_at as string).localeCompare(a.checked_in_at))
       .slice(0, 30)
       .map((r: any) => ({
@@ -197,11 +198,11 @@ export const getAthletePerformanceScore = createServerFn({ method: "GET" })
     ]);
 
     // 1) Frequência (30%): meta = 3x/semana * 12 semanas ≈ 36
-    const presents = (attRes.data ?? []).filter((r: any) => r.status === "present").length;
+    const presents = (attRes.data ?? []).filter((r: any) => isPresentStatus(r.status)).length;
     const freqScore = Math.min(100, (presents / 36) * 100);
 
     // 2) Assiduidade (10%): dias distintos nos últimos 30d
-    const days30 = new Set((attRes.data ?? []).filter((r: any) => r.status === "present" && r.checked_in_at >= since30).map((r: any) => r.checked_in_at.slice(0, 10)));
+    const days30 = new Set((attRes.data ?? []).filter((r: any) => isPresentStatus(r.status) && r.checked_in_at >= since30).map((r: any) => localDayISO(r.checked_in_at)));
     const streakScore = Math.min(100, (days30.size / 12) * 100);
 
     // 3) Avaliações (20%)
@@ -392,9 +393,9 @@ export const getAthleteInsights = createServerFn({ method: "GET" })
     const now = Date.now();
     const win = (d: number) => new Date(now - d * 86400_000).toISOString();
     const [att30, att60, att90, lastGrad, lastComp, lastEval] = await Promise.all([
-      supabase.from("dojo_attendance").select("id", { count: "exact", head: true }).eq("student_id", data.studentId).eq("status", "present").gte("checked_in_at", win(30)),
-      supabase.from("dojo_attendance").select("id", { count: "exact", head: true }).eq("student_id", data.studentId).eq("status", "present").gte("checked_in_at", win(60)),
-      supabase.from("dojo_attendance").select("id", { count: "exact", head: true }).eq("student_id", data.studentId).eq("status", "present").gte("checked_in_at", win(90)),
+      supabase.from("dojo_attendance").select("id", { count: "exact", head: true }).eq("student_id", data.studentId).in("status", PRESENT_STATUSES as unknown as string[]).gte("checked_in_at", win(30)),
+      supabase.from("dojo_attendance").select("id", { count: "exact", head: true }).eq("student_id", data.studentId).in("status", PRESENT_STATUSES as unknown as string[]).gte("checked_in_at", win(60)),
+      supabase.from("dojo_attendance").select("id", { count: "exact", head: true }).eq("student_id", data.studentId).in("status", PRESENT_STATUSES as unknown as string[]).gte("checked_in_at", win(90)),
       supabase.from("dojo_graduations").select("graduation_date").eq("student_id", data.studentId).order("graduation_date", { ascending: false }).limit(1).maybeSingle(),
       supabase.from("academy_competition_athletes").select("id, created_at").eq("student_id", data.studentId).order("created_at", { ascending: false }).limit(1).maybeSingle(),
       supabase.from("dojo_eval_sessions").select("finished_at, percentage").eq("student_id", data.studentId).not("finished_at", "is", null).order("finished_at", { ascending: false }).limit(3),
@@ -441,7 +442,7 @@ export const compareAthletes = createServerFn({ method: "GET" })
     const load = async (sid: string) => {
       const since = new Date(Date.now() - 90 * 86400_000).toISOString();
       const [att, evals, comps, grads, s] = await Promise.all([
-        supabase.from("dojo_attendance").select("id", { count: "exact", head: true }).eq("student_id", sid).eq("status", "present").gte("checked_in_at", since),
+        supabase.from("dojo_attendance").select("id", { count: "exact", head: true }).eq("student_id", sid).in("status", PRESENT_STATUSES as unknown as string[]).gte("checked_in_at", since),
         supabase.from("dojo_eval_sessions").select("percentage").eq("student_id", sid).not("finished_at", "is", null).order("finished_at", { ascending: false }).limit(1).maybeSingle(),
         supabase.rpc("get_student_competition_history", { _student: sid }),
         supabase.from("dojo_graduations").select("id", { count: "exact", head: true }).eq("student_id", sid),

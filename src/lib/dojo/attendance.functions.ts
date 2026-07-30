@@ -387,7 +387,7 @@ export const retroactiveCheckin = createServerFn({ method: "POST" })
         class_id: data.classId ?? null,
         method: "manual",
         source: "retroactive",
-        status: "checked_in",
+        status: "present",
         notes: data.notes ?? "Check-in retroativo",
         created_by: context.userId,
         owner_id: context.userId,
