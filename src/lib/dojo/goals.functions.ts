@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { PRESENT_STATUSES } from "@/lib/dojo/attendance-status";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 /**
@@ -54,7 +55,7 @@ async function computeAutoProgress(supabase: any, goal: any): Promise<number> {
       .from("dojo_attendance")
       .select("id", { count: "exact", head: true })
       .eq("student_id", goal.student_id)
-      .eq("status", "present")
+      .in("status", PRESENT_STATUSES as unknown as string[])
       .gte("checked_in_at", start);
     return Number(count ?? 0);
   }
