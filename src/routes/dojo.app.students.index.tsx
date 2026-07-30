@@ -472,8 +472,60 @@ function StudentsPage() {
       } else {
         toast.success("Aluno salvo");
       }
+
+      // ===== Contrato gerado no ato da matrícula =====
+      if (studentId && contractSel.template_id) {
+        try {
+          const tpl: any = (contractTemplates.data ?? []).find((t: any) => t.id === contractSel.template_id);
+          if (!tpl) throw new Error("Modelo de contrato não encontrado");
+          const plan: any = (plans.data ?? []).find((p: any) => p.id === enrollment.plan_id);
+          const customAmt = enrollment.custom_amount.trim() === "" ? null : Number(enrollment.custom_amount);
+          const monthly = Number.isFinite(customAmt as number) && customAmt != null
+            ? Number(customAmt)
+            : (plan?.amount != null ? Number(plan.amount) : null);
+          const contractMeta = {
+            plan_name: plan?.name ?? null,
+            monthly_value: monthly,
+            payment_method: enrollment.payment_method,
+            due_day: enrollment.due_day,
+            start_date: enrollment.start_date,
+          };
+          const merged = [
+            tpl.header_html ? `<div data-tpl-header>${tpl.header_html}</div>` : "",
+            tpl.content ?? "",
+            tpl.footer_html ? `<div data-tpl-footer style="margin-top:24px;">${tpl.footer_html}</div>` : "",
+          ].join("");
+          const values = buildContractValues({
+            student: { ...payload, id: studentId },
+            academy: contractAcademy.data,
+            contract: contractMeta,
+          } as any);
+          const resolved = resolveContractHtml(merged, values);
+          await generateContractFn({
+            data: {
+              student_id: studentId,
+              template_id: tpl.id,
+              resolved_content: resolved,
+              title: (contractSel.title.trim() || tpl.name || "Contrato de prestação de serviços"),
+              plan_name: contractMeta.plan_name,
+              monthly_value: contractMeta.monthly_value,
+              payment_method: contractMeta.payment_method,
+              due_day: contractMeta.due_day,
+              start_date: contractMeta.start_date,
+            },
+          });
+          toast.success("Contrato gerado e disponível no perfil do aluno");
+          qc.invalidateQueries({ queryKey: ["student-contracts", studentId] });
+          qc.invalidateQueries({ queryKey: ["dojo-contracts"] });
+        } catch (e: any) {
+          toast.error("Falha ao gerar o contrato", { description: e?.message });
+        }
+      }
+
       setOpen(false);
       setForm(emptyForm);
+      setContractSel({ template_id: "", title: "" });
+
       qc.invalidateQueries({ queryKey: ["dojo-students"] });
       qc.invalidateQueries({ queryKey: ["dojo-invoices"] });
       qc.invalidateQueries({ queryKey: ["dojo-student"] });
