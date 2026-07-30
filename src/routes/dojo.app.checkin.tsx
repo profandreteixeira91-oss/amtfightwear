@@ -24,8 +24,10 @@ import { Separator } from "@/components/ui/separator";
 
 import {
   listAttendance, attendanceStats, manualCheckin, checkinByCode, deleteAttendance,
-  listPartnerIntegrations, listPartnerCheckins,
+  listPartnerIntegrations, listPartnerCheckins, retroactiveCheckin,
 } from "@/lib/dojo/attendance.functions";
+import { listClassesForPicker } from "@/lib/dojo/lesson-plans.functions";
+
 import {
   searchStudents, checkinDashboard, presentNowList, checkoutAttendance,
   registerVisitor, getCheckinSettings, saveCheckinSettings,
