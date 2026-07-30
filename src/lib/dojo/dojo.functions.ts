@@ -1811,12 +1811,16 @@ export const addBulkGraduation = createServerFn({ method: "POST" })
       for (const g of (inserted ?? []) as any[]) {
         const belt = beltById.get(g.belt_id);
         const degreeTxt = typeof g.degree === "number" && g.degree > 0 ? ` — ${g.degree}º grau` : "";
-        tasks.push(sendPushToStudent(g.student_id, {
-          title: "Parabéns pela graduação! 🥋",
-          body: `Você foi graduado(a): ${belt?.name ?? "Nova faixa"}${degreeTxt}.`,
-          url: "/app/graduacoes",
-          tag: `graduation-${g.id}`,
-        }, "graduation"));
+        // Graduação agendada: o push de parabéns sai somente na data da cerimônia.
+        if (!isScheduled) {
+          tasks.push(sendPushToStudent(g.student_id, {
+            title: "Parabéns pela graduação! 🥋",
+            body: `Você foi graduado(a): ${belt?.name ?? "Nova faixa"}${degreeTxt}.`,
+            url: "/app/graduacoes",
+            tag: `graduation-${g.id}`,
+          }, "graduation"));
+        }
+
 
         const inv = invoiceByGrad.get(g.id);
         if (inv && inv.status !== "paid") {
