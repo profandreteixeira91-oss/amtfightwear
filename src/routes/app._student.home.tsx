@@ -63,7 +63,7 @@ function HomePage() {
   const rankingEnabled = config.features.ranking !== false;
 
   return (
-    <div className="mx-auto grid w-full max-w-3xl gap-4 overflow-x-clip sm:gap-5 lg:max-w-5xl lg:grid-cols-3 lg:items-start">
+    <div className="mx-auto grid w-full max-w-3xl gap-4 overflow-x-hidden sm:gap-5 lg:max-w-5xl lg:grid-cols-3 lg:items-start">
       <div className="min-w-0 lg:col-span-3">
         <PerformanceButton />
       </div>
