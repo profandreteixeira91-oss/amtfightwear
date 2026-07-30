@@ -12,7 +12,7 @@ import {
   syncMyInvoicePayment,
 } from "@/lib/student/payments.functions";
 import { getNativeBillingForInvoice } from "@/lib/dojo/native-billing.functions";
-import { buildPixBrCode } from "@/lib/pix/brcode";
+import { buildPixBrCode, normalizePixKey } from "@/lib/pix/brcode";
 
 export const Route = createFileRoute("/app/_student/invoice/$id")({
   head: () => ({ meta: [{ title: "Pagamento — Portal do Aluno" }] }),
@@ -71,6 +71,7 @@ function InvoicePage() {
     try {
       const payload = buildPixBrCode({
         pixKey: nb.pix_key,
+        pixKeyType: nb.pix_key_type,
         merchantName: nb.pix_holder_name || "RECEBEDOR",
         merchantCity: "BRASIL",
         amount: Number(invoice.amount) || 0,
@@ -177,12 +178,12 @@ function InvoicePage() {
                   <div className="flex gap-2">
                     <input
                       readOnly
-                      value={nb!.pix_key}
+                      value={normalizePixKey(nb!.pix_key, nb!.pix_key_type)}
                       className="flex-1 rounded-lg bg-neutral-50 px-3 py-2 text-xs ring-1 ring-neutral-200"
                     />
                     <button
                       onClick={() => {
-                        navigator.clipboard.writeText(nb!.pix_key);
+                        navigator.clipboard.writeText(normalizePixKey(nb!.pix_key, nb!.pix_key_type));
                         toast.success("Chave copiada");
                       }}
                       className="grid h-9 w-9 place-items-center rounded-lg bg-neutral-900 text-white"
