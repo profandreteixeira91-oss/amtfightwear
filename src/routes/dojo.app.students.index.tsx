@@ -303,6 +303,7 @@ function StudentsPage() {
       payment_method: "manual",
       custom_amount: "",
     });
+    setContractSel({ template_id: "", title: "" });
   }
   function openEdit(s: any) {
     // Todas as modalidades do aluno (graduação mais recente de cada uma),
