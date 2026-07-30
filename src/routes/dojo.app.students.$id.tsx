@@ -120,6 +120,15 @@ function StudentDetail() {
   const [changingPlan, setChangingPlan] = useState(false);
   const [cancelDialog, setCancelDialog] = useState<{ open: boolean; mode: "cancel" | "freeze"; frozen_until: string }>({ open: false, mode: "cancel", frozen_until: "" });
   const [cancelBusy, setCancelBusy] = useState(false);
+  const [certIssue, setCertIssue] = useState<{ open: boolean; grad: any | null; template_id: string }>({ open: false, grad: null, template_id: "" });
+  const [issuingCert, setIssuingCert] = useState(false);
+  const templatesFn = useServerFn(listCertificateTemplates);
+  const issueCertFn = useServerFn(issueCertificate);
+  const certTemplates = useQuery({
+    queryKey: ["dojo-certificate-templates"],
+    queryFn: () => templatesFn(),
+    staleTime: 60_000,
+  });
 
   const refresh = () => {
     // Invalida tudo que depende de graduações para que a exclusão reflita
