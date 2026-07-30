@@ -258,6 +258,7 @@ import { Route as ApiPublicHooksDojoWalletReconcileRouteImport } from './routes/
 import { Route as ApiPublicHooksCompetitionsIngestRouteImport } from './routes/api/public/hooks/competitions-ingest'
 import { Route as ApiPublicHooksAutoInstagramPostRouteImport } from './routes/api/public/hooks/auto-instagram-post'
 import { Route as ApiPublicHooksAsaasRouteImport } from './routes/api/public/hooks/asaas'
+import { Route as ApiPublicHooksApplyScheduledGraduationsRouteImport } from './routes/api/public/hooks/apply-scheduled-graduations'
 import { Route as ApiPublicHooksAdminPushRouteImport } from './routes/api/public/hooks/admin-push'
 import { Route as ApiPublicCertificateHashRouteImport } from './routes/api/public/certificate.$hash'
 import { Route as ApiPublicAppManifestDotwebmanifestRouteImport } from './routes/api/public/app/manifest[.]webmanifest'
@@ -1646,6 +1647,12 @@ const ApiPublicHooksAsaasRoute = ApiPublicHooksAsaasRouteImport.update({
   path: '/api/public/hooks/asaas',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksApplyScheduledGraduationsRoute =
+  ApiPublicHooksApplyScheduledGraduationsRouteImport.update({
+    id: '/api/public/hooks/apply-scheduled-graduations',
+    path: '/api/public/hooks/apply-scheduled-graduations',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksAdminPushRoute = ApiPublicHooksAdminPushRouteImport.update({
   id: '/api/public/hooks/admin-push',
   path: '/api/public/hooks/admin-push',
@@ -2141,6 +2148,7 @@ export interface FileRoutesByFullPath {
   '/api/public/app/manifest.webmanifest': typeof ApiPublicAppManifestDotwebmanifestRoute
   '/api/public/certificate/$hash': typeof ApiPublicCertificateHashRoute
   '/api/public/hooks/admin-push': typeof ApiPublicHooksAdminPushRoute
+  '/api/public/hooks/apply-scheduled-graduations': typeof ApiPublicHooksApplyScheduledGraduationsRoute
   '/api/public/hooks/asaas': typeof ApiPublicHooksAsaasRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/competitions-ingest': typeof ApiPublicHooksCompetitionsIngestRoute
@@ -2420,6 +2428,7 @@ export interface FileRoutesByTo {
   '/api/public/app/manifest.webmanifest': typeof ApiPublicAppManifestDotwebmanifestRoute
   '/api/public/certificate/$hash': typeof ApiPublicCertificateHashRoute
   '/api/public/hooks/admin-push': typeof ApiPublicHooksAdminPushRoute
+  '/api/public/hooks/apply-scheduled-graduations': typeof ApiPublicHooksApplyScheduledGraduationsRoute
   '/api/public/hooks/asaas': typeof ApiPublicHooksAsaasRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/competitions-ingest': typeof ApiPublicHooksCompetitionsIngestRoute
@@ -2717,6 +2726,7 @@ export interface FileRoutesById {
   '/api/public/app/manifest.webmanifest': typeof ApiPublicAppManifestDotwebmanifestRoute
   '/api/public/certificate/$hash': typeof ApiPublicCertificateHashRoute
   '/api/public/hooks/admin-push': typeof ApiPublicHooksAdminPushRoute
+  '/api/public/hooks/apply-scheduled-graduations': typeof ApiPublicHooksApplyScheduledGraduationsRoute
   '/api/public/hooks/asaas': typeof ApiPublicHooksAsaasRoute
   '/api/public/hooks/auto-instagram-post': typeof ApiPublicHooksAutoInstagramPostRoute
   '/api/public/hooks/competitions-ingest': typeof ApiPublicHooksCompetitionsIngestRoute
@@ -3015,6 +3025,7 @@ export interface FileRouteTypes {
     | '/api/public/app/manifest.webmanifest'
     | '/api/public/certificate/$hash'
     | '/api/public/hooks/admin-push'
+    | '/api/public/hooks/apply-scheduled-graduations'
     | '/api/public/hooks/asaas'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/competitions-ingest'
@@ -3294,6 +3305,7 @@ export interface FileRouteTypes {
     | '/api/public/app/manifest.webmanifest'
     | '/api/public/certificate/$hash'
     | '/api/public/hooks/admin-push'
+    | '/api/public/hooks/apply-scheduled-graduations'
     | '/api/public/hooks/asaas'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/competitions-ingest'
@@ -3590,6 +3602,7 @@ export interface FileRouteTypes {
     | '/api/public/app/manifest.webmanifest'
     | '/api/public/certificate/$hash'
     | '/api/public/hooks/admin-push'
+    | '/api/public/hooks/apply-scheduled-graduations'
     | '/api/public/hooks/asaas'
     | '/api/public/hooks/auto-instagram-post'
     | '/api/public/hooks/competitions-ingest'
@@ -3708,6 +3721,7 @@ export interface RootRouteChildren {
   ApiPublicAppManifestDotwebmanifestRoute: typeof ApiPublicAppManifestDotwebmanifestRoute
   ApiPublicCertificateHashRoute: typeof ApiPublicCertificateHashRoute
   ApiPublicHooksAdminPushRoute: typeof ApiPublicHooksAdminPushRoute
+  ApiPublicHooksApplyScheduledGraduationsRoute: typeof ApiPublicHooksApplyScheduledGraduationsRoute
   ApiPublicHooksAsaasRoute: typeof ApiPublicHooksAsaasRoute
   ApiPublicHooksAutoInstagramPostRoute: typeof ApiPublicHooksAutoInstagramPostRoute
   ApiPublicHooksCompetitionsIngestRoute: typeof ApiPublicHooksCompetitionsIngestRoute
@@ -5480,6 +5494,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksAsaasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/apply-scheduled-graduations': {
+      id: '/api/public/hooks/apply-scheduled-graduations'
+      path: '/api/public/hooks/apply-scheduled-graduations'
+      fullPath: '/api/public/hooks/apply-scheduled-graduations'
+      preLoaderRoute: typeof ApiPublicHooksApplyScheduledGraduationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/admin-push': {
       id: '/api/public/hooks/admin-push'
       path: '/api/public/hooks/admin-push'
@@ -6688,6 +6709,8 @@ const rootRouteChildren: RootRouteChildren = {
     ApiPublicAppManifestDotwebmanifestRoute,
   ApiPublicCertificateHashRoute: ApiPublicCertificateHashRoute,
   ApiPublicHooksAdminPushRoute: ApiPublicHooksAdminPushRoute,
+  ApiPublicHooksApplyScheduledGraduationsRoute:
+    ApiPublicHooksApplyScheduledGraduationsRoute,
   ApiPublicHooksAsaasRoute: ApiPublicHooksAsaasRoute,
   ApiPublicHooksAutoInstagramPostRoute: ApiPublicHooksAutoInstagramPostRoute,
   ApiPublicHooksCompetitionsIngestRoute: ApiPublicHooksCompetitionsIngestRoute,
