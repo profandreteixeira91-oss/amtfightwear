@@ -36,7 +36,10 @@ export const Route = createFileRoute("/api/public/hooks/apply-scheduled-graduati
           .from("dojo_belts")
           .select("id, name, modality")
           .in("id", beltIds);
-        const beltById = new Map((belts ?? []).map((b: any) => [b.id, b]));
+        const beltById = new Map<string, any>(
+          (belts ?? []).map((b: any) => [b.id as string, b] as [string, any]),
+        );
+
 
         let applied = 0;
         let pushed = 0;
