@@ -5,7 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import {
   getDojoStudent, listDojoBelts, listDojoPlans, listDojoUnits,
-  addDojoGraduation, deleteDojoGraduation,
+  addDojoGraduation, deleteDojoGraduation, updateDojoGraduation,
   saveDojoEnrollment, deleteDojoEnrollment, changeStudentPlan,
   saveDojoInvoice, markDojoInvoicePaid, deleteDojoInvoice,
   deleteDojoStudent, saveDojoStudent, freezeDojoStudent, unfreezeDojoStudent, restoreDojoStudent,
