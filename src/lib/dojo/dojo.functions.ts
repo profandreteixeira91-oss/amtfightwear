@@ -1692,6 +1692,12 @@ export const addBulkGraduation = createServerFn({ method: "POST" })
       .maybeSingle();
     const priceByBelt: Record<string, number> = ((settingsRow as any)?.price_by_belt ?? {}) as Record<string, number>;
 
+    // Data da cerimônia no futuro => graduação AGENDADA: a faixa do aluno só
+    // muda e o push de parabéns só é enviado no dia selecionado (cron horário
+    // em /api/public/hooks/apply-scheduled-graduations).
+    const todayISO = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date());
+    const isScheduled = String(data.graduation_date).slice(0, 10) > todayISO;
+
     const rows = items.map(it => {
       const fee = it.fee_amount != null ? Number(it.fee_amount) : Number(priceByBelt[it.belt_id] ?? 0);
       return {
@@ -1703,11 +1709,13 @@ export const addBulkGraduation = createServerFn({ method: "POST" })
         notes: data.notes ?? null,
         owner_id: ownerId(context),
         fee_amount: fee > 0 ? fee : null,
+        applied_at: isScheduled ? null : new Date().toISOString(),
       };
     });
     const { data: inserted, error } = await context.supabase
-      .from("dojo_graduations").insert(rows).select("id, student_id, belt_id, fee_amount");
+      .from("dojo_graduations").insert(rows).select("id, student_id, belt_id, degree, fee_amount");
     if (error) throw new Error(error.message);
+
 
     // Modality-aware overwrite por aluno + info da faixa (para descrição da cobrança).
     const beltIds = Array.from(new Set(items.map(i => i.belt_id)));
@@ -1740,20 +1748,23 @@ export const addBulkGraduation = createServerFn({ method: "POST" })
       }
     }
 
-    for (const it of items) {
-      const s = studentById.get(it.student_id);
-      if (!s) continue;
-      const currentMod = (s as any).belt?.modality ?? null;
-      const newMod = beltById.get(it.belt_id)?.modality ?? "jiu-jitsu";
-      const latest = latestByStudentMod.get(`${it.student_id}::${newMod}`) ?? null;
-      const isMostRecent = !latest || new Date(data.graduation_date) >= new Date(latest);
-      if ((!s.current_belt_id || currentMod === null || currentMod === newMod) && isMostRecent) {
-        await context.supabase
-          .from("dojo_students")
-          .update({ current_belt_id: it.belt_id, current_degree: it.degree })
-          .eq("id", it.student_id);
+    if (!isScheduled) {
+      for (const it of items) {
+        const s = studentById.get(it.student_id);
+        if (!s) continue;
+        const currentMod = (s as any).belt?.modality ?? null;
+        const newMod = beltById.get(it.belt_id)?.modality ?? "jiu-jitsu";
+        const latest = latestByStudentMod.get(`${it.student_id}::${newMod}`) ?? null;
+        const isMostRecent = !latest || new Date(data.graduation_date) >= new Date(latest);
+        if ((!s.current_belt_id || currentMod === null || currentMod === newMod) && isMostRecent) {
+          await context.supabase
+            .from("dojo_students")
+            .update({ current_belt_id: it.belt_id, current_degree: it.degree })
+            .eq("id", it.student_id);
+        }
       }
     }
+
 
     // Gera contas a receber (dojo_invoices) para graduações com valor > 0.
     const paidByStudent = new Map<string, boolean>();
@@ -1800,12 +1811,16 @@ export const addBulkGraduation = createServerFn({ method: "POST" })
       for (const g of (inserted ?? []) as any[]) {
         const belt = beltById.get(g.belt_id);
         const degreeTxt = typeof g.degree === "number" && g.degree > 0 ? ` — ${g.degree}º grau` : "";
-        tasks.push(sendPushToStudent(g.student_id, {
-          title: "Parabéns pela graduação! 🥋",
-          body: `Você foi graduado(a): ${belt?.name ?? "Nova faixa"}${degreeTxt}.`,
-          url: "/app/graduacoes",
-          tag: `graduation-${g.id}`,
-        }, "graduation"));
+        // Graduação agendada: o push de parabéns sai somente na data da cerimônia.
+        if (!isScheduled) {
+          tasks.push(sendPushToStudent(g.student_id, {
+            title: "Parabéns pela graduação! 🥋",
+            body: `Você foi graduado(a): ${belt?.name ?? "Nova faixa"}${degreeTxt}.`,
+            url: "/app/graduacoes",
+            tag: `graduation-${g.id}`,
+          }, "graduation"));
+        }
+
 
         const inv = invoiceByGrad.get(g.id);
         if (inv && inv.status !== "paid") {

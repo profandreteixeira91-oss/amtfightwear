@@ -1315,7 +1315,14 @@ function NewGraduationPage() {
                 <div className="space-y-1.5">
                   <label className="text-xs font-medium text-foreground">Data</label>
                   <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+                  {date > new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date()) ? (
+                    <p className="text-[11px] leading-snug text-amber-600">
+                      Graduação agendada: a faixa só será alterada no sistema e o aviso de parabéns
+                      só será enviado ao aluno em {date.split("-").reverse().join("/")}.
+                    </p>
+                  ) : null}
                 </div>
+
                 <div className="space-y-1.5">
                   <label className="text-xs font-medium text-foreground">Avaliador</label>
                   <Input value={evaluator} onChange={(e) => setEvaluator(e.target.value)} placeholder="Ex.: Prof. André Teixeira" />
