@@ -653,8 +653,9 @@ function PlansPage() {
                                 holder={nb.pix_holder_name}
                               />
                             </div>
-
+                          </div>
                         )}
+
                       </div>
                     )}
 
