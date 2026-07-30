@@ -40,7 +40,7 @@ import { printAllStudentSummaries } from "@/lib/dojo/students-bulk-print";
 import { maskCPF, maskCEP, maskPhone, clampDueDay, isValidCPF, isValidCEP, isValidPhone, parseAmountBR } from "@/lib/br-masks";
 import { toast } from "sonner";
 import { Trash2, Pencil, UserPlus, FileDown, Upload, Printer, User, MapPin, Phone, Award, Wallet, HeartPulse, Camera, ShieldCheck, FileText, Users, UserCheck, Snowflake, UserX, Search, Sparkles, Link as LinkIcon, Copy, ExternalLink, Check } from "lucide-react";
-import { todayISO } from "@/lib/format";
+import { todayISO, brl } from "@/lib/format";
 
 
 export const Route = createFileRoute("/dojo/app/students/")({
