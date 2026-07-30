@@ -42,6 +42,7 @@ import { StudentCompetitionHistory } from "@/components/dojo/competitions/Studen
 import { StudentContracts } from "@/components/dojo/StudentContracts";
 import { addStudentReferencePhoto, deleteStudentReferencePhoto } from "@/lib/dojo/dojo.functions";
 import { brDate } from "@/lib/format";
+import { parseAmountBR } from "@/lib/br-masks";
 
 export const Route = createFileRoute("/dojo/app/students/$id")({
   head: () => ({ meta: [{ title: "Aluno — AMT Dojo Manager" }] }),
@@ -154,7 +155,7 @@ function StudentDetail() {
     try {
       await saveEnroll({ data: {
         student_id: id, plan_id: enroll.plan_id,
-        custom_amount: enroll.custom_amount ? Number(enroll.custom_amount) : null,
+        custom_amount: parseAmountBR(enroll.custom_amount),
         due_day: Number(enroll.due_day), start_date: enroll.start_date, status: enroll.status,
       }});
       toast.success("Matrícula salva");
@@ -169,7 +170,7 @@ function StudentDetail() {
       const res = await doChangePlanFn({ data: {
         student_id: id,
         plan_id: changePlan.plan_id,
-        custom_amount: changePlan.custom_amount ? Number(changePlan.custom_amount) : null,
+        custom_amount: parseAmountBR(changePlan.custom_amount),
         due_day: Number(changePlan.due_day),
         start_date: changePlan.start_date,
       }});
