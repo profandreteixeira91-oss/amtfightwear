@@ -23,6 +23,24 @@ export const CONTRACT_VARIABLE_MENU = [
     ],
   },
   {
+    id: "consentimentos",
+    label: "Consentimentos",
+    items: [
+      { key: "consent_imagem", label: "Uso de imagem (AUTORIZO / NÃO AUTORIZO)" },
+      { key: "consent_lgpd", label: "LGPD / dados pessoais" },
+      { key: "consent_biometria", label: "Biometria facial (check-in por foto)" },
+      { key: "consent_termos", label: "Regulamento e termo de responsabilidade" },
+      { key: "consent_imagem_sn", label: "Uso de imagem (Sim / Não)" },
+      { key: "consent_lgpd_sn", label: "LGPD (Sim / Não)" },
+      { key: "consent_biometria_sn", label: "Biometria (Sim / Não)" },
+      { key: "consent_termos_sn", label: "Termos (Sim / Não)" },
+      { key: "consent_imagem_data", label: "Data do consentimento de imagem" },
+      { key: "consent_lgpd_data", label: "Data do consentimento LGPD" },
+      { key: "consent_biometria_data", label: "Data do consentimento de biometria" },
+      { key: "consent_termos_data", label: "Data de aceite dos termos" },
+    ],
+  },
+  {
     id: "responsavel",
     label: "Responsável",
     items: [
@@ -140,8 +158,40 @@ export function buildContractValues(ctx: ContractContext): Record<string, string
     contrato_prazo: c.term ?? "Indeterminado",
     contrato_prazo_aviso_dias: c.notice_days ? String(c.notice_days) : "30",
     contrato_foro: c.forum ?? a.city ?? "",
-    contrato_autoriza_imagem: c.image_authorization ? "AUTORIZO" : "NÃO AUTORIZO",
+    contrato_autoriza_imagem: consentFlag(
+      c.image_authorization ?? s.image_rights_consent ?? s.image_consent,
+    ),
+
+    // consentimentos (refletem exatamente o cadastro do aluno)
+    consent_imagem: consentFlag(s.image_rights_consent ?? s.image_consent),
+    consent_lgpd: consentFlag(s.lgpd_consent),
+    consent_biometria: consentFlag(s.facial_recognition_consent),
+    consent_termos: consentFlag(s.terms_accepted),
+    consent_imagem_sn: consentYesNo(s.image_rights_consent ?? s.image_consent),
+    consent_lgpd_sn: consentYesNo(s.lgpd_consent),
+    consent_biometria_sn: consentYesNo(s.facial_recognition_consent),
+    consent_termos_sn: consentYesNo(s.terms_accepted),
+    consent_imagem_data: fmtDate(s.image_rights_consent_at ?? s.image_rights_consent_date),
+    consent_lgpd_data: fmtDate(s.lgpd_consent_at ?? s.lgpd_consent_date),
+    consent_biometria_data: fmtDate(s.facial_recognition_consent_at ?? s.facial_recognition_consent_date),
+    consent_termos_data: fmtDate(s.terms_accepted_at ?? s.terms_accepted_date),
   };
+}
+
+/** Normaliza valores booleanos vindos do banco (true/"true"/1/"t"). */
+function isTruthyConsent(v: any): boolean {
+  if (v === true) return true;
+  if (typeof v === "number") return v === 1;
+  if (typeof v === "string") return ["true", "t", "1", "sim", "yes", "y"].includes(v.trim().toLowerCase());
+  return false;
+}
+
+function consentFlag(v: any): string {
+  return isTruthyConsent(v) ? "AUTORIZO" : "NÃO AUTORIZO";
+}
+
+function consentYesNo(v: any): string {
+  return isTruthyConsent(v) ? "Sim" : "Não";
 }
 
 /** Resolve {{tokens}} in an HTML string. */
