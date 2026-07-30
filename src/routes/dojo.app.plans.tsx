@@ -646,7 +646,14 @@ function PlansPage() {
                                 placeholder="Nome que aparece no comprovante"
                               />
                             </Field>
-                          </div>
+                            <div className="md:col-span-2">
+                              <PixKeyCheck
+                                pixKey={nb.pix_key}
+                                keyType={nb.pix_key_type}
+                                holder={nb.pix_holder_name}
+                              />
+                            </div>
+
                         )}
                       </div>
                     )}
