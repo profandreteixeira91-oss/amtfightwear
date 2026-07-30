@@ -204,7 +204,7 @@ export const dojoFinanceDashboard = createServerFn({ method: "GET" })
     };
     let mrr = 0;
     for (const r of recurring) {
-      const amt = num(r.custom_amount) || num(r.plan?.amount);
+      const amt = r.custom_amount != null ? num(r.custom_amount) : num(r.plan?.amount);
       if (!amt) continue;
       const factor = freqFactor[r.frequency as string] ?? 1;
       mrr += amt * factor;
@@ -251,7 +251,7 @@ export const dojoFinanceDashboard = createServerFn({ method: "GET" })
       if (!r.next_run_at) continue;
       const d = new Date(`${r.next_run_at}T00:00:00`);
       if (d < now || d > in60) continue;
-      const amt = num(r.custom_amount) || num(r.plan?.amount);
+      const amt = r.custom_amount != null ? num(r.custom_amount) : num(r.plan?.amount);
       if (!amt) continue;
       const k = d.toISOString().slice(0, 10);
       upcomingByDay.set(k, (upcomingByDay.get(k) ?? 0) + amt);

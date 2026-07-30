@@ -37,10 +37,10 @@ import { useDojoBranding } from "@/hooks/useDojoBranding";
 import { downloadStudentsTemplate, parseStudentsFile, type ParsedStudentRow } from "@/lib/dojo/students-xlsx";
 import autismIcon from "@/assets/autism-tea.png.asset.json";
 import { printAllStudentSummaries } from "@/lib/dojo/students-bulk-print";
-import { maskCPF, maskCEP, maskPhone, clampDueDay, isValidCPF, isValidCEP, isValidPhone } from "@/lib/br-masks";
+import { maskCPF, maskCEP, maskPhone, clampDueDay, isValidCPF, isValidCEP, isValidPhone, parseAmountBR } from "@/lib/br-masks";
 import { toast } from "sonner";
 import { Trash2, Pencil, UserPlus, FileDown, Upload, Printer, User, MapPin, Phone, Award, Wallet, HeartPulse, Camera, ShieldCheck, FileText, Users, UserCheck, Snowflake, UserX, Search, Sparkles, Link as LinkIcon, Copy, ExternalLink, Check } from "lucide-react";
-import { todayISO } from "@/lib/format";
+import { todayISO, brl } from "@/lib/format";
 
 
 export const Route = createFileRoute("/dojo/app/students/")({
@@ -447,7 +447,13 @@ function StudentsPage() {
 
 
       if (studentId && enrollment.plan_id) {
-        const customAmt = enrollment.custom_amount.trim() === "" ? null : Number(enrollment.custom_amount);
+        // Aceita "150,50" / "R$ 1.200,00" — antes um valor com vírgula virava NaN e era descartado.
+        const customAmt = parseAmountBR(enrollment.custom_amount);
+        if (enrollment.custom_amount.trim() !== "" && customAmt === null) {
+          toast.error("Valor customizado inválido", { description: "Use apenas números, ex.: 150,00" });
+          
+          return;
+        }
         const res: any = await enrollFn({
           data: {
             student_id: studentId,
@@ -457,7 +463,7 @@ function StudentsPage() {
             first_due_date: enrollment.first_due_date,
             include_enrollment_fee: enrollment.include_enrollment_fee,
             payment_method: enrollment.payment_method,
-            custom_amount: Number.isFinite(customAmt as number) ? customAmt : null,
+            custom_amount: customAmt,
           },
         });
         if (res?.asaas_subscription_id) {
@@ -480,10 +486,8 @@ function StudentsPage() {
           const tpl: any = (contractTemplates.data ?? []).find((t: any) => t.id === contractSel.template_id);
           if (!tpl) throw new Error("Modelo de contrato não encontrado");
           const plan: any = (plans.data ?? []).find((p: any) => p.id === enrollment.plan_id);
-          const customAmt = enrollment.custom_amount.trim() === "" ? null : Number(enrollment.custom_amount);
-          const monthly = Number.isFinite(customAmt as number) && customAmt != null
-            ? Number(customAmt)
-            : (plan?.amount != null ? Number(plan.amount) : null);
+          const customAmt = parseAmountBR(enrollment.custom_amount);
+          const monthly = customAmt != null ? customAmt : (plan?.amount != null ? Number(plan.amount) : null);
           const contractMeta = {
             plan_name: plan?.name ?? null,
             monthly_value: monthly,
@@ -1186,13 +1190,29 @@ function StudentsPage() {
                       </Field>
                       <Field label="Valor customizado (opcional)">
                         <Input
-                          type="number"
-                          step="0.01"
+                          inputMode="decimal"
                           placeholder="Deixe vazio para usar o valor do plano"
                           value={enrollment.custom_amount}
                           onChange={(e) => setEnrollment((s) => ({ ...s, custom_amount: e.target.value }))}
                         />
+                        {(() => {
+                          const selectedPlan = (plans.data as any[] | undefined)?.find((p) => p.id === enrollment.plan_id);
+                          const custom = parseAmountBR(enrollment.custom_amount);
+                          const typed = enrollment.custom_amount.trim() !== "";
+                          if (typed && custom === null) {
+                            return <p className="mt-1 text-xs text-destructive">Valor inválido — use apenas números, ex.: 150,00</p>;
+                          }
+                          const eff = custom != null ? custom : (selectedPlan?.amount != null ? Number(selectedPlan.amount) : null);
+                          if (eff == null) return null;
+                          return (
+                            <p className="mt-1 text-xs text-muted-foreground">
+                              Será cobrado: <strong className="text-foreground">{brl(eff)}</strong>
+                              {custom != null ? " (valor customizado)" : " (valor do plano)"}
+                            </p>
+                          );
+                        })()}
                       </Field>
+
                       <div className="md:col-span-2">
                         <BoolChk
                           label="Cobrar taxa de matrícula na 1ª fatura (se o plano tiver)"
@@ -1427,10 +1447,8 @@ function StudentsPage() {
                     const tpl: any = (contractTemplates.data ?? []).find((t: any) => t.id === contractSel.template_id);
                     if (!tpl) return null;
                     const plan: any = (plans.data ?? []).find((p: any) => p.id === enrollment.plan_id);
-                    const customAmt = enrollment.custom_amount.trim() === "" ? null : Number(enrollment.custom_amount);
-                    const monthly = customAmt != null && Number.isFinite(customAmt)
-                      ? customAmt
-                      : (plan?.amount != null ? Number(plan.amount) : null);
+                    const customAmt = parseAmountBR(enrollment.custom_amount);
+                    const monthly = customAmt != null ? customAmt : (plan?.amount != null ? Number(plan.amount) : null);
                     const merged = [
                       tpl.header_html ? `<div>${tpl.header_html}</div>` : "",
                       tpl.content ?? "",
