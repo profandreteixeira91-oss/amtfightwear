@@ -330,7 +330,78 @@ export const checkinByCode = createServerFn({ method: "POST" })
     return { id: att.id, student };
   });
 
+// ============ CHECK-IN RETROATIVO ============
+// Permite ao dono do dojo registrar uma presença em uma data passada.
+// Não valida janela de horário (é retroativo por natureza), mas evita duplicidade
+// no mesmo dia/turma e garante que o aluno pertence ao dono autenticado.
+export const retroactiveCheckin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z
+      .object({
+        studentId: z.string().uuid("Aluno inválido"),
+        checkedInAt: z.string().min(10).max(40),
+        unitId: z.string().uuid().optional().nullable(),
+        classId: z.string().uuid().optional().nullable(),
+        notes: z.string().max(400).optional().nullable(),
+      })
+      .parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const when = new Date(data.checkedInAt);
+    if (Number.isNaN(when.getTime())) throw new Error("Data inválida");
+    if (when.getTime() > Date.now() + 60_000) throw new Error("A data não pode ser no futuro");
+
+    // Aluno precisa pertencer ao dono autenticado (RLS já filtra, confirmamos aqui)
+    const { data: student, error: sErr } = await context.supabase
+      .from("dojo_students")
+      .select("id, full_name, unit_id, cancelled_at")
+      .eq("id", data.studentId)
+      .maybeSingle();
+    if (sErr) throw new Error(sErr.message);
+    if (!student) throw new Error("Aluno não encontrado");
+
+    // Duplicidade: mesmo aluno, mesmo dia e mesma turma
+    const dayStart = new Date(when);
+    dayStart.setHours(0, 0, 0, 0);
+    const dayEnd = new Date(when);
+    dayEnd.setHours(23, 59, 59, 999);
+
+    let dupQ = context.supabase
+      .from("dojo_attendance")
+      .select("id")
+      .eq("student_id", data.studentId)
+      .gte("checked_in_at", dayStart.toISOString())
+      .lte("checked_in_at", dayEnd.toISOString());
+    if (data.classId) dupQ = dupQ.eq("class_id", data.classId);
+    const { data: dup } = await dupQ.limit(1);
+    if (dup && dup.length > 0) {
+      throw new Error("Já existe um check-in para este aluno nesta data/turma.");
+    }
+
+    const { data: row, error } = await context.supabase
+      .from("dojo_attendance")
+      .insert({
+        student_id: data.studentId,
+        unit_id: data.unitId ?? student.unit_id ?? null,
+        class_id: data.classId ?? null,
+        method: "manual",
+        source: "retroactive",
+        status: "checked_in",
+        notes: data.notes ?? "Check-in retroativo",
+        created_by: context.userId,
+        owner_id: context.userId,
+        checked_in_at: when.toISOString(),
+      })
+      .select("id")
+      .single();
+    if (error) throw new Error(error.message);
+
+    return { id: row.id, studentName: student.full_name };
+  });
+
 export const deleteAttendance = createServerFn({ method: "POST" })
+
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => z.object({ id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "UUID inválido") }).parse(i))
   .handler(async ({ data, context }) => {
