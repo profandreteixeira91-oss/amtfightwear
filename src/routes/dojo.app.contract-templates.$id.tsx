@@ -556,9 +556,10 @@ function ContractEditorPage() {
                 <div
                   className="shrink-0 pt-1.5 text-[5.5pt] text-neutral-600"
                   dangerouslySetInnerHTML={{
-                    __html: resolvedFooter
+                    __html: sanitizeHtml(resolvedFooter
                       .replace(/\{\{\s*pagina_atual\s*\}\}/g, "1")
-                      .replace(/\{\{\s*total_paginas\s*\}\}/g, "1"),
+                      .replace(/\{\{\s*total_paginas\s*\}\}/g, "1")),
+
                   }}
                 />
               )}
