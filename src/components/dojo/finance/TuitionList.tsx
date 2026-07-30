@@ -7,6 +7,7 @@ import {
   CheckCircle2, ExternalLink, Copy, QrCode, Trash2, ChevronDown, ChevronUp,
   Zap, Wallet, Calendar, CreditCard, Link2,
 } from "lucide-react";
+import { brDate } from "@/lib/format";
 
 const brl = (n: number | null | undefined) =>
   Number(n || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
