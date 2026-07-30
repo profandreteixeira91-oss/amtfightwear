@@ -1374,6 +1374,91 @@ function StudentsPage() {
                     Os consentimentos são registrados com data e hora conforme exigido pela LGPD.
                   </p>
                 </TabsContent>
+
+                {/* ============ CONTRATO ============ */}
+                <TabsContent value="contrato" className="mt-4 space-y-4">
+                  <div className="rounded-xl border bg-muted/30 p-4">
+                    <div className="flex items-start gap-3">
+                      <FileText className="mt-0.5 h-5 w-5 text-primary" />
+                      <div className="text-sm">
+                        <p className="font-medium">Contrato no ato da matrícula</p>
+                        <p className="text-xs text-muted-foreground">
+                          Escolha um modelo para gerar o contrato automaticamente ao concluir o cadastro.
+                          Os dados do aluno, plano e valores são preenchidos nas variáveis do modelo.
+                          O contrato fica salvo no perfil do aluno e no app dele para assinatura.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                      <Label>Modelo de contrato</Label>
+                      <Select
+                        value={contractSel.template_id || "none"}
+                        onValueChange={(v) => setContractSel((p) => ({ ...p, template_id: v === "none" ? "" : v }))}
+                      >
+                        <SelectTrigger><SelectValue placeholder="Selecione um modelo" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">Não gerar contrato agora</SelectItem>
+                          {(contractTemplates.data ?? []).map((t: any) => (
+                            <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {(contractTemplates.data ?? []).length === 0 && (
+                        <p className="text-[11px] text-muted-foreground">
+                          Nenhum modelo cadastrado. Crie modelos em Contratos.
+                        </p>
+                      )}
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label>Título do contrato (opcional)</Label>
+                      <Input
+                        value={contractSel.title}
+                        placeholder="Contrato de prestação de serviços"
+                        onChange={(e) => setContractSel((p) => ({ ...p, title: e.target.value }))}
+                      />
+                    </div>
+                  </div>
+
+                  {contractSel.template_id && (() => {
+                    const tpl: any = (contractTemplates.data ?? []).find((t: any) => t.id === contractSel.template_id);
+                    if (!tpl) return null;
+                    const plan: any = (plans.data ?? []).find((p: any) => p.id === enrollment.plan_id);
+                    const customAmt = enrollment.custom_amount.trim() === "" ? null : Number(enrollment.custom_amount);
+                    const monthly = customAmt != null && Number.isFinite(customAmt)
+                      ? customAmt
+                      : (plan?.amount != null ? Number(plan.amount) : null);
+                    const merged = [
+                      tpl.header_html ? `<div>${tpl.header_html}</div>` : "",
+                      tpl.content ?? "",
+                      tpl.footer_html ? `<div style="margin-top:24px;">${tpl.footer_html}</div>` : "",
+                    ].join("");
+                    const html = resolveContractHtml(merged, buildContractValues({
+                      student: form,
+                      academy: contractAcademy.data,
+                      contract: {
+                        plan_name: plan?.name ?? null,
+                        monthly_value: monthly,
+                        payment_method: enrollment.payment_method,
+                        due_day: enrollment.due_day,
+                        start_date: enrollment.start_date,
+                      },
+                    } as any));
+                    return (
+                      <div className="space-y-2">
+                        <Label className="text-xs uppercase tracking-wide text-muted-foreground">Pré-visualização</Label>
+                        <div
+                          className="max-h-72 overflow-y-auto rounded-xl border bg-background p-4 text-[13px] leading-relaxed"
+                          style={{ fontFamily: "Georgia, serif" }}
+                          dangerouslySetInnerHTML={{ __html: sanitizeHtml(html) }}
+                        />
+                      </div>
+                    );
+                  })()}
+                </TabsContent>
+
                 </div>
               </Tabs>
 
