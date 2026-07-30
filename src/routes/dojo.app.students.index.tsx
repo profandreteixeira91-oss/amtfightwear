@@ -53,6 +53,7 @@ const STEP_META: Record<string, { label: string; icon: ComponentType<{ className
   anamnese: { label: "Anamnese", icon: HeartPulse },
   foto: { label: "Foto", icon: Camera },
   consent: { label: "Consentimentos", icon: ShieldCheck },
+  contrato: { label: "Contrato", icon: FileText },
 };
 
 type StudentForm = {
