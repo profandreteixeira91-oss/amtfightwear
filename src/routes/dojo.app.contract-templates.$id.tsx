@@ -209,6 +209,10 @@ function ContractEditorPage() {
         phone: "(00) 00000-0000",
         modality: "Jiu-Jitsu",
         current_belt_name: "Branca",
+        lgpd_consent: true,
+        terms_accepted: true,
+        image_rights_consent: true,
+        facial_recognition_consent: false,
       },
       academy: academy.data,
       contract: {
