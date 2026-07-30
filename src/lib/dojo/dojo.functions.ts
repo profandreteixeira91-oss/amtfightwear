@@ -1408,12 +1408,14 @@ export const saveDojoExpense = createServerFn({ method: "POST" })
       return { id: row.id, created: 1 };
     }
     const monthsStep = rec === "monthly" ? 1 : rec === "quarterly" ? 3 : 12;
-    const base = new Date(rest.due_date + "T00:00:00");
+    // Meio-dia UTC + métodos UTC evitam qualquer deslocamento de fuso ao repetir a data.
+    const base = new Date(rest.due_date + "T12:00:00Z");
     const rows = Array.from({ length: count }, (_, idx) => {
       const d = new Date(base);
-      d.setMonth(d.getMonth() + monthsStep * idx);
+      d.setUTCMonth(d.getUTCMonth() + monthsStep * idx);
       return { ...rest, due_date: d.toISOString().slice(0, 10), owner_id: ownerId(context) };
     });
+
     const { error } = await context.supabase.from("dojo_expenses").insert(rows);
     if (error) throw new Error(error.message);
     return { created: rows.length };
