@@ -10,6 +10,9 @@ import {
   saveDojoInvoice, markDojoInvoicePaid, deleteDojoInvoice,
   deleteDojoStudent, saveDojoStudent, freezeDojoStudent, unfreezeDojoStudent, restoreDojoStudent,
 } from "@/lib/dojo/dojo.functions";
+import { listCertificateTemplates, issueCertificate } from "@/lib/dojo/dojo.functions";
+import { buildIssueValues } from "@/lib/dojo/certificates/issue";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { listAttendance, regenerateStudentCodes } from "@/lib/dojo/attendance.functions";
 import { listStudentClasses } from "@/lib/dojo/schedule.functions";
@@ -117,6 +120,15 @@ function StudentDetail() {
   const [changingPlan, setChangingPlan] = useState(false);
   const [cancelDialog, setCancelDialog] = useState<{ open: boolean; mode: "cancel" | "freeze"; frozen_until: string }>({ open: false, mode: "cancel", frozen_until: "" });
   const [cancelBusy, setCancelBusy] = useState(false);
+  const [certIssue, setCertIssue] = useState<{ open: boolean; grad: any | null; template_id: string }>({ open: false, grad: null, template_id: "" });
+  const [issuingCert, setIssuingCert] = useState(false);
+  const templatesFn = useServerFn(listCertificateTemplates);
+  const issueCertFn = useServerFn(issueCertificate);
+  const certTemplates = useQuery({
+    queryKey: ["dojo-certificate-templates"],
+    queryFn: () => templatesFn(),
+    staleTime: 60_000,
+  });
 
   const refresh = () => {
     // Invalida tudo que depende de graduações para que a exclusão reflita
@@ -1072,19 +1084,29 @@ function StudentDetail() {
                                         {g.notes ? ` · ${g.notes}` : ""}
                                       </div>
                                     </div>
-                                    <Button size="icon" variant="ghost" className="shrink-0 self-end sm:self-auto" onClick={async () => {
-                                      if (!confirm("Excluir esta graduação? Ela será removida de todo o sistema, incluindo certificados emitidos e o app do aluno.")) return;
-                                      try {
-                                        await delGrad({ data: { id: g.id } });
-                                        refresh();
-                                        toast.success("Graduação excluída de todo o sistema");
-                                      } catch (e: any) {
-                                        toast.error(e?.message ?? "Não foi possível excluir a graduação");
-                                      }
-                                    }}>
+                                    <div className="flex shrink-0 items-center gap-1 self-end sm:self-auto">
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="h-8 gap-1.5 text-xs"
+                                        onClick={() => setCertIssue({ open: true, grad: g, template_id: "" })}
+                                      >
+                                        <Award className="h-3.5 w-3.5" /> Emitir certificado
+                                      </Button>
+                                      <Button size="icon" variant="ghost" onClick={async () => {
+                                        if (!confirm("Excluir esta graduação? Ela será removida de todo o sistema, incluindo certificados emitidos e o app do aluno.")) return;
+                                        try {
+                                          await delGrad({ data: { id: g.id } });
+                                          refresh();
+                                          toast.success("Graduação excluída de todo o sistema");
+                                        } catch (e: any) {
+                                          toast.error(e?.message ?? "Não foi possível excluir a graduação");
+                                        }
+                                      }}>
+                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                      </Button>
+                                    </div>
 
-                                      <Trash2 className="h-4 w-4 text-destructive" />
-                                    </Button>
                                   </div>
                                 </li>
 
@@ -1377,7 +1399,81 @@ function StudentDetail() {
         </CardContent>
       </Card>
 
+      {/* ===== Emitir certificado a partir da linha do tempo ===== */}
+      <Dialog open={certIssue.open} onOpenChange={(v) => { if (!v) setCertIssue({ open: false, grad: null, template_id: "" }); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Emitir certificado</DialogTitle>
+            <DialogDescription>
+              {certIssue.grad
+                ? `${formatBeltFull(certIssue.grad.belt?.name ?? "", certIssue.grad.belt?.modality, certIssue.grad.degree)} · ${fmtDate(certIssue.grad.graduation_date)}`
+                : ""}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <label className="text-xs font-medium text-muted-foreground">Modelo de certificado</label>
+            <Select value={certIssue.template_id} onValueChange={(v) => setCertIssue((p) => ({ ...p, template_id: v }))}>
+              <SelectTrigger><SelectValue placeholder="Selecione um modelo" /></SelectTrigger>
+              <SelectContent>
+                {(certTemplates.data ?? []).map((t: any) => (
+                  <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {(certTemplates.data ?? []).length === 0 && (
+              <p className="text-xs text-muted-foreground">
+                Nenhum modelo cadastrado. Crie um em Certificados.
+              </p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setCertIssue({ open: false, grad: null, template_id: "" })}>Cancelar</Button>
+            <Button
+              disabled={!certIssue.template_id || issuingCert}
+              onClick={async () => {
+                if (!certIssue.grad || !certIssue.template_id) return;
+                setIssuingCert(true);
+                try {
+                  const publicHash = (globalThis.crypto?.randomUUID?.() ?? String(Date.now())).replace(/-/g, "").slice(0, 24);
+                  const values = buildIssueValues({
+                    student: s,
+                    academy: branding ?? {},
+                    graduation: certIssue.grad,
+                    publicHash,
+                    origin: typeof window !== "undefined" ? window.location.origin : "",
+                    extra: {
+                      professor_nome: certIssue.grad.evaluator ?? "",
+                      graduacao_observacoes: certIssue.grad.notes ?? "",
+                      certificado_data: fmtDate(certIssue.grad.graduation_date),
+                    },
+                  });
+                  await issueCertFn({
+                    data: {
+                      student_id: id,
+                      graduation_id: certIssue.grad.id,
+                      template_id: certIssue.template_id,
+                      values,
+                    },
+                  });
+                  setCertIssue({ open: false, grad: null, template_id: "" });
+                  refresh();
+                  toast.success("Certificado emitido e salvo em Certificados do aluno");
+                  setActiveTab("certificados");
+                } catch (e: any) {
+                  toast.error(e?.message ?? "Não foi possível emitir o certificado");
+                } finally {
+                  setIssuingCert(false);
+                }
+              }}
+            >
+              {issuingCert ? "Emitindo..." : "Emitir"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <CertificatePreviewDialog
+
         open={!!previewCert}
         onOpenChange={(v) => { if (!v) setPreviewCert(null); }}
         template={previewCert?.template ?? null}
