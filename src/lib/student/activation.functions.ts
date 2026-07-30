@@ -92,16 +92,26 @@ export const activateStudentAccount = createServerFn({ method: "POST" })
       const already = cErr?.message?.toLowerCase().includes("already");
       if (!already) throw new Error(cErr?.message ?? "Falha ao criar acesso");
 
-      // Localiza o usuário existente e redefine a senha (dono do dojo já validou).
+      // SEGURANÇA: e-mail já possui conta no Auth. NUNCA redefinir a senha aqui —
+      // isso permitiria que qualquer pessoa que soubesse o e-mail tomasse a conta.
+      // Apenas vinculamos a matrícula à conta existente e orientamos o login /
+      // recuperação de senha pelo fluxo oficial (e-mail).
       const { data: list } = await supabaseAdmin.auth.admin.listUsers();
       const existing = list.users.find((u) => u.email?.toLowerCase() === data.email);
-      if (!existing) throw new Error("Falha ao localizar usuário existente");
-      await supabaseAdmin.auth.admin.updateUserById(existing.id, {
-        password: data.password,
-        email_confirm: true,
-      });
-      userId = existing.id;
+      if (existing) {
+        const toLink = eligible.filter((r) => !r.user_id).map((r) => r.id);
+        if (toLink.length > 0) {
+          await supabaseAdmin
+            .from("dojo_students")
+            .update({ user_id: existing.id })
+            .in("id", toLink);
+        }
+      }
+      throw new Error(
+        "Este e-mail já possui uma conta. Faça login com sua senha ou use “Esqueci minha senha”.",
+      );
     } else {
+
       userId = created.user.id;
     }
 
