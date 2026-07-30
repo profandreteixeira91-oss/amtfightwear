@@ -107,7 +107,7 @@ function StudentPerformancePage() {
 
   if (home.isLoading || !id) {
     return (
-      <div className="mx-auto grid w-full max-w-3xl gap-4">
+      <div className="mx-auto grid w-full min-w-0 max-w-3xl gap-4">
         <Skeleton className="h-40 w-full rounded-2xl" />
         <Skeleton className="h-24 w-full rounded-2xl" />
         <Skeleton className="h-64 w-full rounded-2xl" />
@@ -116,7 +116,7 @@ function StudentPerformancePage() {
   }
 
   return (
-    <div className="mx-auto grid w-full max-w-3xl gap-5 lg:max-w-5xl">
+    <div className="mx-auto grid w-full min-w-0 max-w-3xl gap-5 lg:max-w-5xl">
       <Link to="/app/home" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary">
         <ArrowLeft className="h-3 w-3" /> Voltar ao início
       </Link>
@@ -125,11 +125,11 @@ function StudentPerformancePage() {
       <div className="relative overflow-hidden rounded-[1.5rem] border border-red-500/25 bg-gradient-to-br from-neutral-950 via-neutral-950 to-black p-5 shadow-[0_30px_80px_-30px_rgba(239,68,68,0.45)] sm:p-6">
         <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-red-600/25 blur-[100px]" />
         <div className="pointer-events-none absolute -bottom-20 -left-16 h-72 w-72 rounded-full bg-red-500/15 blur-[100px]" />
-        <div className="relative grid gap-4 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center">
+        <div className="relative grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-3 sm:gap-4">
           {s?.photo_url ? (
-            <img src={s.photo_url} alt={s.full_name} className="h-20 w-20 shrink-0 rounded-2xl object-cover ring-2 ring-white/10 sm:h-24 sm:w-24" />
+            <img src={s.photo_url} alt={s.full_name} className="h-16 w-16 shrink-0 rounded-2xl object-cover ring-2 ring-white/10 sm:h-24 sm:w-24" />
           ) : (
-            <div className="grid h-20 w-20 shrink-0 place-items-center rounded-2xl bg-neutral-900 text-2xl font-black text-red-200 ring-2 ring-white/10 sm:h-24 sm:w-24">
+            <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-neutral-900 text-xl font-black text-red-200 ring-2 ring-white/10 sm:h-24 sm:w-24 sm:text-2xl">
               {s?.full_name?.slice(0, 2).toUpperCase() ?? "—"}
             </div>
           )}
@@ -137,10 +137,10 @@ function StudentPerformancePage() {
             <div className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-red-500/30 bg-red-500/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.22em] text-red-300">
               <Sparkles className="h-3 w-3" /> Minha performance
             </div>
-            <h1 className="text-xl font-black tracking-tight text-white sm:text-2xl">
+            <h1 className="break-words text-lg font-black leading-tight tracking-tight text-white sm:text-2xl">
               {s?.full_name ?? <Skeleton className="h-6 w-40" />}
             </h1>
-            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-white/80">
+            <div className="mt-2 flex min-w-0 flex-wrap gap-x-3 gap-y-1 text-[11px] text-white/80 sm:text-xs">
               {age(s?.birth_date) != null && <span className="inline-flex items-center gap-1"><HeartPulse className="h-3.5 w-3.5 text-red-400" />{age(s?.birth_date)} anos</span>}
               {belt && <span className="inline-flex items-center gap-1"><Award className="h-3.5 w-3.5 text-amber-400" />{formatBeltName(belt.name, belt.modality)} · {formatDegree(s?.current_degree ?? 0, belt.modality, belt.name)}</span>}
             </div>
@@ -161,7 +161,7 @@ function StudentPerformancePage() {
       </div>
 
       {/* KPIs */}
-      <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-4">
+      <div className="grid min-w-0 grid-cols-2 gap-3 md:grid-cols-4">
         <StatCard index={0} icon={Activity} label="Check-ins (365d)" value={attendance.data?.totalPresent ?? "—"} hint={`${attendance.data?.distinctDays ?? 0} dias distintos`} loading={attendance.isLoading} />
         <StatCard index={1} icon={Flame} label="Maior sequência" value={attendance.data?.maxStreak ?? "—"} hint="dias consecutivos" loading={attendance.isLoading} />
         <StatCard index={2} icon={GraduationCap} label="Graduações" value={grads.data?.history.length ?? "—"} hint={grads.data?.nextForecast ? `Próxima ~ ${fmtDate(grads.data.nextForecast)}` : "Sem previsão"} loading={grads.isLoading} />
@@ -169,7 +169,7 @@ function StudentPerformancePage() {
       </div>
 
       {/* Gauge + breakdown */}
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid min-w-0 gap-4 lg:grid-cols-3">
         <SectionCard title="Índice Geral" description="Score composto de 6 dimensões">
           {score.isLoading ? <Skeleton className="h-56" /> : score.data ? <PerformanceGauge score={score.data.score} label={score.data.label} /> : null}
         </SectionCard>
@@ -201,7 +201,7 @@ function StudentPerformancePage() {
       </div>
 
       <SectionCard title="Inteligência Analítica" description="Insights automáticos">
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {insights.isLoading && [1, 2, 3].map((i) => <Skeleton key={i} className="h-20" />)}
           {insights.data?.insights.map((it, i) => <InsightCard key={i} {...it} />)}
           {insights.data && insights.data.insights.length === 0 && (
@@ -229,7 +229,7 @@ function StudentPerformancePage() {
               <AttendanceMonthlyChart data={attendance.data?.heatmap ?? []} months={12} />}
           </SectionCard>
           <SectionCard title="Dias da semana" description="Seu padrão de treino">
-            <div className="grid grid-cols-7 gap-2 text-center">
+            <div className="grid min-w-0 grid-cols-7 gap-1 text-center sm:gap-2">
               {["D", "S", "T", "Q", "Q", "S", "S"].map((d, i) => {
                 const v = attendance.data?.weekday?.[i] ?? 0;
                 const max = Math.max(1, ...(attendance.data?.weekday ?? [1]));
@@ -254,8 +254,8 @@ function StudentPerformancePage() {
               (attendance.data?.recent?.length ?? 0) === 0 ? (
                 <EmptyState title="Nenhum check-in" description="Assim que você fizer check-ins, aparecerão aqui." icon={CalendarDays} />
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
+                <div className="-mx-1 min-w-0 overflow-x-auto px-1">
+                  <table className="w-full min-w-[420px] text-sm">
                     <thead className="text-left text-xs uppercase tracking-wider text-muted-foreground">
                       <tr className="border-b border-border/40">
                         <th className="py-2 pr-3">Data</th>
@@ -293,8 +293,8 @@ function StudentPerformancePage() {
             {(technical.data?.sessions?.length ?? 0) === 0 ? (
               <div className="text-sm text-muted-foreground">Nenhuma avaliação concluída.</div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+              <div className="-mx-1 min-w-0 overflow-x-auto px-1">
+                <table className="w-full min-w-[440px] text-sm">
                   <thead className="text-left text-xs uppercase tracking-wider text-muted-foreground">
                     <tr className="border-b border-border/40">
                       <th className="py-2 pr-3">Avaliação</th>
@@ -329,12 +329,12 @@ function StudentPerformancePage() {
             {(grads.data?.history?.length ?? 0) === 0 ? (
               <EmptyState title="Sem graduações" description="Suas graduações aparecerão aqui." icon={GraduationCap} />
             ) : (
-              <ol className="relative space-y-4 border-l-2 border-border/60 pl-5">
+              <ol className="relative min-w-0 space-y-4 border-l-2 border-border/60 pl-4 sm:pl-5">
                 {grads.data!.history.map((g: any, i: number) => (
                   <li key={g.id} className="relative">
                     <span className="absolute -left-[26px] top-4 h-3.5 w-3.5 rounded-full ring-4 ring-background" style={{ background: g.dojo_belts?.color_hex ?? "#000" }} />
-                    <div className="flex flex-col gap-3 rounded-2xl border border-border/40 bg-card p-4 sm:flex-row sm:items-center">
-                      <div className="w-24 shrink-0"><BeltAuto belt={g.dojo_belts} degree={g.degree} /></div>
+                    <div className="flex min-w-0 flex-col gap-3 rounded-2xl border border-border/40 bg-card p-3 sm:flex-row sm:items-center sm:p-4">
+                      <div className="w-20 shrink-0 sm:w-24"><BeltAuto belt={g.dojo_belts} degree={g.degree} /></div>
                       <div className="min-w-0 flex-1 space-y-1">
                         <div className="text-sm font-bold sm:text-base">{g.dojo_belts?.name}{g.degree ? ` · ${g.degree}º ${degreeUnit(g.dojo_belts?.modality)}` : ""}</div>
                         <div className="text-xs text-muted-foreground">{fmtDate(g.graduation_date)} {g.evaluator ? `· Avaliador: ${g.evaluator}` : ""}</div>
@@ -350,7 +350,7 @@ function StudentPerformancePage() {
 
         {/* Competições */}
         <TabsContent value="competicoes" className="mt-5 space-y-5">
-          <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-4">
+          <div className="grid min-w-0 grid-cols-2 gap-3 md:grid-cols-4">
             <StatCard index={0} icon={Trophy} label="Disputadas" value={comps.data?.totals.competitions ?? "—"} />
             <StatCard index={1} icon={TrendingUp} label="Vitórias" value={comps.data?.totals.wins ?? "—"} />
             <StatCard index={2} icon={Activity} label="Finalizações" value={comps.data?.totals.submissions ?? "—"} />
@@ -364,8 +364,8 @@ function StudentPerformancePage() {
             {(comps.data?.list?.length ?? 0) === 0 ? (
               <EmptyState title="Sem competições" description="Suas competições aparecerão aqui." icon={Trophy} />
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+              <div className="-mx-1 min-w-0 overflow-x-auto px-1">
+                <table className="w-full min-w-[440px] text-sm">
                   <thead className="text-left text-xs uppercase tracking-wider text-muted-foreground">
                     <tr className="border-b border-border/40">
                       <th className="py-2 pr-3">Competição</th>
@@ -402,7 +402,7 @@ function StudentPerformancePage() {
         <TabsContent value="fisico" className="mt-5 space-y-5">
           <SectionCard title="Composição corporal">
             {physical.data ? (
-              <div className="grid gap-3 sm:grid-cols-3">
+              <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-3">
                 <MetricBox label="Peso" value={physical.data.current.weight ? `${physical.data.current.weight} kg` : "—"} />
                 <MetricBox label="Altura" value={physical.data.current.height ? `${physical.data.current.height} cm` : "—"} />
                 <MetricBox label="IMC" value={physical.data.current.imc ?? "—"} hint={imcCategory(physical.data.current.imc)} />
