@@ -20,3 +20,9 @@ export const brDate = (v: string | Date | null | undefined) => {
   const d = new Date(s);
   return Number.isNaN(d.getTime()) ? s : d.toLocaleDateString("pt-BR");
 };
+
+/** Data de hoje em "YYYY-MM-DD" no fuso local (evita voltar 1 dia à noite). */
+export const todayISO = () => {
+  const n = new Date();
+  return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, "0")}-${String(n.getDate()).padStart(2, "0")}`;
+};
