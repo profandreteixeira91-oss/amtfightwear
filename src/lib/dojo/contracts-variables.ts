@@ -23,6 +23,24 @@ export const CONTRACT_VARIABLE_MENU = [
     ],
   },
   {
+    id: "consentimentos",
+    label: "Consentimentos",
+    items: [
+      { key: "consent_imagem", label: "Uso de imagem (AUTORIZO / NÃO AUTORIZO)" },
+      { key: "consent_lgpd", label: "LGPD / dados pessoais" },
+      { key: "consent_biometria", label: "Biometria facial (check-in por foto)" },
+      { key: "consent_termos", label: "Regulamento e termo de responsabilidade" },
+      { key: "consent_imagem_sn", label: "Uso de imagem (Sim / Não)" },
+      { key: "consent_lgpd_sn", label: "LGPD (Sim / Não)" },
+      { key: "consent_biometria_sn", label: "Biometria (Sim / Não)" },
+      { key: "consent_termos_sn", label: "Termos (Sim / Não)" },
+      { key: "consent_imagem_data", label: "Data do consentimento de imagem" },
+      { key: "consent_lgpd_data", label: "Data do consentimento LGPD" },
+      { key: "consent_biometria_data", label: "Data do consentimento de biometria" },
+      { key: "consent_termos_data", label: "Data de aceite dos termos" },
+    ],
+  },
+  {
     id: "responsavel",
     label: "Responsável",
     items: [
