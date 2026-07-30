@@ -706,11 +706,11 @@ export const getDojoClassGrid = createServerFn({ method: "GET" })
       .maybeSingle();
     if (!me) return { classes: [], units: [], myClassIds: [] };
 
-    const [{ data: classes }, { data: units }, { data: mine }] = await Promise.all([
+    const [{ data: classes, error: classesError }, { data: units }, { data: mine }] = await Promise.all([
       context.supabase
         .from("dojo_classes")
         .select(
-          "id, name, modality, teacher_name, color, unit_id, capacity, level, active, schedules:dojo_class_schedules(id, weekday, start_time, end_time)",
+          "id, name, modality, teacher_name, color, unit_id, max_students, level, status, schedules:dojo_class_schedules(id, weekday, start_time, end_time)",
         )
         .eq("owner_id", me.owner_id)
         .order("name"),
@@ -721,10 +721,14 @@ export const getDojoClassGrid = createServerFn({ method: "GET" })
         .eq("student_id", me.id)
         .eq("status", "active"),
     ]);
+    if (classesError) throw new Error(classesError.message);
 
     return {
-      classes: (classes ?? []).filter((c: any) => c.active !== false),
+      classes: (classes ?? [])
+        .filter((c: any) => c.status !== "inactive")
+        .map((c: any) => ({ ...c, capacity: c.max_students ?? null })),
       units: units ?? [],
       myClassIds: Array.from(new Set((mine ?? []).map((m: any) => m.class_id))),
     };
   });
+
