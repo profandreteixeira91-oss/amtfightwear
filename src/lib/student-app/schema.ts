@@ -212,7 +212,7 @@ export const DEFAULT_CONFIG: StudentAppConfig = {
     { id: "welcome", type: "welcome", visible: true },
     { id: "banner", type: "banner", visible: true },
     { id: "invoices", type: "open_invoices", visible: true },
-    { id: "shortcuts", type: "shortcuts", visible: true, items: ["checkin", "videos", "finance", "graduations", "certificates", "competitions", "notifications"] },
+    { id: "shortcuts", type: "shortcuts", visible: true, items: ["checkin", "schedule", "videos", "finance", "graduations", "certificates", "competitions", "notifications"] },
     { id: "news", type: "news", visible: true, title: "Notícias" },
     { id: "graduation", type: "graduation", visible: false },
   ],

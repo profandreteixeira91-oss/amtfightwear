@@ -21,6 +21,7 @@ export const Route = createFileRoute("/app/_student/home")({
 const SHORTCUT_META: Record<string, { label: string; icon: keyof typeof Icons; to: string; feature?: FeatureKey }> = {
   checkin: { label: "Check-in", icon: "QrCode", to: "/app/checkin", feature: "checkin" },
   agenda: { label: "Agenda", icon: "CalendarDays", to: "/app/agenda", feature: "agenda" },
+  schedule: { label: "Grade de aulas", icon: "CalendarRange", to: "/app/schedule" },
   videos: { label: "Vídeos", icon: "Film", to: "/app/videos", feature: "videos" },
   graduations: { label: "Graduações", icon: "Award", to: "/app/graduations", feature: "graduations" },
   certificates: { label: "Certificados", icon: "FileBadge", to: "/app/certificates", feature: "certificates" },
@@ -416,7 +417,8 @@ function BlockRenderer({
       // Garante que "Documentos" e "Ranking" apareçam sempre que o feature estiver
       // ativo, mesmo em configurações salvas antes de os atalhos existirem.
       const withDocs = rawKeys.includes("documents") ? rawKeys : [...rawKeys, "documents"];
-      const keys = withDocs.includes("ranking") ? withDocs : [...withDocs, "ranking"];
+      const keys0 = withDocs.includes("ranking") ? withDocs : [...withDocs, "ranking"];
+      const keys = keys0.includes("schedule") ? keys0 : [...keys0, "schedule"];
       const items = keys
         .map((k) => ({ key: k, meta: SHORTCUT_META[k] }))
         .filter((x) => x.meta && (!x.meta.feature || config.features[x.meta.feature] !== false));

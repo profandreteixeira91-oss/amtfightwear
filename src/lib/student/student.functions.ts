@@ -690,3 +690,41 @@ export const listMyStudents = createServerFn({ method: "GET" })
       current_degree: number | null;
     }>;
   });
+
+// ============ Grade de aulas (todas as turmas do dojo — somente leitura) ============
+
+export const getDojoClassGrid = createServerFn({ method: "GET" })
+  .middleware([requireStudentAuth])
+  .handler(async ({ context }) => {
+    const meId = await getActiveStudentId(context.supabase);
+    if (!meId) return { classes: [], units: [], myClassIds: [] };
+
+    const { data: me } = await context.supabase
+      .from("dojo_students")
+      .select("id, owner_id")
+      .eq("id", meId)
+      .maybeSingle();
+    if (!me) return { classes: [], units: [], myClassIds: [] };
+
+    const [{ data: classes }, { data: units }, { data: mine }] = await Promise.all([
+      context.supabase
+        .from("dojo_classes")
+        .select(
+          "id, name, modality, teacher_name, color, unit_id, capacity, level, active, schedules:dojo_class_schedules(id, weekday, start_time, end_time)",
+        )
+        .eq("owner_id", me.owner_id)
+        .order("name"),
+      context.supabase.from("dojo_units").select("id, name").eq("owner_id", me.owner_id),
+      context.supabase
+        .from("dojo_class_students")
+        .select("class_id")
+        .eq("student_id", me.id)
+        .eq("status", "active"),
+    ]);
+
+    return {
+      classes: (classes ?? []).filter((c: any) => c.active !== false),
+      units: units ?? [],
+      myClassIds: Array.from(new Set((mine ?? []).map((m: any) => m.class_id))),
+    };
+  });
