@@ -1748,20 +1748,23 @@ export const addBulkGraduation = createServerFn({ method: "POST" })
       }
     }
 
-    for (const it of items) {
-      const s = studentById.get(it.student_id);
-      if (!s) continue;
-      const currentMod = (s as any).belt?.modality ?? null;
-      const newMod = beltById.get(it.belt_id)?.modality ?? "jiu-jitsu";
-      const latest = latestByStudentMod.get(`${it.student_id}::${newMod}`) ?? null;
-      const isMostRecent = !latest || new Date(data.graduation_date) >= new Date(latest);
-      if ((!s.current_belt_id || currentMod === null || currentMod === newMod) && isMostRecent) {
-        await context.supabase
-          .from("dojo_students")
-          .update({ current_belt_id: it.belt_id, current_degree: it.degree })
-          .eq("id", it.student_id);
+    if (!isScheduled) {
+      for (const it of items) {
+        const s = studentById.get(it.student_id);
+        if (!s) continue;
+        const currentMod = (s as any).belt?.modality ?? null;
+        const newMod = beltById.get(it.belt_id)?.modality ?? "jiu-jitsu";
+        const latest = latestByStudentMod.get(`${it.student_id}::${newMod}`) ?? null;
+        const isMostRecent = !latest || new Date(data.graduation_date) >= new Date(latest);
+        if ((!s.current_belt_id || currentMod === null || currentMod === newMod) && isMostRecent) {
+          await context.supabase
+            .from("dojo_students")
+            .update({ current_belt_id: it.belt_id, current_degree: it.degree })
+            .eq("id", it.student_id);
+        }
       }
     }
+
 
     // Gera contas a receber (dojo_invoices) para graduações com valor > 0.
     const paidByStudent = new Map<string, boolean>();
