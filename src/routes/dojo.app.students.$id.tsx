@@ -1072,19 +1072,29 @@ function StudentDetail() {
                                         {g.notes ? ` · ${g.notes}` : ""}
                                       </div>
                                     </div>
-                                    <Button size="icon" variant="ghost" className="shrink-0 self-end sm:self-auto" onClick={async () => {
-                                      if (!confirm("Excluir esta graduação? Ela será removida de todo o sistema, incluindo certificados emitidos e o app do aluno.")) return;
-                                      try {
-                                        await delGrad({ data: { id: g.id } });
-                                        refresh();
-                                        toast.success("Graduação excluída de todo o sistema");
-                                      } catch (e: any) {
-                                        toast.error(e?.message ?? "Não foi possível excluir a graduação");
-                                      }
-                                    }}>
+                                    <div className="flex shrink-0 items-center gap-1 self-end sm:self-auto">
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="h-8 gap-1.5 text-xs"
+                                        onClick={() => setCertIssue({ open: true, grad: g, template_id: "" })}
+                                      >
+                                        <Award className="h-3.5 w-3.5" /> Emitir certificado
+                                      </Button>
+                                      <Button size="icon" variant="ghost" onClick={async () => {
+                                        if (!confirm("Excluir esta graduação? Ela será removida de todo o sistema, incluindo certificados emitidos e o app do aluno.")) return;
+                                        try {
+                                          await delGrad({ data: { id: g.id } });
+                                          refresh();
+                                          toast.success("Graduação excluída de todo o sistema");
+                                        } catch (e: any) {
+                                          toast.error(e?.message ?? "Não foi possível excluir a graduação");
+                                        }
+                                      }}>
+                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                      </Button>
+                                    </div>
 
-                                      <Trash2 className="h-4 w-4 text-destructive" />
-                                    </Button>
                                   </div>
                                 </li>
 
