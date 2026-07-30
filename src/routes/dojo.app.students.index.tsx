@@ -451,7 +451,7 @@ function StudentsPage() {
         const customAmt = parseAmountBR(enrollment.custom_amount);
         if (enrollment.custom_amount.trim() !== "" && customAmt === null) {
           toast.error("Valor customizado inválido", { description: "Use apenas números, ex.: 150,00" });
-          setSaving(false);
+          
           return;
         }
         const res: any = await enrollFn({
