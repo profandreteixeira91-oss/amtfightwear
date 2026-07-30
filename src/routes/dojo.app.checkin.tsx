@@ -479,6 +479,9 @@ function KioskPanel() {
         setTimeout(() => setLastCheckin(null), 3500);
       }} />
 
+      <RetroactiveCheckinDialog open={showRetro} onOpenChange={setShowRetro} unitId={unitId} />
+
+
       <VisitorDialog open={showVisitor} onOpenChange={setShowVisitor} unitId={unitId} />
 
       <Dialog open={showPhoto} onOpenChange={setShowPhoto}>
