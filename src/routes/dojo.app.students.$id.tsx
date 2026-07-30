@@ -122,6 +122,8 @@ function StudentDetail() {
   const [cancelBusy, setCancelBusy] = useState(false);
   const [certIssue, setCertIssue] = useState<{ open: boolean; grad: any | null; template_id: string }>({ open: false, grad: null, template_id: "" });
   const [issuingCert, setIssuingCert] = useState(false);
+  const [gradEdit, setGradEdit] = useState<{ open: boolean; grad: any | null; graduation_date: string; evaluator: string }>({ open: false, grad: null, graduation_date: "", evaluator: "" });
+  const [gradEditBusy, setGradEditBusy] = useState(false);
   const templatesFn = useServerFn(listCertificateTemplates);
   const issueCertFn = useServerFn(issueCertificate);
   const certTemplates = useQuery({
