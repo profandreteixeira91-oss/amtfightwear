@@ -116,7 +116,7 @@ function StudentPerformancePage() {
   }
 
   return (
-    <div className="mx-auto grid w-full min-w-0 max-w-3xl gap-5 lg:max-w-5xl">
+    <div data-student-performance className="mx-auto grid w-full min-w-0 max-w-3xl gap-5 lg:max-w-5xl">
       <Link to="/app/home" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary">
         <ArrowLeft className="h-3 w-3" /> Voltar ao início
       </Link>
