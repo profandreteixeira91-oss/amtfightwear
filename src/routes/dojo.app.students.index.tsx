@@ -1190,13 +1190,29 @@ function StudentsPage() {
                       </Field>
                       <Field label="Valor customizado (opcional)">
                         <Input
-                          type="number"
-                          step="0.01"
+                          inputMode="decimal"
                           placeholder="Deixe vazio para usar o valor do plano"
                           value={enrollment.custom_amount}
                           onChange={(e) => setEnrollment((s) => ({ ...s, custom_amount: e.target.value }))}
                         />
+                        {(() => {
+                          const selectedPlan = (plans.data as any[] | undefined)?.find((p) => p.id === enrollment.plan_id);
+                          const custom = parseAmountBR(enrollment.custom_amount);
+                          const typed = enrollment.custom_amount.trim() !== "";
+                          if (typed && custom === null) {
+                            return <p className="mt-1 text-xs text-destructive">Valor inválido — use apenas números, ex.: 150,00</p>;
+                          }
+                          const eff = custom != null ? custom : (selectedPlan?.amount != null ? Number(selectedPlan.amount) : null);
+                          if (eff == null) return null;
+                          return (
+                            <p className="mt-1 text-xs text-muted-foreground">
+                              Será cobrado: <strong className="text-foreground">{brl(eff)}</strong>
+                              {custom != null ? " (valor customizado)" : " (valor do plano)"}
+                            </p>
+                          );
+                        })()}
                       </Field>
+
                       <div className="md:col-span-2">
                         <BoolChk
                           label="Cobrar taxa de matrícula na 1ª fatura (se o plano tiver)"
