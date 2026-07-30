@@ -846,6 +846,10 @@ body:has([data-student-shell]) {
    Tabelas e SVG (gráficos) ficam de fora: eles vivem em scrollers próprios. */
 [data-student-shell] :where(div, section, article, header, footer, ol, ul, li, p, h1, h2, h3, h4, form, figure) {
   min-width: 0;
+}
+
+/* Scrollers horizontais (tabelas, heatmap, abas) nunca passam da largura do pai */
+[data-student-shell] :where(.overflow-x-auto, .overflow-auto, .overflow-x-scroll) {
   max-width: 100%;
 }
 
