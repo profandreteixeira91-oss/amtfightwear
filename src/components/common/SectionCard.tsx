@@ -17,17 +17,17 @@ export function SectionCard({ title, description, action, children, className, d
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay }}
-      className={className}
+      className={`min-w-0 ${className ?? ""}`}
     >
-      <Card className="border-border/60 bg-card/70 shadow-sm backdrop-blur-sm transition-shadow hover:shadow-md">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 border-b border-border/50 pb-3">
-          <div>
-            <CardTitle className="text-base font-semibold tracking-tight">{title}</CardTitle>
-            {description && <p className="mt-1 text-xs text-muted-foreground">{description}</p>}
+      <Card className="min-w-0 overflow-hidden border-border/60 bg-card/70 shadow-sm backdrop-blur-sm transition-shadow hover:shadow-md">
+        <CardHeader className="flex flex-col gap-2 space-y-0 border-b border-border/50 pb-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <CardTitle className="text-base font-semibold tracking-tight break-words">{title}</CardTitle>
+            {description && <p className="mt-1 text-xs text-muted-foreground break-words">{description}</p>}
           </div>
-          {action}
+          {action ? <div className="shrink-0">{action}</div> : null}
         </CardHeader>
-        <CardContent className="pt-4">{children}</CardContent>
+        <CardContent className="min-w-0 pt-4">{children}</CardContent>
       </Card>
     </motion.div>
   );
