@@ -115,7 +115,7 @@ function StudentShell() {
     <StudentThemeProvider branding={branding} appearance={config.appearance}>
       <StudentSplash />
       <InstallReminderBanner />
-      <div className="min-h-screen w-full overflow-x-clip">
+      <div data-student-shell className="min-h-screen w-full max-w-full overflow-x-hidden">
       <header
         className="sticky top-0 z-30 border-b bg-white/90 backdrop-blur"
         style={{ paddingTop: "env(safe-area-inset-top)" }}
@@ -173,7 +173,7 @@ function StudentShell() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-6xl overflow-x-clip px-4 pb-28 pt-4 sm:px-6 sm:pt-6 lg:px-8 lg:pb-10">
+      <main className="mx-auto w-full max-w-6xl overflow-x-hidden px-4 pb-28 pt-4 sm:px-6 sm:pt-6 lg:px-8 lg:pb-10">
         <Outlet />
       </main>
 
