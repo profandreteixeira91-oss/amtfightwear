@@ -1399,7 +1399,81 @@ function StudentDetail() {
         </CardContent>
       </Card>
 
+      {/* ===== Emitir certificado a partir da linha do tempo ===== */}
+      <Dialog open={certIssue.open} onOpenChange={(v) => { if (!v) setCertIssue({ open: false, grad: null, template_id: "" }); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Emitir certificado</DialogTitle>
+            <DialogDescription>
+              {certIssue.grad
+                ? `${formatBeltFull(certIssue.grad.belt?.name ?? "", certIssue.grad.belt?.modality, certIssue.grad.degree)} · ${fmtDate(certIssue.grad.graduation_date)}`
+                : ""}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <label className="text-xs font-medium text-muted-foreground">Modelo de certificado</label>
+            <Select value={certIssue.template_id} onValueChange={(v) => setCertIssue((p) => ({ ...p, template_id: v }))}>
+              <SelectTrigger><SelectValue placeholder="Selecione um modelo" /></SelectTrigger>
+              <SelectContent>
+                {(certTemplates.data ?? []).map((t: any) => (
+                  <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {(certTemplates.data ?? []).length === 0 && (
+              <p className="text-xs text-muted-foreground">
+                Nenhum modelo cadastrado. Crie um em Certificados.
+              </p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setCertIssue({ open: false, grad: null, template_id: "" })}>Cancelar</Button>
+            <Button
+              disabled={!certIssue.template_id || issuingCert}
+              onClick={async () => {
+                if (!certIssue.grad || !certIssue.template_id) return;
+                setIssuingCert(true);
+                try {
+                  const publicHash = (globalThis.crypto?.randomUUID?.() ?? String(Date.now())).replace(/-/g, "").slice(0, 24);
+                  const values = buildIssueValues({
+                    student: s,
+                    academy: branding ?? {},
+                    graduation: certIssue.grad,
+                    publicHash,
+                    origin: typeof window !== "undefined" ? window.location.origin : "",
+                    extra: {
+                      professor_nome: certIssue.grad.evaluator ?? "",
+                      graduacao_observacoes: certIssue.grad.notes ?? "",
+                      certificado_data: fmtDate(certIssue.grad.graduation_date),
+                    },
+                  });
+                  await issueCertFn({
+                    data: {
+                      student_id: id,
+                      graduation_id: certIssue.grad.id,
+                      template_id: certIssue.template_id,
+                      values,
+                    },
+                  });
+                  setCertIssue({ open: false, grad: null, template_id: "" });
+                  refresh();
+                  toast.success("Certificado emitido e salvo em Certificados do aluno");
+                  setActiveTab("certificados");
+                } catch (e: any) {
+                  toast.error(e?.message ?? "Não foi possível emitir o certificado");
+                } finally {
+                  setIssuingCert(false);
+                }
+              }}
+            >
+              {issuingCert ? "Emitindo..." : "Emitir"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <CertificatePreviewDialog
+
         open={!!previewCert}
         onOpenChange={(v) => { if (!v) setPreviewCert(null); }}
         template={previewCert?.template ?? null}
