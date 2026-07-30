@@ -7,14 +7,18 @@ import {
   CheckCircle2, ExternalLink, Copy, QrCode, Trash2, ChevronDown, ChevronUp,
   Zap, Wallet, Calendar, CreditCard, Link2,
 } from "lucide-react";
+import { brDate } from "@/lib/format";
 
 const brl = (n: number | null | undefined) =>
   Number(n || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-const fmtDate = (v?: string | null) => {
-  if (!v) return "—";
-  try { return new Date(v).toLocaleDateString("pt-BR"); } catch { return String(v); }
+// Datas "YYYY-MM-DD" precisam ser lidas literalmente: `new Date("2026-08-05")`
+// é UTC e, no fuso do Brasil (UTC-3), exibiria 04/08 (um dia antes).
+const fmtDate = (v?: string | null) => brDate(v);
+const isoDate = () => {
+  const n = new Date();
+  return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, "0")}-${String(n.getDate()).padStart(2, "0")}`;
 };
-const isoDate = () => new Date().toISOString().slice(0, 10);
+
 
 export type TuitionInvoice = {
   id: string;

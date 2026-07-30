@@ -12,6 +12,7 @@ import { Plus, X, Download, FileSpreadsheet, FileText, Upload, Sparkles, Buildin
 import { brl, useFinanceKpis, useFinanceSettings } from "./shared";
 import { openBrandedPrintDocument, escapeHtml } from "@/lib/dojo/print-document";
 import { useDojoBranding } from "@/hooks/useDojoBranding";
+import { brDate } from "@/lib/format";
 
 function printFinanceReport(k: ReturnType<typeof useFinanceKpis>, branding: any) {
   const kpiCards = [
@@ -143,8 +144,7 @@ function buildReport(id: string, k: ReturnType<typeof useFinanceKpis>): ReportDa
   const today = new Date();
   const inv = k.invoices as any[];
   const exp = k.expenses as any[];
-  const fmtDate = (d: any) =>
-    d ? new Date(d).toLocaleDateString("pt-BR") : "";
+  const fmtDate = (d: any) => (d ? brDate(d) : "");
   const statusLabel = (s: string) =>
     ({ paid: "Paga", pending: "Pendente", overdue: "Atrasada", cancelled: "Cancelada" } as any)[s] ?? s;
 

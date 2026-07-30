@@ -40,6 +40,7 @@ import { printAllStudentSummaries } from "@/lib/dojo/students-bulk-print";
 import { maskCPF, maskCEP, maskPhone, clampDueDay, isValidCPF, isValidCEP, isValidPhone } from "@/lib/br-masks";
 import { toast } from "sonner";
 import { Trash2, Pencil, UserPlus, FileDown, Upload, Printer, User, MapPin, Phone, Award, Wallet, HeartPulse, Camera, ShieldCheck, FileText, Users, UserCheck, Snowflake, UserX, Search, Sparkles, Link as LinkIcon, Copy, ExternalLink, Check } from "lucide-react";
+import { todayISO } from "@/lib/format";
 
 
 export const Route = createFileRoute("/dojo/app/students/")({
@@ -196,8 +197,8 @@ function StudentsPage() {
   const [enrollment, setEnrollment] = useState({
     plan_id: "",
     due_day: 5,
-    start_date: new Date().toISOString().slice(0, 10),
-    first_due_date: new Date().toISOString().slice(0, 10),
+    start_date: todayISO(),
+    first_due_date: todayISO(),
     include_enrollment_fee: true,
     payment_method: "manual" as string,
     custom_amount: "" as string,
@@ -285,8 +286,8 @@ function StudentsPage() {
     setEnrollment({
       plan_id: "",
       due_day: 5,
-      start_date: new Date().toISOString().slice(0, 10),
-      first_due_date: new Date().toISOString().slice(0, 10),
+      start_date: todayISO(),
+      first_due_date: todayISO(),
       include_enrollment_fee: true,
       payment_method: "manual",
       custom_amount: "",
@@ -297,8 +298,8 @@ function StudentsPage() {
     setEnrollment({
       plan_id: "",
       due_day: 5,
-      start_date: new Date().toISOString().slice(0, 10),
-      first_due_date: new Date().toISOString().slice(0, 10),
+      start_date: todayISO(),
+      first_due_date: todayISO(),
       include_enrollment_fee: true,
       payment_method: "manual",
       custom_amount: "",
@@ -419,7 +420,7 @@ function StudentsPage() {
       if (studentId) {
         const before = new Set(initialModsRef.current);
         const toRegister = validMods.filter((m) => !before.has(`${m.belt_id}:${Number(m.degree ?? 0)}`));
-        const today = new Date().toISOString().slice(0, 10);
+        const today = todayISO();
         let okCount = 0;
         for (const m of toRegister) {
           try {

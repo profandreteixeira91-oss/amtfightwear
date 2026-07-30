@@ -27,17 +27,19 @@ export const FREQUENCY_LABELS: Record<RecurringFrequency, string> = {
 
 /** Avança uma data conforme a frequência. */
 export function advanceDate(from: Date, freq: RecurringFrequency, customDays?: number | null): Date {
+  // Métodos UTC: manter o dia escolhido pelo dono do dojo sem deslocar por fuso.
   const d = new Date(from);
   switch (freq) {
-    case "monthly": d.setMonth(d.getMonth() + 1); break;
-    case "bimonthly": d.setMonth(d.getMonth() + 2); break;
-    case "quarterly": d.setMonth(d.getMonth() + 3); break;
-    case "semiannual": d.setMonth(d.getMonth() + 6); break;
-    case "annual": d.setFullYear(d.getFullYear() + 1); break;
-    case "custom": d.setDate(d.getDate() + Math.max(1, customDays ?? 30)); break;
+    case "monthly": d.setUTCMonth(d.getUTCMonth() + 1); break;
+    case "bimonthly": d.setUTCMonth(d.getUTCMonth() + 2); break;
+    case "quarterly": d.setUTCMonth(d.getUTCMonth() + 3); break;
+    case "semiannual": d.setUTCMonth(d.getUTCMonth() + 6); break;
+    case "annual": d.setUTCFullYear(d.getUTCFullYear() + 1); break;
+    case "custom": d.setUTCDate(d.getUTCDate() + Math.max(1, customDays ?? 30)); break;
   }
   return d;
 }
+
 
 /** Lista todas as regras de cobrança recorrente do dono. */
 export const listRecurringCharges = createServerFn({ method: "GET" })

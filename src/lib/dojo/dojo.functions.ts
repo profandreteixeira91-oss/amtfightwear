@@ -843,7 +843,7 @@ export const saveDojoInvoice = createServerFn({ method: "POST" })
         .format(Number(payload.amount ?? 0));
       await sendPushToStudent(payload.student_id, {
         title: "Nova cobrança disponível",
-        body: `${payload.description ?? "Mensalidade"} — ${amountFmt}${payload.due_date ? ` • vence em ${new Date(payload.due_date).toLocaleDateString("pt-BR")}` : ""}`,
+        body: `${payload.description ?? "Mensalidade"} — ${amountFmt}${payload.due_date ? ` • vence em ${new Date(payload.due_date + "T12:00:00Z").toLocaleDateString("pt-BR", { timeZone: "UTC" })}` : ""}`,
         url: "/app/financeiro",
         tag: `invoice-${row.id}`,
       }, "invoice_due_soon");
@@ -1408,12 +1408,14 @@ export const saveDojoExpense = createServerFn({ method: "POST" })
       return { id: row.id, created: 1 };
     }
     const monthsStep = rec === "monthly" ? 1 : rec === "quarterly" ? 3 : 12;
-    const base = new Date(rest.due_date + "T00:00:00");
+    // Meio-dia UTC + métodos UTC evitam qualquer deslocamento de fuso ao repetir a data.
+    const base = new Date(rest.due_date + "T12:00:00Z");
     const rows = Array.from({ length: count }, (_, idx) => {
       const d = new Date(base);
-      d.setMonth(d.getMonth() + monthsStep * idx);
+      d.setUTCMonth(d.getUTCMonth() + monthsStep * idx);
       return { ...rest, due_date: d.toISOString().slice(0, 10), owner_id: ownerId(context) };
     });
+
     const { error } = await context.supabase.from("dojo_expenses").insert(rows);
     if (error) throw new Error(error.message);
     return { created: rows.length };
@@ -1826,7 +1828,7 @@ export const addBulkGraduation = createServerFn({ method: "POST" })
         if (inv && inv.status !== "paid") {
           tasks.push(sendPushToStudent(g.student_id, {
             title: "Nova cobrança disponível",
-            body: `Taxa de graduação — ${belt?.name ?? "Faixa"} • ${amountFmt(inv.amount)}${data.graduation_date ? ` • vence em ${new Date(data.graduation_date).toLocaleDateString("pt-BR")}` : ""}`,
+            body: `Taxa de graduação — ${belt?.name ?? "Faixa"} • ${amountFmt(inv.amount)}${data.graduation_date ? ` • vence em ${new Date(data.graduation_date + "T12:00:00Z").toLocaleDateString("pt-BR", { timeZone: "UTC" })}` : ""}`,
             url: "/app/financeiro",
             tag: `invoice-${inv.invoice_id}`,
           }, "invoice_due_soon"));
