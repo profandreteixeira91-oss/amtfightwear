@@ -1086,7 +1086,20 @@ function StudentDetail() {
                                         {g.notes ? ` · ${g.notes}` : ""}
                                       </div>
                                     </div>
-                                    <div className="flex shrink-0 items-center gap-1 self-end sm:self-auto">
+                                    <div className="flex shrink-0 flex-wrap items-center gap-1 self-end sm:self-auto">
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="h-8 gap-1.5 text-xs"
+                                        onClick={() => setGradEdit({
+                                          open: true,
+                                          grad: g,
+                                          graduation_date: (g.graduation_date ?? "").slice(0, 10),
+                                          evaluator: g.evaluator ?? "",
+                                        })}
+                                      >
+                                        <Pencil className="h-3.5 w-3.5" /> Editar
+                                      </Button>
                                       <Button
                                         size="sm"
                                         variant="outline"
