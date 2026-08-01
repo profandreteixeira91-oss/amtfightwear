@@ -44,6 +44,7 @@ function CartPage() {
   const [shipping, setShipping] = useState<ShippingOption | null>(null);
   const [zip, setZip] = useState<string>("");
   const [coupon, setCoupon] = useState("");
+  const [couponOpen, setCouponOpen] = useState(false);
   const [couponApplied, setCouponApplied] = useState<string | null>(null);
   const [couponError, setCouponError] = useState<string | null>(null);
   const [identifyOpen, setIdentifyOpen] = useState(false);
