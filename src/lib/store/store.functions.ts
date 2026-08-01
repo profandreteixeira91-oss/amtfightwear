@@ -638,6 +638,31 @@ export const getStoreOrder = createServerFn({ method: "GET" })
     return { order, items: items ?? [] };
   });
 
+export const cancelStoreOrder = createServerFn({ method: "POST" })
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: order } = await supabaseAdmin.from("store_orders").select("id, status, payment_status").eq("id", data.id).maybeSingle();
+    if (!order) throw new Error("Pedido não encontrado.");
+    const allowed = ["pending_payment", "pending", "failed"];
+    if (!allowed.includes(String(order.status ?? "").toLowerCase())) {
+      throw new Error("Este pedido não pode mais ser cancelado.");
+    }
+    const { error } = await supabaseAdmin
+      .from("store_orders")
+      .update({ status: "cancelled", payment_status: "cancelled", updated_at: new Date().toISOString() })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    try {
+      const { createOrderNotification, notifyEventFromStatus } = await import("@/lib/store/notifications.server");
+      const evt = notifyEventFromStatus("cancelled", "cancelled");
+      if (evt) await createOrderNotification(data.id, evt);
+    } catch (err) {
+      console.error("[notifications] cancel order notify failed", err);
+    }
+    return { ok: true };
+  });
+
 // ============ ADMIN ============
 
 export const adminListOrders = createServerFn({ method: "GET" })
