@@ -25,20 +25,17 @@ export function RealScreenshots() {
       <div className="grid gap-6 md:grid-cols-2">
         {SHOTS.map((s, i) => (
           <FadeIn key={s.title} delay={i * 0.04}>
-            <figure className="group overflow-hidden rounded-2xl border border-black/10 bg-white shadow-sm transition-all hover:shadow-xl">
-              <div className="overflow-hidden bg-neutral-100">
-                <img
-                  src={s.src}
-                  alt={`Print real da tela ${s.title} do AMT Dojo Manager`}
-                  loading="lazy"
-                  className="h-auto w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
-                />
+            <div className="group min-w-0 overflow-hidden rounded-2xl border border-black/10 bg-white shadow-sm transition-all hover:shadow-xl">
+              <ShotFrame
+                src={s.src}
+                alt={`Print real da tela ${s.title} do AMT Dojo Manager`}
+              />
+              <div className="min-w-0 border-t border-black/5 p-5">
+                <h3 className="break-words text-base font-semibold text-[#111111]">{s.title}</h3>
+                <p className="mt-1 break-words text-sm text-[#111111]/60">{s.desc}</p>
               </div>
-              <figcaption className="border-t border-black/5 p-5">
-                <h3 className="text-base font-semibold text-[#111111]">{s.title}</h3>
-                <p className="mt-1 text-sm text-[#111111]/60">{s.desc}</p>
-              </figcaption>
-            </figure>
+            </div>
+
           </FadeIn>
         ))}
       </div>
