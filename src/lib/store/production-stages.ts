@@ -125,3 +125,44 @@ export function parseScannedCode(raw: string): string {
 
 /** Status de pedido que NÃO devem entrar na fila de produção. */
 export const CANCELLED_ORDER_STATUS = ["cancelled", "canceled", "refunded"];
+
+/** Situação de pagamento do pedido de origem, exibida na fila de produção. */
+export const PAYMENT_LABEL: Record<string, string> = {
+  pending: "Pagamento pendente",
+  paid: "Pago",
+  approved: "Pago",
+  authorized: "Pagamento autorizado",
+  in_process: "Pagamento em análise",
+  in_mediation: "Pagamento em mediação",
+  failed: "Pagamento não efetuado",
+  rejected: "Pagamento recusado",
+  refunded: "Pagamento reembolsado",
+  cancelled: "Pagamento cancelado",
+  canceled: "Pagamento cancelado",
+};
+
+export const paymentBadgeLabel = (s: string | null | undefined) =>
+  PAYMENT_LABEL[String(s ?? "pending").toLowerCase()] ?? "Pagamento pendente";
+
+export const paymentBadgeCls = (s: string | null | undefined) => {
+  switch (String(s ?? "pending").toLowerCase()) {
+    case "paid":
+    case "approved":
+    case "authorized":
+      return "border-emerald-500/30 bg-emerald-500/10 text-emerald-500";
+    case "failed":
+    case "rejected":
+    case "cancelled":
+    case "canceled":
+    case "refunded":
+      return "border-destructive/35 bg-destructive/10 text-destructive";
+    case "in_process":
+    case "in_mediation":
+      return "border-sky-500/30 bg-sky-500/10 text-sky-500";
+    default:
+      return "border-amber-500/35 bg-amber-500/10 text-amber-500";
+  }
+};
+
+export const isPaymentPending = (s: string | null | undefined) =>
+  !["paid", "approved", "authorized"].includes(String(s ?? "pending").toLowerCase());
