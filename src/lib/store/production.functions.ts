@@ -19,6 +19,7 @@ export type ProductionJob = {
   unit_price: number | null;
   total_value: number | null;
   status: "queued" | "in_production" | "paused" | "done" | "cancelled";
+  payment_status: string | null;
   stage: Stage;
   urgency: Urgency;
   order_type: OrderType;
