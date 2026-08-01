@@ -87,7 +87,8 @@ export function SearchBar({ className }: { className?: string } = {}) {
     }
     setLoading(true);
     const handle = setTimeout(async () => {
-      const words = Array.from(new Set(term.split(/\s+/).filter((w) => w.length >= 2)));
+      // Palavras digitadas + correções de digitação + sinônimos.
+      const words = expandSearchTerms(term);
       let query = supabase
         .from("products")
         .select("id, name, slug, price, image_url, category")
@@ -114,9 +115,11 @@ export function SearchBar({ className }: { className?: string } = {}) {
       setItems((data ?? []) as Suggestion[]);
       setActiveIdx(-1);
       setLoading(false);
+      trackStoreEvent("search", { search_term: term, results: (data ?? []).length });
     }, 200);
     return () => clearTimeout(handle);
   }, [q, selectedCatId, cats]);
+
 
   const go = (s: Suggestion) => {
     setOpen(false);
