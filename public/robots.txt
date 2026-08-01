@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin
+Disallow: /dojo/app
+Disallow: /app
+Disallow: /auth
+Disallow: /dojo/auth
+Disallow: /loja/conta
+Disallow: /loja/carrinho
+Disallow: /loja/checkout
+Disallow: /loja/pedido
+Disallow: /dojo/checkout
+Disallow: /dojo/pay
+Disallow: /pay
+Disallow: /reset-password
+Disallow: /unsubscribe
+Disallow: /api/
+
+Sitemap: https://amtfightwear.com.br/sitemap.xml
