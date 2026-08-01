@@ -154,13 +154,13 @@ function AdminOrdersPage() {
                       <td className="p-2">{o.payment_status}</td>
                       <td className="p-2">
                         <Select value={o.status} onValueChange={(v) => change(o.id, v)}>
-                          <SelectTrigger className="h-8 w-40">
+                          <SelectTrigger className="h-8 w-44">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
                             {STATUSES.map((s) => (
-                              <SelectItem key={s} value={s}>
-                                {s}
+                              <SelectItem key={s.value} value={s.value}>
+                                {s.label}
                               </SelectItem>
                             ))}
                           </SelectContent>
