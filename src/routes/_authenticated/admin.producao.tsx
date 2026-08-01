@@ -156,6 +156,19 @@ function ProductionQueuePage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  // Sincronização silenciosa ao abrir a página: nenhum pedido fica de fora da fila.
+  const autoSynced = useRef(false);
+  useEffect(() => {
+    if (autoSynced.current) return;
+    autoSynced.current = true;
+    void syncFn()
+      .then((r: { inserted: number }) => {
+        if (r?.inserted > 0) invalidate();
+      })
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const move = useMutation({
     mutationFn: (v: { id: string; stage: Stage }) => moveFn({ data: v }),
     onSuccess: () => invalidate(),
