@@ -12,14 +12,55 @@ export const Route = createFileRoute("/loja/categoria/$slug")({
       queryFn: () => getCategoryWithProducts({ data: { slug: params.slug } }),
     });
     const c = queryOptions({ queryKey: ["store", "categories"], queryFn: () => listStoreCategories() });
-    await Promise.all([context.queryClient.ensureQueryData(q), context.queryClient.ensureQueryData(c)]);
+    const [data] = await Promise.all([
+      context.queryClient.ensureQueryData(q),
+      context.queryClient.ensureQueryData(c),
+    ]);
+    return { category: data.category, count: data.products.length };
   },
-  head: ({ params }) => ({
-    meta: [
-      { title: `${params.slug.replace(/-/g, " ")} — AMT Fight Wear` },
-      { name: "description", content: `Confira ${params.slug.replace(/-/g, " ")} na loja oficial AMT Fight Wear.` },
-    ],
-  }),
+  head: ({ params, loaderData }) => {
+    const url = `https://amtfightwear.com.br/loja/categoria/${params.slug}`;
+    const cat = loaderData?.category as { name?: string; description?: string | null } | null | undefined;
+    if (!cat) {
+      return {
+        meta: [
+          { title: "Categoria não encontrada — AMT Fight Wear" },
+          { name: "robots", content: "noindex" },
+        ],
+      };
+    }
+    const name = cat.name ?? params.slug.replace(/-/g, " ");
+    const title = `${name} | AMT Fight Wear`;
+    const desc = (cat.description || `${name} da AMT Fight Wear: fabricação própria, alta durabilidade, até 10x sem juros e envio para todo o Brasil.`)
+      .replace(/<[^>]*>/g, "")
+      .slice(0, 155);
+    return {
+      meta: [
+        { title },
+        { name: "description", content: desc },
+        { property: "og:title", content: title },
+        { property: "og:description", content: desc },
+        { property: "og:type", content: "website" },
+        { property: "og:url", content: url },
+        { name: "twitter:card", content: "summary_large_image" },
+      ],
+      links: [{ rel: "canonical", href: url }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Início", item: "https://amtfightwear.com.br/" },
+              { "@type": "ListItem", position: 2, name, item: url },
+            ],
+          }),
+        },
+      ],
+    };
+  },
+
   component: CategoryPage,
   errorComponent: ({ error }) => <div className="p-8 text-center text-destructive">Erro: {error.message}</div>,
   notFoundComponent: () => <div className="p-8 text-center">Categoria não encontrada</div>,
