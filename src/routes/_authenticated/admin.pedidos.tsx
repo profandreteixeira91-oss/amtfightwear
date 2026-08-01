@@ -24,10 +24,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { adminRegenerateStorePixQrCodes } from "@/lib/store/mercadopago.functions";
 import { formatBRL } from "@/lib/store/cart-store";
 import { orderStatusLabel, paymentStatusLabel, orderStatusOptions } from "@/lib/store/order-status";
 import { useState } from "react";
-import { Truck, RefreshCw, Package, ExternalLink, Wallet, Trash2 } from "lucide-react";
+import { Truck, RefreshCw, Package, ExternalLink, Wallet, Trash2, QrCode } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -100,19 +101,51 @@ function AdminOrdersPage() {
     }
   };
 
+  // Regera os QR Codes Pix pendentes com as credenciais atuais da loja.
+  const regenFn = useServerFn(adminRegenerateStorePixQrCodes);
+  const [regenBusy, setRegenBusy] = useState(false);
+  const regenPix = async () => {
+    setRegenBusy(true);
+    try {
+      const r = await regenFn();
+      if (r.updated > 0) toast.success(`${r.updated} QR Code(s) Pix atualizado(s)`);
+      if (r.failures.length > 0) {
+        toast.error(`${r.failures.length} falha(s): ${r.failures[0]?.message ?? ""}`);
+      } else if (r.updated === 0) {
+        toast.info("Nenhum pedido Pix pendente");
+      }
+      refetch();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro");
+    } finally {
+      setRegenBusy(false);
+    }
+  };
+
 
   return (
     <PageShell
       title="Pedidos"
       description={`${data?.length ?? 0} pedidos recebidos`}
       actions={
-        <div className="flex items-center gap-2 rounded-md border bg-card px-3 py-2 text-sm">
-          <Wallet className="h-4 w-4 text-primary" />
-          <div>
-            <div className="text-xs text-muted-foreground">Saldo Melhor Envio</div>
-            <div className="font-bold">
-              {meInfo ? formatBRL(Number(meInfo.balance)) : "—"}
-              {meInfo?.name ? <span className="ml-2 text-xs font-normal text-muted-foreground">({meInfo.name})</span> : null}
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={regenPix}
+            disabled={regenBusy}
+            className="gap-2"
+          >
+            <QrCode className="h-4 w-4" />
+            {regenBusy ? "Atualizando QR Codes…" : "Atualizar QR Codes Pix"}
+          </Button>
+          <div className="flex items-center gap-2 rounded-md border bg-card px-3 py-2 text-sm">
+            <Wallet className="h-4 w-4 text-primary" />
+            <div>
+              <div className="text-xs text-muted-foreground">Saldo Melhor Envio</div>
+              <div className="font-bold">
+                {meInfo ? formatBRL(Number(meInfo.balance)) : "—"}
+                {meInfo?.name ? <span className="ml-2 text-xs font-normal text-muted-foreground">({meInfo.name})</span> : null}
+              </div>
             </div>
           </div>
         </div>
