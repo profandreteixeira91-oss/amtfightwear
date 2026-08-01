@@ -229,10 +229,20 @@ function StoreDashboard() {
             <FinanceRow label="Descontos" value={data?.finance.discounts} loading={isLoading} negative />
             <FinanceRow label="Fretes" value={data?.finance.shipping} loading={isLoading} />
             <FinanceRow label="Receita líquida" value={data?.finance.net_revenue} loading={isLoading} highlight />
+            <FinanceRow
+              label="Produção finalizada"
+              value={data?.finance.production_revenue}
+              loading={isLoading}
+            />
             <div className="flex items-center justify-between border-t pt-3 text-sm">
               <span className="text-muted-foreground">Pedidos pagos</span>
               <span className="font-bold">{data ? NUM(data.finance.paid_orders) : "—"}</span>
             </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Itens finalizados na produção</span>
+              <span className="font-bold">{data ? NUM(data.finance.production_entries) : "—"}</span>
+            </div>
+
           </CardContent>
         </Card>
       </div>
