@@ -4,7 +4,6 @@ import { toast } from "sonner";
 import { Loader2, Eye, EyeOff, ShieldCheck } from "lucide-react";
 
 import { studentSupabase } from "@/lib/student-auth/student-client";
-import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/app/reset-password")({
   ssr: false,
