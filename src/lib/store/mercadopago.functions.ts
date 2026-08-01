@@ -248,6 +248,75 @@ export const createMercadopagoPayment = createServerFn({ method: "POST" })
     };
   });
 
+/**
+ * Regera os QR Codes Pix de todos os pedidos pendentes usando a conta Mercado Pago
+ * atual da loja (STORE_MERCADOPAGO_*). Útil após troca de conta/credenciais.
+ */
+export const adminRegenerateStorePixQrCodes = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async () => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: orders, error } = await supabaseAdmin
+      .from("store_orders")
+      .select("*")
+      .eq("payment_method", "PIX")
+      .in("payment_status", ["pending", "failed"])
+      .limit(500);
+    if (error) throw new Error(error.message);
+
+    let updated = 0;
+    const failures: { order: string; message: string }[] = [];
+
+    for (const order of orders ?? []) {
+      const total = Number(order.total);
+      const parts = (order.customer_name || "Cliente").trim().split(/\s+/);
+      const cpf = onlyDigits(order.customer_document);
+      const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      try {
+        const payment = await mp<any>(`/v1/payments`, {
+          method: "POST",
+          headers: { "X-Idempotency-Key": `${order.id}-regen-${Date.now()}` },
+          body: JSON.stringify({
+            transaction_amount: Math.round(total * 100) / 100,
+            description: `Pedido ${order.order_number}`,
+            external_reference: order.id,
+            statement_descriptor: "AMTFIGHTWEAR",
+            notification_url: `https://amtfightwear.com.br/api/public/hooks/mercadopago`,
+            payment_method_id: "pix",
+            date_of_expiration: expires.toISOString(),
+            payer: {
+              email: order.customer_email,
+              first_name: parts[0] || "Cliente",
+              last_name: parts.slice(1).join(" ") || "AMT",
+              identification: cpf ? { type: "CPF", number: cpf } : undefined,
+            },
+          }),
+        });
+        const poi = payment?.point_of_interaction?.transaction_data ?? {};
+        await supabaseAdmin
+          .from("store_orders")
+          .update({
+            payment_provider: "mercadopago",
+            payment_reference: String(payment.id ?? ""),
+            mp_payment_id: String(payment.id ?? ""),
+            asaas_pix_qr_code: poi.qr_code_base64
+              ? `data:image/png;base64,${poi.qr_code_base64}`
+              : null,
+            asaas_pix_copy_paste: poi.qr_code ?? null,
+            asaas_pix_expires_at: payment.date_of_expiration ?? null,
+            asaas_invoice_url: poi.ticket_url ?? null,
+            payment_raw: payment,
+          } as never)
+          .eq("id", order.id);
+        updated += 1;
+      } catch (e) {
+        failures.push({ order: order.order_number ?? order.id, message: (e as Error).message });
+      }
+    }
+
+    return { ok: failures.length === 0, updated, failures };
+  });
+
 export const syncMercadopagoPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => z.object({ order_id: z.string().uuid() }).parse(i))
