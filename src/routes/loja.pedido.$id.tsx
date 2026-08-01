@@ -75,10 +75,14 @@ function paymentMethodLabel(order: any) {
 
 function OrderPage() {
   const { id } = Route.useParams();
+  const queryClient = useQueryClient();
   const { data: categories } = useSuspenseQuery(queryOptions({ queryKey: ["store", "categories"], queryFn: () => listStoreCategories() }));
   const { data } = useSuspenseQuery(queryOptions({ queryKey: ["store", "order", id], queryFn: () => getStoreOrder({ data: { id } }) }));
   const [downloading, setDownloading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+  const [cancelError, setCancelError] = useState<string | null>(null);
+  const cancelOrderFn = useServerFn(cancelStoreOrder);
 
   if (!data) {
     return <StoreShell categories={categories}><div className="p-16 text-center">Pedido não encontrado.</div></StoreShell>;
@@ -88,6 +92,7 @@ function OrderPage() {
   const o = order as any;
   const current = stepIndex(o.status);
   const isCancelled = ["cancelled", "canceled", "refunded"].includes(String(o.status || "").toLowerCase());
+  const canCancel = ["pending_payment", "pending", "failed"].includes(String(o.status || "").toLowerCase()) && !isCancelled;
   const addr = o.shipping_address as Record<string, any> | null | undefined;
 
   async function handleDownload() {
@@ -103,6 +108,20 @@ function OrderPage() {
     navigator.clipboard.writeText(String(o.asaas_pix_copy_paste));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  }
+
+  async function handleCancel() {
+    if (!window.confirm("Tem certeza que deseja cancelar este pedido? Essa ação não pode ser desfeita.")) return;
+    setCancelling(true);
+    setCancelError(null);
+    try {
+      await cancelOrderFn({ data: { id } });
+      queryClient.invalidateQueries({ queryKey: ["store", "order", id] });
+    } catch (err: any) {
+      setCancelError(err?.message ?? "Não foi possível cancelar o pedido.");
+    } finally {
+      setCancelling(false);
+    }
   }
 
   return (
