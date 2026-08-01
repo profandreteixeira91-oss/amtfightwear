@@ -207,7 +207,7 @@ export const adminSyncProductionQueue = createServerFn({ method: "POST" })
     const { data: quotes, error: qErr } = await supabase
       .from("store_quotes")
       .select("id, quote_number, customer_name, customer_company, items, status, created_at")
-      .eq("status", "approved")
+      .in("status", ["approved", "paid_50", "paid_100", "sent", "draft"])
       .order("created_at", { ascending: true })
       .limit(1000);
     if (qErr) throw new Error(qErr.message);
@@ -236,7 +236,7 @@ export const adminSyncProductionQueue = createServerFn({ method: "POST" })
           queued_at: queuedAt,
           deadline: new Date(new Date(queuedAt).getTime() + 15 * 86400000).toISOString().slice(0, 10),
           order_type: "quote",
-          payment_status: "approved",
+          payment_status: q.status === "paid_100" ? "paid" : q.status === "paid_50" ? "partial" : q.status,
           custom_config: null,
         });
       });

@@ -124,7 +124,7 @@ export const adminSaveQuote = createServerFn({ method: "POST" })
         .select("*")
         .maybeSingle();
       if (error) throw new Error(error.message);
-      if (row) await (await import("./quote-finance.server")).syncQuoteFinanceEntry(context.supabase, row as any);
+      if (row) await (await import("./quote-sync.server")).syncQuoteEverywhere(context.supabase, row as never);
       return row;
     }
 
@@ -134,7 +134,7 @@ export const adminSaveQuote = createServerFn({ method: "POST" })
       .select("*")
       .maybeSingle();
     if (error) throw new Error(error.message);
-    if (row) await (await import("./quote-finance.server")).syncQuoteFinanceEntry(context.supabase, row as any);
+    if (row) await (await import("./quote-sync.server")).syncQuoteEverywhere(context.supabase, row as never);
     return row;
   });
 
@@ -142,7 +142,7 @@ export const adminDeleteQuote = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
-    await (await import("./quote-finance.server")).syncQuoteFinanceEntry(context.supabase, { id: data.id, status: "draft", total: 0 });
+    await (await import("./quote-sync.server")).syncQuoteEverywhere(context.supabase, { id: data.id, status: "rejected", total: 0 });
     const { error } = await context.supabase
       .from("store_quotes")
       .delete()
@@ -169,7 +169,7 @@ export const adminUpdateQuoteStatus = createServerFn({ method: "POST" })
       .select("*")
       .maybeSingle();
     if (error) throw new Error(error.message);
-    if (row) await (await import("./quote-finance.server")).syncQuoteFinanceEntry(context.supabase, row as any);
+    if (row) await (await import("./quote-sync.server")).syncQuoteEverywhere(context.supabase, row as never);
     return { ok: true };
   });
 
