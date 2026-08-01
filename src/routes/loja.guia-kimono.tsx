@@ -15,7 +15,7 @@ const CANONICAL = "https://amtfightwear.com.br/loja/guia-kimono";
 
 const TITLE = "Kimono de Jiu-Jitsu: guia de tamanhos e tecidos";
 const DESCRIPTION =
-  "Como escolher o tamanho do kimono de Jiu-Jitsu (A0 a A5) e entender as tramas: pérola, trançada, gold e favo de mel. Tabela de medidas por altura e peso.";
+  "Como escolher o tamanho do kimono de Jiu-Jitsu (A0 a A5) e entender as gramaturas (g/m²): leve, média e alta. Tabela de medidas por altura e peso.";
 
 /** Tabela de tamanhos padrão IBJJF (adulto) usada pela AMT Fight Wear. */
 const adultSizes = [
@@ -69,8 +69,8 @@ const faqs = [
     a: "Sim, kimonos de algodão encolhem de 2% a 5% nas primeiras lavagens. Lave em água fria e seque na sombra para reduzir o encolhimento.",
   },
   {
-    q: "Qual a diferença entre trama pérola e trama trançada?",
-    a: "A trama pérola (450–550 g/m²) é mais resistente e equilibrada, ideal para treino diário e competição. A trançada é mais leve e barata, indicada para iniciantes e climas quentes.",
+    q: "Qual a diferença entre as gramaturas do kimono?",
+    a: "A gramatura mede a densidade do tecido em g/m². Entre 350 e 450 g/m² o kimono é mais leve e fresco, indicado para iniciantes e climas quentes. Entre 450 e 550 g/m² fica o melhor equilíbrio entre conforto e durabilidade, ideal para treino diário e competição. Acima de 550 g/m² o tecido é mais denso, dificulta a pegada do oponente e dura mais, porém pesa e demora mais para secar.",
   },
   {
     q: "Qual gramatura de kimono é permitida em competição?",
@@ -180,7 +180,7 @@ function GuiaKimonoPage() {
           <p className="mt-4 text-base leading-relaxed text-muted-foreground sm:text-lg">
             Escolher o kimono certo é a diferença entre um treino confortável e um gi que rasga, aperta ou fica
             grande depois da primeira lavagem. Abaixo você encontra a tabela de medidas oficial (A0 a A5 e
-            infantil), a explicação de cada trama e as respostas para as dúvidas mais comuns — direto de quem
+            infantil), a explicação das gramaturas e as respostas para as dúvidas mais comuns — direto de quem
             fabrica.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
@@ -287,7 +287,7 @@ function GuiaKimonoPage() {
           </div>
         </section>
 
-        {/* Tramas */}
+        {/* Gramaturas */}
         <section className="mb-14">
           <SectionTitle eyebrow="Tecido" title="Gramaturas: como escolher a densidade certa" />
           <p className="mb-5 max-w-3xl text-sm leading-relaxed text-muted-foreground">{gsmNote}</p>
@@ -352,7 +352,7 @@ function GuiaKimonoPage() {
             Pronto para escolher o seu kimono?
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-sm text-muted-foreground sm:text-base">
-            Fabricação própria, trama pérola reforçada e bordado personalizado da sua academia. Frete para todo o
+            Fabricação própria, tecido reforçado e bordado personalizado da sua academia. Frete para todo o
             Brasil e até 10x sem juros.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
