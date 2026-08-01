@@ -45,6 +45,7 @@ import {
   LogOut,
   Bell,
   Inbox,
+  Factory,
 } from "lucide-react";
 import { OwnerOnly } from "@/lib/auth/owner-only";
 import {
@@ -168,6 +169,7 @@ const NAV: NavGroup[] = [
       { title: "Orçamentos", url: "/admin/orcamentos", icon: FileText },
       { title: "Catálogo", url: "/admin/produtos", icon: Package },
       { title: "Pacotes (dimensões)", url: "/admin/produtos/pacotes", icon: Box },
+      { title: "Fila de produção", url: "/admin/producao", icon: Factory },
       { title: "Calc. de Faixas", url: "/admin/produtos/faixa-calc", icon: Calculator },
       { title: "Atacado", url: "/admin/atacado", icon: Boxes },
       { title: "Logística / Envio", url: "/admin/envio", icon: Truck },
