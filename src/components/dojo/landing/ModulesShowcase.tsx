@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Section, FadeIn } from "./Section";
 import { CTABand } from "./CTABand";
 import { SHOT, type ShotKey } from "./shots";
+import { ShotFrame } from "./ShotFrame";
 
 type Mod = {
   name: string;
