@@ -12,7 +12,7 @@ import { ShippingCalculator } from "@/components/store/ShippingCalculator";
 import type { ShippingOption } from "@/lib/store/shipping.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { trackStoreEvent, toAnalyticsItem } from "@/lib/store/analytics";
-import { FREE_SHIPPING_THRESHOLD } from "@/lib/store/pricing";
+import { FREE_SHIPPING_THRESHOLD, PIX_DISCOUNT_RATE } from "@/lib/store/pricing";
 import { TrustBadges } from "@/components/store/TrustBadges";
 
 /** Rascunho local dos dados de entrega (evita retrabalho do cliente). */
@@ -128,7 +128,11 @@ function CheckoutPage() {
   const shippingCost = shipping?.price ?? 0;
   const freeShipping = subtotal >= FREE_SHIPPING_THRESHOLD;
   const shippingDiscount = freeShipping ? shippingCost : 0;
-  const total = subtotal + shippingCost - shippingDiscount;
+  // Varejo: 5% de desconto à vista no PIX, sobre os produtos (não sobre o frete).
+  const pixDiscount =
+    paymentMethod === "PIX" ? Math.round(subtotal * PIX_DISCOUNT_RATE * 100) / 100 : 0;
+  const total =
+    Math.round((subtotal - pixDiscount + shippingCost - shippingDiscount) * 100) / 100;
   const freeShippingPct = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
 
 
@@ -175,6 +179,7 @@ function CheckoutPage() {
           },
           shipping_cost: shipping.price,
           shipping_method: `${shipping.company} ${shipping.name}`,
+          payment_method: paymentMethod,
           items: items.map((i) => ({
             product_id: i.product_id,
             variant_id: i.variant_id ?? undefined,
@@ -425,6 +430,12 @@ function CheckoutPage() {
                 <div className="flex justify-between text-sm text-emerald-600 dark:text-emerald-400">
                   <span>Frete grátis (acima de {formatBRL(FREE_SHIPPING_THRESHOLD)})</span>
                   <span>−{formatBRL(shippingDiscount)}</span>
+                </div>
+              )}
+              {pixDiscount > 0 && (
+                <div className="flex justify-between text-sm text-emerald-600 dark:text-emerald-400">
+                  <span>Desconto PIX (5%)</span>
+                  <span>−{formatBRL(pixDiscount)}</span>
                 </div>
               )}
               {!freeShipping && (
