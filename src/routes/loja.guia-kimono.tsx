@@ -229,7 +229,7 @@ function GuiaKimonoPage() {
         </section>
 
         {/* Tabela adulto */}
-        <section className="mb-14">
+        <section id="tamanhos" className="mb-14">
           <SectionTitle eyebrow="Tabela oficial" title="Tamanhos de kimono adulto (A0 a A5)" />
           <div className="overflow-x-auto rounded-2xl border border-border/70">
             <table className="w-full min-w-[600px] text-sm">
@@ -263,7 +263,7 @@ function GuiaKimonoPage() {
         </section>
 
         {/* Tabela infantil */}
-        <section className="mb-14">
+        <section id="infantil" className="mb-14">
           <SectionTitle eyebrow="Kids" title="Tamanhos de kimono infantil (M0 a M4)" />
           <div className="overflow-x-auto rounded-2xl border border-border/70">
             <table className="w-full min-w-[520px] text-sm">
