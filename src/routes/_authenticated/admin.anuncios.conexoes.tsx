@@ -42,20 +42,26 @@ function ConnectionsPage() {
     retry: false,
   });
 
-  const syncDirectMut = useMutation({
-    mutationFn: () => syncDirect(),
-    onSuccess: (r) => {
-      toast.success(`${r.synced} conta(s) de anúncio sincronizada(s)`);
-      qc.invalidateQueries({ queryKey: ["ads", "accounts"] });
+  // O token de sistema (Ads API) é sempre a fonte primária. O token de Página
+  // do Instagram Hub não possui permissões de Ads e retorna erro de
+  // "pages_* must be granted", por isso só é usado como último recurso.
+  const syncAll = useMutation({
+    mutationFn: async () => {
+      try {
+        const r = await syncDirect();
+        return { synced: r.synced, via: "system" as const };
+      } catch (err) {
+        const r = await sync();
+        return { synced: r.synced, via: "page" as const, warn: (err as Error).message };
+      }
     },
-    onError: (e: Error) => toast.error(e.message),
-  });
-
-  const syncMut = useMutation({
-    mutationFn: () => sync(),
     onSuccess: (r) => {
-      toast.success(`${r.synced} contas sincronizadas`);
+      toast.success(
+        `${r.synced} conta(s) de anúncio sincronizada(s)` +
+          (r.via === "system" ? " via token de sistema" : ""),
+      );
       qc.invalidateQueries({ queryKey: ["ads", "accounts"] });
+      qc.invalidateQueries({ queryKey: ["ads", "direct-account"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -67,16 +73,12 @@ function ConnectionsPage() {
         title="Conexão Meta Ads"
         description="Contas de anúncio, pixels e permissões para publicar campanhas automaticamente."
         actions={
-          <Button
-            onClick={() => (direct ? syncDirectMut.mutate() : syncMut.mutate())}
-            disabled={syncDirectMut.isPending || syncMut.isPending || (!meta && !direct)}
-          >
-            <RefreshCw
-              className={`mr-2 h-4 w-4 ${syncDirectMut.isPending || syncMut.isPending ? "animate-spin" : ""}`}
-            />
+          <Button onClick={() => syncAll.mutate()} disabled={syncAll.isPending}>
+            <RefreshCw className={`mr-2 h-4 w-4 ${syncAll.isPending ? "animate-spin" : ""}`} />
             Sincronizar contas
           </Button>
         }
+
       />
 
       <SectionCard
