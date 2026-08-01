@@ -86,21 +86,69 @@ function PackagesPage() {
 
   const cats = categories.data ?? [];
   const parents = useMemo(() => cats.filter((c) => !c.parent_id), [cats]);
-  const subs = useMemo(() => cats.filter((c) => c.parent_id && (catId === ALL || c.parent_id === catId)), [cats, catId]);
+
+  // Mapa pai -> filhos (suporta hierarquia com mais de 2 níveis)
+  const childrenByParent = useMemo(() => {
+    const m = new Map<string, typeof cats>();
+    for (const c of cats) {
+      if (!c.parent_id) continue;
+      const arr = m.get(c.parent_id) ?? [];
+      arr.push(c);
+      m.set(c.parent_id, arr);
+    }
+    for (const arr of m.values()) arr.sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
+    return m;
+  }, [cats]);
+
+  // Todos os descendentes (em qualquer nível) de uma categoria, incluindo ela mesma
+  const descendantIds = useMemo(
+    () => (rootId: string) => {
+      const out = new Set<string>();
+      const stack = [rootId];
+      while (stack.length) {
+        const cur = stack.pop()!;
+        if (out.has(cur)) continue;
+        out.add(cur);
+        for (const kid of childrenByParent.get(cur) ?? []) stack.push(kid.id);
+      }
+      return out;
+    },
+    [childrenByParent],
+  );
+
+  // Lista de subcategorias (com indentação por nível) da categoria selecionada
+  const subs = useMemo(() => {
+    const out: { id: string; name: string; depth: number }[] = [];
+    const walk = (parentId: string, depth: number) => {
+      for (const c of childrenByParent.get(parentId) ?? []) {
+        out.push({ id: c.id, name: c.name, depth });
+        walk(c.id, depth + 1);
+      }
+    };
+    if (catId === ALL) {
+      for (const p of parents) walk(p.id, 0);
+    } else {
+      walk(catId, 0);
+    }
+    return out;
+  }, [childrenByParent, parents, catId]);
+
   const catName = (id: string | null) => cats.find((c) => c.id === id)?.name ?? "—";
 
   const rows = useMemo(() => {
     const list = products.data ?? [];
     const t = term.trim().toLowerCase();
-    const subIds = new Set(cats.filter((c) => c.parent_id === catId).map((c) => c.id));
+    // Filtro efetivo: subcategoria tem precedência; ambos incluem descendentes
+    const scope =
+      subId !== ALL ? descendantIds(subId) : catId !== ALL ? descendantIds(catId) : null;
     return list.filter((p) => {
-      if (subId !== ALL && p.category_id !== subId) return false;
-      if (subId === ALL && catId !== ALL && p.category_id !== catId && !subIds.has(p.category_id ?? "")) return false;
+      if (scope && !scope.has(p.category_id ?? "")) return false;
       if (onlyMissing && p.weight_grams != null && p.length_cm != null && p.width_cm != null && p.height_cm != null) return false;
       if (!t) return true;
       return `${p.name} ${p.sku ?? ""}`.toLowerCase().includes(t);
     });
-  }, [products.data, term, catId, subId, onlyMissing, cats]);
+  }, [products.data, term, catId, subId, onlyMissing, descendantIds]);
+
 
   const selectedIds = rows.filter((r) => selected[r.id]).map((r) => r.id);
   const allSelected = rows.length > 0 && selectedIds.length === rows.length;
