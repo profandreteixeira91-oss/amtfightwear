@@ -53,26 +53,26 @@ export function Hero() {
             ))}
           </ul>
 
-          <div className="mt-8 flex flex-wrap items-center gap-3">
+          <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             <Button
               asChild
               size="lg"
-              className="group min-h-12 rounded-full bg-[#C1121F] px-7 text-base font-bold text-white shadow-lg shadow-[#C1121F]/25 hover:bg-[#a30f1a]"
+              className="group min-h-12 w-full rounded-full bg-[#C1121F] px-5 text-sm font-bold text-white shadow-lg shadow-[#C1121F]/25 hover:bg-[#a30f1a] sm:w-auto sm:px-7 sm:text-base"
             >
-              <a href="/dojo/auth">
-                COMEÇAR TESTE GRATUITO
-                <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              <a href="/dojo/auth" className="min-w-0">
+                <span className="truncate">COMEÇAR TESTE GRATUITO</span>
+                <ArrowRight className="ml-1 h-4 w-4 shrink-0 transition-transform group-hover:translate-x-0.5" />
               </a>
             </Button>
             <Button
               asChild
               size="lg"
               variant="outline"
-              className="min-h-12 rounded-full border-black/15 bg-white px-6 font-semibold text-[#111111] hover:bg-black/5"
+              className="min-h-12 w-full rounded-full border-black/15 bg-white px-5 text-sm font-semibold text-[#111111] hover:bg-black/5 sm:w-auto sm:px-6 sm:text-base"
             >
-              <a href="#prints">
-                <PlayCircle className="mr-1.5 h-4 w-4" aria-hidden="true" />
-                ASSISTIR DEMONSTRAÇÃO
+              <a href="#prints" className="min-w-0">
+                <PlayCircle className="mr-1.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                <span className="truncate">ASSISTIR DEMONSTRAÇÃO</span>
               </a>
             </Button>
           </div>
