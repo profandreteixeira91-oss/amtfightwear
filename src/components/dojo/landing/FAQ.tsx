@@ -1,15 +1,20 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Section } from "./Section";
+import { CTABand } from "./CTABand";
 
 const faqs = [
-  { q: "Posso controlar várias unidades?", a: "Sim. O plano Professional permite até 3 unidades e o Enterprise oferece unidades ilimitadas com relatórios consolidados." },
-  { q: "Existe aplicativo para alunos?", a: "Sim. O App do Aluno inclui carteirinha digital, presença, histórico de graduações, notificações e perfil completo." },
-  { q: "O sistema gera certificados?", a: "Sim. Certificados de graduação são gerados automaticamente a partir de templates personalizáveis com assinatura digital." },
-  { q: "Há integração com a AMT Fight Wear?", a: "Sim. Sua academia pode solicitar faixas, kimonos, patches e produtos personalizados diretamente pelo sistema." },
-  { q: "Posso controlar graduações?", a: "Sim. Controle completo de faixas, graus, requisitos, tempo mínimo e histórico individual de cada aluno." },
-  { q: "O financeiro possui PIX?", a: "Sim. PIX, cartão de crédito, boleto e cobranças recorrentes com controle de inadimplência." },
-  { q: "É possível integrar meios de pagamento?", a: "Sim. Suportamos os principais gateways do mercado brasileiro, além de GymPass e TotalPass." },
-  { q: "Como funciona o suporte?", a: "Suporte por e-mail no plano Starter, prioritário no Professional e gerente de conta dedicado no Enterprise." },
+  { q: "Preciso instalar algo?", a: "Não. O AMT Dojo Manager roda no navegador e também pode ser instalado como aplicativo no celular (PWA), tanto para você quanto para os seus alunos. Sem instalação, sem servidor e sem técnico." },
+  { q: "Funciona no celular?", a: "Sim. Todo o sistema é responsivo e pensado para uso no tatame: check-in, presença, financeiro e cadastro funcionam perfeitamente no celular." },
+  { q: "Meus alunos precisam pagar algo?", a: "Não. O aplicativo do aluno está incluído no plano da academia. Seus alunos usam sem nenhum custo adicional." },
+  { q: "Posso cancelar quando quiser?", a: "Sim. Não existe fidelidade nem multa. Você cancela quando quiser, direto no painel." },
+  { q: "Os dados ficam seguros?", a: "Sim. Cada academia tem seus dados totalmente isolados, com criptografia, backups automáticos e regras de acesso por permissão." },
+  { q: "Serve para qualquer modalidade?", a: "Sim. Jiu-Jitsu, Judô, Muay Thai, Boxe, Karatê, MMA, Taekwondo e outras. Você configura as modalidades, faixas, graus e a terminologia da sua arte (Dan, grau, kyu)." },
+  { q: "Como funciona o teste gratuito?", a: "São 14 dias com acesso total a todos os módulos, sem cartão de crédito. Você cadastra a academia, importa alunos e testa tudo de verdade." },
+  { q: "Existe suporte?", a: "Sim. Suporte humano por WhatsApp e e-mail, além de tutorial guiado dentro do próprio sistema para você começar sozinho." },
+  { q: "Posso importar meus alunos?", a: "Sim. Você pode importar sua planilha de alunos e graduações ou cadastrar pelo wizard guiado, com máscaras de CPF, CEP e busca de endereço automática." },
+  { q: "Posso controlar várias unidades?", a: "Sim. É possível gerenciar múltiplas unidades e filiais com dados isolados e visão consolidada da rede." },
+  { q: "Há integração com a AMT Fight Wear?", a: "Sim. Você solicita faixas, kimonos e patches personalizados direto pelo sistema, com preço de atacado e acompanhamento da fila de produção." },
+  { q: "Quais formas de pagamento os alunos podem usar?", a: "PIX, cartão de crédito e boleto, com cobrança recorrente automática, baixa do pagamento e controle de inadimplência pelo AMT Pay." },
 ];
 
 export function FAQ() {
