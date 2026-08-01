@@ -4,6 +4,7 @@ import { StoreShell } from "@/components/store/StoreShell";
 import { listStoreCategories, getStoreOrder } from "@/lib/store/store.functions";
 import { formatBRL } from "@/lib/store/cart-store";
 import { exportOrderPdf } from "@/lib/store/order-pdf";
+import { orderStatusLabel, paymentStatusLabel } from "@/lib/store/order-status";
 import { CheckCircle2, Download } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
