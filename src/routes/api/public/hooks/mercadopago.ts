@@ -100,15 +100,23 @@ export const Route = createFileRoute("/api/public/hooks/mercadopago")({
 
         // ============================================================
         // FLUXO B: Pagamentos avulsos (loja + Pix/mensalidades)
-        // AMT Pay v2 — todos os pagamentos passam pela conta MP central.
+        // A loja usa a conta MP própria; o AMT Pay/Dojo usa a conta central.
+        // Tentamos os tokens disponíveis até encontrar o pagamento.
         // ============================================================
-        if (!accessToken) return new Response("ok");
+        const tokens = [storeAccessToken, accessToken].filter((t): t is string => Boolean(t));
+        if (!tokens.length) return new Response("ok");
 
-        const res = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
-        if (!res.ok) return new Response("ok");
-        const payment = await res.json();
+        let payment: any = null;
+        for (const token of tokens) {
+          const res = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (res.ok) {
+            payment = await res.json();
+            break;
+          }
+        }
+        if (!payment) return new Response("ok");
 
         const status = String(payment.status ?? "").toLowerCase();
         const orderId = payment.external_reference ?? null;
