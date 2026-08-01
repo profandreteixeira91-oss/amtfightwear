@@ -86,19 +86,18 @@ export function WholesaleHero({
         </div>
 
         {photos.length > 0 && (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="mx-auto grid w-full max-w-md grid-cols-2 gap-3 lg:max-w-none">
             {photos.slice(0, 4).map((ph, i) => (
               <div
                 key={`${ph.src ?? "x"}-${i}`}
-                className={`overflow-hidden rounded-2xl border border-background/15 bg-background/5 ${
-                  i === 0 ? "col-span-2" : ""
-                }`}
+                className="overflow-hidden rounded-2xl border border-background/15 bg-background/5"
               >
-                <ProductImage src={ph.src} alt={ph.alt} aspect={i === 0 ? "video" : "square"} />
+                <ProductImage src={ph.src} alt={ph.alt} aspect="square" />
               </div>
             ))}
           </div>
         )}
+
       </div>
     </section>
   );
