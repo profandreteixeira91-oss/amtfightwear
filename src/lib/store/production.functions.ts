@@ -123,7 +123,10 @@ export const adminSyncProductionQueue = createServerFn({ method: "POST" })
     const isCancelledOrder = (o: { status?: string | null; payment_status?: string | null }) =>
       CANCELLED_ORDER_STATUS.includes(String(o.status ?? "").toLowerCase()) ||
       CANCELLED_ORDER_STATUS.includes(String(o.payment_status ?? "").toLowerCase());
-    const validOrders = (orders ?? []).filter((o) => !isCancelledOrder(o));
+    const isQuoteOrder = (o: { metadata?: unknown }) =>
+      String(((o.metadata ?? {}) as Record<string, unknown>)["channel"] ?? "").toLowerCase() === "quote";
+    // Pedidos gerados por orçamento já entram na fila pela origem "quote".
+    const validOrders = (orders ?? []).filter((o) => !isCancelledOrder(o) && !isQuoteOrder(o));
 
     // Pedidos cancelados (pelo cliente ou pelo admin) saem da fila de produção.
     const cancelledIds = (orders ?? []).filter(isCancelledOrder).map((o) => o.id);
@@ -207,7 +210,7 @@ export const adminSyncProductionQueue = createServerFn({ method: "POST" })
     const { data: quotes, error: qErr } = await supabase
       .from("store_quotes")
       .select("id, quote_number, customer_name, customer_company, items, status, created_at")
-      .eq("status", "approved")
+      .in("status", ["approved", "paid_50", "paid_100", "sent", "draft"])
       .order("created_at", { ascending: true })
       .limit(1000);
     if (qErr) throw new Error(qErr.message);
@@ -236,7 +239,7 @@ export const adminSyncProductionQueue = createServerFn({ method: "POST" })
           queued_at: queuedAt,
           deadline: new Date(new Date(queuedAt).getTime() + 15 * 86400000).toISOString().slice(0, 10),
           order_type: "quote",
-          payment_status: "approved",
+          payment_status: q.status === "paid_100" ? "paid" : q.status === "paid_50" ? "partial" : q.status,
           custom_config: null,
         });
       });
