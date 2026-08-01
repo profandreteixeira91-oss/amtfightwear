@@ -25,7 +25,12 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
-    define: env,
+    define: Object.fromEntries(
+      Object.entries(env).map(([key, value]) => [
+        `import.meta.env.${key}`,
+        JSON.stringify(value),
+      ]),
+    ),
     resolve: {
       alias: {
         // React Email's htmlparser2 needs entities v4.5.0; v7+ removed ./lib/decode.js.
