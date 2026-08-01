@@ -16,6 +16,8 @@ export type ProductionJob = {
   sku: string | null;
   image_url: string | null;
   quantity: number;
+  unit_price: number | null;
+  total_value: number | null;
   status: "queued" | "in_production" | "paused" | "done" | "cancelled";
   stage: Stage;
   urgency: Urgency;
@@ -116,7 +118,7 @@ export const adminSyncProductionQueue = createServerFn({ method: "POST" })
     if (validOrders.length > 0) {
       const { data: items, error: iErr } = await supabase
         .from("store_order_items")
-        .select("id, order_id, product_name, variant_label, sku, image_url, quantity, custom_config")
+        .select("id, order_id, product_name, variant_label, sku, image_url, quantity, unit_price, total_price, custom_config")
         .in(
           "order_id",
           validOrders.map((o) => o.id),
@@ -147,6 +149,13 @@ export const adminSyncProductionQueue = createServerFn({ method: "POST" })
           sku: it.sku ?? null,
           image_url: it.image_url ?? null,
           quantity: Number(it.quantity ?? 1),
+          unit_price: it.unit_price != null ? Number(it.unit_price) : null,
+          total_value:
+            it.total_price != null
+              ? Number(it.total_price)
+              : it.unit_price != null
+                ? Number(it.unit_price) * Number(it.quantity ?? 1)
+                : null,
           queued_at: queuedAt,
           deadline,
           order_type: it.custom_config ? "custom" : wholesale ? "wholesale" : "retail",
@@ -180,6 +189,11 @@ export const adminSyncProductionQueue = createServerFn({ method: "POST" })
           sku: (it["sku"] as string) ?? null,
           image_url: (it["image_url"] as string) ?? null,
           quantity: Number(it["quantity"] ?? 1),
+          unit_price: it["unit_price"] != null ? Number(it["unit_price"]) : null,
+          total_value:
+            it["unit_price"] != null
+              ? Number(it["unit_price"]) * Number(it["quantity"] ?? 1)
+              : null,
           queued_at: queuedAt,
           deadline: new Date(new Date(queuedAt).getTime() + 15 * 86400000).toISOString().slice(0, 10),
           order_type: "quote",
@@ -244,6 +258,7 @@ export const adminUpdateProductionJob = createServerFn({ method: "POST" })
         material_alert: z.string().trim().max(400).nullable().optional(),
         priority: z.number().int().min(-100).max(100).optional(),
         quantity: z.number().min(0).max(1000000).optional(),
+        unit_price: z.number().min(0).max(10000000).nullable().optional(),
         rework: z.boolean().optional(),
         stageAssignee: z.string().trim().max(160).nullable().optional(),
       })
@@ -256,7 +271,7 @@ export const adminUpdateProductionJob = createServerFn({ method: "POST" })
 
     const { data: current, error: curErr } = await context.supabase
       .from("store_production_jobs")
-      .select("stage, stage_assignees, rework_count, started_at")
+      .select("stage, stage_assignees, rework_count, started_at, quantity, unit_price")
       .eq("id", id)
       .maybeSingle();
     if (curErr) throw new Error(curErr.message);
@@ -277,6 +292,14 @@ export const adminUpdateProductionJob = createServerFn({ method: "POST" })
       update["started_at"] = new Date().toISOString();
     }
     if (patch.status === "done") update["completed_at"] = new Date().toISOString();
+    if (patch.stage === "finalizado" && !patch.status) {
+      update["completed_at"] = new Date().toISOString();
+    }
+    if (patch.unit_price !== undefined || patch.quantity !== undefined) {
+      const unit = patch.unit_price !== undefined ? patch.unit_price : Number(current.unit_price ?? 0);
+      const qty = patch.quantity !== undefined ? patch.quantity : Number(current.quantity ?? 0);
+      update["total_value"] = unit == null ? null : Number(unit) * Number(qty || 0);
+    }
 
     const { error } = await context.supabase
       .from("store_production_jobs")
@@ -301,6 +324,7 @@ export const adminMoveProductionStage = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const update: Record<string, unknown> = { stage: data.stage };
+    if (data.stage === "finalizado") update["completed_at"] = new Date().toISOString();
     if (data.assignee !== undefined) update["assignee"] = data.assignee || null;
     const { error } = await context.supabase
       .from("store_production_jobs")
@@ -336,6 +360,7 @@ export const adminBulkUpdateProductionJobs = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const update: Record<string, unknown> = {};
     if (data.stage) update["stage"] = data.stage;
+    if (data.stage === "finalizado") update["completed_at"] = new Date().toISOString();
     if (data.status) update["status"] = data.status;
     if (data.urgency) update["urgency"] = data.urgency;
     if (data.deadline !== undefined) update["deadline"] = data.deadline || null;
