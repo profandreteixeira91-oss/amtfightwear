@@ -151,7 +151,7 @@ function AdminOrdersPage() {
                         <div className="text-xs text-muted-foreground">{o.customer_email}</div>
                       </td>
                       <td className="p-2 font-bold">{formatBRL(Number(o.total))}</td>
-                      <td className="p-2">{o.payment_status}</td>
+                      <td className="p-2">{paymentStatusLabel[o.payment_status] ?? o.payment_status}</td>
                       <td className="p-2">
                         <Select value={o.status} onValueChange={(v) => change(o.id, v)}>
                           <SelectTrigger className="h-8 w-44">
