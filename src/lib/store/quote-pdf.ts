@@ -93,10 +93,17 @@ export async function buildQuotePdf(q: QuotePdfData): Promise<{ blob: Blob; url:
   doc.setFillColor(220, 38, 38);
   doc.rect(0, 104, W, 4, "F");
 
-  const logo = await toDataUrl(amtLogoAsset.url);
+  // Card branco com a logo AMT Fight Wear no canto superior esquerdo
+  const boxSize = 72;
+  const boxX = M - 14;
+  const boxY = 18;
+  doc.setFillColor(255, 255, 255);
+  doc.roundedRect(boxX, boxY, boxSize, boxSize, 6, 6, "F");
+
+  const logo = await toDataUrl(amtLogoWhite);
   if (logo) {
     try {
-      doc.addImage(logo, fmt(logo), M, 28, 62, 51);
+      doc.addImage(logo, fmt(logo), boxX + 5, boxY + 5, boxSize - 10, boxSize - 10);
     } catch {}
   }
 
