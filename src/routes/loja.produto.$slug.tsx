@@ -292,6 +292,8 @@ function ProductPage() {
               <div>Direto da<br /><span className="text-foreground">fábrica</span></div>
               <div>Troca fácil<br /><span className="text-foreground">7 dias</span></div>
             </div>
+            <TrustBadges />
+
           </div>
         </div>
 
