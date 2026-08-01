@@ -53,13 +53,13 @@ export function WholesaleTiers({
 /* --------------------------------- Comparativo -------------------------------- */
 
 const COMPARISON = [
-  { label: "Material", training: "Algodão resistente", pro: "Algodão premium", premium: "Algodão premium + acabamento fino" },
-  { label: "Camadas", training: "Padrão", pro: "Reforçada", premium: "Reforço máximo" },
-  { label: "Costuras", training: "Retas reforçadas", pro: "Duplas reforçadas", premium: "Duplas + travete" },
-  { label: "Personalização", training: "Bordado simples", pro: "Bordado + patch", premium: "Bordado completo + patches" },
-  { label: "Indicação", training: "Uso diário", pro: "Competição", premium: "Competição e revenda premium" },
-  { label: "Prazo", training: "10 dias úteis", pro: "10 dias úteis", premium: "12 dias úteis" },
-  { label: "Preço", training: "Entrada", pro: "Intermediário", premium: "Alto padrão" },
+  { label: "Material", training: "Oxford 100% poliéster", pro: "Oxford 100% poliéster", premium: "Brim 100% algodão" },
+  { label: "Alma", training: "EVA 4mm", pro: "Lona pesada 100% algodão 4 camadas", premium: "Lona pesada 100% algodão 8 camadas" },
+  { label: "Costuras", training: "7 costuras reforçadas", pro: "7 costuras reforçadas", premium: "8 costuras ultra reforçadas" },
+  { label: "Personalização", training: "Inclusa", pro: "Inclusa", premium: "Inclusa" },
+  { label: "Indicação", training: "Crianças/Iniciantes", pro: "Praticantes e competidores", premium: "Competidores/Todos os públicos" },
+  { label: "Prazo", training: "A partir de 10 dias úteis", pro: "A partir de 10 dias úteis", premium: "A partir de 10 dias úteis" },
+  { label: "Preço", training: "Consulte", pro: "Consulte", premium: "Consulte" },
 ];
 
 export function WholesaleComparison() {
