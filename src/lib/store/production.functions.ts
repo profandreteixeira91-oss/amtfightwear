@@ -123,7 +123,10 @@ export const adminSyncProductionQueue = createServerFn({ method: "POST" })
     const isCancelledOrder = (o: { status?: string | null; payment_status?: string | null }) =>
       CANCELLED_ORDER_STATUS.includes(String(o.status ?? "").toLowerCase()) ||
       CANCELLED_ORDER_STATUS.includes(String(o.payment_status ?? "").toLowerCase());
-    const validOrders = (orders ?? []).filter((o) => !isCancelledOrder(o));
+    const isQuoteOrder = (o: { metadata?: unknown }) =>
+      String(((o.metadata ?? {}) as Record<string, unknown>)["channel"] ?? "").toLowerCase() === "quote";
+    // Pedidos gerados por orçamento já entram na fila pela origem "quote".
+    const validOrders = (orders ?? []).filter((o) => !isCancelledOrder(o) && !isQuoteOrder(o));
 
     // Pedidos cancelados (pelo cliente ou pelo admin) saem da fila de produção.
     const cancelledIds = (orders ?? []).filter(isCancelledOrder).map((o) => o.id);
