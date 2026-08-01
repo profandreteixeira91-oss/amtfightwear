@@ -6,6 +6,7 @@ import { listStoreCategories } from "@/lib/store/store.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { listMyOrders } from "@/lib/store/customer-profile.functions";
 import { formatBRL } from "@/lib/store/cart-store";
+import { orderStatusLabel, paymentStatusLabel, orderStatusBadgeClass, paymentStatusBadgeClass } from "@/lib/store/order-status";
 import { Loader2, User, Package, ChevronRight } from "lucide-react";
 
 type Order = Awaited<ReturnType<typeof listMyOrders>>[number];
@@ -27,53 +28,6 @@ export const Route = createFileRoute("/loja/conta/pedidos")({
   notFoundComponent: () => <div className="p-8 text-center">Página não encontrada</div>,
 });
 
-const statusLabel: Record<string, string> = {
-  pending_payment: "Aguardando pagamento",
-  paid: "Pago",
-  processing: "Em produção",
-  shipped: "Enviado",
-  delivered: "Entregue",
-  cancelled: "Cancelado",
-};
-
-const paymentLabel: Record<string, string> = {
-  pending: "Pendente",
-  paid: "Pago",
-  failed: "Não pago",
-  refunded: "Reembolsado",
-};
-
-const statusBadgeClass = (status: string) => {
-  switch (status) {
-    case "paid":
-      return "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300";
-    case "processing":
-      return "bg-blue-100 text-blue-800 dark:bg-blue-500/15 dark:text-blue-300";
-    case "shipped":
-      return "bg-indigo-100 text-indigo-800 dark:bg-indigo-500/15 dark:text-indigo-300";
-    case "delivered":
-      return "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300";
-    case "cancelled":
-      return "bg-rose-100 text-rose-800 dark:bg-rose-500/15 dark:text-rose-300";
-    case "pending_payment":
-    default:
-      return "bg-amber-100 text-amber-900 dark:bg-amber-500/15 dark:text-amber-300";
-  }
-};
-
-const paymentBadgeClass = (status: string) => {
-  switch (status) {
-    case "paid":
-      return "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300";
-    case "failed":
-      return "bg-rose-100 text-rose-800 dark:bg-rose-500/15 dark:text-rose-300";
-    case "refunded":
-      return "bg-slate-200 text-slate-800 dark:bg-slate-500/20 dark:text-slate-200";
-    case "pending":
-    default:
-      return "bg-amber-100 text-amber-900 dark:bg-amber-500/15 dark:text-amber-300";
-  }
-};
 
 
 function OrdersPage() {
@@ -170,11 +124,11 @@ function OrdersPage() {
                     </div>
                   </div>
                   <div className="mt-3 flex flex-wrap gap-1.5">
-                    <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${statusBadgeClass(o.status)}`}>
-                      {statusLabel[o.status] ?? o.status}
+                    <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${orderStatusBadgeClass(o.status)}`}>
+                      {orderStatusLabel[o.status] ?? o.status}
                     </span>
-                    <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${paymentBadgeClass(o.payment_status)}`}>
-                      {paymentLabel[o.payment_status] ?? o.payment_status}
+                    <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${paymentStatusBadgeClass(o.payment_status)}`}>
+                      {paymentStatusLabel[o.payment_status] ?? o.payment_status}
                     </span>
                   </div>
                   <Link
@@ -209,13 +163,13 @@ function OrdersPage() {
                         {new Date(o.created_at).toLocaleDateString("pt-BR")}
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${statusBadgeClass(o.status)}`}>
-                          {statusLabel[o.status] ?? o.status}
+                        <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${orderStatusBadgeClass(o.status)}`}>
+                          {orderStatusLabel[o.status] ?? o.status}
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${paymentBadgeClass(o.payment_status)}`}>
-                          {paymentLabel[o.payment_status] ?? o.payment_status}
+                        <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${paymentStatusBadgeClass(o.payment_status)}`}>
+                          {paymentStatusLabel[o.payment_status] ?? o.payment_status}
                         </span>
                       </td>
 

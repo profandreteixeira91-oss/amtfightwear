@@ -18,6 +18,7 @@ import {
   BarChart, Bar, PieChart, Pie, Cell, Legend,
 } from "recharts";
 import { adminGetDashboard } from "@/lib/store/dashboard.functions";
+import { orderStatusLabel } from "@/lib/store/order-status";
 import { VisitorsPanel } from "@/components/store/VisitorsPanel";
 
 type Range = "today" | "yesterday" | "7d" | "30d" | "90d" | "year";
@@ -482,7 +483,7 @@ function StoreDashboard() {
                         <div className="mt-0.5 flex items-center gap-1.5 text-[11px] text-muted-foreground">
                           <span className="truncate">{o.city || "—"}</span>
                           <span>·</span>
-                          <Badge variant="outline" className="h-4 text-[10px]">{o.status}</Badge>
+                          <Badge variant="outline" className="h-4 text-[10px]">{orderStatusLabel[o.status] ?? o.status}</Badge>
                         </div>
                       </div>
                       <div className="shrink-0 text-right font-black">{BRL(o.total)}</div>
@@ -512,7 +513,7 @@ function StoreDashboard() {
                             <PaymentBadge status={o.payment_status} />
                           </td>
                           <td className="p-3">
-                            <Badge variant="outline" className="text-xs">{o.status}</Badge>
+                            <Badge variant="outline" className="text-xs">{orderStatusLabel[o.status] ?? o.status}</Badge>
                           </td>
                           <td className="p-3 text-right font-bold">{BRL(o.total)}</td>
                         </tr>

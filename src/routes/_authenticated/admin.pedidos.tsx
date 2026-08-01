@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { formatBRL } from "@/lib/store/cart-store";
+import { orderStatusLabel, paymentStatusLabel, orderStatusOptions } from "@/lib/store/order-status";
 import { useState } from "react";
 import { Truck, RefreshCw, Package, ExternalLink, Wallet, Trash2 } from "lucide-react";
 import {
@@ -45,7 +46,7 @@ export const Route = createFileRoute("/_authenticated/admin/pedidos")({
   component: AdminOrdersPage,
 });
 
-const STATUSES = ["pending_payment", "paid", "preparing", "shipped", "delivered", "cancelled"];
+const STATUSES = orderStatusOptions;
 
 type Order = {
   id: string;
@@ -150,16 +151,16 @@ function AdminOrdersPage() {
                         <div className="text-xs text-muted-foreground">{o.customer_email}</div>
                       </td>
                       <td className="p-2 font-bold">{formatBRL(Number(o.total))}</td>
-                      <td className="p-2">{o.payment_status}</td>
+                      <td className="p-2">{paymentStatusLabel[o.payment_status] ?? o.payment_status}</td>
                       <td className="p-2">
                         <Select value={o.status} onValueChange={(v) => change(o.id, v)}>
-                          <SelectTrigger className="h-8 w-40">
+                          <SelectTrigger className="h-8 w-44">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
                             {STATUSES.map((s) => (
-                              <SelectItem key={s} value={s}>
-                                {s}
+                              <SelectItem key={s.value} value={s.value}>
+                                {s.label}
                               </SelectItem>
                             ))}
                           </SelectContent>

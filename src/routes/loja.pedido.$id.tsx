@@ -4,6 +4,7 @@ import { StoreShell } from "@/components/store/StoreShell";
 import { listStoreCategories, getStoreOrder } from "@/lib/store/store.functions";
 import { formatBRL } from "@/lib/store/cart-store";
 import { exportOrderPdf } from "@/lib/store/order-pdf";
+import { orderStatusLabel, paymentStatusLabel } from "@/lib/store/order-status";
 import { CheckCircle2, Download } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -84,7 +85,7 @@ function OrderPage() {
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
           <div className="rounded-lg border bg-card p-4">
             <div className="text-xs font-bold uppercase text-muted-foreground">Status pagamento</div>
-            <div className="mt-1 font-semibold">{order.payment_status}</div>
+            <div className="mt-1 font-semibold">{paymentStatusLabel[order.payment_status ?? ""] ?? order.payment_status}</div>
             {order.payment_method && (
               <div className="mt-1 text-xs text-muted-foreground">
                 Método: {order.payment_method === "PIX" ? "PIX" : order.payment_method === "CREDIT_CARD" ? `Cartão${order.installments && order.installments > 1 ? ` ${order.installments}x` : ""}` : order.payment_method === "BOLETO" ? "Boleto" : order.payment_method}
@@ -93,7 +94,7 @@ function OrderPage() {
           </div>
           <div className="rounded-lg border bg-card p-4">
             <div className="text-xs font-bold uppercase text-muted-foreground">Status pedido</div>
-            <div className="mt-1 font-semibold">{order.status}</div>
+            <div className="mt-1 font-semibold">{orderStatusLabel[order.status ?? ""] ?? order.status}</div>
           </div>
         </div>
 
