@@ -103,9 +103,15 @@ export function WholesaleComparison() {
 
 /* ---------------------------------- Qualidade --------------------------------- */
 
-const QUALITY_STEPS = ["Bordado", "Costura", "Revisão", "Acabamento", "Embalagem"];
+const QUALITY_STEPS = [
+  { label: "Bordado", src: bordadoImg.url, alt: "Máquina de bordado industrial aplicando patches e logos" },
+  { label: "Costura", src: costuraImg.url, alt: "Costura reforçada em máquina industrial" },
+  { label: "Revisão", src: revisaoImg.url, alt: "Inspetor revisando cada peça antes do acabamento" },
+  { label: "Acabamento", src: acabamentoImg.url, alt: "Acabamento final e preparação das peças" },
+  { label: "Embalagem", src: embalagemImg.url, alt: "Embalagem organizada para envio" },
+];
 
-export function WholesaleQuality({ photos }: { photos: { src: string | null; alt: string }[] }) {
+export function WholesaleQuality({ photos: _photos }: { photos: { src: string | null; alt: string }[] }) {
   return (
     <section className="mt-14">
       <div className="eyebrow">Fabricação própria</div>
@@ -113,14 +119,14 @@ export function WholesaleQuality({ photos }: { photos: { src: string | null; alt
         Cada peça passa pelo nosso controle de qualidade
       </h2>
       <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        {QUALITY_STEPS.map((label, i) => (
-          <figure key={label} className="overflow-hidden rounded-2xl border bg-card">
-            <ProductImage src={photos[i]?.src ?? null} alt={photos[i]?.alt ?? label} aspect="square" />
+        {QUALITY_STEPS.map((step, i) => (
+          <figure key={step.label} className="overflow-hidden rounded-2xl border bg-card">
+            <ProductImage src={step.src} alt={step.alt} aspect="square" />
             <figcaption className="p-3">
               <div className="text-[10px] font-black uppercase tracking-widest text-primary">
                 Etapa {i + 1}
               </div>
-              <div className="text-sm font-semibold">{label}</div>
+              <div className="text-sm font-semibold">{step.label}</div>
             </figcaption>
           </figure>
         ))}
