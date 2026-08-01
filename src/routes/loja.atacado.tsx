@@ -11,6 +11,7 @@ import { createMercadopagoPayment } from "@/lib/store/mercadopago.functions";
 import { getMyCustomerProfile, saveMyCustomerProfile } from "@/lib/store/customer-profile.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBRL, useCart } from "@/lib/store/cart-store";
+import { KimonoGuideCallout } from "@/components/store/KimonoGuideLink";
 import { ProductImage } from "@/components/store/ProductImage";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -585,6 +586,10 @@ function WholesalePage() {
         onCatalog={scrollToCatalog}
       />
       <WholesaleSteps current={step === "checkout" ? 3 : totalQty > 0 ? 1 : 0} />
+
+      <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6">
+        <KimonoGuideCallout />
+      </div>
 
       <div id="catalogo-atacado" className="mx-auto max-w-7xl px-4 py-8">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
