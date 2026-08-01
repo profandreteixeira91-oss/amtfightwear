@@ -17,6 +17,23 @@ import { toast } from "sonner";
 import { Minus, Plus, Upload, X, CheckCircle2, AlertCircle, Package, Search, ChevronDown, ChevronUp, ZoomIn, ShoppingBag, ArrowRight, LogIn } from "lucide-react";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { z } from "zod";
+import { WholesaleProductCard } from "@/components/store/wholesale/WholesaleProductCard";
+import { WholesaleHero } from "@/components/store/wholesale/WholesaleHero";
+import { WholesaleSteps } from "@/components/store/wholesale/WholesaleSteps";
+import { WholesaleSavingsBar } from "@/components/store/wholesale/WholesaleSavingsBar";
+import {
+  WholesaleSummaryPanel,
+  WholesaleMobileBar,
+} from "@/components/store/wholesale/WholesaleSummaryPanel";
+import {
+  WholesaleTiers,
+  WholesaleComparison,
+  WholesaleQuality,
+  WholesaleWhyAmt,
+  WholesaleFaq,
+  WholesaleCta,
+  WholesaleFooterLinks,
+} from "@/components/store/wholesale/WholesaleSections";
 
 const catalogQuery = queryOptions({
   queryKey: ["store", "wholesale-catalog"],
@@ -40,16 +57,43 @@ export const Route = createFileRoute("/loja/atacado")({
   },
   head: () => ({
     meta: [
-      { title: "Atacado — AMT Fight Wear | 25% OFF a partir de 10 unidades" },
-      { name: "description", content: "Compre no atacado com 25% de desconto e etiqueta personalizada grátis. Mínimo 10 unidades por subcategoria." },
-      { property: "og:title", content: "Atacado AMT Fight Wear" },
-      { property: "og:description", content: "25% OFF em pedidos de atacado com etiqueta personalizada grátis." },
+      { title: "Atacado AMT Fight Wear | Compre direto da fábrica com 25% OFF" },
+      { name: "description", content: "Monte pedidos B2B de faixas, kimonos, patches e rashguards com 25% OFF, personalização profissional e etiqueta grátis. Mínimo 10 unidades por subcategoria." },
+      { property: "og:title", content: "Atacado AMT Fight Wear — direto da fábrica" },
+      { property: "og:description", content: "Montador de pedidos B2B para academias, equipes e revendedores: 25% OFF, personalização e entrega para todo Brasil." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://amtfightwear.com.br/loja/atacado" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: "https://amtfightwear.com.br/loja/atacado" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                { "@type": "ListItem", position: 1, name: "Início", item: "https://amtfightwear.com.br/" },
+                { "@type": "ListItem", position: 2, name: "Atacado", item: "https://amtfightwear.com.br/loja/atacado" },
+              ],
+            },
+            {
+              "@type": "FAQPage",
+              mainEntity: [
+                { "@type": "Question", name: "Qual é a quantidade mínima para atacado?", acceptedAnswer: { "@type": "Answer", text: "São 10 unidades por subcategoria, podendo misturar modelos e tamanhos." } },
+                { "@type": "Question", name: "Qual o prazo de produção?", acceptedAnswer: { "@type": "Answer", text: "10 dias úteis após a confirmação do pagamento, mais o prazo de transporte." } },
+                { "@type": "Question", name: "Quais formas de pagamento?", acceptedAnswer: { "@type": "Answer", text: "PIX, boleto e cartão de crédito com parcelamento sem juros conforme o valor." } },
+                { "@type": "Question", name: "Como funciona a personalização?", acceptedAnswer: { "@type": "Answer", text: "Envie o logotipo no resumo do pedido para aplicarmos na etiqueta personalizada, sem custo adicional." } },
+              ],
+            },
+          ],
+        }),
+      },
+    ],
   }),
+
 
   component: WholesalePage,
   errorComponent: ({ error }) => <div className="p-8 text-center text-destructive">Erro: {error.message}</div>,
@@ -228,6 +272,27 @@ function WholesalePage() {
   const savings = subtotalOriginal - subtotal;
   const invalidCats = selectedCats.filter(([, v]) => v.qty < MIN_PER_SUBCAT);
   const canProceed = selectedCats.length > 0 && invalidCats.length === 0;
+  // Unidades que faltam para liberar o desconto na subcategoria mais próxima do mínimo.
+  const missingUnits = invalidCats.length
+    ? Math.min(...invalidCats.map(([, v]) => MIN_PER_SUBCAT - v.qty))
+    : Math.max(0, MIN_PER_SUBCAT - totalQty);
+  // Fotos reais do catálogo (nunca ilustrações) para o hero e a seção de qualidade.
+  const catalogPhotos = useMemo(
+    () => products.filter((p) => p.image_url).map((p) => ({ src: p.image_url, alt: p.name })),
+    [products],
+  );
+  const heroPhotos = catalogPhotos.slice(0, 4);
+  const qualityPhotos = catalogPhotos.slice(4, 9).length >= 5 ? catalogPhotos.slice(4, 9) : catalogPhotos.slice(0, 5);
+  const scrollToCatalog = () => {
+    document.getElementById("catalogo-atacado")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+  const summaryLines = selectedCats.map(([key, v]) => ({
+    key,
+    name: catById.get(key)?.name ?? "Sem categoria",
+    qty: v.qty,
+    total: v.discounted,
+    ok: v.qty >= MIN_PER_SUBCAT,
+  }));
 
   const [labelLogo, setLabelLogo] = useState<{ data_url: string; filename: string } | null>(null);
   const onUploadLogo = async (file: File) => {
@@ -511,44 +576,34 @@ function WholesalePage() {
 
   return (
     <StoreShell categories={cats}>
-      {/* Hero */}
-      <section className="bg-foreground text-background">
-        <div className="mx-auto max-w-7xl px-4 py-10 sm:py-14">
-          <div className="text-xs font-bold uppercase tracking-[0.3em] text-primary">Atacado AMT</div>
-          <h1 className="mt-2 text-3xl font-black leading-tight sm:text-5xl">
-            Até {DEFAULT_PCT}% OFF em pedidos de atacado
-          </h1>
-          <p className="mt-3 max-w-2xl text-sm text-background/80 sm:text-base">
-            Compre no mínimo <strong>{MIN_PER_SUBCAT} unidades por subcategoria</strong> e receba
-            desconto de <strong>{DEFAULT_PCT}%</strong> nos produtos habilitados. Etiqueta personalizada <strong>grátis</strong>.
-          </p>
-          {settings.conditions && (
-            <p className="mt-3 max-w-2xl text-xs text-background/70 whitespace-pre-line">
-              {settings.conditions}
-            </p>
-          )}
-          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <div className="rounded-lg border border-background/20 bg-background/5 p-4">
-              <div className="text-xs font-bold uppercase tracking-widest text-primary">Regra</div>
-              <div className="mt-1 text-sm">Mínimo {MIN_PER_SUBCAT} por subcategoria</div>
-            </div>
-            <div className="rounded-lg border border-background/20 bg-background/5 p-4">
-              <div className="text-xs font-bold uppercase tracking-widest text-primary">Desconto</div>
-              <div className="mt-1 text-sm">Até {DEFAULT_PCT}% OFF</div>
-            </div>
-            <div className="rounded-lg border border-background/20 bg-background/5 p-4">
-              <div className="text-xs font-bold uppercase tracking-widest text-primary">Bônus</div>
-              <div className="mt-1 text-sm">Etiqueta personalizada grátis</div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <WholesaleHero
+        discountPercent={DEFAULT_PCT}
+        minPerSubcategory={MIN_PER_SUBCAT}
+        conditions={settings.conditions}
+        photos={heroPhotos}
+        onStart={scrollToCatalog}
+        onCatalog={scrollToCatalog}
+      />
+      <WholesaleSteps current={step === "checkout" ? 3 : totalQty > 0 ? 1 : 0} />
 
-      <div className="mx-auto max-w-7xl px-4 py-8">
-        <div className="grid grid-cols-1 gap-6">
+      <div id="catalogo-atacado" className="mx-auto max-w-7xl px-4 py-8">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
 
         {/* Left - catalog / checkout */}
-        <div>
+        <div className="min-w-0 space-y-4">
+          {step === "cart" && (
+            <>
+              <WholesaleSavingsBar
+                totalQty={totalQty}
+                missingUnits={missingUnits}
+                minPerSubcategory={MIN_PER_SUBCAT}
+                savings={savings}
+                unlocked={canProceed && totalQty > 0}
+              />
+              <WholesaleTiers minPerSubcategory={MIN_PER_SUBCAT} discountPercent={DEFAULT_PCT} />
+            </>
+          )}
+
           {step === "cart" ? (
             <div className="space-y-6">
               {activeRoot === null ? (
@@ -693,169 +748,23 @@ function WholesalePage() {
                       </header>
                       {!isCollapsed && (
                         <div className="grid grid-cols-1 gap-3 p-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
-                          {items.map((p) => {
-                            const vs = variantsByProduct.get(p.id) ?? [];
-                            const hasVariants = vs.length > 0;
-                            const totalForProduct = productTotal(p.id);
-                            const basePrice = Number(p.price);
-                            const selected = totalForProduct > 0;
-                            return (
-                              <div
-                                key={p.id}
-                                className={`group flex flex-col overflow-hidden rounded-lg border bg-background transition ${
-                                  selected ? "border-primary ring-1 ring-primary/40" : "hover:border-primary/40 hover:shadow-md"
-                                }`}
-                              >
-                                <div className="relative">
-                                  <ProductImage src={p.image_url} alt={p.name} aspect="square" />
-                                  {p.image_url && (
-                                    <button
-                                      type="button"
-                                      onClick={() => setZoomImg({ src: p.image_url!, alt: p.name })}
-                                      className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-background/90 opacity-0 shadow-sm transition group-hover:opacity-100"
-                                      aria-label="Ampliar imagem"
-                                    >
-                                      <ZoomIn className="h-4 w-4" />
-                                    </button>
-                                  )}
-                                  {selected && (
-                                    <div className="absolute left-2 top-2 rounded bg-primary px-2 py-0.5 text-[10px] font-bold uppercase text-primary-foreground">
-                                      {totalForProduct} un.
-                                    </div>
-                                  )}
-                                </div>
-                                <div className="flex flex-1 flex-col gap-2 p-3">
-                                  <div className="line-clamp-2 min-h-[2.5rem] text-sm font-medium">{p.name}</div>
-                                  <div className="flex flex-wrap items-baseline gap-2 text-xs">
-                                    <span className="text-muted-foreground line-through">{formatBRL(basePrice)}</span>
-                                    <span className="text-sm font-bold text-primary">{formatBRL(basePrice * (1 - productPct(p) / 100))}</span>
-                                  </div>
-
-                                  {hasVariants ? (() => {
-                                    // Show one row per already-selected size + a single empty row to add another.
-                                    const selectedIds = vs.filter((v) => (qty[keyOf(p.id, v.id)] ?? 0) > 0).map((v) => v.id);
-                                    const availableIds = vs.filter((v) => (qty[keyOf(p.id, v.id)] ?? 0) === 0).map((v) => v.id);
-                                    const rows: (string | null)[] = [...selectedIds];
-                                    if (availableIds.length > 0) rows.push(null); // trailing "add" row
-                                    const labelOf = (v: Variant) => {
-                                      const raw = (v.size ?? v.option_label ?? v.color ?? "Único").replace(/^tamanho:\s*/i, "").trim();
-                                      const m = raw.match(/^([A-Za-z0-9/]+)\s*[-–—]\s*(.+)$/);
-                                      const code = (m?.[1] ?? raw).toUpperCase();
-                                      const detail = m?.[2] ?? "";
-                                      return { code, detail, full: detail ? `${code} · ${detail}` : code };
-                                    };
-                                    return (
-                                      <div className="mt-1 space-y-1.5">
-                                        <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                                          Tamanhos ({vs.length} disponíveis)
-                                        </div>
-                                        <div className="space-y-1">
-                                          {rows.map((vid, idx) => {
-                                            const v = vid ? vs.find((vv) => vv.id === vid) : null;
-                                            const vq = v ? qty[keyOf(p.id, v.id)] ?? 0 : 0;
-                                            return (
-                                              <div
-                                                key={vid ?? `add-${idx}`}
-                                                className={`flex items-center gap-1.5 rounded-md border px-1.5 py-1 text-xs ${vq > 0 ? "border-primary/50 bg-primary/5" : "border-dashed"}`}
-                                              >
-                                                <select
-                                                  value={vid ?? ""}
-                                                  onChange={(e) => {
-                                                    const newId = e.target.value || null;
-                                                    if (newId === vid) return;
-                                                    // Move current qty (if any) to the new variant; keep at least 1 for a fresh pick.
-                                                    if (v) setLineQty(p.id, v.id, 0);
-                                                    if (newId) setLineQty(p.id, newId, vq > 0 ? vq : 1);
-                                                  }}
-                                                  className="min-w-0 flex-1 rounded border bg-background px-2 py-1.5 text-sm font-semibold text-foreground outline-none focus:border-primary"
-                                                >
-                                                  <option value="">Tamanho</option>
-
-                                                  {vs.map((opt) => {
-                                                    const { full } = labelOf(opt);
-                                                    const taken = (qty[keyOf(p.id, opt.id)] ?? 0) > 0 && opt.id !== vid;
-                                                    return (
-                                                      <option key={opt.id} value={opt.id} disabled={taken}>
-                                                        {full}{taken ? " (já adicionado)" : ""}
-                                                      </option>
-                                                    );
-                                                  })}
-                                                </select>
-                                                <button
-                                                  type="button"
-                                                  onClick={() => v && setLineQty(p.id, v.id, vq - 1)}
-                                                  className="grid h-6 w-6 shrink-0 place-items-center rounded border hover:bg-accent disabled:opacity-40"
-                                                  disabled={!v || vq === 0}
-                                                  aria-label="Diminuir"
-                                                >
-                                                  <Minus className="h-3 w-3" />
-                                                </button>
-                                                <input
-                                                  type="number"
-                                                  min={0}
-                                                  value={vq}
-                                                  disabled={!v}
-                                                  onChange={(e) => v && setLineQty(p.id, v.id, Number(e.target.value) || 0)}
-                                                  className="h-6 w-10 shrink-0 rounded border bg-background text-center text-xs outline-none focus:border-primary disabled:opacity-50"
-                                                />
-                                                <button
-                                                  type="button"
-                                                  onClick={() => v && setLineQty(p.id, v.id, vq + 1)}
-                                                  className="grid h-6 w-6 shrink-0 place-items-center rounded border hover:bg-accent disabled:opacity-40"
-                                                  disabled={!v}
-                                                  aria-label="Aumentar"
-                                                >
-                                                  <Plus className="h-3 w-3" />
-                                                </button>
-                                              </div>
-                                            );
-                                          })}
-                                        </div>
-                                      </div>
-                                    );
-                                  })() : (
-                                    <div className="mt-auto flex items-center justify-between gap-1">
-                                      <button
-                                        type="button"
-                                        onClick={() => setLineQty(p.id, null, (qty[keyOf(p.id, null)] ?? 0) - 1)}
-                                        className="grid h-8 w-8 place-items-center rounded-md border hover:bg-accent disabled:opacity-40"
-                                        disabled={(qty[keyOf(p.id, null)] ?? 0) === 0}
-                                        aria-label="Diminuir"
-                                      >
-                                        <Minus className="h-3.5 w-3.5" />
-                                      </button>
-                                      <input
-                                        type="number"
-                                        min={0}
-                                        value={qty[keyOf(p.id, null)] ?? 0}
-                                        onChange={(e) => setLineQty(p.id, null, Number(e.target.value) || 0)}
-                                        className="h-8 min-w-0 flex-1 rounded-md border bg-background text-center text-sm outline-none focus:border-primary"
-                                      />
-                                      <button
-                                        type="button"
-                                        onClick={() => setLineQty(p.id, null, (qty[keyOf(p.id, null)] ?? 0) + 1)}
-                                        className="grid h-8 w-8 place-items-center rounded-md border hover:bg-accent"
-                                        aria-label="Aumentar"
-                                      >
-                                        <Plus className="h-3.5 w-3.5" />
-                                      </button>
-                                    </div>
-                                  )}
-                                  {totalForProduct > 0 && (
-                                    <button
-                                      type="button"
-                                      onClick={() => setSheetOpen(true)}
-                                      className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-primary px-3 py-2 text-xs font-bold text-primary-foreground hover:opacity-90"
-                                    >
-                                      <ShoppingBag className="h-3.5 w-3.5" /> Adicionar ao carrinho
-                                    </button>
-                                  )}
-                                </div>
-                              </div>
-                            );
-                          })}
+                          {items.map((p) => (
+                            <WholesaleProductCard
+                              key={p.id}
+                              product={p}
+                              variants={variantsByProduct.get(p.id) ?? []}
+                              qtyOf={(vid) => qty[keyOf(p.id, vid)] ?? 0}
+                              setQty={(vid, q) => setLineQty(p.id, vid, q)}
+                              discountPercent={productPct(p)}
+                              categoryName={g.cat?.name ?? null}
+                              minPerSubcategory={MIN_PER_SUBCAT}
+                              onZoom={setZoomImg}
+                              onAdd={() => setSheetOpen(true)}
+                            />
+                          ))}
                         </div>
                       )}
+
                     </section>
                   );
                           })}
@@ -985,8 +894,57 @@ function WholesalePage() {
           )}
         </div>
 
+        {/* Right — resumo fixo do pedido (desktop) */}
+        <div className="hidden lg:block">
+          <WholesaleSummaryPanel
+            lines={summaryLines}
+            totalQty={totalQty}
+            subtotalOriginal={subtotalOriginal}
+            subtotal={subtotal}
+            savings={savings}
+            minPerSubcategory={MIN_PER_SUBCAT}
+            canProceed={canProceed}
+            signedIn={signedIn}
+            onCheckout={() => {
+              if (!signedIn) {
+                navigate({ to: "/auth", search: { redirect: "/loja/atacado?resume=1" } });
+                return;
+              }
+              setStep("checkout");
+            }}
+            onOpenDetails={() => setSheetOpen(true)}
+          />
         </div>
+
+        </div>
+
+        <WholesaleComparison />
+        <WholesaleQuality photos={qualityPhotos} />
+        <WholesaleWhyAmt />
+        <div id="faq-atacado" className="scroll-mt-32">
+          <WholesaleFaq minQty={MIN_PER_SUBCAT} pct={DEFAULT_PCT} />
+        </div>
+        <WholesaleCta onStart={scrollToCatalog} />
+        <WholesaleFooterLinks />
+        <div className="h-24 lg:hidden" aria-hidden />
       </div>
+
+      <WholesaleMobileBar
+        totalQty={totalQty}
+        subtotal={subtotal}
+        savings={savings}
+        canProceed={canProceed}
+        signedIn={signedIn}
+        onOpenDetails={() => setSheetOpen(true)}
+        onCheckout={() => {
+          if (!signedIn) {
+            navigate({ to: "/auth", search: { redirect: "/loja/atacado?resume=1" } });
+            return;
+          }
+          setStep("checkout");
+        }}
+      />
+
 
       {/* Slide-right cart drawer */}
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
