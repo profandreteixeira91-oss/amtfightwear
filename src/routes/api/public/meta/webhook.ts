@@ -27,7 +27,7 @@ export const Route = createFileRoute("/api/public/meta/webhook")({
         const mode = url.searchParams.get("hub.mode");
         const token = url.searchParams.get("hub.verify_token");
         const challenge = url.searchParams.get("hub.challenge");
-        const verifyToken = process.env["META_VERIFY_TOKEN"] ?? DEFAULT_VERIFY_TOKEN;
+        const verifyToken = process.env["META_VERIFY_TOKEN"]?.trim() || DEFAULT_VERIFY_TOKEN;
 
         if (mode === "subscribe" && token === verifyToken && challenge) {
           return new Response(challenge, {
