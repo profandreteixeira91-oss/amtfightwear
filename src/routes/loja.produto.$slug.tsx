@@ -16,14 +16,77 @@ export const Route = createFileRoute("/loja/produto/$slug")({
       queryFn: () => getProductBySlug({ data: { slug: params.slug } }),
     });
     const c = queryOptions({ queryKey: ["store", "categories"], queryFn: () => listStoreCategories() });
-    await Promise.all([context.queryClient.ensureQueryData(q), context.queryClient.ensureQueryData(c)]);
+    const [data] = await Promise.all([
+      context.queryClient.ensureQueryData(q),
+      context.queryClient.ensureQueryData(c),
+    ]);
+    return { product: data.product, category: data.category };
   },
-  head: ({ params }) => ({
-    meta: [
-      { title: `${params.slug.replace(/-/g, " ")} — AMT Fight Wear` },
-      { name: "description", content: `Compre ${params.slug.replace(/-/g, " ")} na loja oficial AMT Fight Wear.` },
-    ],
-  }),
+  head: ({ params, loaderData }) => {
+    const url = `https://amtfightwear.com.br/loja/produto/${params.slug}`;
+    const p = loaderData?.product as
+      | { name?: string; short_description?: string | null; description?: string | null; price?: number | null; image_url?: string | null; sku?: string | null }
+      | null
+      | undefined;
+    if (!p) {
+      return {
+        meta: [
+          { title: "Produto não encontrado — AMT Fight Wear" },
+          { name: "robots", content: "noindex" },
+        ],
+      };
+    }
+    const name = p.name ?? params.slug.replace(/-/g, " ");
+    const title = `${name} | AMT Fight Wear`;
+    const desc = (p.short_description || p.description || `Compre ${name} na loja oficial AMT Fight Wear: fabricação própria, até 10x sem juros e envio para todo o Brasil.`)
+      .replace(/<[^>]*>/g, "")
+      .slice(0, 155);
+    const img = p.image_url && /^https?:\/\//.test(p.image_url) ? p.image_url : null;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: desc },
+        { property: "og:title", content: title },
+        { property: "og:description", content: desc },
+        { property: "og:type", content: "product" },
+        { property: "og:url", content: url },
+        { name: "twitter:card", content: "summary_large_image" },
+        ...(img
+          ? [
+              { property: "og:image", content: img },
+              { name: "twitter:image", content: img },
+            ]
+          : []),
+      ],
+      links: [{ rel: "canonical", href: url }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Product",
+            name,
+            description: desc,
+            ...(img ? { image: img } : {}),
+            ...(p.sku ? { sku: p.sku } : {}),
+            brand: { "@type": "Brand", name: "AMT Fight Wear" },
+            ...(p.price
+              ? {
+                  offers: {
+                    "@type": "Offer",
+                    url,
+                    priceCurrency: "BRL",
+                    price: Number(p.price).toFixed(2),
+                    availability: "https://schema.org/InStock",
+                  },
+                }
+              : {}),
+          }),
+        },
+      ],
+    };
+  },
+
   component: ProductPage,
   errorComponent: ({ error }) => <div className="p-8 text-center text-destructive">Erro: {error.message}</div>,
   notFoundComponent: () => <div className="p-8 text-center">Produto não encontrado</div>,
