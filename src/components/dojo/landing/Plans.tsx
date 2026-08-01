@@ -67,7 +67,7 @@ export function Plans() {
               key={s.label}
               className="relative flex flex-col rounded-3xl border-2 border-[#C1121F] bg-[#111111] p-8 text-white shadow-[0_30px_60px_-25px_rgba(193,18,31,0.55)]"
             >
-              <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[#C1121F] px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow">
+              <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[#C1121F] px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white shadow">
                 <Sparkles className="mr-1 inline h-3 w-3" /> {s.label}
               </span>
 
@@ -78,7 +78,7 @@ export function Plans() {
                   <span className="text-sm font-medium text-white/50 line-through">
                     De R$ {s.originalPrice.toFixed(2).replace(".", ",")}
                   </span>
-                  <span className="rounded-full bg-[#C1121F]/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#ff8a95]">
+                  <span className="rounded-full bg-[#C1121F]/20 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-[#ff8a95]">
                     -44%
                   </span>
                 </div>
@@ -111,19 +111,19 @@ export function Plans() {
       <FadeIn>
         <div className="mx-auto mt-10 grid max-w-5xl gap-4 rounded-3xl border border-[#111111]/10 bg-[#FAFAFA] p-6 sm:grid-cols-2 md:grid-cols-4 md:p-8">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-[#111111]/50">Alunos</p>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-[#111111]/50">Alunos</p>
             <p className="mt-1 text-lg font-semibold">Ilimitados</p>
           </div>
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-[#111111]/50">Unidades</p>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-[#111111]/50">Unidades</p>
             <p className="mt-1 text-lg font-semibold">Ilimitadas</p>
           </div>
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-[#111111]/50">Modalidades</p>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-[#111111]/50">Modalidades</p>
             <p className="mt-1 text-lg font-semibold">Ilimitadas</p>
           </div>
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-[#C1121F]">AMT Pay</p>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-[#C1121F]">AMT Pay</p>
             <p className="mt-1 text-lg font-semibold">2% por transação</p>
           </div>
         </div>
