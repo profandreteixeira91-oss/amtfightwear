@@ -35,14 +35,15 @@ export function CartUpsell({ subtotal }: { subtotal: number }) {
 
   const suggestions = useMemo<Suggestion[]>(() => {
     if (!data) return [];
-    const pool: Suggestion[] = [...(data.featured ?? []), ...(data.newest ?? []), ...(data.bjjBelts ?? [])];
+    const pool = [...(data.featured ?? []), ...(data.newest ?? []), ...(data.bjjBelts ?? [])];
     const inCart = new Set(items.map((i) => i.product_id));
     const seen = new Set<string>();
-    const unique = pool.filter((p) => {
-      if (!p?.id || inCart.has(p.id) || seen.has(p.id)) return false;
+    const unique: Suggestion[] = [];
+    for (const p of pool) {
+      if (!p?.id || !p.slug || inCart.has(p.id) || seen.has(p.id)) continue;
       seen.add(p.id);
-      return true;
-    });
+      unique.push({ id: p.id, name: p.name, slug: p.slug, price: p.price, image_url: p.image_url });
+    }
     // Se falta pouco para o frete grátis, prioriza produtos que fecham a conta.
     if (missing > 0) {
       unique.sort((a, b) => {
