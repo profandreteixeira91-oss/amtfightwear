@@ -158,10 +158,19 @@ function OrderPage() {
             <div className="flex flex-col gap-2 sm:items-end">
               <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Total</div>
               <div className="text-3xl font-black tracking-tight">{formatBRL(Number(o.total))}</div>
-              <Button onClick={handleDownload} disabled={downloading} variant="secondary" className="mt-1 gap-2">
-                <Download className="h-4 w-4" />
-                {downloading ? "Gerando PDF…" : "Baixar comprovante"}
-              </Button>
+              <div className="mt-1 flex flex-col gap-2 sm:flex-row sm:items-center">
+                <Button onClick={handleDownload} disabled={downloading} variant="secondary" className="gap-2">
+                  <Download className="h-4 w-4" />
+                  {downloading ? "Gerando PDF…" : "Baixar comprovante"}
+                </Button>
+                {canCancel && (
+                  <Button onClick={handleCancel} disabled={cancelling} variant="outline" className="gap-2 border-destructive/40 text-destructive hover:bg-destructive/5 hover:text-destructive">
+                    <XCircle className="h-4 w-4" />
+                    {cancelling ? "Cancelando…" : "Cancelar pedido"}
+                  </Button>
+                )}
+              </div>
+              {cancelError && <p className="max-w-xs text-right text-xs text-destructive">{cancelError}</p>}
             </div>
           </div>
         </div>
