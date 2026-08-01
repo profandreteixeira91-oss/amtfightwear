@@ -54,7 +54,7 @@ export const adminGetDashboard = createServerFn({ method: "GET" })
     // Orders in range
     const { data: ordersRange } = await supabaseAdmin
       .from("store_orders")
-      .select("id, order_number, customer_name, customer_email, shipping_address, total, subtotal, shipping_cost, discount, status, payment_status, payment_method, created_at")
+      .select("id, order_number, customer_name, customer_email, shipping_address, total, subtotal, shipping_cost, discount, status, payment_status, payment_method, created_at, metadata")
       .gte("created_at", rangeStart)
       .lte("created_at", rangeEnd)
       .order("created_at", { ascending: false })
