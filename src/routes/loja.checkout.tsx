@@ -11,6 +11,13 @@ import { useServerFn } from "@tanstack/react-start";
 import { ShippingCalculator } from "@/components/store/ShippingCalculator";
 import type { ShippingOption } from "@/lib/store/shipping.functions";
 import { supabase } from "@/integrations/supabase/client";
+import { trackStoreEvent, toAnalyticsItem } from "@/lib/store/analytics";
+import { FREE_SHIPPING_THRESHOLD } from "@/lib/store/pricing";
+import { TrustBadges } from "@/components/store/TrustBadges";
+
+/** Rascunho local dos dados de entrega (evita retrabalho do cliente). */
+const CHECKOUT_DRAFT_KEY = "amt-checkout-draft-v1";
+
 
 
 export const Route = createFileRoute("/loja/checkout")({
