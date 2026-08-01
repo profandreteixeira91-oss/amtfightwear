@@ -101,7 +101,7 @@ export const calculateShipping = createServerFn({ method: "POST" })
     const productIds = Array.from(new Set(data.items.map((i) => i.product_id)));
     const { data: products } = await supabaseAdmin
       .from("products")
-      .select("id, price, weight_grams")
+      .select("id, price, weight_grams, length_cm, width_cm, height_cm")
       .in("id", productIds);
 
     const variantIds = data.items.map((i) => i.variant_id).filter((v): v is string => !!v);
