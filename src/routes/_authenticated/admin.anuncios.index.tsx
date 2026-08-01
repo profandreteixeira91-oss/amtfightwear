@@ -37,16 +37,29 @@ function AdsDashboard() {
   const kpis = data?.kpis;
   const hasData = (data?.series?.length ?? 0) > 0;
 
+  const isReal = data?.source === "meta";
+
   return (
     <>
       <PageHeader
         eyebrow="Tráfego Pago IA"
         title="Dashboard de Campanhas"
-        description="Consultor de mídia paga com IA — dados reais do Meta Ads após conectar sua conta."
+        description={
+          isReal
+            ? "Dados em tempo real da conta Meta Ads conectada."
+            : "Consultor de mídia paga com IA — dados reais do Meta Ads após conectar sua conta."
+        }
         actions={
-          <Button asChild size="sm">
-            <Link to="/admin/anuncios/nova"><Sparkles className="mr-2 h-4 w-4" /> Nova Campanha IA</Link>
-          </Button>
+          <>
+            {isReal && (
+              <Badge variant="outline" className="hidden sm:inline-flex text-[10px]">
+                Meta em tempo real
+              </Badge>
+            )}
+            <Button asChild size="sm">
+              <Link to="/admin/anuncios/nova"><Sparkles className="mr-2 h-4 w-4" /> Nova Campanha IA</Link>
+            </Button>
+          </>
         }
       />
 
