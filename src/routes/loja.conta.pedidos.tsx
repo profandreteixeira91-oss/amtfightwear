@@ -124,11 +124,11 @@ function OrdersPage() {
                     </div>
                   </div>
                   <div className="mt-3 flex flex-wrap gap-1.5">
-                    <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${statusBadgeClass(o.status)}`}>
-                      {statusLabel[o.status] ?? o.status}
+                    <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${orderStatusBadgeClass(o.status)}`}>
+                      {orderStatusLabel[o.status] ?? o.status}
                     </span>
-                    <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${paymentBadgeClass(o.payment_status)}`}>
-                      {paymentLabel[o.payment_status] ?? o.payment_status}
+                    <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${paymentStatusBadgeClass(o.payment_status)}`}>
+                      {paymentStatusLabel[o.payment_status] ?? o.payment_status}
                     </span>
                   </div>
                   <Link
