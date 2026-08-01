@@ -1,3 +1,4 @@
+import { addMonthsISO } from "@/lib/dates";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { PRESENT_STATUSES, isPresentStatus, localDayISO, localWeekday } from "@/lib/dojo/attendance-status";
@@ -332,9 +333,10 @@ export const getAthleteGraduations = createServerFn({ method: "GET" })
     const last = rows?.[0];
     let nextForecast: string | null = null;
     if (last && student?.graduation_min_months) {
-      const d = new Date(last.graduation_date);
-      d.setMonth(d.getMonth() + Number(student.graduation_min_months));
-      nextForecast = d.toISOString().slice(0, 10);
+      nextForecast = addMonthsISO(
+        dayISO(last.graduation_date),
+        Number(student.graduation_min_months),
+      );
     }
     return { history: rows ?? [], nextForecast };
   });

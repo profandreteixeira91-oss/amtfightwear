@@ -34,6 +34,7 @@ import { BeltAuto } from "@/components/dojo/BeltSpecVisual";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ArrowLeft, Save, Trash2, FileText, History, Upload, Mail, Phone, MapPin, Briefcase, Award } from "lucide-react";
+import { todayISO } from "@/lib/dates";
 
 export const Route = createFileRoute("/dojo/app/team/$id")({
   head: () => ({ meta: [{ title: "Colaborador — Equipe" }] }),
@@ -108,7 +109,7 @@ function TeamMemberDetail() {
   }, [q.data]);
 
   const firstOfMonth = new Date().toISOString().slice(0, 8) + "01";
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayISO();
   const [newPay, setNewPay] = useState<any>({
     kind: "salary", amount: 0, status: "pending", description: "",
     from: firstOfMonth, to: today, hours_worked: null, classes_count: null,

@@ -7,6 +7,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { todayISO, utcCalendarISO } from "@/lib/dates";
 
 export type RecurringFrequency =
   | "monthly"
@@ -92,7 +93,7 @@ export const pauseRecurringCharge = createServerFn({ method: "POST" })
     z.object({ id: z.string().uuid(), until: z.string().nullable().optional() }).parse(i)
   )
   .handler(async ({ context, data }) => {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = todayISO();
     const { error } = await context.supabase
       .from("dojo_enrollments")
       .update({ status: "paused", paused_from: today, paused_until: data.until ?? null } as never)
@@ -162,7 +163,7 @@ export const generateNextInvoice = createServerFn({ method: "POST" })
     const day = Math.min(e.due_day ?? 5, daysInMonth);
     const dueDate = `${ty}-${String(tm + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
     const monthStart = `${ty}-${String(tm + 1).padStart(2, "0")}-01`;
-    const nextMonth = new Date(Date.UTC(ty, tm + 1, 1)).toISOString().slice(0, 10);
+    const nextMonth = utcCalendarISO(new Date(Date.UTC(ty, tm + 1, 1)));
 
     const { data: existing } = await context.supabase
       .from("dojo_invoices")

@@ -25,6 +25,7 @@ import {
 } from "@/lib/store/quotes.functions";
 import { adminListStoreProducts } from "@/lib/store/store.functions";
 import { buildQuotePdf } from "@/lib/store/quote-pdf";
+import { dayISO } from "@/lib/dates";
 
 export const Route = createFileRoute("/_authenticated/admin/orcamentos")({
   head: () => ({
@@ -80,7 +81,7 @@ const emptyForm = () => ({
   items: [] as Item[],
   discount: 0,
   shipping_cost: 0,
-  valid_until: new Date(Date.now() + 15 * 864e5).toISOString().slice(0, 10),
+  valid_until: dayISO(Date.now() + 15 * 864e5),
   payment_terms: "",
   delivery_terms: "",
   notes: "",

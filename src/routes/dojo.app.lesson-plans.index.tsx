@@ -41,6 +41,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { calendarISO, todayISO } from "@/lib/dates";
 
 export const Route = createFileRoute("/dojo/app/lesson-plans/")({
   component: LessonPlansDashboardPage,
@@ -71,7 +72,7 @@ function addDays(d: Date, n: number) {
 }
 
 function fmt(d: Date) {
-  return d.toISOString().slice(0, 10);
+  return calendarISO(d);
 }
 
 function LessonPlansDashboardPage() {
@@ -535,7 +536,7 @@ function TemplatePickerDialog({
     | { kind: "builtin"; key: string; name: string }
     | null
   >(null);
-  const [date, setDate] = useState<string>(() => new Date().toISOString().slice(0, 10));
+  const [date, setDate] = useState<string>(() => todayISO());
   const [classId, setClassId] = useState<string>("");
   const [startTime, setStartTime] = useState<string>("");
   const [endTime, setEndTime] = useState<string>("");

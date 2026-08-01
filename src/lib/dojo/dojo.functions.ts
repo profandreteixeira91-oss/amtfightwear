@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { calendarISO, todayISO, utcCalendarISO } from "@/lib/dates";
 
 // Owner-scoped helper: every user manages their own dojo. RLS enforces
 // `owner_id = auth.uid()` for reads/writes, so we only need to inject
@@ -1199,7 +1200,7 @@ export const cancelEnrollment = createServerFn({ method: "POST" })
       await asaasCancelSubscription((enr as any).asaas_subscription_id, apiKey);
     }
 
-    const today = new Date().toISOString().slice(0, 10);
+    const today = todayISO();
     const { error } = await context.supabase
       .from("dojo_enrollments")
       .update({ status: "canceled", end_date: today } as never)
@@ -1244,7 +1245,7 @@ export const changeStudentPlan = createServerFn({ method: "POST" })
       .eq("owner_id", ownerId(context))
       .in("status", ["active", "paused"]);
 
-    const today = new Date().toISOString().slice(0, 10);
+    const today = todayISO();
     if (actives && actives.length > 0) {
       const { data: profile } = await context.supabase
         .from("dojo_academy_profile")
@@ -1365,10 +1366,10 @@ export const generateMonthlyInvoices = createServerFn({ method: "POST" })
     for (const e of (enrolls ?? []) as any[]) {
       const daysInMonth = new Date(Date.UTC(y, m, 0)).getUTCDate();
       const dueDay = Math.min(e.due_day ?? 5, daysInMonth);
-      const dueDate = new Date(Date.UTC(y, m - 1, dueDay)).toISOString().slice(0, 10);
+      const dueDate = utcCalendarISO(new Date(Date.UTC(y, m - 1, dueDay)));
       const amount = e.custom_amount ?? e.plan?.amount ?? 0;
       const monthStart = `${data.reference_month}-01`;
-      const nextMonth = new Date(Date.UTC(y, m, 1)).toISOString().slice(0, 10);
+      const nextMonth = utcCalendarISO(new Date(Date.UTC(y, m, 1)));
       const { data: existing } = await context.supabase.from("dojo_invoices")
         .select("id").eq("enrollment_id", e.id).gte("due_date", monthStart).lt("due_date", nextMonth).maybeSingle();
       if (existing) continue;
@@ -1463,8 +1464,8 @@ export const dojoFinanceOverview = createServerFn({ method: "GET" })
   }).parse(i ?? {}))
   .handler(async ({ data, context }) => {
     const now = new Date();
-    const from = data.from ?? new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0,10);
-    const to = data.to ?? new Date(now.getFullYear(), now.getMonth()+1, 0).toISOString().slice(0,10);
+    const from = data.from ?? calendarISO(new Date(now.getFullYear(), now.getMonth(), 1));
+    const to = data.to ?? calendarISO(new Date(now.getFullYear(), now.getMonth()+1, 0));
     const [inv, exp] = await Promise.all([
       context.supabase.from("dojo_invoices").select("amount,status").gte("due_date", from).lte("due_date", to),
       context.supabase.from("dojo_expenses").select("amount,status").gte("due_date", from).lte("due_date", to),

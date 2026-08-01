@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { assertSaasOwner } from "@/lib/auth/is-saas-owner";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { dayISO } from "@/lib/dates";
 
 const RangeSchema = z.object({
   range: z.enum(["today", "yesterday", "7d", "30d", "90d", "year"]).default("30d"),
@@ -117,7 +118,7 @@ export const adminGetDashboard = createServerFn({ method: "GET" })
     // Daily series (range)
     const dailyMap = new Map<string, { revenue: number; orders: number }>();
     for (const o of ordersRange ?? []) {
-      const d = new Date(o.created_at).toISOString().slice(0, 10);
+      const d = dayISO(o.created_at);
       const cur = dailyMap.get(d) ?? { revenue: 0, orders: 0 };
       cur.orders += 1;
       if (o.payment_status === "paid" || o.payment_status === "approved") cur.revenue += Number(o.total || 0);

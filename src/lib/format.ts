@@ -8,21 +8,7 @@ export const pct = (n: number, digits = 1) =>
   `${(n || 0).toFixed(digits)}%`;
 
 /**
- * Formata datas no padrão brasileiro DD/MM/AAAA sem sofrer deslocamento de
- * fuso horário: datas ISO "YYYY-MM-DD" são lidas literalmente (nunca UTC).
+ * Datas: delegam para o módulo canônico `@/lib/dates` (fuso do Brasil,
+ * sem deslocamento de dia). Mantidos aqui por compatibilidade de imports.
  */
-export const brDate = (v: string | Date | null | undefined) => {
-  if (!v) return "—";
-  if (v instanceof Date) return v.toLocaleDateString("pt-BR");
-  const s = String(v);
-  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if (m) return `${m[3]}/${m[2]}/${m[1]}`;
-  const d = new Date(s);
-  return Number.isNaN(d.getTime()) ? s : d.toLocaleDateString("pt-BR");
-};
-
-/** Data de hoje em "YYYY-MM-DD" no fuso local (evita voltar 1 dia à noite). */
-export const todayISO = () => {
-  const n = new Date();
-  return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, "0")}-${String(n.getDate()).padStart(2, "0")}`;
-};
+export { brDate, todayISO, dayISO, addDaysISO, diffDaysISO } from "@/lib/dates";

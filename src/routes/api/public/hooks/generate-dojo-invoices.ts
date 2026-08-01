@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { checkInternalHookAuth } from "@/lib/security/hook-auth";
 import { advanceDate, type RecurringFrequency } from "@/lib/dojo/recurring.functions";
+import { addDaysISO, todayISO as brToday, utcCalendarISO } from "@/lib/dates";
 
 // Roda diariamente. Para toda regra recorrente ativa cujo `next_run_at` seja
 // hoje + 3 dias (ou já passou), garante uma fatura pendente para o ciclo.
@@ -15,12 +16,8 @@ export const Route = createFileRoute("/api/public/hooks/generate-dojo-invoices")
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-        const now = new Date();
-        const target = new Date(
-          Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 3),
-        );
-        const todayISO = now.toISOString().slice(0, 10);
-        const targetISO = target.toISOString().slice(0, 10);
+        const todayISO = brToday();
+        const targetISO = addDaysISO(todayISO, 3);
 
         const { data: enrolls, error } = await supabaseAdmin
           .from("dojo_enrollments")
@@ -54,7 +51,7 @@ export const Route = createFileRoute("/api/public/hooks/generate-dojo-invoices")
           const dueDay = Math.min(e.due_day ?? runAt.getUTCDate(), daysInMonth);
           const dueDate = `${ry}-${String(rm + 1).padStart(2, "0")}-${String(dueDay).padStart(2, "0")}`;
           const monthStart = `${ry}-${String(rm + 1).padStart(2, "0")}-01`;
-          const nextMonth = new Date(Date.UTC(ry, rm + 1, 1)).toISOString().slice(0, 10);
+          const nextMonth = utcCalendarISO(new Date(Date.UTC(ry, rm + 1, 1)));
 
           const { data: existing } = await supabaseAdmin
             .from("dojo_invoices")

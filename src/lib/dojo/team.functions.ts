@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { calendarISO, dayISO, todayISO, utcCalendarISO } from "@/lib/dates";
 
 const uuid = z.string().uuid();
 
@@ -140,7 +141,7 @@ export const deleteTeamMember = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     // Archive: set status = terminated, keep history intact
     const { error } = await context.supabase.from("dojo_team_members")
-      .update({ status: "terminated", termination_date: new Date().toISOString().slice(0, 10) })
+      .update({ status: "terminated", termination_date: todayISO() })
       .eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -464,8 +465,8 @@ async function ensureExpenseForPayment(supabase: any, ownerId: string, paymentId
     reimbursement: "Reembolso", other: "Pagamento",
   };
   const description = `${kindLabel[pay.kind] ?? "Pagamento"} — ${name}${pay.description ? ` · ${pay.description}` : ""}`;
-  const paidAtDate = pay.paid_at ? new Date(pay.paid_at).toISOString().slice(0, 10) : null;
-  const due_date = paidAtDate ?? pay.due_date ?? pay.reference_month ?? new Date().toISOString().slice(0, 10);
+  const paidAtDate = pay.paid_at ? dayISO(pay.paid_at) : null;
+  const due_date = paidAtDate ?? pay.due_date ?? pay.reference_month ?? todayISO();
 
   const payload: any = {
     owner_id: ownerId,
@@ -608,8 +609,8 @@ export const computeMemberEarnings = createServerFn({ method: "POST" })
 
 function monthBounds(month: string) {
   const [y, m] = month.split("-").map(Number);
-  const start = new Date(Date.UTC(y, m - 1, 1)).toISOString().slice(0, 10);
-  const end = new Date(Date.UTC(y, m, 1)).toISOString().slice(0, 10);
+  const start = utcCalendarISO(new Date(Date.UTC(y, m - 1, 1)));
+  const end = utcCalendarISO(new Date(Date.UTC(y, m, 1)));
   return { start, end };
 }
 
@@ -775,8 +776,8 @@ export const listTeamAttendance = createServerFn({ method: "GET" })
     if (data.member_id) q = q.eq("member_id", data.member_id);
     if (data.month) {
       const [y, m] = data.month.split("-").map(Number);
-      const start = new Date(y, m - 1, 1).toISOString().slice(0, 10);
-      const end = new Date(y, m, 1).toISOString().slice(0, 10);
+      const start = calendarISO(new Date(y, m - 1, 1));
+      const end = calendarISO(new Date(y, m, 1));
       q = q.gte("work_date", start).lt("work_date", end);
     }
     const { data: rows, error } = await q.limit(500);
@@ -902,8 +903,8 @@ export const getTeamDashboard = createServerFn({ method: "GET" })
       .from("dojo_team_members").select("id, role, status, birth_date, full_name, photo_url");
 
     const now = new Date();
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
-    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1).toISOString().slice(0, 10);
+    const monthStart = calendarISO(new Date(now.getFullYear(), now.getMonth(), 1));
+    const nextMonth = calendarISO(new Date(now.getFullYear(), now.getMonth() + 1, 1));
 
     const { data: payments } = await context.supabase
       .from("dojo_team_payments").select("amount, status, kind")

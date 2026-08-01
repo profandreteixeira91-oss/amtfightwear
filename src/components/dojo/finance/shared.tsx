@@ -1,3 +1,4 @@
+import { calendarISO, todayISO } from "@/lib/dates";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -14,18 +15,10 @@ export const brl = (n: number | null | undefined) =>
 export const pct = (n: number) =>
   `${(Number.isFinite(n) ? n : 0).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%`;
 
-export const isoDate = (d = new Date()) => d.toISOString().slice(0, 10);
+export const isoDate = (d?: Date) => (d ? calendarISO(d) : todayISO());
 
 /** Formata datas (ISO "YYYY-MM-DD" ou timestamp) no padrão brasileiro DD/MM/AAAA */
-export const brDate = (v: string | Date | null | undefined) => {
-  if (!v) return "—";
-  if (v instanceof Date) return v.toLocaleDateString("pt-BR");
-  const s = String(v);
-  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if (m) return `${m[3]}/${m[2]}/${m[1]}`;
-  const d = new Date(s);
-  return Number.isNaN(d.getTime()) ? s : d.toLocaleDateString("pt-BR");
-};
+export { brDate } from "@/lib/dates";
 
 export const monthLabel = (yyyyMm: string) => {
   const [y, m] = yyyyMm.split("-").map(Number);

@@ -1,3 +1,4 @@
+import { todayISO } from "@/lib/dates";
 /**
  * Asaas HTTP Client — Camada de acesso à API Asaas para o AMT Pay.
  *
@@ -414,7 +415,7 @@ export async function asaasReceiveChargeInCash(
   return asaasFetch<AsaasCharge>(`/payments/${id}/receiveInCash`, {
     method: "POST",
     body: JSON.stringify({
-      paymentDate: new Date().toISOString().slice(0, 10),
+      paymentDate: todayISO(),
       value,
       notifyCustomer: true,
     }),

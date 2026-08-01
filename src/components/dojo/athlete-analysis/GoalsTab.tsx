@@ -24,6 +24,7 @@ import {
   listAthleteGoals, upsertAthleteGoal, setGoalStatus, updateGoalProgress,
   deleteAthleteGoal, listOwnerBeltsForGoals,
 } from "@/lib/dojo/goals.functions";
+import { todayISO } from "@/lib/dates";
 
 type GoalType = "attendance" | "graduation" | "competition" | "evaluation" | "custom";
 
@@ -283,7 +284,7 @@ function GoalDialog({ open, onOpenChange, studentId, editing, belts, onSubmit, s
     goalType: (editing?.goal_type ?? "attendance") as GoalType,
     targetValue: Number(editing?.target_value ?? 12),
     unit: editing?.unit ?? "",
-    startDate: editing?.start_date ?? new Date().toISOString().slice(0, 10),
+    startDate: editing?.start_date ?? todayISO(),
     dueDate: editing?.due_date ?? "",
     priority: editing?.priority ?? "medium",
     targetBeltId: editing?.target_belt_id ?? "",

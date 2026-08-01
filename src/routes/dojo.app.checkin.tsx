@@ -37,6 +37,7 @@ import { listDojoUnits } from "@/lib/dojo/dojo.functions";
 import { listUnitQrTokens, regenerateUnitQrToken } from "@/lib/dojo/unit-qr.functions";
 import { Camera } from "lucide-react";
 import { PhotoCheckinFlow } from "@/components/dojo/checkin/PhotoCheckinFlow";
+import { addDaysISO, dayISO, todayISO } from "@/lib/dates";
 
 export const Route = createFileRoute("/dojo/app/checkin")({
   head: () => ({ meta: [{ title: "Check-in — AMT Dojo Manager" }] }),
@@ -574,7 +575,7 @@ function RetroactiveCheckinDialog({ open, onOpenChange, unitId }: any) {
   const [q, setQ] = useState("");
   const [debounced, setDebounced] = useState("");
   const [selected, setSelected] = useState<any>(null);
-  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [date, setDate] = useState(() => todayISO());
   const [time, setTime] = useState("19:00");
   const [classId, setClassId] = useState("none");
   const [notes, setNotes] = useState("");
@@ -593,7 +594,7 @@ function RetroactiveCheckinDialog({ open, onOpenChange, unitId }: any) {
   useEffect(() => {
     if (!open) {
       setQ(""); setDebounced(""); setSelected(null); setClassId("none"); setNotes("");
-      setDate(new Date().toISOString().slice(0, 10)); setTime("19:00");
+      setDate(todayISO()); setTime("19:00");
     }
   }, [open]);
 
@@ -706,7 +707,7 @@ function RetroactiveCheckinDialog({ open, onOpenChange, unitId }: any) {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Data</Label>
-              <Input type="date" className="mt-1" value={date} max={new Date().toISOString().slice(0, 10)} onChange={(e) => setDate(e.target.value)} />
+              <Input type="date" className="mt-1" value={date} max={todayISO()} onChange={(e) => setDate(e.target.value)} />
             </div>
             <div>
               <Label>Hora</Label>
@@ -1154,9 +1155,8 @@ function PartnerPanel({ provider }: { provider: "gympass" | "totalpass" }) {
 
 /* ============================ REPORTS ============================ */
 function ReportsPanel() {
-  const today = new Date();
-  const defFrom = new Date(today.getTime() - 30 * 86400000).toISOString().slice(0, 10);
-  const defTo = today.toISOString().slice(0, 10);
+  const defTo = todayISO();
+  const defFrom = addDaysISO(defTo, -30);
   const [from, setFrom] = useState(defFrom);
   const [to, setTo] = useState(defTo);
   const [groupBy, setGroupBy] = useState<"day" | "student" | "method">("day");

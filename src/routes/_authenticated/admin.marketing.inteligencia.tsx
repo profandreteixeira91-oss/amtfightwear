@@ -22,6 +22,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { growthService } from "@/services/growthService";
 import { brl, intFmt } from "@/lib/format";
+import { dayISO } from "@/lib/dates";
 
 export const Route = createFileRoute("/_authenticated/admin/marketing/inteligencia")({
   head: () => ({
@@ -142,7 +143,7 @@ function buildDailySeries(orders: { placed_at: string; total: number }[], days: 
     map.set(d.toISOString().slice(0, 10), 0);
   }
   for (const o of orders) {
-    const key = new Date(o.placed_at).toISOString().slice(0, 10);
+    const key = dayISO(o.placed_at);
     if (map.has(key)) map.set(key, (map.get(key) ?? 0) + Number(o.total));
   }
   return Array.from(map.entries()).map(([date, value]) => ({

@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { addDaysISO, eachDayISO, todayISO, weekdayISO } from "@/lib/dates";
 
 // ================= SPACES =================
 export const listSpaces = createServerFn({ method: "GET" })
@@ -165,24 +166,23 @@ export const saveClass = createServerFn({ method: "POST" })
     // Materializa ocorrências para as próximas ~8 semanas para que a escala do
     // professor apareça imediatamente no módulo Equipe após salvar a turma.
     if (schedules.length && (rest.status ?? "active") === "active") {
-      const today = new Date();
-      const end = new Date();
-      end.setUTCDate(end.getUTCDate() + 56);
+      const startISO = todayISO();
+      const endISO = addDaysISO(startISO, 56);
       const occRows: any[] = [];
       const scheduleIdRows = await context.supabase
         .from("dojo_class_schedules")
         .select("id, weekday, start_time, end_time")
         .eq("class_id", classRow.id);
       const sList = scheduleIdRows.data ?? [];
-      for (let d = new Date(today); d <= end; d.setUTCDate(d.getUTCDate() + 1)) {
-        const wd = d.getUTCDay();
+      for (const dISO of eachDayISO(startISO, endISO)) {
+        const wd = weekdayISO(dISO);
         for (const s of sList) {
           if (Number(s.weekday) !== wd) continue;
           occRows.push({
             owner_id: context.userId,
             class_id: classRow.id,
             schedule_id: s.id,
-            occurrence_date: d.toISOString().slice(0, 10),
+            occurrence_date: dISO,
             start_time: s.start_time,
             end_time: s.end_time,
             status: "scheduled",
@@ -325,7 +325,7 @@ export const listTodayClassOccurrences = createServerFn({ method: "GET" })
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
-    const date = data.date ?? new Date().toISOString().slice(0, 10);
+    const date = data.date ?? todayISO();
     // 1) ocorrências materializadas para o dia
     const { data: occRows, error: occErr } = await context.supabase
       .from("dojo_class_occurrences")

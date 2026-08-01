@@ -1,3 +1,4 @@
+import { calendarISO, dayISO, isoToDate, todayISO } from "@/lib/dates";
 /**
  * Fase 4 — Dashboard financeiro do AMT Pay.
  *
@@ -67,7 +68,7 @@ export const dojoFinanceDashboard = createServerFn({ method: "GET" })
         "id, amount, gross_amount, net_amount, gateway_fee_amount, platform_fee_amount, status, due_date, paid_at, method, student_id",
       )
       .or(
-        `due_date.gte.${rangeStart.toISOString().slice(0, 10)},paid_at.gte.${rangeStart.toISOString()}`,
+        `due_date.gte.${calendarISO(rangeStart)},paid_at.gte.${rangeStart.toISOString()}`,
       );
 
     // -----------------------------------------------------------------
@@ -76,7 +77,7 @@ export const dojoFinanceDashboard = createServerFn({ method: "GET" })
     const expensesP = supabase
       .from("dojo_expenses")
       .select("amount, status, due_date, paid_at, category")
-      .gte("due_date", rangeStart.toISOString().slice(0, 10));
+      .gte("due_date", calendarISO(rangeStart));
 
     // -----------------------------------------------------------------
     // 4) Recorrências ativas para MRR e projeção
@@ -242,18 +243,18 @@ export const dojoFinanceDashboard = createServerFn({ method: "GET" })
     // -----------------------------------------------------------------
     const upcomingByDay = new Map<string, number>();
     for (const iv of openInvoices) {
-      const d = new Date(iv.due_date);
-      if (d < now || d > in60) continue;
-      const k = d.toISOString().slice(0, 10);
+      const k = dayISO(iv.due_date);
+      const d = isoToDate(k);
+      if (k < todayISO() || d > in60) continue;
       upcomingByDay.set(k, (upcomingByDay.get(k) ?? 0) + num(iv.amount));
     }
     for (const r of recurring) {
       if (!r.next_run_at) continue;
-      const d = new Date(`${r.next_run_at}T00:00:00`);
-      if (d < now || d > in60) continue;
+      const k = dayISO(r.next_run_at);
+      const d = isoToDate(k);
+      if (k < todayISO() || d > in60) continue;
       const amt = r.custom_amount != null ? num(r.custom_amount) : num(r.plan?.amount);
       if (!amt) continue;
-      const k = d.toISOString().slice(0, 10);
       upcomingByDay.set(k, (upcomingByDay.get(k) ?? 0) + amt);
     }
     const sumWithin = (days: number) => {

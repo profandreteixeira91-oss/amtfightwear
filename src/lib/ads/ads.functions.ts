@@ -489,7 +489,7 @@ export const getAdsDashboard = createServerFn({ method: "GET" })
     const active = (campaigns ?? []).filter((c) => c.status === "active").length;
     const paused = (campaigns ?? []).filter((c) => c.status === "paused").length;
 
-    const today = new Date().toISOString().slice(0, 10);
+    const today = todayISO();
     const monthStart = new Date();
     monthStart.setDate(1);
     const monthKey = monthStart.toISOString().slice(0, 10);
@@ -1218,6 +1218,7 @@ export const deleteABTest = createServerFn({ method: "POST" })
 // PHASE 4 — Auto-scale + Embeddings-based creative learning
 // ============================================================
 import { decideScale, embedText, type ScaleCampaign } from "./ads-scale";
+import { todayISO } from "@/lib/dates";
 
 export const listScaleHistory = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])

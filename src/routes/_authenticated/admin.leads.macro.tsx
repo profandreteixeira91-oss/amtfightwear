@@ -30,6 +30,7 @@ import { PIPELINE_STAGES } from "@/features/prospect/types";
 import {
   getMacroQueue, subscribeMacroQueue, removeFromMacroQueue, clearMacroQueue,
 } from "@/features/prospect/utils/macro-queue";
+import { todayISO } from "@/lib/dates";
 
 export const Route = createFileRoute("/_authenticated/admin/leads/macro")({
   head: () => ({
@@ -103,7 +104,7 @@ function loadPrefs(): MacroPrefs {
 function savePrefs(p: MacroPrefs) {
   try { window.localStorage.setItem(PREFS_KEY, JSON.stringify(p)); } catch { /* ignore */ }
 }
-function todayKey() { return new Date().toISOString().slice(0, 10); }
+function todayKey() { return todayISO(); }
 function loadCounter(): Counter {
   if (typeof window === "undefined") return { date: todayKey(), count: 0 };
   try {

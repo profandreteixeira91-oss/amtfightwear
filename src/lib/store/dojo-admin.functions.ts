@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { assertSaasOwner } from "@/lib/auth/is-saas-owner";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { dayISO } from "@/lib/dates";
 
 // ---------- Admin: list dojo owner accounts + subscription status ----------
 
@@ -196,7 +197,7 @@ export const adminGetDojoLandingStats = createServerFn({ method: "GET" })
     const daily = new Map<string, { pv: number; sess: Set<string> }>();
     const referrerMap = new Map<string, number>();
     for (const r of rows) {
-      const d = new Date(r.created_at).toISOString().slice(0, 10);
+      const d = dayISO(r.created_at);
       const cur = daily.get(d) ?? { pv: 0, sess: new Set<string>() };
       cur.pv += 1;
       cur.sess.add(r.session_id);
