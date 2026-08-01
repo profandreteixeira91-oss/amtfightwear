@@ -208,8 +208,19 @@ export async function syncQuoteOrder(supabase: AnyClient, quote: QuoteRow) {
 
 /** Sincroniza fila de produção + pedido + financeiro a partir do orçamento. */
 export async function syncQuoteEverywhere(supabase: AnyClient, quote: QuoteRow) {
-  await syncQuoteProductionJobs(supabase, quote);
-  await syncQuoteOrder(supabase, quote);
+  // recarrega a linha canônica: payloads parciais (ex.: só status) não podem
+  // fazer a fila de produção perder itens do orçamento
+  let full = quote;
+  const { data: fresh } = await supabase
+    .from("store_quotes")
+    .select("*")
+    .eq("id", quote.id)
+    .maybeSingle();
+  if (fresh && Array.isArray((fresh as QuoteRow).items)) full = fresh as QuoteRow;
+
+  await syncQuoteProductionJobs(supabase, full);
+  await syncQuoteOrder(supabase, full);
   const { syncQuoteFinanceEntry } = await import("./quote-finance.server");
-  await syncQuoteFinanceEntry(supabase, quote as never);
+  await syncQuoteFinanceEntry(supabase, full as never);
 }
+
