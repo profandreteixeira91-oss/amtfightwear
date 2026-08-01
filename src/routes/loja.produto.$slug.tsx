@@ -115,7 +115,24 @@ function ProductPage() {
   })();
   const [selectedVariant, setSelectedVariant] = useState<string | null>(defaultVariantId);
   const [qty, setQty] = useState(1);
-  const [activeImage, setActiveImage] = useState(0);
+
+  // Histórico local + evento de visualização (analytics de e-commerce).
+  const p = data.product;
+  useEffect(() => {
+    if (!p) return;
+    pushRecentProduct({
+      id: p.id,
+      name: p.name,
+      slug: p.slug ?? p.id,
+      image_url: p.image_url,
+      price: Number(p.price),
+    });
+    trackStoreEvent("view_item", {
+      value: Number(p.price),
+      items: [toAnalyticsItem({ id: p.id, name: p.name, price: p.price, category: data.category?.name ?? null })],
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [p?.id]);
 
   if (!data.product) {
     return (
@@ -133,28 +150,35 @@ function ProductPage() {
   const compareAt = product.compare_at_price;
   const compareAtNum = compareAt ? Number(compareAt) : null;
   const images = data.images.length > 0 ? data.images : product.image_url ? [{ url: product.image_url, alt: product.name }] : [];
-  const maxInstallments = price >= 1000 ? 10 : price >= 600 ? 5 : price >= 200 ? 3 : 1;
-  const installmentValue = (price / maxInstallments).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-  const pixPrice = (price * 0.95).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  const maxInstallments = maxInstallmentsFor(price);
+  const installmentValue = formatBRL(installmentValueFor(price));
+  const pixPrice = formatBRL(pixPriceFor(price));
 
   const handleAddToCart = () => {
+    const variantLabel = variant ? [variant.size, variant.color].filter(Boolean).join(" / ") : null;
     add({
       product_id: product.id,
       variant_id: variant?.id ?? null,
       name: product.name,
-      variant_label: variant ? [variant.size, variant.color].filter(Boolean).join(" / ") : null,
+      variant_label: variantLabel,
       slug: product.slug ?? product.id,
       image_url: product.image_url,
       unit_price: price,
       quantity: qty,
+    });
+    trackStoreEvent("add_to_cart", {
+      value: price * qty,
+      items: [toAnalyticsItem({ id: product.id, name: product.name, price, quantity: qty, variant: variantLabel })],
     });
     toast.success("Adicionado ao carrinho");
   };
 
   const handleBuyNow = () => {
     handleAddToCart();
+    trackStoreEvent("begin_checkout", { value: price * qty, source: "product_buy_now" });
     navigate({ to: "/loja/carrinho" });
   };
+
 
   return (
     <StoreShell categories={categories}>
