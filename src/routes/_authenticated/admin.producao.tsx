@@ -239,6 +239,13 @@ function ProductionQueuePage() {
     urgentes: open.filter((j) => j.urgency === "urgent").length,
     pecas: open.reduce((a, j) => a + Number(j.quantity || 0), 0),
     semResponsavel: open.filter((j) => !j.assignee).length,
+    faturadoHoje: jobs
+      .filter((j) => j.completed_at && dayISO(j.completed_at) === today)
+      .reduce(
+        (a, j) =>
+          a + Number(j.total_value ?? Number(j.unit_price ?? 0) * Number(j.quantity || 0)),
+        0,
+      ),
   };
   const stageCounts = Object.fromEntries(
     STAGES.map((s) => [s, open.filter((j) => j.stage === s).length]),
@@ -339,6 +346,15 @@ function ProductionQueuePage() {
         <Kpi label="Finalizados hoje" value={stats.finalizadosHoje} icon={CheckCircle2} />
         <Kpi label="Atrasados" value={stats.atrasados} icon={AlertTriangle} tone="danger" />
         <Kpi label="Peças pendentes" value={stats.pecas} icon={Layers} />
+        <Kpi
+          label="Faturado hoje (produção)"
+          value={stats.faturadoHoje}
+          display={stats.faturadoHoje.toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          })}
+          icon={CheckCircle2}
+        />
       </div>
 
       <div className="grid gap-3 md:grid-cols-3">
@@ -691,11 +707,13 @@ function Kpi({
   value,
   icon: Icon,
   tone,
+  display,
 }: {
   label: string;
   value: number;
   icon: typeof Clock;
   tone?: "danger";
+  display?: string;
 }) {
   return (
     <Card className="min-w-0">
@@ -709,7 +727,7 @@ function Kpi({
         </div>
         <div className="min-w-0">
           <p className="truncate text-xs text-muted-foreground">{label}</p>
-          <p className="text-xl font-bold">{value}</p>
+          <p className="text-xl font-bold">{display ?? value}</p>
         </div>
       </CardContent>
     </Card>
