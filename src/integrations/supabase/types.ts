@@ -11822,6 +11822,62 @@ export type Database = {
           },
         ]
       }
+      store_finance_entries: {
+        Row: {
+          amount: number
+          created_at: string
+          customer_name: string | null
+          description: string
+          id: string
+          job_id: string | null
+          occurred_at: string
+          quantity: number
+          reference: string | null
+          source: string
+          source_id: string | null
+          unit_price: number | null
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          customer_name?: string | null
+          description: string
+          id?: string
+          job_id?: string | null
+          occurred_at?: string
+          quantity?: number
+          reference?: string | null
+          source?: string
+          source_id?: string | null
+          unit_price?: number | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          customer_name?: string | null
+          description?: string
+          id?: string
+          job_id?: string | null
+          occurred_at?: string
+          quantity?: number
+          reference?: string | null
+          source?: string
+          source_id?: string | null
+          unit_price?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_finance_entries_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: true
+            referencedRelation: "store_production_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       store_import_jobs: {
         Row: {
           created_at: string
@@ -12251,6 +12307,8 @@ export type Database = {
           stage_started_at: string
           started_at: string | null
           status: string
+          total_value: number | null
+          unit_price: number | null
           updated_at: string
           urgency: string
           variant_label: string | null
@@ -12283,6 +12341,8 @@ export type Database = {
           stage_started_at?: string
           started_at?: string | null
           status?: string
+          total_value?: number | null
+          unit_price?: number | null
           updated_at?: string
           urgency?: string
           variant_label?: string | null
@@ -12315,6 +12375,8 @@ export type Database = {
           stage_started_at?: string
           started_at?: string | null
           status?: string
+          total_value?: number | null
+          unit_price?: number | null
           updated_at?: string
           urgency?: string
           variant_label?: string | null
