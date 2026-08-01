@@ -281,6 +281,12 @@ function CartPage() {
               </CardContent>
             </Card>
 
+            <CartUpsell subtotal={subtotalAfterDiscount} />
+            <RecentlyViewed />
+            </div>
+
+
+
             {/* ============ DIREITA — Resumo ============ */}
             <div className="space-y-5 lg:sticky lg:top-24 lg:h-fit">
               {/* Frete */}
