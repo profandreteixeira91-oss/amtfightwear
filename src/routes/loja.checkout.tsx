@@ -82,16 +82,48 @@ function CheckoutPage() {
     });
   }, [loadProfile, navigate]);
 
+  // Autosave dos dados de entrega — se o cliente sair e voltar, nada é perdido.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = window.localStorage.getItem(CHECKOUT_DRAFT_KEY);
+      if (!raw) return;
+      const draft = JSON.parse(raw) as Partial<typeof form>;
+      setForm((f) => {
+        const merged = { ...f };
+        for (const [k, v] of Object.entries(draft)) {
+          if (typeof v === "string" && v && !merged[k as keyof typeof merged]) {
+            merged[k as keyof typeof merged] = v;
+          }
+        }
+        return merged;
+      });
+    } catch { /* ignore */ }
+  }, []);
 
+  useEffect(() => {
+    if (!mounted || typeof window === "undefined") return;
+    try { window.localStorage.setItem(CHECKOUT_DRAFT_KEY, JSON.stringify(form)); } catch { /* ignore */ }
+  }, [form, mounted]);
 
+  useEffect(() => {
+    if (!mounted || items.length === 0) return;
+    trackStoreEvent("begin_checkout", {
+      value: items.reduce((a, i) => a + i.quantity * i.unit_price, 0),
+      items: items.map((i) =>
+        toAnalyticsItem({ id: i.product_id, name: i.name, price: i.unit_price, quantity: i.quantity, variant: i.variant_label }),
+      ),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mounted, items.length]);
 
-
-  const FREE_SHIPPING_THRESHOLD = 399;
   const subtotal = items.reduce((a, i) => a + i.quantity * i.unit_price, 0);
   const shippingCost = shipping?.price ?? 0;
   const freeShipping = subtotal >= FREE_SHIPPING_THRESHOLD;
   const shippingDiscount = freeShipping ? shippingCost : 0;
   const total = subtotal + shippingCost - shippingDiscount;
+  const freeShippingPct = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
+
 
   const handleZip = async (zip: string) => {
     setForm((f) => ({ ...f, zip }));
