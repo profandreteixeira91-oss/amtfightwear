@@ -379,6 +379,13 @@ export const adminGetDashboard = createServerFn({ method: "GET" })
         occurred_at: e.occurred_at,
         source: e.source,
       })),
+      orders_all: {
+        count: allRange.length,
+        value: allRange.reduce((a, b) => a + Number(b.total || 0), 0),
+        pending_count: pendingRange.length,
+        pending_value: pendingRange.reduce((a, b) => a + Number(b.total || 0), 0),
+        by_sector: sectorBreakdown,
+      },
       status_breakdown: statusBreakdown,
       payment_breakdown: paymentBreakdown,
       daily_series: dailySeries,
