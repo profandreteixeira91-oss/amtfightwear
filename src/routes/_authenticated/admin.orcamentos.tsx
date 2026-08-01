@@ -23,7 +23,7 @@ import {
   adminListQuotes, adminSaveQuote, adminDeleteQuote,
   adminGetQuoteSettings, adminSaveQuoteSettings,
 } from "@/lib/store/quotes.functions";
-import { adminListStoreProducts } from "@/lib/store/store.functions";
+import { adminListStoreProducts, adminListStoreCategories } from "@/lib/store/store.functions";
 import { buildQuotePdf } from "@/lib/store/quote-pdf";
 import { dayISO } from "@/lib/dates";
 
@@ -96,6 +96,7 @@ function QuotesPage() {
   const saveFn = useServerFn(adminSaveQuote);
   const delFn = useServerFn(adminDeleteQuote);
   const productsFn = useServerFn(adminListStoreProducts);
+  const categoriesFn = useServerFn(adminListStoreCategories);
   const getSettingsFn = useServerFn(adminGetQuoteSettings);
   const saveSettingsFn = useServerFn(adminSaveQuoteSettings);
 
@@ -107,10 +108,12 @@ function QuotesPage() {
   const [q, setQ] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [form, setForm] = useState(emptyForm());
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   const quotes = useQuery({ queryKey: ["store", "quotes"], queryFn: () => listFn() });
   const products = useQuery({ queryKey: ["store", "products-min"], queryFn: () => productsFn() });
   const settings = useQuery({ queryKey: ["store", "quote-settings"], queryFn: () => getSettingsFn() });
+  const categories = useQuery({ queryKey: ["store", "categories-min"], queryFn: () => categoriesFn() });
 
   const rows = useMemo(() => {
     const term = q.trim().toLowerCase();
@@ -438,21 +441,15 @@ function QuotesPage() {
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-neutral-500">Produtos</h3>
                 <div className="flex gap-2">
-                  <Select value="" onValueChange={addProduct}>
-                    <SelectTrigger className="h-9 w-[230px]">
-                      <SelectValue placeholder="Adicionar produto do catálogo" />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-72">
-                      {(products.data ?? []).map((p: any) => (
-                        <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Button type="button" size="sm" className="h-9" onClick={() => setPickerOpen(true)}>
+                    <Package className="mr-1 h-3.5 w-3.5" /> Adicionar do catálogo
+                  </Button>
                   <Button type="button" variant="outline" size="sm" className="h-9" onClick={addBlank}>
                     <Plus className="mr-1 h-3.5 w-3.5" /> Item livre
                   </Button>
                 </div>
               </div>
+
 
               {form.items.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-neutral-300 p-6 text-center text-sm text-neutral-500">
@@ -562,6 +559,17 @@ function QuotesPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <CatalogPicker
+        open={pickerOpen}
+        onOpenChange={setPickerOpen}
+        products={products.data ?? []}
+        categories={categories.data ?? []}
+        selectedIds={form.items.map((i) => i.product_id).filter(Boolean) as string[]}
+        onAdd={addProduct}
+      />
+
+
 
       <SettingsDialog
         open={settingsOpen}
@@ -717,6 +725,153 @@ function SettingsDialog({
           >
             Salvar
           </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/* --------------------------- Seletor de catálogo -------------------------- */
+
+const ALL_CAT = "__all__";
+
+function CatalogPicker({
+  open, onOpenChange, products, categories, selectedIds, onAdd,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  products: any[];
+  categories: any[];
+  selectedIds: string[];
+  onAdd: (id: string) => void;
+}) {
+  const [term, setTerm] = useState("");
+  const [catId, setCatId] = useState<string>(ALL_CAT);
+  const [subId, setSubId] = useState<string>(ALL_CAT);
+
+  const parents = useMemo(() => categories.filter((c) => !c.parent_id), [categories]);
+  const subs = useMemo(
+    () => categories.filter((c) => c.parent_id && (catId === ALL_CAT || c.parent_id === catId)),
+    [categories, catId],
+  );
+  const catName = (id: string | null) => categories.find((c) => c.id === id)?.name ?? "Sem categoria";
+
+  const filtered = useMemo(() => {
+    const t = term.trim().toLowerCase();
+    const subIds = new Set(categories.filter((c) => c.parent_id === catId).map((c) => c.id));
+    return products.filter((p) => {
+      if (subId !== ALL_CAT) {
+        if (p.category_id !== subId) return false;
+      } else if (catId !== ALL_CAT) {
+        if (p.category_id !== catId && !subIds.has(p.category_id)) return false;
+      }
+      if (!t) return true;
+      return [p.name, p.slug].filter(Boolean).some((v: string) => String(v).toLowerCase().includes(t));
+    });
+  }, [products, categories, term, catId, subId]);
+
+  const grouped = useMemo(() => {
+    const map = new Map<string, any[]>();
+    filtered.forEach((p) => {
+      const key = catName(p.category_id);
+      const arr = map.get(key) ?? [];
+      arr.push(p);
+      map.set(key, arr);
+    });
+    return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0], "pt-BR"));
+  }, [filtered, categories]);
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-h-[90vh] max-w-3xl overflow-hidden">
+        <DialogHeader>
+          <DialogTitle>Adicionar produtos do catálogo</DialogTitle>
+          <DialogDescription>Filtre por categoria e subcategoria, busque pelo nome e adicione os itens.</DialogDescription>
+        </DialogHeader>
+
+        <div className="grid gap-2 sm:grid-cols-3">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+            <Input className="h-9 pl-9" placeholder="Buscar produto..." value={term} onChange={(e) => setTerm(e.target.value)} />
+          </div>
+          <Select
+            value={catId}
+            onValueChange={(v) => {
+              setCatId(v);
+              setSubId(ALL_CAT);
+            }}
+          >
+            <SelectTrigger className="h-9"><SelectValue placeholder="Categoria" /></SelectTrigger>
+            <SelectContent className="max-h-72">
+              <SelectItem value={ALL_CAT}>Todas as categorias</SelectItem>
+              {parents.map((c) => (
+                <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={subId} onValueChange={setSubId} disabled={subs.length === 0}>
+            <SelectTrigger className="h-9"><SelectValue placeholder="Subcategoria" /></SelectTrigger>
+            <SelectContent className="max-h-72">
+              <SelectItem value={ALL_CAT}>Todas as subcategorias</SelectItem>
+              {subs.map((c) => (
+                <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="max-h-[52vh] space-y-4 overflow-y-auto pr-1">
+          {grouped.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-neutral-300 p-6 text-center text-sm text-neutral-500">
+              <Package className="mx-auto mb-2 h-6 w-6 text-neutral-300" />
+              Nenhum produto encontrado com esses filtros
+            </div>
+          ) : (
+            grouped.map(([group, list]) => (
+              <div key={group} className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <h4 className="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">{group}</h4>
+                  <Badge variant="outline" className="text-[10px]">{list.length}</Badge>
+                </div>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {list.map((p) => {
+                    const added = selectedIds.includes(p.id);
+                    return (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => onAdd(p.id)}
+                        className={`flex min-w-0 items-center gap-3 rounded-xl border p-2 text-left transition hover:border-red-400 hover:bg-red-50 ${
+                          added ? "border-emerald-300 bg-emerald-50" : "border-neutral-200 bg-white"
+                        }`}
+                      >
+                        {p.image_url ? (
+                          <img src={p.image_url} alt={p.name} className="h-10 w-10 shrink-0 rounded-lg object-cover" loading="lazy" />
+                        ) : (
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-neutral-100">
+                            <Package className="h-4 w-4 text-neutral-400" />
+                          </div>
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-semibold">{p.name}</p>
+                          <p className="truncate text-xs text-neutral-500">{BRL(Number(p.price ?? 0))}</p>
+                        </div>
+                        {added ? (
+                          <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+                        ) : (
+                          <Plus className="h-4 w-4 shrink-0 text-neutral-400" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        <div className="flex justify-end pt-2">
+          <Button onClick={() => onOpenChange(false)}>Concluir</Button>
         </div>
       </DialogContent>
     </Dialog>
