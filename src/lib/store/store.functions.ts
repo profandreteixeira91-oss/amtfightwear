@@ -516,6 +516,7 @@ export const createStoreOrder = createServerFn({ method: "POST" })
       notes: z.string().optional().nullable(),
       shipping_cost: z.number().min(0).optional(),
       shipping_method: z.string().optional().nullable(),
+      payment_method: z.enum(["PIX", "CREDIT_CARD", "BOLETO"]).optional(),
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -592,8 +593,13 @@ export const createStoreOrder = createServerFn({ method: "POST" })
 
     const shipping_cost = data.shipping_cost ?? 0;
     const FREE_SHIPPING_THRESHOLD = 399;
+    const PIX_DISCOUNT_RATE = 0.05;
     const shipping_discount = subtotal >= FREE_SHIPPING_THRESHOLD ? shipping_cost : 0;
-    const total = subtotal + shipping_cost - shipping_discount;
+    // Varejo: 5% de desconto à vista no PIX, aplicado sobre os produtos (não sobre o frete).
+    const pix_discount =
+      data.payment_method === "PIX" ? Math.round(subtotal * PIX_DISCOUNT_RATE * 100) / 100 : 0;
+    const total =
+      Math.round((subtotal - pix_discount + shipping_cost - shipping_discount) * 100) / 100;
 
     const { data: order, error } = await supabaseAdmin
       .from("store_orders")
@@ -607,8 +613,9 @@ export const createStoreOrder = createServerFn({ method: "POST" })
         shipping_method: data.shipping_method ?? null,
         subtotal,
         shipping_cost,
-        discount: shipping_discount,
+        discount: shipping_discount + pix_discount,
         total,
+        payment_method: data.payment_method ?? null,
         notes: data.notes,
         status: "pending_payment",
         payment_status: "pending",
