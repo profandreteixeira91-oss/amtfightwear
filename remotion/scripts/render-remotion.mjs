@@ -1,13 +1,14 @@
 import { bundle } from "@remotion/bundler";
-import { renderMedia, selectComposition, openBrowser } from "@remotion/renderer";
+import { renderMedia, renderStill, selectComposition, openBrowser } from "@remotion/renderer";
 import path from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const mode = process.argv[2] ?? "render";
 
 const bundled = await bundle({
   entryPoint: path.resolve(__dirname, "../src/index.ts"),
-  webpackOverride: (c) => c,
+  webpackOverride: (config) => config,
 });
 
 const browser = await openBrowser("chrome", {
@@ -16,21 +17,40 @@ const browser = await openBrowser("chrome", {
   chromeMode: "chrome-for-testing",
 });
 
-const composition = await selectComposition({
-  serveUrl: bundled,
-  id: "main",
-  puppeteerInstance: browser,
-});
+const targets = [
+  { id: "ad-horizontal", out: "/mnt/documents/amt-atacado-horizontal-16x9.mp4" },
+  { id: "ad-vertical", out: "/mnt/documents/amt-atacado-vertical-9x16.mp4" },
+  { id: "ad-square", out: "/mnt/documents/amt-atacado-quadrado-1x1.mp4" },
+];
 
-await renderMedia({
-  composition,
-  serveUrl: bundled,
-  codec: "h264",
-  outputLocation: "/mnt/documents/dojo-manager-brand.mp4",
-  puppeteerInstance: browser,
-  muted: true,
-  concurrency: 1,
-});
+for (const t of targets) {
+  const composition = await selectComposition({ serveUrl: bundled, id: t.id, puppeteerInstance: browser });
+  if (mode === "stills") {
+    for (const frame of [40, 150, 260, 370, 450]) {
+      await renderStill({
+        composition,
+        serveUrl: bundled,
+        output: `/tmp/browser/still-${t.id}-${frame}.png`,
+        frame,
+        puppeteerInstance: browser,
+        overwrite: true,
+      });
+    }
+    console.log("stills done", t.id);
+    if (t.id === "ad-horizontal" && process.argv[3] === "one") break;
+    continue;
+  }
+  await renderMedia({
+    composition,
+    serveUrl: bundled,
+    codec: "h264",
+    crf: 20,
+    outputLocation: t.out,
+    puppeteerInstance: browser,
+    muted: true,
+    concurrency: 2,
+  });
+  console.log("rendered", t.out);
+}
 
 await browser.close({ silent: false });
-console.log("Rendered to /mnt/documents/dojo-manager-brand.mp4");
