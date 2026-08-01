@@ -145,6 +145,65 @@ function OrderPage() {
           </div>
         </div>
 
+        {/* Finalização do pagamento */}
+        {o.payment_method === "PIX" && o.payment_status !== "paid" && o.asaas_pix_qr_code && (
+          <div className="mt-6 overflow-hidden rounded-2xl border border-primary/25 bg-card">
+            <div className="flex items-center gap-2 border-b bg-primary/5 px-5 py-4">
+              <QrCode className="h-4 w-4 shrink-0 text-primary" />
+              <h2 className="text-sm font-bold uppercase tracking-wider">Finalize o pagamento com PIX</h2>
+            </div>
+            <div className="grid gap-6 p-5 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center sm:p-6">
+              <img
+                src={o.asaas_pix_qr_code}
+                alt="QR Code PIX do pedido"
+                className="mx-auto h-52 w-52 rounded-xl border bg-background p-2"
+              />
+              <div className="min-w-0">
+                <p className="text-sm font-semibold">Escaneie o QR Code no app do seu banco</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Ou use o código Copia e Cola abaixo. O pedido é atualizado automaticamente após a confirmação.
+                </p>
+                {o.asaas_pix_copy_paste && (
+                  <>
+                    <p className="mt-4 break-all rounded-lg border bg-muted/40 p-3 font-mono text-[11px] leading-relaxed text-muted-foreground">
+                      {String(o.asaas_pix_copy_paste).slice(0, 160)}
+                      {String(o.asaas_pix_copy_paste).length > 160 ? "…" : ""}
+                    </p>
+                    <Button onClick={copyPix} className="mt-3 gap-2">
+                      {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                      {copied ? "Código copiado!" : "Copiar código PIX"}
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {o.payment_method === "BOLETO" && o.payment_status !== "paid" && o.asaas_boleto_url && (
+          <div className="mt-6 rounded-2xl border bg-card p-6">
+            <div className="flex items-center gap-2">
+              <FileText className="h-4 w-4 shrink-0 text-primary" />
+              <h2 className="text-sm font-bold uppercase tracking-wider">Boleto gerado</h2>
+            </div>
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <a
+                href={o.asaas_boleto_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground hover:opacity-90"
+              >
+                <Download className="h-4 w-4" /> Baixar boleto
+              </a>
+              {o.asaas_invoice_url && (
+                <a href={o.asaas_invoice_url} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-primary hover:underline">
+                  Ver fatura completa
+                </a>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Progresso */}
         {!isCancelled ? (
           <div className="mt-6 rounded-2xl border bg-card p-5 sm:p-6">
@@ -330,65 +389,6 @@ function OrderPage() {
           </div>
         </div>
 
-        {/* PIX */}
-        {o.payment_method === "PIX" && o.payment_status !== "paid" && o.asaas_pix_qr_code && (
-          <div className="mt-6 overflow-hidden rounded-2xl border border-primary/25 bg-card">
-            <div className="flex items-center gap-2 border-b bg-primary/5 px-5 py-4">
-              <QrCode className="h-4 w-4 shrink-0 text-primary" />
-              <h2 className="text-sm font-bold uppercase tracking-wider">Finalize o pagamento com PIX</h2>
-            </div>
-            <div className="grid gap-6 p-5 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center sm:p-6">
-              <img
-                src={o.asaas_pix_qr_code}
-                alt="QR Code PIX do pedido"
-                className="mx-auto h-52 w-52 rounded-xl border bg-background p-2"
-              />
-              <div className="min-w-0">
-                <p className="text-sm font-semibold">Escaneie o QR Code no app do seu banco</p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Ou use o código Copia e Cola abaixo. O pedido é atualizado automaticamente após a confirmação.
-                </p>
-                {o.asaas_pix_copy_paste && (
-                  <>
-                    <p className="mt-4 break-all rounded-lg border bg-muted/40 p-3 font-mono text-[11px] leading-relaxed text-muted-foreground">
-                      {String(o.asaas_pix_copy_paste).slice(0, 160)}
-                      {String(o.asaas_pix_copy_paste).length > 160 ? "…" : ""}
-                    </p>
-                    <Button onClick={copyPix} className="mt-3 gap-2">
-                      {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                      {copied ? "Código copiado!" : "Copiar código PIX"}
-                    </Button>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Boleto */}
-        {o.payment_method === "BOLETO" && o.payment_status !== "paid" && o.asaas_boleto_url && (
-          <div className="mt-6 rounded-2xl border bg-card p-6">
-            <div className="flex items-center gap-2">
-              <FileText className="h-4 w-4 shrink-0 text-primary" />
-              <h2 className="text-sm font-bold uppercase tracking-wider">Boleto gerado</h2>
-            </div>
-            <div className="mt-4 flex flex-wrap items-center gap-3">
-              <a
-                href={o.asaas_boleto_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground hover:opacity-90"
-              >
-                <Download className="h-4 w-4" /> Baixar boleto
-              </a>
-              {o.asaas_invoice_url && (
-                <a href={o.asaas_invoice_url} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-primary hover:underline">
-                  Ver fatura completa
-                </a>
-              )}
-            </div>
-          </div>
-        )}
 
         <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
           <Link
