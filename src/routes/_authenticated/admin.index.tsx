@@ -162,6 +162,12 @@ function AdminOverview() {
   // Fight Wear metrics
   const netRevenue = dashboard.data?.finance.net_revenue ?? 0;
   const paidOrders = dashboard.data?.finance.paid_orders ?? 0;
+  const ordersAll = dashboard.data?.orders_all;
+  const allOrdersCount = ordersAll?.count ?? 0;
+  const allOrdersValue = ordersAll?.value ?? 0;
+  const pendingCount = ordersAll?.pending_count ?? 0;
+  const pendingValue = ordersAll?.pending_value ?? 0;
+  const sectors = ordersAll?.by_sector ?? [];
   const customersTotal = dashboard.data?.customers.total ?? 0;
   const newCustomers = dashboard.data?.customers.new ?? 0;
   const liveActive = dashboard.data?.live.active ?? 0;
@@ -260,9 +266,9 @@ function AdminOverview() {
           <KpiCard
             tone="red"
             icon={ShoppingCart}
-            hint="Fight Wear · Receita"
-            value={loading ? "—" : brl(netRevenue)}
-            label={`${paidOrders} pedidos pagos`}
+            hint="Loja · Todos os pedidos"
+            value={loading ? "—" : brl(allOrdersValue)}
+            label={`${num(allOrdersCount)} pedidos · ${num(pendingCount)} com pagamento pendente`}
           />
           <KpiCard
             tone={todayGrowth >= 0 ? "emerald" : "neutral"}
@@ -290,7 +296,41 @@ function AdminOverview() {
             label="visitantes agora na loja"
           />
         </div>
+        {/* Pedidos por setor — inclui pagamentos pendentes */}
+        <div className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <div className="text-xs font-semibold uppercase tracking-widest text-neutral-500">
+              Pedidos por setor
+            </div>
+            <div className="text-[11px] font-medium text-amber-700">
+              {loading ? "—" : `${num(pendingCount)} pendentes · ${brl(pendingValue)}`}
+            </div>
+          </div>
+          {loading ? (
+            <div className="h-16 animate-pulse rounded-xl bg-neutral-100" />
+          ) : sectors.length === 0 ? (
+            <div className="text-sm text-neutral-500">Nenhum pedido no período.</div>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {sectors.map((s) => (
+                <div key={s.sector} className="rounded-xl border border-neutral-100 bg-neutral-50/60 p-3">
+                  <div className="text-sm font-semibold text-neutral-900">{s.sector}</div>
+                  <div className="mt-1 text-lg font-bold text-neutral-900">{brl(s.value)}</div>
+                  <div className="text-[11px] text-neutral-500">
+                    {num(s.count)} pedidos
+                    {s.pending > 0 ? (
+                      <span className="ml-1 text-amber-700">
+                        · {num(s.pending)} pendentes ({brl(s.pending_value)})
+                      </span>
+                    ) : null}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <MiniStat label="Receita paga (Loja)" value={brl(netRevenue)} hint={`${num(paidOrders)} pedidos pagos`} />
           <MiniStat label="Clientes (Loja)" value={num(customersTotal)} hint={`+${num(newCustomers)} novos`} />
           <MiniStat label="Dojos totais" value={num(dojosTotal)} hint={`${dojosActive} ativos`} />
           <MiniStat label="Alunos no ecossistema" value={num(totalStudents)} hint="somando todos os dojos" />
