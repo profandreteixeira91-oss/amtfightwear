@@ -110,7 +110,7 @@ export function Hero() {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.6 }}
-                  className="absolute inset-0 h-full w-full object-cover object-top"
+                  className="absolute top-0 left-[-26%] h-full w-[170%] max-w-none object-cover object-top md:left-0 md:w-full"
                   fetchPriority="high"
                   decoding="async"
                 />
