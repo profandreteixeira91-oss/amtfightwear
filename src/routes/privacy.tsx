@@ -19,13 +19,13 @@ export const Route = createFileRoute("/privacy")({
       { property: "og:type", content: "article" },
       {
         property: "og:url",
-        content: "https://marketing.amtfightwear.com.br/privacy",
+        content: "https://amtfightwear.com.br/privacy",
       },
     ],
     links: [
       {
         rel: "canonical",
-        href: "https://marketing.amtfightwear.com.br/privacy",
+        href: "https://amtfightwear.com.br/privacy",
       },
     ],
   }),
