@@ -183,6 +183,7 @@ export const adminSyncProductionQueue = createServerFn({ method: "POST" })
           queued_at: queuedAt,
           deadline,
           order_type: it.custom_config ? "custom" : wholesale ? "wholesale" : "retail",
+          payment_status: String(order.payment_status ?? "pending"),
           custom_config: it.custom_config ?? null,
         });
       }
