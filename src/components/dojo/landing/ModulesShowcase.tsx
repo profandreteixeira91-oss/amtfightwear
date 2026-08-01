@@ -97,15 +97,11 @@ export function ModulesShowcase() {
           <FadeIn key={m.name} delay={i * 0.03}>
             <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-black/10 bg-white transition-all hover:-translate-y-1 hover:border-[#C1121F]/25 hover:shadow-xl">
               {m.shot ? (
-                <div className="overflow-hidden bg-neutral-100">
-                  <img
-                    src={SHOT[m.shot]}
-                    alt={`Tela real do módulo ${m.name} do AMT Dojo Manager`}
-                    loading="lazy"
-                    decoding="async"
-                    className="aspect-[16/9] w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
-                  />
-                </div>
+                <ShotFrame
+                  src={SHOT[m.shot]}
+                  alt={`Tela real do módulo ${m.name} do AMT Dojo Manager`}
+                  zoom="md"
+                />
               ) : (
                 <div className="grid aspect-[16/9] w-full place-items-center bg-[#111111] px-6 text-center">
                   <span className="text-lg font-black uppercase tracking-wide text-white/85">{m.name}</span>
