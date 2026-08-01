@@ -1,5 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { assertSaasOwner } from "@/lib/auth/is-saas-owner";
 
 const GRAPH = "https://graph.facebook.com/v21.0";
 
@@ -23,7 +25,10 @@ async function graphFetch<T>(path: string): Promise<T> {
   return json;
 }
 
-export const getDirectMetaAccount = createServerFn({ method: "GET" }).handler(async () => {
+export const getDirectMetaAccount = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+  await assertSaasOwner(context);
   const account = await graphFetch<{
     id: string;
     name: string;
@@ -47,7 +52,10 @@ export const getDirectMetaAccount = createServerFn({ method: "GET" }).handler(as
   };
 });
 
-export const getDirectMetaCampaigns = createServerFn({ method: "GET" }).handler(async () => {
+export const getDirectMetaCampaigns = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+  await assertSaasOwner(context);
   const data = await graphFetch<{
     data: Array<{
       id: string;
@@ -87,8 +95,10 @@ const dateRangeSchema = z.object({
 });
 
 export const getDirectMetaInsights = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: { since: string; until: string }) => dateRangeSchema.parse(input))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertSaasOwner(context);
     const dataRes = await graphFetch<{
       data: Array<{
         campaign_id: string;
@@ -129,10 +139,12 @@ export const getDirectMetaInsights = createServerFn({ method: "GET" })
   });
 
 export const toggleDirectMetaCampaign = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: { campaignId: string; active: boolean }) =>
     z.object({ campaignId: z.string(), active: z.boolean() }).parse(input),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertSaasOwner(context);
     const token = getAccessToken();
     const status = data.active ? "ACTIVE" : "PAUSED";
 
@@ -147,6 +159,7 @@ export const toggleDirectMetaCampaign = createServerFn({ method: "POST" })
   });
 
 export const updateDirectMetaCampaignBudget = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: { campaignId: string; dailyBudget?: number; lifetimeBudget?: number }) =>
     z
       .object({
@@ -159,7 +172,8 @@ export const updateDirectMetaCampaignBudget = createServerFn({ method: "POST" })
       })
       .parse(input),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertSaasOwner(context);
     const token = getAccessToken();
     const params = new URLSearchParams({ access_token: token });
     if (data.dailyBudget !== undefined) params.set("daily_budget", String(Math.round(data.dailyBudget * 100)));
@@ -173,4 +187,58 @@ export const updateDirectMetaCampaignBudget = createServerFn({ method: "POST" })
     const json = (await res.json()) as { success?: boolean; error?: { message: string } };
     if (json.error) throw new Error(json.error.message);
     return { ok: true };
+  });
+
+/**
+ * Conclui a configuração da conta Ads Manager sem depender do OAuth do
+ * Instagram Hub: usa o token de sistema (META_ADS_ACCESS_TOKEN) para listar
+ * as contas de anúncio acessíveis e gravá-las em `ads_accounts`.
+ */
+export const syncDirectMetaAdAccounts = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertSaasOwner(context);
+
+    const configured = getAccountId();
+    let accounts: Array<{
+      id: string;
+      name?: string;
+      currency?: string;
+      timezone_name?: string;
+      account_status?: number;
+      business?: { id?: string };
+    }> = [];
+
+    try {
+      const res = await graphFetch<{ data?: typeof accounts }>(
+        `/me/adaccounts?fields=id,name,currency,timezone_name,account_status,business&limit=200`,
+      );
+      accounts = res.data ?? [];
+    } catch {
+      accounts = [];
+    }
+
+    if (!accounts.some((a) => a.id === configured)) {
+      const one = await graphFetch<(typeof accounts)[number]>(
+        `/${configured}?fields=id,name,currency,timezone_name,account_status,business`,
+      );
+      accounts.push(one);
+    }
+
+    for (const a of accounts) {
+      await context.supabase.from("ads_accounts").upsert(
+        {
+          user_id: context.userId,
+          act_id: a.id,
+          name: a.name ?? a.id,
+          currency: a.currency ?? null,
+          timezone: a.timezone_name ?? null,
+          business_id: a.business?.id ?? null,
+          status: a.account_status === 1 ? "active" : "inactive",
+        },
+        { onConflict: "user_id,act_id" },
+      );
+    }
+
+    return { synced: accounts.length, configured };
   });
