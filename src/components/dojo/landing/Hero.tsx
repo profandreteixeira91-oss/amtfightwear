@@ -133,7 +133,7 @@ export function Hero() {
             {HERO_ROTATION.map((r, idx) => (
               <span
                 key={r.key}
-                className={`rounded-full px-2.5 py-1 text-[10px] font-semibold transition-colors ${
+                className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors ${
                   idx === i ? "bg-[#C1121F] text-white" : "bg-black/5 text-[#111111]/50"
                 }`}
               >
