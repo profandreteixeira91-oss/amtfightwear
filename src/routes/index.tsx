@@ -16,6 +16,7 @@ import {
   PackageCheck,
   Star,
 } from "lucide-react";
+import { KimonoGuideCallout } from "@/components/store/KimonoGuideLink";
 import { ProductImage } from "@/components/store/ProductImage";
 import { RecentlyViewed } from "@/components/store/RecentlyViewed";
 import heroBanner from "@/assets/loja-hero-banner.jpg";
@@ -197,6 +198,11 @@ function StoreHomePage() {
           </div>
         </section>
       )}
+
+      {/* Guia do kimono — conteúdo de apoio à decisão */}
+      <section className="mx-auto max-w-7xl px-6 pt-12 sm:px-8">
+        <KimonoGuideCallout />
+      </section>
 
       {/* ============================================================
           VITRINE 1 — Lançamentos & Destaques
