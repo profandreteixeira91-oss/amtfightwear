@@ -249,8 +249,9 @@ export function WholesaleProductCard({
               className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border hover:bg-accent"
               aria-label="Aumentar quantidade"
             >
-              <Plus className="h-4 w-4" />
-            </button>
+                <Plus className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         )}
 
