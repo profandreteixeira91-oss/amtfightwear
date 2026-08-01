@@ -1,16 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useSuspenseQuery, queryOptions, useQueryClient } from "@tanstack/react-query";
+import { useSuspenseQuery, queryOptions, useQueryClient, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getShippingSettings, updateShippingSettings } from "@/lib/store/shipping.functions";
+import { adminListPackageProducts, type PackageProduct } from "@/lib/store/packages.functions";
+import { adminListStoreCategories } from "@/lib/store/store.functions";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Truck, Save } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Truck, Save, Package } from "lucide-react";
 import { PageShell } from "@/components/common/PageShell";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { ShippingCalculator } from "@/components/store/ShippingCalculator";
+
 
 export const Route = createFileRoute("/_authenticated/admin/envio")({
   loader: ({ context }) =>
