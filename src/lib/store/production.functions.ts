@@ -146,7 +146,7 @@ export const adminSyncProductionQueue = createServerFn({ method: "POST" })
 
     if (rows.length === 0) return { ok: true, inserted: 0 };
 
-    const { error } = await supabase.from("store_production_jobs").insert(rows);
+    const { error } = await supabase.from("store_production_jobs").insert(rows as never);
     if (error) throw new Error(error.message);
     return { ok: true, inserted: rows.length };
   });
@@ -174,7 +174,7 @@ export const adminUpdateProductionJob = createServerFn({ method: "POST" })
       update["started_at"] = null;
       update["completed_at"] = null;
     }
-    const { error } = await context.supabase.from("store_production_jobs").update(update).eq("id", id);
+    const { error } = await context.supabase.from("store_production_jobs").update(update as never).eq("id", id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -199,7 +199,7 @@ export const adminBulkUpdateProductionJobs = createServerFn({ method: "POST" })
     if (Object.keys(update).length === 0) return { ok: true, updated: 0 };
     const { error } = await context.supabase
       .from("store_production_jobs")
-      .update(update)
+      .update(update as never)
       .in("id", data.ids);
     if (error) throw new Error(error.message);
     return { ok: true, updated: data.ids.length };
