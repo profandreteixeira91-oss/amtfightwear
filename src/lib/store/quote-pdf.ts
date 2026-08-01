@@ -1,5 +1,5 @@
 import jsPDF from "jspdf";
-import amtLogoAsset from "@/assets/amt-fightwear-logo.png.asset.json";
+import amtLogoWhite from "@/assets/amt-fightwear-logo-white.jpg";
 
 export type QuotePdfItem = {
   name: string;
