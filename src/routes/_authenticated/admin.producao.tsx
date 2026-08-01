@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
   AlertTriangle,
@@ -155,6 +155,19 @@ function ProductionQueuePage() {
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
+  // Sincronização silenciosa ao abrir a página: nenhum pedido fica de fora da fila.
+  const autoSynced = useRef(false);
+  useEffect(() => {
+    if (autoSynced.current) return;
+    autoSynced.current = true;
+    void syncFn()
+      .then((r: { inserted: number }) => {
+        if (r?.inserted > 0) invalidate();
+      })
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const move = useMutation({
     mutationFn: (v: { id: string; stage: Stage }) => moveFn({ data: v }),
