@@ -438,21 +438,15 @@ function QuotesPage() {
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-neutral-500">Produtos</h3>
                 <div className="flex gap-2">
-                  <Select value="" onValueChange={addProduct}>
-                    <SelectTrigger className="h-9 w-[230px]">
-                      <SelectValue placeholder="Adicionar produto do catálogo" />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-72">
-                      {(products.data ?? []).map((p: any) => (
-                        <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Button type="button" size="sm" className="h-9" onClick={() => setPickerOpen(true)}>
+                    <Package className="mr-1 h-3.5 w-3.5" /> Adicionar do catálogo
+                  </Button>
                   <Button type="button" variant="outline" size="sm" className="h-9" onClick={addBlank}>
                     <Plus className="mr-1 h-3.5 w-3.5" /> Item livre
                   </Button>
                 </div>
               </div>
+
 
               {form.items.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-neutral-300 p-6 text-center text-sm text-neutral-500">
