@@ -89,14 +89,14 @@ export function Hero() {
           initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.7, delay: 0.1 }}
-          className="relative mx-auto w-full max-w-xl"
+          className="relative mx-auto min-w-0 w-full max-w-xl"
         >
           <div className="relative overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[0_40px_80px_-30px_rgba(0,0,0,0.35)]">
             <div className="flex items-center gap-1.5 border-b border-black/5 bg-neutral-50 px-3 py-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
-              <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
-              <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
-              <span className="ml-3 truncate text-[10px] font-semibold uppercase tracking-wider text-[#111111]/50">
+              <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#ff5f57]" />
+              <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#febc2e]" />
+              <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#28c840]" />
+              <span className="ml-3 min-w-0 truncate text-[11px] font-semibold uppercase tracking-wider text-[#111111]/50">
                 AMT Dojo Manager · {current.label}
               </span>
             </div>
