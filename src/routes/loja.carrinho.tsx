@@ -192,6 +192,7 @@ function CartPage() {
         ) : (
           <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
             {/* ============ ESQUERDA — Lista de produtos ============ */}
+            <div className="space-y-6">
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base font-bold">Produtos</CardTitle>
