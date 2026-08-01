@@ -337,8 +337,9 @@ export const adminRegenerateStorePixQrCodes = createServerFn({ method: "POST" })
               last_name: parts.slice(1).join(" ") || "AMT",
               identification: cpf ? { type: "CPF", number: cpf } : undefined,
             },
-          }),
-        });
+          },
+          { "X-Idempotency-Key": `${order.id}-regen-${Date.now()}` },
+        );
         const poi = payment?.point_of_interaction?.transaction_data ?? {};
         await supabaseAdmin
           .from("store_orders")
