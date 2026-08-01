@@ -85,6 +85,9 @@ export const adminBulkApplyPackageDimensions = createServerFn({ method: "POST" }
     if (data.values.length_cm !== undefined) patch.length_cm = data.values.length_cm;
     if (data.values.width_cm !== undefined) patch.width_cm = data.values.width_cm;
     if (data.values.height_cm !== undefined) patch.height_cm = data.values.height_cm;
+    if (Object.keys(patch).length === 0) return { ok: true, updated: 0 };
+
+
 
     let ids = data.ids;
     if (data.onlyEmpty) {
