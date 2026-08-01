@@ -46,7 +46,7 @@ export const Route = createFileRoute("/_authenticated/admin/pedidos")({
   component: AdminOrdersPage,
 });
 
-const STATUSES = ["pending_payment", "paid", "preparing", "shipped", "delivered", "cancelled"];
+const STATUSES = orderStatusOptions;
 
 type Order = {
   id: string;
