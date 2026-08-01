@@ -29,8 +29,12 @@ export const Route = createFileRoute("/loja/custom-shop/")({
       { property: "og:title", content: "Custom Shop AMT — Seu produto 100% customizado" },
       { property: "og:description", content: "Kimonos, rashguards e faixas personalizados sob medida." },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://amtfightwear.com.br/loja/custom-shop" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "https://amtfightwear.com.br/loja/custom-shop" }],
   }),
+
   component: CustomShopIndex,
   errorComponent: ({ error }) => <div className="p-8 text-center text-destructive">Erro: {error.message}</div>,
   notFoundComponent: () => <div className="p-8 text-center">Não encontrado</div>,

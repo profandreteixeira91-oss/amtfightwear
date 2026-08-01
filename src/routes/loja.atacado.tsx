@@ -44,8 +44,13 @@ export const Route = createFileRoute("/loja/atacado")({
       { name: "description", content: "Compre no atacado com 25% de desconto e etiqueta personalizada grátis. Mínimo 10 unidades por subcategoria." },
       { property: "og:title", content: "Atacado AMT Fight Wear" },
       { property: "og:description", content: "25% OFF em pedidos de atacado com etiqueta personalizada grátis." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://amtfightwear.com.br/loja/atacado" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "https://amtfightwear.com.br/loja/atacado" }],
   }),
+
   component: WholesalePage,
   errorComponent: ({ error }) => <div className="p-8 text-center text-destructive">Erro: {error.message}</div>,
   notFoundComponent: () => <div className="p-8 text-center">Não encontrado</div>,
