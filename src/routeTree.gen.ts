@@ -247,6 +247,7 @@ import { Route as AppStudentDocumentsIdRouteImport } from './routes/app._student
 import { Route as AppStudentCompetitionsIdRouteImport } from './routes/app._student.competitions.$id'
 import { Route as ApiPublicSalesMessagesRouteImport } from './routes/api/public/sales/messages'
 import { Route as ApiPublicSalesChatRouteImport } from './routes/api/public/sales/chat'
+import { Route as ApiPublicMetaWebhookRouteImport } from './routes/api/public/meta/webhook'
 import { Route as ApiPublicMetaCallbackRouteImport } from './routes/api/public/meta/callback'
 import { Route as ApiPublicHooksSyncAdsInsightsRouteImport } from './routes/api/public/hooks/sync-ads-insights'
 import { Route as ApiPublicHooksSendDojoRemindersRouteImport } from './routes/api/public/hooks/send-dojo-reminders'
@@ -1587,6 +1588,11 @@ const ApiPublicSalesChatRoute = ApiPublicSalesChatRouteImport.update({
   path: '/api/public/sales/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicMetaWebhookRoute = ApiPublicMetaWebhookRouteImport.update({
+  id: '/api/public/meta/webhook',
+  path: '/api/public/meta/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicMetaCallbackRoute = ApiPublicMetaCallbackRouteImport.update({
   id: '/api/public/meta/callback',
   path: '/api/public/meta/callback',
@@ -2223,6 +2229,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/send-dojo-reminders': typeof ApiPublicHooksSendDojoRemindersRoute
   '/api/public/hooks/sync-ads-insights': typeof ApiPublicHooksSyncAdsInsightsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
+  '/api/public/meta/webhook': typeof ApiPublicMetaWebhookRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
   '/api/public/sales/messages': typeof ApiPublicSalesMessagesRoute
   '/app/competitions/$id': typeof AppStudentCompetitionsIdRoute
@@ -2511,6 +2518,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/send-dojo-reminders': typeof ApiPublicHooksSendDojoRemindersRoute
   '/api/public/hooks/sync-ads-insights': typeof ApiPublicHooksSyncAdsInsightsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
+  '/api/public/meta/webhook': typeof ApiPublicMetaWebhookRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
   '/api/public/sales/messages': typeof ApiPublicSalesMessagesRoute
   '/app/competitions/$id': typeof AppStudentCompetitionsIdRoute
@@ -2817,6 +2825,7 @@ export interface FileRoutesById {
   '/api/public/hooks/send-dojo-reminders': typeof ApiPublicHooksSendDojoRemindersRoute
   '/api/public/hooks/sync-ads-insights': typeof ApiPublicHooksSyncAdsInsightsRoute
   '/api/public/meta/callback': typeof ApiPublicMetaCallbackRoute
+  '/api/public/meta/webhook': typeof ApiPublicMetaWebhookRoute
   '/api/public/sales/chat': typeof ApiPublicSalesChatRoute
   '/api/public/sales/messages': typeof ApiPublicSalesMessagesRoute
   '/app/_student/competitions/$id': typeof AppStudentCompetitionsIdRoute
@@ -3124,6 +3133,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/send-dojo-reminders'
     | '/api/public/hooks/sync-ads-insights'
     | '/api/public/meta/callback'
+    | '/api/public/meta/webhook'
     | '/api/public/sales/chat'
     | '/api/public/sales/messages'
     | '/app/competitions/$id'
@@ -3412,6 +3422,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/send-dojo-reminders'
     | '/api/public/hooks/sync-ads-insights'
     | '/api/public/meta/callback'
+    | '/api/public/meta/webhook'
     | '/api/public/sales/chat'
     | '/api/public/sales/messages'
     | '/app/competitions/$id'
@@ -3717,6 +3728,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/send-dojo-reminders'
     | '/api/public/hooks/sync-ads-insights'
     | '/api/public/meta/callback'
+    | '/api/public/meta/webhook'
     | '/api/public/sales/chat'
     | '/api/public/sales/messages'
     | '/app/_student/competitions/$id'
@@ -3840,6 +3852,7 @@ export interface RootRouteChildren {
   ApiPublicHooksSendDojoRemindersRoute: typeof ApiPublicHooksSendDojoRemindersRoute
   ApiPublicHooksSyncAdsInsightsRoute: typeof ApiPublicHooksSyncAdsInsightsRoute
   ApiPublicMetaCallbackRoute: typeof ApiPublicMetaCallbackRoute
+  ApiPublicMetaWebhookRoute: typeof ApiPublicMetaWebhookRoute
   ApiPublicSalesChatRoute: typeof ApiPublicSalesChatRoute
   ApiPublicSalesMessagesRoute: typeof ApiPublicSalesMessagesRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
@@ -5519,6 +5532,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicSalesChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/meta/webhook': {
+      id: '/api/public/meta/webhook'
+      path: '/api/public/meta/webhook'
+      fullPath: '/api/public/meta/webhook'
+      preLoaderRoute: typeof ApiPublicMetaWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/meta/callback': {
       id: '/api/public/meta/callback'
       path: '/api/public/meta/callback'
@@ -6902,6 +6922,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksSendDojoRemindersRoute: ApiPublicHooksSendDojoRemindersRoute,
   ApiPublicHooksSyncAdsInsightsRoute: ApiPublicHooksSyncAdsInsightsRoute,
   ApiPublicMetaCallbackRoute: ApiPublicMetaCallbackRoute,
+  ApiPublicMetaWebhookRoute: ApiPublicMetaWebhookRoute,
   ApiPublicSalesChatRoute: ApiPublicSalesChatRoute,
   ApiPublicSalesMessagesRoute: ApiPublicSalesMessagesRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
@@ -6916,13 +6937,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

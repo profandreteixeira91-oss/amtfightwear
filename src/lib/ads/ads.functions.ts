@@ -476,6 +476,18 @@ export const deleteCreative = createServerFn({ method: "POST" })
 export const getAdsDashboard = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    const token = process.env["META_ADS_ACCESS_TOKEN"];
+    const accountId = process.env["META_AD_ACCOUNT_ID"];
+    const useReal = Boolean(token && accountId);
+
+    if (useReal) {
+      try {
+        return await getRealMetaDashboard(token!, accountId!);
+      } catch {
+        // fallback silencioso para dados locais
+      }
+    }
+
     const [{ data: campaigns }, { data: insights }, { data: accounts }] = await Promise.all([
       context.supabase.from("ads_campaigns").select("id,status,budget_daily"),
       context.supabase
@@ -534,8 +546,127 @@ export const getAdsDashboard = createServerFn({ method: "GET" })
         cpc,
       },
       series: (insights ?? []).slice(0, 30).reverse(),
+      source: "local",
     };
   });
+
+async function graphFetch<T>(path: string, token: string): Promise<T> {
+  const res = await fetch(`${META_API}${path}${path.includes("?") ? "&" : "?"}access_token=${token}`);
+  const json = (await res.json()) as T & { error?: { message: string } };
+  if (json.error) throw new Error(json.error.message);
+  return json;
+}
+
+async function getRealMetaDashboard(token: string, rawAccountId: string) {
+  const accountId = rawAccountId.startsWith("act_") ? rawAccountId : `act_${rawAccountId}`;
+
+  const [account, campaignsData, insightsData] = await Promise.all([
+    graphFetch<{
+      id: string;
+      name: string;
+      account_status: number;
+      currency: string;
+      amount_spent?: string;
+    }>(`/${accountId}?fields=id,name,account_status,currency,amount_spent`, token),
+    graphFetch<{
+      data: Array<{
+        id: string;
+        name: string;
+        status: string;
+        effective_status: string;
+        objective: string;
+        daily_budget?: string;
+        lifetime_budget?: string;
+        budget_remaining?: string;
+      }>;
+    }>(`/${accountId}/campaigns?fields=id,name,status,effective_status,objective,daily_budget,lifetime_budget,budget_remaining&limit=200`, token),
+    (async () => {
+      const today = new Date();
+      const since = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().slice(0, 10);
+      const until = today.toISOString().slice(0, 10);
+      return graphFetch<{
+        data: Array<{
+          date_start: string;
+          spend: string;
+          impressions: string;
+          clicks: string;
+          ctr?: string;
+          cpm?: string;
+          cpc?: string;
+          actions?: Array<{ action_type: string; value: string }>;
+        }>;
+      }>(`/${accountId}/insights?fields=date_start,spend,impressions,clicks,ctr,cpm,cpc,actions&time_range={"since":"${since}","until":"${until}"}&level=account&limit=500`, token);
+    })(),
+  ]);
+
+  const campaigns = campaignsData.data ?? [];
+  const active = campaigns.filter((c) => c.effective_status === "ACTIVE").length;
+  const paused = campaigns.filter((c) => c.effective_status === "PAUSED").length;
+
+  const insights = insightsData.data ?? [];
+  const todayKey = todayISO();
+  const monthStart = new Date();
+  monthStart.setDate(1);
+  const monthKey = monthStart.toISOString().slice(0, 10);
+
+  const spendToday = insights
+    .filter((i) => i.date_start === todayKey)
+    .reduce((s, i) => s + Number(i.spend ?? 0), 0);
+  const spendMonth = insights
+    .filter((i) => i.date_start >= monthKey)
+    .reduce((s, i) => s + Number(i.spend ?? 0), 0);
+  const clicksMonth = insights
+    .filter((i) => i.date_start >= monthKey)
+    .reduce((s, i) => s + Number(i.clicks ?? 0), 0);
+  const impressionsMonth = insights
+    .filter((i) => i.date_start >= monthKey)
+    .reduce((s, i) => s + Number(i.impressions ?? 0), 0);
+  const conversionsMonth = insights
+    .filter((i) => i.date_start >= monthKey)
+    .reduce((s, i) => {
+      const actions = i.actions ?? [];
+      const purchases = Number(actions.find((a) => a.action_type === "purchase")?.value ?? 0);
+      const leads = Number(actions.find((a) => a.action_type === "lead")?.value ?? 0);
+      return s + purchases + leads;
+    }, 0);
+
+  const ctr = impressionsMonth > 0 ? (clicksMonth / impressionsMonth) * 100 : 0;
+  const cpm = impressionsMonth > 0 ? (spendMonth / impressionsMonth) * 1000 : 0;
+  const cpc = clicksMonth > 0 ? spendMonth / clicksMonth : 0;
+  const cpa = conversionsMonth > 0 ? spendMonth / conversionsMonth : 0;
+
+  const series = insights.slice(0, 30).map((i) => ({
+    date: i.date_start,
+    spend: Number(i.spend ?? 0),
+    revenue: 0,
+  }));
+
+  return {
+    accounts: [
+      {
+        id: account.id,
+        name: account.name,
+        status: account.account_status === 1 ? "active" : "inactive",
+        currency: account.currency,
+        pixel_status: null,
+      },
+    ],
+    campaigns: { total: campaigns.length, active, paused },
+    kpis: {
+      spendToday,
+      spendMonth,
+      revenueMonth: 0,
+      conversionsMonth,
+      roas: 0,
+      cpa,
+      ctr,
+      cpm,
+      cpc,
+    },
+    series: series.reverse(),
+    source: "meta",
+  };
+}
 
 // ---------- Meta ad accounts sync ----------
 
