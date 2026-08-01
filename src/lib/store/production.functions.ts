@@ -84,6 +84,14 @@ export const adminListProductionJobs = createServerFn({ method: "GET" })
     return (data ?? []).map((r) => ({
       ...(r as Record<string, unknown>),
       quantity: Number((r as { quantity?: number }).quantity ?? 0),
+      unit_price:
+        (r as { unit_price?: number | null }).unit_price != null
+          ? Number((r as { unit_price?: number }).unit_price)
+          : null,
+      total_value:
+        (r as { total_value?: number | null }).total_value != null
+          ? Number((r as { total_value?: number }).total_value)
+          : null,
     })) as ProductionJob[];
   });
 

@@ -171,6 +171,16 @@ export const adminGetDashboard = createServerFn({ method: "GET" })
       }
     }
 
+    // Receita de produção finalizada (fila de produção -> financeiro)
+    const { data: financeEntries } = await supabaseAdmin
+      .from("store_finance_entries")
+      .select("id, reference, description, customer_name, quantity, amount, occurred_at, source")
+      .gte("occurred_at", rangeStart)
+      .lte("occurred_at", rangeEnd)
+      .order("occurred_at", { ascending: false })
+      .limit(2000);
+    const productionRevenue = (financeEntries ?? []).reduce((a, b) => a + Number(b.amount || 0), 0);
+
     // Low stock
     const { data: lowStock } = await supabaseAdmin
       .from("products")
@@ -321,7 +331,19 @@ export const adminGetDashboard = createServerFn({ method: "GET" })
         discounts: discountsTotal,
         shipping: shippingTotal,
         paid_orders: paidRange.length,
+        production_revenue: productionRevenue,
+        production_entries: (financeEntries ?? []).length,
       },
+      production_finance: (financeEntries ?? []).slice(0, 20).map((e) => ({
+        id: e.id,
+        reference: e.reference,
+        description: e.description,
+        customer_name: e.customer_name,
+        quantity: Number(e.quantity || 0),
+        amount: Number(e.amount || 0),
+        occurred_at: e.occurred_at,
+        source: e.source,
+      })),
       status_breakdown: statusBreakdown,
       payment_breakdown: paymentBreakdown,
       daily_series: dailySeries,
