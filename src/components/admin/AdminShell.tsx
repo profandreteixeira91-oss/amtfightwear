@@ -27,6 +27,7 @@ import {
   FileText,
   Settings,
   Boxes,
+  Box,
   Landmark,
   ScanSearch,
   KanbanSquare,
