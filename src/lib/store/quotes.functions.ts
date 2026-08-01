@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { QUOTE_STATUSES, syncQuoteFinanceEntry } from "./quote-finance.server";
 
 const itemSchema = z.object({
   product_id: z.string().nullable().optional(),
@@ -25,7 +26,7 @@ const addressSchema = z.object({
 const quoteSchema = z.object({
   id: z.string().uuid().nullable().optional(),
   quote_number: z.string().trim().max(40).optional().default(""),
-  status: z.enum(["draft", "sent", "approved", "rejected", "expired"]).default("draft"),
+  status: z.enum(QUOTE_STATUSES).default("draft"),
   customer_name: z.string().trim().min(1, "Informe o nome do cliente").max(160),
   customer_company: z.string().trim().max(160).nullable().optional(),
   customer_document: z.string().trim().max(40).nullable().optional(),
@@ -123,6 +124,7 @@ export const adminSaveQuote = createServerFn({ method: "POST" })
         .select("*")
         .maybeSingle();
       if (error) throw new Error(error.message);
+      if (row) await syncQuoteFinanceEntry(context.supabase, row as any);
       return row;
     }
 
@@ -132,6 +134,7 @@ export const adminSaveQuote = createServerFn({ method: "POST" })
       .select("*")
       .maybeSingle();
     if (error) throw new Error(error.message);
+    if (row) await syncQuoteFinanceEntry(context.supabase, row as any);
     return row;
   });
 
@@ -139,6 +142,7 @@ export const adminDeleteQuote = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
+    await syncQuoteFinanceEntry(context.supabase, { id: data.id, status: "draft", total: 0 });
     const { error } = await context.supabase
       .from("store_quotes")
       .delete()
@@ -153,16 +157,19 @@ export const adminUpdateQuoteStatus = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) =>
     z.object({
       id: z.string().uuid(),
-      status: z.enum(["draft", "sent", "approved", "rejected", "expired"]),
+      status: z.enum(QUOTE_STATUSES),
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase
+    const { data: row, error } = await context.supabase
       .from("store_quotes")
       .update({ status: data.status })
       .eq("id", data.id)
-      .eq("owner_id", context.userId);
+      .eq("owner_id", context.userId)
+      .select("*")
+      .maybeSingle();
     if (error) throw new Error(error.message);
+    if (row) await syncQuoteFinanceEntry(context.supabase, row as any);
     return { ok: true };
   });
 
