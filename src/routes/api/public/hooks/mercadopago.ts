@@ -13,7 +13,10 @@ export const Route = createFileRoute("/api/public/hooks/mercadopago")({
     handlers: {
       POST: async ({ request }) => {
         const secret = process.env.MERCADOPAGO_WEBHOOK_SECRET;
+        const storeSecret = process.env.STORE_MERCADOPAGO_WEBHOOK_SECRET;
         const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
+        // Conta MP exclusiva da loja AMT Fight Wear.
+        const storeAccessToken = process.env.STORE_MERCADOPAGO_ACCESS_TOKEN;
 
         const url = new URL(request.url);
         const dataId = url.searchParams.get("data.id") ?? url.searchParams.get("id");
