@@ -53,7 +53,7 @@ export function KimonoGuideCallout({
             Cuide do seu kimono para durar anos
           </span>
           <span className="block text-xs leading-relaxed text-muted-foreground">
-            Lavagem, secagem e conservação da trama — veja no Guia do Kimono.
+            Lavagem, secagem e conservação do tecido — veja no Guia do Kimono.
           </span>
         </span>
         <ArrowRight className="h-4 w-4 shrink-0 text-primary transition-transform group-hover:translate-x-0.5" aria-hidden />
@@ -74,7 +74,7 @@ export function KimonoGuideCallout({
         <span className="min-w-0 flex-1">
           <span className="block text-sm font-bold text-foreground">Na dúvida do tamanho?</span>
           <span className="block text-xs leading-relaxed text-muted-foreground">
-            Tabela A0–A5, infantil e tramas explicadas no Guia do Kimono.
+            Tabela A0–A5, infantil e gramaturas explicadas no Guia do Kimono.
           </span>
         </span>
         <ArrowRight className="h-4 w-4 shrink-0 text-primary transition-transform group-hover:translate-x-0.5" aria-hidden />
@@ -98,7 +98,7 @@ export function KimonoGuideCallout({
             Guia do kimono: escolha o tamanho certo de primeira
           </h2>
           <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-            Tabela oficial A0 a A5, medidas infantis, diferença entre as tramas (pérola, trançada, gold) e
+            Tabela oficial A0 a A5, medidas infantis, diferença entre as gramaturas (g/m²) e
             cuidados para o gi não encolher.
           </p>
         </div>

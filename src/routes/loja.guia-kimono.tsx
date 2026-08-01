@@ -15,7 +15,7 @@ const CANONICAL = "https://amtfightwear.com.br/loja/guia-kimono";
 
 const TITLE = "Kimono de Jiu-Jitsu: guia de tamanhos e tecidos";
 const DESCRIPTION =
-  "Como escolher o tamanho do kimono de Jiu-Jitsu (A0 a A5) e entender as tramas: pérola, trançada, gold e favo de mel. Tabela de medidas por altura e peso.";
+  "Como escolher o tamanho do kimono de Jiu-Jitsu (A0 a A5) e entender as gramaturas (g/m²): leve, média e alta. Tabela de medidas por altura e peso.";
 
 /** Tabela de tamanhos padrão IBJJF (adulto) usada pela AMT Fight Wear. */
 const adultSizes = [
@@ -37,30 +37,27 @@ const kidsSizes = [
 
 const weaves = [
   {
-    name: "Trama pérola (pearl weave)",
-    gsm: "450 – 550 g/m²",
-    desc: "A mais equilibrada e a mais usada no Jiu-Jitsu moderno. Leve, resistente e seca rápido — ideal para treino diário e competição.",
-    best: "Treino diário e campeonatos",
-  },
-  {
-    name: "Trama trançada (single weave)",
+    name: "Gramatura leve",
     gsm: "350 – 450 g/m²",
-    desc: "Kimono mais leve e barato, ótimo para clima quente e para quem está começando. Cede um pouco mais com o tempo.",
-    best: "Iniciantes e calor",
+    desc: "Tecido de fio mais fino: veste mais fresco, pesa menos na mochila e seca rápido depois do treino. Em contrapartida, cede um pouco mais com o uso e tem vida útil menor em rotinas muito pesadas.",
+    best: "Quem está começando, clima quente e treinos com muita frequência na semana",
   },
   {
-    name: "Trama dupla / gold weave",
+    name: "Gramatura média",
+    gsm: "450 – 550 g/m²",
+    desc: "O ponto de equilíbrio entre conforto e durabilidade: resistente o suficiente para o dia a dia, sem o peso extra das versões mais densas, e ainda seca em tempo razoável. É a faixa mais usada no Jiu-Jitsu moderno.",
+    best: "Treino diário e campeonatos — a escolha segura para a maioria dos atletas",
+  },
+  {
+    name: "Gramatura alta",
     gsm: "550 – 650 g/m²",
-    desc: "Mais densa e difícil de agarrar. Aguenta anos de treino puxado, mas demora mais para secar.",
-    best: "Treino intenso e no-gi ocasional",
-  },
-  {
-    name: "Favo de mel (honeycomb)",
-    gsm: "500 – 600 g/m²",
-    desc: "Tecido com relevo em favo, resistente e com pegada mais dura para o oponente. Acabamento premium.",
-    best: "Atletas avançados",
+    desc: "Fio mais grosso e tecido mais denso: o oponente sente mais dificuldade em firmar a pegada e a peça aguenta anos de treino puxado. Pesa mais, esquenta mais e demora mais para secar.",
+    best: "Treino intenso, atletas avançados e quem busca durabilidade máxima",
   },
 ];
+
+const gsmNote =
+  "A gramatura (g/m²) indica quanto tecido existe por metro quadrado — ou seja, a densidade do kimono. Quanto mais alta, mais resistente e mais difícil de agarrar; quanto mais baixa, mais leve, mais fresco e mais rápido para secar. Não existe gramatura \"melhor\": existe a mais adequada ao seu clima, à sua frequência de treino e ao seu estilo de jogo.";
 
 const faqs = [
   {
@@ -72,8 +69,8 @@ const faqs = [
     a: "Sim, kimonos de algodão encolhem de 2% a 5% nas primeiras lavagens. Lave em água fria e seque na sombra para reduzir o encolhimento.",
   },
   {
-    q: "Qual a diferença entre trama pérola e trama trançada?",
-    a: "A trama pérola (450–550 g/m²) é mais resistente e equilibrada, ideal para treino diário e competição. A trançada é mais leve e barata, indicada para iniciantes e climas quentes.",
+    q: "Qual a diferença entre as gramaturas do kimono?",
+    a: "A gramatura mede a densidade do tecido em g/m². Entre 350 e 450 g/m² o kimono é mais leve e fresco, indicado para iniciantes e climas quentes. Entre 450 e 550 g/m² fica o melhor equilíbrio entre conforto e durabilidade, ideal para treino diário e competição. Acima de 550 g/m² o tecido é mais denso, dificulta a pegada do oponente e dura mais, porém pesa e demora mais para secar.",
   },
   {
     q: "Qual gramatura de kimono é permitida em competição?",
@@ -183,7 +180,7 @@ function GuiaKimonoPage() {
           <p className="mt-4 text-base leading-relaxed text-muted-foreground sm:text-lg">
             Escolher o kimono certo é a diferença entre um treino confortável e um gi que rasga, aperta ou fica
             grande depois da primeira lavagem. Abaixo você encontra a tabela de medidas oficial (A0 a A5 e
-            infantil), a explicação de cada trama e as respostas para as dúvidas mais comuns — direto de quem
+            infantil), a explicação das gramaturas e as respostas para as dúvidas mais comuns — direto de quem
             fabrica.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
@@ -290,10 +287,11 @@ function GuiaKimonoPage() {
           </div>
         </section>
 
-        {/* Tramas */}
+        {/* Gramaturas */}
         <section className="mb-14">
-          <SectionTitle eyebrow="Tecido" title="Tramas e gramaturas: qual escolher" />
-          <div className="grid gap-4 sm:grid-cols-2">
+          <SectionTitle eyebrow="Tecido" title="Gramaturas: como escolher a densidade certa" />
+          <p className="mb-5 max-w-3xl text-sm leading-relaxed text-muted-foreground">{gsmNote}</p>
+          <div className="grid gap-4 sm:grid-cols-3">
             {weaves.map((w) => (
               <div key={w.name} className="rounded-2xl border border-border/70 bg-card p-5">
                 <div className="flex items-baseline justify-between gap-3">
@@ -354,7 +352,7 @@ function GuiaKimonoPage() {
             Pronto para escolher o seu kimono?
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-sm text-muted-foreground sm:text-base">
-            Fabricação própria, trama pérola reforçada e bordado personalizado da sua academia. Frete para todo o
+            Fabricação própria, tecido reforçado e bordado personalizado da sua academia. Frete para todo o
             Brasil e até 10x sem juros.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
