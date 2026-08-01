@@ -37,30 +37,27 @@ const kidsSizes = [
 
 const weaves = [
   {
-    name: "Trama pérola (pearl weave)",
-    gsm: "450 – 550 g/m²",
-    desc: "A mais equilibrada e a mais usada no Jiu-Jitsu moderno. Leve, resistente e seca rápido — ideal para treino diário e competição.",
-    best: "Treino diário e campeonatos",
-  },
-  {
-    name: "Trama trançada (single weave)",
+    name: "Gramatura leve",
     gsm: "350 – 450 g/m²",
-    desc: "Kimono mais leve e barato, ótimo para clima quente e para quem está começando. Cede um pouco mais com o tempo.",
-    best: "Iniciantes e calor",
+    desc: "Tecido de fio mais fino: veste mais fresco, pesa menos na mochila e seca rápido depois do treino. Em contrapartida, cede um pouco mais com o uso e tem vida útil menor em rotinas muito pesadas.",
+    best: "Quem está começando, clima quente e treinos com muita frequência na semana",
   },
   {
-    name: "Trama dupla / gold weave",
+    name: "Gramatura média",
+    gsm: "450 – 550 g/m²",
+    desc: "O ponto de equilíbrio entre conforto e durabilidade: resistente o suficiente para o dia a dia, sem o peso extra das versões mais densas, e ainda seca em tempo razoável. É a faixa mais usada no Jiu-Jitsu moderno.",
+    best: "Treino diário e campeonatos — a escolha segura para a maioria dos atletas",
+  },
+  {
+    name: "Gramatura alta",
     gsm: "550 – 650 g/m²",
-    desc: "Mais densa e difícil de agarrar. Aguenta anos de treino puxado, mas demora mais para secar.",
-    best: "Treino intenso e no-gi ocasional",
-  },
-  {
-    name: "Favo de mel (honeycomb)",
-    gsm: "500 – 600 g/m²",
-    desc: "Tecido com relevo em favo, resistente e com pegada mais dura para o oponente. Acabamento premium.",
-    best: "Atletas avançados",
+    desc: "Fio mais grosso e tecido mais denso: o oponente sente mais dificuldade em firmar a pegada e a peça aguenta anos de treino puxado. Pesa mais, esquenta mais e demora mais para secar.",
+    best: "Treino intenso, atletas avançados e quem busca durabilidade máxima",
   },
 ];
+
+const gsmNote =
+  "A gramatura (g/m²) indica quanto tecido existe por metro quadrado — ou seja, a densidade do kimono. Quanto mais alta, mais resistente e mais difícil de agarrar; quanto mais baixa, mais leve, mais fresco e mais rápido para secar. Não existe gramatura \"melhor\": existe a mais adequada ao seu clima, à sua frequência de treino e ao seu estilo de jogo.";
 
 const faqs = [
   {
@@ -292,8 +289,9 @@ function GuiaKimonoPage() {
 
         {/* Tramas */}
         <section className="mb-14">
-          <SectionTitle eyebrow="Tecido" title="Tramas e gramaturas: qual escolher" />
-          <div className="grid gap-4 sm:grid-cols-2">
+          <SectionTitle eyebrow="Tecido" title="Gramaturas: como escolher a densidade certa" />
+          <p className="mb-5 max-w-3xl text-sm leading-relaxed text-muted-foreground">{gsmNote}</p>
+          <div className="grid gap-4 sm:grid-cols-3">
             {weaves.map((w) => (
               <div key={w.name} className="rounded-2xl border border-border/70 bg-card p-5">
                 <div className="flex items-baseline justify-between gap-3">
