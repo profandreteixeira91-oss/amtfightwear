@@ -7,6 +7,7 @@ import { useCart, formatBRL } from "@/lib/store/cart-store";
 import { ShoppingBag, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { ShippingCalculator } from "@/components/store/ShippingCalculator";
+import type { ShippingOption } from "@/lib/store/shipping.functions";
 import { ProductGallery } from "@/components/store/ProductGallery";
 import { TrustBadges } from "@/components/store/TrustBadges";
 import { FavoriteButton } from "@/components/store/FavoriteButton";
