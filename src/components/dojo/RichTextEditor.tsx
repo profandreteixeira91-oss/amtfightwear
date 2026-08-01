@@ -353,11 +353,11 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 500, 
         <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("insertUnorderedList")} title="Lista"><List className="h-4 w-4" /></button>
         <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("insertOrderedList")} title="Lista numerada"><ListOrdered className="h-4 w-4" /></button>
         <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={() => doExec("insertHorizontalRule")} title="Linha"><Minus className="h-4 w-4" /></button>
-        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={insertTable} title="Tabela"><TableIcon className="h-4 w-4" /></button>
+        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={insertTable} title="Tabela" aria-label="Tabela"><TableIcon className="h-4 w-4" /></button>
 
         <span className={tbDivider} />
 
-        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={insertLink} title="Link"><Link2 className="h-4 w-4" /></button>
+        <button type="button" className={tbBtn} onMouseDown={preventBlur} onClick={insertLink} title="Link" aria-label="Link"><Link2 className="h-4 w-4" /></button>
         <button
           type="button"
           className={tbBtn}

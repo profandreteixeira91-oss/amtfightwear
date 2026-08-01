@@ -445,7 +445,7 @@ export function CertificatePreviewDialog({
             <Button size="sm" onClick={() => openCertificatePrint([{ template, values }])}>
               <FileDown className="h-4 w-4 mr-1" /> Salvar em PDF
             </Button>
-            <Button size="icon" variant="ghost" onClick={() => onOpenChange(false)}><X className="h-4 w-4" /></Button>
+            <Button size="icon" variant="ghost" aria-label="Fechar" onClick={() => onOpenChange(false)}><X className="h-4 w-4" /></Button>
           </div>
         </DialogHeader>
         <div className="bg-muted/30 p-4 overflow-auto max-h-[75vh] flex items-center justify-center">
