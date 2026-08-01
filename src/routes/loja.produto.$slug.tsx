@@ -2,12 +2,18 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { StoreShell, ProductCard } from "@/components/store/StoreShell";
 import { getProductBySlug, listStoreCategories } from "@/lib/store/store.functions";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useCart, formatBRL } from "@/lib/store/cart-store";
 import { ShoppingBag, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { ShippingCalculator } from "@/components/store/ShippingCalculator";
-import { ProductImage } from "@/components/store/ProductImage";
+import { ProductGallery } from "@/components/store/ProductGallery";
+import { TrustBadges } from "@/components/store/TrustBadges";
+import { FavoriteButton } from "@/components/store/FavoriteButton";
+import { RecentlyViewed } from "@/components/store/RecentlyViewed";
+import { pushRecentProduct } from "@/lib/store/recent";
+import { trackStoreEvent, toAnalyticsItem } from "@/lib/store/analytics";
+import { installmentValueFor, maxInstallmentsFor, pixPriceFor } from "@/lib/store/pricing";
 
 export const Route = createFileRoute("/loja/produto/$slug")({
   loader: async ({ context, params }) => {
