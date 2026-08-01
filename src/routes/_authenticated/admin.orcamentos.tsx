@@ -560,6 +560,17 @@ function QuotesPage() {
         </DialogContent>
       </Dialog>
 
+      <CatalogPicker
+        open={pickerOpen}
+        onOpenChange={setPickerOpen}
+        products={products.data ?? []}
+        categories={categories.data ?? []}
+        selectedIds={form.items.map((i) => i.product_id).filter(Boolean) as string[]}
+        onAdd={addProduct}
+      />
+
+
+
       <SettingsDialog
         open={settingsOpen}
         onOpenChange={setSettingsOpen}
