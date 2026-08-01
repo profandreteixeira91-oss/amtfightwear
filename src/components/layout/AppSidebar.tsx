@@ -41,6 +41,7 @@ import {
   ShoppingCart,
   Download as DownloadIcon,
   Truck,
+  Box,
   Image as ImageIcon,
 } from "lucide-react";
 
