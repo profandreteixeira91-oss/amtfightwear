@@ -163,13 +163,13 @@ function OrdersPage() {
                         {new Date(o.created_at).toLocaleDateString("pt-BR")}
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${statusBadgeClass(o.status)}`}>
-                          {statusLabel[o.status] ?? o.status}
+                        <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${orderStatusBadgeClass(o.status)}`}>
+                          {orderStatusLabel[o.status] ?? o.status}
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${paymentBadgeClass(o.payment_status)}`}>
-                          {paymentLabel[o.payment_status] ?? o.payment_status}
+                        <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${paymentStatusBadgeClass(o.payment_status)}`}>
+                          {paymentStatusLabel[o.payment_status] ?? o.payment_status}
                         </span>
                       </td>
 
