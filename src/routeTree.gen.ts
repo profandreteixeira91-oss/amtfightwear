@@ -174,6 +174,7 @@ import { Route as AuthenticatedAdsAlertsRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin.usuarios'
 import { Route as AuthenticatedAdminSaasRouteImport } from './routes/_authenticated/admin.saas'
 import { Route as AuthenticatedAdminProspectRouteImport } from './routes/_authenticated/admin.prospect'
+import { Route as AuthenticatedAdminProducaoRouteImport } from './routes/_authenticated/admin.producao'
 import { Route as AuthenticatedAdminPerfilRouteImport } from './routes/_authenticated/admin.perfil'
 import { Route as AuthenticatedAdminPedidosRouteImport } from './routes/_authenticated/admin.pedidos'
 import { Route as AuthenticatedAdminOrcamentosRouteImport } from './routes/_authenticated/admin.orcamentos'
@@ -1178,6 +1179,12 @@ const AuthenticatedAdminProspectRoute =
     path: '/prospect',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminProducaoRoute =
+  AuthenticatedAdminProducaoRouteImport.update({
+    id: '/producao',
+    path: '/producao',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminPerfilRoute =
   AuthenticatedAdminPerfilRouteImport.update({
     id: '/perfil',
@@ -2014,6 +2021,7 @@ export interface FileRoutesByFullPath {
   '/admin/orcamentos': typeof AuthenticatedAdminOrcamentosRoute
   '/admin/pedidos': typeof AuthenticatedAdminPedidosRoute
   '/admin/perfil': typeof AuthenticatedAdminPerfilRoute
+  '/admin/producao': typeof AuthenticatedAdminProducaoRoute
   '/admin/prospect': typeof AuthenticatedAdminProspectRoute
   '/admin/saas': typeof AuthenticatedAdminSaasRouteWithChildren
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
@@ -2305,6 +2313,7 @@ export interface FileRoutesByTo {
   '/admin/orcamentos': typeof AuthenticatedAdminOrcamentosRoute
   '/admin/pedidos': typeof AuthenticatedAdminPedidosRoute
   '/admin/perfil': typeof AuthenticatedAdminPerfilRoute
+  '/admin/producao': typeof AuthenticatedAdminProducaoRoute
   '/admin/prospect': typeof AuthenticatedAdminProspectRoute
   '/admin/saas': typeof AuthenticatedAdminSaasRouteWithChildren
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
@@ -2598,6 +2607,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/orcamentos': typeof AuthenticatedAdminOrcamentosRoute
   '/_authenticated/admin/pedidos': typeof AuthenticatedAdminPedidosRoute
   '/_authenticated/admin/perfil': typeof AuthenticatedAdminPerfilRoute
+  '/_authenticated/admin/producao': typeof AuthenticatedAdminProducaoRoute
   '/_authenticated/admin/prospect': typeof AuthenticatedAdminProspectRoute
   '/_authenticated/admin/saas': typeof AuthenticatedAdminSaasRouteWithChildren
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
@@ -2900,6 +2910,7 @@ export interface FileRouteTypes {
     | '/admin/orcamentos'
     | '/admin/pedidos'
     | '/admin/perfil'
+    | '/admin/producao'
     | '/admin/prospect'
     | '/admin/saas'
     | '/admin/usuarios'
@@ -3191,6 +3202,7 @@ export interface FileRouteTypes {
     | '/admin/orcamentos'
     | '/admin/pedidos'
     | '/admin/perfil'
+    | '/admin/producao'
     | '/admin/prospect'
     | '/admin/saas'
     | '/admin/usuarios'
@@ -3483,6 +3495,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/orcamentos'
     | '/_authenticated/admin/pedidos'
     | '/_authenticated/admin/perfil'
+    | '/_authenticated/admin/producao'
     | '/_authenticated/admin/prospect'
     | '/_authenticated/admin/saas'
     | '/_authenticated/admin/usuarios'
@@ -4943,6 +4956,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminProspectRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/producao': {
+      id: '/_authenticated/admin/producao'
+      path: '/producao'
+      fullPath: '/admin/producao'
+      preLoaderRoute: typeof AuthenticatedAdminProducaoRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/perfil': {
       id: '/_authenticated/admin/perfil'
       path: '/perfil'
@@ -6032,6 +6052,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminOrcamentosRoute: typeof AuthenticatedAdminOrcamentosRoute
   AuthenticatedAdminPedidosRoute: typeof AuthenticatedAdminPedidosRoute
   AuthenticatedAdminPerfilRoute: typeof AuthenticatedAdminPerfilRoute
+  AuthenticatedAdminProducaoRoute: typeof AuthenticatedAdminProducaoRoute
   AuthenticatedAdminProspectRoute: typeof AuthenticatedAdminProspectRoute
   AuthenticatedAdminSaasRoute: typeof AuthenticatedAdminSaasRouteWithChildren
   AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
@@ -6074,6 +6095,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminOrcamentosRoute: AuthenticatedAdminOrcamentosRoute,
   AuthenticatedAdminPedidosRoute: AuthenticatedAdminPedidosRoute,
   AuthenticatedAdminPerfilRoute: AuthenticatedAdminPerfilRoute,
+  AuthenticatedAdminProducaoRoute: AuthenticatedAdminProducaoRoute,
   AuthenticatedAdminProspectRoute: AuthenticatedAdminProspectRoute,
   AuthenticatedAdminSaasRoute: AuthenticatedAdminSaasRouteWithChildren,
   AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,
