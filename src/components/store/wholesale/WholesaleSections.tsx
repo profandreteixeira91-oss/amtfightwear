@@ -13,6 +13,11 @@ import {
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { ProductImage } from "@/components/store/ProductImage";
+import bordadoImg from "@/assets/wholesale-quality-bordado.jpg.asset.json";
+import costuraImg from "@/assets/wholesale-quality-costura.jpg.asset.json";
+import revisaoImg from "@/assets/wholesale-quality-revisao.jpg.asset.json";
+import acabamentoImg from "@/assets/wholesale-quality-acabamento.jpg.asset.json";
+import embalagemImg from "@/assets/wholesale-quality-embalagem.jpg.asset.json";
 
 /* ---------------------------------- Descontos --------------------------------- */
 
