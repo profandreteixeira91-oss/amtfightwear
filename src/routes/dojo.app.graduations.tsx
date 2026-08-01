@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { CheckCircle2, Award, Eye, Printer, GraduationCap, Users, ScrollText, Search, ArrowRight, ArrowLeft, RotateCcw, Info, Sparkles, DollarSign, Save } from "lucide-react";
+import { todayISO } from "@/lib/dates";
 
 export const Route = createFileRoute("/dojo/app/graduations")({
   head: () => ({ meta: [{ title: "Graduações — AMT Dojo Manager" }] }),
@@ -104,7 +105,7 @@ function NewGraduationPage() {
   // Defaults ("aplicar a todos")
   const [beltId, setBeltId] = useState("");
   const [degree, setDegree] = useState(0);
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [date, setDate] = useState(todayISO());
   const [evaluator, setEvaluator] = useState("");
   const [notes, setNotes] = useState("");
 

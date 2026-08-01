@@ -1,3 +1,4 @@
+import { dayISO, weekdayISO } from "@/lib/dates";
 /**
  * Fonte única de verdade para "o que conta como presença".
  *
@@ -20,18 +21,7 @@ export function isPresentStatus(status: unknown): boolean {
  * Usar `toISOString()` (UTC) jogava treinos noturnos para o dia seguinte,
  * desalinhando heatmap, dias distintos, sequência e distribuição semanal.
  */
-export function localDayISO(value: string | Date): string {
-  const d = typeof value === "string" ? new Date(value) : value;
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone: "America/Sao_Paulo",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(d);
-}
+export const localDayISO = dayISO;
 
 /** Dia da semana (0=domingo) considerando o fuso do Brasil. */
-export function localWeekday(dayISO: string): number {
-  const [y, m, d] = dayISO.split("-").map(Number);
-  return new Date(Date.UTC(y, m - 1, d)).getUTCDay();
-}
+export const localWeekday = weekdayISO;

@@ -43,6 +43,7 @@ import { StudentContracts } from "@/components/dojo/StudentContracts";
 import { addStudentReferencePhoto, deleteStudentReferencePhoto } from "@/lib/dojo/dojo.functions";
 import { brDate } from "@/lib/format";
 import { parseAmountBR } from "@/lib/br-masks";
+import { addDaysISO, dayISO, todayISO } from "@/lib/dates";
 
 export const Route = createFileRoute("/dojo/app/students/$id")({
   head: () => ({ meta: [{ title: "Aluno — AMT Dojo Manager" }] }),
@@ -110,13 +111,13 @@ function StudentDetail() {
     staleTime: 60_000,
   });
 
-  const [grad, setGrad] = useState({ belt_id: "", degree: 0, graduation_date: new Date().toISOString().slice(0, 10), evaluator: "", notes: "" });
-  const [enroll, setEnroll] = useState({ plan_id: "", custom_amount: "", due_day: 5, start_date: new Date().toISOString().slice(0, 10), status: "active" as const });
-  const [inv, setInv] = useState({ description: "", amount: "", due_date: new Date().toISOString().slice(0, 10) });
+  const [grad, setGrad] = useState({ belt_id: "", degree: 0, graduation_date: todayISO(), evaluator: "", notes: "" });
+  const [enroll, setEnroll] = useState({ plan_id: "", custom_amount: "", due_day: 5, start_date: todayISO(), status: "active" as const });
+  const [inv, setInv] = useState({ description: "", amount: "", due_date: todayISO() });
   const [previewCert, setPreviewCert] = useState<any | null>(null);
   const [manualNote, setManualNote] = useState("");
   const [activeTab, setActiveTab] = useState("pessoal");
-  const [changePlan, setChangePlan] = useState({ open: false, plan_id: "", custom_amount: "", due_day: 5, start_date: new Date().toISOString().slice(0, 10) });
+  const [changePlan, setChangePlan] = useState({ open: false, plan_id: "", custom_amount: "", due_day: 5, start_date: todayISO() });
   const [changingPlan, setChangingPlan] = useState(false);
   const [cancelDialog, setCancelDialog] = useState<{ open: boolean; mode: "cancel" | "freeze"; frozen_until: string }>({ open: false, mode: "cancel", frozen_until: "" });
   const [cancelBusy, setCancelBusy] = useState(false);
@@ -206,7 +207,7 @@ function StudentDetail() {
       }});
       toast.success("Cobrança criada");
       refresh();
-      setInv({ description: "", amount: "", due_date: new Date().toISOString().slice(0, 10) });
+      setInv({ description: "", amount: "", due_date: todayISO() });
     } catch (e: any) { toast.error(e.message); }
   };
 
@@ -479,7 +480,7 @@ function StudentDetail() {
                       <Input
                         type="date"
                         value={cancelDialog.frozen_until}
-                        min={new Date().toISOString().slice(0, 10)}
+                        min={todayISO()}
                         onChange={(e) => setCancelDialog((d) => ({ ...d, frozen_until: e.target.value }))}
                         className="mt-1"
                       />
@@ -775,7 +776,7 @@ function StudentDetail() {
                         onClick={() => setChangePlan({
                           open: true, plan_id: "", custom_amount: "",
                           due_day: currentEnrollment.due_day ?? 5,
-                          start_date: new Date().toISOString().slice(0, 10),
+                          start_date: todayISO(),
                         })}
                       >
                         <RefreshCw className="mr-2 h-4 w-4" /> Trocar de plano
@@ -790,7 +791,7 @@ function StudentDetail() {
                     <Button
                       onClick={() => setChangePlan({
                         open: true, plan_id: "", custom_amount: "", due_day: 5,
-                        start_date: new Date().toISOString().slice(0, 10),
+                        start_date: todayISO(),
                       })}
                     >
                       <Wallet className="mr-2 h-4 w-4" /> Matricular em um plano
@@ -1738,22 +1739,16 @@ function AlertDot() {
 }
 
 function AttendanceHeatmap({ rows }: { rows: any[] }) {
-  const days = Array.from({ length: 30 }).map((_, i) => {
-    const d = new Date();
-    d.setHours(0, 0, 0, 0);
-    d.setDate(d.getDate() - (29 - i));
-    return d;
-  });
-  const set = new Set(rows.map((r) => new Date(r.checked_in_at).toISOString().slice(0, 10)));
+  const days = Array.from({ length: 30 }).map((_, i) => addDaysISO(todayISO(), -(29 - i)));
+  const set = new Set(rows.map((r) => dayISO(r.checked_in_at)));
   return (
     <div className="flex gap-0.5">
-      {days.map((d) => {
-        const key = d.toISOString().slice(0, 10);
+      {days.map((key) => {
         const present = set.has(key);
         return (
           <div
             key={key}
-            title={`${d.toLocaleDateString("pt-BR")}${present ? " — presença" : ""}`}
+            title={`${brDate(key)}${present ? " — presença" : ""}`}
             className={`h-6 flex-1 rounded-sm ${present ? "bg-primary" : "bg-muted"}`}
           />
         );

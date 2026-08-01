@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { getMyInvoices } from "@/lib/student/student.functions";
 import { Wallet, QrCode } from "lucide-react";
 import { brDate } from "@/lib/format";
+import { todayISO } from "@/lib/dates";
 
 export const Route = createFileRoute("/app/_student/finance")({
   head: () => ({ meta: [{ title: "Financeiro — Portal do Aluno" }] }),
@@ -18,9 +19,6 @@ const statusLabel: Record<string, { label: string; className: string }> = {
   canceled: { label: "Cancelado", className: "bg-neutral-100 text-neutral-600" },
 };
 
-function todayISO() {
-  return new Date().toISOString().slice(0, 10);
-}
 function derivedStatus(inv: { status: string; due_date: string }) {
   if (inv.status === "pending" && inv.due_date > todayISO()) return "upcoming";
   return inv.status;

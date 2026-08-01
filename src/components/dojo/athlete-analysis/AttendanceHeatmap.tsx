@@ -1,3 +1,4 @@
+import { calendarISO } from "@/lib/dates";
 import { useMemo } from "react";
 
 export function AttendanceHeatmap({ data, days = 365 }: { data: { date: string; count: number }[]; days?: number }) {
@@ -21,7 +22,7 @@ export function AttendanceHeatmap({ data, days = 365 }: { data: { date: string; 
       const col: { date: string; count: number; inRange: boolean }[] = [];
       for (let d = 0; d < 7; d++) {
         const dt = new Date(start.getTime() + (w * 7 + d) * 86400_000);
-        const iso = dt.toISOString().slice(0, 10);
+        const iso = calendarISO(dt);
         col.push({
           date: iso,
           count: map.get(iso) ?? 0,

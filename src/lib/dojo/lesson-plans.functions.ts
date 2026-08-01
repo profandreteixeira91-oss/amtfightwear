@@ -1,3 +1,4 @@
+import { calendarISO } from "@/lib/dates";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -280,7 +281,7 @@ export const bulkDuplicateLessonPlan = createServerFn({ method: "POST" })
         blocks: src.blocks,
         unit_id: src.unit_id,
         belt_id: src.belt_id,
-        date: d.toISOString().slice(0, 10),
+        date: calendarISO(d),
         status: "planejada",
         class_id: data.classId ?? src.class_id,
         teacher_id: data.teacherId ?? src.teacher_id,
@@ -608,7 +609,7 @@ export const lessonPlansDashboard = createServerFn({ method: "GET" })
     monday.setHours(0, 0, 0, 0);
     const sunday = new Date(monday);
     sunday.setDate(monday.getDate() + 7);
-    const fmt = (d: Date) => d.toISOString().slice(0, 10);
+    const fmt = (d: Date) => calendarISO(d);
 
     const [plannedWeek, doneWeek, plansAll, classesActive, next] = await Promise.all([
       context.supabase

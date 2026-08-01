@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Download, Filter, ArrowDownRight, ArrowUpRight } from "lucide-react";
 import { listWalletTransactions } from "@/lib/dojo/amtpay.functions";
+import { todayISO } from "@/lib/dates";
 
 const brl = (n: number) => Number(n).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
@@ -63,7 +64,7 @@ export function StatementPanel() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `extrato-amtpay-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `extrato-amtpay-${todayISO()}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   }

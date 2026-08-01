@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { checkInternalHookAuth } from "@/lib/security/hook-auth";
 import { advanceDate, type RecurringFrequency } from "@/lib/dojo/recurring.functions";
+import { addDaysISO, isoToDate, todayISO as brToday, utcCalendarISO } from "@/lib/dates";
 
 // Roda diariamente. Para toda regra recorrente ativa cujo `next_run_at` seja
 // hoje + 3 dias (ou já passou), garante uma fatura pendente para o ciclo.
@@ -15,12 +16,8 @@ export const Route = createFileRoute("/api/public/hooks/generate-dojo-invoices")
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-        const now = new Date();
-        const target = new Date(
-          Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 3),
-        );
-        const todayISO = now.toISOString().slice(0, 10);
-        const targetISO = target.toISOString().slice(0, 10);
+        const todayISO = brToday();
+        const targetISO = addDaysISO(todayISO, 3);
 
         const { data: enrolls, error } = await supabaseAdmin
           .from("dojo_enrollments")
@@ -47,14 +44,16 @@ export const Route = createFileRoute("/api/public/hooks/generate-dojo-invoices")
           // Calcula vencimento efetivo a partir de next_run_at (fallback: mês corrente + due_day).
           const runAt = e.next_run_at
             ? new Date(`${e.next_run_at}T00:00:00Z`)
-            : new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), Math.min(e.due_day ?? 5, 28)));
+            : isoToDate(
+                `${todayISO.slice(0, 7)}-${String(Math.min(e.due_day ?? 5, 28)).padStart(2, "0")}`,
+              );
           const ry = runAt.getUTCFullYear();
           const rm = runAt.getUTCMonth();
           const daysInMonth = new Date(Date.UTC(ry, rm + 1, 0)).getUTCDate();
           const dueDay = Math.min(e.due_day ?? runAt.getUTCDate(), daysInMonth);
           const dueDate = `${ry}-${String(rm + 1).padStart(2, "0")}-${String(dueDay).padStart(2, "0")}`;
           const monthStart = `${ry}-${String(rm + 1).padStart(2, "0")}-01`;
-          const nextMonth = new Date(Date.UTC(ry, rm + 1, 1)).toISOString().slice(0, 10);
+          const nextMonth = utcCalendarISO(new Date(Date.UTC(ry, rm + 1, 1)));
 
           const { data: existing } = await supabaseAdmin
             .from("dojo_invoices")

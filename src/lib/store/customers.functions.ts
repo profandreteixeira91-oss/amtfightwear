@@ -4,6 +4,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { assertSaasOwner } from "@/lib/auth/is-saas-owner";
 import type { Database } from "@/integrations/supabase/types";
+import { dayISO } from "@/lib/dates";
 
 function publicClient() {
   const key = process.env.SUPABASE_PUBLISHABLE_KEY!;
@@ -98,7 +99,7 @@ export const adminGetVisitorStats = createServerFn({ method: "GET" })
       .limit(50000);
     const daily = new Map<string, { pv: number; sess: Set<string> }>();
     for (const r of seriesRows ?? []) {
-      const d = new Date(r.created_at).toISOString().slice(0, 10);
+      const d = dayISO(r.created_at);
       const cur = daily.get(d) ?? { pv: 0, sess: new Set<string>() };
       cur.pv += 1;
       cur.sess.add(r.session_id);

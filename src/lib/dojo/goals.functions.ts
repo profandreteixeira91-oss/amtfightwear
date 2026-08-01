@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { PRESENT_STATUSES } from "@/lib/dojo/attendance-status";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { todayISO } from "@/lib/dates";
 
 /**
  * Metas & Objetivos do Atleta — Fase 2 da Análise Individual.
@@ -143,7 +144,7 @@ export const upsertAthleteGoal = createServerFn({ method: "POST" })
       goal_type: data.goalType,
       target_value: data.targetValue,
       unit: data.unit ?? null,
-      start_date: data.startDate ?? new Date().toISOString().slice(0, 10),
+      start_date: data.startDate ?? todayISO(),
       due_date: data.dueDate ?? null,
       status: data.status ?? "active",
       priority: data.priority ?? "medium",

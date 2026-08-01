@@ -1,3 +1,4 @@
+import { calendarISO } from "@/lib/dates";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -74,7 +75,7 @@ function addDays(d: Date, n: number) {
   return x;
 }
 function fmt(d: Date) {
-  return d.toISOString().slice(0, 10);
+  return calendarISO(d);
 }
 function fmtBR(d: Date) {
   return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });

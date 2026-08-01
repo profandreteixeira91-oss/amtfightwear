@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireStudentAuth } from "@/integrations/supabase/student-auth-middleware";
 import { fetchActiveStudent, getActiveStudentId } from "./_me";
+import { dayISO, eachDayISO, todayISO, weekdayISO } from "@/lib/dates";
 
 // ============ Perfil / branding ============
 
@@ -312,7 +313,7 @@ export const getMyHome = createServerFn({ method: "GET" })
           .in("status", ["pending", "overdue"])
           // Regra: só conta como PENDÊNCIA se a data de vencimento já chegou
           // (vencido) ou é HOJE. Cobranças futuras = aluno em dia.
-          .lte("due_date", new Date().toISOString().slice(0, 10))
+          .lte("due_date", todayISO())
           .order("due_date", { ascending: true })
           .limit(3),
         context.supabase
@@ -349,8 +350,8 @@ export const getMyAgenda = createServerFn({ method: "GET" })
     const classIds = Array.from(new Set((enrolls ?? []).map((e) => e.class_id)));
     if (classIds.length === 0) return [];
 
-    const from = data.from ?? new Date().toISOString().slice(0, 10);
-    const to = data.to ?? new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10);
+    const from = data.from ?? todayISO();
+    const to = data.to ?? dayISO(Date.now() + 14 * 86400000);
 
     // 1) Ocorrências materializadas (autoritativas: status, cancelamentos, remarcações)
     const { data: matOcc } = await context.supabase
@@ -371,15 +372,12 @@ export const getMyAgenda = createServerFn({ method: "GET" })
     );
 
     const derived: any[] = [];
-    const start = new Date(from + "T00:00:00");
-    const end = new Date(to + "T00:00:00");
+
     for (const cls of classes ?? []) {
       const schedules = (cls as any).schedules ?? [];
       if (schedules.length === 0) continue;
-      const cur = new Date(start);
-      while (cur <= end) {
-        const iso = cur.toISOString().slice(0, 10);
-        const weekday = cur.getDay();
+      for (const iso of eachDayISO(from, to)) {
+        const weekday = weekdayISO(iso);
         for (const s of schedules) {
           if (s.weekday !== weekday) continue;
           const key = `${cls.id}|${iso}|${s.id}`;
@@ -403,7 +401,6 @@ export const getMyAgenda = createServerFn({ method: "GET" })
             },
           });
         }
-        cur.setDate(cur.getDate() + 1);
       }
     }
 

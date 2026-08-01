@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { dayISO } from "@/lib/dates";
 
 // ---------- Search students ----------
 export const searchStudents = createServerFn({ method: "GET" })
@@ -449,7 +450,7 @@ export const attendanceReport = createServerFn({ method: "GET" })
     const buckets = new Map<string, number>();
     (rows ?? []).forEach((r: any) => {
       let key: string;
-      if (groupBy === "day") key = new Date(r.checked_in_at).toISOString().slice(0, 10);
+      if (groupBy === "day") key = dayISO(r.checked_in_at);
       else if (groupBy === "method") key = r.method || "manual";
       else key = r.dojo_students?.full_name ?? "—";
       buckets.set(key, (buckets.get(key) ?? 0) + 1);

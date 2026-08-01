@@ -13,6 +13,7 @@ import { brl, useFinanceKpis, useFinanceSettings } from "./shared";
 import { openBrandedPrintDocument, escapeHtml } from "@/lib/dojo/print-document";
 import { useDojoBranding } from "@/hooks/useDojoBranding";
 import { brDate } from "@/lib/format";
+import { todayISO } from "@/lib/dates";
 
 function printFinanceReport(k: ReturnType<typeof useFinanceKpis>, branding: any) {
   const kpiCards = [
@@ -400,7 +401,7 @@ export function FinanceReports() {
   const runReport = (id: string, format: "pdf" | "csv") => {
     const ds = buildReport(id, k);
     if (format === "csv") {
-      const fname = `${id}-${new Date().toISOString().slice(0, 10)}`;
+      const fname = `${id}-${todayISO()}`;
       exportReportCsv(ds, fname);
       toast.success("CSV exportado");
     } else {
@@ -440,7 +441,7 @@ export function FinanceReports() {
                   { indicador: "Inadimplência", valor: `${k.overdueRate.toFixed(1)}%` },
                 ],
               };
-              exportReportCsv(ds, `resumo-executivo-${new Date().toISOString().slice(0, 10)}`);
+              exportReportCsv(ds, `resumo-executivo-${todayISO()}`);
               toast.success("CSV exportado");
             }}
           >

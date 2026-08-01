@@ -1,3 +1,4 @@
+import { addDaysISO, diffDaysISO, todayISO as brToday } from "@/lib/dates";
 // Cron diário — dispara lembretes de mensalidade conforme as regras do dono.
 // Prioridade das regras (por owner):
 //   1) dojo_student_notification_prefs.extras (nova UI unificada em
@@ -121,16 +122,11 @@ export const Route = createFileRoute("/api/public/hooks/send-dojo-reminders")({
           return Response.json({ ok: true, sent: 0, skipped: 0, reason: "no_rules" });
         }
 
-        const today = new Date();
-        const todayISO = today.toISOString().slice(0, 10);
+        const todayISO = brToday();
         const minOffset = Math.min(...allOffsets);
         const maxOffset = Math.max(...allOffsets);
-        const from = new Date(today);
-        from.setUTCDate(from.getUTCDate() - maxOffset);
-        const to = new Date(today);
-        to.setUTCDate(to.getUTCDate() - minOffset);
-        const fromISO = from.toISOString().slice(0, 10);
-        const toISO = to.toISOString().slice(0, 10);
+        const fromISO = addDaysISO(todayISO, -maxOffset);
+        const toISO = addDaysISO(todayISO, -minOffset);
 
         const { data: invoices, error } = await (supabaseAdmin as any)
           .from("dojo_invoices")
@@ -155,16 +151,7 @@ export const Route = createFileRoute("/api/public/hooks/send-dojo-reminders")({
             skipped++;
             continue;
           }
-          const due = new Date(`${inv.due_date}T00:00:00Z`);
-          const diff = Math.round(
-            (Date.UTC(
-              today.getUTCFullYear(),
-              today.getUTCMonth(),
-              today.getUTCDate(),
-            ) -
-              due.getTime()) /
-              (1000 * 60 * 60 * 24),
-          );
+          const diff = diffDaysISO(String(inv.due_date).slice(0, 10), todayISO);
 
           const amtSettings =
             settingsByOwner.get(inv.owner_id) ?? DEFAULT_REMINDER_SETTINGS;

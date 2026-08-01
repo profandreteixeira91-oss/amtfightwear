@@ -5,6 +5,7 @@ import { Link } from "@tanstack/react-router";
 import { Sparkles, Clock, ShieldCheck, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { getMySubscription } from "@/lib/dojo/subscription.functions";
+import { todayISO } from "@/lib/dates";
 
 function useTrial() {
   const fn = useServerFn(getMySubscription);
@@ -28,7 +29,7 @@ function useTrialReminder(days: number | undefined) {
     if (days == null) return;
     if (days > 3 || days < 1) return;
     if (typeof window === "undefined") return;
-    const key = `dojo-trial-reminder-${new Date().toISOString().slice(0, 10)}-${days}`;
+    const key = `dojo-trial-reminder-${todayISO()}-${days}`;
     if (localStorage.getItem(key)) return;
     localStorage.setItem(key, "1");
     toast.warning(

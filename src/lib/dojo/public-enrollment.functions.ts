@@ -13,6 +13,7 @@
  */
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { todayISO } from "@/lib/dates";
 
 const slugSchema = z.string().trim().min(1).max(80).regex(/^[a-z0-9-]+$/, "slug inválido");
 
@@ -320,7 +321,7 @@ export const publicEnrollStudent = createServerFn({ method: "POST" })
             student_id: studentRow.id,
             belt_id: m.belt_id,
             degree: m.degree ?? 0,
-            graduation_date: new Date().toISOString().slice(0, 10),
+            graduation_date: todayISO(),
             notes: "Faixa informada na matrícula online",
           })) as any,
         );
@@ -331,9 +332,8 @@ export const publicEnrollStudent = createServerFn({ method: "POST" })
 
 
     // 4) Cria a matrícula
-    const today = new Date();
-    const dueDay = Math.min(28, Math.max(1, today.getDate()));
-    const startDate = today.toISOString().slice(0, 10);
+    const startDate = todayISO();
+    const dueDay = Math.min(28, Math.max(1, Number(startDate.slice(8, 10))));
 
     const { data: enrRow, error: enrErr } = await supabaseAdmin
       .from("dojo_enrollments")

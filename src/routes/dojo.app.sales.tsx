@@ -27,6 +27,7 @@ import {
 import { getMyAsaasConfig } from "@/lib/asaas/asaas.functions";
 import { isAsaasReady } from "@/lib/dojo/amt-pay-status";
 import { Link } from "@tanstack/react-router";
+import { todayISO } from "@/lib/dates";
 
 export const Route = createFileRoute("/dojo/app/sales")({
   head: () => ({ meta: [{ title: "Vendas — AMT Dojo Manager" }] }),
@@ -349,7 +350,7 @@ function NewSaleDialog({
   const [customerDoc, setCustomerDoc] = useState("");
   const [discount, setDiscount] = useState(0);
   const [method, setMethod] = useState<string>("cash");
-  const [dueDate, setDueDate] = useState<string>(new Date().toISOString().slice(0, 10));
+  const [dueDate, setDueDate] = useState<string>(todayISO());
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const [amtPayReady, setAmtPayReady] = useState<boolean | null>(null);
