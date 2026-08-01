@@ -120,9 +120,23 @@ export const adminSyncProductionQueue = createServerFn({ method: "POST" })
       .order("created_at", { ascending: true })
       .limit(1000);
     if (oErr) throw new Error(oErr.message);
-    const validOrders = (orders ?? []).filter(
-      (o) => !CANCELLED_ORDER_STATUS.includes(String(o.status ?? "").toLowerCase()),
-    );
+    const isCancelledOrder = (o: { status?: string | null; payment_status?: string | null }) =>
+      CANCELLED_ORDER_STATUS.includes(String(o.status ?? "").toLowerCase()) ||
+      CANCELLED_ORDER_STATUS.includes(String(o.payment_status ?? "").toLowerCase());
+    const validOrders = (orders ?? []).filter((o) => !isCancelledOrder(o));
+
+    // Pedidos cancelados (pelo cliente ou pelo admin) saem da fila de produção.
+    const cancelledIds = (orders ?? []).filter(isCancelledOrder).map((o) => o.id);
+    if (cancelledIds.length) {
+      const stale = (existing ?? [])
+        .filter((j) => j.source === "order" && j.source_id && cancelledIds.includes(j.source_id))
+        .map((j) => j.id);
+      if (stale.length) {
+        await supabase.from("store_production_jobs").delete().in("id", stale);
+        for (const id of stale) seen.delete(id);
+      }
+    }
+
 
     // Mantém a situação de pagamento dos jobs já existentes sincronizada.
     const payByOrder = new Map(
