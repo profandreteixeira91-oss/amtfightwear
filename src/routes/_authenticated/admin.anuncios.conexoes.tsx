@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Plug, RefreshCw, CheckCircle2, AlertCircle } from "lucide-react";
 import { listAdsAccounts, syncMetaAdAccounts } from "@/lib/ads/ads.functions";
 import { getMetaConnection } from "@/lib/meta.functions";
+import { getDirectMetaAccount, syncDirectMetaAdAccounts } from "@/lib/ads/meta-ads-direct.functions";
 import { toast } from "sonner";
 import { Link } from "@tanstack/react-router";
 
@@ -23,6 +24,8 @@ function ConnectionsPage() {
   const list = useServerFn(listAdsAccounts);
   const sync = useServerFn(syncMetaAdAccounts);
   const getConn = useServerFn(getMetaConnection);
+  const getDirect = useServerFn(getDirectMetaAccount);
+  const syncDirect = useServerFn(syncDirectMetaAdAccounts);
 
   const { data: accounts, isLoading } = useQuery({
     queryKey: ["ads", "accounts"],
@@ -31,6 +34,21 @@ function ConnectionsPage() {
   const { data: meta } = useQuery({
     queryKey: ["ads", "meta-conn"],
     queryFn: () => getConn(),
+  });
+
+  const { data: direct, isLoading: loadingDirect, error: directError } = useQuery({
+    queryKey: ["ads", "direct-account"],
+    queryFn: () => getDirect(),
+    retry: false,
+  });
+
+  const syncDirectMut = useMutation({
+    mutationFn: () => syncDirect(),
+    onSuccess: (r) => {
+      toast.success(`${r.synced} conta(s) de anúncio sincronizada(s)`);
+      qc.invalidateQueries({ queryKey: ["ads", "accounts"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const syncMut = useMutation({
@@ -49,12 +67,59 @@ function ConnectionsPage() {
         title="Conexão Meta Ads"
         description="Contas de anúncio, pixels e permissões para publicar campanhas automaticamente."
         actions={
-          <Button onClick={() => syncMut.mutate()} disabled={syncMut.isPending || !meta}>
-            <RefreshCw className={`mr-2 h-4 w-4 ${syncMut.isPending ? "animate-spin" : ""}`} />
+          <Button
+            onClick={() => (direct ? syncDirectMut.mutate() : syncMut.mutate())}
+            disabled={syncDirectMut.isPending || syncMut.isPending || (!meta && !direct)}
+          >
+            <RefreshCw
+              className={`mr-2 h-4 w-4 ${syncDirectMut.isPending || syncMut.isPending ? "animate-spin" : ""}`}
+            />
             Sincronizar contas
           </Button>
         }
       />
+
+      <SectionCard
+        title="Ads Manager (token de sistema)"
+        description="Conexão direta com a Graph API usando as credenciais configuradas no servidor."
+      >
+        {loadingDirect ? (
+          <Skeleton className="h-20" />
+        ) : direct ? (
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 text-sm">
+            <div>
+              <div className="text-xs text-muted-foreground">Conta</div>
+              <div className="font-semibold">{direct.name}</div>
+              <div className="text-xs text-muted-foreground">{direct.id}</div>
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground">Status</div>
+              <Badge className="gap-1 mt-1" variant={direct.status === "active" ? "default" : "outline"}>
+                <CheckCircle2 className="h-3 w-3" />
+                {direct.status === "active" ? "Ativa" : "Inativa"}
+              </Badge>
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground">Investido</div>
+              <div className="font-semibold">
+                {direct.spent.toLocaleString("pt-BR", { style: "currency", currency: direct.currency || "BRL" })}
+              </div>
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground">Fuso / Moeda</div>
+              <div className="font-semibold">{direct.timezone} · {direct.currency}</div>
+            </div>
+          </div>
+        ) : (
+          <EmptyState
+            icon={AlertCircle}
+            title="Token de sistema indisponível"
+            description={(directError as Error | null)?.message ?? "Configure as credenciais da Meta Ads API no servidor."}
+          />
+        )}
+      </SectionCard>
+
+      <div className="mt-4" />
 
       <SectionCard title="Conexão Meta principal">
         {!meta ? (
